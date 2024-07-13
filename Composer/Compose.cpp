@@ -1,0 +1,295 @@
+
+#include "Interpreter.h"
+
+
+Logfacility_class 		Log("Composer");
+Variation_class 		Variation;
+GUI_interface_class 	GUI;
+Interpreter_class 		Compiler(&GUI );
+vector<int>				pos_stack {};
+String 					Str{""};
+vector<line_struct_t> 	Program;
+
+
+#define INFO Log.INFO
+#define ERROR Log.ERROR
+#define  WARN Log.WARN
+
+
+
+
+void exit_proc( int signal )
+{
+	if ( signal > 0 )
+		cout.flush() << "\nEntering exit proc on assembler error " + to_string(signal) << endl;
+	else
+		cout.flush() << "\nEntering exit proc" << endl;
+	GUI.announce( "Composer", false );
+	GUI.addr->Synthesizer = EXITSERVER;
+	GUI.addr->AudioServer = STOPSNDSRV;
+
+	exit(signal);
+}
+
+int return_pos( int pos )
+{
+	if ( pos_stack.size() == 0 )
+	{
+		cout << dec << pos+1 << ": return without goto" << endl;
+		raise( SIGINT  );
+	}
+//	cout << "pop pos  " << dec << pos << endl;
+	pos = pos_stack.back( );// access the last element
+	pos_stack.pop_back();	// delete the last element
+	return pos;
+}
+
+int call_pos( int pos, vector_str_t arr )
+{
+//	cout << "push pos  " << dec << pos << endl;
+	pos_stack.push_back( pos );
+	pos = Compiler.find_position( &Program, arr );
+	return pos;
+}
+
+bool check_input( string keyword )
+{
+	for ( string word : Keywords )
+	{
+		if ( word.compare(keyword) == 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+vector_str_t convert_to_arr( string str )
+{
+	String Str{""};
+	Str.Str = str ;
+	vector_str_t arr = Str.to_unique_array( ' ' );
+	return arr;
+}
+
+bool interpreter( )
+{
+	string 		cmd{};
+	string 		line{};
+	string		name{};
+	vector_str_t arr	= {};
+
+	uint 			pos 			= 0;
+	uint 			line_no 		= 0;
+	uint 			nr_of_filelines = Program.size();
+
+	while ( ( pos >= 0 ) and (pos < nr_of_filelines ) )
+	{
+		line 			= Program[ pos ].line;
+		line_no 		= Program[ pos ].no;
+		name 			= Program[ pos ].name;
+		cout << dec << setw(4) << line_no << ":" << left << setw(16) << name ;
+		cout << setw( 60) <<left << line <<endl;
+		if ( name.compare("stdin") == 0 )
+			Compiler.set_dialog_mode( true );
+		else
+			Compiler.set_dialog_mode( false );
+
+		Str.Str			= line;
+		arr		 		= Str.to_bracket_array( '\"' );
+
+		String Keyword 	= ( arr.size() > 0 ) ? arr[0] : "";
+		Keyword.to_lower();
+		string keyword 	= Keyword.Str;
+		arr 			= Compiler.insvariable( arr );
+
+		if ( check_input( keyword ) )
+		{
+			if ( keyword.compare("return") 		== 0 )	pos = return_pos ( pos );
+			if ( keyword.compare("call") 		== 0 )	pos = call_pos( pos, arr );
+			Compiler.set_prgline( pos );
+			if ( keyword.compare("start") 		== 0 )	Compiler.start_bin( arr );
+			if ( keyword.compare("stop") 		== 0 )	Compiler.stop_bin( arr );
+			if ( keyword.compare("instrument") 	== 0 ) 	Compiler.instrument( arr );
+			if ( keyword.compare("notes") 		== 0 )	Compiler.notes( arr );
+			if ( keyword.compare("osc") 		== 0 )	Compiler.Osc( arr );
+			if ( keyword.compare("play") 		== 0 )	Compiler.play( arr );
+			if ( keyword.compare("adsr") 		== 0 )	Compiler.adsr( arr );
+			if ( keyword.compare("rec") 		== 0 )	Compiler.rec( arr );
+			if ( keyword.compare("record") 		== 0 )	Compiler.record( arr );
+			if ( keyword.compare("pause") 		== 0 )	Compiler.pause( arr );
+			if ( keyword.compare("add") 		== 0 )	Compiler.add( arr );
+			if ( keyword.compare("random") 		== 0 )	Compiler.random( arr );
+			if ( keyword.compare("set") 		== 0 )	Compiler.set( arr );
+			if ( keyword.compare("text")		== 0 )	Compiler.text( arr );
+			if ( keyword.compare("exit") 		== 0 )	{ Compiler.exit_interpreter(); return true; }
+			if ( ( Compiler.error > 0 ) and ( not Compiler.dialog_mode ))
+				exit_proc( Compiler.error );
+		}
+		else
+		{
+			if ( Compiler.error > 0 )
+				return false ;
+			if ( keyword[0] == ':' ) // is a function
+			{
+				;
+			}
+			else
+			{
+				Compiler.addvariable( arr );
+			}
+			if ( Compiler.error > 0 )
+			{
+				Compiler.Wrong_keyword( Keywords, keyword );
+				return false;
+			}
+		}
+		pos++;
+	} ;
+
+	return true;
+
+}
+
+bool preprocessor( string batch_file )
+{
+	fstream 		File;
+	string			line;
+
+	auto std_arr = [ & ]( string line )
+	{
+		Str.Str = line;
+		Str.replace_comment();
+		Str.replace_char('\t' , ' ');
+		return Str.to_unique_array( ' ' );
+	};
+
+	File.open( batch_file, fstream::in );
+	if ( not File.is_open())
+	{
+		Log.Comment(ERROR, "Input file: " + batch_file + " does not exist" );
+		raise (SIGINT );
+	}
+	else
+	{
+		Log.Comment( INFO, "Processing input file: \n" + batch_file  );
+	}
+
+	filesystem::path path{batch_file};
+	vector_str_t arr	= {};
+
+	uint lineno = 1;
+	getline( File, line);
+	do
+	{
+		arr = std_arr(line);
+		String keyword = ( arr.size() > 0 ) ? arr[0] : "";;
+		keyword.to_lower();
+		if ( keyword.Str.compare( "include" ) == 0 )
+		{
+			string filename = ( arr.size() > 1) ? arr[1] : "";
+			if ( filename.length() > 0 )
+			{
+				preprocessor( dir_struct().includedir + filename + ".inc" );
+			}
+			else
+			{
+				Log.Comment( ERROR, "empty include clause" );
+			}
+		}
+		else
+		{
+			if ( keyword.Str.length() != 0 )
+			{
+				line_struct_t prgline = {	.no=lineno,
+											.name=path.stem(),
+											.line=Str.Str,
+											.keyw = keyword.Str };
+
+				Program.push_back( prgline );
+			}
+		}
+		lineno++;
+	}
+	while( getline( File, line ));
+
+	return true;
+}
+
+void composer_dialog()
+{
+
+	string line{};
+	Compiler.set_dialog_mode( true );
+	while ( line.compare("exit") != 0)
+	{
+		Program.clear();
+		Compiler.clear_stack();
+		getline( cin, line );
+		Program.push_back( { 1,"stdin", line });
+		if ( interpreter( ) )
+		{
+			Compiler.execute(  );
+		}
+		cout << "echo: " << line << endl;
+	}
+
+}
+
+void maintest()
+{
+
+	Variation.test();
+
+	Note_class testnote;
+	testnote.test();
+
+	Charset_class A("abdefabdef");
+	A.test();
+
+	String teststring{""};
+	teststring.test();
+
+	Log.test();
+
+	Compiler.test( );
+
+	string s = "";
+	cout << type_of( s ) << endl;
+
+}
+
+int main( int argc, char* argv[] )
+{
+
+	signal(SIGINT , &exit_proc);
+	signal(SIGABRT, &exit_proc);
+
+	prgarg_struct_t params = parse_argv( argc, argv );
+	show_prgarg_struct( params );
+
+	if ( params.test == 'y' )
+	{
+		maintest();
+		exit_proc(0);
+	}
+	GUI.announce("Composer", true);
+	Log.Set_Loglevel(ERROR , true);
+
+	if ( preprocessor( file_structure().main_file ) )
+	{
+		if ( interpreter( ) )
+		{
+			Compiler.execute(  );
+		}
+	}
+	GUI.announce( "Composer", false );
+
+	if ( params.dialog == 'y' )
+	{
+		composer_dialog();
+		exit_proc( 0 );
+	}
+	exit_proc( 0 );
+	return 0;
+}

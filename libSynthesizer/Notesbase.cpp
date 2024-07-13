@@ -1,0 +1,103 @@
+/*
+ * Notenase.cpp
+ *
+ *  Created on: Jul 3, 2024
+ *      Author: sirius
+ */
+
+#include <Notesbase.h>
+
+void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
+{
+	stringstream strs{ "\n" };
+	string nlp_str = convention_names[nlp.convention ];
+	strs << "Note prefix:" << endl;
+	strs << setw(20) << left << "Octave: " 		<< nlp.Octave << endl;
+	strs << setw(20) << left << "Convention: " 		<< nlp.convention << ":" << nlp_str << endl;
+	strs << setw(20) << left << "Notes per sec: " 	<< nlp.nps << endl;
+	strs << setw(20) << left << "Flats: " 			<< nlp.flat << endl;
+	strs << setw(20) << left << "Sharps: " 			<< nlp.sharp << endl;
+	Comment( INFO, strs.str() );
+}
+
+string Note_base::noteline_prefix_to_string( noteline_prefix_t nlp )
+{
+	stringstream strs{""};
+	strs << nlp.Octave <<","<< nlp.convention<<"," << nlp.nps << ","  << nlp.flat<<"," << nlp.sharp ;
+	return strs.str();
+}
+
+Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
+{
+	auto check_nps = [ this ]( int i )
+		{
+		for( int n : Notes_per_Sec )
+			if ( n==i) return true;
+		return false;
+		};
+
+	String S = str;
+	noteline_prefix_t nlp;
+	vector_str_t arr = S.to_unique_array(',');
+	show_vector( arr );
+	if ( arr.size() < 5 )
+	{
+		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		raise( SIGINT );
+	}
+
+	nlp.Octave = S.secure_stoi( arr[0] );
+	if ( ( nlp.Octave < min_octave ) or ( nlp.Octave > max_octave ) )
+	{
+		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		raise( SIGINT );
+	}
+
+	nlp.convention = S.secure_stoi(arr[1]);
+	if ( ( nlp.convention < 0 ) or ( nlp.convention >= convention_names.size() ))
+	{
+		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		raise( SIGINT );
+	}
+
+	nlp.nps = S.secure_stoi( arr[2]);
+	if ( not check_nps( nlp.nps) )
+	{
+		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		raise( SIGINT );
+	}
+
+	nlp.flat = S.secure_stoi(arr[3]);
+	if ( ( nlp.flat < 0 ) or ( nlp.flat > 7 ))
+	{
+		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		raise( SIGINT );
+	}
+
+	nlp.sharp = S.secure_stoi(arr[4]);
+	if ( ( nlp.sharp < 0 ) or ( nlp.sharp > 7 ))
+	{
+		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		raise( SIGINT );
+	}
+
+	return nlp;
+
+}
+
+void Note_base::test()
+{
+	Set_Loglevel( TEST, true);
+	Comment( TEST, "Notes_base test start");
+
+	show_noteline_prefix( noteline_prefix_default );
+	Comment( TEST, noteline_prefix_to_string( noteline_prefix_default ));
+	string nlp_str = "2,1,4,0,0,";
+	noteline_prefix_t nlp = string_to_noteline_prefix(nlp_str);
+	show_noteline_prefix(nlp);
+
+	Comment( TEST, "Notes_base test done");
+}
+
+
+
