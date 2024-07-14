@@ -10,7 +10,6 @@ vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
 
-
 #define INFO Log.INFO
 #define ERROR Log.ERROR
 #define  WARN Log.WARN

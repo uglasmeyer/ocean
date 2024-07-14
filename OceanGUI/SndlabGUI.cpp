@@ -1,0 +1,737 @@
+// qtcreator
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <oszilloscopewidget.h>
+#include <spectrum_dialog_class.h>
+
+// Synhesizer
+#include <GUIinterface.h>
+#include <synthesizer.h>
+#include <Wavedisplay.h>
+#include <mixer.h>
+#include <keys.h>
+#include <Logfacility.h>
+
+// Qt
+#include <QLabel>
+#include <QByteArray>
+#include <QPolygon>
+#include <QTimer>
+#include <QRect>
+
+
+// System
+#include <unistd.h> //sleep
+
+
+
+
+//Constructor
+MainWindow::MainWindow(QWidget *parent)
+    :
+     QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+	auto Waveform_vec = [ this ]()
+		{
+			vector<QString> Qvec{};
+			for ( string str : Spectrum.Get_waveform_vec() )
+			{
+				Qvec.push_back( QString::fromStdString( str ));
+			}
+			return Qvec;
+		};
+
+	QWaveform_vec = Waveform_vec();
+
+    ui->setupUi(this);
+    // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
+
+    QPixmap bkgnd("/home/sirius/git/SndlabGUI/resource/Ocean.png");
+    bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
+    QPalette palette;
+    palette.setBrush(QPalette::Window, bkgnd);
+    palette.setColor(QPalette::WindowText, Qt::white);
+    this->setPalette(palette);
+
+    connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
+    connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Hz_changed(int)));
+
+    connect(ui->rb_melody_1, SIGNAL(clicked()), this, SLOT(melody_connect() ));
+    connect(ui->rb_melody_2, SIGNAL(clicked()), this, SLOT(melody_connect() ));
+    connect(ui->rb_melody_3, SIGNAL(clicked()), this, SLOT(melody_connect() ));
+    connect(ui->rb_melody_4, SIGNAL(clicked()), this, SLOT(melody_connect() ));
+
+    connect(ui->pB_play_notes, SIGNAL(clicked()), this, SLOT(File_Director() ));
+    connect(ui->pB_Specrum, SIGNAL(clicked()), this, SLOT(Spectrum_Dialog() ));
+
+    connect(ui->dial_soft_freq, SIGNAL(valueChanged(int)), this, SLOT(dial_soft_freq_value_changed() ));
+    connect(ui->dial_PMW, SIGNAL(valueChanged(int)), this, SLOT(dial_PMW_value_changed() ));
+    connect(ui->dial_ramp_up_down, SIGNAL( valueChanged(int)), this, SLOT(slot_dial_ramp_up_down()) );
+    connect(ui->hs_adsr_attack, SIGNAL(valueChanged(int)), this, SLOT(dial_decay_value_changed() ));
+
+    connect(ui->sB_Duration, SIGNAL(valueChanged(int)), this, SLOT(sB_Duration(int) ));
+    connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
+    connect(ui->pB_Wavedisplay, SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
+    connect(ui->Slider_mix_vol4, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix4() ));
+    connect(ui->Slider_mix_vol5, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix5() ));
+    connect(ui->Slider_mix_vol6, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix6() ));
+    connect(ui->Slider_mix_vol7, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix7() ));
+
+    connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
+    connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
+
+    connect(ui->hs_hall_effect, SIGNAL(valueChanged(int)), this, SLOT(hs_hall_effect_value_changed(int)));
+
+    connect( ui->sB_FMO , SIGNAL( valueChanged(int)), this, SLOT(FMO_Waveform_slot( int ))) ;
+    connect( ui->sB_VCO , SIGNAL( valueChanged(int)), this, SLOT(VCO_Waveform_slot( int ))) ;
+    connect( ui->sB_Main, SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
+
+
+    QTimer* record_timer = new QTimer( this );
+    connect(record_timer, &QTimer::timeout, this, &MainWindow::get_record_status);
+    record_timer->start(1000);
+
+    QTimer* status_timer = new QTimer( this );
+    connect(status_timer, &QTimer::timeout, this, &MainWindow::Updatewidgets);
+    status_timer->start(1000);
+
+    QTimer* osc_timer = new QTimer( this );//TODO review
+    connect(osc_timer, &QTimer::timeout, this, &MainWindow::openGLWidget);
+    osc_timer->start(20); // 50 Hz
+
+    uint sb_max = QWaveform_vec.size()-1;
+    ui->sB_Main->setMaximum(sb_max);
+    ui->sB_FMO->setMaximum(sb_max);
+    ui->sB_VCO->setMaximum(sb_max);
+
+    CB_external         = ui->cb_external;
+    string wavfile_path = dir_struct().musicdir;
+    read_filelist( CB_external, wavfile_path, "wav");
+
+    setwidgetvalues();
+
+    scene               = new QGraphicsScene(this);
+    ui->oscilloscope_view->setScene( scene );
+    QRectF rect         = ui->oscilloscope_view->geometry();
+    item                = new OszilloscopeWidget( GUI.addr, rect );
+    scene->addItem( item );
+
+    GUI.announce( "SndlabGUI", true );
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+
+bool record=false;
+QPalette record_color = QPalette();
+QPalette status_color = QPalette();
+
+
+
+
+QString get_bps_string( int id )
+{
+    char bps_char = Bps_string[id];
+    string bps_str{};
+    bps_str.push_back( bps_char );
+    QString QStr = QString::fromStdString( bps_str );
+    return QStr;
+}
+
+
+
+//int duration_counter = 0;
+
+void MainWindow::wavfile_selected( const QString &arg)
+{
+    qDebug() << "WAV file " << arg ;
+    QString QStr = arg;
+    string str = QStr.toStdString();
+    if ( str.length() > 0 )
+    {
+        GUI.write_str('l', str );
+        GUI.Set(GUI.addr->KEY , SETEXTERNALWAVEFILE);
+    }
+}
+
+
+void MainWindow::hs_hall_effect_value_changed(int value)
+{
+    GUI.Set(GUI.addr->Main_adsr_hall , value);
+    GUI.Set( GUI.addr->KEY , ADSRHALLKEY);
+}
+
+
+
+
+
+void MainWindow::pB_Wavedisplay_clicked()
+{
+    int wd_counter = (GUI.addr->Wavedisplay_Id + 1) % wavedisplay_str_vec.size();
+    QString QStr = QString::fromStdString(wavedisplay_str_vec[ wd_counter]);
+    ui->pB_Wavedisplay->setText( QStr );
+    GUI.Set(GUI.addr->Wavedisplay_Id , wd_counter);
+    GUI.Set( GUI.addr->KEY , SETWAVEDISPLAYKEY);
+};
+
+void MainWindow::dial_soft_freq_value_changed()
+{
+    int value = ui->dial_soft_freq->value();
+    GUI.Set(GUI.addr->Soft_freq , value);
+    GUI.Set( GUI.addr->KEY , SOFTFREQUENCYKEY);
+    qDebug() << Qt::dec << value << Qt::endl;
+
+};
+
+void MainWindow::dial_decay_value_changed()
+{
+    int dial = ui->hs_adsr_attack->value();
+    GUI.Set(GUI.addr->Main_adsr_attack , dial);
+    GUI.Set(GUI.addr->KEY, ADSRDECAYKEY);
+
+}
+void MainWindow::dial_PMW_value_changed()
+{
+    int dial = ui->dial_PMW->value();
+    GUI.Set(GUI.addr->PMW_dial , dial);
+    GUI.Set( GUI.addr->KEY ,PMWDIALKEY);
+}
+
+void MainWindow::File_Director()
+{
+    if ( this->Dialog_File == nullptr )
+    {
+        this->Dialog_File = new File_Dialog_class( this );
+        this->Dialog_File->show();
+    }
+    else
+    {
+        delete( this->Dialog_File );
+        this->Dialog_File = nullptr;
+    }
+}
+
+void MainWindow::Spectrum_Dialog()
+{
+    if ( this->Spectrum_Dialog_Obj == nullptr )
+    {
+        this->Spectrum_Dialog_Obj = new Spectrum_Dialog_class( this, &GUI );
+    }
+    if ( this->Spectrum_Dialog_Obj->isVisible()   )
+        this->Spectrum_Dialog_Obj->hide();
+    else
+        this->Spectrum_Dialog_Obj->show();
+}
+
+void MainWindow::waveform_slot(char* wf_addr, char wfid, int ID, int wf_key, QLabel* label  )
+{
+	if ( GUI.addr->Spectrum_type == ID )
+		GUI.Set( GUI.addr->Spectrum_id, wfid );
+	*wf_addr = wfid;
+	GUI.Set( GUI.addr->KEY , wf_key);
+	label->setText( QWaveform_vec[ wfid ] );
+}
+void MainWindow::Main_Waveform_slot( int _wfid )
+{
+	waveform_slot( &GUI.addr->Main_waveform_id, _wfid, MAINID, SETWAVEFORMMAINKEY, ui->wf_main );
+}
+void MainWindow::FMO_Waveform_slot(int _wfid)
+{
+	waveform_slot( &GUI.addr->FMO_waveform_id, _wfid, FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
+}
+void MainWindow::VCO_Waveform_slot( int _wfid )
+{
+	waveform_slot( &GUI.addr->VCO_waveform_id, _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
+}
+
+void MainWindow::change_status1()
+{
+    GUI.Set( GUI.addr->MIX_Id , 0);
+    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
+
+}
+void MainWindow::change_status2()
+{
+    GUI.Set( GUI.addr->MIX_Id , 1);
+    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
+
+}
+void MainWindow::change_status3()
+{
+    GUI.Set( GUI.addr->MIX_Id , 2);
+    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
+
+}
+
+void MainWindow::change_status4()
+{
+    GUI.Set( GUI.addr->MIX_Id , MbIdExternal);
+    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
+
+}
+
+void MainWindow::change_status5()
+{
+    GUI.Set( GUI.addr->MIX_Id , MbIdNotes);
+    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
+
+}
+
+bool status_store = false;
+void MainWindow::Store()
+{
+    struct store_widgets
+    {
+        QRadioButton*   rb;
+        QCheckBox*      cb;
+    };
+    vector< store_widgets> store_widget_v{
+        { ui->rb_bank1,ui->cb_1},
+        { ui->rb_bank2,ui->cb_2},
+        { ui->rb_bank3,ui->cb_3},
+        { ui->rb_bank4,ui->cb_4},
+        { ui->rb_bank5,ui->cb_5},
+        { ui->rb_bank7,ui->cb_7}
+    };
+    char banknr=0;
+    int i = 0;
+    for ( store_widgets stw : store_widget_v )
+    {
+        if ( stw.rb->isChecked() )
+        {
+            banknr = i;
+            if ( ! stw.cb->isChecked())
+                stw.cb->click();
+        }
+        i++;
+    }
+    GUI.Set( GUI.addr->MIX_Id , banknr); //
+    if ( status_store )
+        GUI.Set( GUI.addr->KEY , STOPRECORD_KEY);
+    else
+        GUI.Set( GUI.addr->KEY , STORESOUNDKEY);
+    status_store = not status_store;
+}
+
+void MainWindow::memory_clear()
+{
+    int Id = 0; // if no one is checked, the current Id is cleared,
+                // that should be ok.
+    for ( QRadioButton* rb : {  ui->rb_bank1,
+                                ui->rb_bank2,
+                                ui->rb_bank3,
+                                ui->rb_bank4,
+                                ui->rb_bank5
+                            })
+    {
+        if( rb->isChecked() )
+        {
+            GUI.Set( GUI.addr->MIX_Id, Id );
+        }
+        Id++;
+    }
+    GUI.Set( GUI.addr->KEY, CLEAR_KEY );
+}
+
+auto mixer_slider( MainWindow* C, int ID, int value )
+{
+    C->GUI.Set( C->GUI.addr->MIX_Amp , value);
+    C->GUI.Set( C->GUI.addr->MIX_Id , ID );
+    C->GUI.Set( C->GUI.addr->KEY , SETMBAMPPLAYKEY);
+};
+
+void MainWindow::Sl_mix1()
+{
+	mixer_slider( this, 0, ui->Slider_mix_vol1->value() );
+};
+void MainWindow::Sl_mix2()
+{
+	mixer_slider( this, 1, ui->Slider_mix_vol2->value() );
+};
+void MainWindow::Sl_mix3()
+{
+	mixer_slider( this, 2, ui->Slider_mix_vol3->value() );
+};
+void MainWindow::Sl_mix4()
+{
+	mixer_slider( this, 3, ui->Slider_mix_vol4->value() );
+};
+void MainWindow::Sl_mix5()
+{
+	mixer_slider( this, 4, ui->Slider_mix_vol5->value() );
+};
+void MainWindow::Sl_mix6() // Notes volume
+{
+	mixer_slider( this, 5, ui->Slider_mix_vol6->value() );
+};
+void MainWindow::Sl_mix7()
+{
+	mixer_slider( this, 6, ui->Slider_mix_vol7->value() );
+};
+
+
+void MainWindow::slot_dial_ramp_up_down()
+{
+    int value = ui->dial_ramp_up_down->value();
+    GUI.Set( GUI.addr->LOOP_end, value);
+    GUI.Set( GUI.addr->LOOP_step, 1 );
+    GUI.Set( GUI.addr->KEY, MAIN_AMPLOOP_KEY);
+}
+
+void MainWindow::Clear_Banks()
+{
+    if ( ui->cb_1->isChecked())
+        ui->cb_1->click();
+    if ( ui->cb_3->isChecked())
+        ui->cb_3->click();
+    if ( ui->cb_2->isChecked())
+        ui->cb_2->click();
+    if ( ui->cb_4->isChecked())
+        ui->cb_4->click();
+
+    GUI.Set( GUI.addr->KEY , MUTEMBKEY);
+
+}
+void MainWindow::toggle_Mute()
+{
+    mute_flag = not mute_flag;
+    GUI.Set( GUI.addr->mi_status.mute , mute_flag );
+    if ( mute_flag )
+    {
+        GUI.Set( GUI.addr->KEY , MUTEMAINAMP_KEY);
+        ui->pB_Mute->setText( "Unmute");
+    }
+    else
+    {
+        GUI.Set( GUI.addr->KEY , UNMUTEMAINAMP_KEY);
+        ui->pB_Mute->setText( "Mute" );
+    }
+}
+void MainWindow::sB_Duration( int bps_id  )
+{
+    QString Qstr = get_bps_string( bps_id );
+    ui->Bps->setText( Qstr );
+    GUI.Set( GUI.addr->Main_adsr_bps_id, bps_id);
+    GUI.Set( GUI.addr->KEY, ADSRDURATIONKEY );
+}
+void MainWindow::setwidgetvalues()
+{
+
+    ui->dial_PMW->setValue( (int)GUI.addr->PMW_dial  );
+    ui->Slider_FMO_Hz->setValue(    GUI.addr->FMO_Freq);
+    ui->Slider_VCO_Hz->setValue(    GUI.addr->VCO_Freq);
+    ui->Slider_Main_Hz->setValue(   GUI.addr->Main_Freq);
+
+    ui->Slider_Main_Vol->setValue(  GUI.addr->Master_Amp);
+    ui->Slider_FMO_vol->setValue(   GUI.addr->FMO_Amp);
+    ui->Slider_VCO_vol->setValue(   GUI.addr->VCO_Amp);
+
+    ui->Slider_mix_vol1->setValue(75);
+    ui->Slider_mix_vol2->setValue(75);
+    ui->Slider_mix_vol3->setValue(75);
+    ui->Slider_mix_vol4->setValue(75);
+    ui->Slider_mix_vol6->setValue(75);
+    ui->Slider_mix_vol7->setValue(100);
+
+    QString Qstr;
+    string str;
+    ui->labelVCO->setText("VCO");
+    ui->labelFMO->setText("FMO");
+
+
+    ui->wf_fmo->setText( QWaveform_vec[ GUI.addr->FMO_waveform_id ] );
+    ui->wf_vco->setText( QWaveform_vec[ GUI.addr->VCO_waveform_id ] );
+    ui->wf_main->setText( QWaveform_vec[ GUI.addr->Main_waveform_id ] );
+
+    ui->sB_Main->setValue( GUI.addr->Main_waveform_id );
+    ui->sB_FMO->setValue(  GUI.addr->FMO_waveform_id  );
+    ui->sB_VCO->setValue(  GUI.addr->VCO_waveform_id  );
+
+    ui->sB_Duration->setValue( GUI.addr->Main_adsr_bps_id );
+    Qstr = get_bps_string( GUI.addr->Main_adsr_bps_id );
+    ui->Bps->setText( Qstr );
+    ui->hs_adsr_sustain->setValue(  (int) GUI.addr->Main_adsr_decay );
+    ui->hs_adsr_attack->setValue(  (int)     GUI.addr->Main_adsr_attack);
+    ui->dial_soft_freq->setValue( (int)  GUI.addr->Soft_freq );
+    ui->hs_hall_effect->setValue( (int)  GUI.addr->Main_adsr_hall );
+    ui->progressBar_record->setValue(0);
+    int wd_counter              = GUI.addr->Wavedisplay_Id;
+    QString QStr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
+    ui->pB_Wavedisplay->setText( QStr );
+    ui->pB_Debug->setText( WD_type_str[ (int) GUI.addr->WD_type_ID % 3 ] );
+
+    ui->dial_ramp_up_down->setValue( GUI.addr->Master_Amp);
+    if ( mute_flag )
+        ui->pB_Mute->setText( "Unmute" );
+    else
+        ui->pB_Mute->setText( "Mute" );
+    MainWindow::show();
+}
+
+void MainWindow::GUI_Exit()
+{
+    qDebug("%s", "Exit" );
+    GUI.announce( "SndlabGUI", false );
+
+    shmdt( GUI.addr );
+    QApplication::quit();
+}
+
+
+void MainWindow::MAIN_slot_volume()
+{
+    int value = ui->Slider_Main_Vol->value();
+    GUI.Set( GUI.addr->Master_Amp , value);
+    GUI.Set( GUI.addr->KEY , MASTER_AMP_KEY);
+
+}
+void MainWindow::MAIN_slot_Hz()
+{
+    int value = ui->Slider_Main_Hz->value();
+    GUI.Set( GUI.addr->Main_Freq , value);
+    GUI.Set( GUI.addr->KEY , MAINFREQUENCYKEY);
+}
+
+void MainWindow::VCO_slot_Hz()
+{
+    int value = ui->Slider_VCO_Hz->value();
+    GUI.Set( GUI.addr->VCO_Freq , value);
+    GUI.Set( GUI.addr->KEY , VCOFREQUENCYKEY);
+    //GUI.write()();
+}
+void MainWindow::VCO_slot_volume()
+{
+    int value = ui->Slider_VCO_vol->value();
+    GUI.Set( GUI.addr->VCO_Amp , value);
+    GUI.Set( GUI.addr->KEY , VCOAMPKEY);
+}
+void MainWindow::FMO_slot_volume()
+{
+    int value = ui->Slider_FMO_vol->value();
+    GUI.Set( GUI.addr->FMO_Amp , value);
+    GUI.Set( GUI.addr->KEY , FMOAMPKEY);
+}
+
+void MainWindow::Slider_FMO_Hz_changed(int value )
+{
+    float freq = 0.0;
+    bool lfo = ( GUI.addr->FMO_ID == LFOID );
+
+    if (( lfo ))
+    {
+        freq = (float) value / 20.0;
+        if ( freq > 4 )
+        {
+            ui->Slider_FMO_Hz->setValue( value/20 );
+            GUI.Set( GUI.addr->FMO_ID, FMOID );
+        }
+    }
+    else
+    {
+        freq = value;
+        if ( value <= 4 )
+        {
+            ui->Slider_FMO_Hz->setValue( value*20 );
+            GUI.Set( GUI.addr->FMO_ID, LFOID );
+            freq = value/20.0;
+        }
+    }
+    ui->FMOLCD_Hz->display( freq );
+
+    GUI.Set( GUI.addr->FMO_Freq , value);
+    GUI.Set( GUI.addr->KEY , FMOFREQUENCYKEY);
+
+}
+void MainWindow::fmo_lfo()
+{
+    char fmo_lfo = GUI.addr->FMO_ID;
+    if ( fmo_lfo == FMOID )
+        fmo_lfo = LFOID;
+    else
+        fmo_lfo = FMOID;
+
+    GUI.Set( GUI.addr->FMO_ID, fmo_lfo );
+    GUI.Set( GUI.addr->KEY, FMOLFO_KEY);
+    float value = (float) ui->Slider_FMO_Hz->value();
+    if ( fmo_lfo == LFOID )
+        ui->FMOLCD_Hz->display( value/20.0 );
+    else
+        ui->FMOLCD_Hz->display( value );
+};
+
+
+void MainWindow::start_srv()
+{
+    string cmd = "xterm -e '" + file_structure().audio_bin + " 2 44100' &";
+    system_execute( cmd.data() );
+    printf("%s\n", cmd.data() );
+}
+
+void MainWindow::start_synthesizer()
+{
+    string cmd = "xterm -e '( " + file_structure().synth_bin + ")' &";
+    system_execute( cmd.data() );
+    printf("%s\n", cmd.data() );
+    usleep(2*1000000); // WAIT until the startup of the process finished.
+    //GUI.read();         // the synthesizer process will prepare the initial values
+                        // from the keyboard file, that are stored into the GUI.ifd_data structure
+    MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-
+    MainWindow::show(); // and the Mainwindow is updated.
+}
+
+void MainWindow::Controller_Exit()
+{
+    GUI.Set( GUI.addr->Synthesizer , EXITSERVER ); //
+
+
+}
+
+void MainWindow::Audio_Exit()
+{
+    GUI.Set( GUI.addr->AudioServer , STOPSNDSRV);
+}
+
+// button save config to default instrument
+void MainWindow::Save_Config()
+{
+    GUI.write_str('i', "default");
+    GUI.Set( GUI.addr->KEY , SAVEINSTRUMENTKEY); //
+}
+
+void MainWindow::set_mode_f()
+{
+    GUI.Set( GUI.addr->KEY , RESETFMOKEY);
+}
+
+void MainWindow::set_mode_v()
+{
+    GUI.Set( GUI.addr->KEY , RESETVCOKEY); //
+}
+void MainWindow::set_mode_o()
+{
+    GUI.Set( GUI.addr->KEY , RESETMAINKEY); //
+}
+
+void MainWindow::connect_fmo()
+{
+    GUI.Set( GUI.addr->KEY , CONNECTFMOVCOKEY);
+}
+
+void MainWindow::connect_vco()
+{
+    GUI.Set( GUI.addr->KEY , CONNECTVCOFMOKEY);
+}
+
+int pb_value = 0;
+
+void MainWindow::get_record_status( )
+{
+    pb_value = GUI.addr->RecCounter;
+    ui->progressBar_record->setValue( pb_value );
+}
+void MainWindow::toggle_Record()
+{
+    record=! record;
+    if (record)
+    {
+        record_color.setColor(QPalette::Button, Qt::red);
+        ui->pBtoggleRecord->setText("recording");
+        GUI.Set( GUI.addr->FileNo , 0); // automatic numbering
+        GUI.Set( GUI.addr->KEY , RECORDWAVFILEKEY);
+    }
+    else
+    {
+        record_color.setColor(QPalette::Button, Qt::green);
+        ui->pBtoggleRecord->setText("Record");
+        GUI.Set( GUI.addr->KEY , RECORDWAVFILEKEY);
+    }
+    ui->pBtoggleRecord->setPalette(record_color);
+
+}
+
+void MainWindow::main_adsr_sustain()
+{
+    int value = ui->hs_adsr_sustain->value();
+    GUI.Set( GUI.addr->Main_adsr_decay , value);
+    GUI.Set( GUI.addr->KEY ,ADSRSUSTAINKEY);
+
+}
+
+void MainWindow::openGLWidget()
+{
+    MainWindow::item->read_polygon_data();
+}
+
+
+void MainWindow::pB_Debug_clicked()
+{
+    uint16_t counter = ( GUI.addr->WD_type_ID + 1 ) % 3;
+    GUI.Set( GUI.addr->WD_type_ID , counter);
+    GUI.Set( GUI.addr->KEY , WAVEDISPLAYTYPEKEY);
+
+    ui->pB_Debug->setText( WD_type_str[ counter ] );
+}
+
+void MainWindow::melody_connect()
+{
+};
+
+void MainWindow::Updatewidgets()
+{
+    if (  GUI.addr->UserInterface == UPDATEGUI  )
+    {
+        if ( GUI.addr->KEY == 'i')
+        {
+            string str = GUI.read_str( 'i' );
+            QString QStr ;
+            if ( this->Dialog_File != nullptr )
+                QStr = this->Dialog_File->CB_instruments->currentText( );
+        }
+        if ( not GUI.addr->Composer )
+        {
+        switch( GUI.addr->FLAG )
+        {
+            case RECORDWAVFILEFLAG :
+            {
+                read_filelist(CB_external, dir_struct().musicdir, "wav");
+                break;
+            }
+            case NEWINSTRUMENTFLAG :
+            {
+                read_filelist(this->Dialog_File->CB_instruments, dir_struct().instrumentdir, "kbd");
+                break;
+            }
+            case NEWNOTESLINEFLAG :
+            {
+                read_filelist(this->Dialog_File->CB_notes, dir_struct().notesdir, "kbd");
+                break;
+            }
+        }
+        }
+
+        setwidgetvalues();
+
+        GUI.Set( GUI.addr->UserInterface , RUNNING);
+    }
+    if (GUI.addr->AudioServer == RUNSNDSRV )
+        status_color.setColor(QPalette::Button, Qt::green);
+    else
+        status_color.setColor(QPalette::Button, Qt::red);
+    ui->pBAudioServer->setPalette(status_color);
+
+
+    if (GUI.addr->Synthesizer == RUNNING )
+        status_color.setColor(QPalette::Button, Qt::green);
+    else
+        status_color.setColor(QPalette::Button, Qt::red);
+    ui->pBSynthesizer->setPalette(status_color);
+
+
+}
+
+
+

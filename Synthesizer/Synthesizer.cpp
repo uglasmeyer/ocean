@@ -648,8 +648,12 @@ void process( char key )
 
 		case SETNOTESPERSEC_KEY:
 		{
+			Value nps = ifd->FLAG;
 			Log.Comment(Log.INFO, "receive command <set notes per second>");
-			Notes.set_notes_per_second( ifd->FLAG );
+			if ( not Notes.set_notes_per_second( nps.i ) )
+			{
+				Log.Comment( ERROR, nps.str + " notes per second not supported");
+			}
 			GUI.commit();
 			break;
 		}

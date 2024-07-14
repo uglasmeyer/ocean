@@ -84,7 +84,6 @@ void Interpreter_class::start_bin( vector_str_t arr )
 
 		Comment( INFO, "start " + keyword.Str );
 		cmd = "xterm -e '( " + exe + " -k " + shmkey + ")' &" ;
-
 		expect 		= { "start delay in seconds" };
 		option_default = "key";
 		string duration = pop_stack( 0 );
@@ -351,12 +350,18 @@ void Interpreter_class::notes( vector_str_t arr )
 	}
 	if ( cmpkeyword( "per_second" ) )
 	{
-		expect = {"notes per second [ 1,2,4,8 ]"};
-		int nps = pop_int(1,16);
-		Variation.set_notes_per_second( nps );
-		Processor_class::push_ifd( &ifd->FLAG, nps, "notes per second"  );
-		Processor_class::push_key( SETNOTESPERSEC_KEY, "set per_second" );
-
+		expect = {"notes per second [ " + Variation.NPS_string +  " ]"};
+		Value nps = pop_int(1,16);
+		if ( Variation.set_notes_per_second( nps.i ) )
+		{
+			Processor_class::push_ifd( &ifd->FLAG, nps.i, "notes per second"  );
+			Processor_class::push_key( SETNOTESPERSEC_KEY, "set per_second" );
+		}
+		else
+		{
+			Wrong_keyword(expect, nps.str );
+		}
+		cout << "error: " << error << endl;
 		return;
 	}
 	Wrong_keyword( expect, keyword.Str );

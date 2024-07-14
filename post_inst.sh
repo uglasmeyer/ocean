@@ -2,24 +2,21 @@
 BASEDIR=$HOME/git/Ocean/
 INSTDIR=$HOME/Synthesizer/bin
 
-cd $BASEDIR/Synthesizer/Release
-rm Synthesizer
-make all
-cp Synthesizer $INSTDIR
 
-cd $BASEDIR/Composer/Release
-rm Composer
+make_inst()
+{
+OBJ=$1
+cd $BASEDIR/$OBJ/Release
+#rm $OBJ
 make all
-cp Composer $INSTDIR
+echo installing $OBJ
+cp -f $OBJ $INSTDIR
+}
 
-cd $BASEDIR/Audioserver/Release
-rm AudioServer
-make all
-cp AudioServer $INSTDIR
+OBJS="Synthesizer comstack Composer AudioServer OceanGUI"
 
-cd $BASEDIR/comstack/Release
-rm ifdstruct
-make all
-cp ifdstruct $INSTDIR
-
+for OBJ in $OBJS;
+do
+make_inst $OBJ
+done
 

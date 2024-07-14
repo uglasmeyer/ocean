@@ -13,7 +13,6 @@
 #include <wav.h>
 #include <version.h>
 
-extern void system_execute( const string );
 
 class External_class : virtual public Logfacility_class
 {

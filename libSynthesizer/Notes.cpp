@@ -473,8 +473,8 @@ void Note_class::fill_note_list()
 			dur += min_duration;
 		}
 	}
-
 }
+
 void Note_class::add_volume( note_itr_t itr )
 {
 	auto set_volume = [ this ]( note_itr_t itr )
@@ -482,7 +482,7 @@ void Note_class::add_volume( note_itr_t itr )
 		if( itr->volume != 0 )
 			itr->volume = volume_vec[ this->vcounter ];
 
-		assert( itr->volume < 100 );
+		assert( itr->volume < 100 ); // volume 0 ... 90 %
 		};
 
 	itr = notelist.begin();
@@ -493,8 +493,6 @@ void Note_class::add_volume( note_itr_t itr )
 		vcounter = ( vcounter + 1 ) % ( volume_vec_len );
 		itr++;
 	}
-
-
 }
 
 void Note_class::set_note_list ( noteline_prefix_t prefix, string str )
@@ -577,7 +575,6 @@ void Note_class::set_volume_vector( string volline )
 	assert( volume_vec.size() > 0 );
 }
 
-
 void Note_class::note2memory( note_struct_t note, buffer_t offs )
 {
 	assert( instrument != nullptr );
@@ -595,14 +592,14 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs )
 	{
 		fnew = ( notevalue.freq * 	instrument->vco.get_fstruct().freq ) /
 									instrument->main.get_fstruct().freq ;
-		vco_osc.wp.ffreq = fnew;
-		vco_osc.wp.msec = note.duration;
+		vco_osc.wp.ffreq 		= fnew;
+		vco_osc.wp.msec 		= note.duration;
 		vco_osc.OSC( offs );
 
 		fnew = ( notevalue.freq * 	instrument->fmo.get_fstruct().freq ) /
 									instrument->main.get_fstruct().freq ;
-		fmo_osc.wp.ffreq = fnew;
-		fmo_osc.wp.msec = note.duration;
+		fmo_osc.wp.ffreq 		= fnew;
+		fmo_osc.wp.msec 		= note.duration;
 		fmo_osc.OSC( offs );
 
 		main_osc.set_start_freq( notevalue.freq );
@@ -611,6 +608,7 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs )
 		main_osc.wp.msec 		= note.duration;
 		main_osc.OSC( offs );
 	}
+
 	main_osc.wp.glide_effect = tmp_glide_freq;
 	return ;
 }
@@ -674,7 +672,7 @@ bool Note_class::generate_note_chunk( Storage::Storage_class* 		mb )
 	return false;
 }
 
-void Note_class::set_notes_per_second( int notes_per_second )
+bool Note_class::set_notes_per_second( int notes_per_second )
 {	// [ 1,2,4,8 ] notes per second
 
 	auto check_nps = [ this ]( int i )
@@ -688,13 +686,14 @@ void Note_class::set_notes_per_second( int notes_per_second )
 	if ( check_nps( notes_per_second ) )
 	{
 		this->Noteline_prefix.nps 	= notes_per_second;
+		return true;
 	}
 	else
 	{
 		Comment( ERROR, "set notes per second to " + to_string( notes_per_second ) + " rejected ");
 		Comment( INFO, "not in list: " + NPS_string );
 		this->Noteline_prefix.nps 	= 4;
-
+		return false;
 	}
 }
 

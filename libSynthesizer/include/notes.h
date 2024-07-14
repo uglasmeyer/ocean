@@ -8,22 +8,18 @@
 #ifndef INCLUDE_PLAYNOTES_H_
 #define INCLUDE_PLAYNOTES_H_
 
-#include <osc.h>
 #include <synthesizer.h>
 #include <Spectrum.h>
 #include <GUIinterface.h>
 #include <common.h>
 #include <Instrument.h>
 #include <Oscbase.h>
+#include <osc.h>
 #include <Notesbase.h>
 
 extern bool cmpstr( const string , const string  );
 
-
 using namespace std;
-
-
-
 
 class Note_class :  virtual public Logfacility_class, virtual public Note_base
 {
@@ -53,7 +49,7 @@ public:
 	string 			get_note_line ();
 	string 			get_rhythm_line (  );
 	void 			set_rhythm_line(string );
-	void			set_notes_per_second( int );
+	bool			set_notes_per_second( int );
 	bool			generate_note_chunk( Storage::Storage_class* 		mb );
 	void			set_base_octave( uint );
 	void			set_prefix_octave( int );
@@ -74,7 +70,7 @@ public:
 		{
 			show_note( note );
 			lineduration += note.duration;
-			if ( ( lineduration % 1000 ) == 0 )
+			if ( ( lineduration % measure_duration ) == 0 )
 				cout << endl;
 		}
 		strs.str("");
