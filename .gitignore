@@ -1,3 +1,7 @@
 /Debug/
 /Release/
 *.so
+/OceanGUI/Debug/
+*.stash
+*/.qtc_clangd/
+*.o

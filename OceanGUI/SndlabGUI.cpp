@@ -47,11 +47,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
 
-    QPixmap bkgnd("/home/sirius/git/SndlabGUI/resource/Ocean.png");
+    QPixmap bkgnd("/home/sirius/git/Ocean/OceanGUI/Ocean.png");
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
     QPalette palette;
     palette.setBrush(QPalette::Window, bkgnd);
     palette.setColor(QPalette::WindowText, Qt::white);
+    palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
 
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
@@ -501,7 +502,6 @@ void MainWindow::VCO_slot_Hz()
     int value = ui->Slider_VCO_Hz->value();
     GUI.Set( GUI.addr->VCO_Freq , value);
     GUI.Set( GUI.addr->KEY , VCOFREQUENCYKEY);
-    //GUI.write()();
 }
 void MainWindow::VCO_slot_volume()
 {

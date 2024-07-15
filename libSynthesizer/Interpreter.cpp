@@ -274,11 +274,31 @@ void Interpreter_class::notes( vector_str_t arr )
 	}
 	if ( cmpkeyword( "set") )
 	{
+		Variation.read("tmp");
+		string Noteline = Variation.get_note_line();
+
 		Comment(INFO, "set notes.");
-		expect = {"notes sentence", "num" };
+		expect		=	{"prefix","octave", };
 		keyword.Str = pop_stack(1);
-		string Noteline{ keyword.Str };
-		if ( cmpkeyword("num") )
+		if ( cmpkeyword("prefix") )
+		{
+			expect 		= {"#flats", "#sharps" };
+			uint flats 	= pop_int(0,7);
+			uint sharps = pop_int(0,7);
+			Variation.set_note_chars( flats, sharps );
+			Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
+			return;
+		}
+		if( cmpkeyword("octave") )
+		{
+			expect = { "octave value" };
+			uint oct = pop_int( Variation.min_octave, Variation.max_octave ) ;
+			Variation.set_prefix_octave( oct );
+			Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
+			return;
+		}
+
+		if ( cmpkeyword( "num" ) )
 		{
 			Variation.set_note_chars( 1 );
 			Noteline = pop_stack(1);
@@ -287,36 +307,14 @@ void Interpreter_class::notes( vector_str_t arr )
 		{
 			Variation.set_note_chars( 0 );
 		}
-		if ( cmpkeyword("prefix") )
-		{
-			expect = {"flats sharps" };
-			Variation.read("tmp");
-			Noteline = Variation.get_note_line();
-			uint flats = pop_int(0,7);
-			uint sharps = pop_int(0,7);
-			Variation.set_note_chars( flats, sharps );
 
-			Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
-			return;
-		}
-		if( cmpkeyword("octave") )
-		{
-			expect = { "octave value" };
-			Variation.read("tmp");
-			Noteline = Variation.get_note_line();
-			uint oct = Str.secure_stoi( pop_stack( 1 ) );
-			Variation.set_prefix_octave( oct );
-			Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
-			return;
-
-		}
 		expect = {"rhythm line" };
 		string Rhythmline = pop_stack(1);
 		Variation.set_rhythm_line( Rhythmline );
-		string notesname = "tmp";
-		Variation.save( notesname, Variation.Noteline_prefix, Noteline );
 
-		Processor_class::push_str( UPDATENOTESKEY,'n', notesname );
+		Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
+
+		Processor_class::push_str( UPDATENOTESKEY,'n', "tmp" );
 
 		return;
 	}

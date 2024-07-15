@@ -1187,59 +1187,6 @@
      <string>PMW</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pB_Mute">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>140</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="palette">
-     <palette>
-      <active>
-       <colorrole role="Button">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>239</red>
-          <green>239</green>
-          <blue>239</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </active>
-      <inactive>
-       <colorrole role="Button">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>143</red>
-          <green>240</green>
-          <blue>164</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </inactive>
-      <disabled>
-       <colorrole role="Button">
-        <brush brushstyle="SolidPattern">
-         <color alpha="255">
-          <red>239</red>
-          <green>239</green>
-          <blue>239</blue>
-         </color>
-        </brush>
-       </colorrole>
-      </disabled>
-     </palette>
-    </property>
-    <property name="autoFillBackground">
-     <bool>true</bool>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pB_play_notes">
     <property name="geometry">
      <rect>
@@ -1825,6 +1772,19 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="pB_Mute">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>140</y>
+      <width>88</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -2185,22 +2145,6 @@
     <hint type="destinationlabel">
      <x>829</x>
      <y>169</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pB_Mute</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>toggle_Mute()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>855</x>
-     <y>192</y>
     </hint>
    </hints>
   </connection>

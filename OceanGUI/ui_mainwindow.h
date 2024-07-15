@@ -101,7 +101,6 @@ public:
     QPushButton *pushButton_3;
     QDial *dial_PMW;
     QLabel *label_2;
-    QPushButton *pB_Mute;
     QPushButton *pB_play_notes;
     QRadioButton *radioButton_4;
     QRadioButton *radioButton_5;
@@ -142,6 +141,7 @@ public:
     QLabel *Bps;
     QLabel *label_6;
     QLabel *label_10;
+    QPushButton *pB_Mute;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -483,17 +483,6 @@ public:
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(490, 160, 81, 17));
-        pB_Mute = new QPushButton(centralwidget);
-        pB_Mute->setObjectName(QString::fromUtf8("pB_Mute"));
-        pB_Mute->setGeometry(QRect(120, 140, 89, 25));
-        QPalette palette1;
-        palette1.setBrush(QPalette::Active, QPalette::Button, brush10);
-        QBrush brush18(QColor(143, 240, 164, 255));
-        brush18.setStyle(Qt::SolidPattern);
-        palette1.setBrush(QPalette::Inactive, QPalette::Button, brush18);
-        palette1.setBrush(QPalette::Disabled, QPalette::Button, brush10);
-        pB_Mute->setPalette(palette1);
-        pB_Mute->setAutoFillBackground(true);
         pB_play_notes = new QPushButton(centralwidget);
         pB_play_notes->setObjectName(QString::fromUtf8("pB_play_notes"));
         pB_play_notes->setGeometry(QRect(760, 10, 89, 25));
@@ -654,6 +643,9 @@ public:
         label_10->setGeometry(QRect(310, 20, 16, 131));
         label_10->setTextFormat(Qt::PlainText);
         label_10->setWordWrap(true);
+        pB_Mute = new QPushButton(centralwidget);
+        pB_Mute->setObjectName(QString::fromUtf8("pB_Mute"));
+        pB_Mute->setGeometry(QRect(130, 140, 88, 25));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -692,7 +684,6 @@ public:
         QObject::connect(Slider_mix_vol3, SIGNAL(valueChanged(int)), MainWindow, SLOT(Sl_mix3()));
         QObject::connect(Slider_mix_vol2, SIGNAL(valueChanged(int)), MainWindow, SLOT(Sl_mix2()));
         QObject::connect(Slider_mix_vol1, SIGNAL(valueChanged(int)), MainWindow, SLOT(Sl_mix1()));
-        QObject::connect(pB_Mute, SIGNAL(clicked()), MainWindow, SLOT(toggle_Mute()));
         QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(connect_vco()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
         QObject::connect(pBtoggleRecord, SIGNAL(clicked()), MainWindow, SLOT(toggle_Record()));
@@ -743,7 +734,6 @@ public:
         pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Config", nullptr));
         pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PMW", nullptr));
-        pB_Mute->setText(QString());
         pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
         radioButton_4->setText(QCoreApplication::translate("MainWindow", "connect FMO", nullptr));
         radioButton_5->setText(QCoreApplication::translate("MainWindow", "connect VCO", nullptr));
@@ -767,6 +757,7 @@ public:
         Bps->setText(QString());
         label_6->setText(QCoreApplication::translate("MainWindow", "  BPS", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
+        pB_Mute->setText(QString());
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

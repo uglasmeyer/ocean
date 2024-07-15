@@ -69,7 +69,7 @@ bool External_class::read_file_data(  )
 			Data_t L = stereo->stereo_data[n].left;
 			Data_t R = stereo->stereo_data[n].right;
 
-			StA->Data[n]	= L + R;
+			StA->Data[n]	= sqrt( L*L + R*R );
 		}
 		StA->set_store_counter( blocks );
 		Comment(INFO,"Converted stereo to mono data");
