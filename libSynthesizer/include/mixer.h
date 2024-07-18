@@ -8,8 +8,6 @@
 #ifndef INCLUDE_MIXER_H_
 #define INCLUDE_MIXER_H_
 
-
-
 #include <bits/stdint-uintn.h>
 #include <synthesizer.h>
 #include <sys/mman.h>
@@ -54,10 +52,10 @@ public:
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal };
 	typedef vector<Storage_class> StorageArray_t;
 	StorageArray_t 		StA;
-	Stereo_Memory* 		stereo {};
+//	Stereo_Memory* 		stereo {};
 	uint8_t				master_volume	= 100;
 
-	Mixer_class ( Stereo_Memory*  );
+	Mixer_class (  );
 	~Mixer_class(){};
 
 	Memory 				Mono_tmp{ monobuffer_size }; // Wavedisplay output
@@ -83,7 +81,7 @@ private:
 	void clear_memory();
 	void add_mono( Data_t*, uint8_t, uint );
 	void stereo_out( stereo_t*, uint8_t );
-	void add_record( stereo_t*, uint8_t );
+//	void add_record( stereo_t*, uint8_t );
 
 
 };

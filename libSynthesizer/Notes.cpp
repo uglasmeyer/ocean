@@ -907,8 +907,8 @@ void Note_class::test()
 	Noteline=",xyz";
 	set_notes_per_second( 5 );
 	verify_noteline( Noteline_prefix, Noteline );
-	assert( Noteline_prefix.nps == 4 );
-	assert( min_duration == 250 );
+	assert( Noteline_prefix.nps == 5 );
+	assert( min_duration == 200 );
 
 	Noteline="'xyz";
 	set_notes_per_second( 4 ); // default

@@ -104,6 +104,57 @@ void Instrument_class::setup_GUI_Data()
 
 }
 
+void Instrument_class::show_sound_stack() // show_status
+{
+	string star 	= "*";
+	string nostar 	= ".";
+	string active 	;
+	string fp_flag  ;
+	string vp_flag  ;
+	string fp_gen  ;
+	string vp_gen  ;
+	string Play 	;
+
+	stringstream strs{""};
+	strs << "\n Name \tWaveform \tHz \tAmp \tmsec \t  VCO \t  FMO " << endl;
+	for ( auto osc_ptr : osc_vector )
+	{
+		active  	= nostar;
+		fp_flag     = nostar;
+		vp_flag     = nostar;
+		fp_gen		= nostar;
+		vp_gen		= nostar;
+		if ( osc_ptr->vp.stored ) 		vp_flag = star;
+		if ( osc_ptr->fp.stored ) 		fp_flag = star;
+		if ( osc_ptr->vp.generated ) 	vp_gen = star;
+		if ( osc_ptr->fp.generating ) 	fp_gen = star;
+		strs 	<< active
+				<< osc_ptr->osc_type +"\t"
+				<< osc_ptr->wp.waveform_str +"\t"
+				<< to_string( osc_ptr->wp.frequency )+"\t"
+				<< to_string( osc_ptr->wp.volume )+"\t"
+				<< to_string( osc_ptr->wp.msec ) +"\t"
+
+				<< vp_flag
+				<< vp_gen
+				<< osc_ptr->vp.name +"\t"
+
+				<< fp_flag
+				<< fp_gen
+				<< osc_ptr->fp.name
+				<< endl;
+	};
+	Comment( INFO, strs.str() );
+/*
+	if ( Mixer.status.play  )
+		Play = "active";
+	else
+		Play = "locked / unlock with >p<";
+	Log.Comment(INFO, "Keyboard is " + Play );
+	return;
+	*/
+}
+
 void Instrument_class::Set_waveform( Oscillator* osc, uint8_t id )
 {
 	osc->wp.spectrum = osc->Get_spectrum( id );
@@ -342,6 +393,7 @@ bool Instrument_class::Set( string name )
 	setup_GUI_Data();
 	reuse_GUI_Data();
 	run_oscs();
+	show_sound_stack();
 	return true;
 
 }

@@ -72,7 +72,7 @@ public:
 
 namespace Storage{
 
-typedef struct mb_struct
+typedef struct StA_struct
 {
 	string 		name = "";
 	buffer_t	size = max_frames;
@@ -89,7 +89,7 @@ typedef struct mb_struct
 * set cursor to start with next_block
 *
 */
-} mb_struct_t;
+} StA_struct_t;
 
 class Storage_class :  public Memory, virtual public  Logfacility_class
 {
@@ -98,7 +98,7 @@ public:
 	uint 			max_counter 	= 0;
 	uint8_t 		Amp				= 100; // same as in GUI application
 	const buffer_t 	block_size 		= max_frames;
-	mb_struct_t 	mbparam			= mb_struct();
+	StA_struct_t 	StAparam		= StA_struct();
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 
@@ -122,7 +122,7 @@ public:
 	string 	play_mode( bool );
 	void 	mute();
 	void	playnotes( bool );
-	void 	setup( mb_struct_t);
+	void 	setup( StA_struct_t);
 	void 	set_store_counter( uint n);
 //	void 	set_read_counter( uint n);
 	void 	reset_counter();

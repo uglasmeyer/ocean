@@ -9,8 +9,8 @@
 
 void External_class::SetName( string name )
 {
-	Name = name;
-	Filename = dir_struct().musicdir + Name + ".wav";
+	Name 		= name;
+	Filename 	= dir_struct().musicdir + Name + ".wav";
 }
 
 bool External_class::read_file_header( string name )
@@ -21,7 +21,7 @@ bool External_class::read_file_header( string name )
 	if ( File )
 	{
 		buffer_t nrecords = fread( &header_struct, sizeof(header_struct), 1, File );
-		StA->mbparam.name = Filename;
+		this->StA->StAparam.name = Filename;
 
 		Comment(INFO, "Using external wav-file: " + Filename);
 		Comment(INFO, "Sample rate:             " + to_string( header_struct.srate ));
@@ -61,15 +61,13 @@ bool External_class::read_file_data(  )
 	}
 	if( read_stereo_data( bytes ) )
 	{
+		int shift = 0;//- max_data_amp / 2;
 		for ( buffer_t n = 0; n < structs; n++)
-		{	// provide mean value of stereo data into mono loop
-			// but
-			// use the opposite sign to restore mono data from stereo synthesizer data file
-			// convert fermion to boson
-			Data_t L = stereo->stereo_data[n].left;
-			Data_t R = stereo->stereo_data[n].right;
+		{
+			Data_t L = stereo.stereo_data[n].left;
+			Data_t R = stereo.stereo_data[n].right;
 
-			StA->Data[n]	= sqrt( L*L + R*R );
+			StA->Data[n]	= R;//shift + sqrt( L*L + R*R );
 		}
 		StA->set_store_counter( blocks );
 		Comment(INFO,"Converted stereo to mono data");
@@ -86,7 +84,7 @@ bool External_class::read_file_data(  )
 
 bool External_class::read_stereo_data( long data_bytes  )
 {
-	read_position += fread( stereo->stereo_data ,
+	read_position += fread( stereo.stereo_data ,
 							sizeof(stereo_t),
 							data_bytes/sizeof(stereo_t),
 							File  );
@@ -144,7 +142,7 @@ int generate_file_no( )
 		filenumber = 0;
 	}
 
-	filenumber = filenumber + 1;
+	filenumber = ( filenumber + 1 ) % sizeof( filenumber );
 
 	fd = fopen( counter_file.data(), "wb" );
     count = fwrite( &filenumber, sizeof(filenumber),  1, fd );
@@ -162,7 +160,7 @@ long External_class::write_audio_data( string filename, buffer_t rcounter )
 {
 
 	FILE* fd 	= fopen( filename.data(), "ab" );
-    long count 	= fwrite( this->stereo->stereo_data, sizeof(stereo_t), rcounter , fd );
+    long count 	= fwrite( this->stereo.stereo_data, sizeof(stereo_t), rcounter , fd );
     fclose( fd );
     return count;
 }
@@ -208,9 +206,9 @@ void External_class::write_music_file( string musicfile )
 void External_class::save_record_data( int fileno)
 {
 	Comment( INFO, "Prepare record file ");
-	long rcounter = stereo->info.record_counter * stereo->info.block_size;
+	long rcounter = stereo.info.record_counter * stereo.info.block_size;
 	Comment( INFO, "Record counter: " + to_string (rcounter));
-	stereo->Info( "External Stereo data");
+	stereo.Info( "External Stereo data");
 
 	if ( rcounter == 0 )
 	{
@@ -226,7 +224,7 @@ void External_class::save_record_data( int fileno)
 	long count		= write_audio_data( file_structure().raw_file, rcounter );
 	bool success = ( rcounter == count );
 	if ( success )
-		Comment(INFO,"All " + to_string( rcounter*stereo->info.sizeof_data) + " bytes written to file");
+		Comment(INFO,"All " + to_string( rcounter*stereo.info.sizeof_data) + " bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(rcounter) + " written");
@@ -256,11 +254,38 @@ void External_class::save_record_data( int fileno)
 
 }
 
+void External_class::add_record( Memory* Out_L, Memory* Out_R )
+//, uint8_t StA_ext_vol )
+{
+	auto details = [this]( buffer_t offs )
+		{
+		cout << stereo.info.name 			<< " "	<<
+		dec << stereo.info.record_counter 	<< " : " <<
+		hex << &stereo.stereo_data[offs] 	<< endl;
+		};
+
+	if ( stereo.info.record_counter >= stereo.info.max_records )
+		return;
+
+//	float rec_percent	= StA_ext_vol/100.0;
+	float rec_percent	= 1.0;
+	buffer_t offs 		= stereo.info.record_counter * stereo.info.block_size;
+	if ( Log[DBG2] ) details( offs );
+
+	for( buffer_t n = 0; n < max_frames; n++ )
+	{
+		stereo.stereo_data[n+offs].left = rint( Out_L->Data[n] * rec_percent );
+		stereo.stereo_data[n+offs].right= rint( Out_R->Data[n] * rec_percent );
+	}
+
+	stereo.info.record_counter++ ;
+}
+
 void External_class::test()
 {
 	Set_Loglevel(TEST, true);
  	Comment( TEST, "Testing External_class");
-	assert( StA->info.max_records - stereo->info.max_records == 0 );
+	assert( StA->info.max_records - stereo.info.max_records == 0 );
 
 
 }

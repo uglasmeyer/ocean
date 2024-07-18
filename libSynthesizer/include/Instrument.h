@@ -46,6 +46,7 @@ private:
 	void init_data_structure( Oscillator*, vector_str_t);
 	void setup_GUI_Data();
 	void reuse_GUI_Data();
+	void show_sound_stack();
 
 
 };

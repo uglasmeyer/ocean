@@ -453,7 +453,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>Sound Lab GUI</string>
+   <string>Ocean</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label">
@@ -2097,54 +2097,6 @@
     <hint type="destinationlabel">
      <x>1055</x>
      <y>104</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Slider_mix_vol3</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Sl_mix3()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>890</x>
-     <y>132</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>909</x>
-     <y>240</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Slider_mix_vol2</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Sl_mix2()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>890</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>885</x>
-     <y>166</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Slider_mix_vol1</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Sl_mix1()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>890</x>
-     <y>72</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>829</x>
-     <y>169</y>
     </hint>
    </hints>
   </connection>

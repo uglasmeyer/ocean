@@ -23,14 +23,10 @@
 // System
 #include <unistd.h> //sleep
 
-
-
-
-//Constructor
 MainWindow::MainWindow(QWidget *parent)
     :
-     QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+     QMainWindow(parent),
+	 ui(new Ui::MainWindow)
 {
 	auto Waveform_vec = [ this ]()
 		{
@@ -45,9 +41,10 @@ MainWindow::MainWindow(QWidget *parent)
 	QWaveform_vec = Waveform_vec();
 
     ui->setupUi(this);
-    // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
 
-    QPixmap bkgnd("/home/sirius/git/Ocean/OceanGUI/Ocean.png");
+    // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
+    QString Ocean_png = QString::fromStdString( dir_struct().libdir + "Ocean.png" );
+    QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
     QPalette palette;
     palette.setBrush(QPalette::Window, bkgnd);
@@ -55,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
 
+    connect( ui->pBtoggleRecord, SIGNAL(clicked(bool)), this, SLOT(toggle_Record() ));
+    connect( ui->pB_Store, SIGNAL(clicked()), this, SLOT(Store()));
+    connect( ui->pB_Mute, SIGNAL(clicked()), this, SLOT(toggle_Mute()));
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
     connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Hz_changed(int)));
 
@@ -67,17 +67,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pB_Specrum, SIGNAL(clicked()), this, SLOT(Spectrum_Dialog() ));
 
     connect(ui->dial_soft_freq, SIGNAL(valueChanged(int)), this, SLOT(dial_soft_freq_value_changed() ));
-    connect(ui->dial_PMW, SIGNAL(valueChanged(int)), this, SLOT(dial_PMW_value_changed() ));
+    connect(ui->dial_PMW      , SIGNAL(valueChanged(int)), this, SLOT(dial_PMW_value_changed() ));
     connect(ui->dial_ramp_up_down, SIGNAL( valueChanged(int)), this, SLOT(slot_dial_ramp_up_down()) );
-    connect(ui->hs_adsr_attack, SIGNAL(valueChanged(int)), this, SLOT(dial_decay_value_changed() ));
+    connect(ui->hs_adsr_attack , SIGNAL(valueChanged(int)), this, SLOT(dial_decay_value_changed() ));
 
-    connect(ui->sB_Duration, SIGNAL(valueChanged(int)), this, SLOT(sB_Duration(int) ));
+    connect(ui->sB_Duration    , SIGNAL(valueChanged(int)), this, SLOT(sB_Duration(int) ));
     connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
-    connect(ui->pB_Wavedisplay, SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
-    connect(ui->Slider_mix_vol4, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix4() ));
-    connect(ui->Slider_mix_vol5, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix5() ));
-    connect(ui->Slider_mix_vol6, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix6() ));
-    connect(ui->Slider_mix_vol7, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix7() ));
+    connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
+
+    connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));
+    connect(ui->Slider_mix_vol2, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix2(int) ));
+    connect(ui->Slider_mix_vol3, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix3(int) ));
+    connect(ui->Slider_mix_vol4, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix4(int) ));
+    connect(ui->Slider_mix_vol5, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix5(int) ));
+    connect(ui->Slider_mix_vol6, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix6(int) ));
+    connect(ui->Slider_mix_vol7, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix7(int) ));
 
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
@@ -97,8 +101,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(status_timer, &QTimer::timeout, this, &MainWindow::Updatewidgets);
     status_timer->start(1000);
 
-    QTimer* osc_timer = new QTimer( this );//TODO review
-    connect(osc_timer, &QTimer::timeout, this, &MainWindow::openGLWidget);
+    QTimer* osc_timer = new QTimer( this );
+    connect(osc_timer, &QTimer::timeout, this, &MainWindow::read_polygon_data );
     osc_timer->start(20); // 50 Hz
 
     uint sb_max = QWaveform_vec.size()-1;
@@ -117,6 +121,7 @@ MainWindow::MainWindow(QWidget *parent)
     QRectF rect         = ui->oscilloscope_view->geometry();
     item                = new OszilloscopeWidget( GUI.addr, rect );
     scene->addItem( item );
+
 
     GUI.announce( "SndlabGUI", true );
 }
@@ -207,13 +212,11 @@ void MainWindow::File_Director()
     if ( this->Dialog_File == nullptr )
     {
         this->Dialog_File = new File_Dialog_class( this );
-        this->Dialog_File->show();
     }
+    if ( this->Dialog_File->isVisible()   )
+        this->Dialog_File->hide();
     else
-    {
-        delete( this->Dialog_File );
-        this->Dialog_File = nullptr;
-    }
+        this->Dialog_File->show();
 }
 
 void MainWindow::Spectrum_Dialog()
@@ -318,20 +321,23 @@ void MainWindow::Store()
     status_store = not status_store;
 }
 
+#include <QEvent>
 void MainWindow::memory_clear()
 {
+	vector<uint> rb_ids = {0,1,2,3,4,MbIdExternal };
     int Id = 0; // if no one is checked, the current Id is cleared,
                 // that should be ok.
     for ( QRadioButton* rb : {  ui->rb_bank1,
                                 ui->rb_bank2,
                                 ui->rb_bank3,
                                 ui->rb_bank4,
-                                ui->rb_bank5
+                                ui->rb_bank5,
+								ui->rb_bank7
                             })
     {
         if( rb->isChecked() )
         {
-            GUI.Set( GUI.addr->MIX_Id, Id );
+            GUI.Set( GUI.addr->MIX_Id, rb_ids[Id] );
         }
         Id++;
     }
@@ -340,40 +346,39 @@ void MainWindow::memory_clear()
 
 auto mixer_slider( MainWindow* C, int ID, int value )
 {
-    C->GUI.Set( C->GUI.addr->MIX_Amp , value);
+    C->GUI.Set( C->GUI.addr->MIX_Amp, value);
     C->GUI.Set( C->GUI.addr->MIX_Id , ID );
-    C->GUI.Set( C->GUI.addr->KEY , SETMBAMPPLAYKEY);
+    C->GUI.Set( C->GUI.addr->KEY 	, SETMBAMPPLAYKEY);
 };
 
-void MainWindow::Sl_mix1()
+void MainWindow::Sl_mix1( int value )
 {
-	mixer_slider( this, 0, ui->Slider_mix_vol1->value() );
+	mixer_slider( this, 0, value );
 };
-void MainWindow::Sl_mix2()
+void MainWindow::Sl_mix2( int value )
 {
-	mixer_slider( this, 1, ui->Slider_mix_vol2->value() );
+	mixer_slider( this, 1, value );
 };
-void MainWindow::Sl_mix3()
+void MainWindow::Sl_mix3( int value )
 {
-	mixer_slider( this, 2, ui->Slider_mix_vol3->value() );
+	mixer_slider( this, 2, value );
 };
-void MainWindow::Sl_mix4()
+void MainWindow::Sl_mix4( int value )
 {
-	mixer_slider( this, 3, ui->Slider_mix_vol4->value() );
+	mixer_slider( this, 3, value );
 };
-void MainWindow::Sl_mix5()
+void MainWindow::Sl_mix5( int value )
 {
-	mixer_slider( this, 4, ui->Slider_mix_vol5->value() );
+	mixer_slider( this, 4, value );
 };
-void MainWindow::Sl_mix6() // Notes volume
+void MainWindow::Sl_mix6( int value ) // Notes volume
 {
-	mixer_slider( this, 5, ui->Slider_mix_vol6->value() );
+	mixer_slider( this, 5, value );
 };
-void MainWindow::Sl_mix7()
+void MainWindow::Sl_mix7( int value )
 {
-	mixer_slider( this, 6, ui->Slider_mix_vol7->value() );
+	mixer_slider( this, MbIdExternal, value );
 };
-
 
 void MainWindow::slot_dial_ramp_up_down()
 {
@@ -582,6 +587,10 @@ void MainWindow::start_synthesizer()
     MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-
     MainWindow::show(); // and the Mainwindow is updated.
 }
+void MainWindow::read_polygon_data()
+{
+    item->read_polygon_data();
+};
 
 void MainWindow::Controller_Exit()
 {
@@ -659,11 +668,6 @@ void MainWindow::main_adsr_sustain()
     GUI.Set( GUI.addr->Main_adsr_decay , value);
     GUI.Set( GUI.addr->KEY ,ADSRSUSTAINKEY);
 
-}
-
-void MainWindow::openGLWidget()
-{
-    MainWindow::item->read_polygon_data();
 }
 
 

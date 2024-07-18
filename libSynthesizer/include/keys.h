@@ -93,7 +93,6 @@ https://en.wikipedia.org/wiki/ASCII#Character_set
 #define USERINTERFACE_FLAG   1
 #define EXITKEY				'#'
 #define NULLKEY 			0
-#define SHOWCONFIGKEY		'_' //TODO not yet defined
 
 #include <vector>
 

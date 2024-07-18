@@ -1,0 +1,4 @@
+name=S.Das
+age=  		28 #details
+weight=65
+

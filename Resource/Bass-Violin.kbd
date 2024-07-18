@@ -1,0 +1,10 @@
+#OSC,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddelay  bps atck hall soft      PMWs
+ OSC,     MAIN,    sinus,    241,   1000,     75,     2,     1,     1,  96,   1,  14,   1,   0,      0,
+CONN,     MAIN,      FMO,      F,
+CONN,     MAIN,      VCO,      V,
+ OSC,      VCO,   sgnSin,    220,   1000,     18,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+CONN,      VCO,      VCO,      F,
+CONN,      VCO,      VCO,      V,
+ OSC,      FMO, sawtooth,    110,   1000,     19,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+CONN,      FMO,      FMO,      F,
+CONN,      FMO,      FMO,      V,

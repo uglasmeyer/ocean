@@ -19,14 +19,12 @@
 
 using namespace std;
 
-string Module = "Synthesizer";
-Logfacility_class		Log(Module)   ;
+Logfacility_class		Log( "Synthesizer" );
 GUI_interface_class		GUI;
-Stereo_Memory			Stereo( stereobuffer_size );
-Mixer_class				Mixer( &Stereo );
+Mixer_class				Mixer;
 Instrument_class 		Instrument(GUI.addr );
 Note_class 				Notes;
-External_class 			External( &Mixer.StA[ MbIdExternal], &Stereo );
+External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( GUI.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
@@ -35,7 +33,6 @@ Record_class			Record( GUI.addr );
 Loop_class 				master_amp_loop;
 Loop_class				record_amp_loop;
 
-bool					SndSrvStatus = false;
 bool 					record_thread_done = false;
 
 int ERROR 				= Log.ERROR;
@@ -43,7 +40,7 @@ int DEBUG				= Log.DEBUG;
 int INFO  				= Log.INFO;
 int D2 					= Log.DBG2;
 
-string This_Application = "";
+string This_Application = Get_application_name( "Synthesizer" );
 vector <string> dirs = {
 		dir_struct().homedir,
 		dir_struct().basedir,
@@ -59,6 +56,8 @@ vector <string> dirs = {
 		dir_struct().includedir,
 		dir_struct().autodir
 };
+
+bool SaveRecordFlag = false;
 
 
 void creat_dir_structure()
@@ -123,17 +122,16 @@ void record_thead_fcn( )
 	Value fileno {0};
 	while ( not record_thread_done ) 			// run until exit_proc or empty_exit_proc is called
 	{
-		fileno = (int) GUI.addr->FileNo;
-
-		if (( fileno.i > 0 ) )					// trigger the activity - see Composer
-												// 						- and SndlabGUI RECORDWAVFILEKEY
+		if ( ( SaveRecordFlag ) )				// triggered by RECORDWAVFILEKEY
 		{
+			fileno = (int) GUI.addr->FileNo;
 			Log.Comment( INFO,
 				"record thread received job " + fileno.str);
 
 			External.save_record_data( fileno.i );
-			GUI.addr->FileNo = 0;				// unset the trigger
+
 			// clean up
+			SaveRecordFlag = false;
 			Record.Unset();
 			GUI.update( RECORDWAVFILEFLAG ); 	// feedback to GUI
 		}
@@ -192,65 +190,15 @@ void show_AudioServer_Status()
 {
 	GUI.addr->AudioServer = NOCONTROL;
 	Wait( SECOND );
-	SndSrvStatus = not ( GUI.addr->AudioServer == NOCONTROL );
-	if (! SndSrvStatus)
+
+	if ( GUI.addr->AudioServer == NOCONTROL )
 		Log.Comment(0, "Sound server not running with status "+to_string( GUI.ifd_data.AudioServer ) );
 	else
 		Log.Comment(INFO, "Sound server is up" );
-
-	return;
 }
 
 
 
-void show_sound_stack() // show_status
-{
-//	return;
-	string star 	= "*";
-	string nostar 	= ".";
-	string active 	;
-	string fp_flag  ;
-	string vp_flag  ;
-	string fp_gen  ;
-	string vp_gen  ;
-	string Play 	;
-
-	cout << " Name \tWaveform \tHz \tAmp \tmsec \t  VCO \t  FMO " << endl;
-	for ( auto itr : { Instrument.main, Instrument.vco, Instrument.fmo })
-	{
-		active  	= nostar;
-		fp_flag     = nostar;
-		vp_flag     = nostar;
-		fp_gen		= nostar;
-		vp_gen		= nostar;
-		if ( itr.vp.stored ) 		vp_flag = star;
-		if ( itr.fp.stored ) 		fp_flag = star;
-		if ( itr.vp.generated ) 	vp_gen = star;
-		if ( itr.fp.generating ) 	fp_gen = star;
-		cout 	<< active
-				<< itr.osc_type +"\t"
-				<< itr.wp.waveform_str +"\t"
-				<< to_string( itr.wp.frequency )+"\t"
-				<< to_string( itr.wp.volume )+"\t"
-				<< to_string( itr.wp.msec ) +"\t"
-
-				<< vp_flag
-				<< vp_gen
-				<< itr.vp.name +"\t"
-
-				<< fp_flag
-				<< fp_gen
-				<< itr.fp.name
-				<< endl;
-	};
-
-	if ( Mixer.status.play  )
-		Play = "active";
-	else
-		Play = "locked / unlock with >p<";
-	Log.Comment(INFO, "Keyboard is " + Play );
-	return;
-}
 
 
 
@@ -495,16 +443,19 @@ void process( char key )
 		{
 			Value arrnr { (int) ifd->MIX_Id };
 			Value amp 	{ (int) ifd->MIX_Amp };
+			string ONOFF = "on";
 			Mixer.StA[arrnr.i].Amp 	= amp.i; // Amp % [0 ... 100]
 			if ( Mixer.StA[arrnr.i].store_counter == 0 )
 				Log.Comment( Log.WARN , "selected memory >" + arrnr.str + "< is empty ");
 			Mixer.StA[arrnr.i].record_mode(false);
-			string ONOFF = Mixer.StA[arrnr.i].play_mode( true ); // start play by slider volume change
-											//only if array contains data
+			if ( not Mixer.StA[arrnr.i].status.play )
+				ONOFF = Mixer.StA[arrnr.i].play_mode( true );
+			// start play by slider volume change if not already playing
+									//only if array contains data
 			Mixer.status.play 			= true; // TODO too unspecific
 			Log.Comment(Log.INFO, "receive command <play memory bank " +
 					arrnr.str + "> " + ONOFF +
-					" vol: " + amp.str + "%");
+					" vol: " + amp.str + " %");
 			ifd->MODE = NOTES; // switch Audio Server into synchronize mode
 			GUI.commit();
 			break;
@@ -677,36 +628,40 @@ void process( char key )
 		{
 			Instrument.fmo.reset_data( &Instrument.fmo );
 			Instrument.fmo.OSC(0);
-//					Instrument.main.connect_fmo_data( Instrument.fmo );
 			GUI.commit();
 			break;
 		}
 		case RECORDWAVFILEKEY : // record and save wav file
 		{
+			if ( SaveRecordFlag )
+			{
+				Log.Comment( Log.WARN, "Thread is saving data. ... Wait ");
+				break;
+			}
 			Log.Comment(INFO,"Record Audio out to wav file format.");
 			External.status.record = not External.status.record;
 			if ( ifd->Composer == RECORD ) // composer overwrites default behaviour
 				External.status.record = true;
 			if ( ifd->Composer == STOPRECORD )
 				External.status.record = false;
-
-
-
 			string str = External.status.record ? "start" : "stop ";
 			Log.Comment(INFO, str);
+
 			if ( not External.status.record ) 	// STOPRECORD
 			{
 				Mixer.StA[MbIdExternal].record_mode( false );
 
 				//no ifd-commit for this section
 				ifd->KEY = 0;  //but do not start twice
+				SaveRecordFlag = true; // trigger the record thread
 			}
 			else 								// RECORD
 			{
-				Stereo.info.record_counter = 0;
-				Stereo.clear_data();
+				External.stereo.info.record_counter = 0;
+				External.stereo.clear_data();
 				Mixer.StA[MbIdExternal].record_mode( true );
-				Record.Set( &Stereo.info.record_counter, Stereo.info.max_records );
+				Record.Set( &External.stereo.info.record_counter,
+							 External.stereo.info.max_records );
 				GUI.commit();
 			}
 			break;
@@ -792,12 +747,6 @@ void process( char key )
 		{
 
 			exit_proc( 1 );
-			break;
-		}
-		case SHOWCONFIGKEY : // TODO show config not yet implemented
-		{
-			show_sound_stack();
-			GUI.commit();
 			break;
 		}
 
@@ -914,6 +863,7 @@ void ApplicationLoop()
 					shm_id 			= ( int ) ifd->SHMID;
 					shm_addr 		= ( shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
 					Mixer.add( &Instrument, shm_addr, Record.active );
+
 				} 											// but handel further requests
 			}
 			ifd->MODE 		= NOTES;					// do not update Audio Server data
@@ -925,16 +875,18 @@ void ApplicationLoop()
 			ifd->MODE 		= FREERUN;
 			shm_addr 		= Shm_a.addr;
 			Mixer.add( &Instrument, shm_addr, Record.active );
+
 		}
 
+		if ( Record.active )
+			External.add_record( &Mixer.Out_L, &Mixer.Out_R);//, Mixer.StA[ MbIdExternal ].Amp );
 		Record.Progress_bar_update();
 
 		Wavedisplay.gen_cxwave_data(  );
 		Update_ifd_status_flags();
-	} // while not #
+	} // while not EXITSERVER
 
 	Log.Comment(INFO, "Exit Application loop");
-
 	return;
 
 } // Application loop
@@ -996,7 +948,6 @@ int main( int argc, char* argv[] )
 	Log.Comment(Log.INFO, "Reading config file " + file_structure().config_file );
     read_synthesizer_config( );
 
-    This_Application = Get_application_name ( "Synthesizer" );
 	Log.Comment(INFO, "Entering application init for " + This_Application );
 
 	shutdown_other();
@@ -1012,7 +963,6 @@ int main( int argc, char* argv[] )
 	GUI.restore_ifd();
 	activate_ifd();
 
-	show_sound_stack();
 	show_usage();
 	show_AudioServer_Status();
 

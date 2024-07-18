@@ -122,9 +122,9 @@ void Stereo_Memory::Info()
 
 using namespace Storage;
 
-void Storage_class::setup( mb_struct_t p )
+void Storage_class::setup( StA_struct_t p )
 {
-	mbparam 		= p;
+	StAparam 		= p;
 	max_counter 	= p.size/block_size;
 	buffer_t Bytes 	= max_counter*sizeof(Data_t)*block_size;
 	init_data( Bytes );
@@ -158,13 +158,12 @@ Data_t* Storage_class::get_next_block()
 	if ( not status.play ) return nullptr;
 	Data_t* ptr = get_block( read_counter );
 	read_counter = ( read_counter + 1 ) % store_counter ;
-
+	assert( read_counter <= store_counter );
 	return ptr;
 }
 
 Data_t* Storage_class::get_block( uint id)
 {
-//	if ( id >= status.store_counter ) id = status.store_counter;
 	return &Data[id * block_size];
 }
 
@@ -187,9 +186,8 @@ string 	Storage_class::play_mode( bool flag )
 		status.play = false;
 	else
 		status.play = flag;
-	if ( flag )
-		read_counter = 0;
-	assert( read_counter <= store_counter );
+//	if ( flag )
+//		read_counter = 0;
 	return (status.play) ? "ON" : "OFF";
 }
 
@@ -199,7 +197,6 @@ string Storage_class::record_mode( bool flag )
 	if ( flag )
 	{
 		read_counter = 0;
-//		status.play = false;
 	}
 	return (status.store) ? "ON" : "OFF";
 
@@ -208,17 +205,16 @@ string Storage_class::record_mode( bool flag )
 void Storage_class::mute()
 {
 
-	Comment(INFO, "mute " + mbparam.name );
+	Comment(INFO, "mute " + StAparam.name );
 	status.play 	= false;
-//	status.store 	= false; // does it?
 }
 
 
 void Storage_class::playnotes( bool flag )
 {
 	string onoff = flag ? " on" : " off";
-	cout << "play " + mbparam.name + onoff << endl;
-	Comment(INFO, "play " + mbparam.name + onoff );
+	cout << "play " + StAparam.name + onoff << endl;
+	Comment(INFO, "play " + StAparam.name + onoff );
 	status.play = flag;
 	status.store= false;
 }

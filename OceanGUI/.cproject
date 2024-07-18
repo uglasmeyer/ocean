@@ -61,7 +61,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="" artifactName="OceanGUI" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" description="" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428" name="Release" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.dockerdpath=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg" postannouncebuildStep="" postbuildStep="">
+				<configuration artifactExtension="" artifactName="/home/sirius/Synthesizer/bin/OceanGUI" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" description="" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428" name="Release" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.dockerdpath=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg" postannouncebuildStep="" postbuildStep="">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.71318556" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1932834721" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -97,7 +97,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.788755137" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1223761952" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.userobjs.621680993" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
-									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/libSynthesizer/Release/libSynthesizer.a"/>
+									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/Release/libOcean.a"/>
 								</option>
 								<option id="gnu.cpp.link.option.debugging.gprof.128794857" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1527473499" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
@@ -144,9 +144,6 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="OceanGUI.null.2115167643" name="OceanGUI"/>
 	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Default">
@@ -155,5 +152,14 @@
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/OceanGUI"/>
 		</configuration>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.;cdt.managedbuild.tool.gnu.cpp.compiler.base.2030474057;cdt.managedbuild.tool.gnu.cpp.compiler.input.1078829170">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.;cdt.managedbuild.tool.gnu.c.compiler.base.799914873;cdt.managedbuild.tool.gnu.c.compiler.input.955189718">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

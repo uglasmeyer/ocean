@@ -114,15 +114,15 @@ void Loop_class::test()
 //-------------------------------------------------------------------------------------------------
 
 
-Mixer_class::Mixer_class( Stereo_Memory* stereo )
+Mixer_class::Mixer_class( )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
-	this->stereo 			 = stereo;
+//	this->stereo 			 = stereo;
 
-	mb_struct_t tmp_conf = {"temp", 	max_frames*tmpduration	, 'a'};
-	mb_struct_t ext_conf = {"External", max_frames*recduration	, 's'};
-	mb_struct_t nte_conf = {"Notes", 	max_frames				, 'a'};
+	StA_struct_t tmp_conf = {"temp", 	max_frames*tmpduration	, 'a'};
+	StA_struct_t ext_conf = {"External", max_frames*recduration	, 's'};
+	StA_struct_t nte_conf = {"Notes", 	max_frames				, 'a'};
 
 
 	for( uint n = 0; n<MbSize; n++)
@@ -144,7 +144,7 @@ Mixer_class::Mixer_class( Stereo_Memory* stereo )
 	Mono_out.Info	( "Output Mono data");
 	Out_L.Info		( "Output Stereo Left");
 	Out_R.Info		( "Output Stereo Right");
-	stereo->Info	( "Record Memory Stereo" );
+//	stereo->Info	( "Record Memory Stereo" );
 
 };
 
@@ -187,8 +187,8 @@ void Mixer_class::stereo_out( stereo_t* data, uint8_t master_vol )
 		data[n].right 	= rint( Out_R.Data[n] * out_percent );
 		Mono_out.Data[n]= ( Mono_tmp.Data[n]*out_percent ); // Wavedisplay mono data
 	}
-
 }
+
 void Mixer_class::add_noteline( uint8_t arr_id, Note_class* Notes )
 {
 	while ( composer > 0 )
@@ -203,31 +203,6 @@ void Mixer_class::add_noteline( uint8_t arr_id, Note_class* Notes )
 
 }
 
-void Mixer_class::add_record( stereo_t* data, uint8_t StA_ext_vol )
-{
-	auto details = [this]( buffer_t offs )
-		{
-		cout << stereo->info.name 			<< " "	<<
-		dec << stereo->info.record_counter 	<< " : " <<
-		hex << &stereo->stereo_data[offs] 	<< endl;
-		};
-
-	if ( stereo->info.record_counter >= stereo->info.max_records )
-		return;
-
-	float rec_percent	= StA_ext_vol/100.0;
-	buffer_t offs 		= stereo->info.record_counter * stereo->info.block_size;
-	if ( Log[DBG2] ) details( offs );
-
-	for( buffer_t n = 0; n < max_frames; n++ )
-	{
-		stereo->stereo_data[n+offs].left = rint( Out_L.Data[n] * rec_percent );
-		stereo->stereo_data[n+offs].right= rint( Out_R.Data[n] * rec_percent );
-		Mono_out.Data[n]  		= ( Mono_tmp.Data[n]*rec_percent ); // Wavedisplay mono data
-	}
-
-	stereo->info.record_counter++ ;
-}
 void Mixer_class::add(  Instrument_class* instrument, stereo_t* shm_addr, bool rec )
 {
 	// store the result into a local buffer, before making it available to the audio server
@@ -269,7 +244,6 @@ void Mixer_class::add(  Instrument_class* instrument, stereo_t* shm_addr, bool r
 		{
 			status.play = true; // any active mem array triggers total synchronized play mode
 			uint8_t Amp = (int)DA->Amp;
-			//			add_mono( read_data, Amp, 2*( DAid % 2) );
 			add_mono( read_data, Amp, DAid );
 		}
 	}
@@ -278,8 +252,6 @@ void Mixer_class::add(  Instrument_class* instrument, stereo_t* shm_addr, bool r
 							StA[MbIdExternal].status.store );
 	status.notes 		= 	StA[MbIdNotes].status.play;
 	stereo_out( shm_addr, master_volume );
-	if ( rec )
-		add_record( shm_addr, StA[MbIdExternal].Amp );
 };
 
 void Mixer_class::test()
@@ -289,7 +261,7 @@ void Mixer_class::test()
 	Mono_out.Set_Loglevel( TEST, true );
 	Out_L.Set_Loglevel( TEST, true );
 	Out_R.Set_Loglevel( TEST, true );
-	stereo->Set_Loglevel( TEST, true );
+//	stereo->Set_Loglevel( TEST, true );
 	for ( Memory& sta : StA )
 		sta.Set_Loglevel( TEST, true );
 	Mono_tmp.Info();

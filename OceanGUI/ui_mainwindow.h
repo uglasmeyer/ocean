@@ -681,9 +681,6 @@ public:
         QObject::connect(cb_1, SIGNAL(clicked(bool)), MainWindow, SLOT(change_status1()));
         QObject::connect(cb_2, SIGNAL(clicked(bool)), MainWindow, SLOT(change_status2()));
         QObject::connect(cb_3, SIGNAL(clicked(bool)), MainWindow, SLOT(change_status3()));
-        QObject::connect(Slider_mix_vol3, SIGNAL(valueChanged(int)), MainWindow, SLOT(Sl_mix3()));
-        QObject::connect(Slider_mix_vol2, SIGNAL(valueChanged(int)), MainWindow, SLOT(Sl_mix2()));
-        QObject::connect(Slider_mix_vol1, SIGNAL(valueChanged(int)), MainWindow, SLOT(Sl_mix1()));
         QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(connect_vco()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
         QObject::connect(pBtoggleRecord, SIGNAL(clicked()), MainWindow, SLOT(toggle_Record()));
@@ -701,7 +698,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Ocean", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "OSC", nullptr));
         labelVCO->setText(QCoreApplication::translate("MainWindow", "VCO", nullptr));
         labelFMO->setText(QCoreApplication::translate("MainWindow", "FMO", nullptr));

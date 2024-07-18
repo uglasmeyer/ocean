@@ -58,7 +58,6 @@ private slots:
     void dial_PMW_value_changed();
     void dial_decay_value_changed();
     void get_record_status( );
-    // action on Frequency slide change
 
     void MAIN_slot_Hz();
     void MAIN_slot_volume();
@@ -82,17 +81,18 @@ private slots:
     void set_mode_v();
     void set_mode_o();
 
-    void Sl_mix1();
-    void Sl_mix2();
-    void Sl_mix3();
-    void Sl_mix4();
-    void Sl_mix5();
-    void Sl_mix6();
-    void Sl_mix7();
+    void Sl_mix1( int );
+    void Sl_mix2( int );
+    void Sl_mix3( int );
+    void Sl_mix4( int );
+    void Sl_mix5( int );
+    void Sl_mix6( int );
+    void Sl_mix7( int );
     void slot_dial_ramp_up_down();
     void memory_clear();
     void toggle_Record();
 
+    void read_polygon_data();
 
     void Store();
     void Clear_Banks();
@@ -102,12 +102,12 @@ private slots:
     void change_status3();
     void change_status4();
     void change_status5();
+
     void File_Director();
     void Spectrum_Dialog();
 
     void Save_Config();
     void toggle_Mute();
-    void openGLWidget();
     void connect_fmo();
     void connect_vco();
 

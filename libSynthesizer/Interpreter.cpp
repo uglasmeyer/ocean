@@ -58,8 +58,9 @@ Interpreter_class::~Interpreter_class() {}
 
 bool Interpreter_class::cmpkeyword ( const string word )
 {
-	keyword.to_lower();
-	return ( keyword.Str.compare( word ) == 0 );
+	String lower {keyword.Str};
+	lower.to_lower();
+	return ( lower.Str.compare( word ) == 0 );
 }
 
 void Interpreter_class::start_bin( vector_str_t arr )
@@ -147,8 +148,8 @@ void Interpreter_class::record( vector_str_t arr )
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
 		Processor_class::push_ifd( &ifd->Composer,STOPRECORD, 	"composer stoprecord data" );
-		Processor_class::push_key( RECORDWAVFILEKEY, 			"stop record" );
 		Processor_class::push_ifd( &ifd->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
+		Processor_class::push_key( RECORDWAVFILEKEY, 			"stop record" );
 		return;
 	}
 	if ( cmpkeyword( "play") )
@@ -278,8 +279,9 @@ void Interpreter_class::notes( vector_str_t arr )
 		string Noteline = Variation.get_note_line();
 
 		Comment(INFO, "set notes.");
-		expect		=	{"prefix","octave", };
+		expect		=	{"prefix","octave", "[num]","sentence" };
 		keyword.Str = pop_stack(1);
+
 		if ( cmpkeyword("prefix") )
 		{
 			expect 		= {"#flats", "#sharps" };
@@ -300,14 +302,15 @@ void Interpreter_class::notes( vector_str_t arr )
 
 		if ( cmpkeyword( "num" ) )
 		{
-			Variation.set_note_chars( 1 );
 			Noteline = pop_stack(1);
+			Variation.set_note_chars( 1 );
 		}
 		else
 		{
+			Noteline = keyword.Str;
 			Variation.set_note_chars( 0 );
 		}
-
+		cout << Noteline << endl;
 		expect = {"rhythm line" };
 		string Rhythmline = pop_stack(1);
 		Variation.set_rhythm_line( Rhythmline );

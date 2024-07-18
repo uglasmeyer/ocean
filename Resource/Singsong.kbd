@@ -1,0 +1,11 @@
+#OSC,      Name  Waveform    [Hz]  [msec] Amp.[%]Fnc no.   freq   vol.              adsr      PMWs
+ OSC,     MAIN,    Sinus,    440,   1000,      7,     2,     1,     1,  97,   1,  13,   6,   6,      6,
+CONN,     MAIN,      FMO,      F,
+CONN,     MAIN,      VCO,      V,
+ OSC,      VCO,    Sinus,      6,   1000,     67,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+CONN,      VCO,      VCO,      F,
+CONN,      VCO,      VCO,      V,
+ OSC,      FMO,    sinus,     37,   1000,      2,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+CONN,      FMO,      FMO,      F,
+CONN,      FMO,      FMO,      V,
+WAVE,     1325

@@ -1,0 +1,221 @@
+# basic commands
+#
+
+call 	:startserver
+
+
+MbIdExternal = 7
+MbIdNotes 	 = 6
+S0 = 0
+S1 = 1
+S2 = 2
+S3 = 3
+S4 = 4
+
+
+call :clearstorage
+
+#call 	:drums
+#call	:volklore1
+call	:test11children
+#call	:testpiano
+#call 	:test10
+#call	:syntax
+
+#----------------------------------------
+#call 	:stopserver
+exit
+
+
+:test10
+call :clearstorage
+
+notes per_second 8 # notes per second
+
+random |2D-|3D'.|2D-|3D'.|2D-|3D'.....  	49 	D	c		drums2
+notes per_second 4
+random |1D.D.D.D.D.D.		779 	D	c	brush
+add 	Saxophone 		drums2 		S1 auto
+add 	brush 		brush 		S0 auto
+call :standardintro
+play S1 amp 60
+play S0 amp 60
+pause 30
+
+return
+
+
+:testpiano
+osc main mute
+instrument load piano
+notes set "|1(FBD)'--- (CEG) ---|2 (ACE)---|1 (DF)-(AF)-" 8532
+notes play on 70
+pause key
+return
+
+
+:test11children
+call :clearstorage
+osc main mute
+notes per_second 4
+random |2F--.G-C'-F'-G-C'--.G--.E'G'G'F'E'--.  778879 	D cc-	lead
+notes per_second 4
+random |2F--.G-C'-F'-G-C'--.G--.E'G'G'F'E'--.  445546 	D cc-	leadS
+add sphere		leadS S1 auto
+
+notes set |4CDEFGFGFED-. 9779
+add sphere 			tmp S0 auto
+notes per_second 4
+random |2E-EE|3E-EE|2F-FF|3F-FF 				68 		- cc2c3 	chor
+notes per_second 4
+random |1E-EE|1E-EE|1F-FF|1F-FF 				86		- c 	drums
+add Singsong 		lead S0 auto
+add drum3	 		drums S2 auto
+add sphere 			chor S1 auto
+
+call :standardintro
+play S2 amp 80
+pause 5
+
+instrument load Singsong
+notes per_second 4
+notes set |2G.GC.DC.D...E.C. 9779
+notes play on 70
+
+play S0 amp 70
+play S1 amp 60
+#play S3 amp 100
+pause key
+
+call :standardend
+return
+#---------------------------------------- drums
+
+:drums
+random |1DEr-Dr-.   				789490 	EFG	crrcrr	drums2
+random |1C.r-Dr-E   				987940	CDE	rrcrrc	drums3
+random |1DEr.Dr-.   				969696	cfg	crrcrr	drumsfast
+random "|2(AC).(DC)r (AC).(DC)r"	7657	cfgCDA.', crcrcr     lead2
+random "|2(AC)r(DE)G |3(AC)c(DC). "	9789 	c-fgCDA.', crr-crr-rr lead
+
+
+add 	drums 		drums3 		S1 auto
+add 	drumsfast 	drumsfast 	S2 auto
+add 	drums 		drums2 		S3 auto
+add 	E-Gitarre 	lead2 		S4 auto
+add 	Saxophone 	lead		S4 auto
+add		sphere		lead		S4 auto
+
+call :standardintro
+
+play S1 amp 30
+play S2 amp 30
+play S3 amp 70
+play S4 amp 60
+
+pause 60
+call :standardend
+
+
+return
+
+#----------------------------------------
+:test4
+osc main mute
+random |2HF.G FE	ccrrccrr	volklore_drums	
+
+add 	Gong volklore_drums 3 auto
+play 3 amp 90
+return
+#----------------------------------------
+:test1
+
+call 	:clearstorage
+adsr 	duration 1
+osc 	main mute
+#add 	sticks 			rhythm 	1 auto
+add 	Gong 			rhythm 	3 auto
+add 	violin		 	melody2	2 auto
+add 	Singsong_woman 	second  0 auto
+
+osc		main mute
+
+record 	file 100 0
+
+play 	2 amp 100	# second
+play 	0 amp 100	# second
+play 	3 amp 50	# second
+
+pause 	30
+record stop
+return
+
+
+
+#----------------------------------------
+
+osc main mute
+add sticks test 			0 auto
+add Singsong_woman first 	2 auto
+add Katze for-alphorn 		1 auto
+play 0 amp 0
+play 2 amp 0
+osc main mute 
+pause 5
+play 1 amp 0
+pause 10
+return
+
+
+#----------------------------------------
+
+:volklore1
+
+
+
+random |2(DC).(FC)-		87 (EF)(ACE)'(BDF). 		-crrr-crrr-crrr	 	volklore_piano2
+notes per_second 4
+random |2Ef-G|3EfD.		8787 GFDFf. 			-crrr-crrr 		volklore_lead
+random |1D.F.		 	86 FEF. 			crrrcrrr			volklore_drums	
+random |2(AC).(DC)- 	86 (GEF)F-. 		crr-ccr- 		volklore_piano1
+
+add 	sticks			volklore_drums		S0 auto
+add 	piano		 	volklore_piano2		S1 auto
+add 	piano		 	volklore_piano1		S3 auto
+add 	Singsong  		volklore_lead		S3 auto
+add 	Saxophone 		volklore_lead		S3 auto
+add 	drums			volklore_drums 		S4 auto
+
+call :standardintro
+
+
+play 	S0 amp 70	# sticks
+pause 	2
+play 	S4 amp 100	# drums
+pause 	3
+play 	S1 amp 60	# piano
+pause 	2
+play 	S2 amp 60	# piano
+pause 	5
+play 	S3 amp 80 	# Saxophone
+pause 	20
+instrument load Saxophone
+notes per_second 8
+notes set  |2D-|3D'.|2D-|3D'.|2D-|3D'..... 681681681
+notes play on 30
+
+pause 	30
+osc main loop amp 0
+pause 	10
+#call :standardend
+
+
+ 
+
+return
+
+
+include testcases
+include lib
+
+

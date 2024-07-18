@@ -1,0 +1,11 @@
+#OSC,      Name  Waveform    [Hz]  [msec] Amp.[%]Fnc no.   freq   vol.              adsr      PMWs
+ OSC,     MAIN,rectangle,    159,   1000,     47,     2,     1,     1,  97,   2,  48,   1,   0,     58,
+CONN,     MAIN,     MAIN,      F,
+CONN,     MAIN,      VCO,      V,
+ OSC,      VCO,rectangle,    265,   1000,     43,     2,    10,     1,   0,   1,  80,   0,   1,     58,
+CONN,      VCO,      VCO,      F,
+CONN,      VCO,      VCO,      V,
+ OSC,      FMO, triangle,    491,   1000,     10,     2,    10,     1,   0,   1,  80,   0,   1,     58,
+CONN,      FMO,      VCO,      F,
+CONN,      FMO,      FMO,      V,
+WAVE,     1251

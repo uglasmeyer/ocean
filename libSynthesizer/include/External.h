@@ -17,19 +17,17 @@
 class External_class : virtual public Logfacility_class
 {
 	Storage::Storage_class* 	StA;
-	Stereo_Memory* 				stereo;
 	FILE*						File;
 
 public:
+	Stereo_Memory				stereo{ stereobuffer_size };
 
-	External_class( Storage::Storage_class* Storge_Area, Stereo_Memory* stereo ) :
+	External_class( Storage::Storage_class* StA ) : //, Stereo_Memory* stereo ) :
 		Logfacility_class("External")
 	{
-		this->StA 		= Storge_Area;
-		this->stereo	= stereo;
-		this->File 		= NULL;
-		this->stereo->Info	( "External Stereo data") ;
-		this->StA->Info		( "Memory Array External");
+		this->StA 			= StA;
+		this->File 			= NULL;
+		stereo.Info			( "External Stereo data") ;
 
 	};
 	~External_class(){};
@@ -43,11 +41,12 @@ public:
 	bool read_file_data(  );
 	bool read_file_header( string );
 	void save_record_data( int );
+	void add_record( Memory*, Memory* );
 	void test();
 
 private:
 	wav_struct_t 	header_struct;
-	string 			Name 		= ".wav";
+	string 			Name 		= "";
 	string 			Filename 	= "";
 	string convert_wav2mp3 		= "ffmpeg -y -i " 	+ file_structure().wav_file +
 								  " -f mp3 " 		+ file_structure().mp3_file + " >/dev/null" ;

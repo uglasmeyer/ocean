@@ -7,7 +7,6 @@
 #include <version.h>
 #include <common.h>
 
-
 using namespace std;
 
 Logfacility_class Log_common{"System"};
