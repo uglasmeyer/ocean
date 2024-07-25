@@ -1,7 +1,7 @@
 // C++ Project
 // https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene_QGraphicsItems.php
 
-#include "qpainter.h"
+#include <qpainter.h>
 #include <oszilloscopewidget.h>
 
 

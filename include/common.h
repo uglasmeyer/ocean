@@ -1,0 +1,73 @@
+/*
+ * common.h
+ *
+ *  Created on: Jan 4, 2024
+ *      Author: sirius
+ */
+
+#ifndef INCLUDE_COMMON_H_
+#define INCLUDE_COMMON_H_
+
+#include <synthesizer.h>
+
+template<typename T> char type_of( T obj )
+{
+	const std::type_info& tid = typeid( obj );
+	const std::type_info& ti1 = typeid( string );
+	const std::type_info& ti2 = typeid( char );
+	const std::type_info& ti4 = typeid( int );
+	const std::type_info& ti3 = typeid( uint16_t );
+	if ( ti1 == tid ) return 's';
+	if ( ti2 == tid ) return 'c';
+	if ( ti3 == tid ) return 16;
+	if ( ti4 == tid ) return 'i';
+	return 0;
+};
+
+
+typedef struct prgarg_struct
+{
+		~prgarg_struct(){};
+		uint channel 	= 2;  		// -c
+		uint rate 		= audio_frames;	// -r
+		uint device 	= 0;		// -d
+		uint ch_offs 	= 0; 		// -o
+		uint shm_key_a 	= rate; 	// -k
+		char test 		= 'n';		// -t run sanity check on classes and exit = 'y'
+		char dialog		= 'n';		// -d dialog mode of the composer = 'y'
+		uint shm_key_b 	= rate + 11;	//
+} prgarg_struct_t;
+
+
+extern void show_prgarg_struct( prgarg_struct_t );
+extern prgarg_struct_t parse_argv( int , char**  );
+
+extern void Wait(long  int );
+
+#define MILLISECOND 1
+#define MIKROSECOND 1000
+#define SECOND 1000000
+
+using namespace std::chrono;
+class Time_class : public Logfacility_class
+{
+	// https://en.cppreference.com/w/cpp/chrono
+
+public:
+
+	time_point<steady_clock> start_time;
+	time_point<steady_clock> stop_time;
+	const long int wait = max_sec * 1000 ;
+	long int duration, ms_wait;
+	long int latency = 0;
+
+	Time_class();
+	~Time_class(){};
+	long int time_elapsed();
+	void start();
+	void stop();
+	void block();
+};
+
+
+#endif /* INCLUDE_COMMON_H_ */
