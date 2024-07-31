@@ -20,7 +20,7 @@
 
 #include <synthesizer.h>
 #include <synthmem.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <common.h>
 #include <Logfacility.h>
 #include <version.h>

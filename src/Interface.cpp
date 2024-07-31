@@ -6,7 +6,7 @@
  */
 
 
-#include <GUIinterface.h>
+#include <Interface.h>
 
 
 GUI_interface_class::GUI_interface_class()
@@ -94,21 +94,25 @@ void GUI_interface_class::show_GUI_interface()
 	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr_attack );
 	lline( "Main duration      " , (int)addr->Main_Duration);
 	rline( "(A)DSR D(u)ration: " , Bps_string[(int)addr->Main_adsr_bps_id]);
-	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->Main_waveform_id ]);
+	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
 	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr_decay );
 	cout << endl;
 	lline( "(F)MO  (F)requency:" , addr->FMO_Freq);
 	rline( "(V)CO  (F)requency:" , addr->VCO_Freq);
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_Amp);
 	rline( "(V)CO  (A)mplitude:" , (int) addr->VCO_Amp);
-	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_waveform_id ]);
-	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_waveform_id ]);
-	lline( "." , '.');
+	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.id ]);
+	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.id ]);
+//	rline( "." , '.');
+	Spectrum.osc_type = "MAIN";
+	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->MAIN_spectrum ));
+	Spectrum.osc_type = "VCO";
+	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->VCO_spectrum ));
+	Spectrum.osc_type = "FMO";
+	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->FMO_spectrum ));
 	rline( "VCO  PMW dial      " , (int)addr->PMW_dial) ;
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );
 	rline( "Mixer Id           " , (int)addr->MIX_Id );
-	lline( "Spectrum value:    " , (int)addr->Spectrum_value );
-	rline( "Spectrum channel   " , (int)addr->Spectrum_channel );
 	lline( "Sync data id       " , (int) addr->SHMID);
 	rline( "Communication Key  " , (int) addr->KEY );
 	lline( "Record Progress   :" , (int)addr->RecCounter);
@@ -153,6 +157,7 @@ void GUI_interface_class::write_str(const char selector, const string str )
 
 	if ( addr->Comstack != RUNNING )
 		addr->UpdateFlag = true;
+
 
 	switch ( selector )
 	{

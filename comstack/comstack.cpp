@@ -12,7 +12,7 @@
 #include <kbd.h>
 #include <keys.h>
 #include <Logfacility.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 
 
 using namespace std;
@@ -101,7 +101,7 @@ int main( int argc, char* argv[] )
 			{
 			case 'f' : { ifd->Main_Freq = getvalue( "Frequency" ); ifd->KEY = MAINFREQUENCYKEY; break; }
 			case 'a' : { ifd->Master_Amp  = getvalue( "Amplitude" ); ifd->KEY = MASTER_AMP_KEY; break; }
-			case 'w' : { ifd->Main_waveform_id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMMAINKEY; break; }
+			case 'w' : { ifd->MAIN_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;
 			}
 			break;
@@ -114,7 +114,7 @@ int main( int argc, char* argv[] )
 			{
 			case 'f' : { ifd->FMO_Freq = getvalue( "Frequency" ); ifd->KEY = FMOFREQUENCYKEY; break; }
 			case 'a' : { ifd->FMO_Amp  = getvalue( "Amplitude" ); ifd->KEY = FMOAMPKEY; break; }
-			case 'w' : { ifd->FMO_waveform_id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMFMOKEY; break; }
+			case 'w' : { ifd->FMO_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMFMOKEY; break; }
 			default  : break ;
 			}
 			break;
@@ -127,7 +127,7 @@ int main( int argc, char* argv[] )
 			{
 			case 'f' : { ifd->VCO_Freq = getvalue( "Frequency" ); ifd->KEY = VCOFREQUENCYKEY; break; }
 			case 'a' : { ifd->VCO_Amp  = getvalue( "Amplitude" ); ifd->KEY = VCOAMPKEY; break; }
-			case 'w' : { ifd->VCO_waveform_id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMVCOKEY; break; }
+			case 'w' : { ifd->VCO_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMVCOKEY; break; }
 			default  : break ;
 			}
 			break;

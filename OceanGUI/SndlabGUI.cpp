@@ -5,7 +5,7 @@
 #include <spectrum_dialog_class.h>
 
 // Synhesizer
-#include <GUIinterface.h>
+
 #include <synthesizer.h>
 #include <Wavedisplay.h>
 #include <mixer.h>
@@ -233,23 +233,23 @@ void MainWindow::Spectrum_Dialog()
 
 void MainWindow::waveform_slot(char* wf_addr, char wfid, int ID, int wf_key, QLabel* label  )
 {
-	if ( GUI.addr->Spectrum_type == ID )
-		GUI.Set( GUI.addr->Spectrum_id, wfid );
+//	if ( GUI.addr->Spectrum_type == ID )
+//		GUI.Set( GUI.addr->Spectrum_id, wfid );
 	*wf_addr = wfid;
 	GUI.Set( GUI.addr->KEY , wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
 }
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
-	waveform_slot( &GUI.addr->Main_waveform_id, _wfid, MAINID, SETWAVEFORMMAINKEY, ui->wf_main );
+	waveform_slot( &GUI.addr->MAIN_spectrum.id, _wfid, MAINID, SETWAVEFORMMAINKEY, ui->wf_main );
 }
 void MainWindow::FMO_Waveform_slot(int _wfid)
 {
-	waveform_slot( &GUI.addr->FMO_waveform_id, _wfid, FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
+	waveform_slot( &GUI.addr->FMO_spectrum.id, _wfid, FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
 }
 void MainWindow::VCO_Waveform_slot( int _wfid )
 {
-	waveform_slot( &GUI.addr->VCO_waveform_id, _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
+	waveform_slot( &GUI.addr->VCO_spectrum.id, _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
 }
 
 void MainWindow::change_status1()
@@ -449,13 +449,13 @@ void MainWindow::setwidgetvalues()
     ui->labelFMO->setText("FMO");
 
 
-    ui->wf_fmo->setText( QWaveform_vec[ GUI.addr->FMO_waveform_id ] );
-    ui->wf_vco->setText( QWaveform_vec[ GUI.addr->VCO_waveform_id ] );
-    ui->wf_main->setText( QWaveform_vec[ GUI.addr->Main_waveform_id ] );
+    ui->wf_fmo->setText( QWaveform_vec[ GUI.addr->FMO_spectrum.id ] );
+    ui->wf_vco->setText( QWaveform_vec[ GUI.addr->VCO_spectrum.id ] );
+    ui->wf_main->setText( QWaveform_vec[ GUI.addr->MAIN_spectrum.id ] );
 
-    ui->sB_Main->setValue( GUI.addr->Main_waveform_id );
-    ui->sB_FMO->setValue(  GUI.addr->FMO_waveform_id  );
-    ui->sB_VCO->setValue(  GUI.addr->VCO_waveform_id  );
+    ui->sB_Main->setValue( GUI.addr->MAIN_spectrum.id );
+    ui->sB_FMO->setValue(  GUI.addr->FMO_spectrum.id  );
+    ui->sB_VCO->setValue(  GUI.addr->VCO_spectrum.id  );
 
     ui->sB_Duration->setValue( GUI.addr->Main_adsr_bps_id );
     Qstr = get_bps_string( GUI.addr->Main_adsr_bps_id );

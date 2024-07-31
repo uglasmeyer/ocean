@@ -9,7 +9,7 @@
 #define INSTRUMENT_H_
 
 #include <synthesizer.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <Spectrum.h>
 #include <osc.h>
 
@@ -26,7 +26,6 @@ public:
 
 	Instrument_class( ifd_t*  );
 	virtual ~Instrument_class();
-	void Set_waveform( Oscillator* , uint8_t  );
 	bool Set( string );
 	void Save_Instrument( string );
 	void Test_Instrument();

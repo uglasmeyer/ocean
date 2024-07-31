@@ -10,7 +10,7 @@
 #define INTERPRETER_H_
 
 #include <synthesizer.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <keys.h>
 #include <processor.h>
 #include <variation.h>
@@ -59,7 +59,7 @@ class Interpreter_class : public virtual Logfacility_class, public Processor_cla
 	{
 		string 		name = "none";
 		char 		wfkey=0;
-		char* 		wf=0;
+		char*		wf=0;
 		char		ampkey=0;
 		char* 		amp=0;
 		char		freqkey=0;

@@ -10,7 +10,7 @@
 #include <QGraphicsView>
 
 // Synthesizer
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <mixer.h>
 #include <Spectrum.h>
 

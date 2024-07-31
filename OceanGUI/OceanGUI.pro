@@ -30,10 +30,11 @@ FORMS += \
 
 CONFIG += lrelease
 
-INCLUDEPATH += /home/sirius/git/Ocean/libSynthesizer/include
+INCLUDEPATH += /home/sirius/git/Ocean/include \
+    /home/sirius/git/Ocean/OceanGUI
 
 
-LIBS += /home/sirius/git/Ocean/libSynthesizer/Release/libSynthesizer.a
+LIBS += /home/sirius/git/Ocean/Release/libOcean.a
 #  http://doc.qt.io/qt-5/third-party-libraries.html
 
 OBJECTS +=

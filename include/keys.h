@@ -87,7 +87,10 @@ https://en.wikipedia.org/wiki/ASCII#Character_set
 #define NEWINSTRUMENTKEY 	'S'
 #define NEWINSTRUMENTFLAG 	'Y'
 #define SETINSTRUMENTKEY	'K'
+
+// Spectrum
 #define	UPDATESPECTRUM_KEY  110
+#define GETSPECTRUM_KEY		52
 
 #define USERINTERFACE_FLAG   1
 #define EXITKEY				'#'

@@ -91,7 +91,9 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 	ID 				= osc_id( osc_type );
 	vp.name			= osc_type;
 	fp.name			= osc_type;
-	wp.waveform_str	= arr[2];
+//	wp.waveform_str	= arr[2];
+//	spectrum.str	= arr[2];
+	spectrum.id		= Get_waveform_id( arr[2] );
 	wp.msec 		= Str.secure_stoi(arr[4]);
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
@@ -167,7 +169,7 @@ void Oscillator_base::set_csv_comment ()
 
 	csv_comment = "";
 	csv_comment.append(osc_type);
-	csv_comment.append(",\t" + wp.waveform_str );
+	csv_comment.append(",\t" + waveform_str_vec[spectrum.id] );
 	csv_comment.append(",\t" + to_string( wp.frequency ));
 	csv_comment.append(",\t" + to_string( wp.msec ) );
 	csv_comment.append(",\t" + to_string( wp.volume ) );
@@ -179,12 +181,17 @@ void Oscillator_base::set_csv_comment ()
 	}
 }
 
+void Oscillator_base::Set_waveform( char id )
+{
+	spectrum.id = id;
+	set_csv_comment();
+}
 
 void Oscillator_base::get_comment( bool variable )
 {
 
 // https://stackoverflow.com/questions/3222572/convert-a-single-character-to-a-string
-	comment = wp.waveform_str;
+	comment = Get_waveform_str( spectrum.id );
 	comment.append( "\t(" + to_string( wp.frequency ) + " Hz)");
 	if ( variable )
 	{

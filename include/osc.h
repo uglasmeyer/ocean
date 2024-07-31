@@ -11,7 +11,7 @@
 #include <synthesizer.h>
 #include <synthmem.h>
 #include <Spectrum.h>
-#include <GUIinterface.h>
+
 #include <Oscbase.h>
 
 using namespace std;

@@ -10,7 +10,7 @@
 
 #include <synthesizer.h>
 #include <Spectrum.h>
-#include <GUIinterface.h>
+
 #include <common.h>
 #include <Instrument.h>
 #include <Oscbase.h>

@@ -7,26 +7,30 @@
 #include <string>
 #include <synthesizer.h>
 #include <Spectrum.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <keys.h>
 
 namespace Ui {
 class Spectrum_Dialog_class;
 }
 
-class Spectrum_Dialog_class : public QDialog, public Spectrum_class
+class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_base
 {
     Q_OBJECT
 
 public:
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
-                                   GUI_interface_class* gui = nullptr);
+                                   GUI_interface_class* gui = nullptr );
     ~Spectrum_Dialog_class();
 
-    Spectrum_class Spectrum{};
+    Spectrum_base Spectrum{};
     spec_struct_t spectrum;
+
     GUI_interface_class* GUI;
     ifd_t* ifd;
+    vector<spec_struct_t*> ifd_spectrum_vec;
+;
+    char osc_type;
     string instrument{};
     uint8_t waveform_id;
 

@@ -9,7 +9,7 @@
 #define PROCESSOR_H_
 
 #include <synthesizer.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <common.h>
 
 #define CMD_EXIT		0

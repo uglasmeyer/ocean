@@ -163,7 +163,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
 	double 				dt 			= 1.0/audio_frames;//seconds per frame
 	float				volume  	= (float) this->wp.volume;
-	spec_struct_t		spectrum	= this->wp.spectrum;
+//	const spec_struct_t	spectrum	= *this->wp.spectrum;
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
@@ -188,7 +188,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		frames = max_frames;
 	this->wp.frames = frames;
 
-	switch ( this->wp.spectrum.id )
+	switch ( spectrum.id )
 	{
 		case 0 : // s inus + spectrum
 		{
@@ -462,7 +462,6 @@ void Oscillator::reset_data( Oscillator* osc )
 void Oscillator::test()
 {
 	Set_Loglevel(TEST, true );
-	Spectrum_class::Test();
 
 	Comment( TEST, "Osc test start");
 	ID 			= NOTESID;
@@ -475,7 +474,7 @@ void Oscillator::test()
 	assert( wp.frequency == 480 );
 	assert( wp.ffreq > 0.0 );
 	assert( abs( wp.ffreq - 480 ) < 1E-8 );
-	wp.spectrum = spec_struct();
+	spectrum = spec_struct();
 	OSC( 0 );
 	cout << "Phase: " << phase <<  " " << 2*pi << endl;
 	if ( abs( (sin(phase)) ) > 8E-5)

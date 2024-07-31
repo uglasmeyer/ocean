@@ -141,8 +141,8 @@ void *Spectrum_Dialog_class::qt_metacast(const char *_clname)
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_Spectrum_Dialog_class.stringdata0))
         return static_cast<void*>(this);
-    if (!strcmp(_clname, "Spectrum_class"))
-        return static_cast< Spectrum_class*>(this);
+    if (!strcmp(_clname, "Spectrum_base"))
+        return static_cast< Spectrum_base*>(this);
     return QDialog::qt_metacast(_clname);
 }
 

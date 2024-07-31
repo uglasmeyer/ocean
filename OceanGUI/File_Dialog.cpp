@@ -9,7 +9,7 @@
 // Synthesizer includes
 #include <synthesizer.h>
 #include <notes.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <Logfacility.h>
 #include <keys.h>
 

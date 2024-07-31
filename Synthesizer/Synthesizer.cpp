@@ -5,7 +5,6 @@
 #include <synthesizer.h>
 #include <kbd.h>
 #include <Spectrum.h>
-#include <GUIinterface.h>
 #include <mixer.h>
 #include <version.h>
 #include <Instrument.h>
@@ -16,6 +15,7 @@
 #include <Record.h>
 #include <External.h>
 #include <common.h>
+#include <Interface.h>
 
 using namespace std;
 
@@ -225,6 +225,14 @@ void shutdown_other()
 void process( char key )
 {
 	ifd_t* ifd = GUI.addr;
+
+	auto set_waveform = [ ifd ]( Oscillator* osc, char id )
+		{
+			osc->Set_waveform( id);
+			string wf = osc->Get_waveform_str( id );
+			Log.Comment(INFO, "set waveform >" + wf + "< for " + osc->Name );
+		};
+
 	switch ( key )
 	{
 		case NULLKEY :
@@ -684,9 +692,10 @@ void process( char key )
 		}
 		case SETWAVEFORMFMOKEY :
 		{
-			uint8_t id = ifd->FMO_waveform_id;
-			Instrument.Set_waveform( &Instrument.fmo, id );
-			Instrument.fmo.wp.spectrum = Instrument.fmo.Get_spectrum(id);
+			set_waveform( &Instrument.fmo, ifd->FMO_spectrum.id );
+//			uint8_t id = ifd->FMO_waveform_id;
+//			Instrument.Set_waveform( &Instrument.fmo, id );
+//			Instrument.fmo.wp.spectrum = Instrument.fmo.Get_spectrum(id);
 
 			Instrument.fmo.OSC(0);
 			GUI.commit();
@@ -694,34 +703,39 @@ void process( char key )
 			}
 		case SETWAVEFORMVCOKEY :
 		{
-			uint8_t id = ifd->VCO_waveform_id;
-			Instrument.Set_waveform( &Instrument.vco, id );
-			Instrument.vco.wp.spectrum = Instrument.vco.Get_spectrum(id);
-
+			set_waveform( &Instrument.vco, ifd->VCO_spectrum.id );
+//			uint8_t id = ifd->VCO_waveform_id;
+//			Instrument.Set_waveform( &Instrument.vco, id );
 			Instrument.vco.OSC(0);
 			GUI.commit();
 			break;
 		}
 		case SETWAVEFORMMAINKEY :
 		{
-			uint8_t id = ifd->Main_waveform_id;
-			Instrument.Set_waveform( &Instrument.main, id );
-			Instrument.main.wp.spectrum = Instrument.main.Get_spectrum( id );
-
-			Log.Comment(INFO, "set waveform >" + Instrument.main.wp.waveform_str + "< for MAIN");
+			set_waveform( &Instrument.main, ifd->MAIN_spectrum.id );
+//			uint8_t id = ifd->Main_waveform_id;
+//			Instrument.Set_waveform( &Instrument.main, id );
+//			string wf = Instrument.main.Get_waveform_str( id );
+//			Log.Comment(INFO, "set waveform >" + wf + "< for MAIN");
 			GUI.commit();
 			break;
 		}
 
 		case UPDATESPECTRUM_KEY :
 		{
+			vector<spec_struct_t*> ifd_spectrum_vec = { &ifd->MAIN_spectrum,
+													&ifd->VCO_spectrum,
+													&ifd->FMO_spectrum };
 			Log.Comment(Log.INFO, "receive command <update Spectrum>");
 			Oscillator* osc 						= Instrument.osc_vector[ ifd->Spectrum_type ];
+			osc->spectrum							= *ifd_spectrum_vec[ ifd->Spectrum_type ];
+/*
 			uint8_t id 								= (int)ifd->Spectrum_id;
 			int channel 							= (int)ifd->Spectrum_channel;
 			int value 								= (int)ifd->Spectrum_value;
 			osc->Set_spectrum( id , channel, value);
-			osc->wp.spectrum = osc->Get_spectrum( id );
+			ifd->spectrum_dta = osc->spectrum.dta;
+*/
 			osc->OSC(0);
 			GUI.commit();
 			break;

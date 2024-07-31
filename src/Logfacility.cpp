@@ -100,7 +100,6 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 
 void Logfacility_class::Comment( int level, const string& logcomment )
 {
-
 	if (level < logmax + 1 )
 	{
 		if ( Log[ level ] )
@@ -113,10 +112,8 @@ void Logfacility_class::Comment( int level, const string& logcomment )
 	}
 }
 
-
 void Logfacility_class::test()
 {
-	string str = error_text( EEXIST );
-	assert( str.compare( "File exists") 		== 0 );
-//	print( "print", "this" );
+//	string str = error_text( EEXIST );
+//	assert( str.compare( "File exists") 		== 0 );
 }

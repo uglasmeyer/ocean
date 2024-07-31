@@ -4,7 +4,7 @@
 // C++ Project
 
 #include <synthesizer.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 
 // Qt
 #include <QPolygon>

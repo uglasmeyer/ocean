@@ -9,7 +9,7 @@
 #define WAVEDISPLAY_H_
 
 #include <synthesizer.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 
 class Wavedisplay_class : virtual public Logfacility_class
 {

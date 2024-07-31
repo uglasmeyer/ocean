@@ -36,21 +36,17 @@ Processor_class(gui)
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 	= &ifd->Main_waveform_id;
+	main_view.wf 	= &ifd->MAIN_spectrum.id;
 	main_view.amp 	= &ifd->Master_Amp;
 	main_view.freq 	= &ifd->Main_Freq;
 
-	vco_view.wf 	= &ifd->VCO_waveform_id;
+	vco_view.wf 	= &ifd->VCO_spectrum.id;
 	vco_view.amp 	= &ifd->VCO_Amp;
 	vco_view.freq 	= &ifd->VCO_Freq;
 
-	fmo_view.wf 	= &ifd->FMO_waveform_id;
+	fmo_view.wf 	= &ifd->FMO_spectrum.id;
 	fmo_view.amp 	= &ifd->FMO_Amp;
 	fmo_view.freq 	= &ifd->FMO_Freq;
-
-//	Processor_class::ifd = ifd;
-//	Processor_class::GUI = gui;
-
 
 }
 

@@ -7,7 +7,9 @@
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
                                              GUI_interface_class *gui) :
     Logfacility_class("Spectrum"),
-    QDialog(parent),
+	Spectrum_base(),
+	QDialog(parent),
+
     ui(new Ui::Spectrum_Dialog_class)
 {
 
@@ -28,16 +30,18 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     connect( ui->pB_save_spectrum, SIGNAL(clicked()), this, SLOT(save( )));
 
     this->GUI   		    = gui;
-    ifd            			= this->GUI->addr;
+    ifd 					= GUI->addr;
+    ifd_spectrum_vec 		= { &ifd->MAIN_spectrum,
+    							&ifd->VCO_spectrum,
+								&ifd->FMO_spectrum};
+    osc_type				= ifd->Spectrum_type;
 
     this->instrument   		= this->GUI->read_str('i');
-    Spectrum.Set_Spec_Name( this->instrument );
-    Spectrum.Read( "MAIN" );
-    size_t wfid            	= this->ifd->Main_waveform_id;
+//    Spectrum.Set_Spec_Name( this->instrument );
+    size_t wfid            	= this->ifd->MAIN_spectrum.id;
     cout << "wfid: " << dec << (int) wfid << endl;
-    assert( ( wfid >= 0 ) and ( wfid < Spectrum.Get_waveform_vec().size()-1 ) );
-    this->waveform_id  		= wfid;
-    this->spectrum     		= Spectrum.Get_spectrum( this->waveform_id );
+    assert( ( wfid >= 0 ) and ( wfid < Spectrum.Get_waveform_vec().size() ) );
+    this->spectrum 			= ifd->MAIN_spectrum;
 
     setup_Widgets(  this->spectrum );
 
@@ -47,7 +51,7 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     QTimer* status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &Spectrum_Dialog_class::Update_spectrum);
-    status_timer->start(1000);
+    status_timer->start(200);
 
 }
 
@@ -56,26 +60,24 @@ Spectrum_Dialog_class::~Spectrum_Dialog_class()
     delete ui;
 }
 
-auto select_spec = []( Spectrum_Dialog_class* C, int ID, char wfid )
+auto select_spec = []( Spectrum_Dialog_class* C, spec_struct_t& spec, char id )
 {
-    C->Spectrum.Read( ID );
-	C->ifd->Spectrum_type 	= ID;
-	C->ifd->Spectrum_id 	= wfid;
-	C->spectrum 			= C->Spectrum.Get_spectrum( wfid );
+	C->ifd->Spectrum_type = id;
+	C->spectrum			= spec;
 	C->setup_Widgets( C->spectrum );
 };
 
 void Spectrum_Dialog_class::select_spec_fmo()
 {
-	select_spec( this, FMOID, ifd->FMO_waveform_id  );
+	select_spec( this, ifd->FMO_spectrum, FMOID );
 }
 void Spectrum_Dialog_class::select_spec_vco()
 {
-	select_spec( this, VCOID, ifd->VCO_waveform_id  );
+	select_spec( this, ifd->VCO_spectrum, VCOID );
 }
 void Spectrum_Dialog_class::select_spec_main()
 {
-	select_spec( this, MAINID, ifd->Main_waveform_id  );
+	select_spec( this, ifd->MAIN_spectrum, MAINID );
 }
 
 void Spectrum_Dialog_class::Update_spectrum()
@@ -86,74 +88,60 @@ void Spectrum_Dialog_class::Update_spectrum()
     if ( newinstrument.compare( instrument ) != 0 )
     {
         instrument = newinstrument;
-        Spectrum.Set_Spec_Name( instrument );
-        Spectrum.Read( ifd->Spectrum_type );
-        this->spectrum = Spectrum.Get_spectrum( ifd->Spectrum_id );
+        this->spectrum = *ifd_spectrum_vec[ ifd->Spectrum_type ];
         setup_Widgets( spectrum );
         return;
     }
-
-    char newwaveform = this->ifd->Spectrum_id;
-
-    if ( this->waveform_id != newwaveform )
-    {
-    	this->waveform_id = newwaveform;
-        spectrum = Spectrum.Get_spectrum( newwaveform );
-        setup_Widgets( spectrum );
-        return;
-    }
-
-
 }
 
-auto spec_slider = []( Spectrum_Dialog_class* C, int channel, int value )
+auto spec_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 {
-    C->Spectrum.Set_spectrum( C->waveform_id, channel, value );	// the active GUI spectrum is updated
-    C->ifd->Spectrum_channel = channel;							// the ifd parameters are set
-    C->ifd->Spectrum_value = value;
-    C->ifd->KEY = UPDATESPECTRUM_KEY;							// the synthesizer is notified
+    char id = C.ifd->Spectrum_type;
+	C.spectrum = *C.ifd_spectrum_vec[ id ];
+	C.spectrum.dta[ channel ] = value;
+    C.Spectrum_base::Sum( C.spectrum );
+    *C.ifd_spectrum_vec[ id ] = C.spectrum;  // the active GUI spectrum is updated
+    C.ifd->KEY = UPDATESPECTRUM_KEY;	// the synthesizer is notified
 };
 
 void Spectrum_Dialog_class::vS1( int value )
 {
-	spec_slider( this, 0, value );
+	spec_slider( *this, 0, value );
 }
 void Spectrum_Dialog_class::vS2( int value )
 {
-	spec_slider( this, 1, value );
+	spec_slider( *this, 1, value );
 }
 void Spectrum_Dialog_class::vS3( int value )
 {
-	spec_slider( this, 2, value );
+	spec_slider( *this, 2, value );
 }
 void Spectrum_Dialog_class::vS4( int value )
 {
-	spec_slider( this, 3, value );
+	spec_slider( *this, 3, value );
 }
 void Spectrum_Dialog_class::vS5( int value )
 {
-	spec_slider( this, 4, value );
+	spec_slider( *this, 4, value );
 }
 void Spectrum_Dialog_class::vS6( int value )
 {
-	spec_slider( this, 5, value );
+	spec_slider( *this, 5, value );
 }
 void Spectrum_Dialog_class::vS7( int value )
 {
-	spec_slider( this, 6, value );
+	spec_slider( *this, 6, value );
 }
-
 void Spectrum_Dialog_class::vS8( int value )
 {
-	spec_slider( this, 7, value );
+	spec_slider( *this, 7, value );
 }
 
 void Spectrum_Dialog_class::save()
 {
 	ifd->KEY = SAVEINSTRUMENTKEY;
-//    Spectrum.Set_Spec_Name( instrument );
-//    Spectrum.Save();
 }
+
 void Spectrum_Dialog_class::setup_Widgets(  spec_struct_t spectrum)
 {
     ui->vS_1->setValue( spectrum.dta[0] );
@@ -168,6 +156,6 @@ void Spectrum_Dialog_class::setup_Widgets(  spec_struct_t spectrum)
     QString Qinstrument = QString::fromStdString( instrument );
     ui->lbl_instrument->setText( Qinstrument );
 
-    QString Qwaveform = QString::fromStdString( spectrum.osc );
+    QString Qwaveform = QString::fromStdString( Get_waveform_str( spectrum.id ));
     ui->lbl_waveform->setText( Qwaveform );
 }

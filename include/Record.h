@@ -9,7 +9,7 @@
 #define RECORD_H_
 
 #include <synthesizer.h>
-#include <GUIinterface.h>
+#include <Interface.h>
 #include <synthmem.h>
 
 class Record_class : virtual public Logfacility_class

@@ -59,13 +59,11 @@ typedef struct vco_struct
 #define NOTESID 3
 #define LFOID	4
 
-class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_class
+class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
 {
 public:
-	string 			osc_type 	= "NULL";
-
-
-	uint8_t			ID = OTHERID;
+	string 			osc_type 		= "NULL";
+	uint8_t			ID 				= OTHERID;
 	typedef	struct wave_struct
 	{
 		uint16_t 		frequency 	= oct_base_freq;	// base_freq + note pitch
@@ -76,8 +74,6 @@ public:
 		uint16_t 		volume		= osc_default_volume; 	// range [0..100];
 		buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
 		freq_struc_t	fstruct;
-		spec_struct_t	spectrum	= spec_struct();
-		string 			waveform_str= spectrum.osc;//= waveform_str_vec[ default_spec.id ];
 		vector_str_t 	conf		= {};
 		vector_str_t 	ops_str_arr = {};
 		int 			ops_len  	= 0;
@@ -89,7 +85,8 @@ public:
 	fmo_struc_t 	fp 			= fmo_struct();
 	vco_struc_t 	vp 			= vco_struct();
 
-	Oscillator_base() : Logfacility_class("Osc"), Spectrum_class() {};
+	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
+	{	};
 	virtual ~Oscillator_base(){};
 
 	freq_struc_t 	get_fstruct();
@@ -100,6 +97,7 @@ public:
 	void 			set_volume( uint16_t vol);
 	int	 			set_delta_volume( int pitch );
 	void 			line_interpreter( vector_str_t arr );
+	void 			Set_waveform( char  );
 	void 			set_csv_comment ();
 	void 			get_comment( bool  );
 
