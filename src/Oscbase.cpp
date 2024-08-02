@@ -11,7 +11,6 @@
 
 
 
-
 void Oscillator_base::show_csv_comment( int loglevel )
 {
 	string str;
@@ -31,13 +30,12 @@ freq_struc_t Oscillator_base::get_fstruct( int freq )
 
 
 
-void Oscillator_base::set_frequency( int freq )
+void Oscillator_base::set_frequency( float freq )
 {
 	//  min_f := 1/max_sec ,  freq = min_f*N = N/max_sec
 
 	if ( freq < 0 ) freq = 0;
-	wp.frequency = freq;
-	wp.ffreq 		= (float)wp.frequency;
+	wp.frequency 	= freq;
 	wp.fstruct		= freq_to_freq_struct( freq );
 	set_csv_comment(  );
 }
@@ -69,17 +67,17 @@ int Oscillator_base::set_delta_volume( int pitch )
 	set_csv_comment(  );
 	return vol;
 }
-uint8_t Oscillator_base::osc_id( string name )
+uint8_t Oscillator_base::Osc_id( string name )
 {
-	if ( name.compare("MAIN") == 0)
-		return MAINID;
-	if ( name.compare("VCO") == 0)
-		return VCOID;
-	if ( name.compare("FMO") == 0)
-		return FMOID;
-	Comment(ERROR,"Cannot convert track name " + name);
+	uint8_t id = 0;
+	for ( string str : osc_type_vec )
+	{
+		if ( name.compare( str ) == 0)
+			return id;
+		id++;
+	}
+	Comment(ERROR,"Cannot convert OSC name " + name);
 	exit(1);
-//	return OTHERID;
 }
 
 void Oscillator_base::line_interpreter( vector_str_t arr )
@@ -87,19 +85,15 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 	String 			Str{""};
 	wp.conf 		= arr;
 
-	osc_type		= arr[1];
-	ID 				= osc_id( osc_type );
+
 	vp.name			= osc_type;
 	fp.name			= osc_type;
-//	wp.waveform_str	= arr[2];
-//	spectrum.str	= arr[2];
 	spectrum.id		= Get_waveform_id( arr[2] );
 	wp.msec 		= Str.secure_stoi(arr[4]);
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
 	int freq	 	= Str.secure_stoi(arr[3]);
 	set_frequency( freq );
-//	wp.fstruct		= freq_to_freq_struct( wp.frequency);
 	command 		= "OSCd";
 	int i;
 	wp.ops_str_arr.clear();
@@ -164,7 +158,7 @@ void Oscillator_base::set_csv_comment ()
 	if ( osc_type.length() == 0 )
 	{
 		osc_type = "unknown";
-		ID = OTHERID;
+		osc_id = OTHERID;
 	}
 
 	csv_comment = "";

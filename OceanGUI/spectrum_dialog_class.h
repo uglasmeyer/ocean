@@ -29,8 +29,7 @@ public:
     GUI_interface_class* GUI;
     ifd_t* ifd;
     vector<spec_struct_t*> ifd_spectrum_vec;
-;
-    char osc_type;
+
     string instrument{};
     uint8_t waveform_id;
 

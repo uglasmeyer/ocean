@@ -59,11 +59,11 @@ class Interpreter_class : public virtual Logfacility_class, public Processor_cla
 	{
 		string 		name = "none";
 		char 		wfkey=0;
-		char*		wf=0;
+		char*		wf=nullptr;
 		char		ampkey=0;
-		char* 		amp=0;
+		char* 		amp=nullptr;
 		char		freqkey=0;
-		uint16_t* 	freq=0;
+		float*		freq=nullptr;
 
 	} osc_struct_t;
 

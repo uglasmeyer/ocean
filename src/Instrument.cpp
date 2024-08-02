@@ -13,6 +13,7 @@ Instrument_class::Instrument_class(ifd_t* ifd )
 {
 	this->ifd 		= ifd;
 	Default_instrument_file = dir_struct().instrumentdir + "default.kbd";
+
 }
 
 Instrument_class::~Instrument_class()
@@ -44,24 +45,20 @@ void Instrument_class::reuse_GUI_Data()
 	main.wp.PMW_dial		= 0;// ifd->PMW_dial; only for vco
 
 	main.wp.frequency 		= ifd->Main_Freq  ;
-//	main.wp.volume			= ifd->Main_Amp ; mixer.mastermain_amp
 	main.wp.msec	 		= max_milli_sec;// ifd->Main_Duration*1000 ; // unused
 	main.spectrum			= ifd->MAIN_spectrum;
-	main.ID					= ifd->Main_ID;
 
 	vco.wp.frequency		= ifd->VCO_Freq 	;
 	vco.wp.volume			= ifd->VCO_Amp 		;
 	vco.wp.msec				= max_milli_sec;// unused max_sec*1000	; // unused
 	vco.spectrum			= ifd->VCO_spectrum;
 	vco.wp.PMW_dial			= ifd->PMW_dial;
-	vco.ID					= ifd->VCO_ID;
 
 	fmo.wp.frequency		= ifd->FMO_Freq 		;
 	fmo.wp.volume			= ifd->FMO_Amp 		;
 	fmo.wp.msec				= max_milli_sec; // max_sec * 1000; // unused
 	fmo.spectrum			= ifd->FMO_spectrum;
 	fmo.wp.PMW_dial			= 0;// ifd->PMW_dial only for vco
-	fmo.ID					= ifd->FMO_ID;
 
 }
 
@@ -83,20 +80,16 @@ void Instrument_class::setup_GUI_Data()
 	ifd->PMW_dial 			= (char) vco.wp.PMW_dial;
 	ifd->Soft_freq			= main.wp.glide_effect;
 
+	ifd->MAIN_spectrum		= main.spectrum;
 	ifd->Main_Freq  		= main.wp.frequency;
-//	ifd->Main_Amp 			= //0; //main.wp.volume; // see mixer init_data
-//	ifd->Main_Duration 		= main.wp.msec/1000; // unused
-//	ifd->Main_waveform_id 	= main.spectrum.id;
-	ifd->spectrum_dta		= main.spectrum.dta;
-	ifd->Main_ID			= main.ID;
 
 	ifd->VCO_Freq 			= vco.wp.frequency;
 	ifd->VCO_Amp 			= vco.wp.volume;
-	ifd->VCO_ID				= vco.ID;
+	ifd->VCO_spectrum		= vco.spectrum;
 
 	ifd->FMO_Freq 			= fmo.wp.frequency;
 	ifd->FMO_Amp 			= fmo.wp.volume;
-	ifd->FMO_ID 			= fmo.ID;
+	ifd->FMO_spectrum		= fmo.spectrum;
 
 	ifd->MODE				= FREERUN;
 	ifd->UserInterface		= UPDATEGUI; // update Instrument reset flag on GUI side
@@ -144,20 +137,15 @@ void Instrument_class::show_sound_stack() // show_status
 				<< endl;
 	};
 	Comment( INFO, strs.str() );
-/*
-	if ( Mixer.status.play  )
-		Play = "active";
-	else
-		Play = "locked / unlock with >p<";
-	Log.Comment(INFO, "Keyboard is " + Play );
-	return;
-	*/
+
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 
 	osc->line_interpreter( arr );
+	if ( osc->osc_id == MAINID )
+		assign_adsr( arr );
 	osc->get_comment( false );
 	osc->set_csv_comment();
 	osc->show_csv_comment( TEST );
@@ -174,8 +162,6 @@ void Instrument_class::Set_Name( string name )
 	Instrument_file 		= dir_struct().instrumentdir + Name + ".kbd";
 
 	Comment( INFO, "Instrument Name: " + Name);
-	for ( auto osc : osc_vector )
-		osc->Set_Spec_Name( Name );
 }
 
 bool Instrument_class::assign_adsr 	( vector_str_t arr )
@@ -225,23 +211,18 @@ bool Instrument_class::read_instrument( )
 		keyword = arr[0];
 		if ( keyword.compare("OSC") == 0)
 		{
-			if ( arr[1].compare("MAIN") == 0 )
+			for ( Oscillator* osc : osc_vector )
 			{
-				init_data_structure( &main, arr );
-				assign_adsr( arr );
+				if ( osc->osc_type.compare( arr[1] ) == 0 )
+					init_data_structure( osc, arr );
 			}
-			if ( arr[1].compare("VCO") == 0 )
-				init_data_structure( &vco, arr );
-			if ( arr[1].compare("FMO") == 0 )
-				init_data_structure( &fmo, arr );
 		}
 		if ( keyword.compare("SPEC") == 0 )
 		{
 			for ( Oscillator* osc : osc_vector )
 			{
-				osc->Spectrum_base::osc_type = osc->osc_type;
 				if ( osc->osc_type.compare( arr[1] ) == 0 )
-					osc->spectrum =  osc->parse_data( arr );
+					osc->spectrum =  osc->Parse_data( arr, osc->osc_id );
 			}
 		}
 
@@ -390,24 +371,24 @@ void Instrument_class::Test_Instrument()
 	Set_Loglevel(TEST, true);
 	for ( auto osc : osc_vector	)
 		osc->Set_Loglevel( TEST, true);
-
+	ifd->MODE = FREERUN;
 	Comment( TEST, "Instrument testing" );
 
 	assert( Set( ".test" ) );
 	vco.wp.PMW_dial = 98;
-	main.Set_spectrum(2, 3,20);
-	assert( main.waveform_str_vec[2].compare( main.Get_waveform_str( main.spectrum.id )) == 0 );
+	vco.spectrum.id = 2;
+	assert( vco.waveform_str_vec[2].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 	Save_Instrument( ".test" );
 	vco.wp.PMW_dial = 0;
-	main.Set_spectrum(3,4,22);
-	assert( main.waveform_str_vec[3].compare( main.Get_waveform_str( main.spectrum.id )) == 0 );
+	vco.spectrum.id = 3;
+	assert( vco.waveform_str_vec[3].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 
 	assert( Set( ".test" ) );
 	assert( vco.wp.PMW_dial == 98 );
-	cout << "spec id" << dec << (int)main.spectrum.id << endl;
-	assert( main.waveform_str_vec[2].compare( main.Get_waveform_str( main.spectrum.id )) == 0 );
+	cout << "spec id" << dec << (int)vco.spectrum.id << endl;
+	assert( vco.waveform_str_vec[2].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 	Comment( TEST, "Instrument test done" );
 }

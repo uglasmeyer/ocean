@@ -64,7 +64,7 @@ private slots:
     void VCO_slot_Hz();
     void VCO_slot_volume();
     void Slider_FMO_Hz_changed(int);
-    void fmo_lfo();
+//    void fmo_lfo();
     void FMO_slot_volume();
 
     void waveform_slot( char*, char, int, int, QLabel* );

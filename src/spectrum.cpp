@@ -11,36 +11,10 @@
  */
 
 
-void Spectrum_base::Set_Spec_Name( string name)
+
+
+spec_struct_t Spectrum_base::Parse_data( vector_str_t arr, char oscid )
 {
-	if ( name.length() == 0 )
-		Name = "default";
-	else
-		Name = name;
-	Comment( INFO, "Spectrum Name: " + Name);
-	Spectrum_file 			= dir_struct().instrumentdir + Name + ".kbd"; // same as instrument
-
-}
-
-
-
-spec_struct_t Spectrum_base::parse_data( vector_str_t arr )
-{
-	auto assign_ref = [ this ]( const string& wf )
-		{
-			int id = Get_waveform_id( wf );
-			if ( id >= 0 )
-			{
-				spectrum.id 	= id;
-				return true;
-			}
-			else
-			{
-				Comment( WARN, "cannot assign id " + to_string( id ));
-				return false;
-			}
-
-		};
 
 	auto assign_dta = [ this ]( vector<string> arr )
 		{
@@ -63,11 +37,16 @@ spec_struct_t Spectrum_base::parse_data( vector_str_t arr )
 		};
 
 	spectrum = spec_struct();
-	if ( not assign_ref( arr[2] ) )
+	cout << "arr2 " <<arr[2] << endl;
+	int id 	= Get_waveform_id( arr[2] );
+	if ( id < 0 )
 		return default_spec;
+	else
+		spectrum.id = id;
+
 	assign_dta( arr );
 	Sum( spectrum );
-
+	spectrum.osc = oscid;
 	return spectrum;
 }
 
@@ -77,11 +56,6 @@ void Spectrum_base::Set_spectrum( uint8_t id, int channel, int value )
 	spectrum.id = id;
 	spectrum.dta[channel ] = value;
 	Sum( spectrum );
-}
-
-spec_struct_t Spectrum_base::Get_spectrum(uint8_t id )
-{
-	return spectrum;
 }
 
 vector<string> Spectrum_base::Get_waveform_vec()
@@ -122,7 +96,7 @@ string Spectrum_base::Show_this_spectrum( spec_struct_t spec )
 	auto show_struct = [ this, &strs, &show_dta ]( auto spec )
 		{
 			strs 	<< right << "SPEC,"
-					<< setw(9) << osc_type << ","
+					<< setw(9) << osc_type_vec[ spec.osc ] << ","
 					<< setw(9) << Get_waveform_str( spec.id ) << ",";
 			for_each( spec.dta.begin(), spec.dta.end(), show_dta);
 			strs << endl;

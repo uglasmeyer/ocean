@@ -10,6 +10,9 @@
 
 #include <synthesizer.h>
 
+
+enum { MAINID, VCOID, FMOID, NOTESID, TESTID, OTHERID };
+
 const static size_t spec_dta_len = 8;
 typedef array<int,spec_dta_len> spec_dta_t;
 
@@ -18,12 +21,15 @@ typedef struct spec_struct
 	spec_dta_t				dta	= { 100,0,0,0,0,0,0,0 } ; 	// [osc, amplitude ... ]
 	int						sum = 100; // max of the array content
 	char	 				id 	= 1;
-
+	char					osc = MAINID;
 } spec_struct_t;
 
 class Spectrum_base : public virtual Logfacility_class
 {
 public:
+
+	const vector<string> osc_type_vec { "MAIN", "VCO", "FMO", "NOTES", "Test", "NULL" };
+
 	Spectrum_base() : Logfacility_class("Spectrum base") {};
 	~Spectrum_base(){};
 
@@ -43,22 +49,18 @@ public:
 		"random"		// 10
 	};
 
-	string 						Name			= "";
-	string 						Spectrum_file	= "";
-	string						osc_type 		= "";
-
 	const spec_struct_t			default_spec 	= spec_struct();
-	spec_struct_t				spectrum		= spec_struct();
 
-	spec_struct_t 	parse_data( vector_str_t );
-	void 			Set_Spec_Name( string );
-	spec_struct_t 	Get_spectrum( uint8_t );
+	spec_struct_t 	Parse_data( vector_str_t, char );
 	void 			Set_spectrum( uint8_t, int, int );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );
 	string 			Show_this_spectrum( spec_struct_t );
 	void 			Sum( spec_struct_t& );
+
+private:
+	spec_struct_t				spectrum		= spec_struct();
 
 
 };

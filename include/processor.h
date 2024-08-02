@@ -34,7 +34,7 @@ public:
 	void push_cmd( uint8_t, string);
 	void push_key( uint8_t, string );
 	void push_ifd( char*, char, string );
-	void push_ifd( uint16_t*, uint16_t, string );
+	void push_ifd( float*, float, string );
 	void push_wait( uint8_t, int, string );
 	void push_text( string );
 	void execute();
@@ -57,7 +57,7 @@ private:
 		int			cmd 	= 0;
 		int 		key    	= 0;
 		char* 		chaddr	= nullptr;
-		uint16_t* 	uiaddr 	= nullptr;
+		float*	 	uiaddr 	= nullptr;
 		int			value  	= 0;
 		string		str		{};
 	} stack_struct_t;

@@ -104,11 +104,8 @@ void GUI_interface_class::show_GUI_interface()
 	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.id ]);
 	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.id ]);
 //	rline( "." , '.');
-	Spectrum.osc_type = "MAIN";
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->MAIN_spectrum ));
-	Spectrum.osc_type = "VCO";
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->VCO_spectrum ));
-	Spectrum.osc_type = "FMO";
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->FMO_spectrum ));
 	rline( "VCO  PMW dial      " , (int)addr->PMW_dial) ;
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );
@@ -309,72 +306,10 @@ void GUI_interface_class::Set( uint16_t& key, uint16_t value )
 	key = value;
 }
 
-void GUI_interface_class::Counter_class::setup( uint16_t base, uint8_t bits, uint8_t pos )
+void GUI_interface_class::Set( float& key, float value )
 {
-
-	this->shift		= bits*pos;
-	this->modulo 	= 1 << bits;
-	uint16_t arr 	= ( modulo - 1) << shift;
-	this->mask 		= 0xFFFF - arr;
-	this->value 	= ( base & ~mask ) >> shift ;
+	if ( reject( addr->Composer, client_id ) ) return;
+	key = value;
 }
 
-void GUI_interface_class::Counter_class::setup( uint16_t base, uint8_t bits, uint8_t pos, uint8_t modulo )
-{
-	setup( base, bits, pos );
-	this->modulo	= modulo;
-}
-
-uint16_t GUI_interface_class::Counter_class::get_counter( uint16_t base )
-{
-	value = ( base & ~mask )  >> shift;
-	return value % modulo;
-}
-
-void GUI_interface_class::Counter_class::set_counter( uint16_t val )
-{
-	value = ( val ) % modulo;
-}
-
-uint16_t GUI_interface_class::Counter_class::inc_counter( uint16_t base )
-{
-	uint16_t clear = base & mask;
-	value = ( value + 1 ) % modulo;
-	return clear | (value  << shift );
-}
-
-#include <assert.h>
-#include <bitset>
-void GUI_interface_class::Counter_class::test(  )
-{
-	uint16_t BASE = 0xCBA1;
-	setup( BASE, 4, 1);
-
-	uint16_t a = get_counter( BASE );
-	cout << a << endl;
-	assert( 0xF % 16 == 0xF );
-	cout << "modulo:" << to_string( this->modulo) << endl;
-
-	assert( this->modulo == 16 );
-	assert( a  == 0xA );
-
-	BASE = inc_counter( BASE );
-	bitset<16> y{ BASE };
-	cout << y << endl;
-	assert( BASE == 0xCBA1 + 16);
-
-	uint16_t compare = 1;
-	setup( BASE, 2, 0);
-	for ( int n{0} ; n<6 ; n++ )
-	{
-		compare = (compare+1) % 4 + 0xCBB0;
-		BASE = inc_counter( BASE );
-		bitset<16> y{ BASE } , z{compare};
-		cout << "y: " << y << " z: " << z << endl;
-		assert( BASE == compare );
-	}
-
-	set_counter(2);
-	Comment(INFO, "Test String OK");
-}
 

@@ -37,17 +37,18 @@ void Note_class::set_osc_track( Instrument_class* instr  )
 	main_osc.fp 		= instr->main.fp;
 	main_osc.osc_type	= instr->main.osc_type;
 	main_osc.adsr 		= instr->main.adsr;
-	main_osc.ID			= NOTESID;
+	main_osc.osc_id			= NOTESID;
+	main_osc.spectrum	= instr->main.spectrum;
 
 	vco_osc.wp 			= instr->vco.wp;
 	vco_osc.vp 			= instr->vco.vp;
 	vco_osc.fp 			= instr->vco.fp;
-	vco_osc.ID			= VCOID;
+	vco_osc.spectrum	= instr->vco.spectrum;
 
 	fmo_osc.wp 			= instr->fmo.wp;
 	fmo_osc.vp 			= instr->fmo.vp;
 	fmo_osc.fp 			= instr->fmo.fp;
-	fmo_osc.ID			= FMOID;
+	fmo_osc.spectrum	= instr->fmo.spectrum;
 
 	set_prefix_octave( main_osc.wp.fstruct.oct );
 
@@ -592,18 +593,18 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs )
 	{
 		fnew = ( notevalue.freq * 	instrument->vco.get_fstruct().freq ) /
 									instrument->main.get_fstruct().freq ;
-		vco_osc.wp.ffreq 		= fnew;
+		vco_osc.wp.frequency 	= fnew;
 		vco_osc.wp.msec 		= note.duration;
 		vco_osc.OSC( offs );
 
 		fnew = ( notevalue.freq * 	instrument->fmo.get_fstruct().freq ) /
 									instrument->main.get_fstruct().freq ;
-		fmo_osc.wp.ffreq 		= fnew;
+		fmo_osc.wp.frequency	= fnew;
 		fmo_osc.wp.msec 		= note.duration;
 		fmo_osc.OSC( offs );
 
 		main_osc.set_start_freq( notevalue.freq );
-		main_osc.wp.ffreq 		= fglide;
+		main_osc.wp.frequency	= fglide;
 		main_osc.wp.volume 		= note.volume ;
 		main_osc.wp.msec 		= note.duration;
 		main_osc.OSC( offs );

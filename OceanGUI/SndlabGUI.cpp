@@ -382,7 +382,7 @@ void MainWindow::Sl_mix7( int value )
 
 void MainWindow::slot_dial_ramp_up_down()
 {
-    int value = ui->dial_ramp_up_down->value();
+    float value = ui->dial_ramp_up_down->value();
     GUI.Set( GUI.addr->LOOP_end, value);
     GUI.Set( GUI.addr->LOOP_step, 1 );
     GUI.Set( GUI.addr->KEY, MAIN_AMPLOOP_KEY);
@@ -488,25 +488,25 @@ void MainWindow::GUI_Exit()
 }
 
 
-void MainWindow::MAIN_slot_volume()
-{
-    int value = ui->Slider_Main_Vol->value();
-    GUI.Set( GUI.addr->Master_Amp , value);
-    GUI.Set( GUI.addr->KEY , MASTER_AMP_KEY);
-
-}
 void MainWindow::MAIN_slot_Hz()
 {
-    int value = ui->Slider_Main_Hz->value();
+    float value = ui->Slider_Main_Hz->value();
     GUI.Set( GUI.addr->Main_Freq , value);
     GUI.Set( GUI.addr->KEY , MAINFREQUENCYKEY);
 }
 
 void MainWindow::VCO_slot_Hz()
 {
-    int value = ui->Slider_VCO_Hz->value();
+    float value = ui->Slider_VCO_Hz->value();
     GUI.Set( GUI.addr->VCO_Freq , value);
     GUI.Set( GUI.addr->KEY , VCOFREQUENCYKEY);
+}
+void MainWindow::MAIN_slot_volume()
+{
+    int value = ui->Slider_Main_Vol->value();
+    GUI.Set( GUI.addr->Master_Amp , value);
+    GUI.Set( GUI.addr->KEY , MASTER_AMP_KEY);
+
 }
 void MainWindow::VCO_slot_volume()
 {
@@ -524,49 +524,20 @@ void MainWindow::FMO_slot_volume()
 void MainWindow::Slider_FMO_Hz_changed(int value )
 {
     float freq = 0.0;
-    bool lfo = ( GUI.addr->FMO_ID == LFOID );
-
-    if (( lfo ))
+    if ( value >= 100 )
     {
-        freq = (float) value / 20.0;
-        if ( freq > 4 )
-        {
-            ui->Slider_FMO_Hz->setValue( value/20 );
-            GUI.Set( GUI.addr->FMO_ID, FMOID );
-        }
+    	freq = value - 99;
     }
     else
     {
-        freq = value;
-        if ( value <= 4 )
-        {
-            ui->Slider_FMO_Hz->setValue( value*20 );
-            GUI.Set( GUI.addr->FMO_ID, LFOID );
-            freq = value/20.0;
-        }
+    	freq = (float) value / 100.0;
     }
     ui->FMOLCD_Hz->display( freq );
 
-    GUI.Set( GUI.addr->FMO_Freq , value);
+    GUI.Set( GUI.addr->FMO_Freq , freq);
     GUI.Set( GUI.addr->KEY , FMOFREQUENCYKEY);
-
 }
-void MainWindow::fmo_lfo()
-{
-    char fmo_lfo = GUI.addr->FMO_ID;
-    if ( fmo_lfo == FMOID )
-        fmo_lfo = LFOID;
-    else
-        fmo_lfo = FMOID;
 
-    GUI.Set( GUI.addr->FMO_ID, fmo_lfo );
-    GUI.Set( GUI.addr->KEY, FMOLFO_KEY);
-    float value = (float) ui->Slider_FMO_Hz->value();
-    if ( fmo_lfo == LFOID )
-        ui->FMOLCD_Hz->display( value/20.0 );
-    else
-        ui->FMOLCD_Hz->display( value );
-};
 
 
 void MainWindow::start_srv()

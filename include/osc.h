@@ -34,6 +34,7 @@ public:
 		Mem_fmo.Info( name );
 		Mem.Info( name );
 		osc_type = name;
+		osc_id			= Oscillator_base::Osc_id( name );
 
 	};
 	virtual ~Oscillator(){};

@@ -34,10 +34,8 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     ifd_spectrum_vec 		= { &ifd->MAIN_spectrum,
     							&ifd->VCO_spectrum,
 								&ifd->FMO_spectrum};
-    osc_type				= ifd->Spectrum_type;
 
     this->instrument   		= this->GUI->read_str('i');
-//    Spectrum.Set_Spec_Name( this->instrument );
     size_t wfid            	= this->ifd->MAIN_spectrum.id;
     cout << "wfid: " << dec << (int) wfid << endl;
     assert( ( wfid >= 0 ) and ( wfid < Spectrum.Get_waveform_vec().size() ) );
@@ -46,8 +44,8 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     setup_Widgets(  this->spectrum );
 
     if ( ifd->Spectrum_type == MAINID ) ui->rb_spec_main->click();
-    if ( ifd->Spectrum_type == VCOID  ) ui->rb_spec_vco->click(  );
-    if ( ifd->Spectrum_type == FMOID  ) ui->rb_spec_fmo->click( );
+    if ( ifd->Spectrum_type == VCOID  ) ui->rb_spec_vco->click();
+    if ( ifd->Spectrum_type == FMOID  ) ui->rb_spec_fmo->click();
 
     QTimer* status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &Spectrum_Dialog_class::Update_spectrum);
@@ -64,7 +62,7 @@ auto select_spec = []( Spectrum_Dialog_class* C, spec_struct_t& spec, char id )
 {
 	C->ifd->Spectrum_type = id;
 	C->spectrum			= spec;
-	C->setup_Widgets( C->spectrum );
+	C->setup_Widgets( spec );
 };
 
 void Spectrum_Dialog_class::select_spec_fmo()

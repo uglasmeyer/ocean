@@ -169,18 +169,15 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
 	float 				norm_freq 	= 0.002*(float)this->fp.volume;
 
-	float freq = this->wp.ffreq;
-	if ( ID == LFOID )
-		freq = (float) this->wp.frequency/20.0;
+	float freq = this->wp.frequency;
 
 	Data_t 	vco_shift 	= max_data_amp/2;
-	if (( ID == VCOID ) or
-		( ID == LFOID ) or
-		( ID == FMOID ))
+	if (( osc_id == VCOID ) or
+		( osc_id == FMOID ))
 		vco_shift = 0;
 
 	float	vol_per_cent =  volume / 100.0; // the volume of the main osc is managed by the mixer!
-	if ( ID == MAINID )
+	if ( osc_id == MAINID )
 		vol_per_cent= 1; // the volume of the main osc is managed by the mixer
 						 // or notes (NOTEID)!
 
@@ -308,7 +305,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	for ( n = 0; n < frames ; n++ )
 	{
 
-		if ( this->ID != NOTESID ) // enable polyphone adding of notes - notes::note2memory
+		if ( this->osc_id != NOTESID ) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
 		Data_t fmodata = norm_freq*fmo_data[n];
 
@@ -369,7 +366,7 @@ void Oscillator::Adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 		};
 
 	if ( adsr.bps_id == 0 ) return;
-	if ( not (( ID == MAINID ) or ( ID == NOTESID ))) return;
+	if ( not (( osc_id == MAINID ) or ( osc_id == NOTESID ))) return;
 
 	adsr.bps_id				= adsr.bps_id % Bps_array.size();
 	int 		duration 	= Bps_array[adsr.bps_id ];
@@ -405,7 +402,7 @@ void Oscillator::hall_effect( adsr_struc_t adsr, buffer_t frames, Data_t* data )
 	//	buffer_t dn 	= ( ( adsr.hall*adsr.hall )/100.0 * max_frames ) / 100;;
 
 	if ( adsr.hall == 0 ) return;
-	if ( not (( ID == MAINID ) or ( ID == NOTESID ))) return;
+	if ( not (( osc_id == MAINID ) or ( osc_id == NOTESID ))) return;
 
 	float 		d0 		= 1; // distance to the receiver of sound
 	float 		distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]
@@ -464,7 +461,7 @@ void Oscillator::test()
 	Set_Loglevel(TEST, true );
 
 	Comment( TEST, "Osc test start");
-	ID 			= NOTESID;
+	osc_id 			= NOTESID;
 	assert( ( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
 	assert( ( Mem_fmo.Data[0]				)	< 1E-8 );
 	assert( Mem.info.data_blocks 	== frames_per_sec );
@@ -472,8 +469,8 @@ void Oscillator::test()
 	vector_str_t arr = { "OSC","MAIN","Sinus","480","1000","40","2","1","1","69","2","0","-1","0","42" };
 	line_interpreter( arr );
 	assert( wp.frequency == 480 );
-	assert( wp.ffreq > 0.0 );
-	assert( abs( wp.ffreq - 480 ) < 1E-8 );
+	assert( wp.frequency > 0.0 );
+	assert( abs( wp.frequency - 480 ) < 1E-8 );
 	spectrum = spec_struct();
 	OSC( 0 );
 	cout << "Phase: " << phase <<  " " << 2*pi << endl;

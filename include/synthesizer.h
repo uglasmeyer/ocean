@@ -55,8 +55,6 @@
 
 using namespace std;
 
-
-
 struct dir_struct
 {
 	 const string homedir 		= "/home/sirius/";
@@ -98,6 +96,10 @@ typedef struct file_structure
 
 #include <Logfacility.h>
 #include <String.h>
+
+
+
+
 
 typedef struct ma_status_struct // memory array status
 {
@@ -152,13 +154,13 @@ const buffer_t 		monobuffer_size   	= max_frames * sizeof(Data_t);
 const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_t);
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
 const Data_t		max_data_amp		= 4096*4;
-const uint16_t 		oct_base_freq 		= 55;
+const uint8_t 		oct_base_freq 		= 55;
 const uint			osc_default_volume	= 80; // %
 const uint 			wavedisplay_len		= 512;
 const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
 const string		KbdNote					{ "SDRFTGHUJIKOL" };
-const string		Bps_string 			 	{ "01248"}; 		// Beats per second
-const vector<int>   Bps_array 			 	{ 0,1,2,4,8 };
+const string		Bps_string 			 	{ "012458"}; 		// Beats per second
+const vector<int>   Bps_array 			 	{ 0,1,2,4,5,8 };
 
 
 const vector<string> wavedisplay_str_vec =

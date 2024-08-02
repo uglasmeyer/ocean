@@ -263,7 +263,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 8: _t->VCO_slot_Hz(); break;
         case 9: _t->VCO_slot_volume(); break;
         case 10: _t->Slider_FMO_Hz_changed((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 11: _t->fmo_lfo(); break;
+//        case 11: _t->fmo_lfo(); break;
         case 12: _t->FMO_slot_volume(); break;
         case 13: _t->waveform_slot((*reinterpret_cast< char*(*)>(_a[1])),(*reinterpret_cast< char(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4])),(*reinterpret_cast< QLabel*(*)>(_a[5]))); break;
         case 14: _t->Main_Waveform_slot((*reinterpret_cast< int(*)>(_a[1]))); break;

@@ -230,7 +230,7 @@ void process( char key )
 		{
 			osc->Set_waveform( id);
 			string wf = osc->Get_waveform_str( id );
-			Log.Comment(INFO, "set waveform >" + wf + "< for " + osc->Name );
+			Log.Comment(INFO, "set waveform >" + wf + "< for " + osc->osc_type );
 		};
 
 	switch ( key )
@@ -257,8 +257,6 @@ void process( char key )
 		}
 		case FMOFREQUENCYKEY : // modify the fm_track data
 		{
-			Instrument.fmo.ID = ifd->FMO_ID;
-
 			Instrument.fmo.set_frequency( ifd->FMO_Freq );
 			Instrument.fmo.OSC( 0 ); //generate fmo data
 			Instrument.main.connect_fmo_data( &Instrument.fmo);
@@ -309,18 +307,6 @@ void process( char key )
 		{
 			Log.Comment( INFO, "receiving command <Un-Mute main volume>");
 			Mixer.status.mute = false;
-			GUI.commit();
-			break;
-		}
-		case FMOLFO_KEY :
-		{
-			Instrument.fmo.ID = ifd->FMO_ID;
-			Instrument.fmo.OSC(0);
-			GUI.commit();
-			break;
-		}
-		case VCOLFO_KEY :
-		{
 			GUI.commit();
 			break;
 		}
@@ -811,7 +797,7 @@ void play_keyboard( char key )
 bool sync_mode()
 {
 	bool sync = ( 							// if true synchronize shm a/b with Audio Server
-		( Instrument.fmo.ID == LFOID) 	or
+		( Instrument.fmo.wp.frequency < 1.0 ) 	or
 		( Mixer.status.notes 		)	or	// generate notes
 		( Mixer.status.external 	)	or	// StA play external
 		( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
@@ -862,7 +848,7 @@ void ApplicationLoop()
 			{
 				if ( ifd->MODE == SENDDATA )				// Audio Server request 1 second data chunk
 				{
-					if( Instrument.fmo.ID == LFOID )
+					if( Instrument.fmo.wp.frequency < 1.0 )
 						Instrument.fmo.OSC (0  ); // generate the modified sound waves
 
 					if ( Mixer.status.notes )

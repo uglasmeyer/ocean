@@ -52,22 +52,16 @@ typedef struct vco_struct
 	bool 			generated	= false;
 } vco_struc_t;  // all wave parameter for vco
 
-#define OTHERID 0xFF
-#define MAINID 	0
-#define VCOID 	1
-#define FMOID 	2
-#define NOTESID 3
-#define LFOID	4
 
 class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
 {
 public:
+	uint8_t			osc_id 				= OTHERID;
 	string 			osc_type 		= "NULL";
-	uint8_t			ID 				= OTHERID;
+
 	typedef	struct wave_struct
 	{
-		uint16_t 		frequency 	= oct_base_freq;	// base_freq + note pitch
-		float 			ffreq		= (float) frequency;
+		float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
 		uint 			PMW_dial 	= 50;
 		uint	 		glide_effect = 0;
 		uint16_t 		msec		= max_sec*1000; 	// range 1 ... 8000
@@ -84,6 +78,7 @@ public:
 	wave_struc_t 	wp 			= wave_struct();
 	fmo_struc_t 	fp 			= fmo_struct();
 	vco_struc_t 	vp 			= vco_struct();
+	spec_struct_t	spectrum	= spec_struct();
 
 	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
 	{	};
@@ -92,7 +87,7 @@ public:
 	freq_struc_t 	get_fstruct();
 	freq_struc_t 	get_fstruct( int );
 	void 			show_csv_comment( int );
-	void 			set_frequency( int freq );
+	void 			set_frequency( float freq );
 	int 			set_delta_frequency( int pitch );
 	void 			set_volume( uint16_t vol);
 	int	 			set_delta_volume( int pitch );
@@ -100,6 +95,7 @@ public:
 	void 			Set_waveform( char  );
 	void 			set_csv_comment ();
 	void 			get_comment( bool  );
+	uint8_t 		Osc_id(string);
 
 private:
 
@@ -108,7 +104,6 @@ private:
 	string command 		= "";
 
 	freq_struc_t 	freq_to_freq_struct( int );
-	uint8_t 		osc_id(string);
 
 }; // close class Track class
 

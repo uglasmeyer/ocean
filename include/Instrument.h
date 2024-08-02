@@ -18,14 +18,17 @@
 class Instrument_class: virtual public Logfacility_class
 {
 public:
-	Oscillator 				main		{"MAIN"};
-	Oscillator 				vco			{"VCO"};
-	Oscillator 				fmo			{"FMO"};
-	vector<Oscillator*>		osc_vector	{&main, &vco, &fmo };
 	string 					Name 		= "";
+
+	Oscillator 				main{"MAIN"};
+	Oscillator 				vco{"VCO"};
+	Oscillator 				fmo{"FMO"};
+	vector<Oscillator*>		osc_vector {&main, &vco, &fmo };
 
 	Instrument_class( ifd_t*  );
 	virtual ~Instrument_class();
+;
+
 	bool Set( string );
 	void Save_Instrument( string );
 	void Test_Instrument();

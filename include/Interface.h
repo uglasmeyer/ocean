@@ -65,38 +65,31 @@ const uint 	   FMOWF_SHIFT 	= 6;
 
 typedef struct interface_struct
 {
-	char		version						= 13;
-	spec_dta_t  spectrum_dta				= spec_struct().dta;
+	char		version						= 0;
 	array<ma_status_t, 8> 	ma_status 		{ {{false, false}}};
 	mi_status_t				mi_status 		{ false, false, false, false, false };
 	char 		Instrument[str_buffer_len] 	= "default"; //char array
 	char 		Notes[str_buffer_len] 		= "default"; //char array for the notes filename
 	char 		Other[str_buffer_len]		= ""; // e.g. external wave file name
 
-	uint16_t 	Main_Freq  					= 110;
+	float 		Main_Freq  					= 110;
 	char 		Master_Amp 					= 75;
 	char 		Main_Duration 				= max_sec;
-	char 		Main_ID						= MAINID;
-//	char 		Main_waveform_id 			= 0;
 	char  		Main_adsr_bps_id			= 0;
 	char 		Main_adsr_decay  			= 0;
 	char 		Main_adsr_attack    		= 0;
 	char		Soft_freq					= 0;
 	char 		Main_adsr_hall				= 0;
 
-	uint16_t	LOOP_step 					= 0;
-	uint16_t	LOOP_end 					= 75;
+	char 		LOOP_step 					= 0;
+	float		LOOP_end 					= 75;
 
-	uint16_t 	VCO_Freq 					= 0;
+	float	 	VCO_Freq 					= 0;
 	char 		VCO_Amp 					= 0;
-//	char 		VCO_waveform_id				= 0;
-	char		VCO_ID						= VCOID;
 	char 		PMW_dial 					= 50; // PMW_dial
 
-	uint16_t 	FMO_Freq 					= 0;
+	float	 	FMO_Freq 					= 0;
 	char 		FMO_Amp 					= 0;
-	char		FMO_ID						= FMOID;
-//	char 		FMO_waveform_id 			= 0;
 
 	char		Noteline_sec 				= 0; // duration of notes to play given in seconds
 	pid_t		Audio_pid					= 0;
@@ -107,9 +100,6 @@ typedef struct interface_struct
 	spec_struct_t VCO_spectrum 				= spec_struct();
 	spec_struct_t FMO_spectrum 				= spec_struct();
 	char		Spectrum_type				= MAINID;
-//	char		Spectrum_id 				= 0;
-//	char 		Spectrum_value				= 0;
-//	char 		Spectrum_channel			= 0;
 
 	char 		Wavedisplay_Id				= 0;
 	char 		AudioServer	    			= NOCONTROL;
@@ -130,14 +120,6 @@ typedef struct interface_struct
 				wavedata 					= {0};
 } ifd_t;
 
-typedef struct shm_info_struct
-{
-	buffer_t 	size;
-	key_t		key;
-	int 		id;
-	void* 		addr;
-} shm_info_t;
-
 
 
 class GUI_interface_class : virtual Logfacility_class
@@ -152,8 +134,6 @@ public:
 
 	ifd_t 					ifd_data;
 	ifd_t* 					addr			= NULL;
-	shm_info_t				shm_info;
-	Spectrum_base			Spectrum 		{};
 
 	void 	write_str( char, string );
 	string 	read_str( char );
@@ -168,52 +148,23 @@ public:
 	void 	Set( bool& key, bool value);
 	void 	Set( char& key, char value);
 	void 	Set( uint16_t& key, uint16_t value);
+	void 	Set( float& key, float value);
 
-
-	class Counter_class : virtual public Logfacility_class
-	{
-	public:
-		Counter_class()
-		: Logfacility_class("Counter")
-		{
-		};
-		Counter_class(uint16_t base, uint8_t bits, uint8_t pos )
-		: Logfacility_class("Counter")
-		{
-			// bits: length of the bit patition
-			// pos: position of bits in base
-			setup( base, bits, pos);
-		};
-		Counter_class(uint16_t base, uint8_t bits, uint8_t pos, uint8_t modulo )
-		: Logfacility_class("Counter")
-		{
-			// bits: length of the bit patition
-			// pos: position of bits in base
-			setup( base, bits, pos, modulo );
-		};
-		virtual ~Counter_class(){};
-		uint16_t	inc_counter( uint16_t );
-		void	 	set_counter( uint16_t );
-		uint16_t 	get_counter( uint16_t );
-		void 		test(  );
-		void 		setup( uint16_t, uint8_t, uint8_t );
-		void 		setup( uint16_t, uint8_t, uint8_t, uint8_t );
-
-private:
-	uint8_t 	modulo{0};
-	uint16_t 	value{0};
-	uint16_t	mask{0xFFFF};
-	uint16_t 	shift{0};
-
-
-	};
-//	Counter_class WF_counter{ifd_data.Waveform_counter, 3, 0};
 
 private:
 	uint8_t			client_id 		= 0xFF;
 	Spectrum_class	GUIspectrum 	{};
 	vector<string>	Waveform_vec	{};
 
+	typedef struct shm_info_struct
+	{
+		buffer_t 	size;
+		key_t		key;
+		int 		id;
+		void* 		addr;
+	} shm_info_t;
+	shm_info_t				shm_info;
+	Spectrum_base			Spectrum 		{};
 	void*	buffer( buffer_t, key_t );
 };
 

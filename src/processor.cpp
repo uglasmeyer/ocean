@@ -73,7 +73,7 @@ void Processor_class::push_ifd( char* chaddr, char value, string str )
 	process_stack.push_back( stack_item );
 };
 
-void Processor_class::push_ifd( uint16_t* uiaddr, uint16_t value, string str )
+void Processor_class::push_ifd( float* uiaddr, float value, string str )
 {
 	stack_struct_t stack_item =
 	{
