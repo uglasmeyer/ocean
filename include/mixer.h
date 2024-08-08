@@ -32,6 +32,7 @@ public:
 	uint16_t beg=0, end=0, counter=0, counts=0, max_counts=0;
 	int8_t step = 0;
 	bool active = false;
+
 	Loop_class(){};
 	~Loop_class(){};
 
@@ -52,7 +53,6 @@ public:
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal };
 	typedef vector<Storage_class> StorageArray_t;
 	StorageArray_t 		StA;
-//	Stereo_Memory* 		stereo {};
 	uint8_t				master_volume	= 100;
 
 	Mixer_class (  );
@@ -64,12 +64,12 @@ public:
 	Memory				Out_R{ monobuffer_size };//
 	mi_status_t  status =
 	{
-		.play 		= true, // The keyboard can manipulate the
-										// frequency of the MAIN osc,
+		.play 		= true, 	// The keyboard can manipulate the
+								// frequency of the MAIN osc,
 		.notes		= false, 	// set Notes on/off
 		.external 	= false, 	// set external wav file input on/off
 		.mute		= false,	// add main osc to output volume / mute-unmute
-		.unused		= false	// OSC is part of the mix stack
+		.unused		= false		// OSC is part of the mix stack
 	};
 	int				composer		= 0;		// note chunk counter
 

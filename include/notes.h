@@ -29,13 +29,14 @@ public:
 	uint8_t			noteline_sec 	= 0;
 	const string 	RhythmChars 	= "123456789";
 	const string 	OctaveChars 	= "12345";
-	string 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
+
+	string 			Note_Chars		= convention_notes[ noteline_prefix_default.convention ];
 	uint8_t 		Octave			= noteline_prefix_default.Octave;
 	const uint16_t	measure_duration= max_milli_sec; // 1 sec.
 	uint16_t 		min_duration 	= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
 	noteline_prefix_t
-					Noteline_prefix{ noteline_prefix_default }; // D=default, N=numeric
+					Noteline_prefix	= noteline_prefix_default; // D=default, N=numeric
 	notelist_t 		notelist		{};
 
 	Instrument_class* instrument;
@@ -43,23 +44,23 @@ public:
 	Note_class( ); // used by Variation
 	~Note_class();
 
-	string 			read( string );
-	void			save( string, noteline_prefix_t , string  );
-	void 			set_osc_track( Instrument_class* );
-	string 			get_note_line ();
-	string 			get_rhythm_line (  );
-	void 			set_rhythm_line(string );
-	bool			set_notes_per_second( int );
-	bool			generate_note_chunk( Storage::Storage_class* 		mb );
-	void			set_base_octave( uint );
-	void			set_prefix_octave( int );
-	bool			verify_noteline( noteline_prefix_t, string );
-	void 			test();
-	void			show_note(  note_struct_t );
+	string 			Read( string );
+	void			Save( string, noteline_prefix_t , string  );
+	void 			Set_osc_track( Instrument_class* );
+	string 			Get_note_line ();
+	string 			Get_rhythm_line (  );
+	void 			Set_rhythm_line(string );
+	bool			Set_notes_per_second( int );
+	bool			Generate_note_chunk( Storage::Storage_class* 		mb );
+	void			Set_base_octave( uint );
+	void			Set_prefix_octave( int );
+	bool			Verify_noteline( noteline_prefix_t, string );
+	void 			Test();
+	void			Show_note(  note_struct_t );
 	void 			Start_note_itr();
 
 	template< typename T>
-	void show_note_list( T items )
+	void Show_note_list( T items )
 	{
 		stringstream strs;
 		uint lineduration = 0;
@@ -68,7 +69,7 @@ public:
 
 		for( note_struct_t note : items )
 		{
-			show_note( note );
+			Show_note( note );
 			lineduration += note.duration;
 			if ( ( lineduration % measure_duration ) == 0 )
 				cout << endl;
@@ -103,13 +104,13 @@ private:
 
 	string 			get_name();
 	void 			set_note_list ( noteline_prefix_t,  string );
-	void			Set_Name( string );
+	void			set_name( string );
 	strlen_t		Noteline_position_parser( unsigned long int );
 	void 			note2memory( note_struct_t, buffer_t );
 	void 			change_alphabet_notes( noteline_prefix_t );
 	void 			submit_data(Storage::Storage_class* 		mb);
 	void            set_volume_vector( string );
-	int 			Notechar2Value( char );
+	int 			notechar2Value( char );
 	void			fill_note_list();
 	void			add_volume( note_itr_t );
 	void			assign_freq();

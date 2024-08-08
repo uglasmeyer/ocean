@@ -14,7 +14,7 @@ void Processor_class::push( stack_struct_t stack_item )
 }
 */
 
-void Processor_class::push_cmd( uint8_t cmd, string str )
+void Processor_class::Push_cmd( uint8_t cmd, string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -26,9 +26,9 @@ void Processor_class::push_cmd( uint8_t cmd, string str )
 		.value  = 0,
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 }
-void Processor_class::push_str( uint8_t key, char ch, string str )
+void Processor_class::Push_str( uint8_t key, char ch, string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -40,10 +40,10 @@ void Processor_class::push_str( uint8_t key, char ch, string str )
 		.value  = ch,
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 }
 
-void Processor_class::push_key( uint8_t key, string str )
+void Processor_class::Push_key( uint8_t key, string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -55,10 +55,10 @@ void Processor_class::push_key( uint8_t key, string str )
 		.value  = 0,
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 };
 
-void Processor_class::push_ifd( char* chaddr, char value, string str )
+void Processor_class::Push_ifd( char* chaddr, char value, string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -70,10 +70,10 @@ void Processor_class::push_ifd( char* chaddr, char value, string str )
 		.value  = value,
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 };
 
-void Processor_class::push_ifd( float* uiaddr, float value, string str )
+void Processor_class::Push_ifd( float* uiaddr, float value, string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -82,14 +82,14 @@ void Processor_class::push_ifd( float* uiaddr, float value, string str )
 		.key    = 0,
 		.chaddr	= nullptr,
 		.uiaddr = uiaddr,
-		.value  = value,
+		.value  = (int) rint( value ),
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 };
 
 
-void Processor_class::push_wait( uint8_t cmd, int value, string str )
+void Processor_class::Push_wait( uint8_t cmd, int value, string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -101,11 +101,11 @@ void Processor_class::push_wait( uint8_t cmd, int value, string str )
 		.value  = value,
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 
 }
 
-void Processor_class::push_text( string str )
+void Processor_class::Push_text( string str )
 {
 	stack_struct_t stack_item =
 	{
@@ -117,7 +117,7 @@ void Processor_class::push_text( string str )
 		.value  = 0,
 		.str	= str
 	};
-	process_stack.push_back( stack_item );
+	process_stack.push_back( move( stack_item ) );
 }
 
 void Processor_class::wait_for_commit()
@@ -131,16 +131,16 @@ void Processor_class::wait_for_commit()
 	printf(", commit in %d [msec]",i);
 }
 
-void Processor_class::clear_process_stack()
+void Processor_class::Clear_process_stack()
 {
 	process_stack.clear();
 }
 
-void Processor_class::set_prgline( int nr )
+void Processor_class::Set_prgline( int nr )
 {
 	prgline = nr;
 }
-void Processor_class::execute()
+void Processor_class::Execute()
 {
 	int len = process_stack.size();
 	if ( len == 0 )

@@ -1,4 +1,4 @@
-/*^
+	/*^
  * Wavedisplayclass.cpp
  *
  *  Created on: Feb 23, 2024
@@ -12,10 +12,10 @@ Wavedisplay_class::Wavedisplay_class( ifd_t* ifd )
 : Logfacility_class("Wavedisplay")
 {
 	this->ifd = ifd;
-	ptr_index = 0;
+	split_switch = false;
 }
 
-void Wavedisplay_class::clear_data()
+void Wavedisplay_class::Clear_data()
 {
 	for( buffer_t n = 0; n < wavedisplay_len; n++ )
 	{
@@ -24,7 +24,7 @@ void Wavedisplay_class::clear_data()
 }
 
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
-void Wavedisplay_class::gen_cxwave_data( )
+void Wavedisplay_class::Gen_cxwave_data( )
 {
 
 	if ( data_ptr_array[ ptr_index ] == NULL )
@@ -35,17 +35,17 @@ void Wavedisplay_class::gen_cxwave_data( )
 	param_t param;
 	switch ( Type )
 	{
-	case 0 :
+	case FULLID :
 		{
 			param = param_full;
 			break;
 		}
-	case 1 :
+	case FLOWID :
 		{
 			param = param_flow;
 			break;
 		}
-	case 2 :
+	case DEBUGID :
 		{
 			param = param_split;
 			break;
@@ -59,7 +59,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 	offs 		= param.drift*frame_counter;
 
-	if ( Type == 2 ) // split
+	if ( Type == DEBUGID ) // split
 	{
 		if ( split_switch ) // n = param.len . 2*param.len - right half
 		{
@@ -67,13 +67,12 @@ void Wavedisplay_class::gen_cxwave_data( )
 			for ( buffer_t n = 0; n < param.len; n++ )
 			{
 				Data_t value = rint(data_ptr_array[ ptr_index ][n]);
-				display_buffer[ n + param.len ] = value;
+				display_buffer[ n + param.len  ] = value;
 			}
 			for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
 				ifd->wavedata[n] = display_buffer[n] ;
-
 		}
-		else // n=0 .. param.lem - left half
+		else // n=0 .. param.len - left half
 		{
 			split_switch = true;
 			for ( buffer_t n = max_frames - param.len; n < max_frames; n++ )
@@ -81,6 +80,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 				Data_t value = rint(data_ptr_array[ ptr_index ][n]);
 				display_buffer[ n + param.len - max_frames ] = value;
 			}
+
 		}
 
 	}
@@ -102,7 +102,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 }
 
-void Wavedisplay_class::set_data_ptr( size_t select )
+void Wavedisplay_class::Set_data_ptr( size_t select )
 {
 	if ( select < 0)
 		select = 0;
@@ -112,18 +112,18 @@ void Wavedisplay_class::set_data_ptr( size_t select )
 	Comment( DEBUG, "wave display selected: " + wavedisplay_str_vec[ ptr_index ] + " " + to_string(ptr_index));
 }
 
-void Wavedisplay_class::set_type( int type )
+void Wavedisplay_class::Set_type( int type )
 {
 	Type = type;
 	split_switch	= false;
 }
 
-void Wavedisplay_class::update( int select , Data_t* ptr )
+void Wavedisplay_class::Update( int select , Data_t* ptr )
 {
 	data_ptr_array[ select ] = ptr;
 }
 
-void Wavedisplay_class::add_data_ptr( Data_t* ptr )
+void Wavedisplay_class::Add_data_ptr( Data_t* ptr )
 {
 	if ( ptr == NULL ) return;
 	data_ptr_array[ ptr_index ] = ptr;

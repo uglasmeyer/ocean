@@ -19,31 +19,31 @@ public:
 	Wavedisplay_class( ifd_t* );
 	virtual ~Wavedisplay_class(){};
 
-	void clear_data		();
-	void gen_cxwave_data( void  );
-	void add_data_ptr	( Data_t* );
-	void set_data_ptr	( size_t );
-	void update			( int, Data_t*);
-	void set_type		( int );
+	void Clear_data		();
+	void Gen_cxwave_data( void  );
+	void Add_data_ptr	( Data_t* );
+	void Set_data_ptr	( size_t );
+	void Update			( int, Data_t*);
+	void Set_type		( int );
 
 private:
 
 	int 			frame_counter	= 0;
 	buffer_t 		offs 			= 0;
 	size_t 			ptr_index 		= 0;
-	int 			Type			= 0;
+	int 			Type			= FULLID;
 	array<Data_t*, 10>
 					data_ptr_array{  };
-	bool			split_switch	= false;
+	bool			split_switch	= true;
 	array<Data_t, wavedisplay_len> display_buffer = {0};
 
 
 	typedef struct param_struct
 	{
 		int 	 drift 		= 20;
-		buffer_t len		= wavedisplay_len;// length of the output buffer
-		buffer_t step 		= 10; // ignore step data points
-		buffer_t max_offs 	= max_frames - len*step ;//- step;
+		buffer_t len		= wavedisplay_len;	// length of the output buffer
+		buffer_t step 		= 10; 				// ignore step # of data points
+		buffer_t max_offs 	= max_frames - len*step ;
 	} param_t;
 
 	param_t param_flow;

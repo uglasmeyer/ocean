@@ -72,7 +72,7 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 		string err = "missing ";
 		err.push_back(ch);
 		Comment( ERROR, err );
-		if ( TEST )
+		if ( Log[TEST] )
 		{
 			arr[0] = err;
 			return arr;

@@ -13,6 +13,7 @@ Instrument_class::Instrument_class(ifd_t* ifd )
 {
 	this->ifd 		= ifd;
 	Default_instrument_file = dir_struct().instrumentdir + "default.kbd";
+	ifd_spectrum_vec = { &ifd->MAIN_spectrum, &ifd->VCO_spectrum, &ifd->FMO_spectrum };
 
 }
 
@@ -140,6 +141,14 @@ void Instrument_class::show_sound_stack() // show_status
 
 }
 
+void Instrument_class::Update_spectrum()
+{
+	Comment(INFO, "receive command <update Spectrum>");
+	Oscillator* osc = osc_vector[ ifd->Spectrum_type ];
+	osc->spectrum	= *ifd_spectrum_vec[ ifd->Spectrum_type ];
+//	osc->OSC(0);
+}
+
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 
@@ -152,7 +161,7 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 
 }
 
-void Instrument_class::Set_Name( string name )
+void Instrument_class::set_name( string name )
 {
 	Instrument_file 		= dir_struct().instrumentdir + name + ".kbd";
 	if ( filesystem::exists( Instrument_file ) )
@@ -255,11 +264,11 @@ bool Instrument_class::connect( string osc, string sec, string mode )
 	SEC = get_osc_by_name( sec );
 	if ( mode[0] == 'F' )
 	{
-		OSC->connect_fmo_data( SEC );
+		OSC->Connect_fmo_data( SEC );
 	}
 	if ( mode[0] == 'V' )
 	{
-		OSC->connect_vco_data( SEC );
+		OSC->Connect_vco_data( SEC );
 	}
 
 	return true;
@@ -291,7 +300,7 @@ bool Instrument_class::init_connections( )
 
 void Instrument_class::Save_Instrument( string str )
 {
-	Set_Name( str );
+	set_name( str );
 	fstream FILE;
 	Comment(2,  "saving sound to: " + Instrument_file);
 
@@ -355,7 +364,7 @@ void Instrument_class::run_oscs()
 
 bool Instrument_class::Set( string name )
 {
-	Set_Name( name );
+	set_name( name );
 	if ( not read_instrument( ) ) 	return false;
 	if ( not init_connections() ) 	return false;
 	setup_GUI_Data();
@@ -389,6 +398,25 @@ void Instrument_class::Test_Instrument()
 	assert( vco.wp.PMW_dial == 98 );
 	cout << "spec id" << dec << (int)vco.spectrum.id << endl;
 	assert( vco.waveform_str_vec[2].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
+
+	assert( main.fp.data == fmo.Mem.Data );
+	assert( fmo.wp.frequency - 0.75 < 1E-5 );
+	fmo.wp.frequency = 0.75;
+	assert( fmo.wp.volume == 31 );
+	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
+
+//	fmo.wp.volume = 0;
+	Data_t datan = main.Mem.Data[0];
+	Data_t data0 = 0;
+	for ( int n = 0; n <10; n++ )
+	{
+		data0 = fmo.Mem.Data[max_frames-1];
+//		cout << setw(15) << datan << setw(15) << data0 << setw(15) << fmo.phase << endl;
+		fmo.OSC(0);
+		main.OSC(0);
+		datan = fmo.Mem.Data[0];
+
+	}
 
 	Comment( TEST, "Instrument test done" );
 }

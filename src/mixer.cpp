@@ -194,7 +194,7 @@ void Mixer_class::add_noteline( uint8_t arr_id, Note_class* Notes )
 	while ( composer > 0 )
 	{
 		cout << dec << composer << " " << arr_id << endl;
-		Notes->generate_note_chunk( &StA[ MbIdNotes] ); // max_sec duration
+		Notes->Generate_note_chunk( &StA[ MbIdNotes] ); // max_sec duration
 		StA[ arr_id ].store_block( StA[ MbIdNotes ].Data);
 		composer--;
 	}

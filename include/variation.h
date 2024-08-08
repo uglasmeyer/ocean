@@ -150,14 +150,13 @@ public:
 	typedef vector<noteword_t>
 				notesentence_t;
 
-	void 		set_note_chars( uint );
-	void 		set_note_chars( uint, uint );
-	void 		define_fix( string  );
-	void 		define_variable( string  );
-	void 		define_rhythm  ( string );
-	noteword_t 	list2vector( notelist_t );
-	string 		gen_noteline( string pattern, string filename );
-	void 		test();
+	void 		Set_note_chars( uint );
+	void 		Set_note_chars( uint, uint );
+	void 		Define_fix( string  );
+	void 		Define_variable( string  );
+	void 		Define_rhythm  ( string );
+	string 		Gen_noteline( string pattern, string filename );
+	void 		Test();
 
 private:
 	Charset_class Constant_Set	{""};
@@ -171,6 +170,7 @@ private:
 	noteword_t 		Random_Notes{};
 	notesentence_t 	Sentence{};
 
+	noteword_t 	List2vector( notelist_t );
 	string 		insert_random(  );
 	string 		input_filter( string , Charset_class );
 	void 		define_random_note_vector( string str );

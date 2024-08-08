@@ -41,28 +41,28 @@ public:
 
 
 	void OSC ( buffer_t );
-	void set_start_freq( float freq );
-	void connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
-	void connect_fmo_data( Oscillator* );
-	void reset_data( Oscillator* );
-	void set_long( bool );
-	void test();
+	void Set_start_freq( float freq );
+	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
+	void Connect_fmo_data( Oscillator* );
+	void Reset_data( Oscillator* );
+	void Set_long( bool );
+	void Test();
+	double 			phase 		= 0;
 
 private:
 	typedef function<Data_t(const float&, const float&)> osc_function;
 	osc_function 	F;
-	double 			phase 		= 0;
-	double 			start_freq 	= 0;
+	float 			start_freq 	= 0;
 	float 			fmophase 	= 0;
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t		decay_shift = 0;
 
-	void hall_effect( adsr_struc_t, buffer_t, Data_t* );
-	void Adsr(adsr_struc_t , buffer_t , Data_t*);
-	double get_delta_freq( double freq );
-	void set_phi( double phase );
-	double get_phi( );
-	void mem_init();
+	void 	apply_hall( adsr_struc_t, buffer_t, Data_t* );
+	void 	apply_adsr(adsr_struc_t , buffer_t , Data_t*);
+	double 	get_delta_freq( float freq );
+	void 	set_phi( double , double );
+	double 	get_phi( );
+	void 	mem_init();
 
 };
 

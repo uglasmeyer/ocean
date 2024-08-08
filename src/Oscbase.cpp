@@ -92,7 +92,7 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 	wp.msec 		= Str.secure_stoi(arr[4]);
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
-	int freq	 	= Str.secure_stoi(arr[3]);
+	float freq	 	= stof(arr[3]);
 	set_frequency( freq );
 	command 		= "OSCd";
 	int i;
@@ -102,7 +102,7 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 		string str  = arr[i];
 		wp.ops_str_arr.push_back(str) ;
 	}
-	wp.glide_effect 		= Str.secure_stoi( arr[13] );
+	wp.glide_effect 	= Str.secure_stoi( arr[13] );
 	wp.PMW_dial 		= Str.secure_stoi( arr[14] );
 
 	return ;

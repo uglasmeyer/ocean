@@ -12,34 +12,23 @@
 #include <Interface.h>
 #include <common.h>
 
-#define CMD_EXIT		0
-#define CMD_CHADDR 		1
-#define CMD_UIADDR 		2
-#define CMD_KEY 		3
-#define CMD_EXE			4
-#define CMD_WAIT		5
-#define CMD_STR			6
-#define CMD_COND_WAIT 	7
-#define CMD_TEXT		8
+enum  {
+	CMD_EXIT		,
+	CMD_CHADDR 		,
+	CMD_UIADDR 		,
+	CMD_KEY 		,
+	CMD_EXE			,
+	CMD_WAIT		,
+	CMD_STR			,
+	CMD_COND_WAIT 	,
+	CMD_TEXT
+};
 
 class Processor_class : public virtual Logfacility_class
 {
-
-public:
-
 	GUI_interface_class* 	GUI ;
 	ifd_t* 					ifd ;
-
-	void push_str( uint8_t, char, string);
-	void push_cmd( uint8_t, string);
-	void push_key( uint8_t, string );
-	void push_ifd( char*, char, string );
-	void push_ifd( float*, float, string );
-	void push_wait( uint8_t, int, string );
-	void push_text( string );
-	void execute();
-	void clear_process_stack();
-	void set_prgline( int );
+public:
 
 	Processor_class( GUI_interface_class* gui ) : Logfacility_class("Processor")
 	{
@@ -49,6 +38,18 @@ public:
 	};
 
 	virtual ~Processor_class(){	} ;
+
+	void Push_str( uint8_t, char, string);
+	void Push_cmd( uint8_t, string);
+	void Push_key( uint8_t, string );
+	void Push_ifd( char*, char, string );
+	void Push_ifd( float*, float, string );
+	void Push_wait( uint8_t, int, string );
+	void Push_text( string );
+	void Execute();
+	void Clear_process_stack();
+	void Set_prgline( int );
+
 
 private:
 	typedef struct stack_struct

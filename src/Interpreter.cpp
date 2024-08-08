@@ -68,11 +68,11 @@ void Interpreter_class::start_bin( vector_str_t arr )
 
 	if ( cmpkeyword( "synthesizer") )
 	{
-		exe = file_structure().synth_bin;
+		exe = Synthesizer;
 	}
 	if ( cmpkeyword( "audioserver") )
 	{
-		exe = file_structure().audio_bin;
+		exe = Audio_Srv;
 	}
 	if( exe.length() > 0 )
 	{
@@ -80,11 +80,12 @@ void Interpreter_class::start_bin( vector_str_t arr )
 		string shmkey = pop_stack( 1);
 
 		Comment( INFO, "start " + keyword.Str );
-		cmd = "xterm -e '( " + exe + " -k " + shmkey + ")' &" ;
+		cmd = Server_struct().cmd( exe, "-k " + shmkey);
+//		cmd = "xterm -e '( " + exe + " -k " + shmkey + ")' &" ;
 		expect 		= { "start delay in seconds" };
 		option_default = "key";
 		string duration = pop_stack( 0 );
-		Processor_class::push_cmd( CMD_EXE, cmd );
+		Processor_class::Push_cmd( CMD_EXE, cmd );
 		pause( { "pause", duration } );
 		return;
 	}
@@ -101,13 +102,13 @@ void Interpreter_class::stop_bin( vector_str_t arr )
 	if ( cmpstr( keyword.Str, "Synthesizer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::push_ifd( &ifd->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
+		Processor_class::Push_ifd( &ifd->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
 		return;
 	}
 	if ( cmpstr( keyword.Str, "AudioServer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::push_ifd( &ifd->AudioServer, STOPSNDSRV, "terminating " + keyword.Str  );
+		Processor_class::Push_ifd( &ifd->AudioServer, STOPSNDSRV, "terminating " + keyword.Str  );
 		return;
 	}
 
@@ -133,9 +134,9 @@ void Interpreter_class::record( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::push_ifd( &ifd->MIX_Amp, 100, "mixer amp");
-		Processor_class::push_ifd( &ifd->Composer, RECORD, "composer record data" );
-		Processor_class::push_key( RECORDWAVFILEKEY, "start record"  );
+		Processor_class::Push_ifd( &ifd->MIX_Amp, 100, "mixer amp");
+		Processor_class::Push_ifd( &ifd->Composer, RECORD, "composer record data" );
+		Processor_class::Push_key( RECORDWAVFILEKEY, "start record"  );
 		pause( {"pause", duration } );
 		return;
 	}
@@ -143,9 +144,9 @@ void Interpreter_class::record( vector_str_t arr )
 	{
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
-		Processor_class::push_ifd( &ifd->Composer,STOPRECORD, 	"composer stoprecord data" );
-		Processor_class::push_ifd( &ifd->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
-		Processor_class::push_key( RECORDWAVFILEKEY, 			"stop record" );
+		Processor_class::Push_ifd( &ifd->Composer,STOPRECORD, 	"composer stoprecord data" );
+		Processor_class::Push_ifd( &ifd->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
+		Processor_class::Push_key( RECORDWAVFILEKEY, 			"stop record" );
 		return;
 	}
 	if ( cmpkeyword( "play") )
@@ -153,7 +154,7 @@ void Interpreter_class::record( vector_str_t arr )
 		expect 			= { "file no", "replay duration in seconds" };
 		string wavfile 	= "synthesizer" + pop_stack( 2 );
 		string duration	= pop_stack(1);
-		Processor_class::push_str( SETEXTERNALWAVEFILE, 'l', wavfile );
+		Processor_class::Push_str( SETEXTERNALWAVEFILE, 'l', wavfile );
 		pause( {"pause", duration } );
 		return;
 	}
@@ -186,15 +187,15 @@ void Interpreter_class::random( vector_str_t arr )
 	intro( arr, 6 );
 
 	string Constant = keyword.Str;
-	Variation.define_fix( Constant );
+	Variation.Define_fix( Constant );
 
 	expect = { "rhythm list " };
 	string rhythm = pop_stack( 2 );
-	Variation.define_rhythm( rhythm );
+	Variation.Define_rhythm( rhythm );
 
 	expect = { "random note set" };
 	string Variable = pop_stack( 2 );
-	Variation.define_variable ( Variable );
+	Variation.Define_variable ( Variable );
 
 	expect = { "const/random pattern "};
 	string Pattern  = pop_stack( 2 );
@@ -202,7 +203,7 @@ void Interpreter_class::random( vector_str_t arr )
 	expect = { "notelist name " };
 	string filename = pop_stack( 1);
 
-	string random_noteline = Variation.gen_noteline( Pattern , filename );
+	string random_noteline = Variation.Gen_noteline( Pattern , filename );
 	cout << random_noteline << endl;
 }
 
@@ -212,14 +213,14 @@ void Interpreter_class::set( vector_str_t arr )
 	intro( arr, 2 );
 	if ( cmpkeyword( "octave+" ))
 	{
-		Processor_class::push_ifd( &ifd->FLAG, 1, "octave" );
-		Processor_class::push_key(SETBASEOCTAVE_KEY, "inc octave");
+		Processor_class::Push_ifd( &ifd->FLAG, 1, "octave" );
+		Processor_class::Push_key(SETBASEOCTAVE_KEY, "inc octave");
 		return;
 	}
 	if ( cmpkeyword( "octave-" ))
 	{
-		Processor_class::push_ifd( &ifd->FLAG, 0, "octave" );
-		Processor_class::push_key(SETBASEOCTAVE_KEY, "dec octave");
+		Processor_class::Push_ifd( &ifd->FLAG, 0, "octave" );
+		Processor_class::Push_key(SETBASEOCTAVE_KEY, "dec octave");
 		return;
 	}
 	if ( cmpkeyword( "main" ) or cmpkeyword( "vco" ) or cmpkeyword( "fmo" ))
@@ -266,13 +267,13 @@ void Interpreter_class::notes( vector_str_t arr )
 		check_file( { dir_struct().autodir, dir_struct().notesdir }, notes_name + ".kbd" );
 
 		Comment( INFO, "loading notes " + notes_name );
-		Processor_class::push_str( UPDATENOTESKEY,'n', notes_name );
+		Processor_class::Push_str( UPDATENOTESKEY,'n', notes_name );
 		return;
 	}
 	if ( cmpkeyword( "set") )
 	{
-		Variation.read("tmp");
-		string Noteline = Variation.get_note_line();
+		Variation.Read("tmp");
+		string Noteline = Variation.Get_note_line();
 
 		Comment(INFO, "set notes.");
 		expect		=	{"prefix","octave", "[num]","sentence" };
@@ -283,37 +284,37 @@ void Interpreter_class::notes( vector_str_t arr )
 			expect 		= {"#flats", "#sharps" };
 			uint flats 	= pop_int(0,7);
 			uint sharps = pop_int(0,7);
-			Variation.set_note_chars( flats, sharps );
-			Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
+			Variation.Set_note_chars( flats, sharps );
+			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 			return;
 		}
 		if( cmpkeyword("octave") )
 		{
 			expect = { "octave value" };
 			uint oct = pop_int( Variation.min_octave, Variation.max_octave ) ;
-			Variation.set_prefix_octave( oct );
-			Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
+			Variation.Set_prefix_octave( oct );
+			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 			return;
 		}
 
 		if ( cmpkeyword( "num" ) )
 		{
 			Noteline = pop_stack(1);
-			Variation.set_note_chars( 1 );
+			Variation.Set_note_chars( 1 );
 		}
 		else
 		{
 			Noteline = keyword.Str;
-			Variation.set_note_chars( 0 );
+			Variation.Set_note_chars( 0 );
 		}
 		cout << Noteline << endl;
 		expect = {"rhythm line" };
 		string Rhythmline = pop_stack(1);
-		Variation.set_rhythm_line( Rhythmline );
+		Variation.Set_rhythm_line( Rhythmline );
 
-		Variation.save( "tmp", Variation.Noteline_prefix, Noteline );
+		Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 
-		Processor_class::push_str( UPDATENOTESKEY,'n', "tmp" );
+		Processor_class::Push_str( UPDATENOTESKEY,'n', "tmp" );
 
 		return;
 	}
@@ -327,8 +328,8 @@ void Interpreter_class::notes( vector_str_t arr )
 		{
 			expect = { "volume [%]" };
 			int amp 	= pop_int(0,100);
-			Processor_class::push_ifd( &ifd->MIX_Amp ,amp, "play notes" );
-			Processor_class::push_key( NOTESONKEY, "commit");
+			Processor_class::Push_ifd( &ifd->MIX_Amp ,amp, "play notes" );
+			Processor_class::Push_key( NOTESONKEY, "commit");
 			if ( stack.size() > 0  )
 			{
 				keyword.Str  = stack.back();
@@ -339,7 +340,7 @@ void Interpreter_class::notes( vector_str_t arr )
 		if ( cmpkeyword( "off") )
 		{
 			Comment( INFO, "playing notes off " );
-			Processor_class::push_key( NOTESOFFKEY, "notes off" );
+			Processor_class::Push_key( NOTESOFFKEY, "notes off" );
 			return;
 		}
 		Wrong_keyword( expect, keyword.Str );
@@ -349,10 +350,10 @@ void Interpreter_class::notes( vector_str_t arr )
 	{
 		expect = {"notes per second [ " + Variation.NPS_string +  " ]"};
 		Value nps = pop_int(1,16);
-		if ( Variation.set_notes_per_second( nps.i ) )
+		if ( Variation.Set_notes_per_second( nps.i ) )
 		{
-			Processor_class::push_ifd( &ifd->FLAG, nps.i, "notes per second"  );
-			Processor_class::push_key( SETNOTESPERSEC_KEY, "set per_second" );
+			Processor_class::Push_ifd( &ifd->FLAG, nps.i, "notes per second"  );
+			Processor_class::Push_key( SETNOTESPERSEC_KEY, "set per_second" );
 		}
 		else
 		{
@@ -376,7 +377,7 @@ void Interpreter_class::instrument( vector_str_t arr )
 		string instr = pop_stack( 1);
 		check_file( { dir_struct().instrumentdir } , instr + ".kbd" );
 		Comment( INFO, "loading instrument " + instr );
-		Processor_class::push_str( SETINSTRUMENTKEY, 'i', instr );
+		Processor_class::Push_str( SETINSTRUMENTKEY, 'i', instr );
 		return;
 	}
 	Wrong_keyword(  expect , keyword.Str );
@@ -458,20 +459,20 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "mute") )
 	{
 		Comment( INFO, "Main is muted " );
-		Processor_class::push_key( MUTEMAINAMP_KEY, "mute" );
+		Processor_class::Push_key( MUTEMAINAMP_KEY, "mute" );
 		return;
 	}
 
 	if ( cmpkeyword( "unmute") )
 	{
 		Comment( INFO, "Main is unmuted " );
-		Processor_class::push_key( UNMUTEMAINAMP_KEY, "unmute"  );
+		Processor_class::Push_key( UNMUTEMAINAMP_KEY, "unmute"  );
 		return;
 	}
 	if ( cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
-		Processor_class::push_key( RESETMAINKEY , "reset main"  );
+		Processor_class::Push_key( RESETMAINKEY , "reset main"  );
 		return;
 	}
 
@@ -497,8 +498,8 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 		string duration = pop_stack(0);
 		Comment( INFO, "Set waveform " + waveform + " for " + view.name );
 
-		Processor_class::push_ifd( view.wf, wfid, "wafeform");
-		Processor_class::push_key( view.wfkey, "set waveform" );
+		Processor_class::Push_ifd( view.wf, wfid, "wafeform");
+		Processor_class::Push_key( view.wfkey, "set waveform" );
 		pause( { "pause", duration });
 		return;
 	}
@@ -518,8 +519,8 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
-			Processor_class::push_ifd( view.amp, amp, "volume"  );
-			Processor_class::push_key( view.ampkey, "set volume" );
+			Processor_class::Push_ifd( view.amp, amp, "volume"  );
+			Processor_class::Push_key( view.ampkey, "set volume" );
 			pause( { "pause", duration });
  		}
 		return;
@@ -542,8 +543,8 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
-			Processor_class::push_ifd(  view.freq, freq, "frequency"  );
-			Processor_class::push_key(  view.freqkey, "set frequency"  );
+			Processor_class::Push_ifd(  view.freq, freq, "frequency"  );
+			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			pause( { "pause", duration });
 		}
 		return;
@@ -571,7 +572,7 @@ void Interpreter_class::play( vector_str_t arr )
 		keyword.Str = k2;
 		if ( cmpkeyword( "loop") )
 		{
-			Processor_class::push_ifd( &ifd->MIX_Id, mb_id, "mixer id");
+			Processor_class::Push_ifd( &ifd->MIX_Id, mb_id, "mixer id");
 			expect = { " dest amp"};
 			int max = pop_int(0,100);
 			Loop( max, 0);
@@ -603,9 +604,9 @@ void Interpreter_class::rec( vector_str_t arr )
 		int amp = pop_int(0,100);
 		Comment( INFO, "set amplitude of " + to_string(id) + " to " + to_string(amp) + "%" );
 
-		Processor_class::push_ifd( &ifd->MIX_Id , id, "mixer id" );
-		Processor_class::push_ifd( &ifd->MIX_Amp, amp, "mixer volume" );
-		Processor_class::push_key( SETMBAMPPLAYKEY	, "set volume" );
+		Processor_class::Push_ifd( &ifd->MIX_Id , id, "mixer id" );
+		Processor_class::Push_ifd( &ifd->MIX_Amp, amp, "mixer volume" );
+		Processor_class::Push_key( SETMBAMPPLAYKEY	, "set volume" );
 
 		return;
 	}
@@ -617,7 +618,7 @@ void Interpreter_class::rec( vector_str_t arr )
 		keyword.Str = pop_stack( 1);
 		if ( cmpkeyword( "free") )
 		{
-			Processor_class::push_key( PLAYNOTESRECOFF_KEY, "free mode" );
+			Processor_class::Push_key( PLAYNOTESRECOFF_KEY, "free mode" );
 			return;
 		}
 		Wrong_keyword( expect , keyword.Str );
@@ -628,8 +629,8 @@ void Interpreter_class::rec( vector_str_t arr )
 
 		expect = {"mem id 0..5"};
 		int ma_id = pop_int(0, MbSize-1 );
-		Processor_class::push_ifd( &ifd->MIX_Id, ma_id, "mixer id");
-		Processor_class::push_key( PLAYNOTESREC_ON_KEY, "notes on");
+		Processor_class::Push_ifd( &ifd->MIX_Id, ma_id, "mixer id");
+		Processor_class::Push_key( PLAYNOTESREC_ON_KEY, "notes on");
 		return;
 	}
 
@@ -637,8 +638,8 @@ void Interpreter_class::rec( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "mute memory array: " + to_string(id) );
-		Processor_class::push_ifd( &ifd->MIX_Id, id, "sound" );
-		Processor_class::push_key(MUTEREC_KEY,  "stop sound" );
+		Processor_class::Push_ifd( &ifd->MIX_Id, id, "sound" );
+		Processor_class::Push_key(MUTEREC_KEY,  "stop sound" );
 		return;
 	}
 
@@ -646,8 +647,8 @@ void Interpreter_class::rec( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "store sound to: " + to_string(id) );
-		Processor_class::push_ifd( &ifd->MIX_Id, id, "sound" );
-		Processor_class::push_key( STORESOUNDKEY, "store sound" );
+		Processor_class::Push_ifd( &ifd->MIX_Id, id, "sound" );
+		Processor_class::Push_key( STORESOUNDKEY, "store sound" );
 		return;
 	}
 
@@ -655,8 +656,8 @@ void Interpreter_class::rec( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "clear " + to_string(id) );
-		Processor_class::push_ifd( &ifd->MIX_Id, id, "mixer id" );
-		Processor_class::push_key( CLEAR_KEY,  "set clear" );
+		Processor_class::Push_ifd( &ifd->MIX_Id, id, "mixer id" );
+		Processor_class::Push_key( CLEAR_KEY,  "set clear" );
 		return;
 
 	}
@@ -665,8 +666,8 @@ void Interpreter_class::rec( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "stop recording to: " + to_string(id) );
-		Processor_class::push_ifd( &ifd->MIX_Id, id, "sound" );
-		Processor_class::push_key( STOPRECORD_KEY, "stop sound" );
+		Processor_class::Push_ifd( &ifd->MIX_Id, id, "sound" );
+		Processor_class::Push_key( STOPRECORD_KEY, "stop sound" );
 		return;
 	}
 
@@ -686,7 +687,7 @@ void Interpreter_class::text( vector_str_t arr )
 		text.append(str);
 	}
 
-	Processor_class::push_text( text );
+	Processor_class::Push_text( text );
 }
 
 void Interpreter_class::adsr( vector_str_t arr )
@@ -698,56 +699,55 @@ void Interpreter_class::adsr( vector_str_t arr )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		int freq = pop_int(0,100);
-		Processor_class::push_ifd( &ifd->Soft_freq, freq, "soft freq"  );
-		Processor_class::push_key( SOFTFREQUENCYKEY,  "set soft freq" );
+		Processor_class::Push_ifd( &ifd->Soft_freq, freq, "soft freq"  );
+		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}
 	if ( cmpkeyword( "beat") )
 	{
 		Comment( INFO, "beat duration is set to: " + stack[0] );
-		expect 		= { "0 1 2 4 8" };
-		int Bps = pop_int(0,8);
-		size_t bps_pos = Bps_string.find( to_string(Bps));
-		if ( bps_pos == string::npos )
+		expect 		= { "0 1 2 4 5 8" };
+		string Bps = pop_stack(1 );
+		int bps_id = bps_struct().getbps_id( Bps );
+		if ( bps_id < 0 )
 		{
 			Comment(ERROR, "wrong beat duration" );
 			raise( SIGINT );
 		}
-		int bps_id = (int) bps_pos;
-		Processor_class::push_ifd( &ifd->Main_adsr_bps_id, bps_id, "beat duration" );
-		Processor_class::push_key( ADSRDURATIONKEY, "set beat duration" );
+		Processor_class::Push_ifd( &ifd->Main_adsr_bps_id, bps_id, "beat duration" );
+		Processor_class::Push_key( ADSRDURATIONKEY, "set beat duration" );
 		return;
 	}
 	if ( cmpkeyword( "attack") )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		int attack = pop_int(0,100);
-		Processor_class::push_ifd( &ifd->Main_adsr_attack, attack, "adsr attack" );
-		Processor_class::push_key( ADSRDECAYKEY, "set adsr attack" );
+		Processor_class::Push_ifd( &ifd->Main_adsr_attack, attack, "adsr attack" );
+		Processor_class::Push_key( ADSRDECAYKEY, "set adsr attack" );
 		return;
 	}
 	if ( cmpkeyword( "decay") )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
 		int decay = pop_int(0,100);
-		Processor_class::push_ifd( &ifd->Main_adsr_decay, decay, "adsr decay" );
-		Processor_class::push_key( ADSRSUSTAINKEY, "set adsr decay" );
+		Processor_class::Push_ifd( &ifd->Main_adsr_decay, decay, "adsr decay" );
+		Processor_class::Push_key( ADSRSUSTAINKEY, "set adsr decay" );
 		return;
 	}
 	if ( cmpkeyword( "hall") )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		int hall = pop_int(0,100);
-		Processor_class::push_ifd( &ifd->Main_adsr_hall, hall, "hall"  );
-		Processor_class::push_key( ADSRHALLKEY,  "set hall" );
+		Processor_class::Push_ifd( &ifd->Main_adsr_hall, hall, "hall"  );
+		Processor_class::Push_key( ADSRHALLKEY,  "set hall" );
 		return;
 	}
 	if ( cmpkeyword( "pmw") )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		int dial = pop_int(0,100);
-		Processor_class::push_ifd( &ifd->PMW_dial, dial, "pmw" );
-		Processor_class::push_key( PMWDIALKEY, "set pmw" );
+		Processor_class::Push_ifd( &ifd->PMW_dial, dial, "pmw" );
+		Processor_class::Push_key( PMWDIALKEY, "set pmw" );
 		return;
 	}
 
@@ -763,19 +763,19 @@ void Interpreter_class::pause( vector_str_t arr )
 
 	if ( cmpkeyword( "key" ))
 	{
-		Processor_class::push_wait( CMD_WAIT, -1, "press <ret> to continue" );
+		Processor_class::Push_wait( CMD_WAIT, -1, "press <ret> to continue" );
 
 		return;
 	};
 	if ( cmpkeyword( "auto" ) )
 	{
-		Processor_class::push_wait( CMD_COND_WAIT, 0, "auto" );
+		Processor_class::Push_wait( CMD_COND_WAIT, 0, "auto" );
 		return;
 	}
 	if ( keyword.is_number(  ) )
 	{
 		duration = stoi( keyword.Str );
-		Processor_class::push_wait( CMD_WAIT, duration, "[sec]" );
+		Processor_class::Push_wait( CMD_WAIT, duration, "[sec]" );
 		return;
 	}
 	Wrong_keyword(expect, keyword.Str);
@@ -895,17 +895,17 @@ void Interpreter_class::Loop( int max, int key )
 {
 	if ( key == 0 )
 	{
-		Processor_class::push_wait( CMD_WAIT, -1, "not yet implemented" );
+		Processor_class::Push_wait( CMD_WAIT, -1, "not yet implemented" );
 		return;
 	}
-	Processor_class::push_ifd( &ifd->LOOP_end , max, "loop end" );
-	Processor_class::push_ifd( &ifd->LOOP_step, 1  , "loop step");
-	Processor_class::push_key( key,"set amp loop" );
+	Processor_class::Push_ifd( &ifd->LOOP_end , max, "loop end" );
+	Processor_class::Push_ifd( &ifd->LOOP_step, 1  , "loop step");
+	Processor_class::Push_key( key,"set amp loop" );
 }
 
 void Interpreter_class::exit_interpreter()
 {
-	Processor_class::push_cmd( CMD_EXIT,"exit" );
+	Processor_class::Push_cmd( CMD_EXIT,"exit" );
 }
 
 int Interpreter_class::find_position( vector<line_struct_t>* program, vector_str_t arr )
@@ -971,7 +971,7 @@ bool Interpreter_class::set_stack( vector_str_t arr, uint min )
 
 void Interpreter_class::clear_stack()
 {
-	clear_process_stack();
+	Clear_process_stack();
 }
 
 void Interpreter_class::set_dialog_mode( bool mode )
@@ -1072,7 +1072,7 @@ int Interpreter_class::pop_int( int min, int max )
 
 void Interpreter_class::run()
 {
-	Processor_class::execute();
+	Processor_class::Execute();
 }
 
 void Interpreter_class::check_file( vector_str_t dirs, string name )
@@ -1096,18 +1096,18 @@ void Interpreter_class::test(  )
 	testrun = true;
 
 	notes( {"notes", "set", "ABCD EFGF", "8" } );
-	Variation.read("tmp" );
-	assert( Variation.get_note_line().compare("ABCD EFGF") == 0 );
+	Variation.Read("tmp" );
+	assert( Variation.Get_note_line().compare("ABCD EFGF") == 0 );
 	assert( Variation.Noteline_prefix.convention == 0 );
 
 	notes( {"notes", "set", "prefix", "3", "2" } );
-	Variation.read("tmp" );
+	Variation.Read("tmp" );
 	assert( Variation.Noteline_prefix.flat == 3 );
 	assert( Variation.Noteline_prefix.convention == 2 );
-	assert( Variation.get_note_line().compare("ABCD EFGF") == 0 );
+	assert( Variation.Get_note_line().compare("ABCD EFGF") == 0 );
 
 	notes( {"notes", "set", "octave", "5" }) ;
-	Variation.read("tmp" );
+	Variation.Read("tmp" );
 	assert( Variation.Noteline_prefix.Octave == 5 );
 
 

@@ -81,9 +81,9 @@ void File_Dialog_class::Setup_widgets()
     QStr = QString::fromStdString( Notes_name );
     ui->lE_NotesFile->setText( QStr );
 
-    Note_class::read( Notes_name );
-    string Notesline =  Note_class::get_note_line();
-    if ( this->verify_noteline( Note_class::Noteline_prefix, Notesline ) )
+    Note_class::Read( Notes_name );
+    string Notesline =  Note_class::Get_note_line();
+    if ( this->Verify_noteline( Note_class::Noteline_prefix, Notesline ) )
     {
         status_color.setColor(QPalette::Button, Qt::green);
         QNote_Chars = QString::fromStdString( Note_class::Note_Chars );
@@ -98,7 +98,7 @@ void File_Dialog_class::Setup_widgets()
     QStr = QString::fromStdString( Notesline );
     ui->lE_Notes->setText( QStr );
 
-    string Rhythmline = Note_class::get_rhythm_line();
+    string Rhythmline = Note_class::Get_rhythm_line();
     QStr = QString::fromStdString( Rhythmline );
     ui->lE_Rythm->setText( QStr );
 
@@ -155,11 +155,11 @@ void File_Dialog_class::New_Notes()
     string note_line = QStr.toStdString();
     qDebug() << "new notes " << QStr ;
 
-    if ( this->verify_noteline( Note_class::Noteline_prefix, note_line ) )
+    if ( this->Verify_noteline( Note_class::Noteline_prefix, note_line ) )
     {
         QStr = ui->lE_Rythm->text();
         string rhythm_line = QStr.toStdString();
-        Note_class::set_rhythm_line( rhythm_line );
+        Note_class::Set_rhythm_line( rhythm_line );
 
         QNote_Chars = QString::fromStdString( Note_class::Note_Chars );
         ui->lbl_selected_notes->setText("Notes ( " + QNote_Chars + " )");
@@ -168,7 +168,7 @@ void File_Dialog_class::New_Notes()
         string notes_file = QStr.toStdString();
 
 
-        Note_class::save( notes_file, Note_class::Noteline_prefix, note_line );
+        Note_class::Save( notes_file, Note_class::Noteline_prefix, note_line );
 
         // remote shall read and activate the new note line
         GUI_interface_class::write_str('n', notes_file);
@@ -218,10 +218,10 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
         // local notename
         ui->lE_NotesFile->setText( Note_name );
         // local noteline
-        string  notes_line = Note_class::read( note_name );
+        string  notes_line = Note_class::Read( note_name );
         QString Notes_line = QString::fromStdString( notes_line );
         ui->lE_Notes->setText( Notes_line );
-        string rhythmline = Note_class::get_rhythm_line();
+        string rhythmline = Note_class::Get_rhythm_line();
         QString Rhythmline = QString::fromStdString( rhythmline );
         ui->lE_Rythm->setText( Rhythmline );
 

@@ -20,47 +20,44 @@
 
 const vector_str_t uint8_code_str =
 {
-			"Offline",
-			"Running",
-			"stop Audio",
-			"Running",
-			"Recording",
-			"Stop record",
-			"synchronize",
-			"free running",
-			"block",
-			"release",
-			"Update GUI",
-			"Store sound",
-			"play notes",
-			"default mode",
-			"Exit server"
+	"Offline"	,
+	"Running"	,
+	"stop Audio",
+	"Running"	,
+	"Recording"	,
+	"Stop record",
+	"synchronize",
+	"free running",
+	"block"		,
+	"release"	,
+	"Update GUI",
+	"Store sound",
+	"play notes",
+	"default mode",
+	"Exit server"
 };
-const uint8_t NOCONTROL 	= 	0;
-const uint8_t RUNNING	 	= 	1;
-const uint8_t STOPSNDSRV 	=	2;
-const uint8_t RUNSNDSRV 	=	3;
-const uint8_t RECORD		=	4;
-const uint8_t STOPRECORD    =	5;
-const uint8_t SENDDATA 		= 	6;
-const uint8_t FREERUN		= 	7;
-const uint8_t BLOCKDATA		=	8;
-const uint8_t RELEASEDATA 	= 	9;
-const uint8_t UPDATEGUI 	=  10;
-const uint8_t STORESOUND	=  11; // obsolete
-const uint8_t NOTES 		=  12;
-const uint8_t DEFAULT		=  13;
-const uint8_t EXITSERVER 	=  14;
+
+enum {
+	 NOCONTROL 	,
+	 RUNNING	,
+	 STOPSNDSRV ,
+	 RUNSNDSRV 	,
+	 RECORD		,
+	 STOPRECORD ,
+	 SENDDATA 	,
+	 FREERUN	,
+	 BLOCKDATA	,
+	 RELEASEDATA,
+	 UPDATEGUI 	,
+	 STORESOUND	,   // obsolete
+	 NOTES 		,
+	 DEFAULT	,
+	 EXITSERVER
+};
+
 
 static const uint str_buffer_len = 32;
 
-// Waveform counter
-const uint16_t MAINWF_MASK  = 0xFFFF - 0b111;
-const uint 	   MAINWF_SHIFT	= 0;
-const uint16_t VCOWF_MASK 	= 0xFFFF - 0b111000;
-const uint 	   VCOWF_SHIFT 	= 3;
-const uint16_t FMOWF_MASK 	= 0xFFFF - 0b111000000;
-const uint 	   FMOWF_SHIFT 	= 6;
 
 
 typedef struct interface_struct

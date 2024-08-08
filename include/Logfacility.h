@@ -23,14 +23,7 @@ class Logfacility_class
 public:
 	static const int 	logmax 		= 6;
 	array<bool,logmax+1> Log { true, false, true, true, false, true, false };
-
-	char ERROR 		= 0;
-	char DEBUG 		= 1;
-	char INFO 		= 2;
-	char WARN		= 3;
-	char DBG2 		= 4;
-	char BINFO		= 5;
-	char TEST		= 6;
+	enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
 
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  )

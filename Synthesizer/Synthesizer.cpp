@@ -108,13 +108,13 @@ config_map_t read_synthesizer_config( )
 void Setup_Wavedisplay()
 {
 	Log.Comment(INFO, "Setup Wave display data" );
-	Wavedisplay.add_data_ptr( Mixer.Mono_out.Data ); // TODO stereo out
-	Wavedisplay.add_data_ptr( Instrument.main.Mem.Data );
-	Wavedisplay.add_data_ptr( Instrument.vco.Mem.Data );
-	Wavedisplay.add_data_ptr( Instrument.fmo.Mem.Data );
-	Wavedisplay.add_data_ptr( Mixer.StA[ MbIdExternal].Data );
+	Wavedisplay.Add_data_ptr( Mixer.Mono_out.Data ); // TODO stereo out
+	Wavedisplay.Add_data_ptr( Instrument.main.Mem.Data );
+	Wavedisplay.Add_data_ptr( Instrument.vco.Mem.Data );
+	Wavedisplay.Add_data_ptr( Instrument.fmo.Mem.Data );
+	Wavedisplay.Add_data_ptr( Mixer.StA[ MbIdExternal].Data );
 
-	Wavedisplay.set_data_ptr( GUI.addr->Wavedisplay_Id );
+	Wavedisplay.Set_data_ptr( GUI.addr->Wavedisplay_Id );
 }
 
 void record_thead_fcn( )
@@ -157,7 +157,7 @@ void exit_proc( int signal )
 	Log.Comment(INFO, "Clearing output buffers");
 	Shm_a.clear();
 	Shm_b.clear();
-	Wavedisplay.clear_data();
+	Wavedisplay.Clear_data();
 	GUI.addr->RecCounter = 0; // memory buffers are empty after restart
 	GUI.announce( "Synthesizer", false);
 	GUI.dump_ifd();
@@ -250,7 +250,7 @@ void process( char key )
 		{
 			Instrument.vco.set_frequency( ifd->VCO_Freq );
 			Instrument.vco.OSC( 0 );
-			Instrument.main.connect_vco_data( &Instrument.vco);
+			Instrument.main.Connect_vco_data( &Instrument.vco);
 
 			GUI.commit();
 			break;
@@ -258,8 +258,8 @@ void process( char key )
 		case FMOFREQUENCYKEY : // modify the fm_track data
 		{
 			Instrument.fmo.set_frequency( ifd->FMO_Freq );
-			Instrument.fmo.OSC( 0 ); //generate fmo data
-			Instrument.main.connect_fmo_data( &Instrument.fmo);
+//			Instrument.fmo.OSC( 0 ); //generate fmo data
+			Instrument.main.Connect_fmo_data( &Instrument.fmo);
 
 			GUI.commit();
 			break;
@@ -268,7 +268,7 @@ void process( char key )
 		{
 			Instrument.vco.set_volume(ifd->VCO_Amp );
 			Instrument.vco.OSC(0);
-			Instrument.main.connect_vco_data( &Instrument.vco);
+			Instrument.main.Connect_vco_data( &Instrument.vco);
 			GUI.commit();
 			break;
 		}
@@ -276,7 +276,7 @@ void process( char key )
 		{
 			Instrument.fmo.set_volume(ifd->FMO_Amp );
 			Instrument.fmo.OSC(0);
-			Instrument.main.connect_fmo_data( &Instrument.fmo);
+			Instrument.main.Connect_fmo_data( &Instrument.fmo);
 			GUI.commit();
 			break;
 		}
@@ -341,7 +341,7 @@ void process( char key )
 		}
 		case WAVEDISPLAYTYPEKEY :
 		{
-			Wavedisplay.set_type( ifd->WD_type_ID );
+			Wavedisplay.Set_type( ifd->WD_type_ID );
 			GUI.commit();
 			break;
 		}
@@ -365,7 +365,7 @@ void process( char key )
 			if( Instrument.Set(instrument) )
 			{
 				Log.Comment(INFO, "sucessfully loaded instrument " + instrument );
-				Notes.set_osc_track( &Instrument );
+				Notes.Set_osc_track( &Instrument );
 			}
 			else
 			{
@@ -502,7 +502,7 @@ void process( char key )
 		{
 			Instrument.main.Mem_vco.clear_data(max_data_amp);
 			Instrument.main.Mem_fmo.clear_data( 0 );
-			Instrument.main.reset_data( &Instrument.main );
+			Instrument.main.Reset_data( &Instrument.main );
 			Instrument.main.OSC(0);
 			GUI.commit();
 			break;
@@ -511,8 +511,8 @@ void process( char key )
 		{
 			Log.Comment(INFO, "receive command <update notes>");
 			string notes_name = GUI.read_str('n');
-			Notes.set_osc_track( &Instrument );
-			Notes.read( notes_name );
+			Notes.Set_osc_track( &Instrument );
+			Notes.Read( notes_name );
 			ifd->Noteline_sec = Notes.noteline_sec;
 			Notes.Start_note_itr();
 			GUI.commit();
@@ -523,7 +523,7 @@ void process( char key )
 			Log.Comment(Log.INFO, "receive command <setup play notes>");
 			Value amp { (int) ifd->MIX_Amp };
 			string notes_file = GUI.read_str('n');
-			Notes.read( notes_file ); // notes have been written to file by the GUI already
+			Notes.Read( notes_file ); // notes have been written to file by the GUI already
 			Mixer.status.notes = true;
 			Mixer.StA[ MbIdNotes ].playnotes(true);
 			Mixer.StA[ MbIdNotes ].Amp = amp.i;
@@ -542,7 +542,7 @@ void process( char key )
 			Log.Comment(INFO, "duration: " + sec.str + " sec.");
 			Log.Comment(INFO, "store to array nr.: " + id.str );
 			Mixer.StA[ id.i].record_mode( true );
-			Notes.set_osc_track( &Instrument );
+			Notes.Set_osc_track( &Instrument );
 
 			Mixer.add_noteline( id.i, &Notes );
 
@@ -579,14 +579,14 @@ void process( char key )
 		{
 			Log.Comment(Log.INFO, "receive command <update Noteline during play>");
 			string notes_file = GUI.read_str('n');
-			Notes.read( notes_file );
+			Notes.Read( notes_file );
 			GUI.commit();
 			break;
 		}
 		case SETBASEOCTAVE_KEY :
 		{
 			Value diff_oct { (int) ifd->FLAG };
-			Notes.set_base_octave( diff_oct.i ); // is positive, therefore identify 0 -> -1, 1 -> 1
+			Notes.Set_base_octave( diff_oct.i ); // is positive, therefore identify 0 -> -1, 1 -> 1
 			GUI.commit();
 			break;
 		}
@@ -595,7 +595,7 @@ void process( char key )
 		{
 			Value nps = ifd->FLAG;
 			Log.Comment(Log.INFO, "receive command <set notes per second>");
-			if ( not Notes.set_notes_per_second( nps.i ) )
+			if ( not Notes.Set_notes_per_second( nps.i ) )
 			{
 				Log.Comment( ERROR, nps.str + " notes per second not supported");
 			}
@@ -605,22 +605,22 @@ void process( char key )
 
 		case SETWAVEDISPLAYKEY :
 		{
-			Wavedisplay.set_data_ptr( ifd->Wavedisplay_Id );
+			Wavedisplay.Set_data_ptr( ifd->Wavedisplay_Id );
 			GUI.commit();
 			break;
 		}
 		case CONNECTFMOVCOKEY : // connect FMO volume with vco data
 		{
 
-			Instrument.fmo.connect_fmo_data( &Instrument.vco );
+			Instrument.fmo.Connect_fmo_data( &Instrument.vco );
 			Instrument.fmo.OSC(0);
-			Instrument.main.connect_fmo_data( &Instrument.fmo );
+			Instrument.main.Connect_fmo_data( &Instrument.fmo );
 			GUI.commit();
 			break;
 		}
 		case RESETFMOKEY : // reset FMO
 		{
-			Instrument.fmo.reset_data( &Instrument.fmo );
+			Instrument.fmo.Reset_data( &Instrument.fmo );
 			Instrument.fmo.OSC(0);
 			GUI.commit();
 			break;
@@ -662,7 +662,7 @@ void process( char key )
 		}
 		case RESETVCOKEY : // reset VCO
 		{
-			Instrument.vco.reset_data( &Instrument.vco );
+			Instrument.vco.Reset_data( &Instrument.vco );
 			Instrument.vco.OSC(0);
 //					Instrument.main.connect_vco_data( *null_itr );
 			GUI.commit();
@@ -670,9 +670,9 @@ void process( char key )
 		}
 		case CONNECTVCOFMOKEY ://connect VCO frequency with FMO data
 		{
-			Instrument.vco.connect_vco_data( &Instrument.fmo );
+			Instrument.vco.Connect_vco_data( &Instrument.fmo );
 			Instrument.vco.OSC(0);
-			Instrument.main.connect_vco_data( &Instrument.vco );
+			Instrument.main.Connect_vco_data( &Instrument.vco );
 			GUI.commit();
 			break;
 		}
@@ -690,8 +690,6 @@ void process( char key )
 		case SETWAVEFORMVCOKEY :
 		{
 			set_waveform( &Instrument.vco, ifd->VCO_spectrum.id );
-//			uint8_t id = ifd->VCO_waveform_id;
-//			Instrument.Set_waveform( &Instrument.vco, id );
 			Instrument.vco.OSC(0);
 			GUI.commit();
 			break;
@@ -699,30 +697,13 @@ void process( char key )
 		case SETWAVEFORMMAINKEY :
 		{
 			set_waveform( &Instrument.main, ifd->MAIN_spectrum.id );
-//			uint8_t id = ifd->Main_waveform_id;
-//			Instrument.Set_waveform( &Instrument.main, id );
-//			string wf = Instrument.main.Get_waveform_str( id );
-//			Log.Comment(INFO, "set waveform >" + wf + "< for MAIN");
 			GUI.commit();
 			break;
 		}
 
 		case UPDATESPECTRUM_KEY :
 		{
-			vector<spec_struct_t*> ifd_spectrum_vec = { &ifd->MAIN_spectrum,
-													&ifd->VCO_spectrum,
-													&ifd->FMO_spectrum };
-			Log.Comment(Log.INFO, "receive command <update Spectrum>");
-			Oscillator* osc 						= Instrument.osc_vector[ ifd->Spectrum_type ];
-			osc->spectrum							= *ifd_spectrum_vec[ ifd->Spectrum_type ];
-/*
-			uint8_t id 								= (int)ifd->Spectrum_id;
-			int channel 							= (int)ifd->Spectrum_channel;
-			int value 								= (int)ifd->Spectrum_value;
-			osc->Set_spectrum( id , channel, value);
-			ifd->spectrum_dta = osc->spectrum.dta;
-*/
-			osc->OSC(0);
+			Instrument.Update_spectrum();
 			GUI.commit();
 			break;
 		}
@@ -797,7 +778,7 @@ void play_keyboard( char key )
 bool sync_mode()
 {
 	bool sync = ( 							// if true synchronize shm a/b with Audio Server
-		( Instrument.fmo.wp.frequency < 1.0 ) 	or
+		( Instrument.fmo.wp.frequency < LFO_limit ) 	or
 		( Mixer.status.notes 		)	or	// generate notes
 		( Mixer.status.external 	)	or	// StA play external
 		( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
@@ -836,7 +817,11 @@ void ApplicationLoop()
 		int 		shm_id		= ( int ) ifd->SHMID;
 		stereo_t* 	shm_addr 	= Shm_a.addr;
 
+//		if( Instrument.fmo.wp.frequency < LFO_limit )
+//		{
+//			Instrument.main.OSC (0  ); // generate the modified sound waves
 
+//		}
 		if ( sync_mode() )
 		{
 			if ( Mixer.composer > 0  )
@@ -848,21 +833,22 @@ void ApplicationLoop()
 			{
 				if ( ifd->MODE == SENDDATA )				// Audio Server request 1 second data chunk
 				{
-					if( Instrument.fmo.wp.frequency < 1.0 )
-						Instrument.fmo.OSC (0  ); // generate the modified sound waves
 
 					if ( Mixer.status.notes )
 					{
-						Notes.set_osc_track( &Instrument );
-						Notes.generate_note_chunk( &Mixer.StA[MbIdNotes] ); // max_sec duration
+						Notes.Set_osc_track( &Instrument );
+						Notes.Generate_note_chunk( &Mixer.StA[MbIdNotes] ); // max_sec duration
 					}
 					else
+					{
+						Instrument.fmo.OSC (0 ); // generate the modified sound waves
 						Instrument.main.OSC (0  ); // generate the modified sound waves
-
+					}
 					ifd->UpdateFlag = true;
 					shm_id 			= ( int ) ifd->SHMID;
 					shm_addr 		= ( shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
 					Mixer.add( &Instrument, shm_addr, Record.active );
+					Wavedisplay.Gen_cxwave_data(  );
 
 				} 											// but handel further requests
 			}
@@ -871,7 +857,9 @@ void ApplicationLoop()
 		}
 		else
 		{
+			Instrument.fmo.OSC (0 ); // generate the modified sound waves
 			Instrument.main.OSC (0  ); // generate the modified sound waves
+
 			ifd->MODE 		= FREERUN;
 			shm_addr 		= Shm_a.addr;
 			Mixer.add( &Instrument, shm_addr, Record.active );
@@ -882,9 +870,10 @@ void ApplicationLoop()
 			External.add_record( &Mixer.Out_L, &Mixer.Out_R);//, Mixer.StA[ MbIdExternal ].Amp );
 		Record.Progress_bar_update();
 
-		Wavedisplay.gen_cxwave_data(  );
 		Update_ifd_status_flags();
 	} // while not EXITSERVER
+
+	Wavedisplay.Gen_cxwave_data(  );
 
 	Log.Comment(INFO, "Exit Application loop");
 	return;
@@ -905,10 +894,10 @@ void test_classes()
 
 	Log.test();
 
-	Notes.test();
+	Notes.Test();
 
 	Oscillator 		TestOsc{"Test"};
-	TestOsc.test();
+	TestOsc.Test();
 
 	Instrument.Test_Instrument();
 

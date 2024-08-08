@@ -18,6 +18,8 @@
 #include <QPolygon>
 #include <QTimer>
 #include <QRect>
+#include <QEvent>
+
 
 
 // System
@@ -28,17 +30,21 @@ MainWindow::MainWindow(QWidget *parent)
      QMainWindow(parent),
 	 ui(new Ui::MainWindow)
 {
-	auto Waveform_vec = [ this ]()
+
+
+	auto fromstringvector = [ this ]( const vector<string>& str_vec )
 		{
 			vector<QString> Qvec{};
-			for ( string str : Spectrum.Get_waveform_vec() )
+			for ( string str : str_vec )
 			{
-				Qvec.push_back( QString::fromStdString( str ));
+				Qvec.push_back( std::move( QString::fromStdString( str ) ) );
 			}
 			return Qvec;
-		};
 
-	QWaveform_vec = Waveform_vec();
+		};
+	QWaveform_vec = fromstringvector( Spectrum.Get_waveform_vec() );
+
+	Qwavedisplay_type_str_vec = fromstringvector( wavedisplay_type_str_vec );
 
     ui->setupUi(this);
 
@@ -137,18 +143,12 @@ QPalette record_color = QPalette();
 QPalette status_color = QPalette();
 
 
-
-
-QString get_bps_string( int id )
+QString get_bps_qstring( int id )
 {
-    char bps_char = Bps_string[id];
-    string bps_str{};
-    bps_str.push_back( bps_char );
-    QString QStr = QString::fromStdString( bps_str );
+	string bps_str = bps_struct().getbps_str(id);
+	QString QStr = QString::fromStdString( bps_str );
     return QStr;
 }
-
-
 
 //int duration_counter = 0;
 
@@ -171,10 +171,6 @@ void MainWindow::hs_hall_effect_value_changed(int value)
     GUI.Set( GUI.addr->KEY , ADSRHALLKEY);
 }
 
-
-
-
-
 void MainWindow::pB_Wavedisplay_clicked()
 {
     int wd_counter = (GUI.addr->Wavedisplay_Id + 1) % wavedisplay_str_vec.size();
@@ -189,7 +185,6 @@ void MainWindow::dial_soft_freq_value_changed()
     int value = ui->dial_soft_freq->value();
     GUI.Set(GUI.addr->Soft_freq , value);
     GUI.Set( GUI.addr->KEY , SOFTFREQUENCYKEY);
-    qDebug() << Qt::dec << value << Qt::endl;
 
 };
 
@@ -233,8 +228,6 @@ void MainWindow::Spectrum_Dialog()
 
 void MainWindow::waveform_slot(char* wf_addr, char wfid, int ID, int wf_key, QLabel* label  )
 {
-//	if ( GUI.addr->Spectrum_type == ID )
-//		GUI.Set( GUI.addr->Spectrum_id, wfid );
 	*wf_addr = wfid;
 	GUI.Set( GUI.addr->KEY , wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
@@ -321,7 +314,6 @@ void MainWindow::Store()
     status_store = not status_store;
 }
 
-#include <QEvent>
 void MainWindow::memory_clear()
 {
 	vector<uint> rb_ids = {0,1,2,3,4,MbIdExternal };
@@ -419,7 +411,7 @@ void MainWindow::toggle_Mute()
 }
 void MainWindow::sB_Duration( int bps_id  )
 {
-    QString Qstr = get_bps_string( bps_id );
+    QString Qstr = get_bps_qstring( bps_id );
     ui->Bps->setText( Qstr );
     GUI.Set( GUI.addr->Main_adsr_bps_id, bps_id);
     GUI.Set( GUI.addr->KEY, ADSRDURATIONKEY );
@@ -428,7 +420,8 @@ void MainWindow::setwidgetvalues()
 {
 
     ui->dial_PMW->setValue( (int)GUI.addr->PMW_dial  );
-    ui->Slider_FMO_Hz->setValue(    GUI.addr->FMO_Freq);
+    int slider_value = ( GUI.addr->FMO_Freq < LFO_limit ) ? GUI.addr->FMO_Freq * LFO_count : GUI.addr->FMO_Freq;
+    ui->Slider_FMO_Hz->setValue(    slider_value );
     ui->Slider_VCO_Hz->setValue(    GUI.addr->VCO_Freq);
     ui->Slider_Main_Hz->setValue(   GUI.addr->Main_Freq);
 
@@ -443,8 +436,6 @@ void MainWindow::setwidgetvalues()
     ui->Slider_mix_vol6->setValue(75);
     ui->Slider_mix_vol7->setValue(100);
 
-    QString Qstr;
-    string str;
     ui->labelVCO->setText("VCO");
     ui->labelFMO->setText("FMO");
 
@@ -458,7 +449,7 @@ void MainWindow::setwidgetvalues()
     ui->sB_VCO->setValue(  GUI.addr->VCO_spectrum.id  );
 
     ui->sB_Duration->setValue( GUI.addr->Main_adsr_bps_id );
-    Qstr = get_bps_string( GUI.addr->Main_adsr_bps_id );
+    QString Qstr = get_bps_qstring( GUI.addr->Main_adsr_bps_id );
     ui->Bps->setText( Qstr );
     ui->hs_adsr_sustain->setValue(  (int) GUI.addr->Main_adsr_decay );
     ui->hs_adsr_attack->setValue(  (int)     GUI.addr->Main_adsr_attack);
@@ -466,9 +457,9 @@ void MainWindow::setwidgetvalues()
     ui->hs_hall_effect->setValue( (int)  GUI.addr->Main_adsr_hall );
     ui->progressBar_record->setValue(0);
     int wd_counter              = GUI.addr->Wavedisplay_Id;
-    QString QStr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
-    ui->pB_Wavedisplay->setText( QStr );
-    ui->pB_Debug->setText( WD_type_str[ (int) GUI.addr->WD_type_ID % 3 ] );
+    Qstr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
+    ui->pB_Wavedisplay->setText( Qstr );
+    ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ (int) GUI.addr->WD_type_ID % 3 ] );
 
     ui->dial_ramp_up_down->setValue( GUI.addr->Master_Amp);
     if ( mute_flag )
@@ -524,13 +515,13 @@ void MainWindow::FMO_slot_volume()
 void MainWindow::Slider_FMO_Hz_changed(int value )
 {
     float freq = 0.0;
-    if ( value >= 100 )
+    if ( value >= LFO_count )
     {
-    	freq = value - 99;
+    	freq = value - ( LFO_count - LFO_limit );
     }
     else
     {
-    	freq = (float) value / 100.0;
+    	freq = (float) value / LFO_count;
     }
     ui->FMOLCD_Hz->display( freq );
 
@@ -542,18 +533,19 @@ void MainWindow::Slider_FMO_Hz_changed(int value )
 
 void MainWindow::start_srv()
 {
-    string cmd = "xterm -e '" + file_structure().audio_bin + " 2 44100' &";
-    system_execute( cmd.data() );
-    printf("%s\n", cmd.data() );
+//    string cmd = "xterm -e '" + file_structure().audio_bin + " 2 44100' &";
+    string Start_Audio_Srv = Server_struct().cmd( Audio_Srv, "" );
+	system_execute( Start_Audio_Srv.data() );
+    Log.Comment( Log.INFO, Start_Audio_Srv );
 }
 
 void MainWindow::start_synthesizer()
 {
-    string cmd = "xterm -e '( " + file_structure().synth_bin + ")' &";
-    system_execute( cmd.data() );
-    printf("%s\n", cmd.data() );
-    usleep(2*1000000); // WAIT until the startup of the process finished.
-    //GUI.read();         // the synthesizer process will prepare the initial values
+    string Start_Synthesizer = Server_struct().cmd( Synthesizer, "" );
+    system_execute( Start_Synthesizer.data() );
+    Log.Comment( Log.INFO, Start_Synthesizer );
+    Wait( 2*SECOND ); 	// WAIT until the startup of the process finished.
+    					// the synthesizer process will prepare the initial values
                         // from the keyboard file, that are stored into the GUI.ifd_data structure
     MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-
     MainWindow::show(); // and the Mainwindow is updated.
@@ -648,7 +640,7 @@ void MainWindow::pB_Debug_clicked()
     GUI.Set( GUI.addr->WD_type_ID , counter);
     GUI.Set( GUI.addr->KEY , WAVEDISPLAYTYPEKEY);
 
-    ui->pB_Debug->setText( WD_type_str[ counter ] );
+    ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ counter ] );
 }
 
 void MainWindow::melody_connect()

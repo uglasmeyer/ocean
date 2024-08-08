@@ -106,7 +106,7 @@ bool interpreter( )
 		{
 			if ( keyword.compare("return") 		== 0 )	pos = return_pos ( pos );
 			if ( keyword.compare("call") 		== 0 )	pos = call_pos( pos, arr );
-			Compiler.set_prgline( pos );
+			Compiler.Set_prgline( pos );
 			if ( keyword.compare("start") 		== 0 )	Compiler.start_bin( arr );
 			if ( keyword.compare("stop") 		== 0 )	Compiler.stop_bin( arr );
 			if ( keyword.compare("instrument") 	== 0 ) 	Compiler.instrument( arr );
@@ -228,7 +228,7 @@ void composer_dialog()
 		Program.push_back( { 1,"stdin", line });
 		if ( interpreter( ) )
 		{
-			Compiler.execute(  );
+			Compiler.Execute(  );
 		}
 		cout << "echo: " << line << endl;
 	}
@@ -238,10 +238,10 @@ void composer_dialog()
 void maintest()
 {
 
-	Variation.test();
+	Variation.Test();
 
 	Note_class testnote;
-	testnote.test();
+	testnote.Test();
 
 	Charset_class A("abdefabdef");
 	A.test();
@@ -279,7 +279,7 @@ int main( int argc, char* argv[] )
 	{
 		if ( interpreter( ) )
 		{
-			Compiler.execute(  );
+			Compiler.Execute(  );
 		}
 	}
 	GUI.announce( "Composer", false );

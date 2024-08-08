@@ -23,6 +23,7 @@
 #include <random>
 #include <ranges>
 #include <sstream>
+#include <string>
 #include <thread>
 #include <typeinfo>
 #include <unordered_map>
@@ -43,15 +44,7 @@
 #include <termios.h>
 #include <unistd.h> // usleep
 
-#include <string>
 
-/*
-#ifdef RTAUDIO
-#include <string>
-#else
-#include <string.h>
-#endif
-*/
 
 using namespace std;
 
@@ -125,7 +118,6 @@ typedef unsigned long int 	buffer_t;
 typedef unsigned long int 	strlen_t;
 typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
-//typedef array<int,16>		array_int_t;
 typedef vector<int>			vector_int_t;
 typedef struct stereo_struct
 {
@@ -135,9 +127,7 @@ typedef struct stereo_struct
 
 const uint 			sizeof_data 		= sizeof(Data_t);
 const double 		pi					= 3.1415926536;//3.141592654;
-//const buffer_t 	    chunksize 			= 882;//441 , 512; // Audio server chunksize
-//const buffer_t		chunk_frames 		= 44100; //2*chunksize * 43 ; // ~44100
-//const buffer_t		frames_per_sec  	= 44100;
+
 
 const buffer_t		audio_frames 		= 48000; //2*chunksize * 43 ; // ~44100
 const buffer_t		frames_per_sec  	= 48000;
@@ -159,9 +149,43 @@ const uint			osc_default_volume	= 80; // %
 const uint 			wavedisplay_len		= 512;
 const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
 const string		KbdNote					{ "SDRFTGHUJIKOL" };
-const string		Bps_string 			 	{ "012458"}; 		// Beats per second
-const vector<int>   Bps_array 			 	{ 0,1,2,4,5,8 };
+typedef struct bps_struct
+{
+	const vector<string>	Bps_str_vec = { "0","1","2","4","5","8"}; 		// Beats per second
+	const vector<int>   	Bps_array 	= { 0,1,2,4,5,8 };
+	string getbps_str( int id )
+	{
+		return Bps_str_vec[ id ];
+	}
+	int getbps_id( string str )
+	{
+		for ( size_t i = 0; i < Bps_str_vec.size(); i++ )
+			if ( Bps_str_vec[i].compare( str ) == 0 )
+				return (int)i;
+		return -1;
+	}
+	uint8_t getbps( int id )
+	{
+		return Bps_array[ id ];
+	}
 
+} bps_struct_t;
+
+const float			LFO_limit			= 1.0;
+const uint8_t		LFO_count			= 100;
+
+typedef struct Server_struct
+{
+
+	string shell = "xterm -e ";
+	string cmd( string srv, string opt )
+	{
+		return shell + "'(" + srv + opt + ")' &";
+	};
+} Server_struc_t;
+
+const string		Audio_Srv	= file_structure().audio_bin;
+const string 		Synthesizer	= file_structure().synth_bin;
 
 const vector<string> wavedisplay_str_vec =
 {
@@ -171,6 +195,9 @@ const vector<string> wavedisplay_str_vec =
     "FMO ",
     "External IN"
 };
+
+const vector<string> wavedisplay_type_str_vec = { "Full", "Flow", "Debug" };
+enum { FULLID, FLOWID, DEBUGID };
 
 extern size_t		kbdnote( char);
 extern void 		system_execute( const string );

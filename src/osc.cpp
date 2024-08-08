@@ -13,9 +13,12 @@
 
 // https://stackoverflow.com/questions/6339970/c-using-function-as-parameter
 
+constexpr int sgn( const float& value )
+{
+	return ( value >= 0 ) ? 1 : -1;
+}
 
-
-uint16_t signum(  const float& value)
+constexpr Data_t signum(  const float& value)
 {
 	if ( value > 0) return value;
 	else return 0;
@@ -31,13 +34,13 @@ float rnd(  const float& amp,  const float& phi )
 	return rint;
 }
 
-float fmodulo(  const float& x,  const float& y )
+constexpr float fmodulo(  const float& x,  const float& y )
 { 	// for small steps dx < y
 	return ( x >= y ) ? x-y : x ;
 }
 
-float dphi = 0.0;
-float modc = 2*pi;
+double dphi = 0.0;
+double modc = 2*pi;
 float delta(  const float& x,  const float& y )
 {
 	float f1 = fmodulo(y+dphi, modc + dphi);
@@ -57,13 +60,13 @@ float rnd_step(  const float& amp,  const float& y )
 	else
 		return rndprev;
 }
-float modulo(  const float& x,  const int& n )
+constexpr float modulo(  const float& x,  const int& n )
 {
 	long int d = floor ( x / n ); // floor corresponds to the gaussian bracket
 	return x - d*n;
 }
 
-float maximum(  const float& x,  const float& y)
+constexpr Data_t maximum(  const float& x,  const float& y)
 {
 	if ( x > y )
 		return x;
@@ -72,61 +75,61 @@ float maximum(  const float& x,  const float& y)
 }
 
 
-Data_t One( const float& amp, const float& phi )
+constexpr Data_t One( const float& amp, const float& phi )
 {
 	return 1;
 }
-Data_t Zero( const float& amp, const float& phi)
+constexpr Data_t Zero( const float& amp, const float& phi)
 {
 	return 0;
 }
-Data_t Sin(  const float& amp,  const float& phi )
+constexpr Data_t Sin(  const float& amp,  const float& phi )
 {
 //	return rint(  amp * sin( phi ));
 	return (  amp * sin( phi ));
 }
-Data_t SignSin( const float& amp, const float& phi )
+constexpr Data_t SignSin( const float& amp, const float& phi )
 {
 //	return rint( signum( amp * sin ( phi ) ));
 	return ( signum( amp * sin ( phi ) ));
 }
-Data_t rectangle( const float& amp, const float& phi ) // 'r'
+constexpr Data_t rectangle( const float& amp, const float& phi ) // 'r'
 { // maxima: round(mod(phi,1))*amp*2-amp;
 	return -amp*( round(floor(phi)-phi)) - amp/2;
 }
-Data_t Triangle( const float& amp, const float& phi ) // 'T'
+constexpr Data_t Triangle( const float& amp, const float& phi ) // 'T'
 { // maxima: f:2*amp*(abs(max( 1 - mod(phi, 2), -1 ) )-1)+amp;
 	return round(2*amp*(abs(maximum( 1 - modulo(phi, 2), -1 ) )-1)+amp);
 }
-Data_t sawtooth( const float& amp,  const float& phi )
+constexpr Data_t sawtooth( const float& amp,  const float& phi )
 {
 	return rint( amp * modulo(phi,1 ));
 }
-Data_t Sawtooth( const float& amp,  const float& phi )
+constexpr Data_t Sawtooth( const float& amp,  const float& phi )
 {
 	return rint(amp* (1.0 - modulo(phi,1 )));
 }
 
-void Oscillator::set_start_freq( float freq )
+void Oscillator::Set_start_freq( float freq )
 {
 	start_freq = freq;
 }
 
-double Oscillator::get_delta_freq( double freq )
+double Oscillator::get_delta_freq( float freq )
 {
 	// 0..100 |-> 0..frames = 0..max_sec
 	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
 
-	if ( abs(start_freq) < 1 ) return freq;  			// do nothing
+	if ( abs(start_freq) < 1E-4 ) return freq;  			// do nothing
 	float dframes =  ( wp.glide_effect * frames / 100.0 ) ;
 
-	if ( abs(dframes) < 1 ) return freq - start_freq; 	// do nothing
+	if ( abs(dframes) < 1E-4 ) return freq - start_freq; 	// do nothing
 	return ( freq - start_freq ) / dframes;
 
 }
-void Oscillator::set_phi( double phi ) //phase at the end of the osc
+void Oscillator::set_phi( double phi, double mod ) //phase at the end of the osc
 {
-	this->phase = phi;
+	this->phase	= phi;//( phi > mod ) ? phi-mod : phi ;
 }
 
 double Oscillator::get_phi( )// phase at the begin of the osc
@@ -167,13 +170,14 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
-	float 				norm_freq 	= 0.002*(float)this->fp.volume;
+	float 				norm_freq 	= 0.001*(float)this->fp.volume;
 
 	float freq = this->wp.frequency;
 
 	Data_t 	vco_shift 	= max_data_amp/2;
-	if (( osc_id == VCOID ) or
-		( osc_id == FMOID ))
+	if (( osc_id == VCOID )
+			or	( osc_id == FMOID )
+			)
 		vco_shift = 0;
 
 	float	vol_per_cent =  volume / 100.0; // the volume of the main osc is managed by the mixer!
@@ -232,9 +236,9 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		case 7 :// PMW
 		{
 			modc = 1;
-			float phi 		= get_phi();
+			double phi 		= this->phase;
 			dphi			= 0.0;
-			float dT 		= 2*dt;
+			double dT 		= 2*dt;
 			float frames2 	= 1.0 + this->wp.PMW_dial/100.0;
 			for ( n = 0; frames > n; n++ )
 			{
@@ -247,10 +251,10 @@ void Oscillator::OSC (  buffer_t frame_offset )
 				phi 		= phi + dphi;
 				phi 		= fmodulo(phi, modc);
 			}
-			set_phi( phi );
+			set_phi( phi, modc );
 
-			Adsr( this->adsr, frames, data);
-			hall_effect( this->adsr, frames, data) ;
+			apply_adsr( this->adsr, frames, data);
+			apply_hall( this->adsr, frames, data) ;
 
 			return;
 			break;
@@ -294,9 +298,9 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	}
 
 	if ( spectrum.sum == 0 ) spectrum.sum  = 1;
-	float 		omega_t;
-	float 		dT 		= modc * dt;
-	float		lfo_mod = modc;
+	double 		omega_t;
+	double 		dT 		= modc * dt;
+	double		lfo_mod = modc;
 	double 		phi		= get_phi( );
 
 	float 		start_freq = this->start_freq;
@@ -307,7 +311,6 @@ void Oscillator::OSC (  buffer_t frame_offset )
 
 		if ( this->osc_id != NOTESID ) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
-		Data_t fmodata = norm_freq*fmo_data[n];
 
 		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) / spectrum.sum; // VCO envelope
 		for ( size_t df = 0; df < spec_dta_len; df++ )
@@ -316,29 +319,39 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			{
 				omega_t =   phi * (1 + df )  ;
 				data[n]	=   data[n] + F(spectrum.dta[df]*vco_vol, omega_t);
+
+			if ( ( osc_id == FMOID ) and ( Log[TEST] ) )
+			{
+				if ( (n < 10 ) or ( n > frames - 10 ) )
+				{
+					cout << setw(15) << n << setw(15) << phi << setw(15) << data[n] << endl;
+				}
+			}
 			}
 		}
 
 		if ( abs(freq - start_freq) > 1 ) start_freq = start_freq + delta_f;
-		dphi	= dT * ( start_freq + fmodata);
-		phi 	= phi + dphi;
-		phi		= ( phi > lfo_mod ) ? phi-lfo_mod : phi ;//fmodulo(phi, mod);
+		dphi	= dT * ( start_freq + norm_freq*fmo_data[n] );
+		phi 	+= dphi;
+		phi		= ( abs(phi) > lfo_mod ) ? phi-sgn(phi)*lfo_mod : phi ;//fmodulo(phi, mod);
+		assert( phi <  lfo_mod );
+		assert( phi > -lfo_mod );
 	}
 
-	set_phi( phi );
-	set_start_freq(freq);
+	set_phi( phi, lfo_mod );
+	Set_start_freq(freq);
 
-	Adsr( this->adsr, frames, data);
-	hall_effect( this->adsr, frames, data) ;
+	apply_adsr( this->adsr, frames, data);
+	apply_hall( this->adsr, frames, data) ;
 
 
 	return;
 
 }
 
-void Oscillator::set_long( bool l ){ longnote = l ;};
+void Oscillator::Set_long( bool l ){ longnote = l ;};
 
-void Oscillator::Adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
+void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 {
 	auto attack = [ frames, data ]( int duration, buffer_t aframes, float da )
 		{
@@ -368,8 +381,8 @@ void Oscillator::Adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 	if ( adsr.bps_id == 0 ) return;
 	if ( not (( osc_id == MAINID ) or ( osc_id == NOTESID ))) return;
 
-	adsr.bps_id				= adsr.bps_id % Bps_array.size();
-	int 		duration 	= Bps_array[adsr.bps_id ];
+	adsr.bps_id				= adsr.bps_id % bps_struct().Bps_str_vec.size();
+	int 		duration 	= bps_struct().getbps( adsr.bps_id );
 	buffer_t 	aframes		= 0;
 	float 		da			= 0;
 
@@ -395,7 +408,7 @@ void Oscillator::Adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 
 Memory 	memtmp	{ monobuffer_size }; //adsr hall - not member of Oscillator
 
-void Oscillator::hall_effect( adsr_struc_t adsr, buffer_t frames, Data_t* data )
+void Oscillator::apply_hall( adsr_struc_t adsr, buffer_t frames, Data_t* data )
 { 	// adsr.hall determines the distance to a wall
 	// db describes the decay of an amplitude given at the origon n
 	// dn is the distance of the wall in frame units
@@ -424,7 +437,7 @@ void Oscillator::hall_effect( adsr_struc_t adsr, buffer_t frames, Data_t* data )
 }
 
 
-void Oscillator::connect_vco_data( Oscillator* osc)
+void Oscillator::Connect_vco_data( Oscillator* osc)
 {
 	assert( osc->Mem.Data != NULL );
 	this->vp.data 	= osc->Mem.Data;
@@ -432,7 +445,7 @@ void Oscillator::connect_vco_data( Oscillator* osc)
 	this->vp.name 	= osc->osc_type;
 }
 
-void Oscillator::connect_fmo_data( Oscillator* osc )
+void Oscillator::Connect_fmo_data( Oscillator* osc )
 {
 	assert( osc->Mem.Data != NULL );
 	this->fp.data 	= osc->Mem.Data;
@@ -440,7 +453,7 @@ void Oscillator::connect_fmo_data( Oscillator* osc )
 	this->fp.name 	= osc->osc_type;
 }
 
-void Oscillator::reset_data( Oscillator* osc )
+void Oscillator::Reset_data( Oscillator* osc )
 {
 	this->Mem_fmo.clear_data(0);
 	this->Mem_vco.clear_data(max_data_amp);
@@ -456,7 +469,7 @@ void Oscillator::reset_data( Oscillator* osc )
 
 }
 
-void Oscillator::test()
+void Oscillator::Test()
 {
 	Set_Loglevel(TEST, true );
 
@@ -474,13 +487,14 @@ void Oscillator::test()
 	spectrum = spec_struct();
 	OSC( 0 );
 	cout << "Phase: " << phase <<  " " << 2*pi << endl;
-	if ( abs( (sin(phase)) ) > 8E-5)
+	if ( (phase - 2*pi ) > 1E-5)
 		assert(false);
 
 	longnote = true;
 	adsr.attack = 50;
 	adsr.decay = 5;
 	assert( decay_shift == frames_per_sec );
-	Comment( TEST, "Osc test start");
+
+	Comment( TEST, "Osc test finished");
 }
 

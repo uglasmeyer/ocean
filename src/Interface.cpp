@@ -93,7 +93,7 @@ void GUI_interface_class::show_GUI_interface()
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
 	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr_attack );
 	lline( "Main duration      " , (int)addr->Main_Duration);
-	rline( "(A)DSR D(u)ration: " , Bps_string[(int)addr->Main_adsr_bps_id]);
+	rline( "(A)DSR D(u)ration: " , bps_struct().getbps_str((int)addr->Main_adsr_bps_id) );
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
 	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr_decay );
 	cout << endl;

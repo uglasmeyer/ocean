@@ -31,14 +31,16 @@ public:
 
 	bool Set( string );
 	void Save_Instrument( string );
+	void Update_spectrum();
 	void Test_Instrument();
 
 private:
 	ifd_t*  				ifd;
+	vector<spec_struct_t*> ifd_spectrum_vec;
 	string 					Instrument_file;
 	string 					Default_instrument_file;
 
-	void Set_Name( string );
+	void set_name( string );
 	bool assign_adsr 	( vector_str_t );
 	bool read_instrument( );
 	bool init_connections( );

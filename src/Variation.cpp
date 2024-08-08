@@ -34,14 +34,14 @@ void Variation_class::randomize_notes_octave( string str )
 			Random_Notes[n].chord[0].doct = -1;
 			Random_Notes[n].str.push_back(',');
 		}
-		if ( TEST )
-			Note_class::show_note( this->Random_Notes[n] );
+		if ( Log[TEST] )
+			Note_class::Show_note( this->Random_Notes[n] );
 		n++;
 	}
 
 
 }
-void Variation_class::set_note_chars( uint prefix  )
+void Variation_class::Set_note_chars( uint prefix  )
 {
 	Note_class::Note_Chars = convention_notes[ prefix ];
 	Note_class::Noteline_prefix.convention 	= prefix;
@@ -50,7 +50,7 @@ void Variation_class::set_note_chars( uint prefix  )
 
 }
 
-void Variation_class::set_note_chars( uint flats, uint sharps  )
+void Variation_class::Set_note_chars( uint flats, uint sharps  )
 {
 	Note_class::Note_Chars = convention_notes[ 2 ];
 	Note_class::Noteline_prefix.convention 	= 2;
@@ -61,7 +61,7 @@ void Variation_class::set_note_chars( uint flats, uint sharps  )
 }
 
 
-Variation_class::noteword_t Variation_class::list2vector( notelist_t notes )
+Variation_class::noteword_t Variation_class::List2vector( notelist_t notes )
 {
 	noteword_t word {};
 	for( note_struct_t note : notes )
@@ -75,9 +75,9 @@ void Variation_class::define_random_note_vector( string str )
 	Note_class::Noteline_prefix.variation = 1;
 	Charset_class V{ Note_class::Note_Chars + "." };
 	Random_Notes.clear();
-	verify_noteline( Note_class::Noteline_prefix, str);
-	Random_Notes = list2vector( Note_class::notelist );
-	show_note_list(Random_Notes);
+	Verify_noteline( Note_class::Noteline_prefix, str);
+	Random_Notes = List2vector( Note_class::notelist );
+	Show_note_list(Random_Notes);
 //	randomize_notes_octave( str );
 }
 
@@ -91,7 +91,7 @@ string Variation_class::input_filter( string input, Charset_class valid)
 	return result;
 }
 
-void Variation_class::define_fix( string notes )
+void Variation_class::Define_fix( string notes )
 {
 	auto set_octave = [ this  ]( string notes )
 		{
@@ -118,15 +118,15 @@ void Variation_class::define_fix( string notes )
 
 }
 
-void Variation_class::define_variable( string notes )
+void Variation_class::Define_variable( string notes )
 {
 	define_random_note_vector( notes );
 }
 
-void Variation_class::define_rhythm( string rhythm )
+void Variation_class::Define_rhythm( string rhythm )
 {
 
-	set_rhythm_line( rhythm );
+	Set_rhythm_line( rhythm );
 	Rhythm_chars = rhythm;
 }
 
@@ -153,8 +153,8 @@ Variation_class::noteword_t Variation_class::gen_random_note_word()
 		}
 		note.octave = Note_class::Octave;
 		word.push_back( note );
-		if ( TEST )
-			Note_class::show_note( note );
+		if ( Log[TEST] )
+			Note_class::Show_note( note );
 	}
 	return word;
 
@@ -164,7 +164,7 @@ Variation_class::noteword_t Variation_class::str2words( string note_str )
 {
 	// take a notestring and separate it into one or more words of note structures
 	noteword_t word{};
-	if ( Note_class::verify_noteline( Noteline_prefix, note_str ) )
+	if ( Note_class::Verify_noteline( Noteline_prefix, note_str ) )
 	{
 		for( note_struct_t note : Note_class::notelist )
 		{
@@ -205,8 +205,8 @@ string Variation_class::scan_sentence( char s0 )
 	{
 		for ( note_struct_t& note : word )
 		{
-			if ( TEST )
-				Note_class::show_note( note );
+			if ( Log[TEST] )
+				Note_class::Show_note( note );
 			if ( Octave_Set.contains( s0 ) )
 				note.octave = s0 - 48;
 			sentence_line.append( "|" + to_string(note.octave) + note.str );
@@ -224,7 +224,7 @@ void Variation_class::reverse_word( int i )
 	noteword_t Nm { Sentence[m]};
     std::reverse( Nm.begin(), Nm.end() );
     noteword_t nw {Nm};
-    show_note_list( nw );
+    Show_note_list( nw );
     Sentence[m] = nw;
 }
 
@@ -259,7 +259,7 @@ void Variation_class::set_octave( int oct, noteword_t& word )
 	std::for_each( word.begin(), word.end(), [oct]( note_struct_t& note ){ note.octave = oct; } );
 }
 
-string Variation_class::gen_noteline( string sentence_layout, string filename )
+string Variation_class::Gen_noteline( string sentence_layout, string filename )
 {
 //	if ( Variable_chars.length() == 0 )
 //	{
@@ -343,10 +343,10 @@ string Variation_class::gen_noteline( string sentence_layout, string filename )
 	noteline = scan_sentence( valid_sentence_layout[0] ) ;
 
 	Note_class::Noteline_prefix.variation = 0;
-	Note_class::set_rhythm_line( Rhythm_chars );
-	if (  Note_class::verify_noteline( Note_class::Noteline_prefix, noteline ) )
+	Note_class::Set_rhythm_line( Rhythm_chars );
+	if (  Note_class::Verify_noteline( Note_class::Noteline_prefix, noteline ) )
 	{
-		Note_class::save( filename, Note_class::Noteline_prefix, noteline );
+		Note_class::Save( filename, Note_class::Noteline_prefix, noteline );
 	}
 	else
 	{
@@ -356,7 +356,7 @@ string Variation_class::gen_noteline( string sentence_layout, string filename )
 	return noteline;
 }
 
-void Variation_class::test()
+void Variation_class::Test()
 {
 	Set_Loglevel( TEST, true );
 	Comment(TEST,"Test variation class ");
@@ -370,9 +370,9 @@ void Variation_class::test()
 	}
 
 	Comment ( TEST, "Rhythm");
-	define_rhythm("28");
-	define_fix( "A'(AB)(A'B)(AB,)(B,)A'.." );
-	gen_noteline("c", ".test" );
+	Define_rhythm("28");
+	Define_fix( "A'(AB)(A'B)(AB,)(B,)A'.." );
+	Gen_noteline("c", ".test" );
 	vector<int> v = { 20,80,20,80,20,80,0,0 };
 	i=0;
 	for( note_struct_t note : notelist  )
@@ -383,44 +383,44 @@ void Variation_class::test()
 	}
 
 
-	define_variable("(EF)G'',,");
-	define_fix( "afafASDF1234!§$_:;,.-#'+***=)(/{[]}ÄÖ<>|′^'");
+	Define_variable("(EF)G'',,");
+	Define_fix( "afafASDF1234!§$_:;,.-#'+***=)(/{[]}ÄÖ<>|′^'");
 	cout << "Constant_chars: " << Constant_chars << endl;
 	assert( cmpstr( Constant_chars , "afafADF1234,.-')(|'" ));
 
-	define_fix("fGHA");
-	define_variable("EFG");
-	gen_noteline("crcrc", "auto");
+	Define_fix("fGHA");
+	Define_variable("EFG");
+	Gen_noteline("crcrc", "auto");
 
 
-	define_fix( "|2CrF-" );
-	define_variable ( "C" );
+	Define_fix( "|2CrF-" );
+	Define_variable ( "C" );
 
-	string test_str = gen_noteline( "c", "auto") ;
+	string test_str = Gen_noteline( "c", "auto") ;
 	cout << "gen_noteline " << test_str << endl;
 	assert( test_str[2] == 'C');
 
-	define_variable("C");
-	define_fix( "(AC)r(DC)r" );
+	Define_variable("C");
+	Define_fix( "(AC)r(DC)r" );
 	test_str = insert_random( );
 	cout << test_str << "=" << "(AC)C(DC)C" << endl;
 	assert( cmpstr( test_str, "(AC)C(DC)C ") );
 	cout << test_str << endl;
-	assert( Note_class::verify_noteline( Noteline_prefix, test_str ) );
+	assert( Note_class::Verify_noteline( Noteline_prefix, test_str ) );
 
-	define_fix ( "|2(AC).(DC)r");
-	define_variable ( "C" );
+	Define_fix ( "|2(AC).(DC)r");
+	Define_variable ( "C" );
 	test_str = insert_random( );
 	cout << test_str << endl;
 	assert( test_str[11] == 'C');
-	gen_noteline("c", "auto");
+	Gen_noteline("c", "auto");
 
-	define_variable( "Cf.',");
-	gen_noteline("-r", "auto");
+	Define_variable( "Cf.',");
+	Gen_noteline("-r", "auto");
 
-	define_fix("fGBA");
-	gen_noteline("ccR", "auto");
-	string noteline = Note_class::get_note_line();
+	Define_fix("fGBA");
+	Gen_noteline("ccR", "auto");
+	string noteline = Note_class::Get_note_line();
 	Comment( BINFO, noteline );
 	assert( noteline[11] == 'A' );
 	int I;
@@ -428,14 +428,14 @@ void Variation_class::test()
 	cout << T << endl;
 	assert( T.compare("A") == 0 );
 
-	define_fix("fGBA");
-	gen_noteline("c4c", "auto" );
-	noteline = Note_class::get_note_line();
+	Define_fix("fGBA");
+	Gen_noteline("c4c", "auto" );
+	noteline = Note_class::Get_note_line();
 	Comment( BINFO, noteline );
 	I = Sentence[0][2].octave; 	assert( I == 4 );
 	I = Sentence[1][2].octave;	assert( I == 2 );
-	gen_noteline("4cc", "auto" );
-	noteline = Note_class::get_note_line();
+	Gen_noteline("4cc", "auto" );
+	noteline = Note_class::Get_note_line();
 	Comment( BINFO, noteline );
 	cout << "s " << dec << Sentence[0][2].octave << endl;
 	I = Sentence[0][2].octave;	assert( I == 4 );

@@ -41,7 +41,7 @@ public:
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
-    const array<QString, 3> WD_type_str         = { "Full", "Flow", "Debug" };
+    vector<QString> 		Qwavedisplay_type_str_vec {};
     bool                    mute_flag           = GUI.addr->mi_status.mute;
     vector<QString> 		QWaveform_vec		{};
 
