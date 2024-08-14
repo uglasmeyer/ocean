@@ -46,7 +46,7 @@ File_Dialog_class::File_Dialog_class(QWidget *parent) :
     Logfacility_class("FileDialog"),
     QDialog(parent),
     Note_class( ),
-    GUI_interface_class(),
+    Interface_class(),
     ui(new Ui::File_Dialog)
 {
     ui->setupUi(this);
@@ -72,12 +72,12 @@ File_Dialog_class::File_Dialog_class(QWidget *parent) :
 void File_Dialog_class::Setup_widgets()
 {
     QString QStr;
-    Instrument_name = GUI_interface_class::addr->Instrument;
+    Instrument_name = Interface_class::addr->Instrument;
     QStr = QString::fromStdString( Instrument_name );
     ui->lE_Instrument->setText( QStr );
     New_Instrument();
 
-    string Notes_name =GUI_interface_class::addr->Notes;
+    string Notes_name =Interface_class::addr->Notes;
     QStr = QString::fromStdString( Notes_name );
     ui->lE_NotesFile->setText( QStr );
 
@@ -119,8 +119,8 @@ void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &arg1)
     string str = QStr.toStdString();
     if ( str.length() > 0 )
     {
-        GUI_interface_class::write_str('i', str );
-        GUI_interface_class::addr->KEY = SETINSTRUMENTKEY;
+        Interface_class::Write_str( INSTRUMENTSTR_KEY, str );
+        Interface_class::addr->KEY = SETINSTRUMENTKEY;
     }
     ui->lE_Instrument->setText( QStr );
 }
@@ -133,8 +133,8 @@ void File_Dialog_class::New_Instrument()
 
     if ( instrument.length() > 0 )
     {
-        GUI_interface_class::write_str( 'i', instrument );
-        GUI_interface_class::addr->KEY = NEWINSTRUMENTKEY;
+        Interface_class::Write_str( INSTRUMENTSTR_KEY, instrument );
+        Interface_class::addr->KEY = NEWINSTRUMENTKEY;
     }
 
 }
@@ -171,10 +171,10 @@ void File_Dialog_class::New_Notes()
         Note_class::Save( notes_file, Note_class::Noteline_prefix, note_line );
 
         // remote shall read and activate the new note line
-        GUI_interface_class::write_str('n', notes_file);
-        GUI_interface_class::addr->KEY = NEWNOTESLINEKEY;
-        GUI_interface_class::addr->MIX_Amp = 75;
-        GUI_interface_class::addr->MIX_Id = MbIdNotes;
+        Interface_class::Write_str( NOTESSTR_KEY, notes_file);
+        Interface_class::addr->KEY = NEWNOTESLINEKEY;
+        Interface_class::addr->MIX_Amp = 75;
+        Interface_class::addr->MIX_Id = MbIdNotes;
         // remote load file to note class
         status_color.setColor(QPalette::Button, Qt::green);
         ui->pbPlayNotes->setText( NotesON );
@@ -197,12 +197,12 @@ void File_Dialog_class::pb_PlayNotes_OnOff()
     if ( SWITCHON )
     {
         ui->pbPlayNotes->setText( NotesOFF );
-        GUI_interface_class::addr->KEY = NOTESOFFKEY;
+        Interface_class::addr->KEY = NOTESOFFKEY;
     }
     else
     {
         ui->pbPlayNotes->setText( NotesON );
-        GUI_interface_class::addr->KEY = NOTESONKEY;
+        Interface_class::addr->KEY = NOTESONKEY;
 
     }
 }
@@ -226,8 +226,8 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
         ui->lE_Rythm->setText( Rhythmline );
 
         // remote
-        GUI_interface_class::write_str('n', note_name );
-        GUI_interface_class::addr->KEY = UPDATENOTESKEY; // update notes
+        Interface_class::Write_str( NOTESSTR_KEY, note_name );
+        Interface_class::addr->KEY = UPDATENOTESKEY; // update notes
     }
     else
     {

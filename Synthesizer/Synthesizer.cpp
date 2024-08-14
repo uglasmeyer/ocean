@@ -20,10 +20,10 @@
 using namespace std;
 
 Logfacility_class		Log( "Synthesizer" );
-GUI_interface_class		GUI;
+Interface_class		GUI;
 Mixer_class				Mixer;
 Instrument_class 		Instrument(GUI.addr );
-Note_class 				Notes;
+Note_class 				Notes( &Instrument );
 External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( GUI.addr );
@@ -58,7 +58,10 @@ vector <string> dirs = {
 };
 
 bool SaveRecordFlag = false;
-
+stereo_t* set_addr( unsigned char tag )
+{
+	return ( tag == 0 ) ? Shm_a.addr : Shm_b.addr;
+}
 
 void creat_dir_structure()
 
@@ -108,6 +111,7 @@ config_map_t read_synthesizer_config( )
 void Setup_Wavedisplay()
 {
 	Log.Comment(INFO, "Setup Wave display data" );
+
 	Wavedisplay.Add_data_ptr( Mixer.Mono_out.Data ); // TODO stereo out
 	Wavedisplay.Add_data_ptr( Instrument.main.Mem.Data );
 	Wavedisplay.Add_data_ptr( Instrument.vco.Mem.Data );
@@ -133,7 +137,7 @@ void record_thead_fcn( )
 			// clean up
 			SaveRecordFlag = false;
 			Record.Unset();
-			GUI.update( RECORDWAVFILEFLAG ); 	// feedback to GUI
+			GUI.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
 		}
 		Wait( 1 * SECOND ); 					// for the next job
 	}
@@ -157,10 +161,10 @@ void exit_proc( int signal )
 	Log.Comment(INFO, "Clearing output buffers");
 	Shm_a.clear();
 	Shm_b.clear();
-	Wavedisplay.Clear_data();
+//	Wavedisplay.Clear_data();
 	GUI.addr->RecCounter = 0; // memory buffers are empty after restart
-	GUI.announce( "Synthesizer", false);
-	GUI.dump_ifd();
+	GUI.Announce( "Synthesizer", false);
+	GUI.Dump_ifd();
 	Kbd.Reset();
 	if( record_thread.joinable() )
 		record_thread.join();
@@ -219,7 +223,7 @@ void shutdown_other()
 	GUI.addr->Synthesizer	= EXITSERVER; 	// kill a running synthesizer
 	GUI.addr->UpdateFlag	= true;
 	Wait( 2*SECOND );
-	GUI.addr->KEY 			= 0x0;
+	GUI.addr->KEY 			= NULLKEY;
 }
 
 void process( char key )
@@ -242,90 +246,90 @@ void process( char key )
 		case MAINFREQUENCYKEY :
 		{
 			Instrument.main.set_frequency( ifd->Main_Freq );
-			Instrument.main.OSC( 0 );
-			GUI.commit();
+			Notes.main_osc.set_frequency( ifd->Main_Freq );
+			GUI.Commit();
 			break;
 		}
 		case VCOFREQUENCYKEY : // modify the secondary oscillator
 		{
 			Instrument.vco.set_frequency( ifd->VCO_Freq );
-			Instrument.vco.OSC( 0 );
+			Notes.vco_osc.set_frequency( ifd->VCO_Freq );
 			Instrument.main.Connect_vco_data( &Instrument.vco);
 
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case FMOFREQUENCYKEY : // modify the fm_track data
 		{
 			Instrument.fmo.set_frequency( ifd->FMO_Freq );
-//			Instrument.fmo.OSC( 0 ); //generate fmo data
+			Notes.fmo_osc.set_frequency( ifd->FMO_Freq );
+
 			Instrument.main.Connect_fmo_data( &Instrument.fmo);
 
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case VCOAMPKEY : // modify the VCO volume
 		{
-			Instrument.vco.set_volume(ifd->VCO_Amp );
-			Instrument.vco.OSC(0);
+			Value vol = ifd->VCO_Amp;
+			Log.Comment( INFO, "Changing VCO volume to " + vol.str + " %" );
+			Instrument.vco.set_volume( vol.ch );
+			Notes.vco_osc.set_volume( vol.ch );
 			Instrument.main.Connect_vco_data( &Instrument.vco);
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case FMOAMPKEY : // modify the FMO volume
 		{
 			Instrument.fmo.set_volume(ifd->FMO_Amp );
-			Instrument.fmo.OSC(0);
+			Notes.fmo_osc.set_volume( ifd->FMO_Amp );
 			Instrument.main.Connect_fmo_data( &Instrument.fmo);
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
-		case MASTER_AMP_KEY : // modify main volume
+		case MASTERAMP_KEY : // modify main volume
 		{
 			Mixer.master_volume = ifd->Master_Amp;
-			GUI.commit();
+			GUI.Commit();
 			break;
 
 		}
-		case MAIN_AMPLOOP_KEY :
+		case MASTERAMP_LOOP_KEY :
 		{
 			uint16_t beg = Mixer.master_volume;
 			uint16_t end = ifd->LOOP_end;
 			uint8_t step = ifd->LOOP_step;
 			master_amp_loop.start( beg, end, step );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
-		case MUTEMAINAMP_KEY : // Mute Main Volume
+		case MASTERAMP_MUTE_KEY : // Mute Main Volume
 		{
-			Log.Comment( INFO, "receiving command <Mute main volume>");
-			Mixer.status.mute = true;
-			GUI.commit();
-			break;
-		}
-		case UNMUTEMAINAMP_KEY : // Mute Main Volume
-		{
-			Log.Comment( INFO, "receiving command <Un-Mute main volume>");
-			Mixer.status.mute = false;
-			GUI.commit();
+			Mixer.status.mute = ifd->mi_status.mute;
+			if ( Mixer.status.mute )
+				Log.Comment( INFO, "receiving command <Mute master volume>");
+			else
+				Log.Comment( INFO, "receiving command <UnMute master volume>");
+
+			GUI.Commit();
 			break;
 		}
 		case ADSRDURATIONKEY :
 		{
 			Instrument.main.adsr.bps_id = ifd->Main_adsr_bps_id;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case ADSRDECAYKEY :
 		{
 			Instrument.main.adsr.attack = ifd->Main_adsr_attack;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case ADSRHALLKEY : // adsr hall
 		{
 			Instrument.main.adsr.hall = ifd->Main_adsr_hall;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case PMWDIALKEY :
@@ -333,52 +337,52 @@ void process( char key )
 			Instrument.main.wp.PMW_dial = ifd->PMW_dial;
 			Instrument.vco.wp.PMW_dial = ifd->PMW_dial;
 			Instrument.fmo.wp.PMW_dial = ifd->PMW_dial;
-			Instrument.vco.OSC( 0 );
-			Instrument.fmo.OSC( 0 );
-			GUI.commit();
+//			Instrument.vco.OSC( 0 );
+//			Instrument.fmo.OSC( 0 );
+			GUI.Commit();
 
 			break;
 		}
 		case WAVEDISPLAYTYPEKEY :
 		{
 			Wavedisplay.Set_type( ifd->WD_type_ID );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case ADSRSUSTAINKEY :
 		{
 			Instrument.main.adsr.decay = ifd->Main_adsr_decay;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case SOFTFREQUENCYKEY :
 		{
 			Instrument.main.wp.glide_effect = ifd->Soft_freq;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case SETINSTRUMENTKEY : // Set instrument
 		{
 			Log.Comment(INFO, "receive command <set instrument>");
-			string instrument = GUI.read_str('i'); // other
+			string instrument = GUI.Read_str( INSTRUMENTSTR_KEY ); // other
 
 			if( Instrument.Set(instrument) )
 			{
 				Log.Comment(INFO, "sucessfully loaded instrument " + instrument );
-				Notes.Set_osc_track( &Instrument );
+				Notes.Set_osc_track(  );
 			}
 			else
 			{
 				Log.Comment( ERROR, "cannot load instrument" + instrument );
 			}
 
-			GUI.commit(); // reset flags on GUI side
+			GUI.Commit(); // reset flags on GUI side
 			break;
 		}
 		case SETEXTERNALWAVEFILE :
 		{
 			Log.Comment(Log.INFO, "receive command <set external wave file>");
-			string wavefile = GUI.read_str('l');
+			string wavefile = GUI.Read_str( WAVEFILESTR_KEY );
 			if ( External.read_file_header( wavefile ))
 			{
 				External.read_file_data();
@@ -390,7 +394,7 @@ void process( char key )
 			{
 				Log.Comment(ERROR , "Failed to setup header");
 			}
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case STOPRECORD_KEY : // stop record on data array id
@@ -399,7 +403,7 @@ void process( char key )
 			Log.Comment(Log.INFO, "receive command <stop record on memory bank " + id.str + ">");
 			Mixer.StA[id.i].record_mode( false ); // stop recording
 			Record.Unset();
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case STORESOUNDKEY : //start record
@@ -419,7 +423,7 @@ void process( char key )
 					Mixer.StA[id].record_mode( false );
 				}
 			}
-			GUI.commit();
+			GUI.Commit();
 			break;
 		};
 
@@ -429,7 +433,7 @@ void process( char key )
 			uint16_t end = ifd->LOOP_end;
 			uint8_t step = ifd->LOOP_step;
 			record_amp_loop.start( beg, end, step );
-			GUI.commit();
+			GUI.Commit();
 			break;
 
 		}
@@ -451,7 +455,7 @@ void process( char key )
 					arrnr.str + "> " + ONOFF +
 					" vol: " + amp.str + " %");
 			ifd->MODE = NOTES; // switch Audio Server into synchronize mode
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case MUTEREC_KEY :
@@ -459,7 +463,7 @@ void process( char key )
 			Value id = { (int) ifd->MIX_Id };
 			Log.Comment(Log.INFO, "receive command <mute and stop record on id" + id.str + ">");
 			Mixer.StA[id.i].mute(); // pause-play, pause-record
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 
@@ -471,7 +475,7 @@ void process( char key )
 				Mixer.StA[arrnr].mute(); // pause-play, pause-record
 			}
 			Mixer.status.play = false;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case CLEAR_KEY :
@@ -481,7 +485,7 @@ void process( char key )
 			Mixer.StA[ id ].status.play 	= false;
 			Mixer.StA[ id ].reset_counter();
 			Record.Reset(); // RecCounter
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case TOGGLEMBPLAYKEY: // toggle Memory bank status play
@@ -494,7 +498,7 @@ void process( char key )
 				Mixer.status.external 	= Mixer.StA[arrnr.i].status.play;
 			if ( arrnr.i == MbIdNotes )
 				Mixer.status.notes 	= Mixer.StA[arrnr.i].status.play;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 
@@ -503,31 +507,31 @@ void process( char key )
 			Instrument.main.Mem_vco.clear_data(max_data_amp);
 			Instrument.main.Mem_fmo.clear_data( 0 );
 			Instrument.main.Reset_data( &Instrument.main );
-			Instrument.main.OSC(0);
-			GUI.commit();
+//			Instrument.main.OSC(0);
+			GUI.Commit();
 			break;
 		}
 		case UPDATENOTESKEY : // update notes
 		{
 			Log.Comment(INFO, "receive command <update notes>");
-			string notes_name = GUI.read_str('n');
-			Notes.Set_osc_track( &Instrument );
+			string notes_name = GUI.Read_str( NOTESSTR_KEY );
+			Notes.Set_osc_track( );
 			Notes.Read( notes_name );
 			ifd->Noteline_sec = Notes.noteline_sec;
 			Notes.Start_note_itr();
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case NEWNOTESLINEKEY : // setup play or reset play notes
 		{
 			Log.Comment(Log.INFO, "receive command <setup play notes>");
 			Value amp { (int) ifd->MIX_Amp };
-			string notes_file = GUI.read_str('n');
+			string notes_file = GUI.Read_str( NOTESSTR_KEY );
 			Notes.Read( notes_file ); // notes have been written to file by the GUI already
 			Mixer.status.notes = true;
 			Mixer.StA[ MbIdNotes ].playnotes(true);
 			Mixer.StA[ MbIdNotes ].Amp = amp.i;
-			GUI.update( NEWNOTESLINEFLAG );
+			GUI.Update( NEWNOTESLINEFLAG );
 			ifd->Noteline_sec = Notes.noteline_sec;
 			Notes.Start_note_itr();
 			break;
@@ -542,17 +546,17 @@ void process( char key )
 			Log.Comment(INFO, "duration: " + sec.str + " sec.");
 			Log.Comment(INFO, "store to array nr.: " + id.str );
 			Mixer.StA[ id.i].record_mode( true );
-			Notes.Set_osc_track( &Instrument );
+			Notes.Set_osc_track(  );
 
 			Mixer.add_noteline( id.i, &Notes );
 
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case PLAYNOTESRECOFF_KEY : // play free
 		{ // functionality is defined in PLAYNOTESREC_ON_KEY
 			Mixer.composer = 0;
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case NOTESONKEY :
@@ -564,7 +568,7 @@ void process( char key )
 			Mixer.StA[ MbIdNotes ].playnotes(true);
 			Mixer.StA[ MbIdNotes ].Amp = amp.i;
 			Notes.Start_note_itr();
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case NOTESOFFKEY :
@@ -572,22 +576,22 @@ void process( char key )
 			Log.Comment(Log.INFO, "receive command < notes off>");
 			Mixer.status.notes = false;
 			Mixer.StA[ MbIdNotes ].playnotes(false);
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case UPDATENOTELINEKEY: // update Noteline during play
 		{
 			Log.Comment(Log.INFO, "receive command <update Noteline during play>");
-			string notes_file = GUI.read_str('n');
+			string notes_file = GUI.Read_str( NOTESSTR_KEY );
 			Notes.Read( notes_file );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case SETBASEOCTAVE_KEY :
 		{
 			Value diff_oct { (int) ifd->FLAG };
 			Notes.Set_base_octave( diff_oct.i ); // is positive, therefore identify 0 -> -1, 1 -> 1
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 
@@ -599,30 +603,30 @@ void process( char key )
 			{
 				Log.Comment( ERROR, nps.str + " notes per second not supported");
 			}
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 
 		case SETWAVEDISPLAYKEY :
 		{
 			Wavedisplay.Set_data_ptr( ifd->Wavedisplay_Id );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case CONNECTFMOVCOKEY : // connect FMO volume with vco data
 		{
 
 			Instrument.fmo.Connect_fmo_data( &Instrument.vco );
-			Instrument.fmo.OSC(0);
+//			Instrument.fmo.OSC(0);
 			Instrument.main.Connect_fmo_data( &Instrument.fmo );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case RESETFMOKEY : // reset FMO
 		{
 			Instrument.fmo.Reset_data( &Instrument.fmo );
-			Instrument.fmo.OSC(0);
-			GUI.commit();
+//			Instrument.fmo.OSC(0);
+			GUI.Commit();
 			break;
 		}
 		case RECORDWAVFILEKEY : // record and save wav file
@@ -646,7 +650,7 @@ void process( char key )
 				Mixer.StA[MbIdExternal].record_mode( false );
 
 				//no ifd-commit for this section
-				ifd->KEY = 0;  //but do not start twice
+				ifd->KEY = NULLKEY;  //but do not start twice
 				SaveRecordFlag = true; // trigger the record thread
 			}
 			else 								// RECORD
@@ -656,24 +660,24 @@ void process( char key )
 				Mixer.StA[MbIdExternal].record_mode( true );
 				Record.Set( &External.stereo.info.record_counter,
 							 External.stereo.info.max_records );
-				GUI.commit();
+				GUI.Commit();
 			}
 			break;
 		}
 		case RESETVCOKEY : // reset VCO
 		{
 			Instrument.vco.Reset_data( &Instrument.vco );
-			Instrument.vco.OSC(0);
-//					Instrument.main.connect_vco_data( *null_itr );
-			GUI.commit();
+//			Instrument.vco.OSC(0);
+//			Instrument.main.connect_vco_data( *null_itr );
+			GUI.Commit();
 			break;
 		}
 		case CONNECTVCOFMOKEY ://connect VCO frequency with FMO data
 		{
 			Instrument.vco.Connect_vco_data( &Instrument.fmo );
-			Instrument.vco.OSC(0);
+//			Instrument.vco.OSC(0);
 			Instrument.main.Connect_vco_data( &Instrument.vco );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case SETWAVEFORMFMOKEY :
@@ -683,44 +687,44 @@ void process( char key )
 //			Instrument.Set_waveform( &Instrument.fmo, id );
 //			Instrument.fmo.wp.spectrum = Instrument.fmo.Get_spectrum(id);
 
-			Instrument.fmo.OSC(0);
-			GUI.commit();
+//			Instrument.fmo.(0);
+			GUI.Commit();
 			break;
 			}
 		case SETWAVEFORMVCOKEY :
 		{
 			set_waveform( &Instrument.vco, ifd->VCO_spectrum.id );
-			Instrument.vco.OSC(0);
-			GUI.commit();
+//			Instrument.vco.OSC(0);
+			GUI.Commit();
 			break;
 		}
 		case SETWAVEFORMMAINKEY :
 		{
 			set_waveform( &Instrument.main, ifd->MAIN_spectrum.id );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 
 		case UPDATESPECTRUM_KEY :
 		{
 			Instrument.Update_spectrum();
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 		case SAVEINSTRUMENTKEY :
 		{
 			Log.Comment(INFO, "saving current config to instrument " + Instrument.Name );
 			Instrument.Save_Instrument( Instrument.Name );
-			GUI.commit();
+			GUI.Commit();
 			break;
 		}
 
 		case NEWINSTRUMENTKEY : // save instrument file
 		{
-			string instrument = GUI.read_str('i');
+			string instrument = GUI.Read_str( INSTRUMENTSTR_KEY );
 			Log.Comment(INFO, "receiving instrument change to " + instrument );
 			Instrument.Save_Instrument( instrument );
-			GUI.update( NEWINSTRUMENTFLAG );
+			GUI.Update( NEWINSTRUMENTFLAG );
 			break;
 		}
 
@@ -747,11 +751,6 @@ void activate_ifd()
 {
 	for( char key : init_keys )
 		process( key );
-
-	if ( GUI.addr->mi_status.mute )
-		process ( MUTEMAINAMP_KEY );
-	else
-		process ( UNMUTEMAINAMP_KEY );
 }
 
 void play_keyboard( char key )
@@ -763,12 +762,12 @@ void play_keyboard( char key )
 	fs = Instrument.vco.get_fstruct();
 	Instrument.vco.wp.frequency = fs.base;
 	Instrument.vco.set_delta_frequency(  (fs.base + fs.pitch)* key/12 );
-	Instrument.vco.OSC( 0 );
+//	Instrument.vco.OSC( 0 );
 
 	fs = Instrument.fmo.get_fstruct();
 	Instrument.fmo.wp.frequency = fs.base;
 	Instrument.fmo.set_delta_frequency(  (fs.base + fs.pitch)* key/12 );
-	Instrument.fmo.OSC( 0 );
+//	Instrument.fmo.OSC( 0 );
 
 	fs = Instrument.main.get_fstruct();
 	Instrument.main.wp.frequency = fs.base  ;
@@ -791,8 +790,9 @@ void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
 	ifd_t* ifd = GUI.addr;
+	stereo_t* 	shm_addr 	= set_addr( 0 );
 
-	GUI.commit(); // set flags to zero
+	GUI.Commit(); // set flags to zero
 
 	key_struct_t 	keystruct 	= Kbd.GetKey();
 	Log.Comment(INFO, "Keyboard is ready");
@@ -814,14 +814,8 @@ void ApplicationLoop()
 
 		Volume_control();
 
-		int 		shm_id		= ( int ) ifd->SHMID;
-		stereo_t* 	shm_addr 	= Shm_a.addr;
 
-//		if( Instrument.fmo.wp.frequency < LFO_limit )
-//		{
-//			Instrument.main.OSC (0  ); // generate the modified sound waves
 
-//		}
 		if ( sync_mode() )
 		{
 			if ( Mixer.composer > 0  )
@@ -833,23 +827,19 @@ void ApplicationLoop()
 			{
 				if ( ifd->MODE == SENDDATA )				// Audio Server request 1 second data chunk
 				{
+					if ( not Mixer.status.mute )
+						Instrument.Run_osc_group(); // generate the modified sound waves
 
 					if ( Mixer.status.notes )
 					{
-						Notes.Set_osc_track( &Instrument );
+						Notes.Set_osc_track(  );
 						Notes.Generate_note_chunk( &Mixer.StA[MbIdNotes] ); // max_sec duration
 					}
-					else
-					{
-						Instrument.fmo.OSC (0 ); // generate the modified sound waves
-						Instrument.main.OSC (0  ); // generate the modified sound waves
-					}
+
 					ifd->UpdateFlag = true;
-					shm_id 			= ( int ) ifd->SHMID;
-					shm_addr 		= ( shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
+					shm_addr 		= set_addr( ifd->SHMID );
 					Mixer.add( &Instrument, shm_addr, Record.active );
 					Wavedisplay.Gen_cxwave_data(  );
-
 				} 											// but handel further requests
 			}
 			ifd->MODE 		= NOTES;					// do not update Audio Server data
@@ -857,12 +847,14 @@ void ApplicationLoop()
 		}
 		else
 		{
-			Instrument.fmo.OSC (0 ); // generate the modified sound waves
-			Instrument.main.OSC (0  ); // generate the modified sound waves
+			if ( not Mixer.status.mute )
+				Instrument.Run_osc_group(); // generate the modified sound waves
 
 			ifd->MODE 		= FREERUN;
-			shm_addr 		= Shm_a.addr;
+			shm_addr 		= set_addr( 0 );
 			Mixer.add( &Instrument, shm_addr, Record.active );
+			Wavedisplay.Gen_cxwave_data(  );
+
 
 		}
 
@@ -873,7 +865,6 @@ void ApplicationLoop()
 		Update_ifd_status_flags();
 	} // while not EXITSERVER
 
-	Wavedisplay.Gen_cxwave_data(  );
 
 	Log.Comment(INFO, "Exit Application loop");
 	return;
@@ -885,6 +876,8 @@ void test_classes()
 {
 
 	Log.init_log_file();
+
+	Log.test();
 
 	Loop_class Loop;
 	Loop.test();
@@ -949,7 +942,7 @@ int main( int argc, char* argv[] )
 
 	Setup_Wavedisplay();
 
-	GUI.restore_ifd();
+	GUI.Restore_ifd();
 	activate_ifd();
 
 	show_usage();
@@ -957,7 +950,7 @@ int main( int argc, char* argv[] )
 
 	Log.Comment(INFO, "Application initialized");
 
-	GUI.announce( "Synthesizer", true );
+	GUI.Announce( "Synthesizer", true );
 
 	ApplicationLoop( );
 

@@ -24,10 +24,10 @@ typedef struct freq_struct
 {
 	uint8_t 	oct		= 0;				// freq/55
 	uint16_t	base 	= oct_base_freq; 	// oct * 55
-	uint8_t 	note	= 1;				// ( freq - base ) % ( base / 12
+	uint8_t 	note	= 0;				// ( freq - base ) % ( base / 12
 	string		name 	= NoteName[0];
-	uint8_t 	pitch	= 0;				// freq - ( base + note)
-	uint16_t	freq	= oct_base_freq;
+	float	 	pitch	= 0.0;				// freq - ( base + note)
+	float		freq	= oct_base_freq;
 	string 		str		= "";				// human readable freq_struct
 } freq_struc_t;
 
@@ -37,7 +37,6 @@ typedef struct fmo_struct
 {
 	Data_t*			data		= NULL; // ptr to the fm data
 	uint16_t 		volume		= 1; // volume of the fm track
-	uint16_t		frequency	= 1;
 	string			name		= "NULL";
 	bool			stored		= false;
 	bool			generating 	= false;
@@ -46,7 +45,7 @@ typedef struct fmo_struct
 typedef struct vco_struct
 {
 	Data_t*			data		= NULL; // ptr to the fm data
-	uint16_t 		volume		= 50; // volume of the fm track
+	uint16_t 		volume		= 100; // volume of the fm track
 	string			name		= "NULL";
 	bool			stored		= false; // stored vco data
 	bool 			generated	= false;
@@ -56,7 +55,7 @@ typedef struct vco_struct
 class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
 {
 public:
-	uint8_t			osc_id 				= OTHERID;
+	uint8_t			osc_id 			= OTHERID;
 	string 			osc_type 		= "NULL";
 
 	typedef	struct wave_struct
@@ -103,7 +102,7 @@ private:
 	string csv_comment 	= "";
 	string command 		= "";
 
-	freq_struc_t 	freq_to_freq_struct( int );
+	freq_struc_t 	freq_to_freq_struct( float );
 
 }; // close class Track class
 

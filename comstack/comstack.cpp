@@ -17,18 +17,18 @@
 
 using namespace std;
 
-Logfacility_class 		Log("comstack");
-GUI_interface_class 	GUI;
-ifd_t* 					ifd = GUI.addr;
 Kbd_class 				keyboard;
+Logfacility_class 		Log("comstack");
+Interface_class 		GUI;
+ifd_t* 					ifd 			= GUI.addr;
 
-key_struct_t 	keys;
-string 			waveform_string = "0 ... 10";
-int cnt = 1;
+key_struct_t 			keys			= key_struct();
+string 					waveform_string = "0 ... 10";
+int 					update_counter 	= 1;
 
 void exit_proc( int signal )
 {
-	GUI.announce("Comstack", false );
+	GUI.Announce("Comstack", false );
 
 	keyboard.Reset();
 	exit( signal );
@@ -55,14 +55,14 @@ void show_ifd()
 {
 	if ( ifd->UpdateFlag )
 	{
-		GUI.show_GUI_interface();
-		cout.flush() << "Exit with <#> or Ctrl c" << endl;
-		cout.flush() << "Commit counter " << cnt;
-		cnt++;
+		GUI.Show_interface();
+		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
+		update_counter++;
 		ifd->UpdateFlag = false;
 	}
 
 }
+
 char Key_event( string charlist )
 {
 	keys.key = '$';
@@ -82,8 +82,8 @@ int main( int argc, char* argv[] )
  	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-	GUI.announce("Comstack", true);
- 	GUI.show_GUI_interface();
+	GUI.Announce("Comstack", true);
+ 	GUI.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
 
 	keys.key = '$';
@@ -100,7 +100,7 @@ int main( int argc, char* argv[] )
 			switch ( keyevent )
 			{
 			case 'f' : { ifd->Main_Freq = getvalue( "Frequency" ); ifd->KEY = MAINFREQUENCYKEY; break; }
-			case 'a' : { ifd->Master_Amp  = getvalue( "Amplitude" ); ifd->KEY = MASTER_AMP_KEY; break; }
+			case 'a' : { ifd->Master_Amp  = getvalue( "Amplitude" ); ifd->KEY = MASTERAMP_KEY; break; }
 			case 'w' : { ifd->MAIN_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;
 			}
@@ -149,8 +149,7 @@ int main( int argc, char* argv[] )
 		default:
 			break;
 		}
-	}
+	} // while key
 
-	exit_proc(1);
-	return 0;
+	exit_proc(0);
 }

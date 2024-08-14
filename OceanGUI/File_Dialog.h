@@ -15,7 +15,7 @@ namespace Ui {
 class File_Dialog;
 }
 
-class File_Dialog_class : public QDialog,  Note_class, GUI_interface_class
+class File_Dialog_class : public QDialog,  Note_class, Interface_class
 {
     Q_OBJECT
 

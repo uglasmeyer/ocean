@@ -110,8 +110,8 @@ typedef struct mi_status_struct // mixer status
 } mi_status_t;
 
 
-typedef unordered_map<string, string> config_map_t;
-typedef map< char, string > charmap_t ;
+typedef std::unordered_map<string,string>
+							config_map_t ;
 // https://en.cppreference.com/w/cpp/language/types
 typedef unsigned int      	uint_t;
 typedef unsigned long int 	buffer_t;
@@ -149,6 +149,7 @@ const uint			osc_default_volume	= 80; // %
 const uint 			wavedisplay_len		= 512;
 const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
 const string		KbdNote					{ "SDRFTGHUJIKOL" };
+
 typedef struct bps_struct
 {
 	const vector<string>	Bps_str_vec = { "0","1","2","4","5","8"}; 		// Beats per second
@@ -180,7 +181,7 @@ typedef struct Server_struct
 	string shell = "xterm -e ";
 	string cmd( string srv, string opt )
 	{
-		return shell + "'(" + srv + opt + ")' &";
+		return shell + "'(" + srv + " " + opt + ")' &";
 	};
 } Server_struc_t;
 
@@ -196,7 +197,12 @@ const vector<string> wavedisplay_str_vec =
     "External IN"
 };
 
-const vector<string> wavedisplay_type_str_vec = { "Full", "Flow", "Debug" };
+const vector<string> wavedisplay_type_str_vec =
+{
+	"Full",
+	"Flow",
+	"Debug"
+};
 enum { FULLID, FLOWID, DEBUGID };
 
 extern size_t		kbdnote( char);

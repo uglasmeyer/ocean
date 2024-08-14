@@ -58,8 +58,6 @@ enum {
 
 static const uint str_buffer_len = 32;
 
-
-
 typedef struct interface_struct
 {
 	char		version						= 0;
@@ -93,9 +91,9 @@ typedef struct interface_struct
 
 	char 		MIX_Amp 					= 0;
 	char 		MIX_Id						= 0;
-	spec_struct_t MAIN_spectrum 			= spec_struct();
-	spec_struct_t VCO_spectrum 				= spec_struct();
-	spec_struct_t FMO_spectrum 				= spec_struct();
+	Spectrum_base::spec_struct_t MAIN_spectrum= Spectrum_base::spec_struct();
+	Spectrum_base::spec_struct_t VCO_spectrum = Spectrum_base::spec_struct();
+	Spectrum_base::spec_struct_t FMO_spectrum = Spectrum_base::spec_struct();
 	char		Spectrum_type				= MAINID;
 
 	char 		Wavedisplay_Id				= 0;
@@ -111,7 +109,7 @@ typedef struct interface_struct
 	char 		SHMID 						= 0;
 	char 		MODE						= FREERUN;
 	bool 		UpdateFlag 					= true;
-	uint16_t	WD_type_ID 					= 0x0;
+	uint16_t	WD_type_ID 					= FULLID;
 	char 		FileNo						= 0;
 	array<Data_t, wavedisplay_len>
 				wavedata 					= {0};
@@ -119,12 +117,12 @@ typedef struct interface_struct
 
 
 
-class GUI_interface_class : virtual Logfacility_class
+
+
+class Interface_class : virtual Logfacility_class
 {
 public:
 
-	GUI_interface_class();
-	virtual ~GUI_interface_class();
 
 	const key_t 			shm_key			= 5166529;
 
@@ -132,16 +130,18 @@ public:
 	ifd_t 					ifd_data;
 	ifd_t* 					addr			= NULL;
 
-	void 	write_str( char, string );
-	string 	read_str( char );
-	void 	commit();
-	void 	update( char );
-	void 	show_GUI_interface();
-//	string 	decode(uint );
-	void	dump_ifd();
-	bool 	restore_ifd();
-	void 	reset_ifd();
-	void 	announce( string, bool );
+	Interface_class();
+	virtual ~Interface_class();
+
+	void 	Write_str( char, string );
+	string 	Read_str( char );
+	void 	Commit();
+	void 	Update( char );
+	void 	Show_interface();
+	void	Dump_ifd();
+	bool 	Restore_ifd();
+	void 	Reset_ifd();
+	void 	Announce( string, bool );
 	void 	Set( bool& key, bool value);
 	void 	Set( char& key, char value);
 	void 	Set( uint16_t& key, uint16_t value);

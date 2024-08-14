@@ -112,8 +112,19 @@ void Logfacility_class::Comment( int level, const string& logcomment )
 	}
 }
 
-void Logfacility_class::test()
+void Logfacility_class::test( )
 {
-//	string str = error_text( EEXIST );
-//	assert( str.compare( "File exists") 		== 0 );
+	auto truefalse = []( bool Bool )
+		{
+			return Bool ? "true" : "false";
+		};
+	string str = error_text( EEXIST );
+	assert( str.compare( "File exists") 		== 0 );
+	Set_Loglevel( TEST, true );
+	Comment( TEST, "Logfacility test start");
+	cout << truefalse( Log[TEST] ) << endl;
+	string True = truefalse("true");
+	assert( True.compare("true") == 0 );
+	Comment( TEST, "Logfacility test OK");
+
 }

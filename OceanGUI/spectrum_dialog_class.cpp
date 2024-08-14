@@ -5,7 +5,7 @@
 
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
-                                             GUI_interface_class *gui) :
+                                             Interface_class *gui) :
     Logfacility_class("Spectrum"),
 	Spectrum_base(),
 	QDialog(parent),
@@ -31,21 +31,25 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     this->GUI   		    = gui;
     ifd 					= GUI->addr;
-    ifd_spectrum_vec 		= { &ifd->MAIN_spectrum,
-    							&ifd->VCO_spectrum,
-								&ifd->FMO_spectrum};
+    ifd_spectrum_vec 		= { &ifd->VCO_spectrum,
+								&ifd->FMO_spectrum,
+								&ifd->MAIN_spectrum};
 
-    this->instrument   		= this->GUI->read_str('i');
+
+    this->instrument   		= this->GUI->Read_str( INSTRUMENTSTR_KEY );
     size_t wfid            	= this->ifd->MAIN_spectrum.id;
     cout << "wfid: " << dec << (int) wfid << endl;
     assert( ( wfid >= 0 ) and ( wfid < Spectrum.Get_waveform_vec().size() ) );
     this->spectrum 			= ifd->MAIN_spectrum;
 
     setup_Widgets(  this->spectrum );
-
-    if ( ifd->Spectrum_type == MAINID ) ui->rb_spec_main->click();
-    if ( ifd->Spectrum_type == VCOID  ) ui->rb_spec_vco->click();
-    if ( ifd->Spectrum_type == FMOID  ) ui->rb_spec_fmo->click();
+    switch ( ifd->Spectrum_type )
+    {
+		case MAINID : ui->rb_spec_main->click(); 	break;
+		case VCOID  : ui->rb_spec_vco->click(); 	break;
+		case FMOID  : ui->rb_spec_fmo->click(); 	break;
+		default 	: 								break;
+	}
 
     QTimer* status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &Spectrum_Dialog_class::Update_spectrum);
@@ -58,7 +62,7 @@ Spectrum_Dialog_class::~Spectrum_Dialog_class()
     delete ui;
 }
 
-auto select_spec = []( Spectrum_Dialog_class* C, spec_struct_t& spec, char id )
+auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spec_struct_t& spec, char id )
 {
 	C->ifd->Spectrum_type = id;
 	C->spectrum			= spec;
@@ -81,7 +85,7 @@ void Spectrum_Dialog_class::select_spec_main()
 void Spectrum_Dialog_class::Update_spectrum()
 {
 
-    string  newinstrument      = this->GUI->read_str('i');
+    string  newinstrument      = this->GUI->Read_str( INSTRUMENTSTR_KEY );
 
     if ( newinstrument.compare( instrument ) != 0 )
     {
@@ -140,7 +144,8 @@ void Spectrum_Dialog_class::save()
 	ifd->KEY = SAVEINSTRUMENTKEY;
 }
 
-void Spectrum_Dialog_class::setup_Widgets(  spec_struct_t spectrum)
+
+void Spectrum_Dialog_class::setup_Widgets(  Spectrum_base::spec_struct_t spectrum)
 {
     ui->vS_1->setValue( spectrum.dta[0] );
     ui->vS_2->setValue( spectrum.dta[1] );

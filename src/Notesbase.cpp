@@ -23,7 +23,11 @@ void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
 string Note_base::noteline_prefix_to_string( noteline_prefix_t nlp )
 {
 	stringstream strs{""};
-	strs << nlp.Octave <<","<< nlp.convention<<"," << nlp.nps << ","  << nlp.flat<<"," << nlp.sharp ;
+	strs 	<< nlp.Octave 		<<","
+			<< nlp.convention	<<","
+			<< nlp.nps 			<<","
+			<< nlp.flat			<<","
+			<< nlp.sharp ;
 	return strs.str();
 }
 
@@ -35,51 +39,50 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 			if ( n==i) return true;
 		return false;
 		};
-
+	auto range_error = [ this ]( auto val, vector<size_t> range )
+		{
+			Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
+												to_string( range[1] ) + "}" );
+			Comment ( ERROR,"Cannot assign noteline_prefix " +
+							 to_string( val ) +
+							" to noteline_structure");
+			if ( Log[ TEST ] ) return;
+			raise( SIGINT );
+		};
 	String S = str;
 	noteline_prefix_t nlp;
 	vector_str_t arr = S.to_unique_array(',');
 	show_vector( arr );
 	if ( arr.size() < 5 )
 	{
-		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		Comment ( ERROR, "Cannot assign noteline_prefix of length < 5");
+		if ( Log[ TEST ] ) return noteline_prefix_default;
 		raise( SIGINT );
 	}
 
 	nlp.Octave = S.secure_stoi( arr[0] );
 	if ( ( nlp.Octave < min_octave ) or ( nlp.Octave > max_octave ) )
-	{
-		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
-		raise( SIGINT );
-	}
+		range_error( nlp.Octave, {min_octave, max_octave } );
 
 	nlp.convention = S.secure_stoi(arr[1]);
 	if ( ( nlp.convention < 0 ) or ( nlp.convention >= convention_names.size() ))
-	{
-		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
-		raise( SIGINT );
-	}
+		range_error( nlp.convention, {0, convention_names.size() } );
 
 	nlp.nps = S.secure_stoi( arr[2]);
 	if ( not check_nps( nlp.nps) )
 	{
 		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
+		if ( Log[ TEST ] ) return noteline_prefix_default;
 		raise( SIGINT );
 	}
 
 	nlp.flat = S.secure_stoi(arr[3]);
 	if ( ( nlp.flat < 0 ) or ( nlp.flat > 7 ))
-	{
-		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
-		raise( SIGINT );
-	}
+		range_error( nlp.flat, {0, 7} );
 
 	nlp.sharp = S.secure_stoi(arr[4]);
 	if ( ( nlp.sharp < 0 ) or ( nlp.sharp > 7 ))
-	{
-		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
-		raise( SIGINT );
-	}
+		range_error( nlp.sharp, {0, 7} );
 
 	return nlp;
 
@@ -96,6 +99,10 @@ void Note_base::test()
 	noteline_prefix_t nlp = string_to_noteline_prefix(nlp_str);
 	show_noteline_prefix(nlp);
 
+	nlp_str = "1 ";
+	nlp = string_to_noteline_prefix(nlp_str);
+	nlp_str = "8, 8, 8, 7, 8";
+	nlp = string_to_noteline_prefix(nlp_str);
 	Comment( TEST, "Notes_base test done");
 }
 

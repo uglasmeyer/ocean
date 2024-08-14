@@ -206,26 +206,19 @@ void Mixer_class::add_noteline( uint8_t arr_id, Note_class* Notes )
 void Mixer_class::add(  Instrument_class* instrument, stereo_t* shm_addr, bool rec )
 {
 	// store the result into a local buffer, before making it available to the audio server
-	auto storeid = [ this ]()
-		{
-			for( int store_id : RecIds )
-			{
-				if ( StA[ store_id ].status.store )
-					return store_id;
-			}
-			return -1;
-		};
 
 	clear_memory();
 
 	if ( not status.mute )
 	{
-		int StoreId = storeid();
 		add_mono( instrument->main.Mem.Data, master_volume, 0 );
-		if ( StoreId >= 0 ) // add instrument sound to an active store id
-			StA[ StoreId ].store_block( instrument->main.Mem.Data ); // store data with amp=100
-
+		for( int store_id : UsrIds )
+		{
+			if ( StA[ store_id ].status.store )
+				StA[ store_id ].store_block( instrument->main.Mem.Data ); // store data with amp=100
+		}
 	}
+
 	if ( StA[MbIdNotes].status.play )
 	{
 		add_mono( StA[MbIdNotes].Data, StA[MbIdNotes].Amp, MbIdNotes );

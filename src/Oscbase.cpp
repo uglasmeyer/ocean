@@ -37,7 +37,6 @@ void Oscillator_base::set_frequency( float freq )
 	if ( freq < 0 ) freq = 0;
 	wp.frequency 	= freq;
 	wp.fstruct		= freq_to_freq_struct( freq );
-	set_csv_comment(  );
 }
 int Oscillator_base::set_delta_frequency( int pitch )
 {
@@ -46,7 +45,6 @@ int Oscillator_base::set_delta_frequency( int pitch )
 	if ( freq < 0 ) freq = 0;
 	wp.frequency 	= freq;
 	wp.fstruct		= freq_to_freq_struct( freq );
-	set_csv_comment(  );
 	return freq;
 }
 void Oscillator_base::set_volume( uint16_t vol)
@@ -55,7 +53,6 @@ void Oscillator_base::set_volume( uint16_t vol)
 	if ( vol > 100 ) vol = 100;
 //		if ( vol > 80 ) vol = 80;
 	wp.volume = vol;
-	set_csv_comment(  );
 }
 int Oscillator_base::set_delta_volume( int pitch )
 {
@@ -64,7 +61,6 @@ int Oscillator_base::set_delta_volume( int pitch )
 	if ( vol < 1 ) vol = 1; // no output if below 2
 	if ( vol > 100 ) vol = 100;
 	wp.volume = vol;
-	set_csv_comment(  );
 	return vol;
 }
 uint8_t Oscillator_base::Osc_id( string name )
@@ -110,8 +106,7 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 
 
 
-
-freq_struc_t Oscillator_base::freq_to_freq_struct( int freq )
+freq_struc_t Oscillator_base::freq_to_freq_struct( float freq )
 {
 	freq_struc_t fstruct;
 
@@ -119,7 +114,6 @@ freq_struc_t Oscillator_base::freq_to_freq_struct( int freq )
 	{
 		fstruct = freq_struct();
 		fstruct.pitch = freq;
-
 	}
 	else
 	{
@@ -178,7 +172,6 @@ void Oscillator_base::set_csv_comment ()
 void Oscillator_base::Set_waveform( char id )
 {
 	spectrum.id = id;
-	set_csv_comment();
 }
 
 void Oscillator_base::get_comment( bool variable )

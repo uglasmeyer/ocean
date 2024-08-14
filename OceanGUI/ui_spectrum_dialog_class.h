@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'spectrum_dialog_class.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.13
+** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -143,34 +143,42 @@ public:
         vS_1 = new QSlider(frame);
         vS_1->setObjectName(QString::fromUtf8("vS_1"));
         vS_1->setGeometry(QRect(10, 10, 16, 160));
+        vS_1->setMaximum(100);
         vS_1->setOrientation(Qt::Vertical);
         vS_3 = new QSlider(frame);
         vS_3->setObjectName(QString::fromUtf8("vS_3"));
         vS_3->setGeometry(QRect(90, 10, 16, 160));
+        vS_3->setMaximum(100);
         vS_3->setOrientation(Qt::Vertical);
         vS_2 = new QSlider(frame);
         vS_2->setObjectName(QString::fromUtf8("vS_2"));
         vS_2->setGeometry(QRect(50, 10, 16, 160));
+        vS_2->setMaximum(100);
         vS_2->setOrientation(Qt::Vertical);
         vS_4 = new QSlider(frame);
         vS_4->setObjectName(QString::fromUtf8("vS_4"));
         vS_4->setGeometry(QRect(130, 10, 16, 160));
+        vS_4->setMaximum(100);
         vS_4->setOrientation(Qt::Vertical);
         vS_5 = new QSlider(frame);
         vS_5->setObjectName(QString::fromUtf8("vS_5"));
         vS_5->setGeometry(QRect(170, 10, 16, 160));
+        vS_5->setMaximum(100);
         vS_5->setOrientation(Qt::Vertical);
         vS_8 = new QSlider(frame);
         vS_8->setObjectName(QString::fromUtf8("vS_8"));
         vS_8->setGeometry(QRect(290, 10, 16, 160));
+        vS_8->setMaximum(100);
         vS_8->setOrientation(Qt::Vertical);
         vS_7 = new QSlider(frame);
         vS_7->setObjectName(QString::fromUtf8("vS_7"));
         vS_7->setGeometry(QRect(250, 10, 16, 160));
+        vS_7->setMaximum(100);
         vS_7->setOrientation(Qt::Vertical);
         vS_6 = new QSlider(frame);
         vS_6->setObjectName(QString::fromUtf8("vS_6"));
         vS_6->setGeometry(QRect(210, 10, 16, 160));
+        vS_6->setMaximum(100);
         vS_6->setOrientation(Qt::Vertical);
         pB_save_spectrum = new QPushButton(Spectrum_Dialog_class);
         pB_save_spectrum->setObjectName(QString::fromUtf8("pB_save_spectrum"));

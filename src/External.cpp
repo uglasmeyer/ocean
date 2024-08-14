@@ -59,12 +59,12 @@ bool External_class::read_file_data(  )
 		blocks 		= StA->info.max_records;
 		bytes 		= StA->info.mem_bytes;
 	}
-	if( read_stereo_data( bytes ) )
+	if( read_stereo_data( bytes ) ) // TODO real stereo
 	{
-		int shift = 0;//- max_data_amp / 2;
+//		int shift = 0;//- max_data_amp / 2;
 		for ( buffer_t n = 0; n < structs; n++)
 		{
-			Data_t L = stereo.stereo_data[n].left;
+//			Data_t L = stereo.stereo_data[n].left;
 			Data_t R = stereo.stereo_data[n].right;
 
 			StA->Data[n]	= R;//shift + sqrt( L*L + R*R );

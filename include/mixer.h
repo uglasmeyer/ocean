@@ -51,6 +51,8 @@ public:
 
 	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal, MbIdNotes };
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal };
+	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5 };
+
 	typedef vector<Storage_class> StorageArray_t;
 	StorageArray_t 		StA;
 	uint8_t				master_volume	= 100;

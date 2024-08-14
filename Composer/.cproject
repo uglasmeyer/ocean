@@ -14,7 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.146748129" name="Default" parent="org.eclipse.cdt.build.core.emptycfg">
+				<configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.146748129" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.dockerdpath=" parent="org.eclipse.cdt.build.core.emptycfg">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.146748129.562825451" name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.211658934" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1518475050" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
@@ -78,7 +78,9 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1033228975" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
 								<option id="gnu.c.compiler.option.dialect.std.1753705533" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.c.compiler.option.include.paths.332725059" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.332725059" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.33571440" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.238891600" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -87,7 +89,9 @@
 									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/Release/libOcean.a"/>
 								</option>
 								<option id="gnu.cpp.link.option.debugging.gprof.1800785548" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.link.option.paths.1548535362" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1548535362" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/Release}&quot;"/>
+								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.link.option.libs.1163986297" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs"/>
 								<option id="gnu.cpp.link.option.pthread.960360967" name="Support for pthread (-pthread)" superClass="gnu.cpp.link.option.pthread" value="true" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.167715324" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
@@ -97,6 +101,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.916886230" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.148207528" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/Synthesizer/include}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/Synthesizer/include"/>
 								</option>
@@ -114,18 +119,22 @@
 					</fileInfo>
 					<sourceEntries>
 						<entry excluding="tools" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="tools"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="Ocean;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Ocean"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="Ocean" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+			</storageModule>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="Composer.null.1457678769" name="Composer"/>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
@@ -134,4 +143,13 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1519827999;cdt.managedbuild.tool.gnu.cpp.compiler.input.1747255560">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989.;cdt.managedbuild.tool.gnu.c.compiler.base.1033228975;cdt.managedbuild.tool.gnu.c.compiler.input.33571440">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 </cproject>

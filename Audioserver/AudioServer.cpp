@@ -30,8 +30,7 @@
 Logfacility_class 		Log("AudioServer");
 Shared_Memory 			Shm_a;
 Shared_Memory			Shm_b;
-GUI_interface_class 	GUI ;
-
+Interface_class 		GUI ;
 
 string This_Application 	= "";
 
@@ -82,7 +81,7 @@ void exit_proc( int exit_code )
 	Log.Comment( Log.DEBUG, "Entering exit procedure for \n" + This_Application );
 
 	Log.Comment( Log.INFO, "suspend server" );
-	GUI.announce( "AudioServer", false );
+	GUI.Announce( "AudioServer", false );
 
 	done = true;
 
@@ -264,7 +263,7 @@ int main( int argc, char *argv[] )
 	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-	GUI.announce( "AudioServer", true );
+	GUI.Announce( "AudioServer", true );
 	Log.Comment(Log.INFO, This_Application );
 	GUI.addr->AudioServer	= STOPSNDSRV;
 	Wait(1*SECOND);

@@ -1,6 +1,7 @@
+
 // qtcreator
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include <mainwindow.h>
+#include <ui_mainwindow.h>
 #include <oszilloscopewidget.h>
 #include <spectrum_dialog_class.h>
 
@@ -32,12 +33,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
 
-	auto fromstringvector = [ this ]( const vector<string>& str_vec )
+    auto fromstringvector = [ ]( const vector<string> str_vec )
 		{
 			vector<QString> Qvec{};
 			for ( string str : str_vec )
 			{
-				Qvec.push_back( std::move( QString::fromStdString( str ) ) );
+                Qvec.push_back( ( QString::fromStdString( str ) ) );
 			}
 			return Qvec;
 
@@ -129,7 +130,7 @@ MainWindow::MainWindow(QWidget *parent)
     scene->addItem( item );
 
 
-    GUI.announce( "SndlabGUI", true );
+    GUI.Announce( "SndlabGUI", true );
 }
 
 MainWindow::~MainWindow()
@@ -159,7 +160,7 @@ void MainWindow::wavfile_selected( const QString &arg)
     string str = QStr.toStdString();
     if ( str.length() > 0 )
     {
-        GUI.write_str('l', str );
+        GUI.Write_str( WAVEFILESTR_KEY, str );
         GUI.Set(GUI.addr->KEY , SETEXTERNALWAVEFILE);
     }
 }
@@ -278,7 +279,6 @@ void MainWindow::change_status5()
 
 }
 
-bool status_store = false;
 void MainWindow::Store()
 {
     struct store_widgets
@@ -307,11 +307,12 @@ void MainWindow::Store()
         i++;
     }
     GUI.Set( GUI.addr->MIX_Id , banknr); //
+    bool status_store = not GUI.addr->ma_status[banknr].store;
+    GUI.addr->ma_status[banknr].store = status_store;
     if ( status_store )
         GUI.Set( GUI.addr->KEY , STOPRECORD_KEY);
     else
         GUI.Set( GUI.addr->KEY , STORESOUNDKEY);
-    status_store = not status_store;
 }
 
 void MainWindow::memory_clear()
@@ -377,7 +378,7 @@ void MainWindow::slot_dial_ramp_up_down()
     float value = ui->dial_ramp_up_down->value();
     GUI.Set( GUI.addr->LOOP_end, value);
     GUI.Set( GUI.addr->LOOP_step, 1 );
-    GUI.Set( GUI.addr->KEY, MAIN_AMPLOOP_KEY);
+    GUI.Set( GUI.addr->KEY, MASTERAMP_LOOP_KEY);
 }
 
 void MainWindow::Clear_Banks()
@@ -396,19 +397,13 @@ void MainWindow::Clear_Banks()
 }
 void MainWindow::toggle_Mute()
 {
-    mute_flag = not mute_flag;
+    bool mute_flag 	= not GUI.addr->mi_status.mute;
     GUI.Set( GUI.addr->mi_status.mute , mute_flag );
-    if ( mute_flag )
-    {
-        GUI.Set( GUI.addr->KEY , MUTEMAINAMP_KEY);
-        ui->pB_Mute->setText( "Unmute");
-    }
-    else
-    {
-        GUI.Set( GUI.addr->KEY , UNMUTEMAINAMP_KEY);
-        ui->pB_Mute->setText( "Mute" );
-    }
+    GUI.Set( GUI.addr->KEY , MASTERAMP_MUTE_KEY);
+    QString Qstr = mute_flag ? "UnMute" : "Mute";
+    ui->pB_Mute->setText( Qstr );
 }
+
 void MainWindow::sB_Duration( int bps_id  )
 {
     QString Qstr = get_bps_qstring( bps_id );
@@ -420,7 +415,9 @@ void MainWindow::setwidgetvalues()
 {
 
     ui->dial_PMW->setValue( (int)GUI.addr->PMW_dial  );
-    int slider_value = ( GUI.addr->FMO_Freq < LFO_limit ) ? GUI.addr->FMO_Freq * LFO_count : GUI.addr->FMO_Freq;
+
+    int slider_value = ( GUI.addr->FMO_Freq < LFO_limit ) ? GUI.addr->FMO_Freq * LFO_count:
+    														GUI.addr->FMO_Freq + (float)LFO_count;
     ui->Slider_FMO_Hz->setValue(    slider_value );
     ui->Slider_VCO_Hz->setValue(    GUI.addr->VCO_Freq);
     ui->Slider_Main_Hz->setValue(   GUI.addr->Main_Freq);
@@ -462,62 +459,41 @@ void MainWindow::setwidgetvalues()
     ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ (int) GUI.addr->WD_type_ID % 3 ] );
 
     ui->dial_ramp_up_down->setValue( GUI.addr->Master_Amp);
-    if ( mute_flag )
-        ui->pB_Mute->setText( "Unmute" );
-    else
-        ui->pB_Mute->setText( "Mute" );
+
+    Qstr = GUI.addr->mi_status.mute ? "UnMute" : "Mute";
+    ui->pB_Mute->setText( Qstr );
     MainWindow::show();
 }
 
 void MainWindow::GUI_Exit()
 {
     qDebug("%s", "Exit" );
-    GUI.announce( "SndlabGUI", false );
+    GUI.Announce( "SndlabGUI", false );
 
     shmdt( GUI.addr );
     QApplication::quit();
 }
 
-
+auto Slider_Hz = []( Interface_class& IF, float& fptr, float value, char key )
+	{
+		IF.Set( fptr , value);
+		IF.Set( IF.addr->KEY , key);
+	};
 void MainWindow::MAIN_slot_Hz()
 {
-    float value = ui->Slider_Main_Hz->value();
-    GUI.Set( GUI.addr->Main_Freq , value);
-    GUI.Set( GUI.addr->KEY , MAINFREQUENCYKEY);
+	Slider_Hz( GUI, GUI.addr->Main_Freq, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
 }
 
 void MainWindow::VCO_slot_Hz()
 {
-    float value = ui->Slider_VCO_Hz->value();
-    GUI.Set( GUI.addr->VCO_Freq , value);
-    GUI.Set( GUI.addr->KEY , VCOFREQUENCYKEY);
+	Slider_Hz( GUI, GUI.addr->VCO_Freq, ui->Slider_VCO_Hz->value(), VCOFREQUENCYKEY );
 }
-void MainWindow::MAIN_slot_volume()
-{
-    int value = ui->Slider_Main_Vol->value();
-    GUI.Set( GUI.addr->Master_Amp , value);
-    GUI.Set( GUI.addr->KEY , MASTER_AMP_KEY);
-
-}
-void MainWindow::VCO_slot_volume()
-{
-    int value = ui->Slider_VCO_vol->value();
-    GUI.Set( GUI.addr->VCO_Amp , value);
-    GUI.Set( GUI.addr->KEY , VCOAMPKEY);
-}
-void MainWindow::FMO_slot_volume()
-{
-    int value = ui->Slider_FMO_vol->value();
-    GUI.Set( GUI.addr->FMO_Amp , value);
-    GUI.Set( GUI.addr->KEY , FMOAMPKEY);
-}
-
 void MainWindow::Slider_FMO_Hz_changed(int value )
 {
     float freq = 0.0;
     if ( value >= LFO_count )
     {
-    	freq = value - ( LFO_count - LFO_limit );
+    	freq = value - ( LFO_count );
     }
     else
     {
@@ -525,9 +501,28 @@ void MainWindow::Slider_FMO_Hz_changed(int value )
     }
     ui->FMOLCD_Hz->display( freq );
 
-    GUI.Set( GUI.addr->FMO_Freq , freq);
-    GUI.Set( GUI.addr->KEY , FMOFREQUENCYKEY);
+    Slider_Hz( GUI, GUI.addr->FMO_Freq, freq, FMOFREQUENCYKEY );
 }
+
+auto Slider_volume = []( Interface_class& IF, char& ch_ptr, char value, char key )
+	{
+		IF.Set( ch_ptr , value);
+		IF.Set( IF.addr->KEY , key);
+	};
+
+void MainWindow::MAIN_slot_volume()
+{
+	Slider_volume( GUI, GUI.addr->Master_Amp, ui->Slider_Main_Vol->value(), MASTERAMP_KEY );
+}
+void MainWindow::VCO_slot_volume()
+{
+	Slider_volume( GUI, GUI.addr->VCO_Amp, ui->Slider_VCO_vol->value(), VCOAMPKEY );
+}
+void MainWindow::FMO_slot_volume()
+{
+	Slider_volume( GUI, GUI.addr->FMO_Amp, ui->Slider_FMO_vol->value(), FMOAMPKEY );
+}
+
 
 
 
@@ -570,7 +565,7 @@ void MainWindow::Audio_Exit()
 // button save config to default instrument
 void MainWindow::Save_Config()
 {
-    GUI.write_str('i', "default");
+    GUI.Write_str( INSTRUMENTSTR_KEY, "default");
     GUI.Set( GUI.addr->KEY , SAVEINSTRUMENTKEY); //
 }
 
@@ -651,12 +646,12 @@ void MainWindow::Updatewidgets()
 {
     if (  GUI.addr->UserInterface == UPDATEGUI  )
     {
-        if ( GUI.addr->KEY == 'i')
+        if ( GUI.addr->KEY == INSTRUMENTSTR_KEY )
         {
-            string str = GUI.read_str( 'i' );
+            string str = GUI.Read_str( INSTRUMENTSTR_KEY );
             QString QStr ;
             if ( this->Dialog_File != nullptr )
-                QStr = this->Dialog_File->CB_instruments->currentText( );
+                this->Dialog_File->CB_instruments->textActivated(QStr);
         }
         if ( not GUI.addr->Composer )
         {

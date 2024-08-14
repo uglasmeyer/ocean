@@ -20,20 +20,20 @@ class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_base
 
 public:
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
-                                   GUI_interface_class* gui = nullptr );
+                                   Interface_class* gui = nullptr );
     ~Spectrum_Dialog_class();
 
     Spectrum_base Spectrum{};
     spec_struct_t spectrum;
 
-    GUI_interface_class* GUI;
+    Interface_class* GUI;
     ifd_t* ifd;
-    vector<spec_struct_t*> ifd_spectrum_vec;
+    vector<Spectrum_base::spec_struct_t*> ifd_spectrum_vec;
 
     string instrument{};
     uint8_t waveform_id;
 
-    void setup_Widgets( spec_struct_t );
+    void setup_Widgets( Spectrum_base::spec_struct_t );
     void Update_spectrum();
 
 private slots:

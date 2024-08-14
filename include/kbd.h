@@ -15,8 +15,8 @@ using namespace std;
 
 typedef struct key_struct
 {
-	char 	key;
-	uint_t 	val;
+	char 	key	= 0;
+	uint_t 	val	= 0;
 } key_struct_t;
 
 class Kbd_class : virtual Logfacility_class

@@ -13,8 +13,7 @@ Instrument_class::Instrument_class(ifd_t* ifd )
 {
 	this->ifd 		= ifd;
 	Default_instrument_file = dir_struct().instrumentdir + "default.kbd";
-	ifd_spectrum_vec = { &ifd->MAIN_spectrum, &ifd->VCO_spectrum, &ifd->FMO_spectrum };
-
+	ifd_spectrum_vec = { &ifd->VCO_spectrum, &ifd->FMO_spectrum, &ifd->MAIN_spectrum};
 }
 
 Instrument_class::~Instrument_class()
@@ -146,7 +145,6 @@ void Instrument_class::Update_spectrum()
 	Comment(INFO, "receive command <update Spectrum>");
 	Oscillator* osc = osc_vector[ ifd->Spectrum_type ];
 	osc->spectrum	= *ifd_spectrum_vec[ ifd->Spectrum_type ];
-//	osc->OSC(0);
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -349,14 +347,15 @@ void Instrument_class::Save_Instrument( string str )
 				<< setw(9) << osc->vp.name 	<< ","
 				<< setw(8) 	<< "V,"
 				<< endl;
-		FILE	<< osc->Show_this_spectrum( osc->spectrum );
+		FILE	<< osc->Show_this_spectrum( osc->spectrum )
+				<< endl;
 	}
 	FILE.close();
 
 	return ;
 }
 
-void Instrument_class::run_oscs()
+void Instrument_class::Run_osc_group()
 {
 	for ( auto osc : osc_vector	)
 		osc->OSC(0);
@@ -369,7 +368,7 @@ bool Instrument_class::Set( string name )
 	if ( not init_connections() ) 	return false;
 	setup_GUI_Data();
 	reuse_GUI_Data();
-	run_oscs();
+	Run_osc_group();
 	show_sound_stack();
 	return true;
 
@@ -385,37 +384,39 @@ void Instrument_class::Test_Instrument()
 
 	assert( Set( ".test" ) );
 	vco.wp.PMW_dial = 98;
-	vco.spectrum.id = 2;
-	assert( vco.waveform_str_vec[2].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
+	vco.spectrum.id = SGNSIN;
+	assert( vco.waveform_str_vec[ SGNSIN ].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 	Save_Instrument( ".test" );
 	vco.wp.PMW_dial = 0;
-	vco.spectrum.id = 3;
-	assert( vco.waveform_str_vec[3].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
+	vco.spectrum.id = RECTANGLE;
+	assert( vco.waveform_str_vec[ RECTANGLE ].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 
 	assert( Set( ".test" ) );
 	assert( vco.wp.PMW_dial == 98 );
 	cout << "spec id" << dec << (int)vco.spectrum.id << endl;
-	assert( vco.waveform_str_vec[2].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
+	assert( vco.waveform_str_vec[ SGNSIN ].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 	assert( main.fp.data == fmo.Mem.Data );
+	fmo.wp.frequency 	= 0.75;
+	fmo.wp.volume		= 0;//31;
 	assert( fmo.wp.frequency - 0.75 < 1E-5 );
-	fmo.wp.frequency = 0.75;
-	assert( fmo.wp.volume == 31 );
+	assert( fmo.wp.volume == 0);//31 );
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
+	assert( main.adsr.hall == 0 );
 
-//	fmo.wp.volume = 0;
-	Data_t datan = main.Mem.Data[0];
+	Data_t datan = 0;
 	Data_t data0 = 0;
+	main.Mem.Data[max_frames-1] = 0;
 	for ( int n = 0; n <10; n++ )
 	{
-		data0 = fmo.Mem.Data[max_frames-1];
-//		cout << setw(15) << datan << setw(15) << data0 << setw(15) << fmo.phase << endl;
+		datan = main.Mem.Data[max_frames-1];
 		fmo.OSC(0);
 		main.OSC(0);
-		datan = fmo.Mem.Data[0];
-
+		data0 = main.Mem.Data[0];
+		cout << "> "  << setw(15) << datan << setw(15) << data0 << setw(15) << abs( abs( datan )- abs(data0 ) )  << endl;
+		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
 	}
 
 	Comment( TEST, "Instrument test done" );

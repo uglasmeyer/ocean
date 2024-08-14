@@ -30,9 +30,7 @@ FORMS += \
 
 CONFIG += lrelease
 
-INCLUDEPATH += /home/sirius/git/Ocean/include \
-    /home/sirius/git/Ocean/OceanGUI
-
+INCLUDEPATH += /home/sirius/git/Ocean/include
 
 LIBS += /home/sirius/git/Ocean/Release/libOcean.a
 #  http://doc.qt.io/qt-5/third-party-libraries.html

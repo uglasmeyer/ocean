@@ -35,14 +35,13 @@ public:
     ~MainWindow();
 
     Logfacility_class       Log{"GUI main"};
-    GUI_interface_class     GUI;
+    Interface_class     GUI;
     Spectrum_class          Spectrum			{};
     File_Dialog_class*      Dialog_File         = nullptr;
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
     vector<QString> 		Qwavedisplay_type_str_vec {};
-    bool                    mute_flag           = GUI.addr->mi_status.mute;
     vector<QString> 		QWaveform_vec		{};
 
     void setwidgetvalues();
@@ -64,7 +63,6 @@ private slots:
     void VCO_slot_Hz();
     void VCO_slot_volume();
     void Slider_FMO_Hz_changed(int);
-//    void fmo_lfo();
     void FMO_slot_volume();
 
     void waveform_slot( char*, char, int, int, QLabel* );

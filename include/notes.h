@@ -25,6 +25,12 @@ class Note_class :  virtual public Logfacility_class, virtual public Note_base
 {
 public:
 
+	Oscillator	 	main_osc		{"NOTES"};
+	Oscillator	 	vco_osc			{"VCO"};
+	Oscillator	 	fmo_osc			{"FMO"};
+
+	vector<Oscillator*> osc_group { &vco_osc, &fmo_osc, &main_osc };
+
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
 	const string 	RhythmChars 	= "123456789";
@@ -42,11 +48,13 @@ public:
 	Instrument_class* instrument;
 
 	Note_class( ); // used by Variation
+	Note_class( Instrument_class* instr ); // used by Synthesizer
+
 	~Note_class();
 
 	string 			Read( string );
 	void			Save( string, noteline_prefix_t , string  );
-	void 			Set_osc_track( Instrument_class* );
+	void 			Set_osc_track( );
 	string 			Get_note_line ();
 	string 			Get_rhythm_line (  );
 	void 			Set_rhythm_line(string );
@@ -92,9 +100,6 @@ private:
 	strlen_t 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
 
-	Oscillator	 	main_osc		{"MAIN"};
-	Oscillator	 	vco_osc			{"VCO"};
-	Oscillator	 	fmo_osc			{"FMO"};
 	note_struct_t 	note_buffer 	= note_struct();
 
 	typedef notelist_t::iterator

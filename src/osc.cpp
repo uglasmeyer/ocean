@@ -160,13 +160,10 @@ void Oscillator::OSC (  buffer_t frame_offset )
  * Generator of sound waves
  */
 {
-	//cout << "modulo: " << dec << modulo( pi, 4 ) << endl;
-	//exit(1);
 	buffer_t 			n;
 	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
 	double 				dt 			= 1.0/audio_frames;//seconds per frame
 	float				volume  	= (float) this->wp.volume;
-//	const spec_struct_t	spectrum	= *this->wp.spectrum;
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
@@ -189,51 +186,54 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		frames = max_frames;
 	this->wp.frames = frames;
 
+	Sum( spectrum );
+	if ( spectrum.sum == 0 ) spectrum.sum  = 1;
+
 	switch ( spectrum.id )
 	{
-		case 0 : // s inus + spectrum
+		case SINUS0 : // s inus + spectrum
 		{
 			modc 	= 2*pi;
 			F = Sin;
 			break;
 		}
-		case 1 : // Sinus
+		case SINUS1 : // Sinus
 		{
 			modc 	= 2*pi;
 			F = Sin;
 			break;
 		}
-		case 2 : // sgn Sin
+		case SGNSIN : // sgn Sin
 		{
 			modc 	= 2*pi;
 			F = SignSin;
 			break;
 		}
-		case 3 : // rectangle
+		case RECTANGLE : // rectangle
 		{
 			modc 	= 1;
 			F = rectangle;
 			break;
 		}
-		case 4 : // sawtooth
+		case SAWTOOTHL : // sawtooth
 		{
 			modc 	= 1;
 			F = sawtooth;
 			break;
 		}
-		case 5 : // Sawtooth ( reverse sawtooth )
+		case SAWTOOTHR : // Sawtooth ( reverse sawtooth )
 		{
 			modc 	= 1;
 			F = Sawtooth;
 			break;
 		}
-		case 6 :// triangle https://de.wikipedia.org/wiki/Dreiecksfunktion
+		case TRIANGLE :// triangle https://de.wikipedia.org/wiki/Dreiecksfunktion
 		{
 			modc 	= 2;
 			F = Triangle;
 			break;
 		}
-		case 7 :// PMW
+		case PMW :// PMW
 		{
 			modc = 1;
 			double phi 		= this->phase;
@@ -259,20 +259,20 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			return;
 			break;
 		}
-		case 8 : // delta
+		case DELTA : // delta
 		{
 			modc = 1;
 			F = delta;
 			break;
 		}
-		case 9 :// noise
+		case NOISE :// noise
 		{
 			;
 			modc = 1;
 			F  = rnd;
 			break;
 		}
-		case 10 :// random
+		case RANDOM :// random
 		{
 			;
 			modc = 1;
@@ -297,18 +297,16 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		return;
 	}
 
-	if ( spectrum.sum == 0 ) spectrum.sum  = 1;
-	double 		omega_t;
-	double 		dT 		= modc * dt;
-	double		lfo_mod = modc;
-	double 		phi		= get_phi( );
+	double 		omega_t		= 0;
+	double 		dT 			= modc * dt;
+	double		lfo_mod 	= modc;
+	double 		phi			= get_phi( );
 
-	float 		start_freq = this->start_freq;
-	float		delta_f	= get_delta_freq( freq );
+	float 		start_freq 	= this->start_freq;
+	float		delta_f		= get_delta_freq( freq );
 				// difference to the target frequency <freq> - <start_freq>
 	for ( n = 0; n < frames ; n++ )
 	{
-
 		if ( this->osc_id != NOTESID ) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
 
@@ -319,23 +317,17 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			{
 				omega_t =   phi * (1 + df )  ;
 				data[n]	=   data[n] + F(spectrum.dta[df]*vco_vol, omega_t);
-
-			if ( ( osc_id == FMOID ) and ( Log[TEST] ) )
-			{
-				if ( (n < 10 ) or ( n > frames - 10 ) )
-				{
-					cout << setw(15) << n << setw(15) << phi << setw(15) << data[n] << endl;
-				}
-			}
 			}
 		}
 
 		if ( abs(freq - start_freq) > 1 ) start_freq = start_freq + delta_f;
 		dphi	= dT * ( start_freq + norm_freq*fmo_data[n] );
 		phi 	+= dphi;
-		phi		= ( abs(phi) > lfo_mod ) ? phi-sgn(phi)*lfo_mod : phi ;//fmodulo(phi, mod);
-		assert( phi <  lfo_mod );
-		assert( phi > -lfo_mod );
+		phi		= ( abs(phi) > lfo_mod ) ? phi-sgn(phi)*lfo_mod : phi ;
+		if ( ( phi > lfo_mod ) or ( phi < -lfo_mod ) )
+				cout << "phi overflow: " << phi << endl;
+//		assert( phi <=  lfo_mod );
+//		assert( phi >= -lfo_mod );
 	}
 
 	set_phi( phi, lfo_mod );
@@ -344,12 +336,14 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	apply_adsr( this->adsr, frames, data);
 	apply_hall( this->adsr, frames, data) ;
 
-
 	return;
 
 }
 
-void Oscillator::Set_long( bool l ){ longnote = l ;};
+void Oscillator::Set_long( bool l )
+{
+	longnote = l ;
+}
 
 void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 {

@@ -13,7 +13,7 @@
 
 
 
-spec_struct_t Spectrum_base::Parse_data( vector_str_t arr, char oscid )
+Spectrum_base::spec_struct_t Spectrum_base::Parse_data( vector_str_t arr, char oscid )
 {
 
 	auto assign_dta = [ this ]( vector<string> arr )
@@ -99,7 +99,7 @@ string Spectrum_base::Show_this_spectrum( spec_struct_t spec )
 					<< setw(9) << osc_type_vec[ spec.osc ] << ","
 					<< setw(9) << Get_waveform_str( spec.id ) << ",";
 			for_each( spec.dta.begin(), spec.dta.end(), show_dta);
-			strs << endl;
+			show_dta( spec.sum );
 		};
 	show_struct( spec );
 	return strs.str();
@@ -279,7 +279,7 @@ void Spectrum_class::Set_spectrum( uint8_t id, int channel, int value )
 	list_itr->sum = list_itr->sum - a + value;
 }
 
-spec_struct_t Spectrum_class::Get_spectrum(uint8_t id )
+Spectrum_base::spec_struct_t Spectrum_class::Get_spectrum(uint8_t id )
 {
 
 	if ( id > spectrum_list.size( ) - 1)

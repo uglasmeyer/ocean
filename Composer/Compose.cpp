@@ -4,7 +4,7 @@
 
 Logfacility_class 		Log("Composer");
 Variation_class 		Variation;
-GUI_interface_class 	GUI;
+Interface_class 	GUI;
 Interpreter_class 		Compiler(&GUI );
 vector<int>				pos_stack {};
 String 					Str{""};
@@ -23,7 +23,7 @@ void exit_proc( int signal )
 		cout.flush() << "\nEntering exit proc on assembler error " + to_string(signal) << endl;
 	else
 		cout.flush() << "\nEntering exit proc" << endl;
-	GUI.announce( "Composer", false );
+	GUI.Announce( "Composer", false );
 	GUI.addr->Synthesizer = EXITSERVER;
 	GUI.addr->AudioServer = STOPSNDSRV;
 
@@ -272,7 +272,7 @@ int main( int argc, char* argv[] )
 		maintest();
 		exit_proc(0);
 	}
-	GUI.announce("Composer", true);
+	GUI.Announce("Composer", true);
 	Log.Set_Loglevel(ERROR , true);
 
 	if ( preprocessor( file_structure().main_file ) )
@@ -282,7 +282,7 @@ int main( int argc, char* argv[] )
 			Compiler.Execute(  );
 		}
 	}
-	GUI.announce( "Composer", false );
+	GUI.Announce( "Composer", false );
 
 	if ( params.dialog == 'y' )
 	{

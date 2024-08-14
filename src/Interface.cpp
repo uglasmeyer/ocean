@@ -9,7 +9,7 @@
 #include <Interface.h>
 
 
-GUI_interface_class::GUI_interface_class()
+Interface_class::Interface_class()
 : Logfacility_class("Gui")
 {
 
@@ -34,18 +34,20 @@ GUI_interface_class::GUI_interface_class()
 	else
 	{
 		Comment( ERROR, "Failed");
+		Comment( INFO, 	"IPC version " + to_string( ifd_data.version ) +
+						" differs from BIN version " + to_string( addr->version ) );
 		exit(1);
 	}
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
 }
 
-GUI_interface_class::~GUI_interface_class()
+Interface_class::~Interface_class()
 {
 	Comment(INFO, "detach GUI interface from id: " + to_string( shm_info.id));
 	shmdt( shm_info.addr );
 }
 
-void GUI_interface_class::show_GUI_interface()
+void Interface_class::Show_interface()
 {
 	auto lline = []( string s, auto v )
 			{ cout << setw(20) << dec  << setfill('.') 	<< left << s << setw(20) << v ; };
@@ -84,7 +86,7 @@ void GUI_interface_class::show_GUI_interface()
 	}
 
 
-	read_str('a');
+	Read_str('a');
 
 	cout << setfill( '-') << setw(80) << left << "Shared Data Structure " + Version_str << endl;
 
@@ -127,11 +129,6 @@ void GUI_interface_class::show_GUI_interface()
 	rline( "Waveform counter  :" , addr->WD_type_ID);
 	rline( "Status StA #:ps,  :" , status2);
 
-	if ( addr->Comstack == RUNNING )
-	{
-		addr->UpdateFlag = false;
-	}
-
 }
 
 auto reject = [](char addr, int id )
@@ -148,7 +145,7 @@ auto reject = [](char addr, int id )
 		};
 
 
-void GUI_interface_class::write_str(const char selector, const string str )
+void Interface_class::Write_str(const char selector, const string str )
 {
 	if (reject( addr->Composer, client_id )) return;
 
@@ -158,12 +155,12 @@ void GUI_interface_class::write_str(const char selector, const string str )
 
 	switch ( selector )
 	{
-		case 'i' :
+		case INSTRUMENTSTR_KEY :
 		{
 			strcpy( addr->Instrument, str.data());
 			break;
 		}
-		case 'n' :
+		case NOTESSTR_KEY :
 		{
 			strcpy( addr->Notes, str.data() );
 			break;
@@ -177,17 +174,17 @@ void GUI_interface_class::write_str(const char selector, const string str )
 
 }
 
-string GUI_interface_class::read_str( char selector )
+string Interface_class::Read_str( char selector )
 {
 	string str;
 	switch ( selector )
 	{
-		case 'i' :
+		case INSTRUMENTSTR_KEY :
 		{
 			str.assign( addr->Instrument );
 			break;
 		}
-		case 'n' :
+		case NOTESSTR_KEY :
 		{
 			str.assign( addr->Notes );
 			break;
@@ -204,7 +201,7 @@ string GUI_interface_class::read_str( char selector )
 }
 
 
-void* GUI_interface_class::buffer( buffer_t shm_size, key_t shm_key )
+void* Interface_class::buffer( buffer_t shm_size, key_t shm_key )
 {
 	int shmflg, shm_id;
 
@@ -226,14 +223,14 @@ void* GUI_interface_class::buffer( buffer_t shm_size, key_t shm_key )
 	return ( addr );
 };
 
-void GUI_interface_class::announce( string client, bool flag )
+void Interface_class::Announce( string client, bool flag )
 {
 	auto set = [flag, this](auto& a , auto id){
 		if (flag)
 			a = RUNNING;
 		else
 			a = NOCONTROL ;
-		this->commit();
+		this->Commit();
 		return id;
 	};
 
@@ -244,15 +241,15 @@ void GUI_interface_class::announce( string client, bool flag )
 	if ( client.compare("Comstack") 	== 0 ) client_id = set( addr->Comstack		, 5 );
 
 }
-void GUI_interface_class::reset_ifd()
+void Interface_class::Reset_ifd()
 {
 	Comment(INFO, "Reset shared data");
 	memcpy( addr	, &ifd_data		, sizeof( ifd_t ) );
-	dump_ifd();
+	Dump_ifd();
 
 }
 
-bool GUI_interface_class::restore_ifd()
+bool Interface_class::Restore_ifd()
 {
 
 	Comment(INFO,"Restore shared data from file");
@@ -266,7 +263,7 @@ bool GUI_interface_class::restore_ifd()
 	return ( size == sizeof( ifd_data ));
 }
 
-void GUI_interface_class::dump_ifd()
+void Interface_class::Dump_ifd()
 {
 	Comment(INFO,"Dump shared data to file");
 	FILE* fd = fopen( file_structure().ifd_file.data() , "w");
@@ -274,39 +271,39 @@ void GUI_interface_class::dump_ifd()
 	fclose( fd );
 }
 
-void GUI_interface_class::update( char ch )
+void Interface_class::Update( char ch )
 {
-	commit();
+	Commit();
 
 	addr->FLAG = ch;
 	addr->UserInterface = UPDATEGUI;
 }
-void GUI_interface_class::commit()
+void Interface_class::Commit()
 {
-	addr->KEY 	= 0;
-	addr->FLAG 	= 0;
+	addr->KEY 	= NULLKEY;
+	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
 }
 
-void GUI_interface_class::Set( bool& key, bool value )
+void Interface_class::Set( bool& key, bool value )
 {
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;
 }
 
-void GUI_interface_class::Set( char& key, char value )
+void Interface_class::Set( char& key, char value )
 {
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;
 }
 
-void GUI_interface_class::Set( uint16_t& key, uint16_t value )
+void Interface_class::Set( uint16_t& key, uint16_t value )
 {
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;
 }
 
-void GUI_interface_class::Set( float& key, float value )
+void Interface_class::Set( float& key, float value )
 {
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;

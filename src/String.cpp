@@ -62,7 +62,6 @@ int count_char( char ch, string s )
 
 vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 {
-
 	replace_char('\t', ' ');
 	to_unique_array(' ');
 	int count = count_char( ch, Str );
@@ -71,13 +70,16 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	{
 		string err = "missing ";
 		err.push_back(ch);
-		Comment( ERROR, err );
 		if ( Log[TEST] )
 		{
 			arr[0] = err;
 			return arr;
 		}
-		exit(1);
+		else
+		{
+			Comment( ERROR, err );
+			exit(1);
+		}
 	}
 	size_t pos 		= 0;
 	vector<string> 	result{};
@@ -197,7 +199,9 @@ void String::test()
 	assert( arr[3].compare("end") 					== 0 );
 
 	S 	= " test a \"two words\" \"three words bc  d";
-	arr = S.to_bracket_array( '\"');
+	Str = S.Str;
+	arr = to_bracket_array( '\"');
+	cout << arr[0] << endl;
 	assert( arr[0].compare("missing \"") == 0 );
 //	for ( string s : arr ) cout << s << endl;
 

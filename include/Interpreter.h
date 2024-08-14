@@ -75,7 +75,7 @@ class Interpreter_class : public virtual Logfacility_class, public Processor_cla
 
 
 public:
-	GUI_interface_class* GUI;
+	Interface_class* GUI;
 	ifd_t* ifd;// = GUI->ifd_data;
 	Variation_class Variation{};
 	osc_struct_t main_view, fmo_view, vco_view;
@@ -92,7 +92,7 @@ public:
 	String keyword {""};
 	vector<string> expect {};
 
-	Interpreter_class( GUI_interface_class* gui ) ;
+	Interpreter_class( Interface_class* gui ) ;
 	virtual ~Interpreter_class();
 
 	void start_bin( vector_str_t );

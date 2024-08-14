@@ -7,13 +7,6 @@
 
 #include "processor.h"
 
-/*
-void Processor_class::push( stack_struct_t stack_item )
-{
-	process_stack.push_back( stack_item );
-}
-*/
-
 void Processor_class::Push_cmd( uint8_t cmd, string str )
 {
 	stack_struct_t stack_item =
@@ -73,6 +66,23 @@ void Processor_class::Push_ifd( char* chaddr, char value, string str )
 	process_stack.push_back( move( stack_item ) );
 };
 
+
+void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
+{
+	stack_struct_t stack_item =
+	{
+		.prgline= prgline,
+		.cmd 	= CMD_BOADDR,
+		.key    = 0,
+		.boaddr	= boaddr,
+		.chaddr = nullptr,
+		.uiaddr = nullptr,
+		.value  = (bool) value,
+		.str	= str
+	};
+	process_stack.push_back( move( stack_item ) );
+};
+
 void Processor_class::Push_ifd( float* uiaddr, float value, string str )
 {
 	stack_struct_t stack_item =
@@ -123,7 +133,7 @@ void Processor_class::Push_text( string str )
 void Processor_class::wait_for_commit()
 {
 	int i = 0;
-	while ( ifd->KEY != 0 ) // waiting for commit
+	while ( ifd->KEY != NULLKEY ) // waiting for commit
 	{
 		Wait(1000);
 		i++;
@@ -152,8 +162,8 @@ void Processor_class::Execute()
 		Comment( INFO, "Proceeding stack. Item count " + to_string( len )) ;
 
 	cout << "waiting for Synthesizer to start" << endl;
-	GUI->reset_ifd();
-	GUI->commit();
+	GUI->Reset_ifd();
+	GUI->Commit();
 	stack_struct_vec::iterator itr;
 
 	for( itr=process_stack.begin(); itr != process_stack.end(); itr++ )
@@ -168,6 +178,13 @@ void Processor_class::Execute()
 			printf("%d ldc %p %d \t| %s", stack_item.prgline, stack_item.chaddr, stack_item.value, stack_item.str.data() );
 			if ( not stack_item.chaddr == 0 )
 				*stack_item.chaddr = (char) stack_item.value ;
+			break;
+		}
+		case CMD_BOADDR : // write char address
+		{
+			printf("%d ldc %p %d \t| %s", stack_item.prgline, stack_item.boaddr, stack_item.value, stack_item.str.data() );
+			if ( not stack_item.boaddr == 0 )
+				*stack_item.boaddr = (bool) stack_item.value ;
 			break;
 		}
 		case CMD_UIADDR : // write uint16_t address
@@ -215,12 +232,12 @@ void Processor_class::Execute()
 		case CMD_STR : // write string
 		{
 			char* addr = nullptr;
-			if ( (char)stack_item.value == 'i' )
+			if ( (char)stack_item.value == INSTRUMENTSTR_KEY )
 				addr=GUI->addr->Instrument;
 			if ( (char)stack_item.value == 'n' )
 				addr=GUI->addr->Notes;
 			printf("%d ldc %p %s \n", stack_item.prgline, addr, stack_item.str.data() );
-			this->GUI->write_str( stack_item.value, stack_item.str );
+			this->GUI->Write_str( stack_item.value, stack_item.str );
 
 			printf("%d ldc %p %d \t| set %s ", stack_item.prgline, &ifd->KEY, stack_item.key, stack_item.str.data() );
 			ifd->KEY = stack_item.key;

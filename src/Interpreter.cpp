@@ -14,7 +14,7 @@ void show_list( vector<string> arr )
 	cout << endl;
 }
 
-Interpreter_class::Interpreter_class( GUI_interface_class* gui) :
+Interpreter_class::Interpreter_class( Interface_class* gui) :
 Logfacility_class( "Interpreter" ),
 Processor_class(gui)
 {
@@ -23,7 +23,7 @@ Processor_class(gui)
 
 	main_view.name		= "Main osc";
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
-	main_view.ampkey 	= MASTER_AMP_KEY;
+	main_view.ampkey 	= MASTERAMP_KEY;
 	main_view.freqkey 	= MAINFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
@@ -459,14 +459,16 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "mute") )
 	{
 		Comment( INFO, "Main is muted " );
-		Processor_class::Push_key( MUTEMAINAMP_KEY, "mute" );
+		Processor_class::Push_ifd( &ifd->mi_status.mute, true, "mute" );
+		Processor_class::Push_key( MASTERAMP_MUTE_KEY, "mute" );
 		return;
 	}
 
 	if ( cmpkeyword( "unmute") )
 	{
 		Comment( INFO, "Main is unmuted " );
-		Processor_class::Push_key( UNMUTEMAINAMP_KEY, "unmute"  );
+		Processor_class::Push_ifd( &ifd->mi_status.mute, false, "unmute" );
+		Processor_class::Push_key( MASTERAMP_MUTE_KEY, "unmute" );
 		return;
 	}
 	if ( cmpkeyword( "reset" ))
@@ -512,7 +514,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
 		if ( loop )
 		{
-			Loop( amp, MAIN_AMPLOOP_KEY );
+			Loop( amp, MASTERAMP_LOOP_KEY );
 		}
 		else
 		{
@@ -680,7 +682,7 @@ void Interpreter_class::text( vector_str_t arr )
 	expect = { "text" };
 	intro( arr, 1 );
 
-	string text{ keyword.Str };
+	string text = keyword.Str ;
 	for ( string str : stack )
 	{
 		text.append(" ");

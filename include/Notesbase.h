@@ -21,14 +21,18 @@ class Note_base : virtual public Logfacility_class
 {
 public:
 
-	const uint				max_octave		= 5;
-	const uint 				min_octave 		= 1;
-	const vector<int> 		Notes_per_Sec	{1,2,4,5,8};
-	const string			NPS_string 		{"1,2,4,5,8"};
-	const vector<int> 		flat_pitch 		= {2,7,0,5,10,3,8};
-	const vector<int> 		sharp_pitch		= {8,3,10,5,0,7,2};
-	const vector_str_t 		convention_notes= { "AaBCcDdEFfGg", "0123456789AB", "ABCDEFG" };
-	const vector_str_t 		convention_names= { "English", "Numeric", "Alphabet" };
+	const uint				max_octave		{ 5 };
+	const uint 				min_octave 		{ 1 };
+	const vector<int> 		Notes_per_Sec	{ 1,2,4,5,8 };
+	const string			NPS_string 		{ "1 2 4 5 8" };
+	const vector<int> 		flat_pitch 		{2,7,0,5,10,3,8 };
+	const vector<int> 		sharp_pitch		{8,3,10,5,0,7,2 };
+	const vector_str_t 		convention_notes{ 	"AaBCcDdEFfGg",
+												"0123456789AB",
+												"ABCDEFG" };
+	const vector_str_t 		convention_names{ 	"English",
+												"Numeric",
+												"Alphabet" };
 
 	// describes the default of a noteline
 
