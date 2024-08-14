@@ -11,7 +11,7 @@
 #include <synthesizer.h>
 
 
-enum { VCOID, FMOID, MAINID, NOTESID, TESTID, OTHERID };
+enum { VCOID, FMOID, MAINID, NOTESID, KBDID, TESTID, OTHERID };
 enum {
 	SINUS0,
 	SINUS1,
@@ -33,7 +33,17 @@ class Spectrum_base : public virtual Logfacility_class
 {
 public:
 
-	const vector<string> osc_type_vec { "VCO", "FMO", "MAIN", "NOTES", "Test", "NULL" };
+	const vector<string> osc_type_vec
+		{
+		"VCO",
+		"FMO",
+		"MAIN",
+		"NOTES",
+		"KBD",
+		"Test",
+		"NULL"
+		};
+
 	typedef struct spec_struct
 	{
 		spec_dta_t				dta	= { 100,0,0,0,0,0,0,0 } ; 	// [osc, amplitude ... ]

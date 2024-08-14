@@ -18,12 +18,14 @@
 #include <External.h>
 #include <notes.h>
 #include <wav.h>
+#include <Keyboard.h>
 
 using namespace std;
 
 static const uint 	MbSize 			= 8;
 static const uint 	MbIdExternal 	= MbSize - 1;
 static const uint 	MbIdNotes 		= MbSize - 2;
+static const uint	MbIdKeyboard	= MbSize - 3;
 
 
 class Loop_class
@@ -51,39 +53,32 @@ public:
 
 	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal, MbIdNotes };
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal };
-	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5 };
+	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4 };
 
 	typedef vector<Storage_class> StorageArray_t;
 	StorageArray_t 		StA;
 	uint8_t				master_volume	= 100;
-
-	Mixer_class (  );
-	~Mixer_class(){};
+	mi_status_t  		status 			= mi_status_struct();
+	int					composer		= 0;		// note chunk counter
 
 	Memory 				Mono_tmp{ monobuffer_size }; // Wavedisplay output
 	Memory 				Mono_out{ monobuffer_size }; // Wavedisplay output
 	Memory 				Out_L{ monobuffer_size };// Output buffer long
 	Memory				Out_R{ monobuffer_size };//
-	mi_status_t  status =
-	{
-		.play 		= true, 	// The keyboard can manipulate the
-								// frequency of the MAIN osc,
-		.notes		= false, 	// set Notes on/off
-		.external 	= false, 	// set external wav file input on/off
-		.mute		= false,	// add main osc to output volume / mute-unmute
-		.unused		= false		// OSC is part of the mix stack
-	};
-	int				composer		= 0;		// note chunk counter
 
-	void add_noteline( uint8_t, Note_class* );
-	void add(  Instrument_class* , stereo_t*, bool  );
-	void test();
+
+	Mixer_class (  );
+	~Mixer_class(){};
+
+
+	void Add_noteline( uint8_t, Note_class* );
+	void Add(  Instrument_class* , Keyboard_class*, stereo_t*  );
+	void Test();
 
 private:
 	void clear_memory();
 	void add_mono( Data_t*, uint8_t, uint );
 	void stereo_out( stereo_t*, uint8_t );
-//	void add_record( stereo_t*, uint8_t );
 
 
 };

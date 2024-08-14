@@ -102,11 +102,11 @@ typedef struct ma_status_struct // memory array status
 
 typedef struct mi_status_struct // mixer status
 {
-	bool 	play			= false; // play any memory array
+	bool 	play			= false; // explicite sync mode
 	bool 	notes			= false; // play notes
 	bool 	external		= false; // external play or record
 	bool	mute			= false; // mute master volume
-	bool	unused			= false; // future use
+	bool	kbd				= false; // play keyboard note
 } mi_status_t;
 
 

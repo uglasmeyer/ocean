@@ -307,7 +307,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 				// difference to the target frequency <freq> - <start_freq>
 	for ( n = 0; n < frames ; n++ )
 	{
-		if ( this->osc_id != NOTESID ) // enable polyphone adding of notes - notes::note2memory
+		if (( this->osc_id != NOTESID )) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
 
 		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) / spectrum.sum; // VCO envelope

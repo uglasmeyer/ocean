@@ -189,7 +189,7 @@ void Mixer_class::stereo_out( stereo_t* data, uint8_t master_vol )
 	}
 }
 
-void Mixer_class::add_noteline( uint8_t arr_id, Note_class* Notes )
+void Mixer_class::Add_noteline( uint8_t arr_id, Note_class* Notes )
 {
 	while ( composer > 0 )
 	{
@@ -203,20 +203,29 @@ void Mixer_class::add_noteline( uint8_t arr_id, Note_class* Notes )
 
 }
 
-void Mixer_class::add(  Instrument_class* instrument, stereo_t* shm_addr, bool rec )
+void Mixer_class::Add(  Instrument_class* instrument,
+						Keyboard_class* keyboard,
+						stereo_t* shm_addr )
 {
 	// store the result into a local buffer, before making it available to the audio server
 
-	clear_memory();
-
-	if ( not status.mute )
+	if ( status.mute )
 	{
+		;
+	}
+	else
+	{
+		clear_memory();
 		add_mono( instrument->main.Mem.Data, master_volume, 0 );
 		for( int store_id : UsrIds )
 		{
 			if ( StA[ store_id ].status.store )
 				StA[ store_id ].store_block( instrument->main.Mem.Data ); // store data with amp=100
 		}
+	}
+	if ( status.kbd )
+	{
+		add_mono( keyboard->main_osc.Mem.Data, master_volume, 0 );
 	}
 
 	if ( StA[MbIdNotes].status.play )
@@ -247,7 +256,7 @@ void Mixer_class::add(  Instrument_class* instrument, stereo_t* shm_addr, bool r
 	stereo_out( shm_addr, master_volume );
 };
 
-void Mixer_class::test()
+void Mixer_class::Test()
 {
 	Set_Loglevel(TEST, true );
 	Mono_tmp.Set_Loglevel( TEST, true );

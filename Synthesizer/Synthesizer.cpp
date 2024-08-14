@@ -16,6 +16,7 @@
 #include <External.h>
 #include <common.h>
 #include <Interface.h>
+#include <Keyboard.h>
 
 using namespace std;
 
@@ -24,6 +25,7 @@ Interface_class		GUI;
 Mixer_class				Mixer;
 Instrument_class 		Instrument(GUI.addr );
 Note_class 				Notes( &Instrument );
+Keyboard_class			Keyboard( &Instrument );
 External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( GUI.addr );
@@ -548,7 +550,7 @@ void process( char key )
 			Mixer.StA[ id.i].record_mode( true );
 			Notes.Set_osc_track(  );
 
-			Mixer.add_noteline( id.i, &Notes );
+			Mixer.Add_noteline( id.i, &Notes );
 
 			GUI.Commit();
 			break;
@@ -755,33 +757,31 @@ void activate_ifd()
 
 void play_keyboard( char key )
 {
-	Mixer.status.notes = true;
-	Mixer.StA[MbIdNotes].status.play = false;
+	auto set_osc_frequency 	= [ key ]( Oscillator* osc )
+		{
+			float 		freq;
+			freq 	= osc->wp.frequency * ( 12 + key ) / 12.0  ;
+			osc->set_frequency( freq );
+			osc->OSC( 0 );
+		};
 
-	freq_struc_t fs;
-	fs = Instrument.vco.get_fstruct();
-	Instrument.vco.wp.frequency = fs.base;
-	Instrument.vco.set_delta_frequency(  (fs.base + fs.pitch)* key/12 );
-//	Instrument.vco.OSC( 0 );
-
-	fs = Instrument.fmo.get_fstruct();
-	Instrument.fmo.wp.frequency = fs.base;
-	Instrument.fmo.set_delta_frequency(  (fs.base + fs.pitch)* key/12 );
-//	Instrument.fmo.OSC( 0 );
-
-	fs = Instrument.main.get_fstruct();
-	Instrument.main.wp.frequency = fs.base  ;
-	Instrument.main.set_delta_frequency( (fs.base + fs.pitch)* key / 12  );
+ 	if ( Mixer.status.kbd ) return;
+	Keyboard.Set_osc_track();
+	set_osc_frequency( &Keyboard.vco_osc );
+	set_osc_frequency( &Keyboard.fmo_osc );
+	set_osc_frequency( &Keyboard.main_osc );
 }
 
 bool sync_mode()
 {
-	bool sync = ( 							// if true synchronize shm a/b with Audio Server
-		( Instrument.fmo.wp.frequency < LFO_limit ) 	or
-		( Mixer.status.notes 		)	or	// generate notes
-		( Mixer.status.external 	)	or	// StA play external
-		( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
-		( Record.active 			)		// StA record external
+	bool sync =
+		( 							// if true synchronize shm a/b with Audio Server
+			( Instrument.fmo.wp.frequency < LFO_limit ) 	or
+			( Mixer.status.notes 		)	or	// generate notes
+			( Mixer.status.external 	)	or	// StA play external
+			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
+			( Mixer.status.kbd			)	or	// keyboard generates notes
+			( Record.active 			)		// StA record external
 		);
 	return sync ;
 }
@@ -789,13 +789,14 @@ bool sync_mode()
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
-	ifd_t* ifd = GUI.addr;
-	stereo_t* 	shm_addr 	= set_addr( 0 );
+
+	ifd_t* 			ifd 		= GUI.addr;
+	stereo_t* 		shm_addr 	= set_addr( 0 );
+	key_struct_t 	keystruct 	= Kbd.GetKey();
+
+	Log.Comment(INFO, "Keyboard is ready");
 
 	GUI.Commit(); // set flags to zero
-
-	key_struct_t 	keystruct 	= Kbd.GetKey();
-	Log.Comment(INFO, "Keyboard is ready");
 
 	while ( ifd->Synthesizer != EXITSERVER )
 	{
@@ -803,12 +804,15 @@ void ApplicationLoop()
 
 		keystruct = Kbd.GetKey();
 		size_t key = kbdnote( keystruct.key );
+		cout << key << "," << keystruct.key << endl;
 		if ( key != string::npos )
 		{
-			play_keyboard(key);
+			play_keyboard( key );
+			Mixer.status.kbd = true;
 		}
 		else
 		{
+			Mixer.status.kbd = false;
 			process( ifd->KEY );
 		} // if kbd key
 
@@ -838,7 +842,7 @@ void ApplicationLoop()
 
 					ifd->UpdateFlag = true;
 					shm_addr 		= set_addr( ifd->SHMID );
-					Mixer.add( &Instrument, shm_addr, Record.active );
+					Mixer.Add( &Instrument, &Keyboard, shm_addr );
 					Wavedisplay.Gen_cxwave_data(  );
 				} 											// but handel further requests
 			}
@@ -852,7 +856,7 @@ void ApplicationLoop()
 
 			ifd->MODE 		= FREERUN;
 			shm_addr 		= set_addr( 0 );
-			Mixer.add( &Instrument, shm_addr, Record.active );
+			Mixer.Add( &Instrument, &Keyboard, shm_addr );
 			Wavedisplay.Gen_cxwave_data(  );
 
 
