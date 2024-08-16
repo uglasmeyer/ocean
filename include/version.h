@@ -19,7 +19,7 @@
 using namespace std;
 
 #define MAYOR 2
-#define MINOR 0
+#define MINOR 1
 #define PATCH 0
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -28,12 +28,13 @@ const string Version_No  = 	to_string(MAYOR) + "." +
 
 const string Version_str = " Version: " + Version_No;
 
-const string Application = "Sound Lab ";
+const string Application = "Ocean Sound ";
 
 
 // Git comment:
 /*
 
+version 2.0.1 Reactivate Keyboard
 version 2.0.0 Ocean initial commit
 version 1.31.0 spectrum for fmo and vco
 version 1.30.0 change back to std=c++17

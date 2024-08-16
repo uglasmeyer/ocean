@@ -55,7 +55,7 @@ void Interface_class::Show_interface()
 			{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
 	auto decode = [this]( uint8_t value )
 			{
-				assert( uint8_code_str.size() == 15 );
+				assert( uint8_code_str.size() == 16 );
 				string str = "";
 				if ( value > uint8_code_str.size() )
 				{

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.3
+** Created by: Qt User Interface Compiler version 5.15.13
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -85,20 +85,6 @@ public:
     QCheckBox *cb_7;
     QPushButton *pB_Store;
     QPushButton *pB_Mute_StA;
-    QWidget *layoutWidget;
-    QHBoxLayout *horizontalLayout_3;
-    QFrame *frame_6;
-    QVBoxLayout *verticalLayout_3;
-    QPushButton *pBAudioServer;
-    QPushButton *pBAudioServerExit;
-    QFrame *frame_3;
-    QHBoxLayout *horizontalLayout;
-    QVBoxLayout *verticalLayout;
-    QPushButton *pBSynthesizer;
-    QPushButton *pBSynthesizerExit;
-    QVBoxLayout *verticalLayout_2;
-    QPushButton *pB_Save;
-    QPushButton *pushButton_3;
     QDial *dial_PMW;
     QLabel *label_2;
     QPushButton *pB_play_notes;
@@ -142,6 +128,20 @@ public:
     QLabel *label_6;
     QLabel *label_10;
     QPushButton *pB_Mute;
+    QWidget *layoutWidget;
+    QVBoxLayout *verticalLayout_2;
+    QPushButton *pB_Save;
+    QPushButton *pushButton_3;
+    QPushButton *pBComposer;
+    QFrame *frame_6;
+    QVBoxLayout *verticalLayout_3;
+    QPushButton *pBAudioServer;
+    QPushButton *pBAudioServerExit;
+    QFrame *frame_3;
+    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayout;
+    QPushButton *pBSynthesizer;
+    QPushButton *pBSynthesizerExit;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -153,75 +153,71 @@ public:
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(1207, 600);
         QPalette palette;
-        QBrush brush(QColor(255, 255, 255, 255));
+        QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
-        QBrush brush1(QColor(26, 95, 180, 255));
+        QBrush brush1(QColor(153, 193, 241, 255));
         brush1.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Button, brush1);
-        QBrush brush2(QColor(52, 143, 255, 255));
+        QBrush brush2(QColor(255, 255, 255, 255));
         brush2.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Light, brush2);
-        QBrush brush3(QColor(39, 119, 217, 255));
+        QBrush brush3(QColor(204, 224, 248, 255));
         brush3.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Midlight, brush3);
-        QBrush brush4(QColor(13, 47, 90, 255));
+        QBrush brush4(QColor(76, 96, 120, 255));
         brush4.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Dark, brush4);
-        QBrush brush5(QColor(17, 63, 120, 255));
+        QBrush brush5(QColor(102, 129, 161, 255));
         brush5.setStyle(Qt::SolidPattern);
         palette.setBrush(QPalette::Active, QPalette::Mid, brush5);
-        QBrush brush6(QColor(0, 0, 0, 255));
-        brush6.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Active, QPalette::Text, brush6);
-        palette.setBrush(QPalette::Active, QPalette::BrightText, brush);
-        palette.setBrush(QPalette::Active, QPalette::ButtonText, brush6);
-        palette.setBrush(QPalette::Active, QPalette::Base, brush);
+        palette.setBrush(QPalette::Active, QPalette::Text, brush);
+        palette.setBrush(QPalette::Active, QPalette::BrightText, brush2);
+        palette.setBrush(QPalette::Active, QPalette::ButtonText, brush);
+        palette.setBrush(QPalette::Active, QPalette::Base, brush2);
         palette.setBrush(QPalette::Active, QPalette::Window, brush1);
-        palette.setBrush(QPalette::Active, QPalette::Shadow, brush6);
-        QBrush brush7(QColor(140, 175, 217, 255));
+        palette.setBrush(QPalette::Active, QPalette::Shadow, brush);
+        palette.setBrush(QPalette::Active, QPalette::AlternateBase, brush3);
+        QBrush brush6(QColor(255, 255, 220, 255));
+        brush6.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::ToolTipBase, brush6);
+        palette.setBrush(QPalette::Active, QPalette::ToolTipText, brush);
+        QBrush brush7(QColor(0, 0, 0, 127));
         brush7.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Active, QPalette::AlternateBase, brush7);
-        QBrush brush8(QColor(255, 255, 220, 255));
-        brush8.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Active, QPalette::ToolTipBase, brush8);
-        palette.setBrush(QPalette::Active, QPalette::ToolTipText, brush6);
-        QBrush brush9(QColor(0, 0, 0, 127));
-        brush9.setStyle(Qt::SolidPattern);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette::Active, QPalette::PlaceholderText, brush9);
+        palette.setBrush(QPalette::Active, QPalette::PlaceholderText, brush7);
 #endif
-        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush6);
-        QBrush brush10(QColor(239, 239, 239, 255));
+        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        QBrush brush8(QColor(239, 239, 239, 255));
+        brush8.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Inactive, QPalette::Button, brush8);
+        palette.setBrush(QPalette::Inactive, QPalette::Light, brush2);
+        QBrush brush9(QColor(202, 202, 202, 255));
+        brush9.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Inactive, QPalette::Midlight, brush9);
+        QBrush brush10(QColor(159, 159, 159, 255));
         brush10.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Inactive, QPalette::Button, brush10);
-        palette.setBrush(QPalette::Inactive, QPalette::Light, brush);
-        QBrush brush11(QColor(202, 202, 202, 255));
+        palette.setBrush(QPalette::Inactive, QPalette::Dark, brush10);
+        QBrush brush11(QColor(184, 184, 184, 255));
         brush11.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Inactive, QPalette::Midlight, brush11);
-        QBrush brush12(QColor(159, 159, 159, 255));
+        palette.setBrush(QPalette::Inactive, QPalette::Mid, brush11);
+        palette.setBrush(QPalette::Inactive, QPalette::Text, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::BrightText, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::ButtonText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::Base, brush2);
+        palette.setBrush(QPalette::Inactive, QPalette::Window, brush8);
+        QBrush brush12(QColor(118, 118, 118, 255));
         brush12.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Inactive, QPalette::Dark, brush12);
-        QBrush brush13(QColor(184, 184, 184, 255));
+        palette.setBrush(QPalette::Inactive, QPalette::Shadow, brush12);
+        QBrush brush13(QColor(247, 247, 247, 255));
         brush13.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Inactive, QPalette::Mid, brush13);
-        palette.setBrush(QPalette::Inactive, QPalette::Text, brush6);
-        palette.setBrush(QPalette::Inactive, QPalette::BrightText, brush);
-        palette.setBrush(QPalette::Inactive, QPalette::ButtonText, brush6);
-        palette.setBrush(QPalette::Inactive, QPalette::Base, brush);
-        palette.setBrush(QPalette::Inactive, QPalette::Window, brush10);
-        QBrush brush14(QColor(118, 118, 118, 255));
+        palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush13);
+        palette.setBrush(QPalette::Inactive, QPalette::ToolTipBase, brush6);
+        palette.setBrush(QPalette::Inactive, QPalette::ToolTipText, brush);
+        QBrush brush14(QColor(0, 0, 0, 128));
         brush14.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Inactive, QPalette::Shadow, brush14);
-        QBrush brush15(QColor(247, 247, 247, 255));
-        brush15.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush15);
-        palette.setBrush(QPalette::Inactive, QPalette::ToolTipBase, brush8);
-        palette.setBrush(QPalette::Inactive, QPalette::ToolTipText, brush6);
-        QBrush brush16(QColor(0, 0, 0, 128));
-        brush16.setStyle(Qt::SolidPattern);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette::Inactive, QPalette::PlaceholderText, brush16);
+        palette.setBrush(QPalette::Inactive, QPalette::PlaceholderText, brush14);
 #endif
         palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush4);
         palette.setBrush(QPalette::Disabled, QPalette::Button, brush1);
@@ -230,18 +226,18 @@ public:
         palette.setBrush(QPalette::Disabled, QPalette::Dark, brush4);
         palette.setBrush(QPalette::Disabled, QPalette::Mid, brush5);
         palette.setBrush(QPalette::Disabled, QPalette::Text, brush4);
-        palette.setBrush(QPalette::Disabled, QPalette::BrightText, brush);
+        palette.setBrush(QPalette::Disabled, QPalette::BrightText, brush2);
         palette.setBrush(QPalette::Disabled, QPalette::ButtonText, brush4);
         palette.setBrush(QPalette::Disabled, QPalette::Base, brush1);
         palette.setBrush(QPalette::Disabled, QPalette::Window, brush1);
-        QBrush brush17(QColor(177, 177, 177, 255));
-        brush17.setStyle(Qt::SolidPattern);
-        palette.setBrush(QPalette::Disabled, QPalette::Shadow, brush17);
-        palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush15);
-        palette.setBrush(QPalette::Disabled, QPalette::ToolTipBase, brush8);
-        palette.setBrush(QPalette::Disabled, QPalette::ToolTipText, brush6);
+        QBrush brush15(QColor(177, 177, 177, 255));
+        brush15.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::Shadow, brush15);
+        palette.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush13);
+        palette.setBrush(QPalette::Disabled, QPalette::ToolTipBase, brush6);
+        palette.setBrush(QPalette::Disabled, QPalette::ToolTipText, brush);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette::Disabled, QPalette::PlaceholderText, brush16);
+        palette.setBrush(QPalette::Disabled, QPalette::PlaceholderText, brush14);
 #endif
         MainWindow->setPalette(palette);
         centralwidget = new QWidget(MainWindow);
@@ -413,70 +409,6 @@ public:
         pB_Mute_StA = new QPushButton(centralwidget);
         pB_Mute_StA->setObjectName(QString::fromUtf8("pB_Mute_StA"));
         pB_Mute_StA->setGeometry(QRect(1100, 270, 89, 25));
-        layoutWidget = new QWidget(centralwidget);
-        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(540, 470, 449, 80));
-        horizontalLayout_3 = new QHBoxLayout(layoutWidget);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
-        frame_6 = new QFrame(layoutWidget);
-        frame_6->setObjectName(QString::fromUtf8("frame_6"));
-        frame_6->setFrameShape(QFrame::StyledPanel);
-        frame_6->setFrameShadow(QFrame::Raised);
-        verticalLayout_3 = new QVBoxLayout(frame_6);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        pBAudioServer = new QPushButton(frame_6);
-        pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
-
-        verticalLayout_3->addWidget(pBAudioServer);
-
-        pBAudioServerExit = new QPushButton(frame_6);
-        pBAudioServerExit->setObjectName(QString::fromUtf8("pBAudioServerExit"));
-
-        verticalLayout_3->addWidget(pBAudioServerExit);
-
-
-        horizontalLayout_3->addWidget(frame_6);
-
-        frame_3 = new QFrame(layoutWidget);
-        frame_3->setObjectName(QString::fromUtf8("frame_3"));
-        frame_3->setFrameShape(QFrame::StyledPanel);
-        frame_3->setFrameShadow(QFrame::Raised);
-        horizontalLayout = new QHBoxLayout(frame_3);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        pBSynthesizer = new QPushButton(frame_3);
-        pBSynthesizer->setObjectName(QString::fromUtf8("pBSynthesizer"));
-
-        verticalLayout->addWidget(pBSynthesizer);
-
-        pBSynthesizerExit = new QPushButton(frame_3);
-        pBSynthesizerExit->setObjectName(QString::fromUtf8("pBSynthesizerExit"));
-
-        verticalLayout->addWidget(pBSynthesizerExit);
-
-
-        horizontalLayout->addLayout(verticalLayout);
-
-
-        horizontalLayout_3->addWidget(frame_3);
-
-        verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        pB_Save = new QPushButton(layoutWidget);
-        pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
-
-        verticalLayout_2->addWidget(pB_Save);
-
-        pushButton_3 = new QPushButton(layoutWidget);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-
-        verticalLayout_2->addWidget(pushButton_3);
-
-
-        horizontalLayout_3->addLayout(verticalLayout_2);
-
         dial_PMW = new QDial(centralwidget);
         dial_PMW->setObjectName(QString::fromUtf8("dial_PMW"));
         dial_PMW->setGeometry(QRect(480, 170, 50, 64));
@@ -500,7 +432,7 @@ public:
         label_4->setGeometry(QRect(480, 50, 111, 17));
         frame_5 = new QFrame(centralwidget);
         frame_5->setObjectName(QString::fromUtf8("frame_5"));
-        frame_5->setGeometry(QRect(1060, 380, 131, 111));
+        frame_5->setGeometry(QRect(1000, 340, 131, 111));
         frame_5->setFrameShape(QFrame::StyledPanel);
         frame_5->setFrameShadow(QFrame::Raised);
         rb_melody_2 = new QRadioButton(frame_5);
@@ -646,6 +578,64 @@ public:
         pB_Mute = new QPushButton(centralwidget);
         pB_Mute->setObjectName(QString::fromUtf8("pB_Mute"));
         pB_Mute->setGeometry(QRect(130, 140, 88, 25));
+        layoutWidget = new QWidget(centralwidget);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(1000, 470, 145, 78));
+        verticalLayout_2 = new QVBoxLayout(layoutWidget);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+        pB_Save = new QPushButton(layoutWidget);
+        pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
+
+        verticalLayout_2->addWidget(pB_Save);
+
+        pushButton_3 = new QPushButton(layoutWidget);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+
+        verticalLayout_2->addWidget(pushButton_3);
+
+        pBComposer = new QPushButton(centralwidget);
+        pBComposer->setObjectName(QString::fromUtf8("pBComposer"));
+        pBComposer->setGeometry(QRect(770, 480, 88, 25));
+        frame_6 = new QFrame(centralwidget);
+        frame_6->setObjectName(QString::fromUtf8("frame_6"));
+        frame_6->setGeometry(QRect(541, 471, 115, 76));
+        frame_6->setFrameShape(QFrame::StyledPanel);
+        frame_6->setFrameShadow(QFrame::Raised);
+        verticalLayout_3 = new QVBoxLayout(frame_6);
+        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
+        pBAudioServer = new QPushButton(frame_6);
+        pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
+
+        verticalLayout_3->addWidget(pBAudioServer);
+
+        pBAudioServerExit = new QPushButton(frame_6);
+        pBAudioServerExit->setObjectName(QString::fromUtf8("pBAudioServerExit"));
+
+        verticalLayout_3->addWidget(pBAudioServerExit);
+
+        frame_3 = new QFrame(centralwidget);
+        frame_3->setObjectName(QString::fromUtf8("frame_3"));
+        frame_3->setGeometry(QRect(650, 471, 107, 78));
+        frame_3->setFrameShape(QFrame::StyledPanel);
+        frame_3->setFrameShadow(QFrame::Raised);
+        horizontalLayout = new QHBoxLayout(frame_3);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        pBSynthesizer = new QPushButton(frame_3);
+        pBSynthesizer->setObjectName(QString::fromUtf8("pBSynthesizer"));
+
+        verticalLayout->addWidget(pBSynthesizer);
+
+        pBSynthesizerExit = new QPushButton(frame_3);
+        pBSynthesizerExit->setObjectName(QString::fromUtf8("pBSynthesizerExit"));
+
+        verticalLayout->addWidget(pBSynthesizerExit);
+
+
+        horizontalLayout->addLayout(verticalLayout);
+
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -687,11 +677,11 @@ public:
         QObject::connect(pB_Save, SIGNAL(clicked()), MainWindow, SLOT(Save_Config()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
         QObject::connect(pBAudioServerExit, SIGNAL(clicked()), MainWindow, SLOT(Audio_Exit()));
-        QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
         QObject::connect(pBAudioServer, SIGNAL(clicked()), MainWindow, SLOT(start_srv()));
-        QObject::connect(pBSynthesizerExit, SIGNAL(clicked()), MainWindow, SLOT(Controller_Exit()));
         QObject::connect(cb_4, SIGNAL(clicked()), MainWindow, SLOT(change_status4()));
         QObject::connect(cb_5, SIGNAL(clicked()), MainWindow, SLOT(change_status5()));
+        QObject::connect(pBSynthesizerExit, SIGNAL(clicked()), MainWindow, SLOT(Controller_Exit()));
+        QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -724,12 +714,6 @@ public:
         cb_7->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
         pB_Store->setText(QCoreApplication::translate("MainWindow", "Store", nullptr));
         pB_Mute_StA->setText(QCoreApplication::translate("MainWindow", "Mute", nullptr));
-        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
-        pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
-        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
-        pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
-        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Config", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PMW", nullptr));
         pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
         radioButton_4->setText(QCoreApplication::translate("MainWindow", "connect FMO", nullptr));
@@ -755,6 +739,13 @@ public:
         label_6->setText(QCoreApplication::translate("MainWindow", "  BPS", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
+        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Config", nullptr));
+        pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
+        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
+        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
+        pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
+        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
+        pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

@@ -78,8 +78,10 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.1736116305." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1709460431" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.1388024443" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-							<builder buildPath="${workspace_loc:/Ocean}/Release" command="make" enableCleanBuild="false" id="cdt.managedbuild.target.gnu.builder.exe.release.1457521375" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
-							<tool id="cdt.managedbuild.tool.gnu.archiver.base.490395897" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<builder buildPath="${workspace_loc:/Ocean}/Release" command="make" enableCleanBuild="true" id="cdt.managedbuild.target.gnu.builder.exe.release.1457521375" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.490395897" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
+								<option id="gnu.both.lib.option.flags.1885552870" name="Archiver flags" superClass="gnu.both.lib.option.flags" value="-r -v" valueType="string"/>
+							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.185781359" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1474229127" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
 								<option defaultValue="gnu.cpp.compiler.debugging.level.none" id="gnu.cpp.compiler.exe.release.option.debugging.level.757490648" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>

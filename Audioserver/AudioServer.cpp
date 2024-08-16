@@ -12,11 +12,6 @@
 #define RTAUDIO
 
 
-#include <iostream>
-#include <cstdlib>
-#include <signal.h>
-#include <stdio.h>
-#include <sys/stat.h>
 
 #include <synthesizer.h>
 #include <synthmem.h>
@@ -58,7 +53,7 @@ device_struct_t DeviceDescription;
 
 RtAudio::StreamParameters 	oParams;
 RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
-										.numberOfBuffers = 8,
+										.numberOfBuffers = 2,
 										.streamName = Application };
 
 
@@ -184,10 +179,15 @@ void Application_loop()
 }
 buffer_t set_ncounter( buffer_t n )
 {
-	if ( ncounter > max_frames - 1 ) //TODO check max_frames
+	if ( ncounter > max_frames - 1 )
 	{
 		if ( GUI.addr->MODE == FREERUN )
 			return 0;
+		if ( GUI.addr->MODE == KEYBOARD )
+		{
+			GUI.addr->MODE =  FREERUN;
+			return 0;
+		}
 		// request new data for data buffers
 		if ( shm_id == 0 )
 		{
@@ -223,6 +223,11 @@ int RtAudioOut(	void *outputBuffer,
 		  Log.Comment( Log.WARN, "Buffer status differs: " + to_string( status ));
 
 	  ncounter = set_ncounter( ncounter );
+	  if( GUI.addr->MODE == KEYBOARD )
+	  {
+		  GUI.addr->MODE = FREERUN;
+		  ncounter	= 0;
+	  }
 	  if( GUI.addr->MODE == FREERUN )
 		  shm_addr = Shm_a.addr; // set the default
 

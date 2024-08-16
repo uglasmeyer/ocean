@@ -10,11 +10,11 @@ CONFIG += -std=c++17
 # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    File_Dialog.cpp \
-    OscilloscopeWidget.cpp \
+#    /home/sirius/git/Ocean/src/File_Dialog.cpp \
+#    /home/sirius/git/Ocean/src/OscilloscopeWidget.cpp \
     main.cpp \
-    SndlabGUI.cpp \
-    spectrum_dialog_class.cpp
+#    /home/sirius/git/Ocean/src/SndlabGUI.cpp \
+#    /home/sirius/git/Ocean/src/spectrum_dialog_class.cpp
 
 HEADERS += \
     File_Dialog.h \

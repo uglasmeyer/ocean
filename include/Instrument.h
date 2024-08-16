@@ -20,9 +20,9 @@ class Instrument_class: virtual public Logfacility_class
 public:
 	string 					Name 		= "";
 
-	Oscillator 				main{"MAIN"};
-	Oscillator 				vco{"VCO"};
-	Oscillator 				fmo{"FMO"};
+	Oscillator 				main{ MAINID};
+	Oscillator 				vco	{ VCOID };
+	Oscillator 				fmo	{ FMOID };
 	vector<Oscillator*>		osc_vector { &vco, &fmo, &main };
 	ifd_t*  				ifd;
 

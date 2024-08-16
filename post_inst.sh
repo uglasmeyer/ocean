@@ -10,11 +10,11 @@ make_inst()
 #	return
 	OBJ=$1
 	cd $BASEDIR/$OBJ/Release
-	echo linking
+	echo linking $OBJ
 	make $INSTDIR/$OBJ
 }
 
-OBJS="comstack Composer OceanGUI"
+OBJS="comstack Composer OceanGUI Synthesizer"
 cd $BASEDIR/Audioserver/Release
 echo linking
 make $INSTDIR/AudioServer

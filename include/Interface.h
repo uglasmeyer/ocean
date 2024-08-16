@@ -34,7 +34,8 @@ const vector_str_t uint8_code_str =
 	"Store sound",
 	"play notes",
 	"default mode",
-	"Exit server"
+	"Exit server",
+	"Keyboard"
 };
 
 enum {
@@ -52,11 +53,13 @@ enum {
 	 STORESOUND	,   // obsolete
 	 NOTES 		,
 	 DEFAULT	,
-	 EXITSERVER
+	 EXITSERVER	,
+	 KEYBOARD
 };
 
-
-static const uint str_buffer_len = 32;
+typedef 		Spectrum_base::spec_struct_t
+					spec_struc_t;
+static const 	uint str_buffer_len = 32;
 
 typedef struct interface_struct
 {
@@ -91,9 +94,9 @@ typedef struct interface_struct
 
 	char 		MIX_Amp 					= 0;
 	char 		MIX_Id						= 0;
-	Spectrum_base::spec_struct_t MAIN_spectrum= Spectrum_base::spec_struct();
-	Spectrum_base::spec_struct_t VCO_spectrum = Spectrum_base::spec_struct();
-	Spectrum_base::spec_struct_t FMO_spectrum = Spectrum_base::spec_struct();
+	spec_struc_t MAIN_spectrum				= Spectrum_base::spec_struct();
+	spec_struc_t VCO_spectrum 				= Spectrum_base::spec_struct();
+	spec_struc_t FMO_spectrum 				= Spectrum_base::spec_struct();
 	char		Spectrum_type				= MAINID;
 
 	char 		Wavedisplay_Id				= 0;

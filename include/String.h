@@ -23,6 +23,8 @@ void show_vector( T items )
 		cout << item << endl;
 }
 
+const size_t STRINGNOTFOUND = string::npos;
+
 class String : virtual public Logfacility_class
 {
 public:

@@ -30,9 +30,9 @@ public:             // Access specifier
 	virtual ~Kbd_class(){
 
 	}
-	key_struct_t GetKey();
-	void Reset();
-	bool NextKey();
+	key_struct_t 	GetKey();
+	void 			Reset();
+	bool 			NextKey();
 
 private:
 
@@ -45,7 +45,7 @@ private:
 	uint8_t 		c2,c3,c4 	= 0;
 
 	char getch(void);
-	void PressKey();
+	void pressKey();
 
 };
 

@@ -12,6 +12,8 @@
 #include <synthmem.h>
 #include <Spectrum.h>
 
+const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
+
 typedef struct adsr_struct
 {
 	uint bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second

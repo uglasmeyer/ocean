@@ -1,31 +1,32 @@
 
 
 
-#include <keys.h>
-#include <synthesizer.h>
-#include <kbd.h>
-#include <Spectrum.h>
-#include <mixer.h>
-#include <version.h>
-#include <Instrument.h>
-#include <Wavedisplay.h>
-#include <Logfacility.h>
-#include <notes.h>
-#include <synthmem.h>
-#include <Record.h>
 #include <External.h>
-#include <common.h>
+#include <Instrument.h>
 #include <Interface.h>
 #include <Keyboard.h>
+#include <Logfacility.h>
+#include <Record.h>
+#include <Spectrum.h>
+#include <String.h>
+#include <Wavedisplay.h>
+#include <common.h>
+#include <kbd.h>
+#include <keys.h>
+#include <mixer.h>
+#include <notes.h>
+#include <synthesizer.h>
+#include <synthmem.h>
+#include <version.h>
 
 using namespace std;
 
 Logfacility_class		Log( "Synthesizer" );
-Interface_class		GUI;
+Interface_class			GUI;
 Mixer_class				Mixer;
 Instrument_class 		Instrument(GUI.addr );
 Note_class 				Notes( &Instrument );
-Keyboard_class			Keyboard( &Instrument );
+Keyboard_class			Keyboard( &Instrument, &Mixer.StA[MbIdKeyboard] );
 External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( GUI.addr );
@@ -184,11 +185,11 @@ void Update_ifd_status_flags()
 
 void Volume_control()
 {
-	master_amp_loop.next( &GUI.addr->Master_Amp );
+	master_amp_loop.Next( &GUI.addr->Master_Amp );
 	Mixer.master_volume = GUI.addr->Master_Amp;
 
 	char amp = Mixer.StA[MbIdExternal].Amp;
-	record_amp_loop.next( &amp );
+	record_amp_loop.Next( &amp );
 	Mixer.StA[MbIdExternal].Amp = amp;
 }
 
@@ -248,14 +249,14 @@ void process( char key )
 		case MAINFREQUENCYKEY :
 		{
 			Instrument.main.set_frequency( ifd->Main_Freq );
-			Notes.main_osc.set_frequency( ifd->Main_Freq );
+			Notes.main.set_frequency( ifd->Main_Freq );
 			GUI.Commit();
 			break;
 		}
 		case VCOFREQUENCYKEY : // modify the secondary oscillator
 		{
 			Instrument.vco.set_frequency( ifd->VCO_Freq );
-			Notes.vco_osc.set_frequency( ifd->VCO_Freq );
+			Notes.vco.set_frequency( ifd->VCO_Freq );
 			Instrument.main.Connect_vco_data( &Instrument.vco);
 
 			GUI.Commit();
@@ -264,7 +265,7 @@ void process( char key )
 		case FMOFREQUENCYKEY : // modify the fm_track data
 		{
 			Instrument.fmo.set_frequency( ifd->FMO_Freq );
-			Notes.fmo_osc.set_frequency( ifd->FMO_Freq );
+			Notes.fmo.set_frequency( ifd->FMO_Freq );
 
 			Instrument.main.Connect_fmo_data( &Instrument.fmo);
 
@@ -276,7 +277,7 @@ void process( char key )
 			Value vol = ifd->VCO_Amp;
 			Log.Comment( INFO, "Changing VCO volume to " + vol.str + " %" );
 			Instrument.vco.set_volume( vol.ch );
-			Notes.vco_osc.set_volume( vol.ch );
+			Notes.vco.set_volume( vol.ch );
 			Instrument.main.Connect_vco_data( &Instrument.vco);
 			GUI.Commit();
 			break;
@@ -284,7 +285,7 @@ void process( char key )
 		case FMOAMPKEY : // modify the FMO volume
 		{
 			Instrument.fmo.set_volume(ifd->FMO_Amp );
-			Notes.fmo_osc.set_volume( ifd->FMO_Amp );
+			Notes.fmo.set_volume( ifd->FMO_Amp );
 			Instrument.main.Connect_fmo_data( &Instrument.fmo);
 			GUI.Commit();
 			break;
@@ -301,7 +302,7 @@ void process( char key )
 			uint16_t beg = Mixer.master_volume;
 			uint16_t end = ifd->LOOP_end;
 			uint8_t step = ifd->LOOP_step;
-			master_amp_loop.start( beg, end, step );
+			master_amp_loop.Start( beg, end, step );
 			GUI.Commit();
 			break;
 		}
@@ -434,7 +435,7 @@ void process( char key )
 			uint16_t beg = Mixer.StA[MbIdExternal].Amp;
 			uint16_t end = ifd->LOOP_end;
 			uint8_t step = ifd->LOOP_step;
-			record_amp_loop.start( beg, end, step );
+			record_amp_loop.Start( beg, end, step );
 			GUI.Commit();
 			break;
 
@@ -755,23 +756,6 @@ void activate_ifd()
 		process( key );
 }
 
-void play_keyboard( char key )
-{
-	auto set_osc_frequency 	= [ key ]( Oscillator* osc )
-		{
-			float 		freq;
-			freq 	= osc->wp.frequency * ( 12 + key ) / 12.0  ;
-			osc->set_frequency( freq );
-			osc->OSC( 0 );
-		};
-
- 	if ( Mixer.status.kbd ) return;
-	Keyboard.Set_osc_track();
-	set_osc_frequency( &Keyboard.vco_osc );
-	set_osc_frequency( &Keyboard.fmo_osc );
-	set_osc_frequency( &Keyboard.main_osc );
-}
-
 bool sync_mode()
 {
 	bool sync =
@@ -780,7 +764,7 @@ bool sync_mode()
 			( Mixer.status.notes 		)	or	// generate notes
 			( Mixer.status.external 	)	or	// StA play external
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
-			( Mixer.status.kbd			)	or	// keyboard generates notes
+//			( Mixer.status.kbd			)	or	// keyboard generates notes
 			( Record.active 			)		// StA record external
 		);
 	return sync ;
@@ -803,20 +787,28 @@ void ApplicationLoop()
 		ifd->Synthesizer = RUNNING;
 
 		keystruct = Kbd.GetKey();
-		size_t key = kbdnote( keystruct.key );
-		cout << key << "," << keystruct.key << endl;
-		if ( key != string::npos )
+		size_t note_key = Keyboard.Kbdnote( keystruct.key );
+
+//		cout << (int)keystruct.key << ":" << (size_t)key << " ";
+
+		if ( note_key != STRINGNOTFOUND ) // kbdnote note_key
 		{
-			play_keyboard( key );
+			Keyboard.Attack( note_key, Mixer.master_volume );
 			Mixer.status.kbd = true;
 		}
 		else
 		{
-			Mixer.status.kbd = false;
-			process( ifd->KEY );
-		} // if kbd key
+			if (keystruct.val == 0 ) // no key
+			{
+//				cout << "no key" << endl;
+				Keyboard.Release();
+				Mixer.status.kbd = false;
+			}
+			process( ifd->KEY ); 	// other key
+			Volume_control();
+		} // if kbd note_key
 
-		Volume_control();
+
 
 
 
@@ -842,7 +834,7 @@ void ApplicationLoop()
 
 					ifd->UpdateFlag = true;
 					shm_addr 		= set_addr( ifd->SHMID );
-					Mixer.Add( &Instrument, &Keyboard, shm_addr );
+					Mixer.Add_Sound( &Instrument, shm_addr );
 					Wavedisplay.Gen_cxwave_data(  );
 				} 											// but handel further requests
 			}
@@ -854,18 +846,19 @@ void ApplicationLoop()
 			if ( not Mixer.status.mute )
 				Instrument.Run_osc_group(); // generate the modified sound waves
 
-			ifd->MODE 		= FREERUN;
 			shm_addr 		= set_addr( 0 );
-			Mixer.Add( &Instrument, &Keyboard, shm_addr );
+			Mixer.Add_Sound( &Instrument, shm_addr );
+			if ( Mixer.status.kbd )
+				ifd->MODE 	= KEYBOARD;
+			else
+				ifd->MODE	= FREERUN;
+
 			Wavedisplay.Gen_cxwave_data(  );
-
-
 		}
 
 		if ( Record.active )
 			External.add_record( &Mixer.Out_L, &Mixer.Out_R);//, Mixer.StA[ MbIdExternal ].Amp );
 		Record.Progress_bar_update();
-
 		Update_ifd_status_flags();
 	} // while not EXITSERVER
 
@@ -884,7 +877,7 @@ void test_classes()
 	Log.test();
 
 	Loop_class Loop;
-	Loop.test();
+	Loop.Test();
 
 	String 			TestStr{""};
 	TestStr.test();
@@ -893,7 +886,7 @@ void test_classes()
 
 	Notes.Test();
 
-	Oscillator 		TestOsc{"Test"};
+	Oscillator 		TestOsc{ TESTID };
 	TestOsc.Test();
 
 	Instrument.Test_Instrument();

@@ -9,25 +9,40 @@
 #define KEYBOARD_H_
 
 #include <synthesizer.h>
+#include <synthmem.h>
 #include <Logfacility.h>
 #include <osc.h>
 #include <Instrument.h>
+#include <mixer.h>
+
+using namespace Storage;
 
 class Keyboard_class :	virtual public Logfacility_class,
 						virtual public Oscillator_base
 {
 
 public:
-	Oscillator main_osc{ "KBD" };
-	Oscillator vco_osc{ "VCO" };
-	Oscillator fmo_osc{ "FMO" };
-	Instrument_class* instrument;
 
-	Keyboard_class( Instrument_class* );
+	const string		KbdNote		{ "SDRFTGHUJIKOL" };
+
+	Oscillator 			main		{ KBDID };
+	Oscillator 			vco			{ VCOID };
+	Oscillator 			fmo			{ FMOID };
+
+	vector<Oscillator*> osc_group { &vco, &fmo, &main };
+
+	Instrument_class* 	instrument;
+	Storage_class* 		StA;
+
+	char 				prevKey 	= 0;
+
+	Keyboard_class( Instrument_class*, Storage_class* );
 	~Keyboard_class();
 
-	void Set_osc_track(  );
-
+	void Setup(  );
+	void Attack( char, uint8_t );
+	void Release();
+	size_t Kbdnote( char );
 
 };
 

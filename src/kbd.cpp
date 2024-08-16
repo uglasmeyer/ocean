@@ -10,7 +10,7 @@
 
 key_struct_t Kbd_class::GetKey()
 {
-	PressKey();
+	pressKey();
 	return keystruct;
 }
 
@@ -50,7 +50,7 @@ char Kbd_class::getch(void)
 	old.c_lflag 		&= ~ECHO;	// disable echo and erase
 
 	old.c_cc[VMIN] 		= 0;//1;
-	old.c_cc[VTIME] 	= 1;//0;
+	old.c_cc[VTIME] 	= 1;//0; //0->HIGH cpu load
 	// In this case TIME is a total read timeout. (timeout in multiples of 0.1 sec)
 	// The read returns if either MIN bytes are received before the timer expires
 	// or if the timer expires. In the latter case the number of bytes received
@@ -73,16 +73,16 @@ char Kbd_class::getch(void)
 	return buf;
 };
 
-void Kbd_class::PressKey()
+void Kbd_class::pressKey()
 {
-//	char key;
-//	do
-//	{
+/*	char key;
+	do // ignore zero output
+	{
+		key = getch();
+	} while( key == 0 );
+	keystruct.key = key;
+*/
 	keystruct.key = getch();
-//		keystruct.key = key;
-
-//	} while( key != 0 );
-
 	if ( keystruct.key == 27 )
 	{
 		c2 = getch();

@@ -40,25 +40,25 @@ void Note_class::Set_osc_track(  )
 	Comment( INFO, "Set osc track");
 
 	// copy class Oscillator
-	main_osc.wp 		= instrument->main.wp;
-	main_osc.vp 		= instrument->main.vp;
-	main_osc.fp 		= instrument->main.fp;
-	main_osc.vp.data	= vco_osc.Mem.Data;
-	main_osc.fp.data	= fmo_osc.Mem.Data;
-	main_osc.adsr 		= instrument->main.adsr;
-	main_osc.spectrum	= instrument->main.spectrum;
+	main.wp 		= instrument->main.wp;
+	main.vp 		= instrument->main.vp;
+	main.fp 		= instrument->main.fp;
+	main.vp.data	= vco.Mem.Data;
+	main.fp.data	= fmo.Mem.Data;
+	main.adsr 		= instrument->main.adsr;
+	main.spectrum	= instrument->main.spectrum;
 
-	vco_osc.wp 			= instrument->vco.wp;
-	vco_osc.vp 			= instrument->vco.vp;
-	vco_osc.fp 			= instrument->vco.fp;
-	vco_osc.spectrum	= instrument->vco.spectrum;
+	vco.wp 			= instrument->vco.wp;
+	vco.vp 			= instrument->vco.vp;
+	vco.fp 			= instrument->vco.fp;
+	vco.spectrum	= instrument->vco.spectrum;
 
-	fmo_osc.wp 			= instrument->fmo.wp;
-	fmo_osc.vp 			= instrument->fmo.vp;
-	fmo_osc.fp 			= instrument->fmo.fp;
-	fmo_osc.spectrum	= instrument->fmo.spectrum;
+	fmo.wp 			= instrument->fmo.wp;
+	fmo.vp 			= instrument->fmo.vp;
+	fmo.fp 			= instrument->fmo.fp;
+	fmo.spectrum	= instrument->fmo.spectrum;
 
-	Set_prefix_octave( main_osc.wp.fstruct.oct );
+	Set_prefix_octave( main.wp.fstruct.oct );
 
 	return;
 }
@@ -595,33 +595,33 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs ) // TODO workin
 	float fnew = 0;
 	float fglide = note.glide.chord.freq;
 
-	uint16_t tmp_glide_freq = main_osc.wp.glide_effect;
+	uint16_t tmp_glide_freq = main.wp.glide_effect;
 	if ( note.glide.note )
-		main_osc.wp.glide_effect = 100;
+		main.wp.glide_effect = 100;
 
-	main_osc.Set_long( note.longnote );
+	main.Set_long( note.longnote );
 
 	for ( notevalue_struct_t notevalue : note.chord )
 	{
-		fnew = ( notevalue.freq * 	vco_osc.wp.frequency ) /
+		fnew = ( notevalue.freq * 	vco.wp.frequency ) /
 									instrument->main.wp.frequency;
-		vco_osc.wp.frequency 	= fnew;
-		vco_osc.wp.msec 		= note.duration;
+		vco.wp.frequency 	= fnew;
+		vco.wp.msec 		= note.duration;
 
-		fnew = ( notevalue.freq * 	fmo_osc.wp.frequency ) /
+		fnew = ( notevalue.freq * 	fmo.wp.frequency ) /
 									instrument->main.wp.frequency ;
-		fmo_osc.wp.frequency	= fnew;
-		fmo_osc.wp.msec 		= note.duration;
+		fmo.wp.frequency	= fnew;
+		fmo.wp.msec 		= note.duration;
 
-		main_osc.Set_start_freq( notevalue.freq );
-		main_osc.wp.frequency	= fglide;
-		main_osc.wp.volume 		= note.volume ;
-		main_osc.wp.msec 		= note.duration;
+		main.Set_start_freq( notevalue.freq );
+		main.wp.frequency	= fglide;
+		main.wp.volume 		= note.volume ;
+		main.wp.msec 		= note.duration;
 
 		run_osc_group( offs );
 	}
 
-	main_osc.wp.glide_effect = tmp_glide_freq;
+	main.wp.glide_effect = tmp_glide_freq;
 	return ;
 }
 
@@ -629,7 +629,7 @@ void Note_class::submit_data(Storage::Storage_class* 		mb)
 {
 	mb->reset_counter();
 	mb->status.store = true;
-	mb->store_block( this->main_osc.Mem.Data );
+	mb->store_block( this->main.Mem.Data );
 }
 
 bool Note_class::Generate_note_chunk( Storage::Storage_class* 		mb )
@@ -645,7 +645,7 @@ bool Note_class::Generate_note_chunk( Storage::Storage_class* 		mb )
 
 
 	int timestamp = 0;
-	this->main_osc.Mem.clear_data( 0 );
+	this->main.Mem.clear_data( 0 );
 
 	restart_note_itr();
 

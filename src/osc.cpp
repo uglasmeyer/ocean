@@ -345,6 +345,15 @@ void Oscillator::Set_long( bool l )
 	longnote = l ;
 }
 
+bool main_id( int id )
+{
+	for ( int ID : { MAINID, NOTESID, KBDID })
+	{
+		if ( id == ID ) return true;
+	}
+	return false;
+}
+
 void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 {
 	auto attack = [ frames, data ]( int duration, buffer_t aframes, float da )
@@ -372,8 +381,8 @@ void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 
 		};
 
-	if ( adsr.bps_id == 0 ) return;
-	if ( not (( osc_id == MAINID ) or ( osc_id == NOTESID ))) return;
+	if ( adsr.bps_id == 0 ) 		return;
+	if ( not main_id( osc_id ) ) 	return;
 
 	adsr.bps_id				= adsr.bps_id % bps_struct().Bps_str_vec.size();
 	int 		duration 	= bps_struct().getbps( adsr.bps_id );
@@ -408,8 +417,8 @@ void Oscillator::apply_hall( adsr_struc_t adsr, buffer_t frames, Data_t* data )
 	// dn is the distance of the wall in frame units
 	//	buffer_t dn 	= ( ( adsr.hall*adsr.hall )/100.0 * max_frames ) / 100;;
 
-	if ( adsr.hall == 0 ) return;
-	if ( not (( osc_id == MAINID ) or ( osc_id == NOTESID ))) return;
+	if ( adsr.hall == 0 ) 		return;
+	if ( not main_id( osc_id )) return;
 
 	float 		d0 		= 1; // distance to the receiver of sound
 	float 		distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]

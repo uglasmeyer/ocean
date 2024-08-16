@@ -25,11 +25,11 @@ class Note_class :  virtual public Logfacility_class, virtual public Note_base
 {
 public:
 
-	Oscillator	 	main_osc		{"NOTES"};
-	Oscillator	 	vco_osc			{"VCO"};
-	Oscillator	 	fmo_osc			{"FMO"};
+	Oscillator	 	main		{ NOTESID };
+	Oscillator	 	vco			{ VCOID };
+	Oscillator	 	fmo			{ FMOID };
 
-	vector<Oscillator*> osc_group { &vco_osc, &fmo_osc, &main_osc };
+	vector<Oscillator*> osc_group { &vco, &fmo, &main };
 
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;

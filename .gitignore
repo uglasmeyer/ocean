@@ -5,4 +5,5 @@
 *.stash
 */.qtc_clangd/
 *.o
+*.d
 *.~lock*\#

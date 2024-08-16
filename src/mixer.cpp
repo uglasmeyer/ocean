@@ -16,7 +16,7 @@
 //-------------------------------------------------------------------------------------------------
 
 
-void Loop_class::start( uint16_t beg, uint16_t end, uint8_t step )
+void Loop_class::Start( uint16_t beg, uint16_t end, uint8_t step )
 {
 	active = true;
 	this->beg = beg;
@@ -38,7 +38,7 @@ void Loop_class::start( uint16_t beg, uint16_t end, uint8_t step )
 }
 
 
-void Loop_class::next( char* addr )
+void Loop_class::Next( char* addr )
 {
 	auto inc = [this]()
 	{
@@ -54,7 +54,7 @@ void Loop_class::next( char* addr )
 	}
 };
 
-void Loop_class::next( uint16_t* addr )
+void Loop_class::Next( uint16_t* addr )
 {
 	auto inc = [this]()
 	{
@@ -69,40 +69,40 @@ void Loop_class::next( uint16_t* addr )
 	//	cout << counter  << endl;
 };
 
-void Loop_class::test()
+void Loop_class::Test()
 {
 	uint16_t l;
 	char 	 ch;
 
 	Loop_class Loop;
 
-	Loop.start(10, 20, 1);
-	for( int i = 0; i<20; i++ ) Loop.next( &l);
+	Loop.Start(10, 20, 1);
+	for( int i = 0; i<20; i++ ) Loop.Next( &l);
 	assert( l == 20 );
 
-	Loop.start(20, 10, 1);
-	for( int i = 0; i<20; i++ ) Loop.next( &l);
+	Loop.Start(20, 10, 1);
+	for( int i = 0; i<20; i++ ) Loop.Next( &l);
 	assert( l == 10 );
 
-	Loop.start(20, 10, 1);
-	for( int i = 0; i<20; i++ ) Loop.next( &ch);
+	Loop.Start(20, 10, 1);
+	for( int i = 0; i<20; i++ ) Loop.Next( &ch);
 	assert( ch == 10 );
 
 
-	Loop.start(20, 10, -1);
-	for( int i = 0; i<20; i++ ) Loop.next(&ch);
+	Loop.Start(20, 10, -1);
+	for( int i = 0; i<20; i++ ) Loop.Next(&ch);
 	assert( ch == 10 );
 
-	Loop.start(0, 0, 0);
-	for( int i = 0; i<10; i++ ) Loop.next(&l);
+	Loop.Start(0, 0, 0);
+	for( int i = 0; i<10; i++ ) Loop.Next(&l);
 	assert( l == 0 );
 
-	Loop.start(0, 0, -1);
-	for( int i = 0; i<10; i++ ) Loop.next( &l );
+	Loop.Start(0, 0, -1);
+	for( int i = 0; i<10; i++ ) Loop.Next( &l );
 	assert( l == 0 );
 
-	Loop.start(10, 20, -1);
-	for( int i = 0; i<20; i++ ) Loop.next( &l );
+	Loop.Start(10, 20, -1);
+	for( int i = 0; i<20; i++ ) Loop.Next( &l );
 	assert( l == 20 );
 
 
@@ -203,19 +203,16 @@ void Mixer_class::Add_noteline( uint8_t arr_id, Note_class* Notes )
 
 }
 
-void Mixer_class::Add(  Instrument_class* instrument,
-						Keyboard_class* keyboard,
-						stereo_t* shm_addr )
+void Mixer_class::Add_Sound(Instrument_class* 	instrument,
+							stereo_t* 			shm_addr )
 {
-	// store the result into a local buffer, before making it available to the audio server
 
-	if ( status.mute )
+
+	// store the result into a local buffer, before making it available to the audio server
+//	assert(false);
+	clear_memory();
+	if ( not status.mute )
 	{
-		;
-	}
-	else
-	{
-		clear_memory();
 		add_mono( instrument->main.Mem.Data, master_volume, 0 );
 		for( int store_id : UsrIds )
 		{
@@ -223,23 +220,15 @@ void Mixer_class::Add(  Instrument_class* instrument,
 				StA[ store_id ].store_block( instrument->main.Mem.Data ); // store data with amp=100
 		}
 	}
-	if ( status.kbd )
-	{
-		add_mono( keyboard->main_osc.Mem.Data, master_volume, 0 );
-	}
 
-	if ( StA[MbIdNotes].status.play )
-	{
-		add_mono( StA[MbIdNotes].Data, StA[MbIdNotes].Amp, MbIdNotes );
-	}
 	// store data potentially and add read_data to output
 	status.play = false; // set loop default
-	for ( uint DAid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
+	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
 		Storage_class*  DA = &StA[ DAid ];
 
-		if( StA[MbIdNotes].status.play ) // ignore flat instrument if notes are available
-			DA->store_block( StA[MbIdNotes].Data ); // only one of 7 is available for data
+//		if( StA[MbIdNotes].status.play ) // ignore flat instrument if notes are available
+//			DA->store_block( StA[MbIdNotes].Data ); // only one of 7 is available for data
 
 		Data_t* read_data = DA->get_next_block();
 		if ( read_data )

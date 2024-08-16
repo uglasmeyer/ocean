@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -28,7 +29,6 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
-
 
 
 #include <assert.h>
@@ -75,6 +75,7 @@ typedef struct file_structure
 	const string sound_file 	= dir_struct().etcdir 		+ "test.kbd";
 	const string audio_bin  	= dir_struct().bindir 		+ "AudioServer";
 	const string synth_bin  	= dir_struct().bindir 		+ "Synthesizer";
+	const string composer_bin	= dir_struct().bindir		+ "Composer";
 	const string ifd_file 		= dir_struct().libdir 		+ "ifd_data.bin";
 	const string wav_file 		= dir_struct().musicdir 	+ filename + ".wav";
 	const string mp3_file		= dir_struct().musicdir 	+ filename + ".mp3";
@@ -147,8 +148,6 @@ const Data_t		max_data_amp		= 4096*4;
 const uint8_t 		oct_base_freq 		= 55;
 const uint			osc_default_volume	= 80; // %
 const uint 			wavedisplay_len		= 512;
-const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
-const string		KbdNote					{ "SDRFTGHUJIKOL" };
 
 typedef struct bps_struct
 {
@@ -187,6 +186,7 @@ typedef struct Server_struct
 
 const string		Audio_Srv	= file_structure().audio_bin;
 const string 		Synthesizer	= file_structure().synth_bin;
+const string 		Composer 	= file_structure().composer_bin;
 
 const vector<string> wavedisplay_str_vec =
 {
@@ -205,8 +205,7 @@ const vector<string> wavedisplay_type_str_vec =
 };
 enum { FULLID, FLOWID, DEBUGID };
 
-extern size_t		kbdnote( char);
-extern void 		system_execute( const string );
+extern void system_execute( const string );
 
 
 #endif /* SYNTHESIZER_H_ */

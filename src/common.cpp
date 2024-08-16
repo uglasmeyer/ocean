@@ -21,11 +21,6 @@ void Wait( long int N)
 	usleep( N ); //milliseconds
 }
 
-size_t kbdnote( char key)
-{
-	// check if key is in set KbdNote
-	return KbdNote.find( key );
-}
 
 
 prgarg_struct_t parse_argv( int argc, char* argv[] )

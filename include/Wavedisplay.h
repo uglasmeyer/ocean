@@ -11,6 +11,7 @@
 #include <synthesizer.h>
 #include <Interface.h>
 
+
 class Wavedisplay_class : virtual public Logfacility_class
 {
 	ifd_t* ifd;

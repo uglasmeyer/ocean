@@ -8,17 +8,14 @@
 #ifndef INCLUDE_MIXER_H_
 #define INCLUDE_MIXER_H_
 
-#include <bits/stdint-uintn.h>
+//#include <bits/stdint-uintn.h>
 #include <synthesizer.h>
-#include <sys/mman.h>
-#include <string>
 #include <osc.h>
 #include <Instrument.h>
 #include <synthmem.h>
 #include <External.h>
 #include <notes.h>
 #include <wav.h>
-#include <Keyboard.h>
 
 using namespace std;
 
@@ -38,10 +35,10 @@ public:
 	Loop_class(){};
 	~Loop_class(){};
 
-	void start( uint16_t beg, uint16_t end, uint8_t step );
-	void next( uint16_t* );
-	void next( char*  );
-	void test();
+	void Start( uint16_t beg, uint16_t end, uint8_t step );
+	void Next( uint16_t* );
+	void Next( char*  );
+	void Test();
 
 };
 
@@ -72,7 +69,7 @@ public:
 
 
 	void Add_noteline( uint8_t, Note_class* );
-	void Add(  Instrument_class* , Keyboard_class*, stereo_t*  );
+	void Add_Sound(  Instrument_class* , stereo_t*  );
 	void Test();
 
 private:

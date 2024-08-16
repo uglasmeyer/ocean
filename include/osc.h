@@ -27,14 +27,15 @@ public:
 	Memory 			Mem		{ monobuffer_size };
 
 
-	Oscillator( string name ) : Logfacility_class( name ), Oscillator_base()
+	Oscillator( uint8_t id ) : 	Logfacility_class( "OSC" ),
+								Oscillator_base()
 	{
 		mem_init();
-		Mem_vco.Info( name );
-		Mem_fmo.Info( name );
-		Mem.Info( name );
-		osc_type = name;
-		osc_id			= Oscillator_base::Osc_id( name );
+		osc_id		= id;
+		osc_type 	= osc_type_vec[id];
+		Mem_vco.Info( osc_type );
+		Mem_fmo.Info( osc_type );
+		Mem.Info( osc_type );
 
 	};
 	virtual ~Oscillator(){};

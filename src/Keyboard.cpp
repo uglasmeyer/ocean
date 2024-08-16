@@ -7,39 +7,83 @@
 
 #include <Keyboard.h>
 
-Keyboard_class::Keyboard_class( Instrument_class* instr ) :
+Keyboard_class::Keyboard_class( Instrument_class* instr, Storage::Storage_class* StA  ) :
 	Logfacility_class("Keyboard"),
 	Oscillator_base()
 {
-	this->instrument = instr;
+	this->instrument 	= instr;
+	this->StA			= StA;
 }
 
 Keyboard_class::~Keyboard_class(){};
 
-void Keyboard_class::Set_osc_track(  )
+void Keyboard_class::Setup(  )
 {
-	Comment( INFO, "Set osc track");
+
 
 	// copy class Oscillator
-	main_osc.wp 		= instrument->main.wp;
-	main_osc.vp 		= instrument->main.vp;
-	main_osc.fp 		= instrument->main.fp;
-	main_osc.vp.data	= vco_osc.Mem.Data;
-	main_osc.fp.data	= fmo_osc.Mem.Data;
-	main_osc.adsr 		= instrument->main.adsr;
-	main_osc.spectrum	= instrument->main.spectrum;
+	main.wp 		= instrument->main.wp;
+	main.vp 		= instrument->main.vp;
+	main.vp.data	= vco.Mem.Data;
+	main.fp 		= instrument->main.fp;
+	main.fp.data	= fmo.Mem.Data;
+	main.adsr 		= instrument->main.adsr;
+	main.spectrum	= instrument->main.spectrum;
 
-	vco_osc.wp 			= instrument->vco.wp;
-	vco_osc.vp 			= instrument->vco.vp;
-	vco_osc.fp 			= instrument->vco.fp;
-	vco_osc.spectrum	= instrument->vco.spectrum;
+	vco.wp 			= instrument->vco.wp;
+	vco.vp 			= instrument->vco.vp;
+	vco.fp 			= instrument->vco.fp;
+	vco.spectrum	= instrument->vco.spectrum;
 
-	fmo_osc.wp 			= instrument->fmo.wp;
-	fmo_osc.vp 			= instrument->fmo.vp;
-	fmo_osc.fp 			= instrument->fmo.fp;
-	fmo_osc.spectrum	= instrument->fmo.spectrum;
+	fmo.wp 			= instrument->fmo.wp;
+	fmo.vp 			= instrument->fmo.vp;
+	fmo.fp 			= instrument->fmo.fp;
+	fmo.spectrum	= instrument->fmo.spectrum;
+}
 
+void Keyboard_class::Attack( char key, uint8_t amp )
+{
+	auto set_osc_frequency 	= [ key ]( Oscillator* osc )
+		{
+			float 	freq 	= osc->wp.frequency * ( 12 + key ) / 12.0  ;
+			osc->set_frequency( freq );
+			osc->OSC( 0 );
+		};
 
+	if ( key == prevKey ) return;
+	Comment( INFO, "Attack: " + NoteName[ (int)key ] );
+
+	Setup();
+	for ( Oscillator* osc : osc_group )
+		set_osc_frequency( osc );
+
+	StA->reset_counter();
+	StA->status.store 	= true;
+	StA->status.play 	= true;
+	StA->Amp 			= amp;
+	prevKey 			= key;
+	StA->store_block(main.Mem.Data);
+}
+
+void Keyboard_class::Release()
+{
+	if ( prevKey != 0 )
+		Comment( INFO, "Release: " + NoteName[ (int)prevKey ] );
+
+	StA->reset_counter();
+
+	StA->status.play 	= false;
+	StA->status.store 	= false;
+
+	prevKey 			= 0;
+	StA->clear_data( 0 );
+
+}
+
+size_t Keyboard_class::Kbdnote( char key)
+{
+	// check if key is in set KbdNote
+	return KbdNote.find( key );
 }
 
 
