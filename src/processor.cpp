@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include "processor.h"
+#include <Processor.h>
 
 void Processor_class::Push_cmd( uint8_t cmd, string str )
 {
@@ -133,9 +133,9 @@ void Processor_class::Push_text( string str )
 void Processor_class::wait_for_commit()
 {
 	int i = 0;
-	while ( ifd->KEY != NULLKEY ) // waiting for commit
+	while ( (ifd->KEY != NULLKEY ) and ( ifd->Synthesizer == RUNNING ) )
 	{
-		Wait(1000);
+		Wait(1 * MILLISECOND );
 		i++;
 	}
 	printf(", commit in %d [msec]",i);

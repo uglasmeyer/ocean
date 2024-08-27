@@ -7,11 +7,11 @@
 #include <mainwindow.h>
 
 // Synthesizer includes
-#include <synthesizer.h>
 #include <notes.h>
 #include <Interface.h>
 #include <Logfacility.h>
 #include <keys.h>
+#include <Synthesizer.h>
 
 // Qt-includes
 #include <QDebug>
@@ -63,7 +63,7 @@ File_Dialog_class::File_Dialog_class(QWidget *parent) :
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
 
     QWidget::update();
-    Log.Comment(Log.DEBUG," File_Dialog initialized");
+    Log.Comment( DEBUG," File_Dialog initialized");
 
 
     Setup_widgets();

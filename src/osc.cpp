@@ -135,6 +135,8 @@ void Oscillator::set_phi( double phi, double mod ) //phase at the end of the osc
 double Oscillator::get_phi( )// phase at the begin of the osc
 {
 //	return fmodulo( this->wp.phi, mod );
+	if ( osc_id == NOTESID )
+		this->phase = 0.0;
 	return this->phase;
 }
 
@@ -172,9 +174,10 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	float freq = this->wp.frequency;
 
 	Data_t 	vco_shift 	= max_data_amp/2;
-	if (( osc_id == VCOID )
-			or	( osc_id == FMOID )
-			)
+	if	(
+		( osc_id == VCOID ) or
+		( osc_id == FMOID )
+		)
 		vco_shift = 0;
 
 	float	vol_per_cent =  volume / 100.0; // the volume of the main osc is managed by the mixer!
@@ -298,12 +301,12 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	}
 
 	double 		omega_t		= 0;
-	double 		dT 			= modc * dt;
-	double		lfo_mod 	= modc;
+	double 		dT 			= modc * dt; // 2pi dt
+	double		max_phi 	= modc;
 	double 		phi			= get_phi( );
 
 	float 		start_freq 	= this->start_freq;
-	float		delta_f		= get_delta_freq( freq );
+	float		delta_freq		= get_delta_freq( freq );
 				// difference to the target frequency <freq> - <start_freq>
 	for ( n = 0; n < frames ; n++ )
 	{
@@ -315,22 +318,32 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		{
 			if ( spectrum.dta[df] != 0 )
 			{
-				omega_t =   phi * (1 + df )  ;
+				omega_t =   phi * ( 2 + df ) * 0.5 ;
 				data[n]	=   data[n] + F(spectrum.dta[df]*vco_vol, omega_t);
 			}
 		}
 
-		if ( abs(freq - start_freq) > 1 ) start_freq = start_freq + delta_f;
+		if ( abs(freq - start_freq) > 1 ) start_freq = start_freq + delta_freq;
 		dphi	= dT * ( start_freq + norm_freq*fmo_data[n] );
 		phi 	+= dphi;
-		phi		= ( abs(phi) > lfo_mod ) ? phi-sgn(phi)*lfo_mod : phi ;
-		if ( ( phi > lfo_mod ) or ( phi < -lfo_mod ) )
-				cout << "phi overflow: " << phi << endl;
+		if ( max_phi < abs(dphi) )
+		{
+			cout << "osc_id     " << osc_type_vec[osc_id]    	<< endl;
+			cout << "dphi       " << dphi    	<< endl;
+			cout << "lfo_mod    " << max_phi 	<< endl;
+			cout << "phi        " << phi  		<< endl;
+			cout << "dT         " << dT   		<< endl;
+			cout << "start_freq " << start_freq << endl;
+			assert( max_phi > abs(dphi) );
+		}
+		phi		= ( abs(phi) > max_phi ) ? phi-sgn(phi)*max_phi : phi ;
+		if ( ( phi > max_phi ) or ( phi < -max_phi ) )
+			cout << "phi overflow: " << phi << endl;
 //		assert( phi <=  lfo_mod );
 //		assert( phi >= -lfo_mod );
 	}
 
-	set_phi( phi, lfo_mod );
+	set_phi( phi, max_phi );
 	Set_start_freq(freq);
 
 	apply_adsr( this->adsr, frames, data);
@@ -384,8 +397,11 @@ void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 	if ( adsr.bps_id == 0 ) 		return;
 	if ( not main_id( osc_id ) ) 	return;
 
+
 	adsr.bps_id				= adsr.bps_id % bps_struct().Bps_str_vec.size();
-	int 		duration 	= bps_struct().getbps( adsr.bps_id );
+	int 		duration = 1; // each note has a single attack/decay
+	if ( osc_id == MAINID )
+		duration 	= bps_struct().getbps( adsr.bps_id );
 	buffer_t 	aframes		= 0;
 	float 		da			= 0;
 

@@ -8,8 +8,8 @@
 #ifndef EXTERNAL_H_
 #define EXTERNAL_H_
 
-#include <synthesizer.h>
 #include <synthmem.h>
+#include <Synthesizer.h>
 #include <wav.h>
 #include <version.h>
 

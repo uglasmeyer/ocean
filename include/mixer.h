@@ -9,12 +9,12 @@
 #define INCLUDE_MIXER_H_
 
 //#include <bits/stdint-uintn.h>
-#include <synthesizer.h>
 #include <osc.h>
 #include <Instrument.h>
 #include <synthmem.h>
 #include <External.h>
 #include <notes.h>
+#include <Synthesizer.h>
 #include <wav.h>
 
 using namespace std;
@@ -55,7 +55,7 @@ public:
 	typedef vector<Storage_class> StorageArray_t;
 	StorageArray_t 		StA;
 	uint8_t				master_volume	= 100;
-	mi_status_t  		status 			= mi_status_struct();
+	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
 	Memory 				Mono_tmp{ monobuffer_size }; // Wavedisplay output

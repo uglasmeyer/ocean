@@ -8,13 +8,44 @@
 #include <kbd.h>
 
 
-key_struct_t Kbd_class::GetKey()
+Keyboard_base::key_struct_t Keyboard_base::GetKey()
 {
 	pressKey();
 	return keystruct;
 }
 
-void Kbd_class::Reset()
+Keyboard_base::key_struct_t Keyboard_base::GetHold()
+{
+	KeyVector();
+	return key_vector[0];
+}
+
+void Keyboard_base::KeyVector()
+{
+	char ch = 0;
+	uint8_t i = 0;
+	do
+	{
+		ch = GetKey().key;
+		i++;
+	} while ( not( ( ch == 0 ) or ( i < key_vector.size() ) ) );
+	if ( ch == 0 )
+		key_vector=default_key_vector;
+	else
+	{
+		key_vector[0].key = ch;
+		for( uint8_t i = 1 ; i<key_vector.size(); i++ )
+		{
+			key_vector[i] = GetKey();
+		}
+	}
+}
+void Keyboard_base::show_key_vector()
+{
+	for( key_struct_t keystr : key_vector )
+		cout << keystr.key << " " << keystr.val << endl;
+}
+void Keyboard_base::Reset()
 {
 	struct termios 		tflags = {0};
 	Comment(INFO , "Keyboard reset");
@@ -24,17 +55,14 @@ void Kbd_class::Reset()
 	tflags.c_lflag 		|= ICANON; 	// standard mode
 	tflags.c_lflag 		|= ECHO;	// enable echo and erase
 
+	fflush(stdout);
+
 	if( tcsetattr(0, TCSADRAIN, &tflags ) < 0)
 		perror("tcsetattr ~ICANON");
 
 }
 
-bool Kbd_class::NextKey()
-{
-	return  ( keystruct.key != ExitKey );
-}
-
-char Kbd_class::getch(void)
+char Keyboard_base::getch(void)
 //https://stackoverflow.com/questions/7469139/what-is-the-equivalent-to-getch-getche-in-linux
 //https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
 {
@@ -58,6 +86,7 @@ char Kbd_class::getch(void)
 	// If an interrupt occurs before the timer expires and no bytes are read
 	// the read returns -1 with errno set to EINTR.
 
+
 	if(tcsetattr(0, TCSANOW, &old) < 0)
 		perror("tcsetattr ICANON");
 
@@ -73,16 +102,10 @@ char Kbd_class::getch(void)
 	return buf;
 };
 
-void Kbd_class::pressKey()
+void Keyboard_base::pressKey()
 {
-/*	char key;
-	do // ignore zero output
-	{
-		key = getch();
-	} while( key == 0 );
-	keystruct.key = key;
-*/
 	keystruct.key = getch();
+
 	if ( keystruct.key == 27 )
 	{
 		c2 = getch();
@@ -91,10 +114,23 @@ void Kbd_class::pressKey()
 	}
 	else
 		keystruct.val = 0;
+}
 
-	Status = NextKey();
-	if ( keystruct.key == -1 )
-		keystruct.key = NoKey;
+void Keyboard_base::Test()
+{
+	Set_Loglevel( TEST, true );
+	Comment( TEST, "Keyboard test running");
+	do
+	{
+		cout << GetHold().key ;
+		Comment( TEST, " > Press # to finish keyboard test");
+
+	}
+	while( not ( key_vector[0].key == '#' ) );
+
+	Comment( TEST, "Keyboard test finished");
+//	assert( false );
+
 }
 
 

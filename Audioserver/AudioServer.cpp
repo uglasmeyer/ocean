@@ -1,6 +1,7 @@
 
 
 #include <RtAudio.h>
+
 // Platform-dependent sleep routines.
 #if defined( WIN32 )
   #include <windows.h>
@@ -13,33 +14,34 @@
 
 
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 #include <synthmem.h>
 #include <Interface.h>
 #include <common.h>
-#include <Logfacility.h>
-#include <version.h>
+#include <App.h>
 
 // classes and structures
 
-Logfacility_class 		Log("AudioServer");
+string Module 			= "AudioServer";
+
+Logfacility_class 		Log( Module );
 Shared_Memory 			Shm_a;
 Shared_Memory			Shm_b;
-Interface_class 		GUI ;
+Interface_class 		IFD ;
+Application_class		App( Module, &IFD.addr->AudioServer );
 
-string This_Application 	= "";
 
 // runtime parameter
+ifd_t*			ifd				= IFD.addr;
 buffer_t 		ncounter 		= 0;
-int 			shm_id 			= 0; // out_data = Shm_a
-stereo_t*		shm_addr 		= Shm_a.addr;
-uint 			bufferFrames 	= chunksize;
+char 			shm_id 			= 0; // out_data = Shm_a
+stereo_t*		shm_addr 		= nullptr;
+char 			mode 			= FREERUN;
+uint			bufferFrames 	= chunksize;
 int 			record			= 0;
-int 			ERROR 			= Log.ERROR;
-int 			DEBUG 			= Log.DEBUG;
-int 			INFO  			= Log.INFO;
 bool 			done 			= false;
 bool*			Done			= &done;
+
 // ----------------------------------------------------------------
 // RT Audio constant declarations
 
@@ -53,12 +55,13 @@ device_struct_t DeviceDescription;
 
 RtAudio::StreamParameters 	oParams;
 RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
-										.numberOfBuffers = 2,
+										.numberOfBuffers = 8,
 										.streamName = Application };
 
 
 
 #define FORMAT RTAUDIO_SINT16 // 16bit signed integer
+
 
 
 // end declaration section
@@ -73,10 +76,12 @@ RtAudio rtapi( RtAudio::LINUX_PULSE, &errorCallback );
 
 void exit_proc( int exit_code )
 {
-	Log.Comment( Log.DEBUG, "Entering exit procedure for \n" + This_Application );
+	Log.Comment(INFO, Application + "received command <exit> " );
+	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
+	Log.Comment( INFO, "suspend server" );
 
-	Log.Comment( Log.INFO, "suspend server" );
-	GUI.Announce( "AudioServer", false );
+	IFD.Announce( App.Name, false );
+	ifd->UpdateFlag = true;
 
 	done = true;
 
@@ -101,13 +106,13 @@ void exit_proc( int exit_code )
 void show_usage( void )
 {
 	string str;
-	str = "Usage: AudioServer -c #1 -r #2 -d #3 -o #4 \n";
+	str = "Usage: " + App.Name + " -c #1 -r #2 -d #3 -o #4 \n";
 	str.append("       where \n");
 	str.append("       #1 = number of channels (default=2),\n");
 	str.append("       #2 = the sample rate (default = 44100),\n");
 	str.append("       #3 = device index (default = 0, default device),\n");
 	str.append("       #4 = channelOffset on the device (default = 0) ");
-	Log.Comment( Log.INFO , str );
+	Log.Comment( INFO , str );
 }
 
 
@@ -168,7 +173,8 @@ void get_device_description( uint index )
 
 void Application_loop()
 {
-	Log.Comment(INFO, "Entering Application loop");
+	Log.Comment(INFO, "Entering Application loop \n");
+	Log.Comment(INFO, App.Name + " is ready");
 
 	while ( not done and rtapi.isStreamRunning() )
 	{
@@ -177,41 +183,44 @@ void Application_loop()
 	Log.Comment(INFO, "Application loop exit");
 
 }
-buffer_t set_ncounter( buffer_t n )
+
+void get_mode()
 {
-	if ( ncounter > max_frames - 1 )
-	{
-		if ( GUI.addr->MODE == FREERUN )
-			return 0;
-		if ( GUI.addr->MODE == KEYBOARD )
-		{
-			GUI.addr->MODE =  FREERUN;
-			return 0;
-		}
-		// request new data for data buffers
-		if ( shm_id == 0 )
-		{
-			shm_id = 1; 			// get b
-			shm_addr = Shm_a.addr; 	// out a
-		}
-		else
-		{
-			shm_id = 0;				// get a
-			shm_addr = Shm_b.addr; 	// out b
-		}
-		GUI.addr->SHMID = shm_id;
-		GUI.addr->MODE = SENDDATA;
-		return 0;
-	}
-	else
-	{
-		return n;
-	}
+	mode = ifd->MODE;
 }
+void set_ncounter( buffer_t n )
+{
+	if ( n > max_frames - 1 )
+	{
+		ncounter = 0;
+
+		if ( mode == SYNC )
+		{
+			mode 		= SENDDATA;
+			shm_id 		= ( shm_id + 1 ) % 2;
+			shm_addr 	= ( shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
+			ifd->MODE 	= mode;		// request new data for data buffers
+			ifd->SHMID 	= shm_id;
+		}
+	}
+	// else unchanged
+}
+void set_shm_addr(  )
+{
+	// required mode to setup shm communication
+	if (( mode == FREERUN ) or ( mode == KEYBOARD ))
+	{
+		shm_id 		= 0;
+		ifd->SHMID 	= shm_id;
+		shm_addr 	= Shm_a.addr;
+	}
+	// else unchanged
+}
+
 
 int RtAudioOut(	void *outputBuffer,
 				void * /*inputBuffer*/,
-				unsigned int nBufferFrames,
+				uint nBufferFrames,
 				double streamTime,
 				RtAudioStreamStatus status,
 				void *data )
@@ -220,16 +229,13 @@ int RtAudioOut(	void *outputBuffer,
 
 	  // keep all variable data initializations outside of RtAudioOut
 	  if ( status != 0 ) // buffer overflow
-		  Log.Comment( Log.WARN, "Buffer status differs: " + to_string( status ));
+		  Log.Comment( WARN, "Buffer status differs: " + to_string( status ));
 
-	  ncounter = set_ncounter( ncounter );
-	  if( GUI.addr->MODE == KEYBOARD )
-	  {
-		  GUI.addr->MODE = FREERUN;
-		  ncounter	= 0;
-	  }
-	  if( GUI.addr->MODE == FREERUN )
-		  shm_addr = Shm_a.addr; // set the default
+	  get_mode();
+	  set_ncounter( ncounter );
+	  set_shm_addr();
+	  if( mode == KEYBOARD )
+	  	  ncounter	= 0;
 
 	  // the output loop is implicitly protect against status changes by the fact
 	  // that the buffer boundaries are aligned to 44100 respectively one second
@@ -239,16 +245,11 @@ int RtAudioOut(	void *outputBuffer,
 	  	  ncounter 	= (ncounter	+ 1 );
 	  }
 
-	  if (GUI.addr->AudioServer == STOPSNDSRV )
-	  {
-		  Log.Comment(Log.INFO, Application + "received command <exit> " );
-		  GUI.addr->UpdateFlag = true;
+	  if (ifd->AudioServer == EXITSERVER )
 		  exit_proc(1); // exit on used request
-	  }
-	  else
-	  {
-		  GUI.addr->AudioServer = RUNSNDSRV;
-	  }
+
+	  ifd->AudioServer = RUNNING;
+
 	  return 0;
 } // callback function
 
@@ -256,26 +257,23 @@ int RtAudioOut(	void *outputBuffer,
 
 int main( int argc, char *argv[] )
 {
+	App.Start();
 
-	This_Application = Get_application_name ( "Audio Server" );
-	Log.Comment( INFO, "Entering application init for " );
-	Log.Comment( INFO, This_Application );
-
-	Log.Set_Loglevel(Log.DEBUG, false);
+	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
 
 	Log.Comment(INFO, "Catching signals SIGINT and SIGABRT");
 	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-	GUI.Announce( "AudioServer", true );
-	Log.Comment(Log.INFO, This_Application );
-	GUI.addr->AudioServer	= STOPSNDSRV;
-	Wait(1*SECOND);
-	GUI.addr->RecCounter 			= 0;
-	GUI.addr->MODE 			= SENDDATA;
-	GUI.addr->UpdateFlag 	= true;
-	GUI.addr->AudioServer 	= RUNSNDSRV;
+	App.Shutdown_instance( );
+
+	IFD.Announce( App.Name, true );
+	Log.Comment(INFO, App.This_Application );
+	ifd->RecCounter 	= 0;
+//	ifd->MODE 			= SENDDATA;
+//	ifd->UpdateFlag 	= true;
+//	ifd->AudioServer 	= RUNNING;
 
 
 	Log.Comment(INFO, "Evaluating startup arguments");
@@ -309,7 +307,11 @@ int main( int argc, char *argv[] )
 	Log.Comment(INFO,"Attaching data buffers");
 	Shm_a.buffer( sharedbuffer_size, params.shm_key_a );
 	Shm_b.buffer( sharedbuffer_size, params.shm_key_b );
-	shm_addr = Shm_a.addr; // default output address
+	shm_id		= 0;
+	ifd->SHMID 	= shm_id;
+	shm_addr 	= Shm_a.addr;
+
+//	shm_addr = (shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
 
 	show_usage();
 
@@ -366,12 +368,13 @@ int main( int argc, char *argv[] )
 
 
 	Log.Comment(INFO, "Application initialized");
-	Log.Comment(INFO, "Entering Application loop");
+	Log.Comment(INFO, "Entering Application loop\n");
+	Log.Comment(INFO, App.Name + " is ready");
+
 	while ( not *Done )
-//	while ( ( not done ) and rtapi.isStreamRunning() )
 	{
-		cout.flush() << "." << endl;
-		SLEEP( SECOND );
+		cout.flush() << "." ;
+		Wait( SECOND );
 	}
 	Log.Comment(INFO, "Application loop exit");
 	exit(0);

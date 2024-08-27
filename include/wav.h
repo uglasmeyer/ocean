@@ -8,7 +8,7 @@
 #ifndef INCLUDE_WAV_H_
 #define INCLUDE_WAV_H_
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 
 typedef struct wav_struct
 {

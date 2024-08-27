@@ -8,8 +8,8 @@
 #ifndef WAVEDISPLAY_H_
 #define WAVEDISPLAY_H_
 
-#include <synthesizer.h>
 #include <Interface.h>
+#include <Synthesizer.h>
 
 
 class Wavedisplay_class : virtual public Logfacility_class

@@ -103,12 +103,13 @@ void Interpreter_class::stop_bin( vector_str_t arr )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
 		Processor_class::Push_ifd( &ifd->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
+		Processor_class::Push_key( EXITKEY, "terminating key" + keyword.Str );
 		return;
 	}
 	if ( cmpstr( keyword.Str, "AudioServer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::Push_ifd( &ifd->AudioServer, STOPSNDSRV, "terminating " + keyword.Str  );
+		Processor_class::Push_ifd( &ifd->AudioServer, EXITSERVER, "terminating " + keyword.Str  );
 		return;
 	}
 
@@ -352,7 +353,7 @@ void Interpreter_class::notes( vector_str_t arr )
 		Value nps = pop_int(1,16);
 		if ( Variation.Set_notes_per_second( nps.i ) )
 		{
-			Processor_class::Push_ifd( &ifd->FLAG, nps.i, "notes per second"  );
+			Processor_class::Push_ifd( &ifd->Main_adsr_nps_id, nps.i, "notes per second"  );
 			Processor_class::Push_key( SETNOTESPERSEC_KEY, "set per_second" );
 		}
 		else
@@ -459,7 +460,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "mute") )
 	{
 		Comment( INFO, "Main is muted " );
-		Processor_class::Push_ifd( &ifd->mi_status.mute, true, "mute" );
+		Processor_class::Push_ifd( &ifd->mixer_status.mute, true, "mute" );
 		Processor_class::Push_key( MASTERAMP_MUTE_KEY, "mute" );
 		return;
 	}
@@ -467,7 +468,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "unmute") )
 	{
 		Comment( INFO, "Main is unmuted " );
-		Processor_class::Push_ifd( &ifd->mi_status.mute, false, "unmute" );
+		Processor_class::Push_ifd( &ifd->mixer_status.mute, false, "unmute" );
 		Processor_class::Push_key( MASTERAMP_MUTE_KEY, "unmute" );
 		return;
 	}

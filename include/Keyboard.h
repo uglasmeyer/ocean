@@ -8,17 +8,19 @@
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
-#include <synthesizer.h>
 #include <synthmem.h>
 #include <Logfacility.h>
 #include <osc.h>
 #include <Instrument.h>
 #include <mixer.h>
+#include <kbd.h>
+#include <Synthesizer.h>
 
 using namespace Storage;
 
 class Keyboard_class :	virtual public Logfacility_class,
-						virtual public Oscillator_base
+						virtual public Oscillator_base,
+						virtual public Keyboard_base
 {
 
 public:
@@ -31,18 +33,23 @@ public:
 
 	vector<Oscillator*> osc_group { &vco, &fmo, &main };
 
-	Instrument_class* 	instrument;
-	Storage_class* 		StA;
-
-	char 				prevKey 	= 0;
+	Instrument_class* 	instrument	= nullptr;
+	Storage_class* 		StA			= nullptr;
+	key_struct_t		keystruct 	= key_struct();
+	const int			NOKEY 		= -1;
+	int 				prevKey 	= NOKEY;
 
 	Keyboard_class( Instrument_class*, Storage_class* );
+	Keyboard_class(); // see comstack
 	~Keyboard_class();
 
-	void Setup(  );
-	void Attack( char, uint8_t );
-	void Release();
-	size_t Kbdnote( char );
+	bool Attack( int, uint8_t );
+	bool Release( int );
+	int	 Kbdnote( );
+
+private:
+	bool decay( int );
+	void setup(  );
 
 };
 

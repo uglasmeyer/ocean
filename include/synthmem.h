@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 // terminology :
 // sizeof_data	-> 	data_bytes	= sizeof(unit)
 //					block_bytes = data_bytes*units
@@ -106,7 +106,7 @@ public:
 	virtual ~Storage_class(){};
 
 
-	ma_status_t status =
+	StA_status_t status =
 	{
 		.play 	= false,
 		.store	= false

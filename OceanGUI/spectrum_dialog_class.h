@@ -4,8 +4,7 @@
 #include <QDialog>
 #include <QTimer>
 
-#include <string>
-#include <synthesizer.h>
+#include <Synthesizer.h>
 #include <Spectrum.h>
 #include <Interface.h>
 #include <keys.h>

@@ -8,9 +8,9 @@
 #ifndef RECORD_H_
 #define RECORD_H_
 
-#include <synthesizer.h>
 #include <Interface.h>
 #include <synthmem.h>
+#include <Synthesizer.h>
 
 class Record_class : virtual public Logfacility_class
 {

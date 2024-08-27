@@ -117,8 +117,8 @@ void system_execute( string cmd )
 	int ret = system( cmd.data() );
 	if ( ret != 0 )
 	{
-		Log_system.Comment( Log_system.ERROR, cmd);
-		Log_system.Comment( Log_system.ERROR, "check out system error message ");
+		Log_system.Comment( ERROR, cmd);
+		Log_system.Comment( ERROR, "check out system error message ");
 		exit( ret );
 	}
 }

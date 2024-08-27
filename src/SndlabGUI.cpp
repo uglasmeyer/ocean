@@ -7,11 +7,11 @@
 
 // Synhesizer
 
-#include <synthesizer.h>
 #include <Wavedisplay.h>
 #include <mixer.h>
 #include <keys.h>
 #include <Logfacility.h>
+#include <Synthesizer.h>
 
 // Qt
 #include <QLabel>
@@ -58,6 +58,9 @@ MainWindow::MainWindow(QWidget *parent)
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
+
+    connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
+    connect( ui->pBAudioServer, 	SIGNAL(clicked()), this, SLOT( start_audio_srv() ));
 
     connect( ui->pBComposer, SIGNAL(clicked()), this, SLOT( start_composer() ));
     connect( ui->pBtoggleRecord, SIGNAL(clicked(bool)), this, SLOT(toggle_Record() ));
@@ -308,8 +311,8 @@ void MainWindow::Store()
         i++;
     }
     GUI.Set( GUI.addr->MIX_Id , banknr); //
-    bool status_store = not GUI.addr->ma_status[banknr].store;
-    GUI.addr->ma_status[banknr].store = status_store;
+    bool status_store = not GUI.addr->StA_status[banknr].store;
+    GUI.addr->StA_status[banknr].store = status_store;
     if ( status_store )
         GUI.Set( GUI.addr->KEY , STOPRECORD_KEY);
     else
@@ -398,8 +401,10 @@ void MainWindow::Clear_Banks()
 }
 void MainWindow::toggle_Mute()
 {
-    bool mute_flag 	= not GUI.addr->mi_status.mute;
-    GUI.Set( GUI.addr->mi_status.mute , mute_flag );
+
+    bool mute_flag 	= GUI.addr->mixer_status.mute ;
+    mute_flag = not mute_flag;
+    GUI.Set( GUI.addr->mixer_status.mute , mute_flag );
     GUI.Set( GUI.addr->KEY , MASTERAMP_MUTE_KEY);
     QString Qstr = mute_flag ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
@@ -462,7 +467,7 @@ void MainWindow::setwidgetvalues()
 
     ui->dial_ramp_up_down->setValue( GUI.addr->Master_Amp);
 
-    Qstr = GUI.addr->mi_status.mute ? "UnMute" : "Mute";
+    Qstr = GUI.addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
     MainWindow::show();
 }
@@ -530,22 +535,21 @@ void MainWindow::start_composer()
 {
     string Start_Composer = Server_struct().cmd( Composer, "" );
 	system_execute( Start_Composer.data() );
-    Log.Comment( Log.INFO, Start_Composer );
+    Log.Comment( INFO, Start_Composer );
 }
 
-void MainWindow::start_srv()
+void MainWindow::start_audio_srv()
 {
-//    string cmd = "xterm -e '" + file_structure().audio_bin + " 2 44100' &";
     string Start_Audio_Srv = Server_struct().cmd( Audio_Srv, "" );
 	system_execute( Start_Audio_Srv.data() );
-    Log.Comment( Log.INFO, Start_Audio_Srv );
+    Log.Comment( INFO, Start_Audio_Srv );
 }
 
 void MainWindow::start_synthesizer()
 {
     string Start_Synthesizer = Server_struct().cmd( Synthesizer, "" );
     system_execute( Start_Synthesizer.data() );
-    Log.Comment( Log.INFO, Start_Synthesizer );
+    Log.Comment( INFO, Start_Synthesizer );
     Wait( 2*SECOND ); 	// WAIT until the startup of the process finished.
     					// the synthesizer process will prepare the initial values
                         // from the keyboard file, that are stored into the GUI.ifd_data structure
@@ -559,14 +563,12 @@ void MainWindow::read_polygon_data()
 
 void MainWindow::Controller_Exit()
 {
-    GUI.Set( GUI.addr->Synthesizer , EXITSERVER ); //
-
-
+    GUI.addr->Synthesizer = EXITSERVER ;
 }
 
 void MainWindow::Audio_Exit()
 {
-    GUI.Set( GUI.addr->AudioServer , STOPSNDSRV);
+    GUI.addr->AudioServer = EXITSERVER;
 }
 
 // button save config to default instrument
@@ -686,7 +688,7 @@ void MainWindow::Updatewidgets()
 
         GUI.Set( GUI.addr->UserInterface , RUNNING);
     }
-    if (GUI.addr->AudioServer == RUNSNDSRV )
+    if (GUI.addr->AudioServer == RUNNING )
         status_color.setColor(QPalette::Button, Qt::green);
     else
         status_color.setColor(QPalette::Button, Qt::red);

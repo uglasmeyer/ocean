@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <Logfacility.h>
-#include <synthesizer.h>
+#include <Synthesizer.h>
 #include <filesystem>
 using namespace std;
 

@@ -47,36 +47,30 @@ Interface_class::~Interface_class()
 	shmdt( shm_info.addr );
 }
 
+
 void Interface_class::Show_interface()
 {
+	auto Lline = []( string s, auto v )
+		{ cout << setw(40) << dec  << setfill('.') 	<< left << s << setw(40) << v << endl;};
 	auto lline = []( string s, auto v )
-			{ cout << setw(20) << dec  << setfill('.') 	<< left << s << setw(20) << v ; };
+		{ cout << setw(20) << dec  << setfill('.') 	<< left << s << setw(20) << v ; };
 	auto rline = []( string s, auto v )
-			{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
+		{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
 	auto decode = [this]( uint8_t value )
-			{
-				assert( uint8_code_str.size() == 16 );
-				string str = "";
-				if ( value > uint8_code_str.size() )
-				{
-					this->Comment( this->ERROR, "cannot decode value " + to_string(value));
-					return str;
-				}
-				return uint8_code_str[value];
-			};
+		{ return uint8_code_str[value]; };
 	auto conv_bool_s = []( bool b )
-		{
-			return ( b ) ? string("yes") : string("no ");
-		};
+		{ return ( b ) ? string("yes") : string("no "); };
 
+	assert( uint8_code_str.size() == LASTNUM );
 	string status1 {};
-	status1 	= 	      conv_bool_s(addr->mi_status.external) +
-					"," + conv_bool_s(addr->mi_status.notes) +
-					"," + conv_bool_s(addr->mi_status.play) +
-					"," + conv_bool_s(addr->mi_status.mute);
+	status1 	= 	      conv_bool_s(addr->mixer_status.external) +
+					"," + conv_bool_s(addr->mixer_status.notes) +
+					"," + conv_bool_s(addr->mixer_status.play) +
+					"," + conv_bool_s(addr->mixer_status.mute) +
+					"," + conv_bool_s(addr->mixer_status.kbd);
 	string status2 {};
 	uint arrno = 0;
-	for( ma_status_t status : addr->ma_status )
+	for( StA_status_t status : addr->StA_status )
 	{
 		status2.append( to_string(arrno) + ":");
 		status2.append( to_string(status.play));
@@ -125,15 +119,14 @@ void Interface_class::Show_interface()
 	rline( "Instrument        :" , addr->Instrument);
 	lline( "Notes             :" , addr->Notes );
 	rline( "Noteline duration :" , (int) addr->Noteline_sec);
-	lline( "Status Ex,No,Pl,Mu:" , status1);
-	rline( "Waveform counter  :" , addr->WD_type_ID);
+	Lline( "Status Extr,Note,Play,Mute,Kbd:" , status1 );
 	rline( "Status StA #:ps,  :" , status2);
 
 }
 
-auto reject = [](char addr, int id )
+auto reject = [](char status, int id )
 		{
-			if (( addr == RUNNING ) and ( id == 4 ))
+			if (( status == RUNNING ) and ( id == 4 ))
 			{
 				cout << "composer rejected" << endl;
 				return true;
@@ -223,16 +216,20 @@ void* Interface_class::buffer( buffer_t shm_size, key_t shm_key )
 	return ( addr );
 };
 
+
 void Interface_class::Announce( string client, bool flag )
 {
-	auto set = [flag, this](auto& a , auto id){
-		if (flag)
-			a = RUNNING;
-		else
-			a = NOCONTROL ;
-		this->Commit();
-		return id;
-	};
+	auto set = [flag, this](auto& client_addr , auto id)
+		{
+			if (flag)
+				client_addr = RUNNING;
+			else
+				client_addr = OFFLINE ;
+			addr->UpdateFlag = true;
+			return id;
+		};
+
+	client_id = 0;
 
 	if ( client.compare("Composer") 	== 0 ) client_id = set( addr->Composer		, 1 );
 	if ( client.compare("Synthesizer") 	== 0 ) client_id = set( addr->Synthesizer	, 2 );
@@ -240,6 +237,11 @@ void Interface_class::Announce( string client, bool flag )
 	if ( client.compare("SndlabGUI") 	== 0 ) client_id = set( addr->UserInterface	, 4 );
 	if ( client.compare("Comstack") 	== 0 ) client_id = set( addr->Comstack		, 5 );
 
+	if ( client_id == 0 )
+	{
+		Comment( ERROR, "Unknown client " + client );
+		raise( SIGINT );
+	}
 }
 void Interface_class::Reset_ifd()
 {
@@ -283,10 +285,13 @@ void Interface_class::Commit()
 	addr->KEY 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
+	while( addr->KEY != NULLKEY )
+		Wait( 10 );
 }
 
 void Interface_class::Set( bool& key, bool value )
 {
+
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;
 }

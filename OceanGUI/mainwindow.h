@@ -74,7 +74,7 @@ private slots:
     void GUI_Exit();
     void Audio_Exit();
     void start_synthesizer();
-    void start_srv();
+    void start_audio_srv();
     void start_composer();
 
     void set_mode_f();

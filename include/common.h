@@ -8,7 +8,7 @@
 #ifndef INCLUDE_COMMON_H_
 #define INCLUDE_COMMON_H_
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 
 template<typename T> char type_of( T obj )
 {
@@ -41,12 +41,12 @@ typedef struct prgarg_struct
 
 extern void show_prgarg_struct( prgarg_struct_t );
 extern prgarg_struct_t parse_argv( int , char**  );
-
 extern void Wait(long  int );
 
-#define MILLISECOND 1
-#define MIKROSECOND 1000
-#define SECOND 1000000
+const static long int SECOND		= 1000000;
+const static long int MILLISECOND	= 1000;
+const static long int MICROSECOND	= 1;
+
 
 using namespace std::chrono;
 class Time_class : public Logfacility_class

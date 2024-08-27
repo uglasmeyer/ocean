@@ -8,10 +8,11 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
-#include <synthesizer.h>
 #include <Interface.h>
 #include <Spectrum.h>
 #include <osc.h>
+#include <common.h>
+#include <Synthesizer.h>
 
 
 

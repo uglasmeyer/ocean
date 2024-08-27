@@ -8,15 +8,16 @@
 #ifndef TRACKCLASS_H_
 #define TRACKCLASS_H_
 
-#include <synthesizer.h>
 #include <synthmem.h>
 #include <Spectrum.h>
+#include <Synthesizer.h>
 
 const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
 
 typedef struct adsr_struct
 {
 	uint bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
+	uint nps_id 	= 2; // see Note_base::Notes_per_sec
 	uint attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
 	uint decay  	= 0;
 	uint hall		= 0; // mixing hall effect [0..100} data shift

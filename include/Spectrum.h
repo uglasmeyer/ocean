@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SPECTRUM_H_
 #define INCLUDE_SPECTRUM_H_
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 
 
 enum { VCOID, FMOID, MAINID, NOTESID, KBDID, TESTID, OTHERID };

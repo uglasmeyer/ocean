@@ -9,12 +9,12 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
-#include <synthesizer.h>
 #include <Interface.h>
 #include <keys.h>
-#include <processor.h>
+#include <Processor.h>
 #include <variation.h>
 #include <Spectrum.h>
+#include <Synthesizer.h>
 
 typedef struct line_struct
 {

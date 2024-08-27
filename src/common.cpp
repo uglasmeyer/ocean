@@ -11,16 +11,11 @@ using namespace std;
 
 Logfacility_class Log_common{"System"};
 
-string Get_application_name( string name )
-{
-	return "Sound Lab module " + name + Version_str;
-}
 
 void Wait( long int N)
 {
-	usleep( N ); //milliseconds
+	usleep( N ); //microseconds
 }
-
 
 
 prgarg_struct_t parse_argv( int argc, char* argv[] )
@@ -68,7 +63,7 @@ void show_prgarg_struct( prgarg_struct_t args )
 	strs << setw(20) << left << "shm key B" << dec << args.shm_key_b	<<endl;  		//
 	strs << setw(20) << left << "test classes" << dec << args.test		<<endl;  		// -t
 	strs << setw(20) << left << "dialog mode" << dec << args.dialog		<<endl;  		// -D
-	Log_common.Comment( Log_common.INFO, strs.str() );
+	Log_common.Comment( INFO, strs.str() );
 }
 
 

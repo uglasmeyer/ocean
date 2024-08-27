@@ -11,38 +11,36 @@
 
 #include <Oscbase.h>
 #include <keys.h>
-#include <synthesizer.h>
 #include <synthmem.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <version.h>
+#include <common.h>
+#include <Synthesizer.h>
 
 
 const vector_str_t uint8_code_str =
 {
-	"Offline"	,
-	"Running"	,
-	"stop Audio",
-	"Running"	,
-	"Recording"	,
-	"Stop record",
-	"synchronize",
-	"free running",
-	"block"		,
-	"release"	,
-	"Update GUI",
-	"Store sound",
-	"play notes",
-	"default mode",
-	"Exit server",
-	"Keyboard"
+	"Offline"		,
+	"Running"		,
+	"Recording"		,
+	"Stop record"	,
+	"synchronize"	,
+	"free running"	,
+	"block"			,
+	"release"		,
+	"Update GUI"	,
+	"Store sound"	,
+	"sync mode"		,
+	"default mode"	,
+	"Exit server"	,
+	"Keyboard"		,
+	"Update mode"
 };
 
 enum {
-	 NOCONTROL 	,
+	 OFFLINE 	,
 	 RUNNING	,
-	 STOPSNDSRV ,
-	 RUNSNDSRV 	,
 	 RECORD		,
 	 STOPRECORD ,
 	 SENDDATA 	,
@@ -51,10 +49,12 @@ enum {
 	 RELEASEDATA,
 	 UPDATEGUI 	,
 	 STORESOUND	,   // obsolete
-	 NOTES 		,
+	 SYNC 		,
 	 DEFAULT	,
 	 EXITSERVER	,
-	 KEYBOARD
+	 KEYBOARD	,
+	 UPDATE		,
+	 LASTNUM
 };
 
 typedef 		Spectrum_base::spec_struct_t
@@ -63,9 +63,9 @@ static const 	uint str_buffer_len = 32;
 
 typedef struct interface_struct
 {
-	char		version						= 0;
-	array<ma_status_t, 8> 	ma_status 		{ {{false, false}}};
-	mi_status_t				mi_status 		{ false, false, false, false, false };
+	char		version						= 1;
+	array<StA_status_t, 8> 	StA_status 		{ StA_status_struct() };
+	mixer_status_t			mixer_status 	= mixer_status_struct();
 	char 		Instrument[str_buffer_len] 	= "default"; //char array
 	char 		Notes[str_buffer_len] 		= "default"; //char array for the notes filename
 	char 		Other[str_buffer_len]		= ""; // e.g. external wave file name
@@ -73,11 +73,12 @@ typedef struct interface_struct
 	float 		Main_Freq  					= 110;
 	char 		Master_Amp 					= 75;
 	char 		Main_Duration 				= max_sec;
-	char  		Main_adsr_bps_id			= 0;
-	char 		Main_adsr_decay  			= 0;
-	char 		Main_adsr_attack    		= 0;
+	char  		Main_adsr_bps_id			= adsr_struct().bps_id; // Beats per second for MAINID
+	char  		Main_adsr_nps_id			= adsr_struct().nps_id; // Notes per second for NOTESID
+	char 		Main_adsr_decay  			= adsr_struct().decay;
+	char 		Main_adsr_attack    		= adsr_struct().attack;
+	char 		Main_adsr_hall				= adsr_struct().hall;;
 	char		Soft_freq					= 0;
-	char 		Main_adsr_hall				= 0;
 
 	char 		LOOP_step 					= 0;
 	float		LOOP_end 					= 75;
@@ -100,11 +101,11 @@ typedef struct interface_struct
 	char		Spectrum_type				= MAINID;
 
 	char 		Wavedisplay_Id				= 0;
-	char 		AudioServer	    			= NOCONTROL;
+	char 		AudioServer	    			= OFFLINE;
 	char 		Synthesizer					= DEFAULT; // indicates that shm is new
-	char 		UserInterface				= NOCONTROL;
-	char 		Composer 					= NOCONTROL;
-	char		Comstack					= NOCONTROL;
+	char 		UserInterface				= OFFLINE;
+	char 		Composer 					= OFFLINE;
+	char		Comstack					= OFFLINE;
 
 	char 		FLAG						= NULLKEY;
 	char 		KEY 						= NULLKEY;
@@ -149,7 +150,6 @@ public:
 	void 	Set( char& key, char value);
 	void 	Set( uint16_t& key, uint16_t value);
 	void 	Set( float& key, float value);
-
 
 private:
 	uint8_t			client_id 		= 0xFF;

@@ -93,6 +93,5 @@ version 1.5.1 playnote fixes more or less finalized
 version 1.5.0 ADSR / delay
 */
 
-extern string Get_application_name( string );
 
 #endif /* INCLUDE_VERSION_H_ */

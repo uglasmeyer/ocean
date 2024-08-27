@@ -8,7 +8,6 @@
 #ifndef INCLUDE_PLAYNOTES_H_
 #define INCLUDE_PLAYNOTES_H_
 
-#include <synthesizer.h>
 #include <Spectrum.h>
 
 #include <common.h>
@@ -16,6 +15,7 @@
 #include <Oscbase.h>
 #include <osc.h>
 #include <Notesbase.h>
+#include <Synthesizer.h>
 
 extern bool cmpstr( const string , const string  );
 

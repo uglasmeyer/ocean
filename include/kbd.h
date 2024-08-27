@@ -8,44 +8,46 @@
 #ifndef KBD_H
 #define KBD_H
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 
 using namespace std;
 
 
-typedef struct key_struct
-{
-	char 	key	= 0;
-	uint_t 	val	= 0;
-} key_struct_t;
 
-class Kbd_class : virtual Logfacility_class
+class Keyboard_base : virtual Logfacility_class
 {
 public:             // Access specifier
-	Kbd_class() : Logfacility_class("Kbd")
-	{
-		c2 = 0;
-		c3 = 0;
-	}
-	virtual ~Kbd_class(){
+	const static int	NoKey 	= 0;
 
-	}
+	typedef struct key_struct
+	{
+		int 	key	= NoKey;
+		uint_t 	val	= 0;
+	} key_struct_t;
+	key_struct_t 	keystruct;
+
+	array<key_struct_t, 6> key_vector {key_struct()};
+	array<key_struct_t, 6> default_key_vector = key_vector;
+
+	Keyboard_base() : Logfacility_class("Kbd")
+	{};
+	virtual ~Keyboard_base()
+	{};
+
 	key_struct_t 	GetKey();
+	key_struct_t 	GetHold();
+	void			KeyVector();
 	void 			Reset();
-	bool 			NextKey();
+	void			Test();
 
 private:
 
-	key_struct_t 	keystruct;
-	char 			NoKey 		= '$';
-	char 			MinorKey	= NoKey;
-	char 			ExitKey 	= '#';
-	bool 			Status	 	= true;
-	int 			m_counter 	= 0;
-	uint8_t 		c2,c3,c4 	= 0;
+	uint8_t 		c2		= 0;
+	uint8_t 		c3 		= 0;
 
 	char getch(void);
 	void pressKey();
+	void show_key_vector();
 
 };
 

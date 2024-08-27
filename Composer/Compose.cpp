@@ -1,20 +1,16 @@
 
-#include "Interpreter.h"
+#include <Interpreter.h>
+#include <App.h>
 
-
-Logfacility_class 		Log("Composer");
+string					Module = "Composer";
+Logfacility_class 		Log( Module );
 Variation_class 		Variation;
-Interface_class 	GUI;
-Interpreter_class 		Compiler(&GUI );
+Interface_class 		IFD;
+Application_class		App( Module, &IFD.addr->Composer );
+Interpreter_class 		Compiler(&IFD );
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
-
-#define INFO Log.INFO
-#define ERROR Log.ERROR
-#define  WARN Log.WARN
-
-
 
 
 void exit_proc( int signal )
@@ -23,9 +19,7 @@ void exit_proc( int signal )
 		cout.flush() << "\nEntering exit proc on assembler error " + to_string(signal) << endl;
 	else
 		cout.flush() << "\nEntering exit proc" << endl;
-	GUI.Announce( "Composer", false );
-	GUI.addr->Synthesizer = EXITSERVER;
-	GUI.addr->AudioServer = STOPSNDSRV;
+	IFD.Announce( "Composer", false );
 
 	exit(signal);
 }
@@ -37,7 +31,6 @@ int return_pos( int pos )
 		cout << dec << pos+1 << ": return without goto" << endl;
 		raise( SIGINT  );
 	}
-//	cout << "pop pos  " << dec << pos << endl;
 	pos = pos_stack.back( );// access the last element
 	pos_stack.pop_back();	// delete the last element
 	return pos;
@@ -45,7 +38,6 @@ int return_pos( int pos )
 
 int call_pos( int pos, vector_str_t arr )
 {
-//	cout << "push pos  " << dec << pos << endl;
 	pos_stack.push_back( pos );
 	pos = Compiler.find_position( &Program, arr );
 	return pos;
@@ -260,7 +252,7 @@ void maintest()
 
 int main( int argc, char* argv[] )
 {
-
+	App.Start();
 	signal(SIGINT , &exit_proc);
 	signal(SIGABRT, &exit_proc);
 
@@ -272,7 +264,7 @@ int main( int argc, char* argv[] )
 		maintest();
 		exit_proc(0);
 	}
-	GUI.Announce("Composer", true);
+	IFD.Announce("Composer", true);
 	Log.Set_Loglevel(ERROR , true);
 
 	if ( preprocessor( file_structure().main_file ) )
@@ -282,7 +274,7 @@ int main( int argc, char* argv[] )
 			Compiler.Execute(  );
 		}
 	}
-	GUI.Announce( "Composer", false );
+	IFD.Announce( "Composer", false );
 
 	if ( params.dialog == 'y' )
 	{

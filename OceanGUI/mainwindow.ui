@@ -2176,8 +2176,8 @@
    <slot>Save_Config()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>986</x>
-     <y>524</y>
+     <x>1001</x>
+     <y>523</y>
     </hint>
     <hint type="destinationlabel">
      <x>1092</x>
@@ -2192,8 +2192,8 @@
    <slot>GUI_Exit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>986</x>
-     <y>561</y>
+     <x>1001</x>
+     <y>560</y>
     </hint>
     <hint type="destinationlabel">
      <x>1082</x>
@@ -2208,28 +2208,12 @@
    <slot>Audio_Exit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>675</x>
+     <x>645</x>
      <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>604</x>
      <y>572</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pBAudioServer</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>start_srv()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>675</x>
-     <y>527</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>745</x>
-     <y>448</y>
     </hint>
    </hints>
   </connection>
@@ -2266,29 +2250,13 @@
    </hints>
   </connection>
   <connection>
-   <sender>pBSynthesizerExit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Controller_Exit()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>825</x>
-     <y>559</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>909</x>
-     <y>564</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pBSynthesizer</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>start_synthesizer()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>825</x>
+     <x>745</x>
      <y>528</y>
     </hint>
     <hint type="destinationlabel">

@@ -17,14 +17,15 @@
 using namespace std;
 
 
+enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
 
 class Logfacility_class
 {
 public:
 	static const int 	logmax 		= 6;
 	array<bool,logmax+1> Log { true, false, true, true, false, true, false };
-	enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
 
+	const string Line = "--------------------------------------------------------------------------------";
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  )
 	{	cout.flush();

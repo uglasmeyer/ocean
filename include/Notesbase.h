@@ -8,7 +8,7 @@
 #ifndef INCLUDE_NOTESBASE_H_
 #define INCLUDE_NOTESBASE_H_
 
-#include <synthesizer.h>
+#include <Synthesizer.h>
 
 
 /*

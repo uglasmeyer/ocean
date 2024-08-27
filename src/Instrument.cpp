@@ -94,6 +94,8 @@ void Instrument_class::setup_GUI_Data()
 	ifd->MODE				= FREERUN;
 	ifd->UserInterface		= UPDATEGUI; // update Instrument reset flag on GUI side
 
+	ifd->mixer_status.kbd 	= false;
+
 }
 
 void Instrument_class::show_sound_stack() // show_status
@@ -374,6 +376,7 @@ bool Instrument_class::Set( string name )
 
 }
 
+
 void Instrument_class::Test_Instrument()
 {
 	Set_Loglevel(TEST, true);
@@ -418,6 +421,12 @@ void Instrument_class::Test_Instrument()
 		cout << "> "  << setw(15) << datan << setw(15) << data0 << setw(15) << abs( abs( datan )- abs(data0 ) )  << endl;
 		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
 	}
+
+	Time_class Timer;
+	Timer.start();
+	Run_osc_group();
+	Timer.stop();
+	cout << "Run osc group in " << Timer.time_elapsed() << " milli seconds" <<  endl;
 
 	Comment( TEST, "Instrument test done" );
 }

@@ -591,48 +591,68 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs ) // TODO workin
 		};
 
 	assert( instrument != nullptr );
+	if ( instrument->main.wp.frequency < 1 )
+	{
+		Comment( ERROR, "Zero main frequency");
+		return;
+	}
 
 	float fnew = 0;
 	float fglide = note.glide.chord.freq;
 
-	uint16_t tmp_glide_freq = main.wp.glide_effect;
+	uint_t wp_glide_effect = main.wp.glide_effect;
+	float vco_wp_frequency = vco.wp.frequency;
+	float fmo_wp_frequency = fmo.wp.frequency;
+
 	if ( note.glide.note )
 		main.wp.glide_effect = 100;
 
 	main.Set_long( note.longnote );
-
+	size_t note_chord_len = note.chord.size();
 	for ( notevalue_struct_t notevalue : note.chord )
 	{
-		fnew = ( notevalue.freq * 	vco.wp.frequency ) /
+		fnew = ( notevalue.freq * 	vco_wp_frequency ) /
 									instrument->main.wp.frequency;
+		vco.Set_start_freq(fnew);
 		vco.wp.frequency 	= fnew;
 		vco.wp.msec 		= note.duration;
 
-		fnew = ( notevalue.freq * 	fmo.wp.frequency ) /
+		fnew = ( notevalue.freq * 	fmo_wp_frequency ) /
 									instrument->main.wp.frequency ;
+		float max_frequency = oct_base_freq * ( 1 << ( max_octave + 1 ) );
+		if ( fnew > max_frequency )
+		{
+			cout << "fnew " << fnew <<endl;
+			cout << "notevalue.freq " << notevalue.freq <<endl;
+			cout << "fmo.wp.frequency " << fmo.wp.frequency <<endl;
+			cout << "instrument->main.wp.frequency " << instrument->main.wp.frequency <<endl;
+			raise( SIGINT );
+		}
+		fmo.Set_start_freq(fnew);
 		fmo.wp.frequency	= fnew;
 		fmo.wp.msec 		= note.duration;
 
 		main.Set_start_freq( notevalue.freq );
 		main.wp.frequency	= fglide;
-		main.wp.volume 		= note.volume ;
+		main.wp.volume 		= rint( note.volume / note_chord_len );
 		main.wp.msec 		= note.duration;
 
 		run_osc_group( offs );
 	}
 
-	main.wp.glide_effect = tmp_glide_freq;
+
+	main.wp.glide_effect = wp_glide_effect;
 	return ;
 }
 
-void Note_class::submit_data(Storage::Storage_class* 		mb)
+void Note_class::submit_data(Storage::Storage_class* 		Note_StA)
 {
-	mb->reset_counter();
-	mb->status.store = true;
-	mb->store_block( this->main.Mem.Data );
+	Note_StA->reset_counter();
+	Note_StA->status.store = true;
+	Note_StA->store_block( this->main.Mem.Data );
 }
 
-bool Note_class::Generate_note_chunk( Storage::Storage_class* 		mb )
+bool Note_class::Generate_note_chunk( Storage::Storage_class* 		Note_StA )
 { 	// generate the memory track for positon n = note_pointer tp
 	// n = note_pointer + chunk_len
 	auto restart_note_itr = [ this ]()
@@ -660,7 +680,7 @@ bool Note_class::Generate_note_chunk( Storage::Storage_class* 		mb )
 		note_itr++;
 		if ( timestamp == max_sec*1000 )
 		{
-			submit_data(mb);
+			submit_data(Note_StA);
 			return true; // good
 		}
 		if ( timestamp >  max_sec*1000 )
@@ -673,7 +693,7 @@ bool Note_class::Generate_note_chunk( Storage::Storage_class* 		mb )
 
 	if ( timestamp == 0 )
 	{
-		submit_data( mb );
+		submit_data( Note_StA );
 		return true;
 	}
 	else
@@ -684,7 +704,7 @@ bool Note_class::Generate_note_chunk( Storage::Storage_class* 		mb )
 }
 
 bool Note_class::Set_notes_per_second( int notes_per_second )
-{	// [ 1,2,4,8 ] notes per second
+{	// [ 1,2,4,5, 8 ] notes per second
 
 	auto check_nps = [ this ]( int i )
 		{

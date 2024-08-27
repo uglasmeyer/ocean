@@ -9,18 +9,26 @@
 
 Keyboard_class::Keyboard_class( Instrument_class* instr, Storage::Storage_class* StA  ) :
 	Logfacility_class("Keyboard"),
-	Oscillator_base()
+	Oscillator_base(),
+	Keyboard_base()
 {
 	this->instrument 	= instr;
 	this->StA			= StA;
 }
 
-Keyboard_class::~Keyboard_class(){};
-
-void Keyboard_class::Setup(  )
+Keyboard_class::Keyboard_class() :
+	Logfacility_class("Keyboard"),
+	Oscillator_base(),
+	Keyboard_base()
 {
 
+}
 
+Keyboard_class::~Keyboard_class(){};
+
+void Keyboard_class::setup(  )
+{
+	if ( not instrument ) return;
 	// copy class Oscillator
 	main.wp 		= instrument->main.wp;
 	main.vp 		= instrument->main.vp;
@@ -41,7 +49,16 @@ void Keyboard_class::Setup(  )
 	fmo.spectrum	= instrument->fmo.spectrum;
 }
 
-void Keyboard_class::Attack( char key, uint8_t amp )
+bool Keyboard_class::decay( int key )
+{
+	if( prevKey == key )
+		return true;
+	else
+		return false;
+
+}
+
+bool Keyboard_class::Attack( int key, uint8_t amp )
 {
 	auto set_osc_frequency 	= [ key ]( Oscillator* osc )
 		{
@@ -50,10 +67,11 @@ void Keyboard_class::Attack( char key, uint8_t amp )
 			osc->OSC( 0 );
 		};
 
-	if ( key == prevKey ) return;
-	Comment( INFO, "Attack: " + NoteName[ (int)key ] );
+	if ( not StA ) return false;
+	if ( key == NOKEY ) return false;
+	if ( decay( key ) ) return false;
 
-	Setup();
+	setup();
 	for ( Oscillator* osc : osc_group )
 		set_osc_frequency( osc );
 
@@ -61,29 +79,54 @@ void Keyboard_class::Attack( char key, uint8_t amp )
 	StA->status.store 	= true;
 	StA->status.play 	= true;
 	StA->Amp 			= amp;
-	prevKey 			= key;
 	StA->store_block(main.Mem.Data);
+	prevKey = key;
+	return true;
 }
 
-void Keyboard_class::Release()
+bool Keyboard_class::Release( int key )
 {
-	if ( prevKey != 0 )
-		Comment( INFO, "Release: " + NoteName[ (int)prevKey ] );
+	if ( not StA ) return false;
+	if (( key == NOKEY ) and ( prevKey != NOKEY ))
+//	if ( true )
+	{
 
-	StA->reset_counter();
+		StA->reset_counter();
 
-	StA->status.play 	= false;
-	StA->status.store 	= false;
+		StA->status.play 	= false;
+		StA->status.store 	= false;
 
-	prevKey 			= 0;
-	StA->clear_data( 0 );
-
+		prevKey 			= NOKEY;
+		StA->clear_data( 0 );
+		return true;
+	}
+	else
+	{
+		prevKey = key;
+		return false;
+	}
 }
 
-size_t Keyboard_class::Kbdnote( char key)
+int Keyboard_class::Kbdnote()
 {
+	// transforms anykey into notevalue
+
+	keystruct = GetHold();
+
+	int anykey = keystruct.key;
+//	cout << anykey;
+
 	// check if key is in set KbdNote
-	return KbdNote.find( key );
+	size_t note = KbdNote.find( anykey );
+	if ( note == STRINGNOTFOUND )
+	{
+		return NOKEY; // not a note key
+	}
+	else
+	{
+		return (int)note;
+	}
+
 }
 
 

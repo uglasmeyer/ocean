@@ -8,11 +8,11 @@
 #ifndef INCLUDE_OSC_H_
 #define INCLUDE_OSC_H_
 
-#include <synthesizer.h>
 #include <synthmem.h>
 #include <Spectrum.h>
 
 #include <Oscbase.h>
+#include <Synthesizer.h>
 
 using namespace std;
 
@@ -48,7 +48,6 @@ public:
 	void Reset_data( Oscillator* );
 	void Set_long( bool );
 	void Test();
-	double 			phase 		= 0;
 
 private:
 	typedef function<Data_t(const float&, const float&)> osc_function;
@@ -57,6 +56,7 @@ private:
 	float 			fmophase 	= 0;
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t		decay_shift = 0;
+	double 			phase 		= 0;
 
 	void 	apply_hall( adsr_struc_t, buffer_t, Data_t* );
 	void 	apply_adsr(adsr_struc_t , buffer_t , Data_t*);

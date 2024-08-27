@@ -8,9 +8,9 @@
 #ifndef VARIATION_H_
 #define VARIATION_H_
 
-#include <synthesizer.h>
 #include <notes.h>
 #include <mixer.h>
+#include <Synthesizer.h>
 
 using namespace std;
 

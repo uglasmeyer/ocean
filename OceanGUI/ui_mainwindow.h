@@ -677,10 +677,8 @@ public:
         QObject::connect(pB_Save, SIGNAL(clicked()), MainWindow, SLOT(Save_Config()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
         QObject::connect(pBAudioServerExit, SIGNAL(clicked()), MainWindow, SLOT(Audio_Exit()));
-        QObject::connect(pBAudioServer, SIGNAL(clicked()), MainWindow, SLOT(start_srv()));
         QObject::connect(cb_4, SIGNAL(clicked()), MainWindow, SLOT(change_status4()));
         QObject::connect(cb_5, SIGNAL(clicked()), MainWindow, SLOT(change_status5()));
-        QObject::connect(pBSynthesizerExit, SIGNAL(clicked()), MainWindow, SLOT(Controller_Exit()));
         QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
 
         QMetaObject::connectSlotsByName(MainWindow);

@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include <common.h>
-#include <kbd.h>
+#include <Keyboard.h>
 #include <keys.h>
 #include <Logfacility.h>
 #include <Interface.h>
@@ -17,20 +17,21 @@
 
 using namespace std;
 
-Kbd_class 				keyboard;
 Logfacility_class 		Log("comstack");
-Interface_class 		GUI;
-ifd_t* 					ifd 			= GUI.addr;
+Keyboard_class			Keyboard;
+Interface_class 		IFD;
+ifd_t* 					ifd 			= IFD.addr;
 
-key_struct_t 			keys			= key_struct();
+Keyboard_base::key_struct_t
+						keys			= Keyboard_base::key_struct();
 string 					waveform_string = "0 ... 10";
 int 					update_counter 	= 1;
 
 void exit_proc( int signal )
 {
-	GUI.Announce("Comstack", false );
+	IFD.Announce("Comstack", false );
 
-	keyboard.Reset();
+	Keyboard.Reset();
 	exit( signal );
 }
 
@@ -55,7 +56,7 @@ void show_ifd()
 {
 	if ( ifd->UpdateFlag )
 	{
-		GUI.Show_interface();
+		IFD.Show_interface();
 		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
 		update_counter++;
 		ifd->UpdateFlag = false;
@@ -67,11 +68,11 @@ char Key_event( string charlist )
 {
 	keys.key = '$';
 
-	while ( charlist.find( keys.key ) == string::npos )
+	while ( charlist.find( keys.key ) == STRINGNOTFOUND )
 	{
-		Wait( 50*MILLISECOND);
+		Wait( 50*MILLISECOND );
 		show_ifd();
-		keys = keyboard.GetKey();
+		keys = Keyboard.GetKey();
 	}
 	return keys.key;
 }
@@ -82,8 +83,8 @@ int main( int argc, char* argv[] )
  	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-	GUI.Announce("Comstack", true);
- 	GUI.Show_interface();
+	IFD.Announce("Comstack", true);
+ 	IFD.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
 
 	keys.key = '$';
