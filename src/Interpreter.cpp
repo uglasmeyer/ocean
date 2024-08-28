@@ -353,7 +353,7 @@ void Interpreter_class::notes( vector_str_t arr )
 		Value nps = pop_int(1,16);
 		if ( Variation.Set_notes_per_second( nps.i ) )
 		{
-			Processor_class::Push_ifd( &ifd->Main_adsr_nps_id, nps.i, "notes per second"  );
+			Processor_class::Push_ifd( &ifd->noteline_prefix.nps, nps.i, "notes per second"  );
 			Processor_class::Push_key( SETNOTESPERSEC_KEY, "set per_second" );
 		}
 		else
@@ -717,7 +717,7 @@ void Interpreter_class::adsr( vector_str_t arr )
 			Comment(ERROR, "wrong beat duration" );
 			raise( SIGINT );
 		}
-		Processor_class::Push_ifd( &ifd->Main_adsr_bps_id, bps_id, "beat duration" );
+		Processor_class::Push_ifd( &ifd->Main_adsr.bps_id, bps_id, "beat duration" );
 		Processor_class::Push_key( ADSRDURATIONKEY, "set beat duration" );
 		return;
 	}
@@ -725,15 +725,15 @@ void Interpreter_class::adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		int attack = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Main_adsr_attack, attack, "adsr attack" );
+		Processor_class::Push_ifd( &ifd->Main_adsr.attack, attack, "adsr attack" );
 		Processor_class::Push_key( ADSRDECAYKEY, "set adsr attack" );
 		return;
 	}
 	if ( cmpkeyword( "decay") )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
-		int decay = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Main_adsr_decay, decay, "adsr decay" );
+		uint8_t decay = pop_int(0,100);
+		Processor_class::Push_ifd( &ifd->Main_adsr.decay, decay, "adsr decay" );
 		Processor_class::Push_key( ADSRSUSTAINKEY, "set adsr decay" );
 		return;
 	}
@@ -741,7 +741,7 @@ void Interpreter_class::adsr( vector_str_t arr )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		int hall = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Main_adsr_hall, hall, "hall"  );
+		Processor_class::Push_ifd( &ifd->Main_adsr.hall, hall, "hall"  );
 		Processor_class::Push_key( ADSRHALLKEY,  "set hall" );
 		return;
 	}

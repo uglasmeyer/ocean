@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>207</height>
+    <width>327</width>
+    <height>271</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -462,24 +462,44 @@
    <string>File Director</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="10" column="1">
-    <widget class="QPushButton" name="pbPlayNotes">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
+   <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Instruments</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="0" column="2">
+    <widget class="QPushButton" name="pbInstrumentDone">
+     <property name="text">
+      <string>Instrument Done</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QComboBox" name="cb_instrumentfiles">
+     <property name="maxVisibleItems">
+      <number>20</number>
+     </property>
+     <property name="maxCount">
+      <number>30</number>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="lE_Instrument">
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QComboBox" name="cb_notefilenames">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -495,63 +515,91 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2" colspan="2">
-    <widget class="QLineEdit" name="lE_Instrument">
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="2" colspan="2">
+   <item row="2" column="2">
     <widget class="QLineEdit" name="lE_NotesFile"/>
    </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="cb_instrumentfiles">
-     <property name="maxVisibleItems">
-      <number>20</number>
-     </property>
-     <property name="maxCount">
-      <number>30</number>
-     </property>
-     <property name="sizeAdjustPolicy">
-      <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+   <item row="3" column="0" colspan="3">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="pbInstrumentDone">
-     <property name="text">
-      <string>Instrument Done</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
+   <item row="4" column="0" colspan="2">
     <widget class="QLabel" name="lbl_selected_notes">
      <property name="text">
       <string>Notes: (CcDdEFfGgAaH)</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="2">
+   <item row="4" column="2">
     <widget class="QPushButton" name="pbNotesDone">
      <property name="text">
       <string>Notes Done</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="2">
-    <widget class="QLineEdit" name="lE_Rythm"/>
-   </item>
-   <item row="9" column="1" colspan="3">
+   <item row="5" column="0" colspan="3">
     <widget class="QLineEdit" name="lE_Notes"/>
    </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="Line" name="line">
+   <item row="6" column="0" colspan="2">
+    <widget class="QPushButton" name="pbPlayNotes">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QLineEdit" name="lE_Rythm"/>
+   </item>
+   <item row="7" column="0" colspan="3">
+    <widget class="Line" name="line_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Octave</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>NPS</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QSpinBox" name="spinBox">
+     <property name="maximum">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QSpinBox" name="sB_nps">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>8</number>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="2">
+    <widget class="QComboBox" name="comboBox"/>
+   </item>
+   <item row="8" column="2">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Note Convention</string>
      </property>
     </widget>
    </item>

@@ -252,6 +252,7 @@ void maintest()
 
 int main( int argc, char* argv[] )
 {
+	Log.init_log_file();
 	App.Start();
 	signal(SIGINT , &exit_proc);
 	signal(SIGABRT, &exit_proc);

@@ -619,7 +619,6 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs ) // TODO workin
 
 		fnew = ( notevalue.freq * 	fmo_wp_frequency ) /
 									instrument->main.wp.frequency ;
-		float max_frequency = oct_base_freq * ( 1 << ( max_octave + 1 ) );
 		if ( fnew > max_frequency )
 		{
 			cout << "fnew " << fnew <<endl;
@@ -641,7 +640,9 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs ) // TODO workin
 	}
 
 
-	main.wp.glide_effect = wp_glide_effect;
+	vco.wp.frequency	= vco_wp_frequency;
+	fmo.wp.frequency	= fmo_wp_frequency;
+	main.wp.glide_effect= wp_glide_effect;
 	return ;
 }
 
@@ -733,8 +734,9 @@ string Note_class::get_name()
 	return Notefile_name;
 }
 
-void Note_class::set_name( string str )
+void Note_class::set_file_name( string str )
 {
+	Notefile_name = str;
 	Notefile = "";
 	for ( string dir : { dir_struct().notesdir , dir_struct().autodir} )
 	{
@@ -751,10 +753,11 @@ void Note_class::set_name( string str )
 
 string Note_class::Read( string str )
 {
-	String Line{""};
-	fstream File;
-	set_name(str);
-	vector_str_t Line_arr;
+	String 			Line{""};
+	fstream 		File;
+	vector_str_t 	Line_arr;
+
+	set_file_name(str);
 	Comment(INFO, "setup notes for " + get_name() );
 
 	File.open( Notefile, fstream::in );
@@ -763,8 +766,8 @@ string Note_class::Read( string str )
 		Comment( ERROR, "Input file: " + Notefile + " does not exist" );
 		return "";
 	}
-	Volumeline = "";
-	Noteline = "";
+	Volumeline 	= "";
+	Noteline 	= "";
 	getline( File, Line.Str );
 
 	do
@@ -812,7 +815,7 @@ string Note_class::Read( string str )
 
 void Note_class::Save( string str, noteline_prefix_t prefix, string nl_str )
 {
-	set_name(  str );
+	set_file_name(  str );
 	fstream File( Notefile, fstream::out );
 	Comment(DEBUG,error_text( errno ));
 	if ( ! File.is_open())

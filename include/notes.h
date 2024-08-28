@@ -89,6 +89,7 @@ public:
 	}
 
 private:
+	const float 	max_frequency 	= oct_base_freq * ( 1 << ( max_octave + 1 ) );
 	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
 	string 			Notefile_name 	= "";
 	string 			Notefile 		= "";
@@ -109,7 +110,7 @@ private:
 
 	string 			get_name();
 	void 			set_note_list ( noteline_prefix_t,  string );
-	void			set_name( string );
+	void			set_file_name( string );
 	strlen_t		Noteline_position_parser( unsigned long int );
 	void 			note2memory( note_struct_t, buffer_t );
 	void 			change_alphabet_notes( noteline_prefix_t );

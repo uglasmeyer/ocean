@@ -48,8 +48,8 @@ public:
 	{
 		spec_dta_t				dta	= { 100,0,0,0,0,0,0,0 } ; 	// [osc, amplitude ... ]
 		int						sum = 100; // max of the array content
-		char	 				id 	= SINUS1; // waveform id
-		char					osc = MAINID;
+		uint8_t	 				id 	= SINUS1; // waveform id
+		uint8_t					osc = MAINID;
 	} spec_struct_t;
 
 	const vector<string> waveform_str_vec

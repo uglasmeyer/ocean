@@ -314,12 +314,12 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			data[n] = 0;
 
 		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) / spectrum.sum; // VCO envelope
-		for ( size_t df = 0; df < spec_dta_len; df++ )
+		for ( size_t mode = 0; mode < spec_dta_len; mode++ )
 		{
-			if ( spectrum.dta[df] != 0 )
+			if ( spectrum.dta[mode] != 0 )
 			{
-				omega_t =   phi * ( 2 + df ) * 0.5 ;
-				data[n]	=   data[n] + F(spectrum.dta[df]*vco_vol, omega_t);
+				omega_t =   phi * ( 2 + mode ) * 0.5 ;
+				data[n]	=   data[n] + F(spectrum.dta[mode]*vco_vol, omega_t);
 			}
 		}
 

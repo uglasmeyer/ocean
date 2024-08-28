@@ -16,11 +16,10 @@ const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#",
 
 typedef struct adsr_struct
 {
-	uint bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
-	uint nps_id 	= 2; // see Note_base::Notes_per_sec
-	uint attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
-	uint decay  	= 0;
-	uint hall		= 0; // mixing hall effect [0..100} data shift
+	uint8_t bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
+	uint8_t attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
+	uint8_t decay  	= 0;
+	uint8_t hall		= 0; // mixing hall effect [0..100} data shift
 } adsr_struc_t;
 
 typedef struct freq_struct

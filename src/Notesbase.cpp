@@ -12,7 +12,7 @@ void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
 	stringstream strs{ "\n" };
 	string nlp_str = convention_names[nlp.convention ];
 	strs << "Note prefix:" << endl;
-	strs << setw(20) << left << "Octave: " 		<< nlp.Octave << endl;
+	strs << setw(20) << left << "Octave: " 			<< nlp.Octave << endl;
 	strs << setw(20) << left << "Convention: " 		<< nlp.convention << ":" << nlp_str << endl;
 	strs << setw(20) << left << "Notes per sec: " 	<< nlp.nps << endl;
 	strs << setw(20) << left << "Flats: " 			<< nlp.flat << endl;
@@ -23,11 +23,11 @@ void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
 string Note_base::noteline_prefix_to_string( noteline_prefix_t nlp )
 {
 	stringstream strs{""};
-	strs 	<< nlp.Octave 		<<","
-			<< nlp.convention	<<","
-			<< nlp.nps 			<<","
-			<< nlp.flat			<<","
-			<< nlp.sharp ;
+	strs 	<< (int) nlp.Octave 		<<","
+			<< (int) nlp.convention		<<","
+			<< (int) nlp.nps 			<<","
+			<< (int) nlp.flat			<<","
+			<< (int) nlp.sharp ;
 	return strs.str();
 }
 

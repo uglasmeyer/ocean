@@ -26,7 +26,7 @@ QT_END_NAMESPACE
 
 void read_filelist( QComboBox* CB, string path, QString type );
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, Logfacility_class
 {
     Q_OBJECT
 
@@ -34,8 +34,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    Logfacility_class       Log{"GUI main"};
-    Interface_class     GUI;
+    Interface_class     	GUI;
     Spectrum_class          Spectrum			{};
     File_Dialog_class*      Dialog_File         = nullptr;
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
@@ -65,7 +64,7 @@ private slots:
     void Slider_FMO_Hz_changed(int);
     void FMO_slot_volume();
 
-    void waveform_slot( char*, char, int, int, QLabel* );
+    void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );
     void Main_Waveform_slot( int );
     void VCO_Waveform_slot( int );
     void FMO_Waveform_slot( int );

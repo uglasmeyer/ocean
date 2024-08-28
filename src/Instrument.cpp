@@ -37,10 +37,7 @@ void Instrument_class::reuse_GUI_Data()
 
 	Comment(INFO, "using Shared Data");
 
-	main.adsr.bps_id		= ifd->Main_adsr_bps_id;
-	main.adsr.decay			= ifd->Main_adsr_decay	;
-	main.adsr.attack		= ifd->Main_adsr_attack 	;
-	main.adsr.hall			= ifd->Main_adsr_hall 	;
+	main.adsr				= ifd->Main_adsr;
 	main.wp.glide_effect	= ifd->Soft_freq 	;
 	main.wp.PMW_dial		= 0;// ifd->PMW_dial; only for vco
 
@@ -73,10 +70,10 @@ void Instrument_class::setup_GUI_Data()
 	Comment(INFO, "setup GUI data");
 
 
-	ifd->Main_adsr_bps_id 	= main.adsr.bps_id;
-	ifd->Main_adsr_decay	= main.adsr.decay;
-	ifd->Main_adsr_attack 	= main.adsr.attack;
-	ifd->Main_adsr_hall 	= main.adsr.hall;
+	ifd->Main_adsr.bps_id 	= main.adsr.bps_id;
+	ifd->Main_adsr.decay	= main.adsr.decay;
+	ifd->Main_adsr.attack 	= main.adsr.attack;
+	ifd->Main_adsr.hall 	= main.adsr.hall;
 	ifd->PMW_dial 			= (char) vco.wp.PMW_dial;
 	ifd->Soft_freq			= main.wp.glide_effect;
 
@@ -331,12 +328,12 @@ void Instrument_class::Save_Instrument( string str )
 				<< setw(7 ) <<		 osc->wp.ops_str_arr[0] 	+ ","
 				<< setw(7)  <<		 osc->wp.ops_str_arr[1] 	+ ","
 				<< setw(7)  <<		 osc->wp.ops_str_arr[2] 	+ ","
-				<< setw(4) 	<<dec << osc->adsr.decay 	<< ","
-				<< setw(4) 	<<dec << osc->adsr.bps_id 	<< ","
-				<< setw(4) 	<<dec << osc->adsr.attack 		<< ","
-				<< setw(4)  <<dec << osc->adsr.hall 			<< ","
-				<< setw(4) 	<<dec << osc->wp.glide_effect 		<< ","
-				<< setw(7)  <<dec << osc->wp.PMW_dial 		<< ","
+				<< setw(4) 	<< (int) osc->adsr.decay 	<< ","
+				<< setw(4) 	<< (int) osc->adsr.bps_id 	<< ","
+				<< setw(4) 	<< (int) osc->adsr.attack 		<< ","
+				<< setw(4)  << (int) osc->adsr.hall 			<< ","
+				<< setw(4) 	<< (int) osc->wp.glide_effect 		<< ","
+				<< setw(7)  << (int) osc->wp.PMW_dial 		<< ","
 				<< endl;
 
 		FILE 	<< "CONN,"
@@ -411,7 +408,8 @@ void Instrument_class::Test_Instrument()
 
 	Data_t datan = 0;
 	Data_t data0 = 0;
-	main.Mem.Data[max_frames-1] = 0;
+	fmo.OSC(0);
+	main.OSC(0);
 	for ( int n = 0; n <10; n++ )
 	{
 		datan = main.Mem.Data[max_frames-1];

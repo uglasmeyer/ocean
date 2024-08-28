@@ -37,7 +37,7 @@ public:
 
 	void Start( uint16_t beg, uint16_t end, uint8_t step );
 	void Next( uint16_t* );
-	void Next( char*  );
+	void Next( uint8_t*  );
 	void Test();
 
 };

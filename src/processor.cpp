@@ -51,7 +51,7 @@ void Processor_class::Push_key( uint8_t key, string str )
 	process_stack.push_back( move( stack_item ) );
 };
 
-void Processor_class::Push_ifd( char* chaddr, char value, string str )
+void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
 {
 	stack_struct_t stack_item =
 	{

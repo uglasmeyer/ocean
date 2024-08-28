@@ -47,23 +47,23 @@ public:
 				vec.push_back( x );
 			}
 		}
-	} root2_struc_t;
+	} root2_t;
 
 	typedef struct noteline_prefix_struct
 	{
-		uint 	Octave		= 1;
-		uint 	convention	= 0;
-		uint 	nps			= 4;	// notes per second 1,2,4,8
-		uint	flat		= 0; 	// number of flats  in the key signature - BEADGCF
-		uint	sharp		= 0;	// number of sharps in the key signature - FCGDAEB
-		uint	variation	= 0;	// 0 no variation, 1 variable note
+		uint8_t		Octave		= 1;
+		uint8_t	 	convention	= 0;
+		uint8_t		nps			= 4;	// notes per second 1,2,4,5,8
+		uint8_t		flat		= 0; 	// number of flats  in the key signature - BEADGCF
+		uint8_t		sharp		= 0;	// number of sharps in the key signature - FCGDAEB
+		uint8_t		variation	= 0;	// 0 no variation, 1 variable note
 	} noteline_prefix_t;
 	const noteline_prefix_t
-	noteline_prefix_default = noteline_prefix_struct();
+				noteline_prefix_default = noteline_prefix_struct();
 
 
 	typedef struct notevalue_struct{
-		signed char 		doct 		= 0 ; 	// -1,0, +1
+		uint8_t		 		doct 		= 0 ; 	// -1,0, +1
 		int 				value		= 0 ;	// -12, 0, 1...12
 		float				freq		= 0.0;
 	} notevalue_struct_t;
@@ -76,7 +76,7 @@ public:
 	{
 		notevalue_struct_t	chord		= notevalue_struct() ;		// eg. B-->F (glide = F)
 		bool				note		= false;
-	} glide_struc_t ;
+	} glide_t ;
 
 	typedef struct 	note_struct
 	{
@@ -85,14 +85,14 @@ public:
 		uint16_t 			duration 	= 0; 	// msec
 		uint16_t			volume 		= 0; 	// percentage of max_volume
 		uint8_t 			octave 		= 0; 	// 1...9 ( * 55 ) = base frequency ot the octave
-		glide_struc_t		glide		= glide_struct();
+		glide_t				glide		= glide_struct();
 		bool				longnote	= false;// identify a note that jumps over the measure boundary
 
 	} note_struct_t;
 	typedef list<note_struct_t>
 							notelist_t;
 
-	root2_struc_t			root2 = root2_struct( max_octave);
+	root2_t			root2 = root2_struct( max_octave);
 
 	Note_base () : Logfacility_class("NotesBase")
 	{

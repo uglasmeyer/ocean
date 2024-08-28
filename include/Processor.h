@@ -43,7 +43,7 @@ public:
 	void Push_str( uint8_t, char, string);
 	void Push_cmd( uint8_t, string);
 	void Push_key( uint8_t, string );
-	void Push_ifd( char*, char, string );
+	void Push_ifd( uint8_t*, uint8_t, string );
 	void Push_ifd( bool*, bool, string );
 	void Push_ifd( float*, float, string );
 	void Push_wait( uint8_t, int, string );
@@ -59,7 +59,7 @@ private:
 		int			cmd 	= 0;
 		int 		key    	= 0;
 		bool*		boaddr	= nullptr;
-		char* 		chaddr	= nullptr;
+		uint8_t*	chaddr	= nullptr;
 		float*	 	uiaddr 	= nullptr;
 		int			value  	= 0;
 		string		str		{};

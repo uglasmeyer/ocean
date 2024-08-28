@@ -9,6 +9,7 @@
 #ifndef GUIINTERFACE_H_
 #define GUIINTERFACE_H_
 
+#include <Notesbase.h>
 #include <Oscbase.h>
 #include <keys.h>
 #include <synthmem.h>
@@ -63,58 +64,58 @@ static const 	uint str_buffer_len = 32;
 
 typedef struct interface_struct
 {
-	char		version						= 1;
-	array<StA_status_t, 8> 	StA_status 		{ StA_status_struct() };
-	mixer_status_t			mixer_status 	= mixer_status_struct();
+	uint8_t		version						= 1;
+	array<StA_status_t, 8>
+				StA_status 					{ StA_status_struct() };
+	mixer_status_t
+				mixer_status 				= mixer_status_struct();
 	char 		Instrument[str_buffer_len] 	= "default"; //char array
 	char 		Notes[str_buffer_len] 		= "default"; //char array for the notes filename
 	char 		Other[str_buffer_len]		= ""; // e.g. external wave file name
 
 	float 		Main_Freq  					= 110;
-	char 		Master_Amp 					= 75;
-	char 		Main_Duration 				= max_sec;
-	char  		Main_adsr_bps_id			= adsr_struct().bps_id; // Beats per second for MAINID
-	char  		Main_adsr_nps_id			= adsr_struct().nps_id; // Notes per second for NOTESID
-	char 		Main_adsr_decay  			= adsr_struct().decay;
-	char 		Main_adsr_attack    		= adsr_struct().attack;
-	char 		Main_adsr_hall				= adsr_struct().hall;;
-	char		Soft_freq					= 0;
+	uint8_t 		Master_Amp 					= 75;
+	uint8_t 		Main_Duration 				= max_sec;
+	adsr_struc_t Main_adsr 					= adsr_struct();
+	Note_base::noteline_prefix_t
+				noteline_prefix				= Note_base::noteline_prefix_struct();
+	uint8_t		Soft_freq					= 0;
 
-	char 		LOOP_step 					= 0;
+	uint8_t 		LOOP_step 					= 0;
 	float		LOOP_end 					= 75;
 
 	float	 	VCO_Freq 					= 0;
-	char 		VCO_Amp 					= 0;
-	char 		PMW_dial 					= 50; // PMW_dial
+	uint8_t 		VCO_Amp 					= 0;
+	uint8_t 		PMW_dial 					= 50; // PMW_dial
 
 	float	 	FMO_Freq 					= 0;
-	char 		FMO_Amp 					= 0;
+	uint8_t 		FMO_Amp 					= 0;
 
-	char		Noteline_sec 				= 0; // duration of notes to play given in seconds
+	uint8_t		Noteline_sec 				= 0; // duration of notes to play given in seconds
 	pid_t		Audio_pid					= 0;
 
-	char 		MIX_Amp 					= 0;
-	char 		MIX_Id						= 0;
+	uint8_t 		MIX_Amp 					= 0;
+	uint8_t 		MIX_Id						= 0;
 	spec_struc_t MAIN_spectrum				= Spectrum_base::spec_struct();
 	spec_struc_t VCO_spectrum 				= Spectrum_base::spec_struct();
 	spec_struc_t FMO_spectrum 				= Spectrum_base::spec_struct();
-	char		Spectrum_type				= MAINID;
+	uint8_t		Spectrum_type				= MAINID;
 
-	char 		Wavedisplay_Id				= 0;
-	char 		AudioServer	    			= OFFLINE;
-	char 		Synthesizer					= DEFAULT; // indicates that shm is new
-	char 		UserInterface				= OFFLINE;
-	char 		Composer 					= OFFLINE;
-	char		Comstack					= OFFLINE;
+	uint8_t 		Wavedisplay_Id				= 0;
+	uint8_t 		AudioServer	    			= OFFLINE;
+	uint8_t 		Synthesizer					= DEFAULT; // indicates that shm is new
+	uint8_t 		UserInterface				= OFFLINE;
+	uint8_t 		Composer 					= OFFLINE;
+	uint8_t		Comstack					= OFFLINE;
 
-	char 		FLAG						= NULLKEY;
-	char 		KEY 						= NULLKEY;
-	char 		RecCounter					= 0;	// handshake data exchange
-	char 		SHMID 						= 0;
-	char 		MODE						= FREERUN;
+	uint8_t 		FLAG						= NULLKEY;
+	uint8_t 		KEY 						= NULLKEY;
+	uint8_t 		RecCounter					= 0;	// handshake data exchange
+	uint8_t 		SHMID 						= 0;
+	uint8_t 		MODE						= FREERUN;
 	bool 		UpdateFlag 					= true;
 	uint16_t	WD_type_ID 					= FULLID;
-	char 		FileNo						= 0;
+	uint8_t 		FileNo						= 0;
 	array<Data_t, wavedisplay_len>
 				wavedata 					= {0};
 } ifd_t;
@@ -147,7 +148,7 @@ public:
 	void 	Reset_ifd();
 	void 	Announce( string, bool );
 	void 	Set( bool& key, bool value);
-	void 	Set( char& key, char value);
+	void 	Set( uint8_t& key, uint8_t value);
 	void 	Set( uint16_t& key, uint16_t value);
 	void 	Set( float& key, float value);
 

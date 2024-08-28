@@ -132,7 +132,6 @@ const double 		pi					= 3.1415926536;//3.141592654;
 
 const buffer_t		audio_frames 		= 48000; //2*chunksize * 43 ; // ~44100
 const buffer_t		frames_per_sec  	= 48000;
-const buffer_t 	    chunksize 			= 480;//441 , 512; // Audio server chunksize
 
 const uint8_t		max_sec 			= 1;//8;
 const uint16_t		max_milli_sec 		= max_sec * 1000;
@@ -146,6 +145,7 @@ const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
 const Data_t		max_data_amp		= 4096*4;
 const uint8_t 		oct_base_freq 		= 55;
+
 const uint			osc_default_volume	= 80; // %
 const uint 			wavedisplay_len		= 512;
 

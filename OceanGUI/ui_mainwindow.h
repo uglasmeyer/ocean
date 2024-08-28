@@ -459,12 +459,12 @@ public:
         label_11->setGeometry(QRect(480, 20, 51, 17));
         dial_soft_freq = new QDial(centralwidget);
         dial_soft_freq->setObjectName(QString::fromUtf8("dial_soft_freq"));
-        dial_soft_freq->setGeometry(QRect(580, 170, 50, 64));
+        dial_soft_freq->setGeometry(QRect(540, 170, 50, 64));
         dial_soft_freq->setMinimum(0);
         dial_soft_freq->setMaximum(100);
         glidefrequency = new QLabel(centralwidget);
         glidefrequency->setObjectName(QString::fromUtf8("glidefrequency"));
-        glidefrequency->setGeometry(QRect(590, 146, 41, 31));
+        glidefrequency->setGeometry(QRect(550, 146, 41, 31));
         glidefrequency->setWordWrap(true);
         pB_Wavedisplay = new QPushButton(centralwidget);
         pB_Wavedisplay->setObjectName(QString::fromUtf8("pB_Wavedisplay"));
@@ -514,7 +514,7 @@ public:
         pB_Specrum->setGeometry(QRect(870, 10, 88, 25));
         sB_Duration = new QSpinBox(centralwidget);
         sB_Duration->setObjectName(QString::fromUtf8("sB_Duration"));
-        sB_Duration->setGeometry(QRect(660, 190, 44, 26));
+        sB_Duration->setGeometry(QRect(620, 150, 44, 26));
         sB_Duration->setMaximum(4);
         sB_Duration->setDisplayIntegerBase(10);
         frame_7 = new QFrame(centralwidget);
@@ -558,7 +558,7 @@ public:
         pb_clear->setGeometry(QRect(1000, 300, 88, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(660, 160, 66, 17));
+        label_3->setGeometry(QRect(620, 130, 66, 17));
         Bps = new QLabel(centralwidget);
         Bps->setObjectName(QString::fromUtf8("Bps"));
         Bps->setGeometry(QRect(720, 190, 31, 31));
@@ -568,7 +568,7 @@ public:
         Bps->setAlignment(Qt::AlignCenter);
         label_6 = new QLabel(centralwidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(710, 160, 31, 17));
+        label_6->setGeometry(QRect(680, 130, 31, 17));
         label_6->setAlignment(Qt::AlignCenter);
         label_10 = new QLabel(centralwidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));

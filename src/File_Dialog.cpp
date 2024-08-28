@@ -61,7 +61,7 @@ File_Dialog_class::File_Dialog_class(QWidget *parent) :
     connect(ui->pbPlayNotes, SIGNAL(clicked()), this, SLOT(pb_PlayNotes_OnOff() ));
     connect(ui->pbInstrumentDone, SIGNAL(clicked()), this, SLOT(pb_Instrument_Done_clicked()) );
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
-
+    connect(ui->sB_nps, SIGNAL(valueChanged(int)), this, SLOT( sB_NotesPerSec(int)));
     QWidget::update();
     Log.Comment( DEBUG," File_Dialog initialized");
 
@@ -69,6 +69,12 @@ File_Dialog_class::File_Dialog_class(QWidget *parent) :
     Setup_widgets();
 }
 
+void File_Dialog_class::sB_NotesPerSec(int sb_value )
+{
+	Interface_class::addr->noteline_prefix.nps = sb_value;
+	Interface_class::addr->KEY = UPDATE_NLP_KEY;
+
+}
 void File_Dialog_class::Setup_widgets()
 {
     QString QStr;

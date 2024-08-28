@@ -38,7 +38,7 @@ void Loop_class::Start( uint16_t beg, uint16_t end, uint8_t step )
 }
 
 
-void Loop_class::Next( char* addr )
+void Loop_class::Next( uint8_t* addr )
 {
 	auto inc = [this]()
 	{
@@ -72,7 +72,7 @@ void Loop_class::Next( uint16_t* addr )
 void Loop_class::Test()
 {
 	uint16_t l;
-	char 	 ch;
+	uint8_t 	 ch;
 
 	Loop_class Loop;
 

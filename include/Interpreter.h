@@ -58,11 +58,11 @@ class Interpreter_class : public virtual Logfacility_class, public Processor_cla
 	typedef struct osc_struct
 	{
 		string 		name = "none";
-		char 		wfkey=0;
-		char*		wf=nullptr;
-		char		ampkey=0;
-		char* 		amp=nullptr;
-		char		freqkey=0;
+		uint8_t 	wfkey=0;
+		uint8_t*	wf=nullptr;
+		uint8_t		ampkey=0;
+		uint8_t* 	amp=nullptr;
+		uint8_t		freqkey=0;
 		float*		freq=nullptr;
 
 	} osc_struct_t;

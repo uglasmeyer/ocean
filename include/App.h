@@ -18,9 +18,9 @@ public:
 
 	string 	Name 				= "";
 	string 	This_Application 	= "";
-	char* 	status 				= nullptr;
+	uint8_t* 	status 				= nullptr;
 
-	Application_class( string name, char* status );
+	Application_class( string name, uint8_t* status );
 	~Application_class();
 
 	void Shutdown_instance( );

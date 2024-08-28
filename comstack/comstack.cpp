@@ -7,13 +7,11 @@
 //============================================================================
 
 
-#include <iostream>
 #include <common.h>
 #include <Keyboard.h>
 #include <keys.h>
 #include <Logfacility.h>
 #include <Interface.h>
-
 
 using namespace std;
 
@@ -140,9 +138,9 @@ int main( int argc, char* argv[] )
 			switch ( keyevent )
 			{
 			case 'g' : { ifd->Soft_freq = getvalue( "Frequency" ); ifd->KEY = SOFTFREQUENCYKEY; break; }
-			case 'd' : { ifd->Main_adsr_attack  = getvalue( "Decay" ); ifd->KEY = ADSRDECAYKEY; break; }
-			case 'u' : { ifd->Main_adsr_bps_id  = getvalue( "Duration" ); ifd->KEY = ADSRDURATIONKEY; break; }
-			case 's' : { ifd->Main_adsr_decay  = getvalue( "Sustain" ); ifd->KEY = ADSRSUSTAINKEY; break; }
+			case 'd' : { ifd->Main_adsr.attack  = getvalue( "Decay" ); ifd->KEY = ADSRDECAYKEY; break; }
+			case 'u' : { ifd->Main_adsr.bps_id  = getvalue( "Duration" ); ifd->KEY = ADSRDURATIONKEY; break; }
+			case 's' : { ifd->Main_adsr.decay  = getvalue( "Sustain" ); ifd->KEY = ADSRSUSTAINKEY; break; }
 			default  : break ;
 			}
 			break;

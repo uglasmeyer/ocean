@@ -7,7 +7,7 @@
 
 #include <App.h>
 
-Application_class::Application_class( string name, char* status ) :
+Application_class::Application_class( string name, uint8_t* status ) :
 Logfacility_class("App")
 {
 	this->status 	= 	status;

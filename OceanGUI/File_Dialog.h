@@ -50,6 +50,7 @@ private slots:
     void pb_PlayNotes_OnOff();
     void pb_Instrument_Done_clicked();
     void pb_Notes_Done_clicked();
+    void sB_NotesPerSec(int);
 };
 
 #endif // FILE_DIALOG_H

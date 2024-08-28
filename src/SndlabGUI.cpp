@@ -26,10 +26,10 @@
 // System
 #include <unistd.h> //sleep
 
-MainWindow::MainWindow(QWidget *parent)
-    :
-     QMainWindow(parent),
-	 ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) :
+	Logfacility_class("OceanGUI"),
+	ui(new Ui::MainWindow)
+
 {
 
 
@@ -46,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
 	QWaveform_vec = fromstringvector( Spectrum.Get_waveform_vec() );
 
 	Qwavedisplay_type_str_vec = fromstringvector( wavedisplay_type_str_vec );
+
+    init_log_file();
+    GUI.Announce( "SndlabGUI", true );
+
 
     ui->setupUi(this);
 
@@ -133,8 +137,6 @@ MainWindow::MainWindow(QWidget *parent)
     item                = new OszilloscopeWidget( GUI.addr, rect );
     scene->addItem( item );
 
-
-    GUI.Announce( "SndlabGUI", true );
 }
 
 MainWindow::~MainWindow()
@@ -172,7 +174,7 @@ void MainWindow::wavfile_selected( const QString &arg)
 
 void MainWindow::hs_hall_effect_value_changed(int value)
 {
-    GUI.Set(GUI.addr->Main_adsr_hall , value);
+    GUI.Set(GUI.addr->Main_adsr.hall , value);
     GUI.Set( GUI.addr->KEY , ADSRHALLKEY);
 }
 
@@ -196,7 +198,7 @@ void MainWindow::dial_soft_freq_value_changed()
 void MainWindow::dial_decay_value_changed()
 {
     int dial = ui->hs_adsr_attack->value();
-    GUI.Set(GUI.addr->Main_adsr_attack , dial);
+    GUI.Set(GUI.addr->Main_adsr.attack , dial);
     GUI.Set(GUI.addr->KEY, ADSRDECAYKEY);
 
 }
@@ -231,7 +233,11 @@ void MainWindow::Spectrum_Dialog()
         this->Spectrum_Dialog_Obj->show();
 }
 
-void MainWindow::waveform_slot(char* wf_addr, char wfid, int ID, int wf_key, QLabel* label  )
+void MainWindow::waveform_slot(	uint8_t* wf_addr,
+								uint8_t wfid,
+								int ID,
+								int wf_key,
+								QLabel* label  )
 {
 	*wf_addr = wfid;
 	GUI.Set( GUI.addr->KEY , wf_key);
@@ -414,7 +420,7 @@ void MainWindow::sB_Duration( int bps_id  )
 {
     QString Qstr = get_bps_qstring( bps_id );
     ui->Bps->setText( Qstr );
-    GUI.Set( GUI.addr->Main_adsr_bps_id, bps_id);
+    GUI.Set( GUI.addr->Main_adsr.bps_id, bps_id);
     GUI.Set( GUI.addr->KEY, ADSRDURATIONKEY );
 }
 void MainWindow::setwidgetvalues()
@@ -452,13 +458,13 @@ void MainWindow::setwidgetvalues()
     ui->sB_FMO->setValue(  GUI.addr->FMO_spectrum.id  );
     ui->sB_VCO->setValue(  GUI.addr->VCO_spectrum.id  );
 
-    ui->sB_Duration->setValue( GUI.addr->Main_adsr_bps_id );
-    QString Qstr = get_bps_qstring( GUI.addr->Main_adsr_bps_id );
+    ui->sB_Duration->setValue( GUI.addr->Main_adsr.bps_id );
+    QString Qstr = get_bps_qstring( GUI.addr->Main_adsr.bps_id );
     ui->Bps->setText( Qstr );
-    ui->hs_adsr_sustain->setValue(  (int) GUI.addr->Main_adsr_decay );
-    ui->hs_adsr_attack->setValue(  (int)     GUI.addr->Main_adsr_attack);
+    ui->hs_adsr_sustain->setValue(  (int) GUI.addr->Main_adsr.decay );
+    ui->hs_adsr_attack->setValue(  (int)     GUI.addr->Main_adsr.attack);
     ui->dial_soft_freq->setValue( (int)  GUI.addr->Soft_freq );
-    ui->hs_hall_effect->setValue( (int)  GUI.addr->Main_adsr_hall );
+    ui->hs_hall_effect->setValue( (int)  GUI.addr->Main_adsr.hall );
     ui->progressBar_record->setValue(0);
     int wd_counter              = GUI.addr->Wavedisplay_Id;
     Qstr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
@@ -511,7 +517,7 @@ void MainWindow::Slider_FMO_Hz_changed(int value )
     Slider_Hz( GUI, GUI.addr->FMO_Freq, freq, FMOFREQUENCYKEY );
 }
 
-auto Slider_volume = []( Interface_class& IF, char& ch_ptr, char value, char key )
+auto Slider_volume = []( Interface_class& IF, uint8_t& ch_ptr, char value, char key )
 	{
 		IF.Set( ch_ptr , value);
 		IF.Set( IF.addr->KEY , key);
@@ -535,21 +541,21 @@ void MainWindow::start_composer()
 {
     string Start_Composer = Server_struct().cmd( Composer, "" );
 	system_execute( Start_Composer.data() );
-    Log.Comment( INFO, Start_Composer );
+    Comment( INFO, Start_Composer );
 }
 
 void MainWindow::start_audio_srv()
 {
     string Start_Audio_Srv = Server_struct().cmd( Audio_Srv, "" );
 	system_execute( Start_Audio_Srv.data() );
-    Log.Comment( INFO, Start_Audio_Srv );
+	Comment( INFO, Start_Audio_Srv );
 }
 
 void MainWindow::start_synthesizer()
 {
     string Start_Synthesizer = Server_struct().cmd( Synthesizer, "" );
     system_execute( Start_Synthesizer.data() );
-    Log.Comment( INFO, Start_Synthesizer );
+    Comment( INFO, Start_Synthesizer );
     Wait( 2*SECOND ); 	// WAIT until the startup of the process finished.
     					// the synthesizer process will prepare the initial values
                         // from the keyboard file, that are stored into the GUI.ifd_data structure
@@ -632,7 +638,7 @@ void MainWindow::toggle_Record()
 void MainWindow::main_adsr_sustain()
 {
     int value = ui->hs_adsr_sustain->value();
-    GUI.Set( GUI.addr->Main_adsr_decay , value);
+    GUI.Set( GUI.addr->Main_adsr.decay , value);
     GUI.Set( GUI.addr->KEY ,ADSRSUSTAINKEY);
 
 }

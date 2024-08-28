@@ -194,7 +194,7 @@ void Volume_control()
 	master_amp_loop.Next( &IFD.addr->Master_Amp );
 	Mixer.master_volume = IFD.addr->Master_Amp;
 
-	char amp = Mixer.StA[MbIdExternal].Amp;
+	uint8_t amp = Mixer.StA[MbIdExternal].Amp;
 	record_amp_loop.Next( &amp );
 	Mixer.StA[MbIdExternal].Amp = amp;
 }
@@ -317,19 +317,19 @@ void process( char key )
 		}
 		case ADSRDURATIONKEY :
 		{
-			Instrument.main.adsr.bps_id = ifd->Main_adsr_bps_id;
+			Instrument.main.adsr.bps_id = ifd->Main_adsr.bps_id;
 			IFD.Commit();
 			break;
 		}
 		case ADSRDECAYKEY :
 		{
-			Instrument.main.adsr.attack = ifd->Main_adsr_attack;
+			Instrument.main.adsr.attack = ifd->Main_adsr.attack;
 			IFD.Commit();
 			break;
 		}
 		case ADSRHALLKEY : // adsr hall
 		{
-			Instrument.main.adsr.hall = ifd->Main_adsr_hall;
+			Instrument.main.adsr.hall = ifd->Main_adsr.hall;
 			IFD.Commit();
 			break;
 		}
@@ -350,7 +350,7 @@ void process( char key )
 		}
 		case ADSRSUSTAINKEY :
 		{
-			Instrument.main.adsr.decay = ifd->Main_adsr_decay;
+			Instrument.main.adsr.decay = ifd->Main_adsr.decay;
 			IFD.Commit();
 			break;
 		}
@@ -591,10 +591,20 @@ void process( char key )
 			IFD.Commit();
 			break;
 		}
+		case UPDATE_NLP_KEY : // Noteline_prefix
+		{
+			Note_base::noteline_prefix_t nlp = ifd->noteline_prefix;
+			Log.Comment(INFO, "receive command <update notesline prefix");
+			Notes.show_noteline_prefix( nlp );
+			Notes.Noteline_prefix = nlp;
+			Notes.Verify_noteline( nlp, Notes.Get_note_line() );
+			IFD.Commit();
+			break;
+		}
 
 		case SETNOTESPERSEC_KEY:
 		{
-			Value nps = ifd->Main_adsr_nps_id;
+			Value nps = ifd->noteline_prefix.nps;
 			Log.Comment(INFO, "receive command <set notes per second>");
 			if ( not Notes.Set_notes_per_second( nps.i ) )
 			{
@@ -777,7 +787,7 @@ void ApplicationLoop()
 		if ( ifd->Synthesizer != EXITSERVER )
 			ifd->Synthesizer = RUNNING;
 
-		if( true )//sync_mode()  )
+		if( sync_mode()  )
 		{
 			int mode 	= (int)ifd->MODE;
 			ifd->MODE 	= SYNC;
@@ -862,7 +872,7 @@ void test_classes()
 
 int main( int argc, char* argv[] )
 {
-	Log.init_log_file();
+//	Log.init_log_file();
 	App.Start();
 	Log.Comment(INFO, "Evaluating startup arguments");
 

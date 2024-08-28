@@ -87,11 +87,11 @@ void Interface_class::Show_interface()
 	lline( "(M)ain (F)requency:" , addr->Main_Freq );
 	rline( "(A)DSR (G)lide freq:" , (int)addr->Soft_freq);
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
-	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr_attack );
+	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.attack );
 	lline( "Main duration      " , (int)addr->Main_Duration);
-	rline( "(A)DSR D(u)ration: " , bps_struct().getbps_str((int)addr->Main_adsr_bps_id) );
+	rline( "(A)DSR D(u)ration: " , bps_struct().getbps_str((int)addr->Main_adsr.bps_id) );
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
-	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr_decay );
+	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr.decay );
 	cout << endl;
 	lline( "(F)MO  (F)requency:" , addr->FMO_Freq);
 	rline( "(V)CO  (F)requency:" , addr->VCO_Freq);
@@ -296,7 +296,7 @@ void Interface_class::Set( bool& key, bool value )
 	key = value;
 }
 
-void Interface_class::Set( char& key, char value )
+void Interface_class::Set( uint8_t& key, uint8_t value )
 {
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;

@@ -366,10 +366,10 @@ compiler_moc_header_clean:
 	-$(DEL_FILE) moc_File_Dialog.cpp moc_mainwindow.cpp moc_spectrum_dialog_class.cpp
 moc_File_Dialog.cpp: File_Dialog.h \
 		../include/notes.h \
-		../include/synthesizer.h \
+		../include/Spectrum.h \
+		../include/Synthesizer.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/Spectrum.h \
 		../include/common.h \
 		../include/Instrument.h \
 		../include/Interface.h \
@@ -386,22 +386,21 @@ moc_File_Dialog.cpp: File_Dialog.h \
 moc_mainwindow.cpp: mainwindow.h \
 		../include/Interface.h \
 		../include/Oscbase.h \
-		../include/synthesizer.h \
+		../include/synthmem.h \
+		../include/Synthesizer.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/synthmem.h \
 		../include/Spectrum.h \
 		../include/keys.h \
 		../include/version.h \
+		../include/common.h \
 		../include/mixer.h \
 		../include/osc.h \
 		../include/Instrument.h \
 		../include/External.h \
 		../include/wav.h \
 		../include/notes.h \
-		../include/common.h \
 		../include/Notesbase.h \
-		../include/Keyboard.h \
 		File_Dialog.h \
 		ui_mainwindow.h \
 		spectrum_dialog_class.h \
@@ -411,7 +410,7 @@ moc_mainwindow.cpp: mainwindow.h \
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 moc_spectrum_dialog_class.cpp: spectrum_dialog_class.h \
-		../include/synthesizer.h \
+		../include/Synthesizer.h \
 		../include/Logfacility.h \
 		../include/String.h \
 		../include/Spectrum.h \
@@ -420,6 +419,7 @@ moc_spectrum_dialog_class.cpp: spectrum_dialog_class.h \
 		../include/synthmem.h \
 		../include/keys.h \
 		../include/version.h \
+		../include/common.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include spectrum_dialog_class.h -o moc_spectrum_dialog_class.cpp
@@ -456,22 +456,21 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 main.o: main.cpp mainwindow.h \
 		../include/Interface.h \
 		../include/Oscbase.h \
-		../include/synthesizer.h \
+		../include/synthmem.h \
+		../include/Synthesizer.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/synthmem.h \
 		../include/Spectrum.h \
 		../include/keys.h \
 		../include/version.h \
+		../include/common.h \
 		../include/mixer.h \
 		../include/osc.h \
 		../include/Instrument.h \
 		../include/External.h \
 		../include/wav.h \
 		../include/notes.h \
-		../include/common.h \
 		../include/Notesbase.h \
-		../include/Keyboard.h \
 		File_Dialog.h \
 		ui_mainwindow.h \
 		spectrum_dialog_class.h \
