@@ -14,6 +14,7 @@ void Processor_class::Push_cmd( uint8_t cmd, string str )
 		.prgline= prgline,
 		.cmd 	= cmd,
 		.key    = 0,
+		.boaddr = nullptr,
 		.chaddr	= nullptr,
 		.uiaddr = nullptr,
 		.value  = 0,
@@ -28,6 +29,7 @@ void Processor_class::Push_str( uint8_t key, char ch, string str )
 		.prgline= prgline,
 		.cmd 	= CMD_STR,
 		.key    = key,
+		.boaddr = nullptr,
 		.chaddr	= nullptr,
 		.uiaddr = nullptr,
 		.value  = ch,
@@ -43,6 +45,7 @@ void Processor_class::Push_key( uint8_t key, string str )
 		.prgline= prgline,
 		.cmd 	= CMD_KEY,
 		.key    = key,
+		.boaddr = nullptr,
 		.chaddr	= nullptr,
 		.uiaddr = nullptr,
 		.value  = 0,
@@ -58,6 +61,7 @@ void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
 		.prgline= prgline,
 		.cmd 	= CMD_CHADDR,
 		.key    = 0,
+		.boaddr = nullptr,
 		.chaddr	= chaddr,
 		.uiaddr = nullptr,
 		.value  = value,
@@ -90,6 +94,7 @@ void Processor_class::Push_ifd( float* uiaddr, float value, string str )
 		.prgline= prgline,
 		.cmd 	= CMD_UIADDR,
 		.key    = 0,
+		.boaddr = nullptr,
 		.chaddr	= nullptr,
 		.uiaddr = uiaddr,
 		.value  = (int) rint( value ),
@@ -106,6 +111,7 @@ void Processor_class::Push_wait( uint8_t cmd, int value, string str )
 		.prgline= prgline,
 		.cmd 	= cmd,
 		.key    = 0,
+		.boaddr = nullptr,
 		.chaddr	= nullptr,
 		.uiaddr = nullptr,
 		.value  = value,
@@ -122,6 +128,7 @@ void Processor_class::Push_text( string str )
 		.prgline = prgline,
 		.cmd 	= CMD_TEXT,
 		.key    = 0,
+		.boaddr = nullptr,
 		.chaddr	= nullptr,
 		.uiaddr = nullptr,
 		.value  = 0,
@@ -232,10 +239,14 @@ void Processor_class::Execute()
 		case CMD_STR : // write string
 		{
 			char* addr = nullptr;
-			if ( (char)stack_item.value == INSTRUMENTSTR_KEY )
-				addr=GUI->addr->Instrument;
-			if ( (char)stack_item.value == 'n' )
-				addr=GUI->addr->Notes;
+			switch( stack_item.value )
+			{
+				case INSTRUMENTSTR_KEY 	: { addr=GUI->addr->Instrument;break; }
+				case NOTESSTR_KEY 		: { addr=GUI->addr->Notes; break; }
+				case OTHERSTR_KEY 		: { addr=GUI->addr->Other; break; }
+				default 				: { addr = nullptr; break; }
+			}
+			assert( addr != nullptr );
 			printf("%d ldc %p %s \n", stack_item.prgline, addr, stack_item.str.data() );
 			this->GUI->Write_str( stack_item.value, stack_item.str );
 

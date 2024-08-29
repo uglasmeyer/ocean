@@ -158,6 +158,11 @@ void Interface_class::Write_str(const char selector, const string str )
 			strcpy( addr->Notes, str.data() );
 			break;
 		}
+		case OTHERSTR_KEY :
+		{
+			strcpy( addr->Other, str.data() );
+			break;
+		}
 		default:
 		{
 			strcpy( addr->Other, str.data() );

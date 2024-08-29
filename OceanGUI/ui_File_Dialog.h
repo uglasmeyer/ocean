@@ -30,9 +30,9 @@ public:
     QPushButton *pbInstrumentDone;
     QComboBox *cb_instrumentfiles;
     QLineEdit *lE_Instrument;
+    QFrame *line;
     QComboBox *cb_notefilenames;
     QLineEdit *lE_NotesFile;
-    QFrame *line;
     QLabel *lbl_selected_notes;
     QPushButton *pbNotesDone;
     QLineEdit *lE_Notes;
@@ -41,16 +41,16 @@ public:
     QFrame *line_2;
     QLabel *label_2;
     QLabel *label_3;
-    QSpinBox *spinBox;
-    QSpinBox *sB_nps;
-    QComboBox *comboBox;
     QLabel *label_4;
+    QSpinBox *sB_Octave;
+    QComboBox *cb_nps;
+    QComboBox *cb_convention;
 
     void setupUi(QDialog *File_Dialog)
     {
         if (File_Dialog->objectName().isEmpty())
             File_Dialog->setObjectName(QString::fromUtf8("File_Dialog"));
-        File_Dialog->resize(327, 271);
+        File_Dialog->resize(340, 271);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -171,6 +171,13 @@ public:
 
         gridLayout->addWidget(lE_Instrument, 1, 2, 1, 1);
 
+        line = new QFrame(File_Dialog);
+        line->setObjectName(QString::fromUtf8("line"));
+        line->setFrameShape(QFrame::HLine);
+        line->setFrameShadow(QFrame::Sunken);
+
+        gridLayout->addWidget(line, 2, 0, 1, 3);
+
         cb_notefilenames = new QComboBox(File_Dialog);
         cb_notefilenames->setObjectName(QString::fromUtf8("cb_notefilenames"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -180,19 +187,12 @@ public:
         cb_notefilenames->setSizePolicy(sizePolicy1);
         cb_notefilenames->setSizeIncrement(QSize(10, 0));
 
-        gridLayout->addWidget(cb_notefilenames, 2, 0, 1, 2);
+        gridLayout->addWidget(cb_notefilenames, 3, 0, 1, 2);
 
         lE_NotesFile = new QLineEdit(File_Dialog);
         lE_NotesFile->setObjectName(QString::fromUtf8("lE_NotesFile"));
 
-        gridLayout->addWidget(lE_NotesFile, 2, 2, 1, 1);
-
-        line = new QFrame(File_Dialog);
-        line->setObjectName(QString::fromUtf8("line"));
-        line->setFrameShape(QFrame::HLine);
-        line->setFrameShadow(QFrame::Sunken);
-
-        gridLayout->addWidget(line, 3, 0, 1, 3);
+        gridLayout->addWidget(lE_NotesFile, 3, 2, 1, 1);
 
         lbl_selected_notes = new QLabel(File_Dialog);
         lbl_selected_notes->setObjectName(QString::fromUtf8("lbl_selected_notes"));
@@ -213,12 +213,12 @@ public:
         pbPlayNotes->setObjectName(QString::fromUtf8("pbPlayNotes"));
         pbPlayNotes->setAutoDefault(false);
 
-        gridLayout->addWidget(pbPlayNotes, 6, 0, 1, 2);
+        gridLayout->addWidget(pbPlayNotes, 6, 0, 1, 1);
 
         lE_Rythm = new QLineEdit(File_Dialog);
         lE_Rythm->setObjectName(QString::fromUtf8("lE_Rythm"));
 
-        gridLayout->addWidget(lE_Rythm, 6, 2, 1, 1);
+        gridLayout->addWidget(lE_Rythm, 6, 1, 1, 2);
 
         line_2 = new QFrame(File_Dialog);
         line_2->setObjectName(QString::fromUtf8("line_2"));
@@ -237,28 +237,27 @@ public:
 
         gridLayout->addWidget(label_3, 8, 1, 1, 1);
 
-        spinBox = new QSpinBox(File_Dialog);
-        spinBox->setObjectName(QString::fromUtf8("spinBox"));
-        spinBox->setMaximum(0);
-
-        gridLayout->addWidget(spinBox, 9, 0, 1, 1);
-
-        sB_nps = new QSpinBox(File_Dialog);
-        sB_nps->setObjectName(QString::fromUtf8("sB_nps"));
-        sB_nps->setMinimum(1);
-        sB_nps->setMaximum(8);
-
-        gridLayout->addWidget(sB_nps, 9, 1, 1, 1);
-
-        comboBox = new QComboBox(File_Dialog);
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
-
-        gridLayout->addWidget(comboBox, 9, 2, 1, 1);
-
         label_4 = new QLabel(File_Dialog);
         label_4->setObjectName(QString::fromUtf8("label_4"));
 
         gridLayout->addWidget(label_4, 8, 2, 1, 1);
+
+        sB_Octave = new QSpinBox(File_Dialog);
+        sB_Octave->setObjectName(QString::fromUtf8("sB_Octave"));
+        sB_Octave->setMinimum(0);
+        sB_Octave->setMaximum(6);
+
+        gridLayout->addWidget(sB_Octave, 9, 0, 1, 1);
+
+        cb_nps = new QComboBox(File_Dialog);
+        cb_nps->setObjectName(QString::fromUtf8("cb_nps"));
+
+        gridLayout->addWidget(cb_nps, 9, 1, 1, 1);
+
+        cb_convention = new QComboBox(File_Dialog);
+        cb_convention->setObjectName(QString::fromUtf8("cb_convention"));
+
+        gridLayout->addWidget(cb_convention, 9, 2, 1, 1);
 
 
         retranslateUi(File_Dialog);

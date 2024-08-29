@@ -42,37 +42,69 @@ void read_filelist( QComboBox* CB, string path, QString type )
     }
 }
 
-File_Dialog_class::File_Dialog_class(QWidget *parent) :
+File_Dialog_class::File_Dialog_class(QWidget *parent, QSlider* sl_main_hz ) :
     Logfacility_class("FileDialog"),
     QDialog(parent),
     Note_class( ),
     Interface_class(),
     ui(new Ui::File_Dialog)
 {
+
+	Sl_Main_Hz				= sl_main_hz;
+
     ui->setupUi(this);
+
     CB_notes                 = ui->cb_notefilenames;
     CB_instruments           = ui->cb_instrumentfiles;
-
     notes_path          = dir_struct().notesdir;
     instruments_path    = dir_struct().instrumentdir;
     read_filelist( CB_notes, notes_path, "kbd");
     read_filelist( CB_instruments, instruments_path, "kbd");
+    for( string str : convention_names )
+    {
+    	QString Qstr = QString::fromStdString( str );
+    	ui->cb_convention->addItem( Qstr );
+    }
+    for( int nps : Notes_per_Sec )
+    {
+    	QString QStr = QString::number( nps );
+    	ui->cb_nps->addItem( QStr );
+    }
 
+    connect(ui->sB_Octave, SIGNAL(valueChanged(int)), this, SLOT( sB_Octave(int)));
+    connect(ui->cb_nps, SIGNAL(activated(int)), this, SLOT( cB_NotesPerSec(int)));
+    connect(ui->cb_convention, SIGNAL(activated( int )), this, SLOT(cB_Convention( int ) ));
     connect(ui->pbPlayNotes, SIGNAL(clicked()), this, SLOT(pb_PlayNotes_OnOff() ));
     connect(ui->pbInstrumentDone, SIGNAL(clicked()), this, SLOT(pb_Instrument_Done_clicked()) );
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
-    connect(ui->sB_nps, SIGNAL(valueChanged(int)), this, SLOT( sB_NotesPerSec(int)));
+
     QWidget::update();
-    Log.Comment( DEBUG," File_Dialog initialized");
+    Log.Comment( INFO," File_Dialog initialized");
 
 
     Setup_widgets();
 }
 
-void File_Dialog_class::sB_NotesPerSec(int sb_value )
+void File_Dialog_class::sB_Octave(int sb_value )
 {
-	Interface_class::addr->noteline_prefix.nps = sb_value;
-	Interface_class::addr->KEY = UPDATE_NLP_KEY;
+	addr->noteline_prefix.Octave = sb_value;
+	addr->KEY = UPDATE_NLP_KEY;
+	int freq = Octave_freq ( sb_value );
+	Sl_Main_Hz->setValue( freq );
+}
+void File_Dialog_class::cB_Convention( int cb_value )
+{
+	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
+	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
+	addr->noteline_prefix.convention = cb_value;
+	addr->KEY = UPDATE_NLP_KEY;
+}
+
+void File_Dialog_class::cB_NotesPerSec(int cb_value )
+{
+	uint8_t nps = Notes_per_Sec[ cb_value ];
+	addr->noteline_prefix.nps = nps;
+	addr->KEY = UPDATE_NLP_KEY;
 
 }
 void File_Dialog_class::Setup_widgets()
@@ -92,8 +124,6 @@ void File_Dialog_class::Setup_widgets()
     if ( this->Verify_noteline( Note_class::Noteline_prefix, Notesline ) )
     {
         status_color.setColor(QPalette::Button, Qt::green);
-        QNote_Chars = QString::fromStdString( Note_class::Note_Chars );
-        ui->lbl_selected_notes->setText("Notes ( " + QNote_Chars + " )");
     }
     else
     {
@@ -107,6 +137,19 @@ void File_Dialog_class::Setup_widgets()
     string Rhythmline = Note_class::Get_rhythm_line();
     QStr = QString::fromStdString( Rhythmline );
     ui->lE_Rythm->setText( QStr );
+
+    int convention_id = addr->noteline_prefix.convention;
+    QStr = QString::fromStdString( convention_names[ convention_id ] );
+    ui->cb_convention->setCurrentText( QStr );
+    QStr = QString::fromStdString( convention_notes[convention_id ] );
+    ui->lbl_selected_notes->setText("Notes ( " + QStr + " )" );
+
+    QStr = QString::number( addr->noteline_prefix.nps );
+    ui->cb_nps->setCurrentText( QStr );
+
+    int freq = Octave_freq( addr->noteline_prefix.Octave );
+	Sl_Main_Hz->setValue( freq );
+	ui->sB_Octave->setValue( addr->noteline_prefix.Octave );
 
     New_Notes();
 
@@ -161,20 +204,17 @@ void File_Dialog_class::New_Notes()
     string note_line = QStr.toStdString();
     qDebug() << "new notes " << QStr ;
 
-    if ( this->Verify_noteline( Note_class::Noteline_prefix, note_line ) )
+    if ( this->Verify_noteline( addr->noteline_prefix, note_line ) )
     {
         QStr = ui->lE_Rythm->text();
         string rhythm_line = QStr.toStdString();
         Note_class::Set_rhythm_line( rhythm_line );
 
-        QNote_Chars = QString::fromStdString( Note_class::Note_Chars );
-        ui->lbl_selected_notes->setText("Notes ( " + QNote_Chars + " )");
-
         QStr = ui->lE_NotesFile->text();
         string notes_file = QStr.toStdString();
 
 
-        Note_class::Save( notes_file, Note_class::Noteline_prefix, note_line );
+        Note_class::Save( notes_file, addr->noteline_prefix, note_line );
 
         // remote shall read and activate the new note line
         Interface_class::Write_str( NOTESSTR_KEY, notes_file);

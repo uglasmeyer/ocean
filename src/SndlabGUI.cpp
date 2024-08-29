@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
     connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
 
+    connect(ui->Slider_mix_vol0, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix0(int) ));
     connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));
     connect(ui->Slider_mix_vol2, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix2(int) ));
     connect(ui->Slider_mix_vol3, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix3(int) ));
@@ -97,6 +98,14 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->Slider_mix_vol5, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix5(int) ));
     connect(ui->Slider_mix_vol6, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix6(int) ));
     connect(ui->Slider_mix_vol7, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix7(int) ));
+
+    connect(ui->rb_bank0, SIGNAL(clicked()), this, SLOT( change_status0()) );
+    connect(ui->rb_bank1, SIGNAL(clicked()), this, SLOT( change_status1()) );
+    connect(ui->rb_bank2, SIGNAL(clicked()), this, SLOT( change_status2()) );
+    connect(ui->rb_bank3, SIGNAL(clicked()), this, SLOT( change_status3()) );
+    connect(ui->rb_bank4, SIGNAL(clicked()), this, SLOT( change_status4()) );
+    connect(ui->rb_bank5, SIGNAL(clicked()), this, SLOT( change_status5()) );
+    connect(ui->rb_bank7, SIGNAL(clicked()), this, SLOT( change_status7()) );
 
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
@@ -211,14 +220,14 @@ void MainWindow::dial_PMW_value_changed()
 
 void MainWindow::File_Director()
 {
-    if ( this->Dialog_File == nullptr )
+    if ( this->File_Dialog_obj == nullptr )
     {
-        this->Dialog_File = new File_Dialog_class( this );
+        this->File_Dialog_obj = new File_Dialog_class( this, ui->Slider_Main_Hz );
     }
-    if ( this->Dialog_File->isVisible()   )
-        this->Dialog_File->hide();
+    if ( this->File_Dialog_obj->isVisible()   )
+        this->File_Dialog_obj->hide();
     else
-        this->Dialog_File->show();
+        this->File_Dialog_obj->show();
 }
 
 void MainWindow::Spectrum_Dialog()
@@ -256,37 +265,39 @@ void MainWindow::VCO_Waveform_slot( int _wfid )
 	waveform_slot( &GUI.addr->VCO_spectrum.id, _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
 }
 
+auto change_status( MainWindow* C, int ID )
+{
+    C->GUI.Set( C->GUI.addr->MIX_Id , ID );
+    C->GUI.Set( C->GUI.addr->KEY 	, TOGGLEMBPLAYKEY);
+};
+
+void MainWindow::change_status0()
+{
+	change_status( this, 0 );
+}
 void MainWindow::change_status1()
 {
-    GUI.Set( GUI.addr->MIX_Id , 0);
-    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
-
+	change_status( this, 1 );
 }
 void MainWindow::change_status2()
 {
-    GUI.Set( GUI.addr->MIX_Id , 1);
-    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
-
+	change_status( this, 2 );
 }
 void MainWindow::change_status3()
 {
-    GUI.Set( GUI.addr->MIX_Id , 2);
-    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
-
+	change_status( this, 3 );
 }
-
 void MainWindow::change_status4()
 {
-    GUI.Set( GUI.addr->MIX_Id , MbIdExternal);
-    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
-
+	change_status( this, 4 );
 }
-
 void MainWindow::change_status5()
 {
-    GUI.Set( GUI.addr->MIX_Id , MbIdNotes);
-    GUI.Set( GUI.addr->KEY , TOGGLEMBPLAYKEY); //
-
+	change_status( this, 5 );
+}
+void MainWindow::change_status7()
+{
+	change_status( this, MbIdExternal );
 }
 
 void MainWindow::Store()
@@ -297,6 +308,7 @@ void MainWindow::Store()
         QCheckBox*      cb;
     };
     vector< store_widgets> store_widget_v{
+        { ui->rb_bank0,ui->cb_0},
         { ui->rb_bank1,ui->cb_1},
         { ui->rb_bank2,ui->cb_2},
         { ui->rb_bank3,ui->cb_3},
@@ -330,7 +342,8 @@ void MainWindow::memory_clear()
 	vector<uint> rb_ids = {0,1,2,3,4,MbIdExternal };
     int Id = 0; // if no one is checked, the current Id is cleared,
                 // that should be ok.
-    for ( QRadioButton* rb : {  ui->rb_bank1,
+    for ( QRadioButton* rb : {  ui->rb_bank0,
+    							ui->rb_bank1,
                                 ui->rb_bank2,
                                 ui->rb_bank3,
                                 ui->rb_bank4,
@@ -354,21 +367,25 @@ auto mixer_slider( MainWindow* C, int ID, int value )
     C->GUI.Set( C->GUI.addr->KEY 	, SETMBAMPPLAYKEY);
 };
 
-void MainWindow::Sl_mix1( int value )
+void MainWindow::Sl_mix0( int value )
 {
 	mixer_slider( this, 0, value );
 };
-void MainWindow::Sl_mix2( int value )
+void MainWindow::Sl_mix1( int value )
 {
 	mixer_slider( this, 1, value );
 };
-void MainWindow::Sl_mix3( int value )
+void MainWindow::Sl_mix2( int value )
 {
 	mixer_slider( this, 2, value );
 };
-void MainWindow::Sl_mix4( int value )
+void MainWindow::Sl_mix3( int value )
 {
 	mixer_slider( this, 3, value );
+};
+void MainWindow::Sl_mix4( int value )
+{
+	mixer_slider( this, 4, value );
 };
 void MainWindow::Sl_mix5( int value )
 {
@@ -665,8 +682,8 @@ void MainWindow::Updatewidgets()
         {
             string str = GUI.Read_str( INSTRUMENTSTR_KEY );
             QString QStr ;
-            if ( this->Dialog_File != nullptr )
-                this->Dialog_File->CB_instruments->textActivated(QStr);
+            if ( this->File_Dialog_obj != nullptr )
+                this->File_Dialog_obj->CB_instruments->textActivated(QStr);
         }
         if ( not GUI.addr->Composer )
         {
@@ -679,12 +696,12 @@ void MainWindow::Updatewidgets()
             }
             case NEWINSTRUMENTFLAG :
             {
-                read_filelist(this->Dialog_File->CB_instruments, dir_struct().instrumentdir, "kbd");
+                read_filelist(this->File_Dialog_obj->CB_instruments, dir_struct().instrumentdir, "kbd");
                 break;
             }
             case NEWNOTESLINEFLAG :
             {
-                read_filelist(this->Dialog_File->CB_notes, dir_struct().notesdir, "kbd");
+                read_filelist(this->File_Dialog_obj->CB_notes, dir_struct().notesdir, "kbd");
                 break;
             }
         }

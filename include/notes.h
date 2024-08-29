@@ -64,8 +64,11 @@ public:
 	void			Set_prefix_octave( int );
 	bool			Verify_noteline( noteline_prefix_t, string );
 	void 			Test();
-	void			Show_note(  note_struct_t );
+	void			Show_note(  note_t );
 	void 			Start_note_itr();
+	uint16_t 		Octave_freq( uint8_t oct );
+
+	const float 	max_frequency 	= Octave_freq ( max_octave + 1 );
 
 	template< typename T>
 	void Show_note_list( T items )
@@ -75,7 +78,7 @@ public:
 		strs << "Chord         Vol  msec Oct dOc  Freq|Oct dOc  Freq|Oct dOc  Freq|";
 		Comment( INFO, strs.str() );
 
-		for( note_struct_t note : items )
+		for( note_t note : items )
 		{
 			Show_note( note );
 			lineduration += note.duration;
@@ -89,7 +92,6 @@ public:
 	}
 
 private:
-	const float 	max_frequency 	= oct_base_freq * ( 1 << ( max_octave + 1 ) );
 	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
 	string 			Notefile_name 	= "";
 	string 			Notefile 		= "";
@@ -101,7 +103,7 @@ private:
 	strlen_t 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
 
-	note_struct_t 	note_buffer 	= note_struct();
+	note_t 	note_buffer 	= note_struct();
 
 	typedef notelist_t::iterator
 					note_itr_t;
@@ -111,8 +113,8 @@ private:
 	string 			get_name();
 	void 			set_note_list ( noteline_prefix_t,  string );
 	void			set_file_name( string );
-	strlen_t		Noteline_position_parser( unsigned long int );
-	void 			note2memory( note_struct_t, buffer_t );
+	strlen_t		noteline_position_parser( unsigned long int );
+	void 			note2memory( note_t, buffer_t );
 	void 			change_alphabet_notes( noteline_prefix_t );
 	void 			submit_data(Storage::Storage_class* 		mb);
 	void            set_volume_vector( string );
@@ -120,8 +122,8 @@ private:
 	void			fill_note_list();
 	void			add_volume( note_itr_t );
 	void			assign_freq();
-	float	 		calc_freq ( uint8_t , notevalue_struct_t );
-	note_struct_t	Char2note( char );
+	float	 		calc_freq ( uint8_t , notevalue_t );
+	note_t			char2note( char );
 	void			split_long_notes();
 
 };

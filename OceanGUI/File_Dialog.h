@@ -4,6 +4,8 @@
 // Qt includes
 #include <QDialog>
 #include <QComboBox>
+#include <QMainWindow>
+
 
 // Synthesizer
 #include <notes.h>
@@ -24,8 +26,9 @@ public:
     Logfacility_class
                     Log				{"FileDialog"};
     QPalette        status_color 	= QPalette();
-    QComboBox*      CB_notes  ;
-    QComboBox*      CB_instruments;
+    QComboBox*      CB_notes		= nullptr  ;
+    QComboBox*      CB_instruments	= nullptr;
+    QSlider*		Sl_Main_Hz		= nullptr;
     string          notes_path;
     string          instruments_path  ;
     QString         QNote_Chars		{"Notes: ( )"};
@@ -34,7 +37,7 @@ public:
     bool            SWITCHON 		= false;
 
 
-    explicit File_Dialog_class(QWidget *parent = 0 );
+    explicit File_Dialog_class(QWidget *parent = nullptr, QSlider* = nullptr );
     ~File_Dialog_class();
     void Setup_widgets();
     void New_Notes();
@@ -50,7 +53,9 @@ private slots:
     void pb_PlayNotes_OnOff();
     void pb_Instrument_Done_clicked();
     void pb_Notes_Done_clicked();
-    void sB_NotesPerSec(int);
+    void cB_NotesPerSec(int);
+    void cB_Convention( int );
+    void sB_Octave(int);
 };
 
 #endif // FILE_DIALOG_H

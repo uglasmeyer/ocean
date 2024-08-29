@@ -145,7 +145,7 @@ public:
 	Variation_class() ;
 	~Variation_class(){};
 
-	typedef vector<Note_class::note_struct_t>
+	typedef vector<Note_class::note_t>
 				noteword_t;
 	typedef vector<noteword_t>
 				notesentence_t;

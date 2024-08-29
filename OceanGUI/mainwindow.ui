@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1207</width>
-    <height>600</height>
+    <height>659</height>
    </rect>
   </property>
   <property name="palette">
@@ -492,7 +492,7 @@
      <number>1</number>
     </property>
     <property name="maximum">
-     <number>1000</number>
+     <number>3520</number>
     </property>
     <property name="pageStep">
      <number>12</number>
@@ -720,7 +720,7 @@
      <rect>
       <x>330</x>
       <y>500</y>
-      <width>112</width>
+      <width>113</width>
       <height>23</height>
      </rect>
     </property>
@@ -732,9 +732,9 @@
     <property name="geometry">
      <rect>
       <x>960</x>
-      <y>50</y>
+      <y>10</y>
       <width>131</width>
-      <height>211</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -747,7 +747,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>0</y>
+       <y>40</y>
        <width>121</width>
        <height>23</height>
       </rect>
@@ -760,7 +760,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>30</y>
+       <y>70</y>
        <width>121</width>
        <height>23</height>
       </rect>
@@ -773,7 +773,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>60</y>
+       <y>100</y>
        <width>121</width>
        <height>23</height>
       </rect>
@@ -786,7 +786,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>180</y>
+       <y>220</y>
        <width>66</width>
        <height>17</height>
       </rect>
@@ -799,7 +799,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>150</y>
+       <y>190</y>
        <width>121</width>
        <height>23</height>
       </rect>
@@ -812,7 +812,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>90</y>
+       <y>130</y>
        <width>121</width>
        <height>23</height>
       </rect>
@@ -825,7 +825,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>120</y>
+       <y>160</y>
        <width>121</width>
        <height>23</height>
       </rect>
@@ -834,14 +834,27 @@
       <string>MemoryBank5</string>
      </property>
     </widget>
+    <widget class="QRadioButton" name="rb_bank0">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>121</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>MemoryBank0</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_2">
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>50</y>
+      <y>10</y>
       <width>191</width>
-      <height>211</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -854,7 +867,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>0</y>
+       <y>40</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -867,7 +880,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>30</y>
+       <y>70</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -880,7 +893,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>60</y>
+       <y>100</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -893,7 +906,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>90</y>
+       <y>130</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -909,7 +922,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>120</y>
+       <y>160</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -922,7 +935,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>150</y>
+       <y>190</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -935,7 +948,20 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>180</y>
+       <y>220</y>
+       <width>160</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QSlider" name="Slider_mix_vol0">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -949,9 +975,9 @@
     <property name="geometry">
      <rect>
       <x>1100</x>
-      <y>50</y>
+      <y>10</y>
       <width>91</width>
-      <height>211</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -964,7 +990,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>0</y>
+       <y>40</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -977,7 +1003,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>30</y>
+       <y>70</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -990,7 +1016,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>60</y>
+       <y>100</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -1003,7 +1029,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>90</y>
+       <y>130</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -1016,7 +1042,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>120</y>
+       <y>160</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -1029,7 +1055,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>180</y>
+       <y>220</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -1042,7 +1068,20 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>150</y>
+       <y>190</y>
+       <width>92</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>stored</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="cb_0">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -1104,7 +1143,7 @@
    <widget class="QPushButton" name="pB_play_notes">
     <property name="geometry">
      <rect>
-      <x>760</x>
+      <x>480</x>
       <y>10</y>
       <width>89</width>
       <height>25</height>
@@ -1132,7 +1171,7 @@
      <rect>
       <x>330</x>
       <y>520</y>
-      <width>112</width>
+      <width>113</width>
       <height>23</height>
      </rect>
     </property>
@@ -1157,7 +1196,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>50</y>
+      <y>80</y>
       <width>111</width>
       <height>17</height>
      </rect>
@@ -1261,7 +1300,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>20</y>
+      <y>50</y>
       <width>51</width>
       <height>17</height>
      </rect>
@@ -1344,24 +1383,11 @@
      <string>Details</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="cb_external">
-    <property name="geometry">
-     <rect>
-      <x>990</x>
-      <y>10</y>
-      <width>201</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="editable">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QScrollBar" name="hs_hall_effect">
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>80</y>
+      <y>110</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1383,7 +1409,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>80</y>
+      <y>110</y>
       <width>66</width>
       <height>17</height>
      </rect>
@@ -1396,7 +1422,7 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>50</y>
+      <y>80</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1418,7 +1444,7 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>20</y>
+      <y>50</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1452,7 +1478,7 @@
    <widget class="QPushButton" name="pB_Specrum">
     <property name="geometry">
      <rect>
-      <x>870</x>
+      <x>610</x>
       <y>10</y>
       <width>88</width>
       <height>25</height>
@@ -1466,7 +1492,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>150</y>
+      <y>190</y>
       <width>44</width>
       <height>26</height>
      </rect>
@@ -1621,7 +1647,7 @@
     <property name="geometry">
      <rect>
       <x>620</x>
-      <y>130</y>
+      <y>170</y>
       <width>66</width>
       <height>17</height>
      </rect>
@@ -1633,7 +1659,7 @@
    <widget class="QLabel" name="Bps">
     <property name="geometry">
      <rect>
-      <x>720</x>
+      <x>680</x>
       <y>190</y>
       <width>31</width>
       <height>31</height>
@@ -1655,7 +1681,7 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>130</y>
+      <y>170</y>
       <width>31</width>
       <height>17</height>
      </rect>
@@ -1699,110 +1725,77 @@
      <string/>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QComboBox" name="cb_external">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>410</x>
       <y>470</y>
-      <width>145</width>
-      <height>78</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QPushButton" name="pB_Save">
-       <property name="text">
-        <string>Save Config</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_3">
-       <property name="text">
-        <string>GUI EXIT</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QPushButton" name="pBComposer">
-    <property name="geometry">
-     <rect>
-      <x>770</x>
-      <y>480</y>
-      <width>88</width>
+      <width>201</width>
       <height>25</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Composer</string>
+    <property name="editable">
+     <bool>false</bool>
     </property>
    </widget>
-   <widget class="QFrame" name="frame_6">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>541</x>
-      <y>471</y>
-      <width>115</width>
-      <height>76</height>
+      <x>620</x>
+      <y>470</y>
+      <width>368</width>
+      <height>58</height>
      </rect>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <widget class="QPushButton" name="pBAudioServer">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="pBSynthesizer">
        <property name="text">
-        <string>Audio Server</string>
+        <string>Synthesizer</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QPushButton" name="pBAudioServerExit">
        <property name="text">
         <string>EXIT</string>
        </property>
       </widget>
      </item>
-    </layout>
-   </widget>
-   <widget class="QFrame" name="frame_3">
-    <property name="geometry">
-     <rect>
-      <x>650</x>
-      <y>471</y>
-      <width>107</width>
-      <height>78</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QPushButton" name="pBSynthesizer">
-         <property name="text">
-          <string>Synthesizer</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pBSynthesizerExit">
-         <property name="text">
-          <string>EXIT</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="pBSynthesizerExit">
+       <property name="text">
+        <string>EXIT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pBAudioServer">
+       <property name="text">
+        <string>Audio Server</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pBComposer">
+       <property name="text">
+        <string>Composer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="pB_Save">
+       <property name="text">
+        <string>Save Config</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="text">
+        <string>GUI EXIT</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -2074,54 +2067,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>cb_1</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>change_status1()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1100</x>
-     <y>72</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1071</x>
-     <y>46</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_2</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>change_status2()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1100</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1064</x>
-     <y>75</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_3</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>change_status3()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1100</x>
-     <y>132</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1055</x>
-     <y>104</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioButton_5</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -2176,8 +2121,8 @@
    <slot>Save_Config()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1001</x>
-     <y>523</y>
+     <x>900</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>1092</x>
@@ -2192,60 +2137,12 @@
    <slot>GUI_Exit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1001</x>
-     <y>560</y>
+     <x>900</x>
+     <y>548</y>
     </hint>
     <hint type="destinationlabel">
      <x>1082</x>
      <y>557</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pBAudioServerExit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Audio_Exit()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>645</x>
-     <y>558</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>572</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_4</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>change_status4()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1170</x>
-     <y>172</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1174</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cb_5</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>change_status5()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1156</x>
-     <y>206</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1032</x>
-     <y>260</y>
     </hint>
    </hints>
   </connection>
@@ -2256,12 +2153,28 @@
    <slot>start_synthesizer()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>745</x>
-     <y>528</y>
+     <x>806</x>
+     <y>517</y>
     </hint>
     <hint type="destinationlabel">
      <x>946</x>
      <y>455</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pBAudioServerExit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>Audio_Exit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>715</x>
+     <y>548</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>604</x>
+     <y>572</y>
     </hint>
    </hints>
   </connection>

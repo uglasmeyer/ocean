@@ -20,7 +20,7 @@ typedef struct adsr_struct
 	uint8_t attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
 	uint8_t decay  	= 0;
 	uint8_t hall		= 0; // mixing hall effect [0..100} data shift
-} adsr_struc_t;
+} adsr_t;
 
 typedef struct freq_struct
 {
@@ -31,7 +31,7 @@ typedef struct freq_struct
 	float	 	pitch	= 0.0;				// freq - ( base + note)
 	float		freq	= oct_base_freq;
 	string 		str		= "";				// human readable freq_struct
-} freq_struc_t;
+} frequency_t;
 
 
 
@@ -42,7 +42,7 @@ typedef struct fmo_struct
 	string			name		= "NULL";
 	bool			stored		= false;
 	bool			generating 	= false;
-} fmo_struc_t;  // all wave parameter for the fmo
+} fmo_t;  // all wave parameter for the fmo
 
 typedef struct vco_struct
 {
@@ -51,7 +51,7 @@ typedef struct vco_struct
 	string			name		= "NULL";
 	bool			stored		= false; // stored vco data
 	bool 			generated	= false;
-} vco_struc_t;  // all wave parameter for vco
+} vco_t;  // all wave parameter for vco
 
 
 class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
@@ -68,25 +68,25 @@ public:
 		uint16_t 		msec		= max_sec*1000; 	// range 1 ... 8000
 		uint16_t 		volume		= osc_default_volume; 	// range [0..100];
 		buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
-		freq_struc_t	fstruct;
+		frequency_t	fstruct;
 		vector_str_t 	conf		= {};
 		vector_str_t 	ops_str_arr = {};
 		int 			ops_len  	= 0;
 
-	} wave_struc_t;
+	} wave_t;
 
-	adsr_struc_t 	adsr 		= adsr_struct();
-	wave_struc_t 	wp 			= wave_struct();
-	fmo_struc_t 	fp 			= fmo_struct();
-	vco_struc_t 	vp 			= vco_struct();
-	spec_struct_t	spectrum	= spec_struct();
+	adsr_t 		adsr 		= adsr_struct();
+	wave_t 		wp 			= wave_struct();
+	fmo_t 		fp 			= fmo_struct();
+	vco_t 		vp 			= vco_struct();
+	spectrum_t	spectrum	= spec_struct();
 
 	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
 	{	};
 	virtual ~Oscillator_base(){};
 
-	freq_struc_t 	get_fstruct();
-	freq_struc_t 	get_fstruct( int );
+	frequency_t 	get_fstruct();
+	frequency_t 	get_fstruct( int );
 	void 			show_csv_comment( int );
 	void 			set_frequency( float freq );
 	int 			set_delta_frequency( int pitch );
@@ -96,7 +96,7 @@ public:
 	void 			Set_waveform( char  );
 	void 			set_csv_comment ();
 	void 			get_comment( bool  );
-	uint8_t 		Osc_id(string);
+
 
 private:
 
@@ -104,7 +104,7 @@ private:
 	string csv_comment 	= "";
 	string command 		= "";
 
-	freq_struc_t 	freq_to_freq_struct( float );
+	frequency_t 	freq_to_freq_struct( float );
 
 }; // close class Track class
 

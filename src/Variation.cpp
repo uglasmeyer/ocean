@@ -64,7 +64,7 @@ void Variation_class::Set_note_chars( uint flats, uint sharps  )
 Variation_class::noteword_t Variation_class::List2vector( notelist_t notes )
 {
 	noteword_t word {};
-	for( note_struct_t note : notes )
+	for( note_t note : notes )
 		word.push_back( note );
 	return word;
 }
@@ -132,7 +132,7 @@ void Variation_class::Define_rhythm( string rhythm )
 
 Variation_class::noteword_t Variation_class::gen_random_note_word()
 {
-	note_struct_t 	note{};
+	note_t 	note{};
 	noteword_t 		word{};
 
 	buffer_t duration 	= 0;
@@ -166,7 +166,7 @@ Variation_class::noteword_t Variation_class::str2words( string note_str )
 	noteword_t word{};
 	if ( Note_class::Verify_noteline( Noteline_prefix, note_str ) )
 	{
-		for( note_struct_t note : Note_class::notelist )
+		for( note_t note : Note_class::notelist )
 		{
 			word.push_back( note );
 		}
@@ -177,7 +177,7 @@ string Variation_class::insert_random(  )
 {
 
 	string note_str{};
-	note_struct_t note;
+	note_t note;
 
 	for( char ch : Constant_chars )
 	{
@@ -203,7 +203,7 @@ string Variation_class::scan_sentence( char s0 )
 
 	for( noteword_t& word : Sentence )
 	{
-		for ( note_struct_t& note : word )
+		for ( note_t& note : word )
 		{
 			if ( Log[TEST] )
 				Note_class::Show_note( note );
@@ -256,7 +256,7 @@ void Variation_class::swap_word( int i, int j )
 
 void Variation_class::set_octave( int oct, noteword_t& word )
 {
-	std::for_each( word.begin(), word.end(), [oct]( note_struct_t& note ){ note.octave = oct; } );
+	std::for_each( word.begin(), word.end(), [oct]( note_t& note ){ note.octave = oct; } );
 }
 
 string Variation_class::Gen_noteline( string sentence_layout, string filename )
@@ -272,7 +272,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	string valid_sentence_layout = input_filter( sentence_layout, Valid_set);
 
 	string noteline{};
-	vector<note_struct_t> note_word;
+	vector<note_t> note_word;
 	Sentence.clear();
 
 	size_t pos = 0;
@@ -295,7 +295,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 				{
 					noteword_t word = gen_random_note_word();
 					Sentence.push_back( word );
-					for ( note_struct_t note : word )
+					for ( note_t note : word )
 						noteline.append( note.str );
 					break;
 				}
@@ -375,7 +375,7 @@ void Variation_class::Test()
 	Gen_noteline("c", ".test" );
 	vector<int> v = { 20,80,20,80,20,80,0,0 };
 	i=0;
-	for( note_struct_t note : notelist  )
+	for( note_t note : notelist  )
 	{
 		cout << v[i] << " "  << note.volume <<" " << note.str << endl;
 		assert( v[i] == note.volume  );

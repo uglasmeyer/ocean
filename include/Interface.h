@@ -58,7 +58,7 @@ enum {
 	 LASTNUM
 };
 
-typedef 		Spectrum_base::spec_struct_t
+typedef 		Spectrum_base::spectrum_t
 					spec_struc_t;
 static const 	uint str_buffer_len = 32;
 
@@ -76,7 +76,7 @@ typedef struct interface_struct
 	float 		Main_Freq  					= 110;
 	uint8_t 		Master_Amp 					= 75;
 	uint8_t 		Main_Duration 				= max_sec;
-	adsr_struc_t Main_adsr 					= adsr_struct();
+	adsr_t Main_adsr 					= adsr_struct();
 	Note_base::noteline_prefix_t
 				noteline_prefix				= Note_base::noteline_prefix_struct();
 	uint8_t		Soft_freq					= 0;

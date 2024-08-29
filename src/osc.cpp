@@ -367,7 +367,7 @@ bool main_id( int id )
 	return false;
 }
 
-void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
+void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 {
 	auto attack = [ frames, data ]( int duration, buffer_t aframes, float da )
 		{
@@ -427,7 +427,7 @@ void Oscillator::apply_adsr(adsr_struc_t adsr, buffer_t frames, Data_t* data  )
 
 Memory 	memtmp	{ monobuffer_size }; //adsr hall - not member of Oscillator
 
-void Oscillator::apply_hall( adsr_struc_t adsr, buffer_t frames, Data_t* data )
+void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
 { 	// adsr.hall determines the distance to a wall
 	// db describes the decay of an amplitude given at the origon n
 	// dn is the distance of the wall in frame units

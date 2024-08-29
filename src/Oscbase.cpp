@@ -18,12 +18,12 @@ void Oscillator_base::show_csv_comment( int loglevel )
 	Comment( loglevel, str) ;
 }
 
-freq_struc_t Oscillator_base::get_fstruct()
+frequency_t Oscillator_base::get_fstruct()
 {
 	return wp.fstruct ;
 }
 
-freq_struc_t Oscillator_base::get_fstruct( int freq )
+frequency_t Oscillator_base::get_fstruct( int freq )
 {
 	return freq_to_freq_struct( freq ) ;
 }
@@ -63,18 +63,6 @@ int Oscillator_base::set_delta_volume( int pitch )
 	wp.volume = vol;
 	return vol;
 }
-uint8_t Oscillator_base::Osc_id( string name )
-{
-	uint8_t id = 0;
-	for ( string str : osc_type_vec )
-	{
-		if ( name.compare( str ) == 0)
-			return id;
-		id++;
-	}
-	Comment(ERROR,"Cannot convert OSC name " + name);
-	exit(1);
-}
 
 void Oscillator_base::line_interpreter( vector_str_t arr )
 {
@@ -106,9 +94,9 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 
 
 
-freq_struc_t Oscillator_base::freq_to_freq_struct( float freq )
+frequency_t Oscillator_base::freq_to_freq_struct( float freq )
 {
-	freq_struc_t fstruct;
+	frequency_t fstruct;
 
 	if ( freq < oct_base_freq )
 	{

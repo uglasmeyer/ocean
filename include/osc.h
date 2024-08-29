@@ -58,8 +58,8 @@ private:
 	buffer_t		decay_shift = 0;
 	double 			phase 		= 0;
 
-	void 	apply_hall( adsr_struc_t, buffer_t, Data_t* );
-	void 	apply_adsr(adsr_struc_t , buffer_t , Data_t*);
+	void 	apply_hall( adsr_t, buffer_t, Data_t* );
+	void 	apply_adsr(adsr_t , buffer_t , Data_t*);
 	double 	get_delta_freq( float freq );
 	void 	set_phi( double , double );
 	double 	get_phi( );

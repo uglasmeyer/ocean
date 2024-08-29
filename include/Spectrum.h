@@ -50,7 +50,7 @@ public:
 		int						sum = 100; // max of the array content
 		uint8_t	 				id 	= SINUS1; // waveform id
 		uint8_t					osc = MAINID;
-	} spec_struct_t;
+	} spectrum_t;
 
 	const vector<string> waveform_str_vec
 	{ // consistence with docu Table Standard Waveforms
@@ -67,21 +67,21 @@ public:
 		"random"		// 10
 	};
 
-	const spec_struct_t			default_spec 	= spec_struct();
+	const spectrum_t			default_spec 	= spec_struct();
 
 	Spectrum_base() : Logfacility_class("Spectrum base") {};
 	~Spectrum_base(){};
 
-	spec_struct_t 	Parse_data( vector_str_t, char );
+	spectrum_t 	Parse_data( vector_str_t, char );
 	void 			Set_spectrum( uint8_t, int, int );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );
-	string 			Show_this_spectrum( spec_struct_t );
-	void 			Sum( spec_struct_t& );
+	string 			Show_this_spectrum( spectrum_t );
+	void 			Sum( spectrum_t& );
 
 private:
-	spec_struct_t				spectrum		= spec_struct();
+	spectrum_t				spectrum		= spec_struct();
 
 
 };
@@ -95,29 +95,29 @@ public:
 	bool 			Read( string );
 	bool 			Read( uint );
 	void 			Set_Spec_Name( string );
-	spec_struct_t 	Get_spectrum( uint8_t );
+	spectrum_t 	Get_spectrum( uint8_t );
 	void 			Set_spectrum( uint8_t, int, int );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );
 	string			Show_spectrum(  );
-	string 			Show_this_spectrum( spec_struct_t );
+	string 			Show_this_spectrum( spectrum_t );
 
 	void 			Test();
 
 private:
 
 
-	typedef list<spec_struct_t>	spec_list_t;
+	typedef list<spectrum_t>	spec_list_t;
 	spec_list_t			 		spectrum_list	{};
 	spec_list_t::iterator 		list_itr 		= spectrum_list.begin();
-	spec_struct_t 				spec_buffer 	= spec_struct();
+	spectrum_t 				spec_buffer 	= spec_struct();
 
 	string 						Name			= "";
 	string 						Spectrum_file	= "";
 	string						osc_type 		= "";
 
-	const spec_struct_t			default_spec 	= spec_struct();
+	const spectrum_t			default_spec 	= spec_struct();
 
 	bool 						check_size( spec_list_t  );
 	void 						parse_data( string );

@@ -76,7 +76,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 	auto calc_noteline_msec = [this]()
 		{
 			uint duration = 0;
-			for( note_struct_t note : notelist )
+			for( note_t note : notelist )
 			{
 				duration += note.duration;
 			}
@@ -151,17 +151,21 @@ void Note_class::Start_note_itr()
 	note_itr = notelist.begin();
 }
 
-float Note_class::calc_freq ( uint8_t oct, notevalue_struct_t nvs )
+uint16_t Note_class::Octave_freq( uint8_t oct )
+{
+	return oct_base_freq << oct;
+}
+float Note_class::calc_freq ( uint8_t oct, notevalue_t nvs )
 {
 	if ( nvs.value < 0 )
 		return 0.0;
 	uint8_t		octave	= abs( oct + nvs.doct );
-	uint16_t 	base 	= oct_base_freq  << ( octave_shift + octave ) ;
+	uint16_t 	base 	= Octave_freq ( octave_shift + octave ) ;
 	float	 	freq 	= base * root2.vec[ nvs.value ];
 	return 		freq;
 };
 
-void Note_class::Show_note( note_struct_t note )
+void Note_class::Show_note( note_t note )
 {
 	stringstream strs;
 	strs << dec  << setfill(' ') 	<< left ;
@@ -172,7 +176,7 @@ void Note_class::Show_note( note_struct_t note )
 		strs << "L";
 	else
 		strs << "|";
-	for ( notevalue_struct_t notevalue : note.chord )
+	for ( notevalue_t notevalue : note.chord )
 	{
 				strs <<
 				setw(4) << right << dec << (int)note.octave <<
@@ -196,7 +200,7 @@ int Note_class::notechar2Value( char note_char )
 		return -12; // freq = 0
 }
 
-Note_class::note_struct_t Note_class::Char2note( char ch )
+Note_class::note_t Note_class::char2note( char ch )
 {
 	note_buffer.str.push_back(ch);
 	notevalue_buffer 				= notevalue_struct();
@@ -219,7 +223,7 @@ void Note_class::Set_prefix_octave( int oct )
 	Octave = oct;
 }
 
-strlen_t Note_class::Noteline_position_parser(  strlen_t pos )
+strlen_t Note_class::noteline_position_parser(  strlen_t pos )
 {
 	// parse a single noteline position and apply changes to the note_itr
 
@@ -300,7 +304,7 @@ strlen_t Note_class::Noteline_position_parser(  strlen_t pos )
 				size_t p = Note_Chars.find(ch);
 				if (  p != string::npos )
 				{
-					Char2note( Noteline[pos] ); // append note_buffer
+					char2note( Noteline[pos] ); // append note_buffer
 					nc_pos++;
 				}
 				if ( ch == '\'' )
@@ -364,7 +368,7 @@ strlen_t Note_class::Noteline_position_parser(  strlen_t pos )
 		{
 			set_duration(); // duration of the previou note
 			note_buffer = note_struct(); // clear note_buffer;
-			Char2note( note_char );
+			char2note( note_char );
 			note_buffer.octave = Octave;
 			notelist.push_back( note_buffer );
 			note_buffer = note_struct(); // clear note_buffer once more
@@ -386,7 +390,7 @@ void Note_class::change_alphabet_notes( noteline_prefix_t prefix )
 	{
 		for( uint sharp = 0; sharp < prefix.sharp; sharp++ )
 		{
-			for ( notevalue_struct_t& chord : note.chord )
+			for ( notevalue_t& chord : note.chord )
 			{
 				if( chord.value == sharp_pitch[sharp])
 					chord.value +=1;
@@ -394,7 +398,7 @@ void Note_class::change_alphabet_notes( noteline_prefix_t prefix )
 		}
 		for( uint flat = 0; flat < prefix.flat; flat++ )
 		{
-			for ( notevalue_struct_t& chord : note.chord )
+			for ( notevalue_t& chord : note.chord )
 			{
 				if( chord.value == flat_pitch[flat])
 					chord.value -=1;
@@ -459,7 +463,7 @@ void Note_class::fill_note_list()
 	auto calc_noteline_msec = [this]()
 		{
 			uint duration = 0;
-			for( note_struct_t note : notelist )
+			for( note_t note : notelist )
 			{
 				duration += note.duration;
 			}
@@ -468,7 +472,7 @@ void Note_class::fill_note_list()
 
 	uint noteline_msec = calc_noteline_msec();
 	noteline_sec = 0;
-	note_struct_t	pause_note		= {".",{{0,-12}},min_duration,0,0,{0,-12},false };
+	note_t	pause_note		= {".",{{0,-12}},min_duration,0,0,{0,-12},false };
 
 	int mod = noteline_msec % measure_duration ;
 	if ( mod > 0 )
@@ -527,7 +531,7 @@ void Note_class::set_note_list ( noteline_prefix_t prefix, string str )
 	strlen_t char_pos 	= 0;
 	while( char_pos < noteline_len )
 	{
-		char_pos = Noteline_position_parser( char_pos );
+		char_pos = noteline_position_parser( char_pos );
 		char_pos++;
 	}
 
@@ -582,7 +586,7 @@ void Note_class::set_volume_vector( string volline )
 	assert( volume_vec.size() > 0 );
 }
 
-void Note_class::note2memory( note_struct_t note, buffer_t offs ) // TODO working
+void Note_class::note2memory( note_t note, buffer_t offs ) // TODO working
 {
 	auto run_osc_group = [ this ]( buffer_t offs )
 		{
@@ -608,23 +612,25 @@ void Note_class::note2memory( note_struct_t note, buffer_t offs ) // TODO workin
 		main.wp.glide_effect = 100;
 
 	main.Set_long( note.longnote );
+	uint16_t octave_freq = Octave_freq(note.octave);
 	size_t note_chord_len = note.chord.size();
-	for ( notevalue_struct_t notevalue : note.chord )
+	for ( notevalue_t notevalue : note.chord )
 	{
-		fnew = ( notevalue.freq * 	vco_wp_frequency ) /
-									instrument->main.wp.frequency;
+		fnew = ( notevalue.freq * 	vco_wp_frequency ) / octave_freq;
+//									instrument->main.wp.frequency;
 		vco.Set_start_freq(fnew);
 		vco.wp.frequency 	= fnew;
 		vco.wp.msec 		= note.duration;
 
-		fnew = ( notevalue.freq * 	fmo_wp_frequency ) /
-									instrument->main.wp.frequency ;
+		fnew = ( notevalue.freq * 	fmo_wp_frequency ) / octave_freq;
+//									instrument->main.wp.frequency ;
 		if ( fnew > max_frequency )
 		{
+			cout << "max_frequency" << max_frequency << endl;
 			cout << "fnew " << fnew <<endl;
 			cout << "notevalue.freq " << notevalue.freq <<endl;
 			cout << "fmo.wp.frequency " << fmo.wp.frequency <<endl;
-			cout << "instrument->main.wp.frequency " << instrument->main.wp.frequency <<endl;
+			cout << "Octave freqency  " << octave_freq <<endl;
 			raise( SIGINT );
 		}
 		fmo.Set_start_freq(fnew);
@@ -869,7 +875,7 @@ void Note_class::Test()
 	Verify_noteline(Noteline_prefix, "|2(ACE)--|3G-EC-A--.B");
 	int i = 0;
 	volume_vec={80,40,40,40,40,40,0,80,0,0,0};
-	for( note_struct_t note : notelist )
+	for( note_t note : notelist )
 	{
 		cout << dec << volume_vec[i] << " " << note.volume << endl;
 		assert( note.volume == volume_vec[i] );
@@ -950,7 +956,7 @@ void Note_class::Test()
 	assert( min_duration == 250 );
 
 	Verify_noteline( Noteline_prefix, "|2(AB)--->|3A" );
-	note_struct_t note = *notelist.begin();
+	note_t note = *notelist.begin();
 	assert( note.glide.chord.value == 0 );
 	assert( note.glide.chord.doct == 1 );
 	assert ( ( calc_freq( note.octave,  note.glide.chord ) - 440 ) < 1E-8 );

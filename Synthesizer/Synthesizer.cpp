@@ -809,8 +809,8 @@ void ApplicationLoop()
 				ifd->UpdateFlag = true;
 				int shm_id 	= ifd->SHMID;
 				shm_addr 	= set_addr( shm_id );
-				cout << uint8_code_str[mode] << " " << shm_id << " ";
-			} 											// but handel further requests
+//				cout << uint8_code_str[mode] << " " << shm_id << " ";
+			} 	// but handel further requests
 
 		}
 		else

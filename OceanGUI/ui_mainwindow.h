@@ -17,7 +17,7 @@
 #include <QtWidgets/QDial>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGraphicsView>
-#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
@@ -30,7 +30,6 @@
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -67,6 +66,7 @@ public:
     QRadioButton *rb_bank7;
     QRadioButton *rb_bank4;
     QRadioButton *rb_bank5;
+    QRadioButton *rb_bank0;
     QFrame *frame_2;
     QSlider *Slider_mix_vol1;
     QSlider *Slider_mix_vol2;
@@ -75,6 +75,7 @@ public:
     QSlider *Slider_mix_vol5;
     QSlider *Slider_mix_vol7;
     QSlider *Slider_mix_vol6;
+    QSlider *Slider_mix_vol0;
     QFrame *frame_4;
     QCheckBox *cb_1;
     QCheckBox *cb_2;
@@ -83,6 +84,7 @@ public:
     QCheckBox *cb_5;
     QCheckBox *cb_6;
     QCheckBox *cb_7;
+    QCheckBox *cb_0;
     QPushButton *pB_Store;
     QPushButton *pB_Mute_StA;
     QDial *dial_PMW;
@@ -105,7 +107,6 @@ public:
     QPushButton *pB_Wavedisplay;
     QGraphicsView *oscilloscope_view;
     QPushButton *pB_Debug;
-    QComboBox *cb_external;
     QScrollBar *hs_hall_effect;
     QLabel *label_5;
     QScrollBar *hs_adsr_sustain;
@@ -128,20 +129,16 @@ public:
     QLabel *label_6;
     QLabel *label_10;
     QPushButton *pB_Mute;
-    QWidget *layoutWidget;
-    QVBoxLayout *verticalLayout_2;
+    QComboBox *cb_external;
+    QWidget *widget;
+    QGridLayout *gridLayout;
+    QPushButton *pBSynthesizer;
+    QPushButton *pBAudioServerExit;
+    QPushButton *pBSynthesizerExit;
+    QPushButton *pBAudioServer;
+    QPushButton *pBComposer;
     QPushButton *pB_Save;
     QPushButton *pushButton_3;
-    QPushButton *pBComposer;
-    QFrame *frame_6;
-    QVBoxLayout *verticalLayout_3;
-    QPushButton *pBAudioServer;
-    QPushButton *pBAudioServerExit;
-    QFrame *frame_3;
-    QHBoxLayout *horizontalLayout;
-    QVBoxLayout *verticalLayout;
-    QPushButton *pBSynthesizer;
-    QPushButton *pBSynthesizerExit;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -151,7 +148,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1207, 600);
+        MainWindow->resize(1207, 659);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -252,7 +249,7 @@ public:
         Slider_Main_Hz->setObjectName(QString::fromUtf8("Slider_Main_Hz"));
         Slider_Main_Hz->setGeometry(QRect(250, 10, 16, 160));
         Slider_Main_Hz->setMinimum(1);
-        Slider_Main_Hz->setMaximum(1000);
+        Slider_Main_Hz->setMaximum(3520);
         Slider_Main_Hz->setPageStep(12);
         Slider_Main_Hz->setOrientation(Qt::Vertical);
         Slider_Main_Vol = new QSlider(centralwidget);
@@ -316,93 +313,103 @@ public:
         radioButton_2->setGeometry(QRect(330, 310, 112, 23));
         radioButton_3 = new QRadioButton(centralwidget);
         radioButton_3->setObjectName(QString::fromUtf8("radioButton_3"));
-        radioButton_3->setGeometry(QRect(330, 500, 112, 23));
+        radioButton_3->setGeometry(QRect(330, 500, 113, 23));
         frame = new QFrame(centralwidget);
         frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setGeometry(QRect(960, 50, 131, 211));
+        frame->setGeometry(QRect(960, 10, 131, 251));
         frame->setFrameShape(QFrame::StyledPanel);
         frame->setFrameShadow(QFrame::Raised);
         rb_bank1 = new QRadioButton(frame);
         rb_bank1->setObjectName(QString::fromUtf8("rb_bank1"));
-        rb_bank1->setGeometry(QRect(0, 0, 121, 23));
+        rb_bank1->setGeometry(QRect(0, 40, 121, 23));
         rb_bank2 = new QRadioButton(frame);
         rb_bank2->setObjectName(QString::fromUtf8("rb_bank2"));
-        rb_bank2->setGeometry(QRect(0, 30, 121, 23));
+        rb_bank2->setGeometry(QRect(0, 70, 121, 23));
         rb_bank3 = new QRadioButton(frame);
         rb_bank3->setObjectName(QString::fromUtf8("rb_bank3"));
-        rb_bank3->setGeometry(QRect(0, 60, 121, 23));
+        rb_bank3->setGeometry(QRect(0, 100, 121, 23));
         label_16 = new QLabel(frame);
         label_16->setObjectName(QString::fromUtf8("label_16"));
-        label_16->setGeometry(QRect(20, 180, 66, 17));
+        label_16->setGeometry(QRect(20, 220, 66, 17));
         rb_bank7 = new QRadioButton(frame);
         rb_bank7->setObjectName(QString::fromUtf8("rb_bank7"));
-        rb_bank7->setGeometry(QRect(0, 150, 121, 23));
+        rb_bank7->setGeometry(QRect(0, 190, 121, 23));
         rb_bank4 = new QRadioButton(frame);
         rb_bank4->setObjectName(QString::fromUtf8("rb_bank4"));
-        rb_bank4->setGeometry(QRect(0, 90, 121, 23));
+        rb_bank4->setGeometry(QRect(0, 130, 121, 23));
         rb_bank5 = new QRadioButton(frame);
         rb_bank5->setObjectName(QString::fromUtf8("rb_bank5"));
-        rb_bank5->setGeometry(QRect(0, 120, 121, 23));
+        rb_bank5->setGeometry(QRect(0, 160, 121, 23));
+        rb_bank0 = new QRadioButton(frame);
+        rb_bank0->setObjectName(QString::fromUtf8("rb_bank0"));
+        rb_bank0->setGeometry(QRect(0, 10, 121, 23));
         frame_2 = new QFrame(centralwidget);
         frame_2->setObjectName(QString::fromUtf8("frame_2"));
-        frame_2->setGeometry(QRect(760, 50, 191, 211));
+        frame_2->setGeometry(QRect(760, 10, 191, 251));
         frame_2->setFrameShape(QFrame::StyledPanel);
         frame_2->setFrameShadow(QFrame::Raised);
         Slider_mix_vol1 = new QSlider(frame_2);
         Slider_mix_vol1->setObjectName(QString::fromUtf8("Slider_mix_vol1"));
-        Slider_mix_vol1->setGeometry(QRect(0, 0, 160, 16));
+        Slider_mix_vol1->setGeometry(QRect(0, 40, 160, 16));
         Slider_mix_vol1->setOrientation(Qt::Horizontal);
         Slider_mix_vol2 = new QSlider(frame_2);
         Slider_mix_vol2->setObjectName(QString::fromUtf8("Slider_mix_vol2"));
-        Slider_mix_vol2->setGeometry(QRect(0, 30, 160, 16));
+        Slider_mix_vol2->setGeometry(QRect(0, 70, 160, 16));
         Slider_mix_vol2->setOrientation(Qt::Horizontal);
         Slider_mix_vol3 = new QSlider(frame_2);
         Slider_mix_vol3->setObjectName(QString::fromUtf8("Slider_mix_vol3"));
-        Slider_mix_vol3->setGeometry(QRect(0, 60, 160, 16));
+        Slider_mix_vol3->setGeometry(QRect(0, 100, 160, 16));
         Slider_mix_vol3->setOrientation(Qt::Horizontal);
         Slider_mix_vol4 = new QSlider(frame_2);
         Slider_mix_vol4->setObjectName(QString::fromUtf8("Slider_mix_vol4"));
-        Slider_mix_vol4->setGeometry(QRect(0, 90, 160, 16));
+        Slider_mix_vol4->setGeometry(QRect(0, 130, 160, 16));
         Slider_mix_vol4->setMaximum(120);
         Slider_mix_vol4->setOrientation(Qt::Horizontal);
         Slider_mix_vol5 = new QSlider(frame_2);
         Slider_mix_vol5->setObjectName(QString::fromUtf8("Slider_mix_vol5"));
-        Slider_mix_vol5->setGeometry(QRect(0, 120, 160, 16));
+        Slider_mix_vol5->setGeometry(QRect(0, 160, 160, 16));
         Slider_mix_vol5->setOrientation(Qt::Horizontal);
         Slider_mix_vol7 = new QSlider(frame_2);
         Slider_mix_vol7->setObjectName(QString::fromUtf8("Slider_mix_vol7"));
-        Slider_mix_vol7->setGeometry(QRect(0, 150, 160, 16));
+        Slider_mix_vol7->setGeometry(QRect(0, 190, 160, 16));
         Slider_mix_vol7->setOrientation(Qt::Horizontal);
         Slider_mix_vol6 = new QSlider(frame_2);
         Slider_mix_vol6->setObjectName(QString::fromUtf8("Slider_mix_vol6"));
-        Slider_mix_vol6->setGeometry(QRect(0, 180, 160, 16));
+        Slider_mix_vol6->setGeometry(QRect(0, 220, 160, 16));
         Slider_mix_vol6->setOrientation(Qt::Horizontal);
+        Slider_mix_vol0 = new QSlider(frame_2);
+        Slider_mix_vol0->setObjectName(QString::fromUtf8("Slider_mix_vol0"));
+        Slider_mix_vol0->setGeometry(QRect(0, 10, 160, 16));
+        Slider_mix_vol0->setOrientation(Qt::Horizontal);
         frame_4 = new QFrame(centralwidget);
         frame_4->setObjectName(QString::fromUtf8("frame_4"));
-        frame_4->setGeometry(QRect(1100, 50, 91, 211));
+        frame_4->setGeometry(QRect(1100, 10, 91, 251));
         frame_4->setFrameShape(QFrame::StyledPanel);
         frame_4->setFrameShadow(QFrame::Raised);
         cb_1 = new QCheckBox(frame_4);
         cb_1->setObjectName(QString::fromUtf8("cb_1"));
-        cb_1->setGeometry(QRect(0, 0, 92, 23));
+        cb_1->setGeometry(QRect(0, 40, 92, 23));
         cb_2 = new QCheckBox(frame_4);
         cb_2->setObjectName(QString::fromUtf8("cb_2"));
-        cb_2->setGeometry(QRect(0, 30, 92, 23));
+        cb_2->setGeometry(QRect(0, 70, 92, 23));
         cb_3 = new QCheckBox(frame_4);
         cb_3->setObjectName(QString::fromUtf8("cb_3"));
-        cb_3->setGeometry(QRect(0, 60, 92, 23));
+        cb_3->setGeometry(QRect(0, 100, 92, 23));
         cb_4 = new QCheckBox(frame_4);
         cb_4->setObjectName(QString::fromUtf8("cb_4"));
-        cb_4->setGeometry(QRect(0, 90, 92, 23));
+        cb_4->setGeometry(QRect(0, 130, 92, 23));
         cb_5 = new QCheckBox(frame_4);
         cb_5->setObjectName(QString::fromUtf8("cb_5"));
-        cb_5->setGeometry(QRect(0, 120, 92, 23));
+        cb_5->setGeometry(QRect(0, 160, 92, 23));
         cb_6 = new QCheckBox(frame_4);
         cb_6->setObjectName(QString::fromUtf8("cb_6"));
-        cb_6->setGeometry(QRect(0, 180, 92, 23));
+        cb_6->setGeometry(QRect(0, 220, 92, 23));
         cb_7 = new QCheckBox(frame_4);
         cb_7->setObjectName(QString::fromUtf8("cb_7"));
-        cb_7->setGeometry(QRect(0, 150, 92, 23));
+        cb_7->setGeometry(QRect(0, 190, 92, 23));
+        cb_0 = new QCheckBox(frame_4);
+        cb_0->setObjectName(QString::fromUtf8("cb_0"));
+        cb_0->setGeometry(QRect(0, 10, 92, 23));
         pB_Store = new QPushButton(centralwidget);
         pB_Store->setObjectName(QString::fromUtf8("pB_Store"));
         pB_Store->setGeometry(QRect(1000, 270, 89, 25));
@@ -417,19 +424,19 @@ public:
         label_2->setGeometry(QRect(490, 160, 81, 17));
         pB_play_notes = new QPushButton(centralwidget);
         pB_play_notes->setObjectName(QString::fromUtf8("pB_play_notes"));
-        pB_play_notes->setGeometry(QRect(760, 10, 89, 25));
+        pB_play_notes->setGeometry(QRect(480, 10, 89, 25));
         radioButton_4 = new QRadioButton(centralwidget);
         radioButton_4->setObjectName(QString::fromUtf8("radioButton_4"));
         radioButton_4->setGeometry(QRect(330, 330, 112, 23));
         radioButton_5 = new QRadioButton(centralwidget);
         radioButton_5->setObjectName(QString::fromUtf8("radioButton_5"));
-        radioButton_5->setGeometry(QRect(330, 520, 112, 23));
+        radioButton_5->setGeometry(QRect(330, 520, 113, 23));
         pBtoggleRecord = new QPushButton(centralwidget);
         pBtoggleRecord->setObjectName(QString::fromUtf8("pBtoggleRecord"));
         pBtoggleRecord->setGeometry(QRect(480, 440, 89, 25));
         label_4 = new QLabel(centralwidget);
         label_4->setObjectName(QString::fromUtf8("label_4"));
-        label_4->setGeometry(QRect(480, 50, 111, 17));
+        label_4->setGeometry(QRect(480, 80, 111, 17));
         frame_5 = new QFrame(centralwidget);
         frame_5->setObjectName(QString::fromUtf8("frame_5"));
         frame_5->setGeometry(QRect(1000, 340, 131, 111));
@@ -456,7 +463,7 @@ public:
         MainLCD_Hz->setGeometry(QRect(60, 10, 158, 49));
         label_11 = new QLabel(centralwidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        label_11->setGeometry(QRect(480, 20, 51, 17));
+        label_11->setGeometry(QRect(480, 50, 51, 17));
         dial_soft_freq = new QDial(centralwidget);
         dial_soft_freq->setObjectName(QString::fromUtf8("dial_soft_freq"));
         dial_soft_freq->setGeometry(QRect(540, 170, 50, 64));
@@ -477,30 +484,26 @@ public:
         pB_Debug = new QPushButton(centralwidget);
         pB_Debug->setObjectName(QString::fromUtf8("pB_Debug"));
         pB_Debug->setGeometry(QRect(620, 240, 88, 25));
-        cb_external = new QComboBox(centralwidget);
-        cb_external->setObjectName(QString::fromUtf8("cb_external"));
-        cb_external->setGeometry(QRect(990, 10, 201, 25));
-        cb_external->setEditable(false);
         hs_hall_effect = new QScrollBar(centralwidget);
         hs_hall_effect->setObjectName(QString::fromUtf8("hs_hall_effect"));
-        hs_hall_effect->setGeometry(QRect(530, 80, 160, 16));
+        hs_hall_effect->setGeometry(QRect(530, 110, 160, 16));
         hs_hall_effect->setMaximum(100);
         hs_hall_effect->setPageStep(1);
         hs_hall_effect->setOrientation(Qt::Horizontal);
         hs_hall_effect->setInvertedControls(false);
         label_5 = new QLabel(centralwidget);
         label_5->setObjectName(QString::fromUtf8("label_5"));
-        label_5->setGeometry(QRect(480, 80, 66, 17));
+        label_5->setGeometry(QRect(480, 110, 66, 17));
         hs_adsr_sustain = new QScrollBar(centralwidget);
         hs_adsr_sustain->setObjectName(QString::fromUtf8("hs_adsr_sustain"));
-        hs_adsr_sustain->setGeometry(QRect(530, 50, 160, 16));
+        hs_adsr_sustain->setGeometry(QRect(530, 80, 160, 16));
         hs_adsr_sustain->setMaximum(100);
         hs_adsr_sustain->setPageStep(1);
         hs_adsr_sustain->setOrientation(Qt::Horizontal);
         hs_adsr_sustain->setInvertedControls(false);
         hs_adsr_attack = new QScrollBar(centralwidget);
         hs_adsr_attack->setObjectName(QString::fromUtf8("hs_adsr_attack"));
-        hs_adsr_attack->setGeometry(QRect(530, 20, 160, 16));
+        hs_adsr_attack->setGeometry(QRect(530, 50, 160, 16));
         hs_adsr_attack->setMaximum(100);
         hs_adsr_attack->setPageStep(1);
         hs_adsr_attack->setOrientation(Qt::Horizontal);
@@ -511,10 +514,10 @@ public:
         dial_ramp_up_down->setMaximum(100);
         pB_Specrum = new QPushButton(centralwidget);
         pB_Specrum->setObjectName(QString::fromUtf8("pB_Specrum"));
-        pB_Specrum->setGeometry(QRect(870, 10, 88, 25));
+        pB_Specrum->setGeometry(QRect(610, 10, 88, 25));
         sB_Duration = new QSpinBox(centralwidget);
         sB_Duration->setObjectName(QString::fromUtf8("sB_Duration"));
-        sB_Duration->setGeometry(QRect(620, 150, 44, 26));
+        sB_Duration->setGeometry(QRect(620, 190, 44, 26));
         sB_Duration->setMaximum(4);
         sB_Duration->setDisplayIntegerBase(10);
         frame_7 = new QFrame(centralwidget);
@@ -558,17 +561,17 @@ public:
         pb_clear->setGeometry(QRect(1000, 300, 88, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(620, 130, 66, 17));
+        label_3->setGeometry(QRect(620, 170, 66, 17));
         Bps = new QLabel(centralwidget);
         Bps->setObjectName(QString::fromUtf8("Bps"));
-        Bps->setGeometry(QRect(720, 190, 31, 31));
+        Bps->setGeometry(QRect(680, 190, 31, 31));
         QFont font;
         font.setPointSize(13);
         Bps->setFont(font);
         Bps->setAlignment(Qt::AlignCenter);
         label_6 = new QLabel(centralwidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(680, 130, 31, 17));
+        label_6->setGeometry(QRect(680, 170, 31, 17));
         label_6->setAlignment(Qt::AlignCenter);
         label_10 = new QLabel(centralwidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
@@ -578,63 +581,50 @@ public:
         pB_Mute = new QPushButton(centralwidget);
         pB_Mute->setObjectName(QString::fromUtf8("pB_Mute"));
         pB_Mute->setGeometry(QRect(130, 140, 88, 25));
-        layoutWidget = new QWidget(centralwidget);
-        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(1000, 470, 145, 78));
-        verticalLayout_2 = new QVBoxLayout(layoutWidget);
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
-        pB_Save = new QPushButton(layoutWidget);
-        pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
-
-        verticalLayout_2->addWidget(pB_Save);
-
-        pushButton_3 = new QPushButton(layoutWidget);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-
-        verticalLayout_2->addWidget(pushButton_3);
-
-        pBComposer = new QPushButton(centralwidget);
-        pBComposer->setObjectName(QString::fromUtf8("pBComposer"));
-        pBComposer->setGeometry(QRect(770, 480, 88, 25));
-        frame_6 = new QFrame(centralwidget);
-        frame_6->setObjectName(QString::fromUtf8("frame_6"));
-        frame_6->setGeometry(QRect(541, 471, 115, 76));
-        frame_6->setFrameShape(QFrame::StyledPanel);
-        frame_6->setFrameShadow(QFrame::Raised);
-        verticalLayout_3 = new QVBoxLayout(frame_6);
-        verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        pBAudioServer = new QPushButton(frame_6);
-        pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
-
-        verticalLayout_3->addWidget(pBAudioServer);
-
-        pBAudioServerExit = new QPushButton(frame_6);
-        pBAudioServerExit->setObjectName(QString::fromUtf8("pBAudioServerExit"));
-
-        verticalLayout_3->addWidget(pBAudioServerExit);
-
-        frame_3 = new QFrame(centralwidget);
-        frame_3->setObjectName(QString::fromUtf8("frame_3"));
-        frame_3->setGeometry(QRect(650, 471, 107, 78));
-        frame_3->setFrameShape(QFrame::StyledPanel);
-        frame_3->setFrameShadow(QFrame::Raised);
-        horizontalLayout = new QHBoxLayout(frame_3);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        verticalLayout = new QVBoxLayout();
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        pBSynthesizer = new QPushButton(frame_3);
+        cb_external = new QComboBox(centralwidget);
+        cb_external->setObjectName(QString::fromUtf8("cb_external"));
+        cb_external->setGeometry(QRect(410, 470, 201, 25));
+        cb_external->setEditable(false);
+        widget = new QWidget(centralwidget);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        widget->setGeometry(QRect(620, 470, 368, 58));
+        gridLayout = new QGridLayout(widget);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        gridLayout->setContentsMargins(0, 0, 0, 0);
+        pBSynthesizer = new QPushButton(widget);
         pBSynthesizer->setObjectName(QString::fromUtf8("pBSynthesizer"));
 
-        verticalLayout->addWidget(pBSynthesizer);
+        gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
 
-        pBSynthesizerExit = new QPushButton(frame_3);
+        pBAudioServerExit = new QPushButton(widget);
+        pBAudioServerExit->setObjectName(QString::fromUtf8("pBAudioServerExit"));
+
+        gridLayout->addWidget(pBAudioServerExit, 1, 0, 1, 1);
+
+        pBSynthesizerExit = new QPushButton(widget);
         pBSynthesizerExit->setObjectName(QString::fromUtf8("pBSynthesizerExit"));
 
-        verticalLayout->addWidget(pBSynthesizerExit);
+        gridLayout->addWidget(pBSynthesizerExit, 1, 1, 1, 1);
 
+        pBAudioServer = new QPushButton(widget);
+        pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
 
-        horizontalLayout->addLayout(verticalLayout);
+        gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
+
+        pBComposer = new QPushButton(widget);
+        pBComposer->setObjectName(QString::fromUtf8("pBComposer"));
+
+        gridLayout->addWidget(pBComposer, 0, 3, 1, 1);
+
+        pB_Save = new QPushButton(widget);
+        pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
+
+        gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
+
+        pushButton_3 = new QPushButton(widget);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+
+        gridLayout->addWidget(pushButton_3, 1, 4, 1, 1);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
@@ -668,18 +658,13 @@ public:
         QObject::connect(Slider_FMO_vol, SIGNAL(valueChanged(int)), MainWindow, SLOT(FMO_slot_volume()));
         QObject::connect(pB_Store, SIGNAL(clicked()), MainWindow, SLOT(Store()));
         QObject::connect(pB_Mute_StA, SIGNAL(clicked()), MainWindow, SLOT(Clear_Banks()));
-        QObject::connect(cb_1, SIGNAL(clicked(bool)), MainWindow, SLOT(change_status1()));
-        QObject::connect(cb_2, SIGNAL(clicked(bool)), MainWindow, SLOT(change_status2()));
-        QObject::connect(cb_3, SIGNAL(clicked(bool)), MainWindow, SLOT(change_status3()));
         QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(connect_vco()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
         QObject::connect(pBtoggleRecord, SIGNAL(clicked()), MainWindow, SLOT(toggle_Record()));
         QObject::connect(pB_Save, SIGNAL(clicked()), MainWindow, SLOT(Save_Config()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
-        QObject::connect(pBAudioServerExit, SIGNAL(clicked()), MainWindow, SLOT(Audio_Exit()));
-        QObject::connect(cb_4, SIGNAL(clicked()), MainWindow, SLOT(change_status4()));
-        QObject::connect(cb_5, SIGNAL(clicked()), MainWindow, SLOT(change_status5()));
         QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
+        QObject::connect(pBAudioServerExit, SIGNAL(clicked()), MainWindow, SLOT(Audio_Exit()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -703,6 +688,7 @@ public:
         rb_bank7->setText(QCoreApplication::translate("MainWindow", "External", nullptr));
         rb_bank4->setText(QCoreApplication::translate("MainWindow", "MemoryBank4", nullptr));
         rb_bank5->setText(QCoreApplication::translate("MainWindow", "MemoryBank5", nullptr));
+        rb_bank0->setText(QCoreApplication::translate("MainWindow", "MemoryBank0", nullptr));
         cb_1->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
         cb_2->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
         cb_3->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
@@ -710,6 +696,7 @@ public:
         cb_5->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
         cb_6->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
         cb_7->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
+        cb_0->setText(QCoreApplication::translate("MainWindow", "stored", nullptr));
         pB_Store->setText(QCoreApplication::translate("MainWindow", "Store", nullptr));
         pB_Mute_StA->setText(QCoreApplication::translate("MainWindow", "Mute", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PMW", nullptr));
@@ -737,13 +724,13 @@ public:
         label_6->setText(QCoreApplication::translate("MainWindow", "  BPS", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
+        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
+        pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
+        pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
+        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
+        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
         pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Config", nullptr));
         pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
-        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
-        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
-        pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
-        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
-        pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

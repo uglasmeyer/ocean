@@ -23,16 +23,16 @@ public:
     ~Spectrum_Dialog_class();
 
     Spectrum_base Spectrum{};
-    spec_struct_t spectrum;
+    spectrum_t spectrum;
 
     Interface_class* GUI;
     ifd_t* ifd;
-    vector<Spectrum_base::spec_struct_t*> ifd_spectrum_vec;
+    vector<Spectrum_base::spectrum_t*> ifd_spectrum_vec;
 
     string instrument{};
     uint8_t waveform_id;
 
-    void setup_Widgets( Spectrum_base::spec_struct_t );
+    void setup_Widgets( Spectrum_base::spectrum_t );
     void Update_spectrum();
 
 private slots:

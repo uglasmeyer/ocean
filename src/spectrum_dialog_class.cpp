@@ -62,7 +62,7 @@ Spectrum_Dialog_class::~Spectrum_Dialog_class()
     delete ui;
 }
 
-auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spec_struct_t& spec, char id )
+auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spectrum_t& spec, char id )
 {
 	C->ifd->Spectrum_type = id;
 	C->spectrum			= spec;
@@ -145,7 +145,7 @@ void Spectrum_Dialog_class::save()
 }
 
 
-void Spectrum_Dialog_class::setup_Widgets(  Spectrum_base::spec_struct_t spectrum)
+void Spectrum_Dialog_class::setup_Widgets(  Spectrum_base::spectrum_t spectrum)
 {
     ui->vS_1->setValue( spectrum.dta[0] );
     ui->vS_2->setValue( spectrum.dta[1] );

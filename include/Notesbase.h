@@ -66,15 +66,15 @@ public:
 		uint8_t		 		doct 		= 0 ; 	// -1,0, +1
 		int 				value		= 0 ;	// -12, 0, 1...12
 		float				freq		= 0.0;
-	} notevalue_struct_t;
-	notevalue_struct_t		notevalue_buffer = notevalue_struct();
+	} notevalue_t;
+	notevalue_t		notevalue_buffer = notevalue_struct();
 
-	typedef vector<notevalue_struct_t>
+	typedef vector<notevalue_t>
 							chord_struct_t;
 
 	typedef struct glide_struct
 	{
-		notevalue_struct_t	chord		= notevalue_struct() ;		// eg. B-->F (glide = F)
+		notevalue_t	chord		= notevalue_struct() ;		// eg. B-->F (glide = F)
 		bool				note		= false;
 	} glide_t ;
 
@@ -88,8 +88,8 @@ public:
 		glide_t				glide		= glide_struct();
 		bool				longnote	= false;// identify a note that jumps over the measure boundary
 
-	} note_struct_t;
-	typedef list<note_struct_t>
+	} note_t;
+	typedef list<note_t>
 							notelist_t;
 
 	root2_t			root2 = root2_struct( max_octave);

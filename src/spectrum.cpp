@@ -13,7 +13,7 @@
 
 
 
-Spectrum_base::spec_struct_t Spectrum_base::Parse_data( vector_str_t arr, char oscid )
+Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char oscid )
 {
 
 	auto assign_dta = [ this ]( vector<string> arr )
@@ -85,7 +85,7 @@ string Spectrum_base::Get_waveform_str( uint id )
 		return "unknown";
 };
 
-string Spectrum_base::Show_this_spectrum( spec_struct_t spec )
+string Spectrum_base::Show_this_spectrum( spectrum_t spec )
 {
 	stringstream strs{""};
 
@@ -105,7 +105,7 @@ string Spectrum_base::Show_this_spectrum( spec_struct_t spec )
 	return strs.str();
 }
 
-void Spectrum_base::Sum( spec_struct_t& spec )
+void Spectrum_base::Sum( spectrum_t& spec )
 {
 	int sum = 0;
 	for ( size_t i = 0; i < spec_dta_len ; i++ )
@@ -279,7 +279,7 @@ void Spectrum_class::Set_spectrum( uint8_t id, int channel, int value )
 	list_itr->sum = list_itr->sum - a + value;
 }
 
-Spectrum_base::spec_struct_t Spectrum_class::Get_spectrum(uint8_t id )
+Spectrum_base::spectrum_t Spectrum_class::Get_spectrum(uint8_t id )
 {
 
 	if ( id > spectrum_list.size( ) - 1)
@@ -323,7 +323,7 @@ string Spectrum_class::Get_waveform_str( uint id )
 		return "unknown";
 };
 
-string Spectrum_class::Show_this_spectrum( spec_struct_t spec )
+string Spectrum_class::Show_this_spectrum( spectrum_t spec )
 {
 	stringstream strs{""};
 
@@ -380,7 +380,7 @@ void Spectrum_class::Test()
 	Spectrum_class::Read("MAIN");
 	Set_spectrum( 2, 5, 30 );
 
-	spec_struct_t t = Get_spectrum(2);
+	spectrum_t t = Get_spectrum(2);
 
 //	cout << t.str << endl;
 //	assert( t.str.compare( "sgnSin" ) == 0 );

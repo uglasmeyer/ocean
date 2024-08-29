@@ -84,7 +84,6 @@ public:
 	string cmdline = "";
 	string option_default = "";
 	bool 	dialog_mode = false;
-	const uint16_t		max_frequency		= oct_base_freq * (1 << (Variation.max_octave+1) );
 
 
 	int error = 0;

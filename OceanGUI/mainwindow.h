@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 // Qt
-#include <QGuiApplication>
+//#include <QGuiApplication>
 #include <QMainWindow>
 #include <QDebug>
 #include <Qt>
@@ -36,7 +36,7 @@ public:
 
     Interface_class     	GUI;
     Spectrum_class          Spectrum			{};
-    File_Dialog_class*      Dialog_File         = nullptr;
+    File_Dialog_class*      File_Dialog_obj		= nullptr;
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
@@ -80,6 +80,7 @@ private slots:
     void set_mode_v();
     void set_mode_o();
 
+    void Sl_mix0( int );
     void Sl_mix1( int );
     void Sl_mix2( int );
     void Sl_mix3( int );
@@ -87,6 +88,7 @@ private slots:
     void Sl_mix5( int );
     void Sl_mix6( int );
     void Sl_mix7( int );
+
     void slot_dial_ramp_up_down();
     void memory_clear();
     void toggle_Record();
@@ -96,11 +98,13 @@ private slots:
     void Store();
     void Clear_Banks();
 
+    void change_status0();
     void change_status1();
     void change_status2();
     void change_status3();
     void change_status4();
     void change_status5();
+    void change_status7();
 
     void File_Director();
     void Spectrum_Dialog();

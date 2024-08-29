@@ -155,7 +155,7 @@ void Interpreter_class::record( vector_str_t arr )
 		expect 			= { "file no", "replay duration in seconds" };
 		string wavfile 	= "synthesizer" + pop_stack( 2 );
 		string duration	= pop_stack(1);
-		Processor_class::Push_str( SETEXTERNALWAVEFILE, 'l', wavfile );
+		Processor_class::Push_str( SETEXTERNALWAVEFILE, OTHERSTR_KEY, wavfile );
 		pause( {"pause", duration } );
 		return;
 	}
@@ -233,7 +233,7 @@ void Interpreter_class::set( vector_str_t arr )
 
 		if( cmpkeyword( "freq") )
 		{
-			Value value{ pop_int(0, max_frequency) };
+			Value value{ pop_int(0, Variation.max_frequency) };
 			cout << osc << "freq"<<value.str <<endl;
 			Osc({ "osc", osc, "freq", value.str });
 			return;
@@ -268,7 +268,7 @@ void Interpreter_class::notes( vector_str_t arr )
 		check_file( { dir_struct().autodir, dir_struct().notesdir }, notes_name + ".kbd" );
 
 		Comment( INFO, "loading notes " + notes_name );
-		Processor_class::Push_str( UPDATENOTESKEY,'n', notes_name );
+		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, notes_name );
 		return;
 	}
 	if ( cmpkeyword( "set") )
@@ -315,7 +315,7 @@ void Interpreter_class::notes( vector_str_t arr )
 
 		Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 
-		Processor_class::Push_str( UPDATENOTESKEY,'n', "tmp" );
+		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, "tmp" );
 
 		return;
 	}
@@ -378,7 +378,7 @@ void Interpreter_class::instrument( vector_str_t arr )
 		string instr = pop_stack( 1);
 		check_file( { dir_struct().instrumentdir } , instr + ".kbd" );
 		Comment( INFO, "loading instrument " + instr );
-		Processor_class::Push_str( SETINSTRUMENTKEY, 'i', instr );
+		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
 		return;
 	}
 	Wrong_keyword(  expect , keyword.Str );
@@ -538,7 +538,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 		if ( loop )
 		{
 			expect = {"max frequency" };
-			freq = pop_int(0, max_frequency );
+			freq = pop_int(0, Variation.max_frequency );
 			Loop( freq, 0 );
 		}
 		else
