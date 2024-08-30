@@ -315,21 +315,9 @@ void process( char key )
 			IFD.Commit();
 			break;
 		}
-		case ADSRDURATIONKEY :
+		case ADSR_KEY :
 		{
-			Instrument.main.adsr.bps_id = ifd->Main_adsr.bps_id;
-			IFD.Commit();
-			break;
-		}
-		case ADSRDECAYKEY :
-		{
-			Instrument.main.adsr.attack = ifd->Main_adsr.attack;
-			IFD.Commit();
-			break;
-		}
-		case ADSRHALLKEY : // adsr hall
-		{
-			Instrument.main.adsr.hall = ifd->Main_adsr.hall;
+			Instrument.main.adsr = ifd->Main_adsr;
 			IFD.Commit();
 			break;
 		}
@@ -345,12 +333,6 @@ void process( char key )
 		case WAVEDISPLAYTYPEKEY :
 		{
 			Wavedisplay.Set_type( ifd->WD_type_ID );
-			IFD.Commit();
-			break;
-		}
-		case ADSRSUSTAINKEY :
-		{
-			Instrument.main.adsr.decay = ifd->Main_adsr.decay;
 			IFD.Commit();
 			break;
 		}
@@ -468,10 +450,7 @@ void process( char key )
 		case MUTEMBKEY : // clear memory bank flag
 		{
 			Log.Comment(INFO, "receive command <mute and stop record on all memory banks>");
-			for ( uint_t arrnr = 0; arrnr < MbSize; arrnr++ )
-			{
-				Mixer.StA[arrnr].mute(); // pause-play, pause-record
-			}
+			std::ranges::for_each( Mixer.StA, []( auto& m ){ m.mute(); } );
 			Mixer.status.play = false;
 			IFD.Commit();
 			break;
@@ -806,6 +785,10 @@ void ApplicationLoop()
 
 				Mixer.Add_Sound( &Instrument, shm_addr );
 				Wavedisplay.Gen_cxwave_data(  );
+				if ( Record.active )
+					External.add_record( &Mixer.Out_L, &Mixer.Out_R);
+				Record.Progress_bar_update();
+
 				ifd->UpdateFlag = true;
 				int shm_id 	= ifd->SHMID;
 				shm_addr 	= set_addr( shm_id );
@@ -824,9 +807,6 @@ void ApplicationLoop()
 
 		}
 
-		if ( Record.active )
-			External.add_record( &Mixer.Out_L, &Mixer.Out_R);//, Mixer.StA[ MbIdExternal ].Amp );
-		Record.Progress_bar_update();
 		Update_ifd_status_flags();
 
 		} ;

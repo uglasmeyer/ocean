@@ -167,7 +167,7 @@ Data_t* Storage_class::get_block( uint id)
 	return &Data[id * block_size];
 }
 
-void 	Storage_class::set_store_counter( uint n)
+void 	Storage_class::set_store_counter( uint  n )
 {
 	assert( n < info.max_records );
 	store_counter = n;

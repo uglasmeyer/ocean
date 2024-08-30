@@ -7,7 +7,6 @@
 
 #include <notes.h>
 
-
 bool cmpstr( const string a, const string b )
 {
 	return ( a.compare( b ) == 0 );
@@ -223,7 +222,7 @@ void Note_class::Set_prefix_octave( int oct )
 	Octave = oct;
 }
 
-strlen_t Note_class::noteline_position_parser(  strlen_t pos )
+size_t Note_class::noteline_position_parser(  size_t pos )
 {
 	// parse a single noteline position and apply changes to the note_itr
 
@@ -528,7 +527,7 @@ void Note_class::set_note_list ( noteline_prefix_t prefix, string str )
 	note_buffer			= note_struct();
 	note_duration		= 0;
 
-	strlen_t char_pos 	= 0;
+	size_t char_pos 	= 0;
 	while( char_pos < noteline_len )
 	{
 		char_pos = noteline_position_parser( char_pos );
@@ -586,25 +585,32 @@ void Note_class::set_volume_vector( string volline )
 	assert( volume_vec.size() > 0 );
 }
 
-void Note_class::note2memory( note_t note, buffer_t offs ) // TODO working
+void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO working
 {
-	auto run_osc_group = [ this ]( buffer_t offs )
+	auto run_osc_group = [ this ]( const buffer_t& offs )
 		{
 			for ( Oscillator* osc : this->osc_group )
 				osc->OSC( offs );
 		};
 
+	auto check_freq = [ this ]( float fnew, float nf, float of, float ocf )
+		{
+			if ( fnew > max_frequency )
+			{
+				cout << "max_frequency =    " << max_frequency ;
+				cout << " < fnew       =    " << fnew <<endl;
+				cout << "notevalue.freq 	" << nf <<endl;
+				cout << "osc.frequency    	" << ocf <<endl;
+				cout << "Octave freqency  	" << of <<endl;
+				Comment( WARN, "max_frequency exceeded." );
+			}
+
+		};
 	assert( instrument != nullptr );
-	if ( instrument->main.wp.frequency < 1 )
-	{
-		Comment( ERROR, "Zero main frequency");
-		return;
-	}
 
 	float fnew = 0;
-	float fglide = note.glide.chord.freq;
 
-	uint_t wp_glide_effect = main.wp.glide_effect;
+	uint wp_glide_effect = main.wp.glide_effect;
 	float vco_wp_frequency = vco.wp.frequency;
 	float fmo_wp_frequency = fmo.wp.frequency;
 
@@ -614,37 +620,28 @@ void Note_class::note2memory( note_t note, buffer_t offs ) // TODO working
 	main.Set_long( note.longnote );
 	uint16_t octave_freq = Octave_freq(note.octave);
 	size_t note_chord_len = note.chord.size();
+
 	for ( notevalue_t notevalue : note.chord )
 	{
 		fnew = ( notevalue.freq * 	vco_wp_frequency ) / octave_freq;
-//									instrument->main.wp.frequency;
+		check_freq( fnew, notevalue.freq, octave_freq, vco_wp_frequency );
 		vco.Set_start_freq(fnew);
 		vco.wp.frequency 	= fnew;
 		vco.wp.msec 		= note.duration;
 
 		fnew = ( notevalue.freq * 	fmo_wp_frequency ) / octave_freq;
-//									instrument->main.wp.frequency ;
-		if ( fnew > max_frequency )
-		{
-			cout << "max_frequency" << max_frequency << endl;
-			cout << "fnew " << fnew <<endl;
-			cout << "notevalue.freq " << notevalue.freq <<endl;
-			cout << "fmo.wp.frequency " << fmo.wp.frequency <<endl;
-			cout << "Octave freqency  " << octave_freq <<endl;
-			raise( SIGINT );
-		}
+		check_freq( fnew, notevalue.freq, octave_freq, fmo_wp_frequency );
 		fmo.Set_start_freq(fnew);
 		fmo.wp.frequency	= fnew;
 		fmo.wp.msec 		= note.duration;
 
 		main.Set_start_freq( notevalue.freq );
-		main.wp.frequency	= fglide;
+		main.wp.frequency	= note.glide.chord.freq;
 		main.wp.volume 		= rint( note.volume / note_chord_len );
 		main.wp.msec 		= note.duration;
 
 		run_osc_group( offs );
 	}
-
 
 	vco.wp.frequency	= vco_wp_frequency;
 	fmo.wp.frequency	= fmo_wp_frequency;

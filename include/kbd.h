@@ -22,7 +22,7 @@ public:             // Access specifier
 	typedef struct key_struct
 	{
 		int 	key	= NoKey;
-		uint_t 	val	= 0;
+		uint 	val	= 0;
 	} key_struct_t;
 	key_struct_t 	keystruct;
 

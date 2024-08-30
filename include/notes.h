@@ -97,10 +97,10 @@ private:
 	string 			Notefile 		= "";
 	string 			Noteline		= "";
 	string 			Volumeline 		= "";
-	strlen_t		volume_vec_len 	= 1;
-	strlen_t		vcounter		= 0;
+	size_t			volume_vec_len 	= 1;
+	size_t			vcounter		= 0;
 	int				octave_shift  	= 0;
-	strlen_t 		noteline_len 	= 0;
+	size_t	 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
 
 	note_t 	note_buffer 	= note_struct();
@@ -113,8 +113,8 @@ private:
 	string 			get_name();
 	void 			set_note_list ( noteline_prefix_t,  string );
 	void			set_file_name( string );
-	strlen_t		noteline_position_parser( unsigned long int );
-	void 			note2memory( note_t, buffer_t );
+	size_t			noteline_position_parser( size_t );
+	void 			note2memory( const note_t&, const buffer_t& );
 	void 			change_alphabet_notes( noteline_prefix_t );
 	void 			submit_data(Storage::Storage_class* 		mb);
 	void            set_volume_vector( string );

@@ -583,7 +583,7 @@ public:
         pB_Mute->setGeometry(QRect(130, 140, 88, 25));
         cb_external = new QComboBox(centralwidget);
         cb_external->setObjectName(QString::fromUtf8("cb_external"));
-        cb_external->setGeometry(QRect(410, 470, 201, 25));
+        cb_external->setGeometry(QRect(480, 470, 131, 25));
         cb_external->setEditable(false);
         widget = new QWidget(centralwidget);
         widget->setObjectName(QString::fromUtf8("widget"));

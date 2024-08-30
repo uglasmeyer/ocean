@@ -51,7 +51,7 @@ bool External_class::read_file_data(  )
 
 	if (Log[DBG2])
 		StA->Info("Memory Array External");
-	if ( structs >= StA->info.data_blocks )
+	if ( structs > StA->info.data_blocks )
 	{
 		Comment(WARN, "Partly read file data into memory.");
 		Comment(WARN, "Taking limits from memory info" );
@@ -61,19 +61,17 @@ bool External_class::read_file_data(  )
 	}
 	if( read_stereo_data( bytes ) ) // TODO real stereo
 	{
-//		int shift = 0;//- max_data_amp / 2;
 		for ( buffer_t n = 0; n < structs; n++)
 		{
-//			Data_t L = stereo.stereo_data[n].left;
+			Data_t L = stereo.stereo_data[n].left;
 			Data_t R = stereo.stereo_data[n].right;
-
-			StA->Data[n]	= R;//shift + sqrt( L*L + R*R );
+			StA->Data[n]	= L + R;
 		}
-		StA->set_store_counter( blocks );
 		Comment(INFO,"Converted stereo to mono data");
 		Comment(INFO,"Bytes   " + to_string(bytes));
 		Comment(INFO,"Blocks  " + to_string(blocks));
 		Comment(INFO,"Structs " + to_string(structs));
+		StA->set_store_counter( blocks - 1 );
 
 		return true;
 	}

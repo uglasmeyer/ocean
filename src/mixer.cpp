@@ -161,10 +161,11 @@ void Mixer_class::clear_memory()
 
 void Mixer_class::add_mono(Data_t* Data, uint8_t volume, uint id )
 {
-	const array<int,8> phase_r = {10, 7,  0, -7, -10, -7,   0,  7 };
-	const array<int,8> phase_l = { 0, 7, 10,  7,   0, -7, -10, -7 };
+	const array<int,8> phase_r = {10, 7,  0, 7, 10, 7,  0, 7 };
+	const array<int,8> phase_l = { 0, 7, 10, 7,  0, 7, 10, 7 };
 
-	id = 3;
+	assert( phase_r.size() == StA.size() );
+//	id = 3;
 	assert( volume <= 100 );
 	float volpercent=volume/100.0;
 	Data_t Data_r = (phase_r[id]*volpercent)/10.0;
@@ -221,14 +222,17 @@ void Mixer_class::Add_Sound(Instrument_class* 	instrument,
 		}
 	}
 
+
 	// store data potentially and add read_data to output
-	status.play = false; // set loop default
-	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
+	status.notes 	= 	StA[MbIdNotes].status.play;
+	if ( status.notes )
+		add_mono( StA[ MbIdNotes ].Data, StA[ MbIdNotes ].Amp, 6 );
+
+
+	status.play 	= false; // set loop default
+	for ( uint DAid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
 		Storage_class*  DA = &StA[ DAid ];
-
-//		if( StA[MbIdNotes].status.play ) // ignore flat instrument if notes are available
-//			DA->store_block( StA[MbIdNotes].Data ); // only one of 7 is available for data
 
 		Data_t* read_data = DA->get_next_block();
 		if ( read_data )
@@ -241,7 +245,6 @@ void Mixer_class::Add_Sound(Instrument_class* 	instrument,
 
 	status.external 	= (	StA[MbIdExternal].status.play or
 							StA[MbIdExternal].status.store );
-	status.notes 		= 	StA[MbIdNotes].status.play;
 	stereo_out( shm_addr, master_volume );
 };
 

@@ -114,12 +114,10 @@ typedef struct mixer_status_struct // mixer status
 typedef std::unordered_map<string,string>
 							config_map_t ;
 // https://en.cppreference.com/w/cpp/language/types
-typedef unsigned int      	uint_t;
 typedef unsigned long int 	buffer_t;
-typedef unsigned long int 	strlen_t;
 typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
-typedef vector<int>			vector_int_t;
+
 typedef struct stereo_struct
 {
 	data_t left;

@@ -134,13 +134,14 @@ int main( int argc, char* argv[] )
 		case 'a' :
 		{
 			cout << "ADSR ";
-			keyevent = Key_event("#gdus");
+			keyevent = Key_event("#gdush");
 			switch ( keyevent )
 			{
 			case 'g' : { ifd->Soft_freq = getvalue( "Frequency" ); ifd->KEY = SOFTFREQUENCYKEY; break; }
-			case 'd' : { ifd->Main_adsr.attack  = getvalue( "Decay" ); ifd->KEY = ADSRDECAYKEY; break; }
-			case 'u' : { ifd->Main_adsr.bps_id  = getvalue( "Duration" ); ifd->KEY = ADSRDURATIONKEY; break; }
-			case 's' : { ifd->Main_adsr.decay  = getvalue( "Sustain" ); ifd->KEY = ADSRSUSTAINKEY; break; }
+			case 'd' : { ifd->Main_adsr.attack  = getvalue( "Decay" ); ifd->KEY = ADSR_KEY; break; }
+			case 'u' : { ifd->Main_adsr.bps_id  = getvalue( "Duration" ); ifd->KEY = ADSR_KEY; break; }
+			case 's' : { ifd->Main_adsr.decay  = getvalue( "Sustain" ); ifd->KEY = ADSR_KEY; break; }
+			case 'h' : { ifd->Main_adsr.decay  = getvalue( "Hall" ); ifd->KEY = ADSR_KEY; break; }
 			default  : break ;
 			}
 			break;

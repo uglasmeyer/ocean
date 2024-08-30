@@ -184,7 +184,7 @@ void MainWindow::wavfile_selected( const QString &arg)
 void MainWindow::hs_hall_effect_value_changed(int value)
 {
     GUI.Set(GUI.addr->Main_adsr.hall , value);
-    GUI.Set( GUI.addr->KEY , ADSRHALLKEY);
+    GUI.Set( GUI.addr->KEY , ADSR_KEY);
 }
 
 void MainWindow::pB_Wavedisplay_clicked()
@@ -208,7 +208,7 @@ void MainWindow::dial_decay_value_changed()
 {
     int dial = ui->hs_adsr_attack->value();
     GUI.Set(GUI.addr->Main_adsr.attack , dial);
-    GUI.Set(GUI.addr->KEY, ADSRDECAYKEY);
+    GUI.Set(GUI.addr->KEY, ADSR_KEY);
 
 }
 void MainWindow::dial_PMW_value_changed()
@@ -418,6 +418,18 @@ void MainWindow::Clear_Banks()
         ui->cb_2->click();
     if ( ui->cb_4->isChecked())
         ui->cb_4->click();
+    vector< QSlider* > sl_vec = {
+    		ui->Slider_mix_vol0,
+			ui->Slider_mix_vol1,
+			ui->Slider_mix_vol2,
+			ui->Slider_mix_vol3,
+			ui->Slider_mix_vol4,
+			ui->Slider_mix_vol5,
+			ui->Slider_mix_vol6,
+			ui->Slider_mix_vol7,
+    };
+    for( QSlider* sl : sl_vec )
+       	sl->setValue(0);
 
     GUI.Set( GUI.addr->KEY , MUTEMBKEY);
 
@@ -438,7 +450,7 @@ void MainWindow::sB_Duration( int bps_id  )
     QString Qstr = get_bps_qstring( bps_id );
     ui->Bps->setText( Qstr );
     GUI.Set( GUI.addr->Main_adsr.bps_id, bps_id);
-    GUI.Set( GUI.addr->KEY, ADSRDURATIONKEY );
+    GUI.Set( GUI.addr->KEY, ADSR_KEY );
 }
 void MainWindow::setwidgetvalues()
 {
@@ -455,6 +467,7 @@ void MainWindow::setwidgetvalues()
     ui->Slider_FMO_vol->setValue(   GUI.addr->FMO_Amp);
     ui->Slider_VCO_vol->setValue(   GUI.addr->VCO_Amp);
 
+    ui->Slider_mix_vol0->setValue(75);
     ui->Slider_mix_vol1->setValue(75);
     ui->Slider_mix_vol2->setValue(75);
     ui->Slider_mix_vol3->setValue(75);
@@ -656,7 +669,7 @@ void MainWindow::main_adsr_sustain()
 {
     int value = ui->hs_adsr_sustain->value();
     GUI.Set( GUI.addr->Main_adsr.decay , value);
-    GUI.Set( GUI.addr->KEY ,ADSRSUSTAINKEY);
+    GUI.Set( GUI.addr->KEY ,ADSR_KEY);
 
 }
 
