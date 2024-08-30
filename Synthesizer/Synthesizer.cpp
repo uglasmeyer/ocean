@@ -517,15 +517,21 @@ void process( char key )
 			Value sec { ifd->Noteline_sec };
 			Value id  { ifd->MIX_Id };
 
-			Mixer.composer = sec.i;
-			Log.Comment(INFO, "generate composer notes");
-			Log.Comment(INFO, "duration: " + sec.str + " sec.");
-			Log.Comment(INFO, "store to array nr.: " + id.str );
-			Mixer.StA[ id.i].record_mode( true );
-			Notes.Set_osc_track(  );
+			if ( sec.i > 0 )
+			{
+				Log.Comment(INFO, "generate composer notes");
+				Log.Comment(INFO, "duration: " + sec.str + " sec.");
+				Log.Comment(INFO, "store to StA id: " + id.str );
 
-			Mixer.Add_noteline( id.i, &Notes );
-
+				Mixer.composer = sec.i;
+				Mixer.StA[ id.i].record_mode( true );
+				Notes.Set_osc_track(  );
+				Mixer.Store_noteline( id.i, &Notes );
+			}
+			else
+			{
+				Log.Comment( WARN, "nothing to do for " + sec.str + " Notes!" );
+			}
 			IFD.Commit();
 			break;
 		}
@@ -730,6 +736,10 @@ void activate_ifd()
 
 bool sync_mode()
 {
+	Mixer.status.external 	= (	Mixer.StA[MbIdExternal].status.play or
+								Mixer.StA[MbIdExternal].status.store );
+	Mixer.status.notes 		=	Mixer.StA[MbIdNotes].status.play;
+
 	bool sync =
 		( 							// if true synchronize shm a/b with Audio Server
 			( Instrument.fmo.wp.frequency < LFO_limit ) 	or

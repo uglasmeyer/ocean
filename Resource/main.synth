@@ -60,15 +60,15 @@ osc main mute
 notes per_second 4
 random |2F--.G-C'-F'-G-C'--.G--.E'G'G'F'E'--.  778879 	D cc-	lead
 notes per_second 4
-random |2F--.G-C'-F'-G-C'--.G--.E'G'G'F'E'--.  445546 	D cc-	leadS
+random "|2F--. G-C'- F'-G- C'--. G--. E'G'G'F' E'--. ----"  445546 	D cc-	leadS
 add E-Gitarre		leadS S1 auto
 
 notes set |4CDEFGFGFED-. 9779
 add sphere 			tmp S0 auto
 notes per_second 4
-random |2E-EE|3E-EE|2F-FF|3F-FF 				68 		- cc2c3 	chor
+random |2E-EE|3E-EE|2F-FF|3F-F- 		68	- cc2c3 chor
 notes per_second 4
-random |1E-EE|1E-EE|1F-FF|1F-FF 				86		- c 	drums
+random |1E-EE|1E-EE|1F-FF|1F-F- 		86	- c 	drums
 add Singsong 		lead S0 auto
 add drum3	 		drums S2 auto
 add sphere 			chor S1 auto

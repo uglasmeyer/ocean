@@ -60,22 +60,22 @@ public:
 
 	Memory 				Mono_tmp{ monobuffer_size }; // Wavedisplay output
 	Memory 				Mono_out{ monobuffer_size }; // Wavedisplay output
-	Memory 				Out_L{ monobuffer_size };// Output buffer long
-	Memory				Out_R{ monobuffer_size };//
+	Memory 				Out_L	{ monobuffer_size };// Output buffer long
+	Memory				Out_R	{ monobuffer_size };//
 
 
 	Mixer_class (  );
 	~Mixer_class(){};
 
 
-	void Add_noteline( uint8_t, Note_class* );
+	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Instrument_class* , stereo_t*  );
 	void Test();
 
 private:
 	void clear_memory();
-	void add_mono( Data_t*, uint8_t, uint );
-	void stereo_out( stereo_t*, uint8_t );
+	void add_mono( Data_t*, const uint8_t&, const uint& );
+	void stereo_out( stereo_t*, const uint8_t& );
 
 
 };

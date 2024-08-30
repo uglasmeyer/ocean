@@ -107,8 +107,6 @@ void Loop_class::Test()
 
 
 
-
-//	exit(1);
 };
 
 //-------------------------------------------------------------------------------------------------
@@ -118,25 +116,24 @@ Mixer_class::Mixer_class( )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
-//	this->stereo 			 = stereo;
 
-	StA_struct_t tmp_conf = {"temp", 	max_frames*tmpduration	, 'a'};
-	StA_struct_t ext_conf = {"External", max_frames*recduration	, 's'};
-	StA_struct_t nte_conf = {"Notes", 	max_frames				, 'a'};
-
-
-	for( uint n = 0; n<MbSize; n++)
+	for( uint n : MemIds )
 	{
 		Storage_class DataMem;
 		DataMem.Id = n;
 		StA.push_back(DataMem);
 	}
-	for( uint n = 0; n < (MbSize - 2) ; n++ )
+
+	StA_struct_t tmp_conf = {"temp"		, max_frames*tmpduration	, 'a'};
+	StA_struct_t ext_conf = {"External"	, max_frames*recduration	, 's'};
+	StA_struct_t nte_conf = {"Notes"	, max_frames				, 'a'};
+
+	for( uint n : UsrIds )
 		StA[n].setup(tmp_conf);
 	StA[MbIdExternal].setup(ext_conf);
 	StA[MbIdNotes].setup(nte_conf);
 
-	for ( uint n = 0; n < MbSize; n++ )
+	for ( uint n : MemIds )
 		StA[n].Info();
 
 
@@ -144,7 +141,6 @@ Mixer_class::Mixer_class( )
 	Mono_out.Info	( "Output Mono data");
 	Out_L.Info		( "Output Stereo Left");
 	Out_R.Info		( "Output Stereo Right");
-//	stereo->Info	( "Record Memory Stereo" );
 
 };
 
@@ -159,38 +155,38 @@ void Mixer_class::clear_memory()
 	Mono_tmp.clear_data(0); // Wavedisplay mono col data
 }
 
-void Mixer_class::add_mono(Data_t* Data, uint8_t volume, uint id )
+void Mixer_class::add_mono(Data_t* Data, const uint8_t& volume, const uint& id )
 {
 	const array<int,8> phase_r = {10, 7,  0, 7, 10, 7,  0, 7 };
 	const array<int,8> phase_l = { 0, 7, 10, 7,  0, 7, 10, 7 };
 
 	assert( phase_r.size() == StA.size() );
-//	id = 3;
 	assert( volume <= 100 );
+
 	float volpercent=volume/100.0;
 	Data_t Data_r = (phase_r[id]*volpercent)/10.0;
 	Data_t Data_l = (phase_l[id]*volpercent)/10.0;
 
 	for( buffer_t n = 0; n < max_frames; n++)
 	{
-		Out_L.Data[n] += Data[n]*Data_l;
-		Out_R.Data[n] += Data[n]*Data_r;
-		Mono_tmp.Data[n]  += Data[n]*volpercent; 		// collect mono data - wavedisplay
+		Out_L.Data[n] 		+= Data[n]*Data_l;
+		Out_R.Data[n] 		+= Data[n]*Data_r;
+		Mono_tmp.Data[n]  	+= Data[n]*volpercent; 		// collect mono data - wavedisplay
 	}
 }
 
-void Mixer_class::stereo_out( stereo_t* data, uint8_t master_vol )
+void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
 {
 	float out_percent=master_vol/100.0;
 	for( buffer_t n = 0; n < max_frames; n++ )
 	{
 		data[n].left 	= rint( Out_L.Data[n] * out_percent );
 		data[n].right 	= rint( Out_R.Data[n] * out_percent );
-		Mono_out.Data[n]= ( Mono_tmp.Data[n]*out_percent ); // Wavedisplay mono data
+		Mono_out.Data[n]= ( Mono_tmp.Data[n]  * out_percent ); // Wavedisplay mono data
 	}
 }
 
-void Mixer_class::Add_noteline( uint8_t arr_id, Note_class* Notes )
+void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 {
 	while ( composer > 0 )
 	{
@@ -204,30 +200,30 @@ void Mixer_class::Add_noteline( uint8_t arr_id, Note_class* Notes )
 
 }
 
+
 void Mixer_class::Add_Sound(Instrument_class* 	instrument,
 							stereo_t* 			shm_addr )
 {
+	auto StA_id = [ this ]()
+		{
+			for ( int id : UsrIds )
+				if ( StA[id].status.store )
+					return id;
+			return -1;
+		};
 
 
 	// store the result into a local buffer, before making it available to the audio server
-//	assert(false);
 	clear_memory();
+
 	if ( not status.mute )
-	{
 		add_mono( instrument->main.Mem.Data, master_volume, 0 );
-		for( int store_id : UsrIds )
-		{
-			if ( StA[ store_id ].status.store )
-				StA[ store_id ].store_block( instrument->main.Mem.Data ); // store data with amp=100
-		}
-	}
+	if (( status.notes ))
+		add_mono( StA[ MbIdNotes ].Data, master_volume, MbIdNotes );
 
-
-	// store data potentially and add read_data to output
-	status.notes 	= 	StA[MbIdNotes].status.play;
-	if ( status.notes )
-		add_mono( StA[ MbIdNotes ].Data, StA[ MbIdNotes ].Amp, 6 );
-
+	int store_id = StA_id();
+	if( store_id >= 0 )
+		StA[ store_id ].store_block( Mono_tmp.Data );
 
 	status.play 	= false; // set loop default
 	for ( uint DAid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
@@ -238,13 +234,10 @@ void Mixer_class::Add_Sound(Instrument_class* 	instrument,
 		if ( read_data )
 		{
 			status.play = true; // any active mem array triggers total synchronized play mode
-			uint8_t Amp = (int)DA->Amp;
-			add_mono( read_data, Amp, DAid );
+			add_mono( read_data, DA->Amp, DAid );
 		}
 	}
 
-	status.external 	= (	StA[MbIdExternal].status.play or
-							StA[MbIdExternal].status.store );
 	stereo_out( shm_addr, master_volume );
 };
 
