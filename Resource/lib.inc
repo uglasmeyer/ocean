@@ -5,12 +5,13 @@ return
 :stopserver
 stop AudioServer
 stop Synthesizer
+
 return
 #-----------------------------------------
 
 :startserver
-start 	AudioServer 10000 0
-start 	Synthesizer 10000 3
+start 	AudioServer 48000 0 # shmkey is set to frames per second
+start 	Synthesizer 48000 3
 return
 #-----------------------------------------
 

@@ -24,7 +24,7 @@ play StA1 amp 100
 text add/ Play notes using an instrument
 pause key
 
-instrument load drums	# load files drums2.kdb and drums2.spec
+instrument load drums	# load files drums.kdb
 notes load drums3		# load file drums3.kbd
 notes play on 100 		# switch to notes mode
 rec store StA1			# store to memory 1
@@ -64,13 +64,13 @@ text record file synthesizer77.wav
 pause key
 
 instrument load piano
-text load instrument file piano.kbd and associated spectrum file piano.spec
+text load instrument file piano.kbd
 pause key
 
 osc main mute
 notes set octave 3
 notes per_second 5
-notes set "|2(CEG)----- |2A'BCD (CE)- A'BC(EG) C.(ACE)-B.A." 8
+notes set "(CEG)----- |A'BCD (CE)- A'BC(EG) C.(ACE)-B.A." 8
 notes play on 80
 pause key
 

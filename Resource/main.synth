@@ -17,7 +17,7 @@ call :clearstorage
 
 #call 	:drums
 #call	:volklore1
-call	:test11children
+call	:test11
 #call	:testpiano
 #call 	:test10
 #call	:syntax
@@ -54,14 +54,14 @@ pause key
 return
 
 
-:test11children
+:test11
 call :clearstorage
 osc main mute
 notes per_second 4
 random |2F--.G-C'-F'-G-C'--.G--.E'G'G'F'E'--.  778879 	D cc-	lead
 notes per_second 4
 random |2F--.G-C'-F'-G-C'--.G--.E'G'G'F'E'--.  445546 	D cc-	leadS
-add sphere		leadS S1 auto
+add E-Gitarre		leadS S1 auto
 
 notes set |4CDEFGFGFED-. 9779
 add sphere 			tmp S0 auto
