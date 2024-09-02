@@ -11,6 +11,7 @@
 using namespace std;
 
 #include <Synthesizer.h>
+
 // terminology :
 // sizeof_data	-> 	data_bytes	= sizeof(unit)
 //					block_bytes = data_bytes*units
@@ -91,6 +92,7 @@ typedef struct StA_struct
 */
 } StA_struct_t;
 
+
 class Storage_class :  public Memory, virtual public  Logfacility_class
 {
 public:
@@ -102,8 +104,11 @@ public:
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 
-	Storage_class( ) : Logfacility_class("Storage") {} ;
-	virtual ~Storage_class(){};
+	typedef struct StA_status_struct // memory array status
+	{
+		bool 	play			= false; // play this memory array
+		bool 	store			= false; // record into this memory array
+	} StA_status_t;
 
 
 	StA_status_t status =
@@ -116,6 +121,8 @@ public:
 	uint read_counter 	= 0;
 	uint store_counter 	= 0;
 
+	Storage_class( ) : Logfacility_class("Storage") {} ;
+	virtual ~Storage_class(){};
 	void 	store_block( Data_t* ) ;
 	Data_t* get_next_block();
 	string 	record_mode( bool );

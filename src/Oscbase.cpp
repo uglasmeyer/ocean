@@ -28,7 +28,11 @@ frequency_t Oscillator_base::get_fstruct( int freq )
 	return freq_to_freq_struct( freq ) ;
 }
 
-
+void Oscillator_base::Set_adsr( adsr_t adsr )
+{
+	this->adsr = adsr;
+	wp.touched = true;
+}
 
 void Oscillator_base::set_frequency( float freq )
 {
@@ -36,37 +40,45 @@ void Oscillator_base::set_frequency( float freq )
 
 	if ( freq < 0 ) freq = 0;
 	wp.frequency 	= freq;
+	wp.touched 		= true;
 	wp.fstruct		= freq_to_freq_struct( freq );
-}
-int Oscillator_base::set_delta_frequency( int pitch )
-{
-	int freq = wp.frequency;
-	freq = freq  + pitch;
-	if ( freq < 0 ) freq = 0;
-	wp.frequency 	= freq;
-	wp.fstruct		= freq_to_freq_struct( freq );
-	return freq;
 }
 void Oscillator_base::set_volume( uint16_t vol)
 {
 	if ( vol < 1 ) vol = 0; // no output if below 2
 	if ( vol > 100 ) vol = 100;
-//		if ( vol > 80 ) vol = 80;
-	wp.volume = vol;
+	wp.volume 		= vol;
+	wp.touched 		= true;
 }
-int Oscillator_base::set_delta_volume( int pitch )
+void Oscillator_base::Set_pmw( uint8_t pmw )
 {
-	int vol = wp.volume;
-	vol = vol  + pitch;
-	if ( vol < 1 ) vol = 1; // no output if below 2
-	if ( vol > 100 ) vol = 100;
-	wp.volume = vol;
-	return vol;
+	wp.PMW_dial = pmw;
+	wp.touched 	= true;
+}
+
+void Oscillator_base::Set_glide( uint8_t value )
+{
+	wp.glide_effect = value;
+	wp.touched 	= true;
+
+}
+
+void Oscillator_base::Set_waveform( char id )
+{
+	spectrum.id 	= id;
+	wp.touched 		= true;
+}
+
+void Oscillator_base::Set_spectrum( spectrum_t spectrum )
+{
+	this->spectrum 	= spectrum;
+	wp.touched		= true;
 }
 
 void Oscillator_base::line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
+
 	wp.conf 		= arr;
 
 
@@ -157,10 +169,6 @@ void Oscillator_base::set_csv_comment ()
 	}
 }
 
-void Oscillator_base::Set_waveform( char id )
-{
-	spectrum.id = id;
-}
 
 void Oscillator_base::get_comment( bool variable )
 {
@@ -183,9 +191,3 @@ void Oscillator_base::get_comment( bool variable )
 	comment.append( "Vol: " + to_string( wp.volume ) );
 	return ;
 }
-
-
-
-
-
-

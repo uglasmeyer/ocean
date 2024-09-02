@@ -45,14 +45,8 @@ const vector<string> Keywords {
 						"text"
 					};
 
-template<typename T>
-void show_items( T all_items )
-{
-    for (auto item : all_items )
-    	cout << item << " ";
-    cout << endl;
-}
-
+/*
+*/
 class Interpreter_class : public virtual Logfacility_class, public Processor_class
 {
 	typedef struct osc_struct
@@ -121,7 +115,7 @@ public:
 	void test(  );
 
 private:
-	Spectrum_class Spectrum;
+	Spectrum_base Spectrum;
 	vector_str_t stack {};
 	vector<var_struct_t> varlist {};
 	bool 	testrun 	= false;

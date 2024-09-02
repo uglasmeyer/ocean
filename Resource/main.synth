@@ -70,8 +70,8 @@ random |2E-EE|3E-EE|2F-FF|3F-F- 		68	- cc2c3 chor
 notes per_second 4
 random |1E-EE|1E-EE|1F-FF|1F-F- 		86	- c 	drums
 add Singsong 		lead S0 auto
-add drum3	 		drums S2 auto
-add sphere 			chor S1 auto
+add drum3	 	drums S2 auto
+add sphere 		chor S1 auto
 
 call :standardintro
 play S2 amp 80

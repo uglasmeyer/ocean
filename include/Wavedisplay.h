@@ -9,7 +9,23 @@
 #define WAVEDISPLAY_H_
 
 #include <Interface.h>
-#include <Synthesizer.h>
+
+const vector<string> wavedisplay_str_vec =
+{
+    "Audio Out",
+	"MAIN",
+    "VCO ",
+    "FMO ",
+    "External IN"
+};
+
+const vector<string> wavedisplay_type_str_vec =
+{
+	"Full",
+	"Flow",
+	"Debug"
+};
+enum { FULLID, FLOWID, DEBUGID };
 
 
 class Wavedisplay_class : virtual public Logfacility_class

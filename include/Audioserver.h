@@ -37,7 +37,7 @@ Logfacility_class 		Log( Module );
 Shared_Memory 			Shm_a;
 Shared_Memory			Shm_b;
 Interface_class 		IFD ;
-Application_class		App( Module, &IFD.addr->AudioServer );
+Application_class		App( Module, AUDIOID, &IFD.addr->AudioServer );
 
 
 // runtime parameter
@@ -63,11 +63,6 @@ typedef struct device_struct
 	string 	Name;
 } device_struct_t;
 device_struct_t DeviceDescription;
-
-RtAudio::StreamParameters 	oParams;
-RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
-										.numberOfBuffers = 8,
-										.streamName = Application };
 
 
 

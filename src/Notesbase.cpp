@@ -6,6 +6,7 @@
  */
 
 #include <Notesbase.h>
+#include <common.h>
 
 void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
 {
@@ -47,7 +48,7 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 							 to_string( val ) +
 							" to noteline_structure");
 			if ( Log[ TEST ] ) return;
-			raise( SIGINT );
+			Exception( );//raise( SIGINT );
 		};
 	String S = str;
 	noteline_prefix_t nlp;
@@ -57,7 +58,7 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 	{
 		Comment ( ERROR, "Cannot assign noteline_prefix of length < 5");
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		raise( SIGINT );
+		Exception( );//raise( SIGINT );
 	}
 
 	nlp.Octave = S.secure_stoi( arr[0] );
@@ -73,7 +74,7 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 	{
 		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		raise( SIGINT );
+		Exception( );//raise( SIGINT );
 	}
 
 	nlp.flat = S.secure_stoi(arr[3]);

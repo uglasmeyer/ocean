@@ -113,7 +113,6 @@ public:
     QScrollBar *hs_adsr_attack;
     QDial *dial_ramp_up_down;
     QPushButton *pB_Specrum;
-    QSpinBox *sB_Duration;
     QFrame *frame_7;
     QLabel *wf_vco;
     QSpinBox *sB_VCO;
@@ -125,12 +124,10 @@ public:
     QSpinBox *sB_FMO;
     QPushButton *pb_clear;
     QLabel *label_3;
-    QLabel *Bps;
-    QLabel *label_6;
     QLabel *label_10;
     QPushButton *pB_Mute;
     QComboBox *cb_external;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QGridLayout *gridLayout;
     QPushButton *pBSynthesizer;
     QPushButton *pBAudioServerExit;
@@ -139,6 +136,7 @@ public:
     QPushButton *pBComposer;
     QPushButton *pB_Save;
     QPushButton *pushButton_3;
+    QComboBox *cb_bps;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -515,11 +513,6 @@ public:
         pB_Specrum = new QPushButton(centralwidget);
         pB_Specrum->setObjectName(QString::fromUtf8("pB_Specrum"));
         pB_Specrum->setGeometry(QRect(610, 10, 88, 25));
-        sB_Duration = new QSpinBox(centralwidget);
-        sB_Duration->setObjectName(QString::fromUtf8("sB_Duration"));
-        sB_Duration->setGeometry(QRect(620, 190, 44, 26));
-        sB_Duration->setMaximum(4);
-        sB_Duration->setDisplayIntegerBase(10);
         frame_7 = new QFrame(centralwidget);
         frame_7->setObjectName(QString::fromUtf8("frame_7"));
         frame_7->setGeometry(QRect(60, 270, 131, 41));
@@ -561,18 +554,7 @@ public:
         pb_clear->setGeometry(QRect(1000, 300, 88, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(620, 170, 66, 17));
-        Bps = new QLabel(centralwidget);
-        Bps->setObjectName(QString::fromUtf8("Bps"));
-        Bps->setGeometry(QRect(680, 190, 31, 31));
-        QFont font;
-        font.setPointSize(13);
-        Bps->setFont(font);
-        Bps->setAlignment(Qt::AlignCenter);
-        label_6 = new QLabel(centralwidget);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(680, 170, 31, 17));
-        label_6->setAlignment(Qt::AlignCenter);
+        label_3->setGeometry(QRect(620, 146, 91, 31));
         label_10 = new QLabel(centralwidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
         label_10->setGeometry(QRect(310, 20, 16, 131));
@@ -585,47 +567,50 @@ public:
         cb_external->setObjectName(QString::fromUtf8("cb_external"));
         cb_external->setGeometry(QRect(480, 470, 131, 25));
         cb_external->setEditable(false);
-        widget = new QWidget(centralwidget);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(620, 470, 368, 58));
-        gridLayout = new QGridLayout(widget);
+        layoutWidget = new QWidget(centralwidget);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(620, 470, 368, 58));
+        gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        pBSynthesizer = new QPushButton(widget);
+        pBSynthesizer = new QPushButton(layoutWidget);
         pBSynthesizer->setObjectName(QString::fromUtf8("pBSynthesizer"));
 
         gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
 
-        pBAudioServerExit = new QPushButton(widget);
+        pBAudioServerExit = new QPushButton(layoutWidget);
         pBAudioServerExit->setObjectName(QString::fromUtf8("pBAudioServerExit"));
 
         gridLayout->addWidget(pBAudioServerExit, 1, 0, 1, 1);
 
-        pBSynthesizerExit = new QPushButton(widget);
+        pBSynthesizerExit = new QPushButton(layoutWidget);
         pBSynthesizerExit->setObjectName(QString::fromUtf8("pBSynthesizerExit"));
 
         gridLayout->addWidget(pBSynthesizerExit, 1, 1, 1, 1);
 
-        pBAudioServer = new QPushButton(widget);
+        pBAudioServer = new QPushButton(layoutWidget);
         pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
 
         gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
 
-        pBComposer = new QPushButton(widget);
+        pBComposer = new QPushButton(layoutWidget);
         pBComposer->setObjectName(QString::fromUtf8("pBComposer"));
 
         gridLayout->addWidget(pBComposer, 0, 3, 1, 1);
 
-        pB_Save = new QPushButton(widget);
+        pB_Save = new QPushButton(layoutWidget);
         pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
 
         gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
 
-        pushButton_3 = new QPushButton(widget);
+        pushButton_3 = new QPushButton(layoutWidget);
         pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
 
         gridLayout->addWidget(pushButton_3, 1, 4, 1, 1);
 
+        cb_bps = new QComboBox(centralwidget);
+        cb_bps->setObjectName(QString::fromUtf8("cb_bps"));
+        cb_bps->setGeometry(QRect(620, 190, 86, 25));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -645,8 +630,6 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(Slider_Main_Hz, SIGNAL(valueChanged(int)), MainLCD_Hz, SLOT(display(int)));
         QObject::connect(Slider_Main_Vol, SIGNAL(valueChanged(int)), MainLCD_Amp, SLOT(display(int)));
-        QObject::connect(Slider_VCO_Hz, SIGNAL(valueChanged(int)), VCOLCD_Hz, SLOT(display(int)));
-        QObject::connect(Slider_VCO_Hz, SIGNAL(valueChanged(int)), MainWindow, SLOT(VCO_slot_Hz()));
         QObject::connect(Slider_Main_Hz, SIGNAL(valueChanged(int)), MainWindow, SLOT(MAIN_slot_Hz()));
         QObject::connect(rb_reset, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
         QObject::connect(radioButton_2, SIGNAL(clicked()), MainWindow, SLOT(set_mode_v()));
@@ -719,9 +702,7 @@ public:
         wf_main->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         wf_fmo->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pb_clear->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
-        label_3->setText(QCoreApplication::translate("MainWindow", "Beat id", nullptr));
-        Bps->setText(QString());
-        label_6->setText(QCoreApplication::translate("MainWindow", "  BPS", nullptr));
+        label_3->setText(QCoreApplication::translate("MainWindow", "Beat per sec", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
         pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));

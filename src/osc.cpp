@@ -150,6 +150,8 @@ void Oscillator::mem_init()
 	}
 //	F = Zero;
 
+	this->wp.touched = true;
+
 	this->vp.data = this->Mem_vco.Data;
 	this->fp.data = this->Mem_fmo.Data;
 	this->vp.name = this->osc_type;
@@ -178,7 +180,9 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		( osc_id == VCOID ) or
 		( osc_id == FMOID )
 		)
+	{
 		vco_shift = 0;
+	}
 
 	float	vol_per_cent =  volume / 100.0; // the volume of the main osc is managed by the mixer!
 	if ( osc_id == MAINID )
@@ -458,7 +462,7 @@ void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
 
 void Oscillator::Connect_vco_data( Oscillator* osc)
 {
-	assert( osc->Mem.Data != NULL );
+	this->wp.touched = true;
 	this->vp.data 	= osc->Mem.Data;
 	this->vp.volume = osc->wp.volume;
 	this->vp.name 	= osc->osc_type;
@@ -466,7 +470,7 @@ void Oscillator::Connect_vco_data( Oscillator* osc)
 
 void Oscillator::Connect_fmo_data( Oscillator* osc )
 {
-	assert( osc->Mem.Data != NULL );
+	this->wp.touched = true;
 	this->fp.data 	= osc->Mem.Data;
 	this->fp.volume = osc->wp.volume;
 	this->fp.name 	= osc->osc_type;
@@ -474,6 +478,7 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 
 void Oscillator::Reset_data( Oscillator* osc )
 {
+	this->wp.touched = true;
 	this->Mem_fmo.clear_data(0);
 	this->Mem_vco.clear_data(max_data_amp);
 

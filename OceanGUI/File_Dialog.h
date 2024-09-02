@@ -13,6 +13,8 @@
 
 using namespace std;
 
+extern void Qread_filelist( QComboBox* CB, const string& path, const string type );
+
 namespace Ui {
 class File_Dialog;
 }
@@ -29,8 +31,8 @@ public:
     QComboBox*      CB_notes		= nullptr  ;
     QComboBox*      CB_instruments	= nullptr;
     QSlider*		Sl_Main_Hz		= nullptr;
-    string          notes_path;
-    string          instruments_path  ;
+    string          notes_path		= "";
+    string          instruments_path= "";
     QString         QNote_Chars		{"Notes: ( )"};
     const QString   NotesON 		= "Notes Off" ;
     const QString   NotesOFF		= "Play Notes";

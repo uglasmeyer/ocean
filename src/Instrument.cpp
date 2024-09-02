@@ -44,19 +44,21 @@ void Instrument_class::reuse_GUI_Data()
 	main.wp.frequency 		= ifd->Main_Freq  ;
 	main.wp.msec	 		= max_milli_sec;// ifd->Main_Duration*1000 ; // unused
 	main.spectrum			= ifd->MAIN_spectrum;
+	main.wp.touched			= true;
 
 	vco.wp.frequency		= ifd->VCO_Freq 	;
 	vco.wp.volume			= ifd->VCO_Amp 		;
 	vco.wp.msec				= max_milli_sec;// unused max_sec*1000	; // unused
 	vco.spectrum			= ifd->VCO_spectrum;
 	vco.wp.PMW_dial			= ifd->PMW_dial;
+	vco.wp.touched			= true;
 
 	fmo.wp.frequency		= ifd->FMO_Freq 		;
 	fmo.wp.volume			= ifd->FMO_Amp 		;
 	fmo.wp.msec				= max_milli_sec; // max_sec * 1000; // unused
 	fmo.spectrum			= ifd->FMO_spectrum;
 	fmo.wp.PMW_dial			= 0;// ifd->PMW_dial only for vco
-
+	fmo.wp.touched			= true;
 }
 
 void Instrument_class::setup_GUI_Data()
@@ -74,7 +76,7 @@ void Instrument_class::setup_GUI_Data()
 	ifd->Main_adsr.decay	= main.adsr.decay;
 	ifd->Main_adsr.attack 	= main.adsr.attack;
 	ifd->Main_adsr.hall 	= main.adsr.hall;
-	ifd->PMW_dial 			= (char) vco.wp.PMW_dial;
+	ifd->PMW_dial 			= vco.wp.PMW_dial;
 	ifd->Soft_freq			= main.wp.glide_effect;
 
 	ifd->MAIN_spectrum		= main.spectrum;
@@ -108,7 +110,7 @@ void Instrument_class::show_sound_stack() // show_status
 
 	stringstream strs{""};
 	strs << "\n Name \tWaveform \tHz \tAmp \tmsec \t  VCO \t  FMO " << endl;
-	for ( auto osc_ptr : osc_vector )
+	for ( Oscillator* osc_ptr : osc_vector )
 	{
 		active  	= nostar;
 		fp_flag     = nostar;
@@ -143,7 +145,7 @@ void Instrument_class::Update_spectrum()
 {
 	Comment(INFO, "receive command <update Spectrum>");
 	Oscillator* osc = osc_vector[ ifd->Spectrum_type ];
-	osc->spectrum	= *ifd_spectrum_vec[ ifd->Spectrum_type ];
+	osc->Set_spectrum( *ifd_spectrum_vec[ ifd->Spectrum_type ] ) ;
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -241,7 +243,7 @@ bool Instrument_class::read_instrument( )
 }
 Oscillator* Instrument_class::get_osc_by_name( string name )
 {
-	for ( auto osc : osc_vector )
+	for ( Oscillator* osc : osc_vector )
 	{
 		if ( osc->osc_type.compare( name ) == 0 )
 			return osc;
@@ -316,15 +318,15 @@ void Instrument_class::Save_Instrument( string str )
 			<< setw(10)	<< "PMWs"
 			<< endl;
 
-	main.wp.volume = (int)ifd->Master_Amp;
-	for ( auto osc : osc_vector )
+//	main.wp.volume = (int)ifd->Master_Amp;
+	for ( Oscillator* osc : osc_vector )
 	{
 		FILE 	<< setfill(' ') << right << " OSC,"
 				<< setw(10) <<		 osc->osc_type 		+ ","
 				<< setw(10) <<		 osc->Get_waveform_str(osc->spectrum.id) 	+ ","
 				<< setw(7 ) <<dec << osc->wp.frequency 		<< ","
 				<< setw(7 ) <<dec << osc->wp.msec 			<< ","
-				<< setw(7)  <<dec << osc->wp.volume 			<< ","
+				<< setw(7)  <<dec << 100 			<< ","
 				<< setw(7 ) <<		 osc->wp.ops_str_arr[0] 	+ ","
 				<< setw(7)  <<		 osc->wp.ops_str_arr[1] 	+ ","
 				<< setw(7)  <<		 osc->wp.ops_str_arr[2] 	+ ","
@@ -356,8 +358,17 @@ void Instrument_class::Save_Instrument( string str )
 
 void Instrument_class::Run_osc_group()
 {
-	for ( auto osc : osc_vector	)
-		osc->OSC(0);
+	bool touched = false;
+	for ( Oscillator* osc : osc_vector	)
+	{
+		if ( osc->wp.touched ) touched = true;
+	}
+	if ( touched )
+		for ( Oscillator* osc : osc_vector )
+		{
+			osc->OSC( 0 );
+			osc->wp.touched = false;
+		}
 }
 
 bool Instrument_class::Set( string name )
@@ -377,7 +388,7 @@ bool Instrument_class::Set( string name )
 void Instrument_class::Test_Instrument()
 {
 	Set_Loglevel(TEST, true);
-	for ( auto osc : osc_vector	)
+	for ( Oscillator* osc : osc_vector	)
 		osc->Set_Loglevel( TEST, true);
 	ifd->MODE = FREERUN;
 	Comment( TEST, "Instrument testing" );

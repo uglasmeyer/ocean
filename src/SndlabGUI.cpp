@@ -26,12 +26,27 @@
 // System
 #include <unistd.h> //sleep
 
+int set_slider( float f )
+{
+	return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
 	Logfacility_class("OceanGUI"),
 	ui(new Ui::MainWindow)
 
 {
 
+    auto Qstringlist = [ ]( const vector<string> str_vec )
+		{
+			QStringList Qlist{};
+			for ( string str : str_vec )
+			{
+                Qlist.push_back( ( QString::fromStdString( str ) ) );
+			}
+			return Qlist;
+
+		};
 
     auto fromstringvector = [ ]( const vector<string> str_vec )
 		{
@@ -47,8 +62,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	Qwavedisplay_type_str_vec = fromstringvector( wavedisplay_type_str_vec );
 
+	Qbps_str_list = Qstringlist( bps_struct().Bps_str_vec );
+
     init_log_file();
-    GUI.Announce( "SndlabGUI", true );
+    GUI.Announce( App.client_id, App.status );
 
 
     ui->setupUi(this);
@@ -71,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( ui->pB_Store, SIGNAL(clicked()), this, SLOT(Store()));
     connect( ui->pB_Mute, SIGNAL(clicked()), this, SLOT(toggle_Mute()));
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
+    connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Hz_changed(int)));
     connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Hz_changed(int)));
 
     connect(ui->rb_melody_1, SIGNAL(clicked()), this, SLOT(melody_connect() ));
@@ -86,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->dial_ramp_up_down, SIGNAL( valueChanged(int)), this, SLOT(slot_dial_ramp_up_down()) );
     connect(ui->hs_adsr_attack , SIGNAL(valueChanged(int)), this, SLOT(dial_decay_value_changed() ));
 
-    connect(ui->sB_Duration    , SIGNAL(valueChanged(int)), this, SLOT(sB_Duration(int) ));
+    connect(ui->cb_bps		, SIGNAL(activated(int)), this, SLOT(cB_Beat_per_sec(int) ));
     connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
     connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
 
@@ -136,8 +154,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     CB_external         = ui->cb_external;
     string wavfile_path = dir_struct().musicdir;
-    read_filelist( CB_external, wavfile_path, "wav");
+    Qread_filelist( CB_external,
+    				wavfile_path, file_structure().wav_file_type );
 
+    ui->cb_bps->addItems( Qbps_str_list );
     setwidgetvalues();
 
     scene               = new QGraphicsScene(this);
@@ -166,7 +186,6 @@ QString get_bps_qstring( int id )
     return QStr;
 }
 
-//int duration_counter = 0;
 
 void MainWindow::wavfile_selected( const QString &arg)
 {
@@ -445,11 +464,9 @@ void MainWindow::toggle_Mute()
     ui->pB_Mute->setText( Qstr );
 }
 
-void MainWindow::sB_Duration( int bps_id  )
+void MainWindow::cB_Beat_per_sec( int bps_id )
 {
-    QString Qstr = get_bps_qstring( bps_id );
-    ui->Bps->setText( Qstr );
-    GUI.Set( GUI.addr->Main_adsr.bps_id, bps_id);
+    GUI.Set( GUI.addr->Main_adsr.bps_id, bps_id  );
     GUI.Set( GUI.addr->KEY, ADSR_KEY );
 }
 void MainWindow::setwidgetvalues()
@@ -457,10 +474,8 @@ void MainWindow::setwidgetvalues()
 
     ui->dial_PMW->setValue( (int)GUI.addr->PMW_dial  );
 
-    int slider_value = ( GUI.addr->FMO_Freq < LFO_limit ) ? GUI.addr->FMO_Freq * LFO_count:
-    														GUI.addr->FMO_Freq + (float)LFO_count;
-    ui->Slider_FMO_Hz->setValue(    slider_value );
-    ui->Slider_VCO_Hz->setValue(    GUI.addr->VCO_Freq);
+    ui->Slider_FMO_Hz->setValue(    set_slider( GUI.addr->FMO_Freq) );
+    ui->Slider_VCO_Hz->setValue(    set_slider( GUI.addr->VCO_Freq) );
     ui->Slider_Main_Hz->setValue(   GUI.addr->Main_Freq);
 
     ui->Slider_Main_Vol->setValue(  GUI.addr->Master_Amp);
@@ -488,16 +503,16 @@ void MainWindow::setwidgetvalues()
     ui->sB_FMO->setValue(  GUI.addr->FMO_spectrum.id  );
     ui->sB_VCO->setValue(  GUI.addr->VCO_spectrum.id  );
 
-    ui->sB_Duration->setValue( GUI.addr->Main_adsr.bps_id );
-    QString Qstr = get_bps_qstring( GUI.addr->Main_adsr.bps_id );
-    ui->Bps->setText( Qstr );
+//    ui->sB_Duration->setValue( GUI.addr->Main_adsr.bps_id );
+//    QString Qstr = get_bps_qstring( GUI.addr->Main_adsr.bps_id );
+//    ui->Bps->setText( Qstr );
     ui->hs_adsr_sustain->setValue(  (int) GUI.addr->Main_adsr.decay );
     ui->hs_adsr_attack->setValue(  (int)     GUI.addr->Main_adsr.attack);
     ui->dial_soft_freq->setValue( (int)  GUI.addr->Soft_freq );
     ui->hs_hall_effect->setValue( (int)  GUI.addr->Main_adsr.hall );
     ui->progressBar_record->setValue(0);
     int wd_counter              = GUI.addr->Wavedisplay_Id;
-    Qstr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
+    QString Qstr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
     ui->pB_Wavedisplay->setText( Qstr );
     ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ (int) GUI.addr->WD_type_ID % 3 ] );
 
@@ -511,37 +526,38 @@ void MainWindow::setwidgetvalues()
 void MainWindow::GUI_Exit()
 {
     qDebug("%s", "Exit" );
-    GUI.Announce( "SndlabGUI", false );
-
+	App.Decline( &GUI.addr->UpdateFlag );
+	GUI.Commit();
     shmdt( GUI.addr );
     QApplication::quit();
 }
 
-auto Slider_Hz = []( Interface_class& IF, float& fptr, float value, char key )
+auto Slider_Hz = []( Interface_class& IFC, float& fptr, float value, char key )
 	{
-		IF.Set( fptr , value);
-		IF.Set( IF.addr->KEY , key);
+		IFC.Set( fptr 			, value);
+		IFC.Set( IFC.addr->KEY 	, key);
 	};
 void MainWindow::MAIN_slot_Hz()
 {
 	Slider_Hz( GUI, GUI.addr->Main_Freq, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
 }
 
-void MainWindow::VCO_slot_Hz()
+void MainWindow::Slider_VCO_Hz_changed(int value )
 {
-	Slider_Hz( GUI, GUI.addr->VCO_Freq, ui->Slider_VCO_Hz->value(), VCOFREQUENCYKEY );
+    float freq = ( value >= LFO_count ) 	?  value - LFO_count
+    								:  (float) value / LFO_count;
+
+    ui->VCOLCD_Hz->display( freq );
+
+    Slider_Hz( GUI, GUI.addr->VCO_Freq, freq, VCOFREQUENCYKEY );
 }
+
+
 void MainWindow::Slider_FMO_Hz_changed(int value )
 {
-    float freq = 0.0;
-    if ( value >= LFO_count )
-    {
-    	freq = value - ( LFO_count );
-    }
-    else
-    {
-    	freq = (float) value / LFO_count;
-    }
+    float freq = ( value >= LFO_count ) 	?  value - LFO_count
+    								:  (float) value / LFO_count;
+
     ui->FMOLCD_Hz->display( freq );
 
     Slider_Hz( GUI, GUI.addr->FMO_Freq, freq, FMOFREQUENCYKEY );
@@ -704,17 +720,20 @@ void MainWindow::Updatewidgets()
         {
             case RECORDWAVFILEFLAG :
             {
-                read_filelist(CB_external, dir_struct().musicdir, "wav");
+                Qread_filelist( CB_external,
+                				dir_struct().musicdir, file_structure().wav_file_type);
                 break;
             }
             case NEWINSTRUMENTFLAG :
             {
-                read_filelist(this->File_Dialog_obj->CB_instruments, dir_struct().instrumentdir, "kbd");
+                Qread_filelist( this->File_Dialog_obj->CB_instruments,
+                				dir_struct().instrumentdir, file_structure().file_type);
                 break;
             }
             case NEWNOTESLINEFLAG :
             {
-                read_filelist(this->File_Dialog_obj->CB_notes, dir_struct().notesdir, "kbd");
+                Qread_filelist( this->File_Dialog_obj->CB_notes,
+                				dir_struct().notesdir, file_structure().file_type);
                 break;
             }
         }

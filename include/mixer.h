@@ -19,7 +19,6 @@
 
 using namespace std;
 
-static const uint 	MbSize 			= 8;
 static const uint 	MbIdExternal 	= MbSize - 1;
 static const uint 	MbIdNotes 		= MbSize - 2;
 static const uint	MbIdKeyboard	= MbSize - 3;
@@ -51,6 +50,7 @@ public:
 	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal, MbIdNotes };
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal };
 	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4 };
+
 
 	typedef vector<Storage_class> StorageArray_t;
 	StorageArray_t 		StA;

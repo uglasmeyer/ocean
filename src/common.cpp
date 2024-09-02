@@ -6,7 +6,8 @@
  */
 #include <version.h>
 #include <common.h>
-
+#include <algorithm>
+#include <ranges>
 using namespace std;
 
 Logfacility_class Log_common{"System"};
@@ -66,6 +67,64 @@ void show_prgarg_struct( prgarg_struct_t args )
 	Log_common.Comment( INFO, strs.str() );
 }
 
+void system_execute( const string& cmd )
+{
+	std::cout.flush();
+	int ret = system( cmd.data() );
+	if ( ret != 0 )
+	{
+		Log_common.Comment( ERROR, cmd);
+		Log_common.Comment( ERROR, "check out system error message ");
+		Exception( );//raise( SIGINT );
+	}
+}
+
+void Exception( )
+{
+	cout << "A common exception occurred " << endl;
+	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;
+	cout << Log_common.Line << endl;
+	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;
+	string s;
+	cin >> s;
+	raise( SIGINT );
+}
+
+void show_items( const auto& arr )
+{
+	for(string item : arr )
+		cout << item << " ";
+	cout << endl;
+}
+
+bool cmpstr( const string& a, const string& b )
+{
+	return ( a.compare( b ) == 0 );
+}
+
+
+vector_str_t List_directory( const string& path, const string& filter )
+{
+    vector_str_t dir_entry_vec{};
+
+	const std::filesystem::path dir{ path };
+    if ( not filesystem::exists(path) )
+    {
+    	Log_common.Comment( ERROR, "Directory does not exists:\n " + path );
+    	return dir_entry_vec;
+    }
+    for (auto const& dir_entry : std::filesystem::directory_iterator{ dir })
+    {
+    	string extension = dir_entry.path().extension();
+    	if( cmpstr(extension, filter) )
+    	{
+    		dir_entry_vec.push_back( dir_entry.path().filename() );
+    	}
+    }
+    sort( dir_entry_vec.begin(), dir_entry_vec.end() );
+
+    return dir_entry_vec;
+}
 
 Time_class::Time_class()
 : Logfacility_class("Timer")

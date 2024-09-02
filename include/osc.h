@@ -40,7 +40,6 @@ public:
 	};
 	virtual ~Oscillator(){};
 
-
 	void OSC ( buffer_t );
 	void Set_start_freq( float freq );
 	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc

@@ -17,7 +17,6 @@
 #include <Notesbase.h>
 #include <Synthesizer.h>
 
-extern bool cmpstr( const string , const string  );
 
 using namespace std;
 
@@ -59,7 +58,7 @@ public:
 	string 			Get_rhythm_line (  );
 	void 			Set_rhythm_line(string );
 	bool			Set_notes_per_second( int );
-	bool			Generate_note_chunk( Storage::Storage_class* 		mb );
+	bool			Generate_note_chunk( Storage::Storage_class* mb );
 	void			Set_base_octave( uint );
 	void			Set_prefix_octave( int );
 	bool			Verify_noteline( noteline_prefix_t, string );
@@ -116,7 +115,7 @@ private:
 	size_t			noteline_position_parser( size_t );
 	void 			note2memory( const note_t&, const buffer_t& );
 	void 			change_alphabet_notes( noteline_prefix_t );
-	void 			submit_data(Storage::Storage_class* 		mb);
+	void 			submit_data(Storage::Storage_class* mb);
 	void            set_volume_vector( string );
 	int 			notechar2Value( char );
 	void			fill_note_list();

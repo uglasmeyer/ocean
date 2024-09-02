@@ -38,6 +38,10 @@ typedef struct prgarg_struct
 		uint shm_key_b 	= rate + 11;	//
 } prgarg_struct_t;
 
+extern void system_execute( const string& );
+extern bool cmpstr( const string& , const string&  );
+extern vector_str_t List_directory( const string& path, const string& filter );
+extern void Exception( );
 
 extern void show_prgarg_struct( prgarg_struct_t );
 extern prgarg_struct_t parse_argv( int , char**  );

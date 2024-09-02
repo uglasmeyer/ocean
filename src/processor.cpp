@@ -269,7 +269,7 @@ void Processor_class::Execute()
 		default :
 		{
 			printf("%d default SIGINT", stack_item.prgline);
-			raise( SIGINT);
+			Exception( );//raise( SIGINT);
 			break;
 		}
 		} // end switch

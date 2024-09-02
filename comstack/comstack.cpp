@@ -12,13 +12,16 @@
 #include <keys.h>
 #include <Logfacility.h>
 #include <Interface.h>
+#include <App.h>
 
 using namespace std;
 
-Logfacility_class 		Log("comstack");
+string					Module			= "comstack";
+Logfacility_class 		Log( Module );
 Keyboard_class			Keyboard;
 Interface_class 		IFD;
 ifd_t* 					ifd 			= IFD.addr;
+Application_class		App( Module, COMSTACKID, &ifd->Comstack );
 
 Keyboard_base::key_struct_t
 						keys			= Keyboard_base::key_struct();
@@ -27,8 +30,7 @@ int 					update_counter 	= 1;
 
 void exit_proc( int signal )
 {
-	IFD.Announce("Comstack", false );
-
+	App.Decline( &IFD.addr->UpdateFlag );
 	Keyboard.Reset();
 	exit( signal );
 }
@@ -81,7 +83,8 @@ int main( int argc, char* argv[] )
  	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-	IFD.Announce("Comstack", true);
+    IFD.Announce( App.client_id, App.status );
+
  	IFD.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
 

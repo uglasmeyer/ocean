@@ -21,7 +21,7 @@ using namespace std;
 string					Module = "Synthesizer";
 Logfacility_class		Log( Module );
 Interface_class			IFD;
-Application_class		App( Module, &IFD.addr->Synthesizer);
+Application_class		App( Module, SYNTHID, &IFD.addr->Synthesizer);
 Mixer_class				Mixer;
 Instrument_class 		Instrument(IFD.addr );
 Note_class 				Notes( &Instrument );
@@ -52,7 +52,6 @@ vector <string> dirs = {
 		dir_struct().autodir
 };
 
-bool SaveRecordFlag = false;
 stereo_t* set_addr( char id )
 {
 	return ( id == 0 ) ? Shm_a.addr : Shm_b.addr;
@@ -77,18 +76,23 @@ config_map_t read_synthesizer_config( )
 
 	if (cFile.is_open()) {
         String Line{""};
-        while (getline(cFile, Line.Str)) {
-
-        	Line.normalize();
-        	string line=Line.Str;
-
-        	istringstream iss(line);
+        String Name{""};
+        string line;
+        while ( getline( cFile, line ) )
+        {
+        	Line = line;
+        	Line.replace_comment();
+        	Line.replace_char('\t', ' ');
+        	istringstream iss( Line.Str );
             string strr;
-            while (getline(iss, strr, ',')) {
-                auto delimiterPos 	= strr.find("=");
-                auto name         	= strr.substr(0, delimiterPos);
-                auto value      	= strr.substr(delimiterPos + 1);
-                configmap[name] 	= value;
+            while (getline(iss, strr, ','))
+            {
+                size_t delimiterPos	= strr.find("=");
+                String Name        	= strr.substr(0, delimiterPos);
+                string value      	= strr.substr(delimiterPos + 1);
+                Name.normalize();
+                cout << ">" << Name.Str << "<" << endl;
+                configmap[Name.Str]= value;
             }
         }
     }
@@ -115,6 +119,8 @@ void Setup_Wavedisplay()
 
 	Wavedisplay.Set_data_ptr( IFD.addr->Wavedisplay_Id );
 }
+
+bool SaveRecordFlag = false;
 
 void record_thead_fcn( )
 {
@@ -145,7 +151,7 @@ void empty_exit_proc( int signal )
 {
 	Log.Comment(INFO, "Entering test case exit procedure for application" + Application );
 	IFD.addr->RecCounter = 0; // memory buffers are empty after restart
-	IFD.Announce( "Synthesizer", false);
+	App.Decline( &IFD.addr->UpdateFlag );
 	IFD.Dump_ifd();
 	Keyboard.Reset();
 
@@ -153,7 +159,7 @@ void empty_exit_proc( int signal )
 	while( not record_thread.joinable() )
 		Wait( 1*MILLISECOND );
 	record_thread.join();
-	exit( signal );
+	exit( 0 );
 }
 void exit_proc( int signal )
 {
@@ -164,7 +170,7 @@ void exit_proc( int signal )
 	Shm_b.clear();
 //	Wavedisplay.Clear_data();
 	IFD.addr->RecCounter = 0; // memory buffers are empty after restart
-	IFD.Announce( "Synthesizer", false);
+	App.Decline( &IFD.addr->UpdateFlag );
 	IFD.Dump_ifd();
 	Keyboard.Reset();
 
@@ -175,7 +181,7 @@ void exit_proc( int signal )
 		cout << " join wait " << endl;
 	}
 	record_thread.join();
-	exit( signal );
+	exit( 0 );
 }
 
 void Update_ifd_status_flags()
@@ -183,7 +189,7 @@ void Update_ifd_status_flags()
 	Mixer.status.mute = 	IFD.addr->mixer_status.mute;
 	assert( IFD.addr->mixer_status.mute == Mixer.status.mute );
 	IFD.addr->mixer_status = Mixer.status;
-	for ( uint id = 0; id < MbSize; id++ )
+	for ( uint id : Mixer.MemIds )
 	{
 		IFD.addr->StA_status[id] = Mixer.StA[id].status;
 	}
@@ -317,15 +323,16 @@ void process( char key )
 		}
 		case ADSR_KEY :
 		{
-			Instrument.main.adsr = ifd->Main_adsr;
+			Instrument.main.Set_adsr( ifd->Main_adsr );
 			IFD.Commit();
 			break;
 		}
 		case PMWDIALKEY :
 		{
-			Instrument.main.wp.PMW_dial = ifd->PMW_dial;
-			Instrument.vco.wp.PMW_dial = ifd->PMW_dial;
-			Instrument.fmo.wp.PMW_dial = ifd->PMW_dial;
+			Instrument.main.Set_pmw(ifd->PMW_dial );
+			Instrument.vco.Set_pmw( ifd->PMW_dial );
+			Instrument.fmo.Set_pmw( ifd->PMW_dial );
+
 			IFD.Commit();
 
 			break;
@@ -338,7 +345,7 @@ void process( char key )
 		}
 		case SOFTFREQUENCYKEY :
 		{
-			Instrument.main.wp.glide_effect = ifd->Soft_freq;
+			Instrument.main.Set_glide( ifd->Soft_freq );
 			IFD.Commit();
 			break;
 		}
@@ -484,6 +491,7 @@ void process( char key )
 			Instrument.main.Mem_vco.clear_data(max_data_amp);
 			Instrument.main.Mem_fmo.clear_data( 0 );
 			Instrument.main.Reset_data( &Instrument.main );
+
 			IFD.Commit();
 			break;
 		}
@@ -613,6 +621,12 @@ void process( char key )
 			IFD.Commit();
 			break;
 		}
+		case RESETVCOKEY : // reset VCO
+		{
+			Instrument.vco.Reset_data( &Instrument.vco );
+			IFD.Commit();
+			break;
+		}
 		case RESETFMOKEY : // reset FMO
 		{
 			Instrument.fmo.Reset_data( &Instrument.fmo );
@@ -654,12 +668,6 @@ void process( char key )
 			}
 			break;
 		}
-		case RESETVCOKEY : // reset VCO
-		{
-			Instrument.vco.Reset_data( &Instrument.vco );
-			IFD.Commit();
-			break;
-		}
 		case CONNECTVCOFMOKEY ://connect VCO frequency with FMO data
 		{
 			Instrument.vco.Connect_vco_data( &Instrument.fmo );
@@ -670,6 +678,7 @@ void process( char key )
 		case SETWAVEFORMFMOKEY :
 		{
 			set_waveform( &Instrument.fmo, ifd->FMO_spectrum.id );
+
 			IFD.Commit();
 			break;
 			}
@@ -741,8 +750,9 @@ bool sync_mode()
 	Mixer.status.notes 		=	Mixer.StA[MbIdNotes].status.play;
 
 	bool sync =
-		( 							// if true synchronize shm a/b with Audio Server
+		( 	// if true synchronize shm a/b with Audio Server
 			( Instrument.fmo.wp.frequency < LFO_limit ) 	or
+			( Instrument.vco.wp.frequency < LFO_limit ) 	or
 			( Mixer.status.notes 		)	or	// generate notes
 			( Mixer.status.external 	)	or	// StA play external
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
@@ -833,6 +843,8 @@ void test_classes()
 
 	Log.init_log_file();
 
+    config_map_t Synthesizer_cfg = read_synthesizer_config( );
+
 	Log.test();
 
 	Loop_class Loop;
@@ -855,21 +867,26 @@ void test_classes()
 	Mixer.test();
 
 	External.test();
-
+    config_map_t cfg = read_synthesizer_config( );
+	External.id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
+	string I = cfg["int"];
+	cout << dec << atoi(I.data()) <<endl;
+    Server_struct().TERM = cfg["TERM"];
+    cout << Server_struct().cmd( Audio_Srv, "help") << endl;
 }
 
 
 
 int main( int argc, char* argv[] )
 {
-//	Log.init_log_file();
 	App.Start();
-	Log.Comment(INFO, "Evaluating startup arguments");
 
+	Log.Comment(INFO, "Evaluating startup arguments");
 	prgarg_struct_t params = parse_argv( argc, argv );
 
 	if ( params.test == 'y' )
 	{
+		Log.init_log_file();
 		Log.Comment(INFO, "entering test classes ");
 		signal( SIGABRT, &empty_exit_proc );
 		test_classes();
@@ -886,8 +903,10 @@ int main( int argc, char* argv[] )
 	creat_dir_structure();
 
 	Log.Comment(INFO, "Reading config file " + file_structure().config_file );
-    read_synthesizer_config( );
+    config_map_t cfg = read_synthesizer_config( );
 
+    External.id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
+    Server_struct().TERM = cfg["TERM"];
 
 	App.Shutdown_instance( );
 
@@ -904,7 +923,7 @@ int main( int argc, char* argv[] )
 
 	show_usage();
 	show_AudioServer_Status();
-	IFD.Announce( App.Name, true );
+    IFD.Announce( App.client_id, App.status );
 
 	Log.Comment(INFO, "Application initialized");
 

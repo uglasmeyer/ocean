@@ -15,30 +15,20 @@
 
 // Qt-includes
 #include <QDebug>
+#include <QString>
 
-void read_filelist( QComboBox* CB, string path, QString type )
+void Qread_filelist( QComboBox* CB, const string& path, const string type )
 {
 
     if ( not CB ) return;
-    DIR *dir;
-    struct dirent *ent;
-
-    if ((dir = opendir (path.data())) != NULL)
+    CB->clear();
+    vector_str_t files = List_directory( path, type );
+    sort( files.begin(), files.end() );
+    for ( string& file : files )
     {
-        CB->clear();
-        vector<QString> filelist;
-        while ((ent = readdir (dir)) != NULL)
-        {
-            QString filename    = ent->d_name;
-            QString filetype    = filename.split('.')[1];
-            QString name        = filename.split('.')[0];
-            if ( filetype.compare( type ) == 0)
-                filelist.push_back( name );
-        }
-        sort(filelist.begin(), filelist.end());
-        for ( auto name : filelist )
-            CB->addItem( name );
-        closedir (dir);
+    	size_t len = file.length() - type.length();
+    	string name = file.substr(0, len);
+    	CB->addItem( QString::fromStdString( name ) );
     }
 }
 
@@ -54,12 +44,13 @@ File_Dialog_class::File_Dialog_class(QWidget *parent, QSlider* sl_main_hz ) :
 
     ui->setupUi(this);
 
-    CB_notes                 = ui->cb_notefilenames;
-    CB_instruments           = ui->cb_instrumentfiles;
-    notes_path          = dir_struct().notesdir;
-    instruments_path    = dir_struct().instrumentdir;
-    read_filelist( CB_notes, notes_path, "kbd");
-    read_filelist( CB_instruments, instruments_path, "kbd");
+    CB_notes                = ui->cb_notefilenames;
+    CB_instruments          = ui->cb_instrumentfiles;
+    notes_path          	= dir_struct().notesdir;
+    instruments_path    	= dir_struct().instrumentdir;
+    string file_type		= file_structure().file_type;
+    Qread_filelist( CB_notes, notes_path, file_type);
+    Qread_filelist( CB_instruments, instruments_path, file_type);
     for( string str : convention_names )
     {
     	QString Qstr = QString::fromStdString( str );

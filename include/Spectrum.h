@@ -25,9 +25,10 @@ enum {
 	NOISE,
 	RANDOM
 	};
-
 const static size_t spec_dta_len = 8;
 typedef array<int,spec_dta_len> spec_dta_t;
+
+
 
 class Spectrum_base : public virtual Logfacility_class
 {
@@ -72,7 +73,7 @@ public:
 	Spectrum_base() : Logfacility_class("Spectrum base") {};
 	~Spectrum_base(){};
 
-	spectrum_t 	Parse_data( vector_str_t, char );
+	spectrum_t 		Parse_data( vector_str_t, char );
 	void 			Set_spectrum( uint8_t, int, int );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
@@ -86,6 +87,7 @@ private:
 
 };
 
+/*
 class Spectrum_class : public virtual Logfacility_class, Spectrum_base
 {
 public:
@@ -124,6 +126,6 @@ private:
 	void						reset();
 };
 
-
+*/
 
 #endif /* INCLUDE_SPECTRUM_H_ */

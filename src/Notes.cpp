@@ -7,11 +7,6 @@
 
 #include <notes.h>
 
-bool cmpstr( const string a, const string b )
-{
-	return ( a.compare( b ) == 0 );
-}
-
 Note_class::Note_class()
 : Note_class::Logfacility_class("Notes"),
   Note_base()
@@ -743,13 +738,13 @@ void Note_class::set_file_name( string str )
 	Notefile = "";
 	for ( string dir : { dir_struct().notesdir , dir_struct().autodir} )
 	{
-		string filename = dir + str + "." + file_structure().notes_type;
+		string filename = dir + str + file_structure().file_type;
 		if ( filesystem::exists( filename) )
 			Notefile = filename;
 	};
 	if ( Notefile == "" )
 	{
-		Notefile = dir_struct().notesdir + str + "." + file_structure().notes_type;
+		Notefile = dir_struct().notesdir + str  + file_structure().file_type;
 		Comment( ERROR, "note file " + Notefile + " not yet found");
 	}
 }

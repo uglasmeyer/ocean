@@ -7,7 +7,7 @@
 
 
 #include <Interface.h>
-
+#include <Oscbase.h>
 
 Interface_class::Interface_class()
 : Logfacility_class("Gui")
@@ -126,7 +126,7 @@ void Interface_class::Show_interface()
 
 auto reject = [](char status, int id )
 		{
-			if (( status == RUNNING ) and ( id == 4 ))
+			if (( status == RUNNING ) and ( id != COMPID ))
 			{
 				cout << "composer rejected" << endl;
 				return true;
@@ -221,32 +221,12 @@ void* Interface_class::buffer( buffer_t shm_size, key_t shm_key )
 	return ( addr );
 };
 
-
-void Interface_class::Announce( string client, bool flag )
+void Interface_class::Announce( uint id, uint8_t* status)
 {
-	auto set = [flag, this](auto& client_addr , auto id)
-		{
-			if (flag)
-				client_addr = RUNNING;
-			else
-				client_addr = OFFLINE ;
-			addr->UpdateFlag = true;
-			return id;
-		};
+	client_id = id;
+	*status = RUNNING;
+	addr->UpdateFlag = true;
 
-	client_id = 0;
-
-	if ( client.compare("Composer") 	== 0 ) client_id = set( addr->Composer		, 1 );
-	if ( client.compare("Synthesizer") 	== 0 ) client_id = set( addr->Synthesizer	, 2 );
-	if ( client.compare("AudioServer") 	== 0 ) client_id = set( addr->AudioServer	, 3 );
-	if ( client.compare("SndlabGUI") 	== 0 ) client_id = set( addr->UserInterface	, 4 );
-	if ( client.compare("Comstack") 	== 0 ) client_id = set( addr->Comstack		, 5 );
-
-	if ( client_id == 0 )
-	{
-		Comment( ERROR, "Unknown client " + client );
-		raise( SIGINT );
-	}
 }
 void Interface_class::Reset_ifd()
 {
@@ -296,7 +276,6 @@ void Interface_class::Commit()
 
 void Interface_class::Set( bool& key, bool value )
 {
-
 	if ( reject( addr->Composer, client_id ) ) return;
 	key = value;
 }

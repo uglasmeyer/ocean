@@ -30,14 +30,12 @@
 #include <unordered_map>
 #include <vector>
 
-
 #include <assert.h>
 #include <inttypes.h>
 #include <math.h> // sin(), rint()
 #include <signal.h> // signal()
 #include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -71,7 +69,8 @@ struct dir_struct
 typedef struct file_structure
 {
 	const string filename 		= "synthesizer";
-	const string notes_type 	= "kbd";
+	const string file_type 		= ".kbd";
+	const string wav_file_type 	= ".wav";
 	const string sound_file 	= dir_struct().etcdir 		+ "test.kbd";
 	const string audio_bin  	= dir_struct().bindir 		+ "AudioServer";
 	const string synth_bin  	= dir_struct().bindir 		+ "Synthesizer";
@@ -94,21 +93,6 @@ typedef struct file_structure
 
 
 
-
-typedef struct StA_status_struct // memory array status
-{
-	bool 	play			= false; // play this memory array
-	bool 	store			= false; // record into this memory array
-} StA_status_t;
-
-typedef struct mixer_status_struct // mixer status
-{
-	bool 	play			= false; // explicite sync mode
-	bool 	notes			= false; // play notes
-	bool 	external		= false; // external play or record
-	bool	mute			= false; // mute master volume
-	bool	kbd				= false; // play keyboard note
-} mixer_status_t;
 
 
 typedef std::unordered_map<string,string>
@@ -147,27 +131,14 @@ const uint8_t 		oct_base_freq 		= 55;
 const uint			osc_default_volume	= 80; // %
 const uint 			wavedisplay_len		= 512;
 
-typedef struct bps_struct
-{
-	const vector<string>	Bps_str_vec = { "0","1","2","4","5","8"}; 		// Beats per second
-	const vector<int>   	Bps_array 	= { 0,1,2,4,5,8 };
-	string getbps_str( int id )
-	{
-		return Bps_str_vec[ id ];
-	}
-	int getbps_id( string str )
-	{
-		for ( size_t i = 0; i < Bps_str_vec.size(); i++ )
-			if ( Bps_str_vec[i].compare( str ) == 0 )
-				return (int)i;
-		return -1;
-	}
-	uint8_t getbps( int id )
-	{
-		return Bps_array[ id ];
-	}
-
-} bps_struct_t;
+enum {
+	NOID,
+	SYNTHID,
+	COMPID,
+	GUI_ID,
+	COMSTACKID,
+	AUDIOID
+};
 
 const float			LFO_limit			= 1.0;
 const uint8_t		LFO_count			= 100;
@@ -175,10 +146,10 @@ const uint8_t		LFO_count			= 100;
 typedef struct Server_struct
 {
 
-	string shell = "xterm -e ";
+	string TERM = "xterm -e";
 	string cmd( string srv, string opt )
 	{
-		return shell + "'(" + srv + " " + opt + ")' &";
+		return TERM + " '(" + srv + " " + opt + ")' &";
 	};
 } Server_struc_t;
 
@@ -186,24 +157,32 @@ const string		Audio_Srv	= file_structure().audio_bin;
 const string 		Synthesizer	= file_structure().synth_bin;
 const string 		Composer 	= file_structure().composer_bin;
 
-const vector<string> wavedisplay_str_vec =
-{
-    "Audio Out",
-	"MAIN",
-    "VCO ",
-    "FMO ",
-    "External IN"
-};
+static const uint 	MbSize 			= 8;
 
-const vector<string> wavedisplay_type_str_vec =
+typedef struct adsr_struct
 {
-	"Full",
-	"Flow",
-	"Debug"
-};
-enum { FULLID, FLOWID, DEBUGID };
+	uint8_t bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
+	uint8_t attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
+	uint8_t decay  	= 0;
+	uint8_t hall		= 0; // mixing hall effect [0..100} data shift
+} adsr_t;
+typedef struct mixer_status_struct // mixer status
+{
+	bool 	play			= false; // explicite sync mode
+	bool 	notes			= false; // play notes
+	bool 	external		= false; // external play or record
+	bool	mute			= false; // mute master volume
+	bool	kbd				= false; // play keyboard note
+} mixer_status_t;
 
-extern void system_execute( const string );
+template<typename T>
+void show_items( T all_items )
+{
+    for (auto item : all_items )
+    	cout << item << " ";
+    cout << endl;
+}
+
 
 
 #endif /* SYNTHESIZER_H_ */

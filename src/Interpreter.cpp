@@ -7,12 +7,6 @@
 
 #include "Interpreter.h"
 
-void show_list( vector<string> arr )
-{
-	for(string item : arr )
-		cout << item << " ";
-	cout << endl;
-}
 
 Interpreter_class::Interpreter_class( Interface_class* gui) :
 Logfacility_class( "Interpreter" ),
@@ -81,7 +75,6 @@ void Interpreter_class::start_bin( vector_str_t arr )
 
 		Comment( INFO, "start " + keyword.Str );
 		cmd = Server_struct().cmd( exe, "-k " + shmkey);
-//		cmd = "xterm -e '( " + exe + " -k " + shmkey + ")' &" ;
 		expect 		= { "start delay in seconds" };
 		option_default = "key";
 		string duration = pop_stack( 0 );
@@ -229,7 +222,7 @@ void Interpreter_class::set( vector_str_t arr )
 		string osc = keyword.Str;
 		expect = { "freq", "wf", "amp" };
 		keyword.Str = pop_stack( 2 );
-		show_list(arr);
+		show_items(arr);
 
 		if( cmpkeyword( "freq") )
 		{
@@ -494,7 +487,8 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 		if ( wfid < 0 )
 		{
 			Wrong_keyword(expect, waveform);
-			raise( SIGINT );
+			Exception();
+//			raise( SIGINT );
 		}
 		expect 		= { " duration in seconds" };
 		option_default = "0";
@@ -715,7 +709,8 @@ void Interpreter_class::adsr( vector_str_t arr )
 		if ( bps_id < 0 )
 		{
 			Comment(ERROR, "wrong beat duration" );
-			raise( SIGINT );
+			Exception();
+			//raise( SIGINT );
 		}
 		Processor_class::Push_ifd( &ifd->Main_adsr.bps_id, bps_id, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
@@ -824,7 +819,7 @@ void Interpreter_class::addvariable( vector_str_t arr )
 
 	if ( var_is_keyword ( varname, Keywords ) )
 	{
-		if ( not testrun) raise( SIGINT);
+		if ( not testrun) Exception();//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -839,7 +834,7 @@ void Interpreter_class::addvariable( vector_str_t arr )
 	string varvalue 	= pop_stack( 1) ;
 	if ( var_is_keyword ( varvalue, Keywords ) )
 	{
-		if ( not testrun) raise( SIGINT);
+		if ( not testrun) Exception( );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -935,7 +930,7 @@ int Interpreter_class::find_position( vector<line_struct_t>* program, vector_str
 	std::for_each( p.begin(), p.end(),
 			[] ( line_struct_t line )
 			{ if ( line.keyw[0] == ':' ) cout << line.keyw << " " ;} );
- 	raise( SIGINT );
+	Exception( );//raise( SIGINT );
  	return -2;
 }
 
@@ -990,7 +985,7 @@ bool Interpreter_class::no_error( int nr )
 		if ( nr > 1 ) cout << " more ..." ;
 		cout << endl;
 		if ( not dialog_mode )
-			raise( SIGINT );
+			Exception( );//raise( SIGINT );
 		return false;
 	}
 	return true;
@@ -1062,7 +1057,7 @@ int Interpreter_class::pop_int( int min, int max )
 			Comment( ERROR, "Value "+ Str.Str + " out of bounds" );
 			Comment( INFO, "rejected: " + to_string(min) + "<" + Str.Str + "<" + to_string(max));
 			show_expected();
-			raise(SIGINT);
+			Exception( );//raise(SIGINT);
 		}
 		return stack_value;
 	}
@@ -1078,6 +1073,7 @@ void Interpreter_class::run()
 	Processor_class::Execute();
 }
 
+
 void Interpreter_class::check_file( vector_str_t dirs, string name )
 {
 	for ( string dir : dirs )
@@ -1087,9 +1083,9 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 	Comment( ERROR, "no such file " + name );
 	for ( string dir : dirs )
 	{
-		system_execute( "cd " + dir + ";ls");
+		show_items( List_directory( dir, ".kbd" ) );
 	}
-	raise( SIGINT );
+	Exception( );//raise( SIGINT );
 }
 
 void Interpreter_class::test(  )
@@ -1138,7 +1134,7 @@ void Interpreter_class::test(  )
 	addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-
+	show_items( List_directory( dir_struct().instrumentdir, ".kbd" ) );
 //	assert ( false );
 	varlist.clear();
 

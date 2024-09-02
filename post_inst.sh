@@ -45,3 +45,6 @@ do
 	cp ${INSTBASE}/etc/include/$F .
 	[ ! -f $INSTBASE/etc/include/$F ] && cp $F $INSTBASE/etc/include
 done
+
+cd $RESOURCEDIR
+cp *odt $INSTBASE/doc

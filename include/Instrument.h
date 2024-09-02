@@ -8,11 +8,11 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
-#include <Interface.h>
 #include <Spectrum.h>
 #include <osc.h>
 #include <common.h>
 #include <Synthesizer.h>
+#include <Interface.h>
 
 
 
@@ -38,7 +38,7 @@ public:
 	void Run_osc_group();
 
 private:
-	vector<Spectrum_base::spectrum_t*> ifd_spectrum_vec;
+	vector<Spectrum_base::spectrum_t*> 	ifd_spectrum_vec;
 	string 					Instrument_file;
 	string 					Default_instrument_file;
 

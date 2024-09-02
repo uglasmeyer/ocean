@@ -14,17 +14,18 @@
 #include <mixer.h>
 #include <Spectrum.h>
 
+
 // qtcreator
 #include "File_Dialog.h"
 #include "ui_mainwindow.h"
 #include <spectrum_dialog_class.h>
 #include <oszilloscopewidget.h>
+#include <App.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-void read_filelist( QComboBox* CB, string path, QString type );
 
 class MainWindow : public QMainWindow, Logfacility_class
 {
@@ -34,14 +35,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    string					Module				= "OceanGUI";
     Interface_class     	GUI;
-    Spectrum_class          Spectrum			{};
+    Application_class		App{ Module, GUI_ID, &GUI.addr->UserInterface};
+    Spectrum_base          	Spectrum			{};
     File_Dialog_class*      File_Dialog_obj		= nullptr;
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
-    vector<QString> 		Qwavedisplay_type_str_vec {};
+    vector<QString> 		Qwavedisplay_type_str_vec
+												{};
     vector<QString> 		QWaveform_vec		{};
+    QStringList				Qbps_str_list		{};
 
     void setwidgetvalues();
     void Updatewidgets();
@@ -52,16 +57,16 @@ private slots:
 
     void pB_Wavedisplay_clicked();
     void dial_soft_freq_value_changed();
-    void sB_Duration( int );
+    void cB_Beat_per_sec( int );
     void dial_PMW_value_changed();
     void dial_decay_value_changed();
     void get_record_status( );
 
     void MAIN_slot_Hz();
     void MAIN_slot_volume();
-    void VCO_slot_Hz();
     void VCO_slot_volume();
     void Slider_FMO_Hz_changed(int);
+    void Slider_VCO_Hz_changed(int);
     void FMO_slot_volume();
 
     void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );

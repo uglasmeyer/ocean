@@ -9,18 +9,9 @@
 #ifndef GUIINTERFACE_H_
 #define GUIINTERFACE_H_
 
-#include <Notesbase.h>
-#include <Oscbase.h>
-#include <keys.h>
-#include <synthmem.h>
-#include <Spectrum.h>
-#include <Logfacility.h>
-#include <version.h>
-#include <common.h>
 #include <Synthesizer.h>
 
-
-const vector_str_t uint8_code_str =
+const vector<string> uint8_code_str =
 {
 	"Offline"		,
 	"Running"		,
@@ -58,17 +49,29 @@ enum {
 	 LASTNUM
 };
 
-typedef 		Spectrum_base::spectrum_t
-					spectrum_t;
+
+
+#include <Notesbase.h>
+#include <keys.h>
+#include <synthmem.h>
+#include <Spectrum.h>
+#include <Logfacility.h>
+#include <version.h>
+#include <common.h>
+
+using namespace Storage;
+typedef 	Note_base::noteline_prefix_t	noteline_prefix_t;
+typedef		Storage_class::StA_status_t		StA_status_t;
+typedef 	Spectrum_base::spectrum_t		spectrum_t;
+
 static const 	uint str_buffer_len = 32;
 
 typedef struct interface_struct
 {
 	uint8_t		version						= 1;
-	array<StA_status_t, 8>
-				StA_status 					{ StA_status_struct() };
-	mixer_status_t
-				mixer_status 				= mixer_status_struct();
+	array<StA_status_t, MbSize>
+				StA_status 					{ Storage_class::StA_status_struct() };
+	mixer_status_t mixer_status 			= mixer_status_struct();
 	char 		Instrument[str_buffer_len] 	= "default"; //char array
 	char 		Notes[str_buffer_len] 		= "default"; //char array for the notes filename
 	char 		Other[str_buffer_len]		= ""; // e.g. external wave file name
@@ -77,7 +80,7 @@ typedef struct interface_struct
 	uint8_t		Master_Amp 					= 75;
 	uint8_t		Main_Duration 				= max_sec;
 	adsr_t 		Main_adsr 					= adsr_struct();
-	Note_base::noteline_prefix_t
+	noteline_prefix_t
 				noteline_prefix				= Note_base::noteline_prefix_struct();
 	uint8_t		Soft_freq					= 0;
 
@@ -114,12 +117,13 @@ typedef struct interface_struct
 	uint8_t 	SHMID 						= 0;
 	uint8_t 	MODE						= FREERUN;
 	bool 		UpdateFlag 					= true;
-	uint16_t	WD_type_ID 					= FULLID;
+	uint16_t	WD_type_ID 					= 0;//FULLID;
 	uint8_t 	FileNo						= 0;
 	array<Data_t, wavedisplay_len>
 				wavedata 					= {0};
 } ifd_t;
 
+#include <Wavedisplay.h>
 
 
 
@@ -146,7 +150,7 @@ public:
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd();
-	void 	Announce( string, bool );
+	void 	Announce( uint, uint8_t* );
 	void 	Set( bool& key, bool value);
 	void 	Set( uint8_t& key, uint8_t value);
 	void 	Set( uint16_t& key, uint16_t value);
@@ -154,7 +158,7 @@ public:
 
 private:
 	uint8_t			client_id 		= 0xFF;
-	Spectrum_class	GUIspectrum 	{};
+	Spectrum_base	GUIspectrum 	{};
 	vector<string>	Waveform_vec	{};
 
 	typedef struct shm_info_struct

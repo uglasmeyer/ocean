@@ -1,6 +1,12 @@
 
 #include <Audioserver.h>
 
+
+RtAudio::StreamParameters 	oParams;
+RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
+										.numberOfBuffers = 8,
+										.streamName = Application };
+
 void errorCallback( RtAudioErrorType /*type*/, const std::string &errorText )
 {
 	Log.Comment(ERROR, errorText ) ;
@@ -13,9 +19,7 @@ void exit_proc( int exit_code )
 	Log.Comment(INFO, Application + "received command <exit> " );
 	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
 	Log.Comment( INFO, "suspend server" );
-
-	IFD.Announce( App.Name, false );
-	ifd->UpdateFlag = true;
+	App.Decline( &ifd->UpdateFlag);
 
 	done = true;
 
@@ -85,7 +89,7 @@ void get_device_description( uint index )
 
 	Log.Comment( INFO,  "Available  audio devices :");
 	int ind = 0;
-	for ( auto dev : deviceIds )
+	for ( uint dev : deviceIds )
 	{
 		Log.Comment( INFO,  "device Id: " + to_string( dev ) + " " + deviceNames[ ind ] );
 		ind++;
@@ -208,12 +212,9 @@ int main( int argc, char *argv[] )
 
 	App.Shutdown_instance( );
 
-	IFD.Announce( App.Name, true );
+    IFD.Announce( App.client_id, App.status );
 	Log.Comment(INFO, App.This_Application );
 	ifd->RecCounter 	= 0;
-//	ifd->MODE 			= SENDDATA;
-//	ifd->UpdateFlag 	= true;
-//	ifd->AudioServer 	= RUNNING;
 
 
 	Log.Comment(INFO, "Evaluating startup arguments");

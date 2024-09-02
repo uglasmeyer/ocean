@@ -5,12 +5,12 @@
  *      Author: sirius
  */
 
-#include "String.h"
+#include <String.h>
 #include <stdexcept>
 #include <sstream>
 #include <iostream>
 #include <assert.h>
-
+#include <algorithm>
 
 
 
@@ -117,15 +117,23 @@ void String::replace_comment(  )
 
 void String::replace_char( char ch_old, char ch_new )
 {
-	std::for_each( Str.begin(), Str.end(), [ch_old, ch_new] ( char& ch )
+	std::ranges::for_each( Str, [ch_old, ch_new] ( char& ch )
 			{ if ( ch == ch_old ) ch = ch_new;} );
 }
 
 void String::normalize()
 {
+	auto erase_char = [ this ]( char del )
+		{
+			string ret {""};
+			for( char ch : Str )
+				if ( del != ch ) ret.push_back( ch );
+			return ret;
+		};
+
 	replace_comment();
-	remove( Str.begin(), Str.end(), ' ' );
-	remove( Str.begin(), Str.end(), '\t' );
+	Str = erase_char( ' ' );
+	Str = erase_char( '\t');
 
 }
 bool String::is_number(  )
@@ -209,10 +217,10 @@ void String::test()
 	arr 			= S.to_array(':');
 	assert( arr.size() 							== 4 );
 
-	S				= "test0  #	  comment # test";
+	S				= "test0  	#	  comment # test";
 	S.normalize();
-	cout << "\'" << S.Str << "\'" << endl;
-	assert( S.Str.compare("test0  ")				== 0 );
+	cout << ">" << S.Str << "<" << endl;
+	assert( S.Str.compare("test0")				== 0 );
 
 	S				= "a  b  this-2 d             this ";
 	arr 			= S.to_unique_array(' ');

@@ -123,6 +123,8 @@ void Spectrum_base::Sum( spectrum_t& spec )
 /*
  *  Spectrum_class
  */
+
+/*
 Spectrum_class::Spectrum_class()
 : Logfacility_class("Spectrum")
 {
@@ -394,4 +396,4 @@ void Spectrum_class::Test()
 
 }
 
-
+*/

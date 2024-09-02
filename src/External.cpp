@@ -5,9 +5,10 @@
  *      Author: sirius
  */
 
-#include "External.h"
+#include <External.h>
+#include <common.h>
 
-void External_class::SetName( string name )
+void External_class::setName( string name )
 {
 	Name 		= name;
 	Filename 	= dir_struct().musicdir + Name + ".wav";
@@ -15,7 +16,7 @@ void External_class::SetName( string name )
 
 bool External_class::read_file_header( string name )
 {
-	SetName( name );
+	setName( name );
 	read_position = 0;
 	File = fopen( Filename.data(), "rb" );
 	if ( File )
@@ -59,7 +60,7 @@ bool External_class::read_file_data(  )
 		blocks 		= StA->info.max_records;
 		bytes 		= StA->info.mem_bytes;
 	}
-	if( read_stereo_data( bytes ) ) // TODO real stereo
+	if( read_stereo_data( bytes ) )
 	{
 		for ( buffer_t n = 0; n < structs; n++)
 		{
@@ -109,17 +110,6 @@ void External_class::close(  )
 // common
 Logfacility_class Log_system("System log");
 
-void system_execute( string cmd )
-{
-	std::cout.flush();
-	int ret = system( cmd.data() );
-	if ( ret != 0 )
-	{
-		Log_system.Comment( ERROR, cmd);
-		Log_system.Comment( ERROR, "check out system error message ");
-		exit( ret );
-	}
-}
 
 int generate_file_no( )
 {
@@ -201,6 +191,16 @@ void External_class::write_music_file( string musicfile )
 	system_execute( add_header );
 }
 
+void External_class::id3tool_cmd( string t, string r, string G, string a)
+{
+	insert_mp3_tags = 	"id3tool -t '" + t + "'" 	+
+			" -r " + "'" + r	+ "'"+
+			" -a " + "'" + a	+ "'"+
+			" -G " +  G + " " +
+			file_structure().mp3_file;
+	Comment( INFO, insert_mp3_tags );
+}
+
 void External_class::save_record_data( int fileno)
 {
 	Comment( INFO, "Prepare record file ");
@@ -240,6 +240,7 @@ void External_class::save_record_data( int fileno)
 		filesystem::remove( file_structure().mp3_file );
 
 	system_execute( convert_wav2mp3 );
+
 	system_execute( insert_mp3_tags );
 
 	if ( fileno == 0 ) // generate a file name
@@ -265,7 +266,6 @@ void External_class::add_record( Memory* Out_L, Memory* Out_R )
 	if ( stereo.info.record_counter >= stereo.info.max_records )
 		return;
 
-//	float rec_percent	= StA_ext_vol/100.0;
 	float rec_percent	= 1.0;
 	buffer_t offs 		= stereo.info.record_counter * stereo.info.block_size;
 	if ( Log[DBG2] ) details( offs );
@@ -284,8 +284,6 @@ void External_class::test()
 	Set_Loglevel(TEST, true);
  	Comment( TEST, "Testing External_class");
 	assert( StA->info.max_records - stereo.info.max_records == 0 );
-
-
 }
 
 
