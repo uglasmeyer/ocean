@@ -19,29 +19,39 @@ Logfacility_class("App")
 
 Application_class::~Application_class(){}
 
-void Application_class::Decline( bool* update )
+void Application_class::Decline( ifd_t* ifd )
 {
-	Comment( INFO, "decline " + Name );
+	cout << endl;
+	Comment( INFO, "Decline " + Name );
 	*status = OFFLINE;
-	*update = true;
+	if(( ifd->UserInterface != OFFLINE ) and  ( client_id == SYNTHID ) )
+	{
+		ifd->UserInterface = UPDATEGUI;
+	}
+	ifd->UpdateFlag = true;
 }
 
 void Application_class::Shutdown_instance( )
 {
 	if ( *status == RUNNING )
 	{
-		Comment( INFO, "Shutdown running instances of " + Name );
 		*status	= EXITSERVER;
+		Comment( INFO, "Shutdown running instances of " + Name );
 		long int 	max_wait 	= 2 * SECOND;
 		long int 	amoment 	= 100 * MILLISECOND;
 		int 		moments		= 0;
-		while (( *status != OFFLINE ) and ( amoment*moments < max_wait ))
+		while (( *status == EXITSERVER ) and ( amoment*moments < max_wait ))
 		{
 			Wait( amoment );
+			Comment( WARN, "-" ) ;
 			moments++;
 		}
+
 		if ( amoment * moments >= max_wait )
+		{
 			Comment( ERROR, "Giving up" );
+			*status = RUNNING;
+		}
 	}
 	else
 	{

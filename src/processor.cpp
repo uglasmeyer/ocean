@@ -156,6 +156,7 @@ void Processor_class::Clear_process_stack()
 void Processor_class::Set_prgline( int nr )
 {
 	prgline = nr;
+	Push_text("-");
 }
 void Processor_class::Execute()
 {

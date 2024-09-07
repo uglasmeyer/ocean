@@ -27,7 +27,17 @@ Interface_class::Interface_class()
 		memcpy( addr	, &ifd_data		, sizeof( ifd_t ) );
 	}
 	Comment( INFO, "check shared memory version");
-	if ( ifd_data.version == addr->version )
+	filesystem::path sds_dump = file_structure().ifd_file;
+	if (( filesystem::exists( sds_dump )))
+	{
+		size_t fsize = filesystem::file_size( sds_dump );
+		if ( fsize != sizeof( ifd_data ))
+		{
+			Comment( INFO, 	"IPC version " + to_string( ifd_data.version ) + " differs in size") ;
+			exit(1);
+		}
+	}
+	if (( ifd_data.version == addr->version ))
 	{
 		Comment( INFO, "OK");
 	}
@@ -35,7 +45,8 @@ Interface_class::Interface_class()
 	{
 		Comment( ERROR, "Failed");
 		Comment( INFO, 	"IPC version " + to_string( ifd_data.version ) +
-						" differs from BIN version " + to_string( addr->version ) );
+						" differs from BIN version " + to_string( addr->version )  +
+						" or lib/ifd_data.bin size ");
 		exit(1);
 	}
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
@@ -67,7 +78,8 @@ void Interface_class::Show_interface()
 					"," + conv_bool_s(addr->mixer_status.notes) +
 					"," + conv_bool_s(addr->mixer_status.play) +
 					"," + conv_bool_s(addr->mixer_status.mute) +
-					"," + conv_bool_s(addr->mixer_status.kbd);
+					"," + conv_bool_s(addr->mixer_status.kbd) +
+					"," + conv_bool_s(addr->mixer_status.instrument );
 	string status2 {};
 	uint arrno = 0;
 	for( StA_status_t status : addr->StA_status )
@@ -80,62 +92,82 @@ void Interface_class::Show_interface()
 	}
 
 
-	Read_str('a');
+//	Read_str('a');
 
-	cout << setfill( '-') << setw(80) << left << "Shared Data Structure " + Version_str << endl;
+	cout << setfill( '-') << setw(80) << left <<
+			"\nShared Data Structure " + Version_str <<"-"<< addr->version << endl;
 
 	lline( "(M)ain (F)requency:" , addr->Main_Freq );
 	rline( "(A)DSR (G)lide freq:" , (int)addr->Soft_freq);
+
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
 	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.attack );
+
 	lline( "Main duration      " , (int)addr->Main_Duration);
 	rline( "(A)DSR D(u)ration: " , bps_struct().getbps_str((int)addr->Main_adsr.bps_id) );
+
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
 	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr.decay );
-	cout << endl;
+
 	lline( "(F)MO  (F)requency:" , addr->FMO_Freq);
 	rline( "(V)CO  (F)requency:" , addr->VCO_Freq);
+
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_Amp);
 	rline( "(V)CO  (A)mplitude:" , (int) addr->VCO_Amp);
+
 	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.id ]);
 	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.id ]);
-//	rline( "." , '.');
+
+	lline( "", "" );
+	rline( "VCO  PMW dial      " , (int)addr->PMW_dial) ;
+
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->MAIN_spectrum ));
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->VCO_spectrum ));
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->FMO_spectrum ));
-	rline( "VCO  PMW dial      " , (int)addr->PMW_dial) ;
+
+
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );
 	rline( "Mixer Id           " , (int)addr->MIX_Id );
+
 	lline( "Sync data id       " , (int) addr->SHMID);
 	rline( "Communication Key  " , (int) addr->KEY );
+
 	lline( "Record Progress   :" , (int)addr->RecCounter);
 	rline( "File No.          :" , (int)addr->FileNo );
+
 	lline( "AudioServer status:" , decode(addr->AudioServer));
 	rline( "Composer status   :" , decode(addr->Composer));
+
 	lline( "Synthesizer status:" , decode(addr->Synthesizer));
 	rline( "Userinterface stat:" , decode(addr->UserInterface));
 
 	rline( "Data Mode         :" , decode(addr->MODE));
-	rline( "Instrument        :" , addr->Instrument);
+
+	lline( "Instrument        :" , addr->Instrument);
+	rline( "Wav filename      :" , addr->Other );
+
 	lline( "Notes             :" , addr->Notes );
 	rline( "Noteline duration :" , (int) addr->Noteline_sec);
-	Lline( "Status Extr,Note,Play,Mute,Kbd:" , status1 );
+
+	Lline( "Status Extr,Note,Play,Mute,Kbd,Inst:" , status1 );
 	rline( "Status StA #:ps,  :" , status2);
 
 }
 
-auto reject = [](char status, int id )
-		{
-			if (( status == RUNNING ) and ( id != COMPID ))
-			{
-				cout << "composer rejected" << endl;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		};
+bool Interface_class::reject(char status, int id )
+{
+	if (( status == RUNNING ) and ( id != COMPID ))
+	{
+		if( previous_status != status )
+			cout << "Observer mode ON" << endl;
+		previous_status = status;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+};
 
 
 void Interface_class::Write_str(const char selector, const string str )

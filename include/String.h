@@ -72,12 +72,13 @@ public:
 	int 	i;
 	char 	ch;
 	string 	str;
+	string	boolstr;
 	Value( const int& val )
 	{
         this->i		= (int) val;
         this->ch 	= (char) val;
         this->str	= to_string( val );
-
+        this->boolstr		= ( i == 0 ) ? "OFF" : "ON";
 	};
 	~Value(){};
 
@@ -86,6 +87,7 @@ public:
         this->i		= (int) val;
         this->ch 	= (char) val;
         this->str	= to_string( val );
+        this->boolstr		= ( i == 0 ) ? "OFF" : "ON";
     }
 
 

@@ -17,10 +17,10 @@ call :clearstorage
 
 #call 	:drums
 #call	:volklore1
-call	:test11
+#call	:test11
 #call	:testpiano
 #call 	:test10
-#call	:syntax
+call	:syntax
 
 #----------------------------------------
 #call 	:stopserver
@@ -63,18 +63,18 @@ notes per_second 4
 random "|2F--. G-C'- F'-G- C'--. G--. E'G'G'F' E'--. ----"  445546 	D cc-	leadS
 add E-Gitarre		leadS S1 auto
 
-notes set |4CDEFGFGFED-. 9779
-add sphere 			tmp S0 auto
+notes set |4CDEFGFGFED->|5D. 9779
+add sphere 				tmp S0 auto
 notes per_second 4
-random |2E-EE|3E-EE|2F-FF|3F-F- 		68	- cc2c3 chor
+random |2E-EE|3E-EE|2F-FF|3F-F- 	68	- cc2c3 chor
 notes per_second 4
-random |1E-EE|1E-EE|1F-FF|1F-F- 		86	- c 	drums
+random |1E-EE|1E-EE|1F-FF|1F-F- 	86	- c 	drums
 add Singsong 		lead S0 auto
 add drum3	 	drums S2 auto
 add sphere 		chor S1 auto
 
 call :standardintro
-play S2 amp 80
+play S2 amp 90
 pause 5
 
 instrument load Singsong
@@ -83,8 +83,8 @@ notes set |2G.GC.DC.D...E.C. 9779
 notes play on 70
 
 play S0 amp 70
-play S1 amp 60
-#play S3 amp 100
+play S1 amp 80
+
 pause key
 
 call :standardend

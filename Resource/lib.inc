@@ -10,8 +10,8 @@ return
 #-----------------------------------------
 
 :startserver
-start 	AudioServer 48000 0 # shmkey is set to frames per second
-start 	Synthesizer 48000 3
+start 	AudioServer 48000 3 # shmkey is set to frames per second
+start 	Synthesizer 48000 0
 return
 #-----------------------------------------
 
@@ -41,11 +41,12 @@ return
 #-----------------------------------------
 
 :standardend
+TRACKNR = 1
 osc main loop amp 0
 record loop amp 0
 pause 7
-record stop 100
+record stop TRACKNR
 pause 6 # wait until recording to file is done
 osc main amp 75
-call :stopserver
+#call :stopserver
 return

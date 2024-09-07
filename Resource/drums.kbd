@@ -1,13 +1,13 @@
 #OSC,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddelay  bps atck hall glide      PMWs
- OSC,      VCO,    sinus,     68,   1000,     98,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+ OSC,      VCO,    sinus,     55,   1000,     47,  free,  free,  free,   0,   1,  80,   0,   0,      0,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
-SPEC,      VCO,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100,
- OSC,      FMO, triangle,    110,   1000,     89,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+SPEC,      VCO,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100
+ OSC,      FMO, triangle,    110,   1000,     71,  free,  free,  free,   0,   1,  80,   0,   0,      0,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
-SPEC,      FMO, triangle,100,  0,  0,  0,  0,  0,  0,  0,100,
- OSC,     MAIN,   sgnSin,    220,   1000,     75,     2,     1,     1,  92,   3,   0,  13,   0,      0,
+SPEC,      FMO, triangle,100,  0,  0,  0,  0,  0,  0,  0,100
+ OSC,     MAIN,   sgnSin,    220,   1000,    100,  free,  free,  free,  81,   2,   0,   1,   0,      0,
 CONN,     MAIN,      FMO,      F,
 CONN,     MAIN,      VCO,      V,
-SPEC,     MAIN,   sgnSin,100,  0,  0,  0,  0,  0,  0,  0,100,
+SPEC,     MAIN,   sgnSin,100,  0,  0,  0,  0,  0,  0,  0,100

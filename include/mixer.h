@@ -8,20 +8,16 @@
 #ifndef INCLUDE_MIXER_H_
 #define INCLUDE_MIXER_H_
 
-//#include <bits/stdint-uintn.h>
 #include <osc.h>
-#include <Instrument.h>
-#include <synthmem.h>
 #include <External.h>
 #include <notes.h>
 #include <Synthesizer.h>
-#include <wav.h>
+#include <Mixerbase.h>
+#include <Synthmem.h>
 
 using namespace std;
 
-static const uint 	MbIdExternal 	= MbSize - 1;
-static const uint 	MbIdNotes 		= MbSize - 2;
-static const uint	MbIdKeyboard	= MbSize - 3;
+using namespace Storage;
 
 
 class Loop_class
@@ -35,24 +31,31 @@ public:
 	~Loop_class(){};
 
 	void Start( uint16_t beg, uint16_t end, uint8_t step );
-	void Next( uint16_t* );
-	void Next( uint8_t*  );
+	void Next( uint16_t& );
+	void Next( uint8_t&  );
 	void Test();
 
 };
 
-using namespace Storage;
-class Mixer_class : virtual public Logfacility_class
+static const uint 	MbIdExternal 	= MbSize - 1;
+static const uint 	MbIdNotes 		= MbSize - 2;
+static const uint 	MbIdKeyboard 	= MbSize - 3;
+static const uint   MbIdInstrument	= MbSize - 4;
+
+class Mixer_class : virtual public Logfacility_class,
+					virtual public Mixer_base
 {
 	// provides and manages memory array
 public:
 
-	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal, MbIdNotes };
-	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5,  MbIdExternal };
-	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4 };
+	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
+	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
+	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5, 6 };
+	const vector<uint>	SycIds		= {0, 1, 2, 3, 6, 7 };
 
 
-	typedef vector<Storage_class> StorageArray_t;
+	typedef vector<Storage_class> 						StorageArray_t;
+
 	StorageArray_t 		StA;
 	uint8_t				master_volume	= 100;
 	mixer_status_t  	status 			= mixer_status_struct();
@@ -63,13 +66,20 @@ public:
 	Memory 				Out_L	{ monobuffer_size };// Output buffer long
 	Memory				Out_R	{ monobuffer_size };//
 
+	Loop_class 			master_amp_loop;
+	Loop_class			record_amp_loop;
 
 	Mixer_class (  );
 	~Mixer_class(){};
 
 
 	void Store_noteline( uint8_t, Note_class* );
-	void Add_Sound(  Instrument_class* , stereo_t*  );
+	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
+	void Clear_StA_status( StA_state_arr_t& );
+	void Update_ifd_status_flags( ifd_t* sds );
+	void Volume_control( ifd_t* sds );
+	void Set_mixer_state( const uint& id, const bool& play );
+
 	void Test();
 
 private:

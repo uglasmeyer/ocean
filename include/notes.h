@@ -20,7 +20,8 @@
 
 using namespace std;
 
-class Note_class :  virtual public Logfacility_class, virtual public Note_base
+class Note_class :  virtual public Logfacility_class,
+					virtual public Note_base
 {
 public:
 
@@ -44,21 +45,18 @@ public:
 					Noteline_prefix	= noteline_prefix_default; // D=default, N=numeric
 	notelist_t 		notelist		{};
 
-	Instrument_class* instrument;
 
 	Note_class( ); // used by Variation
-	Note_class( Instrument_class* instr ); // used by Synthesizer
-
 	~Note_class();
 
 	string 			Read( string );
 	void			Save( string, noteline_prefix_t , string  );
-	void 			Set_osc_track( );
+	void 			Set_osc_track( Instrument_class* );
 	string 			Get_note_line ();
 	string 			Get_rhythm_line (  );
 	void 			Set_rhythm_line(string );
 	bool			Set_notes_per_second( int );
-	bool			Generate_note_chunk( Storage::Storage_class* mb );
+	bool			Generate_note_chunk( );//Storage::Storage_class* mb );
 	void			Set_base_octave( uint );
 	void			Set_prefix_octave( int );
 	bool			Verify_noteline( noteline_prefix_t, string );
@@ -92,6 +90,8 @@ public:
 
 private:
 	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
+	uint8_t			notes_default_volume
+									= 80;
 	string 			Notefile_name 	= "";
 	string 			Notefile 		= "";
 	string 			Noteline		= "";
@@ -115,7 +115,6 @@ private:
 	size_t			noteline_position_parser( size_t );
 	void 			note2memory( const note_t&, const buffer_t& );
 	void 			change_alphabet_notes( noteline_prefix_t );
-	void 			submit_data(Storage::Storage_class* mb);
 	void            set_volume_vector( string );
 	int 			notechar2Value( char );
 	void			fill_note_list();

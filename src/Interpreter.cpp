@@ -17,7 +17,7 @@ Processor_class(gui)
 
 	main_view.name		= "Main osc";
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
-	main_view.ampkey 	= MASTERAMP_KEY;
+	main_view.ampkey 	= SETMBAMPPLAYKEY;//MASTERAMP_KEY;
 	main_view.freqkey 	= MAINFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
@@ -31,7 +31,7 @@ Processor_class(gui)
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
 	main_view.wf 	= &ifd->MAIN_spectrum.id;
-	main_view.amp 	= &ifd->Master_Amp;
+	main_view.amp 	= &ifd->StA_amp_arr[MbIdInstrument];
 	main_view.freq 	= &ifd->Main_Freq;
 
 	vco_view.wf 	= &ifd->VCO_spectrum.id;
@@ -128,7 +128,7 @@ void Interpreter_class::record( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::Push_ifd( &ifd->MIX_Amp, 100, "mixer amp");
+		Processor_class::Push_ifd( &ifd->StA_amp_arr[MbIdExternal], 100, "mixer amp");
 		Processor_class::Push_ifd( &ifd->Composer, RECORD, "composer record data" );
 		Processor_class::Push_key( RECORDWAVFILEKEY, "start record"  );
 		pause( {"pause", duration } );
@@ -322,7 +322,7 @@ void Interpreter_class::notes( vector_str_t arr )
 		{
 			expect = { "volume [%]" };
 			int amp 	= pop_int(0,100);
-			Processor_class::Push_ifd( &ifd->MIX_Amp ,amp, "play notes" );
+			Processor_class::Push_ifd( &ifd->StA_amp_arr[MbIdNotes] ,amp, "play notes" );
 			Processor_class::Push_key( NOTESONKEY, "commit");
 			if ( stack.size() > 0  )
 			{
@@ -452,17 +452,19 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 
 	if ( cmpkeyword( "mute") )
 	{
-		Comment( INFO, "Main is muted " );
-		Processor_class::Push_ifd( &ifd->mixer_status.mute, true, "mute" );
-		Processor_class::Push_key( MASTERAMP_MUTE_KEY, "mute" );
+		Comment( INFO, "Master volume is muted " );
+
+		Push_ifd( &ifd->mixer_status.mute, false, "false" );
+		Push_key( MASTERAMP_MUTE_KEY, "mute master volume" );
 		return;
 	}
 
 	if ( cmpkeyword( "unmute") )
 	{
-		Comment( INFO, "Main is unmuted " );
-		Processor_class::Push_ifd( &ifd->mixer_status.mute, false, "unmute" );
-		Processor_class::Push_key( MASTERAMP_MUTE_KEY, "unmute" );
+		Comment( INFO, "Master volume is un-muted " );
+
+		Push_ifd( &ifd->mixer_status.mute, true, "true" );
+		Push_key( MASTERAMP_MUTE_KEY, "un-mute master volume" );
 		return;
 	}
 	if ( cmpkeyword( "reset" ))
@@ -602,7 +604,8 @@ void Interpreter_class::rec( vector_str_t arr )
 		Comment( INFO, "set amplitude of " + to_string(id) + " to " + to_string(amp) + "%" );
 
 		Processor_class::Push_ifd( &ifd->MIX_Id , id, "mixer id" );
-		Processor_class::Push_ifd( &ifd->MIX_Amp, amp, "mixer volume" );
+		Processor_class::Push_ifd( &ifd->StA_amp_arr[ id ], amp, "mixer volume" );
+		Processor_class::Push_ifd( &ifd->StA_status[id].play, true, "true" );
 		Processor_class::Push_key( SETMBAMPPLAYKEY	, "set volume" );
 
 		return;

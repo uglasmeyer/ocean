@@ -19,13 +19,6 @@ const vector<string> wavedisplay_str_vec =
     "External IN"
 };
 
-const vector<string> wavedisplay_type_str_vec =
-{
-	"Full",
-	"Flow",
-	"Debug"
-};
-enum { FULLID, FLOWID, DEBUGID };
 
 
 class Wavedisplay_class : virtual public Logfacility_class

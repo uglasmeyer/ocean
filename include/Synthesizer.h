@@ -95,18 +95,10 @@ typedef struct file_structure
 
 
 
-typedef std::unordered_map<string,string>
-							config_map_t ;
 // https://en.cppreference.com/w/cpp/language/types
 typedef unsigned long int 	buffer_t;
 typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
-
-typedef struct stereo_struct
-{
-	data_t left;
-	data_t right;
-} stereo_t;
 
 const uint 			sizeof_data 		= sizeof(Data_t);
 const double 		pi					= 3.1415926536;//3.141592654;
@@ -123,12 +115,10 @@ const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; // temp memory storage 30*frames_per_sec
 const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec*sizeof(Data_t); // 3 minutes 32Mb
 const buffer_t 		monobuffer_size   	= max_frames * sizeof(Data_t);
-const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_t);
-const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
 const Data_t		max_data_amp		= 4096*4;
 const uint8_t 		oct_base_freq 		= 55;
 
-const uint			osc_default_volume	= 80; // %
+const uint			osc_default_volume	= 100; // %
 const uint 			wavedisplay_len		= 512;
 
 enum {
@@ -156,24 +146,6 @@ typedef struct Server_struct
 const string		Audio_Srv	= file_structure().audio_bin;
 const string 		Synthesizer	= file_structure().synth_bin;
 const string 		Composer 	= file_structure().composer_bin;
-
-static const uint 	MbSize 			= 8;
-
-typedef struct adsr_struct
-{
-	uint8_t bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
-	uint8_t attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
-	uint8_t decay  	= 0;
-	uint8_t hall		= 0; // mixing hall effect [0..100} data shift
-} adsr_t;
-typedef struct mixer_status_struct // mixer status
-{
-	bool 	play			= false; // explicite sync mode
-	bool 	notes			= false; // play notes
-	bool 	external		= false; // external play or record
-	bool	mute			= false; // mute master volume
-	bool	kbd				= false; // play keyboard note
-} mixer_status_t;
 
 template<typename T>
 void show_items( T all_items )

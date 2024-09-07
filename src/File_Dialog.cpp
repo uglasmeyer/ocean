@@ -210,8 +210,6 @@ void File_Dialog_class::New_Notes()
         // remote shall read and activate the new note line
         Interface_class::Write_str( NOTESSTR_KEY, notes_file);
         Interface_class::addr->KEY = NEWNOTESLINEKEY;
-        Interface_class::addr->MIX_Amp = 75;
-        Interface_class::addr->MIX_Id = MbIdNotes;
         // remote load file to note class
         status_color.setColor(QPalette::Button, Qt::green);
         ui->pbPlayNotes->setText( NotesON );

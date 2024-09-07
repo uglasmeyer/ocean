@@ -26,13 +26,18 @@ void Record_class::Unset()
 	active = false;
 }
 
+void Record_class::Set_progress_bar( uint value )
+{
+	ifd_addr->RecCounter = value;
+}
+
 void Record_class::Progress_bar_update( )
 {
 	if ( active )
 	{
 		uint count = *counter;
 		int value = rint( ( 100 * count )/max_counter ) ;
-		ifd_addr->RecCounter = value;
+		Set_progress_bar( value );
 		if ( count >= max_counter)
 			Unset();
 		Comment(DBG2, "recording : " + to_string(value) + " %");

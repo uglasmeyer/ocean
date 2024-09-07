@@ -151,12 +151,12 @@ void Instrument_class::Update_spectrum()
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 
-	osc->line_interpreter( arr );
+	osc->Line_interpreter( arr );
 	if ( osc->osc_id == MAINID )
 		assign_adsr( arr );
-	osc->get_comment( false );
-	osc->set_csv_comment();
-	osc->show_csv_comment( TEST );
+	osc->Get_comment( false );
+	osc->Set_csv_comment();
+	osc->Show_csv_comment( TEST );
 
 }
 
@@ -318,7 +318,7 @@ void Instrument_class::Save_Instrument( string str )
 			<< setw(10)	<< "PMWs"
 			<< endl;
 
-//	main.wp.volume = (int)ifd->Master_Amp;
+	main.wp.volume = (int)ifd->Master_Amp;
 	for ( Oscillator* osc : osc_vector )
 	{
 		FILE 	<< setfill(' ') << right << " OSC,"
@@ -326,10 +326,10 @@ void Instrument_class::Save_Instrument( string str )
 				<< setw(10) <<		 osc->Get_waveform_str(osc->spectrum.id) 	+ ","
 				<< setw(7 ) <<dec << osc->wp.frequency 		<< ","
 				<< setw(7 ) <<dec << osc->wp.msec 			<< ","
-				<< setw(7)  <<dec << 100 			<< ","
-				<< setw(7 ) <<		 osc->wp.ops_str_arr[0] 	+ ","
-				<< setw(7)  <<		 osc->wp.ops_str_arr[1] 	+ ","
-				<< setw(7)  <<		 osc->wp.ops_str_arr[2] 	+ ","
+				<< setw(7)  <<dec << osc->wp.volume			<< ","
+				<< setw(7 ) <<		 "free,"
+				<< setw(7)  <<		 "free,"
+				<< setw(7)  <<		 "free,"
 				<< setw(4) 	<< (int) osc->adsr.decay 	<< ","
 				<< setw(4) 	<< (int) osc->adsr.bps_id 	<< ","
 				<< setw(4) 	<< (int) osc->adsr.attack 		<< ","
@@ -367,7 +367,6 @@ void Instrument_class::Run_osc_group()
 		for ( Oscillator* osc : osc_vector )
 		{
 			osc->OSC( 0 );
-			osc->wp.touched = false;
 		}
 }
 
@@ -432,10 +431,10 @@ void Instrument_class::Test_Instrument()
 	}
 
 	Time_class Timer;
-	Timer.start();
+	Timer.Start();
 	Run_osc_group();
-	Timer.stop();
-	cout << "Run osc group in " << Timer.time_elapsed() << " milli seconds" <<  endl;
+	Timer.Stop();
+	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
 	Comment( TEST, "Instrument test done" );
 }

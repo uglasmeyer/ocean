@@ -9,8 +9,8 @@
 #define RECORD_H_
 
 #include <Interface.h>
-#include <synthmem.h>
 #include <Synthesizer.h>
+#include <Synthmem.h>
 
 class Record_class : virtual public Logfacility_class
 {
@@ -29,6 +29,7 @@ public:
 	uint max_counter = 1;
 	bool active = false;
 
+	void Set_progress_bar( uint );
 	void Set( uint* count, uint max );
 	void Unset();
 	void Reset();

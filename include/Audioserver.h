@@ -24,7 +24,7 @@
 #define RTAUDIO
 
 #include <Synthesizer.h>
-#include <synthmem.h>
+#include <Synthmem.h>
 #include <Interface.h>
 #include <common.h>
 #include <App.h>
@@ -36,12 +36,13 @@ string Module 			= "AudioServer";
 Logfacility_class 		Log( Module );
 Shared_Memory 			Shm_a;
 Shared_Memory			Shm_b;
-Interface_class 		IFD ;
-Application_class		App( Module, AUDIOID, &IFD.addr->AudioServer );
+Interface_class 		SDS ;
+ifd_t*					sds	= SDS.addr;
+
+Application_class		App( Module, AUDIOID, &sds->AudioServer );
 
 
 // runtime parameter
-ifd_t*			ifd				= IFD.addr;
 buffer_t 		ncounter 		= 0;
 char 			shm_id 			= 0; // out_data = Shm_a
 stereo_t*		shm_addr 		= nullptr;

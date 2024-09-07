@@ -14,7 +14,7 @@ void External_class::setName( string name )
 	Filename 	= dir_struct().musicdir + Name + ".wav";
 }
 
-bool External_class::read_file_header( string name )
+bool External_class::Read_file_header( string name )
 {
 	setName( name );
 	read_position = 0;
@@ -38,7 +38,7 @@ bool External_class::read_file_header( string name )
 	}
 }
 
-bool External_class::read_file_data(  )
+bool External_class::Read_file_data(  )
 {
 	if ( feof( File )    )
 	{
@@ -72,7 +72,7 @@ bool External_class::read_file_data(  )
 		Comment(INFO,"Bytes   " + to_string(bytes));
 		Comment(INFO,"Blocks  " + to_string(blocks));
 		Comment(INFO,"Structs " + to_string(structs));
-		StA->set_store_counter( blocks - 1 );
+		StA->Set_store_counter( blocks - 1 );
 
 		return true;
 	}
@@ -89,6 +89,8 @@ bool External_class::read_stereo_data( long data_bytes  )
 							File  );
 	Comment( DEBUG, to_string( read_position ));
 	long read_bytes = read_position * sizeof(stereo_t);
+	Filedata_size 			= read_bytes;
+
 	if ( read_bytes >= data_bytes )
 	{
 		close( );
@@ -110,34 +112,36 @@ void External_class::close(  )
 // common
 Logfacility_class Log_system("System log");
 
-
+string testcounter = "/tmp/counter";
 int generate_file_no( )
 {
-	uint16_t filenumber ;
+	fstream File;
+	string counterfile = file_structure().counter_file;
+	if ( Log_system.Log[ TEST ])
+		counterfile = testcounter;
 
-	string counter_file = file_structure().counter_file;
-	size_t count = 0;
-	FILE* fd;
-	if ( filesystem::exists( counter_file ))
+	if ( not filesystem::exists( counterfile ))
 	{
-		fd = fopen( counter_file.data(), "rb" );
-		count = fread( &filenumber, sizeof(filenumber), 1, fd );
-		fclose( fd );
+		Log_system.Comment( INFO, "creating file number file");
+		File.open( counterfile, fstream::out );
+		File << "0" << endl;
+		File.close();
+		return 0;
 	}
 
-	if ( count != 1 )
-	{
-		filenumber = 0;
-	}
+	File.open( counterfile, fstream::in );
+	string filenr_str {};
+	getline( File, filenr_str );
+	File.close();
 
-	filenumber = ( filenumber + 1 ) % sizeof( filenumber );
+	int filenr = stoi( filenr_str );
+	filenr++;
 
-	fd = fopen( counter_file.data(), "wb" );
-    count = fwrite( &filenumber, sizeof(filenumber),  1, fd );
-    fclose( fd );
+	File.open( counterfile, fstream::out );
+	File << filenr << endl;
+	File.close();
 
-    return filenumber;
-
+	return filenr;
 
 }
 
@@ -191,7 +195,7 @@ void External_class::write_music_file( string musicfile )
 	system_execute( add_header );
 }
 
-void External_class::id3tool_cmd( string t, string r, string G, string a)
+void External_class::Id3tool_cmd( string t, string r, string G, string a)
 {
 	insert_mp3_tags = 	"id3tool -t '" + t + "'" 	+
 			" -r " + "'" + r	+ "'"+
@@ -201,7 +205,7 @@ void External_class::id3tool_cmd( string t, string r, string G, string a)
 	Comment( INFO, insert_mp3_tags );
 }
 
-void External_class::save_record_data( int fileno)
+void External_class::Save_record_data( int fileno)
 {
 	Comment( INFO, "Prepare record file ");
 	long rcounter = stereo.info.record_counter * stereo.info.block_size;
@@ -253,7 +257,7 @@ void External_class::save_record_data( int fileno)
 
 }
 
-void External_class::add_record( Memory* Out_L, Memory* Out_R )
+void External_class::Add_record( Memory* Out_L, Memory* Out_R )
 //, uint8_t StA_ext_vol )
 {
 	auto details = [this]( buffer_t offs )
@@ -266,7 +270,7 @@ void External_class::add_record( Memory* Out_L, Memory* Out_R )
 	if ( stereo.info.record_counter >= stereo.info.max_records )
 		return;
 
-	float rec_percent	= 1.0;
+	const float rec_percent	= 1.0;
 	buffer_t offs 		= stereo.info.record_counter * stereo.info.block_size;
 	if ( Log[DBG2] ) details( offs );
 
@@ -284,6 +288,19 @@ void External_class::test()
 	Set_Loglevel(TEST, true);
  	Comment( TEST, "Testing External_class");
 	assert( StA->info.max_records - stereo.info.max_records == 0 );
+
+	Log_system.Set_Loglevel( TEST, true);
+	int fnr = generate_file_no();
+	cout << "counter file nr: " << fnr << endl;
+	fnr = generate_file_no();
+	cout << "counter file nr: " << fnr << endl;
+	fnr = generate_file_no();
+	cout << "counter file nr: " << fnr << endl;
+	fnr = generate_file_no();
+	cout << "counter file nr: " << fnr << endl;
+
+	filesystem::remove( testcounter );
+
 }
 
 

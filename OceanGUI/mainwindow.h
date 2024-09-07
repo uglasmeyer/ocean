@@ -13,6 +13,7 @@
 #include <Interface.h>
 #include <mixer.h>
 #include <Spectrum.h>
+#include <App.h>
 
 
 // qtcreator
@@ -20,7 +21,6 @@
 #include "ui_mainwindow.h"
 #include <spectrum_dialog_class.h>
 #include <oszilloscopewidget.h>
-#include <App.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -36,8 +36,9 @@ public:
     ~MainWindow();
 
     string					Module				= "OceanGUI";
-    Interface_class     	GUI;
-    Application_class		App{ Module, GUI_ID, &GUI.addr->UserInterface};
+    Interface_class     	SDS					{};
+    ifd_t*					sds 				= SDS.addr;
+    Application_class		App{ Module, GUI_ID, &sds->UserInterface};
     Spectrum_base          	Spectrum			{};
     File_Dialog_class*      File_Dialog_obj		= nullptr;
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
@@ -47,6 +48,9 @@ public:
 												{};
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_list		{};
+    vector<QRadioButton*> 	rb_sta_vec			{};
+    vector<QCheckBox*>		cb_sta_vec			{};
+    vector<QSlider*>		sl_sta_vec			{};
 
     void setwidgetvalues();
     void Updatewidgets();
@@ -55,6 +59,7 @@ public:
 
 private slots:
 
+//	void show_time_elapsed();
     void pB_Wavedisplay_clicked();
     void dial_soft_freq_value_changed();
     void cB_Beat_per_sec( int );
@@ -100,16 +105,26 @@ private slots:
 
     void read_polygon_data();
 
-    void Store();
     void Clear_Banks();
 
-    void change_status0();
-    void change_status1();
-    void change_status2();
-    void change_status3();
-    void change_status4();
-    void change_status5();
-    void change_status7();
+    void toggle_mute0(int);
+    void toggle_mute1(int);
+    void toggle_mute2(int);
+    void toggle_mute3(int);
+    void toggle_mute4(int);
+    void toggle_mute5(int);
+    void toggle_mute6(int);
+    void toggle_mute7(int);
+
+
+    void toggle_store_sta0();
+    void toggle_store_sta1();
+    void toggle_store_sta2();
+    void toggle_store_sta3();
+    void toggle_store_sta4();
+    void toggle_store_sta5();
+    void toggle_store_sta6();
+    void toggle_store_sta7();
 
     void File_Director();
     void Spectrum_Dialog();

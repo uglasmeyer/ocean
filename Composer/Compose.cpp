@@ -5,9 +5,9 @@
 string					Module = "Composer";
 Logfacility_class 		Log( Module );
 Variation_class 		Variation;
-Interface_class 		IFD;
-Application_class		App( Module, COMPID, &IFD.addr->Composer );
-Interpreter_class 		Compiler(&IFD );
+Interface_class 		SDS;
+Application_class		App( Module, COMPID, &SDS.addr->Composer );
+Interpreter_class 		Compiler(&SDS );
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
@@ -19,7 +19,7 @@ void exit_proc( int signal )
 		cout.flush() << "\nEntering exit proc on assembler error " + to_string(signal) << endl;
 	else
 		cout.flush() << "\nEntering exit proc" << endl;
-	App.Decline( &IFD.addr->UpdateFlag );
+	App.Decline( SDS.addr );
 	exit(signal);
 }
 
@@ -251,10 +251,11 @@ void maintest()
 
 int main( int argc, char* argv[] )
 {
-	Log.init_log_file();
 	App.Start();
-	signal(SIGINT , &exit_proc);
-	signal(SIGABRT, &exit_proc);
+	signal( SIGINT	, &exit_proc );
+	signal( SIGABRT	, &exit_proc );
+	signal( SIGHUP	, &exit_proc );
+
 
 	prgarg_struct_t params = parse_argv( argc, argv );
 	show_prgarg_struct( params );
@@ -264,7 +265,7 @@ int main( int argc, char* argv[] )
 		maintest();
 		exit_proc(0);
 	}
-	IFD.Announce( App.client_id,  App.status );
+	SDS.Announce( App.client_id,  App.status );
 	Log.Set_Loglevel(ERROR , true);
 
 	if ( preprocessor( file_structure().main_file ) )
@@ -274,7 +275,7 @@ int main( int argc, char* argv[] )
 			Compiler.Execute(  );
 		}
 	}
-    IFD.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status );
 
 	if ( params.dialog == 'y' )
 	{

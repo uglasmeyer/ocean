@@ -23,6 +23,9 @@ echo linking
 rm ${INSTDIR}AudioServer
 make ${INSTDIR}AudioServer
 
+cd ${BASEDIR}/OceanGUI
+make -j1 mocables
+
 for OBJ in $OBJS
 do
 	make_inst $OBJ

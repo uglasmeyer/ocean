@@ -7,7 +7,7 @@ call :maintest
 exit
 
 :syntaxtest1
-osc main mute
+#osc main unmute
 text syntax check program flow
 include lib
 return
@@ -37,6 +37,8 @@ text This is the same as saying (foreground mode):
 pause key
 
 StA2 = 0
+INS = 4
+rec amp INS 100
 osc main unmute
 set main freq 220
 set vco amp 50
@@ -46,7 +48,7 @@ adsr decay 90
 adsr softfreq 0
 rec store StA2
 pause 5
-osc main mute
+#osc main mute
 rec amp StA2 100
 
 text some osc and adsr commands
@@ -67,7 +69,7 @@ instrument load piano
 text load instrument file piano.kbd
 pause key
 
-osc main mute
+#osc main mute
 notes set octave 3
 notes per_second 5
 notes set "(CEG)----- |A'BCD (CE)- A'BC(EG) C.(ACE)-B.A." 8

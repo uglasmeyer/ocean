@@ -10,6 +10,14 @@
 
 
 #include <osc.h>
+#include <common.h>
+
+double	dphi 	= 0.0;
+double 	maxphi 	= 2*pi;
+
+random_device 	rd;
+mt19937 		engine(rd());
+uniform_real_distribution<> distrib( -1, 1 );
 
 // https://stackoverflow.com/questions/6339970/c-using-function-as-parameter
 
@@ -24,9 +32,6 @@ constexpr Data_t signum(  const float& value)
 	else return 0;
 
 }
-random_device rd;
-mt19937 engine(rd());
-uniform_real_distribution<> distrib( -1, 1 );
 
 float rnd(  const float& amp,  const float& phi )
 { 	// provides values between -amp .. amp
@@ -39,19 +44,18 @@ constexpr float fmodulo(  const float& x,  const float& y )
 	return ( x >= y ) ? x-y : x ;
 }
 
-double dphi = 0.0;
-double modc = 2*pi;
+
 float delta(  const float& x,  const float& y )
 {
-	float f1 = fmodulo(y+dphi, modc + dphi);
-	float f2 = fmodulo(y+dphi, modc );
+	float f1 = fmodulo(y+dphi, maxphi + dphi);
+	float f2 = fmodulo(y+dphi, maxphi );
 	return x*( f1-f2 );
 }
 
 float rndprev = 0.0;
 float rnd_step(  const float& amp,  const float& y )
 {
-	float trigger = delta(y+dphi, modc );
+	float trigger = delta(y+dphi, maxphi );
 	if( abs( trigger ) > 1E-2 )
 	{
 		rndprev = rnd(amp, 0);
@@ -196,69 +200,72 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Sum( spectrum );
 	if ( spectrum.sum == 0 ) spectrum.sum  = 1;
 
+	wp.touched = false;
 	switch ( spectrum.id )
 	{
 		case SINUS0 : // s inus + spectrum
 		{
-			modc 	= 2*pi;
+			maxphi 	= 2*pi;
 			F = Sin;
 			break;
 		}
 		case SINUS1 : // Sinus
 		{
-			modc 	= 2*pi;
+			maxphi 	= 2*pi;
 			F = Sin;
 			break;
 		}
 		case SGNSIN : // sgn Sin
 		{
-			modc 	= 2*pi;
+			maxphi 	= 2*pi;
 			F = SignSin;
 			break;
 		}
 		case RECTANGLE : // rectangle
 		{
-			modc 	= 1;
+			maxphi 	= 1;
 			F = rectangle;
 			break;
 		}
 		case SAWTOOTHL : // sawtooth
 		{
-			modc 	= 1;
+			maxphi 	= 1;
 			F = sawtooth;
 			break;
 		}
 		case SAWTOOTHR : // Sawtooth ( reverse sawtooth )
 		{
-			modc 	= 1;
+			maxphi 	= 1;
 			F = Sawtooth;
 			break;
 		}
 		case TRIANGLE :// triangle https://de.wikipedia.org/wiki/Dreiecksfunktion
 		{
-			modc 	= 2;
+			maxphi 	= 2;
 			F = Triangle;
 			break;
 		}
 		case PMW :// PMW
 		{
-			modc = 1;
-			double phi 		= this->phase;
-			dphi			= 0.0;
-			double dT 		= 2*dt;
-			float frames2 	= 1.0 + this->wp.PMW_dial/100.0;
+			maxphi 					= 1;
+			double 			phi 	= this->phase;
+			dphi					= 0.0;
+			const double 	dT		= 2*dt;
+			const float 	frames2 = 1.0 + (float)wp.PMW_dial / 100.0;
+
 			for ( n = 0; frames > n; n++ )
 			{
-				float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) / spectrum.sum; // VCO envelope
+				float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) ; // VCO envelope
 				float phi2 	= phi * frames2 ;
-				data[n]		= round(vco_vol)*
-								abs(round(modulo(phi , modc))) *
-								abs(round(modulo(phi2, modc)));
+				data[n] = round(vco_vol)*		abs(round(modulo(phi , maxphi))) *
+												abs(round(modulo(phi2, maxphi)));
 				dphi		= dT  * freq ;
 				phi 		= phi + dphi;
-				phi 		= fmodulo(phi, modc);
+				phi			= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
+				if ( ( phi > maxphi ) or ( phi < -maxphi ) )
+					cout << "phi overflow: " << phi << endl;
 			}
-			set_phi( phi, modc );
+			set_phi( phi, maxphi );
 
 			apply_adsr( this->adsr, frames, data);
 			apply_hall( this->adsr, frames, data) ;
@@ -268,21 +275,21 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		}
 		case DELTA : // delta
 		{
-			modc = 1;
+			maxphi = 1;
 			F = delta;
 			break;
 		}
 		case NOISE :// noise
 		{
 			;
-			modc = 1;
+			maxphi = 1;
 			F  = rnd;
 			break;
 		}
 		case RANDOM :// random
 		{
 			;
-			modc = 1;
+			maxphi = 1;
 			F  = rnd_step;
 			break;
 		}
@@ -304,13 +311,12 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		return;
 	}
 
-	double 		omega_t		= 0;
-	double 		dT 			= modc * dt; // 2pi dt
-	double		max_phi 	= modc;
-	double 		phi			= get_phi( );
+	double 			omega_t		= 0;
+	const double 	dT 			= maxphi * dt; // 2pi dt
+	double 			phi			= get_phi( );
 
-	float 		start_freq 	= this->start_freq;
-	float		delta_freq		= get_delta_freq( freq );
+	float 			start_freq 	= this->start_freq;
+	float			delta_freq		= get_delta_freq( freq );
 				// difference to the target frequency <freq> - <start_freq>
 	for ( n = 0; n < frames ; n++ )
 	{
@@ -330,24 +336,24 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		if ( abs(freq - start_freq) > 1 ) start_freq = start_freq + delta_freq;
 		dphi	= dT * ( start_freq + norm_freq*fmo_data[n] );
 		phi 	+= dphi;
-		if ( max_phi < abs(dphi) )
+		if ( maxphi < abs(dphi) )
 		{
 			cout << "osc_id     " << osc_type_vec[osc_id]    	<< endl;
 			cout << "dphi       " << dphi    	<< endl;
-			cout << "lfo_mod    " << max_phi 	<< endl;
+			cout << "maxphi     " << maxphi 	<< endl;
 			cout << "phi        " << phi  		<< endl;
 			cout << "dT         " << dT   		<< endl;
 			cout << "start_freq " << start_freq << endl;
-			assert( max_phi > abs(dphi) );
+			Exception();
 		}
-		phi		= ( abs(phi) > max_phi ) ? phi-sgn(phi)*max_phi : phi ;
-		if ( ( phi > max_phi ) or ( phi < -max_phi ) )
+		phi		= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
+		if ( ( phi > maxphi ) or ( phi < -maxphi ) )
 			cout << "phi overflow: " << phi << endl;
 //		assert( phi <=  lfo_mod );
 //		assert( phi >= -lfo_mod );
 	}
 
-	set_phi( phi, max_phi );
+	set_phi( phi, maxphi );
 	Set_start_freq(freq);
 
 	apply_adsr( this->adsr, frames, data);
@@ -504,7 +510,7 @@ void Oscillator::Test()
 	assert( Mem.info.data_blocks 	== frames_per_sec );
 
 	vector_str_t arr = { "OSC","MAIN","Sinus","480","1000","40","2","1","1","69","2","0","-1","0","42" };
-	line_interpreter( arr );
+	Line_interpreter( arr );
 	assert( wp.frequency == 480 );
 	assert( wp.frequency > 0.0 );
 	assert( abs( wp.frequency - 480 ) < 1E-8 );
@@ -518,6 +524,12 @@ void Oscillator::Test()
 	adsr.attack = 50;
 	adsr.decay = 5;
 	assert( decay_shift == frames_per_sec );
+
+
+	cout << "unordered map: ok " << (int) bps_struct().getbps_id("8") << endl;
+	cout << "unordered map:NIL " << (int) bps_struct().getbps_id("20")<< endl;
+	assert( bps_struct().getbps_id("8")  == 5 );
+	assert( bps_struct().getbps_id("20") == 0 );
 
 	Comment( TEST, "Osc test finished");
 }

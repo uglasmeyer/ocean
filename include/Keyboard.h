@@ -8,19 +8,20 @@
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
-#include <synthmem.h>
 #include <Logfacility.h>
 #include <osc.h>
 #include <Instrument.h>
 #include <mixer.h>
 #include <kbd.h>
 #include <Synthesizer.h>
+#include <Synthmem.h>
 
 using namespace Storage;
 
-class Keyboard_class :	virtual public Logfacility_class,
-						virtual public Oscillator_base,
-						virtual public Keyboard_base
+class Keyboard_class :	virtual  Logfacility_class,
+						virtual  Oscillator_base,
+						virtual  Note_base,
+						virtual  public Keyboard_base
 {
 
 public:

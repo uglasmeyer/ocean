@@ -38,6 +38,11 @@ typedef struct prgarg_struct
 		uint shm_key_b 	= rate + 11;	//
 } prgarg_struct_t;
 
+typedef std::unordered_map<string,string> 	config_map_t ;
+
+extern config_map_t read_synthesizer_config( );
+extern void creat_dir_structure();
+
 extern void system_execute( const string& );
 extern bool cmpstr( const string& , const string&  );
 extern vector_str_t List_directory( const string& path, const string& filter );
@@ -67,10 +72,10 @@ public:
 
 	Time_class();
 	~Time_class(){};
-	long int time_elapsed();
-	void start();
-	void stop();
-	void block();
+	long int Time_elapsed();
+	void Start();
+	void Stop();
+	void Block();
 };
 
 

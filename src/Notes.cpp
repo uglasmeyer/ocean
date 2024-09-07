@@ -11,25 +11,13 @@ Note_class::Note_class()
 : Note_class::Logfacility_class("Notes"),
   Note_base()
 {
-
-	instrument = nullptr;
-
 }
 
-Note_class::Note_class( Instrument_class* instr )
-: Note_class::Logfacility_class("Notes"),
-  Note_base()
-{
-
-	instrument = instr;
-
-}
-
-Note_class::~Note_class()
+Note_class::~Note_class( )
 {
 }
 
-void Note_class::Set_osc_track(  )
+void Note_class::Set_osc_track( Instrument_class* instrument )
 {
 	Comment( INFO, "Set osc track");
 
@@ -52,10 +40,10 @@ void Note_class::Set_osc_track(  )
 	fmo.fp 			= instrument->fmo.fp;
 	fmo.spectrum	= instrument->fmo.spectrum;
 
-	Set_prefix_octave( main.wp.fstruct.oct );
 
 	return;
 }
+
 
 void Note_class::Set_base_octave( uint diff )
 {
@@ -149,14 +137,13 @@ uint16_t Note_class::Octave_freq( uint8_t oct )
 {
 	return oct_base_freq << oct;
 }
+
 float Note_class::calc_freq ( uint8_t oct, notevalue_t nvs )
 {
 	if ( nvs.value < 0 )
-		return 0.0;
-	uint8_t		octave	= abs( oct + nvs.doct );
-	uint16_t 	base 	= Octave_freq ( octave_shift + octave ) ;
-	float	 	freq 	= base * root2.vec[ nvs.value ];
-	return 		freq;
+		return 0.0;			// silent note same as volume
+	uint8_t		octave	= abs( oct + nvs.doct + octave_shift );
+	return 		Calc_frequency( octave * 12 + nvs.value );
 };
 
 void Note_class::Show_note( note_t note )
@@ -206,7 +193,7 @@ Note_class::note_t Note_class::char2note( char ch )
 	if ( note_buffer.chord[0].value < 0 ) // pause is silence
 		note_buffer.volume 			= 0;
 	else
-		note_buffer.volume 			= osc_default_volume;//note volume is changed by mixer anf Volumeline
+		note_buffer.volume 			= notes_default_volume;//note volume is changed by mixer anf Volumeline
 	return note_buffer;
 }
 void Note_class::Set_prefix_octave( int oct )
@@ -559,7 +546,7 @@ string Note_class::Get_note_line ()
 void Note_class::set_volume_vector( string volline )
 {
 	if ( volline.length() == 0 )
-		this->Volumeline = to_string( osc_default_volume / 10 );
+		this->Volumeline = to_string( notes_default_volume / 10 );
 	else
 		this->Volumeline = volline;
 
@@ -573,8 +560,8 @@ void Note_class::set_volume_vector( string volline )
 	volume_vec_len = volume_vec.size();
 	if ( volume_vec_len == 0 ) // no valid chars
 	{
-		this->Volumeline = to_string( osc_default_volume / 10 );
-		volume_vec.push_back( osc_default_volume );
+		this->Volumeline = to_string( notes_default_volume / 10 );
+		volume_vec.push_back( notes_default_volume );
 		volume_vec_len = volume_vec.size();
 	}
 	assert( volume_vec.size() > 0 );
@@ -601,7 +588,6 @@ void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO
 			}
 
 		};
-	assert( instrument != nullptr );
 
 	float fnew = 0;
 
@@ -644,14 +630,7 @@ void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO
 	return ;
 }
 
-void Note_class::submit_data(Storage::Storage_class* 		Note_StA)
-{
-	Note_StA->reset_counter();
-	Note_StA->status.store = true;
-	Note_StA->store_block( this->main.Mem.Data );
-}
-
-bool Note_class::Generate_note_chunk( Storage::Storage_class* 		Note_StA )
+bool Note_class::Generate_note_chunk( )
 { 	// generate the memory track for positon n = note_pointer tp
 	// n = note_pointer + chunk_len
 	auto restart_note_itr = [ this ]()
@@ -679,7 +658,6 @@ bool Note_class::Generate_note_chunk( Storage::Storage_class* 		Note_StA )
 		note_itr++;
 		if ( timestamp == max_sec*1000 )
 		{
-			submit_data(Note_StA);
 			return true; // good
 		}
 		if ( timestamp >  max_sec*1000 )
@@ -692,7 +670,6 @@ bool Note_class::Generate_note_chunk( Storage::Storage_class* 		Note_StA )
 
 	if ( timestamp == 0 )
 	{
-		submit_data( Note_StA );
 		return true;
 	}
 	else
@@ -885,7 +862,7 @@ void Note_class::Test()
 
 	set_volume_vector("");
 	assert( volume_vec_len == 1);
-	assert( volume_vec[0] == osc_default_volume );
+	assert( volume_vec[0] == notes_default_volume );
 
 	Volumeline = "9797";
 	Set_prefix_octave( 0 );
@@ -910,7 +887,7 @@ void Note_class::Test()
 	assert( note_itr->octave == 2 );
 
 	set_volume_vector("");
-	assert( volume_vec[0] == osc_default_volume );
+	assert( volume_vec[0] == notes_default_volume );
 
 	note_itr = notelist.begin();
 	advance(note_itr, 2);

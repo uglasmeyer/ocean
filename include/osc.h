@@ -8,11 +8,11 @@
 #ifndef INCLUDE_OSC_H_
 #define INCLUDE_OSC_H_
 
-#include <synthmem.h>
 #include <Spectrum.h>
 
 #include <Oscbase.h>
 #include <Synthesizer.h>
+#include <Synthmem.h>
 
 using namespace std;
 

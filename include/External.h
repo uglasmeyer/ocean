@@ -8,13 +8,13 @@
 #ifndef EXTERNAL_H_
 #define EXTERNAL_H_
 
-#include <synthmem.h>
 #include <Synthesizer.h>
+#include <Synthmem.h>
 #include <wav.h>
 #include <version.h>
 
 
-class External_class : virtual public Logfacility_class
+class External_class : virtual Logfacility_class
 {
 	Storage::Storage_class* 	StA;
 	FILE*						File;
@@ -28,7 +28,7 @@ public:
 		this->StA 			= StA;
 		this->File 			= NULL;
 		stereo.Info			( "External Stereo data") ;
-		id3tool_cmd(	"Experimental " + Version_str,
+		Id3tool_cmd(	"Experimental " + Version_str,
 						"U.G.",
 						"Alternative",
 						Application );
@@ -41,12 +41,13 @@ public:
 		bool record 	= false;
 	} status;
 
-	void id3tool_cmd( string t, string r, string G, string a);
-	bool read_file_data(  );
-	bool read_file_header( string );
-	void save_record_data( int );
-	void add_record( Memory*, Memory* );
+	void Id3tool_cmd( string t, string r, string G, string a);
+	bool Read_file_data(  );
+	bool Read_file_header( string );
+	void Save_record_data( int );
+	void Add_record( Memory*, Memory* );
 	void test();
+	long Filedata_size = 0;
 
 private:
 	wav_struct_t 	header_struct;

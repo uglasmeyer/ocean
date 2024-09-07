@@ -9,6 +9,7 @@
 #define INCLUDE_NOTESBASE_H_
 
 #include <Synthesizer.h>
+#include <Oscbase.h>
 
 
 /*
@@ -21,7 +22,7 @@ class Note_base : virtual public Logfacility_class
 {
 public:
 
-	const uint				max_octave		{ 5 };
+	const uint				max_octave	{ 5 };
 	const uint 				min_octave 		{ 1 };
 	const vector<int> 		Notes_per_Sec	{ 1,2,4,5,8 };
 	const string			NPS_string 		{ "1 2 4 5 8" };
@@ -36,18 +37,6 @@ public:
 
 	// describes the default of a noteline
 
-	typedef struct root2_struct
-	{
-		vector<float>	vec{};
-		root2_struct( uint max )
-		{
-			for( uint n = 0; n < 12*max; n++ )
-			{
-				float x = pow(2, n/12.0) ;
-				vec.push_back( x );
-			}
-		}
-	} root2_t;
 
 	typedef struct noteline_prefix_struct
 	{
@@ -92,7 +81,7 @@ public:
 	typedef list<note_t>
 							notelist_t;
 
-	root2_t			root2 = root2_struct( max_octave);
+
 
 	Note_base () : Logfacility_class("NotesBase")
 	{
@@ -102,7 +91,25 @@ public:
 	void 				show_noteline_prefix( noteline_prefix_t nlp );
 	string 				noteline_prefix_to_string( noteline_prefix_t nlp );
 	noteline_prefix_t 	string_to_noteline_prefix( string str );
+	float 				Calc_frequency( const uint8_t& );
+
 	void 				test();
+
+private:
+	typedef struct root2_struct
+	{
+		vector<float>	vec{};
+		root2_struct( uint max )
+		{
+			for( uint n = 0; n < 12*max; n++ )
+			{
+				float x = pow(2, n/12.0) ;
+				vec.push_back( x );
+			}
+		}
+	} root2_t;
+
+	root2_t			root2 = root2_struct( max_octave + 1 );
 
 };
 

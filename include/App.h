@@ -26,7 +26,7 @@ public:
 	~Application_class();
 
 	void Shutdown_instance( );
-	void Decline( bool* );
+	void Decline( ifd_t* );
 	void Start();
 
 };

@@ -19,9 +19,9 @@ using namespace std;
 string					Module			= "comstack";
 Logfacility_class 		Log( Module );
 Keyboard_class			Keyboard;
-Interface_class 		IFD;
-ifd_t* 					ifd 			= IFD.addr;
-Application_class		App( Module, COMSTACKID, &ifd->Comstack );
+Interface_class 		SDS;
+ifd_t* 					sds 			= SDS.addr;
+Application_class		App( Module, COMSTACKID, &sds->Comstack );
 
 Keyboard_base::key_struct_t
 						keys			= Keyboard_base::key_struct();
@@ -30,7 +30,7 @@ int 					update_counter 	= 1;
 
 void exit_proc( int signal )
 {
-	App.Decline( &IFD.addr->UpdateFlag );
+	App.Decline( SDS.addr );
 	Keyboard.Reset();
 	exit( signal );
 }
@@ -54,12 +54,12 @@ int getvalue(string text )
 
 void show_ifd()
 {
-	if ( ifd->UpdateFlag )
+	if ( sds->UpdateFlag )
 	{
-		IFD.Show_interface();
+		SDS.Show_interface();
 		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
 		update_counter++;
-		ifd->UpdateFlag = false;
+		sds->UpdateFlag = false;
 	}
 
 }
@@ -83,9 +83,9 @@ int main( int argc, char* argv[] )
  	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-    IFD.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status );
 
- 	IFD.Show_interface();
+ 	SDS.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
 
 	keys.key = '$';
@@ -101,9 +101,9 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { ifd->Main_Freq = getvalue( "Frequency" ); ifd->KEY = MAINFREQUENCYKEY; break; }
-			case 'a' : { ifd->Master_Amp  = getvalue( "Amplitude" ); ifd->KEY = MASTERAMP_KEY; break; }
-			case 'w' : { ifd->MAIN_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMMAINKEY; break; }
+			case 'f' : { sds->Main_Freq = getvalue( "Frequency" ); sds->KEY = MAINFREQUENCYKEY; break; }
+			case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
+			case 'w' : { sds->MAIN_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;
 			}
 			break;
@@ -114,9 +114,9 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { ifd->FMO_Freq = getvalue( "Frequency" ); ifd->KEY = FMOFREQUENCYKEY; break; }
-			case 'a' : { ifd->FMO_Amp  = getvalue( "Amplitude" ); ifd->KEY = FMOAMPKEY; break; }
-			case 'w' : { ifd->FMO_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMFMOKEY; break; }
+			case 'f' : { sds->FMO_Freq = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
+			case 'a' : { sds->FMO_Amp  = getvalue( "Amplitude" ); sds->KEY = FMOAMPKEY; break; }
+			case 'w' : { sds->FMO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMFMOKEY; break; }
 			default  : break ;
 			}
 			break;
@@ -127,9 +127,9 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { ifd->VCO_Freq = getvalue( "Frequency" ); ifd->KEY = VCOFREQUENCYKEY; break; }
-			case 'a' : { ifd->VCO_Amp  = getvalue( "Amplitude" ); ifd->KEY = VCOAMPKEY; break; }
-			case 'w' : { ifd->VCO_spectrum.id  = getvalue( waveform_string ); ifd->KEY = SETWAVEFORMVCOKEY; break; }
+			case 'f' : { sds->VCO_Freq = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
+			case 'a' : { sds->VCO_Amp  = getvalue( "Amplitude" ); sds->KEY = VCOAMPKEY; break; }
+			case 'w' : { sds->VCO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMVCOKEY; break; }
 			default  : break ;
 			}
 			break;
@@ -140,11 +140,11 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#gdush");
 			switch ( keyevent )
 			{
-			case 'g' : { ifd->Soft_freq = getvalue( "Frequency" ); ifd->KEY = SOFTFREQUENCYKEY; break; }
-			case 'd' : { ifd->Main_adsr.attack  = getvalue( "Decay" ); ifd->KEY = ADSR_KEY; break; }
-			case 'u' : { ifd->Main_adsr.bps_id  = getvalue( "Duration" ); ifd->KEY = ADSR_KEY; break; }
-			case 's' : { ifd->Main_adsr.decay  = getvalue( "Sustain" ); ifd->KEY = ADSR_KEY; break; }
-			case 'h' : { ifd->Main_adsr.decay  = getvalue( "Hall" ); ifd->KEY = ADSR_KEY; break; }
+			case 'g' : { sds->Soft_freq = getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
+			case 'd' : { sds->Main_adsr.attack  = getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
+			case 'u' : { sds->Main_adsr.bps_id  = getvalue( "Duration" ); sds->KEY = ADSR_KEY; break; }
+			case 's' : { sds->Main_adsr.decay  = getvalue( "Sustain" ); sds->KEY = ADSR_KEY; break; }
+			case 'h' : { sds->Main_adsr.decay  = getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
 			default  : break ;
 			}
 			break;

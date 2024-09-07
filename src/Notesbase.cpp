@@ -8,6 +8,18 @@
 #include <Notesbase.h>
 #include <common.h>
 
+float Note_base::Calc_frequency( const uint8_t& key )
+{
+	if ( key > root2.vec.size()-1 )
+	{
+		Comment( ERROR, "Octave key exceeds limit ");
+		cout.flush() << "limit: " << (int)root2.vec.size()-1 << endl;
+		cout.flush() << "key  : " << (int)key << endl;
+		Exception( );
+	}
+	return root2.vec[ key ] * oct_base_freq;
+}
+
 void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
 {
 	stringstream strs{ "\n" };

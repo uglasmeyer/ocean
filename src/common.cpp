@@ -102,6 +102,69 @@ bool cmpstr( const string& a, const string& b )
 	return ( a.compare( b ) == 0 );
 }
 
+vector <string> dirs = {
+		dir_struct().homedir,
+		dir_struct().basedir,
+		dir_struct().etcdir,
+		dir_struct().bindir,
+		dir_struct().libdir,
+		dir_struct().tmpdir,
+		dir_struct().vardir,
+		dir_struct().musicdir,
+		dir_struct().instrumentdir,
+		dir_struct().logdir,
+		dir_struct().notesdir,
+		dir_struct().includedir,
+		dir_struct().autodir
+};
+
+void creat_dir_structure()
+
+{
+	for( string dir : dirs )
+	{
+		if( filesystem::create_directories( dir ) )
+			Log_common.Comment( INFO, "Synthesizer directory " + dir + " created");
+	}
+}
+
+config_map_t read_synthesizer_config( )
+{
+	config_map_t configmap;
+	ifstream cFile( file_structure().config_file );
+
+	if (cFile.is_open()) {
+        String Line{""};
+        String Name{""};
+        string line;
+        while ( getline( cFile, line ) )
+        {
+        	Line = line;
+        	Line.replace_comment();
+        	Line.replace_char('\t', ' ');
+        	istringstream iss( Line.Str );
+            string strr;
+            while (getline(iss, strr, ','))
+            {
+                size_t delimiterPos	= strr.find("=");
+                String Name        	= strr.substr(0, delimiterPos);
+                string value      	= strr.substr(delimiterPos + 1);
+                Name.normalize();
+                cout << ">" << Name.Str << "<" << endl;
+                configmap[Name.Str]= value;
+            }
+        }
+    }
+    else
+    {
+        Log_common.Comment(ERROR, "Couldn't open config file ");
+    }
+	return configmap;
+// example:    shm_key_a=stoi( configmap.at("shm_key_a") );
+
+//    std::cout << shm_key_a << endl;
+
+}
 
 vector_str_t List_directory( const string& path, const string& filter )
 {
@@ -129,29 +192,30 @@ vector_str_t List_directory( const string& path, const string& filter )
 Time_class::Time_class()
 : Logfacility_class("Timer")
 {
-	start();
-	stop(); // duration is zero
+	Start();
+	Stop(); // duration is zero
 }
 
-long int Time_class::time_elapsed()
+long int Time_class::Time_elapsed()
 {
-	stop();
+	Stop();
 	long long int start_count = duration_cast<milliseconds>(start_time.time_since_epoch()).count();
 	long long int stop_count  = duration_cast<milliseconds>( stop_time.time_since_epoch()).count();
 	return stop_count - start_count;
 }
-void Time_class::start()
+void Time_class::Start()
 {
 	start_time = steady_clock::now();
 };
 
-void Time_class::stop()
+void Time_class::Stop()
 {
 	stop_time = steady_clock::now();
 }
-void Time_class::block()
+
+void Time_class::Block()
 {
-	duration = time_elapsed();
+	duration = Time_elapsed();
 	latency = duration*100/wait;
 	if ( latency > 100 )
 		Comment( WARN, "runtime latency exceeds 100% " + to_string( latency ));

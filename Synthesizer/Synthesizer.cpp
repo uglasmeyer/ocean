@@ -12,100 +12,35 @@
 #include <keys.h>
 #include <mixer.h>
 #include <notes.h>
-#include <synthmem.h>
 #include <App.h>
 #include <Synthesizer.h>
+#include <Synthmem.h>
 
 using namespace std;
 
 string					Module = "Synthesizer";
 Logfacility_class		Log( Module );
-Interface_class			IFD;
-Application_class		App( Module, SYNTHID, &IFD.addr->Synthesizer);
+Interface_class			SDS;
+Application_class		App( Module, SYNTHID, &SDS.addr->Synthesizer);
 Mixer_class				Mixer;
-Instrument_class 		Instrument(IFD.addr );
-Note_class 				Notes( &Instrument );
+Instrument_class 		Instrument(SDS.addr );
+Note_class 				Notes;
 Keyboard_class			Keyboard( &Instrument, &Mixer.StA[MbIdKeyboard] );
 External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
-Wavedisplay_class 		Wavedisplay( IFD.addr );
+Wavedisplay_class 		Wavedisplay( SDS.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
-Record_class			Record( IFD.addr );
-Loop_class 				master_amp_loop;
-Loop_class				record_amp_loop;
+Record_class			Record( SDS.addr );
 
 bool 					record_thread_done = false;
 
-vector <string> dirs = {
-		dir_struct().homedir,
-		dir_struct().basedir,
-		dir_struct().etcdir,
-		dir_struct().bindir,
-		dir_struct().libdir,
-		dir_struct().tmpdir,
-		dir_struct().vardir,
-		dir_struct().musicdir,
-		dir_struct().instrumentdir,
-		dir_struct().logdir,
-		dir_struct().notesdir,
-		dir_struct().includedir,
-		dir_struct().autodir
-};
 
 stereo_t* set_addr( char id )
 {
 	return ( id == 0 ) ? Shm_a.addr : Shm_b.addr;
 }
 
-void creat_dir_structure()
 
-{
-	for( string dir : dirs )
-	{
-		if( filesystem::create_directories( dir ) )
-			Log.Comment( INFO, "Synthesizer directory " + dir + " created");
-	}
-}
-
-using std::istringstream;
-
-config_map_t read_synthesizer_config( )
-{
-	config_map_t configmap;
-	ifstream cFile( file_structure().config_file );
-
-	if (cFile.is_open()) {
-        String Line{""};
-        String Name{""};
-        string line;
-        while ( getline( cFile, line ) )
-        {
-        	Line = line;
-        	Line.replace_comment();
-        	Line.replace_char('\t', ' ');
-        	istringstream iss( Line.Str );
-            string strr;
-            while (getline(iss, strr, ','))
-            {
-                size_t delimiterPos	= strr.find("=");
-                String Name        	= strr.substr(0, delimiterPos);
-                string value      	= strr.substr(delimiterPos + 1);
-                Name.normalize();
-                cout << ">" << Name.Str << "<" << endl;
-                configmap[Name.Str]= value;
-            }
-        }
-    }
-    else
-    {
-        Log.Comment(ERROR, "Couldn't open config file ");
-    }
-	return configmap;
-// example:    shm_key_a=stoi( configmap.at("shm_key_a") );
-
-//    std::cout << shm_key_a << endl;
-
-}
 
 void Setup_Wavedisplay()
 {
@@ -117,7 +52,7 @@ void Setup_Wavedisplay()
 	Wavedisplay.Add_data_ptr( Instrument.fmo.Mem.Data );
 	Wavedisplay.Add_data_ptr( Mixer.StA[ MbIdExternal].Data );
 
-	Wavedisplay.Set_data_ptr( IFD.addr->Wavedisplay_Id );
+	Wavedisplay.Set_data_ptr( SDS.addr->Wavedisplay_Id );
 }
 
 bool SaveRecordFlag = false;
@@ -129,16 +64,16 @@ void record_thead_fcn( )
 	{
 		if ( ( SaveRecordFlag ) )				// triggered by RECORDWAVFILEKEY
 		{
-			fileno = (int) IFD.addr->FileNo;
+			fileno = (int) SDS.addr->FileNo;
 			Log.Comment( INFO,
 				"record thread received job " + fileno.str);
 
-			External.save_record_data( fileno.i );
+			External.Save_record_data( fileno.i );
 
 			// clean up
 			SaveRecordFlag = false;
 			Record.Unset();
-			IFD.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
+			SDS.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
 		}
 		Wait( 1 * SECOND ); 					// for the next job
 	}
@@ -150,14 +85,13 @@ thread record_thread(record_thead_fcn);
 void empty_exit_proc( int signal )
 {
 	Log.Comment(INFO, "Entering test case exit procedure for application" + Application );
-	IFD.addr->RecCounter = 0; // memory buffers are empty after restart
-	App.Decline( &IFD.addr->UpdateFlag );
-	IFD.Dump_ifd();
+	SDS.addr->RecCounter = 0; // memory buffers are empty after restart
+	App.Decline( SDS.addr );
+	SDS.Dump_ifd();
 	Keyboard.Reset();
 
 	record_thread_done = true;
 	while( not record_thread.joinable() )
-		Wait( 1*MILLISECOND );
 	record_thread.join();
 	exit( 0 );
 }
@@ -169,9 +103,11 @@ void exit_proc( int signal )
 	Shm_a.clear();
 	Shm_b.clear();
 //	Wavedisplay.Clear_data();
-	IFD.addr->RecCounter = 0; // memory buffers are empty after restart
-	App.Decline( &IFD.addr->UpdateFlag );
-	IFD.Dump_ifd();
+	SDS.addr->RecCounter 	= 0; // memory buffers are empty after restart
+	SDS.addr->time_elapsed 	= 0;
+	App.Decline( SDS.addr );
+	Mixer.Clear_StA_status( SDS.addr->StA_status );
+	SDS.Dump_ifd();
 	Keyboard.Reset();
 
 	record_thread_done = true;
@@ -184,35 +120,14 @@ void exit_proc( int signal )
 	exit( 0 );
 }
 
-void Update_ifd_status_flags()
-{
-	Mixer.status.mute = 	IFD.addr->mixer_status.mute;
-	assert( IFD.addr->mixer_status.mute == Mixer.status.mute );
-	IFD.addr->mixer_status = Mixer.status;
-	for ( uint id : Mixer.MemIds )
-	{
-		IFD.addr->StA_status[id] = Mixer.StA[id].status;
-	}
-}
-
-void Volume_control()
-{
-	master_amp_loop.Next( &IFD.addr->Master_Amp );
-	Mixer.master_volume = IFD.addr->Master_Amp;
-
-	uint8_t amp = Mixer.StA[MbIdExternal].Amp;
-	record_amp_loop.Next( &amp );
-	Mixer.StA[MbIdExternal].Amp = amp;
-}
 
 void show_AudioServer_Status()
 {
-
-	if ( IFD.addr->AudioServer == RUNNING )
+	if ( SDS.addr->AudioServer == RUNNING )
 		Log.Comment(INFO, "Sound server is up" );
 	else
 		Log.Comment( ERROR, "Sound server not running with status " +
-							uint8_code_str[ IFD.ifd_data.AudioServer ] );
+							uint8_code_str[ SDS.ifd_data.AudioServer ] );
 }
 
 
@@ -232,10 +147,11 @@ void show_usage()
 	return;
 }
 
+// TODO navigate to process start location
 
 void process( char key )
 {
-	ifd_t* ifd = IFD.addr;
+	ifd_t* ifd = SDS.addr;
 
 	auto set_waveform = [ ifd ]( Oscillator* osc, char id )
 		{
@@ -252,52 +168,55 @@ void process( char key )
 		}
 		case MAINFREQUENCYKEY :
 		{
-			Instrument.main.set_frequency( ifd->Main_Freq );
-			Notes.main.set_frequency( ifd->Main_Freq );
-			IFD.Commit();
+			Instrument.main.Set_frequency( ifd->Main_Freq );
+			Notes.main.Set_frequency( ifd->Main_Freq );
+			SDS.Commit();
 			break;
 		}
 		case VCOFREQUENCYKEY : // modify the secondary oscillator
 		{
-			Instrument.vco.set_frequency( ifd->VCO_Freq );
-			Notes.vco.set_frequency( ifd->VCO_Freq );
+			Instrument.vco.Set_frequency( ifd->VCO_Freq );
+			Notes.vco.Set_frequency( ifd->VCO_Freq );
 			Instrument.main.Connect_vco_data( &Instrument.vco);
 
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case FMOFREQUENCYKEY : // modify the fm_track data
 		{
-			Instrument.fmo.set_frequency( ifd->FMO_Freq );
-			Notes.fmo.set_frequency( ifd->FMO_Freq );
+			Instrument.fmo.Set_frequency( ifd->FMO_Freq );
+			Notes.fmo.Set_frequency( ifd->FMO_Freq );
 
 			Instrument.main.Connect_fmo_data( &Instrument.fmo);
 
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case VCOAMPKEY : // modify the VCO volume
 		{
 			Value vol = ifd->VCO_Amp;
 			Log.Comment( INFO, "Changing VCO volume to " + vol.str + " %" );
-			Instrument.vco.set_volume( vol.ch );
-			Notes.vco.set_volume( vol.ch );
+			Instrument.vco.Set_volume( vol.ch );
+			Notes.vco.Set_volume( vol.ch );
 			Instrument.main.Connect_vco_data( &Instrument.vco);
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case FMOAMPKEY : // modify the FMO volume
 		{
-			Instrument.fmo.set_volume(ifd->FMO_Amp );
-			Notes.fmo.set_volume( ifd->FMO_Amp );
+			Value vol = ifd->FMO_Amp;
+			Instrument.fmo.Set_volume( vol.ch );
+			Notes.fmo.Set_volume( vol.ch );
 			Instrument.main.Connect_fmo_data( &Instrument.fmo);
-			IFD.Commit();
+			Notes.fmo.Set_volume( vol.ch );
+			SDS.Commit();
 			break;
 		}
 		case MASTERAMP_KEY : // modify main volume
 		{
 			Mixer.master_volume = ifd->Master_Amp;
-			IFD.Commit();
+			Mixer.status.mute = false;
+			SDS.Commit();
 			break;
 
 		}
@@ -306,25 +225,22 @@ void process( char key )
 			uint16_t beg = Mixer.master_volume;
 			uint16_t end = ifd->LOOP_end;
 			uint8_t step = ifd->LOOP_step;
-			master_amp_loop.Start( beg, end, step );
-			IFD.Commit();
+			Mixer.master_amp_loop.Start( beg, end, step );
+			SDS.Commit();
 			break;
 		}
 		case MASTERAMP_MUTE_KEY : // Mute Main Volume
 		{
-			Mixer.status.mute = ifd->mixer_status.mute;
-			if ( Mixer.status.mute )
-				Log.Comment( INFO, "receiving command <Mute master volume>");
-			else
-				Log.Comment( INFO, "receiving command <UnMute master volume>");
-
-			IFD.Commit();
+			Mixer.status.mute = not ifd->mixer_status.mute;
+			string str = ( Mixer.status.mute ) ? "Mute" : "UnMute";
+			Log.Comment( INFO, "receiving command <"+str+"> master volume>");
+			SDS.Commit();
 			break;
 		}
 		case ADSR_KEY :
 		{
 			Instrument.main.Set_adsr( ifd->Main_adsr );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case PMWDIALKEY :
@@ -333,65 +249,68 @@ void process( char key )
 			Instrument.vco.Set_pmw( ifd->PMW_dial );
 			Instrument.fmo.Set_pmw( ifd->PMW_dial );
 
-			IFD.Commit();
+			SDS.Commit();
 
 			break;
 		}
 		case WAVEDISPLAYTYPEKEY :
 		{
 			Wavedisplay.Set_type( ifd->WD_type_ID );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case SOFTFREQUENCYKEY :
 		{
 			Instrument.main.Set_glide( ifd->Soft_freq );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case SETINSTRUMENTKEY : // Set instrument
 		{
 			Log.Comment(INFO, "receive command <set instrument>");
-			string instrument = IFD.Read_str( INSTRUMENTSTR_KEY ); // other
+			string instrument = SDS.Read_str( INSTRUMENTSTR_KEY ); // other
 
 			if( Instrument.Set(instrument) )
 			{
 				Log.Comment(INFO, "sucessfully loaded instrument " + instrument );
-				Notes.Set_osc_track(  );
+				Notes.Set_osc_track( &Instrument );
 			}
 			else
 			{
 				Log.Comment( ERROR, "cannot load instrument" + instrument );
 			}
 
-			IFD.Commit(); // reset flags on GUI side
+			SDS.Commit(); // reset flags on GUI side
 			break;
 		}
 		case SETEXTERNALWAVEFILE :
 		{
 			Log.Comment(INFO, "receive command <set external wave file>");
-			string wavefile = IFD.Read_str( WAVEFILESTR_KEY );
-			if ( External.read_file_header( wavefile ))
+			string wavefile = SDS.Read_str( WAVEFILESTR_KEY );
+			if ( External.Read_file_header( wavefile ))
 			{
-				External.read_file_data();
-				Mixer.StA[ MbIdExternal ].play_mode( true );
-				Mixer.StA[ MbIdExternal ].Amp 	= ifd->MIX_Amp;
-				Mixer.status.external				= true;
+				External.Read_file_data();
+				Mixer.StA[ MbIdExternal ].Play_mode( true );
+				Mixer.StA[ MbIdExternal ].Amp 	= 100;//ifd->StA_amp_arr[MbIdExternal];
+				Mixer.status.external			= true;
+
+				Record.Set_progress_bar( 100*External.Filedata_size / External.stereo.info.mem_bytes );
 			}
 			else
 			{
 				Log.Comment(ERROR , "Failed to setup header");
 			}
-			IFD.Commit();
+			SDS.Commit();
+			ifd->UserInterface = UPDATEGUI; //set cb_sta play flag for external
 			break;
 		}
 		case STOPRECORD_KEY : // stop record on data array id
 		{
 			Value id { (int)ifd->MIX_Id };
-			Log.Comment(INFO, "receive command <stop record on memory bank " + id.str + ">");
-			Mixer.StA[id.i].record_mode( false ); // stop recording
+			Log.Comment(INFO, "receive command <stop record on storage area " + id.str + ">");
+			Mixer.StA[id.i].Record_mode( false ); // stop recording
 			Record.Unset();
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case STORESOUNDKEY : //start record
@@ -402,16 +321,16 @@ void process( char key )
 			{
 				if ( MbNr.i == id )
 				{
-					string status = Mixer.StA[MbNr.i].record_mode(true); // start record-stop play
-					Log.Comment( INFO, " Memory Bank Id " +  MbNr.str + " recording is " + status);
+					string status = Mixer.StA[MbNr.i].Record_mode(true); // start record-stop play
+					Log.Comment( INFO, " Storage Id " +  MbNr.str + " recording is " + status);
 					Record.Set( &Mixer.StA[MbNr.i].store_counter  , Mixer.StA[MbNr.i].max_counter );
 				}
 				else // only one mb shall store data
 				{
-					Mixer.StA[id].record_mode( false );
+					Mixer.StA[id].Record_mode( false );
 				}
 			}
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		};
 
@@ -420,56 +339,57 @@ void process( char key )
 			uint16_t beg = Mixer.StA[MbIdExternal].Amp;
 			uint16_t end = ifd->LOOP_end;
 			uint8_t step = ifd->LOOP_step;
-			record_amp_loop.Start( beg, end, step );
-			IFD.Commit();
+			Mixer.record_amp_loop.Start( beg, end, step );
+			SDS.Commit();
 			break;
 
 		}
 		case SETMBAMPPLAYKEY : // 109 change volume and play data array
 		{
-			Value arrnr { (int) ifd->MIX_Id };
-			Value amp 	{ (int) ifd->MIX_Amp };
-			string ONOFF = "on";
-			Mixer.StA[arrnr.i].Amp 	= amp.i; // Amp % [0 ... 100]
-			if ( Mixer.StA[arrnr.i].store_counter == 0 )
-				Log.Comment( WARN , "selected memory >" + arrnr.str + "< is empty ");
-			Mixer.StA[arrnr.i].record_mode(false);
-			if ( not Mixer.StA[arrnr.i].status.play )
-				ONOFF = Mixer.StA[arrnr.i].play_mode( true );
-			// start play by slider volume change if not already playing
-									//only if array contains data
-			Log.Comment(INFO, "receive command <play memory bank " +
-					arrnr.str + "> " + ONOFF +
-					" vol: " + amp.str + " %");
-			Mixer.status.play 			= true; // TODO too unspecific
-			IFD.Commit();
+
+			Value mixid { ifd->MIX_Id };
+			Value amp	{ ifd->StA_amp_arr[mixid.i]} ;
+			Value play 	{ ifd->StA_status[ mixid.i ].play };
+
+			Mixer.StA[mixid.i].Amp = amp.i;
+			Mixer.StA[mixid.i].status.play = (bool) play.i;
+			Mixer.Set_mixer_state( mixid.i, (bool)play.i );
+			Log.Comment( INFO, 	"Mixer state ID " + mixid.str +
+								" Amp: " + amp.str +
+								" Logic: " + play.boolstr);
+
+			SDS.Commit();
 			break;
 		}
 		case MUTEREC_KEY :
 		{
 			Value id = { (int) ifd->MIX_Id };
 			Log.Comment(INFO, "receive command <mute and stop record on id" + id.str + ">");
-			Mixer.StA[id.i].mute(); // pause-play, pause-record
-			IFD.Commit();
+			Mixer.StA[id.i].Mute(); // pause-play, pause-record
+			SDS.Commit();
 			break;
 		}
-
 		case MUTEMBKEY : // clear memory bank flag
 		{
 			Log.Comment(INFO, "receive command <mute and stop record on all memory banks>");
-			std::ranges::for_each( Mixer.StA, []( auto& m ){ m.mute(); } );
-			Mixer.status.play = false;
-			IFD.Commit();
+			std::ranges::for_each( Mixer.StA, []( auto& sta ){ sta.Mute(); } );
+
+		    for( uint id = 0; id < MbSize; id++ )
+		    {
+		    	Mixer.Set_mixer_state( id, false );
+		    }
+
+			SDS.Commit();
 			break;
 		}
 		case CLEAR_KEY :
 		{
 			uint8_t id 						= ifd->MIX_Id;
 			Log.Comment( INFO, "Clear StA: " + to_string( id ));
-			Mixer.StA[ id ].status.play 	= false;
-			Mixer.StA[ id ].reset_counter();
+			Mixer.StA[ id ].Reset_counter();
 			Record.Reset(); // RecCounter
-			IFD.Commit();
+			SDS.Commit();
+			ifd->UserInterface = UPDATEGUI;
 			break;
 		}
 		case TOGGLEMBPLAYKEY: // toggle Memory bank status play
@@ -477,12 +397,12 @@ void process( char key )
 			Value arrnr { (int) ifd->MIX_Id };
 			Log.Comment(INFO,
 					"receive command <toggle play on memory bank" + arrnr.str +" >");
-			Mixer.StA[arrnr.i].play_mode( not Mixer.StA[arrnr.i].status.play );
+			Mixer.StA[arrnr.i].Play_mode( not Mixer.StA[arrnr.i].status.play );
 			if ( arrnr.i == MbIdExternal )
 				Mixer.status.external 	= Mixer.StA[arrnr.i].status.play;
 			if ( arrnr.i == MbIdNotes )
 				Mixer.status.notes 	= Mixer.StA[arrnr.i].status.play;
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 
@@ -492,30 +412,27 @@ void process( char key )
 			Instrument.main.Mem_fmo.clear_data( 0 );
 			Instrument.main.Reset_data( &Instrument.main );
 
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case UPDATENOTESKEY : // update notes
 		{
 			Log.Comment(INFO, "receive command <update notes>");
-			string notes_name = IFD.Read_str( NOTESSTR_KEY );
-			Notes.Set_osc_track( );
+			string notes_name = SDS.Read_str( NOTESSTR_KEY );
+			Notes.Set_osc_track( &Instrument);
 			Notes.Read( notes_name );
 			ifd->Noteline_sec = Notes.noteline_sec;
 			Notes.Start_note_itr();
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case NEWNOTESLINEKEY : // setup play or reset play notes
 		{
 			Log.Comment(INFO, "receive command <setup play notes>");
-			Value amp { (int) ifd->MIX_Amp };
-			string notes_file = IFD.Read_str( NOTESSTR_KEY );
+			string notes_file = SDS.Read_str( NOTESSTR_KEY );
 			Notes.Read( notes_file ); // notes have been written to file by the GUI already
 			Mixer.status.notes = true;
-			Mixer.StA[ MbIdNotes ].playnotes(true);
-			Mixer.StA[ MbIdNotes ].Amp = amp.i;
-			IFD.Update( NEWNOTESLINEFLAG );
+			SDS.Update( NEWNOTESLINEFLAG );
 			ifd->Noteline_sec = Notes.noteline_sec;
 			Notes.Start_note_itr();
 			break;
@@ -532,56 +449,54 @@ void process( char key )
 				Log.Comment(INFO, "store to StA id: " + id.str );
 
 				Mixer.composer = sec.i;
-				Mixer.StA[ id.i].record_mode( true );
-				Notes.Set_osc_track(  );
+				Mixer.StA[ id.i].Record_mode( true );
+				Notes.Set_osc_track( &Instrument );
 				Mixer.Store_noteline( id.i, &Notes );
+
 			}
 			else
 			{
 				Log.Comment( WARN, "nothing to do for " + sec.str + " Notes!" );
 			}
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case PLAYNOTESRECOFF_KEY : // play free
 		{ // functionality is defined in PLAYNOTESREC_ON_KEY
 			Mixer.composer = 0;
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case NOTESONKEY :
 		{
-			Value amp { (int) ifd->MIX_Amp };
+			Value amp { (int) ifd->StA_amp_arr[ MbIdNotes] };
 			Log.Comment(INFO, "receive command < notes on " + amp.str + "%>");
 			Mixer.status.notes = true;
-
-			Mixer.StA[ MbIdNotes ].playnotes(true);
 			Mixer.StA[ MbIdNotes ].Amp = amp.i;
 			Notes.Start_note_itr();
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case NOTESOFFKEY :
 		{
 			Log.Comment(INFO, "receive command < notes off>");
 			Mixer.status.notes = false;
-			Mixer.StA[ MbIdNotes ].playnotes(false);
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case UPDATENOTELINEKEY: // update Noteline during play
 		{
 			Log.Comment(INFO, "receive command <update Noteline during play>");
-			string notes_file = IFD.Read_str( NOTESSTR_KEY );
+			string notes_file = SDS.Read_str( NOTESSTR_KEY );
 			Notes.Read( notes_file );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case SETBASEOCTAVE_KEY :
 		{
 			Value diff_oct { (int) ifd->FLAG };
 			Notes.Set_base_octave( diff_oct.i ); // is positive, therefore identify 0 -> -1, 1 -> 1
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case UPDATE_NLP_KEY : // Noteline_prefix
@@ -591,7 +506,7 @@ void process( char key )
 			Notes.show_noteline_prefix( nlp );
 			Notes.Noteline_prefix = nlp;
 			Notes.Verify_noteline( nlp, Notes.Get_note_line() );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 
@@ -603,14 +518,14 @@ void process( char key )
 			{
 				Log.Comment( ERROR, nps.str + " notes per second not supported");
 			}
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 
 		case SETWAVEDISPLAYKEY :
 		{
 			Wavedisplay.Set_data_ptr( ifd->Wavedisplay_Id );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case CONNECTFMOVCOKEY : // connect FMO volume with vco data
@@ -618,19 +533,19 @@ void process( char key )
 
 			Instrument.fmo.Connect_fmo_data( &Instrument.vco );
 			Instrument.main.Connect_fmo_data( &Instrument.fmo );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case RESETVCOKEY : // reset VCO
 		{
 			Instrument.vco.Reset_data( &Instrument.vco );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case RESETFMOKEY : // reset FMO
 		{
 			Instrument.fmo.Reset_data( &Instrument.fmo );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case RECORDWAVFILEKEY : // record and save wav file
@@ -651,7 +566,7 @@ void process( char key )
 
 			if ( not External.status.record ) 	// STOPRECORD, also means: save to file
 			{
-				Mixer.StA[MbIdExternal].record_mode( false );
+				Mixer.StA[MbIdExternal].Record_mode( false );
 
 				//no ifd-commit for this section
 				ifd->KEY = NULLKEY;  //but do not start twice
@@ -661,10 +576,10 @@ void process( char key )
 			{
 				External.stereo.info.record_counter = 0;
 				External.stereo.clear_data();
-				Mixer.StA[MbIdExternal].record_mode( true );
+				Mixer.StA[MbIdExternal].Record_mode( true );
 				Record.Set( &External.stereo.info.record_counter,
 							 External.stereo.info.max_records );
-				IFD.Commit();
+				SDS.Commit();
 			}
 			break;
 		}
@@ -672,49 +587,49 @@ void process( char key )
 		{
 			Instrument.vco.Connect_vco_data( &Instrument.fmo );
 			Instrument.main.Connect_vco_data( &Instrument.vco );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case SETWAVEFORMFMOKEY :
 		{
 			set_waveform( &Instrument.fmo, ifd->FMO_spectrum.id );
 
-			IFD.Commit();
+			SDS.Commit();
 			break;
 			}
 		case SETWAVEFORMVCOKEY :
 		{
 			set_waveform( &Instrument.vco, ifd->VCO_spectrum.id );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case SETWAVEFORMMAINKEY :
 		{
 			set_waveform( &Instrument.main, ifd->MAIN_spectrum.id );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 
 		case UPDATESPECTRUM_KEY :
 		{
 			Instrument.Update_spectrum();
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 		case SAVEINSTRUMENTKEY :
 		{
 			Log.Comment(INFO, "saving current config to instrument " + Instrument.Name );
 			Instrument.Save_Instrument( Instrument.Name );
-			IFD.Commit();
+			SDS.Commit();
 			break;
 		}
 
 		case NEWINSTRUMENTKEY : // save instrument file
 		{
-			string instrument = IFD.Read_str( INSTRUMENTSTR_KEY );
+			string instrument = SDS.Read_str( INSTRUMENTSTR_KEY );
 			Log.Comment(INFO, "receiving instrument change to " + instrument );
 			Instrument.Save_Instrument( instrument );
-			IFD.Update( NEWINSTRUMENTFLAG );
+			SDS.Update( NEWINSTRUMENTFLAG );
 			break;
 		}
 
@@ -736,52 +651,88 @@ void process( char key )
 	} // switch char
 
 }
+// TODO process end location
 
 void activate_ifd()
 {
 	for( char key : init_keys )
 		process( key );
+	Mixer.status = SDS.addr->mixer_status;
+	for ( uint id : Mixer.MemIds )
+	{
+		Mixer.StA[ id ].Amp = SDS.addr->StA_amp_arr[id];
+		Mixer.StA[ id ].status.play = SDS.addr->StA_status[id].play;
+	}
+	SDS.addr->UserInterface = UPDATEGUI;
 }
 
 bool sync_mode()
 {
-	Mixer.status.external 	= (	Mixer.StA[MbIdExternal].status.play or
-								Mixer.StA[MbIdExternal].status.store );
-	Mixer.status.notes 		=	Mixer.StA[MbIdNotes].status.play;
+	int play = 0;
+	for( uint id : Mixer.SycIds)
+		play += (int) Mixer.StA[id].status.play;
 
+	Mixer.status.play = (bool) play;
 	bool sync =
 		( 	// if true synchronize shm a/b with Audio Server
-			( Instrument.fmo.wp.frequency < LFO_limit ) 	or
-			( Instrument.vco.wp.frequency < LFO_limit ) 	or
-			( Mixer.status.notes 		)	or	// generate notes
-			( Mixer.status.external 	)	or	// StA play external
+			( Instrument.fmo.wp.frequency < LFO_limit 	)	or
+			( Instrument.vco.wp.frequency < LFO_limit 	) 	or
+			( Mixer.StA[MbIdExternal].status.store 		)	or
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
-//			( Mixer.status.kbd 			)	or
 			( Record.active 			)		// StA record external
 		);
-//	sync = (sync and ( not Mixer.status.kbd ) ); // Kbd disables sync
 	return sync ;
 }
 
+Time_class Timer{};
+
+void Performanc()
+{
+	Timer.Stop();
+	uint8_t time_elapsed 	= Timer.Time_elapsed() / 10; // time elapsed in percentage w.r.t. 1 second
+	SDS.addr->time_elapsed 	= time_elapsed;
+	Timer.Start();
+//	cout << (int)time_elapsed << endl;
+}
+
+void add_sound( stereo_t* shm_addr )
+{
+	if ( Mixer.status.instrument )
+		Instrument.Run_osc_group(); // generate the modified sound waves
+	Mixer.Add_Sound( Instrument.main.Mem.Data, Keyboard.main.Mem.Data,  Notes.main.Mem.Data, shm_addr );
+	Wavedisplay.Gen_cxwave_data(  );
+
+}
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
 
-	ifd_t* 			ifd 		= IFD.addr;
+	ifd_t* 			ifd 		= SDS.addr;
 	stereo_t* 		shm_addr 	= set_addr( 0 );
 
 	Log.Comment(INFO, App.Name + " is ready");
 
-	IFD.Commit(); // set flags to zero and update flag to true
+	SDS.Commit(); // set flags to zero and update flag to true
 
 	while ( ifd->Synthesizer != EXITSERVER )
 	{
+		Performanc();
 
 		char Key = ifd->KEY;
 		process( Key );
-		Keyboard.Kbdnote( );
+		Mixer.Update_ifd_status_flags( ifd );
 
-		Volume_control();
+
+		int note_key = Keyboard.Kbdnote( );
+		if ( Keyboard.Attack( note_key, 100 ) )
+		{
+			cout << "KEY: " << note_key << endl;
+			Mixer.StA[ MbIdKeyboard].status.play = true;
+//			Mixer.status.kbd = true;
+//			add_sound( shm_addr );
+		}
+
+		Mixer.Volume_control( ifd );
 
 		if ( ifd->Synthesizer != EXITSERVER )
 			ifd->Synthesizer = RUNNING;
@@ -793,43 +744,31 @@ void ApplicationLoop()
 			if ( mode == SENDDATA )		// Audio Server request 1-second data chunk
 			{
 
-				if ( not Mixer.status.mute )
-					Instrument.Run_osc_group(); // generate the modified sound waves
-
 				if ( Mixer.status.notes )
 				{
-					Notes.Set_osc_track(  );
-					Notes.Generate_note_chunk( &Mixer.StA[MbIdNotes] ); // max_sec duration
+					Notes.Set_osc_track( &Instrument );
+					Notes.Generate_note_chunk( );
 				}
 
+				add_sound( shm_addr );
 
-				Mixer.Add_Sound( &Instrument, shm_addr );
-				Wavedisplay.Gen_cxwave_data(  );
 				if ( Record.active )
-					External.add_record( &Mixer.Out_L, &Mixer.Out_R);
+					External.Add_record( &Mixer.Out_L, &Mixer.Out_R);
 				Record.Progress_bar_update();
 
 				ifd->UpdateFlag = true;
 				int shm_id 	= ifd->SHMID;
 				shm_addr 	= set_addr( shm_id );
-//				cout << uint8_code_str[mode] << " " << shm_id << " ";
 			} 	// but handel further requests
 
 		}
 		else
 		{
-			ifd->MODE = FREERUN;
-			Instrument.Run_osc_group(); // generate the modified sound waves
-
+			add_sound( shm_addr );
 			shm_addr 		= set_addr( 0 );
-			Mixer.Add_Sound( &Instrument, shm_addr );
-			Wavedisplay.Gen_cxwave_data(  );
-
+			ifd->MODE = FREERUN;
 		}
-
-		Update_ifd_status_flags();
-
-		} ;
+	} ;
 
 
 	Log.Comment(INFO, "Exit Application loop");
@@ -868,7 +807,7 @@ void test_classes()
 
 	External.test();
     config_map_t cfg = read_synthesizer_config( );
-	External.id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
+	External.Id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
 	string I = cfg["int"];
 	cout << dec << atoi(I.data()) <<endl;
     Server_struct().TERM = cfg["TERM"];
@@ -894,8 +833,10 @@ int main( int argc, char* argv[] )
 	}
 
 	Log.Comment(INFO, "Catching signals SIGINT and SIGABRT");
-	signal( SIGINT, &exit_proc );
-	signal( SIGABRT, &exit_proc );
+	signal( SIGINT	, &exit_proc );
+	signal( SIGABRT	, &exit_proc );
+	signal(	SIGHUP	, &exit_proc );
+
 
 	Log.Show_loglevel();
 
@@ -905,7 +846,7 @@ int main( int argc, char* argv[] )
 	Log.Comment(INFO, "Reading config file " + file_structure().config_file );
     config_map_t cfg = read_synthesizer_config( );
 
-    External.id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
+    External.Id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
     Server_struct().TERM = cfg["TERM"];
 
 	App.Shutdown_instance( );
@@ -918,12 +859,12 @@ int main( int argc, char* argv[] )
 
 	Setup_Wavedisplay();
 
-	IFD.Restore_ifd();
+	SDS.Restore_ifd();
 	activate_ifd();
 
 	show_usage();
 	show_AudioServer_Status();
-    IFD.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status );
 
 	Log.Comment(INFO, "Application initialized");
 

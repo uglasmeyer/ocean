@@ -60,10 +60,11 @@ bool Keyboard_class::decay( int key )
 
 bool Keyboard_class::Attack( int key, uint8_t amp )
 {
-	auto set_osc_frequency 	= [ key ]( Oscillator* osc )
+	auto set_osc_frequency 	= [ this, key ]( Oscillator* osc )
 		{
-			float 	freq 	= osc->wp.frequency * ( 12 + key ) / 12.0  ;
-			osc->set_frequency( freq );
+			int Octave = 3;
+			float 	freq 	= this->Calc_frequency( Octave*12 + key );//osc->wp.frequency * ( 12 + key ) / 12.0  ;
+			osc->Set_frequency( freq );
 			osc->OSC( 0 );
 		};
 
@@ -74,12 +75,13 @@ bool Keyboard_class::Attack( int key, uint8_t amp )
 	setup();
 	for ( Oscillator* osc : osc_group )
 		set_osc_frequency( osc );
-
+/*
 	StA->reset_counter();
 	StA->status.store 	= true;
 	StA->status.play 	= true;
 	StA->Amp 			= amp;
 	StA->store_block(main.Mem.Data);
+*/
 	prevKey = key;
 	return true;
 }
@@ -91,10 +93,10 @@ bool Keyboard_class::Release( int key )
 //	if ( true )
 	{
 
-		StA->reset_counter();
+		StA->Reset_counter();
 
-		StA->status.play 	= false;
-		StA->status.store 	= false;
+//		StA->status.play 	= false;
+//		StA->status.store 	= false;
 
 		prevKey 			= NOKEY;
 		StA->clear_data( 0 );

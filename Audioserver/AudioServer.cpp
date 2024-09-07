@@ -19,7 +19,7 @@ void exit_proc( int exit_code )
 	Log.Comment(INFO, Application + "received command <exit> " );
 	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
 	Log.Comment( INFO, "suspend server" );
-	App.Decline( &ifd->UpdateFlag);
+	App.Decline( sds );
 
 	done = true;
 
@@ -126,7 +126,7 @@ void Application_loop()
 
 void get_mode()
 {
-	mode = ifd->MODE;
+	mode = sds->MODE;
 }
 void set_ncounter( buffer_t n )
 {
@@ -139,8 +139,8 @@ void set_ncounter( buffer_t n )
 			mode 		= SENDDATA;
 			shm_id 		= ( shm_id + 1 ) % 2;
 			shm_addr 	= ( shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
-			ifd->MODE 	= mode;		// request new data for data buffers
-			ifd->SHMID 	= shm_id;
+			sds->MODE 	= mode;		// request new data for data buffers
+			sds->SHMID 	= shm_id;
 		}
 	}
 	// else unchanged
@@ -151,7 +151,7 @@ void set_shm_addr(  )
 	if (( mode == FREERUN ) or ( mode == KEYBOARD ))
 	{
 		shm_id 		= 0;
-		ifd->SHMID 	= shm_id;
+		sds->SHMID 	= shm_id;
 		shm_addr 	= Shm_a.addr;
 	}
 	// else unchanged
@@ -185,14 +185,13 @@ int RtAudioOut(	void *outputBuffer,
 	  	  ncounter 	= (ncounter	+ 1 );
 	  }
 
-	  if (ifd->AudioServer == EXITSERVER )
+	  if (sds->AudioServer == EXITSERVER )
 	  {
 		  *Done = true;
 		  return 1;
-		  exit_proc(1); // exit on used request
 	  }
 
-	  ifd->AudioServer = RUNNING;
+	  sds->AudioServer = RUNNING;
 
 	  return 0;
 } // callback function
@@ -209,12 +208,12 @@ int main( int argc, char *argv[] )
 	Log.Comment(INFO, "Catching signals SIGINT and SIGABRT");
 	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
+	signal(SIGHUP, &exit_proc );
 
 	App.Shutdown_instance( );
 
-    IFD.Announce( App.client_id, App.status );
-	Log.Comment(INFO, App.This_Application );
-	ifd->RecCounter 	= 0;
+    SDS.Announce( App.client_id, App.status );
+	sds->RecCounter 	= 0;
 
 
 	Log.Comment(INFO, "Evaluating startup arguments");
@@ -249,7 +248,7 @@ int main( int argc, char *argv[] )
 	Shm_a.buffer( sharedbuffer_size, params.shm_key_a );
 	Shm_b.buffer( sharedbuffer_size, params.shm_key_b );
 	shm_id		= 0;
-	ifd->SHMID 	= shm_id;
+	sds->SHMID 	= shm_id;
 	shm_addr 	= Shm_a.addr;
 
 //	shm_addr = (shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
@@ -319,6 +318,6 @@ int main( int argc, char *argv[] )
 	free( frame );
 	Log.Comment(INFO, "Application loop exit");
 	exit_proc(0);
-//	Application_loop();
+
 }
 

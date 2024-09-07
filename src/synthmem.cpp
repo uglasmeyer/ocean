@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <synthmem.h>
+#include <Synthmem.h>
 
 
 //-----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ void Stereo_Memory::Info()
 
 using namespace Storage;
 
-void Storage_class::setup( StA_struct_t p )
+void Storage_class::Setup( StA_struct_t p )
 {
 	StAparam 		= p;
 	max_counter 	= p.size/block_size;
@@ -133,7 +133,7 @@ void Storage_class::setup( StA_struct_t p )
 
 }
 
-void Storage_class::store_block( Data_t* src )
+void Storage_class::Store_block( Data_t* src )
 {
 	if ( not status.store ) return;
 	if ( store_counter > info.max_records - 2 ) return;
@@ -147,7 +147,7 @@ void Storage_class::store_block( Data_t* src )
 		status.store = false ;
 }
 
-Data_t* Storage_class::get_next_block()
+Data_t* Storage_class::Get_next_block()
 {
 /*	cout << dec <<
 			(int)Id <<
@@ -156,6 +156,7 @@ Data_t* Storage_class::get_next_block()
 			" Amp " << (int)Amp << endl;
 */
 	if ( not status.play ) return nullptr;
+	if ( store_counter == 0 ) return nullptr;
 	Data_t* ptr = get_block( read_counter );
 	read_counter = ( read_counter + 1 ) % store_counter ;
 	assert( read_counter <= store_counter );
@@ -167,50 +168,46 @@ Data_t* Storage_class::get_block( uint id)
 	return &Data[id * block_size];
 }
 
-void 	Storage_class::set_store_counter( uint  n )
+void 	Storage_class::Set_store_counter( uint  n )
 {
 	assert( n < info.max_records );
-	store_counter = n;
-	read_counter  = 0;
+	store_counter 	= n;
+	read_counter  	= 0;
 }
 
-void 	Storage_class::reset_counter( )
+void 	Storage_class::Reset_counter( )
 {
-	store_counter = 0;
-	read_counter  = 0;
+	store_counter 	= 0;
+	read_counter  	= 0;
+	status.play 	= false;
+	status.store 	= false;
 }
 
-string 	Storage_class::play_mode( bool flag )
+string 	Storage_class::Play_mode( bool flag )
 {
 	if ( store_counter == 0 ) // nothing to play
 		status.play = false;
 	else
 		status.play = flag;
-//	if ( flag )
-//		read_counter = 0;
 	return (status.play) ? "ON" : "OFF";
 }
 
-string Storage_class::record_mode( bool flag )
+string Storage_class::Record_mode( bool flag )
 {
 	status.store = flag;
 	if ( flag )
-	{
 		read_counter = 0;
-	}
 	return (status.store) ? "ON" : "OFF";
-
 }
 
-void Storage_class::mute()
+void Storage_class::Mute()
 {
-
 	Comment(INFO, "mute " + StAparam.name );
 	status.play 	= false;
 }
 
 
-void Storage_class::playnotes( bool flag )
+void Storage_class::Playnotes( bool flag )
 {
 	string onoff = flag ? " on" : " off";
 	cout << "play " + StAparam.name + onoff << endl;

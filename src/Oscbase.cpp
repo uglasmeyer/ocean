@@ -11,39 +11,28 @@
 
 
 
-void Oscillator_base::show_csv_comment( int loglevel )
+void Oscillator_base::Show_csv_comment( int loglevel )
 {
 	string str;
-	str = csv_comment +"\t" + wp.fstruct.str;
+	str = csv_comment; //;+"\t" + wp.fstruct.str;
 	Comment( loglevel, str) ;
 }
-
-frequency_t Oscillator_base::get_fstruct()
-{
-	return wp.fstruct ;
-}
-
-frequency_t Oscillator_base::get_fstruct( int freq )
-{
-	return freq_to_freq_struct( freq ) ;
-}
-
 void Oscillator_base::Set_adsr( adsr_t adsr )
 {
 	this->adsr = adsr;
 	wp.touched = true;
 }
 
-void Oscillator_base::set_frequency( float freq )
+void Oscillator_base::Set_frequency( float freq )
 {
 	//  min_f := 1/max_sec ,  freq = min_f*N = N/max_sec
 
 	if ( freq < 0 ) freq = 0;
 	wp.frequency 	= freq;
 	wp.touched 		= true;
-	wp.fstruct		= freq_to_freq_struct( freq );
+//	wp.fstruct		= freq_to_freq_struct( freq );
 }
-void Oscillator_base::set_volume( uint16_t vol)
+void Oscillator_base::Set_volume( uint16_t vol)
 {
 	if ( vol < 1 ) vol = 0; // no output if below 2
 	if ( vol > 100 ) vol = 100;
@@ -74,8 +63,9 @@ void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 	this->spectrum 	= spectrum;
 	wp.touched		= true;
 }
+#include <common.h>
 
-void Oscillator_base::line_interpreter( vector_str_t arr )
+void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
@@ -89,15 +79,8 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
 	float freq	 	= stof(arr[3]);
-	set_frequency( freq );
-	command 		= "OSCd";
-	int i;
-	wp.ops_str_arr.clear();
-	for( i=6; i<9; i++)
-	{
-		string str  = arr[i];
-		wp.ops_str_arr.push_back(str) ;
-	}
+	Set_frequency( freq );
+	command 		= osc_type;
 	wp.glide_effect 	= Str.secure_stoi( arr[13] );
 	wp.PMW_dial 		= Str.secure_stoi( arr[14] );
 
@@ -105,7 +88,7 @@ void Oscillator_base::line_interpreter( vector_str_t arr )
 };
 
 
-
+/*
 frequency_t Oscillator_base::freq_to_freq_struct( float freq )
 {
 	frequency_t fstruct;
@@ -144,11 +127,10 @@ frequency_t Oscillator_base::freq_to_freq_struct( float freq )
 	return fstruct;
 }
 
+*/
 
-
-void Oscillator_base::set_csv_comment ()
+void Oscillator_base::Set_csv_comment ()
 {
-	list<string>::iterator itr;
 	if ( osc_type.length() == 0 )
 	{
 		osc_type = "unknown";
@@ -161,32 +143,13 @@ void Oscillator_base::set_csv_comment ()
 	csv_comment.append(",\t" + to_string( wp.frequency ));
 	csv_comment.append(",\t" + to_string( wp.msec ) );
 	csv_comment.append(",\t" + to_string( wp.volume ) );
-	for ( string str : wp.ops_str_arr )
-	{
-		if ( str.length() > 0 )
-			csv_comment.append("," + str ) ;
-
-	}
 }
 
 
-void Oscillator_base::get_comment( bool variable )
+void Oscillator_base::Get_comment( bool variable )
 {
-
-// https://stackoverflow.com/questions/3222572/convert-a-single-character-to-a-string
 	comment = Get_waveform_str( spectrum.id );
 	comment.append( "\t(" + to_string( wp.frequency ) + " Hz)");
-	if ( variable )
-	{
-		comment.append(" frequency variable " );
-	}
-	else
-	{
-		comment.append( "Octave: ");
-		comment.append( to_string( wp.fstruct.oct ) + " ");
-		comment.append( " base " + to_string( wp.fstruct.base) + "Hz ");
-		comment.append( "Note " + command.substr(3,1) + " \t");
-	}
 	comment.append( to_string( wp.msec ) + " msec ");
 	comment.append( "Vol: " + to_string( wp.volume ) );
 	return ;
