@@ -31,6 +31,9 @@ public:
 private:
     QRectF          drawregion;
     QPolygon        polygon;
+    uint 			shiftY 		= 0;
+    uint			height		= 0;
+    float			data_scale	= 0;
 
     QRectF  boundingRect() const; // implement virtual method boundingRect, need by qgraphicsitem.h
 

@@ -8,20 +8,13 @@
 #ifndef WAVEDISPLAY_H_
 #define WAVEDISPLAY_H_
 
+#include <Wavedisplay_base.h>
 #include <Interface.h>
 
-const vector<string> wavedisplay_str_vec =
-{
-    "Audio Out",
-	"MAIN",
-    "VCO ",
-    "FMO ",
-    "External IN"
-};
 
 
 
-class Wavedisplay_class : virtual public Logfacility_class
+class Wavedisplay_class : virtual Logfacility_class
 {
 	ifd_t* ifd;
 
@@ -45,7 +38,7 @@ private:
 	array<Data_t*, 10>
 					data_ptr_array{  };
 	bool			split_switch	= true;
-	array<Data_t, wavedisplay_len> display_buffer = {0};
+	wd_arr_t 		display_buffer = {0};
 
 
 	typedef struct param_struct

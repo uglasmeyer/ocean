@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <mixer.h>
+#include <Mixer.h>
 
 //-------------------------------------------------------------------------------------------------
 
@@ -128,9 +128,8 @@ Mixer_class::Mixer_class( )
 	for ( uint n : MemIds )
 		StA[n].Info();
 
-
-	Mono_tmp.Info	( "Temporary Mono data");
-	Mono_out.Info	( "Output Mono data");
+	Mono.Info		( "Mono data");
+	Mono_out.Info	( "Wave display data");
 	Out_L.Info		( "Output Stereo Left");
 	Out_R.Info		( "Output Stereo Right");
 
@@ -141,7 +140,7 @@ void Mixer_class::clear_memory()
 	// clear temporary memories
 	Out_L.clear_data(0);
 	Out_R.clear_data(0);
-	Mono_tmp.clear_data(0); // Wavedisplay mono col data
+	Mono.clear_data(0); // Wavedisplay mono col data
 }
 
 void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
@@ -165,33 +164,30 @@ void Mixer_class::Volume_control( ifd_t* sds )
 
 void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 {
-	if( id == MbIdInstrument )
-		 status.instrument = play;
-	if( id == MbIdNotes )
-		 status.notes = play;
-	if( id == MbIdKeyboard )
-		 status.kbd = play;
-	if( id == MbIdExternal )
-		 status.external = play;
+	switch ( id )
+	{
+		case MbIdInstrument :	{ status.instrument = play; break; }
+		case MbIdNotes 		:	{ status.notes = play; 		break; }
+		case MbIdKeyboard	: 	{ status.kbd = play; 		break; }
+		case MbIdExternal 	:	{ status.external = play; 	break; }
+		default				:	break;
+	}
+
 	if (( play ) and ( id != MbIdInstrument ))
 		 status.play = true;
+
+	StA[id].Play_mode( play );
+
 };
 void Mixer_class::Update_ifd_status_flags( ifd_t* sds )
 {
-	status.external 	=  StA[MbIdExternal	].status.play;
-	status.kbd 			=  StA[MbIdKeyboard	].status.play;
-	status.notes 		=  StA[MbIdNotes   	].status.play;
-	status.instrument	=  StA[MbIdInstrument	].status.play;
-
-
 
 	sds->mixer_status =  status;
 	for ( uint id :  MemIds )
 	{
-		sds->StA_status[id] 	=  StA[id].status;
+		sds->StA_state[id] 	=  StA[id].state;
 		sds->StA_amp_arr[id] 	=  StA[id].Amp;
 	}
-	assert(sds->StA_amp_arr[4] 	==  StA[4].Amp  );
 }
 
 
@@ -211,7 +207,7 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 	{
 		Out_L.Data[n] 		+= rint( Data[n]*Data_l );
 		Out_R.Data[n] 		+= rint( Data[n]*Data_r );
-		Mono_tmp.Data[n]  	+= rint( Data[n]*volpercent ); 		// collect mono data - wavedisplay
+		Mono.Data[n]  		+= rint( Data[n]*volpercent );	// collect mono data by using sta-amp
 	}
 }
 
@@ -222,7 +218,7 @@ void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
 	{
 		data[n].left 	= rint( Out_L.Data[n] * out_percent );
 		data[n].right 	= rint( Out_R.Data[n] * out_percent );
-		Mono_out.Data[n]= ( Mono_tmp.Data[n]  * out_percent ); // Wavedisplay mono data
+		Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
 	}
 }
 
@@ -235,7 +231,6 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 		StA[ arr_id ].Store_block( Notes->main.Mem.Data );
 		composer--;
 	}
-	assert( StA[ arr_id ].store_counter > 0 );
 	StA[ arr_id ].Record_mode( false );
 	StA[ arr_id ].Play_mode( true );
 
@@ -250,7 +245,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 	auto get_store_id = [ this ]()
 		{
 			for ( int id : MemIds  )
-				if ( StA[id].status.store )
+				if ( StA[id].state.store )
 					return id;
 			return -1;
 		};
@@ -258,14 +253,20 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 	auto calc_amp_mod = [ this ]()
 		{
 			float sum 	= 0;
+			uint count 	= 0;
 			for( uint id : MemIds )
 			{
-				if ( StA[id].status.play )
+				if (( StA[id].state.play ) )
 				{
-					sum += StA[id].Amp;
+					if (( id == 4 ) or ( id == 5  ) or ( id == 6 ))
+						{ sum += StA[id].Amp; count++; }
+					else
+						if ( StA[id].state.store )
+							{ sum += StA[id].Amp; count++; }
 				}
 			}
-			if ( sum == 0 ) return (float)1.0;
+			if ( count == 1 ) 	return (float) 1.0;
+			if ( sum == 0 ) 	return (float)1.0;
 			float 	mean = 100.0 / sum;
 			return 	mean;
 		};
@@ -281,13 +282,13 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 	float amp_mod 	= calc_amp_mod();
 
 	// add osc sound
-	if ( StA[ MbIdInstrument].status.play )
+	if ( StA[ MbIdInstrument].state.play )
 		add_mono( instrument, StA[ MbIdInstrument ].Amp * amp_mod, MbIdInstrument );
-	if ( StA[ MbIdNotes 	].status.play )
+	if ( StA[ MbIdNotes 	].state.play )
 		add_mono( notes, StA[ MbIdNotes ].Amp 			* amp_mod, MbIdNotes );
-	if ( StA[ MbIdKeyboard	].status.play )
+	if ( StA[ MbIdKeyboard	].state.play )
 		add_mono( keyboard, StA[MbIdKeyboard].Amp 		* amp_mod, MbIdKeyboard );
-	StA[ MbIdKeyboard	].status.play = false;
+	StA[ MbIdKeyboard	].state.play = false;
 	// add StA sound
 	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
@@ -301,7 +302,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 	// store sound to record StA
 	int store_id = get_store_id();
 	if( store_id >= 0 )
-		StA[ store_id ].Store_block( Mono_tmp.Data );
+		StA[ store_id ].Store_block( Mono.Data );
 
 	// push sound to audio server
 	stereo_out( shm_addr, master_volume );
@@ -311,14 +312,14 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 void Mixer_class::Test()
 {
 	Set_Loglevel(TEST, true );
-	Mono_tmp.Set_Loglevel( TEST, true );
+	Mono.Set_Loglevel( TEST, true );
 	Mono_out.Set_Loglevel( TEST, true );
 	Out_L.Set_Loglevel( TEST, true );
 	Out_R.Set_Loglevel( TEST, true );
 //	stereo->Set_Loglevel( TEST, true );
 	for ( Memory& sta : StA )
 		sta.Set_Loglevel( TEST, true );
-	Mono_tmp.Info();
+	Mono.Info();
 
 	Comment( TEST, "Testing Mixer_class" );
 

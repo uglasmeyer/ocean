@@ -26,7 +26,7 @@
 #include <Synthesizer.h>
 #include <Synthmem.h>
 #include <Interface.h>
-#include <common.h>
+#include <Common.h>
 #include <App.h>
 
 // classes and structures

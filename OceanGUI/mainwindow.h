@@ -11,7 +11,7 @@
 
 // Synthesizer
 #include <Interface.h>
-#include <mixer.h>
+#include <Mixer.h>
 #include <Spectrum.h>
 #include <App.h>
 

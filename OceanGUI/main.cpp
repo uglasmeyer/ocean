@@ -11,7 +11,7 @@ Application_class* App;
 
 void exit_proc( int signal )
 {
-	App->Decline( sds );
+	App->DeRegister( sds );
     exit( signal );
 }
 

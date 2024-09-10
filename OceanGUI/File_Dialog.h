@@ -8,7 +8,7 @@
 
 
 // Synthesizer
-#include <notes.h>
+#include <Notes.h>
 #include <Logfacility.h>
 
 using namespace std;

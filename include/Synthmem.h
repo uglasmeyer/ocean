@@ -98,16 +98,14 @@ class Storage_class :  public Memory, virtual public Logfacility_class
 public:
 	// dynamic properties
 	uint 			max_counter 	= 0;
-	uint8_t 		Amp				= 100; // same as in GUI application
+	uint8_t 		Amp				= osc_default_volume; // same as in GUI application
 	const buffer_t 	block_size 		= max_frames;
 	StA_struct_t 	StAparam		= StA_struct();
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 
-	StA_status_t status = StA_status_struct();
+	StA_status_t state = StA_status_struct();
 
-	uint read_counter 	= 0;
-	uint store_counter 	= 0;
 
 	Storage_class( ) : Logfacility_class("Storage") {} ;
 	virtual ~Storage_class(){};
@@ -115,20 +113,21 @@ public:
 	Data_t* Get_next_block();
 	string 	Record_mode( bool );
 	string 	Play_mode( bool );
-	void 	Mute();
 	void	Playnotes( bool );
 	void 	Setup( StA_struct_t);
 	void 	Set_store_counter( uint n);
 	void 	Reset_counter();
+	uint*	Get_storeCounter_p();
 
 private:
 
+	uint read_counter 	= 0;
+	uint store_counter 	= 0;
+
 	Data_t* get_block( uint );
 	void	pause();
-
-
-};
-}
+}; // Storage_class
+} // namespace Storage
 
 
 class Shared_Memory : virtual public Logfacility_class

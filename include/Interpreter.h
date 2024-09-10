@@ -10,11 +10,11 @@
 #define INTERPRETER_H_
 
 #include <Interface.h>
-#include <keys.h>
+#include <Keys.h>
 #include <Processor.h>
-#include <variation.h>
 #include <Spectrum.h>
 #include <Synthesizer.h>
+#include <Variation.h>
 
 typedef struct line_struct
 {
@@ -47,17 +47,17 @@ const vector<string> Keywords {
 
 /*
 */
-class Interpreter_class : public virtual Logfacility_class, public Processor_class
+class Interpreter_class : virtual Logfacility_class, public Processor_class
 {
 	typedef struct osc_struct
 	{
-		string 		name = "none";
-		uint8_t 	wfkey=0;
-		uint8_t*	wf=nullptr;
-		uint8_t		ampkey=0;
-		uint8_t* 	amp=nullptr;
-		uint8_t		freqkey=0;
-		float*		freq=nullptr;
+		string 		name 	= "none";
+		uint8_t 	wfkey	= 0;
+		uint8_t*	wf		= nullptr;
+		uint8_t		ampkey	= 0;
+		uint8_t* 	amp		= nullptr;
+		uint8_t		freqkey	= 0;
+		float*		freq	= nullptr;
 
 	} osc_struct_t;
 
@@ -88,36 +88,34 @@ public:
 	Interpreter_class( Interface_class* gui ) ;
 	virtual ~Interpreter_class();
 
-	void start_bin( vector_str_t );
-	void stop_bin( vector_str_t );
-	void instrument( vector_str_t );
-	void notes( vector_str_t );
-	void random( vector_str_t );
-	void osc_view( osc_struct_t, vector_str_t );
+	void Start_bin( vector_str_t );
+	void Stop_bin( vector_str_t );
+	void Instrument( vector_str_t );
+	void Notes( vector_str_t );
+	void Random( vector_str_t );
 	void Osc( vector_str_t );
-	void adsr( vector_str_t );
-	void rec( vector_str_t );
-	void record( vector_str_t );
+	void Adsr( vector_str_t );
+	void RecStA( vector_str_t );
+	void RecFile( vector_str_t );
 	void Wrong_keyword( vector<string>, string );
-	void pause( vector_str_t );
-	void play( vector_str_t );
-	void text( vector_str_t );
-	void run();
-	void add( vector_str_t );
-	void addvariable( vector_str_t );
-	vector_str_t insvariable( vector_str_t );
-	int  find_position( vector<line_struct_t>*, vector_str_t );
-	void set_dialog_mode( bool );
-	void exit_interpreter();
-	void set( vector_str_t );
-	bool cmpkeyword ( const string  );
-	void clear_stack();
-	void test(  );
+	void Pause( vector_str_t );
+	void Play( vector_str_t );
+	void Text( vector_str_t );
+	void Add( vector_str_t );
+	void Addvariable( vector_str_t );
+	vector_str_t InsertVariable( vector_str_t );
+	int  Find_position( vector<line_struct_t>*, vector_str_t );
+	void Set_dialog_mode( bool );
+	void ExitInterpreter();
+	void Set( vector_str_t );
+	void Clear_stack();
+	void Test(  );
 
 private:
 	Spectrum_base Spectrum;
 	vector_str_t stack {};
 	vector<var_struct_t> varlist {};
+	string	command 	{""};
 	bool 	testrun 	= false;
 	bool	testreturn 	= false;
 
@@ -130,6 +128,8 @@ private:
 	void 	check_file( vector_str_t, string );
 	bool 	no_error( int );
 	void 	intro( vector_str_t, uint );
+	void 	osc_view( osc_struct_t, vector_str_t );
+	bool	cmpkeyword ( const string&  );
 
 };
 

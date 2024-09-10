@@ -7,7 +7,7 @@
 #include <Synthesizer.h>
 #include <Spectrum.h>
 #include <Interface.h>
-#include <keys.h>
+#include <Keys.h>
 
 namespace Ui {
 class Spectrum_Dialog_class;

@@ -156,7 +156,6 @@ void Processor_class::Clear_process_stack()
 void Processor_class::Set_prgline( int nr )
 {
 	prgline = nr;
-	Push_text("-");
 }
 void Processor_class::Execute()
 {
@@ -170,15 +169,15 @@ void Processor_class::Execute()
 		Comment( INFO, "Proceeding stack. Item count " + to_string( len )) ;
 
 	cout << "waiting for Synthesizer to start" << endl;
-	GUI->Reset_ifd();
-	GUI->Commit();
+	sds->Reset_ifd();
+	sds->Commit();
 	stack_struct_vec::iterator itr;
 
 	for( itr=process_stack.begin(); itr != process_stack.end(); itr++ )
 	{
 		stack_item = *itr;
 
-		GUI->addr->Composer = RUNNING;
+		sds->addr->Composer = RUNNING;
 		switch ( (int)stack_item.cmd )
 		{
 		case CMD_CHADDR : // write char address
@@ -242,14 +241,14 @@ void Processor_class::Execute()
 			char* addr = nullptr;
 			switch( stack_item.value )
 			{
-				case INSTRUMENTSTR_KEY 	: { addr=GUI->addr->Instrument;break; }
-				case NOTESSTR_KEY 		: { addr=GUI->addr->Notes; break; }
-				case OTHERSTR_KEY 		: { addr=GUI->addr->Other; break; }
+				case INSTRUMENTSTR_KEY 	: { addr = sds->addr->Instrument;break; }
+				case NOTESSTR_KEY 		: { addr = sds->addr->Notes; break; }
+				case OTHERSTR_KEY 		: { addr = sds->addr->Other; break; }
 				default 				: { addr = nullptr; break; }
 			}
 			assert( addr != nullptr );
 			printf("%d ldc %p %s \n", stack_item.prgline, addr, stack_item.str.data() );
-			this->GUI->Write_str( stack_item.value, stack_item.str );
+			this->sds->Write_str( stack_item.value, stack_item.str );
 
 			printf("%d ldc %p %d \t| set %s ", stack_item.prgline, &ifd->KEY, stack_item.key, stack_item.str.data() );
 			ifd->KEY = stack_item.key;

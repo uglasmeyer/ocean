@@ -19,7 +19,7 @@ void exit_proc( int exit_code )
 	Log.Comment(INFO, Application + "received command <exit> " );
 	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
 	Log.Comment( INFO, "suspend server" );
-	App.Decline( sds );
+	App.DeRegister( sds );
 
 	done = true;
 
@@ -212,7 +212,7 @@ int main( int argc, char *argv[] )
 
 	App.Shutdown_instance( );
 
-    SDS.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status_p );
 	sds->RecCounter 	= 0;
 
 

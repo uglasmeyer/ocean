@@ -9,10 +9,10 @@
 #define KEYBOARD_H_
 
 #include <Logfacility.h>
-#include <osc.h>
+#include <Osc.h>
 #include <Instrument.h>
-#include <mixer.h>
-#include <kbd.h>
+#include <Kbd.h>
+#include <Mixer.h>
 #include <Synthesizer.h>
 #include <Synthmem.h>
 

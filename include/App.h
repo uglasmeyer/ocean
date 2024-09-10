@@ -10,8 +10,12 @@
 
 #include <Interface.h>
 #include <Synthesizer.h>
-#include <version.h>
+#include <Version.h>
+#include <External.h>
+#include <Record.h>
 
+extern void record_thead_fcn( Interface_class*, External_class*,  Record_class*, bool*, bool* );
+extern void SynthesizerTestCases();
 
 class Application_class : Logfacility_class
 {
@@ -19,16 +23,18 @@ public:
 
 	string 		Name 				= "";
 	string 		This_Application 	= "";
-	uint8_t* 	status 				= nullptr;
+	uint8_t* 	status_p 				= nullptr;
 	uint 		client_id			= NOID;
 
 	Application_class( string name, uint id, uint8_t* status );
 	~Application_class();
 
 	void Shutdown_instance( );
-	void Decline( ifd_t* );
+	void DeRegister( ifd_t* );
 	void Start();
 
+private:
+	bool redirect_stderr = false;
 };
 
 

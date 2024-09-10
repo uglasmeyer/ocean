@@ -1,5 +1,6 @@
 
 // qtcreator
+#include <Keys.h>
 #include <mainwindow.h>
 #include <ui_mainwindow.h>
 #include <oszilloscopewidget.h>
@@ -8,9 +9,8 @@
 // Synhesizer
 
 #include <Wavedisplay.h>
-#include <mixer.h>
-#include <keys.h>
 #include <Logfacility.h>
+#include <Mixer.h>
 #include <Synthesizer.h>
 
 // Qt
@@ -64,8 +64,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	Qbps_str_list = Qstringlist( bps_struct().Bps_str_vec );
 
-    init_log_file();
-    SDS.Announce( App.client_id, App.status );
+    Init_log_file();
+    SDS.Announce( App.client_id, App.status_p );
 
 
     ui->setupUi(this);
@@ -311,13 +311,8 @@ void MainWindow::VCO_Waveform_slot( int _wfid )
 
 auto toggle_mute( MainWindow* C, uint id,  int state )
 {
-//	cout << "toggle mute " << state << endl;
-	bool play = not ( state == 0 );
 	C->sds->MIX_Id = id;
-	C->sds->StA_status[id].play = play;
-	if ( play )
-		C->sds->StA_amp_arr[id] = 75;
-	C->sds->KEY = SETMBAMPPLAYKEY;
+	C->sds->KEY = TOGGLEMBPLAYKEY;
 }
 
 void MainWindow::toggle_mute0( int state )
@@ -356,7 +351,7 @@ void MainWindow::toggle_mute7( int state )
 auto toggle_store_sta( MainWindow* C, int ID )
 {
     C->SDS.Set( C->sds->MIX_Id , ID );
-    if ( C->sds->StA_status[ID].store )
+    if ( C->sds->StA_state[ID].store )
     {
     	C->SDS.Set( C->sds->KEY , STOPRECORD_KEY);
     }
@@ -403,15 +398,15 @@ void MainWindow::toggle_store_sta7()
 
 void MainWindow::memory_clear()
 {
-    int Id = 0; // if no one is checked, the current Id is cleared,
-                // that should be ok.
+	uint id = 0;
     for ( QRadioButton* rb : rb_sta_vec )
     {
-        if( rb->isChecked() )
-        {
-            SDS.Set( sds->MIX_Id, Id );
-        }
-        Id++;
+    	if ( rb->isChecked() )
+    	{
+    		SDS.Set( sds->MIX_Id, id);
+    		rb->setChecked( false );
+    	}
+    	id++;
     }
     SDS.Set( sds->KEY, CLEAR_KEY );
 }
@@ -420,8 +415,8 @@ auto mixer_slider( MainWindow* C, int ID, int value )
 {
     C->SDS.Set( C->sds->MIX_Id , ID );
     C->SDS.Set( C->sds->StA_amp_arr[ID], value );
-    C->SDS.Set( C->sds->StA_status[ID].play, true);
-    C->cb_sta_vec[ID]->setChecked( true );
+//    C->SDS.Set( C->sds->StA_status[ID].play, true);
+//    C->cb_sta_vec[ID]->setChecked( true );
     C->SDS.Set( C->sds->KEY 	, SETMBAMPPLAYKEY);
 };
 
@@ -504,13 +499,13 @@ void MainWindow::setwidgetvalues()
     int ID = 0;
     for( QRadioButton* rb : rb_sta_vec )
     {
-    	rb->setChecked( sds->StA_status[ID].store );
+    	rb->setChecked( sds->StA_state[ID].store );
 		ID++;
     }
     ID = 0;
     for( QCheckBox* cb : cb_sta_vec )
     {
-    	cb->setChecked( sds->StA_status[ID].play );
+    	cb->setChecked( sds->StA_state[ID].play );
 		ID++;
     }
     ID = 0;
@@ -557,7 +552,7 @@ void MainWindow::setwidgetvalues()
 void MainWindow::GUI_Exit()
 {
     qDebug("%s", "Exit" );
-	App.Decline( sds );
+	App.DeRegister( sds );
 	SDS.Commit();
     shmdt( sds );
     QApplication::quit();
@@ -694,19 +689,19 @@ void MainWindow::get_record_status( )
 }
 void MainWindow::toggle_Record()
 {
-    record=! record;
-    if (record)
+    record	=	not sds->mixer_status.external;
+    SDS.Set( sds->FileNo , 0); // automatic numbering
+    SDS.Set( sds->KEY , RECORDWAVFILEKEY);
+
+    if ( not record )
     {
         record_color.setColor(QPalette::Button, Qt::red);
         ui->pBtoggleRecord->setText("recording");
-        SDS.Set( sds->FileNo , 0); // automatic numbering
-        SDS.Set( sds->KEY , RECORDWAVFILEKEY);
     }
     else
     {
         record_color.setColor(QPalette::Button, Qt::green);
         ui->pBtoggleRecord->setText("Record");
-        SDS.Set( sds->KEY , RECORDWAVFILEKEY);
     }
     ui->pBtoggleRecord->setPalette(record_color);
 

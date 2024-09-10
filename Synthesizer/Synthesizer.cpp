@@ -8,11 +8,11 @@
 #include <Record.h>
 #include <Spectrum.h>
 #include <Wavedisplay.h>
-#include <common.h>
-#include <keys.h>
-#include <mixer.h>
-#include <notes.h>
 #include <App.h>
+#include <Common.h>
+#include <Keys.h>
+//#include <Mixer.h>
+#include <Notes.h>
 #include <Synthesizer.h>
 #include <Synthmem.h>
 
@@ -31,9 +31,18 @@ Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( SDS.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
 Record_class			Record( SDS.addr );
+Time_class				Timer;
 
-bool 					record_thread_done = false;
+bool 					SaveRecordFlag 		= false;
+bool 					RecordThreadDone 	= false;
+thread record_thread( record_thead_fcn, &SDS,
+										&External,
+										&Record,
+										&SaveRecordFlag,
+										&RecordThreadDone );
 
+
+const int 				EXITTEST			= 15;;
 
 stereo_t* set_addr( char id )
 {
@@ -55,69 +64,53 @@ void Setup_Wavedisplay()
 	Wavedisplay.Set_data_ptr( SDS.addr->Wavedisplay_Id );
 }
 
-bool SaveRecordFlag = false;
 
-void record_thead_fcn( )
+void read_config_file()
 {
-	Value fileno {0};
-	while ( not record_thread_done ) 			// run until exit_proc or empty_exit_proc is called
-	{
-		if ( ( SaveRecordFlag ) )				// triggered by RECORDWAVFILEKEY
-		{
-			fileno = (int) SDS.addr->FileNo;
-			Log.Comment( INFO,
-				"record thread received job " + fileno.str);
+	Log.Comment(INFO, "Reading config file " + file_structure().config_file );
+	Config_class* Cfg = new Config_class;
+	Cfg->read_synthesizer_config( );
 
-			External.Save_record_data( fileno.i );
+	External.Id3tool_cmd( Cfg->Get["Title"], Cfg->Get["Author"], Cfg->Get["Genre"], Cfg->Get["Album"]);
+    Server_struct().TERM = Cfg->Get["TERM"];
 
-			// clean up
-			SaveRecordFlag = false;
-			Record.Unset();
-			SDS.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
-		}
-		Wait( 1 * SECOND ); 					// for the next job
-	}
-	Log.Comment( INFO, "record thread terminated ");
+    delete( Cfg );
+
 }
 
-thread record_thread(record_thead_fcn);
 
-void empty_exit_proc( int signal )
-{
-	Log.Comment(INFO, "Entering test case exit procedure for application" + Application );
-	SDS.addr->RecCounter = 0; // memory buffers are empty after restart
-	App.Decline( SDS.addr );
-	SDS.Dump_ifd();
-	Keyboard.Reset();
-
-	record_thread_done = true;
-	while( not record_thread.joinable() )
-	record_thread.join();
-	exit( 0 );
-}
 void exit_proc( int signal )
 {
+	RecordThreadDone = true;
 
-	Log.Comment(INFO, "Entering application exit procedure for " + Application );
-	Log.Comment(INFO, "Clearing output buffers");
-	Shm_a.clear();
-	Shm_b.clear();
-//	Wavedisplay.Clear_data();
-	SDS.addr->RecCounter 	= 0; // memory buffers are empty after restart
-	SDS.addr->time_elapsed 	= 0;
-	App.Decline( SDS.addr );
-	Mixer.Clear_StA_status( SDS.addr->StA_status );
-	SDS.Dump_ifd();
-	Keyboard.Reset();
-
-	record_thread_done = true;
-	while( not ( record_thread.joinable() ) )
+	if ( Log.Log[ TEST ] )
 	{
-		Wait( 1*MILLISECOND );
-		cout << " join wait " << endl;
+		Log.Comment(TEST, "Entering test cases exit procedure for application" + Application );
+		Keyboard.Reset();
+		App.DeRegister( SDS.addr );
+		if ( record_thread.joinable() )
+			record_thread.join();
+		SDS.Commit();
 	}
-	record_thread.join();
-	exit( 0 );
+	else
+	{
+		Log.Comment(INFO, "Entering exit procedure for " + Application );
+		Log.Comment(INFO, "Clearing output buffers");
+		Shm_a.clear();
+		Shm_b.clear();
+	//	Wavedisplay.Clear_data();
+		Keyboard.Reset();
+		SDS.addr->RecCounter 	= 0; // memory buffers are empty after restart
+		SDS.addr->time_elapsed 	= 0;
+		SDS.addr->mixer_status.external	= false;
+		Mixer.Clear_StA_status( SDS.addr->StA_state );
+		App.DeRegister( SDS.addr );
+		SDS.Commit();
+//		if ( record_thread.joinable() )
+			record_thread.join();
+		SDS.Dump_ifd();
+	}
+	exit( signal );
 }
 
 
@@ -323,7 +316,8 @@ void process( char key )
 				{
 					string status = Mixer.StA[MbNr.i].Record_mode(true); // start record-stop play
 					Log.Comment( INFO, " Storage Id " +  MbNr.str + " recording is " + status);
-					Record.Set( &Mixer.StA[MbNr.i].store_counter  , Mixer.StA[MbNr.i].max_counter );
+					Record.Set( Mixer.StA[MbNr.i].Get_storeCounter_p()  ,
+								Mixer.StA[MbNr.i].max_counter );
 				}
 				else // only one mb shall store data
 				{
@@ -348,15 +342,14 @@ void process( char key )
 		{
 
 			Value mixid { ifd->MIX_Id };
-			Value amp	{ ifd->StA_amp_arr[mixid.i]} ;
-			Value play 	{ ifd->StA_status[ mixid.i ].play };
+			Value amp	{ ifd->StA_amp_arr[mixid.i] } ;
+			Value play 	{ ifd->StA_state[ mixid.i ].play };
 
 			Mixer.StA[mixid.i].Amp = amp.i;
-			Mixer.StA[mixid.i].status.play = (bool) play.i;
 			Mixer.Set_mixer_state( mixid.i, (bool)play.i );
-			Log.Comment( INFO, 	"Mixer state ID " + mixid.str +
-								" Amp: " + amp.str +
-								" Logic: " + play.boolstr);
+			Log.Comment( INFO, 	"Mixer ID " + mixid.str +
+								" Amp: " 	+ amp.str +
+								" State: " 	+ play.boolstr);
 
 			SDS.Commit();
 			break;
@@ -365,19 +358,15 @@ void process( char key )
 		{
 			Value id = { (int) ifd->MIX_Id };
 			Log.Comment(INFO, "receive command <mute and stop record on id" + id.str + ">");
-			Mixer.StA[id.i].Mute(); // pause-play, pause-record
+			Mixer.StA[id.i].Play_mode( false ); // pause-play, pause-record
 			SDS.Commit();
 			break;
 		}
-		case MUTEMBKEY : // clear memory bank flag
+		case MUTEMBKEY : // clear all memory bank flag
 		{
 			Log.Comment(INFO, "receive command <mute and stop record on all memory banks>");
-			std::ranges::for_each( Mixer.StA, []( auto& sta ){ sta.Mute(); } );
-
-		    for( uint id = 0; id < MbSize; id++ )
-		    {
-		    	Mixer.Set_mixer_state( id, false );
-		    }
+		    for( uint id : Mixer.RecIds )
+		    	{ Mixer.Set_mixer_state( id, false ); }
 
 			SDS.Commit();
 			break;
@@ -387,21 +376,20 @@ void process( char key )
 			uint8_t id 						= ifd->MIX_Id;
 			Log.Comment( INFO, "Clear StA: " + to_string( id ));
 			Mixer.StA[ id ].Reset_counter();
+//			Mixer.Set_mixer_state(id, false );
 			Record.Reset(); // RecCounter
 			SDS.Commit();
-			ifd->UserInterface = UPDATEGUI;
+//			ifd->UserInterface = UPDATEGUI;
 			break;
 		}
 		case TOGGLEMBPLAYKEY: // toggle Memory bank status play
 		{
-			Value arrnr { (int) ifd->MIX_Id };
+			Value Id 	{ (int)ifd->MIX_Id };
+			bool play 	{ not (ifd->StA_state[ Id.i ].play) };
+			ifd->StA_state[ Id.i].play = play ;
 			Log.Comment(INFO,
-					"receive command <toggle play on memory bank" + arrnr.str +" >");
-			Mixer.StA[arrnr.i].Play_mode( not Mixer.StA[arrnr.i].status.play );
-			if ( arrnr.i == MbIdExternal )
-				Mixer.status.external 	= Mixer.StA[arrnr.i].status.play;
-			if ( arrnr.i == MbIdNotes )
-				Mixer.status.notes 	= Mixer.StA[arrnr.i].status.play;
+					"receive command <toggle play on memory bank" + Id.str +" >" + to_string( play ) );
+			Mixer.Set_mixer_state( Id.i, play );
 			SDS.Commit();
 			break;
 		}
@@ -553,19 +541,21 @@ void process( char key )
 			if ( SaveRecordFlag )
 			{
 				Log.Comment( WARN, "Thread is saving data. ... Wait ");
+				ifd->KEY = NULLKEY;
 				break;
 			}
-			External.status.record = not External.status.record;
+			External.status.record = not ifd->mixer_status.external;
+
 			if ( ifd->Composer == RECORD ) // composer overwrites default behaviour
 				External.status.record = true;
 			if ( ifd->Composer == STOPRECORD )
 				External.status.record = false;
+			Mixer.status.external	= External.status.record;
 			string str = External.status.record ? "Start" : "Stop ";
-
-			Log.Comment(INFO, str + "record Audio out to wav file format.");
 
 			if ( not External.status.record ) 	// STOPRECORD, also means: save to file
 			{
+				Log.Comment(INFO, str + " record Audio out to wav file format.");
 				Mixer.StA[MbIdExternal].Record_mode( false );
 
 				//no ifd-commit for this section
@@ -574,6 +564,7 @@ void process( char key )
 			}
 			else 								// RECORD
 			{
+				Log.Comment(INFO, str + " record Audio out to wav file format.");
 				External.stereo.info.record_counter = 0;
 				External.stereo.clear_data();
 				Mixer.StA[MbIdExternal].Record_mode( true );
@@ -635,7 +626,6 @@ void process( char key )
 
 		case EXITKEY :
 		{
-
 			exit_proc( 1 );
 			break;
 		}
@@ -649,51 +639,46 @@ void process( char key )
 		 }
 
 	} // switch char
+	Mixer.Update_ifd_status_flags( ifd );
 
 }
 // TODO process end location
 
 void activate_ifd()
 {
-	for( char key : init_keys )
-		process( key );
-	Mixer.status = SDS.addr->mixer_status;
+
 	for ( uint id : Mixer.MemIds )
 	{
-		Mixer.StA[ id ].Amp = SDS.addr->StA_amp_arr[id];
-		Mixer.StA[ id ].status.play = SDS.addr->StA_status[id].play;
+		Mixer.StA[ id ].Amp 	= SDS.addr->StA_amp_arr[id];
+		Mixer.StA[ id ].state 	= SDS.addr->StA_state[id];
 	}
-	SDS.addr->UserInterface = UPDATEGUI;
+
+	for ( uint id : Mixer.HghIds )
+		Mixer.Set_mixer_state(id, SDS.addr->StA_state[id].play );
+
+	for( char key : init_keys )
+		process( key );
 }
 
 bool sync_mode()
 {
 	int play = 0;
 	for( uint id : Mixer.SycIds)
-		play += (int) Mixer.StA[id].status.play;
+		play += (int) Mixer.StA[id].state.play;
 
 	Mixer.status.play = (bool) play;
 	bool sync =
 		( 	// if true synchronize shm a/b with Audio Server
 			( Instrument.fmo.wp.frequency < LFO_limit 	)	or
 			( Instrument.vco.wp.frequency < LFO_limit 	) 	or
-			( Mixer.StA[MbIdExternal].status.store 		)	or
+			( Mixer.StA[MbIdExternal].state.store 		)	or
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
 			( Record.active 			)		// StA record external
 		);
 	return sync ;
 }
 
-Time_class Timer{};
 
-void Performanc()
-{
-	Timer.Stop();
-	uint8_t time_elapsed 	= Timer.Time_elapsed() / 10; // time elapsed in percentage w.r.t. 1 second
-	SDS.addr->time_elapsed 	= time_elapsed;
-	Timer.Start();
-//	cout << (int)time_elapsed << endl;
-}
 
 void add_sound( stereo_t* shm_addr )
 {
@@ -716,20 +701,17 @@ void ApplicationLoop()
 
 	while ( ifd->Synthesizer != EXITSERVER )
 	{
-		Performanc();
+		ifd->time_elapsed = Timer.Performance();
 
 		char Key = ifd->KEY;
 		process( Key );
-		Mixer.Update_ifd_status_flags( ifd );
-
+		assert( ifd->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		int note_key = Keyboard.Kbdnote( );
 		if ( Keyboard.Attack( note_key, 100 ) )
 		{
 			cout << "KEY: " << note_key << endl;
-			Mixer.StA[ MbIdKeyboard].status.play = true;
-//			Mixer.status.kbd = true;
-//			add_sound( shm_addr );
+			Mixer.StA[ MbIdKeyboard].state.play = true;
 		}
 
 		Mixer.Volume_control( ifd );
@@ -777,65 +759,31 @@ void ApplicationLoop()
 } // Application loop
 
 
-void test_classes()
-{
-
-	Log.init_log_file();
-
-    config_map_t Synthesizer_cfg = read_synthesizer_config( );
-
-	Log.test();
-
-	Loop_class Loop;
-	Loop.Test();
-
-	String 			TestStr{""};
-	TestStr.test();
-
-	Log.test();
-
-	Keyboard.Test();
-
-	Notes.Test();
-
-	Oscillator 		TestOsc{ TESTID };
-	TestOsc.Test();
-
-	Instrument.Test_Instrument();
-
-	Mixer.test();
-
-	External.test();
-    config_map_t cfg = read_synthesizer_config( );
-	External.Id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
-	string I = cfg["int"];
-	cout << dec << atoi(I.data()) <<endl;
-    Server_struct().TERM = cfg["TERM"];
-    cout << Server_struct().cmd( Audio_Srv, "help") << endl;
-}
-
 
 
 int main( int argc, char* argv[] )
 {
+
 	App.Start();
+
+
+	Log.Comment(INFO, "Catching signals: SIGINT, SIGABRT, SIGHUP");
+	signal( SIGINT	, &exit_proc );
+	signal( SIGABRT	, &exit_proc );
+	signal(	SIGHUP	, &exit_proc );
 
 	Log.Comment(INFO, "Evaluating startup arguments");
 	prgarg_struct_t params = parse_argv( argc, argv );
 
 	if ( params.test == 'y' )
 	{
-		Log.init_log_file();
+		Log.Init_log_file();
+		Log.Set_Loglevel( TEST, true);
 		Log.Comment(INFO, "entering test classes ");
-		signal( SIGABRT, &empty_exit_proc );
-		test_classes();
-		empty_exit_proc(0);
+		SynthesizerTestCases();
+		exit_proc( EXITTEST );
 	}
 
-	Log.Comment(INFO, "Catching signals SIGINT and SIGABRT");
-	signal( SIGINT	, &exit_proc );
-	signal( SIGABRT	, &exit_proc );
-	signal(	SIGHUP	, &exit_proc );
 
 
 	Log.Show_loglevel();
@@ -843,11 +791,8 @@ int main( int argc, char* argv[] )
 	Log.Comment(INFO,"Checking directory structure");
 	creat_dir_structure();
 
-	Log.Comment(INFO, "Reading config file " + file_structure().config_file );
-    config_map_t cfg = read_synthesizer_config( );
+	read_config_file();
 
-    External.Id3tool_cmd( cfg["Title"], cfg["Author"], cfg["Genre"], cfg["Album"]);
-    Server_struct().TERM = cfg["TERM"];
 
 	App.Shutdown_instance( );
 
@@ -857,18 +802,21 @@ int main( int argc, char* argv[] )
 	Shm_a.info();
 	Shm_b.info();
 
-	Setup_Wavedisplay();
-
 	SDS.Restore_ifd();
 	activate_ifd();
 
+	Setup_Wavedisplay();
+
 	show_usage();
 	show_AudioServer_Status();
-    SDS.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status_p );
 
 	Log.Comment(INFO, "Application initialized");
 
 	ApplicationLoop( );
+
+
+
 
 	exit_proc(0);
 	return 0;

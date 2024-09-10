@@ -9,8 +9,7 @@
 
 
 
-#include <osc.h>
-#include <common.h>
+#include <Osc.h>
 
 double	dphi 	= 0.0;
 double 	maxphi 	= 2*pi;
@@ -152,7 +151,6 @@ void Oscillator::mem_init()
 		this->Mem_fmo.Data[n] 	= 0;
 		this->Mem.Data[n] 		= 0;
 	}
-//	F = Zero;
 
 	this->wp.touched = true;
 
@@ -408,7 +406,7 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 	if ( not main_id( osc_id ) ) 	return;
 
 
-	adsr.bps_id				= adsr.bps_id % bps_struct().Bps_str_vec.size();
+//	adsr.bps_id				= adsr.bps_id % bps_struct().Bps_str_vec.size();
 	int 		duration = 1; // each note has a single attack/decay
 	if ( osc_id == MAINID )
 		duration 	= bps_struct().getbps( adsr.bps_id );

@@ -81,8 +81,9 @@ typedef struct file_structure
 	const string raw_file 		= dir_struct().tmpdir 		+ filename + ".raw";
 	const string counter_file 	= dir_struct().libdir 		+ "counter.bin";
 	const string log_file 		= dir_struct().logdir 		+ "Synthesizer.log";
+	const string err_file 		= dir_struct().logdir 		+ "Synthesizer.err";
 	const string config_file  	= dir_struct().etcdir		+ "synthesizer.cfg";
-	const string main_file 		= dir_struct().includedir 	+ "main.synth";
+	const string program_file	= dir_struct().includedir 	+ "main.synth";
 	const string doc_filename 	= "Synthesizer.odt";
 	const string doc_file 		= dir_struct().docdir 		+ doc_filename;
 } dir_struct_t;
@@ -103,7 +104,6 @@ typedef signed short 		data_t; // range -32767 ... +32767
 const uint 			sizeof_data 		= sizeof(Data_t);
 const double 		pi					= 3.1415926536;//3.141592654;
 
-
 const buffer_t		audio_frames 		= 48000; //2*chunksize * 43 ; // ~44100
 const buffer_t		frames_per_sec  	= 48000;
 
@@ -112,16 +112,16 @@ const uint16_t		max_milli_sec 		= max_sec * 1000;
 const buffer_t		max_frames			= max_sec * audio_frames;
 
 const uint			recduration 		= 3*60; // seconds
-const uint			tmpduration 		= 30; // temp memory storage 30*frames_per_sec
-const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec*sizeof(Data_t); // 3 minutes 32Mb
-const buffer_t 		monobuffer_size   	= max_frames * sizeof(Data_t);
+const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
+const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_data; // 3 minutes 32Mb
+const buffer_t 		monobuffer_size   	= max_frames * sizeof_data;
 const Data_t		max_data_amp		= 4096*4;
+
 const uint8_t 		oct_base_freq 		= 55;
-
 const uint			osc_default_volume	= 100; // %
-const uint 			wavedisplay_len		= 512;
 
-enum {
+enum
+{
 	NOID,
 	SYNTHID,
 	COMPID,

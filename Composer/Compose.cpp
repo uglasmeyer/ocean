@@ -19,7 +19,7 @@ void exit_proc( int signal )
 		cout.flush() << "\nEntering exit proc on assembler error " + to_string(signal) << endl;
 	else
 		cout.flush() << "\nEntering exit proc" << endl;
-	App.Decline( SDS.addr );
+	App.DeRegister( SDS.addr );
 	exit(signal);
 }
 
@@ -38,7 +38,7 @@ int return_pos( int pos )
 int call_pos( int pos, vector_str_t arr )
 {
 	pos_stack.push_back( pos );
-	pos = Compiler.find_position( &Program, arr );
+	pos = Compiler.Find_position( &Program, arr );
 	return pos;
 }
 
@@ -81,9 +81,9 @@ bool interpreter( )
 		cout << dec << setw(4) << line_no << ":" << left << setw(16) << name ;
 		cout << setw( 60) <<left << line <<endl;
 		if ( name.compare("stdin") == 0 )
-			Compiler.set_dialog_mode( true );
+			Compiler.Set_dialog_mode( true );
 		else
-			Compiler.set_dialog_mode( false );
+			Compiler.Set_dialog_mode( false );
 
 		Str.Str			= line;
 		arr		 		= Str.to_bracket_array( '\"' );
@@ -91,28 +91,28 @@ bool interpreter( )
 		String Keyword 	= ( arr.size() > 0 ) ? arr[0] : "";
 		Keyword.to_lower();
 		string keyword 	= Keyword.Str;
-		arr 			= Compiler.insvariable( arr );
+		arr 			= Compiler.InsertVariable( arr );
 
 		if ( check_input( keyword ) )
 		{
 			if ( keyword.compare("return") 		== 0 )	pos = return_pos ( pos );
 			if ( keyword.compare("call") 		== 0 )	pos = call_pos( pos, arr );
 			Compiler.Set_prgline( pos );
-			if ( keyword.compare("start") 		== 0 )	Compiler.start_bin( arr );
-			if ( keyword.compare("stop") 		== 0 )	Compiler.stop_bin( arr );
-			if ( keyword.compare("instrument") 	== 0 ) 	Compiler.instrument( arr );
-			if ( keyword.compare("notes") 		== 0 )	Compiler.notes( arr );
+			if ( keyword.compare("start") 		== 0 )	Compiler.Start_bin( arr );
+			if ( keyword.compare("stop") 		== 0 )	Compiler.Stop_bin( arr );
+			if ( keyword.compare("instrument") 	== 0 ) 	Compiler.Instrument( arr );
+			if ( keyword.compare("notes") 		== 0 )	Compiler.Notes( arr );
 			if ( keyword.compare("osc") 		== 0 )	Compiler.Osc( arr );
-			if ( keyword.compare("play") 		== 0 )	Compiler.play( arr );
-			if ( keyword.compare("adsr") 		== 0 )	Compiler.adsr( arr );
-			if ( keyword.compare("rec") 		== 0 )	Compiler.rec( arr );
-			if ( keyword.compare("record") 		== 0 )	Compiler.record( arr );
-			if ( keyword.compare("pause") 		== 0 )	Compiler.pause( arr );
-			if ( keyword.compare("add") 		== 0 )	Compiler.add( arr );
-			if ( keyword.compare("random") 		== 0 )	Compiler.random( arr );
-			if ( keyword.compare("set") 		== 0 )	Compiler.set( arr );
-			if ( keyword.compare("text")		== 0 )	Compiler.text( arr );
-			if ( keyword.compare("exit") 		== 0 )	{ Compiler.exit_interpreter(); return true; }
+			if ( keyword.compare("play") 		== 0 )	Compiler.Play( arr );
+			if ( keyword.compare("adsr") 		== 0 )	Compiler.Adsr( arr );
+			if ( keyword.compare("rec") 		== 0 )	Compiler.RecStA( arr );
+			if ( keyword.compare("record") 		== 0 )	Compiler.RecFile( arr );
+			if ( keyword.compare("pause") 		== 0 )	Compiler.Pause( arr );
+			if ( keyword.compare("add") 		== 0 )	Compiler.Add( arr );
+			if ( keyword.compare("random") 		== 0 )	Compiler.Random( arr );
+			if ( keyword.compare("set") 		== 0 )	Compiler.Set( arr );
+			if ( keyword.compare("text")		== 0 )	Compiler.Text( arr );
+			if ( keyword.compare("exit") 		== 0 )	{ Compiler.ExitInterpreter(); return true; }
 			if ( ( Compiler.error > 0 ) and ( not Compiler.dialog_mode ))
 				exit_proc( Compiler.error );
 		}
@@ -126,7 +126,7 @@ bool interpreter( )
 			}
 			else
 			{
-				Compiler.addvariable( arr );
+				Compiler.Addvariable( arr );
 			}
 			if ( Compiler.error > 0 )
 			{
@@ -210,11 +210,11 @@ void composer_dialog()
 {
 
 	string line{};
-	Compiler.set_dialog_mode( true );
+	Compiler.Set_dialog_mode( true );
 	while ( line.compare("exit") != 0)
 	{
 		Program.clear();
-		Compiler.clear_stack();
+		Compiler.Clear_stack();
 		getline( cin, line );
 		Program.push_back( { 1,"stdin", line });
 		if ( interpreter( ) )
@@ -240,12 +240,9 @@ void maintest()
 	String teststring{""};
 	teststring.test();
 
-	Log.test();
+	Log.Test_Logging();
 
-	Compiler.test( );
-
-	string s = "";
-	cout << type_of( s ) << endl;
+	Compiler.Test( );
 
 }
 
@@ -265,17 +262,17 @@ int main( int argc, char* argv[] )
 		maintest();
 		exit_proc(0);
 	}
-	SDS.Announce( App.client_id,  App.status );
+	SDS.Announce( App.client_id,  App.status_p );
 	Log.Set_Loglevel(ERROR , true);
 
-	if ( preprocessor( file_structure().main_file ) )
+	if ( preprocessor( file_structure().program_file ) )
 	{
 		if ( interpreter( ) )
 		{
 			Compiler.Execute(  );
 		}
 	}
-    SDS.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status_p );
 
 	if ( params.dialog == 'y' )
 	{

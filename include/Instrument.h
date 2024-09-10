@@ -8,9 +8,9 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
+#include <Common.h>
 #include <Spectrum.h>
-#include <osc.h>
-#include <common.h>
+#include <Osc.h>
 #include <Synthesizer.h>
 #include <Interface.h>
 

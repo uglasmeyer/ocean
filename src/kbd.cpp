@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <kbd.h>
+#include <Kbd.h>
 
 
 Keyboard_base::key_struct_t Keyboard_base::GetKey()

@@ -135,7 +135,7 @@ void Storage_class::Setup( StA_struct_t p )
 
 void Storage_class::Store_block( Data_t* src )
 {
-	if ( not status.store ) return;
+	if ( not state.store ) return;
 	if ( store_counter > info.max_records - 2 ) return;
 	buffer_t start = store_counter* block_size;
 	for ( buffer_t n = 0; n < block_size; n++ )
@@ -144,7 +144,7 @@ void Storage_class::Store_block( Data_t* src )
 	}
 	store_counter 		= ( store_counter + 1 );
 	if ( store_counter == info.max_records - 2 )
-		status.store = false ;
+		state.store = false ;
 }
 
 Data_t* Storage_class::Get_next_block()
@@ -155,7 +155,7 @@ Data_t* Storage_class::Get_next_block()
 			" store " << status.store_counter <<
 			" Amp " << (int)Amp << endl;
 */
-	if ( not status.play ) return nullptr;
+	if ( not state.play ) return nullptr;
 	if ( store_counter == 0 ) return nullptr;
 	Data_t* ptr = get_block( read_counter );
 	read_counter = ( read_counter + 1 ) % store_counter ;
@@ -179,41 +179,39 @@ void 	Storage_class::Reset_counter( )
 {
 	store_counter 	= 0;
 	read_counter  	= 0;
-	status.play 	= false;
-	status.store 	= false;
+	state.store	= false;
 }
 
 string 	Storage_class::Play_mode( bool flag )
 {
-	if ( store_counter == 0 ) // nothing to play
-		status.play = false;
-	else
-		status.play = flag;
-	return (status.play) ? "ON" : "OFF";
+//	if ( store_counter == 0 ) // nothing to play
+//		status.play = false;
+//	else
+	Comment(INFO, "mute " + StAparam.name );
+	state.play = flag;
+	return (state.play) ? "ON" : "OFF";
 }
 
 string Storage_class::Record_mode( bool flag )
 {
-	status.store = flag;
+	state.store = flag;
 	if ( flag )
 		read_counter = 0;
-	return (status.store) ? "ON" : "OFF";
+	return (state.store) ? "ON" : "OFF";
 }
 
-void Storage_class::Mute()
+uint*	Storage_class::Get_storeCounter_p()
 {
-	Comment(INFO, "mute " + StAparam.name );
-	status.play 	= false;
+	return &store_counter;
 }
-
 
 void Storage_class::Playnotes( bool flag )
 {
 	string onoff = flag ? " on" : " off";
 	cout << "play " + StAparam.name + onoff << endl;
 	Comment(INFO, "play " + StAparam.name + onoff );
-	status.play = flag;
-	status.store= false;
+	state.play = flag;
+	state.store= false;
 }
 
 

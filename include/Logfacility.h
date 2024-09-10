@@ -23,22 +23,21 @@ class Logfacility_class
 {
 public:
 	static const int 	logmax 		= 6;
-	array<bool,logmax+1> Log { true, false, true, true, false, true, false };
+	const size_t 		logsize		= logmax + 1;
+	vector<bool> Log { true, false, true, true, false, true, false };
 
-	const string Line = "--------------------------------------------------------------------------------";
+	const string Line = "-----------------------------------------------------------";
 	Logfacility_class( string  );
-	virtual ~Logfacility_class(  )
-	{	cout.flush();
-	};
+	virtual ~Logfacility_class(  );
 
 
 	// make all true to enable debugging of initialization phase
 	void Comment( int, const string& );
 	void Set_Loglevel( int, bool );
 	void Show_loglevel();
-	string error_text( int );
-	void init_log_file();
-	void test();
+	string Error_text( int );
+	void Init_log_file();
+	void Test_Logging();
 
 
 private:
@@ -67,12 +66,12 @@ private:
 	const string 	bgreen		= boldon + green;
 	const string 	bred		= boldon + red;
 
-	const array<string, logmax+1> Levelname = {
-			"error", 	"debug", 	"info " ,"warn ", "dbg2 "    , "binfo", "test"};
-	const string Prefix[logmax+1] 	= {
-			"Error> ",	"Debug> ",   "Info > "	,"Warn > ", "Dbg2 >" , "Info > ", "Test > "};
-	const string Color [logmax+1]	= {
-			bred, 		magenta, 	green 	, yellow, yellow , bgreen, blue };
+	const vector<string> Levelname	= {
+		"error", 	"debug", 	"info " ,"warn ", "dbg2 "    , "binfo", "test"};
+	const vector<string> Prefix 	= {
+		"Error> ",	"Debug> ",   "Info > "	,"Warn > ", "Dbg2 >" , "Info > ", "Test > "};
+	const vector<string> Color 		= {
+		bred, 		magenta, 	green 	, yellow, yellow , bgreen, blue };
 
 	void setup();
 

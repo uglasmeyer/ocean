@@ -12,28 +12,33 @@
 #include <Synthesizer.h>
 #include <Synthmem.h>
 
-const string 		NoteName[13] 		= 	{ "a","a#","b","c","c#", "d","d#", "e","f","#", "g","g#","A"};
+const vector<string> NoteName =
+	{ "a","a#","b","c","c#", "d","d#", "e","f","f#", "g","g#","A"};
+
 typedef struct bps_struct
 {
-	const vector<string>	Bps_str_vec = { "0","1","2","4","5","8"}; 		// Beats per second
 	const vector<uint>   	Bps_array 	= { 0,1,2,4,5,8 };
+	vector<string>			Bps_str_vec = {};
 	std::unordered_map< string, int > Bps_map;
+
 	bps_struct( )
 	{
-		int index = 0;
-		for( string str : Bps_str_vec )
+		uint index = 0;
+		for( uint bps : Bps_array )
 		{
-			Bps_map[ str ] = index;
+			string str = to_string( bps );
+			Bps_map[ str ] = index ;
+			Bps_str_vec.push_back( str );
 			index++;
 		}
 	}
 
 	string getbps_str( uint id )
 	{
-		if (( id < 0 ) or ( id  > Bps_str_vec.size()-1 ))
+		if (( id < 0 ) or ( id  > Bps_array.size()-1 ))
 			return "0";
 		else
-			return Bps_str_vec[ id  ];
+			return to_string( Bps_array[ id ]);
 	}
 	int getbps_id( string str )
 	{

@@ -8,8 +8,8 @@
 #ifndef PROCESSOR_H_
 #define PROCESSOR_H_
 
+#include <Common.h>
 #include <Interface.h>
-#include <common.h>
 #include <Synthesizer.h>
 
 enum  {
@@ -25,15 +25,15 @@ enum  {
 	CMD_TEXT
 };
 
-class Processor_class : public virtual Logfacility_class
+class Processor_class : virtual Logfacility_class
 {
-	Interface_class* 	GUI ;
-	ifd_t* 					ifd ;
+	Interface_class* 	sds ;
+	ifd_t* 				ifd ;
 public:
 
 	Processor_class( Interface_class* gui ) : Logfacility_class("Processor")
 	{
-		this->GUI = gui;
+		this->sds = gui;
 		this->ifd = gui->addr;
 		process_stack.clear();
 	};

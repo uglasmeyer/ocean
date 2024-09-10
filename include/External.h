@@ -10,8 +10,8 @@
 
 #include <Synthesizer.h>
 #include <Synthmem.h>
-#include <wav.h>
-#include <version.h>
+#include <Version.h>
+#include <Wav.h>
 
 
 class External_class : virtual Logfacility_class

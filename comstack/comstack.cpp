@@ -7,12 +7,12 @@
 //============================================================================
 
 
-#include <common.h>
 #include <Keyboard.h>
-#include <keys.h>
 #include <Logfacility.h>
 #include <Interface.h>
 #include <App.h>
+#include <Common.h>
+#include <Keys.h>
 
 using namespace std;
 
@@ -30,7 +30,7 @@ int 					update_counter 	= 1;
 
 void exit_proc( int signal )
 {
-	App.Decline( SDS.addr );
+	App.DeRegister( SDS.addr );
 	Keyboard.Reset();
 	exit( signal );
 }
@@ -83,7 +83,7 @@ int main( int argc, char* argv[] )
  	signal(SIGINT , &exit_proc );
 	signal(SIGABRT, &exit_proc );
 
-    SDS.Announce( App.client_id, App.status );
+    SDS.Announce( App.client_id, App.status_p );
 
  	SDS.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;

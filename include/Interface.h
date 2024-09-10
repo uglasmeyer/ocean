@@ -49,24 +49,18 @@ enum {
 	 LASTNUM
 };
 
-const vector<string> wavedisplay_type_str_vec =
-{
-	"Full",
-	"Flow",
-	"Debug"
-};
-enum { FULLID, FLOWID, DEBUGID };
 
 
 #include <Notesbase.h>
-#include <keys.h>
+#include <Keys.h>
 #include <Synthmem.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
-#include <version.h>
-#include <common.h>
+#include <Version.h>
+#include <Common.h>
 #include <Mixerbase.h>
 #include <Oscbase.h>
+#include <Wavedisplay_base.h>
 
 using namespace Storage;
 typedef 		Note_base::noteline_prefix_t	noteline_prefix_t;
@@ -80,7 +74,7 @@ static const 	uint str_buffer_len = 32;
 typedef struct interface_struct
 {
 	uint8_t			version						= 0; 						// comstack
-	StA_state_arr_t	StA_status 					{ StA_status_struct() };	// comstack
+	StA_state_arr_t	StA_state 					{ StA_status_struct() };	// comstack
 	StA_amp_arr_t	StA_amp_arr					{ 75 };
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
 	char 			Instrument[str_buffer_len] 	= "default"; //char array // comstack
@@ -131,16 +125,14 @@ typedef struct interface_struct
 	uint16_t		WD_type_ID 					= FULLID;
 	uint8_t 		FileNo						= 0;// comstack
 	uint8_t			time_elapsed 				= 0;
-	array<Data_t, wavedisplay_len>
-					wavedata 					= {0};
+	wd_arr_t		wavedata 					= {0};
 } ifd_t;
 
-#include <Wavedisplay.h>
 
 
 
 
-class Interface_class : virtual Logfacility_class
+class Interface_class : virtual public Logfacility_class
 {
 public:
 

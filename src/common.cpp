@@ -4,8 +4,8 @@
  *  Created on: Dec 30, 2023
  *      Author: sirius
  */
-#include <version.h>
-#include <common.h>
+#include <Common.h>
+#include <Version.h>
 #include <algorithm>
 #include <ranges>
 using namespace std;
@@ -128,9 +128,8 @@ void creat_dir_structure()
 	}
 }
 
-config_map_t read_synthesizer_config( )
+void Config_class::read_synthesizer_config(	 )
 {
-	config_map_t configmap;
 	ifstream cFile( file_structure().config_file );
 
 	if (cFile.is_open()) {
@@ -150,16 +149,15 @@ config_map_t read_synthesizer_config( )
                 String Name        	= strr.substr(0, delimiterPos);
                 string value      	= strr.substr(delimiterPos + 1);
                 Name.normalize();
-                cout << ">" << Name.Str << "<" << endl;
-                configmap[Name.Str]= value;
+                Get[Name.Str]= value;
             }
         }
     }
     else
     {
-        Log_common.Comment(ERROR, "Couldn't open config file ");
+        Comment(ERROR, "Couldn't open config file ");
     }
-	return configmap;
+	return ;
 // example:    shm_key_a=stoi( configmap.at("shm_key_a") );
 
 //    std::cout << shm_key_a << endl;
@@ -227,4 +225,11 @@ void Time_class::Block()
 
 }
 
+uint Time_class::Performance( )
+{
+	Stop();
+	uint perf 	= Time_elapsed() / 10; // time elapsed in percentage w.r.t. 1 second = 1000 msec
+	Start();
+	return perf;
+}
 

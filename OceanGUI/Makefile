@@ -365,20 +365,20 @@ compiler_moc_header_make_all: moc_File_Dialog.cpp moc_mainwindow.cpp moc_spectru
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_File_Dialog.cpp moc_mainwindow.cpp moc_spectrum_dialog_class.cpp
 moc_File_Dialog.cpp: File_Dialog.h \
-		../include/notes.h \
-		../include/Spectrum.h \
+		../include/Notes.h \
+		../include/Common.h \
 		../include/Synthesizer.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/common.h \
+		../include/Spectrum.h \
 		../include/Instrument.h \
-		../include/osc.h \
+		../include/Osc.h \
 		../include/Oscbase.h \
 		../include/Synthmem.h \
 		../include/Interface.h \
 		../include/Notesbase.h \
-		../include/keys.h \
-		../include/version.h \
+		../include/Keys.h \
+		../include/Version.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay.h \
 		moc_predefs.h \
@@ -394,22 +394,22 @@ moc_mainwindow.cpp: mainwindow.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Synthmem.h \
-		../include/keys.h \
-		../include/version.h \
-		../include/common.h \
+		../include/Keys.h \
+		../include/Version.h \
+		../include/Common.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay.h \
-		../include/mixer.h \
-		../include/osc.h \
+		../include/Mixer.h \
+		../include/Osc.h \
 		../include/External.h \
-		../include/wav.h \
-		../include/notes.h \
+		../include/Wav.h \
+		../include/Notes.h \
 		../include/Instrument.h \
+		../include/App.h \
 		File_Dialog.h \
 		ui_mainwindow.h \
 		spectrum_dialog_class.h \
 		oszilloscopewidget.h \
-		../include/App.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
@@ -423,9 +423,9 @@ moc_spectrum_dialog_class.cpp: spectrum_dialog_class.h \
 		../include/Notesbase.h \
 		../include/Oscbase.h \
 		../include/Synthmem.h \
-		../include/keys.h \
-		../include/version.h \
-		../include/common.h \
+		../include/Keys.h \
+		../include/Version.h \
+		../include/Common.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay.h \
 		moc_predefs.h \
@@ -470,22 +470,22 @@ main.o: main.cpp mainwindow.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Synthmem.h \
-		../include/keys.h \
-		../include/version.h \
-		../include/common.h \
+		../include/Keys.h \
+		../include/Version.h \
+		../include/Common.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay.h \
-		../include/mixer.h \
-		../include/osc.h \
+		../include/Mixer.h \
+		../include/Osc.h \
 		../include/External.h \
-		../include/wav.h \
-		../include/notes.h \
+		../include/Wav.h \
+		../include/Notes.h \
 		../include/Instrument.h \
+		../include/App.h \
 		File_Dialog.h \
 		ui_mainwindow.h \
 		spectrum_dialog_class.h \
-		oszilloscopewidget.h \
-		../include/App.h
+		oszilloscopewidget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 moc_File_Dialog.o: moc_File_Dialog.cpp 
