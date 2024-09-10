@@ -110,7 +110,7 @@ private:
 
 
 	string 			get_name();
-	void 			set_note_list ( noteline_prefix_t,  string );
+	void 			compiler ( noteline_prefix_t,  string );
 	void			set_file_name( string );
 	size_t			noteline_position_parser( size_t );
 	void 			note2memory( const note_t&, const buffer_t& );

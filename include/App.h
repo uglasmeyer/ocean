@@ -14,7 +14,7 @@
 #include <External.h>
 #include <Record.h>
 
-extern void record_thead_fcn( Interface_class*, External_class*,  Record_class*, bool*, bool* );
+extern void record_thead_fcn( Interface_class*, External_class*,  ProgressBar_class*, bool*, bool* );
 extern void SynthesizerTestCases();
 
 class Application_class : Logfacility_class

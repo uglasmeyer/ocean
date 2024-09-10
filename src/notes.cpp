@@ -96,7 +96,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 
 	min_duration 			= measure_duration / prefix.nps;
 
-	set_note_list( prefix, str );
+	compiler( prefix, str );
 
 	// post check
 	uint noteline_msec = calc_noteline_msec();
@@ -487,7 +487,7 @@ void Note_class::add_volume( note_itr_t itr )
 	}
 }
 
-void Note_class::set_note_list ( noteline_prefix_t prefix, string str )
+void Note_class::compiler ( noteline_prefix_t prefix, string str )
 {
 	string prefix_str 	= convention_names[ prefix.convention ];
 	Note_Chars 			= convention_notes[ prefix.convention ];
@@ -636,9 +636,7 @@ bool Note_class::Generate_note_chunk( )
 	auto restart_note_itr = [ this ]()
 	{
 		if ( note_itr == notelist.end() ) // the global note iter shall be restarted.
-		{
 			note_itr = notelist.begin(); // track , good
-		}
 	};
 
 
@@ -652,7 +650,7 @@ bool Note_class::Generate_note_chunk( )
 		buffer_t frame_offset = (max_frames * timestamp)  / 1000 ;
 
 		Show_note( *note_itr );
-		Note_class::note2memory( *note_itr, frame_offset );
+		note2memory( *note_itr, frame_offset );
 		timestamp = timestamp + note_itr->duration;
 
 		note_itr++;
@@ -779,7 +777,7 @@ string Note_class::Read( string str )
 
 	File.close();
 
-	Note_class::Noteline_prefix.variation = 0;
+	Noteline_prefix.variation = 0;
 	Set_rhythm_line( Volumeline );
 	Verify_noteline( Noteline_prefix, Noteline );
 	Start_note_itr();

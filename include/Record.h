@@ -12,17 +12,17 @@
 #include <Synthesizer.h>
 #include <Synthmem.h>
 
-class Record_class : virtual public Logfacility_class
+class ProgressBar_class : virtual public Logfacility_class
 {
 public:
 	// static parameter
 	ifd_t* ifd_addr;
-	Record_class(ifd_t* addr) : Logfacility_class("Record")
+	ProgressBar_class(ifd_t* addr) : Logfacility_class("Record")
 	{
 		this->ifd_addr = addr;
 		this->counter = 0;
 	};
-	virtual ~Record_class(){};
+	virtual ~ProgressBar_class(){};
 
 	// dynamic parameter
 	uint* counter;

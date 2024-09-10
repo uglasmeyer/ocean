@@ -13,7 +13,7 @@
 
 void record_thead_fcn( 	Interface_class* SDS,
 						External_class* External,
-						Record_class* 	Record,
+						ProgressBar_class* 	Record,
 						bool*			SaveRecordFlag,
 						bool*			RecordThreadDone )
 {

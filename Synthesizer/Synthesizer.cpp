@@ -30,7 +30,7 @@ External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( SDS.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
-Record_class			Record( SDS.addr );
+ProgressBar_class			Record( SDS.addr );
 Time_class				Timer;
 
 bool 					SaveRecordFlag 		= false;

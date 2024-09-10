@@ -7,3 +7,5 @@
 *.o
 *.d
 *.~lock*\#
+/.settings/
+language.settings.xml
