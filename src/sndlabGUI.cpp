@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	Qbps_str_list = Qstringlist( bps_struct().Bps_str_vec );
 
     Init_log_file();
-    SDS.Announce( App.client_id, App.status_p );
+    SDS.Announce( App.client_id, &sds->UserInterface );
 
 
     ui->setupUi(this);
@@ -552,9 +552,6 @@ void MainWindow::setwidgetvalues()
 void MainWindow::GUI_Exit()
 {
     qDebug("%s", "Exit" );
-	App.DeRegister( sds );
-	SDS.Commit();
-    shmdt( sds );
     QApplication::quit();
 }
 

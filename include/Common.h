@@ -76,28 +76,6 @@ const static long int MILLISECOND	= 1000;
 const static long int MICROSECOND	= 1;
 
 
-using namespace std::chrono;
-class Time_class : virtual Logfacility_class
-{
-	// https://en.cppreference.com/w/cpp/chrono
-
-public:
-
-	time_point<steady_clock> start_time;
-	time_point<steady_clock> stop_time;
-	const long int wait = max_sec * 1000 ;
-	long int duration, ms_wait;
-	long int latency = 0;
-	ifd_t* sds;
-
-	Time_class( ifd_t* sds );
-	virtual ~Time_class();
-	long int Time_elapsed();
-	void Start();
-	void Stop();
-	void Block();
-	uint Performance( );
-};
 
 
 #endif /* INCLUDE_COMMON_H_ */

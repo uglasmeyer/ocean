@@ -13,6 +13,7 @@
 #include <Version.h>
 #include <External.h>
 #include <Record.h>
+#include <Time.h>
 
 extern void record_thead_fcn( Interface_class*, External_class*,  ProgressBar_class*, bool*, bool* );
 extern void SynthesizerTestCases();
@@ -21,20 +22,25 @@ class Application_class : Logfacility_class
 {
 public:
 
-	string 		Name 				= "";
-	string 		This_Application 	= "";
-	uint8_t* 	status_p 				= nullptr;
-	uint 		client_id			= NOID;
+	string 				Name 				= "";
+	string 				This_Application 	= "";
+	uint 				client_id			= NOID;
 
-	Application_class( string name, uint id, uint8_t* status );
+	Application_class( string name, uint , Interface_class*  );
 	~Application_class();
 
 	void Shutdown_instance( );
-	void DeRegister( ifd_t* );
 	void Start();
 
 private:
-	bool redirect_stderr = false;
+	bool 			redirect_stderr = false;
+	Interface_class* 	SDS			= nullptr;
+	ifd_t* 				sds			= nullptr;
+	vector<uint8_t*>state_vec 		{};
+	uint8_t*		state_p			= nullptr;
+
+	void deRegister( );
+
 };
 
 

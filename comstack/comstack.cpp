@@ -21,19 +21,13 @@ Logfacility_class 		Log( Module );
 Keyboard_class			Keyboard;
 Interface_class 		SDS;
 ifd_t* 					sds 			= SDS.addr;
-Application_class		App( Module, COMSTACKID, &sds->Comstack );
+Application_class		App( Module, COMSTACKID, &SDS );
 
 Keyboard_base::key_struct_t
 						keys			= Keyboard_base::key_struct();
 string 					waveform_string = "0 ... 10";
 int 					update_counter 	= 1;
 
-void exit_proc( int signal )
-{
-	App.DeRegister( SDS.addr );
-	Keyboard.Reset();
-	exit( signal );
-}
 
 char get_char( string text )
 {
@@ -79,11 +73,9 @@ char Key_event( string charlist )
 
 int main( int argc, char* argv[] )
 {
+	App.Start();
 
- 	signal(SIGINT , &exit_proc );
-	signal(SIGABRT, &exit_proc );
-
-    SDS.Announce( App.client_id, App.status_p );
+    SDS.Announce( App.client_id, &SDS.addr->Comstack );
 
  	SDS.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
@@ -154,5 +146,5 @@ int main( int argc, char* argv[] )
 		}
 	} // while key
 
-	exit_proc(0);
+	return 0;
 }

@@ -37,9 +37,10 @@ Logfacility_class 		Log( Module );
 Shared_Memory 			Shm_a;
 Shared_Memory			Shm_b;
 Interface_class 		SDS ;
+Time_class				Timer( &SDS.addr->time_elapsed );
 ifd_t*					sds	= SDS.addr;
 
-Application_class		App( Module, AUDIOID, &sds->AudioServer );
+Application_class		App( Module, AUDIOID, &SDS );
 
 
 // runtime parameter

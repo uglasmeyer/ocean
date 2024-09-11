@@ -6,22 +6,13 @@ string					Module = "Composer";
 Logfacility_class 		Log( Module );
 Variation_class 		Variation;
 Interface_class 		SDS;
-Application_class		App( Module, COMPID, &SDS.addr->Composer );
+Application_class		App( Module, COMPID, &SDS );
 Interpreter_class 		Compiler(&SDS );
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
 
 
-void exit_proc( int signal )
-{
-	if ( signal > 0 )
-		cout.flush() << "\nEntering exit proc on assembler error " + to_string(signal) << endl;
-	else
-		cout.flush() << "\nEntering exit proc" << endl;
-	App.DeRegister( SDS.addr );
-	exit(signal);
-}
 
 int return_pos( int pos )
 {
@@ -114,7 +105,7 @@ bool interpreter( )
 			if ( keyword.compare("text")		== 0 )	Compiler.Text( arr );
 			if ( keyword.compare("exit") 		== 0 )	{ Compiler.ExitInterpreter(); return true; }
 			if ( ( Compiler.error > 0 ) and ( not Compiler.dialog_mode ))
-				exit_proc( Compiler.error );
+				exit( Compiler.error );
 		}
 		else
 		{
@@ -249,9 +240,6 @@ void maintest()
 int main( int argc, char* argv[] )
 {
 	App.Start();
-	signal( SIGINT	, &exit_proc );
-	signal( SIGABRT	, &exit_proc );
-	signal( SIGHUP	, &exit_proc );
 
 
 	prgarg_struct_t params = parse_argv( argc, argv );
@@ -260,10 +248,10 @@ int main( int argc, char* argv[] )
 	if ( params.test == 'y' )
 	{
 		maintest();
-		exit_proc(0);
+		exit(0);
 	}
-	SDS.Announce( App.client_id,  App.status_p );
 	Log.Set_Loglevel(ERROR , true);
+    SDS.Announce( App.client_id, &SDS.addr->Composer );
 
 	if ( preprocessor( file_structure().program_file ) )
 	{
@@ -272,13 +260,11 @@ int main( int argc, char* argv[] )
 			Compiler.Execute(  );
 		}
 	}
-    SDS.Announce( App.client_id, App.status_p );
 
 	if ( params.dialog == 'y' )
 	{
 		composer_dialog();
-		exit_proc( 0 );
 	}
-	exit_proc( 0 );
+
 	return 0;
 }
