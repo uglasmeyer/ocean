@@ -70,8 +70,9 @@ public:
 	Loop_class 			master_amp_loop;
 	Loop_class			record_amp_loop;
 
-	Mixer_class (  );
-	~Mixer_class(){};
+	ifd_t* sds;
+	Mixer_class ( ifd_t* sds );
+	~Mixer_class();
 
 
 	void Store_noteline( uint8_t, Note_class* );

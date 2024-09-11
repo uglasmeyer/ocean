@@ -225,6 +225,7 @@ void Storage_class::pause()
 
 Shared_Memory::~Shared_Memory()
 {
+	clear();
 	Comment( INFO, "detach SHM interface from id: " + to_string( shm_info.id));
 	shmdt(shm_info.addr);
 //	shmctl(shm_info.id, IPC_RMID, NULL);
@@ -232,6 +233,12 @@ Shared_Memory::~Shared_Memory()
 
 void Shared_Memory::clear()
 {
+	if ( not shm_info.addr )
+	{
+		Comment( ERROR, "shm undefined");
+		return;
+	}
+
 	for ( buffer_t n = 0; n < max_frames ; n++ )
 	{
 		addr[n] = {0,0};
@@ -250,7 +257,7 @@ void Shared_Memory::buffer( buffer_t size, key_t key )
 	}
 	addr = (stereo_t*) shmat (shm_id, 0, 0);
 	shm_info = { size, key, shm_id, addr };
-
+	info();
 	return ;
 };
 

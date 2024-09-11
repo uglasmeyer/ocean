@@ -35,12 +35,11 @@ public:
 	vector<Oscillator*> osc_group { &vco, &fmo, &main };
 
 	Instrument_class* 	instrument	= nullptr;
-	Storage_class* 		StA			= nullptr;
 	key_struct_t		keystruct 	= key_struct();
 	const int			NOKEY 		= -1;
 	int 				prevKey 	= NOKEY;
 
-	Keyboard_class( Instrument_class*, Storage_class* );
+	Keyboard_class( Instrument_class* );
 	Keyboard_class(); // see comstack
 	~Keyboard_class();
 

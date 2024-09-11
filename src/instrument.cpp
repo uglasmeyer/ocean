@@ -425,7 +425,7 @@ void Instrument_class::Test_Instrument()
 		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
 	}
 
-	Time_class Timer;
+	Time_class Timer( ifd );
 	Timer.Start();
 	Run_osc_group();
 	Timer.Stop();

@@ -7,6 +7,19 @@
 
 #include "Record.h"
 
+ProgressBar_class::ProgressBar_class(ifd_t* addr) :
+Logfacility_class("Record")
+{
+	this->ifd_addr = addr;
+	this->counter = 0;
+};
+
+ProgressBar_class::~ProgressBar_class()
+{
+	ifd_addr->RecCounter = 0;
+};
+
+
 void ProgressBar_class::Set( uint* count, uint max )
 {
 	Comment( INFO, "recording is activated");
@@ -26,18 +39,18 @@ void ProgressBar_class::Unset()
 	active = false;
 }
 
-void ProgressBar_class::Set_progress_bar( uint value )
+void ProgressBar_class::Setup( uint value )
 {
 	ifd_addr->RecCounter = value;
 }
 
-void ProgressBar_class::Progress_bar_update( )
+void ProgressBar_class::Update( )
 {
 	if ( active )
 	{
 		uint count = *counter;
 		int value = rint( ( 100 * count )/max_counter ) ;
-		Set_progress_bar( value );
+		Setup( value );
 		if ( count >= max_counter)
 			Unset();
 		Comment(DBG2, "recording : " + to_string(value) + " %");

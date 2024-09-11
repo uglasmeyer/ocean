@@ -147,12 +147,12 @@ public:
 private:
 	typedef struct shm_info_struct
 	{
-		buffer_t 	size;
-		key_t		key;
-		int 		id;
-		void* 		addr;
+		buffer_t 	size	= 0;
+		key_t		key		= 0;
+		int 		id		= 0;
+		void* 		addr	= nullptr;
 	} shm_info_t;
-	shm_info_t 		shm_info;
+	shm_info_t 		shm_info = shm_info_struct();
 };
 
 

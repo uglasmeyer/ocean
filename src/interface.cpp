@@ -54,6 +54,7 @@ Interface_class::Interface_class()
 
 Interface_class::~Interface_class()
 {
+	Commit();
 	Comment(INFO, "detach GUI interface from id: " + to_string( shm_info.id));
 	shmdt( shm_info.addr );
 }
@@ -308,8 +309,8 @@ void Interface_class::Commit()
 	addr->KEY 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
-	while( addr->KEY != NULLKEY )
-		Wait( 10*MICROSECOND );
+//	while( addr->KEY != NULLKEY )
+//		Wait( 10 );
 }
 
 void Interface_class::Set( bool& key, bool value )

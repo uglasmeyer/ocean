@@ -1,11 +1,13 @@
-#OSC,      Name  Waveform    [Hz]  unused Amp.[%]unused    freq   vol.delay  bps atck hall soft      PMWs
- OSC,     MAIN, sawtooth,    221,   1000,     75,     2,     1,     1,  92,   2,   1,   1,   0,      0,
-CONN,     MAIN,      FMO,      F,
-CONN,     MAIN,      VCO,      V,
- OSC,      VCO,   random,    109,   1000,     21,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+#OSC,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddelay  bps atck hall glide      PMWs
+ OSC,      VCO,   sgnSin,   0.66,   1000,     75,     2,    10,     1,   0,   1,  80,   0,   0,      0,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
- OSC,      FMO,  triangle,     33,   1000,     39,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+SPEC,      VCO,   sgnSin,100,  0,  0,  0,  0,  0,  0,  0,100,
+ OSC,      FMO,rectangle,     48,   1000,     12,     2,    10,     1,   0,   1,  80,   0,   0,      0,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
-WAVE,     1206
+SPEC,      FMO,rectangle,100,  0,  0,  0,  0,  0,  0,  0,100,
+ OSC,     MAIN,   sgnSin,     89,   1000,     94,     2,     1,     1,  92,   4,   1,   1,   0,      0,
+CONN,     MAIN,      FMO,      F,
+CONN,     MAIN,      VCO,      V,
+SPEC,     MAIN,   sgnSin,100,  9,  0,  0,  0,  0,  0,  6,115,

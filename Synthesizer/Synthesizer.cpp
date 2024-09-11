@@ -22,22 +22,22 @@ string					Module = "Synthesizer";
 Logfacility_class		Log( Module );
 Interface_class			SDS;
 Application_class		App( Module, SYNTHID, &SDS.addr->Synthesizer);
-Mixer_class				Mixer;
+Mixer_class				Mixer ( SDS.addr );
 Instrument_class 		Instrument(SDS.addr );
 Note_class 				Notes;
-Keyboard_class			Keyboard( &Instrument, &Mixer.StA[MbIdKeyboard] );
+Keyboard_class			Keyboard( &Instrument );
 External_class 			External( &Mixer.StA[ MbIdExternal] );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( SDS.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
-ProgressBar_class			Record( SDS.addr );
-Time_class				Timer;
+ProgressBar_class		ProgressBar( SDS.addr );
+Time_class				Timer( SDS.addr );
 
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
 thread record_thread( record_thead_fcn, &SDS,
 										&External,
-										&Record,
+										&ProgressBar,
 										&SaveRecordFlag,
 										&RecordThreadDone );
 
@@ -82,37 +82,33 @@ void read_config_file()
 void exit_proc( int signal )
 {
 	RecordThreadDone = true;
-
+	Log.Comment(INFO, "received signal: " + to_string( signal ) );
 	if ( Log.Log[ TEST ] )
 	{
 		Log.Comment(TEST, "Entering test cases exit procedure for application" + Application );
-		Keyboard.Reset();
 		App.DeRegister( SDS.addr );
 		if ( record_thread.joinable() )
 			record_thread.join();
-		SDS.Commit();
 	}
 	else
 	{
 		Log.Comment(INFO, "Entering exit procedure for " + Application );
-		Log.Comment(INFO, "Clearing output buffers");
-		Shm_a.clear();
-		Shm_b.clear();
-	//	Wavedisplay.Clear_data();
-		Keyboard.Reset();
-		SDS.addr->RecCounter 	= 0; // memory buffers are empty after restart
-		SDS.addr->time_elapsed 	= 0;
-		SDS.addr->mixer_status.external	= false;
-		Mixer.Clear_StA_status( SDS.addr->StA_state );
 		App.DeRegister( SDS.addr );
-		SDS.Commit();
-//		if ( record_thread.joinable() )
+		if ( record_thread.joinable() )
 			record_thread.join();
 		SDS.Dump_ifd();
 	}
 	exit( signal );
 }
 
+void catch_signals( vector<uint> sig_v )
+{
+	for ( uint sig : sig_v )
+	{
+		Log.Comment(INFO, "Catching signal: " + to_string(sig) );
+		signal( sig	, &exit_proc );
+	}
+}
 
 void show_AudioServer_Status()
 {
@@ -287,7 +283,7 @@ void process( char key )
 				Mixer.StA[ MbIdExternal ].Amp 	= 100;//ifd->StA_amp_arr[MbIdExternal];
 				Mixer.status.external			= true;
 
-				Record.Set_progress_bar( 100*External.Filedata_size / External.stereo.info.mem_bytes );
+				ProgressBar.Setup( 100*External.Filedata_size / External.stereo.info.mem_bytes );
 			}
 			else
 			{
@@ -302,7 +298,7 @@ void process( char key )
 			Value id { (int)ifd->MIX_Id };
 			Log.Comment(INFO, "receive command <stop record on storage area " + id.str + ">");
 			Mixer.StA[id.i].Record_mode( false ); // stop recording
-			Record.Unset();
+			ProgressBar.Unset();
 			SDS.Commit();
 			break;
 		}
@@ -316,7 +312,7 @@ void process( char key )
 				{
 					string status = Mixer.StA[MbNr.i].Record_mode(true); // start record-stop play
 					Log.Comment( INFO, " Storage Id " +  MbNr.str + " recording is " + status);
-					Record.Set( Mixer.StA[MbNr.i].Get_storeCounter_p()  ,
+					ProgressBar.Set( Mixer.StA[MbNr.i].Get_storeCounter_p()  ,
 								Mixer.StA[MbNr.i].max_counter );
 				}
 				else // only one mb shall store data
@@ -377,7 +373,7 @@ void process( char key )
 			Log.Comment( INFO, "Clear StA: " + to_string( id ));
 			Mixer.StA[ id ].Reset_counter();
 //			Mixer.Set_mixer_state(id, false );
-			Record.Reset(); // RecCounter
+			ProgressBar.Reset(); // RecCounter
 			SDS.Commit();
 //			ifd->UserInterface = UPDATEGUI;
 			break;
@@ -568,7 +564,7 @@ void process( char key )
 				External.stereo.info.record_counter = 0;
 				External.stereo.clear_data();
 				Mixer.StA[MbIdExternal].Record_mode( true );
-				Record.Set( &External.stereo.info.record_counter,
+				ProgressBar.Set( &External.stereo.info.record_counter,
 							 External.stereo.info.max_records );
 				SDS.Commit();
 			}
@@ -673,7 +669,7 @@ bool sync_mode()
 			( Instrument.vco.wp.frequency < LFO_limit 	) 	or
 			( Mixer.StA[MbIdExternal].state.store 		)	or
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
-			( Record.active 			)		// StA record external
+			( ProgressBar.active 			)		// StA record external
 		);
 	return sync ;
 }
@@ -734,9 +730,9 @@ void ApplicationLoop()
 
 				add_sound( shm_addr );
 
-				if ( Record.active )
+				if ( ProgressBar.active )
 					External.Add_record( &Mixer.Out_L, &Mixer.Out_R);
-				Record.Progress_bar_update();
+				ProgressBar.Update();
 
 				ifd->UpdateFlag = true;
 				int shm_id 	= ifd->SHMID;
@@ -759,48 +755,31 @@ void ApplicationLoop()
 } // Application loop
 
 
-
-
 int main( int argc, char* argv[] )
 {
 
 	App.Start();
 
-
-	Log.Comment(INFO, "Catching signals: SIGINT, SIGABRT, SIGHUP");
-	signal( SIGINT	, &exit_proc );
-	signal( SIGABRT	, &exit_proc );
-	signal(	SIGHUP	, &exit_proc );
+	catch_signals( { SIGINT, SIGHUP } );
 
 	Log.Comment(INFO, "Evaluating startup arguments");
 	prgarg_struct_t params = parse_argv( argc, argv );
 
 	if ( params.test == 'y' )
 	{
-		Log.Init_log_file();
-		Log.Set_Loglevel( TEST, true);
-		Log.Comment(INFO, "entering test classes ");
 		SynthesizerTestCases();
 		exit_proc( EXITTEST );
 	}
 
-
-
-	Log.Show_loglevel();
-
-	Log.Comment(INFO,"Checking directory structure");
-	creat_dir_structure();
-
-	read_config_file();
-
-
-	App.Shutdown_instance( );
-
 	Log.Comment(INFO,"Attaching data buffers");
 	Shm_a.buffer( sharedbuffer_size, params.shm_key_a );
 	Shm_b.buffer( sharedbuffer_size, params.shm_key_b );
-	Shm_a.info();
-	Shm_b.info();
+
+	App.Shutdown_instance( );
+
+//	Log.Show_loglevel();
+
+	read_config_file();
 
 	SDS.Restore_ifd();
 	activate_ifd();
@@ -814,9 +793,6 @@ int main( int argc, char* argv[] )
 	Log.Comment(INFO, "Application initialized");
 
 	ApplicationLoop( );
-
-
-
 
 	exit_proc(0);
 	return 0;

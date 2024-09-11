@@ -7,13 +7,12 @@
 
 #include <Keyboard.h>
 
-Keyboard_class::Keyboard_class( Instrument_class* instr, Storage::Storage_class* StA  ) :
+Keyboard_class::Keyboard_class( Instrument_class* instr ) :
 	Logfacility_class("Keyboard"),
 	Oscillator_base(),
 	Keyboard_base()
 {
 	this->instrument 	= instr;
-	this->StA			= StA;
 }
 
 Keyboard_class::Keyboard_class() :
@@ -24,7 +23,10 @@ Keyboard_class::Keyboard_class() :
 
 }
 
-Keyboard_class::~Keyboard_class(){};
+Keyboard_class::~Keyboard_class()
+{
+	Reset();
+};
 
 void Keyboard_class::setup(  )
 {
@@ -68,36 +70,23 @@ bool Keyboard_class::Attack( int key, uint8_t amp )
 			osc->OSC( 0 );
 		};
 
-	if ( not StA ) return false;
 	if ( key == NOKEY ) return false;
 	if ( decay( key ) ) return false;
 
 	setup();
 	for ( Oscillator* osc : osc_group )
 		set_osc_frequency( osc );
-/*
-	StA->reset_counter();
-	StA->status.store 	= true;
-	StA->status.play 	= true;
-	StA->Amp 			= amp;
-	StA->store_block(main.Mem.Data);
-*/
+
 	prevKey = key;
 	return true;
 }
 
 bool Keyboard_class::Release( int key )
 {
-	if ( not StA ) return false;
 	if (( key == NOKEY ) and ( prevKey != NOKEY ))
-//	if ( true )
 	{
-
-		StA->Reset_counter();
-		StA->Play_mode( false );
-
 		prevKey 			= NOKEY;
-		StA->clear_data( 0 );
+		main.Mem.clear_data( 0 );
 		return true;
 	}
 	else

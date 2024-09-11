@@ -106,11 +106,11 @@ void Loop_class::Test()
 //-------------------------------------------------------------------------------------------------
 
 
-Mixer_class::Mixer_class( )
+Mixer_class::Mixer_class( ifd_t* sds )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
-
+	this->sds = sds;
 	for( uint n : MemIds )
 	{
 		Storage_class DataMem;
@@ -134,6 +134,14 @@ Mixer_class::Mixer_class( )
 	Out_R.Info		( "Output Stereo Right");
 
 };
+
+Mixer_class::~Mixer_class()
+{
+	Clear_StA_status( sds->StA_state );
+	sds->mixer_status.external	= false;
+
+};
+
 
 void Mixer_class::clear_memory()
 {

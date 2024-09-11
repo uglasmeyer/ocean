@@ -102,25 +102,11 @@ bool cmpstr( const string& a, const string& b )
 	return ( a.compare( b ) == 0 );
 }
 
-vector <string> dirs = {
-		dir_struct().homedir,
-		dir_struct().basedir,
-		dir_struct().etcdir,
-		dir_struct().bindir,
-		dir_struct().libdir,
-		dir_struct().tmpdir,
-		dir_struct().vardir,
-		dir_struct().musicdir,
-		dir_struct().instrumentdir,
-		dir_struct().logdir,
-		dir_struct().notesdir,
-		dir_struct().includedir,
-		dir_struct().autodir
-};
 
-void creat_dir_structure()
-
+void DirStructure_class::Create()
 {
+	Comment(INFO,"Checking directory structure");
+
 	for( string dir : dirs )
 	{
 		if( filesystem::create_directories( dir ) )
@@ -187,13 +173,18 @@ vector_str_t List_directory( const string& path, const string& filter )
     return dir_entry_vec;
 }
 
-Time_class::Time_class()
+Time_class::Time_class( ifd_t* sds )
 : Logfacility_class("Timer")
 {
+	this->sds = sds;
 	Start();
 	Stop(); // duration is zero
 }
 
+Time_class::~Time_class( )
+{
+	this->sds->time_elapsed = 0;
+}
 long int Time_class::Time_elapsed()
 {
 	Stop();

@@ -9,7 +9,7 @@
 #define INCLUDE_COMMON_H_
 
 #include <Synthesizer.h>
-
+#include <Interface.h>
 
 
 typedef struct prgarg_struct
@@ -33,12 +33,37 @@ public:
 	typedef std::unordered_map<string,string> 	config_map_t ;
 	config_map_t Get = {};
 
-	Config_class() : Logfacility_class("Config_class>"){};
+	Config_class() : Logfacility_class("Config_class"){};
 	~Config_class(){};
 	void read_synthesizer_config();
 };
 
-extern void creat_dir_structure();
+class DirStructure_class : virtual Logfacility_class
+{
+public:
+
+	DirStructure_class() : Logfacility_class("DirStructure"){};
+	~DirStructure_class(){};
+	void Create();
+
+private:
+	vector <string> dirs = {
+			dir_struct().homedir,
+			dir_struct().basedir,
+			dir_struct().etcdir,
+			dir_struct().bindir,
+			dir_struct().libdir,
+			dir_struct().tmpdir,
+			dir_struct().vardir,
+			dir_struct().musicdir,
+			dir_struct().instrumentdir,
+			dir_struct().logdir,
+			dir_struct().notesdir,
+			dir_struct().includedir,
+			dir_struct().autodir
+	};
+};
+
 extern void system_execute( const string& );
 extern bool cmpstr( const string& , const string&  );
 extern vector_str_t List_directory( const string& path, const string& filter );
@@ -52,7 +77,7 @@ const static long int MICROSECOND	= 1;
 
 
 using namespace std::chrono;
-class Time_class : public Logfacility_class
+class Time_class : virtual Logfacility_class
 {
 	// https://en.cppreference.com/w/cpp/chrono
 
@@ -63,9 +88,10 @@ public:
 	const long int wait = max_sec * 1000 ;
 	long int duration, ms_wait;
 	long int latency = 0;
+	ifd_t* sds;
 
-	Time_class();
-	~Time_class(){};
+	Time_class( ifd_t* sds );
+	virtual ~Time_class();
 	long int Time_elapsed();
 	void Start();
 	void Stop();

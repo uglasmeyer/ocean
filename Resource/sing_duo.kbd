@@ -5,7 +5,7 @@ CONN,     MAIN,      VCO,      V,
  OSC,      VCO,  triangle,      0,   1000,     18,     2,    10,     1,   0,   1,  80,   0,   0,      0,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
- OSC,      FMO, sinus,    563,   1000,      6,     2,    10,     1,   0,   1,  80,   0,   0,      0,
+ OSC,      FMO, Function,    563,   1000,      6,     2,    10,     1,   0,   1,  80,   0,   0,      0,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 WAVE,      430

@@ -57,7 +57,7 @@ enum {
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <Version.h>
-#include <Common.h>
+//#include <Common.h>
 #include <Mixerbase.h>
 #include <Oscbase.h>
 #include <Wavedisplay_base.h>

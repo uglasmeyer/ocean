@@ -12,28 +12,24 @@
 #include <Synthesizer.h>
 #include <Synthmem.h>
 
-class ProgressBar_class : virtual public Logfacility_class
+class ProgressBar_class : virtual Logfacility_class
 {
 public:
 	// static parameter
 	ifd_t* ifd_addr;
-	ProgressBar_class(ifd_t* addr) : Logfacility_class("Record")
-	{
-		this->ifd_addr = addr;
-		this->counter = 0;
-	};
-	virtual ~ProgressBar_class(){};
+	ProgressBar_class(ifd_t* addr);
+	virtual ~ProgressBar_class();
 
 	// dynamic parameter
 	uint* counter;
 	uint max_counter = 1;
 	bool active = false;
 
-	void Set_progress_bar( uint );
+	void Setup( uint );
 	void Set( uint* count, uint max );
 	void Unset();
 	void Reset();
-	void Progress_bar_update( );
+	void Update( );
 };
 
 #endif /* RECORD_H_ */

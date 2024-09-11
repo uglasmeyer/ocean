@@ -51,16 +51,19 @@ void record_thead_fcn( 	Interface_class* SDS,
 void SynthesizerTestCases()
 {
 	Logfacility_class Log("Synthesizer test");
-	Loop_class Loop;
+	Loop_class 				Loop;
 	String 					TestStr{""};
 	Note_class 				Notes;
 	Oscillator 				TestOsc{ TESTID };
 	Interface_class			SDS;
 	Instrument_class 		Instrument(SDS.addr );
-	Mixer_class 			Mixer;
-	Keyboard_class			Keyboard( &Instrument, &Mixer.StA[MbIdKeyboard] );
+	Mixer_class 			Mixer( SDS.addr );
+	Keyboard_class			Keyboard( &Instrument );
 	External_class 			External( &Mixer.StA[ MbIdExternal] );
 	Config_class* 			Cfg = new Config_class;
+
+	Log.Set_Loglevel( TEST, true);
+	Log.Comment(TEST, "entering test classes ");
 
 	Log.Init_log_file();
 	Log.Test_Logging();
@@ -95,6 +98,7 @@ void SynthesizerTestCases()
  *
  */
 
+DirStructure_class	DirStructure{};
 
 
 Application_class::Application_class( string name, uint id, uint8_t* status ) :
@@ -134,6 +138,7 @@ void Application_class::DeRegister( ifd_t* ifd )
     	cout.flush() << out;
 
     } while( getline ( cFile, out ));
+    cout << endl;
     cFile.close( );
 
 }
@@ -172,14 +177,18 @@ void Application_class::Start()
 	{
 		Init_log_file();
 	}
-	Comment(INFO, Line );
+	Comment( INFO, Line );
 	Comment( INFO, "Entering application init for ");
 	Comment( INFO, This_Application );
-	Comment(INFO, Line );
+	Comment( INFO, Line );
 
 	redirect_stderr = (bool) std::freopen( file_structure().err_file.data(), "w", stderr);
 	if ( redirect_stderr )
+	{
 		Comment( INFO, "Redirecting stderr");
+		fprintf( stderr, "%s\n", "error file is empty");
+	}
+	DirStructure.Create();
 
 
 }
