@@ -10,7 +10,7 @@ environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.980570012
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.980570012/append=true
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.980570012/appendContributed=true
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/INCLUDEARCH/delimiter=\:
-environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/INCLUDEARCH/operation=append
-environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/INCLUDEARCH/value=aarch
+environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/INCLUDEARCH/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/INCLUDEARCH/value=x86_
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/append=true
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305/appendContributed=true
