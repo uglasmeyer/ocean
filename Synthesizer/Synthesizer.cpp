@@ -11,7 +11,6 @@
 #include <App.h>
 #include <Common.h>
 #include <Keys.h>
-//#include <Mixer.h>
 #include <Notes.h>
 #include <Synthesizer.h>
 #include <Synthmem.h>
@@ -21,7 +20,7 @@ using namespace std;
 string					Module = "Synthesizer";
 Logfacility_class		Log( Module );
 Interface_class			SDS;
-Application_class		App( Module, SYNTHID, &SDS.addr->Synthesizer);
+Application_class		App( Module, SYNTHID, &SDS );
 Mixer_class				Mixer ( SDS.addr );
 Instrument_class 		Instrument(SDS.addr );
 Note_class 				Notes;
@@ -31,7 +30,7 @@ Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay( SDS.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
 ProgressBar_class		ProgressBar( SDS.addr );
-Time_class				Timer( SDS.addr );
+Time_class				Timer( &SDS.addr->time_elapsed );
 
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
@@ -81,23 +80,18 @@ void read_config_file()
 
 void exit_proc( int signal )
 {
-	RecordThreadDone = true;
 	Log.Comment(INFO, "received signal: " + to_string( signal ) );
 	if ( Log.Log[ TEST ] )
 	{
 		Log.Comment(TEST, "Entering test cases exit procedure for application" + Application );
-		App.DeRegister( SDS.addr );
-		if ( record_thread.joinable() )
-			record_thread.join();
 	}
 	else
 	{
 		Log.Comment(INFO, "Entering exit procedure for " + Application );
-		App.DeRegister( SDS.addr );
-		if ( record_thread.joinable() )
-			record_thread.join();
-		SDS.Dump_ifd();
 	}
+	RecordThreadDone = true;
+	if ( record_thread.joinable() )
+		record_thread.join();
 	exit( signal );
 }
 
@@ -788,12 +782,11 @@ int main( int argc, char* argv[] )
 
 	show_usage();
 	show_AudioServer_Status();
-    SDS.Announce( App.client_id, App.status_p );
+    SDS.Announce( App.client_id, &SDS.addr->Synthesizer );
 
 	Log.Comment(INFO, "Application initialized");
 
 	ApplicationLoop( );
-
-	exit_proc(0);
+	exit_proc( 0 );
 	return 0;
 };

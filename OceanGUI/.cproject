@@ -75,10 +75,10 @@
 								<option id="gnu.cpp.compiler.option.misc.hardening.489160662" name="Hardening options (-fstack-protector-all -Wformat=2 -Wformat-security -Wstrict-overflow)" superClass="gnu.cpp.compiler.option.misc.hardening" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1906271956" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/OceanGUI}&quot;"/>
-									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt5/"/>
+									<listOptionValue builtIn="false" value="/usr/include/${INCLUDEARCH}64-linux-gnu/qt5/QtWidgets"/>
+									<listOptionValue builtIn="false" value="/usr/include/${INCLUDEARCH}64-linux-gnu/qt5/QtCore"/>
+									<listOptionValue builtIn="false" value="/usr/include/${INCLUDEARCH}64-linux-gnu/qt5/QtGui"/>
+									<listOptionValue builtIn="false" value="/usr/include/${INCLUDEARCH}64-linux-gnu/qt5/"/>
 									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/include"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.debugging.level.860960946" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>

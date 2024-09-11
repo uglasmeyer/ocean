@@ -38,7 +38,7 @@ public:
     string					Module				= "OceanGUI";
     Interface_class     	SDS					{};
     ifd_t*					sds 				= SDS.addr;
-    Application_class		App{ Module, GUI_ID, &sds->UserInterface};
+    Application_class		App{ Module, GUI_ID, &SDS };
     Spectrum_base          	Spectrum			{};
     File_Dialog_class*      File_Dialog_obj		= nullptr;
     Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;

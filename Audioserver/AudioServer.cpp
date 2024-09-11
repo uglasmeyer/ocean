@@ -19,7 +19,6 @@ void exit_proc( int exit_code )
 	Log.Comment(INFO, Application + "received command <exit> " );
 	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
 	Log.Comment( INFO, "suspend server" );
-	App.DeRegister( sds );
 
 	done = true;
 
@@ -118,7 +117,7 @@ void Application_loop()
 
 	while ( not done and rtapi.isStreamRunning() )
 	{
-		Wait( SECOND );
+	    this_thread::sleep_for(chrono::seconds(1));
 	}
 	Log.Comment(INFO, "Application loop exit");
 
@@ -212,7 +211,7 @@ int main( int argc, char *argv[] )
 
 	App.Shutdown_instance( );
 
-    SDS.Announce( App.client_id, App.status_p );
+    SDS.Announce( App.client_id, &sds->AudioServer );
 	sds->RecCounter 	= 0;
 
 
@@ -313,7 +312,7 @@ int main( int argc, char *argv[] )
 	while ( not *Done )
 	{
 		cout.flush() << "." ;
-		Wait( SECOND );
+		Timer.Wait( 1 );// 1sec
 	}
 	free( frame );
 	Log.Comment(INFO, "Application loop exit");
