@@ -658,6 +658,7 @@ bool sync_mode()
 			( Instrument.vco.wp.frequency < LFO_limit 	) 	or
 			( Mixer.StA[MbIdExternal].state.store 		)	or
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
+			( Mixer.status.kbd  		)	or	//
 			( ProgressBar.active 			)		// StA record external
 		);
 	return sync ;
@@ -718,6 +719,7 @@ void ApplicationLoop()
 				}
 
 				add_sound( shm_addr );
+				Keyboard.Setch( 0 );
 
 				if ( ProgressBar.active )
 					External.Add_record( &Mixer.Out_L, &Mixer.Out_R);

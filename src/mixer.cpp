@@ -245,9 +245,9 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 }
 
 
-void Mixer_class::Add_Sound( Data_t* 	instrument,
-							 Data_t* 	keyboard,
-							 Data_t* 	notes,
+void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
+							 Data_t* 	keyboard_osc,
+							 Data_t* 	notes_osc,
 							 stereo_t* 	shm_addr )
 {
 	auto get_store_id = [ this ]()
@@ -286,11 +286,11 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 
 	// add osc sound
 	if ( StA[ MbIdInstrument].state.play )
-		add_mono( instrument, StA[ MbIdInstrument ].Amp * amp_mod, MbIdInstrument );
+		add_mono( instrument_osc, StA[ MbIdInstrument ].Amp * amp_mod, MbIdInstrument );
 	if ( StA[ MbIdNotes 	].state.play )
-		add_mono( notes, StA[ MbIdNotes ].Amp 			* amp_mod, MbIdNotes );
+		add_mono( notes_osc, StA[ MbIdNotes ].Amp 			* amp_mod, MbIdNotes );
 	if ( StA[ MbIdKeyboard	].state.play )
-		add_mono( keyboard, StA[MbIdKeyboard].Amp 		* amp_mod, MbIdKeyboard );
+		add_mono( keyboard_osc, StA[MbIdKeyboard].Amp 		* amp_mod, MbIdKeyboard );
 	StA[ MbIdKeyboard	].state.play = false;
 
 	// add StA sound

@@ -25,7 +25,6 @@ Keyboard_class::Keyboard_class() :
 
 Keyboard_class::~Keyboard_class()
 {
-	Reset();
 };
 
 void Keyboard_class::setup(  )
@@ -71,7 +70,7 @@ bool Keyboard_class::Attack( int key, uint8_t amp )
 		};
 
 	if ( key == NOKEY ) return false;
-	if ( decay( key ) ) return false;
+	if ( decay( key ) ) return true;
 
 	setup();
 	for ( Oscillator* osc : osc_group )
@@ -100,10 +99,9 @@ int Keyboard_class::Kbdnote()
 {
 	// transforms anykey into notevalue
 
-	keystruct = GetHold();
+	keystruct = GetKey();
 
 	int anykey = keystruct.key;
-//	cout << anykey;
 
 	// check if key is in set KbdNote
 	size_t note = KbdNote.find( anykey );

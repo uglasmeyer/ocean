@@ -30,12 +30,11 @@ public:             // Access specifier
 	array<key_struct_t, 6> key_vector {key_struct()};
 	array<key_struct_t, 6> default_key_vector = key_vector;
 
-	Keyboard_base() : Logfacility_class("Kbd")
-	{};
-	virtual ~Keyboard_base()
-	{};
+	Keyboard_base();
+	virtual ~Keyboard_base();
 
 	key_struct_t 	GetKey();
+	void 			Setch( char ch );
 	key_struct_t 	GetHold();
 	void			KeyVector();
 	void 			Reset();
@@ -43,12 +42,18 @@ public:             // Access specifier
 
 private:
 
-	uint8_t 		c2		= 0;
-	uint8_t 		c3 		= 0;
+	uint8_t 		c2			= 0;
+	uint8_t 		c3 			= 0;
+	struct termios 	old_flags 	= {0};
+	struct termios 	new_flags 	= {0};
+	char 			buf 		= 0;
+	char*			buf_p		= &buf;
 
-	char getch(void);
+	char getch();
+	char getkey();
 	void pressKey();
 	void show_key_vector();
+	void init();
 
 };
 

@@ -7,17 +7,30 @@
 
 #include <Kbd.h>
 
+Keyboard_base::Keyboard_base() : Logfacility_class("Kbd")
+{
+	init();
+};
+
+Keyboard_base::~Keyboard_base()
+{
+	Reset();
+};
 
 
 Keyboard_base::key_struct_t Keyboard_base::GetKey()
 {
 	pressKey();
+//	fflush(stdout);
+
 	return keystruct;
 }
 
 Keyboard_base::key_struct_t Keyboard_base::GetHold()
 {
 	KeyVector();
+	fflush(stdout);
+
 	return key_vector[0];
 }
 
@@ -46,8 +59,35 @@ void Keyboard_base::show_key_vector()
 	for( key_struct_t keystr : key_vector )
 		cout << keystr.key << " " << keystr.val << endl;
 }
+
+void Keyboard_base::init()
+{
+	fflush(stdout);
+
+	if( tcgetattr (0, &old_flags) < 0 )
+		perror("tcsetattr()");
+	if( tcgetattr (0, &new_flags) < 0 )
+		perror("tcsetattr()");
+
+	new_flags.c_lflag 		&= ~ICANON;	// non-standard mode
+	new_flags.c_lflag 		&= ~ECHO;	// disable echo and erase
+
+	new_flags.c_cc[VMIN] 		= 0;//1;
+	new_flags.c_cc[VTIME] 	= 1;//0; //0->HIGH cpu load
+	// In this case TIME is a total read timeout. (timeout in multiples of 0.1 sec)
+	// The read returns if either MIN bytes are received before the timer expires
+	// or if the timer expires. In the latter case the number of bytes received
+	// is returned even if that number is zero.
+	// If an interrupt occurs before the timer expires and no bytes are read
+	// the read returns -1 with errno set to EINTR.
+	if(tcsetattr(0, TCSANOW, &new_flags) < 0)
+		perror("tcsetattr ICANON");
+
+}
+
 void Keyboard_base::Reset()
 {
+	/*
 	struct termios 		tflags = {0};
 	Comment(INFO , "Keyboard reset");
 	if(tcgetattr (0, &tflags) < 0)
@@ -60,10 +100,24 @@ void Keyboard_base::Reset()
 
 	if( tcsetattr(0, TCSADRAIN, &tflags ) < 0)
 		perror("tcsetattr ~ICANON");
-
+	*/
+	if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
+		perror("tcsetattr ~ICANON");
 }
 
-char Keyboard_base::getch(void)
+char Keyboard_base::getkey()
+{
+
+	if(read(0, buf_p, 1) < 0)
+		perror("read()");
+	return *buf_p;
+}
+
+void Keyboard_base::Setch( char ch )
+{
+	buf = ch;
+}
+char Keyboard_base::getch()
 //https://stackoverflow.com/questions/7469139/what-is-the-equivalent-to-getch-getche-in-linux
 //https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
 {
@@ -105,7 +159,8 @@ char Keyboard_base::getch(void)
 
 void Keyboard_base::pressKey()
 {
-	keystruct.key = getch();
+	keystruct.key = getkey();
+//	keystruct.key = getch();
 
 	if ( keystruct.key == 27 )
 	{
