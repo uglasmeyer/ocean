@@ -8,21 +8,10 @@
 #ifndef STRING_H_
 #define STRING_H_
 
-#include <ranges>
-#include <algorithm>
-#include <string>
-#include <list>
+#include <Synthesizer.h>
 #include <Logfacility.h>
 
 typedef vector<string>	vector_str_t;
-
-template < typename T >
-void show_vector( T items )
-{
-	for( auto item : items )
-		cout << item << endl;
-}
-
 const size_t STRINGNOTFOUND = string::npos;
 
 class String : virtual public Logfacility_class

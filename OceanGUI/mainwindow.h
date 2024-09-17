@@ -27,7 +27,7 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 
-class MainWindow : public QMainWindow, Logfacility_class
+class MainWindow : public QMainWindow, virtual Logfacility_class, virtual Config_class
 {
     Q_OBJECT
 

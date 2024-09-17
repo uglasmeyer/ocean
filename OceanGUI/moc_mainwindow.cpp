@@ -395,6 +395,8 @@ void *MainWindow::qt_metacast(const char *_clname)
         return static_cast<void*>(this);
     if (!strcmp(_clname, "Logfacility_class"))
         return static_cast< Logfacility_class*>(this);
+    if (!strcmp(_clname, "Config_class"))
+        return static_cast< Config_class*>(this);
     return QMainWindow::qt_metacast(_clname);
 }
 

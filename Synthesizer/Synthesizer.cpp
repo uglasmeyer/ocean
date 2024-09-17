@@ -19,6 +19,7 @@ using namespace std;
 
 string					Module = "Synthesizer";
 Logfacility_class		Log( Module );
+DirStructure_class		Dir;
 Interface_class			SDS;
 Application_class		App( Module, SYNTHID, &SDS );
 Mixer_class				Mixer ( SDS.addr );
@@ -31,14 +32,9 @@ Wavedisplay_class 		Wavedisplay( SDS.addr );
 Memory 					Mono(monobuffer_size); // Wavedisplay output
 ProgressBar_class		ProgressBar( SDS.addr );
 Time_class				Timer( &SDS.addr->time_elapsed );
-
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
-thread record_thread( record_thead_fcn, &SDS,
-										&External,
-										&ProgressBar,
-										&SaveRecordFlag,
-										&RecordThreadDone );
+
 
 
 const int 				EXITTEST			= 15;;
@@ -64,19 +60,12 @@ void Setup_Wavedisplay()
 }
 
 
-void read_config_file()
-{
-	Log.Comment(INFO, "Reading config file " + file_structure().config_file );
-	Config_class* Cfg = new Config_class;
-	Cfg->read_synthesizer_config( );
 
-	External.Id3tool_cmd( Cfg->Get["Title"], Cfg->Get["Author"], Cfg->Get["Genre"], Cfg->Get["Album"]);
-    Server_struct().TERM = Cfg->Get["TERM"];
-
-    delete( Cfg );
-
-}
-
+thread record_thread( record_thead_fcn, &SDS,
+										&External,
+										&ProgressBar,
+										&SaveRecordFlag,
+										&RecordThreadDone );
 
 void exit_proc( int signal )
 {
@@ -92,9 +81,8 @@ void exit_proc( int signal )
 	RecordThreadDone = true;
 	if ( record_thread.joinable() )
 		record_thread.join();
-	exit( signal );
+	exit( 0 );
 }
-
 void catch_signals( vector<uint> sig_v )
 {
 	for ( uint sig : sig_v )
@@ -103,6 +91,8 @@ void catch_signals( vector<uint> sig_v )
 		signal( sig	, &exit_proc );
 	}
 }
+
+
 
 void show_AudioServer_Status()
 {
@@ -270,6 +260,11 @@ void process( char key )
 		{
 			Log.Comment(INFO, "receive command <set external wave file>");
 			string wavefile = SDS.Read_str( WAVEFILESTR_KEY );
+			while( SaveRecordFlag )
+			{
+				Log.Comment( WARN, "record in progress");
+				Wait( 500 * MILLISECOND );
+			}
 			if ( External.Read_file_header( wavefile ))
 			{
 				External.Read_file_data();
@@ -751,29 +746,29 @@ void ApplicationLoop()
 
 int main( int argc, char* argv[] )
 {
-
-	App.Start();
-
 	catch_signals( { SIGINT, SIGHUP } );
+	App.Start( argc, argv );
 
 	Log.Comment(INFO, "Evaluating startup arguments");
-	prgarg_struct_t params = parse_argv( argc, argv );
 
-	if ( params.test == 'y' )
+	cout << "using base directory: " << Dir.basedir << endl;
+
+	Dir.Create();
+
+	if ( App.Cfg.Config.test == 'y' )
 	{
 		SynthesizerTestCases();
 		exit_proc( EXITTEST );
 	}
 
 	Log.Comment(INFO,"Attaching data buffers");
-	Shm_a.buffer( sharedbuffer_size, params.shm_key_a );
-	Shm_b.buffer( sharedbuffer_size, params.shm_key_b );
+	Shm_a.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_a );
+	Shm_b.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_b );
 
 	App.Shutdown_instance( );
 
 //	Log.Show_loglevel();
 
-	read_config_file();
 
 	SDS.Restore_ifd();
 	activate_ifd();
@@ -782,7 +777,9 @@ int main( int argc, char* argv[] )
 
 	show_usage();
 	show_AudioServer_Status();
-    SDS.Announce( App.client_id, &SDS.addr->Synthesizer );
+
+
+	SDS.Announce( App.client_id, &SDS.addr->Synthesizer );
 
 	Log.Comment(INFO, "Application initialized");
 

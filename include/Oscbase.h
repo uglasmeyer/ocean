@@ -11,6 +11,7 @@
 #include <Spectrum.h>
 #include <Synthesizer.h>
 #include <Synthmem.h>
+#include <String.h>
 
 const vector<string> NoteName =
 	{ "a","a#","b","c","c#", "d","d#", "e","f","f#", "g","g#","A"};

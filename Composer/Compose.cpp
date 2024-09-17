@@ -156,7 +156,7 @@ bool preprocessor( string batch_file )
 		Log.Comment( INFO, "Processing input file: \n" + batch_file  );
 	}
 
-	filesystem::path path{batch_file};
+	string path = filesystem::path( batch_file );
 	vector_str_t arr	= {};
 
 	uint lineno = 1;
@@ -171,7 +171,7 @@ bool preprocessor( string batch_file )
 			string filename = ( arr.size() > 1) ? arr[1] : "";
 			if ( filename.length() > 0 )
 			{
-				preprocessor( dir_struct().includedir + filename + ".inc" );
+				preprocessor( file_structure().Dir.includedir + filename + ".inc" );
 			}
 			else
 			{
@@ -182,10 +182,12 @@ bool preprocessor( string batch_file )
 		{
 			if ( keyword.Str.length() != 0 )
 			{
-				line_struct_t prgline = {	.no=lineno,
-											.name=path.stem(),
-											.line=Str.Str,
-											.keyw = keyword.Str };
+				line_struct_t prgline = {	.no		=lineno,
+											.name	=filesystem::path(batch_file).stem(),
+											.line	=Str.Str,
+											.keyw 	= keyword.Str,
+											.arg1 	= ""
+				};
 
 				Program.push_back( prgline );
 			}
@@ -239,16 +241,13 @@ void maintest()
 
 int main( int argc, char* argv[] )
 {
-	App.Start();
+	App.Start( argc, argv );
 
 
-	prgarg_struct_t params = parse_argv( argc, argv );
-	show_prgarg_struct( params );
-
-	if ( params.test == 'y' )
+	if ( App.Cfg.Config.test == 'y' )
 	{
 		maintest();
-		exit(0);
+		return 0;
 	}
 	Log.Set_Loglevel(ERROR , true);
     SDS.Announce( App.client_id, &SDS.addr->Composer );
@@ -261,7 +260,7 @@ int main( int argc, char* argv[] )
 		}
 	}
 
-	if ( params.dialog == 'y' )
+	if ( App.Cfg.Config.dialog == 'y' )
 	{
 		composer_dialog();
 	}

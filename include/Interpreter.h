@@ -9,6 +9,7 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
+#include <Config.h>
 #include <Interface.h>
 #include <Keys.h>
 #include <Processor.h>
@@ -47,7 +48,7 @@ const vector<string> Keywords {
 
 /*
 */
-class Interpreter_class : virtual Logfacility_class, public Processor_class
+class Interpreter_class : virtual Logfacility_class, virtual Config_class, virtual public Processor_class
 {
 	typedef struct osc_struct
 	{

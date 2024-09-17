@@ -6,7 +6,8 @@
  */
 
 #include <Synthmem.h>
-
+#include <String.h>
+#include <Common.h>
 
 //-----------------------------------------------------------------------------
 
@@ -28,7 +29,7 @@ void Memory::init_data( buffer_t size)
 	info.max_records	= info.data_blocks / info.block_size;
 	info.record_bytes  	= info.block_size * info.sizeof_data;
 	if ( not ( size - info.sizeof_data * info.max_records * info.block_size == 0 ))
-		exit(1);
+		Exception( "init memory" );
 
 //	if ( Data == nullptr )
 		Data = (Data_t*) mmap(	NULL,
@@ -73,7 +74,7 @@ void Stereo_Memory::init_data( buffer_t size)
 	info.max_records	= info.data_blocks / info.block_size;
 	info.record_bytes  	= info.block_size * info.sizeof_data;
 	if ( not ( size - info.sizeof_data * info.max_records * info.block_size == 0 ))
-		exit(1);
+		Exception( "init shared stereo memory" );
 
 	stereo_data 			= (stereo_t*) mmap(	NULL,
 									size  + 1  ,
@@ -252,8 +253,7 @@ void Shared_Memory::buffer( buffer_t size, key_t key )
 	int shm_id = shmget ( key, size, shmflg );
 	if ( shm_id < 0 )
 	{
-		Comment(ERROR, "cannot get shared memory");
-		exit ( 1 );
+		Exception( "cannot get shared memory" );
 	}
 	addr = (stereo_t*) shmat (shm_id, 0, 0);
 	shm_info = { size, key, shm_id, addr };

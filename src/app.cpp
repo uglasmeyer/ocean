@@ -6,6 +6,7 @@
  */
 
 #include <App.h>
+#include <Config.h>
 
 /*
  * Synthesizer.cpp extensions
@@ -52,6 +53,7 @@ void SynthesizerTestCases()
 {
 	Logfacility_class Log("Synthesizer test");
 	Loop_class 				Loop;
+	Config_class 			Cfg( "TestCfg");
 	String 					TestStr{""};
 	Note_class 				Notes;
 	Oscillator 				TestOsc{ TESTID };
@@ -61,7 +63,10 @@ void SynthesizerTestCases()
 	Keyboard_class			Keyboard( &Instrument );
 	External_class 			External( &Mixer.StA[ MbIdExternal] );
 	Time_class				Timer( &SDS.addr->time_elapsed );
-	Config_class* 			Cfg = new Config_class;
+	DirStructure_class		Dir;
+
+
+	Dir.Test();
 
 	Log.Set_Loglevel( TEST, true);
 	Log.Comment(TEST, "entering test classes ");
@@ -90,13 +95,7 @@ void SynthesizerTestCases()
 
 	External.test();
 
-	Cfg->read_synthesizer_config( );
-	External.Id3tool_cmd( Cfg->Get["Title"], Cfg->Get["Author"], Cfg->Get["Genre"], Cfg->Get["Album"]);
-	string I = Cfg->Get["int"];
-	cout << dec << atoi(I.data()) <<endl;
-    Server_struct().TERM = Cfg->Get["TERM"];
-    cout << Server_struct().cmd( Audio_Srv, "help") << endl;
-    delete(Cfg);
+	External.Id3tool_cmd( ); // @suppress("Invalid arguments")
 	TestStr.test();
 	Timer.Test();
 }
@@ -106,7 +105,6 @@ void SynthesizerTestCases()
  *
  */
 
-DirStructure_class	DirStructure{};
 
 
 Application_class::Application_class( string name, uint id, Interface_class* SDS ) :
@@ -140,6 +138,7 @@ Application_class::~Application_class()
 	}
 }
 
+
 void Application_class::deRegister( )
 {
 	cout << endl;
@@ -156,7 +155,7 @@ void Application_class::deRegister( )
 	if ( redirect_stderr )
 		std::fclose(stderr);
 
-	std::ifstream cFile( file_structure().err_file );
+	std::ifstream cFile( errFile );
     string out = "";
     do
     {
@@ -196,7 +195,7 @@ void Application_class::Shutdown_instance( )
 	}
 }
 
-void Application_class::Start()
+void Application_class::Start( int argc, char* argv[] )
 {
 	if (( client_id == GUI_ID ) or ( client_id == COMPID ) )
 	{
@@ -207,13 +206,16 @@ void Application_class::Start()
 	Comment( INFO, This_Application );
 	Comment( INFO, Line );
 
-	redirect_stderr = (bool) std::freopen( file_structure().err_file.data(), "w", stderr);
+	redirect_stderr = (bool) std::freopen( errFile.data(), "w", stderr);
 	if ( redirect_stderr )
 	{
 		Comment( INFO, "Redirecting stderr");
 		fprintf( stderr, "%s\n", "error file is empty");
 	}
-	DirStructure.Create();
+
+	Cfg.Parse_argv(argc, argv);
+	Cfg.Show_prgarg_struct( );
+
 
 
 }

@@ -46,8 +46,8 @@ File_Dialog_class::File_Dialog_class(QWidget *parent, QSlider* sl_main_hz ) :
 
     CB_notes                = ui->cb_notefilenames;
     CB_instruments          = ui->cb_instrumentfiles;
-    notes_path          	= dir_struct().notesdir;
-    instruments_path    	= dir_struct().instrumentdir;
+    notes_path          	= file_structure().Dir.notesdir;
+    instruments_path    	= file_structure().Dir.instrumentdir;
     string file_type		= file_structure().file_type;
     Qread_filelist( CB_notes, notes_path, file_type);
     Qread_filelist( CB_instruments, instruments_path, file_type);

@@ -18,14 +18,14 @@ pause key
 
 
 StA1 = 1
-add 	drums  drums3  StA1
+add 	drums  drums  StA1
 play StA1 amp 100
 
 text add/ Play notes using an instrument
 pause key
 
 instrument load drums	# load files drums.kdb
-notes load drums3		# load file drums3.kbd
+notes load drums		# load file drums3.kbd
 notes play on 100 		# switch to notes mode
 rec store StA1			# store to memory 1
 pause auto				# wait for sentence duration seconds
@@ -54,7 +54,7 @@ rec amp StA2 100
 text some osc and adsr commands
 pause key
 
-RECFILE = 77
+RECFILE = 78
 record file 10
 record stop RECFILE
 rec amp StA2 0
@@ -62,7 +62,7 @@ rec amp StA1 1
 rec amp 7 100
 record play RECFILE 5
 
-text record file synthesizer77.wav
+text record file synthesizer78.wav
 pause key
 
 instrument load piano

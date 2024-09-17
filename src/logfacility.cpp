@@ -5,10 +5,11 @@
  *      Author: sirius
  */
 
-#include <iostream>
 #include <Logfacility.h>
 #include <Synthesizer.h>
-#include <filesystem>
+#include <Config.h>
+
+
 using namespace std;
 
 
@@ -56,15 +57,15 @@ void Logfacility_class::setup()
 	error_vector.push_back(  {EMLINK,"Too many links"});
 	error_vector.push_back(  {EPIPE,"Broken pipe"});
 
-	filesystem::create_directories(dir_struct().logdir);
+	filesystem::create_directories( logdir);
 
 }
 
 void Logfacility_class::Init_log_file()
 {
 	Comment( INFO, "Initialize Log file ");
-	if (filesystem::exists( file_structure().log_file ))
-		filesystem::remove( file_structure().log_file );
+	if (filesystem::exists( logFile ))
+		filesystem::remove( logFile );
 }
 
 void Logfacility_class::Show_loglevel()
@@ -108,7 +109,7 @@ void Logfacility_class::Comment( int level, const string& logcomment )
 		{
 			string comment_str = module + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << setw(20) << comment_str << logcomment << endc << endl;
-			fstream LOGFILE(file_structure().log_file, fstream::app);
+			fstream LOGFILE( logFile, fstream::app);
 			LOGFILE.flush() << setw(20) << comment_str << logcomment << endl;
 		}
 	}

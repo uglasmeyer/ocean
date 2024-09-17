@@ -6,11 +6,7 @@
  */
 
 #include <String.h>
-#include <stdexcept>
-#include <sstream>
-#include <iostream>
-#include <assert.h>
-#include <algorithm>
+#include <Common.h>
 
 
 
@@ -77,8 +73,7 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 		}
 		else
 		{
-			Comment( ERROR, err );
-			exit(1);
+			Exception( err );
 		}
 	}
 	size_t pos 		= 0;
@@ -90,7 +85,7 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 		string arrpos = arr[ pos ];
 		if ( arrpos[0] == ch )
 		{
-			sub = arrpos.substr(1,string::npos);
+			sub = arrpos.substr(1, STRINGNOTFOUND );
 			while( ( arrpos.back() != ch ) and ( pos != arr.size()-1 ) )
 			{
 				pos++;
@@ -159,9 +154,9 @@ int String::secure_stoi( string str)
 	}
 	else
 	{
-		Comment( ERROR, "cannot convert string: >"+str+"< to integer " );
-		exit(1);
+		Exception( "cannot convert string: >"+str+"< to integer " );
 	}
+	return -1;
 }
 
 

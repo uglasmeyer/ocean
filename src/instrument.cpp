@@ -6,13 +6,15 @@
  */
 
 #include <Instrument.h>
+#include <Config.h>
+#include <Common.h>
 
 
 Instrument_class::Instrument_class(ifd_t* ifd )
 : Logfacility_class("Instrument")
 {
 	this->ifd 		= ifd;
-	Default_instrument_file = dir_struct().instrumentdir + "default.kbd";
+	Default_instrument_file = file_structure().Dir.instrumentdir + "default.kbd";
 	ifd_spectrum_vec = { &ifd->VCO_spectrum, &ifd->FMO_spectrum, &ifd->MAIN_spectrum};
 }
 
@@ -157,12 +159,12 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 
 void Instrument_class::set_name( string name )
 {
-	Instrument_file 		= dir_struct().instrumentdir + name + ".kbd";
+	Instrument_file 		= file_structure().Dir.instrumentdir + name + ".kbd";
 	if ( filesystem::exists( Instrument_file ) )
 		Name = name;
 	else
 		Name = "default";
-	Instrument_file 		= dir_struct().instrumentdir + Name + ".kbd";
+	Instrument_file 		= file_structure().Dir.instrumentdir + Name + ".kbd";
 
 	Comment( INFO, "Instrument Name: " + Name);
 }
@@ -244,8 +246,8 @@ Oscillator* Instrument_class::get_osc_by_name( string name )
 			return osc;
 	}
 
-	Comment(0, "incomplete instrument definition for " + name);
-	exit(1);
+	Exception( "incomplete instrument definition for " + name );
+	return nullptr;
 }
 
 bool Instrument_class::connect( string osc, string sec, string mode )

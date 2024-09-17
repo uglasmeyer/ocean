@@ -33,6 +33,7 @@ int set_slider( float f )
 
 MainWindow::MainWindow(QWidget *parent) :
 	Logfacility_class("OceanGUI"),
+	Config_class("OceanGUI"),
 	ui(new Ui::MainWindow)
 
 {
@@ -71,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
-    QString Ocean_png = QString::fromStdString( dir_struct().libdir + "Ocean.png" );
+    QString Ocean_png = QString::fromStdString( file_structure().Dir.libdir + "Ocean.png" );
     QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
 
@@ -178,7 +179,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sB_VCO->setMaximum(sb_max);
 
     CB_external         = ui->cb_external;
-    string wavfile_path = dir_struct().musicdir;
+    string wavfile_path = file_structure().Dir.musicdir;
     Qread_filelist( CB_external,
     				wavfile_path, file_structure().wav_file_type );
 
@@ -608,21 +609,21 @@ void MainWindow::FMO_slot_volume()
 
 void MainWindow::start_composer()
 {
-    string Start_Composer = Server_struct().cmd( Composer, "" );
+    string Start_Composer = Server_cmd( Config.Term, file_structure().composer_bin, "" );
 	system_execute( Start_Composer.data() );
     Comment( INFO, Start_Composer );
 }
 
 void MainWindow::start_audio_srv()
 {
-    string Start_Audio_Srv = Server_struct().cmd( Audio_Srv, "" );
+    string Start_Audio_Srv = Server_cmd( Config.Term, file_structure().audio_bin, "" );
 	system_execute( Start_Audio_Srv.data() );
 	Comment( INFO, Start_Audio_Srv );
 }
 
 void MainWindow::start_synthesizer()
 {
-    string Start_Synthesizer = Server_struct().cmd( Synthesizer, "" );
+    string Start_Synthesizer = Server_cmd( Config.Term, file_structure().synth_bin, "" );
     system_execute( Start_Synthesizer.data() );
     Comment( INFO, Start_Synthesizer );
     Wait( 2*SECOND ); 	// WAIT until the startup of the process finished.
@@ -744,19 +745,19 @@ void MainWindow::Updatewidgets()
 				case RECORDWAVFILEFLAG :
 				{
 					Qread_filelist( CB_external,
-									dir_struct().musicdir, file_structure().wav_file_type);
+									file_structure().Dir.musicdir, file_structure().wav_file_type);
 					break;
 				}
 				case NEWINSTRUMENTFLAG :
 				{
 					Qread_filelist( this->File_Dialog_obj->CB_instruments,
-									dir_struct().instrumentdir, file_structure().file_type);
+									file_structure().Dir.instrumentdir, file_structure().file_type);
 					break;
 				}
 				case NEWNOTESLINEFLAG :
 				{
 					Qread_filelist( this->File_Dialog_obj->CB_notes,
-									dir_struct().notesdir, file_structure().file_type);
+									file_structure().Dir.notesdir, file_structure().file_type);
 					break;
 				}
 			}

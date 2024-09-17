@@ -25,12 +25,13 @@ public:
 	string 				Name 				= "";
 	string 				This_Application 	= "";
 	uint 				client_id			= NOID;
+	Config_class		Cfg 				{ "App" };
 
-	Application_class( string name, uint , Interface_class*  );
+	Application_class( string name, uint , Interface_class*);
 	~Application_class();
 
 	void Shutdown_instance( );
-	void Start();
+	void Start( int, char* [] );
 
 private:
 	bool 			redirect_stderr = false;

@@ -12,10 +12,9 @@ float Note_base::Calc_frequency( const uint8_t& key )
 {
 	if ( key > root2.vec.size()-1 )
 	{
-		Comment( ERROR, "Octave key exceeds limit ");
 		cout.flush() << "limit: " << (int)root2.vec.size()-1 << endl;
 		cout.flush() << "key  : " << (int)key << endl;
-		Exception( );
+		Exception( "Octave key exceeds limit " );
 	}
 	return root2.vec[ key ] * oct_base_freq;
 }
@@ -56,11 +55,10 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 		{
 			Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
 												to_string( range[1] ) + "}" );
-			Comment ( ERROR,"Cannot assign noteline_prefix " +
-							 to_string( val ) +
-							" to noteline_structure");
 			if ( Log[ TEST ] ) return;
-			Exception( );//raise( SIGINT );
+			Exception( "Cannot assign noteline_prefix " +
+					 to_string( val ) +
+					" to noteline_structure" );//raise( SIGINT );
 		};
 	String S = str;
 	noteline_prefix_t nlp;
@@ -68,9 +66,8 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 //	show_vector( arr );
 	if ( arr.size() < 5 )
 	{
-		Comment ( ERROR, "Cannot assign noteline_prefix of length < 5");
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		Exception( );//raise( SIGINT );
+		Exception( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
 	}
 
 	nlp.Octave = S.secure_stoi( arr[0] );
@@ -84,9 +81,8 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 	nlp.nps = S.secure_stoi( arr[2]);
 	if ( not check_nps( nlp.nps) )
 	{
-		Comment ( ERROR, "Cannot assign noteline_prefix " + str + " to noteline_structure");
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		Exception( );//raise( SIGINT );
+		Exception( "Cannot assign noteline_prefix " + str + " to noteline_structure" );//raise( SIGINT );
 	}
 
 	nlp.flat = S.secure_stoi(arr[3]);

@@ -13,6 +13,7 @@
 #include <Osc.h>
 #include <Synthesizer.h>
 #include <Interface.h>
+#include <String.h>
 
 
 

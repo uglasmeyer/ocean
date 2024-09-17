@@ -265,16 +265,10 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 			for( uint id : MemIds )
 			{
 				if (( StA[id].state.play ) )
-				{
-					if (( id == 4 ) or ( id == 5  ) or ( id == 6 ))
-						{ sum += StA[id].Amp; count++; }
-					else
-						if ( StA[id].state.store )
-							{ sum += StA[id].Amp; count++; }
-				}
+					{ sum += StA[id].Amp; count++; }
 			}
-			if ( count == 1 ) 	return (float) 1.0;
-			if ( sum == 0 ) 	return (float)1.0;
+			if ( count 	== 1 ) 	return (float) 1.0;
+			if ( sum 	== 0 ) 	return (float) 1.0;
 			float 	mean = 100.0 / sum;
 			return 	mean;
 		};
@@ -287,6 +281,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 		return;
 	}
 
+
 	float amp_mod 	= calc_amp_mod();
 
 	// add osc sound
@@ -297,6 +292,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument,
 	if ( StA[ MbIdKeyboard	].state.play )
 		add_mono( keyboard, StA[MbIdKeyboard].Amp 		* amp_mod, MbIdKeyboard );
 	StA[ MbIdKeyboard	].state.play = false;
+
 	// add StA sound
 	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{

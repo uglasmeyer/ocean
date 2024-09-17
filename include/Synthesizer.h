@@ -7,7 +7,6 @@
 #ifndef SYNTHESIZER_H_
 #define SYNTHESIZER_H_
 
-
 #include <algorithm>
 #include <array>
 #include <cstdlib>
@@ -23,6 +22,7 @@
 #include <numeric>
 #include <random>
 #include <ranges>
+#include <stdexcept>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -35,7 +35,6 @@
 #include <math.h> // sin(), rint()
 #include <signal.h> // signal()
 #include <stdarg.h>
-//#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -46,50 +45,7 @@
 
 using namespace std;
 
-struct dir_struct
-{
-	 const string homedir 		= "/home/sirius/";
-	 const string basedir 		= homedir + "Synthesizer/";
-	 const string etcdir 		= basedir + "etc/";
-	 const string bindir  		= basedir + "bin/";
-	 const string libdir  		= basedir + "lib/";
-	 const string tmpdir  		= basedir + "tmp/";
-	 const string vardir		= basedir + "var/";
-	 const string autodir 		= vardir  + "auto/";
-	 const string musicdir 		= vardir  + "wav/";
-	 const string logdir 		= vardir  + "log/";
-	 const string docdir 		= basedir + "doc/";
-	 const string instrumentdir	= etcdir + "Instruments/";
-	 const string notesdir  	= etcdir + "Notes/";
-	 const string includedir	= etcdir + "include/";
 
-};
-
-	// files
-typedef struct file_structure
-{
-	const string filename 		= "synthesizer";
-	const string file_type 		= ".kbd";
-	const string wav_file_type 	= ".wav";
-	const string sound_file 	= dir_struct().etcdir 		+ "test.kbd";
-	const string audio_bin  	= dir_struct().bindir 		+ "AudioServer";
-	const string synth_bin  	= dir_struct().bindir 		+ "Synthesizer";
-	const string composer_bin	= dir_struct().bindir		+ "Composer";
-	const string ifd_file 		= dir_struct().libdir 		+ "ifd_data.bin";
-	const string wav_file 		= dir_struct().musicdir 	+ filename + ".wav";
-	const string mp3_file		= dir_struct().musicdir 	+ filename + ".mp3";
-	const string raw_file 		= dir_struct().tmpdir 		+ filename + ".raw";
-	const string counter_file 	= dir_struct().libdir 		+ "counter.bin";
-	const string log_file 		= dir_struct().logdir 		+ "Synthesizer.log";
-	const string err_file 		= dir_struct().logdir 		+ "Synthesizer.err";
-	const string config_file  	= dir_struct().etcdir		+ "synthesizer.cfg";
-	const string program_file	= dir_struct().includedir 	+ "main.synth";
-	const string doc_filename 	= "Synthesizer.odt";
-	const string doc_file 		= dir_struct().docdir 		+ doc_filename;
-} dir_struct_t;
-
-#include <Logfacility.h>
-#include <String.h>
 
 
 
@@ -133,19 +89,6 @@ enum
 const float			LFO_limit			= 1.0;
 const uint8_t		LFO_count			= 100;
 
-typedef struct Server_struct
-{
-
-	string TERM = "xterm -e";
-	string cmd( string srv, string opt )
-	{
-		return TERM + " '(" + srv + " " + opt + ")' &";
-	};
-} Server_struc_t;
-
-const string		Audio_Srv	= file_structure().audio_bin;
-const string 		Synthesizer	= file_structure().synth_bin;
-const string 		Composer 	= file_structure().composer_bin;
 
 template<typename T>
 void show_items( T all_items )

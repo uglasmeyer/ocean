@@ -342,7 +342,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			cout << "phi        " << phi  		<< endl;
 			cout << "dT         " << dT   		<< endl;
 			cout << "start_freq " << start_freq << endl;
-			Exception();
+			Exception( "maxphi exceeds limit < " + to_string( abs(dphi)) );
 		}
 		phi		= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
 		if ( ( phi > maxphi ) or ( phi < -maxphi ) )

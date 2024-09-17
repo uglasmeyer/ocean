@@ -73,7 +73,7 @@ char Key_event( string charlist )
 
 int main( int argc, char* argv[] )
 {
-	App.Start();
+	App.Start( argc, argv );
 
     SDS.Announce( App.client_id, &SDS.addr->Comstack );
 

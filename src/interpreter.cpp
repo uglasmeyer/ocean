@@ -10,6 +10,7 @@
 
 Interpreter_class::Interpreter_class( Interface_class* gui) :
 Logfacility_class( "Interpreter" ),
+Config_class( "Interpreter"),
 Processor_class(gui)
 {
 	this->GUI = gui;
@@ -62,19 +63,25 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 
 	if ( cmpkeyword( "synthesizer") )
 	{
-		exe = Synthesizer;
+		exe = file_structure().Synth_bin;
 	}
 	if ( cmpkeyword( "audioserver") )
 	{
-		exe = Audio_Srv;
+		exe = file_structure().Audio_bin;
 	}
 	if( exe.length() > 0 )
 	{
 		expect = { "shared memory key" };
-		string shmkey = pop_stack( 1);
+		option_default = "";
+		string shmkey = pop_stack( 0 );
+		string opt = "-k " + shmkey;
+		if ( shmkey.length() == 0 )
+			opt = "";
 
 		Comment( INFO, "start " + keyword.Str );
-		cmd = Server_struct().cmd( exe, "-k " + shmkey);
+
+		cmd = Server_cmd( Config.Term, exe, opt );
+
 		expect 		= { "start delay in seconds" };
 		option_default = "key";
 		string duration = pop_stack( 0 );
@@ -269,10 +276,10 @@ void Interpreter_class::Notes( vector_str_t arr )
 	{
 		expect = { "Notes name" };
 		string notes_name = pop_stack( 1);
-		check_file( { dir_struct().autodir, dir_struct().notesdir }, notes_name + ".kbd" );
-
 		Comment( INFO, "loading notes " + notes_name );
-//		Push_text( command );
+		check_file( { 	file_structure().Dir.autodir,
+						file_structure().Dir.notesdir }, notes_name + ".kbd" );
+
 		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, notes_name );
 		return;
 	}
@@ -381,8 +388,9 @@ void Interpreter_class::Instrument( vector_str_t arr )
 	{
 		expect = { "instument name "};
 		string instr = pop_stack( 1);
-		check_file( { dir_struct().instrumentdir } , instr + ".kbd" );
 		Comment( INFO, "loading instrument " + instr );
+		check_file( { file_structure().Dir.instrumentdir } , instr + ".kbd" );
+
 //		Push_text( command );
 		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
 		return;
@@ -502,7 +510,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 		if ( wfid < 0 )
 		{
 			Wrong_keyword(expect, waveform);
-			Exception();
+			Exception( "wrong keyword" );
 //			raise( SIGINT );
 		}
 		expect 		= { " duration in seconds" };
@@ -724,8 +732,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		int bps_id = bps_struct().getbps_id( Bps );
 		if ( bps_id < 0 )
 		{
-			Comment(ERROR, "wrong beat duration" );
-			Exception();
+			Exception( "wrong beat duration" );
 			//raise( SIGINT );
 		}
 		Processor_class::Push_ifd( &ifd->Main_adsr.bps_id, bps_id, "beat duration" );
@@ -816,15 +823,15 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 			};
 	auto is_notesfile = [](string str )
 		{
-			string filename = dir_struct().notesdir + str + ".kbd";
+			string filename = file_structure().Dir.notesdir + str + ".kbd";
 			return filesystem::exists(filename);
 		};
 
 	auto add_notesfile = []( string varname, string filea, string fileb )
 		{
-			string srca = dir_struct().notesdir + filea + ".kbd";
-			string srcb = dir_struct().notesdir + fileb + ".kbd";
-			string dest = dir_struct().autodir + varname + ".kbd";
+			string srca = file_structure().Dir.notesdir + filea + ".kbd";
+			string srcb = file_structure().Dir.notesdir + fileb + ".kbd";
+			string dest = file_structure().Dir.autodir + varname + ".kbd";
 			string cmd = "cat " +  srca + " " + srcb + " > " +  dest;
 			system_execute( cmd );
 		};
@@ -835,7 +842,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 
 	if ( var_is_keyword ( varname, Keywords ) )
 	{
-		if ( not testrun) Exception();//raise( SIGINT);
+		if ( not testrun) Exception( "var " + varname + " is keyword" );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -850,7 +857,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	string varvalue 	= pop_stack( 1) ;
 	if ( var_is_keyword ( varvalue, Keywords ) )
 	{
-		if ( not testrun) Exception( );//raise( SIGINT);
+		if ( not testrun) Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -941,12 +948,11 @@ int Interpreter_class::Find_position( vector<line_struct_t>* program, vector_str
 
 		line_no++;
 	}
-	Comment( ERROR, "line >" + keyword.Str + " not found" );
 	vector<line_struct_t> p = *program;
 	std::for_each( p.begin(), p.end(),
 			[] ( line_struct_t line )
 			{ if ( line.keyw[0] == ':' ) cout << line.keyw << " " ;} );
-	Exception( );//raise( SIGINT );
+	Exception( "line >" + keyword.Str + " not found" );//raise( SIGINT );
  	return -2;
 }
 
@@ -1001,7 +1007,7 @@ bool Interpreter_class::no_error( int nr )
 		if ( nr > 1 ) cout << " more ..." ;
 		cout << endl;
 		if ( not dialog_mode )
-			Exception( );//raise( SIGINT );
+			Exception( "unexpected" );//raise( SIGINT );
 		return false;
 	}
 	return true;
@@ -1073,7 +1079,7 @@ int Interpreter_class::pop_int( int min, int max )
 			Comment( ERROR, "Value "+ Str.Str + " out of bounds" );
 			Comment( INFO, "rejected: " + to_string(min) + "<" + Str.Str + "<" + to_string(max));
 			show_expected();
-			Exception( );//raise(SIGINT);
+			Exception( "unexpected" );//raise(SIGINT);
 		}
 		return stack_value;
 	}
@@ -1090,12 +1096,12 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 	{
 		if ( filesystem::exists( dir + name ) ) return;
 	};
-	Comment( ERROR, "no such file " + name );
 	for ( string dir : dirs )
 	{
+		Comment( WARN, "list directory " + dir );
 		show_items( List_directory( dir, ".kbd" ) );
 	}
-	Exception( );//raise( SIGINT );
+	Exception( "no such file " + name );//raise( SIGINT );
 }
 
 void Interpreter_class::Test(  )
@@ -1144,7 +1150,7 @@ void Interpreter_class::Test(  )
 	Addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-	show_items( List_directory( dir_struct().instrumentdir, ".kbd" ) );
+	show_items( List_directory( file_structure().Dir.instrumentdir, ".kbd" ) );
 //	assert ( false );
 	varlist.clear();
 

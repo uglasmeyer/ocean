@@ -11,6 +11,8 @@
 using namespace std;
 
 #include <Synthesizer.h>
+#include <Logfacility.h>
+
 
 // terminology :
 // sizeof_data	-> 	data_bytes	= sizeof(unit)

@@ -104,14 +104,12 @@ void Variation_class::Define_fix( string notes )
 		};
 	if ( notes.length() < 4 )
 	{
-		Comment( ERROR, "Constant_chars contains less than 4 characters");
-		exit(1);
+		Exception( "Constant_chars contains less than 4 characters" );
 	}
 
 	if ( notes[0] == '-' )
 	{
-		Comment( ERROR, "Constant_chars must not start with specified character ");
-		exit(1);
+		Exception( "Constant_chars must not start with specified character " );
 	}
 	Charset_class Valid_set ( "r(),.-'| " + Note_class::OctaveChars + Note_class::Note_Chars );
 	Constant_Set = notes ;
@@ -264,12 +262,6 @@ void Variation_class::set_octave( int oct, noteword_t& word )
 
 string Variation_class::Gen_noteline( string sentence_layout, string filename )
 {
-//	if ( Variable_chars.length() == 0 )
-//	{
-//		Comment( ERROR, "empty note set");
-//		Comment( INFO, "define noteset first");
-//		exit(1);
-//	}
 
 	Charset_class Valid_set { "cr-RS0123456789" };
 	string valid_sentence_layout = input_filter( sentence_layout, Valid_set);
@@ -353,8 +345,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	}
 	else
 	{
-		Comment( ERROR, "Note line rules were not confirmed.");
-		exit(1);
+		Exception( "Note line rules were not confirmed." );
 	}
 	return noteline;
 }

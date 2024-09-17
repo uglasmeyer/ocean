@@ -11,7 +11,7 @@
 void External_class::setName( string name )
 {
 	Name 		= name;
-	Filename 	= dir_struct().musicdir + Name + ".wav";
+	Filename 	= file_structure().Dir.musicdir + Name + ".wav";
 }
 
 bool External_class::Read_file_header( string name )
@@ -165,10 +165,18 @@ long  External_class::write_wav_header( string dest)
 		filesystem::remove( dest );
 
 	FILE* 			fd 			= fopen( dest.data(), "wb");
-	wav_struct_t* 	addr 		= &header_struct;
-	long count = fwrite( addr, 1, sizeof(header_struct), fd );
-	fclose( fd );
-	return count;
+	if( fd )
+	{
+		wav_struct_t* 	addr 		= &header_struct;
+		long count = fwrite( addr, 1, sizeof(header_struct), fd );
+		fclose( fd );
+		return count;
+	}
+	else
+	{
+		Comment( ERROR, Error_text( errno ) );
+		return 0;
+	}
 }
 
 void External_class::wav_define (  long raw_filesize ) // add filesize to wav structure
@@ -195,14 +203,20 @@ void External_class::write_music_file( string musicfile )
 	system_execute( add_header );
 }
 
-void External_class::Id3tool_cmd( string t, string r, string G, string a)
+string External_class::Id3tool_cmd()
 {
-	insert_mp3_tags = 	"id3tool -t '" + t + "'" 	+
-			" -r " + "'" + r	+ "'"+
-			" -a " + "'" + a	+ "'"+
-			" -G " +  G + " " +
+	string genre = Config.Genre;
+	string author= Config.author;
+	string album = Config.album;
+	string title = Config.title;
+
+	string cmd = "id3tool -t '" + title + "'" 	+
+			" -r " + "'" + author	+ "'"+
+			" -a " + "'" + album	+ "'"+
+			" -G " +  genre + " " +
 			file_structure().mp3_file;
-	Comment( INFO, insert_mp3_tags );
+	Comment( INFO, cmd );
+	return cmd;
 }
 
 void External_class::Save_record_data( int fileno)
@@ -245,12 +259,13 @@ void External_class::Save_record_data( int fileno)
 
 	system_execute( convert_wav2mp3 );
 
+	string insert_mp3_tags = Id3tool_cmd();
 	system_execute( insert_mp3_tags );
 
 	if ( fileno == 0 ) // generate a file name
 		fileno = generate_file_no( );
 
-    string newfilename = 	dir_struct().musicdir +
+    string newfilename = 	file_structure().Dir.musicdir +
     						file_structure().filename + to_string( fileno) + ".wav";
     filesystem::remove( newfilename );
     filesystem::rename( file_structure().wav_file, newfilename);

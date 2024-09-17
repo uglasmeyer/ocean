@@ -268,8 +268,7 @@ void Processor_class::Execute()
 		}
 		default :
 		{
-			printf("%d default SIGINT", stack_item.prgline);
-			Exception( );//raise( SIGINT);
+			Exception( to_string( stack_item.prgline) + " default SIGINT");//raise( SIGINT);
 			break;
 		}
 		} // end switch

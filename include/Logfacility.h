@@ -25,6 +25,10 @@ public:
 	static const int 	logmax 		= 6;
 	const size_t 		logsize		= logmax + 1;
 	vector<bool> Log { true, false, true, true, false, true, false };
+	string logdir 					= "/tmp/log/";
+	string logfileName				= "Synthesizer";
+	string logFile					= logdir + logfileName + ".log";
+	string errFile					= logdir + logfileName + ".err";
 
 	const string Line = "-----------------------------------------------------------";
 	Logfacility_class( string  );

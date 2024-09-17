@@ -9,39 +9,37 @@
 #define EXTERNAL_H_
 
 #include <Synthesizer.h>
+#include <Config.h>
 #include <Synthmem.h>
 #include <Version.h>
 #include <Wav.h>
 
 
-class External_class : virtual Logfacility_class
+class External_class : virtual Logfacility_class, virtual Config_class
 {
 	Storage::Storage_class* 	StA;
 	FILE*						File;
-	string 						insert_mp3_tags;
+
 public:
 	Stereo_Memory				stereo{ stereobuffer_size };
 
 	External_class( Storage::Storage_class* StA ) : //, Stereo_Memory* stereo ) :
-		Logfacility_class("External")
+		Logfacility_class("External"),
+		Config_class( "External")
 	{
 		this->StA 			= StA;
 		this->File 			= NULL;
 		stereo.Info			( "External Stereo data") ;
-		Id3tool_cmd(	"Experimental " + Version_str,
-						"U.G.",
-						"Alternative",
-						Application );
 
 	};
-	~External_class(){};
+	virtual ~External_class(){};
 
 	struct status_struct
 	{
 		bool record 	= false;
 	} status;
 
-	void Id3tool_cmd( string t, string r, string G, string a);
+	string Id3tool_cmd( );
 	bool Read_file_data(  );
 	bool Read_file_header( string );
 	void Save_record_data( int );
@@ -50,6 +48,8 @@ public:
 	long Filedata_size = 0;
 
 private:
+
+	long int read_position = 0;
 	wav_struct_t 	header_struct;
 	string 			Name 		= "";
 	string 			Filename 	= "";
@@ -66,7 +66,6 @@ private:
 	void setName( string );
 	bool read_stereo_data( long );
 	void close( );
-	long int read_position = 0;
 
 };
 

@@ -6,6 +6,8 @@
  */
 
 #include <Notes.h>
+#include <Config.h>
+
 
 Note_class::Note_class()
 : Note_class::Logfacility_class("Notes"),
@@ -175,10 +177,7 @@ void Note_class::Show_note( note_t note )
 int Note_class::notechar2Value( char note_char )
 {
 	size_t pos	= Note_Chars.find( note_char );
-	if ( pos != string::npos )
-		return pos;
-	else
-		return -12; // freq = 0
+	return ( pos == STRINGNOTFOUND ) ? -12 : pos; // freq = 0
 }
 
 Note_class::note_t Note_class::char2note( char ch )
@@ -199,7 +198,7 @@ Note_class::note_t Note_class::char2note( char ch )
 void Note_class::Set_prefix_octave( int oct )
 {
 	char oct_ch = 48+oct;
-	if ( OctaveChars.find( oct_ch ) == string::npos ) return; // (nil)
+	if ( OctaveChars.find( oct_ch ) == STRINGNOTFOUND ) return; // (nil)
 	Noteline_prefix.Octave = oct;
 	Octave = oct;
 }
@@ -211,7 +210,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 	auto get_oct_value = [ this ]( char ch )
 		{
 			size_t found = OctaveChars.find( ch );
-			return ( found == string::npos ) ? (size_t)Octave : found + 1;
+			return ( found == STRINGNOTFOUND ) ? (size_t)Octave : found + 1;
 		};
 
 	auto set_duration = [ this ]()
@@ -283,7 +282,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			while( ch != ')')
 			{
 				size_t p = Note_Chars.find(ch);
-				if (  p != string::npos )
+				if (  p != STRINGNOTFOUND )
 				{
 					char2note( Noteline[pos] ); // append note_buffer
 					nc_pos++;
@@ -711,7 +710,7 @@ void Note_class::set_file_name( string str )
 {
 	Notefile_name = str;
 	Notefile = "";
-	for ( string dir : { dir_struct().notesdir , dir_struct().autodir} )
+	for ( string dir : { file_structure().Dir.notesdir , file_structure().Dir.autodir} )
 	{
 		string filename = dir + str + file_structure().file_type;
 		if ( filesystem::exists( filename) )
@@ -719,7 +718,7 @@ void Note_class::set_file_name( string str )
 	};
 	if ( Notefile == "" )
 	{
-		Notefile = dir_struct().notesdir + str  + file_structure().file_type;
+		Notefile = file_structure().Dir.notesdir + str  + file_structure().file_type;
 		Comment( ERROR, "note file " + Notefile + " not yet found");
 	}
 }

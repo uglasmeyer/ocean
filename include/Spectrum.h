@@ -9,6 +9,9 @@
 #define INCLUDE_SPECTRUM_H_
 
 #include <Synthesizer.h>
+#include <Logfacility.h>
+#include <String.h>
+
 
 
 enum { VCOID, FMOID, MAINID, NOTESID, KBDID, TESTID, OTHERID };

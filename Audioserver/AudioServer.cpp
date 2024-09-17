@@ -199,7 +199,7 @@ int RtAudioOut(	void *outputBuffer,
 
 int main( int argc, char *argv[] )
 {
-	App.Start();
+	App.Start(argc, argv );
 
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
@@ -215,19 +215,17 @@ int main( int argc, char *argv[] )
 	sds->RecCounter 	= 0;
 
 
-	Log.Comment(INFO, "Evaluating startup arguments");
-	prgarg_struct_t params = parse_argv( argc, argv );
-//	wav_header.srate 				= params.rate;
-//	wav_header.num_chans 			= params.channel;
+//	wav_header.srate 				= App.Cfg.Config.rate;
+//	wav_header.num_chans 			= App.Cfg.Config.channel;
 //	wav_header.bytes_per_sec 		= wav_header.num_chans * wav_header.bytes_per_samp * wav_header.srate;
 
 	// dynamic rtapi output parameter
 	// Tell RtAudio to output all messages, even warnings.
 	rtapi.showWarnings( true );
-	double *frame = (double *) calloc( params.channel, sizeof( double ) );
-	oParams.nChannels 		= params.channel;
-	oParams.firstChannel 	= params.ch_offs;
-	get_device_description( params.device );
+	double *frame = (double *) calloc( App.Cfg.Config.channel, sizeof( double ) );
+	oParams.nChannels 		= App.Cfg.Config.channel;
+	oParams.firstChannel 	= App.Cfg.Config.ch_offs;
+	get_device_description( App.Cfg.Config.device );
 	oParams.deviceId 		= DeviceDescription.Id;
 	#define USE_INTERLEAVED
 	#if !defined( USE_INTERLEAVED )
@@ -244,8 +242,8 @@ int main( int argc, char *argv[] )
 
 
 	Log.Comment(INFO,"Attaching data buffers");
-	Shm_a.buffer( sharedbuffer_size, params.shm_key_a );
-	Shm_b.buffer( sharedbuffer_size, params.shm_key_b );
+	Shm_a.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_a );
+	Shm_b.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_b );
 	shm_id		= 0;
 	sds->SHMID 	= shm_id;
 	shm_addr 	= Shm_a.addr;
@@ -265,7 +263,7 @@ int main( int argc, char *argv[] )
 	if ( rtapi.openStream(&oParams,
 						NULL,
 						FORMAT,
-						params.rate,
+						App.Cfg.Config.rate,
 						&bufferFrames,
 						&RtAudioOut,
 						( void* )frame,

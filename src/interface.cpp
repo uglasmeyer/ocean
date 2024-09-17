@@ -5,9 +5,11 @@
  *      Author: sirius
  */
 
-
+#include <Common.h>
 #include <Interface.h>
 #include <Oscbase.h>
+#include <Config.h>
+
 
 Interface_class::Interface_class()
 : Logfacility_class("Shared Data")
@@ -33,8 +35,7 @@ Interface_class::Interface_class()
 		size_t fsize = filesystem::file_size( sds_dump );
 		if ( fsize != sizeof( ifd_data ))
 		{
-			Comment( INFO, 	"IPC version " + to_string( ifd_data.version ) + " differs in size") ;
-			exit(1);
+			Exception( "IPC version " + to_string( ifd_data.version ) + " differs in size" );
 		}
 	}
 	if (( ifd_data.version == addr->version ))
@@ -44,10 +45,9 @@ Interface_class::Interface_class()
 	else
 	{
 		Comment( ERROR, "Failed");
-		Comment( INFO, 	"IPC version " + to_string( ifd_data.version ) +
-						" differs from BIN version " + to_string( addr->version )  +
-						" or lib/ifd_data.bin size ");
-		exit(1);
+		Exception( "IPC version " + to_string( ifd_data.version ) +
+				" differs from BIN version " + to_string( addr->version )  +
+				" or lib/ifd_data.bin size ");
 	}
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
 }
@@ -245,8 +245,7 @@ void* Interface_class::buffer( buffer_t shm_size, key_t shm_key )
 	shmflg = S_IRUSR | S_IWUSR | IPC_CREAT;
 	shm_id = shmget ( shm_key, shm_size, shmflg );//shm_size+1, shmflg );// obtain a shm identifier
 	if ( shm_id < 0 ){
-		Comment(ERROR, "cannot get shared memory" + to_string( shm_id ) );
-		exit ( 1 );
+		Exception("cannot get shared memory" + to_string( shm_id ) );
 	}
 
 	void* addr = shmat (shm_id, 0, 0);

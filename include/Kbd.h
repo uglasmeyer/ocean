@@ -9,6 +9,7 @@
 #define KBD_H
 
 #include <Synthesizer.h>
+#include <Logfacility.h>
 
 using namespace std;
 

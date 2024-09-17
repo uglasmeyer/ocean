@@ -19,8 +19,8 @@
 using namespace std;
 
 #define MAYOR 2
-#define MINOR 0
-#define PATCH 4
+#define MINOR 1
+#define PATCH 0
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -34,6 +34,7 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
+version 2.1.0 config facility
 version 2.0.4 replace exit_proc by classs destructors
 version 2.0.3 Feature and Refactoring
 version 2.0.2 Deact Keyboard integrate noteline_prefix into OceanGUI
