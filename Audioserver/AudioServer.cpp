@@ -129,6 +129,9 @@ void get_mode()
 }
 void set_ncounter( buffer_t n )
 {
+	if( mode == KEYBOARD )
+			ncounter	= 0;
+
 	if ( n > max_frames - 1 )
 	{
 		ncounter = 0;
@@ -152,6 +155,7 @@ void set_shm_addr(  )
 		shm_id 		= 0;
 		sds->SHMID 	= shm_id;
 		shm_addr 	= Shm_a.addr;
+		sds->MODE	= FREERUN;
 	}
 	// else unchanged
 }
@@ -173,8 +177,6 @@ int RtAudioOut(	void *outputBuffer,
 	  get_mode();
 	  set_ncounter( ncounter );
 	  set_shm_addr();
-	  if( mode == KEYBOARD )
-	  	  ncounter	= 0;
 
 	  // the output loop is implicitly protect against status changes by the fact
 	  // that the buffer boundaries are aligned to 44100 respectively one second

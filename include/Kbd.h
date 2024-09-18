@@ -34,7 +34,7 @@ public:             // Access specifier
 	virtual ~Keyboard_base();
 
 	key_struct_t 	GetKey();
-	void 			Setch( char ch );
+	void 			Set_ch( char ch );
 	key_struct_t 	GetHold();
 	void			KeyVector();
 	void 			Reset();

@@ -113,7 +113,7 @@ char Keyboard_base::getkey()
 	return *buf_p;
 }
 
-void Keyboard_base::Setch( char ch )
+void Keyboard_base::Set_ch( char ch )
 {
 	buf = ch;
 }

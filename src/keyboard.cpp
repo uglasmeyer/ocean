@@ -27,17 +27,25 @@ Keyboard_class::~Keyboard_class()
 {
 };
 
+bool Keyboard_class::Counter( int c )
+{
+	decayCounter = c;
+	if( decayCounter == 0 )
+		osc.Mem.clear_data( 0 );
+	return ( c == 10) ;
+}
+
 void Keyboard_class::setup(  )
 {
 	if ( not instrument ) return;
 	// copy class Oscillator
-	main.wp 		= instrument->main.wp;
-	main.vp 		= instrument->main.vp;
-	main.vp.data	= vco.Mem.Data;
-	main.fp 		= instrument->main.fp;
-	main.fp.data	= fmo.Mem.Data;
-	main.adsr 		= instrument->main.adsr;
-	main.spectrum	= instrument->main.spectrum;
+	osc.wp 		= instrument->main.wp;
+	osc.vp 		= instrument->main.vp;
+	osc.vp.data	= vco.Mem.Data;
+	osc.fp 		= instrument->main.fp;
+	osc.fp.data	= fmo.Mem.Data;
+	osc.adsr 		= instrument->main.adsr;
+	osc.spectrum	= instrument->main.spectrum;
 
 	vco.wp 			= instrument->vco.wp;
 	vco.vp 			= instrument->vco.vp;
@@ -50,12 +58,10 @@ void Keyboard_class::setup(  )
 	fmo.spectrum	= instrument->fmo.spectrum;
 }
 
-bool Keyboard_class::decay( int key )
+bool Keyboard_class::Decay(  )
 {
-	if( prevKey == key )
-		return true;
-	else
-		return false;
+	if( decayCounter > 0 ) decayCounter--;
+	return ( decayCounter > 0 );
 
 }
 
@@ -70,29 +76,20 @@ bool Keyboard_class::Attack( int key, uint8_t amp )
 		};
 
 	if ( key == NOKEY ) return false;
-	if ( decay( key ) ) return true;
-
+	if ( decayCounter > 0 )  return false;
+	decayCounter = attackCounter;
 	setup();
 	for ( Oscillator* osc : osc_group )
 		set_osc_frequency( osc );
 
-	prevKey = key;
 	return true;
 }
 
-bool Keyboard_class::Release( int key )
+bool Keyboard_class::Release(  )
 {
-	if (( key == NOKEY ) and ( prevKey != NOKEY ))
-	{
-		prevKey 			= NOKEY;
-		main.Mem.clear_data( 0 );
-		return true;
-	}
-	else
-	{
-		prevKey = key;
-		return false;
-	}
+	decayCounter = releaseCounter;
+	osc.Mem.clear_data( 0 );
+	return true;
 }
 
 int Keyboard_class::Kbdnote()

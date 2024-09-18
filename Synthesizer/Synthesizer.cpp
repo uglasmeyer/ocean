@@ -658,7 +658,6 @@ bool sync_mode()
 			( Instrument.vco.wp.frequency < LFO_limit 	) 	or
 			( Mixer.StA[MbIdExternal].state.store 		)	or
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
-			( Mixer.status.kbd  		)	or	//
 			( ProgressBar.active 			)		// StA record external
 		);
 	return sync ;
@@ -670,7 +669,13 @@ void add_sound( stereo_t* shm_addr )
 {
 	if ( Mixer.status.instrument )
 		Instrument.Run_osc_group(); // generate the modified sound waves
-	Mixer.Add_Sound( Instrument.main.Mem.Data, Keyboard.main.Mem.Data,  Notes.main.Mem.Data, shm_addr );
+	Mixer.Add_Sound( Instrument.main.Mem.Data, Keyboard.osc.Mem.Data,  Notes.main.Mem.Data, shm_addr );
+/*	if (	Mixer.StA[ MbIdKeyboard	].state.play )
+	{
+		Keyboard.Set_ch( 0 );
+		Mixer.StA[ MbIdKeyboard	].state.play = false;
+	}
+	*/
 	Wavedisplay.Gen_cxwave_data(  );
 
 }
@@ -681,6 +686,7 @@ void ApplicationLoop()
 	ifd_t* 			ifd 		= SDS.addr;
 	stereo_t* 		shm_addr 	= set_addr( 0 );
 
+	int kbdDecay = 0;
 	Log.Comment(INFO, App.Name + " is ready");
 
 	SDS.Commit(); // set flags to zero and update flag to true
@@ -697,7 +703,12 @@ void ApplicationLoop()
 		if ( Keyboard.Attack( note_key, 100 ) )
 		{
 			cout << "KEY: " << note_key << endl;
-			Mixer.StA[ MbIdKeyboard].state.play = true;
+			Keyboard.Set_ch( 0 );
+			Mixer.StA[ MbIdKeyboard ].state.play = true;
+			add_sound( shm_addr );
+			Mixer.status.kbd = true;
+			ifd->MODE = KEYBOARD;
+			while ( ifd->MODE == KEYBOARD ) Wait( 10 );
 		}
 
 		Mixer.Volume_control( ifd );
@@ -719,7 +730,6 @@ void ApplicationLoop()
 				}
 
 				add_sound( shm_addr );
-				Keyboard.Setch( 0 );
 
 				if ( ProgressBar.active )
 					External.Add_record( &Mixer.Out_L, &Mixer.Out_R);
@@ -733,7 +743,27 @@ void ApplicationLoop()
 		}
 		else
 		{
-			add_sound( shm_addr );
+			// Keyboard decay mode
+			if ( Mixer.status.kbd )
+			{
+				if ( Keyboard.Decay() )
+				{
+					cout << "DECAY" << endl;
+				}
+				else
+				{
+					cout << "RELEASE" << endl;
+					Keyboard.Release();
+
+					add_sound(shm_addr);
+					Mixer.StA[ MbIdKeyboard ].state.play = false;
+					Mixer.status.kbd = false;
+				}
+			}
+			else
+				add_sound(shm_addr);
+
+
 			shm_addr 		= set_addr( 0 );
 			ifd->MODE = FREERUN;
 		}

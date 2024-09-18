@@ -291,7 +291,6 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 		add_mono( notes_osc, StA[ MbIdNotes ].Amp 			* amp_mod, MbIdNotes );
 	if ( StA[ MbIdKeyboard	].state.play )
 		add_mono( keyboard_osc, StA[MbIdKeyboard].Amp 		* amp_mod, MbIdKeyboard );
-	StA[ MbIdKeyboard	].state.play = false;
 
 	// add StA sound
 	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block

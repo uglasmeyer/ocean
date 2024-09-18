@@ -28,11 +28,11 @@ public:
 
 	const string		KbdNote		{ "SDRFTGHUJIKOL" };
 
-	Oscillator 			main		{ KBDID };
+	Oscillator 			osc		{ KBDID };
 	Oscillator 			vco			{ VCOID };
 	Oscillator 			fmo			{ FMOID };
 
-	vector<Oscillator*> osc_group { &vco, &fmo, &main };
+	vector<Oscillator*> osc_group { &vco, &fmo, &osc };
 
 	Instrument_class* 	instrument	= nullptr;
 	key_struct_t		keystruct 	= key_struct();
@@ -44,11 +44,17 @@ public:
 	~Keyboard_class();
 
 	bool Attack( int, uint8_t );
-	bool Release( int );
+	bool Release(  );
+	bool Decay(  );
+
 	int	 Kbdnote( );
+	bool Counter( int );
 
 private:
-	bool decay( int );
+	int releaseCounter	= 0;
+	int decayCounter 	= 0;
+	int attackCounter 	= 7;
+
 	void setup(  );
 
 };
