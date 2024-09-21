@@ -11,9 +11,9 @@
 #include <Spectrum.h>
 
 #include <Oscbase.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Synthmem.h>
-#include <Common.h>
+#include <System.h>
 
 using namespace std;
 

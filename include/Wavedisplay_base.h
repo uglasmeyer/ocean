@@ -8,7 +8,7 @@
 #ifndef WAVEDISPLAY_BASE_H_
 #define WAVEDISPLAY_BASE_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 
 const vector<string> wavedisplay_type_str_vec =
 {

@@ -10,7 +10,7 @@
 
 #include <Mixer.h>
 #include <Notes.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 
 using namespace std;
 

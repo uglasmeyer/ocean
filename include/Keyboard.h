@@ -11,12 +11,10 @@
 #include <Logfacility.h>
 #include <Osc.h>
 #include <Instrument.h>
+#include <Notesbase.h>
 #include <Kbd.h>
-#include <Mixer.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Synthmem.h>
-
-using namespace Storage;
 
 class Keyboard_class :	virtual  Logfacility_class,
 						virtual  Oscillator_base,
@@ -28,7 +26,7 @@ public:
 
 	const string		KbdNote		{ "SDRFTGHUJIKOL" };
 
-	Oscillator 			osc		{ KBDID };
+	Oscillator 			osc			{ KBDID };
 	Oscillator 			vco			{ VCOID };
 	Oscillator 			fmo			{ FMOID };
 
@@ -41,19 +39,17 @@ public:
 
 	Keyboard_class( Instrument_class* );
 	Keyboard_class(); // see comstack
-	~Keyboard_class();
+	virtual ~Keyboard_class();
 
-	bool Attack( int, uint8_t );
+	bool Attack( int, uint8_t, uint8_t );
 	bool Release(  );
 	bool Decay(  );
-
 	int	 Kbdnote( );
-	bool Counter( int );
 
 private:
-	int releaseCounter	= 0;
-	int decayCounter 	= 0;
-	int attackCounter 	= 7;
+	const int 	releaseCounter	= 0;
+	const int 	attackCounter 	= 7; // TODO depends on the performance
+	int 		decayCounter 	= 0;
 
 	void setup(  );
 

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Logfacility.h>
 
 

@@ -7,7 +7,7 @@
 
 #include <Synthmem.h>
 #include <String.h>
-#include <Common.h>
+#include <System.h>
 
 //-----------------------------------------------------------------------------
 

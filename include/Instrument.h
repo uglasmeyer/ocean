@@ -8,12 +8,12 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
-#include <Common.h>
 #include <Spectrum.h>
 #include <Osc.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Interface.h>
 #include <String.h>
+#include <System.h>
 
 
 
@@ -44,6 +44,7 @@ private:
 	string 					Default_instrument_file;
 
 	void set_name( string );
+	void set_new_name( string );
 	bool assign_adsr 	( vector_str_t );
 	bool read_instrument( );
 	bool init_connections( );

@@ -8,14 +8,17 @@
 #ifndef EXTERNAL_H_
 #define EXTERNAL_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Config.h>
 #include <Synthmem.h>
 #include <Version.h>
 #include <Wav.h>
+#include <Record.h>
+#include <Interface.h>
 
 
-class External_class : virtual Logfacility_class, virtual Config_class
+
+class External_class : virtual Logfacility_class, virtual Config_class, public ProgressBar_class
 {
 	Storage::Storage_class* 	StA;
 	FILE*						File;
@@ -23,9 +26,10 @@ class External_class : virtual Logfacility_class, virtual Config_class
 public:
 	Stereo_Memory				stereo{ stereobuffer_size };
 
-	External_class( Storage::Storage_class* StA ) : //, Stereo_Memory* stereo ) :
+	External_class( Storage::Storage_class* StA, uint8_t* counter_p) : //, Stereo_Memory* stereo ) :
 		Logfacility_class("External"),
-		Config_class( "External")
+		Config_class( "External"),
+		ProgressBar_class( counter_p )
 	{
 		this->StA 			= StA;
 		this->File 			= NULL;
@@ -38,6 +42,7 @@ public:
 	{
 		bool record 	= false;
 	} status;
+
 
 	string Id3tool_cmd( );
 	bool Read_file_data(  );
@@ -68,6 +73,15 @@ private:
 	void close( );
 
 };
+
+
+extern void record_thead_fcn( 	Interface_class*,
+									External_class* ,
+//									ProgressBar_class*,
+									std::binary_semaphore*,
+									std::binary_semaphore*,
+									bool*,
+									bool* );
 
 
 #endif /* EXTERNAL_H_ */

@@ -14,8 +14,9 @@
 #include <Keys.h>
 #include <Processor.h>
 #include <Spectrum.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Variation.h>
+#include <String.h>
 
 typedef struct line_struct
 {

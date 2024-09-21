@@ -366,47 +366,50 @@ compiler_moc_header_clean:
 	-$(DEL_FILE) moc_File_Dialog.cpp moc_mainwindow.cpp moc_spectrum_dialog_class.cpp
 moc_File_Dialog.cpp: File_Dialog.h \
 		../include/Notes.h \
-		../include/Common.h \
-		../include/Synthesizer.h \
+		../include/Spectrum.h \
+		../include/Ocean.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/Interface.h \
-		../include/Notesbase.h \
-		../include/Oscbase.h \
-		../include/Spectrum.h \
-		../include/Synthmem.h \
-		../include/Keys.h \
-		../include/Version.h \
-		../include/Mixerbase.h \
-		../include/Wavedisplay_base.h \
 		../include/Instrument.h \
 		../include/Osc.h \
+		../include/Oscbase.h \
+		../include/Synthmem.h \
+		../include/System.h \
+		../include/Interface.h \
+		../include/Config.h \
+		../include/Version.h \
+		../include/Notesbase.h \
+		../include/Keys.h \
+		../include/Mixerbase.h \
+		../include/Wavedisplay_base.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++ -I/usr/lib/llvm-14/lib/clang/14.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include File_Dialog.h -o moc_File_Dialog.cpp
 
 moc_mainwindow.cpp: mainwindow.h \
 		../include/Interface.h \
-		../include/Synthesizer.h \
+		../include/Ocean.h \
+		../include/Config.h \
 		../include/Logfacility.h \
-		../include/String.h \
+		../include/Version.h \
 		../include/Notesbase.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
+		../include/String.h \
 		../include/Synthmem.h \
 		../include/Keys.h \
-		../include/Version.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Mixer.h \
 		../include/Osc.h \
-		../include/Common.h \
+		../include/System.h \
 		../include/External.h \
 		../include/Wav.h \
 		../include/Notes.h \
 		../include/Instrument.h \
 		../include/App.h \
 		../include/Record.h \
+		../include/Time.h \
 		File_Dialog.h \
 		ui_mainwindow.h \
 		spectrum_dialog_class.h \
@@ -416,16 +419,17 @@ moc_mainwindow.cpp: mainwindow.h \
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++ -I/usr/lib/llvm-14/lib/clang/14.0.0/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
 moc_spectrum_dialog_class.cpp: spectrum_dialog_class.h \
-		../include/Synthesizer.h \
+		../include/Ocean.h \
+		../include/Spectrum.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/Spectrum.h \
 		../include/Interface.h \
+		../include/Config.h \
+		../include/Version.h \
 		../include/Notesbase.h \
 		../include/Oscbase.h \
 		../include/Synthmem.h \
 		../include/Keys.h \
-		../include/Version.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay_base.h \
 		moc_predefs.h \
@@ -463,26 +467,28 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 
 main.o: main.cpp mainwindow.h \
 		../include/Interface.h \
-		../include/Synthesizer.h \
+		../include/Ocean.h \
+		../include/Config.h \
 		../include/Logfacility.h \
-		../include/String.h \
+		../include/Version.h \
 		../include/Notesbase.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
+		../include/String.h \
 		../include/Synthmem.h \
 		../include/Keys.h \
-		../include/Version.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Mixer.h \
 		../include/Osc.h \
-		../include/Common.h \
+		../include/System.h \
 		../include/External.h \
 		../include/Wav.h \
 		../include/Notes.h \
 		../include/Instrument.h \
 		../include/App.h \
 		../include/Record.h \
+		../include/Time.h \
 		File_Dialog.h \
 		ui_mainwindow.h \
 		spectrum_dialog_class.h \

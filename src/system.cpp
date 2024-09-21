@@ -4,19 +4,19 @@
  *  Created on: Dec 30, 2023
  *      Author: sirius
  */
-#include <Common.h>
 #include <Logfacility.h>
+#include <System.h>
 
 using namespace std;
 
 Logfacility_class Log_common{"System"};
 
-
+/*
 void Wait( long int N)
 {
 	usleep( N ); //microseconds
 }
-
+*/
 
 
 void Exception( const string& err_str )
@@ -45,10 +45,6 @@ void system_execute( const string& cmd )
 
 
 
-bool cmpstr( const string& a, const string& b )
-{
-	return ( a.compare( b ) == 0 );
-}
 
 
 
@@ -78,7 +74,7 @@ vector<string> List_directory( const string& path, const string& filter )
 string searchPath( string file )
 {
 	string filename = filesystem::path( file ).filename( );
-	string Path = string( getenv( "PATH" ));
+	string Path = string( getenv( "PATH" )) + ":.";
 	std::replace ( Path.begin(), Path.end(), ':', '\n' );
 	istringstream input;
 	input.str( Path );

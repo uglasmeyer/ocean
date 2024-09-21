@@ -8,7 +8,7 @@
 #ifndef INCLUDE_NOTESBASE_H_
 #define INCLUDE_NOTESBASE_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Oscbase.h>
 
 
@@ -23,7 +23,7 @@ class Note_base : virtual public Logfacility_class
 public:
 
 	const uint				max_octave	{ 5 };
-	const uint 				min_octave 		{ 1 };
+	const uint 				min_octave 		{ 0 };
 	const vector<int> 		Notes_per_Sec	{ 1,2,4,5,8 };
 	const string			NPS_string 		{ "1 2 4 5 8" };
 	const vector<int> 		flat_pitch 		{2,7,0,5,10,3,8 };

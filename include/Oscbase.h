@@ -9,7 +9,7 @@
 #define TRACKCLASS_H_
 
 #include <Spectrum.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Synthmem.h>
 #include <String.h>
 

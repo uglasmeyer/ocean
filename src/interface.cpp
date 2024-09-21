@@ -5,14 +5,15 @@
  *      Author: sirius
  */
 
-#include <Common.h>
 #include <Interface.h>
 #include <Oscbase.h>
 #include <Config.h>
+#include <System.h>
 
 
 Interface_class::Interface_class()
-: Logfacility_class("Shared Data")
+: Logfacility_class("Shared Data" ),
+  Config_class( "Shared Data" )
 {
 
 	bool shm_exists;
@@ -20,9 +21,9 @@ Interface_class::Interface_class()
 	Comment(INFO, "allocating shared memory for IPC");
 
 	// use shm of ifd_data as a persistent checkpoint
-	shmget( shm_key,sizeof(ifd_t),S_IRUSR | S_IWUSR | IPC_CREAT|IPC_EXCL);
+	shmget( Config.SDS_key, sizeof(ifd_t), S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	shm_exists = ( EEXIST == errno );
-	addr 		= (ifd_t*) buffer( 0, shm_key);
+	addr 		= (ifd_t*) buffer( 0, Config.SDS_key );
 	if ( not shm_exists )
 	{
 		Comment(INFO, "initializing data interface using default values ");
@@ -176,6 +177,11 @@ bool Interface_class::reject(char status, int id )
 	}
 };
 
+void Interface_class::Write_arr( const wd_arr_t& arr )
+{
+	for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
+		addr->wavedata[n] = arr[n] ;
+}
 
 void Interface_class::Write_str(const char selector, const string str )
 {
@@ -308,8 +314,8 @@ void Interface_class::Commit()
 	addr->KEY 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
-//	while( addr->KEY != NULLKEY )
-//		Wait( 10 );
+	if ( SEM.getval() > 0 )
+		SEM.release();
 }
 
 void Interface_class::Set( bool& key, bool value )

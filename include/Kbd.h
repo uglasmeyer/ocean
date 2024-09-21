@@ -8,7 +8,7 @@
 #ifndef KBD_H
 #define KBD_H
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Logfacility.h>
 
 using namespace std;
@@ -27,16 +27,11 @@ public:             // Access specifier
 	} key_struct_t;
 	key_struct_t 	keystruct;
 
-	array<key_struct_t, 6> key_vector {key_struct()};
-	array<key_struct_t, 6> default_key_vector = key_vector;
-
 	Keyboard_base();
 	virtual ~Keyboard_base();
 
 	key_struct_t 	GetKey();
 	void 			Set_ch( char ch );
-	key_struct_t 	GetHold();
-	void			KeyVector();
 	void 			Reset();
 	void			Test();
 
@@ -52,7 +47,6 @@ private:
 	char getch();
 	char getkey();
 	void pressKey();
-	void show_key_vector();
 	void init();
 
 };

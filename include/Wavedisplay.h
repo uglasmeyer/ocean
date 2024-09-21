@@ -16,14 +16,13 @@
 
 class Wavedisplay_class : virtual Logfacility_class
 {
-	ifd_t* ifd;
 
 public:
-	Wavedisplay_class( ifd_t* );
+	Wavedisplay_class( );
 	virtual ~Wavedisplay_class(){};
 
 	void Clear_data		();
-	void Gen_cxwave_data( void  );
+	wd_arr_t Gen_cxwave_data( void  );
 	void Add_data_ptr	( Data_t* );
 	void Set_data_ptr	( size_t );
 	void Update			( int, Data_t*);
@@ -35,8 +34,7 @@ private:
 	buffer_t 		offs 			= 0;
 	size_t 			ptr_index 		= 0;
 	int 			Type			= FULLID;
-	array<Data_t*, 10>
-					data_ptr_array{  };
+	vector<Data_t*>	data_ptr_vec{  };
 	bool			split_switch	= true;
 	wd_arr_t 		display_buffer = {0};
 

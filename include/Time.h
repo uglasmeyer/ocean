@@ -8,7 +8,8 @@
 #ifndef TIME_H_
 #define TIME_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
+#include <Logfacility.h>
 
 class Time_class : virtual Logfacility_class
 {
@@ -26,6 +27,7 @@ public:
 	uint8_t*		time_elapsed = nullptr;
 
 	Time_class( uint8_t* t );
+	Time_class();
 	virtual ~Time_class();
 
 	long int Time_elapsed();

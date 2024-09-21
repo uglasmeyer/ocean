@@ -5,8 +5,41 @@
  *      Author: sirius
  */
 
-#include <Common.h>
 #include <External.h>
+#include <System.h>
+
+void record_thead_fcn( 	Interface_class* SDS,
+						External_class* External,
+//						ProgressBar_class* 	Record,
+						binary_semaphore* smphSignalMainToThread,
+						binary_semaphore* smphSignalThreadToMain,
+						bool*			SaveRecordFlag,
+						bool*			RecordThreadDone )
+{
+	Logfacility_class Log("RecordThread");
+	Log.Comment( INFO, "record thread started ");
+
+	Value fileno {0};
+	while ( true )
+	{
+	    smphSignalMainToThread->acquire();
+	    if ( *RecordThreadDone ) break;
+	    *SaveRecordFlag = true;
+
+		fileno = (int) SDS->addr->FileNo;
+		Log.Comment( INFO, "record thread received job " + fileno.str);
+
+		External->Save_record_data( fileno.i );
+			// clean up
+		External->Unset();
+		SDS->Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
+
+
+	}
+
+	Log.Comment( INFO, "record thread terminated ");
+
+}
 
 void External_class::setName( string name )
 {

@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QTimer>
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Spectrum.h>
 #include <Interface.h>
 #include <Keys.h>

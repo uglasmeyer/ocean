@@ -9,7 +9,7 @@
 #ifndef GUIINTERFACE_H_
 #define GUIINTERFACE_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 
 const vector<string> uint8_code_str =
 {
@@ -50,17 +50,17 @@ enum {
 };
 
 
-
+#include <Config.h>
 #include <Notesbase.h>
 #include <Keys.h>
 #include <Synthmem.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <Version.h>
-//#include <Common.h>
 #include <Mixerbase.h>
 #include <Oscbase.h>
 #include <Wavedisplay_base.h>
+#include <Semaphore.h>
 
 using namespace Storage;
 typedef 		Note_base::noteline_prefix_t	noteline_prefix_t;
@@ -132,20 +132,22 @@ typedef struct interface_struct
 
 
 
-class Interface_class : virtual public Logfacility_class
+class Interface_class : virtual public Logfacility_class, Config_class
 {
 public:
 
 
-	const key_t 			shm_key			= 5166529;
+//	const key_t 			shm_key			= 5166529;
 
 
 	ifd_t 					ifd_data;
 	ifd_t* 					addr			= NULL;
+	Semaphore_class			SEM{};
 
 	Interface_class();
 	virtual ~Interface_class();
 
+	void 	Write_arr( const wd_arr_t& arr );
 	void 	Write_str( char, string );
 	string 	Read_str( char );
 	void 	Commit();

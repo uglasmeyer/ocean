@@ -8,9 +8,11 @@
 #ifndef PROCESSOR_H_
 #define PROCESSOR_H_
 
-#include <Common.h>
 #include <Interface.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
+#include <System.h>
+#include <Semaphore.h>
+#include <Time.h>
 
 enum  {
 	CMD_EXIT		,
@@ -29,6 +31,9 @@ class Processor_class : virtual Logfacility_class
 {
 	Interface_class* 	sds ;
 	ifd_t* 				ifd ;
+	Semaphore_class		SEM{} ;
+	Time_class			Timer{};
+
 public:
 
 	Processor_class( Interface_class* gui ) : Logfacility_class("Processor")

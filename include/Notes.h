@@ -8,14 +8,14 @@
 #ifndef INCLUDE_PLAYNOTES_H_
 #define INCLUDE_PLAYNOTES_H_
 
-#include <Common.h>
 #include <Spectrum.h>
 
 #include <Instrument.h>
 #include <Oscbase.h>
 #include <Osc.h>
 #include <Notesbase.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
+#include <System.h>
 
 
 using namespace std;

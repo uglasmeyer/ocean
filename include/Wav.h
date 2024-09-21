@@ -8,7 +8,7 @@
 #ifndef INCLUDE_WAV_H_
 #define INCLUDE_WAV_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 
 typedef struct wav_struct
 {

@@ -21,44 +21,10 @@ Keyboard_base::~Keyboard_base()
 Keyboard_base::key_struct_t Keyboard_base::GetKey()
 {
 	pressKey();
-//	fflush(stdout);
 
 	return keystruct;
 }
 
-Keyboard_base::key_struct_t Keyboard_base::GetHold()
-{
-	KeyVector();
-	fflush(stdout);
-
-	return key_vector[0];
-}
-
-void Keyboard_base::KeyVector()
-{
-	char ch = 0;
-	uint8_t i = 0;
-	do
-	{
-		ch = GetKey().key;
-		i++;
-	} while ( not( ( ch == 0 ) or ( i < key_vector.size() ) ) );
-	if ( ch == 0 )
-		key_vector=default_key_vector;
-	else
-	{
-		key_vector[0].key = ch;
-		for( uint8_t i = 1 ; i<key_vector.size(); i++ )
-		{
-			key_vector[i] = GetKey();
-		}
-	}
-}
-void Keyboard_base::show_key_vector()
-{
-	for( key_struct_t keystr : key_vector )
-		cout << keystr.key << " " << keystr.val << endl;
-}
 
 void Keyboard_base::init()
 {
@@ -164,8 +130,8 @@ void Keyboard_base::pressKey()
 
 	if ( keystruct.key == 27 )
 	{
-		c2 = getch();
-		c3 = getch();
+		c2 = getkey();
+		c3 = getkey();
 		keystruct.val = (c2) + (c3<<1) ;
 	}
 	else
@@ -178,11 +144,11 @@ void Keyboard_base::Test()
 	Comment( TEST, "Keyboard test running");
 	do
 	{
-		cout << GetHold().key ;
+		cout << GetKey().key ;
 		Comment( TEST, " > Press # to finish keyboard test");
 
 	}
-	while( not ( key_vector[0].key == '#' ) );
+	while( not ( GetKey().key == '#' ) );
 
 	Comment( TEST, "Keyboard test finished");
 //	assert( false );

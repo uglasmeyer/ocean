@@ -23,10 +23,10 @@
 #include <RtAudio.h>
 #define RTAUDIO
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Synthmem.h>
 #include <Interface.h>
-#include <Common.h>
+#include <System.h>
 #include <App.h>
 
 // classes and structures

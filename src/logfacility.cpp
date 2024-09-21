@@ -6,7 +6,7 @@
  */
 
 #include <Logfacility.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Config.h>
 
 

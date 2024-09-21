@@ -7,16 +7,16 @@
 
 #include "Record.h"
 
-ProgressBar_class::ProgressBar_class(ifd_t* addr) :
+ProgressBar_class::ProgressBar_class(uint8_t* counter_p) :
 Logfacility_class("Record")
 {
-	this->ifd_addr = addr;
+	this->RecCounter = counter_p;
 	this->counter = 0;
 };
 
 ProgressBar_class::~ProgressBar_class()
 {
-	ifd_addr->RecCounter = 0;
+	*RecCounter = 0;
 };
 
 
@@ -30,7 +30,7 @@ void ProgressBar_class::Set( uint* count, uint max )
 
 void ProgressBar_class::Reset( )
 {
-	ifd_addr->RecCounter = 0;
+	*RecCounter = 0;
 }
 
 void ProgressBar_class::Unset()
@@ -41,7 +41,7 @@ void ProgressBar_class::Unset()
 
 void ProgressBar_class::Setup( uint value )
 {
-	ifd_addr->RecCounter = value;
+	*RecCounter = value;
 }
 
 void ProgressBar_class::Update( )

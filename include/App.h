@@ -9,13 +9,22 @@
 #define APP_H_
 
 #include <Interface.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Version.h>
 #include <External.h>
 #include <Record.h>
 #include <Time.h>
 
-extern void record_thead_fcn( Interface_class*, External_class*,  ProgressBar_class*, bool*, bool* );
+
+/*
+extern void record_thead_fcn( 	Interface_class*,
+								External_class*,
+								ProgressBar_class*,
+								std::binary_semaphore*,
+								std::binary_semaphore*,
+								bool*,
+								bool* );
+*/
 extern void SynthesizerTestCases();
 
 class Application_class : Logfacility_class

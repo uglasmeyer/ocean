@@ -1,6 +1,6 @@
 #include <Config.h>
-#include <Common.h>
 #include <String.h>
+#include <System.h>
 
 Logfacility_class Log_config("Config");
 
@@ -45,14 +45,17 @@ void Config_class::Read_synthesizer_config(	 )
                 Get[Name.Str]= value;
             }
         }
+        string getstr = "";
         Config.title	= Get["title"];
     	Config.author	= Get["author"];
     	Config.album	= Get["album"];
     	Config.Genre 	= Get["genre"];
     	Config.Term 	= Get["term"];
-    	string shmkey	= Get["shmkey"]; // @suppress("Invalid arguments")
-    	Config.shm_key_a= stoi( shmkey.data() );
+    	getstr			= Get["shmkey"]; // @suppress("Invalid arguments")
+    	Config.shm_key_a= stoi( getstr.data() );
     	Config.shm_key_b= Config.shm_key_a+1;
+    	getstr			= Get["sdskey"]; // @suppress("Invalid arguments")
+    	Config.SDS_key	= stoi( getstr.data() );
 
     }
     else
@@ -108,44 +111,39 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 void Config_class::Show_prgarg_struct( )
 {
 	stringstream strs{""};
-	strs << setw(20) << left << "\nchannel" 	<< dec << Config.channel 	<<endl;  		// -c
-	strs << setw(20) << left << "sampline rate" << dec << Config.rate		<<endl;  		// -c
-	strs << setw(20) << left << "device nr" 	<< dec << Config.device		<<endl;  		// -d
-	strs << setw(20) << left << "channel offs"	<< dec << Config.ch_offs	<<endl; 		// -o
-	strs << setw(20) << left << "shm key A" 	<< dec << Config.shm_key_a	<<endl;  		// -k
-	strs << setw(20) << left << "shm key B" 	<< dec << Config.shm_key_b	<<endl;  		//
-	strs << setw(20) << left << "test classes" 	<< dec << Config.test		<<endl;  		// -t
-	strs << setw(20) << left << "dialog mode"	<< dec << Config.dialog		<<endl;  		// -D
+	strs << setw(20) << left << "\nchannel" 	<< dec << 	Config.channel 	<<endl;  		// -c
+	strs << setw(20) << left << "sampline rate" << dec << 	Config.rate		<<endl;  		// -c
+	strs << setw(20) << left << "device nr" 	<< dec << 	Config.device	<<endl;  		// -d
+	strs << setw(20) << left << "channel offs"	<< dec << 	Config.ch_offs	<<endl; 		// -o
+	strs << setw(20) << left << "shm key A" 	<< dec << 	Config.shm_key_a<<endl;  		// -k
+	strs << setw(20) << left << "shm key B" 	<< dec << 	Config.shm_key_b<<endl;  		//
+	strs << setw(20) << left << "sds_key" 		<< 			Config.SDS_key	<<endl;  		// -D
+	strs << setw(20) << left << "test classes" 	<< dec << 	Config.test		<<endl;  		// -t
+	strs << setw(20) << left << "dialog mode"	<< dec << 	Config.dialog	<<endl;  		// -D
 
 
-	strs << setw(20) << left << "Id3tool Title" << Config.title	<<endl; 		// -o
-	strs << setw(20) << left << "Id3tool Author"  << Config.author	<<endl;  		// -k
-	strs << setw(20) << left << "Id3tool Album" << Config.album	<<endl;  		//
-	strs << setw(20) << left << "Id3tool Genre" << Config.Genre		<<endl;  		// -t
-	strs << setw(20) << left << "Terminal" << Config.Term		<<endl;  		// -D
+	strs << setw(20) << left << "Id3tool Title" << 			Config.title	<<endl; 		// -o
+	strs << setw(20) << left << "Id3tool Author"<< 			Config.author	<<endl;  		// -k
+	strs << setw(20) << left << "Id3tool Album" << 			Config.album	<<endl;  		//
+	strs << setw(20) << left << "Id3tool Genre" << 			Config.Genre	<<endl;  		// -t
+	strs << setw(20) << left << "Terminal" 		<< 			Config.Term		<<endl;  		// -D
 	Comment( WARN, strs.str() );
 }
 
 string Config_class::BaseDir()
 {
-	string pwd = std::getenv( "PWD" );
-	if ( filesystem::exists( pwd + "/OceanGUI" ))
+
+	string dirName = searchPath( prgname );
+	if ( dirName.length() > 0 )
 	{
-		basedir = pwd + "/../";
+		basedir = dirName + "../" ;
+		Comment( INFO, "using basedir " + basedir );
 		return basedir;
 	}
-	else
-	{
-		string filename = searchPath( prgname );
-		if ( filename.length() > 0 )
-		{
-			string dir = filesystem::path(filename).root_path();
-			basedir = dir + "/../" ;
-			return basedir;
-		}
-	}
 
-	Comment( ERROR, pwd + " is not an Ocean basedir");
+	string pwd = std::getenv( "PWD" );
+
+	Comment( ERROR, pwd + " is not an Ocean basedir, or " + prgname + " not in PATH");
 	exit(1);
 
 	return string("");

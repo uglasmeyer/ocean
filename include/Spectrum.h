@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SPECTRUM_H_
 #define INCLUDE_SPECTRUM_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Logfacility.h>
 #include <String.h>
 

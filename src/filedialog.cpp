@@ -11,7 +11,7 @@
 #include <Keys.h>
 #include <Logfacility.h>
 #include <Notes.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 
 // Qt-includes
 #include <QDebug>

@@ -6,10 +6,14 @@
  */
 
 #include <String.h>
-#include <Common.h>
+#include <System.h>
 
 
 
+bool cmpstr( const string& a, const string& b )
+{
+	return ( a.compare( b ) == 0 );
+}
 
 
 vector_str_t String::to_array( char ch )

@@ -9,15 +9,15 @@
 #define RECORD_H_
 
 #include <Interface.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Synthmem.h>
 
 class ProgressBar_class : virtual Logfacility_class
 {
 public:
 	// static parameter
-	ifd_t* ifd_addr;
-	ProgressBar_class(ifd_t* addr);
+	uint8_t* RecCounter;
+	ProgressBar_class(uint8_t* ); // addr of the counter to watch
 	virtual ~ProgressBar_class();
 
 	// dynamic parameter

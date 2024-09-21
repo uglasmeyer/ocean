@@ -5,8 +5,8 @@
  *      Author: sirius
  */
 
-#include <Common.h>
 #include <Notesbase.h>
+#include <System.h>
 
 float Note_base::Calc_frequency( const uint8_t& key )
 {

@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Synthmem.h>
 
 #ifndef MIXERBASE_H_

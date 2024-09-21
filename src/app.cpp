@@ -12,37 +12,6 @@
  * Synthesizer.cpp extensions
  */
 
-void record_thead_fcn( 	Interface_class* SDS,
-						External_class* External,
-						ProgressBar_class* 	Record,
-						bool*			SaveRecordFlag,
-						bool*			RecordThreadDone )
-{
-	Logfacility_class Log("RecordThread");
-	Log.Comment( INFO, "record thread started ");
-
-	Value fileno {0};
-	while ( not *RecordThreadDone ) 			// run until exit_proc or empty_exit_proc is called
-	{
-		if ( ( *SaveRecordFlag ) )				// triggered by RECORDWAVFILEKEY
-		{
-			fileno = (int) SDS->addr->FileNo;
-			Log.Comment( INFO, "record thread received job " + fileno.str);
-
-			External->Save_record_data( fileno.i );
-
-			// clean up
-			*SaveRecordFlag = false;
-			Record->Unset();
-			SDS->Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
-
-		}
-	    std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-
-	Log.Comment( INFO, "record thread terminated ");
-
-}
 
 
 
@@ -61,7 +30,7 @@ void SynthesizerTestCases()
 	Instrument_class 		Instrument(SDS.addr );
 	Mixer_class 			Mixer( SDS.addr );
 	Keyboard_class			Keyboard( &Instrument );
-	External_class 			External( &Mixer.StA[ MbIdExternal] );
+	External_class 			External( &Mixer.StA[ MbIdExternal], &SDS.addr->RecCounter );
 	Time_class				Timer( &SDS.addr->time_elapsed );
 	DirStructure_class		Dir;
 
@@ -174,11 +143,13 @@ void Application_class::Shutdown_instance( )
 		*state_p	= EXITSERVER;
 		Comment( INFO, "Shutdown running instances of " + Name );
 		long int 	max_wait 	= 2 * SECOND;
-		long int 	amoment 	= 100 * MILLISECOND;
+		long int 	amoment 	= 100 ;
+//		long int 	amoment 	= 100 * MILLISECOND;
 		int 		moments		= 0;
 		while (( *state_p == EXITSERVER ) and ( amoment*moments < max_wait ))
 		{
-			Wait( amoment );
+			this_thread::sleep_for(chrono::milliseconds(amoment));
+//			Wait( amoment );
 			Comment( WARN, "-" ) ;
 			moments++;
 		}
@@ -219,71 +190,3 @@ void Application_class::Start( int argc, char* argv[] )
 
 
 }
-
-using namespace std::chrono;
-
-Time_class::Time_class( uint8_t* t )
-: Logfacility_class("Timer")
-{
-	this->time_elapsed = t;
-	Start();
-	Stop(); // duration is zero
-}
-
-Time_class::~Time_class( )
-{
-	*this->time_elapsed = 0;
-}
-long int Time_class::Time_elapsed()
-{
-	Stop();
-	long long int start_count = duration_cast<milliseconds>(start_time.time_since_epoch()).count();
-	long long int stop_count  = duration_cast<milliseconds>( stop_time.time_since_epoch()).count();
-	return stop_count - start_count;
-}
-void Time_class::Start()
-{
-	start_time = steady_clock::now();
-};
-
-void Time_class::Stop()
-{
-	stop_time = steady_clock::now();
-}
-
-void Time_class::Block()
-{
-	duration = Time_elapsed();
-	latency = duration*100/wait;
-	if ( latency > 100 )
-		Comment( WARN, "runtime latency exceeds 100% " + to_string( latency ));
-
-
-	if ( wait > duration )
-		ms_wait = wait - duration ;
-	usleep( ms_wait * 1000 ); //milli seconds
-
-}
-uint Time_class::Performance( )
-{
-	Stop();
-	uint perf 	= Time_elapsed() / 10; // time elapsed in percentage w.r.t. 1 second = 1000 msec
-	Start();
-	return perf;
-}
-
-void Time_class::Wait( const uint& d )
-{
-    std::this_thread::sleep_for( chrono::seconds(d) );
-}
-
-void Time_class::Test()
-{
-	Set_Loglevel( TEST, true );
-  	Comment( TEST, "wait for 2 seconds ");
-	Start();
-  	Wait( 2 );
-	Comment( TEST, "elapsed time " + to_string( Time_elapsed()) + "ms");
-}
-
-

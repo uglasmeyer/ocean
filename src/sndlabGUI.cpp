@@ -1,17 +1,16 @@
 
 // qtcreator
-#include <Keys.h>
 #include <mainwindow.h>
 #include <ui_mainwindow.h>
 #include <oszilloscopewidget.h>
 #include <spectrum_dialog_class.h>
 
 // Synhesizer
-
+#include <Keys.h>
 #include <Wavedisplay.h>
 #include <Logfacility.h>
 #include <Mixer.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 
 // Qt
 #include <QLabel>
@@ -626,7 +625,9 @@ void MainWindow::start_synthesizer()
     string Start_Synthesizer = Server_cmd( Config.Term, file_structure().synth_bin, "" );
     system_execute( Start_Synthesizer.data() );
     Comment( INFO, Start_Synthesizer );
-    Wait( 2*SECOND ); 	// WAIT until the startup of the process finished.
+    this_thread::sleep_for(chrono::seconds(2));
+    // Wait( 2*SECOND );
+    // WAIT until the startup of the process finished.
     					// the synthesizer process will prepare the initial values
                         // from the keyboard file, that are stored into the GUI.ifd_data structure
     MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-

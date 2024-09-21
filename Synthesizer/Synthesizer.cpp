@@ -1,19 +1,6 @@
 
-
-
-#include <External.h>
-#include <Instrument.h>
-#include <Keyboard.h>
-#include <Logfacility.h>
-#include <Record.h>
-#include <Spectrum.h>
-#include <Wavedisplay.h>
-#include <App.h>
-#include <Common.h>
-#include <Keys.h>
-#include <Notes.h>
 #include <Synthesizer.h>
-#include <Synthmem.h>
+
 
 using namespace std;
 
@@ -26,14 +13,19 @@ Mixer_class				Mixer ( SDS.addr );
 Instrument_class 		Instrument(SDS.addr );
 Note_class 				Notes;
 Keyboard_class			Keyboard( &Instrument );
-External_class 			External( &Mixer.StA[ MbIdExternal] );
+External_class 			External( &Mixer.StA[ MbIdExternal], &SDS.addr->RecCounter );
 Shared_Memory			Shm_a, Shm_b;
-Wavedisplay_class 		Wavedisplay( SDS.addr );
+Wavedisplay_class 		Wavedisplay;
 Memory 					Mono(monobuffer_size); // Wavedisplay output
-ProgressBar_class		ProgressBar( SDS.addr );
+ProgressBar_class		ProgressBar( &SDS.addr->RecCounter );
 Time_class				Timer( &SDS.addr->time_elapsed );
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
+
+
+std::binary_semaphore
+    smphSignalMainToThread{0},
+    smphSignalThreadToMain{0};
 
 
 
@@ -60,10 +52,11 @@ void Setup_Wavedisplay()
 }
 
 
-
 thread record_thread( record_thead_fcn, &SDS,
 										&External,
-										&ProgressBar,
+//										&ProgressBar,
+									    &smphSignalMainToThread,
+									    &smphSignalThreadToMain,
 										&SaveRecordFlag,
 										&RecordThreadDone );
 
@@ -78,7 +71,10 @@ void exit_proc( int signal )
 	{
 		Log.Comment(INFO, "Entering exit procedure for " + Application );
 	}
+
 	RecordThreadDone = true;
+	smphSignalMainToThread.release();
+
 	if ( record_thread.joinable() )
 		record_thread.join();
 	exit( 0 );
@@ -260,12 +256,17 @@ void process( char key )
 		{
 			Log.Comment(INFO, "receive command <set external wave file>");
 			string wavefile = SDS.Read_str( WAVEFILESTR_KEY );
-			while( SaveRecordFlag )
+			   // wait until the worker thread is done doing the work
+			    // by attempting to decrement the semaphore's count
+			Log.Comment( WARN, "wait until the record thread is done ");
+//		    smphSignalThreadToMain.acquire();
+/*			while( SaveRecordFlag )
 			{
 				Log.Comment( WARN, "record in progress");
-				Wait( 500 * MILLISECOND );
+			    this_thread::sleep_for(chrono::milliseconds(500));
+//				Wait( 500 * MILLISECOND );
 			}
-			if ( External.Read_file_header( wavefile ))
+*/			if ( External.Read_file_header( wavefile ))
 			{
 				External.Read_file_data();
 				Mixer.StA[ MbIdExternal ].Play_mode( true );
@@ -523,7 +524,7 @@ void process( char key )
 		}
 		case RECORDWAVFILEKEY : // record and save wav file
 		{
-			if ( SaveRecordFlag )
+		    if ( SaveRecordFlag )
 			{
 				Log.Comment( WARN, "Thread is saving data. ... Wait ");
 				ifd->KEY = NULLKEY;
@@ -545,7 +546,7 @@ void process( char key )
 
 				//no ifd-commit for this section
 				ifd->KEY = NULLKEY;  //but do not start twice
-				SaveRecordFlag = true; // trigger the record thread
+			    smphSignalMainToThread.release(); // trigger the record thread to write data to file
 			}
 			else 								// RECORD
 			{
@@ -660,6 +661,8 @@ bool sync_mode()
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
 			( ProgressBar.active 			)		// StA record external
 		);
+	if ( Mixer.status.kbd )
+		sync = false;
 	return sync ;
 }
 
@@ -676,7 +679,26 @@ void add_sound( stereo_t* shm_addr )
 		Mixer.StA[ MbIdKeyboard	].state.play = false;
 	}
 	*/
-	Wavedisplay.Gen_cxwave_data(  );
+	wd_arr_t display_data = Wavedisplay.Gen_cxwave_data(  );
+	SDS.Write_arr( display_data );
+}
+
+void kbd_release( stereo_t* shm_addr )
+{
+	if ( Keyboard.Decay() )
+	{
+		cout << "DECAY" << endl;
+	}
+	else
+	{
+		cout << "RELEASE" << endl;
+		Keyboard.Release();
+
+		add_sound(shm_addr);
+		Mixer.StA[ MbIdKeyboard ].state.play = false;
+		Mixer.status.kbd = false;
+		SDS.addr->UpdateFlag 	= true;
+	}
 
 }
 void ApplicationLoop()
@@ -686,7 +708,6 @@ void ApplicationLoop()
 	ifd_t* 			ifd 		= SDS.addr;
 	stereo_t* 		shm_addr 	= set_addr( 0 );
 
-	int kbdDecay = 0;
 	Log.Comment(INFO, App.Name + " is ready");
 
 	SDS.Commit(); // set flags to zero and update flag to true
@@ -700,15 +721,18 @@ void ApplicationLoop()
 		assert( ifd->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		int note_key = Keyboard.Kbdnote( );
-		if ( Keyboard.Attack( note_key, 100 ) )
+		if ( Keyboard.Attack( note_key, ifd->noteline_prefix.Octave, 100 ) )
 		{
 			cout << "KEY: " << note_key << endl;
 			Keyboard.Set_ch( 0 );
 			Mixer.StA[ MbIdKeyboard ].state.play = true;
 			add_sound( shm_addr );
-			Mixer.status.kbd = true;
-			ifd->MODE = KEYBOARD;
-			while ( ifd->MODE == KEYBOARD ) Wait( 10 );
+			Mixer.status.kbd	= true;
+			ifd->UpdateFlag 	= true;
+			ifd->MODE 			= KEYBOARD;
+			while ( ifd->MODE 	== KEYBOARD )
+			    this_thread::sleep_for(chrono::nanoseconds(10));
+//				Wait( 10 );
 		}
 
 		Mixer.Volume_control( ifd );
@@ -746,26 +770,14 @@ void ApplicationLoop()
 			// Keyboard decay mode
 			if ( Mixer.status.kbd )
 			{
-				if ( Keyboard.Decay() )
-				{
-					cout << "DECAY" << endl;
-				}
-				else
-				{
-					cout << "RELEASE" << endl;
-					Keyboard.Release();
-
-					add_sound(shm_addr);
-					Mixer.StA[ MbIdKeyboard ].state.play = false;
-					Mixer.status.kbd = false;
-				}
+				kbd_release( shm_addr );
 			}
 			else
-				add_sound(shm_addr);
+				add_sound( shm_addr );
 
 
-			shm_addr 		= set_addr( 0 );
-			ifd->MODE = FREERUN;
+			shm_addr	= set_addr( 0 );
+			ifd->MODE	= FREERUN;
 		}
 	} ;
 
@@ -783,8 +795,7 @@ int main( int argc, char* argv[] )
 
 	Log.Comment(INFO, "Evaluating startup arguments");
 
-	cout << "using base directory: " << Dir.basedir << endl;
-
+	Log.Comment( INFO, "using base directory: " + Dir.basedir );
 	Dir.Create();
 
 	if ( App.Cfg.Config.test == 'y' )

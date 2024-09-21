@@ -11,7 +11,6 @@
 #include <Logfacility.h>
 #include <Interface.h>
 #include <App.h>
-#include <Common.h>
 #include <Keys.h>
 
 using namespace std;
@@ -64,7 +63,8 @@ char Key_event( string charlist )
 
 	while ( charlist.find( keys.key ) == STRINGNOTFOUND )
 	{
-		Wait( 50*MILLISECOND );
+		this_thread::sleep_for(chrono::milliseconds(50));
+//		Wait( 50*MILLISECOND );
 		show_ifd();
 		keys = Keyboard.GetKey();
 	}

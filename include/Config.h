@@ -8,7 +8,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Logfacility.h>
 #include <Version.h>
 
@@ -23,12 +23,13 @@ typedef struct prgarg_struct
 		uint shm_key_a 	= rate; 	// -k
 		char test 		= 'n';		// -t run sanity check on classes and exit = 'y'
 		char dialog		= 'n';		// -d dialog mode of the composer = 'y'
-		uint shm_key_b 	= rate + 11;	//
+		uint shm_key_b 	= rate + 1;	//
 		string Genre	= "Alternative";
 		string author	= "U.G.";
 		string title	= "Experimental";
 		string album	= Application;
 		string Term		= "xterm -e ";
+		uint SDS_key	= 5166529;
 
 } prgarg_struct_t;
 

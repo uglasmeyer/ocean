@@ -10,7 +10,7 @@
 
 #include <Osc.h>
 #include <External.h>
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Mixerbase.h>
 #include <Notes.h>
 #include <Synthmem.h>

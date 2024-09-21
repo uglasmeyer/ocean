@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'File_Dialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.13
+** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -50,7 +50,7 @@ public:
     {
         if (File_Dialog->objectName().isEmpty())
             File_Dialog->setObjectName(QString::fromUtf8("File_Dialog"));
-        File_Dialog->resize(340, 271);
+        File_Dialog->resize(341, 271);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -245,7 +245,7 @@ public:
         sB_Octave = new QSpinBox(File_Dialog);
         sB_Octave->setObjectName(QString::fromUtf8("sB_Octave"));
         sB_Octave->setMinimum(0);
-        sB_Octave->setMaximum(6);
+        sB_Octave->setMaximum(5);
 
         gridLayout->addWidget(sB_Octave, 9, 0, 1, 1);
 

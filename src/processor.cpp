@@ -139,13 +139,22 @@ void Processor_class::Push_text( string str )
 
 void Processor_class::wait_for_commit()
 {
+	/*
 	int i = 0;
 	while ( (ifd->KEY != NULLKEY ) and ( ifd->Synthesizer == RUNNING ) )
 	{
-		Wait(1 * MILLISECOND );
+	    this_thread::sleep_for(chrono::milliseconds(1));
+//		Wait(1 * MILLISECOND );
 		i++;
 	}
-	printf(", commit in %d [msec]",i);
+	*/
+	Timer.Start();
+	SEM.aquire();
+	cout << " -wait for release ";
+	SEM.lock();
+	long int tel = Timer.Time_elapsed();
+
+	printf(", commit in %ld [msec]",tel );
 }
 
 void Processor_class::Clear_process_stack()
@@ -224,7 +233,9 @@ void Processor_class::Execute()
 			else
 			{
 				printf("%d wait %d", stack_item.prgline, stack_item.value );
-				Wait( stack_item.value*SECOND);
+			    this_thread::sleep_for(chrono::seconds( stack_item.value));
+
+//				Wait( stack_item.value*SECOND);
 			}
 			break;
 		}
@@ -232,7 +243,8 @@ void Processor_class::Execute()
 		{
 			uint8_t sec = ifd->Noteline_sec;
 			printf("%d conditional wait %d\t\t| %s", stack_item.prgline,  sec, stack_item.str.data() );
-			Wait( sec * SECOND);
+		    this_thread::sleep_for(chrono::seconds(sec));
+//			Wait( sec * SECOND);
 			ifd->Noteline_sec = 0;
 			break;
 		}

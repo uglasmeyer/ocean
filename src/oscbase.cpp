@@ -63,7 +63,7 @@ void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 	this->spectrum 	= spectrum;
 	wp.touched		= true;
 }
-#include <Common.h>
+#include <System.h>
 
 void Oscillator_base::Line_interpreter( vector_str_t arr )
 {

@@ -27,23 +27,16 @@ Keyboard_class::~Keyboard_class()
 {
 };
 
-bool Keyboard_class::Counter( int c )
-{
-	decayCounter = c;
-	if( decayCounter == 0 )
-		osc.Mem.clear_data( 0 );
-	return ( c == 10) ;
-}
 
 void Keyboard_class::setup(  )
 {
 	if ( not instrument ) return;
 	// copy class Oscillator
-	osc.wp 		= instrument->main.wp;
-	osc.vp 		= instrument->main.vp;
-	osc.vp.data	= vco.Mem.Data;
-	osc.fp 		= instrument->main.fp;
-	osc.fp.data	= fmo.Mem.Data;
+	osc.wp 			= instrument->main.wp;
+	osc.vp 			= instrument->main.vp;
+	osc.vp.data		= vco.Mem.Data;
+	osc.fp 			= instrument->main.fp;
+	osc.fp.data		= fmo.Mem.Data;
 	osc.adsr 		= instrument->main.adsr;
 	osc.spectrum	= instrument->main.spectrum;
 
@@ -60,24 +53,25 @@ void Keyboard_class::setup(  )
 
 bool Keyboard_class::Decay(  )
 {
-	if( decayCounter > 0 ) decayCounter--;
-	return ( decayCounter > 0 );
+	if( decayCounter > releaseCounter ) decayCounter--;
+	return ( decayCounter > releaseCounter );
 
 }
 
-bool Keyboard_class::Attack( int key, uint8_t amp )
+bool Keyboard_class::Attack( int key, uint8_t octave, uint8_t amp )
 {
-	auto set_osc_frequency 	= [ this, key ]( Oscillator* osc )
+	auto set_osc_frequency 	= [ this, key, octave ]( Oscillator* osc )
 		{
-			int Octave = 3;
-			float 	freq 	= this->Calc_frequency( Octave*12 + key );//osc->wp.frequency * ( 12 + key ) / 12.0  ;
+			float 	freq 	= this->Calc_frequency( octave*12 + key );//osc->wp.frequency * ( 12 + key ) / 12.0  ;
 			osc->Set_frequency( freq );
 			osc->OSC( 0 );
 		};
 
-	if ( key == NOKEY ) return false;
-	if ( decayCounter > 0 )  return false;
+	if (( key == NOKEY ) or ( decayCounter > releaseCounter ))
+		return false;
+
 	decayCounter = attackCounter;
+
 	setup();
 	for ( Oscillator* osc : osc_group )
 		set_osc_frequency( osc );

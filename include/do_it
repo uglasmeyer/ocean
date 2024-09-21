@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+echo do it
+for file in *h *cpp
+do
+	echo $file
+ 	cat $file | sed 's/<Synthesizer.h>/<Ocean.h>/g' > /tmp/$file.ren
+ 	cp /tmp/$file.ren $file
+done

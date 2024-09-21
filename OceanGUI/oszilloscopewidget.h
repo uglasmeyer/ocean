@@ -3,7 +3,7 @@
 #define OSZILLOSCOPEWIDGET_H
 // C++ Project
 
-#include <Synthesizer.h>
+#include <Ocean.h>
 #include <Interface.h>
 
 // Qt

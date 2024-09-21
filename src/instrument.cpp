@@ -7,7 +7,7 @@
 
 #include <Instrument.h>
 #include <Config.h>
-#include <Common.h>
+#include <System.h>
 
 
 Instrument_class::Instrument_class(ifd_t* ifd )
@@ -156,6 +156,11 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 	osc->Show_csv_comment( TEST );
 
 }
+void Instrument_class::set_new_name( string name )
+{
+	Name = name;
+	Instrument_file 		= file_structure().Dir.instrumentdir + Name + ".kbd";
+}
 
 void Instrument_class::set_name( string name )
 {
@@ -296,10 +301,10 @@ bool Instrument_class::init_connections( )
 
 void Instrument_class::Save_Instrument( string str )
 {
-	set_name( str );
-	fstream FILE;
-	Comment(2,  "saving sound to: " + Instrument_file);
+	set_new_name( str );
+	Comment( INFO,  "saving sound to: " + Instrument_file);
 
+	fstream FILE;
 	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
 
 	FILE 	<< setfill(' ') << right << "#OSC,"
