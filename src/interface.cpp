@@ -314,8 +314,8 @@ void Interface_class::Commit()
 	addr->KEY 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
-	if ( SEM.getval() > 0 )
-		SEM.release();
+	if ( SEM.getval( PROCESSOR_WAIT ) > 0 )
+		SEM.release( PROCESSOR_WAIT );
 }
 
 void Interface_class::Set( bool& key, bool value )
