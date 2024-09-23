@@ -11,6 +11,6 @@ environment/project/cdt.managedbuild.toolchain.gnu.base.460673211/append=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.460673211/appendContributed=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/INCLUDEARCH/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/INCLUDEARCH/operation=replace
-environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/INCLUDEARCH/value=x86_
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/INCLUDEARCH/value=aarch
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/append=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/appendContributed=true

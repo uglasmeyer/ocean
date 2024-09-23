@@ -10,8 +10,8 @@ return
 #-----------------------------------------
 
 :startserver
-start 	AudioServer  # shmkey is set to frames per second
-start 	Synthesizer 
+start 	AudioServer 48000 3 # shmkey is set to frames per second
+start 	Synthesizer 48000 0
 return
 #-----------------------------------------
 

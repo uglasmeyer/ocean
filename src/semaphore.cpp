@@ -9,7 +9,7 @@ Logfacility_class( "Semaphore")
 
 Semaphore_class::~Semaphore_class()
 {
-
+	semctl( semid, IPC_RMID, 0 );
 }
 
 void Semaphore_class::init()
