@@ -11,13 +11,20 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
+enum
+{
+	PROCESSOR_WAIT,
+	SEMNUM_SIZE
+};
 
 class Semaphore_class  : Logfacility_class
 {
 public:
 	int SEM_KEY = 0x1234;
 	int semid	= 0;
-    struct sembuf sem_op;
+	typedef struct sembuf semop_t;
+	semop_t			sem_op;
+    vector<semop_t> sem_op_vec {};
 
 	const uint 	SEMNUM	=  0;
 	const int	OP_DEC 	= -1;
@@ -28,10 +35,10 @@ public:
 	Semaphore_class();
 	~Semaphore_class();
 	void init();
-	void aquire(); // increase the semaphore ( OP_INC )
-	void release();	// decrease the semaphore ( OP_DEC )
-	void lock();	// wait for release
-	int  getval();
+	void aquire( uint ); // increase the semaphore ( OP_INC )
+	void release( uint );	// decrease the semaphore ( OP_DEC )
+	void lock( uint );	// wait for release
+	int  getval( uint );
 };
 
 

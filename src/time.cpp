@@ -15,7 +15,9 @@ Time_class::Time_class( uint8_t* t )
 Time_class::Time_class(  )
 : Logfacility_class("Timer")
 {
-	this->time_elapsed = 0;
+	this->time_elapsed 	= 0;
+	this->duration 		= 0;
+	this->ms_wait		= 0;
 }
 
 Time_class::~Time_class( )

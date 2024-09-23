@@ -149,9 +149,9 @@ void Processor_class::wait_for_commit()
 	}
 	*/
 	Timer.Start();
-	SEM.aquire();
+	SEM.aquire( PROCESSOR_WAIT );
 	cout << " -wait for release ";
-	SEM.lock();
+	SEM.lock( PROCESSOR_WAIT );
 	long int tel = Timer.Time_elapsed();
 
 	printf(", commit in %ld [msec]",tel );
