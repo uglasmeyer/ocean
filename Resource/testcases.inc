@@ -73,7 +73,7 @@ pause key
 notes set octave 3
 notes per_second 5
 notes set "(CEG)----- |A'BCD (CE)- A'BC(EG) C.(ACE)-B.A." 8
-notes play on 80
+notes play on 100
 pause key
 
 osc main unmute

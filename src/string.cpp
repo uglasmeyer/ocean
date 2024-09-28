@@ -15,6 +15,16 @@ bool cmpstr( const string& a, const string& b )
 	return ( a.compare( b ) == 0 );
 }
 
+string notnull( char* cstr )
+{
+	const char* empty = "";
+	const char* pstr = cstr;
+	if( ! pstr )
+		pstr = empty;
+	return string( pstr );
+
+}
+
 
 vector_str_t String::to_array( char ch )
 {
@@ -178,8 +188,12 @@ string String::to_hex( long value )
 
 void String::test()
 {
-	Set_Loglevel( TEST, true);
-	Comment( TEST, "Test String start" );
+	TEST_START();
+	//Set_Loglevel( TEST, true);
+	//Comment( TEST, "Test String start" );
+
+	String Env = notnull( std::getenv("OCEANTESTCASE") );
+	assert( cmpstr( Env.Str, "oceantestcase") );
 
 	string str 		= "a=abc=def";
 	String 			S{""};
@@ -251,8 +265,7 @@ void String::test()
 	A.to_lower();
 	assert( A.Str.compare("up_per") == 0 );
 
-	Comment( TEST, "Test String OK" );
-//	assert(false);
+	TEST_END();
 
 }
 

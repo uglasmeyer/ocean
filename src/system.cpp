@@ -11,13 +11,14 @@ using namespace std;
 
 Logfacility_class Log_common{"System"};
 
-/*
-void Wait( long int N)
+void catch_signals( sighandler_t proc, vector<uint> sig_v )
 {
-	usleep( N ); //microseconds
+	for ( uint sig : sig_v )
+	{
+		Log_common.Comment(INFO, "Catching signal: " + to_string(sig) );
+		signal( sig	, proc );
+	}
 }
-*/
-
 
 void Exception( const string& err_str )
 {
@@ -74,13 +75,16 @@ vector<string> List_directory( const string& path, const string& filter )
 string searchPath( string file )
 {
 	string filename = filesystem::path( file ).filename( );
-	string Path = string( getenv( "PATH" )) + ":.";
+	string Path = notnull( getenv( "PATH" )) ;
+	if( Path.length() == 0 )
+		return "";
+
 	std::replace ( Path.begin(), Path.end(), ':', '\n' );
 	istringstream input;
 	input.str( Path );
 	for (std::string dir; std::getline( input , dir);)
 	{
-		string file = dir + "/" + filename ;
+		string file = dir + "/" + filename ; // @suppress("Symbol shadowing")
 		if (filesystem::exists( file ) ) return file;
 	}
 

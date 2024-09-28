@@ -25,10 +25,10 @@ public:
 	static const int 	logmax 		= 6;
 	const size_t 		logsize		= logmax + 1;
 	vector<bool> Log { true, false, true, true, false, true, false };
-	string logdir 					= "/tmp/log/";
-	string logfileName				= "Synthesizer";
-	string logFile					= logdir + logfileName + ".log";
-	string errFile					= logdir + logfileName + ".err";
+	string logdir 					{ "/tmp/log/"};
+	string logfileName				{ "Synthesizer" };
+	string logFile					{ logdir + logfileName + ".log" };
+	string errFile					{ logdir + logfileName + ".err" };
 
 	const string Line = "-----------------------------------------------------------";
 	Logfacility_class( string  );
@@ -36,15 +36,30 @@ public:
 
 
 	// make all true to enable debugging of initialization phase
-	void Comment( int, const string& );
+	void Comment( int level, const string& c );
 	void Set_Loglevel( int, bool );
 	void Show_loglevel();
 	string Error_text( int );
 	void Init_log_file();
 	void Test_Logging();
 
+void TEST_START()
+{
+	Set_Loglevel( TEST, true) ;
+
+	Comment( TEST, "Test " + string(typeid(this).name()) + " start" ) ;
+}
+
+void TEST_END()
+{
+	Comment( TEST, "Test " + string(typeid(this).name()) + " finished" );
+	Set_Loglevel( TEST, false) ;
+}
 
 private:
+
+
+
 	string module = "";
 
 	typedef struct pair_struct
@@ -81,5 +96,6 @@ private:
 
 
 };
+
 
 #endif /* LOGFACILITY_H_ */

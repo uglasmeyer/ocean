@@ -82,7 +82,7 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 	if ( not check_nps( nlp.nps) )
 	{
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		Exception( "Cannot assign noteline_prefix " + str + " to noteline_structure" );//raise( SIGINT );
+		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
 	}
 
 	nlp.flat = S.secure_stoi(arr[3]);

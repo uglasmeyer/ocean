@@ -70,11 +70,12 @@ void Time_class::Wait( const uint& d )
 
 void Time_class::Test()
 {
-	Set_Loglevel( TEST, true );
+	TEST_START();
   	Comment( TEST, "wait for 2 seconds ");
 	Start();
   	Wait( 2 );
 	Comment( TEST, "elapsed time " + to_string( Time_elapsed()) + "ms");
+	TEST_END();
 }
 
 

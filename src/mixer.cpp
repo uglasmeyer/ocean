@@ -260,15 +260,15 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 	auto calc_amp_mod = [ this ]()
 		{
-			float sum 	= 0;
+			float sum 	= 0.0;
 			uint count 	= 0;
 			for( uint id : MemIds )
 			{
 				if (( StA[id].state.play ) )
 					{ sum += StA[id].Amp; count++; }
 			}
-			if ( count 	== 1 ) 	return (float) 1.0;
-			if ( sum 	== 0 ) 	return (float) 1.0;
+			if ( count 	== 	1 ) 	return (float) 1.0;
+			if ( sum 	< 	0.1 ) 	return (float) 1.0;
 			float 	mean = 100.0 / sum;
 			return 	mean;
 		};

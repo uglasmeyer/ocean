@@ -52,13 +52,13 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = main.cpp moc_File_Dialog.cpp \
-		moc_mainwindow.cpp \
-		moc_spectrum_dialog_class.cpp
-OBJECTS       = main.o \
+SOURCES       = OceanGUI_main.cpp moc_File_Dialog.cpp \
+		moc_Mainwindow.cpp \
+		moc_Spectrum_dialog_class.cpp
+OBJECTS       = OceanGUI_main.o \
 		moc_File_Dialog.o \
-		moc_mainwindow.o \
-		moc_spectrum_dialog_class.o
+		moc_Mainwindow.o \
+		moc_Spectrum_dialog_class.o
 DIST          = /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/aarch64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/aarch64-linux-gnu/qt5/mkspecs/common/linux.conf \
@@ -138,9 +138,9 @@ DIST          = /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		OceanGUI.pro File_Dialog.h \
-		mainwindow.h \
-		oszilloscopewidget.h \
-		spectrum_dialog_class.h main.cpp
+		Mainwindow.h \
+		Oszilloscopewidget.h \
+		Spectrum_dialog_class.h OceanGUI_main.cpp
 QMAKE_TARGET  = OceanGUI
 DESTDIR       = 
 TARGET        = OceanGUI
@@ -326,8 +326,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents File_Dialog.h mainwindow.h oszilloscopewidget.h spectrum_dialog_class.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents File_Dialog.h Mainwindow.h Oszilloscopewidget.h Spectrum_dialog_class.h $(DISTDIR)/
+	$(COPY_FILE) --parents OceanGUI_main.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents File_Dialog.ui mainwindow.ui spectrum_dialog_class.ui $(DISTDIR)/
 
 
@@ -361,9 +361,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	clang++ -pipe -g -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/aarch64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_File_Dialog.cpp moc_mainwindow.cpp moc_spectrum_dialog_class.cpp
+compiler_moc_header_make_all: moc_File_Dialog.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_File_Dialog.cpp moc_mainwindow.cpp moc_spectrum_dialog_class.cpp
+	-$(DEL_FILE) moc_File_Dialog.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp
 moc_File_Dialog.cpp: File_Dialog.h \
 		../include/Notes.h \
 		../include/Spectrum.h \
@@ -387,7 +387,7 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include File_Dialog.h -o moc_File_Dialog.cpp
 
-moc_mainwindow.cpp: mainwindow.h \
+moc_Mainwindow.cpp: Mainwindow.h \
 		../include/Interface.h \
 		../include/Ocean.h \
 		../include/Config.h \
@@ -413,14 +413,14 @@ moc_mainwindow.cpp: mainwindow.h \
 		../include/App.h \
 		../include/Time.h \
 		File_Dialog.h \
+		Oszilloscopewidget.h \
+		Spectrum_dialog_class.h \
 		ui_mainwindow.h \
-		spectrum_dialog_class.h \
-		oszilloscopewidget.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include mainwindow.h -o moc_mainwindow.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include Mainwindow.h -o moc_Mainwindow.cpp
 
-moc_spectrum_dialog_class.cpp: spectrum_dialog_class.h \
+moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Ocean.h \
 		../include/Spectrum.h \
 		../include/Logfacility.h \
@@ -437,7 +437,7 @@ moc_spectrum_dialog_class.cpp: spectrum_dialog_class.h \
 		../include/Semaphore.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include spectrum_dialog_class.h -o moc_spectrum_dialog_class.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include Spectrum_dialog_class.h -o moc_Spectrum_dialog_class.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -468,8 +468,7 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 
 ####### Compile
 
-main.o: main.cpp mainwindow.h \
-		../include/Interface.h \
+OceanGUI_main.o: OceanGUI_main.cpp ../include/Interface.h \
 		../include/Ocean.h \
 		../include/Config.h \
 		../include/Logfacility.h \
@@ -483,30 +482,31 @@ main.o: main.cpp mainwindow.h \
 		../include/Mixerbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Semaphore.h \
-		../include/Mixer.h \
-		../include/Osc.h \
-		../include/System.h \
+		../include/App.h \
 		../include/External.h \
 		../include/Wav.h \
 		../include/Record.h \
+		../include/Time.h \
+		Mainwindow.h \
+		../include/Mixer.h \
+		../include/Osc.h \
+		../include/System.h \
 		../include/Notes.h \
 		../include/Instrument.h \
-		../include/App.h \
-		../include/Time.h \
 		File_Dialog.h \
-		ui_mainwindow.h \
-		spectrum_dialog_class.h \
-		oszilloscopewidget.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+		Oszilloscopewidget.h \
+		Spectrum_dialog_class.h \
+		ui_mainwindow.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp
 
 moc_File_Dialog.o: moc_File_Dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_File_Dialog.o moc_File_Dialog.cpp
 
-moc_mainwindow.o: moc_mainwindow.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
+moc_Mainwindow.o: moc_Mainwindow.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Mainwindow.o moc_Mainwindow.cpp
 
-moc_spectrum_dialog_class.o: moc_spectrum_dialog_class.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_spectrum_dialog_class.o moc_spectrum_dialog_class.cpp
+moc_Spectrum_dialog_class.o: moc_Spectrum_dialog_class.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Spectrum_dialog_class.o moc_Spectrum_dialog_class.cpp
 
 ####### Install
 

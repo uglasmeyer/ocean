@@ -206,12 +206,9 @@ int main( int argc, char *argv[] )
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
 
-	Log.Comment(INFO, "Catching signals SIGINT and SIGABRT");
-	signal(SIGINT , &exit_proc );
-	signal(SIGABRT, &exit_proc );
-	signal(SIGHUP, &exit_proc );
+	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 
-	App.Shutdown_instance( );
+//	App.Shutdown_instance( );
 
     SDS.Announce( App.client_id, &sds->AudioServer );
 	sds->RecCounter 	= 0;

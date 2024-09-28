@@ -12,7 +12,6 @@
 
 using namespace std;
 
-
 Logfacility_class::Logfacility_class( string module )
 {
 	this->module = module ;
@@ -86,7 +85,7 @@ string Logfacility_class::Error_text( int err )
 	{
 		if ( pair.key == err )
 		{
-			return pair.str;
+			return to_string( pair.key) + " " + pair.str;
 		}
 	}
 	str = "error no " + to_string(err) + " to be defined";
@@ -122,7 +121,7 @@ void Logfacility_class::Test_Logging( )
 			return Bool ? "true" : "false";
 		};
 	string str = Error_text( EEXIST );
-	assert( str.compare( "File exists") 		== 0 );
+	assert( str.compare( "17 File exists") 		== 0 );
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Logfacility test start");
 	cout << truefalse( Log[TEST] ) << endl;

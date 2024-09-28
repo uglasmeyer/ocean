@@ -1,4 +1,4 @@
-#include "spectrum_dialog_class.h"
+#include "Spectrum_dialog_class.h"
 #include "qtimer.h"
 #include "ui_spectrum_dialog_class.h"
 

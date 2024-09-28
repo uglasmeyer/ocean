@@ -1,13 +1,13 @@
 
 // qtcreator
-#include <mainwindow.h>
+#include <Mainwindow.h>
 #include <ui_mainwindow.h>
-#include <oszilloscopewidget.h>
-#include <spectrum_dialog_class.h>
+#include <Oszilloscopewidget.h>
+#include <Spectrum_dialog_class.h>
 
 // Synhesizer
 #include <Keys.h>
-#include <Wavedisplay.h>
+#include <Wavedisplay_base.h>
 #include <Logfacility.h>
 #include <Mixer.h>
 #include <Ocean.h>
@@ -31,8 +31,8 @@ int set_slider( float f )
 }
 
 MainWindow::MainWindow(QWidget *parent) :
-	Logfacility_class("OceanGUI"),
-	Config_class("OceanGUI"),
+	Logfacility_class( Module ),
+	Config_class( Module ),
 	ui(new Ui::MainWindow)
 
 {
@@ -64,8 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	Qbps_str_list = Qstringlist( bps_struct().Bps_str_vec );
 
-    Init_log_file();
-    SDS.Announce( App.client_id, &sds->UserInterface );
+	SDS.Announce( App.client_id, &sds->UserInterface );
 
 
     ui->setupUi(this);
@@ -160,15 +159,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( ui->sB_Main, SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
 
 
-    QTimer* record_timer = new QTimer( this );
+    record_timer = new QTimer( this );
     connect(record_timer, &QTimer::timeout, this, &MainWindow::get_record_status);
     record_timer->start(1000);
 
-    QTimer* status_timer = new QTimer( this );
+    status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &MainWindow::Updatewidgets);
     status_timer->start(1000);
 
-    QTimer* osc_timer = new QTimer( this );
+    osc_timer = new QTimer( this );
     connect(osc_timer, &QTimer::timeout, this, &MainWindow::read_polygon_data );
     osc_timer->start(20); // 50 Hz
 
@@ -191,11 +190,22 @@ MainWindow::MainWindow(QWidget *parent) :
     item                = new OszilloscopeWidget( sds, rect );
     scene->addItem( item );
 
+    this->Spectrum_Dialog_Obj = new Spectrum_Dialog_class( this, &SDS );
+    this->File_Dialog_obj = new File_Dialog_class( this, ui->Slider_Main_Hz );
+
+
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+	delete item;
+	delete scene;
+	delete osc_timer;
+	delete status_timer;
+	delete record_timer;
+	delete ui;
+	delete Spectrum_Dialog_Obj;
+	delete File_Dialog_obj;
 }
 
 
@@ -220,7 +230,7 @@ void MainWindow::wavfile_selected( const QString &arg)
     if ( str.length() > 0 )
     {
         SDS.Write_str( WAVEFILESTR_KEY, str );
-        SDS.Set(sds->KEY , SETEXTERNALWAVEFILE);
+        SDS.Set(sds->KEY , READ_EXTERNALWAVEFILE);
     }
 }
 
@@ -264,10 +274,11 @@ void MainWindow::dial_PMW_value_changed()
 
 void MainWindow::File_Director()
 {
-    if ( this->File_Dialog_obj == nullptr )
+/*    if ( this->File_Dialog_obj == nullptr )
     {
         this->File_Dialog_obj = new File_Dialog_class( this, ui->Slider_Main_Hz );
     }
+    */
     if ( this->File_Dialog_obj->isVisible()   )
         this->File_Dialog_obj->hide();
     else
@@ -276,10 +287,12 @@ void MainWindow::File_Director()
 
 void MainWindow::Spectrum_Dialog()
 {
+	/*
     if ( this->Spectrum_Dialog_Obj == nullptr )
     {
         this->Spectrum_Dialog_Obj = new Spectrum_Dialog_class( this, &SDS );
     }
+    */
     if ( this->Spectrum_Dialog_Obj->isVisible()   )
         this->Spectrum_Dialog_Obj->hide();
     else
@@ -615,6 +628,7 @@ void MainWindow::start_composer()
 
 void MainWindow::start_audio_srv()
 {
+	if( sds->Rtsp == RUNNING ) return;
     string Start_Audio_Srv = Server_cmd( Config.Term, file_structure().audio_bin, "" );
 	system_execute( Start_Audio_Srv.data() );
 	Comment( INFO, Start_Audio_Srv );
@@ -622,14 +636,16 @@ void MainWindow::start_audio_srv()
 
 void MainWindow::start_synthesizer()
 {
+	if( sds->Rtsp == RUNNING )
+	{
+	    if ( Sem.Getval( SEMAPHORE_START, GETVAL ) > 0 )
+	    	Sem.Release( SEMAPHORE_START );
+	    return;
+	}
     string Start_Synthesizer = Server_cmd( Config.Term, file_structure().synth_bin, "" );
     system_execute( Start_Synthesizer.data() );
     Comment( INFO, Start_Synthesizer );
-    this_thread::sleep_for(chrono::seconds(2));
-    // Wait( 2*SECOND );
-    // WAIT until the startup of the process finished.
-    					// the synthesizer process will prepare the initial values
-                        // from the keyboard file, that are stored into the GUI.ifd_data structure
+    Sem.Lock( SEMAPHORE_STARTED );
     MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-
     MainWindow::show(); // and the Mainwindow is updated.
 }
@@ -640,6 +656,12 @@ void MainWindow::read_polygon_data()
 
 void MainWindow::Controller_Exit()
 {
+	if ( sds->Rtsp == RUNNING )
+	{
+    if ( Sem.Getval( SEMAPHORE_EXIT, GETVAL ) > 0 )
+    	Sem.Release( SEMAPHORE_EXIT );
+    return;
+	}
     sds->Synthesizer = EXITSERVER ;
 }
 

@@ -1,14 +1,13 @@
 
 #include <Synthesizer.h>
 
-
 using namespace std;
-
 string					Module = "Synthesizer";
 Logfacility_class		Log( Module );
 DirStructure_class		Dir;
 Interface_class			SDS;
 Application_class		App( Module, SYNTHID, &SDS );
+Semaphore_class			Sem;
 Mixer_class				Mixer ( SDS.addr );
 Instrument_class 		Instrument(SDS.addr );
 Note_class 				Notes;
@@ -16,17 +15,16 @@ Keyboard_class			Keyboard( &Instrument );
 External_class 			External( &Mixer.StA[ MbIdExternal], &SDS.addr->RecCounter );
 Shared_Memory			Shm_a, Shm_b;
 Wavedisplay_class 		Wavedisplay;
-Memory 					Mono(monobuffer_size); // Wavedisplay output
 ProgressBar_class		ProgressBar( &SDS.addr->RecCounter );
 Time_class				Timer( &SDS.addr->time_elapsed );
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
 
 
-std::binary_semaphore
-    smphSignalMainToThread{0},
-    smphSignalThreadToMain{0};
-
+extern void record_thead_fcn( 	Interface_class*,
+								External_class* ,
+								bool*,
+								bool* );
 
 
 const int 				EXITTEST			= 15;;
@@ -51,14 +49,11 @@ void Setup_Wavedisplay()
 	Wavedisplay.Set_data_ptr( SDS.addr->Wavedisplay_Id );
 }
 
-
 thread record_thread( record_thead_fcn, &SDS,
 										&External,
-//										&ProgressBar,
-									    &smphSignalMainToThread,
-									    &smphSignalThreadToMain,
 										&SaveRecordFlag,
 										&RecordThreadDone );
+
 
 void exit_proc( int signal )
 {
@@ -73,22 +68,12 @@ void exit_proc( int signal )
 	}
 
 	RecordThreadDone = true;
-	smphSignalMainToThread.release();
+	Sem.Release( SEMAPHORE_RECORD );
 
 	if ( record_thread.joinable() )
 		record_thread.join();
 	exit( 0 );
 }
-void catch_signals( vector<uint> sig_v )
-{
-	for ( uint sig : sig_v )
-	{
-		Log.Comment(INFO, "Catching signal: " + to_string(sig) );
-		signal( sig	, &exit_proc );
-	}
-}
-
-
 
 void show_AudioServer_Status()
 {
@@ -96,13 +81,8 @@ void show_AudioServer_Status()
 		Log.Comment(INFO, "Sound server is up" );
 	else
 		Log.Comment( ERROR, "Sound server not running with status " +
-							uint8_code_str[ SDS.ifd_data.AudioServer ] );
+							SDS.Decode( SDS.addr->AudioServer ));
 }
-
-
-
-
-
 
 void show_usage()
 {
@@ -252,21 +232,19 @@ void process( char key )
 			SDS.Commit(); // reset flags on GUI side
 			break;
 		}
-		case SETEXTERNALWAVEFILE :
+		case READ_EXTERNALWAVEFILE :
 		{
 			Log.Comment(INFO, "receive command <set external wave file>");
 			string wavefile = SDS.Read_str( WAVEFILESTR_KEY );
+			if( cmpstr( External.GetName(), wavefile ) )
+			{
+				Sem.Lock( SEMAPHORE_RECORD ); // assume record thread is working on that file
+			}
+
 			   // wait until the worker thread is done doing the work
 			    // by attempting to decrement the semaphore's count
-			Log.Comment( WARN, "wait until the record thread is done ");
-//		    smphSignalThreadToMain.acquire();
-/*			while( SaveRecordFlag )
-			{
-				Log.Comment( WARN, "record in progress");
-			    this_thread::sleep_for(chrono::milliseconds(500));
-//				Wait( 500 * MILLISECOND );
-			}
-*/			if ( External.Read_file_header( wavefile ))
+
+			if ( External.Read_file_header( wavefile ))
 			{
 				External.Read_file_data();
 				Mixer.StA[ MbIdExternal ].Play_mode( true );
@@ -543,10 +521,11 @@ void process( char key )
 			{
 				Log.Comment(INFO, str + " record Audio out to wav file format.");
 				Mixer.StA[MbIdExternal].Record_mode( false );
-
+				ProgressBar.Unset();
 				//no ifd-commit for this section
 				ifd->KEY = NULLKEY;  //but do not start twice
-			    smphSignalMainToThread.release(); // trigger the record thread to write data to file
+
+				Sem.Release( SEMAPHORE_RECORD );
 			}
 			else 								// RECORD
 			{
@@ -555,7 +534,7 @@ void process( char key )
 				External.stereo.clear_data();
 				Mixer.StA[MbIdExternal].Record_mode( true );
 				ProgressBar.Set( &External.stereo.info.record_counter,
-							 External.stereo.info.max_records );
+							 	 External.stereo.info.max_records );
 				SDS.Commit();
 			}
 			break;
@@ -704,13 +683,15 @@ void kbd_release( stereo_t* shm_addr )
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
-
 	ifd_t* 			ifd 		= SDS.addr;
 	stereo_t* 		shm_addr 	= set_addr( 0 );
 
 	Log.Comment(INFO, App.Name + " is ready");
 
 	SDS.Commit(); // set flags to zero and update flag to true
+
+	if( Sem.Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
+		Sem.Release( SEMAPHORE_STARTED );
 
 	while ( ifd->Synthesizer != EXITSERVER )
 	{
@@ -790,7 +771,7 @@ void ApplicationLoop()
 
 int main( int argc, char* argv[] )
 {
-	catch_signals( { SIGINT, SIGHUP } );
+	catch_signals( &exit_proc, { SIGINT, SIGHUP, SIGABRT } );
 	App.Start( argc, argv );
 
 	Log.Comment(INFO, "Evaluating startup arguments");
@@ -808,7 +789,7 @@ int main( int argc, char* argv[] )
 	Shm_a.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_a );
 	Shm_b.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_b );
 
-	App.Shutdown_instance( );
+//	App.Shutdown_instance( );
 
 //	Log.Show_loglevel();
 

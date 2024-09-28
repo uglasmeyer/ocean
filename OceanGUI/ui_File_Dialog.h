@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'File_Dialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.3
+** Created by: Qt User Interface Compiler version 5.15.13
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -50,7 +50,7 @@ public:
     {
         if (File_Dialog->objectName().isEmpty())
             File_Dialog->setObjectName(QString::fromUtf8("File_Dialog"));
-        File_Dialog->resize(341, 271);
+        File_Dialog->resize(344, 272);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);

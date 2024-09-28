@@ -4,7 +4,7 @@
 // qtcreator includes
 #include "ui_File_Dialog.h"
 #include <File_Dialog.h>
-#include <mainwindow.h>
+#include <Mainwindow.h>
 
 // Synthesizer includes
 #include <Interface.h>

@@ -11,27 +11,8 @@
 
 #include <Ocean.h>
 
-const vector<string> uint8_code_str =
-{
-	"Offline"		,
-	"Running"		,
-	"Recording"		,
-	"Stop record"	,
-	"synchronize"	,
-	"free running"	,
-	"block"			,
-	"release"		,
-	"Update GUI"	,
-	"Store sound"	,
-	"sync mode"		,
-	"default mode"	,
-	"Exit server"	,
-	"Keyboard"		,
-	"Update mode"
-};
-
 enum {
-	 OFFLINE 	,
+	 OFFLINE,
 	 RUNNING	,
 	 RECORD		,
 	 STOPRECORD ,
@@ -48,6 +29,7 @@ enum {
 	 UPDATE		,
 	 LASTNUM
 };
+static const uint CODE_MAP_SIZE = LASTNUM;
 
 
 #include <Config.h>
@@ -109,12 +91,13 @@ typedef struct interface_struct
 	spectrum_t	 	FMO_spectrum 				= Spectrum_base::spec_struct();// comstack
 	uint8_t			Spectrum_type				= MAINID;
 
-	uint8_t	 		Wavedisplay_Id				= 0; // Audio out
+	uint8_t	 		Wavedisplay_Id				= AUDIOOUT; // Audio out
 	uint8_t 		AudioServer	    			= OFFLINE;// comstack
-	uint8_t 		Synthesizer					= DEFAULT; // indicates that shm is new // comstack
+	uint8_t 		Synthesizer					= DEFAULT;// indicates that shm is new // comstack
 	uint8_t	 		UserInterface				= OFFLINE;// comstack
 	uint8_t	 		Composer 					= OFFLINE;// comstack
-	uint8_t			Comstack					= OFFLINE;
+	uint8_t			Comstack					= OFFLINE;// NA
+	uint8_t			Rtsp						= OFFLINE;//
 
 	uint8_t	 		FLAG						= NULLKEY;
 	uint8_t 		KEY 						= NULLKEY;// comstack
@@ -136,13 +119,8 @@ class Interface_class : virtual public Logfacility_class, Config_class
 {
 public:
 
-
-//	const key_t 			shm_key			= 5166529;
-
-
 	ifd_t 					ifd_data;
 	ifd_t* 					addr			= NULL;
-	Semaphore_class			SEM{};
 
 	Interface_class();
 	virtual ~Interface_class();
@@ -161,12 +139,16 @@ public:
 	void 	Set( uint8_t& key, uint8_t value);
 	void 	Set( uint16_t& key, uint16_t value);
 	void 	Set( float& key, float value);
+	string 	Decode( uint8_t idx );
 
 private:
 	uint8_t			client_id 		= 0xFF;
+	Semaphore_class	SEM{};
 	Spectrum_base	GUIspectrum 	{};
 	vector<string>	Waveform_vec	{};
 	char 			previous_status = OFFLINE;
+	array<string, CODE_MAP_SIZE>
+					code_str_arr;
 
 
 	typedef struct shm_info_struct
@@ -180,6 +162,7 @@ private:
 	Spectrum_base			Spectrum 		{};
 	void*	buffer( buffer_t, key_t );
 	bool 	reject(char status, int id );
+	void 	setup_code_arr();
 };
 
 

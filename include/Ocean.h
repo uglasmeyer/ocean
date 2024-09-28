@@ -22,7 +22,6 @@
 #include <numeric>
 #include <random>
 #include <ranges>
-#include <semaphore>
 #include <stdexcept>
 #include <sstream>
 #include <string>
@@ -32,6 +31,7 @@
 #include <vector>
 
 #include <assert.h>
+#include <errno.h>
 #include <inttypes.h>
 #include <math.h> // sin(), rint()
 #include <signal.h> // signal()
@@ -43,18 +43,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
-#include <unistd.h> // usleep
 
 
 
 using namespace std;
-
-
-
-
-
-
-
 
 // https://en.cppreference.com/w/cpp/language/types
 typedef unsigned long int 	buffer_t;
@@ -87,7 +79,9 @@ enum
 	COMPID,
 	GUI_ID,
 	COMSTACKID,
-	AUDIOID
+	AUDIOID,
+	RTSPID,
+	APP_SIZE
 };
 
 const float			LFO_limit			= 1.0;
@@ -101,7 +95,6 @@ void show_items( T all_items )
     	cout << item << " ";
     cout << endl;
 }
-
 
 
 #endif /* OCEAN_H */

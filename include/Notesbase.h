@@ -22,7 +22,7 @@ class Note_base : virtual public Logfacility_class
 {
 public:
 
-	const uint				max_octave	{ 5 };
+	const uint				max_octave		{ 5 };
 	const uint 				min_octave 		{ 0 };
 	const vector<int> 		Notes_per_Sec	{ 1,2,4,5,8 };
 	const string			NPS_string 		{ "1 2 4 5 8" };

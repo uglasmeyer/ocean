@@ -34,11 +34,12 @@ void SynthesizerTestCases()
 	Time_class				Timer( &SDS.addr->time_elapsed );
 	DirStructure_class		Dir;
 
-
-	Dir.Test();
+	Log.TEST_START();
 
 	Log.Set_Loglevel( TEST, true);
 	Log.Comment(TEST, "entering test classes ");
+
+	Dir.Test();
 
 	Log.Init_log_file();
 	Log.Test_Logging();
@@ -62,11 +63,12 @@ void SynthesizerTestCases()
 
 	Keyboard.Test();
 
-	External.test();
+	External.Test();
 
-	External.Id3tool_cmd( ); // @suppress("Invalid arguments")
 	TestStr.test();
 	Timer.Test();
+
+	Log.TEST_END();
 }
 
 
@@ -76,24 +78,27 @@ void SynthesizerTestCases()
 
 
 
-Application_class::Application_class( string name, uint id, Interface_class* SDS ) :
+Application_class::Application_class( 	string name,
+										uint id,
+										Interface_class* SDS ) :
 Logfacility_class("App")
 {
-	this->SDS				= SDS;
-	this->sds 				= SDS->addr;
-	this->Name 				= name;
-	this->client_id 		= id;
+	this->SDS					= SDS;
+	this->sds 					= SDS->addr;
+	this->Name 					= name;
+	this->client_id 			= id;
 
-	this->state_vec			= { nullptr,
-								&sds->Synthesizer,
-								&sds->Composer,
-								&sds->UserInterface,
-								&sds->Comstack,
-								&sds->AudioServer
-								};
-	this->This_Application 	= Application + Name + " " + Version_str;
+	this->state_arr[NOID]		= nullptr;
+	this->state_arr[SYNTHID]	= &sds->Synthesizer,
+	this->state_arr[COMPID]		= &sds->Composer;
+	this->state_arr[GUI_ID]		= &sds->UserInterface;
+	this->state_arr[COMSTACKID]	= &sds->Comstack;
+	this->state_arr[AUDIOID]	= &sds->AudioServer;
+	this->state_arr[RTSPID]		= &sds->Rtsp;
 
-	this->state_p			= state_vec[ id ];
+	this->This_Application 		= Application + Name + " " + Version_str;
+
+	this->state_p				= state_arr[ id ];
 	Comment( INFO, This_Application + " initialized ");
 
 }
@@ -138,37 +143,23 @@ void Application_class::deRegister( )
 
 void Application_class::Shutdown_instance( )
 {
+
 	if ( *state_p == RUNNING )
 	{
 		*state_p	= EXITSERVER;
-		Comment( INFO, "Shutdown running instances of " + Name );
-		long int 	max_wait 	= 2 * SECOND;
-		long int 	amoment 	= 100 ;
-//		long int 	amoment 	= 100 * MILLISECOND;
-		int 		moments		= 0;
-		while (( *state_p == EXITSERVER ) and ( amoment*moments < max_wait ))
-		{
-			this_thread::sleep_for(chrono::milliseconds(amoment));
-//			Wait( amoment );
-			Comment( WARN, "-" ) ;
-			moments++;
-		}
-
-		if ( amoment * moments >= max_wait )
-		{
-			Comment( ERROR, "Giving up" );
-			*state_p = RUNNING;
-		}
 	}
 	else
 	{
 		Comment( INFO, "No other " + Name + " is running"	);
 	}
+	Server_init = false;
 }
 
 void Application_class::Start( int argc, char* argv[] )
 {
-	if (( client_id == GUI_ID ) or ( client_id == COMPID ) )
+	if (( client_id == GUI_ID ) or
+		( client_id == COMPID ) or
+		( client_id == RTSPID ))
 	{
 		Init_log_file();
 	}
@@ -181,12 +172,10 @@ void Application_class::Start( int argc, char* argv[] )
 	if ( redirect_stderr )
 	{
 		Comment( INFO, "Redirecting stderr");
-		fprintf( stderr, "%s\n", "error file is empty");
+		fprintf( stderr, "%s\n", "error file content:\n");
 	}
 
 	Cfg.Parse_argv(argc, argv);
 	Cfg.Show_prgarg_struct( );
-
-
 
 }

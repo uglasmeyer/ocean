@@ -14,14 +14,10 @@ make_inst()
 	cd $BASEDIR/$OBJ/Release
 	echo linking $OBJ
 	rm ${INSTDIR}$OBJ
-	make ${INSTDIR}$OBJ
+	make ${INSTDIR}$OBJ &
 }
 
-OBJS="comstack Composer OceanGUI Synthesizer"
-cd ${BASEDIR}Audioserver/Release
-echo linking
-rm ${INSTDIR}AudioServer
-make ${INSTDIR}AudioServer
+OBJS="OceanGUI rtsp comstack Composer Synthesizer"
 
 cd ${BASEDIR}/OceanGUI
 make -j1 mocables
@@ -30,6 +26,13 @@ for OBJ in $OBJS
 do
 	make_inst $OBJ
 done
+wait
+
+
+cd ${BASEDIR}Audioserver/Release
+echo linking
+rm ${INSTDIR}AudioServer
+make ${INSTDIR}AudioServer
 
 echo installing resources
 cd $RESOURCEDIR

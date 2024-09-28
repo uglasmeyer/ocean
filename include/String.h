@@ -8,6 +8,8 @@
 #ifndef STRING_H_
 #define STRING_H_
 
+
+
 #include <Ocean.h>
 #include <Logfacility.h>
 
@@ -15,6 +17,8 @@ typedef vector<string>	vector_str_t;
 const size_t STRINGNOTFOUND = string::npos;
 
 extern bool cmpstr( const string& , const string&  );
+extern string notnull( char* cstr );
+
 
 class String : virtual public Logfacility_class
 {

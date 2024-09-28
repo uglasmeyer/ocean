@@ -20,17 +20,21 @@ typedef struct prgarg_struct
 		uint rate 		= audio_frames;	// -r
 		uint device 	= 0;		// -d
 		uint ch_offs 	= 0; 		// -o
-		uint shm_key_a 	= rate; 	// -k
 		char test 		= 'n';		// -t run sanity check on classes and exit = 'y'
 		char dialog		= 'n';		// -d dialog mode of the composer = 'y'
-		uint shm_key_b 	= rate + 1;	//
+		char composer	= 'n';		// rtsp -C
+		char oceangui	= 'n';		// rtsp -G
 		string Genre	= "Alternative";
 		string author	= "U.G.";
 		string title	= "Experimental";
 		string album	= Application;
 		string Term		= "xterm -e ";
+		string ffmpeg 	= "ffmpeg";
+		uint shm_key_a 	= rate; 	// -k
+		uint shm_key_b 	= rate + 1;	//
 		uint SDS_key	= 5166529;
-
+		uint Sem_key	= 0x1234;
+		string appcfg	= "S1 S2 S3";  // TODO name of Synthesizer instances
 } prgarg_struct_t;
 
 
@@ -38,9 +42,9 @@ class Config_class : virtual Logfacility_class
 {
 public:
 
-	string basedir = "";
-	string configfile = "";
-	string prgname		= "";
+	string basedir 		{""};
+	string configfile 	{""};
+	string prgname		{""};
 	prgarg_struct		Config = prgarg_struct();
 
 	typedef struct Server_struct
@@ -105,10 +109,14 @@ typedef struct file_structure
 	const string	Audio_bin		= "AudioServer";
 	const string 	Synth_bin		= "Synthesizer";
 	const string 	Comp_bin		= "Composer";
+	const string	Ocean_bin		= "OceanGUI";
+	const string 	Rtsp_bin		= "rtsp";
 	string 			sound_file 		= Dir.etcdir 		+ "test.kbd";
 	string 			audio_bin  		= Dir.bindir 		+ Audio_bin;
 	string 			synth_bin  		= Dir.bindir 		+ Synth_bin;
 	string 			composer_bin	= Dir.bindir		+ Comp_bin;
+	string 			ocean_bin		= Dir.bindir		+ Ocean_bin;
+	string 			rtsp_bin		= Dir.bindir		+ Rtsp_bin;
 	string 			ifd_file 		= Dir.libdir 		+ "ifd_data.bin";
 	string 			wav_file 		= Dir.musicdir 		+ filename + ".wav";
 	string 			mp3_file		= Dir.musicdir 		+ filename + ".mp3";
@@ -120,10 +128,5 @@ typedef struct file_structure
 	string 			doc_file 		= Dir.docdir 		+ doc_filename;
 } dir_struct_t;
 
-/*
-const string		Audio_Srv	= file_structure().audio_bin;
-const string 		Synthesizer	= file_structure().synth_bin;
-const string 		Composer 	= file_structure().composer_bin;
-*/
 
 #endif /* CONFIG_H_ */

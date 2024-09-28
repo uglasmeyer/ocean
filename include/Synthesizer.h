@@ -26,5 +26,4 @@
 
 
 
-
 #endif /* SYNTHESIZER_H_ */

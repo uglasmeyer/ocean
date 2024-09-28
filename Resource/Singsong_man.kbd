@@ -1,10 +1,13 @@
-#OSC,      Name  Waveform    [Hz]  [msec] Amp.[%]Fnc no.   freq   vol.              adsr      PMWs
- OSC,     MAIN,    sinus,    440,   1000,     53,     2,     1,     1,  73,   2,  15,   6,  0,   42,
-CONN,     MAIN,      FMO,      F,
-CONN,     MAIN,      VCO,      V,
- OSC,      VCO,    Sinus,    147,   1000,     51,     2,    10,     1,   0,   1,   0,   1,    0, 42,
+#OSC,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddelay  bps atck hall glide      PMWs
+ OSC,      VCO,    Sinus,     55,   1000,     51,  free,  free,  free,   0,   1,  80,   0,   0,     42,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
- OSC,      FMO,    sinus,      9,   1000,      4,     2,    10,     1,   0,   1,   0,   1,    0, 42,
+SPEC,      VCO,    Sinus,100,  0,  0,  0,  0,  0,  0,  0,100
+ OSC,      FMO,    sinus,     11,   1000,      5,  free,  free,  free,   0,   1,  80,   0,   0,      0,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
+SPEC,      FMO,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100
+ OSC,     MAIN,    sinus,    110,   1000,     69,  free,  free,  free,  73,   2,  15,   5,   0,      0,
+CONN,     MAIN,      FMO,      F,
+CONN,     MAIN,      VCO,      V,
+SPEC,     MAIN,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100

@@ -72,8 +72,8 @@ private:
 
 	int prgline = 0;
 	typedef vector <stack_struct_t>
-						stack_struct_vec;
-	stack_struct_vec 	process_stack{};
+						stack_struct_vec_t	;
+	stack_struct_vec_t 	process_stack{};
 	stack_struct_t 		stack_item = stack_struct();
 
 	void wait_for_commit();

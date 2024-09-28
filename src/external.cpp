@@ -10,19 +10,18 @@
 
 void record_thead_fcn( 	Interface_class* SDS,
 						External_class* External,
-//						ProgressBar_class* 	Record,
-						binary_semaphore* smphSignalMainToThread,
-						binary_semaphore* smphSignalThreadToMain,
 						bool*			SaveRecordFlag,
 						bool*			RecordThreadDone )
 {
-	Logfacility_class Log("RecordThread");
+	Logfacility_class	Log("RecordThread");
+	Semaphore_class		Sem;
 	Log.Comment( INFO, "record thread started ");
 
 	Value fileno {0};
 	while ( true )
 	{
-	    smphSignalMainToThread->acquire();
+		Sem.Lock( SEMAPHORE_RECORD );
+//	    smphSignalMainToThread->acquire();
 	    if ( *RecordThreadDone ) break;
 	    *SaveRecordFlag = true;
 
@@ -31,8 +30,11 @@ void record_thead_fcn( 	Interface_class* SDS,
 
 		External->Save_record_data( fileno.i );
 			// clean up
-		External->Unset();
+//		External->Unset();
 		SDS->Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
+		Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
+											// it will be released hereby
+	    *SaveRecordFlag = false;
 
 
 	}
@@ -41,6 +43,10 @@ void record_thead_fcn( 	Interface_class* SDS,
 
 }
 
+string External_class::GetName()
+{
+	return Filename;
+}
 void External_class::setName( string name )
 {
 	Name 		= name;
@@ -67,6 +73,7 @@ bool External_class::Read_file_header( string name )
 	{
 		Comment(ERROR, Error_text( errno ));
 		Comment(ERROR, "Cannot open file " + Filename );
+		Filename = "";
 		return false;
 	}
 }
@@ -110,7 +117,10 @@ bool External_class::Read_file_data(  )
 		return true;
 	}
 	else
+	{
+		Filename = "";
 		return false;
+	}
 }
 
 
@@ -138,6 +148,7 @@ bool External_class::read_stereo_data( long data_bytes  )
 
 void External_class::close(  )
 {
+	Filename = "";
 	fclose( File );
 }
 
@@ -236,7 +247,7 @@ void External_class::write_music_file( string musicfile )
 	system_execute( add_header );
 }
 
-string External_class::Id3tool_cmd()
+string External_class::id3tool_cmd( string mp3 )
 {
 	string genre = Config.Genre;
 	string author= Config.author;
@@ -247,13 +258,25 @@ string External_class::Id3tool_cmd()
 			" -r " + "'" + author	+ "'"+
 			" -a " + "'" + album	+ "'"+
 			" -G " +  genre + " " +
-			file_structure().mp3_file;
+			mp3;
 	Comment( INFO, cmd );
 	return cmd;
 }
 
-void External_class::Save_record_data( int fileno)
+string External_class::ffmpeg_cmd( string wav, string mp3 )
 {
+	string cmd = Config.ffmpeg + " -y -i " 	+ wav + " -f mp3 " + mp3 + " >/dev/null" ;
+	Comment( INFO, cmd );
+	return cmd;
+}
+
+void External_class::Save_record_data( int filenr)
+{
+	if ( filenr == 0 ) // generate a file name
+		filenr = generate_file_no( );
+
+	setName( file_structure().filename + to_string( filenr) );
+
 	Comment( INFO, "Prepare record file ");
 	long rcounter = stereo.info.record_counter * stereo.info.block_size;
 	Comment( INFO, "Record counter: " + to_string (rcounter));
@@ -290,18 +313,18 @@ void External_class::Save_record_data( int fileno)
 	if ( filesystem::exists( file_structure().mp3_file ))
 		filesystem::remove( file_structure().mp3_file );
 
+	string convert_wav2mp3 = ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
 	system_execute( convert_wav2mp3 );
 
-	string insert_mp3_tags = Id3tool_cmd();
+	string insert_mp3_tags = id3tool_cmd( file_structure().mp3_file );
 	system_execute( insert_mp3_tags );
 
-	if ( fileno == 0 ) // generate a file name
-		fileno = generate_file_no( );
 
-    string newfilename = 	file_structure().Dir.musicdir +
-    						file_structure().filename + to_string( fileno) + ".wav";
-    filesystem::remove( newfilename );
-    filesystem::rename( file_structure().wav_file, newfilename);
+//    string newfilename = 	file_structure().Dir.musicdir +
+//    						file_structure().filename + to_string( filenr) + ".wav";
+    filesystem::remove( Filename );
+    filesystem::rename( file_structure().wav_file, Filename);
+    Filename = "";
 
 }
 
@@ -331,7 +354,7 @@ void External_class::Add_record( Memory* Out_L, Memory* Out_R )
 	stereo.info.record_counter++ ;
 }
 
-void External_class::test()
+void External_class::Test()
 {
 	Set_Loglevel(TEST, true);
  	Comment( TEST, "Testing External_class");
@@ -348,6 +371,9 @@ void External_class::test()
 	cout << "counter file nr: " << fnr << endl;
 
 	filesystem::remove( testcounter );
+
+	ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
+	id3tool_cmd( file_structure().mp3_file );
 
 }
 

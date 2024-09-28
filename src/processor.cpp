@@ -9,7 +9,7 @@
 
 void Processor_class::Push_cmd( uint8_t cmd, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= cmd,
@@ -24,7 +24,7 @@ void Processor_class::Push_cmd( uint8_t cmd, string str )
 }
 void Processor_class::Push_str( uint8_t key, char ch, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= CMD_STR,
@@ -40,7 +40,7 @@ void Processor_class::Push_str( uint8_t key, char ch, string str )
 
 void Processor_class::Push_key( uint8_t key, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= CMD_KEY,
@@ -56,7 +56,7 @@ void Processor_class::Push_key( uint8_t key, string str )
 
 void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= CMD_CHADDR,
@@ -73,7 +73,7 @@ void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
 
 void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= CMD_BOADDR,
@@ -89,7 +89,7 @@ void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
 
 void Processor_class::Push_ifd( float* uiaddr, float value, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= CMD_UIADDR,
@@ -106,7 +106,7 @@ void Processor_class::Push_ifd( float* uiaddr, float value, string str )
 
 void Processor_class::Push_wait( uint8_t cmd, int value, string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline= prgline,
 		.cmd 	= cmd,
@@ -121,9 +121,10 @@ void Processor_class::Push_wait( uint8_t cmd, int value, string str )
 
 }
 
+
 void Processor_class::Push_text( string str )
 {
-	stack_struct_t stack_item =
+	stack_item =
 	{
 		.prgline = prgline,
 		.cmd 	= CMD_TEXT,
@@ -139,22 +140,10 @@ void Processor_class::Push_text( string str )
 
 void Processor_class::wait_for_commit()
 {
-	/*
-	int i = 0;
-	while ( (ifd->KEY != NULLKEY ) and ( ifd->Synthesizer == RUNNING ) )
-	{
-	    this_thread::sleep_for(chrono::milliseconds(1));
-//		Wait(1 * MILLISECOND );
-		i++;
-	}
-	*/
 	Timer.Start();
-	SEM.aquire( PROCESSOR_WAIT );
-	cout << " -wait for release ";
-	SEM.lock( PROCESSOR_WAIT );
-	long int tel = Timer.Time_elapsed();
-
-	printf(", commit in %ld [msec]",tel );
+	SEM.Lock( PROCESSOR_WAIT );
+	long int t_elapsed = Timer.Time_elapsed();
+	printf(", commit in %ld [msec]",t_elapsed );
 }
 
 void Processor_class::Clear_process_stack()
@@ -178,9 +167,13 @@ void Processor_class::Execute()
 		Comment( INFO, "Proceeding stack. Item count " + to_string( len )) ;
 
 	cout << "waiting for Synthesizer to start" << endl;
+
+	SEM.Init();
+
 	sds->Reset_ifd();
 	sds->Commit();
-	stack_struct_vec::iterator itr;
+
+	stack_struct_vec_t::iterator itr;
 
 	for( itr=process_stack.begin(); itr != process_stack.end(); itr++ )
 	{
@@ -234,8 +227,6 @@ void Processor_class::Execute()
 			{
 				printf("%d wait %d", stack_item.prgline, stack_item.value );
 			    this_thread::sleep_for(chrono::seconds( stack_item.value));
-
-//				Wait( stack_item.value*SECOND);
 			}
 			break;
 		}
@@ -244,7 +235,6 @@ void Processor_class::Execute()
 			uint8_t sec = ifd->Noteline_sec;
 			printf("%d conditional wait %d\t\t| %s", stack_item.prgline,  sec, stack_item.str.data() );
 		    this_thread::sleep_for(chrono::seconds(sec));
-//			Wait( sec * SECOND);
 			ifd->Noteline_sec = 0;
 			break;
 		}
@@ -275,6 +265,7 @@ void Processor_class::Execute()
 		case CMD_EXIT :
 		{
 			printf("%d \n", stack_item.prgline);
+			SEM.Release( SEMAPHORE_EXIT );
 			return;
 			break;
 		}
@@ -286,5 +277,6 @@ void Processor_class::Execute()
 		} // end switch
 		printf("\n");
 	}
+	Comment( INFO, "Execute() terminated without exit/release");
 }
 

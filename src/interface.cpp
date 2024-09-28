@@ -17,6 +17,7 @@ Interface_class::Interface_class()
 {
 
 	bool shm_exists;
+	setup_code_arr();
 
 	Comment(INFO, "allocating shared memory for IPC");
 
@@ -53,6 +54,25 @@ Interface_class::Interface_class()
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
 }
 
+void Interface_class::setup_code_arr()
+{
+	code_str_arr[OFFLINE]		= "Offline";
+	code_str_arr[RUNNING] 		= "Running";
+	code_str_arr[RECORD] 		= "Recording";
+	code_str_arr[STOPRECORD] 	= "Stop record";
+	code_str_arr[SENDDATA] 		= "synchronize";
+	code_str_arr[FREERUN] 		= "free running";
+	code_str_arr[BLOCKDATA] 	= "block";
+	code_str_arr[RELEASEDATA]	= "release";
+	code_str_arr[UPDATEGUI]		= "Update GUI";
+	code_str_arr[STORESOUND] 	= "Store sound";
+	code_str_arr[SYNC] 			= "sync mode";
+	code_str_arr[DEFAULT] 		= "default mode";
+	code_str_arr[EXITSERVER] 	= "Exit server";
+	code_str_arr[KEYBOARD] 		= "Keyboard";
+	code_str_arr[UPDATE] 		= "Update mode";
+	assert( code_str_arr.size() == LASTNUM );
+}
 Interface_class::~Interface_class()
 {
 	Commit();
@@ -60,6 +80,10 @@ Interface_class::~Interface_class()
 	shmdt( shm_info.addr );
 }
 
+string Interface_class::Decode( uint8_t idx)
+{
+	return code_str_arr[ idx ];
+}
 
 void Interface_class::Show_interface()
 {
@@ -69,12 +93,9 @@ void Interface_class::Show_interface()
 		{ cout << setw(20) << dec  << setfill('.') 	<< left << s << setw(20) << v ; };
 	auto rline = []( string s, auto v )
 		{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
-	auto decode = [this]( uint8_t value )
-		{ return uint8_code_str[value]; };
 	auto conv_bool_s = []( bool b )
 		{ return ( b ) ? string("yes") : string("no "); };
 
-	assert( uint8_code_str.size() == LASTNUM );
 	string status1 {};
 	status1 	= 	      conv_bool_s(addr->mixer_status.external) +
 					"," + conv_bool_s(addr->mixer_status.notes) +
@@ -141,13 +162,13 @@ void Interface_class::Show_interface()
 	lline( "Record Progress   :" , (int)addr->RecCounter);
 	rline( "File No.          :" , (int)addr->FileNo );
 
-	lline( "AudioServer status:" , decode(addr->AudioServer));
-	rline( "Composer status   :" , decode(addr->Composer));
+	lline( "AudioServer status:" , Decode(addr->AudioServer));
+	rline( "Composer status   :" , Decode(addr->Composer));
 
-	lline( "Synthesizer status:" , decode(addr->Synthesizer));
-	rline( "Userinterface stat:" , decode(addr->UserInterface));
+	lline( "Synthesizer status:" , Decode(addr->Synthesizer));
+	rline( "Userinterface stat:" , Decode(addr->UserInterface));
 
-	rline( "Data Mode         :" , decode(addr->MODE));
+	rline( "Data Mode         :" , Decode(addr->MODE));
 
 	lline( "Instrument        :" , addr->Instrument);
 	rline( "Wav filename      :" , addr->Other );
@@ -314,8 +335,8 @@ void Interface_class::Commit()
 	addr->KEY 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
-	if ( SEM.getval( PROCESSOR_WAIT ) > 0 )
-		SEM.release( PROCESSOR_WAIT );
+	if ( SEM.Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
+		SEM.Release( PROCESSOR_WAIT );
 }
 
 void Interface_class::Set( bool& key, bool value )

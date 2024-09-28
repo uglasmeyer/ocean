@@ -388,7 +388,8 @@ bool Instrument_class::Set( string name )
 
 void Instrument_class::Test_Instrument()
 {
-	Set_Loglevel(TEST, true);
+	TEST_START();
+
 	for ( Oscillator* osc : osc_vector	)
 		osc->Set_Loglevel( TEST, true);
 	ifd->MODE = FREERUN;
@@ -432,7 +433,7 @@ void Instrument_class::Test_Instrument()
 		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
 	}
 
-	Comment( TEST, "Instrument test done" );
+	TEST_END();
 }
 
 

@@ -58,9 +58,16 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 {
 	string cmd{};
 	string exe{};
-	expect = { "AudioServer", "Synthesizer" };
+	string opt{};
+
+	expect = { "AudioServer", "Synthesizer", "Rtsp" };
 	intro( arr , 2 );
 
+	if ( cmpkeyword( "rtsp" ) )
+	{
+		exe = file_structure().rtsp_bin;
+		opt = "-C";
+	}
 	if ( cmpkeyword( "synthesizer") )
 	{
 		exe = file_structure().Synth_bin;
@@ -71,22 +78,25 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 	}
 	if( exe.length() > 0 )
 	{
-		expect = { "shared memory key" };
-		option_default = "";
-		string shmkey = pop_stack( 0 );
-		string opt = "-k " + shmkey;
-		if ( shmkey.length() == 0 )
-			opt = "";
-
+		if ( opt.length() == 0 )
+		{
+			expect = { "shared memory key" };
+			option_default = "";
+			string arg = pop_stack( 0 );
+			opt = "-k " + arg;
+			if ( arg.length() == 0 )
+				opt = "";
+		}
 		Comment( INFO, "start " + keyword.Str );
 
 		cmd = Server_cmd( Config.Term, exe, opt );
-
+/*
 		expect 		= { "start delay in seconds" };
 		option_default = "key";
 		string duration = pop_stack( 0 );
+*/
 		Processor_class::Push_cmd( CMD_EXE, cmd );
-		Pause( { "pause", duration } );
+//		Pause( { "pause", duration } );
 		return;
 	}
 
@@ -166,7 +176,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect 			= { "file no", "replay duration in seconds" };
 		string wavfile 	= "synthesizer" + pop_stack( 2 );
 		string duration	= pop_stack(1);
-		Processor_class::Push_str( SETEXTERNALWAVEFILE, OTHERSTR_KEY, wavfile );
+		Processor_class::Push_str( READ_EXTERNALWAVEFILE, OTHERSTR_KEY, wavfile );
 		Pause( {"pause", duration } );
 		return;
 	}
