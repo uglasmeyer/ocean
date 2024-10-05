@@ -8,13 +8,13 @@
 #include "Interpreter.h"
 
 
-Interpreter_class::Interpreter_class( Interface_class* gui) :
+Interpreter_class::Interpreter_class( Dataworld_class* data ) :
 Logfacility_class( "Interpreter" ),
-Config_class( "Interpreter"),
-Processor_class(gui)
+Processor_class( &data->Sds )
 {
-	this->GUI = gui;
-	ifd = gui->addr;
+	ifd 				= (interface_t*)data->Sds_arr[0].addr;
+	this->GUI 			= &data->Sds;
+	this->Cfg 			= data->Cfg_p;
 
 	main_view.name		= "Main osc";
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
@@ -89,14 +89,9 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 		}
 		Comment( INFO, "start " + keyword.Str );
 
-		cmd = Server_cmd( Config.Term, exe, opt );
-/*
-		expect 		= { "start delay in seconds" };
-		option_default = "key";
-		string duration = pop_stack( 0 );
-*/
+		cmd = Cfg->Server_cmd( Cfg->Config.Term, exe, opt );
 		Processor_class::Push_cmd( CMD_EXE, cmd );
-//		Pause( { "pause", duration } );
+
 		return;
 	}
 
@@ -156,19 +151,20 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::Push_ifd( &ifd->StA_amp_arr[MbIdExternal], 100, "mixer amp");
-		Processor_class::Push_ifd( &ifd->Composer, RECORD, "composer record data" );
-		Processor_class::Push_key( RECORDWAVFILEKEY, "start record"  );
+		vector_str_t vec;
+		vec = { "rec" , "store" , to_string(MbIdExternal) };
+		RecStA( vec );
 		Pause( {"pause", duration } );
+
 		return;
 	}
 	if ( cmpkeyword( "stop") ) // stop record and write file with synthesizer.record_thead_fcn
 	{
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
-		Processor_class::Push_ifd( &ifd->Composer,STOPRECORD, 	"composer stoprecord data" );
+//		Processor_class::Push_ifd( &ifd->Composer,STOPRECORD, 	"composer stoprecord data" );
 		Processor_class::Push_ifd( &ifd->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
-		Processor_class::Push_key( RECORDWAVFILEKEY, 			"stop record" );
+		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 			"stop record" );
 		return;
 	}
 	if ( cmpkeyword( "play") )
@@ -192,7 +188,6 @@ void Interpreter_class::RecFile( vector_str_t arr )
 			return;
 		}
 		Wrong_keyword( expect , keyword.Str );
-
 	}
 
 	Wrong_keyword( expect , keyword.Str );
@@ -250,7 +245,7 @@ void Interpreter_class::Set( vector_str_t arr )
 		string osc = keyword.Str;
 		expect = { "freq", "wf", "amp" };
 		keyword.Str = pop_stack( 2 );
-		show_items(arr);
+		cout << show_items(arr) <<endl;
 
 		if( cmpkeyword( "freq") )
 		{
@@ -521,7 +516,6 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 		{
 			Wrong_keyword(expect, waveform);
 			Exception( "wrong keyword" );
-//			raise( SIGINT );
 		}
 		expect 		= { " duration in seconds" };
 		option_default = "0";
@@ -1109,10 +1103,11 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 	for ( string dir : dirs )
 	{
 		Comment( WARN, "list directory " + dir );
-		show_items( List_directory( dir, ".kbd" ) );
+		cout << show_items( List_directory( dir, ".kbd" ) ) << endl;
 	}
 	Exception( "no such file " + name );//raise( SIGINT );
 }
+
 
 void Interpreter_class::Test(  )
 {
@@ -1145,7 +1140,7 @@ void Interpreter_class::Test(  )
 	Addvariable( v_arr );
 	t_arr = InsertVariable( t_arr );
 
-	show_items( t_arr );
+	cout << show_items( t_arr ) << endl;
 	assert( t_arr[2].compare("4") == 0 );
 
 	t_arr = { "call", "=" , "4" };
@@ -1160,7 +1155,7 @@ void Interpreter_class::Test(  )
 	Addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-	show_items( List_directory( file_structure().Dir.instrumentdir, ".kbd" ) );
+	cout << show_items( List_directory( file_structure().Dir.instrumentdir, ".kbd" ) ) << endl;
 //	assert ( false );
 	varlist.clear();
 

@@ -1,5 +1,7 @@
 
 #include <Audioserver.h>
+#include <data/Statistic.h>
+Statistic_class Statistic{};
 
 
 RtAudio::StreamParameters 	oParams;
@@ -140,7 +142,7 @@ void set_ncounter( buffer_t n )
 		{
 			mode 		= SENDDATA;
 			shm_id 		= ( shm_id + 1 ) % 2;
-			shm_addr 	= ( shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
+			shm_addr 	= ( shm_id == 0 ) ? Shm_L.addr : Shm_R.addr;
 			sds->MODE 	= mode;		// request new data for data buffers
 			sds->SHMID 	= shm_id;
 		}
@@ -154,7 +156,7 @@ void set_shm_addr(  )
 	{
 		shm_id 		= 0;
 		sds->SHMID 	= shm_id;
-		shm_addr 	= Shm_a.addr;
+		shm_addr 	= Shm_L.addr;
 		sds->MODE	= FREERUN;
 	}
 	// else unchanged
@@ -201,30 +203,31 @@ int RtAudioOut(	void *outputBuffer,
 
 int main( int argc, char *argv[] )
 {
+	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start(argc, argv );
 
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
 
-	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 
-//	App.Shutdown_instance( );
+	App.Shutdown_instance( );
 
-    SDS.Announce( App.client_id, &sds->AudioServer );
+
+    DaTA.Sds.Announce( App.client_id, &sds->AudioServer );
 	sds->RecCounter 	= 0;
 
 
-//	wav_header.srate 				= App.Cfg.Config.rate;
-//	wav_header.num_chans 			= App.Cfg.Config.channel;
+//	wav_header.srate 				= Cfg->Config.rate;
+//	wav_header.num_chans 			= Cfg->Config.channel;
 //	wav_header.bytes_per_sec 		= wav_header.num_chans * wav_header.bytes_per_samp * wav_header.srate;
 
 	// dynamic rtapi output parameter
 	// Tell RtAudio to output all messages, even warnings.
 	rtapi.showWarnings( true );
-	double *frame = (double *) calloc( App.Cfg.Config.channel, sizeof( double ) );
-	oParams.nChannels 		= App.Cfg.Config.channel;
-	oParams.firstChannel 	= App.Cfg.Config.ch_offs;
-	get_device_description( App.Cfg.Config.device );
+	double *frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
+	oParams.nChannels 		= Cfg->Config.channel;
+	oParams.firstChannel 	= Cfg->Config.ch_offs;
+	get_device_description( Cfg->Config.device );
 	oParams.deviceId 		= DeviceDescription.Id;
 	#define USE_INTERLEAVED
 	#if !defined( USE_INTERLEAVED )
@@ -241,13 +244,11 @@ int main( int argc, char *argv[] )
 
 
 	Log.Comment(INFO,"Attaching data buffers");
-	Shm_a.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_a );
-	Shm_b.buffer( sharedbuffer_size, App.Cfg.Config.shm_key_b );
+	Shm_L.Stereo_buffer( Cfg->Config.shm_key_l );
+	Shm_R.Stereo_buffer( Cfg->Config.shm_key_r );
 	shm_id		= 0;
 	sds->SHMID 	= shm_id;
-	shm_addr 	= Shm_a.addr;
-
-//	shm_addr = (shm_id == 0 ) ? Shm_a.addr : Shm_b.addr;
+	shm_addr 	= Shm_L.addr;
 
 	show_usage();
 
@@ -262,7 +263,7 @@ int main( int argc, char *argv[] )
 	if ( rtapi.openStream(&oParams,
 						NULL,
 						FORMAT,
-						App.Cfg.Config.rate,
+						Cfg->Config.rate,
 						&bufferFrames,
 						&RtAudioOut,
 						( void* )frame,
@@ -306,6 +307,7 @@ int main( int argc, char *argv[] )
 	Log.Comment(INFO, "Entering Application loop\n");
 	Log.Comment(INFO, App.Name + " is ready");
 
+	Statistic.Show_Statistic( Module );
 	while ( not *Done )
 	{
 		cout.flush() << "." ;

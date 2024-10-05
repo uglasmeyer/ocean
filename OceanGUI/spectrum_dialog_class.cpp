@@ -3,16 +3,16 @@
 #include "ui_spectrum_dialog_class.h"
 
 
+Ui::Spectrum_Dialog_class	UI_obj;
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
                                              Interface_class *gui) :
     Logfacility_class("Spectrum"),
 	Spectrum_base(),
-	QDialog(parent),
-
-    ui(new Ui::Spectrum_Dialog_class)
+	QDialog(parent)
+//    ui(new Ui::Spectrum_Dialog_class )
 {
-
+	ui = &UI_obj;
     ui->setupUi(this);
     connect( ui->vS_1, SIGNAL(valueChanged(int)), this, SLOT(vS1( int )));
     connect( ui->vS_2, SIGNAL(valueChanged(int)), this, SLOT(vS2( int )));
@@ -51,7 +51,6 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 		default 	: 								break;
 	}
 
-    QTimer* status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &Spectrum_Dialog_class::Update_spectrum);
     status_timer->start(200);
 
@@ -59,7 +58,7 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
 Spectrum_Dialog_class::~Spectrum_Dialog_class()
 {
-    delete ui;
+//   if( ui) delete ui;
 }
 
 auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spectrum_t& spec, char id )

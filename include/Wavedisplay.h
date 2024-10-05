@@ -8,8 +8,8 @@
 #ifndef WAVEDISPLAY_H_
 #define WAVEDISPLAY_H_
 
+#include <data/Interface.h>
 #include <Wavedisplay_base.h>
-#include <Interface.h>
 
 
 

@@ -6,8 +6,6 @@
  */
 
 #include <Logfacility.h>
-#include <Ocean.h>
-#include <Config.h>
 
 
 using namespace std;
@@ -114,19 +112,29 @@ void Logfacility_class::Comment( int level, const string& logcomment )
 	}
 }
 
+void Logfacility_class::TEST_START( const string& name)
+{
+	Set_Loglevel( TEST, true) ;
+
+	Comment( TEST, "Test " + name + " start" ) ;
+}
+
+void Logfacility_class::TEST_END( const string& name )
+{
+	Comment( TEST, "Test " + name + " finished" );
+	Set_Loglevel( TEST, false) ;
+}
+
+
 void Logfacility_class::Test_Logging( )
 {
-	auto truefalse = []( bool Bool )
-		{
-			return Bool ? "true" : "false";
-		};
 	string str = Error_text( EEXIST );
 	assert( str.compare( "17 File exists") 		== 0 );
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Logfacility test start");
-	cout << truefalse( Log[TEST] ) << endl;
-	string True = truefalse("true");
-	assert( True.compare("true") == 0 );
+	stringstream True;
+	True << boolalpha << Log[TEST];// no endl
+	assert( True.str().compare("true") == 0 );
 	Comment( TEST, "Logfacility test OK");
 
 }

@@ -31,7 +31,7 @@ public:
 
 
 	typedef array< uint8_t, MbSize> 				StA_amp_arr_t;
-	typedef	array<Storage::StA_status_t, MbSize>	StA_state_arr_t;
+	typedef	array<StA_status_t, MbSize>	StA_state_arr_t;
 
 
 };

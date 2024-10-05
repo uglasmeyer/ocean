@@ -19,14 +19,12 @@ namespace Ui {
 class File_Dialog;
 }
 
-class File_Dialog_class : public QDialog,  Note_class, Interface_class
+class File_Dialog_class : public QDialog, virtual Logfacility_class, virtual Note_class
 {
     Q_OBJECT
 
 public:
     Ui::File_Dialog* ui;
-    Logfacility_class
-                    Log				{"FileDialog"};
     QPalette        status_color 	= QPalette();
     QComboBox*      CB_notes		= nullptr  ;
     QComboBox*      CB_instruments	= nullptr;
@@ -37,9 +35,11 @@ public:
     const QString   NotesON 		= "Notes Off" ;
     const QString   NotesOFF		= "Play Notes";
     bool            SWITCHON 		= false;
+    Interface_class* sds			= nullptr;
+    interface_t*	addr			= nullptr;
 
-
-    explicit File_Dialog_class(QWidget *parent = nullptr, QSlider* = nullptr );
+    explicit File_Dialog_class(	QWidget *parent = nullptr,
+    							Interface_class* sds = nullptr );//, QSlider* = nullptr );
     ~File_Dialog_class();
     void Setup_widgets();
     void New_Notes();

@@ -106,7 +106,7 @@ void Loop_class::Test()
 //-------------------------------------------------------------------------------------------------
 
 
-Mixer_class::Mixer_class( ifd_t* sds )
+Mixer_class::Mixer_class( interface_t* sds )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
@@ -126,7 +126,7 @@ Mixer_class::Mixer_class( ifd_t* sds )
 	StA[MbIdExternal].Setup(ext_conf);
 
 	for ( uint n : MemIds )
-		StA[n].Info();
+		StA[n].Memory_base::Info();
 
 	Mono.Info		( "Mono data");
 	Mono_out.Info	( "Wave display data");
@@ -146,9 +146,9 @@ Mixer_class::~Mixer_class()
 void Mixer_class::clear_memory()
 {
 	// clear temporary memories
-	Out_L.clear_data(0);
-	Out_R.clear_data(0);
-	Mono.clear_data(0); // Wavedisplay mono col data
+	Out_L.Clear_data(0);
+	Out_R.Clear_data(0);
+	Mono.Clear_data(0); // Wavedisplay mono col data
 }
 
 void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
@@ -159,7 +159,7 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 		sta.Reset_counter();
 }
 
-void Mixer_class::Volume_control( ifd_t* sds )
+void Mixer_class::Volume_control( interface_t* sds )
 {
 	master_amp_loop.Next( sds->Master_Amp );
 	master_volume = sds->Master_Amp;
@@ -187,7 +187,7 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 	StA[id].Play_mode( play );
 
 };
-void Mixer_class::Update_ifd_status_flags( ifd_t* sds )
+void Mixer_class::Update_ifd_status_flags( interface_t* sds )
 {
 
 	sds->mixer_status =  status;
@@ -200,16 +200,16 @@ void Mixer_class::Update_ifd_status_flags( ifd_t* sds )
 
 
 void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id )
-{								// 0  1  2  3  In Kb Nt Ex
-	const array<int,8> phase_r = { 1, 1,-1,-1, 1, 1, 1,-1 };
-	const array<int,8> phase_l = { 1, 1,-1,-1,-1, 1,-1,-1 };
+{								// 0   1   2   3  In  Kb  Nt  Ex
+	const array<int,8> phase_r = {10,  0,-10,  0,  5, -5,  5, -5 };
+	const array<int,8> phase_l = { 0,-10,  0, 10,  5, -5,  5, -5 };
 
 	assert( phase_r.size() == StA.size() );
 	assert( sta_amp <= 100 );
 
 	float volpercent=sta_amp/100.0;
-	float Data_r = (phase_r[id] * volpercent);
-	float Data_l = (phase_l[id] * volpercent);
+	float Data_r = (phase_r[id] * volpercent)/10;
+	float Data_l = (phase_l[id] * volpercent)/10;
 
 	for( buffer_t n = 0; n < max_frames; n++)
 	{
@@ -322,7 +322,7 @@ void Mixer_class::Test()
 //	stereo->Set_Loglevel( TEST, true );
 	for ( Memory& sta : StA )
 		sta.Set_Loglevel( TEST, true );
-	Mono.Info();
+	Mono.Memory_base::Info();
 
 	Comment( TEST, "Testing Mixer_class" );
 

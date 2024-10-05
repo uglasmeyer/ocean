@@ -10,42 +10,50 @@
 #include <QGraphicsView>
 
 // Synthesizer
-#include <Interface.h>
+#include <data/Interface.h>
 #include <Mixer.h>
 #include <Spectrum.h>
 #include <App.h>
 #include <File_Dialog.h>
 #include <Oszilloscopewidget.h>
 #include <Spectrum_dialog_class.h>
-#include <Semaphore.h>
+#include <data/Semaphore.h>
+#include <Rtsp_dialog_class.h>
 
 
 // qtcreator
 #include "ui_mainwindow.h"
 
-static const string Module = "OceanGUI";
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 
-class MainWindow : public QMainWindow, virtual Logfacility_class, virtual Config_class
+class MainWindow : public QMainWindow, 	virtual public Logfacility_class
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    Dataworld_class			DaTA_class{ GUI_ID };
+    Dataworld_class*		DaTA 	= &DaTA_class;
+    Application_class		App			{ &DaTA_class };
 
+    Config_class*			Cfg 	= DaTA->Cfg_p;
+    Interface_class*		Sds		= DaTA->Sds_p;
 
-    Interface_class     	SDS					{};
-    ifd_t*					sds 				= SDS.addr;
-    Application_class		App{ Module, GUI_ID, &SDS };
     Spectrum_base          	Spectrum			{};
-    Semaphore_class			Sem					{};
-    File_Dialog_class*      File_Dialog_obj		= nullptr;
-    Spectrum_Dialog_class*  Spectrum_Dialog_Obj = nullptr;
+    Semaphore_class*		Sem					= DaTA->Sds.Sem_p;
+
+    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA, Sem };
+    Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
+
+    File_Dialog_class		File_Dialog_obj		{ this, DaTA->Sds_p };
+    File_Dialog_class*		File_Dialog_p		= &File_Dialog_obj;
+
+    Spectrum_Dialog_class  	Spectrum_Dialog_Obj { this, DaTA->Sds_p };
+    Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_Obj;
+
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
     vector<QString> 		Qwavedisplay_type_str_vec
@@ -59,12 +67,16 @@ public:
 
     void setwidgetvalues();
     void Updatewidgets();
+    explicit MainWindow(	QWidget*			parent 	= nullptr);
+    ~MainWindow();
     //
 
 
 private slots:
 
 //	void show_time_elapsed();
+	void Rtsp_Dialog();
+
     void pB_Wavedisplay_clicked();
     void dial_soft_freq_value_changed();
     void cB_Beat_per_sec( int );
@@ -106,8 +118,7 @@ private slots:
 
     void slot_dial_ramp_up_down();
     void memory_clear();
-    void toggle_Record();
-
+    void SaveRecord();
     void read_polygon_data();
 
     void Clear_Banks();
@@ -149,11 +160,15 @@ private slots:
 
 private:
     Ui::MainWindow*		ui;
-    QTimer*				osc_timer			= nullptr;
-    QTimer*				status_timer		= nullptr;
-    QTimer*				record_timer		= nullptr;
-    QGraphicsScene*     scene;
-    OszilloscopeWidget* item;
+    QTimer				osc_timer_obj{};
+    QTimer*				osc_timer			= &osc_timer_obj;
+    QTimer				status_timer_obj{};
+    QTimer*				status_timer		= &status_timer_obj;
+    QTimer				record_timer_obj{};
+    QTimer*				record_timer		= &record_timer_obj;
+    QGraphicsScene  	Scene { this };
+    QGraphicsScene*     scene 	= &Scene;
+    OszilloscopeWidget* item	= nullptr;
 };
 
 #endif // MAINWINDOW_H

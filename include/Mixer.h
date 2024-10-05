@@ -17,7 +17,6 @@
 
 using namespace std;
 
-using namespace Storage;
 
 
 class Loop_class
@@ -70,16 +69,16 @@ public:
 	Loop_class 			master_amp_loop;
 	Loop_class			record_amp_loop;
 
-	ifd_t* sds;
-	Mixer_class ( ifd_t* sds );
+	interface_t* sds;
+	Mixer_class ( interface_t* sds );
 	~Mixer_class();
 
 
 	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
-	void Update_ifd_status_flags( ifd_t* sds );
-	void Volume_control( ifd_t* sds );
+	void Update_ifd_status_flags( interface_t* sds );
+	void Volume_control( interface_t* sds );
 	void Set_mixer_state( const uint& id, const bool& play );
 
 	void Test();

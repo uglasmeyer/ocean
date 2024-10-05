@@ -128,13 +128,14 @@ public:
     QComboBox *cb_external;
     QWidget *layoutWidget;
     QGridLayout *gridLayout;
-    QPushButton *pBSynthesizer;
+    QPushButton *pBComposer;
+    QPushButton *pBAudioServer;
+    QPushButton *pushButton_3;
+    QPushButton *pB_Save;
     QPushButton *pBAudioServerExit;
     QPushButton *pBSynthesizerExit;
-    QPushButton *pBAudioServer;
-    QPushButton *pBComposer;
-    QPushButton *pB_Save;
-    QPushButton *pushButton_3;
+    QPushButton *pBSynthesizer;
+    QPushButton *pB_Rtsp;
     QComboBox *cb_bps;
     QProgressBar *Pbar_telapsed;
     QMenuBar *menubar;
@@ -146,7 +147,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1207, 659);
+        MainWindow->resize(1207, 591);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -576,14 +577,29 @@ public:
         cb_external->setEditable(false);
         layoutWidget = new QWidget(centralwidget);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(620, 470, 368, 58));
+        layoutWidget->setGeometry(QRect(620, 470, 462, 58));
         gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        pBSynthesizer = new QPushButton(layoutWidget);
-        pBSynthesizer->setObjectName(QString::fromUtf8("pBSynthesizer"));
+        pBComposer = new QPushButton(layoutWidget);
+        pBComposer->setObjectName(QString::fromUtf8("pBComposer"));
 
-        gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
+        gridLayout->addWidget(pBComposer, 0, 3, 1, 1);
+
+        pBAudioServer = new QPushButton(layoutWidget);
+        pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
+
+        gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
+
+        pushButton_3 = new QPushButton(layoutWidget);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+
+        gridLayout->addWidget(pushButton_3, 1, 4, 1, 1);
+
+        pB_Save = new QPushButton(layoutWidget);
+        pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
+
+        gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
 
         pBAudioServerExit = new QPushButton(layoutWidget);
         pBAudioServerExit->setObjectName(QString::fromUtf8("pBAudioServerExit"));
@@ -595,25 +611,15 @@ public:
 
         gridLayout->addWidget(pBSynthesizerExit, 1, 1, 1, 1);
 
-        pBAudioServer = new QPushButton(layoutWidget);
-        pBAudioServer->setObjectName(QString::fromUtf8("pBAudioServer"));
+        pBSynthesizer = new QPushButton(layoutWidget);
+        pBSynthesizer->setObjectName(QString::fromUtf8("pBSynthesizer"));
 
-        gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
+        gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
 
-        pBComposer = new QPushButton(layoutWidget);
-        pBComposer->setObjectName(QString::fromUtf8("pBComposer"));
+        pB_Rtsp = new QPushButton(layoutWidget);
+        pB_Rtsp->setObjectName(QString::fromUtf8("pB_Rtsp"));
 
-        gridLayout->addWidget(pBComposer, 0, 3, 1, 1);
-
-        pB_Save = new QPushButton(layoutWidget);
-        pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
-
-        gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
-
-        pushButton_3 = new QPushButton(layoutWidget);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
-
-        gridLayout->addWidget(pushButton_3, 1, 4, 1, 1);
+        gridLayout->addWidget(pB_Rtsp, 1, 3, 1, 1);
 
         cb_bps = new QComboBox(centralwidget);
         cb_bps->setObjectName(QString::fromUtf8("cb_bps"));
@@ -655,7 +661,6 @@ public:
         QObject::connect(pB_Mute_StA, SIGNAL(clicked()), MainWindow, SLOT(Clear_Banks()));
         QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(connect_vco()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
-        QObject::connect(pBtoggleRecord, SIGNAL(clicked()), MainWindow, SLOT(toggle_Record()));
         QObject::connect(pB_Save, SIGNAL(clicked()), MainWindow, SLOT(Save_Config()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
         QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
@@ -697,7 +702,7 @@ public:
         pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
         radioButton_4->setText(QCoreApplication::translate("MainWindow", "connect FMO", nullptr));
         radioButton_5->setText(QCoreApplication::translate("MainWindow", "connect VCO", nullptr));
-        pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Record", nullptr));
+        pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Decay", nullptr));
         rb_melody_2->setText(QCoreApplication::translate("MainWindow", "-> MAN freq", nullptr));
         rb_melody_3->setText(QCoreApplication::translate("MainWindow", "-> VCO freq", nullptr));
@@ -716,13 +721,14 @@ public:
         label_3->setText(QCoreApplication::translate("MainWindow", "Beat per sec", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
-        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
+        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
+        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
+        pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
+        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Config", nullptr));
         pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
         pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
-        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
-        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
-        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Config", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
+        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
+        pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

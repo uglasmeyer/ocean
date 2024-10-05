@@ -6,7 +6,7 @@
 
 #include <Ocean.h>
 #include <Spectrum.h>
-#include <Interface.h>
+#include <data/Interface.h>
 #include <Keys.h>
 
 namespace Ui {
@@ -26,7 +26,7 @@ public:
     spectrum_t spectrum;
 
     Interface_class* GUI;
-    ifd_t* ifd;
+    interface_t* ifd;
     vector<Spectrum_base::spectrum_t*> ifd_spectrum_vec;
 
     string instrument{};
@@ -51,6 +51,9 @@ private slots:
 
 private:
     Ui::Spectrum_Dialog_class* ui;
+    QTimer	status_timer_obj 	{ this };
+    QTimer* status_timer 		= &status_timer_obj;
+
 };
 
 #endif // SPECTRUM_DIALOG_CLASS_H

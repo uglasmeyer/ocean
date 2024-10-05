@@ -10,7 +10,7 @@ QRectF OszilloscopeWidget::boundingRect() const
     return QRectF( drawregion );
 }
 
-OszilloscopeWidget::OszilloscopeWidget( ifd_t* ifd, QRectF rectangle)
+OszilloscopeWidget::OszilloscopeWidget( interface_t* ifd, QRectF rectangle)
 {
     drawregion  = { 0,0,rectangle.width()-10, rectangle.height()-10 };
 

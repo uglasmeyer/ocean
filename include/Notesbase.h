@@ -78,22 +78,17 @@ public:
 		bool				longnote	= false;// identify a note that jumps over the measure boundary
 
 	} note_t;
-	typedef list<note_t>
-							notelist_t;
+	typedef list<note_t>	notelist_t;
 
-
-
-	Note_base () : Logfacility_class("NotesBase")
-	{
-	};
-	~Note_base(){};
-
-	void 				show_noteline_prefix( noteline_prefix_t nlp );
-	string 				noteline_prefix_to_string( noteline_prefix_t nlp );
-	noteline_prefix_t 	string_to_noteline_prefix( string str );
+	void 				Show_noteline_prefix( noteline_prefix_t nlp );
+	string 				Noteline_prefix_to_string( noteline_prefix_t nlp );
+	noteline_prefix_t 	String_to_noteline_prefix( string str );
 	float 				Calc_frequency( const uint8_t& );
+	void 				TestNoteBase();
 
-	void 				test();
+	Note_base ();
+	virtual ~Note_base();
+
 
 private:
 	typedef struct root2_struct

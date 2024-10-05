@@ -128,7 +128,6 @@ void Wavedisplay_class::Add_data_ptr( Data_t* ptr )
 {
 	if ( ptr == NULL ) return;
 	data_ptr_vec.push_back( ptr );
-	cout << ptr_index << endl;
 	Comment( INFO, "adding wave display: " + to_string(ptr_index) +
 	" - " + wavedisplay_str_vec[ ptr_index ] );
 

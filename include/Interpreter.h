@@ -10,7 +10,8 @@
 #define INTERPRETER_H_
 
 #include <Config.h>
-#include <Interface.h>
+#include <data/DataWorld.h>
+#include <data/Interface.h>
 #include <Keys.h>
 #include <Processor.h>
 #include <Spectrum.h>
@@ -49,7 +50,7 @@ const vector<string> Keywords {
 
 /*
 */
-class Interpreter_class : virtual Logfacility_class, virtual Config_class, virtual public Processor_class
+class Interpreter_class : virtual Logfacility_class, virtual public Processor_class
 {
 	typedef struct osc_struct
 	{
@@ -71,8 +72,9 @@ class Interpreter_class : virtual Logfacility_class, virtual Config_class, virtu
 
 
 public:
-	Interface_class* GUI;
-	ifd_t* ifd;// = GUI->ifd_data;
+	Interface_class* 	GUI;
+	Config_class*		Cfg;
+	interface_t* 		ifd;
 	Variation_class Variation{};
 	osc_struct_t main_view, fmo_view, vco_view;
 
@@ -87,7 +89,7 @@ public:
 	String keyword {""};
 	vector<string> expect {};
 
-	Interpreter_class( Interface_class* gui ) ;
+	Interpreter_class( Dataworld_class* data ) ;
 	virtual ~Interpreter_class();
 
 	void Start_bin( vector_str_t );

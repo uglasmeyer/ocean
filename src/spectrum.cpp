@@ -17,27 +17,26 @@ Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char osci
 {
 
 	auto assign_dta = [ this ]( vector<string> arr )
-		{
-			arr.erase( arr.begin()); 	// 0:SPEC
-			arr.erase( arr.begin());	// 1:MAIN,VCO,FMO
-			arr.erase( arr.begin());	// 2:waveform str
-			size_t i = 0;
+	{
+		arr.erase( arr.begin()); 	// 0:SPEC
+		arr.erase( arr.begin());	// 1:MAIN,VCO,FMO
+		arr.erase( arr.begin());	// 2:waveform str
+		size_t i = 0;
 
-			for ( string str : arr )
+		for ( string str : arr )
+		{
+			if ( i < spec_dta_len ) // ignore further entries
 			{
-				if ( i < spec_dta_len ) // ignore further entries
-				{
-					if ( str.length() > 0 )
-						spectrum.dta[i] = stoi( str );
-					else
-						spectrum.dta[i] = 0;
-					i++;
-				}
+				if ( str.length() > 0 )
+					spectrum.dta[i] = stoi( str );
+				else
+					spectrum.dta[i] = 0;
+				i++;
 			}
-		};
+		}
+	};
 
 	spectrum = spec_struct();
-	cout << "arr2 " <<arr[2] << endl;
 	int id 	= Get_waveform_id( arr[2] );
 	if ( id < 0 )
 		return default_spec;

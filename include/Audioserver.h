@@ -25,7 +25,7 @@
 
 #include <Ocean.h>
 #include <Synthmem.h>
-#include <Interface.h>
+#include <data/Interface.h>
 #include <System.h>
 #include <App.h>
 
@@ -34,13 +34,13 @@
 string Module 			= "AudioServer";
 
 Logfacility_class 		Log( Module );
-Shared_Memory 			Shm_a;
-Shared_Memory			Shm_b;
-Interface_class 		SDS ;
-Time_class				Timer( &SDS.addr->time_elapsed );
-ifd_t*					sds	= SDS.addr;
-
-Application_class		App( Module, AUDIOID, &SDS );
+Dataworld_class			DaTA( AUDIOID );
+Application_class		App( &DaTA );
+interface_t*			sds	= DaTA.Sds.addr;
+Time_class				Timer( &sds->time_elapsed);
+Config_class*			Cfg = DaTA.Cfg_p;
+Shared_Memory 			Shm_L( sharedbuffer_size );
+Shared_Memory			Shm_R( sharedbuffer_size );
 
 
 // runtime parameter

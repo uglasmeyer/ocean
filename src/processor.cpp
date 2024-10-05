@@ -141,7 +141,7 @@ void Processor_class::Push_text( string str )
 void Processor_class::wait_for_commit()
 {
 	Timer.Start();
-	SEM.Lock( PROCESSOR_WAIT );
+	Sem->Lock( PROCESSOR_WAIT );
 	long int t_elapsed = Timer.Time_elapsed();
 	printf(", commit in %ld [msec]",t_elapsed );
 }
@@ -168,7 +168,7 @@ void Processor_class::Execute()
 
 	cout << "waiting for Synthesizer to start" << endl;
 
-	SEM.Init();
+	Sem->Init();
 
 	sds->Reset_ifd();
 	sds->Commit();
@@ -265,7 +265,7 @@ void Processor_class::Execute()
 		case CMD_EXIT :
 		{
 			printf("%d \n", stack_item.prgline);
-			SEM.Release( SEMAPHORE_EXIT );
+			Sem->Release( SEMAPHORE_EXIT );
 			return;
 			break;
 		}

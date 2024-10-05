@@ -113,6 +113,21 @@ constexpr Data_t Sawtooth( const float& amp,  const float& phi )
 	return rint(amp* (1.0 - modulo(phi,1 )));
 }
 
+Oscillator::Oscillator( uint8_t id ) :
+		Logfacility_class( "OSC" ),
+		Oscillator_base()
+{
+	mem_init();
+	osc_id		= id;
+	osc_type 	= osc_type_vec[id];
+	Mem_vco.Info( osc_type );
+	Mem_fmo.Info( osc_type );
+	Mem.Info( osc_type );
+	cout << osc_type << " initialized" << endl;
+
+};
+Oscillator::~Oscillator(){};
+
 void Oscillator::Set_start_freq( float freq )
 {
 	start_freq = freq;
@@ -452,7 +467,7 @@ void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
 
 	float db 		= 0.5; // the decay is a constant of the wall
 
-	for ( buffer_t n = 0; n < memtmp.info.data_blocks; n++ )
+	for ( buffer_t n = 0; n < memtmp.ds.data_blocks; n++ )
 	{
 		buffer_t m =  ( n + dn ) % frames;
 		memtmp.Data[m]	=  data[m] + rint( data[ n ] * db )  ;
@@ -483,8 +498,8 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 void Oscillator::Reset_data( Oscillator* osc )
 {
 	this->wp.touched = true;
-	this->Mem_fmo.clear_data(0);
-	this->Mem_vco.clear_data(max_data_amp);
+	this->Mem_fmo.Clear_data(0);
+	this->Mem_vco.Clear_data(max_data_amp);
 
 	this->vp.data = this->Mem_vco.Data;
 	this->fp.data = this->Mem_fmo.Data;
@@ -505,11 +520,11 @@ void Oscillator::Test()
 	osc_id 			= NOTESID;
 	assert( ( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
 	assert( ( Mem_fmo.Data[0]				)	< 1E-8 );
-	assert( Mem.info.data_blocks 	== frames_per_sec );
+	assert( Mem.ds.data_blocks 	== frames_per_sec );
 
 	vector_str_t arr = { "OSC","MAIN","Sinus","480","1000","40","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
-	assert( wp.frequency == 480 );
+	assert( abs(wp.frequency) - 480 < 1 );
 	assert( wp.frequency > 0.0 );
 	assert( abs( wp.frequency - 480 ) < 1E-8 );
 	spectrum = spec_struct();

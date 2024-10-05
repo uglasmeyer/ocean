@@ -82,7 +82,7 @@ bool Keyboard_class::Attack( int key, uint8_t octave, uint8_t amp )
 bool Keyboard_class::Release(  )
 {
 	decayCounter = releaseCounter;
-	osc.Mem.clear_data( 0 );
+	osc.Mem.Clear_data( 0 );
 	return true;
 }
 

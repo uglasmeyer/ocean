@@ -1,4 +1,5 @@
 // System includes
+#include <data/Interface.h>
 #include <dirent.h>
 
 // qtcreator includes
@@ -7,7 +8,6 @@
 #include <Mainwindow.h>
 
 // Synthesizer includes
-#include <Interface.h>
 #include <Keys.h>
 #include <Logfacility.h>
 #include <Notes.h>
@@ -32,17 +32,24 @@ void Qread_filelist( QComboBox* CB, const string& path, const string type )
     }
 }
 
-File_Dialog_class::File_Dialog_class(QWidget *parent, QSlider* sl_main_hz ) :
+Ui::File_Dialog	UI_FileDialog_obj{};
+
+File_Dialog_class::File_Dialog_class( 	QWidget *parent,
+										Interface_class* sds) ://, QSlider* sl_main_hz ) :
     Logfacility_class("FileDialog"),
-    QDialog(parent),
     Note_class( ),
-    Interface_class(),
-    ui(new Ui::File_Dialog)
+	QDialog(parent)
+//    ui(new Ui::File_Dialog)
 {
 
-	Sl_Main_Hz				= sl_main_hz;
+
+//	Sl_Main_Hz				= sl_main_hz;
+	this->sds 	= sds;
+	this->addr 	= sds->addr;
+	ui 			= &UI_FileDialog_obj;
 
     ui->setupUi(this);
+
 
     CB_notes                = ui->cb_notefilenames;
     CB_instruments          = ui->cb_instrumentfiles;
@@ -70,7 +77,7 @@ File_Dialog_class::File_Dialog_class(QWidget *parent, QSlider* sl_main_hz ) :
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
 
     QWidget::update();
-    Log.Comment( INFO," File_Dialog initialized");
+    Comment( INFO," File_Dialog initialized");
 
 
     Setup_widgets();
@@ -80,8 +87,8 @@ void File_Dialog_class::sB_Octave(int sb_value )
 {
 	addr->noteline_prefix.Octave = sb_value;
 	addr->KEY = UPDATE_NLP_KEY;
-	int freq = Octave_freq ( sb_value );
-	Sl_Main_Hz->setValue( freq );
+//	int freq = Octave_freq ( sb_value );
+//	Sl_Main_Hz->setValue( freq );
 }
 void File_Dialog_class::cB_Convention( int cb_value )
 {
@@ -101,12 +108,12 @@ void File_Dialog_class::cB_NotesPerSec(int cb_value )
 void File_Dialog_class::Setup_widgets()
 {
     QString QStr;
-    Instrument_name = Interface_class::addr->Instrument;
+    Instrument_name = addr->Instrument;
     QStr = QString::fromStdString( Instrument_name );
     ui->lE_Instrument->setText( QStr );
     New_Instrument();
 
-    string Notes_name =Interface_class::addr->Notes;
+    string Notes_name =addr->Notes;
     QStr = QString::fromStdString( Notes_name );
     ui->lE_NotesFile->setText( QStr );
 
@@ -138,8 +145,8 @@ void File_Dialog_class::Setup_widgets()
     QStr = QString::number( addr->noteline_prefix.nps );
     ui->cb_nps->setCurrentText( QStr );
 
-    int freq = Octave_freq( addr->noteline_prefix.Octave );
-	Sl_Main_Hz->setValue( freq );
+//    int freq = Octave_freq( addr->noteline_prefix.Octave );
+//	Sl_Main_Hz->setValue( freq );
 	ui->sB_Octave->setValue( addr->noteline_prefix.Octave );
 
     New_Notes();
@@ -147,7 +154,7 @@ void File_Dialog_class::Setup_widgets()
 }
 File_Dialog_class::~File_Dialog_class()
 {
-    delete ui;
+//    if( ui ) delete ui;
 }
 
 
@@ -159,8 +166,8 @@ void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &arg1)
     string str = QStr.toStdString();
     if ( str.length() > 0 )
     {
-        Interface_class::Write_str( INSTRUMENTSTR_KEY, str );
-        Interface_class::addr->KEY = SETINSTRUMENTKEY;
+        sds->Write_str( INSTRUMENTSTR_KEY, str );
+        addr->KEY = SETINSTRUMENTKEY;
     }
     ui->lE_Instrument->setText( QStr );
 }
@@ -173,8 +180,8 @@ void File_Dialog_class::New_Instrument()
 
     if ( instrument.length() > 0 )
     {
-        Interface_class::Write_str( INSTRUMENTSTR_KEY, instrument );
-        Interface_class::addr->KEY = NEWINSTRUMENTKEY;
+        sds->Write_str( INSTRUMENTSTR_KEY, instrument );
+        addr->KEY = NEWINSTRUMENTKEY;
     }
 
 }
@@ -208,8 +215,8 @@ void File_Dialog_class::New_Notes()
         Note_class::Save( notes_file, addr->noteline_prefix, note_line );
 
         // remote shall read and activate the new note line
-        Interface_class::Write_str( NOTESSTR_KEY, notes_file);
-        Interface_class::addr->KEY = NEWNOTESLINEKEY;
+        sds->Write_str( NOTESSTR_KEY, notes_file);
+        addr->KEY = NEWNOTESLINEKEY;
         // remote load file to note class
         status_color.setColor(QPalette::Button, Qt::green);
         ui->pbPlayNotes->setText( NotesON );
@@ -232,12 +239,12 @@ void File_Dialog_class::pb_PlayNotes_OnOff()
     if ( SWITCHON )
     {
         ui->pbPlayNotes->setText( NotesOFF );
-        Interface_class::addr->KEY = NOTESOFFKEY;
+        addr->KEY = NOTESOFFKEY;
     }
     else
     {
         ui->pbPlayNotes->setText( NotesON );
-        Interface_class::addr->KEY = NOTESONKEY;
+        addr->KEY = NOTESONKEY;
 
     }
 }
@@ -261,8 +268,8 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
         ui->lE_Rythm->setText( Rhythmline );
 
         // remote
-        Interface_class::Write_str( NOTESSTR_KEY, note_name );
-        Interface_class::addr->KEY = UPDATENOTESKEY; // update notes
+        sds->Write_str( NOTESSTR_KEY, note_name );
+        addr->KEY = UPDATENOTESKEY; // update notes
     }
     else
     {

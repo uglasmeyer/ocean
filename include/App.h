@@ -8,36 +8,39 @@
 #ifndef APP_H_
 #define APP_H_
 
-#include <Interface.h>
+#include <data/DataWorld.h>
+#include <data/Semaphore.h>
+#include <data/Statistic.h>
 #include <Ocean.h>
 #include <Version.h>
 #include <External.h>
 #include <Record.h>
 #include <Time.h>
-#include <Semaphore.h>
 
 
 extern void SynthesizerTestCases();
 
-class Application_class : Logfacility_class
+class Application_class : virtual public Logfacility_class
 {
+	string className = "Application_class";
 public:
+	Dataworld_class*	DaTA		= nullptr;
+	Interface_class* 	SDS			= nullptr;
+	interface_t* 		sds			= nullptr;
+	Config_class*		Cfg 		= nullptr;
 
 	string 				Name 				= "";
 	string 				This_Application 	= "";
 	uint 				client_id			= NOID;
-	Config_class		Cfg 				{ "App" };
 	bool				Server_init			= true;
 
-	Application_class( string name, uint , Interface_class*);
-	~Application_class();
+	Application_class( Dataworld_class* );
+	virtual ~Application_class();
 
 	void Shutdown_instance( );
 	void Start( int, char* [] );
 
 private:
-	Interface_class* 	SDS			= nullptr;
-	ifd_t* 				sds			= nullptr;
 	bool 			redirect_stderr = false;
 	array<uint8_t*, APP_SIZE >
 						state_arr 		{};

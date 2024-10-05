@@ -11,30 +11,41 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <Config.h>
+#include <Time.h>
+
 
 enum
 {
 	SEMAPHORE_NULL,
 	PROCESSOR_WAIT,
 	SEMAPHORE_EXIT,
-	SEMAPHORE_START,
+	SYNTHESIZER_START,
 	SEMAPHORE_STARTED,
-	SEMAPHORE_RECORD
+	SEMAPHORE_RECORD,
+	RTSP_START,
+	RTSP_STARTED,
+	RTSP_EXIT,
+	SEMAPHORE_TEST,
+	SEMAPHORE_CONFIG
 };
 static const uint 	SEMNUM_SIZE = 16;
 
-class Semaphore_class  : virtual Logfacility_class, Config_class
+class Semaphore_class  : virtual public Logfacility_class, Time_class
 {
+	string className = "Semaphore_class";
 public:
+	Time_class	lock_timer{};
 
-	Semaphore_class();
+	Semaphore_class( Config_class* );
 	~Semaphore_class();
 	void 	Init	();
 	void 	Aquire	( uint8_t semnum ); // increase the semaphore ( OP_INC )
 	void 	Release	( uint8_t semnum );	// decrease the semaphore ( OP_DEC )
 	void 	Lock	( uint8_t semnum );	// wait for release
+	void 	Lock	( uint8_t semnum, uint timeout );	// wait for release
 	int  	Getval	( uint8_t semnum , int op);
 	string 	Stat	( uint8_t semnum );
+	void	Test( );
 
 private:
 	key_t SEM_KEY 			= 0;

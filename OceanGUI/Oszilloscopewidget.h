@@ -4,7 +4,7 @@
 // C++ Project
 
 #include <Ocean.h>
-#include <Interface.h>
+#include <data/Interface.h>
 
 // Qt
 #include <QPolygon>
@@ -19,11 +19,11 @@
 
 class OszilloscopeWidget : public QGraphicsItem
 {
-//    Q_OBJECT
-    ifd_t*          ifd;
+    interface_t*          ifd;
 
 public:
-    OszilloscopeWidget( ifd_t*, QRectF );
+
+    OszilloscopeWidget( interface_t*, QRectF );
     ~OszilloscopeWidget(){};
 
     void    read_polygon_data();

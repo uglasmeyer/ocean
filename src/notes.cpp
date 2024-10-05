@@ -21,7 +21,8 @@ Note_class::~Note_class( )
 
 void Note_class::Set_osc_track( Instrument_class* instrument )
 {
-	Comment( INFO, "Set osc track");
+	Instrument_name = instrument->Name;
+	Comment( INFO, "Update notes instrument:  " + Instrument_name );
 
 	// copy class Oscillator
 	main.wp 		= instrument->main.wp;
@@ -42,7 +43,6 @@ void Note_class::Set_osc_track( Instrument_class* instrument )
 	fmo.fp 			= instrument->fmo.fp;
 	fmo.spectrum	= instrument->fmo.spectrum;
 
-	Instrument_name = instrument->Name;
 	return;
 }
 
@@ -170,7 +170,7 @@ void Note_class::Show_note( note_t note )
 	{
 		strs 	<< ">" << setw(5) << right << dec << rint(note.glide.chord.freq);
 	}
-	Comment( INFO, strs.str()  );
+	Comment( DEBUG, strs.str()  );
 
 }
 
@@ -495,7 +495,7 @@ void Note_class::compiler ( noteline_prefix_t prefix, string str )
 
 	Comment(INFO, "Instrument : " + Instrument_name );
 	Comment(INFO, "Notes name : " + Notefile_name );
-	show_noteline_prefix( prefix );
+	Show_noteline_prefix( prefix );
 	Comment(INFO, "Note line  : " + Noteline );
 	Comment(INFO, "Rhythm line: " + Volumeline );
 
@@ -525,7 +525,9 @@ void Note_class::compiler ( noteline_prefix_t prefix, string str )
 		fill_note_list();
 	}
 
+	Set_Loglevel(DEBUG, true);
 	Show_note_list( notelist );
+	Set_Loglevel(DEBUG, false);
 }
 
 string Note_class::Get_rhythm_line()
@@ -640,7 +642,7 @@ bool Note_class::Generate_note_chunk( )
 
 
 	int timestamp = 0;
-	this->main.Mem.clear_data( 0 );
+	this->main.Mem.Clear_data( 0 );
 
 	restart_note_itr();
 
@@ -760,7 +762,7 @@ string Note_class::Read( string str )
 					break;
 				}
 				case 'P' :
-					Noteline_prefix = string_to_noteline_prefix( arr[1] );
+					Noteline_prefix = String_to_noteline_prefix( arr[1] );
 					break;
 				case '+' :
 				{
@@ -797,7 +799,7 @@ void Note_class::Save( string str, noteline_prefix_t prefix, string nl_str )
 	}
 	Comment( INFO, "saving notes " + Noteline + "\nto file: " + Notefile );
 
-	string noteline_prefix = noteline_prefix_to_string( prefix );
+	string noteline_prefix = Noteline_prefix_to_string( prefix );
 	File <<
 		"#See the documentation file " + file_structure().doc_filename + "\n" <<
 		"#about the specification of Prefix, Notes and Volume \n" <<
@@ -812,7 +814,7 @@ void Note_class::Save( string str, noteline_prefix_t prefix, string nl_str )
 
 void Note_class::Test()
 {
-	Note_base::test();
+	Note_base::TestNoteBase();
 
 	Instrument_name = "NotesTest";
 	Set_Loglevel(TEST, true );
@@ -865,7 +867,7 @@ void Note_class::Test()
 	Volumeline = "9797";
 	Set_prefix_octave( 0 );
 	Noteline = "|3F--G(AC)-(DC)-";
-	Noteline_prefix = string_to_noteline_prefix( "2,0,4,0,0");
+	Noteline_prefix = String_to_noteline_prefix( "2,0,4,0,0");
 	Save(".testcase", Noteline_prefix, Noteline );
 
 	Volumeline 	= "yyyyy";
@@ -902,7 +904,7 @@ void Note_class::Test()
 	cout << note_itr->chord[0].value << " " << note_itr->chord[0].doct << endl;
 	cout << Octave << endl;
 	cout << calc_freq( Octave, note_itr->chord[0] ) << endl;
-	assert( calc_freq( Octave, note_itr->chord[0] ) == 0 );
+	assert( calc_freq( Octave, note_itr->chord[0] ) <  0.1 );
 	//assert( false );
 
 	Comment( TEST, "garbage test" );

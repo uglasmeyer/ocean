@@ -70,12 +70,12 @@ void Time_class::Wait( const uint& d )
 
 void Time_class::Test()
 {
-	TEST_START();
+	TEST_START( "Time_class" );
   	Comment( TEST, "wait for 2 seconds ");
 	Start();
   	Wait( 2 );
 	Comment( TEST, "elapsed time " + to_string( Time_elapsed()) + "ms");
-	TEST_END();
+	TEST_END( "Time_class" );
 }
 
 

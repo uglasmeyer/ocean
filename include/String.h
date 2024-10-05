@@ -53,8 +53,9 @@ public:
 	bool			is_number( 			);
 	int 			secure_stoi( string	);
 	string 			to_hex( long )	;
-	void 			test();
+	void 			TestString();
 	void 			to_lower( );
+	int 			to_int( const string& s );
 
 };
 

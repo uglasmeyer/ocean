@@ -8,6 +8,13 @@
 #include <Notesbase.h>
 #include <System.h>
 
+Note_base::Note_base () :
+Logfacility_class("NotesBase")
+{};
+
+Note_base::~Note_base()
+{};
+
 float Note_base::Calc_frequency( const uint8_t& key )
 {
 	if ( key > root2.vec.size()-1 )
@@ -19,7 +26,7 @@ float Note_base::Calc_frequency( const uint8_t& key )
 	return root2.vec[ key ] * oct_base_freq;
 }
 
-void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
+void Note_base::Show_noteline_prefix( noteline_prefix_t nlp )
 {
 	stringstream strs{ "\n" };
 	string nlp_str = convention_names[nlp.convention ];
@@ -32,7 +39,7 @@ void Note_base::show_noteline_prefix( noteline_prefix_t nlp )
 	Comment( INFO, strs.str() );
 }
 
-string Note_base::noteline_prefix_to_string( noteline_prefix_t nlp )
+string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
 {
 	stringstream strs{""};
 	strs 	<< (int) nlp.Octave 		<<","
@@ -43,7 +50,7 @@ string Note_base::noteline_prefix_to_string( noteline_prefix_t nlp )
 	return strs.str();
 }
 
-Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
+Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 {
 	auto check_nps = [ this ]( int i )
 		{
@@ -97,22 +104,22 @@ Note_base::noteline_prefix_t Note_base::string_to_noteline_prefix( string str )
 
 }
 
-void Note_base::test()
+void Note_base::TestNoteBase()
 {
-	Set_Loglevel( TEST, true);
-	Comment( TEST, "Notes_base test start");
+	TEST_START("Notes_base");
 
-	show_noteline_prefix( noteline_prefix_default );
-	Comment( TEST, noteline_prefix_to_string( noteline_prefix_default ));
+	Show_noteline_prefix( noteline_prefix_default );
+	Comment( TEST, Noteline_prefix_to_string( noteline_prefix_default ));
 	string nlp_str = "2,1,4,0,0,";
-	noteline_prefix_t nlp = string_to_noteline_prefix(nlp_str);
-	show_noteline_prefix(nlp);
+	noteline_prefix_t nlp = String_to_noteline_prefix(nlp_str);
+	Show_noteline_prefix(nlp);
 
 	nlp_str = "1 ";
-	nlp = string_to_noteline_prefix(nlp_str);
+	nlp = String_to_noteline_prefix(nlp_str);
 	nlp_str = "8, 8, 8, 7, 8";
-	nlp = string_to_noteline_prefix(nlp_str);
-	Comment( TEST, "Notes_base test done");
+	nlp = String_to_noteline_prefix(nlp_str);
+
+	TEST_END("Notes_base");
 }
 
 

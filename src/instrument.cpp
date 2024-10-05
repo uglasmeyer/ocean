@@ -10,7 +10,7 @@
 #include <System.h>
 
 
-Instrument_class::Instrument_class(ifd_t* ifd )
+Instrument_class::Instrument_class(interface_t* ifd )
 : Logfacility_class("Instrument")
 {
 	this->ifd 		= ifd;
@@ -30,7 +30,6 @@ void Instrument_class::reuse_GUI_Data()
 	// The data shall be ignored if the ifd is initially created. This is indicated
 	// be the MODE DEFAULT.
 
-//	ifd_t* ifd = GUI->addr;
 	if ( ifd->MODE == DEFAULT )
 	{
 		Comment(INFO, "default Shared Data is not reused");
@@ -388,7 +387,7 @@ bool Instrument_class::Set( string name )
 
 void Instrument_class::Test_Instrument()
 {
-	TEST_START();
+	TEST_START( "Instrument" );
 
 	for ( Oscillator* osc : osc_vector	)
 		osc->Set_Loglevel( TEST, true);
@@ -408,7 +407,6 @@ void Instrument_class::Test_Instrument()
 
 	assert( Set( ".test" ) );
 	assert( vco.wp.PMW_dial == 98 );
-	cout << "spec id" << dec << (int)vco.spectrum.id << endl;
 	assert( vco.waveform_str_vec[ SGNSIN ].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
 	assert( main.fp.data == fmo.Mem.Data );
@@ -433,7 +431,7 @@ void Instrument_class::Test_Instrument()
 		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
 	}
 
-	TEST_END();
+	TEST_END( "Instrument" );
 }
 
 

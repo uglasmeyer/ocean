@@ -2,74 +2,103 @@
 #include <String.h>
 #include <System.h>
 
-Logfacility_class Log_config("Config");
 
-Config_class::Config_class( string Module ) : Logfacility_class( Module )
+
+Config_class::Config_class( string Module ) :
+	Logfacility_class( Module )
 {
 	prgname = program_invocation_name;
 	Comment( INFO, "Program name: " + prgname );
-	BaseDir( );
-	Read_synthesizer_config();
-
+	baseDir( );
+	Read_config( file_structure().config_file );
+	Read_config( file_structure().datacfg_file);
 };
+
 Config_class::~Config_class()
 {
 
 };
 
-void Config_class::Read_synthesizer_config(	 )
+void Config_class::Read_config(	string cfgfile )
 {
-
 	std::unordered_map<string, string> 	Get = {}; // @suppress("Invalid template argument")
-	configfile = basedir + "/etc/synthesizer.cfg";
+
+	String Str("");
+	configfile = cfgfile;
 	Comment(INFO, "Reading config file " + configfile );
 
 	ifstream cFile( configfile  );
+	if ( not cFile.is_open() )
+	{
+		Exception("Couldn't open config file " + configfile);
+	}
 
-	if (cFile.is_open()) {
-        String Line{""};
-        String Name{""};
-        string line;
-        while ( getline( cFile, line ) )
-        {
-        	Line = line;
-        	Line.replace_comment();
-        	Line.replace_char('\t', ' ');
-        	istringstream iss( Line.Str );
-            string strr;
-            while (getline(iss, strr, ','))
-            {
-                size_t delimiterPos	= strr.find("=");
-                String Name        	= strr.substr(0, delimiterPos);
-                string value      	= strr.substr(delimiterPos + 1);
-                Name.normalize();
-                Name.to_lower();
-                Get[Name.Str]= value;
-            }
-        }
-        string getstr = "";
-        Config.title	= Get["title"];
-    	Config.author	= Get["author"];
-    	Config.album	= Get["album"];
-    	Config.Genre 	= Get["genre"];
-    	Config.Term 	= Get["term"];
-    	Config.ffmpeg 	= Get["ffmpeg"];
-    	Config.appcfg	= Get["appcfg"];
-    	getstr			= Get["shmkey"]; // @suppress("Invalid arguments")
-    	Config.shm_key_a= stoi( getstr.data() );
-    	Config.shm_key_b= Config.shm_key_a+1;
-    	getstr			= Get["sdskey"]; // @suppress("Invalid arguments")
-    	Config.SDS_key	= stoi( getstr.data() );
-    	getstr			= Get["semkey"]; // @suppress("Invalid arguments")
-    	Config.Sem_key	= stoi( getstr.data() );
+	String Line{""};
+	String Name{""};
+	string line;
+	while ( getline( cFile, line ) )
+	{
+		Line = line;
+		Line.replace_comment();
+		Line.replace_char('\t', ' ');
+		istringstream iss( Line.Str );
+		string strr;
+		while (getline(iss, strr, ','))
+		{
+			size_t delimiterPos	= strr.find("=");
+			String Name        	= strr.substr(0, delimiterPos);
+			string value      	= strr.substr(delimiterPos + 1);
+			Name.normalize();
+			Name.to_lower();
+			Get[Name.Str]= value;
+		}
+	}
+	auto get_item = [ &Get ]( string old, string str )
+		{
+			string tmp = string( Get[ str ]);
 
-    }
-    else
-    {
+			if( tmp.length() == 0 )
+				return old;
+			else
+			{
+				return tmp;
+			}
+		};
+	auto get_value = [ &Get ]( key_t old, string str )
+		{
+			String Str("");
+			string tmp = string( Get[ str ]);
+			if( tmp.length() == 0 )
+				return old;
+			else
+			{
+				return (key_t) Str.to_int( tmp );
+			}
+		};
+	string getstr = "";
+	Config.title	= get_item( Config.title, "title" );
+	Config.author	= get_item( Config.author, "author" );
+	Config.album	= get_item( Config.album, "album" );
+	Config.Genre 	= get_item( Config.Genre, "genre" );
+	Config.Term 	= get_item( Config.Term, "term" );
+	Config.ffmpeg 	= get_item( Config.ffmpeg, "ffmpeg" );
+	getstr = "";
+	getstr.push_back( Config.test );
+	getstr			= get_item( getstr , "test");
+	Config.test		= (getstr.length() == 0 ) ? Config.test : getstr[0];
+	Config.appcfg	= get_item( Config.appcfg, "appcfg" );
+	Config.shm_key_l= get_value ( Config.shm_key_l, "shmkey" );
+	Config.shm_key_r= Config.shm_key_l+1;
+	Config.SDS_key	= get_value ( Config.SDS_key, "sdskey" );
+	Config.Sem_key	= get_value ( Config.Sem_key, "semkey" );
+	for( uint n = 0; n < MAXCONFIG; n++  )
+	{
+		string str = "sds" + to_string(n);
+		Config.sds_arr[ n ] = get_value( 0, str );
+	}
 
-        Comment( ERROR, "Couldn't open config file " + configfile );
-        exit(1);
-    }
+	Show_prgarg_struct();
+	assert( ( Config.test == 'n' ) or ( Config.test == 'y' ) or (Config.test == 0 )) ;
 // example:    shm_key_a=stoi( configmap.at("shm_key_a") );
 
 //    std::cout << shm_key_a << endl;
@@ -88,6 +117,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 	String 			Str{""};
 	string 			next{""};
 
+	Comment(INFO, "Evaluating startup arguments");
 
 
 	for ( int ndx = 1; ndx < argc; ndx ++ )
@@ -95,26 +125,27 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 		string arg = argv[ ndx ];
 		( ndx + 1 == argc  ) ? next = "" : next = argv[ ndx + 1 ];
 		if ( arg.compare("-c") == 0 )
-			Config.channel	= Str.secure_stoi( next );
+			Config.channel	= Str.to_int( next );
 		if ( arg.compare("-C") == 0 )
 			Config.composer	= 'y';
 		if ( arg.compare("-G") == 0 )
 			Config.oceangui	= 'y';
 		if ( arg.compare("-r") == 0 )
-			Config.rate 	= Str.secure_stoi( next );
+			Config.rate 	= Str.to_int( next );
 		if ( arg.compare("-d") == 0 )
-			Config.device 	= Str.secure_stoi( next );
+			Config.device 	= Str.to_int( next );
 		if ( arg.compare("-o") == 0 )
-			Config.ch_offs	= Str.secure_stoi( next );
+			Config.ch_offs	= Str.to_int( next );
 		if ( arg.compare("-k") == 0 )
-		{
-			Config.shm_key_a= Str.secure_stoi( next );
-			Config.shm_key_b= Config.shm_key_a + 1;
-		}
+			Config.SDS_key = Str.to_int( next );
+		if ( arg.compare("-K") == 0 )
+			Config.SDS_id = Str.to_int( next );
 		if ( arg.compare("-t") == 0 )
 			Config.test 	= 'y';
 		if ( arg.compare("-D") == 0 )
 			Config.dialog 	= 'y';
+		if ( arg.compare("-S") == 0 )
+			Config.appcfg = next;
 	}
 
 }
@@ -125,25 +156,29 @@ void Config_class::Show_prgarg_struct( )
 	strs << setw(20) << left << "sampline rate" << dec << 	Config.rate		<<endl;  		// -c
 	strs << setw(20) << left << "device nr" 	<< dec << 	Config.device	<<endl;  		// -d
 	strs << setw(20) << left << "channel offs"	<< dec << 	Config.ch_offs	<<endl; 		// -o
-	strs << setw(20) << left << "shm key A" 	<< dec << 	Config.shm_key_a<<endl;  		// -k
-	strs << setw(20) << left << "shm key B" 	<< dec << 	Config.shm_key_b<<endl;  		//
+	strs << setw(20) << left << "shm key R" 	<< dec << 	Config.shm_key_l<<endl;  		// -k
+	strs << setw(20) << left << "shm key L" 	<< dec << 	Config.shm_key_r<<endl;  		//
 	strs << setw(20) << left << "sds_key" 		<< 			Config.SDS_key	<<endl;  		// -D
 	strs << setw(20) << left << "sem_key" 		<< 			Config.Sem_key	<<endl;  		// -D
-	strs << setw(20) << left << "test classes" 	<< dec << 	Config.test		<<endl;  		// -t
-	strs << setw(20) << left << "dialog mode"	<< dec << 	Config.dialog	<<endl;  		// -D
-	strs << setw(20) << left << "composer"		<< dec << 	Config.composer	<<endl;  		// -D
-	strs << setw(20) << left << "oceangui"		<< dec << 	Config.oceangui	<<endl;  		// -D
+	strs << setw(20) << left << "test classes" 	<<  	 	Config.test		<<endl;  		// -t
+	strs << setw(20) << left << "dialog mode"	<<  		Config.dialog	<<endl;  		// -D
+	strs << setw(20) << left << "composer"		<<  		Config.composer	<<endl;  		// -D
+	strs << setw(20) << left << "oceangui"		<< 			Config.oceangui	<<endl;  		// -D
 	strs << setw(20) << left << "Id3tool Title" << 			Config.title	<<endl; 		// -o
 	strs << setw(20) << left << "Id3tool Author"<< 			Config.author	<<endl;  		// -k
 	strs << setw(20) << left << "Id3tool Album" << 			Config.album	<<endl;  		//
 	strs << setw(20) << left << "Id3tool Genre" << 			Config.Genre	<<endl;  		// -t
 	strs << setw(20) << left << "Terminal" 		<< 			Config.Term		<<endl;  		// -D
 	strs << setw(20) << left << "ffmpeg" 		<< 			Config.ffmpeg	<<endl;  		// -D
-	strs << setw(20) << left << "appcfg" 		<< 			Config.appcfg	<<endl;  		// -D
-	Comment( WARN, strs.str() );
+	strs << setw(20) << left << "appcfg" 		<< 			Config.appcfg	<<endl;
+	strs << setw(20) << left << "sds keys"		<< show_items( Config.sds_arr ) << endl;
+
+	Comment( INFO, strs.str() );
+
+
 }
 
-string Config_class::BaseDir()
+string Config_class::baseDir()
 {
 	const char* envvar = "OCEANDIR";
 	string Envvar( envvar );
@@ -186,7 +221,26 @@ string Config_class::BaseDir()
 
 string Config_class::Server_cmd( string term, string srv, string opt)
 {
-	return term + " '" + srv + " " + opt + "' &";
+	string cmd = "";
+	if ( term.length() == 0 )
+	{
+		cmd = srv;
+		cmd.append(" ");
+		cmd.append( opt );
+		cmd.append( " &" );
+	}
+	else
+	{
+		cmd = term;
+		cmd.append( " '");
+		cmd.append(srv),
+		cmd.append(" ");
+		cmd.append(opt);
+		cmd.append("' &");
+	}
+	Comment( INFO, "command:" + cmd );
+
+	return cmd;
 }
 
 
@@ -211,7 +265,6 @@ void DirStructure_class::Create()
 
 void DirStructure_class::setDir(  )
 {
-//	basedir			= Config_class::basedir;
 
 	etcdir 			= basedir + "etc/";
 	bindir  		= basedir + "bin/";
@@ -225,6 +278,7 @@ void DirStructure_class::setDir(  )
 	instrumentdir	= etcdir + "Instruments/";
 	notesdir  		= etcdir + "Notes/";
 	includedir		= etcdir + "include/";
+	rtspdir			= etcdir + "rtsp/";
 	dirs =
 	{
 		homedir,
@@ -238,7 +292,8 @@ void DirStructure_class::setDir(  )
 		instrumentdir,
 		notesdir,
 		includedir,
-		autodir
+		autodir,
+		rtspdir
 	};
 
 };

@@ -89,11 +89,14 @@ const uint8_t		LFO_count			= 100;
 
 
 template<typename T>
-void show_items( T all_items )
+auto show_items( T all_items )
 {
+	stringstream strs{""};
     for (auto item : all_items )
-    	cout << item << " ";
-    cout << endl;
+    {
+    	strs << item << " ";
+    }
+    return strs.str();
 }
 
 

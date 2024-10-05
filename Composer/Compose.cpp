@@ -1,19 +1,5 @@
 
-#include <Interpreter.h>
-#include <App.h>
-
-string					Module = "Composer";
-Logfacility_class 		Log( Module );
-Variation_class 		Variation;
-Interface_class 		SDS;
-Application_class		App( Module, COMPID, &SDS );
-Interpreter_class 		Compiler(&SDS );
-vector<int>				pos_stack {};
-String 					Str{""};
-vector<line_struct_t> 	Program;
-
-
-
+#include <Composer.h>
 
 int return_pos( int pos )
 {
@@ -232,7 +218,7 @@ void maintest()
 	A.test();
 
 	String teststring{""};
-	teststring.test();
+	teststring.TestString();
 
 	Log.Test_Logging();
 
@@ -240,18 +226,27 @@ void maintest()
 
 }
 
+void exit_proc( int signal )
+{
+	exit(0);
+}
+
 int main( int argc, char* argv[] )
 {
+	catch_signals( &exit_proc, { SIGINT, SIGHUP, SIGABRT } );
+
 	App.Start( argc, argv );
 
-
-	if ( App.Cfg.Config.test == 'y' )
+	Statistic.Show_Statistic( Module );
+	if ( Cfg->Config.test == 'y' )
 	{
 		maintest();
+		Statistic.Show_Statistic( Module );
+
 		return 0;
 	}
 	Log.Set_Loglevel(ERROR , true);
-    SDS.Announce( App.client_id, &SDS.addr->Composer );
+	DaTA.Sds.Announce( App.client_id, &DaTA.Sds.addr->Composer );
 
 	if ( preprocessor( file_structure().program_file ) )
 	{
@@ -261,7 +256,7 @@ int main( int argc, char* argv[] )
 		}
 	}
 
-	if ( App.Cfg.Config.dialog == 'y' )
+	if ( Cfg->Config.dialog == 'y' )
 	{
 		composer_dialog();
 	}

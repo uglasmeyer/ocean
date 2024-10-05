@@ -128,10 +128,10 @@ void *File_Dialog_class::qt_metacast(const char *_clname)
     if (!_clname) return nullptr;
     if (!strcmp(_clname, qt_meta_stringdata_File_Dialog_class.stringdata0))
         return static_cast<void*>(this);
+    if (!strcmp(_clname, "Logfacility_class"))
+        return static_cast< Logfacility_class*>(this);
     if (!strcmp(_clname, "Note_class"))
         return static_cast< Note_class*>(this);
-    if (!strcmp(_clname, "Interface_class"))
-        return static_cast< Interface_class*>(this);
     return QDialog::qt_metacast(_clname);
 }
 

@@ -6,28 +6,9 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
-
-#include <Keyboard.h>
-#include <Logfacility.h>
-#include <Interface.h>
-#include <App.h>
-#include <Keys.h>
+#include <Comstack.h>
 
 using namespace std;
-
-string					Module			= "comstack";
-Logfacility_class 		Log( Module );
-Keyboard_class			Keyboard;
-Interface_class 		SDS;
-ifd_t* 					sds 			= SDS.addr;
-Application_class		App( Module, COMSTACKID, &SDS );
-
-Keyboard_base::key_struct_t
-						keys			= Keyboard_base::key_struct();
-string 					waveform_string = "0 ... 10";
-int 					update_counter 	= 1;
-
-
 char get_char( string text )
 {
 	string s{};
@@ -49,7 +30,7 @@ void show_ifd()
 {
 	if ( sds->UpdateFlag )
 	{
-		SDS.Show_interface();
+		DaTA.Sds.Show_interface();
 		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
 		update_counter++;
 		sds->UpdateFlag = false;
@@ -70,14 +51,20 @@ char Key_event( string charlist )
 	}
 	return keys.key;
 }
-
+void exit_proc( int signal )
+{
+	exit(0);
+}
 int main( int argc, char* argv[] )
 {
+	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start( argc, argv );
+	cout << "id: "<< DaTA.Cfg.Config.SDS_id << endl;
+	DaTA.Sds.addr = DaTA.SetSds( DaTA.Cfg.Config.SDS_id );
+	sds = DaTA.Sds.addr;
+	DaTA.Sds.Announce( App.client_id, &DaTA.Sds.addr->Comstack );
 
-    SDS.Announce( App.client_id, &SDS.addr->Comstack );
-
- 	SDS.Show_interface();
+	DaTA.Sds.Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
 
 	keys.key = '$';

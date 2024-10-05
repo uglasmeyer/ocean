@@ -10,29 +10,32 @@
 
 #include <Ocean.h>
 #include <Config.h>
+#include <data/Interface.h>
 #include <Synthmem.h>
 #include <Version.h>
 #include <Wav.h>
 #include <Record.h>
-#include <Interface.h>
 
 
 
-class External_class : virtual Logfacility_class, virtual Config_class, public ProgressBar_class
+class External_class : virtual Logfacility_class, public ProgressBar_class
 {
-	Storage::Storage_class* 	StA;
+	Storage_class* 	StA;
 	FILE*						File;
+	Config_class*				Cfg = nullptr;
 
 public:
 	Stereo_Memory				stereo{ stereobuffer_size };
 
-	External_class( Storage::Storage_class* sta, uint8_t* counter_p) : //, Stereo_Memory* stereo ) :
+	External_class( Storage_class* sta,
+					uint8_t* counter_p,
+					Config_class* cfg ) : //, Stereo_Memory* stereo ) :
 		Logfacility_class("External"),
-		Config_class( "External"),
 		ProgressBar_class( counter_p )
 	{
 		this->StA 			= sta;
 		this->File 			= NULL;
+		this->Cfg			= cfg;
 		stereo.Info			( "External Stereo data") ;
 
 	};
@@ -47,9 +50,9 @@ public:
 	bool Read_file_data(  );
 	bool Read_file_header( string );
 	void Save_record_data( int );
-	void Add_record( Memory*, Memory* );
+	void Mono2Stereo( Data_t* mono, uint size );
 	string GetName();
-	void Test();
+	void Test_External();
 	long Filedata_size = 0;
 
 private:

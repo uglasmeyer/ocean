@@ -8,10 +8,10 @@
 #ifndef PROCESSOR_H_
 #define PROCESSOR_H_
 
-#include <Interface.h>
+#include <data/Interface.h>
+#include <data/Semaphore.h>
 #include <Ocean.h>
 #include <System.h>
-#include <Semaphore.h>
 #include <Time.h>
 
 enum  {
@@ -30,8 +30,8 @@ enum  {
 class Processor_class : virtual Logfacility_class
 {
 	Interface_class* 	sds ;
-	ifd_t* 				ifd ;
-	Semaphore_class		SEM{} ;
+	interface_t* 		ifd ;
+	Semaphore_class*	Sem ;
 	Time_class			Timer{};
 
 public:
@@ -40,6 +40,7 @@ public:
 	{
 		this->sds = gui;
 		this->ifd = gui->addr;
+		this->Sem = gui->Sem_p;
 		process_stack.clear();
 	};
 

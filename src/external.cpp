@@ -5,34 +5,35 @@
  *      Author: sirius
  */
 
+#include <data/DataWorld.h>
 #include <External.h>
 #include <System.h>
 
-void record_thead_fcn( 	Interface_class* SDS,
-						External_class* External,
-						bool*			SaveRecordFlag,
-						bool*			RecordThreadDone )
+
+void record_thead_fcn( 	Dataworld_class* DaTA,
+						External_class*  External,
+						bool*			 SaveRecordFlag,
+						bool*			 RecordThreadDone )
 {
 	Logfacility_class	Log("RecordThread");
-	Semaphore_class		Sem;
 	Log.Comment( INFO, "record thread started ");
 
 	Value fileno {0};
 	while ( true )
 	{
-		Sem.Lock( SEMAPHORE_RECORD );
-//	    smphSignalMainToThread->acquire();
-	    if ( *RecordThreadDone ) break;
+		DaTA->Sem.Lock( SEMAPHORE_RECORD );
+
+		if ( *RecordThreadDone ) break;
 	    *SaveRecordFlag = true;
 
-		fileno = (int) SDS->addr->FileNo;
+		fileno = (int) DaTA->Sds.addr->FileNo;
 		Log.Comment( INFO, "record thread received job " + fileno.str);
 
 		External->Save_record_data( fileno.i );
 			// clean up
-//		External->Unset();
-		SDS->Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
-		Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
+
+		DaTA->Sds.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
+		DaTA->Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
 											// it will be released hereby
 	    *SaveRecordFlag = false;
 
@@ -87,18 +88,18 @@ bool External_class::Read_file_data(  )
 	}
 
 	buffer_t 	bytes 	= header_struct.dlength;
-	uint 		blocks 	= bytes/sizeof(stereo_t)/StA->block_size;
+	uint 		blocks 	= bytes/sizeof(stereo_t)/StA->ds.block_size;
 	uint 		structs	= bytes/sizeof(stereo_t);
 
 	if (Log[DBG2])
 		StA->Info("Memory Array External");
-	if ( structs > StA->info.data_blocks )
+	if ( structs > StA->ds.data_blocks )
 	{
 		Comment(WARN, "Partly read file data into memory.");
 		Comment(WARN, "Taking limits from memory info" );
-		structs 	= StA->info.data_blocks;
-		blocks 		= StA->info.max_records;
-		bytes 		= StA->info.mem_bytes;
+		structs 	= StA->ds.data_blocks;
+		blocks 		= StA->ds.max_records;
+		bytes 		= StA->ds.mem_bytes;
 	}
 	if( read_stereo_data( bytes ) )
 	{
@@ -162,7 +163,9 @@ int generate_file_no( )
 	fstream File;
 	string counterfile = file_structure().counter_file;
 	if ( Log_system.Log[ TEST ])
+	{
 		counterfile = testcounter;
+	}
 
 	if ( not filesystem::exists( counterfile ))
 	{
@@ -201,6 +204,16 @@ long External_class::write_audio_data( string filename, buffer_t rcounter )
     return count;
 }
 
+void External_class::Mono2Stereo( Data_t* Data, uint size )
+{
+
+	for( buffer_t n = 0; n < size; n++)
+	{
+		stereo.stereo_data[n].left  		= rint( Data[n] );
+		stereo.stereo_data[n].right 		= rint( Data[n] );
+	}
+
+}
 
 
 long  External_class::write_wav_header( string dest)
@@ -249,10 +262,10 @@ void External_class::write_music_file( string musicfile )
 
 string External_class::id3tool_cmd( string mp3 )
 {
-	string genre = Config.Genre;
-	string author= Config.author;
-	string album = Config.album;
-	string title = Config.title;
+	string genre = Cfg->Config.Genre;
+	string author= Cfg->Config.author;
+	string album = Cfg->Config.album;
+	string title = Cfg->Config.title;
 
 	string cmd = "id3tool -t '" + title + "'" 	+
 			" -r " + "'" + author	+ "'"+
@@ -265,7 +278,7 @@ string External_class::id3tool_cmd( string mp3 )
 
 string External_class::ffmpeg_cmd( string wav, string mp3 )
 {
-	string cmd = Config.ffmpeg + " -y -i " 	+ wav + " -f mp3 " + mp3 + " >/dev/null" ;
+	string cmd = Cfg->Config.ffmpeg + " -y -i " 	+ wav + " -f mp3 " + mp3 + " >/dev/null" ;
 	Comment( INFO, cmd );
 	return cmd;
 }
@@ -277,8 +290,8 @@ void External_class::Save_record_data( int filenr)
 
 	setName( file_structure().filename + to_string( filenr) );
 
-	Comment( INFO, "Prepare record file ");
-	long rcounter = stereo.info.record_counter * stereo.info.block_size;
+	Comment( INFO, "Prepare record file " + Name );
+	long rcounter = StA->record_data;// * 2; //mono to stereo factor
 	Comment( INFO, "Record counter: " + to_string (rcounter));
 	stereo.Info( "External Stereo data");
 
@@ -296,7 +309,7 @@ void External_class::Save_record_data( int filenr)
 	long count		= write_audio_data( file_structure().raw_file, rcounter );
 	bool success = ( rcounter == count );
 	if ( success )
-		Comment(INFO,"All " + to_string( rcounter*stereo.info.sizeof_data) + " bytes written to file");
+		Comment(INFO,"All " + to_string( rcounter*stereo.ds.sizeof_data) + " bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(rcounter) + " written");
@@ -327,54 +340,57 @@ void External_class::Save_record_data( int filenr)
     Filename = "";
 
 }
-
+/*
 void External_class::Add_record( Memory* Out_L, Memory* Out_R )
 //, uint8_t StA_ext_vol )
 {
 	auto details = [this]( buffer_t offs )
 		{
-		cout << stereo.info.name 			<< " "	<<
-		dec << stereo.info.record_counter 	<< " : " <<
+		cout << stereo.ds.name 			<< " "	<<
+		dec << stereo.ds.record_counter 	<< " : " <<
 		hex << &stereo.stereo_data[offs] 	<< endl;
 		};
 
-	if ( stereo.info.record_counter >= stereo.info.max_records )
+	if ( stereo.ds.record_counter >= stereo.ds.max_records )
 		return;
 
 	const float rec_percent	= 1.0;
-	buffer_t offs 		= stereo.info.record_counter * stereo.info.block_size;
+	buffer_t offs 		= stereo.ds.record_counter * stereo.ds.block_size;
 	if ( Log[DBG2] ) details( offs );
-
+	details( offs );
 	for( buffer_t n = 0; n < max_frames; n++ )
 	{
 		stereo.stereo_data[n+offs].left = rint( Out_L->Data[n] * rec_percent );
 		stereo.stereo_data[n+offs].right= rint( Out_R->Data[n] * rec_percent );
 	}
 
-	stereo.info.record_counter++ ;
+	stereo.ds.record_counter++ ;
 }
-
-void External_class::Test()
+*/
+void External_class::Test_External()
 {
-	Set_Loglevel(TEST, true);
- 	Comment( TEST, "Testing External_class");
-	assert( StA->info.max_records - stereo.info.max_records == 0 );
-
+	TEST_START( "External");
 	Log_system.Set_Loglevel( TEST, true);
-	int fnr = generate_file_no();
-	cout << "counter file nr: " << fnr << endl;
-	fnr = generate_file_no();
-	cout << "counter file nr: " << fnr << endl;
-	fnr = generate_file_no();
-	cout << "counter file nr: " << fnr << endl;
-	fnr = generate_file_no();
-	cout << "counter file nr: " << fnr << endl;
+	assert( StA->ds.max_records - stereo.ds.max_records == 0 );
 
-	filesystem::remove( testcounter );
+	if ( filesystem::exists( testcounter ))
+		filesystem::remove( testcounter );
+
+	int
+	fnr = generate_file_no();
+	assert( fnr == 0 );
+	fnr = generate_file_no();
+	assert( fnr == 1 );
+	fnr = generate_file_no();
+	assert( fnr == 2 );
+	fnr = generate_file_no();
+	assert( fnr == 3 );
+
 
 	ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
 	id3tool_cmd( file_structure().mp3_file );
 
+	TEST_END( "External");
 }
 
 

@@ -28,18 +28,8 @@ public:
 	Memory 			Mem		{ monobuffer_size };
 
 
-	Oscillator( uint8_t id ) : 	Logfacility_class( "OSC" ),
-								Oscillator_base()
-	{
-		mem_init();
-		osc_id		= id;
-		osc_type 	= osc_type_vec[id];
-		Mem_vco.Info( osc_type );
-		Mem_fmo.Info( osc_type );
-		Mem.Info( osc_type );
-
-	};
-	virtual ~Oscillator(){};
+	Oscillator( uint8_t id );
+	virtual ~Oscillator();
 
 	void OSC ( buffer_t );
 	void Set_start_freq( float freq );

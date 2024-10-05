@@ -13,6 +13,8 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <filesystem>
+#include <assert.h>
 
 using namespace std;
 
@@ -22,15 +24,18 @@ enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
 class Logfacility_class
 {
 public:
+	string 				module 		= "";
 	static const int 	logmax 		= 6;
 	const size_t 		logsize		= logmax + 1;
 	vector<bool> Log { true, false, true, true, false, true, false };
-	string logdir 					{ "/tmp/log/"};
-	string logfileName				{ "Synthesizer" };
-	string logFile					{ logdir + logfileName + ".log" };
-	string errFile					{ logdir + logfileName + ".err" };
+	string 				logdir 		{ "/tmp/log/"};
+	string 				logfileName	{ "Synthesizer" };
+	string 				logFile		{ logdir + logfileName + ".log" };
+	string 				errFile		{ logdir + logfileName + ".err" };
 
 	const string Line = "-----------------------------------------------------------";
+
+
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  );
 
@@ -42,25 +47,12 @@ public:
 	string Error_text( int );
 	void Init_log_file();
 	void Test_Logging();
+	void TEST_START(const string& name);
+	void TEST_END(const string& name);
 
-void TEST_START()
-{
-	Set_Loglevel( TEST, true) ;
 
-	Comment( TEST, "Test " + string(typeid(this).name()) + " start" ) ;
-}
-
-void TEST_END()
-{
-	Comment( TEST, "Test " + string(typeid(this).name()) + " finished" );
-	Set_Loglevel( TEST, false) ;
-}
 
 private:
-
-
-
-	string module = "";
 
 	typedef struct pair_struct
 	{

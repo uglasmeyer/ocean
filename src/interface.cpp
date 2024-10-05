@@ -5,37 +5,42 @@
  *      Author: sirius
  */
 
-#include <Interface.h>
 #include <Oscbase.h>
 #include <Config.h>
+#include <data/Interface.h>
 #include <System.h>
 
 
-Interface_class::Interface_class()
+Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 : Logfacility_class("Shared Data" ),
-  Config_class( "Shared Data" )
+  Shm_base( sizeof( ifd_data ) )
 {
-
-	bool shm_exists;
 	setup_code_arr();
+	this->Sem_p	= sem;
+	Waveform_vec = GUIspectrum.Get_waveform_vec();
+}
 
+void Interface_class::Setup_SDS( key_t key)
+{
 	Comment(INFO, "allocating shared memory for IPC");
 
 	// use shm of ifd_data as a persistent checkpoint
-	shmget( Config.SDS_key, sizeof(ifd_t), S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
-	shm_exists = ( EEXIST == errno );
-	addr 		= (ifd_t*) buffer( 0, Config.SDS_key );
-	if ( not shm_exists )
+
+	ds 		= *Get( key );
+	addr = ( interface_t* ) ds.addr;
+	ShowDs(ds);
+
+	if ( not ds.eexist )
 	{
 		Comment(INFO, "initializing data interface using default values ");
-		memcpy( addr	, &ifd_data		, sizeof( ifd_t ) );
+		memcpy( addr	, &ifd_data		, sds_size );
 	}
 	Comment( INFO, "check shared memory version");
 	filesystem::path sds_dump = file_structure().ifd_file;
 	if (( filesystem::exists( sds_dump )))
 	{
 		size_t fsize = filesystem::file_size( sds_dump );
-		if ( fsize != sizeof( ifd_data ))
+		if ( fsize != sds_size)
 		{
 			Exception( "IPC version " + to_string( ifd_data.version ) + " differs in size" );
 		}
@@ -46,12 +51,12 @@ Interface_class::Interface_class()
 	}
 	else
 	{
-		Comment( ERROR, "Failed");
+		Comment( ERROR, "Setup SDS failed");
 		Exception( "IPC version " + to_string( ifd_data.version ) +
 				" differs from BIN version " + to_string( addr->version )  +
 				" or lib/ifd_data.bin size ");
 	}
-	Waveform_vec = GUIspectrum.Get_waveform_vec();
+	ds.eexist = true;
 }
 
 void Interface_class::setup_code_arr()
@@ -76,8 +81,8 @@ void Interface_class::setup_code_arr()
 Interface_class::~Interface_class()
 {
 	Commit();
-	Comment(INFO, "detach GUI interface from id: " + to_string( shm_info.id));
-	shmdt( shm_info.addr );
+	Comment(INFO, "detach GUI interface from id: " + to_string( ds.shmid));
+	shmdt( ds.addr );
 }
 
 string Interface_class::Decode( uint8_t idx)
@@ -265,27 +270,6 @@ string Interface_class::Read_str( char selector )
 }
 
 
-void* Interface_class::buffer( buffer_t shm_size, key_t shm_key )
-{
-	int shmflg, shm_id;
-
-	shmflg = S_IRUSR | S_IWUSR | IPC_CREAT;
-	shm_id = shmget ( shm_key, shm_size, shmflg );//shm_size+1, shmflg );// obtain a shm identifier
-	if ( shm_id < 0 ){
-		Exception("cannot get shared memory" + to_string( shm_id ) );
-	}
-
-	void* addr = shmat (shm_id, 0, 0);
-	Comment(INFO,"GUI  shm_id " + to_string(shm_id) );
-
-	shm_info.addr 	= addr;
-	shm_info.id 	= shm_id;
-	shm_info.key 	= shm_key;
-	shm_info.size 	= shm_size;
-
-	return ( addr );
-};
-
 void Interface_class::Announce( uint id, uint8_t* status)
 {
 	client_id = id;
@@ -296,7 +280,7 @@ void Interface_class::Announce( uint id, uint8_t* status)
 void Interface_class::Reset_ifd()
 {
 	Comment(INFO, "Reset shared data");
-	memcpy( addr	, &ifd_data		, sizeof( ifd_t ) );
+	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
 	Dump_ifd();
 
 }
@@ -335,8 +319,8 @@ void Interface_class::Commit()
 	addr->KEY 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
-	if ( SEM.Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
-		SEM.Release( PROCESSOR_WAIT );
+	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
+		Sem_p->Release( PROCESSOR_WAIT );
 }
 
 void Interface_class::Set( bool& key, bool value )

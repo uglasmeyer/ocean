@@ -5,8 +5,6 @@
  *      Author: sirius
  */
 
-#include <App.h>
-#include <Config.h>
 
 /*
  * Synthesizer.cpp extensions
@@ -14,27 +12,31 @@
 
 
 
-
+#include <App.h>
+#include <Config.h>
 #include <Mixer.h>
 #include <Keyboard.h>
 
 void SynthesizerTestCases()
 {
-	Logfacility_class Log("Synthesizer test");
+	Logfacility_class 		Log("Synthesizer test");
+	Dataworld_class			DaTA( SYNTHID  );
 	Loop_class 				Loop;
 	Config_class 			Cfg( "TestCfg");
 	String 					TestStr{""};
 	Note_class 				Notes;
 	Oscillator 				TestOsc{ TESTID };
-	Interface_class			SDS;
-	Instrument_class 		Instrument(SDS.addr );
-	Mixer_class 			Mixer( SDS.addr );
+	Instrument_class 		Instrument(DaTA.Sds.addr );
+	Mixer_class 			Mixer( DaTA.Sds.addr );
 	Keyboard_class			Keyboard( &Instrument );
-	External_class 			External( &Mixer.StA[ MbIdExternal], &SDS.addr->RecCounter );
-	Time_class				Timer( &SDS.addr->time_elapsed );
+	External_class 			External( 	&Mixer.StA[ MbIdExternal],
+										&DaTA.Sds.addr->RecCounter,
+										&DaTA.Cfg );
+	Time_class				Timer( &DaTA.Sds.addr->time_elapsed );
 	DirStructure_class		Dir;
+	Semaphore_class			Sem( DaTA.Cfg_p );
 
-	Log.TEST_START();
+	Log.TEST_START( "Application " );
 
 	Log.Set_Loglevel( TEST, true);
 	Log.Comment(TEST, "entering test classes ");
@@ -63,12 +65,15 @@ void SynthesizerTestCases()
 
 	Keyboard.Test();
 
-	External.Test();
+	External.Test_External();
 
-	TestStr.test();
+	TestStr.TestString();
 	Timer.Test();
 
-	Log.TEST_END();
+	Sem.Test();
+
+
+	Log.TEST_END( "Application " );
 }
 
 
@@ -78,15 +83,17 @@ void SynthesizerTestCases()
 
 
 
-Application_class::Application_class( 	string name,
-										uint id,
-										Interface_class* SDS ) :
-Logfacility_class("App")
+Application_class::Application_class( 	Dataworld_class* DaTA ) :
+Logfacility_class( "App" )
 {
-	this->SDS					= SDS;
+	this->Name 					= Logfacility_class::module ;
+	this->SDS					= &DaTA->Sds;
+	this->SDS->addr				= (interface_t*) DaTA->Sds_arr[0].addr;
 	this->sds 					= SDS->addr;
-	this->Name 					= name;
-	this->client_id 			= id;
+	this->Cfg					= DaTA->Cfg_p;
+	this->client_id 			= DaTA->Id;
+	this->DaTA					= DaTA;
+
 
 	this->state_arr[NOID]		= nullptr;
 	this->state_arr[SYNTHID]	= &sds->Synthesizer,
@@ -98,7 +105,7 @@ Logfacility_class("App")
 
 	this->This_Application 		= Application + Name + " " + Version_str;
 
-	this->state_p				= state_arr[ id ];
+	this->state_p				= state_arr[ client_id ];
 	Comment( INFO, This_Application + " initialized ");
 
 }
@@ -133,7 +140,7 @@ void Application_class::deRegister( )
     string out = "";
     do
     {
-    	cout.flush() << out;
+    	cout.flush() << out << endl;
 
     } while( getline ( cFile, out ));
     cout << endl;
@@ -175,7 +182,8 @@ void Application_class::Start( int argc, char* argv[] )
 		fprintf( stderr, "%s\n", "error file content:\n");
 	}
 
-	Cfg.Parse_argv(argc, argv);
-	Cfg.Show_prgarg_struct( );
+	Cfg->Parse_argv(argc, argv);
+	Cfg->Show_prgarg_struct( );
+	DaTA->Sds.addr = DaTA->SetSds( DaTA->Cfg.Config.SDS_id );
 
 }

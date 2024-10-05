@@ -8,10 +8,10 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
+#include <data/Interface.h>
 #include <Spectrum.h>
 #include <Osc.h>
 #include <Ocean.h>
-#include <Interface.h>
 #include <String.h>
 #include <System.h>
 
@@ -26,9 +26,9 @@ public:
 	Oscillator 				vco	{ VCOID };
 	Oscillator 				fmo	{ FMOID };
 	vector<Oscillator*>		osc_vector { &vco, &fmo, &main };
-	ifd_t*  				ifd;
+	interface_t*  				ifd;
 
-	Instrument_class( ifd_t*  );
+	Instrument_class( interface_t*  );
 	virtual ~Instrument_class();
 ;
 

@@ -12,45 +12,62 @@ using namespace std;
 
 #include <Ocean.h>
 #include <Logfacility.h>
+#include <data/Shmbase.h>
 
 
-// terminology :
-// sizeof_data	-> 	data_bytes	= sizeof(unit)
-//					block_bytes = data_bytes*units
-//					mem_bytes 	= block_bytes*blocks (blocks=sec)
-//					mem_blocks	=
-
-typedef struct info_struct
+typedef struct mem_data_struct
 {
-	string		name 			= "memory";
-	string		addr			= "0x0";
-	buffer_t 	mem_bytes		= 0;
-	buffer_t 	block_size 		= max_frames;
-	uint 		sizeof_data 	= 0;
-	buffer_t 	data_blocks		= 0;
-	uint 		max_records		= 0;
-	uint 		record_bytes 	= 0;
-	uint 		record_counter	= 0;
+	string			name 			= "memory";
+	void*			addr			= nullptr;
+	buffer_t		size			= 0;
+	buffer_t 		mem_bytes		= 0;
+	const buffer_t 	block_size 		= max_frames;
+	uint 			sizeof_data 	= 0;
+	buffer_t 		data_blocks		= 0;
+	uint 			max_records		= 0;
+//	uint 			record_bytes 	= 0;
+//	uint 			record_counter	= 0;
+} mem_ds_t;
 
-} mem_info_t;
 
-
-class Memory : virtual public Logfacility_class
+class Memory_base : public virtual Logfacility_class
 {
+	string className = "Memory_base";
 public:
-	Data_t* 	Data{};
-	mem_info_t 	info;
-	Memory() : Logfacility_class("Memory"){}
-	Memory( buffer_t size ) : Logfacility_class("Memory")
-	{
-		init_data( size );
-	}
-	virtual ~Memory( ){}
+	mem_ds_t	ds	= mem_data_struct();
 
-	void clear_data( Data_t );
-	void init_data( buffer_t );
+	void 	Info();
+	void* 	Init_void();
+	void 	Gen_ds( size_t ds_size);
+
+	Memory_base( buffer_t size );
+	Memory_base() ;
+	virtual ~Memory_base();
+
+};
+
+class Memory : virtual public Logfacility_class, virtual public Memory_base
+{
+	string className = "Memory";
+public:
+	Data_t* 	Data = nullptr;;
+	Memory( buffer_t size ) :
+		Logfacility_class( "Memory" ),
+		Memory_base( size )
+	{
+		Init_data();
+	};
+	Memory( ) :
+		Logfacility_class( "Memory" )
+	{
+		Comment( INFO, "pre-init " + className );
+	};
+	virtual ~Memory( )
+	{};
+
+	void Init_data(  );
+	void Clear_data( Data_t );
 	void Info( string );
-	void Info();
 };
 
 typedef struct stereo_struct
@@ -62,26 +79,28 @@ typedef struct stereo_struct
 const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_t);
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
 
-class Stereo_Memory : virtual public Logfacility_class
+class Stereo_Memory : virtual public Logfacility_class, public virtual Memory_base
 {
+	string className = "Stereo_Memory";
 public:
-	stereo_t* stereo_data {};
-	mem_info_t info;
-	Stereo_Memory(buffer_t size) : Logfacility_class("Stereo Memory")
+	stereo_t* stereo_data = nullptr;
+
+	Stereo_Memory(buffer_t size) :
+		Logfacility_class( ""),
+		Memory_base( size )
 	{
-		init_data(size);
+		init_data();
 	}
-	virtual ~Stereo_Memory( ){};
+	virtual ~Stereo_Memory( )
+	{};
 
-	void clear_data(  );
-	void init_data( buffer_t );
+	void Clear_data(  );
 	void Info( string );
-	void Info();
+
+private:
+	void init_data(  );
+
 };
-
-
-
-namespace Storage{
 
 typedef struct StA_struct
 {
@@ -95,22 +114,20 @@ typedef struct StA_status_struct // memory array status
 	bool 	store			= false; // record into this memory array
 } StA_status_t;
 
-class Storage_class :  public Memory, virtual public Logfacility_class
+class Storage_class :  virtual public Logfacility_class, virtual public Memory
 {
+	string className = "Storage_class";
 public:
 	// dynamic properties
-	uint 			max_counter 	= 0;
+//	uint 			max_counter 	= 0;
 	uint8_t 		Amp				= osc_default_volume; // same as in GUI application
-	const buffer_t 	block_size 		= max_frames;
 	StA_struct_t 	StAparam		= StA_struct();
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
+	uint 			record_data		= 0;
 
 	StA_status_t state = StA_status_struct();
 
-
-	Storage_class( ) : Logfacility_class("Storage") {} ;
-	virtual ~Storage_class(){};
 	void 	Store_block( Data_t* ) ;
 	Data_t* Get_next_block();
 	string 	Record_mode( bool );
@@ -121,40 +138,36 @@ public:
 	void 	Reset_counter();
 	uint*	Get_storeCounter_p();
 
+	Storage_class( ) :
+		Logfacility_class( "" ),
+		Memory()
+	{} ;
+	virtual ~Storage_class()
+	{};
+
 private:
 
 	uint read_counter 	= 0;
-	uint store_counter 	= 0;
+	uint record_counter	= 0;
 
 	Data_t* get_block( uint );
-	void	pause();
-}; // Storage_class
-} // namespace Storage
+
+};
 
 
-class Shared_Memory : virtual public Logfacility_class
+class Shared_Memory : virtual public Logfacility_class, virtual Shm_base
 {
 
 public:
-	// https://stackoverflow.com/questions/7237540/how-to-use-shared-memory-to-communicate-between-two-processes
-	stereo_t* 	addr 		= NULL;		// = buffer( buffer_size);
-	Shared_Memory() : Logfacility_class("Shm") {};
+	stereo_t* 	addr 		= nullptr;
+
+	Shared_Memory( buffer_t size );
 	virtual ~Shared_Memory();
 
-	void buffer( buffer_t, key_t );
-	void info();
-	void clear();
+	void Stereo_buffer( key_t key );
+	void Clear();
 
 
-private:
-	typedef struct shm_info_struct
-	{
-		buffer_t 	size	= 0;
-		key_t		key		= 0;
-		int 		id		= 0;
-		void* 		addr	= nullptr;
-	} shm_info_t;
-	shm_info_t 		shm_info = shm_info_struct();
 };
 
 

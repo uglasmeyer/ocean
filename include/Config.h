@@ -12,6 +12,8 @@
 #include <Logfacility.h>
 #include <Version.h>
 
+static const uint MAXCONFIG 	= 3;
+typedef	array<key_t, MAXCONFIG>	keys_arr_t;
 
 typedef struct prgarg_struct
 {
@@ -30,11 +32,13 @@ typedef struct prgarg_struct
 		string album	= Application;
 		string Term		= "xterm -e ";
 		string ffmpeg 	= "ffmpeg";
-		uint shm_key_a 	= rate; 	// -k
-		uint shm_key_b 	= rate + 1;	//
-		uint SDS_key	= 5166529;
-		uint Sem_key	= 0x1234;
-		string appcfg	= "S1 S2 S3";  // TODO name of Synthesizer instances
+		key_t 	shm_key_l 	= rate; 	// -k
+		key_t 	shm_key_r 	= rate+1; 	//
+		key_t	SDS_key		= 66529;
+		uint	SDS_id		= 0;
+		key_t	Sem_key		= 11234;
+		keys_arr_t 	sds_arr = {};
+		string 		appcfg	= "S0.cfg";  // TODO name of Synthesizer instances
 } prgarg_struct_t;
 
 
@@ -47,6 +51,7 @@ public:
 	string prgname		{""};
 	prgarg_struct		Config = prgarg_struct();
 
+
 	typedef struct Server_struct
 	{
 		string cmd( string term, string srv, string opt )
@@ -58,12 +63,15 @@ public:
 	Config_class( string Module ) ;
 	virtual ~Config_class();
 
-	void Read_synthesizer_config();
-	string BaseDir();
+	void Read_config( string cfgfile );
 	void Parse_argv( int argc, char* argv[] );
 	void Show_prgarg_struct(  );
 	string Server_cmd( string term, string srv, string opt );
 	void Test();
+
+private:
+	string baseDir();
+
 };
 
 
@@ -72,7 +80,6 @@ public:
 class DirStructure_class : virtual Logfacility_class
 {
 public:
-
 
 	string homedir 		= "/home/sirius/";
 	string basedir 		= homedir + "Synthesizer/";
@@ -84,6 +91,7 @@ public:
 	string autodir 		= vardir  + "auto/";
 	string musicdir 	= vardir  + "wav/";
 	string docdir 		= basedir + "doc/";
+	string rtspdir		= etcdir + "rtsp/";
 	string instrumentdir= etcdir + "Instruments/";
 	string notesdir  	= etcdir + "Notes/";
 	string includedir	= etcdir + "include/";
@@ -121,10 +129,11 @@ typedef struct file_structure
 	string 			wav_file 		= Dir.musicdir 		+ filename + ".wav";
 	string 			mp3_file		= Dir.musicdir 		+ filename + ".mp3";
 	string 			raw_file 		= Dir.tmpdir 		+ filename + ".raw";
+	string 			config_file  	= Dir.etcdir		+ filename + ".cfg";
+	string			datacfg_file	= Dir.etcdir		+ "Data.cfg";
 	string 			counter_file 	= Dir.libdir 		+ "counter.bin";
-	string 			config_file  	= Dir.etcdir		+ "synthesizer.cfg";
 	string 			program_file	= Dir.includedir 	+ "main.synth";
-	const string 	doc_filename 	= "Synthesizer.odt";
+	const string 	doc_filename 	= "Ocean.odt";
 	string 			doc_file 		= Dir.docdir 		+ doc_filename;
 } dir_struct_t;
 

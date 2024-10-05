@@ -162,6 +162,8 @@ bool String::is_number(  )
 int String::secure_stoi( string str)
 {
 	this->Str = str;
+//	cout << "secure_stoi " << str << endl;
+	if ( str.length() == 0 ) return 0;
 	if ( is_number(  ) )
 	{
 		return stoi( str );
@@ -186,9 +188,42 @@ string String::to_hex( long value )
 	return ss.str();
 }
 
-void String::test()
+int String::to_int( const string& s )
 {
-	TEST_START();
+	int i;
+	Str = s;
+	to_lower();
+	size_t pos = s.find( "0x");
+	if( pos == STRINGNOTFOUND )
+	{
+		stringstream ss( s );
+		ss >> dec >> i;
+	}
+	else
+	{
+		string sub = s.substr( pos+2, s.length()-1 );
+		cout << sub << endl;
+		stringstream ss( sub );
+		ss >> hex >> i;
+	}
+	return i;
+}
+
+void String::TestString()
+{
+	TEST_START( "String" );
+	String A{""};
+	String B{""};
+	A = "1234";
+	B = "1234";
+	assert( A == B );
+	int i = A.to_int( "   0x1234  " );
+	assert( i == 0x1234 );
+	i = A.to_int( "  1234 " );
+	assert( i == 1234 );
+	i = A.to_int( "abcd");
+	cout << i << endl;
+	assert( i == 0 );
 	//Set_Loglevel( TEST, true);
 	//Comment( TEST, "Test String start" );
 
@@ -244,28 +279,30 @@ void String::test()
 
 	S				= "a  b  c  d  c ";
 	S.replace_char(' ', 'x');
-	assert( S.Str.compare("axxbxxcxxdxxcx") == 0 );
+	assert( S == String( "axxbxxcxxdxxcx") );
 
 	S 				= "start 	Synthesizer 10000 3";
 	S.replace_char('\t' , ' ');
 	arr = S.to_unique_array(' ');
-	assert( arr[1].compare("Synthesizer") == 0 );
+	assert( String( arr[1] ) == String("Synthesizer") );
 
 
 	String St( "this is a test" );
-	assert( St.Str.compare("this is a test") 	== 0 );
+	assert( St == String("this is a test") 	);
 
-	String A{"Equal"};
-	String B{"Equal"};
+	A = "Equal";
+	B = "Equal" ;
 	String C{"not equal"};
 	cout << A.Str << " " << B.Str << endl;
 	assert( A == B );
+	assert( not ( C == B ));
 
 	A = "UP_PER";
 	A.to_lower();
-	assert( A.Str.compare("up_per") == 0 );
+	B = "up_per";
+	assert( A == B );
 
-	TEST_END();
+	TEST_END( "String" );
 
 }
 

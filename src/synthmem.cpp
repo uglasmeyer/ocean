@@ -9,185 +9,191 @@
 #include <String.h>
 #include <System.h>
 
+string className =  "Memory";
 //-----------------------------------------------------------------------------
 
 
-void Memory::clear_data( Data_t value )
+Memory_base::Memory_base( buffer_t size ) :
+	Logfacility_class( "" )
 {
-	for ( buffer_t n = 0; info.data_blocks > n; n++ )
+	ds.size = size;
+	Log[ TEST ] = true;
+
+};
+
+Memory_base::Memory_base() :
+	Logfacility_class( "" )
+{};
+
+Memory_base::~Memory_base()
+{};
+
+void* Memory_base::Init_void()
+{
+	assert( ds.size > 0 );
+	ds.addr = mmap(	NULL,
+				ds.size  + 1  ,
+				PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS,
+				0, 0);
+	ds.name			= Logfacility_class::module;
+	ds.mem_bytes	= ds.size;
+	return ds.addr;
+}
+void Memory_base::Info()
+{
+	String S{""};
+	Comment( INFO, "Name             : " + ds.name );
+	Comment( INFO, "Memory bytes     : " + to_string( ds.mem_bytes ));
+	Comment( TEST, "Addr             : " + S.to_hex(( long)ds.addr) );
+	Comment( TEST, "Structure bytes  : " + to_string( ds.sizeof_data ));
+	Comment( TEST, "Record size      : " + to_string( ds.block_size ));
+	Comment( TEST, "data blocks      : " + to_string( ds.data_blocks ));
+//	Comment( TEST, "Bytes/per record : " + to_string( ds.record_bytes ));
+	Comment( TEST, "max data records : " + to_string( ds.max_records ));
+//	Comment( TEST, "record counter   : " + to_string( ds.record_counter ));
+
+	cout << endl;
+
+}
+
+//-----------------------------------------------------------------------------
+
+
+void Memory::Clear_data( Data_t value )
+{
+	for ( buffer_t n = 0; ds.data_blocks > n; n++ )
 	{
 		Data[n] = value;
 	}
 }
-
-void Memory::init_data( buffer_t size)
+void Memory_base::Gen_ds( size_t ds_size)
 {
-	info.name			= "Data Memory";
-	info.mem_bytes		= size;
-	info.sizeof_data 	= sizeof(Data_t);
-	info.data_blocks 	= info.mem_bytes / info.sizeof_data;
-	info.max_records	= info.data_blocks / info.block_size;
-	info.record_bytes  	= info.block_size * info.sizeof_data;
-	if ( not ( size - info.sizeof_data * info.max_records * info.block_size == 0 ))
+	// terminology :
+	// sizeof_data	-> 	data_bytes	= sizeof(unit)
+	//					block_bytes = data_bytes*units
+	//					mem_bytes 	= block_bytes*blocks (blocks=sec)
+	//					mem_blocks	=
+
+	ds.mem_bytes	= ds.size;
+	ds.sizeof_data 	= ds_size;
+	ds.data_blocks 	= ds.size / ds_size;
+	ds.max_records	= ds.data_blocks / ds.block_size;
+
+	if ( not ( ds.size - ds.sizeof_data * ds.max_records * ds.block_size == 0 ))
 		Exception( "init memory" );
 
-//	if ( Data == nullptr )
-		Data = (Data_t*) mmap(	NULL,
-								size  + 1  ,
-								PROT_READ | PROT_WRITE,
-								MAP_PRIVATE | MAP_ANONYMOUS,
-								0, 0);
-	String S{""};
-	info.addr 			= S.to_hex( (long)Data );
+}
 
+
+void Memory::Init_data( )
+{
+	Data = ( Data_t* ) Init_void();
+
+	Gen_ds( sizeof( Data_t));
+	statistic.data += ds.mem_bytes;
 }
 
 void Memory::Info( string name )
 {
-	info.name = name;
-	Info();
-}
-
-void Memory::Info(  )
-{
-	Comment( INFO, "Name             : " + info.name );
-	Comment( INFO, "Memory bytes     : " + to_string( info.mem_bytes ));
-	Comment( TEST, "Addr             : " + info.addr);
-	Comment( TEST, "Structure bytes  : " + to_string( info.sizeof_data ));
-	Comment( TEST, "Frame size       : " + to_string( info.block_size ));
-	Comment( TEST, "data blocks      : " + to_string( info.data_blocks ));
-	Comment( TEST, "Bytes/per record : " + to_string( info.record_bytes ));
-	Comment( TEST, "max data records : " + to_string( info.max_records ));
-	cout << endl;
+	ds.name = name;
+	Memory_base::Info();
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-void Stereo_Memory::init_data( buffer_t size)
+void Stereo_Memory::init_data( )
 {
-	info.name			= "Audio Memory";
-	info.mem_bytes		= size;
-	info.sizeof_data 	= sizeof(stereo_t);
-	info.data_blocks 	= info.mem_bytes / info.sizeof_data;
-	info.max_records	= info.data_blocks / info.block_size;
-	info.record_bytes  	= info.block_size * info.sizeof_data;
-	if ( not ( size - info.sizeof_data * info.max_records * info.block_size == 0 ))
-		Exception( "init shared stereo memory" );
+	stereo_data = ( stereo_t* ) Init_void();
 
-	stereo_data 			= (stereo_t*) mmap(	NULL,
-									size  + 1  ,
-									PROT_READ | PROT_WRITE,
-									MAP_PRIVATE | MAP_ANONYMOUS,
-									0, 0);
-	String S{""};
-	info.addr 			= S.to_hex( (long)stereo_data );
-
+	Gen_ds( sizeof( stereo_t ));
+	statistic.stereo += ds.mem_bytes;
+	ds.name			= Logfacility_class::module;
 }
 
-void Stereo_Memory::clear_data()
+void Stereo_Memory::Clear_data()
 {
 	stereo_t stereo = { 0,0 };
-	for ( buffer_t n = 0 ; n < info.data_blocks ; n++ )
-	{
+	for ( buffer_t n = 0 ; n < ds.data_blocks ; n++ )
 		stereo_data[n] = stereo;
-	}
 
 }
 
 void Stereo_Memory::Info( string name )
 {
-	info.name = name;
-	Info();
+	ds.name = name;
+	Memory_base::Info();
 }
 
-void Stereo_Memory::Info()
-{
-	Comment( INFO, "Name             : " + info.name );
-	Comment( INFO, "Memory bytes     : " + to_string( info.mem_bytes ));
-	Comment( TEST, "Addr             : " + info.addr);
-	Comment( TEST, "Structure bytes  : " + to_string( info.sizeof_data ));
-	Comment( TEST, "Record size      : " + to_string( info.block_size ));
-	Comment( TEST, "data blocks      : " + to_string( info.data_blocks ));
-	Comment( TEST, "Bytes/per record : " + to_string( info.record_bytes ));
-	Comment( TEST, "max data records : " + to_string( info.max_records ));
-	Comment( TEST, "record counter   : " + to_string( info.record_counter ));
-
-	cout << endl;
-
-}
 //-----------------------------------------------------------------------------
 
 
-
-using namespace Storage;
-
-void Storage_class::Setup( StA_struct_t p )
+void Storage_class::Setup( StA_struct_t param )
 {
-	StAparam 		= p;
-	max_counter 	= p.size/block_size;
-	buffer_t Bytes 	= max_counter*sizeof(Data_t)*block_size;
-	init_data( Bytes );
-	info.name 		= p.name;
-	clear_data(0);
+	StAparam 		= param;
+	//ds.max_records	= param.size / ds.block_size;
+	//	max_counter 	= param.size/ds.block_size;
+	//ds.size 		= max_counter * sizeof(Data_t) * ds.block_size;
+	ds.size 		= sizeof(Data_t) * param.size;
+	Memory::Init_data( );
+	Memory::Info( param.name );
+	Memory::Clear_data(0);
+	Set_store_counter(0);
 
 }
 
 void Storage_class::Store_block( Data_t* src )
 {
 	if ( not state.store ) return;
-	if ( store_counter > info.max_records - 2 ) return;
-	buffer_t start = store_counter* block_size;
-	for ( buffer_t n = 0; n < block_size; n++ )
+	if ( record_counter > ds.max_records - 2 ) return;
+	buffer_t start = record_counter* ds.block_size;
+	for ( buffer_t n = 0; n < ds.block_size; n++ )
 	{
 		Data[start + n] = src[n];
 	}
-	store_counter 		= ( store_counter + 1 );
-	if ( store_counter == info.max_records - 2 )
+	record_counter 	= ( record_counter + 1 );
+	record_data 	= record_counter * ds.block_size;
+	if ( record_counter == ds.max_records - 2 )
 		state.store = false ;
 }
 
 Data_t* Storage_class::Get_next_block()
 {
-/*	cout << dec <<
-			(int)Id <<
-			": read " << status.read_counter <<
-			" store " << status.store_counter <<
-			" Amp " << (int)Amp << endl;
-*/
+
 	if ( not state.play ) return nullptr;
-	if ( store_counter == 0 ) return nullptr;
+	if ( record_counter == 0 ) return nullptr;
 	Data_t* ptr = get_block( read_counter );
-	read_counter = ( read_counter + 1 ) % store_counter ;
-	assert( read_counter <= store_counter );
+	read_counter = ( read_counter + 1 ) % record_counter ;
+	assert( read_counter <= record_counter );
+
 	return ptr;
 }
 
 Data_t* Storage_class::get_block( uint id)
 {
-	return &Data[id * block_size];
+	return &Data[id * ds.block_size];
 }
 
 void 	Storage_class::Set_store_counter( uint  n )
 {
-	assert( n < info.max_records );
-	store_counter 	= n;
-	read_counter  	= 0;
+	assert( n < ds.max_records );
+	record_counter 	= n;
+	record_data 	= record_counter * ds.block_size;
+	read_counter  		= 0;
 }
 
 void 	Storage_class::Reset_counter( )
 {
-	store_counter 	= 0;
+	record_counter 	= 0;
+	record_data 	= 0;
 	read_counter  	= 0;
 	state.store	= false;
 }
 
 string 	Storage_class::Play_mode( bool flag )
 {
-//	if ( store_counter == 0 ) // nothing to play
-//		status.play = false;
-//	else
 	Comment(INFO, "mute " + StAparam.name );
 	state.play = flag;
 	return (state.play) ? "ON" : "OFF";
@@ -203,7 +209,7 @@ string Storage_class::Record_mode( bool flag )
 
 uint*	Storage_class::Get_storeCounter_p()
 {
-	return &store_counter;
+	return &record_counter;
 }
 
 void Storage_class::Playnotes( bool flag )
@@ -216,25 +222,24 @@ void Storage_class::Playnotes( bool flag )
 }
 
 
-void Storage_class::pause()
-{
-;
-}
 
 //-----------------------------------------------------------------------------
 
+Shared_Memory::Shared_Memory( buffer_t size ) :
+		Logfacility_class("Shm"),
+		Shm_base( size )
+{
+	Comment( INFO, "pre-init shared memory");
+};
 
 Shared_Memory::~Shared_Memory()
 {
-	clear();
-	Comment( INFO, "detach SHM interface from id: " + to_string( shm_info.id));
-	shmdt(shm_info.addr);
-//	shmctl(shm_info.id, IPC_RMID, NULL);
+	Clear();
 }
 
-void Shared_Memory::clear()
+void Shared_Memory::Clear()
 {
-	if ( not shm_info.addr )
+	if ( not addr )
 	{
 		Comment( ERROR, "shm undefined");
 		return;
@@ -246,27 +251,8 @@ void Shared_Memory::clear()
 	}
 }
 
-void Shared_Memory::buffer( buffer_t size, key_t key )
+void Shared_Memory::Stereo_buffer( key_t key )
 {
-	  /* Allocate a shared memory segment. */
-	int shmflg = S_IRUSR | S_IWUSR | IPC_CREAT;
-	int shm_id = shmget ( key, size, shmflg );
-	if ( shm_id < 0 )
-	{
-		Exception( "cannot get shared memory" );
-	}
-	addr = (stereo_t*) shmat (shm_id, 0, 0);
-	shm_info = { size, key, shm_id, addr };
-	info();
-	return ;
-};
-
-void Shared_Memory::info()
-{
-	Comment( INFO, "Shared Memory info" );
-	Comment( INFO, "Id  : " + to_string( shm_info.id   ) );
-	Comment( INFO, "Key : " + to_string( shm_info.key  ) );
-	Comment( INFO, "Size: " + to_string( shm_info.size ) );
+	addr = ( stereo_t*) Get( key )->addr;
+	ShowDs( ds );
 }
-
-

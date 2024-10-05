@@ -8,7 +8,7 @@
 #ifndef RECORD_H_
 #define RECORD_H_
 
-#include <Interface.h>
+#include <data/Interface.h>
 #include <Ocean.h>
 #include <Synthmem.h>
 

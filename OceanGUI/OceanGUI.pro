@@ -12,15 +12,18 @@ CONFIG += -std=c++17
 SOURCES += \
         OceanGUI_main.cpp \
 
+
 HEADERS += \
         File_Dialog.h \
         Mainwindow.h \
         Oszilloscopewidget.h \
-        Spectrum_dialog_class.h
+        Spectrum_dialog_class.h \
+        Rtsp_dialog_class.h
 
 FORMS += \
     File_Dialog.ui \
     mainwindow.ui \
+    Rtsp_dialog_class.ui \
     spectrum_dialog_class.ui
 
 
