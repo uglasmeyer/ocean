@@ -45,7 +45,7 @@ public:
     Spectrum_base          	Spectrum			{};
     Semaphore_class*		Sem					= DaTA->Sds.Sem_p;
 
-    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA, Sem };
+    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA};
     Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
 
     File_Dialog_class		File_Dialog_obj		{ this, DaTA->Sds_p };

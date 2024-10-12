@@ -22,7 +22,7 @@ Note_class::~Note_class( )
 void Note_class::Set_osc_track( Instrument_class* instrument )
 {
 	Instrument_name = instrument->Name;
-	Comment( INFO, "Update notes instrument:  " + Instrument_name );
+	Comment( TEST, "Update notes instrument:  " + Instrument_name );
 
 	// copy class Oscillator
 	main.wp 		= instrument->main.wp;

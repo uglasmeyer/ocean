@@ -12,23 +12,38 @@
 
 
 Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
-: Logfacility_class("Shared Data" ),
-  Shm_base( sizeof( ifd_data ) )
+: Logfacility_class("Shared Data" )
 {
-	setup_code_arr();
+	typeidMap();
+	stateMap();
+
 	this->Sem_p	= sem;
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
+}
+
+Interface_class::~Interface_class()
+{}
+
+void Interface_class::State_pMap(  )
+{
+	assert( addr != nullptr );
+	this->state_p_map[NOID]		= nullptr;
+	this->state_p_map[SYNTHID]	= &addr->Synthesizer,
+	this->state_p_map[COMPID]	= &addr->Composer;
+	this->state_p_map[GUI_ID]	= &addr->UserInterface;
+	this->state_p_map[COMSTACKID]=&addr->Comstack;
+	this->state_p_map[AUDIOID]	= &addr->AudioServer;
+	this->state_p_map[RTSPID]	= &addr->Rtsp;
+
 }
 
 void Interface_class::Setup_SDS( key_t key)
 {
 	Comment(INFO, "allocating shared memory for IPC");
 
-	// use shm of ifd_data as a persistent checkpoint
-
-	ds 		= *Get( key );
-	addr = ( interface_t* ) ds.addr;
-	ShowDs(ds);
+	ds 		= *SHM.Get( key );
+	this->addr = ( interface_t* ) ds.addr;
+	SHM.ShowDs(ds);
 
 	if ( not ds.eexist )
 	{
@@ -59,35 +74,22 @@ void Interface_class::Setup_SDS( key_t key)
 	ds.eexist = true;
 }
 
-void Interface_class::setup_code_arr()
+void Interface_class::stateMap()
 {
-	code_str_arr[OFFLINE]		= "Offline";
-	code_str_arr[RUNNING] 		= "Running";
-	code_str_arr[RECORD] 		= "Recording";
-	code_str_arr[STOPRECORD] 	= "Stop record";
-	code_str_arr[SENDDATA] 		= "synchronize";
-	code_str_arr[FREERUN] 		= "free running";
-	code_str_arr[BLOCKDATA] 	= "block";
-	code_str_arr[RELEASEDATA]	= "release";
-	code_str_arr[UPDATEGUI]		= "Update GUI";
-	code_str_arr[STORESOUND] 	= "Store sound";
-	code_str_arr[SYNC] 			= "sync mode";
-	code_str_arr[DEFAULT] 		= "default mode";
-	code_str_arr[EXITSERVER] 	= "Exit server";
-	code_str_arr[KEYBOARD] 		= "Keyboard";
-	code_str_arr[UPDATE] 		= "Update mode";
-	assert( code_str_arr.size() == LASTNUM );
-}
-Interface_class::~Interface_class()
-{
-	Commit();
-	Comment(INFO, "detach GUI interface from id: " + to_string( ds.shmid));
-	shmdt( ds.addr );
+	state_map[OFFLINE]		= "Offline";
+	state_map[RUNNING] 		= "Running";
+	state_map[FREERUN] 		= "free running";
+	state_map[UPDATEGUI]	= "Update GUI";
+	state_map[SYNC] 		= "sync mode";
+	state_map[DEFAULT] 		= "default mode";
+	state_map[EXITSERVER] 	= "Exit server";
+	state_map[KEYBOARD] 	= "Keyboard";
+	assert( state_map.size() == LASTNUM );
 }
 
 string Interface_class::Decode( uint8_t idx)
 {
-	return code_str_arr[ idx ];
+	return state_map[ idx ];
 }
 
 void Interface_class::Show_interface()
@@ -123,10 +125,10 @@ void Interface_class::Show_interface()
 		status3.append( to_string( amp) + ", " );
 
 
-//	Read_str('a');
 
 	cout << setfill( '-') << setw(80) << left <<
-			"\nShared Data Structure " + Version_str <<"-"<< addr->version << endl;
+			"\nShared Data Structure Id " + to_string((int) ds.Id ) +  " " + Version_str <<"-"<< addr->version
+			<< endl;
 
 	lline( "(M)ain (F)requency:" , addr->Main_Freq );
 	rline( "(A)DSR (G)lide freq:" , (int)addr->Soft_freq);
@@ -173,6 +175,7 @@ void Interface_class::Show_interface()
 	lline( "Synthesizer status:" , Decode(addr->Synthesizer));
 	rline( "Userinterface stat:" , Decode(addr->UserInterface));
 
+	lline( "Rtsp status       :" , Decode(addr->Rtsp));
 	rline( "Data Mode         :" , Decode(addr->MODE));
 
 	lline( "Instrument        :" , addr->Instrument);
@@ -211,7 +214,7 @@ void Interface_class::Write_arr( const wd_arr_t& arr )
 
 void Interface_class::Write_str(const char selector, const string str )
 {
-	if (reject( addr->Composer, client_id )) return;
+	if (reject( addr->Composer, Type_Id )) return;
 
 	if ( addr->Comstack != RUNNING )
 		addr->UpdateFlag = true;
@@ -269,13 +272,25 @@ string Interface_class::Read_str( char selector )
 	return str;
 }
 
-
-void Interface_class::Announce( uint id, uint8_t* status)
+void Interface_class::typeidMap()
 {
-	client_id = id;
-	*status = RUNNING;
-	addr->UpdateFlag = true;
+	assert( NOID < type_map.size() );
+	type_map[AUDIOID] 	= "Audioserver";
+	type_map[SYNTHID] 	= "Synthesizer";
+	type_map[COMPID ] 	= "Composer";
+	type_map[GUI_ID] 	= "UserInterface";
+	type_map[COMSTACKID]= "comstack";
+	type_map[RTSPID] 	= "rtsp";
+	type_map[NOID] 		= "No Process";
+}
 
+void Interface_class::Announce( )
+{
+	Comment(INFO, "announcing application " + type_map[ Type_Id ] );
+	uint8_t* state = state_p_map[ Type_Id];
+	assert ( state != nullptr );
+	*state = RUNNING;
+	addr->UpdateFlag = true;
 }
 void Interface_class::Reset_ifd()
 {
@@ -325,25 +340,25 @@ void Interface_class::Commit()
 
 void Interface_class::Set( bool& key, bool value )
 {
-	if ( reject( addr->Composer, client_id ) ) return;
+	if ( reject( addr->Composer, Type_Id ) ) return;
 	key = value;
 }
 
 void Interface_class::Set( uint8_t& key, uint8_t value )
 {
-	if ( reject( addr->Composer, client_id ) ) return;
+	if ( reject( addr->Composer, Type_Id ) ) return;
 	key = value;
 }
 
 void Interface_class::Set( uint16_t& key, uint16_t value )
 {
-	if ( reject( addr->Composer, client_id ) ) return;
+	if ( reject( addr->Composer, Type_Id ) ) return;
 	key = value;
 }
 
 void Interface_class::Set( float& key, float value )
 {
-	if ( reject( addr->Composer, client_id ) ) return;
+	if ( reject( addr->Composer, Type_Id ) ) return;
 	key = value;
 }
 

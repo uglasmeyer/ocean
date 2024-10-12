@@ -9,22 +9,12 @@
 #define AUDIOSERVER_H_
 
 
-/*
-// Platform-dependent sleep routines.
-#if defined( WIN32 )
-  #include <windows.h>
-  #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds )
-#else // Unix variants
-  #include <unistd.h>
-  #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
-#endif
-*/
 
 #include <RtAudio.h>
 #define RTAUDIO
 
 #include <Ocean.h>
-#include <Synthmem.h>
+#include <data/Memory.h>
 #include <data/Interface.h>
 #include <System.h>
 #include <App.h>
@@ -36,11 +26,9 @@ string Module 			= "AudioServer";
 Logfacility_class 		Log( Module );
 Dataworld_class			DaTA( AUDIOID );
 Application_class		App( &DaTA );
-interface_t*			sds	= DaTA.Sds.addr;
-Time_class				Timer( &sds->time_elapsed);
+interface_t*			sds	= nullptr;
 Config_class*			Cfg = DaTA.Cfg_p;
-Shared_Memory 			Shm_L( sharedbuffer_size );
-Shared_Memory			Shm_R( sharedbuffer_size );
+Time_class				Timer;
 
 
 // runtime parameter

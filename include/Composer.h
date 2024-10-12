@@ -21,7 +21,7 @@ Interpreter_class 		Compiler( &DaTA );
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
-Statistic_class			Statistic;
+Statistic_class			Statistic{ Log.module };
 Config_class*			Cfg = DaTA.Cfg_p;
 
 

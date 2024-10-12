@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <Synthmem.h>
+#include <data/Memory.h>
 #include <String.h>
 #include <System.h>
 
@@ -13,49 +13,6 @@ string className =  "Memory";
 //-----------------------------------------------------------------------------
 
 
-Memory_base::Memory_base( buffer_t size ) :
-	Logfacility_class( "" )
-{
-	ds.size = size;
-	Log[ TEST ] = true;
-
-};
-
-Memory_base::Memory_base() :
-	Logfacility_class( "" )
-{};
-
-Memory_base::~Memory_base()
-{};
-
-void* Memory_base::Init_void()
-{
-	assert( ds.size > 0 );
-	ds.addr = mmap(	NULL,
-				ds.size  + 1  ,
-				PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS,
-				0, 0);
-	ds.name			= Logfacility_class::module;
-	ds.mem_bytes	= ds.size;
-	return ds.addr;
-}
-void Memory_base::Info()
-{
-	String S{""};
-	Comment( INFO, "Name             : " + ds.name );
-	Comment( INFO, "Memory bytes     : " + to_string( ds.mem_bytes ));
-	Comment( TEST, "Addr             : " + S.to_hex(( long)ds.addr) );
-	Comment( TEST, "Structure bytes  : " + to_string( ds.sizeof_data ));
-	Comment( TEST, "Record size      : " + to_string( ds.block_size ));
-	Comment( TEST, "data blocks      : " + to_string( ds.data_blocks ));
-//	Comment( TEST, "Bytes/per record : " + to_string( ds.record_bytes ));
-	Comment( TEST, "max data records : " + to_string( ds.max_records ));
-//	Comment( TEST, "record counter   : " + to_string( ds.record_counter ));
-
-	cout << endl;
-
-}
 
 //-----------------------------------------------------------------------------
 
@@ -233,9 +190,7 @@ Shared_Memory::Shared_Memory( buffer_t size ) :
 };
 
 Shared_Memory::~Shared_Memory()
-{
-	Clear();
-}
+{}
 
 void Shared_Memory::Clear()
 {
@@ -253,6 +208,6 @@ void Shared_Memory::Clear()
 
 void Shared_Memory::Stereo_buffer( key_t key )
 {
-	addr = ( stereo_t*) Get( key )->addr;
-	ShowDs( ds );
+	this->ds = *Get( key );
+	this->ds.addr = (stereo_t*) this->ds.addr;
 }

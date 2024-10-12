@@ -19,23 +19,35 @@ char get_char( string text )
 
 int getvalue(string text )
 {
+	String S {""};
 	string s;
 	cout << text << ": ";
 	cin >> s;
-	return stoi(s);
+	return S.to_int(s);
 
 }
 
+int sdsid=0;
 void show_ifd()
 {
 	if ( sds->UpdateFlag )
 	{
-		DaTA.Sds.Show_interface();
-		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
-		update_counter++;
+//		DaTA.Sds.addr = DaTA.GetSdsAddr( DaTA.Sds_master->config );
 		sds->UpdateFlag = false;
+
+		DaTA.SDS_vec[sdsid].Show_interface();
+		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
+		sds = DaTA.SDS_vec[sdsid].addr;
+		update_counter++;
 	}
 
+}
+
+void set_sdsid( int delta )
+{
+	sdsid = ( sdsid + delta ) % MAXCONFIG;
+	if ( sdsid < 0 ) sdsid = MAXCONFIG - 1;
+	sds->UpdateFlag = true;
 }
 
 char Key_event( string charlist )
@@ -44,8 +56,7 @@ char Key_event( string charlist )
 
 	while ( charlist.find( keys.key ) == STRINGNOTFOUND )
 	{
-		this_thread::sleep_for(chrono::milliseconds(50));
-//		Wait( 50*MILLISECOND );
+		this_thread::sleep_for(chrono::milliseconds(100));
 		show_ifd();
 		keys = Keyboard.GetKey();
 	}
@@ -59,21 +70,28 @@ int main( int argc, char* argv[] )
 {
 	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start( argc, argv );
-	cout << "id: "<< DaTA.Cfg.Config.SDS_id << endl;
-	DaTA.Sds.addr = DaTA.SetSds( DaTA.Cfg.Config.SDS_id );
-	sds = DaTA.Sds.addr;
-	DaTA.Sds.Announce( App.client_id, &DaTA.Sds.addr->Comstack );
 
-	DaTA.Sds.Show_interface();
+    App.Sds->Announce( );
+	sds = DaTA.SDS_vec[sdsid].addr;
+
+    App.Sds->Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
 
 	keys.key = '$';
 	char keyevent;
 	while(  keys.key != '#' )
 	{
-		keyevent = Key_event("#mvfa");
+		keyevent = Key_event("#mvfa+-");
 		switch (keyevent)
 		{
+		case '+' :
+		{
+			set_sdsid(1); break;
+		}
+		case '-' :
+		{
+			set_sdsid(-1); break;
+		}
 		case 'm' :
 		{
 			cout << "Main ";

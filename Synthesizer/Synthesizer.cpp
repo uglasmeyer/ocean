@@ -3,11 +3,7 @@
 
 using namespace std;
 
-stereo_t* set_addr( char id )
-{
-	return ( id == 0 ) ? Shm_L.addr : Shm_R.addr;
-}
-
+extern void exit_proc( int signal );
 
 
 void Setup_Wavedisplay()
@@ -22,62 +18,15 @@ void Setup_Wavedisplay()
 
 	Wavedisplay.Set_data_ptr( DaTA.Sds.addr->Wavedisplay_Id );
 }
-
-thread record_thread ( record_thead_fcn,	&DaTA,
-											&External,
-											&SaveRecordFlag,
-											&RecordThreadDone );
-
-void UpdateConfig()
-{
-	Log.Comment( INFO, "updating Shared Data Segment" );
-	Log.Comment( WARN, "TODO" );
-}
-
-bool config_thread_done = false;
-thread config_thread ( config_thread_fcn, 	DaTA.Sem_p,
-											UpdateConfig,
-											DaTA.Sds.addr,
-											&config_thread_done
-											);
-
-void exit_proc( int signal )
-{
-	string text = "received signal: " + to_string( signal );
-	if ( signal > 2 )
-		Log.Comment( ERROR, text );
-	else
-		Log.Comment(INFO, text );
-	if ( Log.Log[ TEST ] )
-	{
-		Log.Comment(TEST, "Entering test cases exit procedure for application" + Application );
-	}
-	else
-	{
-		Log.Comment(INFO, "Entering exit procedure for " + Application );
-	}
-
-	RecordThreadDone = true;
-	config_thread_done = true;
-	Sem->Release( SEMAPHORE_RECORD );
-	Sem->Release( SEMAPHORE_STARTED );
-	Sem->Release( SEMAPHORE_CONFIG );
-
-	if ( config_thread.joinable() )
-		config_thread.join();
-	Log.Comment(INFO, "Config thread joined");
-	if ( record_thread.joinable() )
-		record_thread.join();
-	Log.Comment(INFO, "Record thread joined");
-	exit( 0 );
-}
-
 void show_AudioServer_Status()
 {
 	if ( DaTA.Sds.addr->AudioServer == RUNNING )
+	{
 		Log.Comment(INFO, "Sound server is up" );
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 + DaTA.SDS_Id );
+	}
 	else
-		Log.Comment( ERROR, "Sound server not running with status " +
+		Log.Comment( ERROR,"Sound server not running with status " +
 							DaTA.Sds.Decode( DaTA.Sds.addr->AudioServer ));
 }
 
@@ -95,7 +44,7 @@ void show_usage()
 
 // TODO navigate to process start location
 
-void process( char key )
+void processKey( char key )
 {
 	interface_t* ifd = DaTA.Sds.addr;
 
@@ -237,19 +186,6 @@ void process( char key )
 				ifd->KEY = NULLKEY;
 				break;
 			}
-/*		    External.status.record = not ifd->mixer_status.external;
-
-			if ( ifd->Composer == RECORD ) // composer overwrites default behaviour
-				External.status.record = true;
-			if ( ifd->Composer == STOPRECORD )
-				External.status.record = false;
-			Mixer.status.external	= External.status.record;
-			string str = External.status.record ? "Start" : "Stop ";
-
-			Log.Comment(INFO, str + " record Audio out to wav file format.");
-			Mixer.StA[MbIdExternal].Record_mode( false );
-*/			//no ifd-commit for this section
-//			ifd->KEY = NULLKEY;  //but do not start twice
 			External.Mono2Stereo( 	Mixer.StA[MbIdExternal].Data,
 									Mixer.StA[MbIdExternal].record_data );
 			Sem->Release( SEMAPHORE_RECORD );
@@ -269,7 +205,7 @@ void process( char key )
 				Mixer.StA[ MbIdExternal ].Amp 	= 100;//ifd->StA_amp_arr[MbIdExternal];
 				Mixer.status.external			= true;
 
-				ProgressBar.Setup( 100*External.Filedata_size / External.stereo.ds.mem_bytes );
+				ProgressBar.SetValue( 100*External.Filedata_size / External.stereo.ds.mem_bytes );
 			}
 			else
 			{
@@ -568,18 +504,10 @@ void process( char key )
 			break;
 		}
 
-		case EXITKEY :
-		{
-			exit_proc( 1 );
-			break;
-		}
-
 		default :
 		{
-			Log.Comment( ERROR, "Communication Key Id >" +
-					to_string((int)key) +
-					"< undefined");
-			exit_proc( 1);
+			Exception( "Communication Key Id >" + to_string((int)key) +
+					"< undefined" );
 		 }
 
 	} // switch char
@@ -601,7 +529,7 @@ void activate_ifd()
 		Mixer.Set_mixer_state(id, DaTA.Sds.addr->StA_state[id].play );
 
 	for( char key : init_keys )
-		process( key );
+		processKey( key );
 }
 
 bool sync_mode()
@@ -625,16 +553,30 @@ bool sync_mode()
 }
 
 
+/*------------------------------Sync block
+ *
+ */
 
 void add_sound( stereo_t* shm_addr )
 {
+	if ( Mixer.status.notes )
+	{
+		Notes.Set_osc_track( &Instrument );
+		Notes.Generate_note_chunk( );
+	}
 	if ( Mixer.status.instrument )
 		Instrument.Run_osc_group(); // generate the modified sound waves
-	Mixer.Add_Sound( Instrument.main.Mem.Data, Keyboard.osc.Mem.Data,  Notes.main.Mem.Data, shm_addr );
+	Mixer.Add_Sound( 	Instrument.main.Mem.Data,
+						Keyboard.osc.Mem.Data,
+						Notes.main.Mem.Data,
+						shm_addr );
+
+	ProgressBar.Update();
 
 	wd_arr_t display_data = Wavedisplay.Gen_cxwave_data(  );
 	DaTA.Sds.Write_arr( display_data );
 }
+
 
 void kbd_release( stereo_t* shm_addr )
 {
@@ -657,8 +599,9 @@ void kbd_release( stereo_t* shm_addr )
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
-	interface_t* 			ifd 		= DaTA.Sds.addr;
-	stereo_t* 		shm_addr 	= set_addr( 0 );
+	interface_t* 	ifd 		= DaTA.GetSdsAddr( DaTA.SDS_Id );
+	stereo_t* 		shm_addr 	= DaTA.GetShm_addr();
+	Time_class		Timer		( &ifd->time_elapsed );
 
 	Log.Comment(INFO, App.Name + " is ready");
 
@@ -666,13 +609,14 @@ void ApplicationLoop()
 
 	if( Sem->Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
 		Sem->Release( SEMAPHORE_STARTED );
+	ifd->Synthesizer = RUNNING;
 
 	while ( ifd->Synthesizer != EXITSERVER )
 	{
 		ifd->time_elapsed = Timer.Performance();
 
 		char Key = ifd->KEY;
-		process( Key );
+		processKey( Key );
 		assert( ifd->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		int note_key = Keyboard.Kbdnote( );
@@ -681,7 +625,7 @@ void ApplicationLoop()
 			cout << "KEY: " << note_key << endl;
 			Keyboard.Set_ch( 0 );
 			Mixer.StA[ MbIdKeyboard ].state.play = true;
-			add_sound( shm_addr );
+			add_sound( DaTA.GetShm_addr() );
 			Mixer.status.kbd	= true;
 			ifd->UpdateFlag 	= true;
 			ifd->MODE 			= KEYBOARD;
@@ -697,39 +641,18 @@ void ApplicationLoop()
 
 		if( sync_mode()  )
 		{
-			int mode 	= (int)ifd->MODE;
-			ifd->MODE 	= SYNC;
-			if ( mode == SENDDATA )		// Audio Server request 1-second data chunk
-			{
-
-				if ( Mixer.status.notes )
-				{
-					Notes.Set_osc_track( &Instrument );
-					Notes.Generate_note_chunk( );
-				}
-
-				add_sound( shm_addr );
-
-				ProgressBar.Update();
-
-				ifd->UpdateFlag = true;
-				int shm_id 	= ifd->SHMID;
-				shm_addr 	= set_addr( shm_id );
-			} 	// but handel further requests
-
+			ifd->MODE 	= SYNC; // sync thread
 		}
 		else
 		{
-			// Keyboard decay mode
+			ifd->SHMID = 0;
+			shm_addr	= DaTA.GetShm_addr();
+
 			if ( Mixer.status.kbd )
-			{
 				kbd_release( shm_addr );
-			}
 			else
 				add_sound( shm_addr );
 
-
-			shm_addr	= set_addr( 0 );
 			ifd->MODE	= FREERUN;
 		}
 	} ;
@@ -740,31 +663,115 @@ void ApplicationLoop()
 
 } // Application loop
 
+void record_thead_fcn()
+{
+//	Logfacility_class	Log("RecordThread");
+	Log.Comment( INFO, "record thread started ");
+
+	Value Fileno {0};
+	while ( true )
+	{
+		DaTA.Sem.Lock( SEMAPHORE_RECORD );
+
+		if ( RecordThreadDone ) break;
+
+		SaveRecordFlag = true;
+
+		Fileno = (int) DaTA.Sds.addr->FileNo;
+		Log.Comment( INFO, "record thread received job " + Fileno.str);
+
+		External.Save_record_data( Fileno.i );
+			// clean up
+
+		DaTA.Sds.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
+		DaTA.Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
+											// it will be released hereby
+	    SaveRecordFlag = false;
+	}
+
+	Log.Comment( INFO, "record thread terminated ");
+}
+
+bool SyncThread_done	= false;
+uint Sync_Semaphore 	= SEMAPHORE_SENDDATA0;
+void synchronize_fnc( )
+{
+	Log.Comment(INFO, "Sync thread started" );
+	while( true )
+	{
+		Sem->Lock( Sync_Semaphore );
+		if ( SyncThread_done )
+			break;
+		add_sound( DaTA.GetShm_addr( ) );
+		DaTA.Sds.addr->UpdateFlag = true;
+	}
+	Log.Comment(INFO, "Sync thread terminated" );
+}
+
+thread Sync_thread	( synchronize_fnc );
+thread Record_thread( record_thead_fcn );
+
+int sig_counter = 0;
+void exit_proc( int signal )
+{
+	if ( sig_counter > 0 )
+	{
+		Log.Comment( ERROR, "Exit procedure failed" );
+		exit( signal );
+	}
+	sig_counter++;
+
+	string text = "received signal: " + to_string( signal );
+	if ( signal > 2 )
+		Log.Comment( ERROR, text );
+	else
+		Log.Comment(INFO, text );
+	if ( signal == EXITTEST )
+	{
+		Log.Comment(TEST, "Entering test cases exit procedure for application" + Application );
+	}
+	else
+	{
+		Log.Comment(INFO, "Entering exit procedure for " + Application );
+	}
+
+	RecordThreadDone 	= true;
+	Sem->Reset( SEMAPHORE_RECORD );
+	if ( Record_thread.joinable() )
+		Record_thread.join();
+
+	SyncThread_done	= true;
+	Sem->Reset( Sync_Semaphore );
+	Log.Comment(INFO, "attempting to join sync thread ");
+	if ( Sync_thread.joinable() )
+		Sync_thread.join();
+
+	Sem->Release( SEMAPHORE_STARTED );
+    Sem->Release( SEMAPHORE_EXIT );
+	exit( 0 );
+}
+
+
 int main( int argc, char* argv[] )
 {
 	catch_signals( &exit_proc, { SIGINT, SIGHUP, SIGABRT } );
-
 	App.Start( argc, argv );
 
 	Dir.Create();
 
 	if ( Cfg->Config.test == 'y' )
 	{
+
 		Sem->Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
 		exit_proc( EXITTEST );
 	}
 
-	Log.Comment(INFO,"Attaching data buffers");
-	assert( Cfg->Config.shm_key_l > 0 );
-	Shm_L.Stereo_buffer( Cfg->Config.shm_key_l );
-	Shm_R.Stereo_buffer( Cfg->Config.shm_key_r );
 
-//	DaTA.SetSds( 0 );
-	Instrument.ifd = DaTA.Sds.addr;
-	Mixer.sds =DaTA.Sds.addr;
-	ProgressBar.RecCounter = &DaTA.Sds.addr->RecCounter ;
-	Timer.time_elapsed = &DaTA.Sds.addr->time_elapsed;
+	Instrument.Setup( App.sds );//DaTA.GetSdsAddr( DaTA.SDS_Id) );
+	Mixer.Setup( App.sds );
+	ProgressBar.Setup( &App.sds->RecCounter );
+	Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 
 
 //	Log.Show_loglevel();
@@ -778,12 +785,15 @@ int main( int argc, char* argv[] )
 	show_usage();
 	show_AudioServer_Status();
 
-	DaTA.Sds.Announce( App.client_id, &DaTA.Sds.addr->Synthesizer );
+    App.Sds->Announce( );
 
-	Statistic_class Statistic{};
-	Statistic.Show_Statistic( Module );
+	Statistic.Show_Statistic(  );
 	Log.Comment(INFO, "Application initialized");
+
+
 	ApplicationLoop( );
+	Log.Comment( INFO, Log.Line);
 	exit_proc( 0 );
-	return 0;
+//	return 0;
 };
+

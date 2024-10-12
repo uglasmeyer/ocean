@@ -11,27 +11,28 @@
 #include <Ocean.h>
 #include <Config.h>
 #include <data/Interface.h>
-#include <Synthmem.h>
+#include <data/Memory.h>
 #include <Version.h>
 #include <Wav.h>
 #include <Record.h>
 
 
 
-class External_class : virtual Logfacility_class, public ProgressBar_class
+class External_class : virtual Logfacility_class//, public ProgressBar_class
 {
 	Storage_class* 	StA;
-	FILE*						File;
-	Config_class*				Cfg = nullptr;
+	FILE*			File;
+	Config_class*	Cfg 			= nullptr;
 
 public:
-	Stereo_Memory				stereo{ stereobuffer_size };
+	Stereo_Memory	stereo			{ stereobuffer_size };
+	long 			Filedata_size 	= 0;
 
 	External_class( Storage_class* sta,
-					uint8_t* counter_p,
+//					uint8_t* counter_p,
 					Config_class* cfg ) : //, Stereo_Memory* stereo ) :
-		Logfacility_class("External"),
-		ProgressBar_class( counter_p )
+		Logfacility_class("External")
+//		,ProgressBar_class( counter_p )
 	{
 		this->StA 			= sta;
 		this->File 			= NULL;
@@ -53,7 +54,6 @@ public:
 	void Mono2Stereo( Data_t* mono, uint size );
 	string GetName();
 	void Test_External();
-	long Filedata_size = 0;
 
 private:
 
@@ -61,7 +61,7 @@ private:
 	wav_struct_t 	header_struct;
 	string 			Name 		= "";
 	string 			Filename 	= "";
-	string add_header 			= "cat " + file_structure().raw_file +
+	string 			add_header 	= "cat " + file_structure().raw_file +
 								  " >> " + file_structure().wav_file;
 	void 	write_audio_data( string );
 	void 	write_music_file( string );

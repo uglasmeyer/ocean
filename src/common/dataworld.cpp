@@ -7,79 +7,192 @@
 
 #include <data/DataWorld.h>
 
-Logfacility_class Log_data( "DataWorld");
-
-void config_thread_fcn(	Semaphore_class* sem,
-						config_fcn_t config_fcn,
-						interface_t* sds,
-						bool* config_thread_done )
+Dataworld_class::Dataworld_class( uint type_id ) :
+	Logfacility_class( "DaTA")
 {
-	Log_data.Comment( INFO, "Config thread started");
-	while( true )
+
+	this->TypeId	= type_id;
+
+	// Shared Data Segment
+
+	for( uint n = 0; n < MAXCONFIG; n++ )
 	{
-		sem->Lock( SEMAPHORE_CONFIG );
-		if ( *config_thread_done )
-			break;
-		config_fcn();
+		Interface_class SDS {Cfg_p, Sem_p };
+		SDS.Setup_SDS( Cfg.Config.sdskeys[n]);
+		SDS.ds.Id = n;
+		Sds_arr[n] = SDS.ds;
+		SDS.Type_Id = type_id;
+		SDS.State_pMap();
+
+		SDS_vec.push_back( SDS );
 
 	}
-	Log_data.Comment( INFO, "Config thread terminated");
-}
+	//	test
+	assert( SDS_vec[0].SHM.ds.addr != SDS_vec[1].SHM.ds.addr );
+	Sds_p		= &SDS_vec[0];
+	Sds_master 	= (interface_t*) SDS_vec[0].ds.addr;
 
 
-Dataworld_class::Dataworld_class( uint id ) :
-Logfacility_class( "DaTA")
-{
-	this->Id	= id;
-
-	Sds.Setup_SDS( Cfg.Config.SDS_key );
-	Sds.ds.Id = 0;
-	Sds_arr[0] = Sds.ds;
-	if (id != GUI_ID) Shm.Detach( Sds.ds.addr );
-	if ( true )//this->Id == GUI_ID )
+	if ( dataProc.contains( this->TypeId ))
 	{
-		for( uint n = 0; n < MAXCONFIG; n++ )
+		Comment(INFO,"Attaching data buffers");
+		uint idx = 0;
+		for (key_t key : Cfg.Config.shmkeys_l )
 		{
-			Sds.Setup_SDS( Cfg.Config.sds_arr[ n ] );
-			Sds.ds.Id = n+1;
-			Sds_arr[n + 1 ] = Sds.ds;
-			if (id != GUI_ID) Shm.Detach( Sds.ds.addr );
+			Shared_Memory SHM { sharedbuffer_size };
+			SHM.Stereo_buffer( key );
+			SHM.ds.Id = idx;
+			SHM_vecL.push_back( SHM );
+			SHM.ShowDs( SHM.ds );
+			idx++;
 		}
-	}
-	SetSds( 0 );
+		idx = 0;
+		for (key_t key : Cfg.Config.shmkeys_r )
+		{
+			Shared_Memory SHM { sharedbuffer_size };
+			SHM.Stereo_buffer( key );
+			SHM.ds.Id = idx;
+			SHM_vecR.push_back( SHM );
+			SHM.ShowDs( SHM.ds );
+			idx++;
+		}
 
+	}
 }
+
 Dataworld_class::~Dataworld_class()
 {
-
+	proc_deRegister( );
 }
 
-interface_t* Dataworld_class::SetSds( uint n )
+void Dataworld_class::Init_Shm( )
 {
-	if (( n<0) or ( n > MAXCONFIG ))
+	// Shared Memory
+	if ( this->SDS_Id < 0 )
+	{
+		Exception( "SDS_ID undefined " );
+	}
+	if ( dataProc.contains( this->TypeId ))
+	{
+		proc_Register( );
+		ShmAddr_L = (stereo_t*) SHM_vecL[SDS_Id].ds.addr;
+		ShmAddr_R = (stereo_t*) SHM_vecR[SDS_Id].ds.addr;
+
+		// test
+		assert( SHM_vecL[0].ds.addr != SHM_vecL[1].ds.addr );
+		assert( SHM_vecR[0].ds.addr != SHM_vecR[1].ds.addr );
+	}
+}
+
+Interface_class* Dataworld_class::GetSds( uint id )
+{
+	return &SDS_vec[id];
+}
+
+interface_t* Dataworld_class::GetSdsAddr( uint id )
+{
+	Comment( INFO, "SDS Id: " + to_string( id ) + " " + Sds.type_map[TypeId] );
+	if (( id<0) or ( id > MAXCONFIG ))
 	{
 		Comment( ERROR, "no such Shared Data Segment ");
 		return Sds.addr;
 	}
-	if( not Sds_arr[n].eexist )
+	if( not SDS_vec[id].ds.eexist )
 	{
 		Comment( ERROR, "segment not available");
 		return Sds.addr;
 	}
-	if ( Id != GUI_ID) Shm.Detach( Sds.ds.addr );
-	Sds.ds	= Sds_arr[n];
-	assert ( n == Sds.ds.Id );
-	if ( Id != GUI_ID)
+	SDS_vec[id].SHM.ShowDs( SDS_vec[id].ds );
+
+	return ( interface_t*) SDS_vec[id].ds.addr;
+}
+
+stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
+{
+	interface_t* 	sds 	= SDS_vec[ SDS_Id ].addr;
+	int 			shm_id 	= sds->SHMID;
+	stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_R : ShmAddr_L;
+	return addr;
+
+}
+
+stereo_t* Dataworld_class::GetShm_addr( uint sdsid ) // rtsp shm mixer
+{
+	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
+	int 			shm_id 	= sds->SHMID;
+	stereo_t* 		addr 	= ( shm_id == 0 ) ? SHM_vecR[ sdsid ].addr : SHM_vecL[ sdsid ].addr;
+	return addr;
+
+}
+
+stereo_t* Dataworld_class::SetShm_addr() // Audioserver
+{
+	stereo_t* 		addr;
+	interface_t* 	sds 	= SDS_vec[0].addr;
+	uint 			shm_id 	= sds->SHMID;
+	uint 			mode 	= sds->MODE;
+	if ( mode == SYNC )
 	{
-		Sds.addr = (interface_t*) Shm.Attach( Sds.ds.shmid ) ;
+		shm_id 	= ( shm_id + 1 ) % 2;
+		addr 	= (	shm_id == 0 ) ? ShmAddr_L : ShmAddr_R;
+		sds->SHMID 	= shm_id;
+		sds->MODE 	= FREERUN;
+
 	}
 	else
-		Sds.addr = (interface_t*) Sds.ds.addr;
+	{
+		addr 			= ( shm_id == 0 ) ? ShmAddr_R : ShmAddr_L;
+	}
+	return addr;
+}
 
-	Comment( INFO, "New shm data structure, Id: " + to_string( n ));
-	Shm.ShowDs( Sds.ds );
+void Dataworld_class::proc_Register()
+{
+	if( not dataProc.contains( TypeId ))
+		return;
+	uint idx = TypeId + SDS_Id;
+	Comment(INFO,"Register: " + Sds.type_map[ TypeId ] + " " + to_string(SDS_Id) + " idx " + to_string( idx ));
 
-	Sem.Release( SEMAPHORE_CONFIG );
-	return Sds.addr;
+	Sds_master->process_arr[idx].Id = SDS_Id;
+	Sds_master->process_arr[idx].type= TypeId;
+	Sds_master->process_arr[idx].size= SHM_vecL[SDS_Id].ds.size;
+
+	show_proc_register( );
+
+}
+void Dataworld_class::proc_deRegister(  )
+{
+	if( not dataProc.contains( TypeId ))
+		return;
+	uint idx = TypeId + SDS_Id ;
+	if( idx > MAXCONFIG + 1 )
+	{
+		Comment( ERROR, "de-register out of range ");
+		return;
+	}
+	Comment( INFO, "de-register process " + Sds.type_map[ TypeId ] + " " + to_string( SDS_Id ) );
+	Sds_master->process_arr[ idx ] = process_struct();
+}
+
+void Dataworld_class::show_proc_register(  )
+{
+	uint idx = TypeId + SDS_Id;
+	process_t proc { Sds_master->process_arr[ idx ] };
+
+	stringstream strs;
+	strs << Line << endl;
+	strs << SETW << "Id "		<< proc.Id << endl;
+	strs << SETW << "type id " 	<< proc.type << endl;
+	strs << SETW << "size    " 	<< proc.size << endl;
+	Comment( INFO, strs.str() );
+}
+
+void Dataworld_class::Test_dw()
+{
+	TEST_START( className );
+
+	TEST_END( className );
+
+
 }
 

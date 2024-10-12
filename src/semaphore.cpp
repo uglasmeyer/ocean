@@ -6,9 +6,8 @@ Logfacility_class( "Semaphore"),
 Time_class()
 {
 	this->SEM_KEY = Cfg->Config.Sem_key;
-//	Set_Loglevel( DEBUG, true);
+	Set_Loglevel( DEBUG, false);
 	init();
-
 }
 
 Semaphore_class::~Semaphore_class()
@@ -35,6 +34,21 @@ void Semaphore_class::Init()
         assert( ret == 0 );
     }
 }
+
+void Semaphore_class::Reset( uint8_t num )
+{
+	short int val = -abs(  Getval( num , GETVAL ) );
+	struct sembuf op =
+	{
+		.sem_num 	= num,
+		.sem_op 	= val,
+		.sem_flg 	= OP_WAIT
+	};
+    int ret = semop(semid, &op, N_OPS );
+    Comment( DEBUG, "reset " + Stat( num ));
+    assert( ret == 0 );
+}
+
 void Semaphore_class::init()
 {
 	Comment( INFO, "initializing the semaphore facility");
@@ -72,8 +86,8 @@ void Semaphore_class::Aquire( uint8_t num )
     	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
         Comment( ERROR, Stat( num ));
    	}
-    assert( ret == 0 );
     Comment( DEBUG, "aquire  " + Stat( num ));
+    assert( ret == 0 );
 
 }
 void Semaphore_class::Release( uint8_t num)
@@ -87,8 +101,8 @@ void Semaphore_class::Release( uint8_t num)
 		.sem_flg 	= OP_WAIT
 	};
     int ret = semop(semid, &op, N_OPS );
-    assert( ret == 0 );
     Comment( DEBUG, "release " + Stat( num ));
+    assert( ret == 0 );
 }
 
 
@@ -104,8 +118,8 @@ void Semaphore_class::Lock( uint8_t num )
 	};
 
     int ret = semop(semid, &op, N_OPS );
-    assert( ret == 0 );
     Comment( DEBUG, "lock    " + Stat( num ));
+    assert( ret == 0 );
 
 }
 
@@ -115,9 +129,8 @@ void RelwaseProxy_fnc( 	Semaphore_class* sem,
 {
 	sem->Comment( TEST, "proxyfnc started");
 	sem->lock_timer.Wait( timeout );
-	sem->Release( semaphore );
 	sem->Comment( TEST, "proxyfnc released");
-
+	sem->Release( semaphore );
 }
 void Semaphore_class::Lock( uint8_t num, uint timeout )
 {
@@ -133,8 +146,8 @@ void Semaphore_class::Lock( uint8_t num, uint timeout )
 	};
 
     int ret = semop(semid, &op, N_OPS );
-    assert( ret == 0 );
     ReleaseProxy_thread.join();
+    assert( ret == 0 );
 
 }
 
@@ -149,11 +162,12 @@ string Semaphore_class::Stat( uint8_t num )
 	auto stat = [ this ]( uint num )
 	{
 		stringstream strs;
-		strs << setw(4) << (int) num 	<< " " <<
-				Getval( num, GETPID ) 	<< " " <<
-				Getval( num, GETVAL ) 	<< " " <<
-				Getval( num, GETNCNT ) 	<< " " <<
-				Getval( num, GETZCNT ) 	;
+		strs <<
+				"num " << (int) num 				<< " " <<
+				"pid " << Getval( num, GETPID ) 	<< " " <<
+				"val " << Getval( num, GETVAL ) 	<< " " <<
+				"ncn " << Getval( num, GETNCNT ) 	<< " " <<
+				"zcn " << Getval( num, GETZCNT ) 	;
 		return strs.str();
 	};
 
@@ -165,7 +179,7 @@ string Semaphore_class::Stat( uint8_t num )
 	}
 	else
 	{
-		return stat( num ) + "\n";
+		return stat( num ) ;
 	}
 
 }

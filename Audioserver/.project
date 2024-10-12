@@ -7,6 +7,8 @@
 		<project>Synthesizer</project>
 		<project>ifdstruct</project>
 		<project>rtsp</project>
+		<project>OceanGUI</project>
+		<project>Ocean</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

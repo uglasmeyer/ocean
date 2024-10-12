@@ -13,7 +13,7 @@
 #include <Ocean.h>
 #include <Mixerbase.h>
 #include <Notes.h>
-#include <Synthmem.h>
+#include <data/Memory.h>
 
 using namespace std;
 
@@ -54,26 +54,27 @@ public:
 	const vector<uint>	HghIds		= {4, 5, 6, 7 };
 
 
-	typedef vector<Storage_class> 						StorageArray_t;
+	typedef vector<Storage_class>
+						StorageArray_t;
 
 	StorageArray_t 		StA;
 	uint8_t				master_volume	= 100;
 	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
-	Memory 				Mono{ monobuffer_size }; // Wavedisplay output
-	Memory 				Mono_out{ monobuffer_size }; // Wavedisplay output
+	Memory 				Mono	{ monobuffer_size }; 	// Wavedisplay output
+	Memory 				Mono_out{ monobuffer_size };// Wavedisplay output
 	Memory 				Out_L	{ monobuffer_size };// Output buffer long
 	Memory				Out_R	{ monobuffer_size };//
 
 	Loop_class 			master_amp_loop;
 	Loop_class			record_amp_loop;
 
-	interface_t* sds;
+	interface_t* 		sds				= nullptr;				;
 	Mixer_class ( interface_t* sds );
 	~Mixer_class();
 
-
+	void Setup( interface_t* sds );
 	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );

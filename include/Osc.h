@@ -8,11 +8,11 @@
 #ifndef INCLUDE_OSC_H_
 #define INCLUDE_OSC_H_
 
+#include <data/Memory.h>
 #include <Spectrum.h>
 
 #include <Oscbase.h>
 #include <Ocean.h>
-#include <Synthmem.h>
 #include <System.h>
 
 using namespace std;

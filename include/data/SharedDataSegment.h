@@ -13,6 +13,14 @@
 #include <Wavedisplay_base.h>
 #include <Notesbase.h>
 
+typedef struct process_struct
+{
+	uint			Id		= 0;
+	uint			type	= NOID;
+	buffer_t		size	= 0;
+} process_t;
+
+typedef			array<process_t, MAXCONFIG+1>	process_arr_t;
 typedef 		Note_base::noteline_prefix_t	noteline_prefix_t;
 typedef 		Spectrum_base::spectrum_t		spectrum_t;
 typedef			Mixer_base::mixer_status_t		mixer_status_t;
@@ -22,7 +30,7 @@ static const 	uint str_buffer_len = 32;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 1; 						// comstack
+	uint8_t			version						= 0; 						// comstack
 	StA_state_arr_t	StA_state 					{ StA_status_struct() };	// comstack
 	StA_amp_arr_t	StA_amp_arr					{ 75 };
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
@@ -76,6 +84,8 @@ typedef struct interface_struct
 	uint16_t		WD_type_ID 					= FULLID;
 	uint8_t 		FileNo						= 0;// comstack
 	uint8_t			time_elapsed 				= 0;
+	process_arr_t	process_arr					= { process_struct() };
+
 	wd_arr_t		wavedata 					= {0};
 } interface_t;
 

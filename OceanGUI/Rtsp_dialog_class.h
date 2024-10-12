@@ -20,15 +20,15 @@ class Rtsp_Dialog_class : public QDialog, virtual Logfacility_class, virtual Con
 
 public:
 
-    Semaphore_class*	sem;
-    interface_t*		sds;
-    Dataworld_class*	daTA;
-    uint				SDS_ID = 0;
+    Dataworld_class*		DaTA;
+    uint					SDS_ID = 0;
+    Ui::Rtsp_Dialog_class*	ui;
+
+    void Update_widgets();
 
     explicit Rtsp_Dialog_class(
     		QWidget* 			parent 	= nullptr,
-			Dataworld_class*	data	= nullptr,
-			Semaphore_class* 	sem		= nullptr );
+			Dataworld_class*	data	= nullptr);
     ~Rtsp_Dialog_class();
 
 private slots:
@@ -42,8 +42,6 @@ private slots:
 
 
 private:
-    Ui::Rtsp_Dialog_class *ui;
-    void update_widgets();
     QPalette red_color	{};
     QPalette green_color{};
 };

@@ -4,8 +4,9 @@
 #include <App.h>
 #include <data/Interface.h>
 
-Statistic_class 	Statistic	{ };
 const string		TitleModule = "Ocean Sound Lab";
+Statistic_class 	Statistic	{  TitleModule };
+
 #include <Mainwindow.h>
 
 void exit_proc( int signal )
@@ -27,15 +28,14 @@ int main(int argc, char *argv[])
 
     Application_class* App = &Win.App;
     App->Start( argc, argv );
+	App->Sds->Announce( );
 
-    Interface_class* Sds = Win.Sds;
-	Sds->Announce( App->client_id, &Sds->addr->UserInterface );
 
     Win.setwidgetvalues();
     Win.show();
 
     app.exec();
 
-    Statistic.Show_Statistic( App->Name );
+    Statistic.Show_Statistic( );
     return 0;
 }

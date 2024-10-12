@@ -11,7 +11,6 @@
 #include <External.h>
 #include <Instrument.h>
 #include <Keyboard.h>
-#include <Logfacility.h>
 #include <Record.h>
 #include <Spectrum.h>
 #include <Wavedisplay.h>
@@ -20,7 +19,6 @@
 #include <Keys.h>
 #include <Notes.h>
 #include <Ocean.h>
-#include <Synthmem.h>
 #include <Mixer.h>
 #include <System.h>
 
@@ -30,28 +28,22 @@ string					Module 				= "Synthesizer";
 
 Logfacility_class		Log( Module );
 DirStructure_class		Dir;
-Dataworld_class			DaTA(SYNTHID );
+Dataworld_class			DaTA( SYNTHID );
 Application_class		App( &DaTA );
-Semaphore_class*		Sem	= DaTA.Sem_p;
-Mixer_class				Mixer ( DaTA.Sds.addr );
-Instrument_class 		Instrument( DaTA.Sds.addr );
+Mixer_class				Mixer ( nullptr);// DaTA.Sds_master );
+Instrument_class 		Instrument{ nullptr };
 Note_class 				Notes;
 Keyboard_class			Keyboard( 	&Instrument );
 External_class 			External( 	&Mixer.StA[ MbIdExternal],
-									&DaTA.Sds.addr->RecCounter,
 									DaTA.Cfg_p);
-Config_class*			Cfg 	= DaTA.Cfg_p;
-Shared_Memory			Shm_L( sharedbuffer_size );
-Shared_Memory			Shm_R( sharedbuffer_size );
 Wavedisplay_class 		Wavedisplay;
-ProgressBar_class		ProgressBar( &DaTA.Sds.addr->RecCounter );
-Time_class				Timer( &DaTA.Sds.addr->time_elapsed );
+ProgressBar_class		ProgressBar( nullptr );
+Statistic_class 		Statistic{ Log.module };
+
+Semaphore_class*		Sem	= DaTA.Sem_p;
+Config_class*			Cfg = DaTA.Cfg_p;
 
 
-extern void record_thead_fcn( 	Dataworld_class*,
-								External_class* ,
-								bool*,
-								bool* );
 
 
 const int 				EXITTEST			= 15;;

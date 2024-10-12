@@ -8,9 +8,9 @@
 #ifndef TRACKCLASS_H_
 #define TRACKCLASS_H_
 
+#include <data/Memory.h>
 #include <Spectrum.h>
 #include <Ocean.h>
-#include <Synthmem.h>
 #include <String.h>
 
 const vector<string> NoteName =

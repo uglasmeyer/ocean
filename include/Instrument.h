@@ -33,6 +33,7 @@ public:
 ;
 
 	bool Set( string );
+	void Setup( interface_t* ifd );
 	void Save_Instrument( string );
 	void Update_spectrum();
 	void Test_Instrument();

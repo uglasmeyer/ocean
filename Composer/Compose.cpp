@@ -237,16 +237,16 @@ int main( int argc, char* argv[] )
 
 	App.Start( argc, argv );
 
-	Statistic.Show_Statistic( Module );
+	Statistic.Show_Statistic(  );
 	if ( Cfg->Config.test == 'y' )
 	{
 		maintest();
-		Statistic.Show_Statistic( Module );
+		Statistic.Show_Statistic(  );
 
 		return 0;
 	}
 	Log.Set_Loglevel(ERROR , true);
-	DaTA.Sds.Announce( App.client_id, &DaTA.Sds.addr->Composer );
+    App.Sds->Announce(  );
 
 	if ( preprocessor( file_structure().program_file ) )
 	{

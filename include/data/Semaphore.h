@@ -26,7 +26,12 @@ enum
 	RTSP_STARTED,
 	RTSP_EXIT,
 	SEMAPHORE_TEST,
-	SEMAPHORE_CONFIG
+	SEMAPHORE_CONFIG,
+	SEMAPHORE_SENDDATA,
+	SEMAPHORE_SENDDATA0,
+	SEMAPHORE_SENDDATA1,
+	SEMAPHORE_SENDDATA2,
+	SEMAPHORE_SENDDATA3
 };
 static const uint 	SEMNUM_SIZE = 16;
 
@@ -41,6 +46,8 @@ public:
 	void 	Init	();
 	void 	Aquire	( uint8_t semnum ); // increase the semaphore ( OP_INC )
 	void 	Release	( uint8_t semnum );	// decrease the semaphore ( OP_DEC )
+	void 	Reset	( uint8_t num );	// release val times
+
 	void 	Lock	( uint8_t semnum );	// wait for release
 	void 	Lock	( uint8_t semnum, uint timeout );	// wait for release
 	int  	Getval	( uint8_t semnum , int op);

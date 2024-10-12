@@ -222,10 +222,7 @@ void String::TestString()
 	i = A.to_int( "  1234 " );
 	assert( i == 1234 );
 	i = A.to_int( "abcd");
-	cout << i << endl;
 	assert( i == 0 );
-	//Set_Loglevel( TEST, true);
-	//Comment( TEST, "Test String start" );
 
 	String Env = notnull( std::getenv("OCEANTESTCASE") );
 	assert( cmpstr( Env.Str, "oceantestcase") );

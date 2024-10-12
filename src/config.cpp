@@ -1,17 +1,19 @@
 #include <Config.h>
 #include <String.h>
 #include <System.h>
-
-
+#include <data/Memorybase.h>
 
 Config_class::Config_class( string Module ) :
 	Logfacility_class( Module )
 {
+
 	prgname = program_invocation_name;
-	Comment( INFO, "Program name: " + prgname );
-	baseDir( );
+	string shortname = program_invocation_short_name;
+	Comment( INFO, "Program name: " + shortname );
+	this->basedir = baseDir( );
+	cout << "Hallo" << endl;
 	Read_config( file_structure().config_file );
-	Read_config( file_structure().datacfg_file);
+	cout << "World" << endl;
 };
 
 Config_class::~Config_class()
@@ -56,53 +58,45 @@ void Config_class::Read_config(	string cfgfile )
 	auto get_item = [ &Get ]( string old, string str )
 		{
 			string tmp = string( Get[ str ]);
-
-			if( tmp.length() == 0 )
-				return old;
-			else
-			{
-				return tmp;
-			}
+			return ( tmp.length() == 0 ) ?  old : tmp;
 		};
+
 	auto get_value = [ &Get ]( key_t old, string str )
 		{
 			String Str("");
 			string tmp = string( Get[ str ]);
-			if( tmp.length() == 0 )
-				return old;
-			else
-			{
-				return (key_t) Str.to_int( tmp );
-			}
+			return ( tmp.length() == 0 ) ? old : (key_t) Str.to_int( tmp );
 		};
-	string getstr = "";
-	Config.title	= get_item( Config.title, "title" );
-	Config.author	= get_item( Config.author, "author" );
-	Config.album	= get_item( Config.album, "album" );
-	Config.Genre 	= get_item( Config.Genre, "genre" );
-	Config.Term 	= get_item( Config.Term, "term" );
-	Config.ffmpeg 	= get_item( Config.ffmpeg, "ffmpeg" );
-	getstr = "";
-	getstr.push_back( Config.test );
-	getstr			= get_item( getstr , "test");
-	Config.test		= (getstr.length() == 0 ) ? Config.test : getstr[0];
-	Config.appcfg	= get_item( Config.appcfg, "appcfg" );
-	Config.shm_key_l= get_value ( Config.shm_key_l, "shmkey" );
-	Config.shm_key_r= Config.shm_key_l+1;
-	Config.SDS_key	= get_value ( Config.SDS_key, "sdskey" );
-	Config.Sem_key	= get_value ( Config.Sem_key, "semkey" );
-	for( uint n = 0; n < MAXCONFIG; n++  )
+
+	auto get_char = [ &Get ]( char old, string str )
 	{
-		string str = "sds" + to_string(n);
-		Config.sds_arr[ n ] = get_value( 0, str );
+		string tmp			= string( Get[ str ] );
+		return ( tmp.length() == 0 ) ? old : tmp[0];
+	};
+
+	Config.title	= get_item ( Config.title, "title" );
+	Config.author	= get_item ( Config.author, "author" );
+	Config.album	= get_item ( Config.album, "album" );
+	Config.Genre 	= get_item ( Config.Genre, "genre" );
+	Config.Term 	= get_item ( Config.Term, "term" );
+	Config.ffmpeg 	= get_item ( Config.ffmpeg, "ffmpeg" );
+	Config.appcfg	= get_item ( Config.appcfg, "appcfg" );
+	Config.SHM_key	= get_value( Config.SHM_key, "shmkey" );
+	Config.SDS_key	= get_value( Config.SDS_key, "sdskey" );
+	Config.Sem_key	= get_value( Config.Sem_key, "semkey" );
+
+	for( uint idx = 0; idx < MAXCONFIG; idx++  )
+	{
+		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
+		Config.shmkeys_l[ idx ] = Config.SHM_key + idx;
+		Config.shmkeys_r[ idx ] = Config.SHM_key + idx + MAXCONFIG + 2;
 	}
 
-	Show_prgarg_struct();
-	assert( ( Config.test == 'n' ) or ( Config.test == 'y' ) or (Config.test == 0 )) ;
-// example:    shm_key_a=stoi( configmap.at("shm_key_a") );
+	Config.test		= get_char( Config.test, "test" );
+	std::set<char> yn = {'n', 'y', 0 };
+	assert( yn.contains( Config.test ) ) ;
 
-//    std::cout << shm_key_a << endl;
-
+	Show_Config();
 }
 
 void Config_class::Test()
@@ -138,28 +132,24 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			Config.ch_offs	= Str.to_int( next );
 		if ( arg.compare("-k") == 0 )
 			Config.SDS_key = Str.to_int( next );
-		if ( arg.compare("-K") == 0 )
+		if ( arg.compare("-S") == 0 )
 			Config.SDS_id = Str.to_int( next );
 		if ( arg.compare("-t") == 0 )
 			Config.test 	= 'y';
 		if ( arg.compare("-D") == 0 )
 			Config.dialog 	= 'y';
-		if ( arg.compare("-S") == 0 )
+		if ( arg.compare("-A") == 0 )
 			Config.appcfg = next;
 	}
 
 }
-void Config_class::Show_prgarg_struct( )
+void Config_class::Show_Config( )
 {
 	stringstream strs{""};
 	strs << setw(20) << left << "\nchannel" 	<< dec << 	Config.channel 	<<endl;  		// -c
 	strs << setw(20) << left << "sampline rate" << dec << 	Config.rate		<<endl;  		// -c
 	strs << setw(20) << left << "device nr" 	<< dec << 	Config.device	<<endl;  		// -d
 	strs << setw(20) << left << "channel offs"	<< dec << 	Config.ch_offs	<<endl; 		// -o
-	strs << setw(20) << left << "shm key R" 	<< dec << 	Config.shm_key_l<<endl;  		// -k
-	strs << setw(20) << left << "shm key L" 	<< dec << 	Config.shm_key_r<<endl;  		//
-	strs << setw(20) << left << "sds_key" 		<< 			Config.SDS_key	<<endl;  		// -D
-	strs << setw(20) << left << "sem_key" 		<< 			Config.Sem_key	<<endl;  		// -D
 	strs << setw(20) << left << "test classes" 	<<  	 	Config.test		<<endl;  		// -t
 	strs << setw(20) << left << "dialog mode"	<<  		Config.dialog	<<endl;  		// -D
 	strs << setw(20) << left << "composer"		<<  		Config.composer	<<endl;  		// -D
@@ -171,11 +161,15 @@ void Config_class::Show_prgarg_struct( )
 	strs << setw(20) << left << "Terminal" 		<< 			Config.Term		<<endl;  		// -D
 	strs << setw(20) << left << "ffmpeg" 		<< 			Config.ffmpeg	<<endl;  		// -D
 	strs << setw(20) << left << "appcfg" 		<< 			Config.appcfg	<<endl;
-	strs << setw(20) << left << "sds keys"		<< show_items( Config.sds_arr ) << endl;
+	strs << setw(20) << left << "SDS ID"	 	<< dec << 	Config.SDS_id	<<endl;  		// -k
+	strs << setw(20) << left << "shm key"	 	<< dec << 	Config.SHM_key	<<endl;  		// -k
+	strs << setw(20) << left << "sds_key" 		<< 			Config.SDS_key	<<endl;  		// -D
+	strs << setw(20) << left << "sem_key" 		<< 			Config.Sem_key	<<endl;  		// -D
+	strs << setw(20) << left << "sds keys"		<< show_items( Config.sdskeys ) << endl;
+	strs << setw(20) << left << "shm keys L"	<< show_items( Config.shmkeys_l ) << endl;
+	strs << setw(20) << left << "sds keys R"	<< show_items( Config.shmkeys_r ) << endl;
 
 	Comment( INFO, strs.str() );
-
-
 }
 
 string Config_class::baseDir()
@@ -195,7 +189,6 @@ string Config_class::baseDir()
 	filesystem::path filepath = file;
 	string parentpath = filepath.parent_path();
 	filesystem::path cfgname = parentpath + "/../etc/synthesizer.cfg";
-	cout << file << endl;
 	if ( file.length() > 0 )
 		if( filesystem::is_regular_file( cfgname ) )
 		{

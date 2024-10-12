@@ -14,25 +14,18 @@
 enum {
 	 OFFLINE,
 	 RUNNING	,
-	 RECORD		,
-	 STOPRECORD ,
-	 SENDDATA 	,
 	 FREERUN	,
-	 BLOCKDATA	,
-	 RELEASEDATA,
 	 UPDATEGUI 	,
-	 STORESOUND	,   // obsolete
 	 SYNC 		,
 	 DEFAULT	,
 	 EXITSERVER	,
 	 KEYBOARD	,
-	 UPDATE		,
 	 LASTNUM
 };
-static const uint CODE_MAP_SIZE = LASTNUM;
+static const uint STATE_MAP_SIZE = LASTNUM;
 
 #include <Keys.h>
-#include <Synthmem.h>
+#include <data/Memory.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <Version.h>
@@ -42,24 +35,20 @@ static const uint CODE_MAP_SIZE = LASTNUM;
 
 
 
-class Interface_class : virtual public Logfacility_class, Shm_base
+class Interface_class : virtual public Logfacility_class
 {
 public:
 
-	typedef struct shm_info_struct
-	{
-		buffer_t 	size;
-		key_t		key;
-		int 		id;
-		void* 		addr;
-	} shm_info_t;
-	shm_info_t				shm_info;
-
+	Shm_base				SHM{ sizeof( interface_t )};
 	interface_t 			ifd_data;
 	interface_t* 			addr		= nullptr;
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;
-	uint8_t					client_id 	= NOID;
+	array<string,APP_SIZE > type_map 	= {""};
+	array<uint8_t*,APP_SIZE>
+							state_p_map	{};
+	uint					Type_Id		= NOID;
+
 
 	Interface_class( Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
@@ -74,26 +63,28 @@ public:
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd();
-	void 	Announce( uint, uint8_t* );
+	void 	Announce(  );
 	void 	Set( bool& key, bool value);
 	void 	Set( uint8_t& key, uint8_t value);
 	void 	Set( uint16_t& key, uint16_t value);
 	void 	Set( float& key, float value);
 	string 	Decode( uint8_t idx );
+	void	State_pMap();
 
 private:
-
 	size_t			sds_size		= sizeof( ifd_data );
 	Spectrum_base	GUIspectrum 	{};
 	vector<string>	Waveform_vec	{};
 	char 			previous_status = OFFLINE;
-	array<string, CODE_MAP_SIZE>
-					code_str_arr;
+	array<string, STATE_MAP_SIZE>
+					state_map {""};
 
 	Spectrum_base			Spectrum 		{};
-//	void*	buffer( buffer_t, key_t );
 	bool 	reject(char status, int id );
-	void 	setup_code_arr();
+	void 	typeidMap();
+	void 	stateMap();
+
+
 };
 
 

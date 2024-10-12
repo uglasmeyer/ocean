@@ -53,9 +53,9 @@ void Keyboard_base::init()
 
 void Keyboard_base::Reset()
 {
+	Comment(INFO , "Keyboard reset");
 	/*
 	struct termios 		tflags = {0};
-	Comment(INFO , "Keyboard reset");
 	if(tcgetattr (0, &tflags) < 0)
 		perror("tcsetattr()");
 
@@ -74,6 +74,8 @@ void Keyboard_base::Reset()
 char Keyboard_base::getkey()
 {
 
+	fflush(stdout);
+	buf = 0;
 	if(read(0, buf_p, 1) < 0)
 		perror("read()");
 	return *buf_p;

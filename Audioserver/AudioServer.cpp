@@ -1,8 +1,7 @@
 
 #include <Audioserver.h>
 #include <data/Statistic.h>
-Statistic_class Statistic{};
-
+Statistic_class Statistic{ Module };
 
 RtAudio::StreamParameters 	oParams;
 RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
@@ -18,11 +17,12 @@ RtAudio rtapi( RtAudio::LINUX_PULSE, &errorCallback );
 
 void exit_proc( int exit_code )
 {
-	Log.Comment(INFO, Application + "received command <exit> " );
+	Log.Comment( INFO, Application + "received command <exit> " );
 	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
 	Log.Comment( INFO, "suspend server" );
 
 	done = true;
+	*Done = true;
 
 	if ( rtapi.isStreamRunning() )
 	{
@@ -40,6 +40,7 @@ void exit_proc( int exit_code )
 		if ( rtapi.isStreamOpen() )
 			Log.Comment(INFO, "stream is still open");
 	}
+    DaTA.Sem.Release( SEMAPHORE_EXIT );
 
 	exit( 0 );
 }
@@ -125,10 +126,6 @@ void Application_loop()
 
 }
 
-void get_mode()
-{
-	mode = sds->MODE;
-}
 void set_ncounter( buffer_t n )
 {
 	if( mode == KEYBOARD )
@@ -137,29 +134,13 @@ void set_ncounter( buffer_t n )
 	if ( n > max_frames - 1 )
 	{
 		ncounter = 0;
-
-		if ( mode == SYNC )
-		{
-			mode 		= SENDDATA;
-			shm_id 		= ( shm_id + 1 ) % 2;
-			shm_addr 	= ( shm_id == 0 ) ? Shm_L.addr : Shm_R.addr;
-			sds->MODE 	= mode;		// request new data for data buffers
-			sds->SHMID 	= shm_id;
-		}
+		shm_addr = DaTA.SetShm_addr( );
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA );
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 );
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA1 );
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA2 );
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA3 );
 	}
-	// else unchanged
-}
-void set_shm_addr(  )
-{
-	// required mode to setup shm communication
-	if (( mode == FREERUN ) or ( mode == KEYBOARD ))
-	{
-		shm_id 		= 0;
-		sds->SHMID 	= shm_id;
-		shm_addr 	= Shm_L.addr;
-		sds->MODE	= FREERUN;
-	}
-	// else unchanged
 }
 
 
@@ -176,9 +157,7 @@ int RtAudioOut(	void *outputBuffer,
 	  if ( status != 0 ) // buffer overflow
 		  Log.Comment( WARN, "Buffer status differs: " + to_string( status ));
 
-	  get_mode();
 	  set_ncounter( ncounter );
-	  set_shm_addr();
 
 	  // the output loop is implicitly protect against status changes by the fact
 	  // that the buffer boundaries are aligned to 44100 respectively one second
@@ -191,6 +170,7 @@ int RtAudioOut(	void *outputBuffer,
 	  if (sds->AudioServer == EXITSERVER )
 	  {
 		  *Done = true;
+		  done = true;
 		  return 1;
 	  }
 
@@ -205,6 +185,8 @@ int main( int argc, char *argv[] )
 {
 	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start(argc, argv );
+	sds = App.sds;
+//	signal( SIGINT, &exit_proc);
 
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
@@ -213,7 +195,8 @@ int main( int argc, char *argv[] )
 	App.Shutdown_instance( );
 
 
-    DaTA.Sds.Announce( App.client_id, &sds->AudioServer );
+	App.Sds->Announce(  );
+    DaTA.Sem.Release( SEMAPHORE_STARTED );
 	sds->RecCounter 	= 0;
 
 
@@ -242,14 +225,12 @@ int main( int argc, char *argv[] )
 
 
 
-
-	Log.Comment(INFO,"Attaching data buffers");
-	Shm_L.Stereo_buffer( Cfg->Config.shm_key_l );
-	Shm_R.Stereo_buffer( Cfg->Config.shm_key_r );
-	shm_id		= 0;
-	sds->SHMID 	= shm_id;
-	shm_addr 	= Shm_L.addr;
-
+	shm_addr = DaTA.SetShm_addr( );
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA);
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA0);
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA1);
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA2);
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA3);
 	show_usage();
 
 
@@ -301,13 +282,12 @@ int main( int argc, char *argv[] )
 						"       Device name        " + DeviceDescription.Name  );
 
 
-	Log.Comment(INFO, "announcing Application");
 
 	Log.Comment(INFO, "Application initialized");
 	Log.Comment(INFO, "Entering Application loop\n");
 	Log.Comment(INFO, App.Name + " is ready");
 
-	Statistic.Show_Statistic( Module );
+	Statistic.Show_Statistic( );
 	while ( not *Done )
 	{
 		cout.flush() << "." ;
@@ -315,7 +295,7 @@ int main( int argc, char *argv[] )
 	}
 	free( frame );
 	Log.Comment(INFO, "Application loop exit");
-	exit_proc(0);
+//	raise( SIGHUP);
 
 }
 

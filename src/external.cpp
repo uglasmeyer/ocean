@@ -10,39 +10,6 @@
 #include <System.h>
 
 
-void record_thead_fcn( 	Dataworld_class* DaTA,
-						External_class*  External,
-						bool*			 SaveRecordFlag,
-						bool*			 RecordThreadDone )
-{
-	Logfacility_class	Log("RecordThread");
-	Log.Comment( INFO, "record thread started ");
-
-	Value fileno {0};
-	while ( true )
-	{
-		DaTA->Sem.Lock( SEMAPHORE_RECORD );
-
-		if ( *RecordThreadDone ) break;
-	    *SaveRecordFlag = true;
-
-		fileno = (int) DaTA->Sds.addr->FileNo;
-		Log.Comment( INFO, "record thread received job " + fileno.str);
-
-		External->Save_record_data( fileno.i );
-			// clean up
-
-		DaTA->Sds.Update( RECORDWAVFILEFLAG ); 	// feedback to GUI
-		DaTA->Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
-											// it will be released hereby
-	    *SaveRecordFlag = false;
-
-
-	}
-
-	Log.Comment( INFO, "record thread terminated ");
-
-}
 
 string External_class::GetName()
 {

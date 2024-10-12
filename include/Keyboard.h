@@ -8,13 +8,13 @@
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
+#include <data/Memory.h>
 #include <Logfacility.h>
 #include <Osc.h>
 #include <Instrument.h>
 #include <Notesbase.h>
 #include <Kbd.h>
 #include <Ocean.h>
-#include <Synthmem.h>
 
 class Keyboard_class :	virtual  Logfacility_class,
 						virtual  Oscillator_base,

@@ -12,39 +12,10 @@ using namespace std;
 
 #include <Ocean.h>
 #include <Logfacility.h>
-#include <data/Shmbase.h>
+#include <data/Memorybase.h>
 
 
-typedef struct mem_data_struct
-{
-	string			name 			= "memory";
-	void*			addr			= nullptr;
-	buffer_t		size			= 0;
-	buffer_t 		mem_bytes		= 0;
-	const buffer_t 	block_size 		= max_frames;
-	uint 			sizeof_data 	= 0;
-	buffer_t 		data_blocks		= 0;
-	uint 			max_records		= 0;
-//	uint 			record_bytes 	= 0;
-//	uint 			record_counter	= 0;
-} mem_ds_t;
 
-
-class Memory_base : public virtual Logfacility_class
-{
-	string className = "Memory_base";
-public:
-	mem_ds_t	ds	= mem_data_struct();
-
-	void 	Info();
-	void* 	Init_void();
-	void 	Gen_ds( size_t ds_size);
-
-	Memory_base( buffer_t size );
-	Memory_base() ;
-	virtual ~Memory_base();
-
-};
 
 class Memory : virtual public Logfacility_class, virtual public Memory_base
 {
@@ -57,6 +28,7 @@ public:
 	{
 		Init_data();
 	};
+
 	Memory( ) :
 		Logfacility_class( "Memory" )
 	{
@@ -75,6 +47,7 @@ typedef struct stereo_struct
 	data_t left;
 	data_t right;
 } stereo_t;
+
 
 const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_t);
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
@@ -155,11 +128,12 @@ private:
 };
 
 
-class Shared_Memory : virtual public Logfacility_class, virtual Shm_base
+class Shared_Memory : virtual public Logfacility_class, virtual public Shm_base
 {
 
 public:
 	stereo_t* 	addr 		= nullptr;
+	shm_ds_t	ds 			= shm_data_struct();
 
 	Shared_Memory( buffer_t size );
 	virtual ~Shared_Memory();

@@ -22,6 +22,7 @@
 #include <numeric>
 #include <random>
 #include <ranges>
+#include <set>
 #include <stdexcept>
 #include <sstream>
 #include <string>
@@ -74,13 +75,13 @@ const uint			osc_default_volume	= 100; // %
 
 enum
 {
-	NOID,
+	AUDIOID,
 	SYNTHID,
 	COMPID,
 	GUI_ID,
 	COMSTACKID,
-	AUDIOID,
 	RTSPID,
+	NOID,
 	APP_SIZE
 };
 

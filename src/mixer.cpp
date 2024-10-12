@@ -110,7 +110,7 @@ Mixer_class::Mixer_class( interface_t* sds )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
-	this->sds = sds;
+	Setup( sds );
 	for( uint n : MemIds )
 	{
 		Storage_class DataMem;
@@ -125,23 +125,30 @@ Mixer_class::Mixer_class( interface_t* sds )
 		StA[n].Setup(usr_conf);
 	StA[MbIdExternal].Setup(ext_conf);
 
-	for ( uint n : MemIds )
-		StA[n].Memory_base::Info();
+	if( Log[ TEST ] )
+	{
+		for ( uint n : MemIds )
+			StA[n].Memory_base::Info();
 
-	Mono.Info		( "Mono data");
-	Mono_out.Info	( "Wave display data");
-	Out_L.Info		( "Output Stereo Left");
-	Out_R.Info		( "Output Stereo Right");
-
+		Mono.Info		( "Mono data");
+		Mono_out.Info	( "Wave display data");
+		Out_L.Info		( "Output Stereo Left");
+		Out_R.Info		( "Output Stereo Right");
+	}
 };
 
 Mixer_class::~Mixer_class()
 {
+	if ( not sds ) return;
 	Clear_StA_status( sds->StA_state );
 	sds->mixer_status.external	= false;
 
 };
 
+void Mixer_class::Setup( interface_t* sds )
+{
+	this->sds = sds;
+}
 
 void Mixer_class::clear_memory()
 {

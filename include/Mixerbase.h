@@ -5,8 +5,8 @@
  *      Author: sirius
  */
 
+#include <data/Memory.h>
 #include <Ocean.h>
-#include <Synthmem.h>
 
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_

@@ -9,8 +9,8 @@
 #define RECORD_H_
 
 #include <data/Interface.h>
+#include <data/Memory.h>
 #include <Ocean.h>
-#include <Synthmem.h>
 
 class ProgressBar_class : virtual Logfacility_class
 {
@@ -25,7 +25,8 @@ public:
 	uint max_counter = 1;
 	bool active = false;
 
-	void Setup( uint );
+	void Setup( uint8_t* sds );
+	void SetValue( uint );
 	void Set( uint* count, uint max );
 	void Unset();
 	void Reset();

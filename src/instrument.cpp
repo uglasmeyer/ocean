@@ -13,6 +13,10 @@
 Instrument_class::Instrument_class(interface_t* ifd )
 : Logfacility_class("Instrument")
 {
+	Setup( ifd );
+}
+void Instrument_class::Setup( interface_t* ifd )
+{
 	this->ifd 		= ifd;
 	Default_instrument_file = file_structure().Dir.instrumentdir + "default.kbd";
 	ifd_spectrum_vec = { &ifd->VCO_spectrum, &ifd->FMO_spectrum, &ifd->MAIN_spectrum};

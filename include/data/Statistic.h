@@ -26,13 +26,14 @@ extern statistic_t statistic;
 class Statistic_class :
 	public virtual Logfacility_class
 {
-	string className = "Statistic_class";
+	string className = "";
+	string module = "";
 
 public:
 
-	void Show_Statistic( string );
+	void Show_Statistic( );
 
-	Statistic_class();
+	Statistic_class( string module );
 	virtual ~Statistic_class();
 };
 

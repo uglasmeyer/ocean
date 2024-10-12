@@ -5,8 +5,8 @@
  *      Author: sirius
  */
 
-#ifndef DATA_SHMBASE_H_
-#define DATA_SHMBASE_H_
+#ifndef DATA_MEMORYBASE_H_
+#define DATA_MEMORYBASE_H_
 
 #include <Ocean.h>
 #include <Logfacility.h>
@@ -40,6 +40,7 @@ public:
 	void 		ShowDs( shm_ds_t );
 	void* 		Attach( int id );
 	void 		Detach( void* );
+	void		Test_Memory();
 
 	Shm_base( buffer_t size );
 	virtual ~Shm_base();
@@ -48,4 +49,36 @@ private:
 
 };
 
-#endif /* DATA_SHMBASE_H_ */
+typedef struct mem_data_struct
+{
+	string			name 			= "memory";
+	void*			addr			= nullptr;
+	buffer_t		size			= 0;
+	buffer_t 		mem_bytes		= 0;
+	const buffer_t 	block_size 		= max_frames;
+	uint 			sizeof_data 	= 0;
+	buffer_t 		data_blocks		= 0;
+	uint 			max_records		= 0;
+//	uint 			record_bytes 	= 0;
+//	uint 			record_counter	= 0;
+} mem_ds_t;
+
+
+class Memory_base : public virtual Logfacility_class
+{
+	string className = "Memory_base";
+public:
+	mem_ds_t	ds	= mem_data_struct();
+
+	void 	Info();
+	void* 	Init_void();
+	void 	Gen_ds( size_t ds_size);
+
+	Memory_base( buffer_t size );
+	Memory_base() ;
+	virtual ~Memory_base();
+
+};
+
+
+#endif /* DATA_MEMORYBASE_H_ */

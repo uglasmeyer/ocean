@@ -18,6 +18,7 @@
 
 using namespace std;
 
+#define SETW setw(20)
 
 enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
 
@@ -39,9 +40,12 @@ public:
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  );
 
+	template<typename T, typename... Targs>
+	void InfoT( string fmt, T value, Targs... Fargs);
 
 	// make all true to enable debugging of initialization phase
-	void Comment( int level, const string& c );
+	void Comment( const int& level, const string& text );
+	void Info( string text );
 	void Set_Loglevel( int, bool );
 	void Show_loglevel();
 	string Error_text( int );

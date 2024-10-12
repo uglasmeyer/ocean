@@ -67,7 +67,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 	Qbps_str_list = Qstringlist( bps_struct().Bps_str_vec );
 
-
+	DaTA->Sds.addr = DaTA->GetSdsAddr( 0 );
 	ui = &Ui_Mainwindow_obj;
     ui->setupUi(this);
 
@@ -272,9 +272,14 @@ void MainWindow::dial_PMW_value_changed()
 void MainWindow::Rtsp_Dialog()
 {
     if ( this->Rtsp_Dialog_p->isVisible()   )
+    {
         this->Rtsp_Dialog_p->hide();
+    }
     else
+    {
         this->Rtsp_Dialog_p->show();
+        Rtsp_Dialog_p->Update_widgets();
+    }
 }
 
 void MainWindow::File_Director()
@@ -550,7 +555,7 @@ void MainWindow::setwidgetvalues()
 
     DaTA->Sds.addr->UserInterface 	= RUNNING;
     DaTA->Sds.addr->UpdateFlag 		= true;
-
+    Rtsp_Dialog_obj.Update_widgets();
     MainWindow::show();
 }
 
@@ -620,8 +625,13 @@ void MainWindow::start_composer()
 void MainWindow::start_audio_srv()
 {
 	if( DaTA->Sds.addr->Rtsp == RUNNING ) return;
-    string Start_Audio_Srv = Cfg->Server_cmd( Cfg->Config.Term, file_structure().audio_bin, "" );
+    string Start_Audio_Srv = Cfg->Server_cmd( Cfg->Config.Term,
+    		file_structure().audio_bin,
+			"-S 0");
 	system_execute( Start_Audio_Srv.data() );
+    Sem->Lock( SEMAPHORE_STARTED );
+    Rtsp_Dialog_obj.Update_widgets();
+
 }
 
 void MainWindow::start_synthesizer()
@@ -632,9 +642,12 @@ void MainWindow::start_synthesizer()
 	    	Sem->Release( SYNTHESIZER_START );
 	    return;
 	}
-    string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term, file_structure().synth_bin, "" );
+    string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
+    		file_structure().synth_bin,
+			"-S " + to_string(Rtsp_Dialog_obj.SDS_ID) );
     system_execute( Start_Synthesizer.data() );
     Sem->Lock( SEMAPHORE_STARTED );
+    Rtsp_Dialog_obj.Update_widgets();
     MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-
     MainWindow::show(); // and the Mainwindow is updated.
 }
@@ -652,11 +665,16 @@ void MainWindow::Controller_Exit()
     return;
 	}
     DaTA->Sds.addr->Synthesizer = EXITSERVER ;
+    DaTA->Sem.Lock( SEMAPHORE_EXIT, 1 );
+    Rtsp_Dialog_obj.Update_widgets();
+
 }
 
 void MainWindow::Audio_Exit()
 {
     DaTA->Sds.addr->AudioServer = EXITSERVER;
+    DaTA->Sem.Lock( SEMAPHORE_EXIT, 1 );
+    Rtsp_Dialog_obj.Update_widgets();
 }
 
 // button save Cfg->Config to default instrument
@@ -727,7 +745,7 @@ void MainWindow::melody_connect()
 
 void MainWindow::Updatewidgets()
 {
-    if (  DaTA->Sds.addr->UserInterface == UPDATEGUI  )
+    if (  DaTA->Sds_master->UserInterface == UPDATEGUI  )
     {
         if ( DaTA->Sds.addr->KEY == INSTRUMENTSTR_KEY )
         {
@@ -736,7 +754,7 @@ void MainWindow::Updatewidgets()
             if ( this->File_Dialog_p != nullptr )
                 this->File_Dialog_p->CB_instruments->textActivated(QStr);
         }
-        if ( not DaTA->Sds.addr->Composer )
+        if ( not DaTA->Sds_master->Composer )
         {
 			switch( DaTA->Sds.addr->FLAG )
 			{
@@ -762,13 +780,10 @@ void MainWindow::Updatewidgets()
         }
 
     	DaTA->Sds.addr->UserInterface = OFFLINE ;
-    	cout << hex << DaTA->Sds.addr << endl;
-    	DaTA->Sds.addr = DaTA->SetSds( Rtsp_Dialog_obj.SDS_ID );
-    	cout << hex << DaTA->Sds.addr << endl;
-    	Rtsp_Dialog_obj.sds = DaTA->Sds.addr;
+    	DaTA->Sds.addr = DaTA->GetSdsAddr( Rtsp_Dialog_obj.SDS_ID );
+//    	Rtsp_Dialog_obj.sds = DaTA->Sds.addr;
 
         setwidgetvalues();
-
     }
 
     if (DaTA->Sds.addr->AudioServer == RUNNING )
