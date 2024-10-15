@@ -190,7 +190,8 @@ Shared_Memory::Shared_Memory( buffer_t size ) :
 };
 
 Shared_Memory::~Shared_Memory()
-{}
+{
+}
 
 void Shared_Memory::Clear()
 {

@@ -27,17 +27,20 @@ int getvalue(string text )
 
 }
 
-int sdsid=0;
 void show_ifd()
 {
 	if ( sds->UpdateFlag )
 	{
-//		DaTA.Sds.addr = DaTA.GetSdsAddr( DaTA.Sds_master->config );
+		Sds = DaTA.GetSds(sdsid);
 		sds->UpdateFlag = false;
 
-		DaTA.SDS_vec[sdsid].Show_interface();
+//		DaTA.SDS_vec[sdsid].Show_interface();
+		Sds->Show_interface();
+
 		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
-		sds = DaTA.SDS_vec[sdsid].addr;
+//		sds = DaTA.SDS_vec[sdsid].addr;
+		sds = DaTA.GetSdsAddr( sdsid );
+
 		update_counter++;
 	}
 
@@ -76,7 +79,6 @@ int main( int argc, char* argv[] )
 
     App.Sds->Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
-
 	keys.key = '$';
 	char keyevent;
 	while(  keys.key != '#' )

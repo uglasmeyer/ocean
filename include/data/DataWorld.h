@@ -11,13 +11,13 @@
 
 #include <data/Interface.h>
 
+
 class Dataworld_class : virtual Logfacility_class
 {
 	string className = "Dataworld_class";
 public:
 
-
-	typedef	array<shm_ds_t, MAXCONFIG>	SharedDataSegment_arr_t;
+//	typedef	array<shm_ds_t, MAXCONFIG>	SharedDataSegment_arr_t;
 	typedef vector<Interface_class> SDS_vec_t;
 	typedef vector<Shared_Memory> 	SHM_vec_t;
 
@@ -31,26 +31,24 @@ public:
 	Semaphore_class*		Sem_p		= &Sem;
 	Interface_class			Sds			{ Cfg_p, Sem_p };
 	SDS_vec_t			 	SDS_vec 	{ };
-	Interface_class*		Sds_p		= nullptr;
 	SHM_vec_t				SHM_vecL	{ };
 	SHM_vec_t				SHM_vecR	{ };
-	std::set<int> 			dataProc	{ AUDIOID, SYNTHID, RTSPID };
+	Register_class			Reg			{ };
+
 	stereo_t* 				ShmAddr_L 	= nullptr;
 	stereo_t* 				ShmAddr_R 	= nullptr;
-	interface_t*			Sds_master	;
+	Interface_class*		Sds_p		= nullptr;
+	interface_t*			Sds_master	= nullptr;
 
-	SharedDataSegment_arr_t	Sds_arr		{};
-	vector<process_t>	SynthesizerProcesses	{};
-	process_t			AudioserverProcess		{};
 
-	interface_t* GetSdsAddr( uint id );
-	Interface_class* GetSds( uint id );
+	interface_t* GetSdsAddr();
+	interface_t* GetSdsAddr( int id );
+	Interface_class* GetSds(  );
+	Interface_class* GetSds( int id );
 
 	stereo_t* SetShm_addr( ); 			// Audioserver
 	stereo_t* GetShm_addr( ); 			// Synthesizer
 	stereo_t* GetShm_addr( uint sdsid );// rtsp
-	void Init_Shm( );
-	void Test_dw();
 
 	Dataworld_class( uint id );
 	~Dataworld_class();
@@ -59,10 +57,8 @@ public:
 private:
 
 
-	void show_proc_register( );
-	void proc_Register( );
-	void proc_deRegister();
-
+	void init_Shm( );
+	void init_Sds(  );
 };
 
 #endif /* DATA_DATAWORLD_H_ */

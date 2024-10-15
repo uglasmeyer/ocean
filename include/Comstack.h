@@ -27,6 +27,9 @@ Keyboard_base::key_struct_t
 						keys			= Keyboard_base::key_struct();
 string 					waveform_string = "0 ... 10";
 int 					update_counter 	= 1;
+int 					sdsid			= 0;
+Interface_class*		Sds				= DaTA.GetSds( sdsid );
+
 
 
 

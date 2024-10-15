@@ -60,9 +60,6 @@ Logfacility_class( "Shm_base" )
 
 Shm_base::~Shm_base()
 {
-//	Detach( ds.addr );
-//	Comment( INFO , "Detach shared memory id: " + to_string( ds.id ) );
-//	shmdt( ds.addr );
 }
 
 shm_ds_t* Shm_base::Get( key_t key )

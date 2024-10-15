@@ -14,6 +14,7 @@
 
 static const uint MAXCONFIG 	= 4;
 typedef	array<key_t, MAXCONFIG>	keys_arr_t;
+typedef array<string,APP_SIZE > type_map_t;
 
 typedef struct prgarg_struct
 {
@@ -39,7 +40,8 @@ typedef struct prgarg_struct
 		keys_arr_t 	sdskeys 	{};
 		keys_arr_t	shmkeys_l	{};
 		keys_arr_t	shmkeys_r	{};
-		string 		appcfg	= "S0.cfg";  // TODO name of Synthesizer instances
+		string 		appcfg		= "S0.cfg";  // TODO name of Synthesizer instances
+		char		clear		= 'n';
 
 
 } prgarcg_struct_t;
@@ -52,7 +54,8 @@ public:
 	string basedir 		{""};
 	string configfile 	{""};
 	string prgname		{""};
-	prgarg_struct		Config = prgarg_struct();
+	prgarg_struct		Config 	= prgarg_struct();
+	type_map_t			type_map= {""};
 
 
 	typedef struct Server_struct
@@ -74,6 +77,7 @@ public:
 
 private:
 	string baseDir();
+	void typeidMap();
 
 };
 

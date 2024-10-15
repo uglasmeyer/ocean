@@ -40,6 +40,7 @@ public:
 	void 		ShowDs( shm_ds_t );
 	void* 		Attach( int id );
 	void 		Detach( void* );
+
 	void		Test_Memory();
 
 	Shm_base( buffer_t size );

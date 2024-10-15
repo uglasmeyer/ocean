@@ -10,29 +10,17 @@
 #define GUIINTERFACE_H_
 
 #include <Ocean.h>
-
-enum {
-	 OFFLINE,
-	 RUNNING	,
-	 FREERUN	,
-	 UPDATEGUI 	,
-	 SYNC 		,
-	 DEFAULT	,
-	 EXITSERVER	,
-	 KEYBOARD	,
-	 LASTNUM
-};
-static const uint STATE_MAP_SIZE = LASTNUM;
-
+#include <Config.h>
 #include <Keys.h>
-#include <data/Memory.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <Version.h>
 #include <data/Semaphore.h>
 #include <data/SharedDataSegment.h>
+#include <data/Register.h>
+#include <data/Memory.h>
 
-
+static const uint STATE_MAP_SIZE = LASTNUM;
 
 
 class Interface_class : virtual public Logfacility_class
@@ -44,16 +32,16 @@ public:
 	interface_t* 			addr		= nullptr;
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;
-	array<string,APP_SIZE > type_map 	= {""};
+	Config_class*			Cfg_p		= nullptr;
+	uint					Type_Id		= NOID;
 	array<uint8_t*,APP_SIZE>
 							state_p_map	{};
-	uint					Type_Id		= NOID;
 
 
 	Interface_class( Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
 
-	void	Setup_SDS( key_t key );
+	void	Setup_SDS( uint sdsid, key_t key );
 	void 	Write_arr( const wd_arr_t& arr );
 	void 	Write_str( char, string );
 	string 	Read_str( char );
@@ -72,6 +60,7 @@ public:
 	void	State_pMap();
 
 private:
+	string			dumpFile		= "";
 	size_t			sds_size		= sizeof( ifd_data );
 	Spectrum_base	GUIspectrum 	{};
 	vector<string>	Waveform_vec	{};
@@ -81,8 +70,7 @@ private:
 
 	Spectrum_base			Spectrum 		{};
 	bool 	reject(char status, int id );
-	void 	typeidMap();
-	void 	stateMap();
+	void	stateMap();
 
 
 };

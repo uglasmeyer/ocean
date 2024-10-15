@@ -14,6 +14,7 @@ Config_class::Config_class( string Module ) :
 	cout << "Hallo" << endl;
 	Read_config( file_structure().config_file );
 	cout << "World" << endl;
+	typeidMap();
 };
 
 Config_class::~Config_class()
@@ -140,9 +141,24 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			Config.dialog 	= 'y';
 		if ( arg.compare("-A") == 0 )
 			Config.appcfg = next;
+		if ( arg.compare("-X") == 0 ) // force clear proc register
+			Config.clear = 'y';
+
 	}
 
 }
+void Config_class::typeidMap()
+{
+	assert( NOID < type_map.size() );
+	type_map[AUDIOID] 	= "Audioserver";
+	type_map[SYNTHID] 	= "Synthesizer";
+	type_map[COMPID ] 	= "Composer";
+	type_map[GUI_ID] 	= "UserInterface";
+	type_map[COMSTACKID]= "comstack";
+	type_map[RTSPID] 	= "rtsp";
+	type_map[NOID] 		= "No Process";
+}
+
 void Config_class::Show_Config( )
 {
 	stringstream strs{""};

@@ -19,7 +19,8 @@ class ShmMixer_class : virtual Logfacility_class
 {
 	string className = "";
 public:
-	Dataworld_class* DaTA_p;
+	Dataworld_class* 	DaTA_p;
+	int 				error = 0;
 
 	void InitShm();
 	void AddShm();

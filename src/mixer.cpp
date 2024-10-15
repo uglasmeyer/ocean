@@ -106,11 +106,12 @@ void Loop_class::Test()
 //-------------------------------------------------------------------------------------------------
 
 
-Mixer_class::Mixer_class( interface_t* sds )
+Mixer_class::Mixer_class(  )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
-	Setup( sds );
+
+//	Setup( sds );
 	for( uint n : MemIds )
 	{
 		Storage_class DataMem;
@@ -145,9 +146,11 @@ Mixer_class::~Mixer_class()
 
 };
 
-void Mixer_class::Setup( interface_t* sds )
+void Mixer_class::Setup( interface_t* sds, uint8_t sdsid )
 {
-	this->sds = sds;
+
+	this->sds 	= sds;
+	this->sdsid = sdsid;
 }
 
 void Mixer_class::clear_memory()
@@ -229,11 +232,24 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
 {
 	float out_percent=master_vol/100.0;
-	for( buffer_t n = 0; n < max_frames; n++ )
+
+	if ( sdsid == 0 )
 	{
-		data[n].left 	= rint( Out_L.Data[n] * out_percent );
-		data[n].right 	= rint( Out_R.Data[n] * out_percent );
-		Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
+		for( buffer_t n = 0; n < max_frames; n++ )
+		{
+			data[n].left 	= rint( Out_L.Data[n] * out_percent );
+			data[n].right 	= rint( Out_R.Data[n] * out_percent );
+			Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
+		}
+	}
+	else
+	{
+		for( buffer_t n = 0; n < max_frames; n++ )
+		{
+			data[n].left 	+= rint( Out_L.Data[n] * out_percent );
+			data[n].right 	+= rint( Out_R.Data[n] * out_percent );
+			Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
+		}
 	}
 }
 

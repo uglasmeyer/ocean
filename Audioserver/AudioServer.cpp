@@ -290,7 +290,7 @@ int main( int argc, char *argv[] )
 	Statistic.Show_Statistic( );
 	while ( not *Done )
 	{
-		cout.flush() << "." ;
+//		cout.flush() << "." ;
 		Timer.Wait( 1 );// 1sec
 	}
 	free( frame );

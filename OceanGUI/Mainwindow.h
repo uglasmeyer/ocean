@@ -37,7 +37,7 @@ class MainWindow : public QMainWindow, 	virtual public Logfacility_class
 public:
     Dataworld_class			DaTA_class{ GUI_ID };
     Dataworld_class*		DaTA 	= &DaTA_class;
-    Application_class		App			{ &DaTA_class };
+    Application_class		App		{ &DaTA_class };
 
     Config_class*			Cfg 	= DaTA->Cfg_p;
     Interface_class*		Sds		= DaTA->Sds_p;
@@ -67,6 +67,7 @@ public:
 
     void setwidgetvalues();
     void Updatewidgets();
+    void SetSds(  );
     explicit MainWindow(	QWidget*			parent 	= nullptr);
     ~MainWindow();
     //

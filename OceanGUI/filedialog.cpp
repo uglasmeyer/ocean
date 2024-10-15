@@ -83,6 +83,16 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     Setup_widgets();
 }
 
+void File_Dialog_class::SetSds( Interface_class* sds )
+{
+	this->sds 	= sds;
+	this->addr 	= sds->addr;
+    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int)addr->SDS_Id ));
+
+	Setup_widgets();
+
+}
+
 void File_Dialog_class::sB_Octave(int sb_value )
 {
 	addr->noteline_prefix.Octave = sb_value;

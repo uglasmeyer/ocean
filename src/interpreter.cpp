@@ -12,8 +12,8 @@ Interpreter_class::Interpreter_class( Dataworld_class* data ) :
 Logfacility_class( "Interpreter" ),
 Processor_class( &data->Sds )
 {
-	ifd 				= (interface_t*)data->Sds_arr[0].addr;
-	this->GUI 			= &data->Sds;
+	this->ifd 			= data->GetSdsAddr();
+	this->GUI 			= data->GetSds();
 	this->Cfg 			= data->Cfg_p;
 
 	main_view.name		= "Main osc";

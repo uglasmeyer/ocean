@@ -68,6 +68,7 @@ private:
 	const int8_t	UNUSED	=  0;
 
 	void 	init	();
+	void 	Semop( const unsigned short& num, const short int& sop );
 };
 
 

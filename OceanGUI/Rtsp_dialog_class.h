@@ -21,6 +21,8 @@ class Rtsp_Dialog_class : public QDialog, virtual Logfacility_class, virtual Con
 public:
 
     Dataworld_class*		DaTA;
+    Interface_class*		Sds;
+    interface_t*			Sds_master;
     uint					SDS_ID = 0;
     Ui::Rtsp_Dialog_class*	ui;
 

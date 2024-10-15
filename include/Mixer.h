@@ -14,6 +14,7 @@
 #include <Mixerbase.h>
 #include <Notes.h>
 #include <data/Memory.h>
+#include <data/DataWorld.h>
 
 using namespace std;
 
@@ -70,11 +71,13 @@ public:
 	Loop_class 			master_amp_loop;
 	Loop_class			record_amp_loop;
 
-	interface_t* 		sds				= nullptr;				;
-	Mixer_class ( interface_t* sds );
+	interface_t* 		sds				= nullptr;
+	uint				sdsid			= 0;
+
+	Mixer_class ( );
 	~Mixer_class();
 
-	void Setup( interface_t* sds );
+	void Setup( interface_t* sds, uint8_t sdsid );
 	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );

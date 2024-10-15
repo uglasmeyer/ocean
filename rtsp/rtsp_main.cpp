@@ -19,11 +19,20 @@ void shmmixer_fnc()
 	Log.Comment( INFO, "Shared Memory Mixer Thread started");
 	while ( true )
 	{
-		Timer.Wait( 1 );
-//		Sem->Lock( SEMAPHORE_SENDDATA );
+//		Timer.Wait( 1 );
+		Sem->Lock( SEMAPHORE_SENDDATA );
 		if ( shmmixer_done )
 			break;
 		ShmMixer.AddShm();
+		if( ShmMixer.error )
+		{
+			Log.Comment( ERROR, "Shm mixer returned with error code: " + to_string( ShmMixer.error ));
+		}
+		else
+		{
+			if ( not Sem->Log[ DEBUG ] )
+				if (  Log.Log[ DEBUG ] ) cout.flush() << "#" ;
+		}
 
 	}
 	Log.Comment( INFO, "Shared Memory Mixer Thread terminated");
@@ -65,15 +74,6 @@ void Stop_synthesizer()
 	sds->Synthesizer = EXITSERVER;
 }
 
-string define_config(  )
-{
-	uint cfgid = sds->config;
-	cfgid = ( cfgid + 1 ) % MAX_CONFIG;
-	sds->config = cfgid;
-	string config = Dir.rtspdir + "S" + to_string( cfgid ) + ".cfg";
-	return config;
-}
-
 int sig_counter = 0;
 void exit_proc( int signal )
 {
@@ -89,7 +89,7 @@ void exit_proc( int signal )
 	cout << endl;
 
 	shmmixer_done = true;
-//	Sem->Release( SEMAPHORE_SENDDATA );
+	Sem->Reset( SEMAPHORE_SENDDATA );
 	Log.Info( "Waiting for shm mixer thread to join");
 	if ( shmmixer_thread.joinable() )
 		shmmixer_thread.join();

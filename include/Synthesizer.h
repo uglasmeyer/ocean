@@ -30,7 +30,7 @@ Logfacility_class		Log( Module );
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
 Application_class		App( &DaTA );
-Mixer_class				Mixer ( nullptr);// DaTA.Sds_master );
+Mixer_class				Mixer ;// DaTA.Sds_master );
 Instrument_class 		Instrument{ nullptr };
 Note_class 				Notes;
 Keyboard_class			Keyboard( 	&Instrument );

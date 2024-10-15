@@ -34,8 +34,9 @@ public:
 	{
 		Comment( INFO, "pre-init " + className );
 	};
-	virtual ~Memory( )
-	{};
+	virtual ~Memory(  )
+	{
+	};
 
 	void Init_data(  );
 	void Clear_data( Data_t );

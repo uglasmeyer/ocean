@@ -27,7 +27,7 @@ void SynthesizerTestCases()
 	Dataworld_class			DaTA( SYNTHID );
 
 	Application_class		App( &DaTA );
-	Mixer_class				Mixer ( DaTA.Sds_master );
+	Mixer_class				Mixer;
 	Mixer.Set_Loglevel( TEST, true );
 	Instrument_class 		Instrument( DaTA.Sds_master );
 	Note_class 				Notes;
@@ -49,9 +49,8 @@ void SynthesizerTestCases()
 	App.Init_Sds( 0 );
 
 
-	DaTA.Sds_p->Announce();
+	App.Sds->Announce();
 
-	DaTA.Test_dw();
     std::set<string> abc{"a","b","c"};
     assert( abc.contains("b"));
 
@@ -76,7 +75,7 @@ void SynthesizerTestCases()
 	Timer.Stop();
 	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
-
+	Mixer.Setup( DaTA.Sds_master, DaTA.SDS_Id);
 	Mixer.Test_Logging();
 
 	Keyboard.Test();
@@ -91,6 +90,9 @@ void SynthesizerTestCases()
 
 	Log.Info("5, variatic, argument, 4, 5 ");
 	Log.TEST_END( "Application " );
+
+	Register_class	Reg{};
+	Reg.Test_Register();
 }
 
 
@@ -110,11 +112,9 @@ Logfacility_class( "App" )
 
 void Application_class::Init_Sds( uint sds_id )
 {
-	DaTA->SDS_Id 	= sds_id;
-	this->Sds		= DaTA->GetSds( sds_id );
-	DaTA->Sds.addr 	= DaTA->GetSdsAddr( sds_id );
+	this->Sds		= DaTA->GetSds( );
+	assert( this->Sds != nullptr );
 	this->sds		= Sds->addr;
-	assert( sds == DaTA->Sds.addr );
 
 	this->state_p	= Sds->state_p_map[ DaTA->TypeId ];
 	assert( state_p != nullptr );
@@ -142,18 +142,36 @@ void Application_class::Start( int argc, char* argv[] )
 
 	Cfg->Parse_argv(argc, argv );
 	Cfg->Show_Config( );
+	Init_Sds( DaTA->SDS_Id );
 
-	Init_Sds( Cfg->Config.SDS_id );
-	DaTA->Init_Shm( );
+	if ( DaTA->Cfg.Config.clear == 'y' )
+	{
+		DaTA->Reg.Clear_procregister();
+		Exception( "Restart processes");
+	}
+	DaTA->Reg.Show_proc_register();
 
+	if( DaTA->TypeId == SYNTHID )
+	{
+		if ( DaTA->Sds_master->process_arr[1].type == NOID )
+		{
+			for( uint n = 0; n<MAXCONFIG +1; n++)
+				DaTA->Reg.Show_proc_register(n);
+			Comment( ERROR, "Start master synthesizer process first");
+			Comment( ERROR, "before secondary can run" );
+			Exception("Cannot continue" );
+		}
+	}
+	else
+		cout << "not a data process"<< endl;
 }
 
 Application_class::~Application_class()
 {
 	deRegister();
-	if ( DaTA->TypeId == GUI_ID )
+	if ( DaTA->TypeId == SYNTHID )
 	{
-		DaTA->Sds.Dump_ifd();
+		Sds->Dump_ifd();
 	}
 }
 

@@ -14,6 +14,28 @@ Semaphore_class::~Semaphore_class()
 {
 }
 
+void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
+{
+	struct sembuf op =
+	{
+		.sem_num 	= num,
+		.sem_op 	= sop,
+		.sem_flg 	= 0
+	};
+    int ret = semop(semid, &op, N_OPS );
+    string text = "";
+    if ( sop < 0 ) text = "Release ";
+    if ( sop ==0 ) text = "Lock    ";
+    if ( sop > 0 ) text = "Aquire  ";
+    Comment( DEBUG, text + Stat( num ));
+    if ( ret < 0 )
+    {
+    	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
+        Comment( ERROR, Stat( num ));
+    }
+    assert( ret == 0 );
+}
+
 void Semaphore_class::Init()
 {
 	for ( uint8_t n = 0; n < SEMNUM_SIZE ; n++ )
@@ -23,30 +45,14 @@ void Semaphore_class::Init()
             perror("semctl");
             exit( 1 );
         }
-    	struct sembuf op =
-    	{
-    		.sem_num 	= n,
-    		.sem_op 	= OP_WAIT,
-    		.sem_flg 	= 0
-    	};
-        int ret = semop(semid, &op, N_OPS );
-
-        assert( ret == 0 );
+    	Semop( n, OP_WAIT );
     }
 }
 
 void Semaphore_class::Reset( uint8_t num )
 {
 	short int val = -abs(  Getval( num , GETVAL ) );
-	struct sembuf op =
-	{
-		.sem_num 	= num,
-		.sem_op 	= val,
-		.sem_flg 	= OP_WAIT
-	};
-    int ret = semop(semid, &op, N_OPS );
-    Comment( DEBUG, "reset " + Stat( num ));
-    assert( ret == 0 );
+	Semop( num, val );
 }
 
 void Semaphore_class::init()
@@ -74,56 +80,23 @@ void Semaphore_class::init()
 void Semaphore_class::Aquire( uint8_t num )
 {
 	; // increase the semaphore ( OP_INC )
-	struct sembuf op =
-	{
-		.sem_num 	= num,
-		.sem_op 	= OP_INC,
-		.sem_flg 	= IPC_NOWAIT
-	};
-    int ret = semop(semid, &op, N_OPS );
-    if ( ret )
-   	{
-    	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
-        Comment( ERROR, Stat( num ));
-   	}
-    Comment( DEBUG, "aquire  " + Stat( num ));
-    assert( ret == 0 );
-
+	Semop( num, OP_INC );
 }
 void Semaphore_class::Release( uint8_t num)
 {
 	;	// decrease the semaphore ( OP_DEC )
 	if ( not ( Getval(num, GETVAL) > 0 ) ) return;
-	struct sembuf op =
-	{
-		.sem_num 	= num,
-		.sem_op 	= OP_DEC,
-		.sem_flg 	= OP_WAIT
-	};
-    int ret = semop(semid, &op, N_OPS );
-    Comment( DEBUG, "release " + Stat( num ));
-    assert( ret == 0 );
+	Semop( num, OP_DEC );
 }
-
 
 void Semaphore_class::Lock( uint8_t num )
 {
 	;	// wait for release
 	Aquire( num );
-    struct sembuf op =
-	{
-		.sem_num 	= num,
-		.sem_op 	= OP_WAIT,
-		.sem_flg 	= OP_WAIT
-	};
-
-    int ret = semop(semid, &op, N_OPS );
-    Comment( DEBUG, "lock    " + Stat( num ));
-    assert( ret == 0 );
-
+	Semop( num, OP_WAIT );
 }
 
-void RelwaseProxy_fnc( 	Semaphore_class* sem,
+void ReleaseProxy_fnc( 	Semaphore_class* sem,
 				uint semaphore,
 				uint timeout )
 {
@@ -135,19 +108,10 @@ void RelwaseProxy_fnc( 	Semaphore_class* sem,
 void Semaphore_class::Lock( uint8_t num, uint timeout )
 {
 	;	// wait for release
-    Comment( DEBUG, "lock    " + Stat( num ));
-    thread ReleaseProxy_thread (	RelwaseProxy_fnc, this, num, timeout );
+    thread ReleaseProxy_thread (	ReleaseProxy_fnc, this, num, timeout );
 	Aquire( num );
-    struct sembuf op =
-	{
-		.sem_num 	= num,
-		.sem_op 	= OP_WAIT,
-		.sem_flg 	= OP_WAIT
-	};
-
-    int ret = semop(semid, &op, N_OPS );
+	Semop( num, OP_WAIT );
     ReleaseProxy_thread.join();
-    assert( ret == 0 );
 
 }
 
@@ -163,11 +127,11 @@ string Semaphore_class::Stat( uint8_t num )
 	{
 		stringstream strs;
 		strs <<
-				"num " << (int) num 				<< " " <<
-				"pid " << Getval( num, GETPID ) 	<< " " <<
-				"val " << Getval( num, GETVAL ) 	<< " " <<
-				"ncn " << Getval( num, GETNCNT ) 	<< " " <<
-				"zcn " << Getval( num, GETZCNT ) 	;
+				"num " << setw(4) << (int) num 				<< " " <<
+				"pid " << setw(8) << Getval( num, GETPID ) 	<< " " <<
+				"val " << setw(4) << Getval( num, GETVAL ) 	<< " " <<
+				"ncn " << setw(4) << Getval( num, GETNCNT ) 	<< " " <<
+				"zcn " << setw(4) << Getval( num, GETZCNT ) 	;
 		return strs.str();
 	};
 
@@ -181,7 +145,6 @@ string Semaphore_class::Stat( uint8_t num )
 	{
 		return stat( num ) ;
 	}
-
 }
 
 void Semaphore_class::Test()
@@ -194,7 +157,9 @@ void Semaphore_class::Test()
 	t.Start();
 	this->Lock( SEMAPHORE_TEST, 2 );
 	long tel = t.Time_elapsed();
-	cout << "time elapsed " << tel << " ms" << endl;
+	stringstream strs;
+	strs << "time elapsed " << tel << " ms" ;
+	Info( strs.str());
 	TEST_END( className );
 }
 

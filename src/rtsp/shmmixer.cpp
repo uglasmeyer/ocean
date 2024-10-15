@@ -10,10 +10,10 @@
 
 void ShmMixer_class::InitShm()
 {
-	for( uint sdsid = 0; sdsid < MAXCONFIG ; sdsid ++ )
+	for( uint shmid = 0; shmid < MAXCONFIG ; shmid ++ )
 	{
-		DaTA_p->SHM_vecL[sdsid].Clear();
-		DaTA_p->SHM_vecR[sdsid].Clear();
+		DaTA_p->SHM_vecL[shmid].Clear();
+		DaTA_p->SHM_vecR[shmid].Clear();
 	}
 
 }
@@ -26,17 +26,19 @@ void operator+=( stereo_t& lhs, stereo_t& rhs)
 
 void ShmMixer_class::AddShm()
 {
-	if ( Log[ DEBUG ] ) cout.flush() << "#" ;
+	error = -1;
 	if( DaTA_p->SDS_Id != 0 ) return; // not yor job
 
-	stereo_t* audio_data = DaTA_p->GetShm_addr(  );
+	stereo_t* audio_data = DaTA_p->GetShm_addr( 0 );
+	error = -2;
 	if ( not audio_data ) return;
 
 	assert( max_frames == DaTA_p->SHM_vecL[0].ds.size / sizeof(stereo_t) );
 
-	for( uint sdsid = 1; sdsid < MAXCONFIG ; sdsid ++ )
+	for( uint shmid = 1; shmid < MAXCONFIG ; shmid ++ )
 	{
-		stereo_t* shm_addr = DaTA_p->GetShm_addr( sdsid );
+		stereo_t* shm_addr = DaTA_p->GetShm_addr( shmid );
+		error = shmid;
 		if ( not shm_addr ) return;
 
 		for( buffer_t n = 0; n < max_frames; n++ )
@@ -44,6 +46,6 @@ void ShmMixer_class::AddShm()
 			audio_data[n] += shm_addr[n];
 		}
 	}
-
+	error = 0;
 }
 

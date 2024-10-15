@@ -144,11 +144,12 @@ int generate_file_no( )
 	}
 
 	File.open( counterfile, fstream::in );
-	string filenr_str {};
-	getline( File, filenr_str );
+	String S {""};
+	getline( File, S.Str );
 	File.close();
 
-	int filenr = stoi( filenr_str );
+	filesystem::remove( counterfile );
+	int filenr = S.to_int( S.Str );
 	filenr++;
 
 	File.open( counterfile, fstream::out );

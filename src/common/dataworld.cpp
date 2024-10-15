@@ -15,25 +15,26 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 
 	// Shared Data Segment
 
-	for( uint n = 0; n < MAXCONFIG; n++ )
+	for( uint sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
 	{
 		Interface_class SDS {Cfg_p, Sem_p };
-		SDS.Setup_SDS( Cfg.Config.sdskeys[n]);
-		SDS.ds.Id = n;
-		Sds_arr[n] = SDS.ds;
+		SDS.Setup_SDS( sdsid, Cfg.Config.sdskeys[sdsid] );
 		SDS.Type_Id = type_id;
-		SDS.State_pMap();
 
 		SDS_vec.push_back( SDS );
-
 	}
 	//	test
-	assert( SDS_vec[0].SHM.ds.addr != SDS_vec[1].SHM.ds.addr );
-	Sds_p		= &SDS_vec[0];
-	Sds_master 	= (interface_t*) SDS_vec[0].ds.addr;
+	assert( SDS_vec[0].ds.addr != SDS_vec[1].ds.addr );
+
+	Sds_master = (interface_t*) SDS_vec[0].ds.addr;
+	assert( Sds_master->SDS_Id == 0 );
+	Reg.Setup( &Sds_master->process_arr , Cfg.type_map, TypeId );
+	SDS_Id = Reg.GetId();
+
+	init_Sds( );
 
 
-	if ( dataProc.contains( this->TypeId ))
+	if ( Reg.Is_dataprocess() )
 	{
 		Comment(INFO,"Attaching data buffers");
 		uint idx = 0;
@@ -56,27 +57,40 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 			SHM.ShowDs( SHM.ds );
 			idx++;
 		}
+		init_Shm( );
 
 	}
 }
 
 Dataworld_class::~Dataworld_class()
 {
-	proc_deRegister( );
+	if ( Reg.Is_dataprocess() )
+	{
+		for( uint n =0; n<MAXCONFIG; n++)
+		{
+			SHM_vecL[n].Detach( SHM_vecL[n].ds.addr );
+			SHM_vecR[n].Detach( SHM_vecR[n].ds.addr );
+		}
+	}
 }
 
-void Dataworld_class::Init_Shm( )
+void Dataworld_class::init_Sds( )
+{
+	Sds_p		= &SDS_vec[ SDS_Id ];
+	Sds.addr 	= GetSdsAddr(  );
+}
+
+void Dataworld_class::init_Shm( )
 {
 	// Shared Memory
 	if ( this->SDS_Id < 0 )
 	{
 		Exception( "SDS_ID undefined " );
 	}
-	if ( dataProc.contains( this->TypeId ))
+	if ( Reg.Is_dataprocess() )
 	{
-		proc_Register( );
-		ShmAddr_L = (stereo_t*) SHM_vecL[SDS_Id].ds.addr;
-		ShmAddr_R = (stereo_t*) SHM_vecR[SDS_Id].ds.addr;
+		ShmAddr_L = (stereo_t*) SHM_vecL[0].ds.addr;
+		ShmAddr_R = (stereo_t*) SHM_vecR[0].ds.addr;
 
 		// test
 		assert( SHM_vecL[0].ds.addr != SHM_vecL[1].ds.addr );
@@ -84,15 +98,23 @@ void Dataworld_class::Init_Shm( )
 	}
 }
 
-Interface_class* Dataworld_class::GetSds( uint id )
+Interface_class* Dataworld_class::GetSds(  )
 {
-	return &SDS_vec[id];
+	return &SDS_vec[ SDS_Id ];
+}
+Interface_class* Dataworld_class::GetSds( int id )
+{
+	return &SDS_vec[ id ];
 }
 
-interface_t* Dataworld_class::GetSdsAddr( uint id )
+interface_t* Dataworld_class::GetSdsAddr( )
 {
-	Comment( INFO, "SDS Id: " + to_string( id ) + " " + Sds.type_map[TypeId] );
-	if (( id<0) or ( id > MAXCONFIG ))
+	return GetSdsAddr( SDS_Id );
+}
+interface_t* Dataworld_class::GetSdsAddr( int id )
+{
+	Comment( INFO, "SDS Id: " + to_string( id ) + " " + Cfg.type_map[TypeId] );
+	if (( id<0) or ( id > (int)MAXCONFIG ))
 	{
 		Comment( ERROR, "no such Shared Data Segment ");
 		return Sds.addr;
@@ -102,14 +124,15 @@ interface_t* Dataworld_class::GetSdsAddr( uint id )
 		Comment( ERROR, "segment not available");
 		return Sds.addr;
 	}
-	SDS_vec[id].SHM.ShowDs( SDS_vec[id].ds );
+//	SDS_vec[id].SHM.ShowDs( SDS_vec[id].ds );
 
 	return ( interface_t*) SDS_vec[id].ds.addr;
 }
 
 stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 {
-	interface_t* 	sds 	= SDS_vec[ SDS_Id ].addr;
+//	interface_t* 	sds 	= SDS_vec[ SDS_Id ].addr;
+	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
 	int 			shm_id 	= sds->SHMID;
 	stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_R : ShmAddr_L;
 	return addr;
@@ -120,7 +143,8 @@ stereo_t* Dataworld_class::GetShm_addr( uint sdsid ) // rtsp shm mixer
 {
 	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
 	int 			shm_id 	= sds->SHMID;
-	stereo_t* 		addr 	= ( shm_id == 0 ) ? SHM_vecR[ sdsid ].addr : SHM_vecL[ sdsid ].addr;
+	stereo_t* 		addr 	= ( shm_id == 0 ) ? ( stereo_t*) SHM_vecR[ sdsid ].ds.addr :
+												( stereo_t*) SHM_vecL[ sdsid ].ds.addr;
 	return addr;
 
 }
@@ -144,55 +168,5 @@ stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 		addr 			= ( shm_id == 0 ) ? ShmAddr_R : ShmAddr_L;
 	}
 	return addr;
-}
-
-void Dataworld_class::proc_Register()
-{
-	if( not dataProc.contains( TypeId ))
-		return;
-	uint idx = TypeId + SDS_Id;
-	Comment(INFO,"Register: " + Sds.type_map[ TypeId ] + " " + to_string(SDS_Id) + " idx " + to_string( idx ));
-
-	Sds_master->process_arr[idx].Id = SDS_Id;
-	Sds_master->process_arr[idx].type= TypeId;
-	Sds_master->process_arr[idx].size= SHM_vecL[SDS_Id].ds.size;
-
-	show_proc_register( );
-
-}
-void Dataworld_class::proc_deRegister(  )
-{
-	if( not dataProc.contains( TypeId ))
-		return;
-	uint idx = TypeId + SDS_Id ;
-	if( idx > MAXCONFIG + 1 )
-	{
-		Comment( ERROR, "de-register out of range ");
-		return;
-	}
-	Comment( INFO, "de-register process " + Sds.type_map[ TypeId ] + " " + to_string( SDS_Id ) );
-	Sds_master->process_arr[ idx ] = process_struct();
-}
-
-void Dataworld_class::show_proc_register(  )
-{
-	uint idx = TypeId + SDS_Id;
-	process_t proc { Sds_master->process_arr[ idx ] };
-
-	stringstream strs;
-	strs << Line << endl;
-	strs << SETW << "Id "		<< proc.Id << endl;
-	strs << SETW << "type id " 	<< proc.type << endl;
-	strs << SETW << "size    " 	<< proc.size << endl;
-	Comment( INFO, strs.str() );
-}
-
-void Dataworld_class::Test_dw()
-{
-	TEST_START( className );
-
-	TEST_END( className );
-
-
 }
 

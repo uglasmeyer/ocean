@@ -212,7 +212,7 @@ void processKey( char key )
 				Log.Comment(ERROR , "Failed to setup header");
 			}
 			DaTA.Sds.Commit();
-			ifd->UserInterface = UPDATEGUI; //set cb_sta play flag for external
+			DaTA.Sds.addr->UserInterface = UPDATEGUI; //set cb_sta play flag for external
 			break;
 		}
 		case STOPRECORD_KEY : // stop record on data array id
@@ -599,8 +599,8 @@ void kbd_release( stereo_t* shm_addr )
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
-	interface_t* 	ifd 		= DaTA.GetSdsAddr( DaTA.SDS_Id );
-	stereo_t* 		shm_addr 	= DaTA.GetShm_addr();
+	interface_t* 	ifd 		= DaTA.GetSdsAddr( );
+	stereo_t* 		shm_addr 	= DaTA.GetShm_addr( );
 	Time_class		Timer		( &ifd->time_elapsed );
 
 	Log.Comment(INFO, App.Name + " is ready");
@@ -625,7 +625,7 @@ void ApplicationLoop()
 			cout << "KEY: " << note_key << endl;
 			Keyboard.Set_ch( 0 );
 			Mixer.StA[ MbIdKeyboard ].state.play = true;
-			add_sound( DaTA.GetShm_addr() );
+			add_sound( DaTA.GetShm_addr(  ) );
 			Mixer.status.kbd	= true;
 			ifd->UpdateFlag 	= true;
 			ifd->MODE 			= KEYBOARD;
@@ -646,7 +646,7 @@ void ApplicationLoop()
 		else
 		{
 			ifd->SHMID = 0;
-			shm_addr	= DaTA.GetShm_addr();
+			shm_addr	= DaTA.GetShm_addr( );
 
 			if ( Mixer.status.kbd )
 				kbd_release( shm_addr );
@@ -702,7 +702,7 @@ void synchronize_fnc( )
 		Sem->Lock( Sync_Semaphore );
 		if ( SyncThread_done )
 			break;
-		add_sound( DaTA.GetShm_addr( ) );
+		add_sound( DaTA.GetShm_addr(  ) );
 		DaTA.Sds.addr->UpdateFlag = true;
 	}
 	Log.Comment(INFO, "Sync thread terminated" );
@@ -717,6 +717,7 @@ void exit_proc( int signal )
 	if ( sig_counter > 0 )
 	{
 		Log.Comment( ERROR, "Exit procedure failed" );
+		Log.Comment( WARN, "Synthesizer reached target exit " + to_string( signal ));
 		exit( signal );
 	}
 	sig_counter++;
@@ -748,6 +749,7 @@ void exit_proc( int signal )
 
 	Sem->Release( SEMAPHORE_STARTED );
     Sem->Release( SEMAPHORE_EXIT );
+	Log.Comment(INFO, "Synthesizer reached target exit 0" );
 	exit( 0 );
 }
 
@@ -767,9 +769,8 @@ int main( int argc, char* argv[] )
 		exit_proc( EXITTEST );
 	}
 
-
 	Instrument.Setup( App.sds );//DaTA.GetSdsAddr( DaTA.SDS_Id) );
-	Mixer.Setup( App.sds );
+	Mixer.Setup( App.sds, DaTA.SDS_Id );
 	ProgressBar.Setup( &App.sds->RecCounter );
 	Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 
@@ -777,7 +778,7 @@ int main( int argc, char* argv[] )
 //	Log.Show_loglevel();
 
 
-	DaTA.Sds.Restore_ifd();
+	App.Sds->Restore_ifd();
 	activate_ifd();
 
 	Setup_Wavedisplay();

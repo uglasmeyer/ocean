@@ -46,6 +46,7 @@ public:
     void New_Instrument();
     void set_le_instrument( QString );
     void set_le_notes( QString );
+    void SetSds( Interface_class* sds );
 
 private slots:
     void on_cb_notefilenames_activated(const QString &arg1);

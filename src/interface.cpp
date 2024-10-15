@@ -14,10 +14,10 @@
 Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 : Logfacility_class("Shared Data" )
 {
-	typeidMap();
 	stateMap();
 
 	this->Sem_p	= sem;
+	this->Cfg_p = cfg;
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
 }
 
@@ -27,21 +27,22 @@ Interface_class::~Interface_class()
 void Interface_class::State_pMap(  )
 {
 	assert( addr != nullptr );
-	this->state_p_map[NOID]		= nullptr;
-	this->state_p_map[SYNTHID]	= &addr->Synthesizer,
-	this->state_p_map[COMPID]	= &addr->Composer;
-	this->state_p_map[GUI_ID]	= &addr->UserInterface;
-	this->state_p_map[COMSTACKID]=&addr->Comstack;
-	this->state_p_map[AUDIOID]	= &addr->AudioServer;
-	this->state_p_map[RTSPID]	= &addr->Rtsp;
+	state_p_map[NOID]		= nullptr;
+	state_p_map[SYNTHID]	= &addr->Synthesizer,
+	state_p_map[COMPID]	= &addr->Composer;
+	state_p_map[GUI_ID]	= &addr->UserInterface;
+	state_p_map[COMSTACKID]=&addr->Comstack;
+	state_p_map[AUDIOID]	= &addr->AudioServer;
+	state_p_map[RTSPID]	= &addr->Rtsp;
 
 }
 
-void Interface_class::Setup_SDS( key_t key)
+void Interface_class::Setup_SDS( uint sdsid, key_t key)
 {
-	Comment(INFO, "allocating shared memory for IPC");
+	Comment(INFO, "allocating shared memory for IPC " + to_string( sdsid ));
 
 	ds 		= *SHM.Get( key );
+	ds.Id	= sdsid;
 	this->addr = ( interface_t* ) ds.addr;
 	SHM.ShowDs(ds);
 
@@ -51,7 +52,8 @@ void Interface_class::Setup_SDS( key_t key)
 		memcpy( addr	, &ifd_data		, sds_size );
 	}
 	Comment( INFO, "check shared memory version");
-	filesystem::path sds_dump = file_structure().ifd_file;
+	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
+	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{
 		size_t fsize = filesystem::file_size( sds_dump );
@@ -72,6 +74,8 @@ void Interface_class::Setup_SDS( key_t key)
 				" or lib/ifd_data.bin size ");
 	}
 	ds.eexist = true;
+	addr->SDS_Id = sdsid;
+	State_pMap();
 }
 
 void Interface_class::stateMap()
@@ -272,21 +276,10 @@ string Interface_class::Read_str( char selector )
 	return str;
 }
 
-void Interface_class::typeidMap()
-{
-	assert( NOID < type_map.size() );
-	type_map[AUDIOID] 	= "Audioserver";
-	type_map[SYNTHID] 	= "Synthesizer";
-	type_map[COMPID ] 	= "Composer";
-	type_map[GUI_ID] 	= "UserInterface";
-	type_map[COMSTACKID]= "comstack";
-	type_map[RTSPID] 	= "rtsp";
-	type_map[NOID] 		= "No Process";
-}
 
 void Interface_class::Announce( )
 {
-	Comment(INFO, "announcing application " + type_map[ Type_Id ] );
+	Comment(INFO, "announcing application " + Cfg_p->type_map[ Type_Id ] );
 	uint8_t* state = state_p_map[ Type_Id];
 	assert ( state != nullptr );
 	*state = RUNNING;
@@ -305,7 +298,7 @@ bool Interface_class::Restore_ifd()
 
 	Comment(INFO,"Restore shared data from file");
 
-	FILE* fd = fopen( file_structure().ifd_file.data() , "r");
+	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
 		return false;
 	uint size = fread( addr, sizeof( ifd_data ), 1, fd);
@@ -316,8 +309,9 @@ bool Interface_class::Restore_ifd()
 
 void Interface_class::Dump_ifd()
 {
-	Comment(INFO,"Dump shared data to file");
-	FILE* fd = fopen( file_structure().ifd_file.data() , "w");
+	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
+	assert( dumpFile.size() > 0 );
+	FILE* fd = fopen( dumpFile.data() , "w");
 	fwrite( addr, sizeof( ifd_data ), 1, fd);
 	fclose( fd );
 }
