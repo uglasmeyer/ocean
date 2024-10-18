@@ -10,37 +10,37 @@
 
 #include <Ocean.h>
 #include <Logfacility.h>
-#include <Config.h>
+#include <Configbase.h>
 #include <data/SharedDataSegment.h>
 
 class Register_class :  virtual Logfacility_class
 {
-	string className = "";
+	string 			className 	= "";
+	interface_t*	sds 		= nullptr;
 public:
 
-	void	Setup( process_arr_t*, const type_map_t&, const uint& tid );
+	void	Setup( interface_t* sds, const uint& tid );
 	int 	GetId();
 	bool 	Is_dataprocess();
 	void 	Clear_procregister();
-	void 	Show_proc_register();
 	void 	Show_proc_register( uint idx );
 	void 	Test_Register();
 
-	Register_class() ;
+	Register_class( type_map_t* map ) ;
 	virtual ~Register_class();
 
 
 private:
 	std::set<int> 	dataProc	{ AUDIOID, SYNTHID, RTSPID };
 	uint 			Type_Id 	= NOID;
-	const uint		MAXINDEX 	= MAXPROCARRAY;
 	uint 			Sds_Id		= -1;
-	process_arr_t* 	process_arr = nullptr;
-	type_map_t		type_map 	{};
+	type_map_t*		type_map 	= nullptr;
+
 	void 	proc_Register();
 	void 	proc_deRegister();
-	void 	show_proc_register();
 	int 	scan_proc_register(); // returns SDS_id
+	void 	show_proc_register();
+
 };
 
 

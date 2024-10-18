@@ -22,21 +22,22 @@
 #include <Mixer.h>
 #include <System.h>
 
-bool 					SaveRecordFlag 		= false;
-bool 					RecordThreadDone 	= false;
+//bool 					SaveRecordFlag 		= false;
+//bool 					RecordThreadDone 	= false;
 string					Module 				= "Synthesizer";
 
 Logfacility_class		Log( Module );
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
+Wavedisplay_class 		Wavedisplay{};
+
 Application_class		App( &DaTA );
 Mixer_class				Mixer ;// DaTA.Sds_master );
-Instrument_class 		Instrument{ nullptr };
+Instrument_class 		Instrument{ DaTA.Sds.addr };
 Note_class 				Notes;
 Keyboard_class			Keyboard( 	&Instrument );
 External_class 			External( 	&Mixer.StA[ MbIdExternal],
 									DaTA.Cfg_p);
-Wavedisplay_class 		Wavedisplay;
 ProgressBar_class		ProgressBar( nullptr );
 Statistic_class 		Statistic{ Log.module };
 

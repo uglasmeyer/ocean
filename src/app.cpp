@@ -91,8 +91,7 @@ void SynthesizerTestCases()
 	Log.Info("5, variatic, argument, 4, 5 ");
 	Log.TEST_END( "Application " );
 
-	Register_class	Reg{};
-	Reg.Test_Register();
+	DaTA.Reg.Test_Register();
 }
 
 
@@ -149,7 +148,6 @@ void Application_class::Start( int argc, char* argv[] )
 		DaTA->Reg.Clear_procregister();
 		Exception( "Restart processes");
 	}
-	DaTA->Reg.Show_proc_register();
 
 	if( DaTA->TypeId == SYNTHID )
 	{
@@ -162,14 +160,15 @@ void Application_class::Start( int argc, char* argv[] )
 			Exception("Cannot continue" );
 		}
 	}
-	else
-		cout << "not a data process"<< endl;
 }
 
 Application_class::~Application_class()
 {
 	deRegister();
-	if ( DaTA->TypeId == SYNTHID )
+    if( DaTA->Reg.Is_dataprocess() )
+    	DaTA->Sem.Release(SEMAPHORE_EXIT);
+
+    if ( DaTA->TypeId == SYNTHID )
 	{
 		Sds->Dump_ifd();
 	}
@@ -200,9 +199,16 @@ void Application_class::deRegister( )
 
     } while( getline ( cFile, out ));
     cout << endl;
+
     cFile.close( );
 
+}
+void Application_class::Ready(  )
+{
+	Statistic.Show_Statistic( );
 
+	Comment(INFO, Name + " is ready");
+	cout << Line << endl;
 }
 
 void Application_class::Shutdown_instance( )

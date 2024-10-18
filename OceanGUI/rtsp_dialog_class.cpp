@@ -44,13 +44,15 @@ void Rtsp_Dialog_class::Update_widgets()
 {
 	Sds_master->config = SDS_ID; //comstack update
 	Sds_master->UpdateFlag = true;
-	for( uint p = 0 ;p < MAXPROCARRAY; p++ )
+
+	for( uint p = 0 ;p < REGISTER_SIZE; p++ )
 	{
 		process_t proc { Sds_master->process_arr[ p ] };
 		string text = type_map[ proc.type ];
-
 		proc_table( this, p, 0, text );
+
 	}
+
 	cout << boolalpha << Sds_master->Rtsp << endl;
 	DaTA->Sds_p->SHM.ShowDs( DaTA->SDS_vec[0].ds );
 	if ( Sds_master->Rtsp == RUNNING )
@@ -70,6 +72,12 @@ auto activate_S = []( Rtsp_Dialog_class* C, uint sdsid)
 	C->Sds->addr->UserInterface = UPDATEGUI;
 	C->SDS_ID = sdsid;
 	C->Sds = C->DaTA->GetSds(  sdsid );
+	string text = C->Sds->Read_str( INSTRUMENTSTR_KEY );
+	proc_table( C, sdsid+1, 1, text );
+
+	text = C->Sds->Read_str(( NOTESSTR_KEY ));
+	proc_table( C, sdsid+1, 2, text );
+
 	C->Update_widgets();
 };
 

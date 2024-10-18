@@ -26,6 +26,8 @@ class Application_class :
 {
 	string className = "Application_class";
 public:
+
+	Statistic_class 	Statistic	{ className };
 	Dataworld_class*	DaTA		= nullptr;
 	interface_t* 		sds			= nullptr;
 	Config_class*		Cfg 		= nullptr;
@@ -42,6 +44,7 @@ public:
 	void Shutdown_instance( );
 	void Start( int, char* [] );
 	void Init_Sds( uint sds_id );
+	void Ready();
 
 
 private:

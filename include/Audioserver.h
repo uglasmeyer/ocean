@@ -18,6 +18,7 @@
 #include <data/Interface.h>
 #include <System.h>
 #include <App.h>
+#include <External.h>
 
 // classes and structures
 
@@ -26,8 +27,9 @@ string Module 			= "AudioServer";
 Logfacility_class 		Log( Module );
 Dataworld_class			DaTA( AUDIOID );
 Application_class		App( &DaTA );
-interface_t*			sds	= nullptr;
+interface_t*			sds	= DaTA.Sds_master;
 Config_class*			Cfg = DaTA.Cfg_p;
+External_class			External { Cfg, sds };
 Time_class				Timer;
 
 

@@ -120,6 +120,14 @@ void External_class::close(  )
 	fclose( File );
 }
 
+void External_class::Record_buffer( stereo_t* src, stereo_t* dst, buffer_t offs )
+{
+	for ( buffer_t n = 0; n < max_frames; n++ )
+	{
+		dst[n + offs ] = src[ n ];
+	}
+}
+
 //------------------------------------------------------------------------------------------------
 // common
 Logfacility_class Log_system("System log");
@@ -160,6 +168,22 @@ int generate_file_no( )
 
 }
 
+void remove_file( string file )
+{
+	if ( filesystem::exists( file ) )
+		filesystem::remove( file);
+	if ( filesystem::exists( file ))
+		Exception( "cannot remove file: " + file );
+
+}
+void rename_file( string old_name, string new_name )
+{
+	remove_file( new_name );
+    filesystem::rename( old_name, new_name);
+
+	if ( filesystem::exists( old_name ))
+		Exception( "cannot remove file: " + old_name );
+}
 
 // --------------------------------------------------------------------------------------------
 
@@ -246,7 +270,7 @@ string External_class::id3tool_cmd( string mp3 )
 
 string External_class::ffmpeg_cmd( string wav, string mp3 )
 {
-	string cmd = Cfg->Config.ffmpeg + " -y -i " 	+ wav + " -f mp3 " + mp3 + " >/dev/null" ;
+	string cmd = Cfg->Config.ffmpeg + " -y -i " 	+ wav + " -f mp3 " + mp3 + " " ;
 	Comment( INFO, cmd );
 	return cmd;
 }
@@ -259,8 +283,9 @@ void External_class::Save_record_data( int filenr)
 	setName( file_structure().filename + to_string( filenr) );
 
 	Comment( INFO, "Prepare record file " + Name );
-	long rcounter = StA->record_data;// * 2; //mono to stereo factor
-	Comment( INFO, "Record counter: " + to_string (rcounter));
+//	long rcounter = StA->record_data;// * 2; //mono to stereo factor
+	long rcounter = sds->RecCounter * max_frames;
+	Comment( INFO, "Record frames: " + to_string (rcounter));
 	stereo.Info( "External Stereo data");
 
 	if ( rcounter == 0 )
@@ -269,10 +294,7 @@ void External_class::Save_record_data( int filenr)
 		return;
 	}
 
-	if ( filesystem::exists( file_structure().raw_file ))
-	{
-		filesystem::remove( file_structure().raw_file );
-	}
+	remove_file( file_structure().raw_file );
 
 	long count		= write_audio_data( file_structure().raw_file, rcounter );
 	bool success = ( rcounter == count );
@@ -284,15 +306,11 @@ void External_class::Save_record_data( int filenr)
 		return ;
 	};
 
-	if ( filesystem::exists( file_structure().wav_file ))
-		filesystem::remove( file_structure().wav_file );
-
-	assert( not filesystem::exists( file_structure().wav_file ) );
+	remove_file( file_structure().wav_file );
 
 	write_music_file( file_structure().wav_file );
 
-	if ( filesystem::exists( file_structure().mp3_file ))
-		filesystem::remove( file_structure().mp3_file );
+	remove_file( file_structure().mp3_file );
 
 	string convert_wav2mp3 = ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
 	system_execute( convert_wav2mp3 );
@@ -300,11 +318,7 @@ void External_class::Save_record_data( int filenr)
 	string insert_mp3_tags = id3tool_cmd( file_structure().mp3_file );
 	system_execute( insert_mp3_tags );
 
-
-//    string newfilename = 	file_structure().Dir.musicdir +
-//    						file_structure().filename + to_string( filenr) + ".wav";
-    filesystem::remove( Filename );
-    filesystem::rename( file_structure().wav_file, Filename);
+    rename_file( file_structure().wav_file, Filename);
     Filename = "";
 
 }

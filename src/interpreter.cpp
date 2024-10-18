@@ -151,9 +151,11 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		vector_str_t vec;
-		vec = { "rec" , "store" , to_string(MbIdExternal) };
-		RecStA( vec );
+		Processor_class::Push_ifd( &ifd->Record, true, 			"record" );
+		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"start record" );
+//		vector_str_t vec;
+//		vec = { "rec" , "store" , to_string(MbIdExternal) };
+//		RecStA( vec );
 		Pause( {"pause", duration } );
 
 		return;
@@ -163,8 +165,9 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
 //		Processor_class::Push_ifd( &ifd->Composer,STOPRECORD, 	"composer stoprecord data" );
+		Processor_class::Push_ifd( &ifd->Record, false,			"record" );
 		Processor_class::Push_ifd( &ifd->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
-		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 			"stop record" );
+		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
 	}
 	if ( cmpkeyword( "play") )

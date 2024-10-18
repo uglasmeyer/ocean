@@ -51,8 +51,9 @@ void Semaphore_class::Init()
 
 void Semaphore_class::Reset( uint8_t num )
 {
-	short int val = -abs(  Getval( num , GETVAL ) );
-	Semop( num, val );
+//	short int val = -abs(  Getval( num , GETVAL ) );
+	int ret = semctl(semid, num, SETVAL, 0 );
+	assert( ret == 0 );
 }
 
 void Semaphore_class::init()

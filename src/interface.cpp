@@ -88,6 +88,9 @@ void Interface_class::stateMap()
 	state_map[DEFAULT] 		= "default mode";
 	state_map[EXITSERVER] 	= "Exit server";
 	state_map[KEYBOARD] 	= "Keyboard";
+	state_map[RECORDSTART] 	= "start recording";
+	state_map[RECORDSTOP] 	= "stop recording";
+
 	assert( state_map.size() == LASTNUM );
 }
 

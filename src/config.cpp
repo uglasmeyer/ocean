@@ -89,9 +89,12 @@ void Config_class::Read_config(	string cfgfile )
 	for( uint idx = 0; idx < MAXCONFIG; idx++  )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
-		Config.shmkeys_l[ idx ] = Config.SHM_key + idx;
-		Config.shmkeys_r[ idx ] = Config.SHM_key + idx + MAXCONFIG + 2;
+//		Config.shmkeys_l[ idx ] = Config.SHM_key + idx;
+//		Config.shmkeys_r[ idx ] = Config.SHM_key + idx + MAXCONFIG + 2;
 	}
+	Config.SHM_keyl = Config.SHM_key;
+	Config.SHM_keyr = Config.SHM_key + 1;
+
 
 	Config.test		= get_char( Config.test, "test" );
 	std::set<char> yn = {'n', 'y', 0 };
@@ -182,8 +185,8 @@ void Config_class::Show_Config( )
 	strs << setw(20) << left << "sds_key" 		<< 			Config.SDS_key	<<endl;  		// -D
 	strs << setw(20) << left << "sem_key" 		<< 			Config.Sem_key	<<endl;  		// -D
 	strs << setw(20) << left << "sds keys"		<< show_items( Config.sdskeys ) << endl;
-	strs << setw(20) << left << "shm keys L"	<< show_items( Config.shmkeys_l ) << endl;
-	strs << setw(20) << left << "sds keys R"	<< show_items( Config.shmkeys_r ) << endl;
+	strs << setw(20) << left << "SHM_key left"		<< 		Config.SHM_keyl << endl;
+	strs << setw(20) << left << "SHM key right"	<< 			Config.SHM_keyr << endl;
 
 	Comment( INFO, strs.str() );
 }

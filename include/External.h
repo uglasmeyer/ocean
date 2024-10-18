@@ -21,6 +21,7 @@
 class External_class : virtual Logfacility_class//, public ProgressBar_class
 {
 	Storage_class* 	StA;
+	interface_t*	sds;
 	FILE*			File;
 	Config_class*	Cfg 			= nullptr;
 
@@ -29,10 +30,8 @@ public:
 	long 			Filedata_size 	= 0;
 
 	External_class( Storage_class* sta,
-//					uint8_t* counter_p,
 					Config_class* cfg ) : //, Stereo_Memory* stereo ) :
-		Logfacility_class("External")
-//		,ProgressBar_class( counter_p )
+					Logfacility_class("External")
 	{
 		this->StA 			= sta;
 		this->File 			= NULL;
@@ -40,6 +39,17 @@ public:
 		stereo.Info			( "External Stereo data") ;
 
 	};
+	External_class( Config_class* cfg, interface_t* sds ) : //, Stereo_Memory* stereo ) :
+					Logfacility_class("External")
+	{
+		this->StA 			= nullptr;
+		this->File 			= NULL;
+		this->Cfg			= cfg;
+		this->sds			= sds;
+		stereo.Info			( "External Stereo data") ;
+
+	};
+
 	virtual ~External_class(){};
 
 	struct status_struct
@@ -52,6 +62,7 @@ public:
 	bool Read_file_header( string );
 	void Save_record_data( int );
 	void Mono2Stereo( Data_t* mono, uint size );
+	void Record_buffer( stereo_t* src, stereo_t* dst, buffer_t offs );
 	string GetName();
 	void Test_External();
 

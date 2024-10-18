@@ -21,38 +21,39 @@ Logfacility_class::~Logfacility_class(  )
 void Logfacility_class::setup()
 {
 	error_vector.clear();
-	error_vector.push_back(  {EPERM,"Operation not permitted"});
-	error_vector.push_back(  {ENOENT,"No such file or directory"});
-	error_vector.push_back(  {ESRCH,"No such process"});
-	error_vector.push_back(  {EINTR,"Interrupted system call"});
-	error_vector.push_back(  {EIO,"I/O error"});
-	error_vector.push_back(  {ENXIO,"No such device or address "});
-	error_vector.push_back(  {E2BIG,"Argument list too long "});
-	error_vector.push_back(  {ENOEXEC,"Exec format error"});
-	error_vector.push_back(  {EBADF,"Bad file number"});
-	error_vector.push_back(  {ECHILD,"No child processes"});
-	error_vector.push_back(  {EAGAIN,"Try again"});
-	error_vector.push_back(  {ENOMEM,"Out of memory"});
-	error_vector.push_back(  {EACCES,"Permission denied"});
-	error_vector.push_back(  {EFAULT,"Bad address"});
-	error_vector.push_back(  {ENOTBLK,"Block device required"});
-	error_vector.push_back(  {EBUSY,"Device or resource busy"});
-	error_vector.push_back(  {EEXIST,"File exists"});
-	error_vector.push_back(  {EXDEV,"Cross-device link"});
-	error_vector.push_back(  {ENODEV,"No such device"});
-	error_vector.push_back(  {ENOTDIR,"Not a directory"});
-	error_vector.push_back(  {EISDIR,"Is a directory"});
-	error_vector.push_back(  {EINVAL,"Invalid argument"});
-	error_vector.push_back(  {ENFILE,"File table overflow"});
-	error_vector.push_back(  {EMFILE,"Too many open files"});
-	error_vector.push_back(  {ENOTTY,"Not a typewriter"});
-	error_vector.push_back(  {ETXTBSY,"Text file busy"});
-	error_vector.push_back(  {EFBIG,"File too large"});
-	error_vector.push_back(  {ENOSPC,"No space left on device"});
-	error_vector.push_back(  {ESPIPE,"Illegal seek"});
-	error_vector.push_back(  {EROFS,"Read-only file system"});
-	error_vector.push_back(  {EMLINK,"Too many links"});
-	error_vector.push_back(  {EPIPE,"Broken pipe"});
+	error_vector.push_back(  {"NOERR","no error"});
+	error_vector.push_back(  {"EPERM","Operation not permitted"});
+	error_vector.push_back(  {"ENOENT","No such file or directory"});
+	error_vector.push_back(  {"ESRCH","No such process"});
+	error_vector.push_back(  {"EINTR","Interrupted system call"});
+	error_vector.push_back(  {"EIO","I/O error"});
+	error_vector.push_back(  {"ENXIO","No such device or address "});
+	error_vector.push_back(  {"E2BIG","Argument list too long "});
+	error_vector.push_back(  {"ENOEXEC","Exec format error"});
+	error_vector.push_back(  {"EBADF","Bad file number"});
+	error_vector.push_back(  {"ECHILD","No child processes"});
+	error_vector.push_back(  {"EAGAIN","Try again"});
+	error_vector.push_back(  {"ENOMEM","Out of memory"});
+	error_vector.push_back(  {"EACCES","Permission denied"});
+	error_vector.push_back(  {"EFAULT","Bad address"});
+	error_vector.push_back(  {"ENOTBLK","Block device required"});
+	error_vector.push_back(  {"EBUSY","Device or resource busy"});
+	error_vector.push_back(  {"EEXIST","File exists"});
+	error_vector.push_back(  {"EXDEV","Cross-device link"});
+	error_vector.push_back(  {"ENODEV","No such device"});
+	error_vector.push_back(  {"ENOTDIR","Not a directory"});
+	error_vector.push_back(  {"EISDIR","Is a directory"});
+	error_vector.push_back(  {"EINVAL","Invalid argument"});
+	error_vector.push_back(  {"ENFILE","File table overflow"});
+	error_vector.push_back(  {"EMFILE","Too many open files"});
+	error_vector.push_back(  {"ENOTTY","Not a typewriter"});
+	error_vector.push_back(  {"ETXTBSY","Text file busy"});
+	error_vector.push_back(  {"EFBIG","File too large"});
+	error_vector.push_back(  {"ENOSPC","No space left on device"});
+	error_vector.push_back(  {"ESPIPE","Illegal seek"});
+	error_vector.push_back(  {"EROFS","Read-only file system"});
+	error_vector.push_back(  {"EMLINK","Too many links"});
+	error_vector.push_back(  {"EPIPE","Broken pipe"});
 
 	filesystem::create_directories( logdir);
 
@@ -76,19 +77,19 @@ void Logfacility_class::Show_loglevel()
 	}
 }
 
-string Logfacility_class::Error_text( int err )
+string Logfacility_class::Error_text( uint err )
 {
 	string str = "";
-	for ( pair_struct_t pair : error_vector )
+	if ( ( err < error_vector.size() - 1 ) )
 	{
-		if ( pair.key == err )
-		{
-			return to_string( pair.key) + " " + pair.str;
-		}
+		return "[" + error_vector[err].key + "] " + error_vector[err].str;
 	}
-	str = "error no " + to_string(err) + " to be defined";
-	Comment( DEBUG , str);
-	return str;
+	else
+	{
+		str = "error no " + to_string(err) + " to be defined";
+		Comment( DEBUG , str);
+		return str;
+	}
 }
 
 void Logfacility_class::Set_Loglevel( int level, bool on )
@@ -140,7 +141,7 @@ void Logfacility_class::TEST_END( const string& name )
 void Logfacility_class::Test_Logging( )
 {
 	string str = Error_text( EEXIST );
-	assert( str.compare( "17 File exists") 		== 0 );
+	assert( str.compare( "[EEXIST] File exists") 		== 0 );
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Logfacility test start");
 	stringstream True;

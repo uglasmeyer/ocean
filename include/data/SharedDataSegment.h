@@ -23,29 +23,32 @@ enum {
 	 DEFAULT	,
 	 EXITSERVER	,
 	 KEYBOARD	,
+	 RECORDSTART,
+	 RECORDSTOP,
 	 LASTNUM
 };
 
 typedef struct process_struct
 {
-	uint			Id		= 0;
-	uint			type	= NOID;
+	uint8_t			sdsId	= 0;
+	uint8_t			type	= NOID;
 	buffer_t		size	= 0;
 } process_t;
 
-const uint		MAXPROCARRAY = MAXCONFIG+1;
-typedef			array<process_t, MAXPROCARRAY>	process_arr_t;
-typedef 		Note_base::noteline_prefix_t	noteline_prefix_t;
-typedef 		Spectrum_base::spectrum_t		spectrum_t;
-typedef			Mixer_base::mixer_status_t		mixer_status_t;
-typedef			Mixer_base::StA_amp_arr_t		StA_amp_arr_t;
-typedef			Mixer_base::StA_state_arr_t		StA_state_arr_t;
-static const 	uint str_buffer_len = 32;
+const uint	REGISTER_SIZE 	= MAXCONFIG+1;
+const uint 	str_buffer_len 	= 32;
+
+typedef		array<process_t, REGISTER_SIZE>	process_arr_t;
+typedef 	Note_base::noteline_prefix_t	noteline_prefix_t;
+typedef 	Spectrum_base::spectrum_t		spectrum_t;
+typedef		Mixer_base::mixer_status_t		mixer_status_t;
+typedef		Mixer_base::StA_amp_arr_t		StA_amp_arr_t;
+typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
 	uint8_t			version						= 0; 						// comstack
-	char			SDS_Id						= -1;
+	int				SDS_Id						= -1;
 	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{{ 75 }};
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
@@ -93,6 +96,7 @@ typedef struct interface_struct
 	uint8_t	 		FLAG						= NULLKEY;
 	uint8_t 		KEY 						= NULLKEY;// comstack
 	uint8_t 		RecCounter					= 0;	// handshake data exchange// comstack
+	bool			Record						= false; // Audioserver recording
 	uint8_t 		SHMID 						= 0;// comstack
 	uint8_t		 	MODE						= FREERUN;// comstack
 	bool 			UpdateFlag 					= true;

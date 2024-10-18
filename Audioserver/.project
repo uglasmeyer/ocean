@@ -3,11 +3,6 @@
 	<name>Audioserver</name>
 	<comment></comment>
 	<projects>
-		<project>Composer</project>
-		<project>Synthesizer</project>
-		<project>ifdstruct</project>
-		<project>rtsp</project>
-		<project>OceanGUI</project>
 		<project>Ocean</project>
 	</projects>
 	<buildSpec>

@@ -83,6 +83,10 @@ MainWindow::MainWindow(	QWidget *parent ) :
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
 
+
+    status_color_green.setColor(QPalette::Button, Qt::green);
+    status_color_red.setColor(QPalette::Button, Qt::red);
+
     connect( ui->pB_Rtsp, SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
     connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
     connect( ui->pBAudioServer, 	SIGNAL(clicked()), this, SLOT( start_audio_srv() ));
@@ -672,20 +676,21 @@ void MainWindow::Controller_Exit()
 {
 	if ( Sds->addr->Rtsp == RUNNING )
 	{
-    if ( Sem->Getval( SEMAPHORE_EXIT, GETVAL ) > 0 )
-    	Sem->Release( SEMAPHORE_EXIT );
-    return;
+		if ( Sem->Getval( SEMAPHORE_EXIT, GETVAL ) > 0 )
+			Sem->Release( SEMAPHORE_EXIT );
+		return;
 	}
     Sds->addr->Synthesizer = EXITSERVER ;
+//    DaTA->SDS_vec[0].addr->process_arr.at( Rtsp_Dialog_obj.SDS_ID + 1 ) = process_struct();
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 1 );
     Rtsp_Dialog_obj.Update_widgets();
-    DaTA->SDS_vec[0].addr->process_arr.at( Rtsp_Dialog_obj.SDS_ID + 1) = process_struct();
 
 }
 
 void MainWindow::Audio_Exit()
 {
     Sds->addr->AudioServer = EXITSERVER;
+//    DaTA->SDS_vec[0].addr->process_arr.at( 0 ) = process_struct();
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 1 );
     Rtsp_Dialog_obj.Update_widgets();
 }
@@ -731,7 +736,11 @@ void MainWindow::get_record_status( )
 void MainWindow::SaveRecord()
 {
     Sds->Set( Sds->addr->FileNo , 0); // automatic numbering
-    Sds->Set( Sds->addr->KEY , SAVE_EXTERNALWAVFILEKEY);
+    if ( Sds->addr->Record )
+    	Sds->addr->AudioServer = RECORDSTOP;
+    else
+    	Sds->addr->AudioServer = RECORDSTART;
+//    Sds->Set( Sds->addr->KEY , SAVE_EXTERNALWAVFILEKEY);
 }
 
 void MainWindow::main_adsr_sustain()
@@ -755,6 +764,7 @@ void MainWindow::pB_Debug_clicked()
 void MainWindow::melody_connect()
 {
 };
+
 
 void MainWindow::Updatewidgets()
 {
@@ -798,18 +808,26 @@ void MainWindow::Updatewidgets()
 
     }
 
+    if( Sds->addr->mixer_status.external )
+    {
+
+    }
+
     if (Sds->addr->AudioServer == RUNNING )
-        status_color.setColor(QPalette::Button, Qt::green);
+        ui->pBAudioServer->setPalette(status_color_green);
     else
-        status_color.setColor(QPalette::Button, Qt::red);
-    ui->pBAudioServer->setPalette(status_color);
+        ui->pBAudioServer->setPalette(status_color_red);
 
 
     if (Sds->addr->Synthesizer == RUNNING )
-        status_color.setColor(QPalette::Button, Qt::green);
+        ui->pBSynthesizer->setPalette(status_color_green);
     else
-        status_color.setColor(QPalette::Button, Qt::red);
-    ui->pBSynthesizer->setPalette(status_color);
+        ui->pBSynthesizer->setPalette(status_color_red);
+
+    if( Sds->addr->Record)
+    	ui->pBtoggleRecord->setPalette( status_color_red );
+    else
+    	ui->pBtoggleRecord->setPalette( status_color_green );
 
 
 }

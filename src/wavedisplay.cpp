@@ -28,7 +28,6 @@ void Wavedisplay_class::Clear_data()
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
 wd_arr_t Wavedisplay_class::Gen_cxwave_data( )
 {
-
 	if ( data_ptr_vec[ ptr_index ] == NULL )
 	{
 		Comment(ERROR, "wave display got nullptr at index " + to_string(ptr_index)) ;
@@ -126,7 +125,14 @@ void Wavedisplay_class::Update( int select , Data_t* ptr )
 
 void Wavedisplay_class::Add_data_ptr( Data_t* ptr )
 {
-	if ( ptr == NULL ) return;
+	if ( ptr == NULL )
+	{
+		Exception("Undefined Wavedisplay with index " + to_string( ptr_index) );
+	}
+	if ( ptr_index > wavedisplay_str_vec.size() - 1 )
+	{
+		Exception("Wavedisplay index " + to_string( ptr_index) + " out of range"   );
+	}
 	data_ptr_vec.push_back( ptr );
 	Comment( INFO, "adding wave display: " + to_string(ptr_index) +
 	" - " + wavedisplay_str_vec[ ptr_index ] );

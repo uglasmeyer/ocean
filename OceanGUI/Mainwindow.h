@@ -63,7 +63,8 @@ public:
     vector<QRadioButton*> 	rb_sta_vec			{};
     vector<QCheckBox*>		cb_sta_vec			{};
     vector<QSlider*>		sl_sta_vec			{};
-
+    QPalette status_color_red   = QPalette();
+    QPalette status_color_green = QPalette();
 
     void setwidgetvalues();
     void Updatewidgets();

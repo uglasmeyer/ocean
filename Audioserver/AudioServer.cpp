@@ -1,7 +1,5 @@
 
 #include <Audioserver.h>
-#include <data/Statistic.h>
-Statistic_class Statistic{ Module };
 
 RtAudio::StreamParameters 	oParams;
 RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
@@ -13,17 +11,25 @@ void errorCallback( RtAudioErrorType /*type*/, const std::string &errorText )
 	Log.Comment(ERROR, errorText ) ;
 }
 
+
+
 RtAudio rtapi( RtAudio::LINUX_PULSE, &errorCallback );
 
-void exit_proc( int exit_code )
+void start_audio_stream()
 {
-	Log.Comment( INFO, Application + "received command <exit> " );
-	Log.Comment( INFO, "Entering exit procedure for \n" + App.This_Application );
-	Log.Comment( INFO, "suspend server" );
+	if ( not rtapi.isStreamOpen() )
+		Exception( "Failed to open Audio Stream" );
+	else
+		Log.Comment( INFO, "Audio Stream is open ") ;
 
-	done = true;
-	*Done = true;
+	if ( rtapi.startStream() )
+		Exception( rtapi.getErrorText() );
+	else
+		Log.Comment( INFO, "Audio Stream is started ") ;
+}
 
+void shutdown_stream()
+{
 	if ( rtapi.isStreamRunning() )
 	{
 		Log.Comment(INFO,"stream will be stopped on exit");
@@ -38,11 +44,89 @@ void exit_proc( int exit_code )
 		Log.Comment(INFO, "stream will be closed on exit");
 		rtapi.closeStream();
 		if ( rtapi.isStreamOpen() )
-			Log.Comment(INFO, "stream is still open");
+			Log.Comment( ERROR, "stream is still open");
 	}
-    DaTA.Sem.Release( SEMAPHORE_EXIT );
 
-	exit( 0 );
+}
+
+
+bool 					SaveRecordFlag 		= false;
+bool 					RecordThreadDone 	= false;
+void record_thead_fcn()
+{
+	Log.Comment( INFO, "record thread started ");
+//    DaTA.Sem.Reset(SEMAPHORE_RECORD);
+
+	Value Fileno {0};
+	while ( true )
+	{
+//		DaTA.Sem.Lock( SEMAPHORE_RECORD );
+
+		if ( RecordThreadDone ) break;
+	    Timer.Wait(1);
+	    if ( SaveRecordFlag )
+	    {
+//		SaveRecordFlag = true;
+
+		Fileno = (int) DaTA.Sds.addr->FileNo;
+		Log.Comment( INFO, "record thread received job " + Fileno.str);
+
+		External.Save_record_data( Fileno.i );
+		Log.Comment( INFO, "preparing the next record session");
+			// clean up
+		DaTA.Sds.Update( RECORDWAVFILEFLAG );
+//		DaTA.Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
+											// it will be released hereby
+	    }
+		SaveRecordFlag = false;
+	}
+
+	Log.Comment( INFO, "record thread terminated ");
+}
+thread Record_thread( record_thead_fcn );
+
+void shutdown_thread( )
+{
+	RecordThreadDone 	= true;
+//    DaTA.Sem.Release( SEMAPHORE_RECORD );
+
+	if ( Record_thread.joinable() )
+		Record_thread.join();
+	Log.Comment( INFO, "Record thread joined" );
+}
+
+int sig_counter = 0;
+void exit_intro( int signal )
+{
+	if ( sig_counter > 0 )
+	{
+		Log.Comment( ERROR, "Exit procedure failed" );
+		Log.Comment( WARN, "Synthesizer reached target exit " + to_string( signal ));
+		exit( signal );
+	}
+	sig_counter++;
+
+	Log.Comment( INFO, Application + "received command <exit> " );
+	Log.Comment( INFO, "Entering exit procedure for " + App.This_Application );
+	Log.Comment( INFO, "suspend server" );
+}
+
+
+double* frame = nullptr;
+void exit_proc( int signal )
+{
+	exit_intro( signal );
+
+	done = true;
+//	DaTA.Sem.Release( AUDIOSERVER_SEM );
+
+	shutdown_stream();
+	shutdown_thread();
+	if ( frame )
+		free( frame);
+
+	Log.Comment(INFO, "Audioserver reached target exit 0" );
+
 }
 
 void show_usage( void )
@@ -126,6 +210,19 @@ void Application_loop()
 
 }
 
+void call_for_update()
+{
+	DaTA.ClearShm();
+
+	shm_addr = DaTA.SetShm_addr( );
+
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA0 );
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA1 );
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA2 );
+	DaTA.Sem.Release( SEMAPHORE_SENDDATA3 );
+}
+
+buffer_t rcounter = 0;
 void set_ncounter( buffer_t n )
 {
 	if( mode == KEYBOARD )
@@ -134,12 +231,16 @@ void set_ncounter( buffer_t n )
 	if ( n > max_frames - 1 )
 	{
 		ncounter = 0;
-		shm_addr = DaTA.SetShm_addr( );
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA );
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 );
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA1 );
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA2 );
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA3 );
+		if ( External.status.record )
+		{
+			External.Record_buffer( shm_addr, External.stereo.stereo_data, rcounter * max_frames);
+			sds->RecCounter = rcounter;
+			rcounter++;
+			if( rcounter >= recduration )
+				sds->AudioServer = RECORDSTOP;
+		}
+
+		call_for_update();
 	}
 }
 
@@ -151,32 +252,56 @@ int RtAudioOut(	void *outputBuffer,
 				RtAudioStreamStatus status,
 				void *data )
 {
-	  stereo_t* buffer { (stereo_t* ) outputBuffer };
+		stereo_t* buffer { (stereo_t* ) outputBuffer };
 
-	  // keep all variable data initializations outside of RtAudioOut
-	  if ( status != 0 ) // buffer overflow
-		  Log.Comment( WARN, "Buffer status differs: " + to_string( status ));
+		// keep all variable data initializations outside of RtAudioOut
+		if ( status != 0 ) // buffer overflow
+			Log.Comment( WARN, "Buffer status differs: " + to_string( status ));
 
-	  set_ncounter( ncounter );
+		set_ncounter( ncounter );
 
-	  // the output loop is implicitly protect against status changes by the fact
-	  // that the buffer boundaries are aligned to 44100 respectively one second
-	  for ( uint i{0}; i < chunksize; i++ )
-	  {
-	  	  buffer[i]	= shm_addr[ncounter];
-	  	  ncounter 	= (ncounter	+ 1 );
-	  }
+		// the output loop is implicitly protect against status changes by the fact
+		// that the buffer boundaries are aligned to 44100 respectively one second
+		for ( uint i{0}; i < chunksize; i++ )
+		{
+			buffer[i]	= shm_addr[ncounter];
+			ncounter 	= (ncounter	+ 1 );
+		}
 
-	  if (sds->AudioServer == EXITSERVER )
-	  {
-		  *Done = true;
-		  done = true;
-		  return 1;
-	  }
+		if (sds->AudioServer == EXITSERVER )
+		{
+			done = true;
+//			exit_proc( 1 );
+			DaTA.Sem.Release( AUDIOSERVER_SEM );
 
-	  sds->AudioServer = RUNNING;
+			return 1;
+		}
+		if (sds->AudioServer == RECORDSTART )
+		{
+			if ( SaveRecordFlag )
+			{
+				Log.Comment( WARN, "Audioserver is saving data. ... Wait ");
+			}
+			else
+			{
+				ncounter = 0;
+				sds->Record = true; // display record status in ui
+				rcounter = 0;
+				Log.Comment(INFO, "Audioserver starts recording" );
+				External.status.record = true;
+			}
+		}
+		if (sds->AudioServer == RECORDSTOP )
+		{
+			External.status.record = false;
+			sds->Record = false;
+			SaveRecordFlag = true;
+//			DaTA.Sem.Release( SEMAPHORE_RECORD );
+		}
 
-	  return 0;
+		sds->AudioServer = RUNNING;
+
+		return 0;
 } // callback function
 
 
@@ -185,8 +310,6 @@ int main( int argc, char *argv[] )
 {
 	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start(argc, argv );
-	sds = App.sds;
-//	signal( SIGINT, &exit_proc);
 
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
@@ -196,7 +319,10 @@ int main( int argc, char *argv[] )
 
 
 	App.Sds->Announce(  );
+	App.sds->Record = false;
+
     DaTA.Sem.Release( SEMAPHORE_STARTED );
+    DaTA.Sem.Reset(AUDIOSERVER_SEM);
 	sds->RecCounter 	= 0;
 
 
@@ -207,7 +333,7 @@ int main( int argc, char *argv[] )
 	// dynamic rtapi output parameter
 	// Tell RtAudio to output all messages, even warnings.
 	rtapi.showWarnings( true );
-	double *frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
+	frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
 	oParams.nChannels 		= Cfg->Config.channel;
 	oParams.firstChannel 	= Cfg->Config.ch_offs;
 	get_device_description( Cfg->Config.device );
@@ -223,22 +349,13 @@ int main( int argc, char *argv[] )
 // end parametrization
 // -------------------------------------------------------------------------------
 
+	call_for_update();
 
-
-	shm_addr = DaTA.SetShm_addr( );
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA);
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA0);
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA1);
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA2);
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA3);
 	show_usage();
-
-
 
 	// An error in the openStream() function can be detected either by
 	// checking for a non-zero return value OR by a subsequent call to
 	// isStreamOpen().
-
 
 	Log.Comment(INFO, "Opening Audio Stream");
 	if ( rtapi.openStream(&oParams,
@@ -254,21 +371,7 @@ int main( int argc, char *argv[] )
 		exit_proc(6);
 	}
 
-	if ( not rtapi.isStreamOpen() )
-	{
-		Log.Comment( ERROR ,"Failed to open Audio Stream" );
-		exit_proc(3);
-	}
-	else
-		Log.Comment( INFO, "Audio Stream is open ") ;
-
-	if ( rtapi.startStream() )
-	{
-		Log.Comment( ERROR , rtapi.getErrorText() );
-		exit_proc(4);
-	}
-	else
-		Log.Comment( INFO, "Audio Stream is started ") ;
+	start_audio_stream();
 
 	// The parameter list is available after stream open
 	Log.Comment(INFO , 	"Parameters in use:\n       buffer size        " +
@@ -285,16 +388,19 @@ int main( int argc, char *argv[] )
 
 	Log.Comment(INFO, "Application initialized");
 	Log.Comment(INFO, "Entering Application loop\n");
-	Log.Comment(INFO, App.Name + " is ready");
 
-	Statistic.Show_Statistic( );
-	while ( not *Done )
+
+	App.Ready();
+
+//	DaTA.Sem.Lock( AUDIOSERVER_SEM );
+
+	while ( not done )
 	{
 //		cout.flush() << "." ;
 		Timer.Wait( 1 );// 1sec
 	}
-	free( frame );
-	Log.Comment(INFO, "Application loop exit");
+	exit_proc( 0 );
+	return 0;
 //	raise( SIGHUP);
 
 }

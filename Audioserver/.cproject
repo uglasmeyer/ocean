@@ -67,11 +67,9 @@
 								<option id="gnu.cpp.compiler.option.misc.hardening.684665051" name="Hardening options (-fstack-protector-all -Wformat=2 -Wformat-security -Wstrict-overflow)" superClass="gnu.cpp.compiler.option.misc.hardening" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1832899802" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OceanGUI}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Synthesizer}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/include}&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.debugging.level.1194412896" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.1194412896" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.1551211552" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++2a" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.optimization.level.1432678282" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.gprof.97497787" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -83,8 +81,6 @@
 								<option id="gnu.c.compiler.option.dialect.std.180768204" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.756940356" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OceanGUI}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Synthesizer}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.206844430" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -96,8 +92,6 @@
 								<option id="gnu.cpp.link.option.debugging.gprof.1893588031" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.2705516" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OceanGUI/Release}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Synthesizer/Release}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/Audioserver"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.63282798" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
@@ -113,8 +107,6 @@
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.102044501" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.292112852" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/OceanGUI}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Synthesizer}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1773367389" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -134,23 +126,6 @@
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
-				<externalSettings containerId="Composer;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
-				<externalSettings containerId="Synthesizer;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Synthesizer"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Synthesizer/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="/home/sirius/Synthesizer/bin/Synthesizer" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
-				<externalSettings containerId="ifdstruct;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
-				<externalSettings containerId="rtsp;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier"/>
-				<externalSettings containerId="OceanGUI;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
-					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/OceanGUI"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/OceanGUI/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="Synthesizer" srcPrefixMapping="" srcRootPath=""/>
-					</externalSetting>
-				</externalSettings>
 				<externalSettings containerId="Ocean;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Ocean"/>

@@ -24,7 +24,7 @@ enum
 	DEBUGID
 };
 
-const vector<string> wavedisplay_str_vec =
+const array<string,5> wavedisplay_str_vec =
 {
     "Audio Out",
 	"MAIN",

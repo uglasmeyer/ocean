@@ -209,6 +209,7 @@ void Shared_Memory::Clear()
 
 void Shared_Memory::Stereo_buffer( key_t key )
 {
-	this->ds = *Get( key );
-	this->ds.addr = (stereo_t*) this->ds.addr;
+	this->ds 		= *Get( key );
+	this->ds.addr 	= (stereo_t*) this->ds.addr;
+	this->addr 		= (stereo_t*) this->ds.addr;
 }

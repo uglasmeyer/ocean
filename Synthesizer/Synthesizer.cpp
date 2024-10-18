@@ -180,9 +180,9 @@ void processKey( char key )
 		}
 		case SAVE_EXTERNALWAVFILEKEY : // record and save wav file
 		{
-		    if ( SaveRecordFlag )
+/*		    if ( SaveRecordFlag )
 			{
-				Log.Comment( WARN, "Thread is saving data. ... Wait ");
+				Log.Comment( WARN, "Audioserver is saving data. ... Wait ");
 				ifd->KEY = NULLKEY;
 				break;
 			}
@@ -190,6 +190,15 @@ void processKey( char key )
 									Mixer.StA[MbIdExternal].record_data );
 			Sem->Release( SEMAPHORE_RECORD );
 			DaTA.Sds.Commit(); // reset flags on GUI side
+*/
+			if( DaTA.Sds_master->Record ) // Composer - Interpreter
+			{
+				DaTA.Sds_master->AudioServer = RECORDSTART; // start and  wait
+			}
+			else
+			{
+				DaTA.Sds_master->AudioServer = RECORDSTOP; // stop and save
+			}
 
 			break;
 		}
@@ -603,13 +612,13 @@ void ApplicationLoop()
 	stereo_t* 		shm_addr 	= DaTA.GetShm_addr( );
 	Time_class		Timer		( &ifd->time_elapsed );
 
-	Log.Comment(INFO, App.Name + " is ready");
-
 	DaTA.Sds.Commit(); // set flags to zero and update flag to true
 
 	if( Sem->Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
 		Sem->Release( SEMAPHORE_STARTED );
 	ifd->Synthesizer = RUNNING;
+
+	App.Ready();
 
 	while ( ifd->Synthesizer != EXITSERVER )
 	{
@@ -662,7 +671,7 @@ void ApplicationLoop()
 	return;
 
 } // Application loop
-
+/*
 void record_thead_fcn()
 {
 //	Logfacility_class	Log("RecordThread");
@@ -691,12 +700,15 @@ void record_thead_fcn()
 
 	Log.Comment( INFO, "record thread terminated ");
 }
-
+*/
 bool SyncThread_done	= false;
 uint Sync_Semaphore 	= SEMAPHORE_SENDDATA0;
 void synchronize_fnc( )
 {
 	Log.Comment(INFO, "Sync thread started" );
+
+	Setup_Wavedisplay();
+
 	while( true )
 	{
 		Sem->Lock( Sync_Semaphore );
@@ -709,7 +721,7 @@ void synchronize_fnc( )
 }
 
 thread Sync_thread	( synchronize_fnc );
-thread Record_thread( record_thead_fcn );
+//thread Record_thread( record_thead_fcn );
 
 int sig_counter = 0;
 void exit_proc( int signal )
@@ -736,20 +748,15 @@ void exit_proc( int signal )
 		Log.Comment(INFO, "Entering exit procedure for " + Application );
 	}
 
-	RecordThreadDone 	= true;
-	Sem->Reset( SEMAPHORE_RECORD );
-	if ( Record_thread.joinable() )
-		Record_thread.join();
 
 	SyncThread_done	= true;
-	Sem->Reset( Sync_Semaphore );
+	Sem->Release(Sync_Semaphore);
 	Log.Comment(INFO, "attempting to join sync thread ");
 	if ( Sync_thread.joinable() )
 		Sync_thread.join();
 
 	Sem->Release( SEMAPHORE_STARTED );
-    Sem->Release( SEMAPHORE_EXIT );
-	Log.Comment(INFO, "Synthesizer reached target exit 0" );
+    Log.Comment(INFO, "Synthesizer reached target exit 0" );
 	exit( 0 );
 }
 
@@ -769,10 +776,11 @@ int main( int argc, char* argv[] )
 		exit_proc( EXITTEST );
 	}
 
-	Instrument.Setup( App.sds );//DaTA.GetSdsAddr( DaTA.SDS_Id) );
-	Mixer.Setup( App.sds, DaTA.SDS_Id );
-	ProgressBar.Setup( &App.sds->RecCounter );
+//	Instrument.Setup( App.sds );//DaTA.GetSdsAddr( DaTA.SDS_Id) );
+	Mixer.Setup( DaTA.Sds.addr, DaTA.SDS_Id );
+	ProgressBar.Setup( &DaTA.Sds.addr->RecCounter );
 	Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
+	Sem->Reset( Sync_Semaphore );
 
 
 //	Log.Show_loglevel();
@@ -781,7 +789,7 @@ int main( int argc, char* argv[] )
 	App.Sds->Restore_ifd();
 	activate_ifd();
 
-	Setup_Wavedisplay();
+//	Setup_Wavedisplay();
 
 	show_usage();
 	show_AudioServer_Status();

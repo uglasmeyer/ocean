@@ -232,7 +232,7 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
 {
 	float out_percent=master_vol/100.0;
-
+/*
 	if ( sdsid == 0 )
 	{
 		for( buffer_t n = 0; n < max_frames; n++ )
@@ -243,6 +243,7 @@ void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
 		}
 	}
 	else
+	*/
 	{
 		for( buffer_t n = 0; n < max_frames; n++ )
 		{

@@ -33,7 +33,7 @@ public:
 	SDS_vec_t			 	SDS_vec 	{ };
 	SHM_vec_t				SHM_vecL	{ };
 	SHM_vec_t				SHM_vecR	{ };
-	Register_class			Reg			{ };
+	Register_class			Reg			{ &Cfg.type_map };
 
 	stereo_t* 				ShmAddr_L 	= nullptr;
 	stereo_t* 				ShmAddr_R 	= nullptr;
@@ -46,9 +46,10 @@ public:
 	Interface_class* GetSds(  );
 	Interface_class* GetSds( int id );
 
-	stereo_t* SetShm_addr( ); 			// Audioserver
-	stereo_t* GetShm_addr( ); 			// Synthesizer
-	stereo_t* GetShm_addr( uint sdsid );// rtsp
+	stereo_t* 	SetShm_addr( ); 			// Audioserver
+	stereo_t* 	GetShm_addr( ); 			// Synthesizer
+	void 		ClearShm();
+//	stereo_t* GetShm_addr( uint sdsid );// rtsp
 
 	Dataworld_class( uint id );
 	~Dataworld_class();

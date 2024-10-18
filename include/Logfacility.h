@@ -48,7 +48,7 @@ public:
 	void Info( string text );
 	void Set_Loglevel( int, bool );
 	void Show_loglevel();
-	string Error_text( int );
+	string Error_text( uint );
 	void Init_log_file();
 	void Test_Logging();
 	void TEST_START(const string& name);
@@ -60,7 +60,7 @@ private:
 
 	typedef struct pair_struct
 	{
-		int 	key;
+		string 	key;
 		string 	str;
 	} pair_struct_t;
 	vector<pair_struct_t> error_vector {};

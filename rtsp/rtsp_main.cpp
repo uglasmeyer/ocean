@@ -12,7 +12,7 @@ bool shmmixer_done = false;
 #include <Time.h>
 
 Time_class Timer{};
-
+/*
 void shmmixer_fnc()
 {
 	Sem->Lock( RTSP_STARTED );
@@ -38,7 +38,7 @@ void shmmixer_fnc()
 	Log.Comment( INFO, "Shared Memory Mixer Thread terminated");
 }
 thread shmmixer_thread( shmmixer_fnc );
-
+*/
 
 void Start_audioserver()
 {
@@ -89,10 +89,10 @@ void exit_proc( int signal )
 	cout << endl;
 
 	shmmixer_done = true;
-	Sem->Reset( SEMAPHORE_SENDDATA );
-	Log.Info( "Waiting for shm mixer thread to join");
-	if ( shmmixer_thread.joinable() )
-		shmmixer_thread.join();
+//	Sem->Reset( SEMAPHORE_SENDDATA );
+//	Log.Info( "Waiting for shm mixer thread to join");
+//	if ( shmmixer_thread.joinable() )
+//		shmmixer_thread.join();
 
 	Log.Comment( INFO, "Reaching RTSP exit ");
 	exit( 0 );
@@ -115,7 +115,7 @@ int main(  int argc, char* argv[] )
 	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start( argc, argv );
 	sds = App.sds;
-	ShmMixer.InitShm();
+//	ShmMixer.InitShm();
 
 	if ( Cfg->Config.test == 'y' )
 	{
@@ -133,7 +133,7 @@ int main(  int argc, char* argv[] )
 
 	Log.Comment( INFO, "RTSP is " + DaTA.Sds.Decode( sds->Rtsp ) );
 
-	Sem->Release( SEMAPHORE_SENDDATA );
+//	Sem->Release( SEMAPHORE_SENDDATA );
 
 	if( Cfg->Config.oceangui == 'y' )
 	{

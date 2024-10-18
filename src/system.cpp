@@ -23,7 +23,7 @@ void catch_signals( sighandler_t proc, vector<uint> sig_v )
 void Exception( const string& err_str )
 {
 	Log_common.Comment( ERROR, err_str );
-	cout << "A common exception occurred " << endl;
+	cout << "An application exception occured " << endl;
 	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;
 	cout << Log_common.Line << endl;
 	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;
@@ -39,8 +39,7 @@ void system_execute( const string& cmd )
 
 	if ( ret != 0 )
 	{
-		Log_common.Comment( ERROR, cmd + "\ncheck out system error message " );
-		raise( SIGINT );
+		Exception( cmd + "\ncheck out system error message " );
 	}
 }
 

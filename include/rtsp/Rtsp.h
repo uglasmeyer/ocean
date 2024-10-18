@@ -11,14 +11,14 @@
 #include <App.h>
 #include <data/Semaphore.h>
 #include <System.h>
-#include <rtsp/ShmMixer.h>
+//#include <rtsp/ShmMixer.h>
 
 
 const string		Module	= "rtsp";
 Logfacility_class	Log( Module );
 Dataworld_class		DaTA( RTSPID );
 Application_class	App( &DaTA );
-ShmMixer_class		ShmMixer{ &DaTA };
+//ShmMixer_class		ShmMixer{ &DaTA };
 DirStructure_class 	Dir;
 Semaphore_class*	Sem = DaTA.Sem_p;
 Config_class* 		Cfg = DaTA.Cfg_p;

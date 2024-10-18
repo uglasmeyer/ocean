@@ -28,7 +28,7 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 
 	Sds_master = (interface_t*) SDS_vec[0].ds.addr;
 	assert( Sds_master->SDS_Id == 0 );
-	Reg.Setup( &Sds_master->process_arr , Cfg.type_map, TypeId );
+	Reg.Setup( Sds_master, TypeId );
 	SDS_Id = Reg.GetId();
 
 	init_Sds( );
@@ -38,20 +38,22 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 	{
 		Comment(INFO,"Attaching data buffers");
 		uint idx = 0;
-		for (key_t key : Cfg.Config.shmkeys_l )
+//		for (key_t key : Cfg.Config.shmkeys_l )
 		{
 			Shared_Memory SHM { sharedbuffer_size };
-			SHM.Stereo_buffer( key );
+//			SHM.Stereo_buffer( key );
+			SHM.Stereo_buffer( Cfg.Config.SHM_keyl );
 			SHM.ds.Id = idx;
 			SHM_vecL.push_back( SHM );
 			SHM.ShowDs( SHM.ds );
 			idx++;
 		}
 		idx = 0;
-		for (key_t key : Cfg.Config.shmkeys_r )
+//		for (key_t key : Cfg.Config.shmkeys_r )
 		{
 			Shared_Memory SHM { sharedbuffer_size };
-			SHM.Stereo_buffer( key );
+//			SHM.Stereo_buffer( key );
+			SHM.Stereo_buffer( Cfg.Config.SHM_keyr );
 			SHM.ds.Id = idx;
 			SHM_vecR.push_back( SHM );
 			SHM.ShowDs( SHM.ds );
@@ -66,11 +68,15 @@ Dataworld_class::~Dataworld_class()
 {
 	if ( Reg.Is_dataprocess() )
 	{
-		for( uint n =0; n<MAXCONFIG; n++)
+/*		for( uint n =0; n<MAXCONFIG; n++)
 		{
 			SHM_vecL[n].Detach( SHM_vecL[n].ds.addr );
 			SHM_vecR[n].Detach( SHM_vecR[n].ds.addr );
 		}
+		*/
+		SHM_vecL[0].Detach( SHM_vecL[0].ds.addr );
+		SHM_vecR[0].Detach( SHM_vecR[0].ds.addr );
+
 	}
 }
 
@@ -92,9 +98,6 @@ void Dataworld_class::init_Shm( )
 		ShmAddr_L = (stereo_t*) SHM_vecL[0].ds.addr;
 		ShmAddr_R = (stereo_t*) SHM_vecR[0].ds.addr;
 
-		// test
-		assert( SHM_vecL[0].ds.addr != SHM_vecL[1].ds.addr );
-		assert( SHM_vecR[0].ds.addr != SHM_vecR[1].ds.addr );
 	}
 }
 
@@ -129,6 +132,12 @@ interface_t* Dataworld_class::GetSdsAddr( int id )
 	return ( interface_t*) SDS_vec[id].ds.addr;
 }
 
+void Dataworld_class::ClearShm()
+{
+	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
+	int 			shm_id 	= sds->SHMID;
+	( shm_id == 0 ) ? SHM_vecL[0].Clear() : SHM_vecR[0].Clear();
+}
 stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 {
 //	interface_t* 	sds 	= SDS_vec[ SDS_Id ].addr;
@@ -138,7 +147,7 @@ stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 	return addr;
 
 }
-
+/*
 stereo_t* Dataworld_class::GetShm_addr( uint sdsid ) // rtsp shm mixer
 {
 	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
@@ -148,7 +157,7 @@ stereo_t* Dataworld_class::GetShm_addr( uint sdsid ) // rtsp shm mixer
 	return addr;
 
 }
-
+*/
 stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 {
 	stereo_t* 		addr;
