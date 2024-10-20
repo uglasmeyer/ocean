@@ -375,20 +375,22 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/String.h \
 		../include/Instrument.h \
 		../include/data/Interface.h \
+		../include/Config.h \
+		../include/Configbase.h \
+		../include/Version.h \
 		../include/Keys.h \
+		../include/data/Semaphore.h \
+		../include/Time.h \
+		../include/data/SharedDataSegment.h \
+		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/System.h \
 		../include/data/Statistic.h \
-		../include/Version.h \
-		../include/data/Semaphore.h \
-		../include/Config.h \
-		../include/Time.h \
-		../include/data/SharedDataSegment.h \
-		../include/Mixerbase.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Notesbase.h \
+		../include/data/Register.h \
 		../include/Osc.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -397,23 +399,25 @@ moc_File_Dialog.cpp: File_Dialog.h \
 moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Interface.h \
 		../include/Ocean.h \
-		../include/Keys.h \
-		../include/data/Memory.h \
-		../include/Logfacility.h \
-		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/data/Statistic.h \
-		../include/Spectrum.h \
-		../include/Version.h \
-		../include/data/Semaphore.h \
 		../include/Config.h \
+		../include/Logfacility.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/Keys.h \
+		../include/Spectrum.h \
+		../include/String.h \
+		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
 		../include/Mixerbase.h \
+		../include/data/Memory.h \
+		../include/data/Memorybase.h \
+		../include/System.h \
+		../include/data/Statistic.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Notesbase.h \
+		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
 		../include/External.h \
@@ -421,9 +425,8 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/Record.h \
 		../include/Notes.h \
 		../include/Instrument.h \
-		../include/App.h \
 		../include/data/DataWorld.h \
-		../include/Processes.h \
+		../include/App.h \
 		File_Dialog.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
@@ -439,20 +442,22 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Logfacility.h \
 		../include/String.h \
 		../include/data/Interface.h \
+		../include/Config.h \
+		../include/Configbase.h \
+		../include/Version.h \
 		../include/Keys.h \
+		../include/data/Semaphore.h \
+		../include/Time.h \
+		../include/data/SharedDataSegment.h \
+		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/System.h \
 		../include/data/Statistic.h \
-		../include/Version.h \
-		../include/data/Semaphore.h \
-		../include/Config.h \
-		../include/Time.h \
-		../include/data/SharedDataSegment.h \
-		../include/Mixerbase.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Notesbase.h \
+		../include/data/Register.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include Spectrum_dialog_class.h -o moc_Spectrum_dialog_class.cpp
@@ -461,23 +466,25 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
 		../include/Ocean.h \
-		../include/Keys.h \
-		../include/data/Memory.h \
-		../include/Logfacility.h \
-		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/data/Statistic.h \
-		../include/Spectrum.h \
-		../include/Version.h \
-		../include/data/Semaphore.h \
 		../include/Config.h \
+		../include/Logfacility.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/Keys.h \
+		../include/Spectrum.h \
+		../include/String.h \
+		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
 		../include/Mixerbase.h \
+		../include/data/Memory.h \
+		../include/data/Memorybase.h \
+		../include/System.h \
+		../include/data/Statistic.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Notesbase.h \
+		../include/data/Register.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/aarch64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/aarch64-linux-gnu/qt5 -I/usr/include/aarch64-linux-gnu/qt5/QtWidgets -I/usr/include/aarch64-linux-gnu/qt5/QtGui -I/usr/include/aarch64-linux-gnu/qt5/QtCore -I/usr/include/c++/13 -I/usr/include/aarch64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/llvm-18/lib/clang/18/include -I/usr/local/include -I/usr/include/aarch64-linux-gnu -I/usr/include Rtsp_dialog_class.h -o moc_Rtsp_dialog_class.cpp
@@ -519,27 +526,28 @@ OceanGUI_main.o: OceanGUI_main.cpp ../include/App.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
 		../include/Ocean.h \
-		../include/Keys.h \
-		../include/data/Memory.h \
-		../include/Logfacility.h \
-		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/data/Statistic.h \
-		../include/Spectrum.h \
-		../include/Version.h \
-		../include/data/Semaphore.h \
 		../include/Config.h \
+		../include/Logfacility.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/Keys.h \
+		../include/Spectrum.h \
+		../include/String.h \
+		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
 		../include/Mixerbase.h \
+		../include/data/Memory.h \
+		../include/data/Memorybase.h \
+		../include/System.h \
+		../include/data/Statistic.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/Notesbase.h \
+		../include/data/Register.h \
 		../include/External.h \
 		../include/Wav.h \
 		../include/Record.h \
-		../include/Processes.h \
 		Mainwindow.h \
 		../include/Mixer.h \
 		../include/Osc.h \

@@ -227,8 +227,9 @@ void MainWindow::SetSds(  )
 {
 	this->Sds 	=DaTA->GetSds( Rtsp_Dialog_obj.SDS_ID );
 
-    Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)this->Sds->addr->SDS_Id ));
-	File_Dialog_obj.SetSds( this->Sds );
+	int8_t sdsid = Rtsp_Dialog_obj.SDS_ID ;
+    Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
+	File_Dialog_obj.SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
 
 	setwidgetvalues();
@@ -256,8 +257,8 @@ void MainWindow::hs_hall_effect_value_changed(int value)
 
 void MainWindow::pB_Wavedisplay_clicked()
 {
-    int wd_counter = (Sds->addr->Wavedisplay_Id + 1) % wavedisplay_str_vec.size();
-    QString QStr = QString::fromStdString(wavedisplay_str_vec[ wd_counter]);
+    int wd_counter = (Sds->addr->Wavedisplay_Id + 1) % wavedisplay_str_arr.size();
+    QString QStr = QString::fromStdString(wavedisplay_str_arr[ wd_counter]);
     ui->pB_Wavedisplay->setText( QStr );
     Sds->Set(Sds->addr->Wavedisplay_Id , wd_counter);
     Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY);
@@ -560,7 +561,7 @@ void MainWindow::setwidgetvalues()
     ui->hs_hall_effect->setValue( (int)  Sds->addr->Main_adsr.hall );
     ui->progressBar_record->setValue(0);
     int wd_counter              = Sds->addr->Wavedisplay_Id;
-    QString Qstr = QString::fromStdString(wavedisplay_str_vec[wd_counter]);
+    QString Qstr = QString::fromStdString(wavedisplay_str_arr[wd_counter]);
     ui->pB_Wavedisplay->setText( Qstr );
     ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ (int) Sds->addr->WD_type_ID % 3 ] );
 
@@ -581,14 +582,14 @@ void MainWindow::GUI_Exit()
     QApplication::quit();
 }
 
-auto Slider_Hz = []( Interface_class& IFC, float& fptr, float value, char key )
+auto Slider_Hz = []( Interface_class* IFC, float& fptr, float value, char key )
 	{
-		IFC.Set( fptr 			, value);
-		IFC.Set( IFC.addr->KEY 	, key);
+		IFC->Set( fptr 			, value);
+		IFC->Set( IFC->addr->KEY 	, key);
 	};
 void MainWindow::MAIN_slot_Hz()
 {
-	Slider_Hz( DaTA->Sds, Sds->addr->Main_Freq, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
+	Slider_Hz( this->Sds, this->Sds->addr->Main_Freq, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
 }
 
 void MainWindow::Slider_VCO_Hz_changed(int value )
@@ -598,7 +599,7 @@ void MainWindow::Slider_VCO_Hz_changed(int value )
 
     ui->VCOLCD_Hz->display( freq );
 
-    Slider_Hz( DaTA->Sds, Sds->addr->VCO_Freq, freq, VCOFREQUENCYKEY );
+    Slider_Hz( this->Sds, this->Sds->addr->VCO_Freq, freq, VCOFREQUENCYKEY );
 }
 
 
@@ -609,26 +610,26 @@ void MainWindow::Slider_FMO_Hz_changed(int value )
 
     ui->FMOLCD_Hz->display( freq );
 
-    Slider_Hz( DaTA->Sds, Sds->addr->FMO_Freq, freq, FMOFREQUENCYKEY );
+    Slider_Hz( this->Sds, this->Sds->addr->FMO_Freq, freq, FMOFREQUENCYKEY );
 }
 
-auto Slider_volume = []( Interface_class& IF, uint8_t& ch_ptr, char value, char key )
+auto Slider_volume = []( Interface_class* IF, uint8_t& ch_ptr, char value, char key )
 	{
-		IF.Set( ch_ptr , value);
-		IF.Set( IF.addr->KEY , key);
+		IF->Set( ch_ptr , value);
+		IF->Set( IF->addr->KEY , key);
 	};
 
 void MainWindow::MAIN_slot_volume()
 {
-	Slider_volume( DaTA->Sds, Sds->addr->Master_Amp, ui->Slider_Main_Vol->value(), MASTERAMP_KEY );
+	Slider_volume( this->Sds, Sds->addr->Master_Amp, ui->Slider_Main_Vol->value(), MASTERAMP_KEY );
 }
 void MainWindow::VCO_slot_volume()
 {
-	Slider_volume( DaTA->Sds, Sds->addr->VCO_Amp, ui->Slider_VCO_vol->value(), VCOAMPKEY );
+	Slider_volume( this->Sds, Sds->addr->VCO_Amp, ui->Slider_VCO_vol->value(), VCOAMPKEY );
 }
 void MainWindow::FMO_slot_volume()
 {
-	Slider_volume( DaTA->Sds, Sds->addr->FMO_Amp, ui->Slider_FMO_vol->value(), FMOAMPKEY );
+	Slider_volume( this->Sds, Sds->addr->FMO_Amp, ui->Slider_FMO_vol->value(), FMOAMPKEY );
 }
 
 
@@ -658,9 +659,14 @@ void MainWindow::start_synthesizer()
 	    	Sem->Release( SYNTHESIZER_START );
 	    return;
 	}
-    string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
+
+	int id = DaTA->Reg.GetStartId( Rtsp_Dialog_obj.SDS_ID );
+	if ( id <  0 ) return;
+
+	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
     		file_structure().synth_bin,
-			"-S " + to_string(Rtsp_Dialog_obj.SDS_ID) );
+			"-S " + to_string( id ) );
+
     system_execute( Start_Synthesizer.data() );
     Sem->Lock( SEMAPHORE_STARTED );
     Rtsp_Dialog_obj.Update_widgets();
@@ -681,17 +687,17 @@ void MainWindow::Controller_Exit()
 		return;
 	}
     Sds->addr->Synthesizer = EXITSERVER ;
-//    DaTA->SDS_vec[0].addr->process_arr.at( Rtsp_Dialog_obj.SDS_ID + 1 ) = process_struct();
-    DaTA->Sem.Lock( SEMAPHORE_EXIT, 1 );
+    DaTA->Reg.Reset( Rtsp_Dialog_obj.SDS_ID, SYNTHID );
+    DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
     Rtsp_Dialog_obj.Update_widgets();
 
 }
 
 void MainWindow::Audio_Exit()
 {
-    Sds->addr->AudioServer = EXITSERVER;
-//    DaTA->SDS_vec[0].addr->process_arr.at( 0 ) = process_struct();
-    DaTA->Sem.Lock( SEMAPHORE_EXIT, 1 );
+    DaTA->Sds_master->AudioServer = EXITSERVER;
+    DaTA->Reg.Reset( 0, AUDIOID );
+    DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
     Rtsp_Dialog_obj.Update_widgets();
 }
 
@@ -735,12 +741,11 @@ void MainWindow::get_record_status( )
 }
 void MainWindow::SaveRecord()
 {
-    Sds->Set( Sds->addr->FileNo , 0); // automatic numbering
-    if ( Sds->addr->Record )
-    	Sds->addr->AudioServer = RECORDSTOP;
+    Sds->Set( Sds_master->FileNo , 0); // automatic numbering
+    if ( Sds_master->Record )
+    	Sds_master->AudioServer = RECORDSTOP;
     else
-    	Sds->addr->AudioServer = RECORDSTART;
-//    Sds->Set( Sds->addr->KEY , SAVE_EXTERNALWAVFILEKEY);
+    	Sds_master->AudioServer = RECORDSTART;
 }
 
 void MainWindow::main_adsr_sustain()
@@ -768,7 +773,7 @@ void MainWindow::melody_connect()
 
 void MainWindow::Updatewidgets()
 {
-    if (  Sds->addr->UserInterface == UPDATEGUI  )
+    if (  Sds_master->UserInterface == UPDATEGUI  )
     {
         if ( Sds->addr->KEY == INSTRUMENTSTR_KEY )
         {
@@ -813,7 +818,7 @@ void MainWindow::Updatewidgets()
 
     }
 
-    if (Sds->addr->AudioServer == RUNNING )
+    if (Sds_master->AudioServer == RUNNING )
         ui->pBAudioServer->setPalette(status_color_green);
     else
         ui->pBAudioServer->setPalette(status_color_red);
@@ -824,7 +829,7 @@ void MainWindow::Updatewidgets()
     else
         ui->pBSynthesizer->setPalette(status_color_red);
 
-    if( Sds->addr->Record)
+    if( Sds_master->Record)
     	ui->pBtoggleRecord->setPalette( status_color_red );
     else
     	ui->pBtoggleRecord->setPalette( status_color_green );

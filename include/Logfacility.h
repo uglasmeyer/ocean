@@ -40,9 +40,6 @@ public:
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  );
 
-	template<typename T, typename... Targs>
-	void InfoT( string fmt, T value, Targs... Fargs);
-
 	// make all true to enable debugging of initialization phase
 	void Comment( const int& level, const string& text );
 	void Info( string text );

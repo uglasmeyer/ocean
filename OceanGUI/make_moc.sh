@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 cd /home/sirius/git/Ocean/OceanGUI/
-# Command: /usr/lib/qt5/bin/qmake -o Makefile OceanGUI.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug
+/usr/lib/qt5/bin/qmake -o Makefile OceanGUI.pro -spec linux-clang CONFIG+=debug CONFIG+=qml_debug
 
 
 make clean

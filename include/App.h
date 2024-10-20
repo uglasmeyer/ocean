@@ -21,8 +21,14 @@ extern void SynthesizerTestCases();
 
 extern void thread_fnc( const string& a );
 
+
+// https://en.cppreference.com/w/cpp/language/parameter_pack
+
+
+
+
 class Application_class :
-	virtual public Logfacility_class
+	virtual Logfacility_class
 {
 	string className = "Application_class";
 public:
@@ -48,8 +54,8 @@ public:
 
 
 private:
-	bool 			redirect_stderr = false;
-	uint8_t*		state_p			= nullptr;
+	bool 				redirect_stderr 	= false;
+	uint8_t*			state_p				= nullptr;
 
 	void deRegister( );
 

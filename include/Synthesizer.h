@@ -29,22 +29,27 @@ string					Module 				= "Synthesizer";
 Logfacility_class		Log( Module );
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
+
 Wavedisplay_class 		Wavedisplay{};
+Wavedisplay_class*		wd_p = &Wavedisplay;
 
 Application_class		App( &DaTA );
-Mixer_class				Mixer ;// DaTA.Sds_master );
-Instrument_class 		Instrument{ DaTA.Sds.addr };
+interface_t*			sds = DaTA.GetSdsAddr();
+
+Mixer_class				Mixer{ sds, wd_p } ;// DaTA.Sds_master );
+Instrument_class 		Instrument{ sds, wd_p };
 Note_class 				Notes;
 Keyboard_class			Keyboard( 	&Instrument );
 External_class 			External( 	&Mixer.StA[ MbIdExternal],
 									DaTA.Cfg_p);
-ProgressBar_class		ProgressBar( nullptr );
+ProgressBar_class		ProgressBar( &sds->RecCounter );
 Statistic_class 		Statistic{ Log.module };
 
 Semaphore_class*		Sem	= DaTA.Sem_p;
 Config_class*			Cfg = DaTA.Cfg_p;
 
 
+const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 
 
 const int 				EXITTEST			= 15;;

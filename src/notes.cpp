@@ -9,6 +9,8 @@
 #include <Config.h>
 
 
+
+
 Note_class::Note_class()
 : Note_class::Logfacility_class("Notes"),
   Note_base()
@@ -19,33 +21,27 @@ Note_class::~Note_class( )
 {
 }
 
-void Note_class::Set_osc_track( Instrument_class* instrument )
-{
+void Note_class::Set_instrument(Instrument_class *instrument) {
 	Instrument_name = instrument->Name;
-	Comment( TEST, "Update notes instrument:  " + Instrument_name );
-
+	Comment(TEST, "Update notes instrument:  " + Instrument_name);
 	// copy class Oscillator
-	main.wp 		= instrument->main.wp;
-	main.vp 		= instrument->main.vp;
-	main.fp 		= instrument->main.fp;
-	main.vp.data	= vco.Mem.Data;
-	main.fp.data	= fmo.Mem.Data;
-	main.adsr 		= instrument->main.adsr;
-	main.spectrum	= instrument->main.spectrum;
-
-	vco.wp 			= instrument->vco.wp;
-	vco.vp 			= instrument->vco.vp;
-	vco.fp 			= instrument->vco.fp;
-	vco.spectrum	= instrument->vco.spectrum;
-
-	fmo.wp 			= instrument->fmo.wp;
-	fmo.vp 			= instrument->fmo.vp;
-	fmo.fp 			= instrument->fmo.fp;
-	fmo.spectrum	= instrument->fmo.spectrum;
-
+	main.wp = instrument->main.wp;
+	main.vp = instrument->main.vp;
+	main.fp = instrument->main.fp;
+	main.vp.data = vco.Mem.Data;
+	main.fp.data = fmo.Mem.Data;
+	main.adsr = instrument->main.adsr;
+	main.spectrum = instrument->main.spectrum;
+	vco.wp = instrument->vco.wp;
+	vco.vp = instrument->vco.vp;
+	vco.fp = instrument->vco.fp;
+	vco.spectrum = instrument->vco.spectrum;
+	fmo.wp = instrument->fmo.wp;
+	fmo.vp = instrument->fmo.vp;
+	fmo.fp = instrument->fmo.fp;
+	fmo.spectrum = instrument->fmo.spectrum;
 	return;
 }
-
 
 void Note_class::Set_base_octave( uint diff )
 {
@@ -526,7 +522,7 @@ void Note_class::compiler ( noteline_prefix_t prefix, string str )
 	}
 
 	Set_Loglevel(DEBUG, true);
-	Show_note_list( notelist );
+	Show_note_list( notelist ); // @suppress("Invalid arguments")
 	Set_Loglevel(DEBUG, false);
 }
 

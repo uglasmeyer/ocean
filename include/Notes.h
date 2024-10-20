@@ -29,7 +29,8 @@ public:
 	Oscillator	 	vco			{ VCOID };
 	Oscillator	 	fmo			{ FMOID };
 
-	vector<Oscillator*> osc_group { &vco, &fmo, &main };
+	vector<Oscillator*>
+					osc_group { &vco, &fmo, &main };
 
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
@@ -39,6 +40,8 @@ public:
 	string 			Note_Chars		= convention_notes[ noteline_prefix_default.convention ];
 	uint8_t 		Octave			= noteline_prefix_default.Octave;
 	const uint16_t	measure_duration= max_milli_sec; // 1 sec.
+	const float 	max_frequency 	= Octave_freq ( max_octave + 1 );
+
 	uint16_t 		min_duration 	= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
 	noteline_prefix_t
@@ -49,9 +52,10 @@ public:
 	Note_class( ); // used by Variation
 	~Note_class();
 
+
 	string 			Read( string );
 	void			Save( string, noteline_prefix_t , string  );
-	void 			Set_osc_track( Instrument_class* );
+	void 			Set_instrument(Instrument_class *instrument);
 	string 			Get_note_line ();
 	string 			Get_rhythm_line (  );
 	void 			Set_rhythm_line(string );
@@ -65,10 +69,7 @@ public:
 	void 			Start_note_itr();
 	uint16_t 		Octave_freq( uint8_t oct );
 
-	const float 	max_frequency 	= Octave_freq ( max_octave + 1 );
-
-	template< typename T>
-	void Show_note_list( T items )
+	void Show_note_list( auto items ) // list or vector
 	{
 		stringstream strs;
 		uint lineduration = 0;
@@ -88,6 +89,8 @@ public:
 		Comment( INFO, strs.str() );
 	}
 
+
+
 private:
 	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
 	uint8_t			notes_default_volume
@@ -102,12 +105,11 @@ private:
 	size_t	 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
 
-	note_t 	note_buffer 	= note_struct();
+	note_t 			note_buffer 	= note_struct();
 
 	typedef notelist_t::iterator
 					note_itr_t;
 	note_itr_t  	note_itr 		= notelist.begin();
-
 
 	string 			get_name();
 	void 			compiler ( noteline_prefix_t,  string );

@@ -17,6 +17,11 @@
 #include <Mixer.h>
 #include <Keyboard.h>
 
+
+
+
+
+
 void SynthesizerTestCases()
 {
 	Shm_base Shm_test{0};
@@ -24,17 +29,20 @@ void SynthesizerTestCases()
 
 	Logfacility_class		Log( "Synthesizer test" );
 	DirStructure_class		Dir;
-	Dataworld_class			DaTA( SYNTHID );
 
+	Dataworld_class			DaTA( SYNTHID );
+	Wavedisplay_class		Wavedisplay{};
+	Wavedisplay_class*		wd_p = &Wavedisplay;
 	Application_class		App( &DaTA );
-	Mixer_class				Mixer;
+	interface_t*			sds = DaTA.GetSdsAddr();
+	Mixer_class				Mixer{ sds, wd_p };
 	Mixer.Set_Loglevel( TEST, true );
-	Instrument_class 		Instrument( DaTA.Sds_master );
+	Instrument_class 		Instrument( DaTA.Sds_master, wd_p );
 	Note_class 				Notes;
 	Keyboard_class			Keyboard( 	&Instrument );
 	External_class 			External( 	&Mixer.StA[ MbIdExternal],
 										DaTA.Cfg_p);
-	ProgressBar_class		ProgressBar( &DaTA.Sds_master->RecCounter );
+	ProgressBar_class		ProgressBar( &sds->RecCounter );
 	Time_class				Timer( &DaTA.Sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.module };
 
@@ -75,7 +83,6 @@ void SynthesizerTestCases()
 	Timer.Stop();
 	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
-	Mixer.Setup( DaTA.Sds_master, DaTA.SDS_Id);
 	Mixer.Test_Logging();
 
 	Keyboard.Test();
@@ -88,13 +95,11 @@ void SynthesizerTestCases()
 	Sem->Test();
 	Instrument.Test_Instrument();
 
-	Log.Info("5, variatic, argument, 4, 5 ");
+	Log.Test_Logging();
 	Log.TEST_END( "Application " );
 
 	DaTA.Reg.Test_Register();
 }
-
-
 
 
 Application_class::Application_class( 	Dataworld_class* DaTA ) :
@@ -113,11 +118,9 @@ void Application_class::Init_Sds( uint sds_id )
 {
 	this->Sds		= DaTA->GetSds( );
 	assert( this->Sds != nullptr );
+	this->state_p	= this->Sds->Getstate_ptr( DaTA->TypeId );
+
 	this->sds		= Sds->addr;
-
-	this->state_p	= Sds->state_p_map[ DaTA->TypeId ];
-	assert( state_p != nullptr );
-
 }
 void Application_class::Start( int argc, char* argv[] )
 {
@@ -165,8 +168,7 @@ void Application_class::Start( int argc, char* argv[] )
 Application_class::~Application_class()
 {
 	deRegister();
-    if( DaTA->Reg.Is_dataprocess() )
-    	DaTA->Sem.Release(SEMAPHORE_EXIT);
+
 
     if ( DaTA->TypeId == SYNTHID )
 	{
@@ -174,35 +176,48 @@ Application_class::~Application_class()
 	}
 }
 
+
+
 void Application_class::deRegister( )
 {
-	cout << endl;
-	Info( "De-register " + Name );
-	assert ( state_p != nullptr );
-	*state_p 	= OFFLINE;
-	if(( sds->UserInterface != OFFLINE ) and  ( DaTA->TypeId == SYNTHID ) )
+	auto closeStderr = [ this ]( string errFile )
 	{
-		sds->UserInterface = UPDATEGUI;
-	}
-	sds->UpdateFlag = true;
+		Info( "Closing stderr");
 
-	Info( "Closing stderr");
+		if ( redirect_stderr )
+			std::fclose(stderr);
 
-	if ( redirect_stderr )
-		std::fclose(stderr);
+		std::ifstream cFile( errFile );
+	    string out = "";
+	    do
+	    {
+	    	cout.flush() << out << endl;
 
-	std::ifstream cFile( errFile );
-    string out = "";
-    do
-    {
-    	cout.flush() << out << endl;
+	    } while( getline ( cFile, out ));
+	    cout << endl;
 
-    } while( getline ( cFile, out ));
-    cout << endl;
+	    cFile.close( );
+	};
 
-    cFile.close( );
 
+	auto setState = [ this ](  )
+	{
+		cout << endl;
+		Info( "De-register " + DaTA->Cfg.type_map[ DaTA->TypeId ] );
+		assert ( state_p != nullptr );
+		*state_p 	= OFFLINE;
+		if(( sds->UserInterface != OFFLINE ) and  ( DaTA->TypeId == SYNTHID ) )
+		{
+			sds->UserInterface = UPDATEGUI;
+		}
+		sds->UpdateFlag = true;
+	};
+
+
+	setState( );
+	closeStderr( errFile );
 }
+
 void Application_class::Ready(  )
 {
 	Statistic.Show_Statistic( );

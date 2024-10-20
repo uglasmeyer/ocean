@@ -24,18 +24,6 @@ Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 Interface_class::~Interface_class()
 {}
 
-void Interface_class::State_pMap(  )
-{
-	assert( addr != nullptr );
-	state_p_map[NOID]		= nullptr;
-	state_p_map[SYNTHID]	= &addr->Synthesizer,
-	state_p_map[COMPID]	= &addr->Composer;
-	state_p_map[GUI_ID]	= &addr->UserInterface;
-	state_p_map[COMSTACKID]=&addr->Comstack;
-	state_p_map[AUDIOID]	= &addr->AudioServer;
-	state_p_map[RTSPID]	= &addr->Rtsp;
-
-}
 
 void Interface_class::Setup_SDS( uint sdsid, key_t key)
 {
@@ -48,7 +36,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 
 	if ( not ds.eexist )
 	{
-		Comment(INFO, "initializing data interface using default values ");
+		Comment(WARN, "initializing data interface using default values ");
 		memcpy( addr	, &ifd_data		, sds_size );
 	}
 	Comment( INFO, "check shared memory version");
@@ -74,7 +62,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 				" or lib/ifd_data.bin size ");
 	}
 	ds.eexist = true;
-	addr->SDS_Id = sdsid;
+//	addr->SDS_Id = sdsid;
 	State_pMap();
 }
 
@@ -97,6 +85,7 @@ void Interface_class::stateMap()
 string Interface_class::Decode( uint8_t idx)
 {
 	return state_map[ idx ];
+
 }
 
 void Interface_class::Show_interface()
@@ -283,8 +272,7 @@ string Interface_class::Read_str( char selector )
 void Interface_class::Announce( )
 {
 	Comment(INFO, "announcing application " + Cfg_p->type_map[ Type_Id ] );
-	uint8_t* state = state_p_map[ Type_Id];
-	assert ( state != nullptr );
+	uint8_t* state = Getstate_ptr( Type_Id );
 	*state = RUNNING;
 	addr->UpdateFlag = true;
 }
@@ -300,6 +288,8 @@ bool Interface_class::Restore_ifd()
 {
 
 	Comment(INFO,"Restore shared data from file");
+	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
+	int sdsid 				= addr->SDS_Id;
 
 	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
@@ -307,6 +297,8 @@ bool Interface_class::Restore_ifd()
 	uint size = fread( addr, sizeof( ifd_data ), 1, fd);
 	fclose( fd );
 
+	addr->process_arr 	= procarr;
+	addr->SDS_Id		= sdsid;
 	return ( size == sizeof( ifd_data ));
 }
 
@@ -333,6 +325,26 @@ void Interface_class::Commit()
 	addr->UpdateFlag = true;
 	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
 		Sem_p->Release( PROCESSOR_WAIT );
+}
+
+void Interface_class::State_pMap( )
+{
+	assert( addr != nullptr );
+	state_p_map[NOID]		= nullptr;
+	state_p_map[SYNTHID]	= &addr->Synthesizer,
+	state_p_map[COMPID]		= &addr->Composer;
+	state_p_map[GUI_ID]		= &addr->UserInterface;
+	state_p_map[COMSTACKID]	= &addr->Comstack;
+	state_p_map[AUDIOID]	= &addr->AudioServer;
+	state_p_map[RTSPID]		= &addr->Rtsp;
+
+}
+
+uint8_t* Interface_class::Getstate_ptr( uint TypeId )
+{
+	uint8_t* state_p = state_p_map[ TypeId ];
+	assert( state_p != nullptr );
+	return state_p;
 }
 
 void Interface_class::Set( bool& key, bool value )

@@ -13,9 +13,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QFrame>
-#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QTableWidget>
 
@@ -24,26 +22,22 @@ QT_BEGIN_NAMESPACE
 class Ui_Rtsp_Dialog_class
 {
 public:
-    QGridLayout *gridLayout;
     QFrame *frame;
     QRadioButton *rb_activate_S1;
     QRadioButton *rb_activate_S0;
     QRadioButton *rb_activate_S2;
     QRadioButton *rb_activate_S3;
     QTableWidget *process_table;
-    QPushButton *pB_Start_Rtsp;
-    QPushButton *pB_Exit_Rtsp;
 
     void setupUi(QDialog *Rtsp_Dialog_class)
     {
         if (Rtsp_Dialog_class->objectName().isEmpty())
             Rtsp_Dialog_class->setObjectName(QString::fromUtf8("Rtsp_Dialog_class"));
-        Rtsp_Dialog_class->resize(525, 241);
+        Rtsp_Dialog_class->resize(493, 227);
         Rtsp_Dialog_class->setStyleSheet(QString::fromUtf8("background-color: rgb(153, 193, 241);"));
-        gridLayout = new QGridLayout(Rtsp_Dialog_class);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         frame = new QFrame(Rtsp_Dialog_class);
         frame->setObjectName(QString::fromUtf8("frame"));
+        frame->setGeometry(QRect(9, 9, 121, 191));
         frame->setFrameShape(QFrame::StyledPanel);
         frame->setFrameShadow(QFrame::Raised);
         rb_activate_S1 = new QRadioButton(frame);
@@ -58,32 +52,21 @@ public:
         rb_activate_S3 = new QRadioButton(frame);
         rb_activate_S3->setObjectName(QString::fromUtf8("rb_activate_S3"));
         rb_activate_S3->setGeometry(QRect(10, 150, 111, 23));
-
-        gridLayout->addWidget(frame, 0, 0, 1, 1);
-
         process_table = new QTableWidget(Rtsp_Dialog_class);
-        if (process_table->columnCount() < 4)
-            process_table->setColumnCount(4);
+        if (process_table->columnCount() < 3)
+            process_table->setColumnCount(3);
         QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
         process_table->setHorizontalHeaderItem(0, __qtablewidgetitem);
+        QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
+        process_table->setHorizontalHeaderItem(1, __qtablewidgetitem1);
+        QTableWidgetItem *__qtablewidgetitem2 = new QTableWidgetItem();
+        process_table->setHorizontalHeaderItem(2, __qtablewidgetitem2);
         if (process_table->rowCount() < 5)
             process_table->setRowCount(5);
         process_table->setObjectName(QString::fromUtf8("process_table"));
+        process_table->setGeometry(QRect(150, 9, 331, 192));
         process_table->setRowCount(5);
-        process_table->setColumnCount(4);
-
-        gridLayout->addWidget(process_table, 0, 1, 1, 2);
-
-        pB_Start_Rtsp = new QPushButton(Rtsp_Dialog_class);
-        pB_Start_Rtsp->setObjectName(QString::fromUtf8("pB_Start_Rtsp"));
-
-        gridLayout->addWidget(pB_Start_Rtsp, 1, 1, 1, 1);
-
-        pB_Exit_Rtsp = new QPushButton(Rtsp_Dialog_class);
-        pB_Exit_Rtsp->setObjectName(QString::fromUtf8("pB_Exit_Rtsp"));
-
-        gridLayout->addWidget(pB_Exit_Rtsp, 1, 2, 1, 1);
-
+        process_table->setColumnCount(3);
 
         retranslateUi(Rtsp_Dialog_class);
 
@@ -92,15 +75,17 @@ public:
 
     void retranslateUi(QDialog *Rtsp_Dialog_class)
     {
-        Rtsp_Dialog_class->setWindowTitle(QCoreApplication::translate("Rtsp_Dialog_class", "Dialog", nullptr));
+        Rtsp_Dialog_class->setWindowTitle(QCoreApplication::translate("Rtsp_Dialog_class", "Server Control", nullptr));
         rb_activate_S1->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S1", nullptr));
         rb_activate_S0->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S0", nullptr));
         rb_activate_S2->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S2", nullptr));
         rb_activate_S3->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S3", nullptr));
         QTableWidgetItem *___qtablewidgetitem = process_table->horizontalHeaderItem(0);
-        ___qtablewidgetitem->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Type", nullptr));
-        pB_Start_Rtsp->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Start Rtsp", nullptr));
-        pB_Exit_Rtsp->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Exit Rtsp", nullptr));
+        ___qtablewidgetitem->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Process", nullptr));
+        QTableWidgetItem *___qtablewidgetitem1 = process_table->horizontalHeaderItem(1);
+        ___qtablewidgetitem1->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Instrument", nullptr));
+        QTableWidgetItem *___qtablewidgetitem2 = process_table->horizontalHeaderItem(2);
+        ___qtablewidgetitem2->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Notes", nullptr));
     } // retranslateUi
 
 };

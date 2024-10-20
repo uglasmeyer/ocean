@@ -21,14 +21,15 @@
 class External_class : virtual Logfacility_class//, public ProgressBar_class
 {
 	Storage_class* 	StA;
-	interface_t*	sds;
+	interface_t*	sds		= nullptr;
 	FILE*			File;
-	Config_class*	Cfg 			= nullptr;
+	Config_class*	Cfg 	= nullptr;
 
 public:
 	Stereo_Memory	stereo			{ stereobuffer_size };
 	long 			Filedata_size 	= 0;
 
+	// Synthesizer read only class
 	External_class( Storage_class* sta,
 					Config_class* cfg ) : //, Stereo_Memory* stereo ) :
 					Logfacility_class("External")
@@ -37,9 +38,12 @@ public:
 		this->File 			= NULL;
 		this->Cfg			= cfg;
 		stereo.Info			( "External Stereo data") ;
-
 	};
-	External_class( Config_class* cfg, interface_t* sds ) : //, Stereo_Memory* stereo ) :
+
+
+	// Audioserver write only class
+	External_class( Config_class* cfg,
+					interface_t* sds ) : //, Stereo_Memory* stereo ) :
 					Logfacility_class("External")
 	{
 		this->StA 			= nullptr;
@@ -47,7 +51,6 @@ public:
 		this->Cfg			= cfg;
 		this->sds			= sds;
 		stereo.Info			( "External Stereo data") ;
-
 	};
 
 	virtual ~External_class(){};

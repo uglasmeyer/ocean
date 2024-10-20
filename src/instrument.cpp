@@ -10,10 +10,14 @@
 #include <System.h>
 
 
-Instrument_class::Instrument_class(interface_t* ifd )
+Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 : Logfacility_class("Instrument")
 {
 	Setup( ifd );
+	wd->Add_data_ptr("MAIN", main.Mem.Data);
+	wd->Add_data_ptr("VCO", vco.Mem.Data);
+	wd->Add_data_ptr("FMO", fmo.Mem.Data);
+
 }
 void Instrument_class::Setup( interface_t* ifd )
 {

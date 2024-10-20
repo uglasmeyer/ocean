@@ -24,13 +24,14 @@ enum
 	DEBUGID
 };
 
-const array<string,5> wavedisplay_str_vec =
+const uint WD_SIZE = 5;
+const array<string,WD_SIZE> wavedisplay_str_arr =
 {
     "Audio Out",
+    "External IN",
 	"MAIN",
-    "VCO ",
-    "FMO ",
-    "External IN"
+    "VCO",
+    "FMO"
 };
 
 enum

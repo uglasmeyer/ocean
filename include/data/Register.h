@@ -13,7 +13,7 @@
 #include <Configbase.h>
 #include <data/SharedDataSegment.h>
 
-class Register_class :  virtual Logfacility_class
+class Register_class :  virtual public  Logfacility_class
 {
 	string 			className 	= "";
 	interface_t*	sds 		= nullptr;
@@ -21,8 +21,10 @@ public:
 
 	void	Setup( interface_t* sds, const uint& tid );
 	int 	GetId();
+	int 	GetStartId( uint id );
 	bool 	Is_dataprocess();
 	void 	Clear_procregister();
+	void	Reset( uint sid, uint tid );
 	void 	Show_proc_register( uint idx );
 	void 	Test_Register();
 

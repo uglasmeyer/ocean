@@ -237,7 +237,6 @@ int main( int argc, char* argv[] )
 
 	App.Start( argc, argv );
 
-	Statistic.Show_Statistic(  );
 	if ( Cfg->Config.test == 'y' )
 	{
 		maintest();
@@ -245,8 +244,10 @@ int main( int argc, char* argv[] )
 
 		return 0;
 	}
-	Log.Set_Loglevel(ERROR , true);
-    App.Sds->Announce(  );
+
+	App.Sds->Announce(  );
+
+    App.Ready();
 
 	if ( preprocessor( file_structure().program_file ) )
 	{

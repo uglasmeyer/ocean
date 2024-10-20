@@ -30,9 +30,9 @@ enum {
 
 typedef struct process_struct
 {
+	int8_t			idx		= -1;
 	uint8_t			sdsId	= 0;
 	uint8_t			type	= NOID;
-	buffer_t		size	= 0;
 } process_t;
 
 const uint	REGISTER_SIZE 	= MAXCONFIG+1;
@@ -47,8 +47,8 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 0; 						// comstack
-	int				SDS_Id						= -1;
+	uint8_t			version						= 1; 						// comstack
+	int8_t			SDS_Id						= -1;
 	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{{ 75 }};
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack

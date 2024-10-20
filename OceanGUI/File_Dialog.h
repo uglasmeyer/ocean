@@ -37,7 +37,7 @@ public:
     bool            SWITCHON 		= false;
     Interface_class* sds			= nullptr;
     interface_t*	addr			= nullptr;
-
+    int8_t			SDS_ID			= 0;
     explicit File_Dialog_class(	QWidget *parent = nullptr,
     							Interface_class* sds = nullptr );//, QSlider* = nullptr );
     ~File_Dialog_class();
@@ -46,7 +46,7 @@ public:
     void New_Instrument();
     void set_le_instrument( QString );
     void set_le_notes( QString );
-    void SetSds( Interface_class* sds );
+    void SetSds( Interface_class* sds, int8_t id );
 
 private slots:
     void on_cb_notefilenames_activated(const QString &arg1);

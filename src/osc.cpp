@@ -123,7 +123,7 @@ Oscillator::Oscillator( uint8_t id ) :
 	Mem_vco.Info( osc_type );
 	Mem_fmo.Info( osc_type );
 	Mem.Info( osc_type );
-	cout << osc_type << " initialized" << endl;
+	Comment( INFO, osc_type + " initialized" );
 
 };
 Oscillator::~Oscillator(){};

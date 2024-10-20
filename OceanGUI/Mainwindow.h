@@ -43,7 +43,7 @@ public:
     Interface_class*		Sds		= DaTA->Sds_p;
 
     Spectrum_base          	Spectrum			{};
-    Semaphore_class*		Sem					= DaTA->Sds.Sem_p;
+    Semaphore_class*		Sem					= DaTA->Sem_p;
 
     Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA};
     Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
@@ -54,6 +54,7 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_Obj { this, DaTA->Sds_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_Obj;
 
+    interface_t*			Sds_master			= DaTA->Sds_master;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
     vector<QString> 		Qwavedisplay_type_str_vec

@@ -68,13 +68,13 @@ void record_thead_fcn()
 	    {
 //		SaveRecordFlag = true;
 
-		Fileno = (int) DaTA.Sds.addr->FileNo;
+		Fileno = (int) DaTA.Sds_master->FileNo;
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
 		External.Save_record_data( Fileno.i );
 		Log.Comment( INFO, "preparing the next record session");
 			// clean up
-		DaTA.Sds.Update( RECORDWAVFILEFLAG );
+		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
 //		DaTA.Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
 											// it will be released hereby
 	    }
@@ -118,7 +118,6 @@ void exit_proc( int signal )
 	exit_intro( signal );
 
 	done = true;
-//	DaTA.Sem.Release( AUDIOSERVER_SEM );
 
 	shutdown_stream();
 	shutdown_thread();
@@ -271,7 +270,6 @@ int RtAudioOut(	void *outputBuffer,
 		if (sds->AudioServer == EXITSERVER )
 		{
 			done = true;
-//			exit_proc( 1 );
 			DaTA.Sem.Release( AUDIOSERVER_SEM );
 
 			return 1;
@@ -392,8 +390,6 @@ int main( int argc, char *argv[] )
 
 	App.Ready();
 
-//	DaTA.Sem.Lock( AUDIOSERVER_SEM );
-
 	while ( not done )
 	{
 //		cout.flush() << "." ;
@@ -401,7 +397,6 @@ int main( int argc, char *argv[] )
 	}
 	exit_proc( 0 );
 	return 0;
-//	raise( SIGHUP);
 
 }
 

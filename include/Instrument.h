@@ -11,6 +11,7 @@
 #include <data/Interface.h>
 #include <Spectrum.h>
 #include <Osc.h>
+#include <Wavedisplay.h>
 #include <Ocean.h>
 #include <String.h>
 #include <System.h>
@@ -28,7 +29,7 @@ public:
 	vector<Oscillator*>		osc_vector { &vco, &fmo, &main };
 	interface_t*  				ifd;
 
-	Instrument_class( interface_t*  );
+	Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
 	virtual ~Instrument_class();
 ;
 

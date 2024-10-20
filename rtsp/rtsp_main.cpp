@@ -131,9 +131,7 @@ int main(  int argc, char* argv[] )
 	Sem->Release( RTSP_STARTED );
 	sds->Rtsp = RUNNING;
 
-	Log.Comment( INFO, "RTSP is " + DaTA.Sds.Decode( sds->Rtsp ) );
-
-//	Sem->Release( SEMAPHORE_SENDDATA );
+	Log.Comment( INFO, "RTSP is " + DaTA.Sds_p->Decode( sds->Rtsp ) );
 
 	if( Cfg->Config.oceangui == 'y' )
 	{

@@ -112,11 +112,6 @@ void Logfacility_class::Comment( const int& level, const string& logcomment )
 		}
 	}
 }
-void tprintf( string format) // base function
-{
-    std::cout << format;
-}
-
 
 
 void Logfacility_class::Info( string text )
@@ -140,6 +135,8 @@ void Logfacility_class::TEST_END( const string& name )
 
 void Logfacility_class::Test_Logging( )
 {
+//	InfoT( "Variatic", " arguments");
+
 	string str = Error_text( EEXIST );
 	assert( str.compare( "[EEXIST] File exists") 		== 0 );
 	Set_Loglevel( TEST, true );

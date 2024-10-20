@@ -39,8 +39,6 @@ private slots:
 	void activate_S1();
 	void activate_S2();
 	void activate_S3();
-	void Exit_Rtsp();
-	void Start_Rtsp();
 
 
 private:

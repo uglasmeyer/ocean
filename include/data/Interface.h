@@ -34,8 +34,6 @@ public:
 	Semaphore_class*		Sem_p		= nullptr;
 	Config_class*			Cfg_p		= nullptr;
 	uint					Type_Id		= NOID;
-	array<uint8_t*,APP_SIZE>
-							state_p_map	{};
 
 
 	Interface_class( Config_class*, Semaphore_class* );
@@ -57,7 +55,8 @@ public:
 	void 	Set( uint16_t& key, uint16_t value);
 	void 	Set( float& key, float value);
 	string 	Decode( uint8_t idx );
-	void	State_pMap();
+	uint8_t* Getstate_ptr( uint TypeID );
+	void 	State_pMap();
 
 private:
 	string			dumpFile		= "";
@@ -67,6 +66,8 @@ private:
 	char 			previous_status = OFFLINE;
 	array<string, STATE_MAP_SIZE>
 					state_map {""};
+	array<uint8_t*,APP_SIZE>
+							state_p_map	{};
 
 	Spectrum_base			Spectrum 		{};
 	bool 	reject(char status, int id );

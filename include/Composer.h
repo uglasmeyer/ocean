@@ -14,10 +14,10 @@
 
 string					Module = "Composer";
 Logfacility_class 		Log( Module );
-Variation_class 		Variation;
 Dataworld_class			DaTA( COMPID );
 Application_class		App( &DaTA );
 Interpreter_class 		Compiler( &DaTA );
+Variation_class 		Variation;
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;

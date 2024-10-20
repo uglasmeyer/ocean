@@ -83,11 +83,12 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     Setup_widgets();
 }
 
-void File_Dialog_class::SetSds( Interface_class* sds )
+void File_Dialog_class::SetSds( Interface_class* sds, int8_t id )
 {
 	this->sds 	= sds;
 	this->addr 	= sds->addr;
-    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int)addr->SDS_Id ));
+	this->SDS_ID	= id;
+    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) SDS_ID ));
 
 	Setup_widgets();
 

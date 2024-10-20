@@ -11,18 +11,11 @@
 #include <Ocean.h>
 #include <String.h>
 
-extern void system_execute( const string& );
-extern vector<string> List_directory( const string& path, const string& filter );
-extern void Exception( const string& );
-//extern void Wait(long  int );
-extern string searchPath( string filename );
-extern void catch_signals( sighandler_t proc, vector<uint> sig_v );
-
-const static long int SECOND		= 1000000;
-const static long int MILLISECOND	= 1000;
-const static long int MICROSECOND	= 1;
-
-
+extern vector<string> 	List_directory( const string& path, const string& filter );
+extern string 			searchPath( string filename );
+extern void 			catch_signals( sighandler_t proc, vector<uint> sig_v );
+extern void 			system_execute( const string& );
+extern void 			Exception( const string& );
 
 
 #endif /* INCLUDE_COMMON_H_ */
