@@ -171,7 +171,7 @@ private:
     QTimer*				record_timer		= &record_timer_obj;
     QGraphicsScene  	Scene { this };
     QGraphicsScene*     scene 	= &Scene;
-    OszilloscopeWidget* item	= nullptr;
+    OszilloscopeWidget* OscW_item	= nullptr;
 };
 
 #endif // MAINWINDOW_H

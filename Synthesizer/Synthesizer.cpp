@@ -502,7 +502,7 @@ void processKey( char key )
 }
 // TODO process end location
 
-void activate_ifd()
+void activate_sds()
 {
 
 	for ( uint id : Mixer.MemIds )
@@ -728,7 +728,7 @@ int main( int argc, char* argv[] )
 	}
 
 	DaTA.Sds_p->Restore_ifd();
-	activate_ifd();
+	activate_sds();
 
 //	Setup_Wavedisplay();
 	Wavedisplay.Set_data_ptr( DaTA.Sds_p->addr->Wavedisplay_Id );

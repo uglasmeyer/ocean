@@ -27,6 +27,8 @@ public:
     Ui::Rtsp_Dialog_class*	ui;
 
     void Update_widgets();
+    void proc_table_update_row( uint row);
+    void proc_table_update_all( );
 
     explicit Rtsp_Dialog_class(
     		QWidget* 			parent 	= nullptr,
@@ -44,6 +46,8 @@ private slots:
 private:
     QPalette red_color	{};
     QPalette green_color{};
+    void activate_S( uint sdsid );
+
 };
 
 #endif // RTSP_DIALOG_CLASS_H

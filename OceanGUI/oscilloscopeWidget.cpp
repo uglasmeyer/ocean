@@ -18,7 +18,7 @@ OszilloscopeWidget::OszilloscopeWidget( interface_t* ifd, QRectF rectangle)
     shiftY 		= height / 2;
 	data_scale	= height / max_data_amp / 2;
 
-    this->ifd   = ifd;
+    this->sds   = ifd;
     this->update();
 };
 
@@ -39,7 +39,7 @@ void OszilloscopeWidget::read_polygon_data(  )
     polygon << QPoint(0,0);
 
     Data_t x = 0;
-    for ( auto y : ifd->wavedata )
+    for ( auto y : sds->wavedata )
     {
         polygon << QPoint(x, - y * data_scale );
         x++;

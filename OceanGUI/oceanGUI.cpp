@@ -195,8 +195,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
     ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
-    item = new OszilloscopeWidget( Sds->addr, rect );
-    scene->addItem( item );
+    OscW_item = new OszilloscopeWidget( Sds->addr, rect );
+    scene->addItem( OscW_item );
 
 //   File_Dialog_class File_Dialog_obj( this, ui->Slider_Main_Hz );
 //   this->File_Dialog_p = new File_Dialog_class( this, ui->Slider_Main_Hz );
@@ -206,7 +206,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 MainWindow::~MainWindow()
 {
-	delete item;
+	delete OscW_item;
 //	if ( ui ) delete ui;
 }
 
@@ -229,9 +229,10 @@ void MainWindow::SetSds(  )
 
 	int8_t sdsid = Rtsp_Dialog_obj.SDS_ID ;
     Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
-	File_Dialog_obj.SetSds( this->Sds, sdsid );
-	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
 
+    File_Dialog_obj.SetSds( this->Sds, sdsid );
+	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
+	OscW_item->sds = this->Sds->addr;
 	setwidgetvalues();
 }
 
@@ -295,7 +296,7 @@ void MainWindow::Rtsp_Dialog()
     else
     {
         this->Rtsp_Dialog_p->show();
-        Rtsp_Dialog_p->Update_widgets();
+        Rtsp_Dialog_p->proc_table_update_all( );
     }
 }
 
@@ -647,7 +648,7 @@ void MainWindow::start_audio_srv()
 			"-S 0");
 	system_execute( Start_Audio_Srv.data() );
     Sem->Lock( SEMAPHORE_STARTED );
-    Rtsp_Dialog_obj.Update_widgets();
+    Rtsp_Dialog_obj.proc_table_update_row( 0 );
 
 }
 
@@ -660,7 +661,7 @@ void MainWindow::start_synthesizer()
 	    return;
 	}
 
-	int id = DaTA->Reg.GetStartId( Rtsp_Dialog_obj.SDS_ID );
+	int id = DaTA->Reg.GetStartId( Sds_master->config );
 	if ( id <  0 ) return;
 
 	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
@@ -675,7 +676,7 @@ void MainWindow::start_synthesizer()
 }
 void MainWindow::read_polygon_data()
 {
-    item->read_polygon_data();
+    OscW_item->read_polygon_data();
 };
 
 void MainWindow::Controller_Exit()

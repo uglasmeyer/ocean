@@ -34,11 +34,9 @@ void show_ifd()
 		Sds = DaTA.GetSds(sdsid);
 		sds->UpdateFlag = false;
 
-//		DaTA.SDS_vec[sdsid].Show_interface();
 		Sds->Show_interface();
 
 		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
-//		sds = DaTA.SDS_vec[sdsid].addr;
 		sds = DaTA.GetSdsAddr( sdsid );
 
 		update_counter++;

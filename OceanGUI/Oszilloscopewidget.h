@@ -19,9 +19,9 @@
 
 class OszilloscopeWidget : public QGraphicsItem
 {
-    interface_t*          ifd;
 
 public:
+    interface_t*          sds;
 
     OszilloscopeWidget( interface_t*, QRectF );
     ~OszilloscopeWidget(){};

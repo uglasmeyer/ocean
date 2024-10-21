@@ -25,7 +25,7 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 	this->Type_Id 	= tid;
 	this->sds		= sds;
 
-	int id	= GetStartId( sds->SDS_Id );//scan_proc_register();
+	int id	= GetStartId( sds->config );//scan_proc_register();
 	if ( id  < 0 )
 	{
 		Comment( ERROR, "Nr of started synthesizer processes exeeds limitation" );
@@ -120,9 +120,9 @@ void Register_class::Show_proc_register( uint idx )
 int Register_class::GetStartId( uint id ) // used by Ocean
 {
 	int ID = id;
-	if ( sds->process_arr.at( id ).type == NOID )
+	int idx = id + SYNTHID;
+	if ( sds->process_arr.at( idx ).type == NOID )
 	{
-		sds->SDS_Id = ID;
 		return ID;
 	}
 	else
@@ -132,7 +132,7 @@ int Register_class::GetStartId( uint id ) // used by Ocean
 			return ID;
 		else
 		{
-			sds->SDS_Id = ID;
+			sds->config = ID;
 			return ID;
 		}
 	}

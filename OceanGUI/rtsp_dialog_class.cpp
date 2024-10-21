@@ -26,64 +26,78 @@ Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
     red_color.setColor(QPalette::Button, Qt::red);
     green_color.setColor(QPalette::Button, Qt::green);
 
+    proc_table_update_all();
     Update_widgets();
 }
 
 auto proc_table = [](Rtsp_Dialog_class* C, uint row, uint col, string text)
 {
-	QVariant Text( QString( text.data() ));
-	QTableWidgetItem* twItem = new QTableWidgetItem();
+	QVariant 			Text( QString( text.data() ));
+	QTableWidgetItem* 	twItem = new QTableWidgetItem();
 	twItem->setData(Qt::DisplayRole, Text );
 	C->ui->process_table->setItem( row,col, twItem );
 	;
 };
 
-void Rtsp_Dialog_class::Update_widgets()
+void Rtsp_Dialog_class::proc_table_update_row( uint row )
 {
-	Sds_master->config = SDS_ID; //comstack update
-	Sds_master->UpdateFlag = true;
-
-	for( uint p = 0 ;p < REGISTER_SIZE; p++ )
+	if ( row > 0 )
 	{
-		process_t proc { Sds_master->process_arr.at( p ) };
-		string text = type_map[ proc.type ];
-		proc_table( this, p, 0, text );
+		Interface_class* SDS = DaTA->GetSds( row -1 );
 
+		string 	text = SDS->Read_str( NOTESSTR_KEY );
+		proc_table( this, row, 2, text );
+
+				text = SDS->Read_str( INSTRUMENTSTR_KEY );
+		proc_table( this, row, 1, text );
 	}
 
-	cout << boolalpha << Sds_master->Rtsp << endl;
+	process_t proc { Sds_master->process_arr.at( row ) };
+	string text = type_map[ proc.type ];
+	proc_table( this, row, 0, text );
+
+}
+void Rtsp_Dialog_class::proc_table_update_all( )
+{
+	for( uint row = 0 ; row < REGISTER_SIZE; row++ )
+	{
+		proc_table_update_row(row);
+	}
+}
+
+void Rtsp_Dialog_class::Update_widgets()
+{
+	Sds_master->config = SDS_ID;
+	Sds_master->UpdateFlag = true;	//comstack update
+	proc_table_update_row( SDS_ID + 1 );
+
 	DaTA->Sds_p->SHM.ShowDs( DaTA->SDS_vec[0].ds );
 }
 
-auto activate_S = []( Rtsp_Dialog_class* C, uint sdsid)
+void Rtsp_Dialog_class::activate_S( uint sdsid)
 {
-	Interface_class* SDS = C->DaTA->GetSds(  sdsid );
-	C->SDS_ID = sdsid;
-	string text = SDS->Read_str( INSTRUMENTSTR_KEY );
-	proc_table( C, sdsid+1, 1, text );
-
-	text = SDS->Read_str(( NOTESSTR_KEY ));
-	proc_table( C, sdsid+1, 2, text );
-
-	C->Update_widgets();
-	C->DaTA->Sds_master->UserInterface = UPDATEGUI;
+	proc_table_update_row( sdsid + 1 );
+	SDS_ID = sdsid;
+	DaTA->Sds_master->config = sdsid;
+	Update_widgets();
+	DaTA->Sds_master->UserInterface = UPDATEGUI;
 };
 
 void Rtsp_Dialog_class::activate_S0()
 {
-	activate_S( this, 0);
+	activate_S( 0);
 }
 void Rtsp_Dialog_class::activate_S1()
 {
-	activate_S( this, 1);
+	activate_S( 1);
 }
 void Rtsp_Dialog_class::activate_S2()
 {
-	activate_S( this, 2);
+	activate_S( 2);
 }
 void Rtsp_Dialog_class::activate_S3()
 {
-	activate_S( this, 3);
+	activate_S( 3);
 }
 
 Rtsp_Dialog_class::~Rtsp_Dialog_class()

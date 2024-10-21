@@ -152,17 +152,6 @@ void Application_class::Start( int argc, char* argv[] )
 		Exception( "Restart processes");
 	}
 
-	if( DaTA->TypeId == SYNTHID )
-	{
-		if ( DaTA->Sds_master->process_arr[1].type == NOID )
-		{
-			for( uint n = 0; n<MAXCONFIG +1; n++)
-				DaTA->Reg.Show_proc_register(n);
-			Comment( ERROR, "Start master synthesizer process first");
-			Comment( ERROR, "before secondary can run" );
-			Exception("Cannot continue" );
-		}
-	}
 }
 
 Application_class::~Application_class()

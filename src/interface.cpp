@@ -37,7 +37,8 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	if ( not ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
-		memcpy( addr	, &ifd_data		, sds_size );
+		Reset_ifd();
+//		memcpy( addr	, &ifd_data		, sds_size );
 	}
 	Comment( INFO, "check shared memory version");
 	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
@@ -62,7 +63,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 				" or lib/ifd_data.bin size ");
 	}
 	ds.eexist = true;
-//	addr->SDS_Id = sdsid;
+	addr->SDS_Id = sdsid;
 	State_pMap();
 }
 
@@ -289,7 +290,7 @@ bool Interface_class::Restore_ifd()
 
 	Comment(INFO,"Restore shared data from file");
 	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
-	int sdsid 				= addr->SDS_Id;
+	int sdsid 				= addr->config;
 
 	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
@@ -298,7 +299,7 @@ bool Interface_class::Restore_ifd()
 	fclose( fd );
 
 	addr->process_arr 	= procarr;
-	addr->SDS_Id		= sdsid;
+	addr->config		= sdsid;
 	return ( size == sizeof( ifd_data ));
 }
 
