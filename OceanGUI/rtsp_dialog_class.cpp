@@ -52,8 +52,9 @@ void Rtsp_Dialog_class::proc_table_update_row( uint row )
 		proc_table( this, row, 1, text );
 	}
 
+
 	process_t proc { Sds_master->process_arr.at( row ) };
-	string text = type_map[ proc.type ];
+	string text = Type_map( proc.type );
 	proc_table( this, row, 0, text );
 
 }
@@ -80,7 +81,7 @@ void Rtsp_Dialog_class::activate_S( uint sdsid)
 	SDS_ID = sdsid;
 	DaTA->Sds_master->config = sdsid;
 	Update_widgets();
-	DaTA->Sds_master->UserInterface = UPDATEGUI;
+//	DaTA->Sds_master->UserInterface = UPDATEGUI;
 };
 
 void Rtsp_Dialog_class::activate_S0()

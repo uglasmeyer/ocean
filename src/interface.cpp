@@ -22,7 +22,8 @@ Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 }
 
 Interface_class::~Interface_class()
-{}
+{
+}
 
 
 void Interface_class::Setup_SDS( uint sdsid, key_t key)
@@ -34,6 +35,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	this->addr = ( interface_t* ) ds.addr;
 	SHM.ShowDs(ds);
 
+	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
 	if ( not ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
@@ -41,7 +43,6 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 //		memcpy( addr	, &ifd_data		, sds_size );
 	}
 	Comment( INFO, "check shared memory version");
-	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
 	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{
@@ -122,10 +123,8 @@ void Interface_class::Show_interface()
 		status3.append( to_string( amp) + ", " );
 
 
-
-	cout << setfill( '-') << setw(80) << left <<
-			"\nShared Data Structure Id " + to_string((int) ds.Id ) +  " " + Version_str <<"-"<< addr->version
-			<< endl;
+	lline( "\nShared Data Str. ID", to_string((int) ds.Id ));
+	rline( Version_str 			, addr->version);
 
 	lline( "(M)ain (F)requency:" , addr->Main_Freq );
 	rline( "(A)DSR (G)lide freq:" , (int)addr->Soft_freq);
@@ -133,9 +132,8 @@ void Interface_class::Show_interface()
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
 	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.attack );
 
-	lline( "Main duration      " , (int)addr->Main_Duration);
-//	rline( "(A)DSR D(u)ration: " , bps_struct().getbps_str((int)addr->Main_adsr.bps_id) );
-	rline( "(A)DSR Beat p. sec:" , (int)addr->Main_adsr.bps_id) ;
+	lline( "                   " , 0 );
+	rline( "(A)DSR (B)eats Id  " , (int)addr->Main_adsr.bps_id) ;
 
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
 	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr.decay );
@@ -272,7 +270,7 @@ string Interface_class::Read_str( char selector )
 
 void Interface_class::Announce( )
 {
-	Comment(INFO, "announcing application " + Cfg_p->type_map[ Type_Id ] );
+	Comment(INFO, "announcing application " + Type_map( Type_Id ) );
 	uint8_t* state = Getstate_ptr( Type_Id );
 	*state = RUNNING;
 	addr->UpdateFlag = true;
@@ -308,8 +306,10 @@ void Interface_class::Dump_ifd()
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
 	assert( dumpFile.size() > 0 );
 	FILE* fd = fopen( dumpFile.data() , "w");
-	fwrite( addr, sizeof( ifd_data ), 1, fd);
+	size_t count = fwrite( addr, sizeof( ifd_data ), 1, fd);
 	fclose( fd );
+	if( count == 1 ) {;}
+	else Comment( ERROR, "incomplete dump" + Error_text( errno ) );
 }
 
 void Interface_class::Update( char ch )

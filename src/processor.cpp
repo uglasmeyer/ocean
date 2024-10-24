@@ -9,132 +9,83 @@
 
 void Processor_class::Push_cmd( uint8_t cmd, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= cmd,
-		.key    = 0,
-		.boaddr = nullptr,
-		.chaddr	= nullptr,
-		.uiaddr = nullptr,
-		.value  = 0,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = cmd;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 }
-void Processor_class::Push_str( uint8_t key, char ch, string str )
+
+void Processor_class::Push_str( uint8_t key, uint8_t value, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= CMD_STR,
-		.key    = key,
-		.boaddr = nullptr,
-		.chaddr	= nullptr,
-		.uiaddr = nullptr,
-		.value  = ch,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = CMD_STR;
+	stack_item.key = key;
+	stack_item.value = value;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 }
 
 void Processor_class::Push_key( uint8_t key, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= CMD_KEY,
-		.key    = key,
-		.boaddr = nullptr,
-		.chaddr	= nullptr,
-		.uiaddr = nullptr,
-		.value  = 0,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = CMD_KEY;
+	stack_item.key = key;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 };
 
 void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= CMD_CHADDR,
-		.key    = 0,
-		.boaddr = nullptr,
-		.chaddr	= chaddr,
-		.uiaddr = nullptr,
-		.value  = value,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = CMD_CHADDR;
+	stack_item.chaddr = chaddr;
+	stack_item.value = (char) value;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 };
 
-
 void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= CMD_BOADDR,
-		.key    = 0,
-		.boaddr	= boaddr,
-		.chaddr = nullptr,
-		.uiaddr = nullptr,
-		.value  = (bool) value,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = CMD_BOADDR;
+	stack_item.boaddr = boaddr;
+	stack_item.value = (bool) value;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 };
 
 void Processor_class::Push_ifd( float* uiaddr, float value, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= CMD_UIADDR,
-		.key    = 0,
-		.boaddr = nullptr,
-		.chaddr	= nullptr,
-		.uiaddr = uiaddr,
-		.value  = (int) rint( value ),
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = CMD_UIADDR;
+	stack_item.uiaddr = uiaddr;
+	stack_item.value = value;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 };
 
-
 void Processor_class::Push_wait( uint8_t cmd, int value, string str )
 {
-	stack_item =
-	{
-		.prgline= prgline,
-		.cmd 	= cmd,
-		.key    = 0,
-		.boaddr = nullptr,
-		.chaddr	= nullptr,
-		.uiaddr = nullptr,
-		.value  = value,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = cmd;
+	stack_item.value = value;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
-
 }
-
 
 void Processor_class::Push_text( string str )
 {
-	stack_item =
-	{
-		.prgline = prgline,
-		.cmd 	= CMD_TEXT,
-		.key    = 0,
-		.boaddr = nullptr,
-		.chaddr	= nullptr,
-		.uiaddr = nullptr,
-		.value  = 0,
-		.str	= str
-	};
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline = prgline;
+	stack_item.cmd = CMD_TEXT;
+	stack_item.str = str;
 	process_stack.push_back( move( stack_item ) );
 }
 
@@ -157,83 +108,82 @@ void Processor_class::Set_prgline( int nr )
 }
 void Processor_class::Execute()
 {
-	int len = process_stack.size();
-	if ( len == 0 )
+	int stack_count = process_stack.size();
+	if ( stack_count == 0 )
 	{
 		Comment( ERROR, "Cannot proceed empty stack");
 		return;
 	}
 	else
-		Comment( INFO, "Proceeding stack. Item count " + to_string( len )) ;
+		Comment( INFO, "Proceeding stack. Item count " + to_string( stack_count )) ;
 
 	cout << "waiting for Synthesizer to start" << endl;
 
-	Sem->Init();
-
 	sds->Reset_ifd();
+//	Exception( "uninitialized memory");
 	sds->Commit();
 
-	stack_struct_vec_t::iterator itr;
+	Sem->Init();
 
-	for( itr=process_stack.begin(); itr != process_stack.end(); itr++ )
+	for ( stack_struct_t SI : process_stack )
 	{
-		stack_item = *itr;
-
 		sds->addr->Composer = RUNNING;
-		switch ( (int)stack_item.cmd )
+		char* str = SI.str.data();
+
+		switch ( (int)SI.cmd )
 		{
 		case CMD_CHADDR : // write char address
 		{
-			printf("%d ldc %p %d \t| %s", stack_item.prgline, stack_item.chaddr, stack_item.value, stack_item.str.data() );
-			if ( not stack_item.chaddr == 0 )
-				*stack_item.chaddr = (char) stack_item.value ;
+			printf("%d ldc %p %d \t| %s", SI.prgline, SI.chaddr, SI.value, str );
+			if ( not SI.chaddr == 0 )
+				*SI.chaddr = (char) SI.value ;
 			break;
 		}
 		case CMD_BOADDR : // write char address
 		{
-			printf("%d ldc %p %d \t| %s", stack_item.prgline, stack_item.boaddr, stack_item.value, stack_item.str.data() );
-			if ( not stack_item.boaddr == 0 )
-				*stack_item.boaddr = (bool) stack_item.value ;
+			printf("%d ldc %p %d \t| %s", SI.prgline, SI.boaddr, SI.value, str );
+			if ( not SI.boaddr == 0 )
+				*SI.boaddr = (bool) SI.value ;
 			break;
 		}
 		case CMD_UIADDR : // write uint16_t address
 		{
-			printf("%d ldu %p %d \t| %s", stack_item.prgline, stack_item.uiaddr, stack_item.value, stack_item.str.data() );
-			if ( not stack_item.uiaddr == 0 )
-				*stack_item.uiaddr = (uint16_t) stack_item.value;
+			printf("%d ldu %p %d \t| %s", SI.prgline, SI.uiaddr, SI.value, str );
+			if ( not SI.uiaddr == 0 )
+				*SI.uiaddr = (uint16_t) SI.value;
 			break;
 		}
 		case CMD_KEY : // write command key value
 		{
-			printf("%d ldc %p %d \t| %s", stack_item.prgline,  &ifd->KEY, stack_item.key, stack_item.str.data() );
-			ifd->KEY = stack_item.key;
+			printf("%d ldc %p %d \t| %s", SI.prgline,  &ifd->KEY, SI.key, str );
+			ifd->KEY = SI.key;
 			wait_for_commit();
 			break;
 		}
 		case CMD_EXE :
 		{
-			printf("%d exe %s ", stack_item.prgline, stack_item.str.data() );
-			system_execute( stack_item.str );
+			printf("%d exe %s ", SI.prgline, str );
+			system_execute( SI.str );
 			break;
 		}
 		case CMD_WAIT :
 		{
-			if  ( stack_item.value < 0 )
+			if  ( SI.value < 0 )
 			{
-				printf( "%d %s", stack_item.prgline, stack_item.str.data() );
+				printf( "%d %s", SI.prgline, str );
 				getc(stdin);
 			}
 			else
 			{
-				printf("%d wait %d", stack_item.prgline, stack_item.value );
-			    this_thread::sleep_for(chrono::seconds( stack_item.value));
+				printf("%d wait %d", SI.prgline, SI.value );
+			    this_thread::sleep_for(chrono::seconds( SI.value));
 			}
 			break;
 		}
 		case CMD_COND_WAIT :
 		{
 			uint8_t sec = ifd->Noteline_sec;
-			printf("%d conditional wait %d\t\t| %s", stack_item.prgline,  sec, stack_item.str.data() );
+			printf("%d conditional wait %d sec\t| %s (%d)", SI.prgline,  sec, str, sec );
 		    this_thread::sleep_for(chrono::seconds(sec));
 			ifd->Noteline_sec = 0;
 			break;
@@ -241,7 +191,7 @@ void Processor_class::Execute()
 		case CMD_STR : // write string
 		{
 			char* addr = nullptr;
-			switch( stack_item.value )
+			switch( SI.value )
 			{
 				case INSTRUMENTSTR_KEY 	: { addr = sds->addr->Instrument;break; }
 				case NOTESSTR_KEY 		: { addr = sds->addr->Notes; break; }
@@ -249,29 +199,29 @@ void Processor_class::Execute()
 				default 				: { addr = nullptr; break; }
 			}
 			assert( addr != nullptr );
-			printf("%d ldc %p %s \n", stack_item.prgline, addr, stack_item.str.data() );
-			this->sds->Write_str( stack_item.value, stack_item.str );
+			printf("%d ldc %p %s \n", SI.prgline, addr, str );
+			this->sds->Write_str( SI.value, SI.str );
 
-			printf("%d ldc %p %d \t| set %s ", stack_item.prgline, &ifd->KEY, stack_item.key, stack_item.str.data() );
-			ifd->KEY = stack_item.key;
+			printf("%d ldc %p %d \t| set %s ", SI.prgline, &ifd->KEY, SI.key, str );
+			ifd->KEY = SI.key;
 			wait_for_commit();
 			break;
 		}
 		case CMD_TEXT :
 		{
-			printf("%s", stack_item.str.data());
+			printf("%s", str);
 			break;
 		}
 		case CMD_EXIT :
 		{
-			printf("%d \n", stack_item.prgline);
+			printf("%d \n", SI.prgline);
 			Sem->Release( SEMAPHORE_EXIT );
 			return;
 			break;
 		}
 		default :
 		{
-			Exception( to_string( stack_item.prgline) + " default SIGINT");//raise( SIGINT);
+			Exception( to_string( SI.prgline) + " default SIGINT");//raise( SIGINT);
 			break;
 		}
 		} // end switch

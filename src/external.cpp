@@ -133,7 +133,7 @@ void External_class::Record_buffer( stereo_t* src, stereo_t* dst, buffer_t offs 
 Logfacility_class Log_system("System log");
 
 string testcounter = "/tmp/counter";
-int generate_file_no( )
+int generate_file_no( uint maxfileno )
 {
 	fstream File;
 	string counterfile = file_structure().counter_file;
@@ -159,6 +159,7 @@ int generate_file_no( )
 	filesystem::remove( counterfile );
 	int filenr = S.to_int( S.Str );
 	filenr++;
+	filenr = filenr % maxfileno;
 
 	File.open( counterfile, fstream::out );
 	File << filenr << endl;
@@ -275,16 +276,16 @@ string External_class::ffmpeg_cmd( string wav, string mp3 )
 	return cmd;
 }
 
-void External_class::Save_record_data( int filenr)
+void External_class::Save_record_data( uint sec, int filenr)
 {
 	if ( filenr == 0 ) // generate a file name
-		filenr = generate_file_no( );
+		filenr = generate_file_no( MAXWAVFILES );
 
 	setName( file_structure().filename + to_string( filenr) );
 
 	Comment( INFO, "Prepare record file " + Name );
 //	long rcounter = StA->record_data;// * 2; //mono to stereo factor
-	long rcounter = sds->RecCounter * max_frames;
+	long rcounter = sec * max_frames;
 	Comment( INFO, "Record frames: " + to_string (rcounter));
 	stereo.Info( "External Stereo data");
 
@@ -359,13 +360,13 @@ void External_class::Test_External()
 		filesystem::remove( testcounter );
 
 	int
-	fnr = generate_file_no();
+	fnr = generate_file_no( MAXWAVFILES );
 	assert( fnr == 0 );
-	fnr = generate_file_no();
+	fnr = generate_file_no( MAXWAVFILES );
 	assert( fnr == 1 );
-	fnr = generate_file_no();
+	fnr = generate_file_no( MAXWAVFILES );
 	assert( fnr == 2 );
-	fnr = generate_file_no();
+	fnr = generate_file_no( MAXWAVFILES );
 	assert( fnr == 3 );
 
 

@@ -9,7 +9,7 @@
 
 Keyboard_base::Keyboard_base() : Logfacility_class("Kbd")
 {
-	init();
+	Init();
 };
 
 Keyboard_base::~Keyboard_base()
@@ -26,7 +26,7 @@ Keyboard_base::key_struct_t Keyboard_base::GetKey()
 }
 
 
-void Keyboard_base::init()
+void Keyboard_base::Init()
 {
 	fflush(stdout);
 

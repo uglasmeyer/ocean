@@ -21,7 +21,6 @@ public:
 	string configfile 	{""};
 	string prgname		{""};
 	prgarg_struct		Config 	= prgarg_struct();
-	type_map_t			type_map= {""};
 
 
 	typedef struct Server_struct
@@ -43,7 +42,7 @@ public:
 
 private:
 	string baseDir();
-	void typeidMap();
+//	void typeidMap();
 
 };
 

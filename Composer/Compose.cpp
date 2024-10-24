@@ -91,8 +91,13 @@ bool interpreter( )
 			if ( keyword.compare("set") 		== 0 )	Compiler.Set( arr );
 			if ( keyword.compare("text")		== 0 )	Compiler.Text( arr );
 			if ( keyword.compare("exit") 		== 0 )	{ Compiler.ExitInterpreter(); return true; }
-			if ( ( Compiler.error > 0 ) and ( not Compiler.dialog_mode ))
-				exit( Compiler.error );
+			if ( Compiler.error > 0 )
+			{
+				if ( (Compiler.dialog_mode ) )
+					continue;
+				else
+					exit( Compiler.error );
+			}
 		}
 		else
 		{
@@ -191,12 +196,12 @@ void composer_dialog()
 
 	string line{};
 	Compiler.Set_dialog_mode( true );
-	while ( line.compare("exit") != 0)
+	while ( not strEqual( line, "exit" ) )
 	{
 		Program.clear();
 		Compiler.Clear_stack();
 		getline( cin, line );
-		Program.push_back( { 1,"stdin", line });
+		Program.push_back( { 1, "stdin", line } );
 		if ( interpreter( ) )
 		{
 			Compiler.Execute(  );
@@ -242,7 +247,7 @@ int main( int argc, char* argv[] )
 		maintest();
 		Statistic.Show_Statistic(  );
 
-		return 0;
+		exit_proc( 0 );
 	}
 
 	App.Sds->Announce(  );
@@ -262,5 +267,5 @@ int main( int argc, char* argv[] )
 		composer_dialog();
 	}
 
-	return 0;
+	exit_proc( 0);
 }

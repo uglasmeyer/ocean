@@ -8,9 +8,29 @@
 #include <String.h>
 #include <System.h>
 
+template< class C >
+set< C > vector2set( vector< C > v )
+{
+	set< C > s {};
+	for( C i : v )
+	{
+		s.insert( i );
+	}
+	return s;
+}
 
+template< class C >
+vector< C > set2vector( set< C > s )
+{
+	vector< C > v {};
+	for( C i : s )
+	{
+		v.insert( i );
+	}
+	return v;
+}
 
-bool cmpstr( const string& a, const string& b )
+bool strEqual( const string& a, const string& b )
 {
 	return ( a.compare( b ) == 0 );
 }
@@ -23,6 +43,17 @@ string notnull( char* cstr )
 		pstr = empty;
 	return string( pstr );
 
+}
+
+template<class C>
+string show_items( C all_items )
+{
+	stringstream strs{ "" };
+    for ( auto item : all_items )
+    {
+    	strs << item << " ";
+    }
+    return strs.str();
 }
 
 
@@ -202,11 +233,15 @@ int String::to_int( const string& s )
 	else
 	{
 		string sub = s.substr( pos+2, s.length()-1 );
-		cout << sub << endl;
 		stringstream ss( sub );
 		ss >> hex >> i;
 	}
 	return i;
+}
+
+void String::Show( const string& comment )
+{
+	cout << comment << ": " << Str << endl;
 }
 
 void String::TestString()
@@ -225,7 +260,7 @@ void String::TestString()
 	assert( i == 0 );
 
 	String Env = notnull( std::getenv("OCEANTESTCASE") );
-	assert( cmpstr( Env.Str, "oceantestcase") );
+	assert( strEqual( Env.Str, "oceantestcase") );
 
 	string str 		= "a=abc=def";
 	String 			S{""};
@@ -299,6 +334,24 @@ void String::TestString()
 	B = "up_per";
 	assert( A == B );
 
+	set<int> s {};
+	vector<int> v = { 1,3,5,7,9 };
+	s = vector2set(v);
+	assert( s.contains(5) ) ;
+	assert( not s.contains(6) ) ;
+
+	set<string> Ss {};
+	vector<string> V = {"ab", "cd", "ef", "gh" };
+	Ss = vector2set( V );
+	assert( Ss.contains("cd"));
+	assert( not Ss.contains("de"));
+
+	list<int> l { 1,2,3 };
+	S = show_items( l );
+	S.Show( "Items" );
+
+	list<string> L2 { "a", "b", "c"};
+	show_type( L2 );
 	TEST_END( "String" );
 
 }

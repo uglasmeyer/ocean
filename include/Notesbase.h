@@ -10,6 +10,7 @@
 
 #include <Ocean.h>
 #include <Oscbase.h>
+#include <String.h>
 
 
 /*
@@ -24,7 +25,8 @@ public:
 
 	const uint				max_octave		{ 5 };
 	const uint 				min_octave 		{ 0 };
-	const vector<int> 		Notes_per_Sec	{ 1,2,4,5,8 };
+	const set<int> 			NPS_set			{ 1,2,4,5,8 };
+	const vector<int>		NPS_vec			{ 1,2,4,5,8 };
 	const string			NPS_string 		{ "1 2 4 5 8" };
 	const vector<int> 		flat_pitch 		{2,7,0,5,10,3,8 };
 	const vector<int> 		sharp_pitch		{8,3,10,5,0,7,2 };
@@ -52,7 +54,7 @@ public:
 
 
 	typedef struct notevalue_struct{
-		uint8_t		 		doct 		= 0 ; 	// -1,0, +1
+		int8_t		 		doct 		= 0 ; 	// -1,0, +1
 		int 				value		= 0 ;	// -12, 0, 1...12
 		float				freq		= 0.0;
 	} notevalue_t;
@@ -63,7 +65,7 @@ public:
 
 	typedef struct glide_struct
 	{
-		notevalue_t	chord		= notevalue_struct() ;		// eg. B-->F (glide = F)
+		notevalue_t			chord		= notevalue_struct() ;		// eg. B-->F (glide = F)
 		bool				note		= false;
 	} glide_t ;
 

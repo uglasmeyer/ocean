@@ -8,16 +8,14 @@
 #include  <data/Register.h>
 #include <data/SharedDataSegment.h>
 
-Register_class::Register_class( type_map_t* map ) :
+Register_class::Register_class( ) :
 	Logfacility_class( "Process Reg")
 {
 	className 	= Logfacility_class::module;
-	this->type_map 	= map;
 };
 
 Register_class::~Register_class()
 {
-	proc_deRegister( );
 };
 
 void Register_class::Setup( interface_t* sds, const uint& tid  )
@@ -67,7 +65,7 @@ void Register_class::proc_Register()
 	if( not Is_dataprocess() )
 		return;
 	uint idx = Type_Id + Sds_Id;
-	regComment( this, "", type_map->at( Type_Id ), Sds_Id, idx );
+	regComment( this, "", Type_map( Type_Id ), Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
 	{
 		Comment( ERROR, "register out of range ");
@@ -81,12 +79,12 @@ void Register_class::proc_Register()
 	show_proc_register( );
 
 }
-void Register_class::proc_deRegister(  )
+void Register_class::Proc_deRegister(  )
 {
 	if( not Is_dataprocess() )
 		return;
 	uint idx = Type_Id + Sds_Id ;
-	regComment( this, "De-", type_map->at( Type_Id ), Sds_Id, idx );
+	regComment( this, "De-", Type_map( Type_Id ), Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
 	{
 		Comment( ERROR, "de-register out of range ");
@@ -110,10 +108,10 @@ void Register_class::Show_proc_register( uint idx )
 {
 	process_t proc { sds->process_arr.at(idx) };
 	stringstream strs;
-	strs << type_map->at( proc.type ) << endl;
+	strs << Type_map( proc.type ) << endl;
 	strs << SETW << "Index   "	<< to_string(idx) << endl;
 	strs << SETW << "Sds  Id "	<< proc.sdsId << endl;
-	strs << SETW << "Type Id " 	<< type_map->at(proc.type) << endl;
+	strs << SETW << "Type Id " 	<< Type_map(proc.type) << endl;
 	Comment( TEST, strs.str() );
 }
 

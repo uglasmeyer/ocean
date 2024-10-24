@@ -34,6 +34,7 @@ public:             // Access specifier
 	void 			Set_ch( char ch );
 	void 			Reset();
 	void			Test();
+	void 			Init();
 
 private:
 
@@ -47,7 +48,6 @@ private:
 	char getch();
 	char getkey();
 	void pressKey();
-	void init();
 
 };
 

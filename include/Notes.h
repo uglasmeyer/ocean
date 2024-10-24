@@ -101,7 +101,9 @@ private:
 	string 			Volumeline 		= "";
 	size_t			volume_vec_len 	= 1;
 	size_t			vcounter		= 0;
-	int				octave_shift  	= 0;
+	int				octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
+	int8_t			delta_oct		= 0; 	// |' |, in noteline inc or dec the value of all subsequent
+											// notevalue_struct.doct by one .
 	size_t	 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
 

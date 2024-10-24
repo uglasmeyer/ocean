@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include "Record.h"
+#include <Progressbar.h>
 
 ProgressBar_class::ProgressBar_class(uint8_t* counter_p) :
 Logfacility_class("Record")

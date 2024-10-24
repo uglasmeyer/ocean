@@ -63,7 +63,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     	QString Qstr = QString::fromStdString( str );
     	ui->cb_convention->addItem( Qstr );
     }
-    for( int nps : Notes_per_Sec )
+    for( int nps : NPS_vec )
     {
     	QString QStr = QString::number( nps );
     	ui->cb_nps->addItem( QStr );
@@ -98,9 +98,8 @@ void File_Dialog_class::sB_Octave(int sb_value )
 {
 	addr->noteline_prefix.Octave = sb_value;
 	addr->KEY = UPDATE_NLP_KEY;
-//	int freq = Octave_freq ( sb_value );
-//	Sl_Main_Hz->setValue( freq );
 }
+
 void File_Dialog_class::cB_Convention( int cb_value )
 {
 	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
@@ -109,19 +108,19 @@ void File_Dialog_class::cB_Convention( int cb_value )
 	addr->KEY = UPDATE_NLP_KEY;
 }
 
-void File_Dialog_class::cB_NotesPerSec(int cb_value )
+void File_Dialog_class::cB_NotesPerSec(int nps_id )
 {
-	uint8_t nps = Notes_per_Sec[ cb_value ];
-	addr->noteline_prefix.nps = nps;
+	addr->noteline_prefix.nps = NPS_vec[ nps_id ];
 	addr->KEY = UPDATE_NLP_KEY;
-
 }
+
 void File_Dialog_class::Setup_widgets()
 {
     QString QStr;
     Instrument_name = addr->Instrument;
     QStr = QString::fromStdString( Instrument_name );
     ui->lE_Instrument->setText( QStr );
+    ui->cb_instrumentfiles->setCurrentText(QStr);
     New_Instrument();
 
     string Notes_name =addr->Notes;
@@ -150,14 +149,13 @@ void File_Dialog_class::Setup_widgets()
     int convention_id = addr->noteline_prefix.convention;
     QStr = QString::fromStdString( convention_names[ convention_id ] );
     ui->cb_convention->setCurrentText( QStr );
+
     QStr = QString::fromStdString( convention_notes[convention_id ] );
     ui->lbl_selected_notes->setText("Notes ( " + QStr + " )" );
 
     QStr = QString::number( addr->noteline_prefix.nps );
     ui->cb_nps->setCurrentText( QStr );
 
-//    int freq = Octave_freq( addr->noteline_prefix.Octave );
-//	Sl_Main_Hz->setValue( freq );
 	ui->sB_Octave->setValue( addr->noteline_prefix.Octave );
 
     New_Notes();
@@ -171,8 +169,8 @@ File_Dialog_class::~File_Dialog_class()
 
 void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &arg1)
 {
-    qDebug() << "on_cb_instrumentfiles_activated";
-    qDebug() << "Instrument " << arg1 ;
+//    qDebug() << "on_cb_instrumentfiles_activated";
+//    qDebug() << "Instrument " << arg1 ;
     QString QStr = arg1;
     string str = QStr.toStdString();
     if ( str.length() > 0 )
@@ -187,7 +185,7 @@ void File_Dialog_class::New_Instrument()
 {
     QString QStr = ui->lE_Instrument->text();
     string instrument = QStr.toStdString();
-    qDebug() << "new Instrument " << QStr ;
+//    qDebug() << "new Instrument " << QStr ;
 
     if ( instrument.length() > 0 )
     {
@@ -211,7 +209,7 @@ void File_Dialog_class::New_Notes()
 {
     QString QStr = ui->lE_Notes->text();
     string note_line = QStr.toStdString();
-    qDebug() << "new notes " << QStr ;
+//    qDebug() << "new notes " << QStr ;
 
     if ( this->Verify_noteline( addr->noteline_prefix, note_line ) )
     {
@@ -236,8 +234,8 @@ void File_Dialog_class::New_Notes()
     }
     else
     {
-        qDebug( ) << "Warning: notes are not aligned to 4 " ;
-        qDebug() << "unchanged ... ";
+//        qDebug( ) << "Warning: notes are not aligned to 4 " ;
+//        qDebug() << "unchanged ... ";
         status_color.setColor(QPalette::Button, Qt::red);
     }
     ui->pbPlayNotes->setPalette(status_color);
@@ -262,8 +260,8 @@ void File_Dialog_class::pb_PlayNotes_OnOff()
 
 void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
 {
-    qDebug()    <<"on_cb_notefilenames_activated";
-    qDebug() << "Notes name: " << arg1 ;
+//    qDebug()    <<"on_cb_notefilenames_activated";
+//    qDebug() << "Notes name: " << arg1 ;
     QString Note_name = arg1;
     string note_name = Note_name.toStdString();
     if ( note_name.length() > 0 )
@@ -284,7 +282,8 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
     }
     else
     {
-        qDebug() << "empty notefile name";
+//        qDebug() << "empty notefile name";
+    	;
     }
 }
 

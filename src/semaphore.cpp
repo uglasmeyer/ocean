@@ -33,7 +33,7 @@ void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
     	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
         Comment( ERROR, Stat( num ));
     }
-    assert( ret == 0 );
+//    assert( ret == 0 );
 }
 
 void Semaphore_class::Init()

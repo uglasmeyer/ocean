@@ -29,7 +29,7 @@ public:
 	SDS_vec_t			 	SDS_vec 	{ };
 	Shared_Memory			SHM_0		{ sharedbuffer_size };
 	Shared_Memory			SHM_1		{ sharedbuffer_size };
-	Register_class			Reg			{ &Cfg.type_map };
+	Register_class			Reg			{ };
 
 	stereo_t* 				ShmAddr_0 	= nullptr;
 	stereo_t* 				ShmAddr_1 	= nullptr;

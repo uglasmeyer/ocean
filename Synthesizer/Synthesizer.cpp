@@ -7,14 +7,14 @@ extern void exit_proc( int signal );
 
 void show_AudioServer_Status()
 {
-	if ( DaTA.Sds_p->addr->AudioServer == RUNNING )
+	uint8_t state = App.GetAppState( AUDIOID);
+	if ( state  == RUNNING )
 	{
 		Log.Comment(INFO, "Sound server is up" );
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 + DaTA.SDS_Id );
 	}
 	else
 		Log.Comment( ERROR,"Sound server not running with status " +
-							DaTA.Sds_p->Decode( DaTA.Sds_master->AudioServer ));
+							DaTA.Sds_p->Decode( state ));
 }
 
 void show_usage()
@@ -169,13 +169,9 @@ void processKey( char key )
 		case SAVE_EXTERNALWAVFILEKEY : // record and save wav file
 		{
 			if( DaTA.Sds_master->Record ) // Composer - Interpreter
-			{
 				DaTA.Sds_master->AudioServer = RECORDSTART; // start and  wait
-			}
 			else
-			{
 				DaTA.Sds_master->AudioServer = RECORDSTOP; // stop and save
-			}
 			DaTA.Sds_p->Commit();
 			break;
 		}
@@ -363,8 +359,8 @@ void processKey( char key )
 		{
 			Value amp { (int) sds->StA_amp_arr[ MbIdNotes] };
 			Log.Comment(INFO, "receive command < notes on " + amp.str + "%>");
-			Mixer.status.notes = true;
 			Mixer.StA[ MbIdNotes ].Amp = amp.i;
+			Mixer.Set_mixer_state( MbIdNotes, true );
 			Notes.Start_note_itr();
 			DaTA.Sds_p->Commit();
 			break;
@@ -372,7 +368,7 @@ void processKey( char key )
 		case NOTESOFFKEY :
 		{
 			Log.Comment(INFO, "receive command < notes off>");
-			Mixer.status.notes = false;
+			Mixer.Set_mixer_state( MbIdNotes, false );
 			DaTA.Sds_p->Commit();
 			break;
 		}
@@ -416,7 +412,7 @@ void processKey( char key )
 
 		case SETWAVEDISPLAYKEY :
 		{
-			Wavedisplay.Set_data_ptr( sds->Wavedisplay_Id );
+			Wavedisplay.SetId( sds->Wavedisplay_Id );
 			DaTA.Sds_p->Commit();
 			break;
 		}
@@ -559,8 +555,8 @@ void add_sound( stereo_t* shm_addr )
 
 	ProgressBar.Update();
 
-	wd_arr_t display_data = Wavedisplay.Gen_cxwave_data(  );
-	DaTA.Sds_p->Write_arr( display_data );
+	if ( sds->Wavedisplay_Id != AUDIOOUT )
+		Wavedisplay.Write_wavedata();
 }
 
 
@@ -702,7 +698,7 @@ void exit_proc( int signal )
 	if ( Sync_thread.joinable() )
 		Sync_thread.join();
 
-	Sem->Release( SEMAPHORE_STARTED );
+	Sem->Release( SEMAPHORE_STARTED ); // if start was not successful release waiting processes here
     Log.Comment(INFO, "Synthesizer reached target exit 0" );
 	exit( 0 );
 }
@@ -714,7 +710,6 @@ int main( int argc, char* argv[] )
 
 	App.Start( argc, argv );
 
-	Sem->Reset( Sync_Semaphore );
 
 	Dir.Create();
 
@@ -730,8 +725,7 @@ int main( int argc, char* argv[] )
 	DaTA.Sds_p->Restore_ifd();
 	activate_sds();
 
-//	Setup_Wavedisplay();
-	Wavedisplay.Set_data_ptr( DaTA.Sds_p->addr->Wavedisplay_Id );
+	Wavedisplay.SetId( DaTA.Sds_p->addr->Wavedisplay_Id );
 
 	show_usage();
 	show_AudioServer_Status();

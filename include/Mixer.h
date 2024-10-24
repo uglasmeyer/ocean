@@ -75,7 +75,7 @@ public:
 	interface_t* 		sds				= nullptr;
 	uint				sdsid			= 0;
 
-	Mixer_class ( interface_t* sds, Wavedisplay_class* wd );
+	Mixer_class ( Dataworld_class* data, Wavedisplay_class* wd );
 	~Mixer_class();
 
 	void Store_noteline( uint8_t, Note_class* );

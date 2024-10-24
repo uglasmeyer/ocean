@@ -104,14 +104,14 @@ void Interpreter_class::Stop_bin( vector_str_t arr )
 	expect = { "AudioServer", "Synthesizer" };
 	intro( arr, 1 );
 
-	if ( cmpstr( keyword.Str, "Synthesizer" ) )
+	if ( strEqual( keyword.Str, "Synthesizer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
 		Processor_class::Push_ifd( &ifd->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
 		Processor_class::Push_key( EXITKEY, "terminating key" + keyword.Str );
 		return;
 	}
-	if ( cmpstr( keyword.Str, "AudioServer" ) )
+	if ( strEqual( keyword.Str, "AudioServer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
 		Processor_class::Push_ifd( &ifd->AudioServer, EXITSERVER, "terminating " + keyword.Str  );
@@ -244,7 +244,6 @@ void Interpreter_class::Set( vector_str_t arr )
 		string osc = keyword.Str;
 		expect = { "freq", "wf", "amp" };
 		keyword.Str = pop_stack( 2 );
-		cout << show_items(arr) <<endl;
 
 		if( cmpkeyword( "freq") )
 		{
@@ -816,7 +815,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 				for ( String Word : keywords )
 				{
 					Word.to_lower();
-					if ( cmpstr( Word.Str, name) )
+					if ( strEqual( Word.Str, name) )
 					{
 						cout << "ERROR: " << name << " is a keyword" << endl;
 						return true;
@@ -870,7 +869,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	{
 		expect = { "+", "notesfile name" };
 		string op = pop_stack( 2 );
-		if ( cmpstr( op, "+" ))
+		if ( strEqual( op, "+" ))
 		{
 			expect = { "notesfile name" };
 			string name = pop_stack( 1 );
@@ -903,7 +902,7 @@ vector_str_t Interpreter_class::InsertVariable( vector_str_t arr )
 		{
 
 
-			if ( cmpstr(word, pair.name) )
+			if ( strEqual(word, pair.name) )
 			{
 				result.push_back( pair.value );
 			}
@@ -944,7 +943,7 @@ int Interpreter_class::Find_position( vector<line_struct_t>* program, vector_str
 	for( line_struct_t prgline : *program )
 	{
 		string word = prgline.line;
-		if ( cmpstr(keyword.Str, word) )
+		if ( strEqual(keyword.Str, word) )
 		{
 			return line_no;
 		}
@@ -1099,10 +1098,13 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 	{
 		if ( filesystem::exists( dir + name ) ) return;
 	};
+
 	for ( string dir : dirs )
 	{
+
 		Comment( WARN, "list directory " + dir );
-		cout << show_items( List_directory( dir, ".kbd" ) ) << endl;
+		vector<string> DirList = List_directory( dir, ".kbd" );
+		cout << show_type( DirList ) << endl;
 	}
 	Exception( "no such file " + name );//raise( SIGINT );
 }
@@ -1139,7 +1141,6 @@ void Interpreter_class::Test(  )
 	Addvariable( v_arr );
 	t_arr = InsertVariable( t_arr );
 
-	cout << show_items( t_arr ) << endl;
 	assert( t_arr[2].compare("4") == 0 );
 
 	t_arr = { "call", "=" , "4" };
@@ -1154,7 +1155,7 @@ void Interpreter_class::Test(  )
 	Addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-	cout << show_items( List_directory( file_structure().Dir.instrumentdir, ".kbd" ) ) << endl;
+	cout << show_type( List_directory( file_structure().Dir.instrumentdir, ".kbd" ) ) << endl;
 //	assert ( false );
 	varlist.clear();
 

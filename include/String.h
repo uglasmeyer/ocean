@@ -13,11 +13,31 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
+
+
+
+
 typedef vector<string>	vector_str_t;
 const size_t STRINGNOTFOUND = string::npos;
 
-extern bool cmpstr( const string& , const string&  );
+extern bool strEqual( const string& , const string&  );
 extern string notnull( char* cstr );
+template< class C >
+extern set< C > vector2set( vector< C > v );
+template< class C >
+extern vector< C > set2vector( set< C > s );
+template< class C >
+extern string show_items( C all_items );
+template<typename T>
+string show_type( T all_items )
+{
+	stringstream strs{ "" };
+    for ( auto item : all_items )
+    {
+    	strs << item << " ";
+    }
+    return strs.str();
+}
 
 
 class String : virtual public Logfacility_class
@@ -56,6 +76,7 @@ public:
 	void 			TestString();
 	void 			to_lower( );
 	int 			to_int( const string& s );
+	void			Show( const string& comment );
 
 };
 

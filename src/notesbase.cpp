@@ -52,12 +52,6 @@ string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
 
 Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 {
-	auto check_nps = [ this ]( int i )
-		{
-		for( int n : Notes_per_Sec )
-			if ( n==i) return true;
-		return false;
-		};
 	auto range_error = [ this ]( auto val, vector<size_t> range )
 		{
 			Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
@@ -67,6 +61,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 					 to_string( val ) +
 					" to noteline_structure" );//raise( SIGINT );
 		};
+
 	String S = str;
 	noteline_prefix_t nlp;
 	vector_str_t arr = S.to_unique_array(',');
@@ -86,7 +81,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 		range_error( nlp.convention, {0, convention_names.size() } );
 
 	nlp.nps = S.secure_stoi( arr[2]);
-	if ( not check_nps( nlp.nps) )
+	if ( not NPS_set.contains( nlp.nps) )
 	{
 		if ( Log[ TEST ] ) return noteline_prefix_default;
 		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );

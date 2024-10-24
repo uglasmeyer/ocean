@@ -11,33 +11,34 @@
 #include <data/Interface.h>
 #include <Wavedisplay_base.h>
 
-
-
-
 class Wavedisplay_class : virtual Logfacility_class
 {
+	Interface_class* Sds_p = nullptr;
 
 public:
-	Wavedisplay_class( );
+
+	Wavedisplay_class( Interface_class* sds );
 	virtual ~Wavedisplay_class(){};
 
 	void Clear_data		();
-	wd_arr_t Gen_cxwave_data( void  );
 	void Add_data_ptr	( const string& name, Data_t* );
-	void Set_data_ptr	( size_t );
-	void Update			( int, Data_t*);
-	void Set_type		( int );
+	void SetId	( size_t wd_id );
+	void Set_type		( int wd_type );
+	void Write_wavedata ( );
 
 private:
 
+	string 			className		= "";
 	int 			frame_counter	= 0;
 	buffer_t 		offs 			= 0;
-	size_t 			ptr_index 		= 0;
+	size_t 			wdId 		= 0;
 	int 			Type			= FULLID;
 	array<Data_t*, WD_SIZE>
 					data_ptr_arr{  };
 	bool			split_switch	= true;
 	wd_arr_t 		display_buffer = {0};
+	wd_arr_t 		gen_cxwave_data( void  );
+
 
 
 	typedef struct param_struct

@@ -181,6 +181,7 @@ Note_class::note_t Note_class::char2note( char ch )
 	note_buffer.str.push_back(ch);
 	notevalue_buffer 				= notevalue_struct();
 	notevalue_buffer.value 			= notechar2Value( ch );
+	notevalue_buffer.doct			= delta_oct;
 	note_buffer.chord.push_back( notevalue_buffer );
 	note_buffer.octave				= Octave;
 	note_buffer.duration    		= min_duration; // will be updated later
@@ -256,8 +257,6 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 					note_itr->str.push_back( Noteline[pos] );
 					note_itr->glide.chord.value 	= notechar2Value( Noteline[pos] );
 				}
-
-//				return pos;// new pos
 			}
 			else // simple case >F
 			{
@@ -285,12 +284,12 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 				}
 				if ( ch == '\'' )
 				{
-					note_buffer.chord[nc_pos-1].doct = +1;
+					note_buffer.chord[nc_pos-1].doct += 1;
 					note_buffer.str.push_back(ch);
 				}
 				if ( ch == ',' )
 				{
-					note_buffer.chord[nc_pos-1].doct = -1;
+					note_buffer.chord[nc_pos-1].doct -= 1;
 					note_buffer.str.push_back(ch);
 				}
 				pos++;
@@ -315,20 +314,23 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 		case '\'' :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
-			note_itr->chord.back().doct = +1;
+			note_itr->chord.back().doct += 1;
 			note_itr->str.push_back( '\'' );
 			break;
 		}
 		case ',' :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
-			note_itr->chord.back().doct = -1;
+			note_itr->chord.back().doct -= 1;
 			note_itr->str.push_back(',');
 			break;
 		}
 		case '|' : // nextchar may define a new octave
 		{
 			pos++;
+			if ( Noteline[pos] == '\'' ) delta_oct = 1;
+			if ( Noteline[pos] == ','  ) delta_oct = -1;
+
 			int oct = get_oct_value( Noteline[pos] );
 			Set_prefix_octave( oct );
 			return pos;
@@ -677,15 +679,8 @@ bool Note_class::Generate_note_chunk( )
 bool Note_class::Set_notes_per_second( int notes_per_second )
 {	// [ 1,2,4,5, 8 ] notes per second
 
-	auto check_nps = [ this ]( int i )
-		{
-		for( int n : Notes_per_Sec )
-			if ( n==i) return true;
-		return false;
-		};
 
-
-	if ( check_nps( notes_per_second ) )
+	if ( NPS_set.contains(notes_per_second) )
 	{
 		this->Noteline_prefix.nps 	= notes_per_second;
 		return true;
@@ -897,9 +892,9 @@ void Note_class::Test()
 
 	assert( note_itr->volume == 0 );
 	assert( note_itr->duration == 4*min_duration );
-	cout << note_itr->chord[0].value << " " << note_itr->chord[0].doct << endl;
-	cout << Octave << endl;
-	cout << calc_freq( Octave, note_itr->chord[0] ) << endl;
+//	cout << note_itr->chord[0].value << " " << note_itr->chord[0].doct << endl;
+//	cout << Octave << endl;
+//	cout << calc_freq( Octave, note_itr->chord[0] ) << endl;
 	assert( calc_freq( Octave, note_itr->chord[0] ) <  0.1 );
 	//assert( false );
 
@@ -931,10 +926,21 @@ void Note_class::Test()
 	note_itr = notelist.begin();
 	for( int freq : { 220, 110, 220, 110, 61, 220, 0, 0 } )
 	{
-
+//		printf("%d = %f %d\n", freq, calc_freq( 1, note_itr->chord[0]), note_itr->chord[0].doct ) ;
 		assert( calc_freq( 1, note_itr->chord[0] ) - freq < 1);
 		note_itr++;
 	}
+
+	Verify_noteline( Noteline_prefix, "A|'AA,A|,AAA");
+	note_itr = notelist.begin();
+	for( int freq : { 110, 220, 110, 220, 55, 55, 55 } )
+	{
+		Show_note( *note_itr );
+//		cout << freq << " = " << calc_freq( 1, note_itr->chord[0] ) << endl;
+		assert( calc_freq( 1, note_itr->chord[0] ) - freq < 1);
+		note_itr++;
+	}
+
 
 //	assert (false);
 	Comment( TEST, "Note_class test done ");

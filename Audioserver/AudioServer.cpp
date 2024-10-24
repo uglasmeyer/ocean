@@ -6,14 +6,27 @@ RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
 										.numberOfBuffers = 8,
 										.streamName = Application };
 
+
 void errorCallback( RtAudioErrorType /*type*/, const std::string &errorText )
 {
 	Log.Comment(ERROR, errorText ) ;
 }
-
-
-
 RtAudio rtapi( RtAudio::LINUX_PULSE, &errorCallback );
+
+
+void 	show_parameter()
+{
+// The parameter list is available after stream open
+Log.Comment(INFO , 	"Parameters in use:\n       buffer size        " +
+												to_string( bufferFrames ) + "\n" +
+					"       number of buffers  " + to_string( options.numberOfBuffers ) + "\n" +
+					"       Stream latency     " + to_string( rtapi.getStreamLatency()) + "\n" +
+					"       Stream sample rate " + to_string( rtapi.getStreamSampleRate()) + "\n" +
+					"       Stream name        " + options.streamName + "\n" +
+					"       RtApi option flags " + to_string( options.flags )+ "\n" +
+					"       Device Id          " + to_string( oParams.deviceId ) + "\n" +
+					"       Device name        " + DeviceDescription.Name  );
+}
 
 void start_audio_stream()
 {
@@ -28,24 +41,33 @@ void start_audio_stream()
 		Log.Comment( INFO, "Audio Stream is started ") ;
 }
 
+double* frame = nullptr;
 void shutdown_stream()
 {
 	if ( rtapi.isStreamRunning() )
 	{
-		Log.Comment(INFO,"stream will be stopped on exit");
+		Log.Comment(INFO,"stream will be stopped");
 		try
 		{
 			rtapi.stopStream();  // or could call dac.abortStream();
 		}
-		catch (bad_alloc const& ex) { cout << "bad alloc" << endl;}
+		catch (bad_alloc const& ex)
+		{
+			cout << "bad alloc" << endl;
+		}
 	}
 	if ( rtapi.isStreamOpen() )
 	{
-		Log.Comment(INFO, "stream will be closed on exit");
+		Log.Comment(INFO, "stream will be closed");
 		rtapi.closeStream();
 		if ( rtapi.isStreamOpen() )
 			Log.Comment( ERROR, "stream is still open");
 	}
+	if ( frame )
+		free( frame);
+	string txt = rtapi.getErrorText();
+	if ( txt.length() == 0 )  txt = "None";
+	Log.Comment( ERROR, txt );
 
 }
 
@@ -55,40 +77,32 @@ bool 					RecordThreadDone 	= false;
 void record_thead_fcn()
 {
 	Log.Comment( INFO, "record thread started ");
-//    DaTA.Sem.Reset(SEMAPHORE_RECORD);
 
 	Value Fileno {0};
 	while ( true )
 	{
-//		DaTA.Sem.Lock( SEMAPHORE_RECORD );
-
-		if ( RecordThreadDone ) break;
-	    Timer.Wait(1);
-	    if ( SaveRecordFlag )
-	    {
-//		SaveRecordFlag = true;
-
+		DaTA.Sem.Lock( SEMAPHORE_RECORD );
+		if ( RecordThreadDone )
+			break;
+		SaveRecordFlag = true;
 		Fileno = (int) DaTA.Sds_master->FileNo;
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
-		External.Save_record_data( Fileno.i );
-		Log.Comment( INFO, "preparing the next record session");
-			// clean up
+		External.Save_record_data( rcounter, Fileno.i );
+		Log.Comment( INFO, "recording done");
 		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
-//		DaTA.Sem.Release( SEMAPHORE_RECORD );	// if some process waits for completion
-											// it will be released hereby
-	    }
 		SaveRecordFlag = false;
 	}
 
 	Log.Comment( INFO, "record thread terminated ");
 }
-thread Record_thread( record_thead_fcn );
 
+
+thread Record_thread( record_thead_fcn );
 void shutdown_thread( )
 {
 	RecordThreadDone 	= true;
-//    DaTA.Sem.Release( SEMAPHORE_RECORD );
+	DaTA.Sem.Release( SEMAPHORE_RECORD );
 
 	if ( Record_thread.joinable() )
 		Record_thread.join();
@@ -101,30 +115,27 @@ void exit_intro( int signal )
 	if ( sig_counter > 0 )
 	{
 		Log.Comment( ERROR, "Exit procedure failed" );
-		Log.Comment( WARN, "Synthesizer reached target exit " + to_string( signal ));
+		Log.Comment( WARN, "Audioserver reached target exit " + to_string( signal ));
 		exit( signal );
 	}
 	sig_counter++;
 
-	Log.Comment( INFO, Application + "received command <exit> " );
+	Log.Comment( INFO,  Application + "received command exit signal " + to_string( signal ) );
 	Log.Comment( INFO, "Entering exit procedure for " + App.This_Application );
 	Log.Comment( INFO, "suspend server" );
 }
 
 
-double* frame = nullptr;
 void exit_proc( int signal )
 {
 	exit_intro( signal );
 
-	done = true;
 
-	shutdown_stream();
+//	shutdown_stream();
 	shutdown_thread();
-	if ( frame )
-		free( frame);
 
 	Log.Comment(INFO, "Audioserver reached target exit 0" );
+	done = true;
 
 }
 
@@ -209,23 +220,62 @@ void Application_loop()
 
 }
 
+
+void write_waveaudio()
+{
+	for( buffer_t n = 0; n < max_frames; n++ )
+	{
+		mono_out.Data[n] = shm_addr[n].left + shm_addr[n].right;
+	}
+	Wavedisplay.Write_wavedata();
+}
+
 void call_for_update()
 {
 	DaTA.ClearShm();
 
 	shm_addr = DaTA.SetShm_addr( );
 
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA0 );
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA1 );
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA2 );
-	DaTA.Sem.Release( SEMAPHORE_SENDDATA3 );
+	for ( int n = 0; n < 4; ++n)
+		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 + n );
 }
 
-buffer_t rcounter = 0;
+void record_start( )
+{
+	if ( SaveRecordFlag )
+	{
+		Log.Comment( WARN, "Audioserver is still saving data. ... Wait ");
+		return;
+	}
+	External.status.record = true;
+	rcounter = 0;
+	ProgressBar.Set( &rcounter, recduration );
+	RecTimer.Start();
+	Log.Comment(INFO, "Audioserver starts recording" );
+}
+
+void record_stop()
+{
+	DaTA.Sem.Release( SEMAPHORE_RECORD );
+
+	External.status.record = false;
+	ProgressBar.Unset();
+	uint t_el = RecTimer.Time_elapsed();
+	Log.Comment(INFO, "Record duration: " + to_string( t_el/1000 ) + " sec");
+
+}
+void set_rcounter( )
+{
+	rcounter++;
+	ProgressBar.Update();
+	if( rcounter >= recduration )
+		record_stop();
+}
+
 void set_ncounter( buffer_t n )
 {
 	if( mode == KEYBOARD )
-			ncounter	= 0;
+		ncounter	= 0;
 
 	if ( n > max_frames - 1 )
 	{
@@ -233,13 +283,13 @@ void set_ncounter( buffer_t n )
 		if ( External.status.record )
 		{
 			External.Record_buffer( shm_addr, External.stereo.stereo_data, rcounter * max_frames);
-			sds->RecCounter = rcounter;
-			rcounter++;
-			if( rcounter >= recduration )
-				sds->AudioServer = RECORDSTOP;
+			set_rcounter();
 		}
 
 		call_for_update();
+
+		if ( sds->Wavedisplay_Id == AUDIOOUT )
+			write_waveaudio();
 	}
 }
 
@@ -269,33 +319,15 @@ int RtAudioOut(	void *outputBuffer,
 
 		if (sds->AudioServer == EXITSERVER )
 		{
-			done = true;
-			DaTA.Sem.Release( AUDIOSERVER_SEM );
-
+			exit_proc( 0 );
 			return 1;
 		}
+
 		if (sds->AudioServer == RECORDSTART )
-		{
-			if ( SaveRecordFlag )
-			{
-				Log.Comment( WARN, "Audioserver is saving data. ... Wait ");
-			}
-			else
-			{
-				ncounter = 0;
-				sds->Record = true; // display record status in ui
-				rcounter = 0;
-				Log.Comment(INFO, "Audioserver starts recording" );
-				External.status.record = true;
-			}
-		}
+			record_start();
+
 		if (sds->AudioServer == RECORDSTOP )
-		{
-			External.status.record = false;
-			sds->Record = false;
-			SaveRecordFlag = true;
-//			DaTA.Sem.Release( SEMAPHORE_RECORD );
-		}
+			record_stop();
 
 		sds->AudioServer = RUNNING;
 
@@ -317,11 +349,16 @@ int main( int argc, char *argv[] )
 
 
 	App.Sds->Announce(  );
-	App.sds->Record = false;
 
+	for ( int n = 0; n < 4; ++n)
+	{
+		DaTA.Sem.Reset( SEMAPHORE_SENDDATA0 + n );
+	}
     DaTA.Sem.Release( SEMAPHORE_STARTED );
-    DaTA.Sem.Reset(AUDIOSERVER_SEM);
+    DaTA.Sem.Reset( SEMAPHORE_RECORD );
 	sds->RecCounter 	= 0;
+
+	Wavedisplay.Add_data_ptr( "Audio Out", mono_out.Data );
 
 
 //	wav_header.srate 				= Cfg->Config.rate;
@@ -356,7 +393,8 @@ int main( int argc, char *argv[] )
 	// isStreamOpen().
 
 	Log.Comment(INFO, "Opening Audio Stream");
-	if ( rtapi.openStream(&oParams,
+	if ( rtapi.openStream(
+						&oParams,
 						NULL,
 						FORMAT,
 						Cfg->Config.rate,
@@ -369,20 +407,10 @@ int main( int argc, char *argv[] )
 		exit_proc(6);
 	}
 
+
 	start_audio_stream();
 
-	// The parameter list is available after stream open
-	Log.Comment(INFO , 	"Parameters in use:\n       buffer size        " +
-													to_string( bufferFrames ) + "\n" +
-						"       number of buffers  " + to_string( options.numberOfBuffers ) + "\n" +
-						"       Stream latency     " + to_string( rtapi.getStreamLatency()) + "\n" +
-						"       Stream sample rate " + to_string( rtapi.getStreamSampleRate()) + "\n" +
-						"       Stream name        " + options.streamName + "\n" +
-						"       RtApi option flags " + to_string( options.flags )+ "\n" +
-						"       Device Id          " + to_string( oParams.deviceId ) + "\n" +
-						"       Device name        " + DeviceDescription.Name  );
-
-
+	show_parameter();
 
 	Log.Comment(INFO, "Application initialized");
 	Log.Comment(INFO, "Entering Application loop\n");
@@ -390,13 +418,14 @@ int main( int argc, char *argv[] )
 
 	App.Ready();
 
-	while ( not done )
+	while ( not done  && rtapi.isStreamRunning() )
 	{
-//		cout.flush() << "." ;
 		Timer.Wait( 1 );// 1sec
 	}
-	exit_proc( 0 );
-	return 0;
+	shutdown_stream();
+
+	Log.Comment( INFO, "AudioServer reached target exit main()" );
+
 
 }
 

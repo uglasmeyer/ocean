@@ -11,10 +11,7 @@ Config_class::Config_class( string Module ) :
 	string shortname = program_invocation_short_name;
 	Comment( INFO, "Program name: " + shortname );
 	this->basedir = baseDir( );
-	cout << "Hallo" << endl;
 	Read_config( file_structure().config_file );
-	cout << "World" << endl;
-	typeidMap();
 };
 
 Config_class::~Config_class()
@@ -89,8 +86,6 @@ void Config_class::Read_config(	string cfgfile )
 	for( uint idx = 0; idx < MAXCONFIG; idx++  )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
-//		Config.shmkeys_l[ idx ] = Config.SHM_key + idx;
-//		Config.shmkeys_r[ idx ] = Config.SHM_key + idx + MAXCONFIG + 2;
 	}
 	Config.SHM_keyl = Config.SHM_key;
 	Config.SHM_keyr = Config.SHM_key + 1;
@@ -150,43 +145,37 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 	}
 
 }
-void Config_class::typeidMap()
-{
-	assert( NOID < type_map.size() );
-	type_map[AUDIOID] 	= "Audioserver";
-	type_map[SYNTHID] 	= "Synthesizer";
-	type_map[COMPID ] 	= "Composer";
-	type_map[GUI_ID] 	= "UserInterface";
-	type_map[COMSTACKID]= "comstack";
-	type_map[RTSPID] 	= "rtsp";
-	type_map[NOID] 		= "No Process";
-}
 
 void Config_class::Show_Config( )
 {
 	stringstream strs{""};
-	strs << setw(20) << left << "\nchannel" 	<< dec << 	Config.channel 	<<endl;  		// -c
-	strs << setw(20) << left << "sampline rate" << dec << 	Config.rate		<<endl;  		// -c
-	strs << setw(20) << left << "device nr" 	<< dec << 	Config.device	<<endl;  		// -d
-	strs << setw(20) << left << "channel offs"	<< dec << 	Config.ch_offs	<<endl; 		// -o
-	strs << setw(20) << left << "test classes" 	<<  	 	Config.test		<<endl;  		// -t
-	strs << setw(20) << left << "dialog mode"	<<  		Config.dialog	<<endl;  		// -D
-	strs << setw(20) << left << "composer"		<<  		Config.composer	<<endl;  		// -D
-	strs << setw(20) << left << "oceangui"		<< 			Config.oceangui	<<endl;  		// -D
-	strs << setw(20) << left << "Id3tool Title" << 			Config.title	<<endl; 		// -o
-	strs << setw(20) << left << "Id3tool Author"<< 			Config.author	<<endl;  		// -k
-	strs << setw(20) << left << "Id3tool Album" << 			Config.album	<<endl;  		//
-	strs << setw(20) << left << "Id3tool Genre" << 			Config.Genre	<<endl;  		// -t
-	strs << setw(20) << left << "Terminal" 		<< 			Config.Term		<<endl;  		// -D
-	strs << setw(20) << left << "ffmpeg" 		<< 			Config.ffmpeg	<<endl;  		// -D
-	strs << setw(20) << left << "appcfg" 		<< 			Config.appcfg	<<endl;
-	strs << setw(20) << left << "SDS ID"	 	<< dec << 	Config.SDS_id	<<endl;  		// -k
-	strs << setw(20) << left << "shm key"	 	<< dec << 	Config.SHM_key	<<endl;  		// -k
-	strs << setw(20) << left << "sds_key" 		<< 			Config.SDS_key	<<endl;  		// -D
-	strs << setw(20) << left << "sem_key" 		<< 			Config.Sem_key	<<endl;  		// -D
-	strs << setw(20) << left << "sds keys"		<< show_items( Config.sdskeys ) << endl;
-	strs << setw(20) << left << "SHM_key left"		<< 		Config.SHM_keyl << endl;
-	strs << setw(20) << left << "SHM key right"	<< 			Config.SHM_keyr << endl;
+
+	auto llin = [ &strs ]( string str, auto val )
+	{
+		strs << SETW << right << str << setw(40) << right <<	val <<endl;;
+	};
+	strs << endl;
+	llin( "sampline rate" , 	Config.rate		);  		// -c
+	llin( "device nr" 	, 	Config.device	);  		// -d
+	llin( "channel offs"	, 	Config.ch_offs	); 		// -o
+	llin( "test classes" 	,  	 	Config.test		);  		// -t
+	llin( "dialog mode"	,  		Config.dialog	);  		// -D
+	llin( "composer"		,  		Config.composer	);  		// -D
+	llin( "oceangui"		, 			Config.oceangui	);  		// -D
+	llin( "Id3tool Title" , 			Config.title	); 		// -o
+	llin( "Id3tool Author", 			Config.author	);  		// -k
+	llin( "Id3tool Album" , 			Config.album	);  		//
+	llin( "Id3tool Genre" , 			Config.Genre	);  		// -t
+	llin( "Terminal" 		, 			Config.Term		);  		// -D
+	llin( "SDS ID"	 	, 	Config.SDS_id	);  		// -k
+	llin( "shm key"	 	, 	Config.SHM_key	);  		// -k
+	llin( "sds_key" 		, 			Config.SDS_key	);  		// -D
+	llin( "sem_key" 		, 			Config.Sem_key	);  		// -D
+	llin( "sds keys"		, show_type( Config.sdskeys ) );
+	llin( "SHM_key left"		, 		Config.SHM_keyl );
+	llin( "SHM key right"	, 			Config.SHM_keyr );
+	llin( "ffmpeg" 		, 			Config.ffmpeg	);  		// -D
+	llin( "appcfg" 		, 			Config.appcfg	);
 
 	Comment( INFO, strs.str() );
 }

@@ -7,14 +7,13 @@
 
 #include "Wavedisplay.h"
 
-
-
-Wavedisplay_class::Wavedisplay_class(  )
+Wavedisplay_class::Wavedisplay_class( Interface_class* sds )
 : Logfacility_class("Wavedisplay")
 {
-//	this->wd_arr = wd_arr;
+	this->className = Logfacility_class::module;
 	split_switch = false;
-	ptr_index = 0;
+	wdId = 0;
+	this->Sds_p = sds;
 }
 
 void Wavedisplay_class::Clear_data()
@@ -26,11 +25,11 @@ void Wavedisplay_class::Clear_data()
 }
 
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
-wd_arr_t Wavedisplay_class::Gen_cxwave_data( )
+wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 {
-	if ( data_ptr_arr[ ptr_index ] == NULL )
+	if ( data_ptr_arr[ wdId ] == NULL )
 	{
-		Comment(ERROR, "wave display got nullptr at index " + to_string(ptr_index)) ;
+		Comment(ERROR, "wave display got nullptr at index " + to_string(wdId)) ;
 		return display_buffer;
 	}
 	param_t param;
@@ -67,7 +66,7 @@ wd_arr_t Wavedisplay_class::Gen_cxwave_data( )
 			split_switch = false;
 			for ( buffer_t n = 0; n < param.len; n++ )
 			{
-				Data_t value = rint(data_ptr_arr[ ptr_index ][n]);
+				Data_t value = rint(data_ptr_arr[ wdId ][n]);
 				display_buffer[ n + param.len  ] = value;
 			}
 		}
@@ -76,7 +75,7 @@ wd_arr_t Wavedisplay_class::Gen_cxwave_data( )
 			split_switch = true;
 			for ( buffer_t n = max_frames - param.len; n < max_frames; n++ )
 			{
-				Data_t value = rint(data_ptr_arr[ ptr_index ][n]);
+				Data_t value = rint(data_ptr_arr[ wdId ][n]);
 				display_buffer[ n + param.len - max_frames ] = value;
 			}
 
@@ -88,7 +87,7 @@ wd_arr_t Wavedisplay_class::Gen_cxwave_data( )
 		int idx = 0;
 		for ( buffer_t n = offs; n < param.len*param.step + offs; n=n+param.step )
 		{
-			Data_t value = rint( data_ptr_arr[ ptr_index ][n]);
+			Data_t value = rint( data_ptr_arr[ wdId ][n]);
 			display_buffer[ idx ] = value;
 			idx++;
 
@@ -102,25 +101,20 @@ wd_arr_t Wavedisplay_class::Gen_cxwave_data( )
 	return display_buffer;
 }
 
-void Wavedisplay_class::Set_data_ptr( size_t select )
+void Wavedisplay_class::SetId( size_t wd_id )
 {
-	if ( select < 0)
-		select = 0;
-	if ( select > wavedisplay_str_arr.size() - 1)
-		select = wavedisplay_str_arr.size() - 1;
-	ptr_index = select;
-	Comment( DEBUG, "wave display selected: " + wavedisplay_str_arr[ ptr_index ] + " " + to_string(ptr_index));
+	if ( wd_id < 0)
+		wd_id = 0;
+	if ( wd_id > WD_SIZE - 1)
+		wd_id = WD_SIZE - 1;
+	wdId = wd_id;
+	Comment( DEBUG, "wave display selected: " + wavedisplay_str_arr[ wdId ] + " " + to_string(wdId));
 }
 
 void Wavedisplay_class::Set_type( int type )
 {
 	Type = type;
 	split_switch	= false;
-}
-
-void Wavedisplay_class::Update( int select , Data_t* ptr )
-{
-	data_ptr_arr[ select ] = ptr;
 }
 
 void Wavedisplay_class::Add_data_ptr( const string& name, Data_t* ptr )
@@ -130,14 +124,14 @@ void Wavedisplay_class::Add_data_ptr( const string& name, Data_t* ptr )
 		int idx = 0;
 		for( string v : wavedisplay_str_arr )
 			{
-				if ( cmpstr(v, name ) ) return idx;
+				if ( strEqual(v, name ) ) return idx;
 				idx++;
 			}
 		return -1;
 	};
-	if ( ptr == NULL )
+	if ( ptr == nullptr )
 	{
-		Exception("Undefined Wavedisplay with index " + to_string( ptr_index) );
+		Exception("Undefined Wavedisplay with index " + to_string( wdId) );
 	}
 	int idx = get_index( name );
 	if (  idx < 0 )
@@ -149,7 +143,13 @@ void Wavedisplay_class::Add_data_ptr( const string& name, Data_t* ptr )
 
 	Comment( INFO, "adding wave display: " + to_string( idx ) + " - " + name );
 
-	ptr_index = idx;
+	wdId = idx;
+}
+
+void Wavedisplay_class::Write_wavedata()
+{
+	wd_arr_t display_data = gen_cxwave_data(  );
+	Sds_p->Write_arr( display_data );
 }
 
 

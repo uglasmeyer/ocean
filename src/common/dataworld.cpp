@@ -49,12 +49,16 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 
 Dataworld_class::~Dataworld_class()
 {
+	Reg.Proc_deRegister( );
+
 	if ( Reg.Is_dataprocess() )
 	{
 		Sem.Release(SEMAPHORE_EXIT);
 		SHM_0.Detach( SHM_0.ds.addr );
 		SHM_1.Detach( SHM_1.ds.addr );
 	}
+	Sds_p->SHM.Detach( Sds_p->SHM.ds.addr );
+
 }
 
 void Dataworld_class::init_Shm( Shared_Memory& SHM, key_t key, uint idx )
@@ -80,7 +84,7 @@ interface_t* Dataworld_class::GetSdsAddr( )
 }
 interface_t* Dataworld_class::GetSdsAddr( int id )
 {
-	Comment( INFO, "SDS Id: " + to_string( id ) + " " + Cfg.type_map[TypeId] );
+	Comment( DEBUG, "SDS Id: " + to_string( id ) + " " + Type_map( TypeId ) );
 	if (( id<0) or ( id > (int)MAXCONFIG ))
 	{
 		Comment( ERROR, "no such Shared Data Segment ");

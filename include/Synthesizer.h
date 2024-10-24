@@ -11,7 +11,6 @@
 #include <External.h>
 #include <Instrument.h>
 #include <Keyboard.h>
-#include <Record.h>
 #include <Spectrum.h>
 #include <Wavedisplay.h>
 #include <App.h>
@@ -20,23 +19,23 @@
 #include <Notes.h>
 #include <Ocean.h>
 #include <Mixer.h>
+#include <Progressbar.h>
 #include <System.h>
 
-//bool 					SaveRecordFlag 		= false;
-//bool 					RecordThreadDone 	= false;
 string					Module 				= "Synthesizer";
 
 Logfacility_class		Log( Module );
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
 
-Wavedisplay_class 		Wavedisplay{};
+Wavedisplay_class 		Wavedisplay{ DaTA.Sds_p };
 Wavedisplay_class*		wd_p = &Wavedisplay;
 
 Application_class		App( &DaTA );
-interface_t*			sds = DaTA.GetSdsAddr();
 
-Mixer_class				Mixer{ sds, wd_p } ;// DaTA.Sds_master );
+interface_t*			sds = DaTA.GetSdsAddr();
+Dataworld_class*		DaTA_p = &DaTA;
+Mixer_class				Mixer{ DaTA_p, wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument{ sds, wd_p };
 Note_class 				Notes;
 Keyboard_class			Keyboard( 	&Instrument );

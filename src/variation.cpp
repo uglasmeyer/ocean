@@ -359,7 +359,7 @@ void Variation_class::Test()
 	int i = 0;
 	for( string str : { "A'", "(AB)", "(A'B)", "(AB,)", "(B,)", "A'" ,"." ,"." } )
 	{
-		assert( cmpstr( str, Random_Notes[i].str ) );
+		assert( strEqual( str, Random_Notes[i].str ) );
 		i++;
 	}
 
@@ -380,7 +380,7 @@ void Variation_class::Test()
 	Define_variable("(EF)G'',,");
 	Define_fix( "afafASDF1234!§$_:;,.-#'+***=)(/{[]}ÄÖ<>|′^'");
 	cout << "Constant_chars: " << Constant_chars << endl;
-	assert( cmpstr( Constant_chars , "afafADF1234,.-')(|'" ));
+	assert( strEqual( Constant_chars , "afafADF1234,.-')(|'" ));
 
 	Define_fix("fGHA");
 	Define_variable("EFG");
@@ -398,7 +398,7 @@ void Variation_class::Test()
 	Define_fix( "(AC)r(DC)r" );
 	test_str = insert_random( );
 	cout << test_str << "=" << "(AC)C(DC)C" << endl;
-	assert( cmpstr( test_str, "(AC)C(DC)C ") );
+	assert( strEqual( test_str, "(AC)C(DC)C ") );
 	cout << test_str << endl;
 	assert( Note_class::Verify_noteline( Noteline_prefix, test_str ) );
 

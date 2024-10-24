@@ -24,7 +24,7 @@ void Memory::Clear_data( Data_t value )
 		Data[n] = value;
 	}
 }
-void Memory_base::Gen_ds( size_t ds_size)
+void Memory_base::SetDs( size_t ds_size)
 {
 	// terminology :
 	// sizeof_data	-> 	data_bytes	= sizeof(unit)
@@ -47,7 +47,7 @@ void Memory::Init_data( )
 {
 	Data = ( Data_t* ) Init_void();
 
-	Gen_ds( sizeof( Data_t));
+	SetDs( sizeof( Data_t));
 	statistic.data += ds.mem_bytes;
 }
 
@@ -65,7 +65,7 @@ void Stereo_Memory::init_data( )
 {
 	stereo_data = ( stereo_t* ) Init_void();
 
-	Gen_ds( sizeof( stereo_t ));
+	SetDs( sizeof( stereo_t ));
 	statistic.stereo += ds.mem_bytes;
 	ds.name			= Logfacility_class::module;
 }

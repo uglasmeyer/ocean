@@ -11,7 +11,6 @@
 #include <App.h>
 #include <data/Semaphore.h>
 #include <System.h>
-//#include <rtsp/ShmMixer.h>
 
 
 const string		Module	= "rtsp";

@@ -14,7 +14,7 @@
 #include <Ocean.h>
 #include <Version.h>
 #include <External.h>
-#include <Record.h>
+#include <Progressbar.h>
 #include <Time.h>
 
 extern void SynthesizerTestCases();
@@ -50,6 +50,7 @@ public:
 	void Shutdown_instance( );
 	void Start( int, char* [] );
 	void Init_Sds( uint sds_id );
+	uint8_t GetAppState( uint appid );
 	void Ready();
 
 

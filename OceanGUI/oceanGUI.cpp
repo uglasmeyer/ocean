@@ -167,9 +167,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect( ui->sB_Main, SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
 
 
-//    record_timer = new QTimer( this );
-    connect(record_timer, &QTimer::timeout, this, &MainWindow::get_record_status);
-    record_timer->start(1000);
+//    connect(record_timer, &QTimer::timeout, this, &MainWindow::get_record_status);
+//    record_timer->start(1000);
 
 //    status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &MainWindow::Updatewidgets);
@@ -191,17 +190,13 @@ MainWindow::MainWindow(	QWidget *parent ) :
     ui->cb_bps->addItems( Qbps_str_list );
     setwidgetvalues();
 
-//    scene               = new QGraphicsScene(this);
     ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
     OscW_item = new OszilloscopeWidget( Sds->addr, rect );
     scene->addItem( OscW_item );
 
-//   File_Dialog_class File_Dialog_obj( this, ui->Slider_Main_Hz );
-//   this->File_Dialog_p = new File_Dialog_class( this, ui->Slider_Main_Hz );
-
-
+    Sds_master->Record = false;
 }
 
 MainWindow::~MainWindow()
@@ -211,29 +206,26 @@ MainWindow::~MainWindow()
 }
 
 
-bool record=false;
-QPalette record_color = QPalette();
-QPalette status_color = QPalette();
 
 
-QString get_bps_qstring( int id )
-{
-	string bps_str = bps_struct().getbps_str(id);
-	QString QStr = QString::fromStdString( bps_str );
-    return QStr;
-}
-
+int old_sdsid  = 0 ;
 void MainWindow::SetSds(  )
 {
-	this->Sds 	=DaTA->GetSds( Rtsp_Dialog_obj.SDS_ID );
+	int sdsid = Rtsp_Dialog_obj.SDS_ID;
+	if ( sdsid == old_sdsid ) return;
+	old_sdsid = sdsid;
 
-	int8_t sdsid = Rtsp_Dialog_obj.SDS_ID ;
+	this->Sds = DaTA->GetSds( sdsid );
+
     Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
 
     File_Dialog_obj.SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
-	OscW_item->sds = this->Sds->addr;
-	setwidgetvalues();
+	if ( Sds->addr->Wavedisplay_Id == AUDIOOUT )
+		OscW_item->sds = Sds_master;
+	else
+		OscW_item->sds = this->Sds->addr;
+
 }
 
 
@@ -510,6 +502,7 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
     Sds->Set( Sds->addr->Main_adsr.bps_id, bps_id  );
     Sds->Set( Sds->addr->KEY, ADSR_KEY );
 }
+
 void MainWindow::setwidgetvalues()
 {
 
@@ -560,7 +553,8 @@ void MainWindow::setwidgetvalues()
     ui->dial_PMW->setValue( (int)Sds->addr->PMW_dial  );
     ui->dial_soft_freq->setValue( (int)  Sds->addr->Soft_freq );
     ui->hs_hall_effect->setValue( (int)  Sds->addr->Main_adsr.hall );
-    ui->progressBar_record->setValue(0);
+
+    get_record_status();
     int wd_counter              = Sds->addr->Wavedisplay_Id;
     QString Qstr = QString::fromStdString(wavedisplay_str_arr[wd_counter]);
     ui->pB_Wavedisplay->setText( Qstr );
@@ -571,9 +565,10 @@ void MainWindow::setwidgetvalues()
     Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
+    ui->cb_bps->setCurrentText( Qbps_str_list[ Sds->addr->Main_adsr.bps_id]);
+
     Sds->addr->UserInterface 	= RUNNING;
     Sds->addr->UpdateFlag 		= true;
-
     MainWindow::show();
 }
 
@@ -649,7 +644,6 @@ void MainWindow::start_audio_srv()
 	system_execute( Start_Audio_Srv.data() );
     Sem->Lock( SEMAPHORE_STARTED );
     Rtsp_Dialog_obj.proc_table_update_row( 0 );
-
 }
 
 void MainWindow::start_synthesizer()
@@ -661,18 +655,16 @@ void MainWindow::start_synthesizer()
 	    return;
 	}
 
-	int id = DaTA->Reg.GetStartId( Sds_master->config );
-	if ( id <  0 ) return;
+	int sdsid = DaTA->Reg.GetStartId( Sds_master->config );
+	if ( sdsid <  0 ) return;
 
 	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
     		file_structure().synth_bin,
-			"-S " + to_string( id ) );
+			"-S " + to_string( sdsid ) );
 
     system_execute( Start_Synthesizer.data() );
     Sem->Lock( SEMAPHORE_STARTED );
-    Rtsp_Dialog_obj.Update_widgets();
-    MainWindow::setwidgetvalues(); // initData deploys the initial value the the QObjects-
-    MainWindow::show(); // and the Mainwindow is updated.
+    Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1);
 }
 void MainWindow::read_polygon_data()
 {
@@ -690,8 +682,7 @@ void MainWindow::Controller_Exit()
     Sds->addr->Synthesizer = EXITSERVER ;
     DaTA->Reg.Reset( Rtsp_Dialog_obj.SDS_ID, SYNTHID );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
-    Rtsp_Dialog_obj.Update_widgets();
-
+    Rtsp_Dialog_obj.proc_table_update_row(Rtsp_Dialog_obj.SDS_ID + 1);
 }
 
 void MainWindow::Audio_Exit()
@@ -699,7 +690,7 @@ void MainWindow::Audio_Exit()
     DaTA->Sds_master->AudioServer = EXITSERVER;
     DaTA->Reg.Reset( 0, AUDIOID );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
-    Rtsp_Dialog_obj.Update_widgets();
+    Rtsp_Dialog_obj.proc_table_update_row(0);
 }
 
 // button save Cfg->Config to default instrument
@@ -738,15 +729,21 @@ int pb_value = 0;
 void MainWindow::get_record_status( )
 {
     pb_value = Sds->addr->RecCounter;
+//    cout << "Rec status value: " << pb_value << endl;
     ui->progressBar_record->setValue( pb_value );
 }
 void MainWindow::SaveRecord()
 {
     Sds->Set( Sds_master->FileNo , 0); // automatic numbering
+
     if ( Sds_master->Record )
     	Sds_master->AudioServer = RECORDSTOP;
     else
+    {
     	Sds_master->AudioServer = RECORDSTART;
+    }
+
+	Sds->Set( Sds->addr->Record, not Sds->addr->Record );
 }
 
 void MainWindow::main_adsr_sustain()
@@ -807,17 +804,13 @@ void MainWindow::Updatewidgets()
 				}
 			}
         }
-        Sds->addr->UserInterface = OFFLINE ;
-
-    	// init new SDS
-        SetSds(  );
-
     }
 
-    if( Sds->addr->mixer_status.external )
-    {
+    Sds->addr->UserInterface = OFFLINE ;
 
-    }
+	// init new SDS
+    SetSds(  );
+
 
     if (Sds_master->AudioServer == RUNNING )
         ui->pBAudioServer->setPalette(status_color_green);
@@ -835,6 +828,7 @@ void MainWindow::Updatewidgets()
     else
     	ui->pBtoggleRecord->setPalette( status_color_green );
 
+    setwidgetvalues();
 
 }
 

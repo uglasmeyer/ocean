@@ -106,11 +106,11 @@ void Loop_class::Test()
 //-------------------------------------------------------------------------------------------------
 
 
-Mixer_class::Mixer_class( interface_t* sds, Wavedisplay_class* wd )
+Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 : Logfacility_class("Mixer")
 {
 	cout << "Init Mixer_class" << endl;
-	this->sds 	= sds;
+	this->sds 	= data->GetSdsAddr( );
 
 	for( uint n : MemIds )
 	{
@@ -136,7 +136,6 @@ Mixer_class::Mixer_class( interface_t* sds, Wavedisplay_class* wd )
 		Out_L.Info		( "Output Stereo Left");
 		Out_R.Info		( "Output Stereo Right");
 	}
-	wd->Add_data_ptr( "Audio Out", Mono_out.Data );
 	wd->Add_data_ptr( "External IN", StA[ MbIdExternal].Data );
 };
 

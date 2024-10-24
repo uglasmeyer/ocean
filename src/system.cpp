@@ -62,7 +62,7 @@ vector<string> List_directory( const string& path, const string& filter )
     for (auto const& dir_entry : std::filesystem::directory_iterator{ dir })
     {
     	string extension = dir_entry.path().extension();
-    	if( cmpstr(extension, filter) )
+    	if( strEqual(extension, filter) )
     	{
     		dir_entry_vec.push_back( dir_entry.path().filename() );
     	}

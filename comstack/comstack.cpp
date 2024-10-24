@@ -17,12 +17,16 @@ char get_char( string text )
 	return s[0];
 }
 
+bool tainted=false;
 int getvalue(string text )
 {
 	String S {""};
 	string s;
 	cout << text << ": ";
+	Keyboard.Reset();
 	cin >> s;
+	Keyboard.Init();
+	tainted = true;
 	return S.to_int(s);
 
 }
@@ -134,12 +138,12 @@ int main( int argc, char* argv[] )
 		case 'a' :
 		{
 			cout << "ADSR ";
-			keyevent = Key_event("#gdush");
+			keyevent = Key_event("#bgdsh");
 			switch ( keyevent )
 			{
 			case 'g' : { sds->Soft_freq = getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
 			case 'd' : { sds->Main_adsr.attack  = getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
-			case 'u' : { sds->Main_adsr.bps_id  = getvalue( "Duration" ); sds->KEY = ADSR_KEY; break; }
+			case 'b' : { sds->Main_adsr.bps_id  = getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
 			case 's' : { sds->Main_adsr.decay  = getvalue( "Sustain" ); sds->KEY = ADSR_KEY; break; }
 			case 'h' : { sds->Main_adsr.decay  = getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
 			default  : break ;
@@ -148,6 +152,11 @@ int main( int argc, char* argv[] )
 		}
 		default:
 			break;
+		}
+		if ( tainted )
+		{
+			tainted = false;
+			Sds->Show_interface();
 		}
 	} // while key
 

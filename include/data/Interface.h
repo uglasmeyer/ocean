@@ -27,8 +27,8 @@ class Interface_class : virtual public Logfacility_class
 {
 public:
 
-	Shm_base				SHM{ sizeof( interface_t )};
 	interface_t 			ifd_data;
+	Shm_base				SHM{ sizeof( ifd_data )};
 	interface_t* 			addr		= nullptr;
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;

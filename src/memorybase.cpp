@@ -16,8 +16,10 @@ Memory_base::Memory_base( buffer_t size ) :
 };
 
 Memory_base::Memory_base() :
-	Logfacility_class( "" )
-{};
+	Logfacility_class( "Memory_base" )
+{
+	className = Logfacility_class::module;
+};
 
 Memory_base::~Memory_base()
 {};

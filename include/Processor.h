@@ -46,7 +46,7 @@ public:
 
 	virtual ~Processor_class(){	} ;
 
-	void Push_str( uint8_t, char, string);
+	void Push_str( uint8_t, uint8_t, string);
 	void Push_cmd( uint8_t, string);
 	void Push_key( uint8_t, string );
 	void Push_ifd( uint8_t*, uint8_t, string );
@@ -73,7 +73,8 @@ private:
 
 	int prgline = 0;
 	typedef vector <stack_struct_t>
-						stack_struct_vec_t	;
+						stack_struct_vec_t;
+
 	stack_struct_vec_t 	process_stack{};
 	stack_struct_t 		stack_item = stack_struct();
 

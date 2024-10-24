@@ -12,9 +12,9 @@
 #include <Config.h>
 #include <data/Interface.h>
 #include <data/Memory.h>
+#include <Progressbar.h>
 #include <Version.h>
 #include <Wav.h>
-#include <Record.h>
 
 
 
@@ -63,15 +63,15 @@ public:
 
 	bool Read_file_data(  );
 	bool Read_file_header( string );
-	void Save_record_data( int );
+	void Save_record_data( uint sec, int filenr );
 	void Mono2Stereo( Data_t* mono, uint size );
 	void Record_buffer( stereo_t* src, stereo_t* dst, buffer_t offs );
 	string GetName();
 	void Test_External();
 
 private:
-
-	long int read_position = 0;
+	const uint 		MAXWAVFILES = 5; // max numbers of file names generated automatically
+	long int 		read_position = 0;
 	wav_struct_t 	header_struct;
 	string 			Name 		= "";
 	string 			Filename 	= "";

@@ -31,11 +31,11 @@ void SynthesizerTestCases()
 	DirStructure_class		Dir;
 
 	Dataworld_class			DaTA( SYNTHID );
-	Wavedisplay_class		Wavedisplay{};
+	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
 	Application_class		App( &DaTA );
 	interface_t*			sds = DaTA.GetSdsAddr();
-	Mixer_class				Mixer{ sds, wd_p };
+	Mixer_class				Mixer{&DaTA, wd_p };
 	Mixer.Set_Loglevel( TEST, true );
 	Instrument_class 		Instrument( DaTA.Sds_master, wd_p );
 	Note_class 				Notes;
@@ -90,6 +90,11 @@ void SynthesizerTestCases()
 	External.Test_External();
 
 	TestStr.TestString();
+
+	set<string> Ss { "ab", "cd", "ef", "gh" };
+	assert( Ss.contains("cd"));
+	assert( not Ss.contains("de"));
+
 	Timer.Test();
 
 	Sem->Test();
@@ -114,6 +119,16 @@ Logfacility_class( "App" )
 
 }
 
+uint8_t Application_class::GetAppState( uint appid )
+{
+	uint8_t state;
+	if ( appid == DaTA->TypeId )
+		state = *Sds->Getstate_ptr( appid );
+	else
+		state = *DaTA->SDS_vec[0].Getstate_ptr( appid );
+	return state;
+}
+
 void Application_class::Init_Sds( uint sds_id )
 {
 	this->Sds		= DaTA->GetSds( );
@@ -122,6 +137,7 @@ void Application_class::Init_Sds( uint sds_id )
 
 	this->sds		= Sds->addr;
 }
+
 void Application_class::Start( int argc, char* argv[] )
 {
     std::set<int> logowner{ GUI_ID, COMPID, RTSPID };
@@ -192,7 +208,7 @@ void Application_class::deRegister( )
 	auto setState = [ this ](  )
 	{
 		cout << endl;
-		Info( "De-register " + DaTA->Cfg.type_map[ DaTA->TypeId ] );
+		Info( "De-register " + Type_map( DaTA->TypeId ) );
 		assert ( state_p != nullptr );
 		*state_p 	= OFFLINE;
 		if(( sds->UserInterface != OFFLINE ) and  ( DaTA->TypeId == SYNTHID ) )

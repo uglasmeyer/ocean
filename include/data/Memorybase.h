@@ -24,7 +24,7 @@ typedef struct shm_data_struct
 	bool		eexist	= false;	// becomes true if attached
 	buffer_t 	size	= 0;		// in bytes
 	key_t		key		= 0;		// shm key
-	int 		shmid		= -1;	// sjmid
+	int 		shmid	= -1;		// sjmid
 	void* 		addr	= nullptr;
 } shm_ds_t;
 
@@ -60,26 +60,23 @@ typedef struct mem_data_struct
 	uint 			sizeof_data 	= 0;
 	buffer_t 		data_blocks		= 0;
 	uint 			max_records		= 0;
-//	uint 			record_bytes 	= 0;
-//	uint 			record_counter	= 0;
 } mem_ds_t;
 
 
 class Memory_base : public virtual Logfacility_class
 {
-	string className = "Memory_base";
+	string className = "";
 public:
 	mem_ds_t	ds	= mem_data_struct();
 
 	void 	Info();
 	void* 	Init_void();
-	void 	Gen_ds( size_t ds_size);
+	void 	SetDs( size_t ds_size);
 
 	Memory_base( buffer_t size );
 	Memory_base() ;
 	virtual ~Memory_base();
 
 };
-
 
 #endif /* DATA_MEMORYBASE_H_ */

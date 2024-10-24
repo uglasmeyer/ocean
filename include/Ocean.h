@@ -73,32 +73,14 @@ const Data_t		max_data_amp		= 4096*4;
 const uint8_t 		oct_base_freq 		= 55;
 const uint			osc_default_volume	= 100; // %
 
-enum
-{
-	AUDIOID,
-	SYNTHID,
-	COMPID,
-	GUI_ID,
-	COMSTACKID,
-	RTSPID,
-	NOID,
-	APP_SIZE
-};
+// enumeration of applicatiom Id's
+// see Config_class::typeMap
+
 
 const float			LFO_limit			= 1.0;
 const uint8_t		LFO_count			= 100;
 
 
-template<typename T>
-auto show_items( T all_items )
-{
-	stringstream strs{""};
-    for (auto item : all_items )
-    {
-    	strs << item << " ";
-    }
-    return strs.str();
-}
 
 
 #endif /* OCEAN_H */

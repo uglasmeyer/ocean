@@ -20,13 +20,13 @@ using namespace std;
 
 #define MAYOR 2
 #define MINOR 3
-#define PATCH 2
+#define PATCH 3
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
 							to_string(PATCH);
 
-const string Version_str = " Version: " + Version_No;
+const string Version_str = "Version: " + Version_No;
 
 const string Application = "Ocean Sound ";
 
@@ -34,6 +34,7 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
+version 2.3.2 Multiple Synthesizer Recording
 version 2.3.2 Multiple Synthesizer sdsid mgnt.
 version 2.3.1 Multiple Synthesizer fixes
 version 2.3.0 Multiple Synthesizer

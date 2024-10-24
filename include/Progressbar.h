@@ -5,8 +5,8 @@
  *      Author: sirius
  */
 
-#ifndef RECORD_H_
-#define RECORD_H_
+#ifndef PROGRESSBAR_H_
+#define PROGRESSBAR_H_
 
 #include <data/Interface.h>
 #include <data/Memory.h>
@@ -33,4 +33,4 @@ public:
 	void Update( );
 };
 
-#endif /* RECORD_H_ */
+#endif /* PROGRESSBAR_H_ */

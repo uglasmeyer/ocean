@@ -27,19 +27,18 @@ public:
 	void	Reset( uint sid, uint tid );
 	void 	Show_proc_register( uint idx );
 	void 	Test_Register();
+	void 	Proc_deRegister();
 
-	Register_class( type_map_t* map ) ;
+	Register_class( ) ;
 	virtual ~Register_class();
 
 
 private:
-	std::set<int> 	dataProc	{ AUDIOID, SYNTHID, RTSPID };
+	std::set<int> 	dataProc	{ AUDIOID, SYNTHID };
 	uint 			Type_Id 	= NOID;
 	uint 			Sds_Id		= -1;
-	type_map_t*		type_map 	= nullptr;
 
 	void 	proc_Register();
-	void 	proc_deRegister();
 	int 	scan_proc_register(); // returns SDS_id
 	void 	show_proc_register();
 
