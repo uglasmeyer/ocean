@@ -188,7 +188,7 @@ string Config_class::baseDir()
 	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
 	{
 		basedir = Env + "/";
-		Comment( INFO, "using " + Envvar + basedir );
+		Comment( INFO, "using " + Envvar +" "+ basedir );
 		return basedir;
 	}
 	Comment( INFO, "not in " + Envvar );

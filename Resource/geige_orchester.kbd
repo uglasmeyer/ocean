@@ -3,11 +3,11 @@
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
 SPEC,      VCO,   sgnSin,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,      FMO,   sgnSin,    107,   1000,      6,  free,  free,  free,   0,   1,  80,   0,   0,      1,
+ OSC,      FMO,   sgnSin,    112,   1000,     15,  free,  free,  free,   0,   1,  80,   0,   0,      0,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 SPEC,      FMO,   sgnSin,100,  0, 72,  0,  0,  0,  0,  0,172
- OSC,     MAIN, Sawtooth,    220,   1000,     33,  free,  free,  free,  92,   1,  51,  18,   0,      1,
+ OSC,     MAIN, Sawtooth,    220,   1000,     69,  free,  free,  free,  92,   1,  51,  18,   0,      0,
 CONN,     MAIN,      FMO,      F,
 CONN,     MAIN,      VCO,      V,
 SPEC,     MAIN, Sawtooth,100,  0,  0,  0,  0,  0,  0,  0,100

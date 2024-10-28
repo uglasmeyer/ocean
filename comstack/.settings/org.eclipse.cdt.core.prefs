@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2077201910/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2077201910/ARCH/operation=append
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2077201910/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2077201910/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.debug.2077201910/appendContributed=true
+environment/project/cdt.managedbuild.config.gnu.exe.release.915210865/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.exe.release.915210865/ARCH/operation=append
+environment/project/cdt.managedbuild.config.gnu.exe.release.915210865/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.config.gnu.exe.release.915210865/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.release.915210865/appendContributed=true

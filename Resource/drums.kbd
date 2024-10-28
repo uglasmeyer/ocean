@@ -7,7 +7,7 @@ SPEC,      VCO,      PMW,100,  0,  0,  0,  0,  0,  0,  0,100
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 SPEC,      FMO,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,     MAIN,rectangle,    220,   1000,    100,  free,  free,  free,  91,   3,   0,   9,   0,     96,
+ OSC,     MAIN,rectangle,    220,   1000,     18,  free,  free,  free,  91,   4,   0,   9,   0,     96,
 CONN,     MAIN,      FMO,      F,
 CONN,     MAIN,      VCO,      V,
 SPEC,     MAIN,rectangle,100,  0,  0,  0,  0,  0,  0,  0,100

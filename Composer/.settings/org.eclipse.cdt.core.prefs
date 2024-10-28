@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129/ARCH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129/appendContributed=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989/ARCH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989/appendContributed=true

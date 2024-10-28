@@ -10,7 +10,7 @@
 
 #include <Logfacility.h>
 #include <Configbase.h>
-
+#include <System.h>
 
 
 class Config_class : virtual Logfacility_class
@@ -53,8 +53,8 @@ class DirStructure_class : virtual Logfacility_class
 {
 public:
 
-	string homedir 		= "/home/sirius/";
-	string basedir 		= homedir + "Synthesizer/";
+	string homedir 		= notnull( getenv("HOME") ) + "/";
+	string basedir 		= homedir + "OceanBase/";
 	string etcdir 		= basedir + "etc/";
 	string bindir  		= basedir + "bin/";
 	string libdir  		= basedir + "lib/";

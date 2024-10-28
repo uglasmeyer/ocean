@@ -1,11 +1,11 @@
 # basic commands
 #
-
+call	:const
 call 	:startserver
 
 
-MbIdExternal = 7
-MbIdNotes 	 = 6
+MbIdExternal 	= 7
+MbIdNotes 	= 6
 S0 = 0
 S1 = 1
 S2 = 2
@@ -18,9 +18,9 @@ call :clearstorage
 #call 	:drums
 #call	:volklore1
 #call	:test11
-#call	:testpiano
 #call 	:test10
 call	:syntax
+call	:testpiano
 
 #----------------------------------------
 #call 	:stopserver
@@ -46,10 +46,10 @@ return
 
 
 :testpiano
-osc main mute
+
 instrument load piano
 notes set "|1(FBD)'--- (CEG) ---|2 (ACE)---|1 (DF)-(AF)-" 8532
-notes play on 70
+notes play on 100
 pause key
 return
 

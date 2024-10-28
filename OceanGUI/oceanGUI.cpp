@@ -693,6 +693,7 @@ void MainWindow::start_synthesizer()
     system_execute( Start_Synthesizer.data() );
     Sem->Lock( SEMAPHORE_STARTED );
     Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1);
+    setwidgetvalues();
 }
 void MainWindow::read_polygon_data()
 {

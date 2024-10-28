@@ -1,0 +1,5 @@
+#See the documentation file Synthesizer.odt
+#about the specification of Prefix, Notes and Volume 
+P=2,0,4,0,0
+N=CA-->G.(BCD)--
+V=9
