@@ -108,20 +108,22 @@ void Interface_class::Show_interface()
 					"," + conv_bool_s(addr->mixer_status.mute) +
 					"," + conv_bool_s(addr->mixer_status.kbd) +
 					"," + conv_bool_s(addr->mixer_status.instrument );
-	string status2 {};
+
+	stringstream status2 {""};
 	uint arrno = 0;
 	for( StA_status_t status : addr->StA_state )
 	{
-		status2.append( to_string(arrno) + ":");
-		status2.append( to_string(status.play));
-		status2.append( to_string(status.store));
-		status2.append( ", ");
+		status2 << to_string(arrno) << ":" << to_string(status.play) << to_string(status.store) << "  ";
 		arrno++;
 	}
-	string status3 {};
-	for( uint8_t amp : addr->StA_amp_arr )
-		status3.append( to_string( amp) + ", " );
 
+	stringstream status3{""};
+	arrno = 0;
+	for( uint8_t amp : addr->StA_amp_arr )
+	{
+		status3 << to_string(arrno) << ":" << setw(4) << left << to_string( amp) ;
+		arrno++;
+	}
 
 	lline( "\nShared Data Str. ID", to_string((int) ds.Id ));
 	rline( Version_str 			, addr->version);
@@ -133,7 +135,7 @@ void Interface_class::Show_interface()
 	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.attack );
 
 	lline( "                   " , 0 );
-	rline( "(A)DSR (B)eats Id  " , (int)addr->Main_adsr.bps_id) ;
+	rline( "(A)DSR (B)eats Id  " , (int)addr->Main_adsr.bps) ;
 
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
 	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr.decay );
@@ -180,8 +182,8 @@ void Interface_class::Show_interface()
 	rline( "Noteline duration :" , (int) addr->Noteline_sec);
 
 	Lline( "Status Extr,Note,Play,Mute,Kbd,Inst:" , status1 );
-	rline( "StA Amp;", status3 );
-	rline( "Status StA #:ps,  :" , status2);
+	rline( "StA #:Amp         :" , status3.str() );
+	rline( "Status StA #:ps,  :" , status2.str() );
 
 
 }

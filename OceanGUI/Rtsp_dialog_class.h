@@ -2,6 +2,8 @@
 #define RTSP_DIALOG_CLASS_H
 
 #include <QDialog>
+#include <QtWidgets/QTableWidget>
+
 
 #include <data/DataWorld.h>
 #include <Ocean.h>
@@ -26,7 +28,9 @@ public:
     uint					SDS_ID = 0;
     Ui::Rtsp_Dialog_class*	ui;
 
-    void Update_widgets();
+	QTableWidgetItem	twItem {};
+	QTableWidgetItem*	twItem_p = new QTableWidgetItem();
+
     void proc_table_update_row( uint row);
     void proc_table_update_all( );
 
@@ -37,17 +41,10 @@ public:
 
 private slots:
 
-	void activate_S0();
-	void activate_S1();
-	void activate_S2();
-	void activate_S3();
 
 
 private:
-    QPalette red_color	{};
-    QPalette green_color{};
-    void activate_S( uint sdsid );
-
+	void proc_table( uint row, uint col, string text);
 };
 
 #endif // RTSP_DIALOG_CLASS_H

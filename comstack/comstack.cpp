@@ -143,7 +143,7 @@ int main( int argc, char* argv[] )
 			{
 			case 'g' : { sds->Soft_freq = getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
 			case 'd' : { sds->Main_adsr.attack  = getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
-			case 'b' : { sds->Main_adsr.bps_id  = getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
+			case 'b' : { sds->Main_adsr.bps  	= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
 			case 's' : { sds->Main_adsr.decay  = getvalue( "Sustain" ); sds->KEY = ADSR_KEY; break; }
 			case 'h' : { sds->Main_adsr.decay  = getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
 			default  : break ;

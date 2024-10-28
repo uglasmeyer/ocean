@@ -21,37 +21,57 @@
 #include <Mixer.h>
 #include <Progressbar.h>
 #include <System.h>
+#include <Print.h>
 
-string					Module 				= "Synthesizer";
-
-Logfacility_class		Log( Module );
-DirStructure_class		Dir;
-Dataworld_class			DaTA( SYNTHID );
-
-Wavedisplay_class 		Wavedisplay{ DaTA.Sds_p };
-Wavedisplay_class*		wd_p = &Wavedisplay;
-
-Application_class		App( &DaTA );
-
-interface_t*			sds = DaTA.GetSdsAddr();
-Dataworld_class*		DaTA_p = &DaTA;
-Mixer_class				Mixer{ DaTA_p, wd_p } ;// DaTA.Sds_master );
-Instrument_class 		Instrument{ sds, wd_p };
-Note_class 				Notes;
-Keyboard_class			Keyboard( 	&Instrument );
-External_class 			External( 	&Mixer.StA[ MbIdExternal],
-									DaTA.Cfg_p);
-ProgressBar_class		ProgressBar( &sds->RecCounter );
-Statistic_class 		Statistic{ Log.module };
-
-Semaphore_class*		Sem	= DaTA.Sem_p;
-Config_class*			Cfg = DaTA.Cfg_p;
-
-
-const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
-
-
+const string			Module 				= "Synthesizer";
 const int 				EXITTEST			= 15;;
 
 
+class Core_class :
+	virtual Logfacility_class
+{
+	string 				className = "";
+	Interface_class* 	Sds;
+	interface_t*		sds;
+	interface_t*		sds_master;
+	Instrument_class*	Instrument;
+	Note_class*			Notes;
+	Mixer_class*		Mixer;
+	Wavedisplay_class*	Wavedisplay;
+	Dataworld_class*	DaTA;
+	Semaphore_class*	Sem;
+	External_class*		External;
+	ProgressBar_class*	ProgressBar;
+
+public:
+
+	Core_class( Instrument_class* 	instrument,
+				Note_class*			notes,
+				Mixer_class*		mixer,
+				Wavedisplay_class*	wavedisplay,
+				Dataworld_class*	data,
+				External_class*		external,
+				ProgressBar_class*	progressbar) : Logfacility_class("Core_class")
+	{
+		className = Logfacility_class::module;
+		this->DaTA			= data;
+		this->Sds			= DaTA->Sds_p;
+		this->sds_master	= DaTA->Sds_master;
+		this->sds 			= Sds->addr;
+		this->Sem			= DaTA->Sem_p;
+		this->Instrument 	= instrument;
+		this->Notes			= notes;
+		this->Mixer			= mixer;
+		this->Wavedisplay	= wavedisplay;
+		this->External		= external;
+		this->ProgressBar	= progressbar;
+	};
+	virtual ~Core_class()
+	{};
+
+	void processKey( char);
+
+private:
+
+};
 #endif /* SYNTHESIZER_H_ */

@@ -35,7 +35,8 @@ void Qread_filelist( QComboBox* CB, const string& path, const string type )
 Ui::File_Dialog	UI_FileDialog_obj{};
 
 File_Dialog_class::File_Dialog_class( 	QWidget *parent,
-										Interface_class* sds) ://, QSlider* sl_main_hz ) :
+										Interface_class* sds,
+										Semaphore_class* sem) ://, QSlider* sl_main_hz ) :
     Logfacility_class("FileDialog"),
     Note_class( ),
 	QDialog(parent)
@@ -46,6 +47,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 //	Sl_Main_Hz				= sl_main_hz;
 	this->sds 	= sds;
 	this->addr 	= sds->addr;
+	this->sem	= sem;
 	ui 			= &UI_FileDialog_obj;
 
     ui->setupUi(this);
@@ -63,9 +65,9 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     	QString Qstr = QString::fromStdString( str );
     	ui->cb_convention->addItem( Qstr );
     }
-    for( int nps : NPS_vec )
+    for( char nps : NpsChars.Str )
     {
-    	QString QStr = QString::number( nps );
+    	QString QStr = QString( nps ) ;
     	ui->cb_nps->addItem( QStr );
     }
 
@@ -110,7 +112,9 @@ void File_Dialog_class::cB_Convention( int cb_value )
 
 void File_Dialog_class::cB_NotesPerSec(int nps_id )
 {
-	addr->noteline_prefix.nps = NPS_vec[ nps_id ];
+	int nps = ui->cb_nps->currentText().toInt();
+	cout << nps << endl;
+	addr->noteline_prefix.nps = nps;
 	addr->KEY = UPDATE_NLP_KEY;
 }
 
@@ -126,6 +130,7 @@ void File_Dialog_class::Setup_widgets()
     string Notes_name =addr->Notes;
     QStr = QString::fromStdString( Notes_name );
     ui->lE_NotesFile->setText( QStr );
+    ui->cb_notefilenames->setCurrentText(QStr);
 
     Note_class::Read( Notes_name );
     string Notesline =  Note_class::Get_note_line();
@@ -244,6 +249,8 @@ void File_Dialog_class::New_Notes()
 
 void File_Dialog_class::pb_PlayNotes_OnOff()
 {
+	sem->Release( SEMAPHORE_NOTES );
+/*
     SWITCHON = not SWITCHON;
     if ( SWITCHON )
     {
@@ -256,6 +263,7 @@ void File_Dialog_class::pb_PlayNotes_OnOff()
         addr->KEY = NOTESONKEY;
 
     }
+    */
 }
 
 void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)

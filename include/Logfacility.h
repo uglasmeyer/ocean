@@ -18,6 +18,7 @@
 
 using namespace std;
 
+
 #define SETW setw(20)
 
 enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
@@ -28,32 +29,57 @@ public:
 	string 				module 		= "";
 	static const int 	logmax 		= 6;
 	const size_t 		logsize		= logmax + 1;
+	const string 		Line = "-----------------------------------------------------------";
 	vector<bool> Log { true, false, true, true, false, true, false };
 	string 				logdir 		{ "/tmp/log/"};
 	string 				logfileName	{ "Synthesizer" };
 	string 				logFile		{ logdir + logfileName + ".log" };
 	string 				errFile		{ logdir + logfileName + ".err" };
-
-	const string Line = "-----------------------------------------------------------";
-
+//	fstream				File;
 
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  );
 
 	// make all true to enable debugging of initialization phase
-	void Comment( const int& level, const string& text );
-	void Info( string text );
-	void Set_Loglevel( int, bool );
+
+	void Comment( const int& level, const string& logcomment );
+	void Set_Loglevel( int level, bool on );
 	void Show_loglevel();
 	string Error_text( uint );
+	void Info( string str );
 	void Init_log_file();
 	void Test_Logging();
 	void TEST_START(const string& name);
 	void TEST_END(const string& name);
 
+	template<class T, class... Targs>
+	void Info2( size_t count, T logcomment, Targs... Fargs) // recursive variadic function
+	{
+	    size_t argc = sizeof...( Fargs );
+		if ( (count-1) == (argc)  )
+		{
+
+			string format = module + ":" +  Prefix[INFO] ;
+//			File.flush() <<  SETW << format  << logcomment << " ";
+			cout << Color[INFO] <<  SETW << format << logcomment << " ";
+		}
+		else
+		{
+			if ( argc == 0 )
+			{
+				cout << logcomment << endc << endl;
+//				File.flush() << logcomment << endl;
+				return;
+			}
+			cout << logcomment << " ";
+//			File.flush() << logcomment << " " ;
+		}
+		Info2( count, Fargs... );
+	}
 
 
 private:
+	void Info2( size_t& ){}; // redirect
 
 	typedef struct pair_struct
 	{

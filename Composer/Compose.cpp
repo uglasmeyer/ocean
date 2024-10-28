@@ -22,13 +22,7 @@ int call_pos( int pos, vector_str_t arr )
 
 bool check_input( string keyword )
 {
-	for ( string word : Keywords )
-	{
-		if ( word.compare(keyword) == 0)
-		{
-			return true;
-		}
-	}
+	if( Keywords.contains( keyword ) ) return true;
 	return false;
 }
 

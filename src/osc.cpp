@@ -417,14 +417,14 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 
 		};
 
-	if ( adsr.bps_id == 0 ) 		return;
+	if ( adsr.bps == 0 ) 		return;
 	if ( not main_id( osc_id ) ) 	return;
 
 
-//	adsr.bps_id				= adsr.bps_id % bps_struct().Bps_str_vec.size();
 	int 		duration = 1; // each note has a single attack/decay
 	if ( osc_id == MAINID )
-		duration 	= bps_struct().getbps( adsr.bps_id );
+		//		duration 	= bps_struct().getbps( adsr.bps );
+				duration 	= adsr.bps;
 	buffer_t 	aframes		= 0;
 	float 		da			= 0;
 
@@ -538,11 +538,6 @@ void Oscillator::Test()
 	adsr.decay = 5;
 	assert( decay_shift == frames_per_sec );
 
-
-	cout << "unordered map: ok " << (int) bps_struct().getbps_id("8") << endl;
-	cout << "unordered map:NIL " << (int) bps_struct().getbps_id("20")<< endl;
-	assert( bps_struct().getbps_id("8")  == 5 );
-	assert( bps_struct().getbps_id("20") == 0 );
 
 	Comment( TEST, "Osc test finished");
 }

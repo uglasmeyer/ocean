@@ -20,7 +20,7 @@ using namespace std;
 
 #define MAYOR 2
 #define MINOR 3
-#define PATCH 3
+#define PATCH 4
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -34,7 +34,8 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
-version 2.3.2 Multiple Synthesizer Recording
+version 2.3.4 refractoring nps, bps, synthesizer.h
+version 2.3.3 Multiple Synthesizer Recording
 version 2.3.2 Multiple Synthesizer sdsid mgnt.
 version 2.3.1 Multiple Synthesizer fixes
 version 2.3.0 Multiple Synthesizer

@@ -36,10 +36,13 @@ public:
     const QString   NotesOFF		= "Play Notes";
     bool            SWITCHON 		= false;
     Interface_class* sds			= nullptr;
+    Semaphore_class* sem			= nullptr;
     interface_t*	addr			= nullptr;
     int8_t			SDS_ID			= 0;
+
     explicit File_Dialog_class(	QWidget *parent = nullptr,
-    							Interface_class* sds = nullptr );//, QSlider* = nullptr );
+    							Interface_class* sds = nullptr,
+								Semaphore_class* sem = nullptr);//, QSlider* = nullptr );
     ~File_Dialog_class();
     void Setup_widgets();
     void New_Notes();

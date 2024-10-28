@@ -17,11 +17,11 @@ Note_base::~Note_base()
 
 float Note_base::Calc_frequency( const uint8_t& key )
 {
-	if ( key > root2.vec.size()-1 )
+	size_t limit = root2.vec.size()-1;
+	if ( key > limit )
 	{
-		cout.flush() << "limit: " << (int)root2.vec.size()-1 << endl;
-		cout.flush() << "key  : " << (int)key << endl;
-		Exception( "Octave key exceeds limit " );
+		Comment( WARN, "Octave key " + to_string( key ) + " adjusted to limit " + to_string( limit ) );
+		return root2.vec[ limit ] * oct_base_freq;
 	}
 	return root2.vec[ key ] * oct_base_freq;
 }
@@ -65,35 +65,48 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 	String S = str;
 	noteline_prefix_t nlp;
 	vector_str_t arr = S.to_unique_array(',');
-//	show_vector( arr );
+
 	if ( arr.size() < 5 )
 	{
 		if ( Log[ TEST ] ) return noteline_prefix_default;
 		Exception( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
 	}
 
-	nlp.Octave = S.secure_stoi( arr[0] );
-	if ( ( nlp.Octave < min_octave ) or ( nlp.Octave > max_octave ) )
-		range_error( nlp.Octave, {min_octave, max_octave } );
+	char oct_ch = arr[0][0];
+	if ( OctaveChars.Set.contains( oct_ch ) )
+		nlp.Octave = char2int( oct_ch );
+	else
+		range_error( char2int( oct_ch ), { min_octave, max_octave } );
 
-	nlp.convention = S.secure_stoi(arr[1]);
-	if ( ( nlp.convention < 0 ) or ( nlp.convention >= convention_names.size() ))
+	nlp.convention = char2int(arr[1][0] );
+	if ( not conventionId_set.contains( nlp.convention ))
 		range_error( nlp.convention, {0, convention_names.size() } );
 
-	nlp.nps = S.secure_stoi( arr[2]);
-	if ( not NPS_set.contains( nlp.nps) )
+
+	char nps_ch = arr[2][0];
+	if ( not NpsChars.Set.contains( nps_ch ) )
 	{
 		if ( Log[ TEST ] ) return noteline_prefix_default;
 		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
 	}
+	else
+		nlp.nps = char2int( nps_ch );
 
-	nlp.flat = S.secure_stoi(arr[3]);
-	if ( ( nlp.flat < 0 ) or ( nlp.flat > 7 ))
-		range_error( nlp.flat, {0, 7} );
 
-	nlp.sharp = S.secure_stoi(arr[4]);
-	if ( ( nlp.sharp < 0 ) or ( nlp.sharp > 7 ))
-		range_error( nlp.sharp, {0, 7} );
+	set<int> pref_set = range_set( 0, 7 );
+
+	int
+	val = char2int( arr[3][0] );
+	if ( pref_set.contains( val ) )
+		nlp.flat = val;
+	else
+		range_error( val, {0, 7} );
+
+	val = char2int( arr[4][0] );
+	if ( pref_set.contains( val ) )
+		nlp.sharp = val;
+	else
+		range_error( val, {0, 7} );
 
 	return nlp;
 

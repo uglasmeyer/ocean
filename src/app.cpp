@@ -21,7 +21,6 @@
 
 
 
-
 void SynthesizerTestCases()
 {
 	Shm_base Shm_test{0};
@@ -47,7 +46,8 @@ void SynthesizerTestCases()
 	Statistic_class 		Statistic{ Log.module };
 
 	Semaphore_class*		Sem	= DaTA.Sem_p;
-	Loop_class 				Loop;
+	uint8_t ch;
+	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
 	Oscillator 				TestOsc{ TESTID };
 	TestOsc.Set_Loglevel( TEST, true );
@@ -106,16 +106,14 @@ void SynthesizerTestCases()
 	DaTA.Reg.Test_Register();
 }
 
-
 Application_class::Application_class( 	Dataworld_class* DaTA ) :
 Logfacility_class( "App" )
 {
 	this->Name 					= Logfacility_class::module ;
 	this->DaTA					= DaTA;
 
-
 	this->This_Application 		= Application + Name + " " + Version_str;
-	Info( This_Application + " initialized ");
+	Comment( INFO, This_Application + " initialized ");
 
 }
 
@@ -145,15 +143,14 @@ void Application_class::Start( int argc, char* argv[] )
 	{
 		Init_log_file();
 	}
-	Info( Line );
-	Info( "Entering application init for ");
-	Info( This_Application );
-	Info( Line );
+	Info2( 1, Line );
+	Info2( 2, "Entering application init for ", This_Application );
+	Info2( 1, Line );
 
 	redirect_stderr = (bool) std::freopen( errFile.data(), "w", stderr);
 	if ( redirect_stderr )
 	{
-		Info( "Redirecting stderr");
+		Info2(1, "Redirecting stderr");
 		fprintf( stderr, "%s\n", "error file content:\n");
 	}
 	this->Cfg					= DaTA->Cfg_p;
@@ -187,7 +184,7 @@ void Application_class::deRegister( )
 {
 	auto closeStderr = [ this ]( string errFile )
 	{
-		Info( "Closing stderr");
+		Info2(1, "Closing stderr");
 
 		if ( redirect_stderr )
 			std::fclose(stderr);
@@ -208,7 +205,7 @@ void Application_class::deRegister( )
 	auto setState = [ this ](  )
 	{
 		cout << endl;
-		Info( "De-register " + Type_map( DaTA->TypeId ) );
+		Info2(2, "De-register " ,Type_map( DaTA->TypeId ) );
 		assert ( state_p != nullptr );
 		*state_p 	= OFFLINE;
 		if(( sds->UserInterface != OFFLINE ) and  ( DaTA->TypeId == SYNTHID ) )
@@ -241,7 +238,7 @@ void Application_class::Shutdown_instance( )
 	}
 	else
 	{
-		Info( "No other " + Name + " is running"	);
+		Info2( 3, "No other " , Name , " is running"	);
 	}
 	Server_init = false;
 }

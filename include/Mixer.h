@@ -21,19 +21,27 @@ using namespace std;
 
 
 
-class Loop_class
+class Loop_class :
+	Logfacility_class
 {
+	string className = "";
 public:
 	uint16_t beg=0, end=0, counter=0, counts=0, max_counts=0;
-	int8_t step = 0;
-	bool active = false;
+	int8_t 		step 	= 0;
+	uint8_t* 	ptr8 	= nullptr;
+	bool 		active 	= false;
 
-	Loop_class(){};
+	Loop_class( uint8_t* ptr ) :
+		Logfacility_class( "Loop_class")
+	{
+		this->ptr8 = ptr;
+		this->className = Logfacility_class::module;
+	};
 	~Loop_class(){};
 
 	void Start( uint16_t beg, uint16_t end, uint8_t step );
-	void Next( uint16_t& );
-	void Next( uint8_t&  );
+	void Next_freq( );
+	void Next_amp ( );
 	void Test();
 
 };
@@ -69,8 +77,7 @@ public:
 	Memory 				Out_L	{ monobuffer_size };// Output buffer long
 	Memory				Out_R	{ monobuffer_size };//
 
-	Loop_class 			master_amp_loop;
-	Loop_class			record_amp_loop;
+	vector<Loop_class>	amp_loop_vec {};
 
 	interface_t* 		sds				= nullptr;
 	uint				sdsid			= 0;
@@ -82,7 +89,7 @@ public:
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
 	void Update_ifd_status_flags( interface_t* sds );
-	void Volume_control( interface_t* sds );
+	void Volume_control( );
 	void Set_mixer_state( const uint& id, const bool& play );
 
 	void Test();

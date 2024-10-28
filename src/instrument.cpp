@@ -186,7 +186,7 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 	String 				Str{""};
 
 	main.adsr.decay 	= Str.secure_stoi( arr[9 ]);
-	main.adsr.bps_id	= Str.secure_stoi( arr[10] );
+	main.adsr.bps		= Str.secure_stoi( arr[10] );
 	main.adsr.attack	= Str.secure_stoi( arr[11] );
 	main.adsr.hall		= Str.secure_stoi( arr[12] );
 	return true;
@@ -340,7 +340,7 @@ void Instrument_class::Save_Instrument( string str )
 				<< setw(7)  <<		 "free,"
 				<< setw(7)  <<		 "free,"
 				<< setw(4) 	<< (int) osc->adsr.decay 	<< ","
-				<< setw(4) 	<< (int) osc->adsr.bps_id 	<< ","
+				<< setw(4) 	<< (int) osc->adsr.bps 	<< ","
 				<< setw(4) 	<< (int) osc->adsr.attack 		<< ","
 				<< setw(4)  << (int) osc->adsr.hall 			<< ","
 				<< setw(4) 	<< (int) osc->wp.glide_effect 		<< ","

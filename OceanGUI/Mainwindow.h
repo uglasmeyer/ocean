@@ -48,7 +48,7 @@ public:
     Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA};
     Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
 
-    File_Dialog_class		File_Dialog_obj		{ this, DaTA->Sds_p };
+    File_Dialog_class		File_Dialog_obj		{ this, DaTA->Sds_p, DaTA->Sem_p };
     File_Dialog_class*		File_Dialog_p		= &File_Dialog_obj;
 
     Spectrum_Dialog_class  	Spectrum_Dialog_Obj { this, DaTA->Sds_p };
@@ -60,7 +60,7 @@ public:
     vector<QString> 		Qwavedisplay_type_str_vec
 												{};
     vector<QString> 		QWaveform_vec		{};
-    QStringList				Qbps_str_list		{};
+    QStringList				Qbps_str_lst		{};
     vector<QRadioButton*> 	rb_sta_vec			{};
     vector<QCheckBox*>		cb_sta_vec			{};
     vector<QSlider*>		sl_sta_vec			{};
@@ -69,7 +69,8 @@ public:
 
     void setwidgetvalues();
     void Updatewidgets();
-    void SetSds(  );
+    void select_Sds( uint sdsid );
+
     explicit MainWindow(	QWidget*			parent 	= nullptr);
     ~MainWindow();
     //
@@ -145,6 +146,11 @@ private slots:
     void toggle_store_sta6();
     void toggle_store_sta7();
 
+    void select_S0();
+    void select_S1();
+    void select_S2();
+    void select_S3();
+
     void File_Director();
     void Spectrum_Dialog();
 
@@ -155,7 +161,6 @@ private slots:
 
     void main_adsr_sustain();
 
-    void melody_connect();
     void pB_Debug_clicked();
     void wavfile_selected( const QString &arg);
 
@@ -167,8 +172,6 @@ private:
     QTimer*				osc_timer			= &osc_timer_obj;
     QTimer				status_timer_obj{};
     QTimer*				status_timer		= &status_timer_obj;
-    QTimer				record_timer_obj{};
-    QTimer*				record_timer		= &record_timer_obj;
     QGraphicsScene  	Scene { this };
     QGraphicsScene*     scene 	= &Scene;
     OszilloscopeWidget* OscW_item	= nullptr;

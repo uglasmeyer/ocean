@@ -57,7 +57,9 @@ void Register_class::Clear_procregister()
 
 auto regComment = []( Register_class* C, string pref, string tstr, uint s, uint idx )
 {
-	C->Info( pref + "Register " + tstr + " " + to_string( s ) + " idx " + to_string( idx ));
+	stringstream strs {""};
+	strs << pref << "Register " << tstr<< s<< " idx "<< idx ;
+	C->Comment( INFO, strs.str() );
 ;
 };
 void Register_class::proc_Register()

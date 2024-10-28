@@ -20,16 +20,53 @@
 typedef vector<string>	vector_str_t;
 const size_t STRINGNOTFOUND = string::npos;
 
-extern bool strEqual( const string& , const string&  );
-extern string notnull( char* cstr );
-template< class C >
-extern set< C > vector2set( vector< C > v );
-template< class C >
-extern vector< C > set2vector( set< C > s );
-template< class C >
-extern string show_items( C all_items );
-template<typename T>
-string show_type( T all_items )
+extern int 		char2int( const char& ch );
+extern char 	int2char( const int& i );
+extern set<int> range_set( int min, int max );
+extern bool 	strEqual( const string& , const string&  );
+extern string 	notnull( char* cstr );
+
+template< typename C > vector<C> set2vector( set<C> s )
+{
+	vector<C> v {};
+	for( auto i : s )
+	{
+		v.push_back( i );
+	}
+	return v;
+}
+
+template< class C > set< C > vector2set( vector< C > v )
+{
+	set< C > s {};
+	for( C i : v )
+	{
+		s.insert( i );
+	}
+	return s;
+}
+
+template< class C > list< C > vector2list( vector< C > v )
+{
+	list< C > l {};
+	for( C i : v )
+	{
+		l.insert( i );
+	}
+	return l;
+}
+
+template<class C> string show_items( C all_items )
+{
+	stringstream strs{ "" };
+    for ( auto item : all_items )
+    {
+    	strs << item << " ";
+    }
+    return strs.str();
+}
+
+template<typename T> string show_type( T all_items )
 {
 	stringstream strs{ "" };
     for ( auto item : all_items )
@@ -44,18 +81,21 @@ class String : virtual public Logfacility_class
 {
 public:
 	string 			Str{""};
-	vector_str_t 	arr{""};
+	vector<string> 	vec{""};
+	set<char>		Set{};
 
 	String( const string& str ) : Logfacility_class("String")
 	{
 		this->Str = str;
+        this->Set = to_set( );
+
 	}
 	~String(){};
-
 
 	void operator=(const string& str)
     {
         this->Str=str;
+        this->Set = to_set( );
     }
 
     friend bool operator==(const String& A, const String& B )
@@ -63,6 +103,7 @@ public:
     	return ( A.Str.compare( B.Str ) == 0 );
 	}
 
+    set<char>		to_set();
 	vector_str_t 	to_array( char );
 	vector_str_t 	to_unique_array( char );
 	vector_str_t 	to_bracket_array( char );
@@ -86,25 +127,25 @@ public:
 class Value
 {
 public:
-	int 	i;
+	int 	val;
 	char 	ch;
 	string 	str;
 	string	boolstr;
 	Value( const int& val )
 	{
-        this->i		= (int) val;
+        this->val		= (int) val;
         this->ch 	= (char) val;
         this->str	= to_string( val );
-        this->boolstr		= ( i == 0 ) ? "OFF" : "ON";
+        this->boolstr		= ( val == 0 ) ? "OFF" : "ON";
 	};
 	~Value(){};
 
     void operator=(const int& val )
     {
-        this->i		= (int) val;
+        this->val		= (int) val;
         this->ch 	= (char) val;
         this->str	= to_string( val );
-        this->boolstr		= ( i == 0 ) ? "OFF" : "ON";
+        this->boolstr		= ( val == 0 ) ? "OFF" : "ON";
     }
 
 

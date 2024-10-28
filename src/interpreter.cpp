@@ -288,7 +288,10 @@ void Interpreter_class::Notes( vector_str_t arr )
 	}
 	if ( cmpkeyword( "set") )
 	{
+		noteline_prefix_t nl = Variation.Noteline_prefix;
 		Variation.Read("tmp");
+		Variation.Noteline_prefix = nl;
+
 		string Noteline = Variation.Get_note_line();
 
 		Comment(INFO, "set notes.");
@@ -300,6 +303,9 @@ void Interpreter_class::Notes( vector_str_t arr )
 			expect 		= {"#flats", "#sharps" };
 			uint flats 	= pop_int(0,7);
 			uint sharps = pop_int(0,7);
+			Processor_class::Push_ifd( &ifd->noteline_prefix.flat ,flats, "update flats" );
+			Processor_class::Push_ifd( &ifd->noteline_prefix.sharp ,sharps, "update sharps" );
+			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
 			Variation.Set_note_chars( flats, sharps );
 			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 			return;
@@ -309,6 +315,9 @@ void Interpreter_class::Notes( vector_str_t arr )
 			expect = { "octave value" };
 			uint oct = pop_int( Variation.min_octave, Variation.max_octave ) ;
 			Variation.Set_prefix_octave( oct );
+			Processor_class::Push_ifd( &ifd->noteline_prefix.Octave ,oct, "update octave" );
+			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
+
 			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 			return;
 		}
@@ -321,13 +330,14 @@ void Interpreter_class::Notes( vector_str_t arr )
 		else
 		{
 			Noteline = keyword.Str;
-			Variation.Set_note_chars( 0 );
+			if ( Variation.Noteline_prefix.convention == 0 )
+				Variation.Set_note_chars( 0 );
+
 		}
 		cout << Noteline << endl;
 		expect = {"rhythm line" };
 		string Rhythmline = pop_stack(1);
 		Variation.Set_rhythm_line( Rhythmline );
-
 		Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 
 		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, "tmp" );
@@ -365,10 +375,10 @@ void Interpreter_class::Notes( vector_str_t arr )
 	if ( cmpkeyword( "per_second" ) )
 	{
 		expect = {"notes per second [ " + Variation.NPS_string +  " ]"};
-		Value nps = pop_int(1,16);
-		if ( Variation.Set_notes_per_second( nps.i ) )
+		Value nps = pop_int(1,8);
+		if ( Variation.Set_notes_per_second( nps.val ) )
 		{
-			Processor_class::Push_ifd( &ifd->noteline_prefix.nps, nps.i, "notes per second"  );
+			Processor_class::Push_ifd( &ifd->noteline_prefix.nps, nps.val, "notes per second"  );
 			Processor_class::Push_key( SETNOTESPERSEC_KEY, "set per_second" );
 		}
 		else
@@ -506,7 +516,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 
 	if ( cmpkeyword( "wf") )
 	{
-		expect = Spectrum.Get_waveform_vec();
+		expect = vector2set( Spectrum.Get_waveform_vec() );
 		string waveform = pop_stack( 1);
 
 		int wfid = Spectrum.Get_waveform_id( waveform );
@@ -614,11 +624,23 @@ void Interpreter_class::Play( vector_str_t arr )
 
 void Interpreter_class::RecStA( vector_str_t arr )
 {
-	expect = { "store", "amp", "stop", "play", "mute" , "clear"};
+	expect = { "store", "amp", "stop", "play", "mute" , "clear", "loop"};
 	intro( arr, 3 );
 	uint max_id = MbSize -1;
 
+	if ( cmpkeyword( "loop" ))
+	{
+		int id = pop_int( 0, max_id );
+		int end = pop_int(0, 100 );
+		int step = pop_int(0, 100 );
 
+		Processor_class::Push_ifd( &ifd->MIX_Id , id, "mixer id" );
+		Processor_class::Push_ifd( &ifd->LOOP_end , end, "loop end " );
+		Processor_class::Push_ifd( &ifd->LOOP_step , step, "loop step " );
+		Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
+
+		return;
+	}
 	if ( cmpkeyword( "amp") )
 	{
 		int id 	= pop_int(0, max_id);
@@ -729,15 +751,16 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( cmpkeyword( "beat") )
 	{
 		Comment( INFO, "beat duration is set to: " + stack[0] );
-		expect 		= { "0 1 2 4 5 8" };
-		string Bps = pop_stack(1 );
-		int bps_id = bps_struct().getbps_id( Bps );
-		if ( bps_id < 0 )
+		expect 		= bps_struct().Bps_str_set;
+		string 	Bps = pop_stack(1 );
+		int 	bps	= char2int( Bps[0]);
+		if ( not bps_struct().Bps_set.contains( bps ) )
 		{
+			Wrong_keyword( expect , Bps );
 			Exception( "wrong beat duration" );
-			//raise( SIGINT );
 		}
-		Processor_class::Push_ifd( &ifd->Main_adsr.bps_id, bps_id, "beat duration" );
+
+		Processor_class::Push_ifd( &ifd->Main_adsr.bps, bps, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
 		return;
 	}
@@ -809,20 +832,10 @@ void Interpreter_class::Pause( vector_str_t arr )
 void Interpreter_class::Addvariable( vector_str_t arr )
 {
 	auto key =  [] ( vector_str_t a )
-			{ return ( a.size() > 0 ) ? a[0] : ""; };
-	auto var_is_keyword = [  ]( string name, vector_str_t keywords )
-			{
-				for ( String Word : keywords )
-				{
-					Word.to_lower();
-					if ( strEqual( Word.Str, name) )
-					{
-						cout << "ERROR: " << name << " is a keyword" << endl;
-						return true;
-					}
-				}
-				return false;
-			};
+		{
+			return ( a.size() > 0 ) ? a[0] : "";
+		};
+
 	auto is_notesfile = [](string str )
 		{
 			string filename = file_structure().Dir.notesdir + str + ".kbd";
@@ -842,9 +855,10 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	expect = {"expected <var name> = <var int value>"};
 	string varname 	= key(arr); // first string needed
 
-	if ( var_is_keyword ( varname, Keywords ) )
+	if ( Keywords.contains( varname ) )
 	{
-		if ( not testrun) Exception( "var " + varname + " is keyword" );//raise( SIGINT);
+		if ( not testrun)
+			Exception( "var " + varname + " is keyword" );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -857,13 +871,12 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 		return;
 	}
 	string varvalue 	= pop_stack( 1) ;
-	if ( var_is_keyword ( varvalue, Keywords ) )
+	if ( Keywords.contains( varvalue ) )
 	{
-		if ( not testrun) Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
+		if ( not testrun)
+			Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
 		testreturn = true;
 	};
-
-
 
 	if (( arr.size() > 0 ) and ( is_notesfile( varvalue) ))
 	{
@@ -875,6 +888,14 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 			string name = pop_stack( 1 );
 			if ( is_notesfile( name ))
 				add_notesfile( varname, varvalue, name );
+			else
+			{
+				Comment(INFO, "expected note file name, Ignoring option: add file");
+			}
+		}
+		else
+		{
+			Comment(INFO, "expected +, Ignoring option: add file");
 		}
 	}
 	else
@@ -968,7 +989,7 @@ bool Interpreter_class::check_count( vector_str_t arr, size_t min_size )
 	}
 	return true;
 }
-void Interpreter_class::Wrong_keyword( vector<string> expected , string given )
+void Interpreter_class::Wrong_keyword( set<string> expected , string given )
 {
 	error = 1;
 	Comment( WARN, "unhandled keyword: " + given );
@@ -1054,8 +1075,8 @@ void Interpreter_class::show_expected(  )
 {
 	if ( expect.size() > 0 )
 	{
-		cout << cmdline << " missing: [" + expect[0];
-		expect.erase(expect.begin());
+		cout << cmdline << " missing: [" + *expect.begin();
+		expect.erase( expect.begin() ); // @suppress("Invalid arguments")
 		for( string word : expect )
 		{
 			string print = word;

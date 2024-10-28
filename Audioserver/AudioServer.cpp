@@ -88,7 +88,7 @@ void record_thead_fcn()
 		Fileno = (int) DaTA.Sds_master->FileNo;
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
-		External.Save_record_data( rcounter, Fileno.i );
+		External.Save_record_data( rcounter, Fileno.val );
 		Log.Comment( INFO, "recording done");
 		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
 		SaveRecordFlag = false;

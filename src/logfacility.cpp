@@ -8,16 +8,21 @@
 #include <Logfacility.h>
 
 
+
 using namespace std;
 
 Logfacility_class::Logfacility_class( string module )
 {
 	this->module = module ;
+//	this->File.open( logFile, fstream::app );
 	setup();
 };
+
 Logfacility_class::~Logfacility_class(  )
-	{	//cout.flush();
-	};
+{
+//	this->File.close();
+};
+
 void Logfacility_class::setup()
 {
 	error_vector.clear();
@@ -99,16 +104,19 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 	Log[ level ] = on;
 }
 
+
 void Logfacility_class::Comment( const int& level, const string& logcomment )
 {
 	if (level < logmax + 1 )
 	{
 		if ( Log[ level ] )
 		{
+//			Print( level, logcomment );
 			string comment_str = module + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
 			fstream LOGFILE( logFile, fstream::app);
 			LOGFILE.flush() << setw(20) << comment_str << logcomment << endl;
+
 		}
 	}
 }
@@ -118,6 +126,7 @@ void Logfacility_class::Info( string text )
 {
 	Comment( INFO, text );
 }
+
 
 void Logfacility_class::TEST_START( const string& name)
 {

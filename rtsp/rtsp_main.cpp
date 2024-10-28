@@ -9,6 +9,8 @@
 
 
 #include <Time.h>
+#include <Print.h>
+Print_class print("RTSP");
 
 Time_class Timer{};
 

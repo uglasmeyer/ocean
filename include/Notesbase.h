@@ -18,24 +18,30 @@
  * https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
  */
 
+enum conventionId_t { ENGLISH, NUMERIC, ALPHABET };
 
 class Note_base : virtual public Logfacility_class
 {
 public:
 
-	const uint				max_octave		{ 5 };
-	const uint 				min_octave 		{ 0 };
-	const set<int> 			NPS_set			{ 1,2,4,5,8 };
-	const vector<int>		NPS_vec			{ 1,2,4,5,8 };
+	const String 			OctaveChars 	{ "012345" };
+	const uint				max_octave		= (uint) OctaveChars.Str.length()-1;
+	const uint 				min_octave 		= 0;
+
+	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
-	const vector<int> 		flat_pitch 		{2,7,0,5,10,3,8 };
-	const vector<int> 		sharp_pitch		{8,3,10,5,0,7,2 };
+	const vector<int> 		flat_pitch 		{ 2,7,0,5,10,3,8 };
+	const vector<int> 		sharp_pitch		{ 8,3,10,5,0,7,2 };
+
 	const vector_str_t 		convention_notes{ 	"AaBCcDdEFfGg",
 												"0123456789AB",
-												"ABCDEFG" };
+												"A%BC%D%EF%G%"};
 	const vector_str_t 		convention_names{ 	"English",
 												"Numeric",
 												"Alphabet" };
+	set<int> 				conventionId_set { 	ENGLISH,
+												NUMERIC,
+												ALPHABET };
 
 	// describes the default of a noteline
 

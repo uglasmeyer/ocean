@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>493</width>
+    <width>356</width>
     <height>227</height>
    </rect>
   </property>
@@ -16,78 +16,10 @@
   <property name="styleSheet">
    <string notr="true">background-color: rgb(153, 193, 241);</string>
   </property>
-  <widget class="QFrame" name="frame">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>9</y>
-     <width>121</width>
-     <height>191</height>
-    </rect>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <widget class="QRadioButton" name="rb_activate_S1">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>activate S1</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="rb_activate_S0">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>activate S0</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="rb_activate_S2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>120</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>activate S2</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="rb_activate_S3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>150</y>
-      <width>111</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>activate S3</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QTableWidget" name="process_table">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>10</x>
      <y>9</y>
      <width>331</width>
      <height>192</height>
@@ -99,11 +31,31 @@
    <property name="columnCount">
     <number>3</number>
    </property>
-   <row/>
-   <row/>
-   <row/>
-   <row/>
-   <row/>
+   <row>
+    <property name="text">
+     <string>A</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>S0</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>S1</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>S2</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>S3</string>
+    </property>
+   </row>
    <column>
     <property name="text">
      <string>Process</string>

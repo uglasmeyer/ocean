@@ -8,27 +8,8 @@
 #include <String.h>
 #include <System.h>
 
-template< class C >
-set< C > vector2set( vector< C > v )
-{
-	set< C > s {};
-	for( C i : v )
-	{
-		s.insert( i );
-	}
-	return s;
-}
 
-template< class C >
-vector< C > set2vector( set< C > s )
-{
-	vector< C > v {};
-	for( C i : s )
-	{
-		v.insert( i );
-	}
-	return v;
-}
+
 
 bool strEqual( const string& a, const string& b )
 {
@@ -45,16 +26,27 @@ string notnull( char* cstr )
 
 }
 
-template<class C>
-string show_items( C all_items )
+int char2int( const char& ch )
 {
-	stringstream strs{ "" };
-    for ( auto item : all_items )
-    {
-    	strs << item << " ";
-    }
-    return strs.str();
+	return (int)( ch - 48 );
 }
+char int2char( const int& i )
+{
+	return (char)( i + 48 );
+}
+
+set<int> range_set( int min, int max )
+{
+	set<int> intset{};
+	if ( min > max ) return intset;
+	for ( int n = min; n < max + 1; n++ )
+	{
+		intset.insert( n );
+	}
+	return intset;
+}
+
+
 
 
 vector_str_t String::to_array( char ch )
@@ -63,34 +55,42 @@ vector_str_t String::to_array( char ch )
 	stringstream ss( Str );
     string substr;
 
-    arr.clear();
+    vec.clear();
 	while( ss.good() )
 	{
 	    getline( ss, substr, ch );
-	    arr.push_back(substr);
+	    vec.push_back(substr);
 	}
-	if ( arr.size() == 0 )
-		arr[0] = Str;
-	return arr;
+	if ( vec.size() == 0 )
+		vec[0] = Str;
+	return vec;
 
 }
 
+set<char> String::to_set()
+{
+	for ( char ch : Str )
+	{
+		Set.insert(ch);
+	}
+	return Set;
+}
 vector_str_t String::to_unique_array( char ch )
 {
 	Str.append(1,ch);
 	stringstream ss( Str );
     string substr;
 
-    arr.clear();
+    vec.clear();
 	while( ss.good() )
 	{
 	    getline( ss, substr, ch );
 	    if ( substr.length() > 0 )
-	    	arr.push_back(substr);
+	    	vec.push_back(substr);
 	}
-	if ( ( arr.size() == 0 ) )
-    	arr.push_back( "" );
-	return arr;
+	if ( ( vec.size() == 0 ) )
+    	vec.push_back( "" );
+	return vec;
 	;
 }
 
@@ -106,15 +106,15 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	replace_char('\t', ' ');
 	to_unique_array(' ');
 	int count = count_char( ch, Str );
-	if ( count == 0 ) return arr;
+	if ( count == 0 ) return vec;
 	if (( count % 2 ) != 0 )
 	{
 		string err = "missing ";
 		err.push_back(ch);
 		if ( Log[TEST] )
 		{
-			arr[0] = err;
-			return arr;
+			vec[0] = err;
+			return vec;
 		}
 		else
 		{
@@ -125,16 +125,16 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	vector<string> 	result{};
 	string sub 		{""};
 
-	while( pos != arr.size() )
+	while( pos != vec.size() )
 	{
-		string arrpos = arr[ pos ];
+		string arrpos = vec[ pos ];
 		if ( arrpos[0] == ch )
 		{
 			sub = arrpos.substr(1, STRINGNOTFOUND );
-			while( ( arrpos.back() != ch ) and ( pos != arr.size()-1 ) )
+			while( ( arrpos.back() != ch ) and ( pos != vec.size()-1 ) )
 			{
 				pos++;
-				arrpos	= arr[pos];
+				arrpos	= vec[pos];
 				sub.append(arrpos);
 			}
 			sub = sub.substr(0, sub.length()-1);
@@ -244,6 +244,7 @@ void String::Show( const string& comment )
 	cout << comment << ": " << Str << endl;
 }
 
+
 void String::TestString()
 {
 	TEST_START( "String" );
@@ -352,6 +353,10 @@ void String::TestString()
 
 	list<string> L2 { "a", "b", "c"};
 	show_type( L2 );
+
+	String Z { "abcdef" };
+	assert( Z.Set.contains('f'));
+
 	TEST_END( "String" );
 
 }

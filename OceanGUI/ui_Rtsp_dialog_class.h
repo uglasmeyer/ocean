@@ -12,9 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
-#include <QtWidgets/QFrame>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QTableWidget>
 
 QT_BEGIN_NAMESPACE
@@ -22,36 +20,14 @@ QT_BEGIN_NAMESPACE
 class Ui_Rtsp_Dialog_class
 {
 public:
-    QFrame *frame;
-    QRadioButton *rb_activate_S1;
-    QRadioButton *rb_activate_S0;
-    QRadioButton *rb_activate_S2;
-    QRadioButton *rb_activate_S3;
     QTableWidget *process_table;
 
     void setupUi(QDialog *Rtsp_Dialog_class)
     {
         if (Rtsp_Dialog_class->objectName().isEmpty())
             Rtsp_Dialog_class->setObjectName(QString::fromUtf8("Rtsp_Dialog_class"));
-        Rtsp_Dialog_class->resize(493, 227);
+        Rtsp_Dialog_class->resize(356, 227);
         Rtsp_Dialog_class->setStyleSheet(QString::fromUtf8("background-color: rgb(153, 193, 241);"));
-        frame = new QFrame(Rtsp_Dialog_class);
-        frame->setObjectName(QString::fromUtf8("frame"));
-        frame->setGeometry(QRect(9, 9, 121, 191));
-        frame->setFrameShape(QFrame::StyledPanel);
-        frame->setFrameShadow(QFrame::Raised);
-        rb_activate_S1 = new QRadioButton(frame);
-        rb_activate_S1->setObjectName(QString::fromUtf8("rb_activate_S1"));
-        rb_activate_S1->setGeometry(QRect(10, 90, 111, 23));
-        rb_activate_S0 = new QRadioButton(frame);
-        rb_activate_S0->setObjectName(QString::fromUtf8("rb_activate_S0"));
-        rb_activate_S0->setGeometry(QRect(10, 60, 111, 23));
-        rb_activate_S2 = new QRadioButton(frame);
-        rb_activate_S2->setObjectName(QString::fromUtf8("rb_activate_S2"));
-        rb_activate_S2->setGeometry(QRect(10, 120, 111, 23));
-        rb_activate_S3 = new QRadioButton(frame);
-        rb_activate_S3->setObjectName(QString::fromUtf8("rb_activate_S3"));
-        rb_activate_S3->setGeometry(QRect(10, 150, 111, 23));
         process_table = new QTableWidget(Rtsp_Dialog_class);
         if (process_table->columnCount() < 3)
             process_table->setColumnCount(3);
@@ -63,8 +39,18 @@ public:
         process_table->setHorizontalHeaderItem(2, __qtablewidgetitem2);
         if (process_table->rowCount() < 5)
             process_table->setRowCount(5);
+        QTableWidgetItem *__qtablewidgetitem3 = new QTableWidgetItem();
+        process_table->setVerticalHeaderItem(0, __qtablewidgetitem3);
+        QTableWidgetItem *__qtablewidgetitem4 = new QTableWidgetItem();
+        process_table->setVerticalHeaderItem(1, __qtablewidgetitem4);
+        QTableWidgetItem *__qtablewidgetitem5 = new QTableWidgetItem();
+        process_table->setVerticalHeaderItem(2, __qtablewidgetitem5);
+        QTableWidgetItem *__qtablewidgetitem6 = new QTableWidgetItem();
+        process_table->setVerticalHeaderItem(3, __qtablewidgetitem6);
+        QTableWidgetItem *__qtablewidgetitem7 = new QTableWidgetItem();
+        process_table->setVerticalHeaderItem(4, __qtablewidgetitem7);
         process_table->setObjectName(QString::fromUtf8("process_table"));
-        process_table->setGeometry(QRect(150, 9, 331, 192));
+        process_table->setGeometry(QRect(10, 9, 331, 192));
         process_table->setRowCount(5);
         process_table->setColumnCount(3);
 
@@ -76,16 +62,22 @@ public:
     void retranslateUi(QDialog *Rtsp_Dialog_class)
     {
         Rtsp_Dialog_class->setWindowTitle(QCoreApplication::translate("Rtsp_Dialog_class", "Server Control", nullptr));
-        rb_activate_S1->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S1", nullptr));
-        rb_activate_S0->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S0", nullptr));
-        rb_activate_S2->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S2", nullptr));
-        rb_activate_S3->setText(QCoreApplication::translate("Rtsp_Dialog_class", "activate S3", nullptr));
         QTableWidgetItem *___qtablewidgetitem = process_table->horizontalHeaderItem(0);
         ___qtablewidgetitem->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Process", nullptr));
         QTableWidgetItem *___qtablewidgetitem1 = process_table->horizontalHeaderItem(1);
         ___qtablewidgetitem1->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Instrument", nullptr));
         QTableWidgetItem *___qtablewidgetitem2 = process_table->horizontalHeaderItem(2);
         ___qtablewidgetitem2->setText(QCoreApplication::translate("Rtsp_Dialog_class", "Notes", nullptr));
+        QTableWidgetItem *___qtablewidgetitem3 = process_table->verticalHeaderItem(0);
+        ___qtablewidgetitem3->setText(QCoreApplication::translate("Rtsp_Dialog_class", "A", nullptr));
+        QTableWidgetItem *___qtablewidgetitem4 = process_table->verticalHeaderItem(1);
+        ___qtablewidgetitem4->setText(QCoreApplication::translate("Rtsp_Dialog_class", "S0", nullptr));
+        QTableWidgetItem *___qtablewidgetitem5 = process_table->verticalHeaderItem(2);
+        ___qtablewidgetitem5->setText(QCoreApplication::translate("Rtsp_Dialog_class", "S1", nullptr));
+        QTableWidgetItem *___qtablewidgetitem6 = process_table->verticalHeaderItem(3);
+        ___qtablewidgetitem6->setText(QCoreApplication::translate("Rtsp_Dialog_class", "S2", nullptr));
+        QTableWidgetItem *___qtablewidgetitem7 = process_table->verticalHeaderItem(4);
+        ___qtablewidgetitem7->setText(QCoreApplication::translate("Rtsp_Dialog_class", "S3", nullptr));
     } // retranslateUi
 
 };

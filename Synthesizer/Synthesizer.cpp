@@ -3,6 +3,39 @@
 
 using namespace std;
 
+Logfacility_class		Log( Module );
+DirStructure_class		Dir;
+Dataworld_class			DaTA( SYNTHID );
+
+Wavedisplay_class 		Wavedisplay{ DaTA.Sds_p };
+Wavedisplay_class*		wd_p = &Wavedisplay;
+
+Application_class		App( &DaTA );
+
+interface_t*			sds = DaTA.GetSdsAddr();
+Dataworld_class*		DaTA_p = &DaTA;
+Mixer_class				Mixer{ DaTA_p, wd_p } ;// DaTA.Sds_master );
+Instrument_class 		Instrument{ sds, wd_p };
+Note_class 				Notes;
+Keyboard_class			Keyboard( 	&Instrument );
+External_class 			External( 	&Mixer.StA[ MbIdExternal],
+									DaTA.Cfg_p);
+ProgressBar_class		ProgressBar( &sds->RecCounter );
+Statistic_class 		Statistic{ Log.module };
+
+Semaphore_class*		Sem	= DaTA.Sem_p;
+Config_class*			Cfg = DaTA.Cfg_p;
+const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
+
+Core_class				Synthesizer{
+							&Instrument,
+							&Notes,
+							&Mixer,
+							&Wavedisplay,
+							&DaTA,
+							&External,
+							&ProgressBar };
+
 extern void exit_proc( int signal );
 
 void show_AudioServer_Status()
@@ -29,474 +62,7 @@ void show_usage()
 	return;
 }
 
-// TODO navigate to process start location
 
-void processKey( char key )
-{
-//	interface_t* sds = DaTA.GetSdsAddr();
-
-	auto set_waveform = [ ]( Oscillator* osc, char id )
-		{
-			osc->Set_waveform( id);
-			string wf = osc->Get_waveform_str( id );
-			Log.Comment(INFO, "set waveform >" + wf + "< for " + osc->osc_type );
-		};
-
-	switch ( key )
-	{
-		case NULLKEY :
-		{
-			break;
-		}
-		case MAINFREQUENCYKEY :
-		{
-			Log.Info( "Frequency set to " + to_string( sds->Main_Freq ));
-			Instrument.main.Set_frequency( sds->Main_Freq );
-			Notes.main.Set_frequency( sds->Main_Freq );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case VCOFREQUENCYKEY : // modify the secondary oscillator
-		{
-			Instrument.vco.Set_frequency( sds->VCO_Freq );
-			Notes.vco.Set_frequency( sds->VCO_Freq );
-			Instrument.main.Connect_vco_data( &Instrument.vco);
-
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case FMOFREQUENCYKEY : // modify the fm_track data
-		{
-			Instrument.fmo.Set_frequency( sds->FMO_Freq );
-			Notes.fmo.Set_frequency( sds->FMO_Freq );
-
-			Instrument.main.Connect_fmo_data( &Instrument.fmo);
-
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case VCOAMPKEY : // modify the VCO volume
-		{
-			Value vol = sds->VCO_Amp;
-			Log.Comment( INFO, "Changing VCO volume to " + vol.str + " %" );
-			Instrument.vco.Set_volume( vol.ch );
-			Notes.vco.Set_volume( vol.ch );
-			Instrument.main.Connect_vco_data( &Instrument.vco);
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case FMOAMPKEY : // modify the FMO volume
-		{
-			Value vol = sds->FMO_Amp;
-			Instrument.fmo.Set_volume( vol.ch );
-			Notes.fmo.Set_volume( vol.ch );
-			Instrument.main.Connect_fmo_data( &Instrument.fmo);
-			Notes.fmo.Set_volume( vol.ch );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case MASTERAMP_KEY : // modify main volume
-		{
-			Mixer.master_volume = sds->Master_Amp;
-			Mixer.status.mute = false;
-			DaTA.Sds_p->Commit();
-			break;
-
-		}
-		case MASTERAMP_LOOP_KEY :
-		{
-			uint16_t beg = Mixer.master_volume;
-			uint16_t end = sds->LOOP_end;
-			uint8_t step = sds->LOOP_step;
-			Mixer.master_amp_loop.Start( beg, end, step );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case MASTERAMP_MUTE_KEY : // Mute Main Volume
-		{
-			Mixer.status.mute = not sds->mixer_status.mute;
-			string str = ( Mixer.status.mute ) ? "Mute" : "UnMute";
-			Log.Comment( INFO, "receiving command <"+str+"> master volume>");
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case ADSR_KEY :
-		{
-			Instrument.main.Set_adsr( sds->Main_adsr );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case PMWDIALKEY :
-		{
-			Instrument.main.Set_pmw(sds->PMW_dial );
-			Instrument.vco.Set_pmw( sds->PMW_dial );
-			Instrument.fmo.Set_pmw( sds->PMW_dial );
-
-			DaTA.Sds_p->Commit();
-
-			break;
-		}
-		case WAVEDISPLAYTYPEKEY :
-		{
-			Wavedisplay.Set_type( sds->WD_type_ID );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case SOFTFREQUENCYKEY :
-		{
-			Instrument.main.Set_glide( sds->Soft_freq );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case SETINSTRUMENTKEY : // Set instrument
-		{
-			Log.Comment(INFO, "receive command <set instrument>");
-			string instrument = DaTA.Sds_p->Read_str( INSTRUMENTSTR_KEY ); // other
-
-			if( Instrument.Set(instrument) )
-			{
-				Log.Comment(INFO, "sucessfully loaded instrument " + instrument );
-				Notes.Set_instrument( &Instrument );
-			}
-			else
-			{
-				Log.Comment( ERROR, "cannot load instrument" + instrument );
-			}
-
-			DaTA.Sds_p->Commit(); // reset flags on GUI side
-			break;
-		}
-		case SAVE_EXTERNALWAVFILEKEY : // record and save wav file
-		{
-			if( DaTA.Sds_master->Record ) // Composer - Interpreter
-				DaTA.Sds_master->AudioServer = RECORDSTART; // start and  wait
-			else
-				DaTA.Sds_master->AudioServer = RECORDSTOP; // stop and save
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case READ_EXTERNALWAVEFILE :
-		{
-			Log.Comment(INFO, "receive command <set external wave file>");
-			string wavefile = DaTA.Sds_p->Read_str( WAVEFILESTR_KEY );
-			Sem->Lock( SEMAPHORE_TEST, 1 ); // assume record thread is working on that file
-			if ( External.Read_file_header( wavefile ))
-			{
-				External.Read_file_data();
-				Mixer.StA[ MbIdExternal ].Play_mode( true );
-				Mixer.StA[ MbIdExternal ].Amp 	= 100;//ifd->StA_amp_arr[MbIdExternal];
-				Mixer.status.external			= true;
-
-				ProgressBar.SetValue( 100*External.Filedata_size / External.stereo.ds.mem_bytes );
-			}
-			else
-			{
-				Log.Comment(ERROR , "Failed to setup header");
-			}
-			DaTA.Sds_p->Commit();
-			DaTA.Sds_p->addr->UserInterface = UPDATEGUI; //set cb_sta play flag for external
-			break;
-		}
-		case STOPRECORD_KEY : // stop record on data array id
-		{
-			Value id { (int)sds->MIX_Id };
-			Log.Comment(INFO, "receive command <stop record on storage area " + id.str + ">");
-			Mixer.StA[id.i].Record_mode( false ); // stop recording
-			ProgressBar.Unset();
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case STORESOUNDKEY : //start record
-		{
-			Value MbNr { (int) sds->MIX_Id };
-			Log.Comment( INFO, "receiving command <store sound to memory bank " + MbNr.str + " >");
-			for ( int id : Mixer.MemIds )
-			{
-				if ( MbNr.i == id )
-				{
-					string status = Mixer.StA[MbNr.i].Record_mode(true); // start record-stop play
-					Log.Comment( INFO, " Storage Id " +  MbNr.str + " recording is " + status);
-					ProgressBar.Set( Mixer.StA[MbNr.i].Get_storeCounter_p()  ,
-								Mixer.StA[MbNr.i].ds.max_records );
-				}
-				else // only one mb shall store data
-				{
-					Mixer.StA[id].Record_mode( false );
-				}
-			}
-			DaTA.Sds_p->Commit();
-			break;
-		};
-
-		case EXTERNAL_AMPLOOP_KEY :
-		{
-			uint16_t beg = Mixer.StA[MbIdExternal].Amp;
-			uint16_t end = sds->LOOP_end;
-			uint8_t step = sds->LOOP_step;
-			Mixer.record_amp_loop.Start( beg, end, step );
-			DaTA.Sds_p->Commit();
-			break;
-
-		}
-		case SETMBAMPPLAYKEY : // 109 change volume and play data array
-		{
-
-			Value mixid { sds->MIX_Id };
-			Value amp	{ sds->StA_amp_arr[mixid.i] } ;
-			Value play 	{ sds->StA_state[ mixid.i ].play };
-
-			Mixer.StA[mixid.i].Amp = amp.i;
-			Mixer.Set_mixer_state( mixid.i, (bool)play.i );
-			Log.Comment( INFO, 	"Mixer ID " + mixid.str +
-								" Amp: " 	+ amp.str +
-								" State: " 	+ play.boolstr);
-
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case MUTEREC_KEY :
-		{
-			Value id = { (int) sds->MIX_Id };
-			Log.Comment(INFO, "receive command <mute and stop record on id" + id.str + ">");
-			Mixer.StA[id.i].Play_mode( false ); // pause-play, pause-record
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case MUTEMBKEY : // clear all memory bank flag
-		{
-			Log.Comment(INFO, "receive command <mute and stop record on all memory banks>");
-		    for( uint id : Mixer.RecIds )
-		    	{ Mixer.Set_mixer_state( id, false ); }
-
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case CLEAR_KEY :
-		{
-			uint8_t id 						= sds->MIX_Id;
-			Log.Comment( INFO, "Clear StA: " + to_string( id ));
-			Mixer.StA[ id ].Reset_counter();
-//			Mixer.Set_mixer_state(id, false );
-			ProgressBar.Reset(); // RecCounter
-			DaTA.Sds_p->Commit();
-//			ifd->UserInterface = UPDATEGUI;
-			break;
-		}
-		case TOGGLEMBPLAYKEY: // toggle Memory bank status play
-		{
-			Value Id 	{ (int)sds->MIX_Id };
-			bool play 	{ not (sds->StA_state[ Id.i ].play) };
-			sds->StA_state[ Id.i].play = play ;
-			Log.Comment(INFO,
-					"receive command <toggle play on memory bank" + Id.str +" >" + to_string( play ) );
-			Mixer.Set_mixer_state( Id.i, play );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-
-		case RESETMAINKEY : // reset main
-		{
-			Instrument.main.Mem_vco.Clear_data(max_data_amp);
-			Instrument.main.Mem_fmo.Clear_data( 0 );
-			Instrument.main.Reset_data( &Instrument.main );
-
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case UPDATENOTESKEY : // update notes
-		{
-			Log.Comment(INFO, "receive command <update notes>");
-			string notes_name = DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-			Notes.Set_instrument( &Instrument);
-			Notes.Read( notes_name );
-			sds->Noteline_sec = Notes.noteline_sec;
-			Notes.Start_note_itr();
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case NEWNOTESLINEKEY : // setup play or reset play notes
-		{
-			Log.Comment(INFO, "receive command <setup play notes>");
-			string notes_file = DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-			Notes.Read( notes_file ); // notes have been written to file by the GUI already
-			Mixer.status.notes = true;
-			DaTA.Sds_p->Update( NEWNOTESLINEFLAG );
-			sds->Noteline_sec = Notes.noteline_sec;
-			Notes.Start_note_itr();
-			break;
-		}
-		case PLAYNOTESREC_ON_KEY : // play modnt.composer = true;
-		{
-			Value sec { sds->Noteline_sec };
-			Value id  { sds->MIX_Id };
-
-			if ( sec.i > 0 )
-			{
-				Log.Comment(INFO, "generate composer notes");
-				Log.Comment(INFO, "duration: " + sec.str + " sec.");
-				Log.Comment(INFO, "store to StA id: " + id.str );
-
-				Mixer.composer = sec.i;
-				Mixer.StA[ id.i].Record_mode( true );
-				Notes.Set_instrument( &Instrument );
-				Mixer.Store_noteline( id.i, &Notes );
-
-			}
-			else
-			{
-				Log.Comment( WARN, "nothing to do for " + sec.str + " Notes!" );
-			}
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case PLAYNOTESRECOFF_KEY : // play free
-		{ // functionality is defined in PLAYNOTESREC_ON_KEY
-			Mixer.composer = 0;
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case NOTESONKEY :
-		{
-			Value amp { (int) sds->StA_amp_arr[ MbIdNotes] };
-			Log.Comment(INFO, "receive command < notes on " + amp.str + "%>");
-			Mixer.StA[ MbIdNotes ].Amp = amp.i;
-			Mixer.Set_mixer_state( MbIdNotes, true );
-			Notes.Start_note_itr();
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case NOTESOFFKEY :
-		{
-			Log.Comment(INFO, "receive command < notes off>");
-			Mixer.Set_mixer_state( MbIdNotes, false );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case UPDATENOTELINEKEY: // update Noteline during play
-		{
-			Log.Comment(INFO, "receive command <update Noteline during play>");
-			string notes_file = DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-			Notes.Read( notes_file );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case SETBASEOCTAVE_KEY :
-		{
-			Value diff_oct { (int) sds->FLAG };
-			Notes.Set_base_octave( diff_oct.i ); // is positive, therefore identify 0 -> -1, 1 -> 1
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case UPDATE_NLP_KEY : // Noteline_prefix
-		{
-			noteline_prefix_t nlp = sds->noteline_prefix;
-			Log.Comment(INFO, "receive command <update notesline prefix");
-			Notes.Show_noteline_prefix( nlp );
-			Notes.Noteline_prefix = nlp;
-			Notes.Verify_noteline( nlp, Notes.Get_note_line() );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-
-		case SETNOTESPERSEC_KEY:
-		{
-			Value nps = sds->noteline_prefix.nps;
-			Log.Comment(INFO, "receive command <set notes per second>");
-			if ( not Notes.Set_notes_per_second( nps.i ) )
-			{
-				Log.Comment( ERROR, nps.str + " notes per second not supported");
-			}
-			DaTA.Sds_p->Commit();
-			break;
-		}
-
-		case SETWAVEDISPLAYKEY :
-		{
-			Wavedisplay.SetId( sds->Wavedisplay_Id );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case CONNECTFMOVCOKEY : // connect FMO volume with vco data
-		{
-
-			Instrument.fmo.Connect_fmo_data( &Instrument.vco );
-			Instrument.main.Connect_fmo_data( &Instrument.fmo );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case RESETVCOKEY : // reset VCO
-		{
-			Instrument.vco.Reset_data( &Instrument.vco );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case RESETFMOKEY : // reset FMO
-		{
-			Instrument.fmo.Reset_data( &Instrument.fmo );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case CONNECTVCOFMOKEY ://connect VCO frequency with FMO data
-		{
-			Instrument.vco.Connect_vco_data( &Instrument.fmo );
-			Instrument.main.Connect_vco_data( &Instrument.vco );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case SETWAVEFORMFMOKEY :
-		{
-			set_waveform( &Instrument.fmo, sds->FMO_spectrum.id );
-
-			DaTA.Sds_p->Commit();
-			break;
-			}
-		case SETWAVEFORMVCOKEY :
-		{
-			set_waveform( &Instrument.vco, sds->VCO_spectrum.id );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case SETWAVEFORMMAINKEY :
-		{
-			set_waveform( &Instrument.main, sds->MAIN_spectrum.id );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-
-		case UPDATESPECTRUM_KEY :
-		{
-			Instrument.Update_spectrum();
-			DaTA.Sds_p->Commit();
-			break;
-		}
-		case SAVEINSTRUMENTKEY :
-		{
-			Log.Comment(INFO, "saving current config to instrument " + Instrument.Name );
-			Instrument.Save_Instrument( Instrument.Name );
-			DaTA.Sds_p->Commit();
-			break;
-		}
-
-		case NEWINSTRUMENTKEY : // save instrument file
-		{
-			string instrument = DaTA.Sds_p->Read_str( INSTRUMENTSTR_KEY );
-			Log.Comment(INFO, "receiving instrument change to " + instrument );
-			Instrument.Save_Instrument( instrument );
-			DaTA.Sds_p->Update( NEWINSTRUMENTFLAG );
-			break;
-		}
-
-		default :
-		{
-			Exception( "Communication Key Id >" + to_string((int)key) +
-					"< undefined" );
-		 }
-
-	} // switch char
-	Mixer.Update_ifd_status_flags( sds );
-
-}
-// TODO process end location
 
 void activate_sds()
 {
@@ -511,7 +77,7 @@ void activate_sds()
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 
 	for( char key : init_keys )
-		processKey( key );
+		Synthesizer.processKey( key );
 }
 
 bool sync_mode()
@@ -572,8 +138,7 @@ void kbd_release( stereo_t* shm_addr )
 		Keyboard.Release();
 
 		add_sound(shm_addr);
-		Mixer.StA[ MbIdKeyboard ].state.play = false;
-		Mixer.status.kbd = false;
+		Mixer.Set_mixer_state( MbIdKeyboard, false );
 		DaTA.Sds_p->addr->UpdateFlag 	= true;
 	}
 
@@ -598,7 +163,7 @@ void ApplicationLoop()
 		ifd->time_elapsed = Timer.Performance();
 
 		char Key = ifd->KEY;
-		processKey( Key );
+		Synthesizer.processKey( Key );
 		assert( ifd->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		int note_key = Keyboard.Kbdnote( );
@@ -616,7 +181,7 @@ void ApplicationLoop()
 //				Wait( 10 );
 		}
 
-		Mixer.Volume_control( ifd );
+		Mixer.Volume_control(  );
 
 		if ( ifd->Synthesizer != EXITSERVER )
 			ifd->Synthesizer = RUNNING;
@@ -652,7 +217,6 @@ void synchronize_fnc( )
 {
 	Log.Comment(INFO, "Sync thread started" );
 
-
 	while( true )
 	{
 		Sem->Lock( Sync_Semaphore );
@@ -661,11 +225,45 @@ void synchronize_fnc( )
 		add_sound( DaTA.GetShm_addr(  ) );
 		DaTA.Sds_p->addr->UpdateFlag = true;
 	}
+
 	Log.Comment(INFO, "Sync thread terminated" );
 }
-
 thread Sync_thread	( synchronize_fnc );
 
+bool NotesThread_done	= false;
+void notes_fnc( )
+{
+	Log.Comment(INFO, "Notes thread started" );
+
+	while( true )
+	{
+		Sem->Lock( SEMAPHORE_NOTES );
+		if ( NotesThread_done )
+			break;
+		DaTA.Sem.Release( SEMAPHORE_NOTES ); //other
+		Notes.Restart = true;//Notes.Start_note_itr();
+		Log.Comment(INFO, "reset note pointer");
+	}
+
+	Log.Comment(INFO, "Notes thread terminated" );
+}
+thread Notes_thread	( notes_fnc );
+
+void stop_threads()
+{
+	SyncThread_done	= true;
+	Sem->Release(Sync_Semaphore);
+	Log.Comment(INFO, "attempting to join sync thread ");
+	if ( Sync_thread.joinable() )
+		Sync_thread.join();
+
+	NotesThread_done	= true;
+	Sem->Release(SEMAPHORE_NOTES );
+	Log.Comment(INFO, "attempting to join notes thread ");
+	if ( Notes_thread.joinable() )
+		Notes_thread.join();
+
+}
 int sig_counter = 0;
 void exit_proc( int signal )
 {
@@ -691,12 +289,7 @@ void exit_proc( int signal )
 		Log.Comment(INFO, "Entering exit procedure for " + Application );
 	}
 
-
-	SyncThread_done	= true;
-	Sem->Release(Sync_Semaphore);
-	Log.Comment(INFO, "attempting to join sync thread ");
-	if ( Sync_thread.joinable() )
-		Sync_thread.join();
+	stop_threads();
 
 	Sem->Release( SEMAPHORE_STARTED ); // if start was not successful release waiting processes here
     Log.Comment(INFO, "Synthesizer reached target exit 0" );

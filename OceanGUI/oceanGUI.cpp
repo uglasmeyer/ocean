@@ -40,10 +40,10 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 {
 
-    auto Qstringlist = [ ]( const vector<string> str_vec )
+    auto Qstringlist = [ ]( const list<string>& str_lst )
 		{
 			QStringList Qlist{};
-			for ( string str : str_vec )
+			for ( string str : str_lst )
 			{
                 Qlist.push_back( ( QString::fromStdString( str ) ) );
 			}
@@ -51,7 +51,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 		};
 
-    auto fromstringvector = [ ]( const vector<string> str_vec )
+    auto fromstringvector = [ ]( const vector<string>& str_vec )
 		{
 			vector<QString> Qvec{};
 			for ( string str : str_vec )
@@ -65,7 +65,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 	Qwavedisplay_type_str_vec = fromstringvector( wavedisplay_type_str_vec );
 
-	Qbps_str_list = Qstringlist( bps_struct().Bps_str_vec );
+	Qbps_str_lst = Qstringlist( bps_struct().Bps_lst );
 
 
 
@@ -97,11 +97,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
     connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Hz_changed(int)));
     connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Hz_changed(int)));
-
-    connect(ui->rb_melody_1, SIGNAL(clicked()), this, SLOT(melody_connect() ));
-    connect(ui->rb_melody_2, SIGNAL(clicked()), this, SLOT(melody_connect() ));
-    connect(ui->rb_melody_3, SIGNAL(clicked()), this, SLOT(melody_connect() ));
-    connect(ui->rb_melody_4, SIGNAL(clicked()), this, SLOT(melody_connect() ));
 
     connect(ui->pB_play_notes, SIGNAL(clicked()), this, SLOT(File_Director() ));
     connect(ui->pB_Specrum, SIGNAL(clicked()), this, SLOT(Spectrum_Dialog() ));
@@ -157,6 +152,12 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->cb_sta6, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute6(int)) );
     connect(ui->cb_sta7, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute7(int)) );
 
+    connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_S0()) );
+    connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_S1()) );
+    connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_S2()) );
+    connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_S3()) );
+
+
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
 
@@ -187,8 +188,29 @@ MainWindow::MainWindow(	QWidget *parent ) :
     string wavfile_path = file_structure().Dir.musicdir;
     Qread_filelist( CB_external,
     				wavfile_path, file_structure().wav_file_type );
-    ui->cb_bps->addItems( Qbps_str_list );
+    ui->cb_bps->addItems( Qbps_str_lst );
     setwidgetvalues();
+
+    int
+	ID = 0;
+    for( QRadioButton* rb : rb_sta_vec )
+    {
+    	rb->setChecked( Sds->addr->StA_state[ID].store );
+		ID++;
+    }
+    ID = 0;
+    for( QCheckBox* cb : cb_sta_vec )
+    {
+    	cb->setChecked( Sds->addr->StA_state[ID].play );
+		ID++;
+    }
+    ID = 0;
+    for( QSlider* sl : sl_sta_vec )
+    {
+    	sl->setValue( Sds->addr->StA_amp_arr[ID] );
+		ID++;
+    }
+
 
     ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
@@ -208,25 +230,6 @@ MainWindow::~MainWindow()
 
 
 
-int old_sdsid  = 0 ;
-void MainWindow::SetSds(  )
-{
-	int sdsid = Rtsp_Dialog_obj.SDS_ID;
-	if ( sdsid == old_sdsid ) return;
-	old_sdsid = sdsid;
-
-	this->Sds = DaTA->GetSds( sdsid );
-
-    Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
-
-    File_Dialog_obj.SetSds( this->Sds, sdsid );
-	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
-	if ( Sds->addr->Wavedisplay_Id == AUDIOOUT )
-		OscW_item->sds = Sds_master;
-	else
-		OscW_item->sds = this->Sds->addr;
-
-}
 
 
 void MainWindow::wavfile_selected( const QString &arg)
@@ -329,6 +332,46 @@ void MainWindow::FMO_Waveform_slot(int _wfid)
 void MainWindow::VCO_Waveform_slot( int _wfid )
 {
 	waveform_slot( &Sds->addr->VCO_spectrum.id, _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
+}
+
+
+void MainWindow::select_Sds( uint sdsid ) // TODO working
+{
+
+	this->Sds = DaTA->GetSds( sdsid );
+
+    Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
+
+    File_Dialog_obj.SetSds( this->Sds, sdsid );
+	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
+	if ( Sds->addr->Wavedisplay_Id == AUDIOOUT )
+		OscW_item->sds = Sds_master;
+	else
+		OscW_item->sds = this->Sds->addr;
+
+	Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1 );
+	Rtsp_Dialog_obj.SDS_ID = sdsid;
+
+	DaTA->Sds_master->config = sdsid;
+	DaTA->Sds_master->UpdateFlag = true;
+
+};
+
+void MainWindow::select_S0()
+{
+	select_Sds( 0);
+}
+void MainWindow::select_S1()
+{
+	select_Sds( 1);
+}
+void MainWindow::select_S2()
+{
+	select_Sds( 2);
+}
+void MainWindow::select_S3()
+{
+	select_Sds( 3);
 }
 
 auto toggle_mute( MainWindow* C, uint id,  int state )
@@ -499,8 +542,10 @@ void MainWindow::toggle_Mute()
 
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
-    Sds->Set( Sds->addr->Main_adsr.bps_id, bps_id  );
-    Sds->Set( Sds->addr->KEY, ADSR_KEY );
+	uint8_t bps_val = ui->cb_bps->currentText().toInt();
+//    Sds->Set( Sds->addr->Main_adsr.bps_id, bps_id  ); //TODO analyze
+    Sds->Set( Sds->addr->Main_adsr.bps, bps_val  );
+	Sds->Set( Sds->addr->KEY, ADSR_KEY );
 }
 
 void MainWindow::setwidgetvalues()
@@ -517,24 +562,6 @@ void MainWindow::setwidgetvalues()
     ui->Slider_FMO_vol->setValue(   Sds->addr->FMO_Amp);
     ui->Slider_VCO_vol->setValue(   Sds->addr->VCO_Amp);
 
-    int ID = 0;
-    for( QRadioButton* rb : rb_sta_vec )
-    {
-    	rb->setChecked( Sds->addr->StA_state[ID].store );
-		ID++;
-    }
-    ID = 0;
-    for( QCheckBox* cb : cb_sta_vec )
-    {
-    	cb->setChecked( Sds->addr->StA_state[ID].play );
-		ID++;
-    }
-    ID = 0;
-    for( QSlider* sl : sl_sta_vec )
-    {
-    	sl->setValue( Sds->addr->StA_amp_arr[ID] );
-		ID++;
-    }
 
     ui->labelVCO->setText("VCO");
     ui->labelFMO->setText("FMO");
@@ -565,7 +592,8 @@ void MainWindow::setwidgetvalues()
     Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
-    ui->cb_bps->setCurrentText( Qbps_str_list[ Sds->addr->Main_adsr.bps_id]);
+//    ui->cb_bps->setCurrentText( Qbps_str_lst[ Sds->addr->Main_adsr.bps_id]);
+    ui->cb_bps->setCurrentText( QString( int2char( Sds->addr->Main_adsr.bps)));
 
     Sds->addr->UserInterface 	= RUNNING;
     Sds->addr->UpdateFlag 		= true;
@@ -764,10 +792,6 @@ void MainWindow::pB_Debug_clicked()
     ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ counter ] );
 }
 
-void MainWindow::melody_connect()
-{
-};
-
 
 void MainWindow::Updatewidgets()
 {
@@ -809,7 +833,7 @@ void MainWindow::Updatewidgets()
     Sds->addr->UserInterface = OFFLINE ;
 
 	// init new SDS
-    SetSds(  );
+    // SetSds(  );
 
 
     if (Sds_master->AudioServer == RUNNING )
@@ -824,10 +848,15 @@ void MainWindow::Updatewidgets()
         ui->pBSynthesizer->setPalette(status_color_red);
 
     if( Sds_master->Record)
+    {
+    	ui->pBtoggleRecord->setText( "Stop Rec");
     	ui->pBtoggleRecord->setPalette( status_color_red );
+    }
     else
+    {
+    	ui->pBtoggleRecord->setText( "Record");
     	ui->pBtoggleRecord->setPalette( status_color_green );
-
+    }
     setwidgetvalues();
 
 }

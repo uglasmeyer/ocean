@@ -64,7 +64,7 @@ void Variation_class::Set_note_chars( uint flats, uint sharps  )
 }
 
 
-Variation_class::noteword_t Variation_class::List2vector( notelist_t notes )
+Variation_class::noteword_t Variation_class::list2vector( notelist_t notes )
 {
 	noteword_t word {};
 	for( note_t note : notes )
@@ -76,16 +76,16 @@ Variation_class::noteword_t Variation_class::List2vector( notelist_t notes )
 void Variation_class::define_random_note_vector( string str )
 {
 	Note_class::Noteline_prefix.variation = 1;
-	Charset_class V{ Note_class::Note_Chars + "." };
+	String V { Note_class::Note_Chars.Str + "." };
 	Random_Notes.clear();
 	Verify_noteline( Note_class::Noteline_prefix, str);
-	Random_Notes = List2vector( Note_class::notelist );
+	Random_Notes = list2vector( Note_class::notelist );
 	Note_class::Show_note_list(Random_Notes); // @suppress("Invalid arguments")
 //	randomize_notes_octave( str );
 }
 
 
-string Variation_class::input_filter( string input, Charset_class valid)
+string Variation_class::input_filter( string input, set<char> valid)
 {
 	string result { "" };
 	std::copy_if( input.begin(), input.end(),
@@ -99,7 +99,7 @@ void Variation_class::Define_fix( string notes )
 	auto set_octave = [ this  ]( string notes )
 		{
 			if ( notes[0] == '|' )
-				if ( Octave_Set.contains( notes[1] ) )
+				if ( Note_class::OctaveChars.Set.contains( notes[1] ) )
 					Note_class::Octave = (int)notes[1]-48;
 		};
 	if ( notes.length() < 4 )
@@ -111,11 +111,10 @@ void Variation_class::Define_fix( string notes )
 	{
 		Exception( "Constant_chars must not start with specified character " );
 	}
-	Charset_class Valid_set ( "r(),.-'| " + Note_class::OctaveChars + Note_class::Note_Chars );
-	Constant_Set = notes ;
+	String Valid { "r(),.-'| " + Note_class::OctaveChars.Str + Note_class::Note_Chars.Str };
+//	Charset_class Valid_set ( "r(),.-'| " + Note_class::OctaveChars + Note_class::Note_Chars );
 	set_octave( notes );
-	Constant_Set = Constant_Set / Valid_set;
-	Constant_chars = input_filter( notes, Valid_set);
+	Constant_chars = input_filter( notes, Valid.Set);
 
 }
 
@@ -208,7 +207,7 @@ string Variation_class::scan_sentence( char s0 )
 		{
 			if ( Log[TEST] )
 				Note_class::Show_note( note );
-			if ( Octave_Set.contains( s0 ) )
+			if ( Note_class::OctaveChars.Set.contains( s0 ) )
 				note.octave = s0 - 48;
 			sentence_line.append( "|" + to_string(note.octave) + note.str );
 			duration += note.duration;
@@ -263,8 +262,8 @@ void Variation_class::set_octave( int oct, noteword_t& word )
 string Variation_class::Gen_noteline( string sentence_layout, string filename )
 {
 
-	Charset_class Valid_set { "cr-RS0123456789" };
-	string valid_sentence_layout = input_filter( sentence_layout, Valid_set);
+	String Valid { "cr-RS0123456789" };
+	string valid_sentence_layout = input_filter( sentence_layout, Valid.Set);
 
 	string noteline{};
 	vector<note_t> note_word;
@@ -317,7 +316,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 				}
 			default :
 			{
-				if ( ( Octave_Set.contains( ch )) )
+				if ( ( Note_class::OctaveChars.Set.contains( ch )) )
 				{
 					if ( pos > 0 )
 					{

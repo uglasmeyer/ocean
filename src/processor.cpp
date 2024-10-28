@@ -123,6 +123,9 @@ void Processor_class::Execute()
 //	Exception( "uninitialized memory");
 	sds->Commit();
 
+	FILE* LOG;
+	LOG = fopen( file_structure().log_file.data(), "w");
+
 	Sem->Init();
 
 	for ( stack_struct_t SI : process_stack )
@@ -135,6 +138,7 @@ void Processor_class::Execute()
 		case CMD_CHADDR : // write char address
 		{
 			printf("%d ldc %p %d \t| %s", SI.prgline, SI.chaddr, SI.value, str );
+			fprintf(LOG, "%d ldc %p %d \t| %s", SI.prgline, SI.chaddr, SI.value, str );
 			if ( not SI.chaddr == 0 )
 				*SI.chaddr = (char) SI.value ;
 			break;
@@ -142,6 +146,7 @@ void Processor_class::Execute()
 		case CMD_BOADDR : // write char address
 		{
 			printf("%d ldc %p %d \t| %s", SI.prgline, SI.boaddr, SI.value, str );
+			fprintf(LOG, "%d ldc %p %d \t| %s", SI.prgline, SI.boaddr, SI.value, str );
 			if ( not SI.boaddr == 0 )
 				*SI.boaddr = (bool) SI.value ;
 			break;
@@ -149,6 +154,7 @@ void Processor_class::Execute()
 		case CMD_UIADDR : // write uint16_t address
 		{
 			printf("%d ldu %p %d \t| %s", SI.prgline, SI.uiaddr, SI.value, str );
+			fprintf(LOG, "%d ldu %p %d \t| %s", SI.prgline, SI.uiaddr, SI.value, str );
 			if ( not SI.uiaddr == 0 )
 				*SI.uiaddr = (uint16_t) SI.value;
 			break;
@@ -156,6 +162,7 @@ void Processor_class::Execute()
 		case CMD_KEY : // write command key value
 		{
 			printf("%d ldc %p %d \t| %s", SI.prgline,  &ifd->KEY, SI.key, str );
+			fprintf(LOG, "%d ldc %p %d \t| %s", SI.prgline,  &ifd->KEY, SI.key, str );
 			ifd->KEY = SI.key;
 			wait_for_commit();
 			break;
@@ -163,6 +170,7 @@ void Processor_class::Execute()
 		case CMD_EXE :
 		{
 			printf("%d exe %s ", SI.prgline, str );
+			fprintf(LOG, "%d exe %s ", SI.prgline, str );
 			system_execute( SI.str );
 			break;
 		}
@@ -171,11 +179,13 @@ void Processor_class::Execute()
 			if  ( SI.value < 0 )
 			{
 				printf( "%d %s", SI.prgline, str );
+				fprintf(LOG, "%d %s", SI.prgline, str );
 				getc(stdin);
 			}
 			else
 			{
 				printf("%d wait %d", SI.prgline, SI.value );
+				fprintf(LOG, "%d wait %d", SI.prgline, SI.value );
 			    this_thread::sleep_for(chrono::seconds( SI.value));
 			}
 			break;
@@ -184,6 +194,7 @@ void Processor_class::Execute()
 		{
 			uint8_t sec = ifd->Noteline_sec;
 			printf("%d conditional wait %d sec\t| %s (%d)", SI.prgline,  sec, str, sec );
+			fprintf(LOG, "%d conditional wait %d sec\t| %s (%d)", SI.prgline,  sec, str, sec );
 		    this_thread::sleep_for(chrono::seconds(sec));
 			ifd->Noteline_sec = 0;
 			break;
@@ -200,9 +211,11 @@ void Processor_class::Execute()
 			}
 			assert( addr != nullptr );
 			printf("%d ldc %p %s \n", SI.prgline, addr, str );
+			fprintf(LOG, "%d ldc %p %s \n", SI.prgline, addr, str );
 			this->sds->Write_str( SI.value, SI.str );
 
 			printf("%d ldc %p %d \t| set %s ", SI.prgline, &ifd->KEY, SI.key, str );
+			fprintf(LOG, "%d ldc %p %d \t| set %s ", SI.prgline, &ifd->KEY, SI.key, str );
 			ifd->KEY = SI.key;
 			wait_for_commit();
 			break;
@@ -210,23 +223,30 @@ void Processor_class::Execute()
 		case CMD_TEXT :
 		{
 			printf("%s", str);
+			fprintf(LOG, "%s", str);
 			break;
 		}
 		case CMD_EXIT :
 		{
 			printf("%d \n", SI.prgline);
+			fprintf( LOG , "%d \n", SI.prgline);
 			Sem->Release( SEMAPHORE_EXIT );
+			fclose( LOG );
 			return;
 			break;
 		}
 		default :
 		{
+			fclose( LOG );
 			Exception( to_string( SI.prgline) + " default SIGINT");//raise( SIGINT);
 			break;
 		}
 		} // end switch
 		printf("\n");
+		fprintf(LOG, "\n");
 	}
+
+	fclose( LOG );
 	Comment( INFO, "Execute() terminated without exit/release");
 }
 

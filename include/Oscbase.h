@@ -13,48 +13,30 @@
 #include <Ocean.h>
 #include <String.h>
 
-const vector<string> NoteName =
-	{ "a","a#","b","c","c#", "d","d#", "e","f","f#", "g","g#","A"};
-
 typedef struct bps_struct
 {
-	const vector<uint>   	Bps_array 	= { 0,1,2,4,5,8 };
-	vector<string>			Bps_str_vec = {};
-	std::unordered_map< string, int > Bps_map;
+	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8 };
+	const vector<uint8_t>	Bps_vec	= set2vector( Bps_set );
+	list<string>			Bps_lst	= {};
+	set<string>			Bps_str_set	= {};
 
 	bps_struct( )
 	{
-		uint index = 0;
-		for( uint bps : Bps_array )
+		uint8_t index = 0;
+		for( uint bps : Bps_vec )
 		{
 			string str = to_string( bps );
-			Bps_map[ str ] = index ;
-			Bps_str_vec.push_back( str );
+			Bps_str_set.insert( string(1,int2char(bps)) );
+			Bps_lst.push_back( str );
 			index++;
 		}
-	}
-
-	string getbps_str( uint id )
-	{
-		if (( id < 0 ) or ( id  > Bps_array.size()-1 ))
-			return "0";
-		else
-			return to_string( Bps_array[ id ]);
-	}
-	int getbps_id( string str )
-	{
-		return Bps_map[str] ;
-	}
-	uint8_t getbps( int id )
-	{
-		return Bps_array[ id ];
 	}
 
 } bps_struct_t;
 
 typedef struct adsr_struct
 {
-	uint8_t bps_id 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
+	uint8_t bps 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
 	uint8_t attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
 	uint8_t decay  	= 0;
 	uint8_t hall		= 0; // mixing hall effect [0..100} data shift

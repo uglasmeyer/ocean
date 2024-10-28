@@ -94,10 +94,10 @@ public:
     QPushButton *pBtoggleRecord;
     QLabel *label_4;
     QFrame *frame_5;
-    QRadioButton *rb_melody_2;
-    QRadioButton *rb_melody_3;
-    QRadioButton *rb_melody_1;
-    QRadioButton *rb_melody_4;
+    QRadioButton *rb_S0;
+    QRadioButton *rb_S1;
+    QRadioButton *rb_S2;
+    QRadioButton *rb_S3;
     QProgressBar *progressBar_record;
     QLCDNumber *MainLCD_Hz;
     QLabel *label_11;
@@ -135,9 +135,9 @@ public:
     QPushButton *pBAudioServerExit;
     QPushButton *pBSynthesizerExit;
     QPushButton *pBSynthesizer;
-    QPushButton *pB_Rtsp;
     QComboBox *cb_bps;
     QProgressBar *Pbar_telapsed;
+    QPushButton *pB_Rtsp;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -442,21 +442,21 @@ public:
         label_4->setGeometry(QRect(480, 80, 111, 17));
         frame_5 = new QFrame(centralwidget);
         frame_5->setObjectName(QString::fromUtf8("frame_5"));
-        frame_5->setGeometry(QRect(1000, 340, 131, 111));
+        frame_5->setGeometry(QRect(1000, 340, 91, 121));
         frame_5->setFrameShape(QFrame::StyledPanel);
         frame_5->setFrameShadow(QFrame::Raised);
-        rb_melody_2 = new QRadioButton(frame_5);
-        rb_melody_2->setObjectName(QString::fromUtf8("rb_melody_2"));
-        rb_melody_2->setGeometry(QRect(0, 30, 131, 23));
-        rb_melody_3 = new QRadioButton(frame_5);
-        rb_melody_3->setObjectName(QString::fromUtf8("rb_melody_3"));
-        rb_melody_3->setGeometry(QRect(0, 60, 112, 23));
-        rb_melody_1 = new QRadioButton(frame_5);
-        rb_melody_1->setObjectName(QString::fromUtf8("rb_melody_1"));
-        rb_melody_1->setGeometry(QRect(0, 0, 131, 23));
-        rb_melody_4 = new QRadioButton(frame_5);
-        rb_melody_4->setObjectName(QString::fromUtf8("rb_melody_4"));
-        rb_melody_4->setGeometry(QRect(0, 90, 112, 23));
+        rb_S0 = new QRadioButton(frame_5);
+        rb_S0->setObjectName(QString::fromUtf8("rb_S0"));
+        rb_S0->setGeometry(QRect(20, 0, 61, 23));
+        rb_S1 = new QRadioButton(frame_5);
+        rb_S1->setObjectName(QString::fromUtf8("rb_S1"));
+        rb_S1->setGeometry(QRect(20, 30, 61, 23));
+        rb_S2 = new QRadioButton(frame_5);
+        rb_S2->setObjectName(QString::fromUtf8("rb_S2"));
+        rb_S2->setGeometry(QRect(20, 60, 61, 23));
+        rb_S3 = new QRadioButton(frame_5);
+        rb_S3->setObjectName(QString::fromUtf8("rb_S3"));
+        rb_S3->setGeometry(QRect(20, 90, 61, 23));
         progressBar_record = new QProgressBar(centralwidget);
         progressBar_record->setObjectName(QString::fromUtf8("progressBar_record"));
         progressBar_record->setGeometry(QRect(580, 440, 411, 23));
@@ -577,7 +577,7 @@ public:
         cb_external->setEditable(false);
         layoutWidget = new QWidget(centralwidget);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(620, 470, 462, 58));
+        layoutWidget->setGeometry(QRect(630, 480, 462, 58));
         gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -616,20 +616,18 @@ public:
 
         gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
 
-        pB_Rtsp = new QPushButton(layoutWidget);
-        pB_Rtsp->setObjectName(QString::fromUtf8("pB_Rtsp"));
-
-        gridLayout->addWidget(pB_Rtsp, 1, 3, 1, 1);
-
         cb_bps = new QComboBox(centralwidget);
         cb_bps->setObjectName(QString::fromUtf8("cb_bps"));
         cb_bps->setGeometry(QRect(620, 190, 86, 25));
         Pbar_telapsed = new QProgressBar(centralwidget);
         Pbar_telapsed->setObjectName(QString::fromUtf8("Pbar_telapsed"));
-        Pbar_telapsed->setGeometry(QRect(1090, 470, 41, 51));
+        Pbar_telapsed->setGeometry(QRect(451, 270, 20, 161));
         Pbar_telapsed->setValue(24);
         Pbar_telapsed->setTextVisible(true);
         Pbar_telapsed->setOrientation(Qt::Vertical);
+        pB_Rtsp = new QPushButton(centralwidget);
+        pB_Rtsp->setObjectName(QString::fromUtf8("pB_Rtsp"));
+        pB_Rtsp->setGeometry(QRect(1000, 310, 91, 25));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -659,7 +657,7 @@ public:
         QObject::connect(Slider_FMO_vol, SIGNAL(valueChanged(int)), lcdNumber_2, SLOT(display(int)));
         QObject::connect(Slider_FMO_vol, SIGNAL(valueChanged(int)), MainWindow, SLOT(FMO_slot_volume()));
         QObject::connect(pB_Mute_StA, SIGNAL(clicked()), MainWindow, SLOT(Clear_Banks()));
-        QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(connect_vco()));
+        QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
         QObject::connect(pB_Save, SIGNAL(clicked()), MainWindow, SLOT(Save_Config()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
@@ -704,10 +702,10 @@ public:
         radioButton_5->setText(QCoreApplication::translate("MainWindow", "connect VCO", nullptr));
         pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Decay", nullptr));
-        rb_melody_2->setText(QCoreApplication::translate("MainWindow", "-> MAN freq", nullptr));
-        rb_melody_3->setText(QCoreApplication::translate("MainWindow", "-> VCO freq", nullptr));
-        rb_melody_1->setText(QCoreApplication::translate("MainWindow", "-> MAIN volume", nullptr));
-        rb_melody_4->setText(QCoreApplication::translate("MainWindow", "-> VCO freq", nullptr));
+        rb_S0->setText(QCoreApplication::translate("MainWindow", "S0", nullptr));
+        rb_S1->setText(QCoreApplication::translate("MainWindow", "S1", nullptr));
+        rb_S2->setText(QCoreApplication::translate("MainWindow", "S2", nullptr));
+        rb_S3->setText(QCoreApplication::translate("MainWindow", "S3", nullptr));
         label_11->setText(QCoreApplication::translate("MainWindow", "Attack", nullptr));
         glidefrequency->setText(QCoreApplication::translate("MainWindow", "glide freq.", nullptr));
         pB_Wavedisplay->setText(QString());

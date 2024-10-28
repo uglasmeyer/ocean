@@ -105,6 +105,7 @@ typedef struct file_structure
 	string			datacfg_file	= Dir.etcdir		+ "Data.cfg";
 	string 			counter_file 	= Dir.libdir 		+ "counter.bin";
 	string 			program_file	= Dir.includedir 	+ "main.synth";
+	string			log_file		= "/tmp/log/composer.log";
 	const string 	doc_filename 	= "Ocean.odt";
 	string 			doc_file 		= Dir.docdir 		+ doc_filename;
 } dir_struct_t;

@@ -159,9 +159,6 @@ public:
 	void 		Test();
 
 private:
-	Charset_class Constant_Set	{""};
-	Charset_class Variable_Set	{""};
-	Charset_class Octave_Set	{Note_class::OctaveChars};
 
 	string Constant_chars{""};
 	string Rhythm_chars{""};
@@ -170,9 +167,9 @@ private:
 	noteword_t 		Random_Notes{};
 	notesentence_t 	Sentence{};
 
-	noteword_t 	List2vector( notelist_t );
+	noteword_t 	list2vector( notelist_t );
 	string 		insert_random(  );
-	string 		input_filter( string , Charset_class );
+	string 		input_filter( string , set<char> );
 	void 		define_random_note_vector( string str );
 	noteword_t 	gen_random_note_word();
 	void 		randomize_notes_octave( string );

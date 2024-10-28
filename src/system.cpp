@@ -20,6 +20,19 @@ void catch_signals( sighandler_t proc, vector<uint> sig_v )
 	}
 }
 
+void Assert(	bool expr,
+				const string message,
+				const source_location location ) // @suppress("Function cannot be resolved") // @suppress("Type cannot be resolved")
+{
+	if ( expr ) return;
+	cout 	<< "file: "
+			<< location.file_name() << '(' // @suppress("Method cannot be resolved")
+			<< location.line() << ':' // @suppress("Method cannot be resolved")
+			<< location.column() << ") `" // @suppress("Method cannot be resolved")
+			<< location.function_name() << "`: " // @suppress("Method cannot be resolved")
+			<< message << '\n';
+	Exception( message  );
+}
 void Exception( const string& err_str )
 {
 	Log_common.Comment( ERROR, err_str );

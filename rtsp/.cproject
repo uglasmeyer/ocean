@@ -80,6 +80,7 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.pthread.1222910035" name="Support for pthread (-pthread)" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.other.pic.1217092217" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.719637836" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++2a" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1712296762" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.390802122" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">

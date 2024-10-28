@@ -28,11 +28,16 @@ void Loop_class::Start( uint16_t beg, uint16_t end, uint8_t step )
 		this->max_counts = 0;
 	else
 		this->max_counts = (abs( diff )/abs(step )  );
-//	cout << max_counts << " " << (int)this->step << " " << abs(diff) << " " << abs(diff)/abs(step) << abs(10)/abs(10) << endl;
+
+	stringstream strs{""};
+	String Str{""};
+	strs << "Loop starts on addr " << Str.to_hex( (long)ptr8 ) << endl;
+	strs << SETW << "with parameter step:" << (int) step << " begin: " << (int)beg << " end: " << end ;
+	Comment( INFO,  strs.str() );
 }
 
 
-void Loop_class::Next( uint8_t& addr )
+void Loop_class::Next_amp(  ) // Amplify
 {
 	auto inc = [this]()
 	{
@@ -40,64 +45,45 @@ void Loop_class::Next( uint8_t& addr )
 		counter = counter + step;
 	};
 
+
+	if ( not active ) return;
 	if ( counts == max_counts ) active = false;
 	if ( active )
 	{
 		inc();
-		addr = counter;
+		*ptr8 = counter;
 	}
 };
 
-void Loop_class::Next( uint16_t& addr )
-{
-	auto inc = [this]()
-	{
-		counts++;
-		counter = counter + step;
-	};
-
-	if ( counts == max_counts ) active = false;
-	if ( active )
-		inc();
-	addr = counter;
-	//	cout << counter  << endl;
-};
 
 void Loop_class::Test()
 {
-	uint16_t l;
-	uint8_t 	 ch;
 
-	Loop_class Loop;
+	uint8_t 	 ch = 20;
 
-	Loop.Start(10, 20, 1);
-	for( int i = 0; i<20; i++ ) Loop.Next( l);
-	assert( l == 20 );
+	Loop_class Loop{ &ch};
+
 
 	Loop.Start(20, 10, 1);
-	for( int i = 0; i<20; i++ ) Loop.Next( l);
-	assert( l == 10 );
-
-	Loop.Start(20, 10, 1);
-	for( int i = 0; i<20; i++ ) Loop.Next( ch);
+	for( int i = 0; i<20; i++ ) Loop.Next_amp( );
 	assert( ch == 10 );
 
 
-	Loop.Start(20, 10, -1);
-	for( int i = 0; i<20; i++ ) Loop.Next(ch);
+	ch=20;Loop.Start(20, 10, -1);
+	for( int i = 0; i<20; i++ ) Loop.Next_amp();
 	assert( ch == 10 );
 
-	Loop.Start(0, 0, 0);
-	for( int i = 0; i<10; i++ ) Loop.Next(l);
-	assert( l == 0 );
+	ch =0; Loop.Start(0, 0, 0);
+	for( int i = 0; i<10; i++ ) Loop.Next_amp();
+	Assert( ch == 0, "ch " + to_string( ch ) );
 
-	Loop.Start(0, 0, -1);
-	for( int i = 0; i<10; i++ ) Loop.Next( l );
-	assert( l == 0 );
+	ch = 0; Loop.Start(0, 0, -1);
+	for( int i = 0; i<10; i++ ) Loop.Next_amp( );
+	Assert( ch == 0,  "ch " + to_string( ch ) );
 
-	Loop.Start(10, 20, -1);
-	for( int i = 0; i<20; i++ ) Loop.Next( l );
-	assert( l == 20 );
+	ch = 10; Loop.Start(10, 20, -1);
+	for( int i = 0; i<20; i++ ) Loop.Next_amp( );
+	assert( ch == 20 );
 
 
 
@@ -125,6 +111,15 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
 	StA[MbIdExternal].Setup(ext_conf);
+
+	// init loops for all StA + master volume
+	for ( uint n : MemIds )
+	{
+		Loop_class loop{ &sds->StA_amp_arr[n] };
+		amp_loop_vec.push_back( loop );
+	}
+	Loop_class loop{ &sds->Master_Amp };
+	amp_loop_vec.push_back( loop );
 
 	if( Log[ TEST ] )
 	{
@@ -163,15 +158,15 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 		sta.Reset_counter();
 }
 
-void Mixer_class::Volume_control( interface_t* sds )
+void Mixer_class::Volume_control( )
 {
-	master_amp_loop.Next( sds->Master_Amp );
+	for ( uint n = 0; n< MbSize ; n++ )
+	{
+		amp_loop_vec[n].Next_amp();
+		StA[n].Amp = sds->StA_amp_arr[n];
+	}
+	amp_loop_vec[ MbSize ].Next_amp();
 	master_volume = sds->Master_Amp;
-
-	uint8_t amp = StA[MbIdExternal].Amp;
-	record_amp_loop.Next( amp );
-	StA[MbIdExternal].Amp = amp;
-	sds->StA_amp_arr[MbIdExternal] = amp;
 }
 
 void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
@@ -179,9 +174,9 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 	switch ( id )
 	{
 		case MbIdInstrument :	{ status.instrument = play; break; }
-		case MbIdNotes 		:	{ status.notes = play; 		break; }
-		case MbIdKeyboard	: 	{ status.kbd = play; 		break; }
-		case MbIdExternal 	:	{ status.external = play; 	break; }
+		case MbIdNotes 		:	{ status.notes 		= play; break; }
+		case MbIdKeyboard	: 	{ status.kbd 		= play; break; }
+		case MbIdExternal 	:	{ status.external 	= play; break; }
 		default				:	break;
 	}
 

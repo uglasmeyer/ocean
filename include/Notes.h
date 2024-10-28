@@ -23,6 +23,7 @@ using namespace std;
 class Note_class :  virtual public Logfacility_class,
 					virtual public Note_base
 {
+	string className = "";
 public:
 
 	Oscillator	 	main		{ NOTESID };
@@ -34,10 +35,8 @@ public:
 
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
-	const string 	RhythmChars 	= "123456789";
-	const string 	OctaveChars 	= "12345";
-
-	string 			Note_Chars		= convention_notes[ noteline_prefix_default.convention ];
+	bool			Restart			= false;
+	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
 	uint8_t 		Octave			= noteline_prefix_default.Octave;
 	const uint16_t	measure_duration= max_milli_sec; // 1 sec.
 	const float 	max_frequency 	= Octave_freq ( max_octave + 1 );

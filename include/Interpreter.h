@@ -28,7 +28,7 @@ typedef struct line_struct
 	string arg1 {} ;
 } line_struct_t;
 
-const vector<string> Keywords {
+const set<string> Keywords {
 						"add",
 						"adsr",
 						"call",
@@ -87,7 +87,7 @@ public:
 	int error = 0;
 	int duration = 0;
 	String keyword {""};
-	vector<string> expect {};
+	set<string> expect {};
 
 	Interpreter_class( Dataworld_class* data ) ;
 	virtual ~Interpreter_class();
@@ -101,7 +101,7 @@ public:
 	void Adsr( vector_str_t );
 	void RecStA( vector_str_t );
 	void RecFile( vector_str_t );
-	void Wrong_keyword( vector<string>, string );
+	void Wrong_keyword( set<string>, string );
 	void Pause( vector_str_t );
 	void Play( vector_str_t );
 	void Text( vector_str_t );
