@@ -13,7 +13,7 @@
 
 extern vector<string> 	List_directory( const string& path, const string& filter );
 extern string 			searchPath( string filename );
-extern void 			catch_signals( sighandler_t proc, vector<uint> sig_v );
+//extern void 			catch_signals( sighandler_t proc, vector<uint> sig_v );
 extern void 			system_execute( const string& );
 extern void 			Exception( const string& );
 extern void 			Assert(	bool expr, const string message,

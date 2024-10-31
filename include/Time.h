@@ -11,7 +11,7 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-class Time_class : virtual Logfacility_class
+class Time_class : virtual public Logfacility_class
 {
 	// https://en.cppreference.com/w/cpp/chrono
 

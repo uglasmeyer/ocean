@@ -14,7 +14,6 @@
 
 static const uint MAXCONFIG 	= 4;
 typedef	array<key_t, MAXCONFIG>	keys_arr_t;
-//typedef array<string,APP_SIZE > type_map_t;
 
 typedef struct prgarg_struct
 {
@@ -22,6 +21,7 @@ typedef struct prgarg_struct
 		uint 		rate 		= audio_frames;	// -r
 		uint 		device 		= 0;		// -d
 		uint 		ch_offs 	= 0; 		// -o
+		char		clear		= 'n';		// -X clear process array
 		char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
 		char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
 		char 		composer	= 'n';		// rtsp -C
@@ -32,15 +32,15 @@ typedef struct prgarg_struct
 		string		album		= Application;
 		string		Term		= "xterm -e ";
 		string 		ffmpeg 		= "ffmpeg";
+		key_t		Sem_key		= 0x9999;
 		key_t 		SHM_key 	= 0x100; 	// -k
 		key_t		SHM_keyl	= SHM_key;
 		key_t		SHM_keyr	= SHM_key+1;
 		key_t		SDS_key		= 0x6666;
-		uint		SDS_id		= 0;
-		key_t		Sem_key		= 0x9999;
 		keys_arr_t 	sdskeys 	{};
-		string 		appcfg		= "S0.cfg";  // TODO name of Synthesizer instances
-		char		clear		= 'n';
+		uint		temp_sec	= 30; // sevonds storage in StA
+		uint 		record_sec	= 180; // seconds storage
+//		string 		appcfg		= "S0.cfg";  // TODO name of Synthesizer instances
 } prgarcg_struct_t;
 
 enum

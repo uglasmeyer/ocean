@@ -72,8 +72,8 @@ bool External_class::Read_file_data(  )
 	{
 		for ( buffer_t n = 0; n < structs; n++)
 		{
-			Data_t L = stereo.stereo_data[n].left;
-			Data_t R = stereo.stereo_data[n].right;
+			Data_t L = stereo_data[n].left;
+			Data_t R = stereo_data[n].right;
 			StA->Data[n]	= L + R;
 		}
 		Comment(INFO,"Converted stereo to mono data");
@@ -94,7 +94,7 @@ bool External_class::Read_file_data(  )
 
 bool External_class::read_stereo_data( long data_bytes  )
 {
-	read_position += fread( stereo.stereo_data ,
+	read_position += fread( stereo_data ,
 							sizeof(stereo_t),
 							data_bytes/sizeof(stereo_t),
 							File  );
@@ -192,7 +192,7 @@ long External_class::write_audio_data( string filename, buffer_t rcounter )
 {
 
 	FILE* fd 	= fopen( filename.data(), "ab" );
-    long count 	= fwrite( this->stereo.stereo_data, sizeof(stereo_t), rcounter , fd );
+    long count 	= fwrite( this->stereo_data, sizeof(stereo_t), rcounter , fd );
     fclose( fd );
     return count;
 }
@@ -202,8 +202,8 @@ void External_class::Mono2Stereo( Data_t* Data, uint size )
 
 	for( buffer_t n = 0; n < size; n++)
 	{
-		stereo.stereo_data[n].left  		= rint( Data[n] );
-		stereo.stereo_data[n].right 		= rint( Data[n] );
+		stereo_data[n].left  		= rint( Data[n] );
+		stereo_data[n].right 		= rint( Data[n] );
 	}
 
 }
@@ -287,7 +287,7 @@ void External_class::Save_record_data( uint sec, int filenr)
 //	long rcounter = StA->record_data;// * 2; //mono to stereo factor
 	long rcounter = sec * max_frames;
 	Comment( INFO, "Record frames: " + to_string (rcounter));
-	stereo.Info( "External Stereo data");
+	Stereo_Memory::Info( "External Stereo data");
 
 	if ( rcounter == 0 )
 	{
@@ -300,7 +300,7 @@ void External_class::Save_record_data( uint sec, int filenr)
 	long count		= write_audio_data( file_structure().raw_file, rcounter );
 	bool success = ( rcounter == count );
 	if ( success )
-		Comment(INFO,"All " + to_string( rcounter*stereo.ds.sizeof_data) + " bytes written to file");
+		Comment(INFO,"All " + to_string( rcounter*ds.sizeof_data) + " bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(rcounter) + " written");
@@ -354,7 +354,7 @@ void External_class::Test_External()
 {
 	TEST_START( "External");
 	Log_system.Set_Loglevel( TEST, true);
-	assert( StA->ds.max_records - stereo.ds.max_records == 0 );
+	assert( StA->ds.max_records - ds.max_records == 0 );
 
 	if ( filesystem::exists( testcounter ))
 		filesystem::remove( testcounter );

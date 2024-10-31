@@ -20,25 +20,36 @@
 #include <App.h>
 #include <External.h>
 #include <Wavedisplay.h>
+#include <Keyboard.h>
+#include <Exit.h>
 
+
+typedef struct device_struct
+{
+	uint 	Index;
+	uint 	Id;
+	string 	Name;
+} device_struct_t;
+device_struct_t DeviceDescription;
 
 
 // classes and structures
 
-string Module 			= "AudioServer";
+Exit_class				Exit{};
+Logfacility_class 		Log{ "AudioServer" };
 
-Logfacility_class 		Log( Module );
+Time_class				Timer{};
+Time_class				RecTimer{};
+Keyboard_class			Keyboard{};
+
 Dataworld_class			DaTA( AUDIOID );
 Application_class		App( &DaTA );
-interface_t*			sds	= DaTA.Sds_master;
 Config_class*			Cfg = DaTA.Cfg_p;
-External_class			External { Cfg, sds };
+interface_t*			sds	= DaTA.Sds_master;
+Memory					mono_out	{ monobuffer_size };
+External_class			External { DaTA.Cfg_p, sds };
 ProgressBar_class		ProgressBar( &sds->RecCounter );
 
-Time_class				RecTimer;
-Time_class				Timer;
-
-Memory					mono_out	{ monobuffer_size };
 Wavedisplay_class		Wavedisplay	{ DaTA.Sds_p };
 
 
@@ -57,18 +68,9 @@ bool 			done 			= false;
 // ----------------------------------------------------------------
 // RT Audio constant declarations
 
-typedef struct device_struct
-{
-	uint 	Index;
-	uint 	Id;
-	string 	Name;
-} device_struct_t;
-device_struct_t DeviceDescription;
-
 
 
 #define FORMAT RTAUDIO_SINT16 // 16bit signed integer
-
 
 
 // end declaration section

@@ -11,6 +11,7 @@
 #include <Ocean.h>
 #include <Oscbase.h>
 #include <String.h>
+#include <Config.h>
 
 
 /*
@@ -23,7 +24,7 @@ enum conventionId_t { ENGLISH, NUMERIC, ALPHABET };
 class Note_base : virtual public Logfacility_class
 {
 public:
-
+	const string			notes_ext		= file_structure().nte_type;
 	const String 			OctaveChars 	{ "012345" };
 	const uint				max_octave		= (uint) OctaveChars.Str.length()-1;
 	const uint 				min_octave 		= 0;

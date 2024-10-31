@@ -18,7 +18,7 @@ Keyboard_base::~Keyboard_base()
 };
 
 
-Keyboard_base::key_struct_t Keyboard_base::GetKey()
+key_struct_t Keyboard_base::GetKey()
 {
 	pressKey();
 
@@ -53,7 +53,7 @@ void Keyboard_base::Init()
 
 void Keyboard_base::Reset()
 {
-	Comment(INFO , "Keyboard reset");
+//	Comment(INFO , "Keyboard reset");
 	/*
 	struct termios 		tflags = {0};
 	if(tcgetattr (0, &tflags) < 0)

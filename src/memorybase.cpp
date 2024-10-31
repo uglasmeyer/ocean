@@ -8,9 +8,12 @@
 #include <data/Memorybase.h>
 
 Memory_base::Memory_base( buffer_t size ) :
-	Logfacility_class( "" )
+	Logfacility_class( "Memory_base" )
 {
 	ds.size = size;
+	className = Logfacility_class::module;
+	Comment( INFO, "pre-init memory size " + to_string( size ));
+
 //	Log[ TEST ] = true;
 
 };
@@ -19,6 +22,7 @@ Memory_base::Memory_base() :
 	Logfacility_class( "Memory_base" )
 {
 	className = Logfacility_class::module;
+	Comment( INFO, "pre-init memory size " + to_string( 0 ));
 };
 
 Memory_base::~Memory_base()
@@ -38,7 +42,7 @@ void* Memory_base::Init_void()
 	return ds.addr;
 }
 void Memory_base::Info()
-{	if ( not Log[ TEST ] ) return;
+{
 	String S{""};
 	Comment( INFO, "Name             : " + ds.name );
 	Comment( INFO, "Memory bytes     : " + to_string( ds.mem_bytes ));
@@ -58,6 +62,8 @@ Shm_base::Shm_base( buffer_t size ) :
 Logfacility_class( "Shm_base" )
 {
 	ds.size = size;
+	Comment( INFO, "pre-init shared memory size " + to_string( size ));
+
 }
 
 Shm_base::~Shm_base()

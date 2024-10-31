@@ -95,18 +95,20 @@ void Loop_class::Test()
 Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 : Logfacility_class("Mixer")
 {
+	this->className = Logfacility_class::module;
+
 	cout << "Init Mixer_class" << endl;
 	this->sds 	= data->GetSdsAddr( );
 
 	for( uint n : MemIds )
 	{
-		Storage_class DataMem;
-		DataMem.Id = n;
-		StA.push_back(DataMem);
+		Storage_class Sta;
+		Sta.Id = n;
+		StA.push_back(Sta);
 	}
 
-	StA_struct_t usr_conf = {"temp"		, max_frames*tmpduration };
-	StA_struct_t ext_conf = {"External"	, max_frames*recduration };
+	StA_struct_t usr_conf = {"temp"		, max_frames * data->Cfg.Config.temp_sec };
+	StA_struct_t ext_conf = {"External"	, max_frames * data->Cfg.Config.record_sec };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);

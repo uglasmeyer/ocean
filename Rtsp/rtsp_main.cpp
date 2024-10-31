@@ -70,7 +70,7 @@ void exit_proc( int signal )
 void Test_rtsp()
 {
 	Keyboard_base Kbd;
-	Keyboard_base::key_struct_t key = Keyboard_base::key_struct();
+	key_struct_t key = key_struct();
 	while( key.key != '#')
 	{
 		cout << "." ;
@@ -80,7 +80,6 @@ void Test_rtsp()
 
 int main(  int argc, char* argv[] )
 {
-	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start( argc, argv );
 	sds = App.sds;
 

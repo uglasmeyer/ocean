@@ -84,24 +84,26 @@ typedef struct file_structure
 	DirStructure_class Dir{};
 
 	const string 	filename 		= "synthesizer";
-	const string 	file_type 		= ".kbd";
-	const string 	wav_file_type 	= ".wav";
+	const string 	snd_type 		= ".snd";	// instruments file extension
+	const string	nte_type		= ".nte";	// notes file extension
+	const string 	wav_type 		= ".wav";
 	const string	Audio_bin		= "AudioServer";
 	const string 	Synth_bin		= "Synthesizer";
 	const string 	Comp_bin		= "Composer";
 	const string	Ocean_bin		= "OceanGUI";
 	const string 	Rtsp_bin		= "rtsp";
-	string 			sound_file 		= Dir.etcdir 		+ "test.kbd";
+//	string 			sound_file 		= Dir.etcdir 		+ "test" + snd_type;
 	string 			audio_bin  		= Dir.bindir 		+ Audio_bin;
 	string 			synth_bin  		= Dir.bindir 		+ Synth_bin;
 	string 			composer_bin	= Dir.bindir		+ Comp_bin;
 	string 			ocean_bin		= Dir.bindir		+ Ocean_bin;
 	string 			rtsp_bin		= Dir.bindir		+ Rtsp_bin;
 	string 			ifd_file 		= Dir.libdir 		+ "ifd_data.bin";
-	string 			wav_file 		= Dir.musicdir 		+ filename + ".wav";
+	string 			wav_file 		= Dir.musicdir 		+ filename + wav_type;
 	string 			mp3_file		= Dir.musicdir 		+ filename + ".mp3";
 	string 			raw_file 		= Dir.tmpdir 		+ filename + ".raw";
 	string 			config_file  	= Dir.etcdir		+ filename + ".cfg";
+	string			version_txt		= Dir.etcdir		+ "version.txt";
 	string			datacfg_file	= Dir.etcdir		+ "Data.cfg";
 	string 			counter_file 	= Dir.libdir 		+ "counter.bin";
 	string 			program_file	= Dir.includedir 	+ "main.synth";

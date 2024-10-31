@@ -57,9 +57,8 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     CB_instruments          = ui->cb_instrumentfiles;
     notes_path          	= file_structure().Dir.notesdir;
     instruments_path    	= file_structure().Dir.instrumentdir;
-    string file_type		= file_structure().file_type;
-    Qread_filelist( CB_notes, notes_path, file_type);
-    Qread_filelist( CB_instruments, instruments_path, file_type);
+    Qread_filelist( CB_notes, notes_path, file_structure().nte_type);
+    Qread_filelist( CB_instruments, instruments_path, file_structure().snd_type);
     for( string str : convention_names )
     {
     	QString Qstr = QString::fromStdString( str );
@@ -168,14 +167,12 @@ void File_Dialog_class::Setup_widgets()
 }
 File_Dialog_class::~File_Dialog_class()
 {
-//    if( ui ) delete ui;
+ //   if( ui ) delete( ui );
 }
 
 
 void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &arg1)
 {
-//    qDebug() << "on_cb_instrumentfiles_activated";
-//    qDebug() << "Instrument " << arg1 ;
     QString QStr = arg1;
     string str = QStr.toStdString();
     if ( str.length() > 0 )

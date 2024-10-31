@@ -57,23 +57,24 @@ void set_sdsid( int delta )
 
 char Key_event( string charlist )
 {
-	keys.key = '$';
-
-	while ( charlist.find( keys.key ) == STRINGNOTFOUND )
+//	keys.key = '$';
+	String Str{ charlist };
+	key_struct_t key = key_struct();
+	while ( not Str.Set.contains( key.key )  )
 	{
-		this_thread::sleep_for(chrono::milliseconds(100));
+		this_thread::sleep_for(chrono::milliseconds(1000));
 		show_ifd();
-		keys = Keyboard.GetKey();
+		key = Keyboard.GetKey();
 	}
-	return keys.key;
+	return key.key;
 }
+
 void exit_proc( int signal )
 {
 	exit(0);
 }
 int main( int argc, char* argv[] )
 {
-	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start( argc, argv );
 
     App.Sds->Announce( );
@@ -81,11 +82,10 @@ int main( int argc, char* argv[] )
 
     App.Sds->Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
-	keys.key = '$';
-	char keyevent;
-	while(  keys.key != '#' )
+	char keyevent = '$';
+	while( true )
 	{
-		keyevent = Key_event("#mvfa+-");
+		keyevent = Key_event( "#mvfa+-" );
 		switch (keyevent)
 		{
 		case '+' :
@@ -99,7 +99,7 @@ int main( int argc, char* argv[] )
 		case 'm' :
 		{
 			cout << "Main ";
-			keyevent = Key_event("#faw");
+			keyevent = Key_event( "#faw" );
 			switch ( keyevent )
 			{
 			case 'f' : { sds->Main_Freq = getvalue( "Frequency" ); sds->KEY = MAINFREQUENCYKEY; break; }
@@ -150,6 +150,7 @@ int main( int argc, char* argv[] )
 			}
 			break;
 		}
+
 		default:
 			break;
 		}
@@ -158,6 +159,8 @@ int main( int argc, char* argv[] )
 			tainted = false;
 			Sds->Show_interface();
 		}
+		if ( keyevent == Keyboard.AppExit )
+			exit_proc( 0 );
 	} // while key
 
 	return 0;

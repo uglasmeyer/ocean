@@ -93,9 +93,13 @@ int Keyboard_class::Kbdnote()
 	keystruct = GetKey();
 
 	int anykey = keystruct.key;
-
+	if ( anykey == AppExit )
+	{
+		Comment( WARN, "Exit by user request");
+		raise( SIGINT );
+	}
 	// check if key is in set KbdNote
-	size_t note = KbdNote.find( anykey );
+	size_t note = KbdNote.Str.find( anykey );
 	if ( note == STRINGNOTFOUND )
 	{
 		return NOKEY; // not a note key

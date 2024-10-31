@@ -281,7 +281,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		string notes_name = pop_stack( 1);
 		Comment( INFO, "loading notes " + notes_name );
 		check_file( { 	file_structure().Dir.autodir,
-						file_structure().Dir.notesdir }, notes_name + ".kbd" );
+						file_structure().Dir.notesdir }, notes_name + file_structure().nte_type );
 
 		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, notes_name );
 		return;
@@ -402,7 +402,7 @@ void Interpreter_class::Instrument( vector_str_t arr )
 		expect = { "instument name "};
 		string instr = pop_stack( 1);
 		Comment( INFO, "loading instrument " + instr );
-		check_file( { file_structure().Dir.instrumentdir } , instr + ".kbd" );
+		check_file( { file_structure().Dir.instrumentdir } , instr + file_structure().snd_type );
 
 //		Push_text( command );
 		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
@@ -838,15 +838,15 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 
 	auto is_notesfile = [](string str )
 		{
-			string filename = file_structure().Dir.notesdir + str + ".kbd";
+			string filename = file_structure().Dir.notesdir + str + file_structure().nte_type;
 			return filesystem::exists(filename);
 		};
 
 	auto add_notesfile = []( string varname, string filea, string fileb )
 		{
-			string srca = file_structure().Dir.notesdir + filea + ".kbd";
-			string srcb = file_structure().Dir.notesdir + fileb + ".kbd";
-			string dest = file_structure().Dir.autodir + varname + ".kbd";
+			string srca = file_structure().Dir.notesdir + filea + file_structure().nte_type;
+			string srcb = file_structure().Dir.notesdir + fileb + file_structure().nte_type;
+			string dest = file_structure().Dir.autodir + varname + file_structure().nte_type;
 			string cmd = "cat " +  srca + " " + srcb + " > " +  dest;
 			system_execute( cmd );
 		};
@@ -1124,7 +1124,12 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 	{
 
 		Comment( WARN, "list directory " + dir );
-		vector<string> DirList = List_directory( dir, ".kbd" );
+
+		vector<string>
+		DirList = List_directory( dir, file_structure().nte_type );
+		cout << show_type( DirList ) << endl;
+
+		DirList = List_directory( dir, file_structure().snd_type );
 		cout << show_type( DirList ) << endl;
 	}
 	Exception( "no such file " + name );//raise( SIGINT );
@@ -1176,7 +1181,7 @@ void Interpreter_class::Test(  )
 	Addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-	cout << show_type( List_directory( file_structure().Dir.instrumentdir, ".kbd" ) ) << endl;
+	cout << show_type( List_directory( file_structure().Dir.instrumentdir, file_structure().snd_type ) ) << endl;
 //	assert ( false );
 	varlist.clear();
 

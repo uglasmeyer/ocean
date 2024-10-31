@@ -11,7 +11,10 @@
 #include <Interpreter.h>
 #include <App.h>
 #include <System.h>
+#include <Exit.h>
 
+
+Exit_class				Exit{};
 string					Module = "Composer";
 Logfacility_class 		Log( Module );
 Dataworld_class			DaTA( COMPID );

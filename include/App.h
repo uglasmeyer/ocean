@@ -48,6 +48,7 @@ public:
 	virtual ~Application_class();
 
 	void Shutdown_instance( );
+	void VersionTxt();
 	void Start( int, char* [] );
 	void Init_Sds( uint sds_id );
 	uint8_t GetAppState( uint appid );

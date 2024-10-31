@@ -7,7 +7,7 @@ RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
 										.streamName = Application };
 
 
-void errorCallback( RtAudioErrorType /*type*/, const std::string &errorText )
+void errorCallback( RtAudioErrorType /*type*/, const string& errorText )
 {
 	Log.Comment(ERROR, errorText ) ;
 }
@@ -63,8 +63,6 @@ void shutdown_stream()
 		if ( rtapi.isStreamOpen() )
 			Log.Comment( ERROR, "stream is still open");
 	}
-	if ( frame )
-		free( frame);
 	string txt = rtapi.getErrorText();
 	if ( txt.length() == 0 )  txt = "None";
 	Log.Comment( ERROR, txt );
@@ -131,11 +129,19 @@ void exit_proc( int signal )
 	exit_intro( signal );
 
 
-//	shutdown_stream();
 	shutdown_thread();
 
-	Log.Comment(INFO, "Audioserver reached target exit 0" );
+	if ( signal )
+	{
+		shutdown_stream();
+		if ( frame )
+			free( frame);
+		exit(0);
+	}
+	if ( frame )
+		free( frame);
 	done = true;
+
 
 }
 
@@ -282,7 +288,7 @@ void set_ncounter( buffer_t n )
 		ncounter = 0;
 		if ( External.status.record )
 		{
-			External.Record_buffer( shm_addr, External.stereo.stereo_data, rcounter * max_frames);
+			External.Record_buffer( shm_addr, External.stereo_data, rcounter * max_frames);
 			set_rcounter();
 		}
 
@@ -293,6 +299,7 @@ void set_ncounter( buffer_t n )
 	}
 }
 
+key_struct_t AppKey;
 
 int RtAudioOut(	void *outputBuffer,
 				void * /*inputBuffer*/,
@@ -338,7 +345,6 @@ int RtAudioOut(	void *outputBuffer,
 
 int main( int argc, char *argv[] )
 {
-	catch_signals( &exit_proc, { SIGHUP, SIGINT, SIGABRT } );
 	App.Start(argc, argv );
 
 	Log.Set_Loglevel(DEBUG, false);

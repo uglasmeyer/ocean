@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
+VERSION_TXT=$OCEANDIR/etc/version.txt
 
 EXCLUDE=/tmp/ecxlude
 echo ".git
@@ -9,4 +10,6 @@ ifd_data*
 auto
 tmp" > $EXCLUDE
 
-tar --exclude-from=$EXCLUDE -cvf Ocean.tar OceanBase
+VERSION=`cat $VERSION_TXT | grep Version: | cut -d: -f2`
+VERSION=`echo $VERSION`
+tar --exclude-from=$EXCLUDE -cvf ocean_sound_lab_${VERSION}.tar OceanBase

@@ -142,7 +142,7 @@ int Note_class::notechar2Value( char note_char )
 		return -12;
 }
 
-Note_class::note_t Note_class::char2note( char ch )
+Note_class::note_t Note_class::char2note( char& ch )
 {
 	note_buffer.str.push_back(ch);
 	notevalue_buffer 				= notevalue_struct();

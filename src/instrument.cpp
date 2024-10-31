@@ -22,7 +22,7 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 void Instrument_class::Setup( interface_t* ifd )
 {
 	this->ifd 		= ifd;
-	Default_instrument_file = file_structure().Dir.instrumentdir + "default.kbd";
+	Default_instrument_file = file_structure().Dir.instrumentdir + "default" + instr_ext;
 	ifd_spectrum_vec = { &ifd->VCO_spectrum, &ifd->FMO_spectrum, &ifd->MAIN_spectrum};
 }
 
@@ -166,17 +166,17 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 void Instrument_class::set_new_name( string name )
 {
 	Name = name;
-	Instrument_file 		= file_structure().Dir.instrumentdir + Name + ".kbd";
+	Instrument_file 		= file_structure().Dir.instrumentdir + Name + instr_ext;
 }
 
 void Instrument_class::set_name( string name )
 {
-	Instrument_file 		= file_structure().Dir.instrumentdir + name + ".kbd";
+	Instrument_file 		= file_structure().Dir.instrumentdir + name + instr_ext;
 	if ( filesystem::exists( Instrument_file ) )
 		Name = name;
 	else
 		Name = "default";
-	Instrument_file 		= file_structure().Dir.instrumentdir + Name + ".kbd";
+	Instrument_file 		= file_structure().Dir.instrumentdir + Name + instr_ext;
 
 	Comment( INFO, "Instrument Name: " + Name);
 }

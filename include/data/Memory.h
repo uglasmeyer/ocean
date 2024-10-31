@@ -53,26 +53,33 @@ typedef struct stereo_struct
 const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_t);
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
 
-class Stereo_Memory : virtual public Logfacility_class, public virtual Memory_base
+class Stereo_Memory :
+	virtual public Logfacility_class,
+	public virtual Memory_base
 {
 	string className = "Stereo_Memory";
 public:
 	stereo_t* stereo_data = nullptr;
 
 	Stereo_Memory(buffer_t size) :
-		Logfacility_class( ""),
+		Logfacility_class( "Memory_base"),
 		Memory_base( size )
 	{
-		init_data();
+		Init_data( size );
+	}
+	Stereo_Memory() :
+		Logfacility_class( "Memory_base"),
+		Memory_base( )
+	{
 	}
 	virtual ~Stereo_Memory( )
 	{};
 
 	void Clear_data(  );
 	void Info( string );
+	void Init_data( buffer_t size );
 
 private:
-	void init_data(  );
 
 };
 

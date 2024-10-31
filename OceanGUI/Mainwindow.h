@@ -173,8 +173,8 @@ private:
     QTimer				status_timer_obj{};
     QTimer*				status_timer		= &status_timer_obj;
     QGraphicsScene  	Scene { this };
-    QGraphicsScene*     scene 	= &Scene;
-    OszilloscopeWidget* OscW_item	= nullptr;
+    QGraphicsScene*     scene 				= &Scene;
+    OszilloscopeWidget* OscW_item			= nullptr;
 };
 
 #endif // MAINWINDOW_H

@@ -51,9 +51,11 @@ static const uint 	MbIdNotes 		= MbSize - 2;
 static const uint 	MbIdKeyboard 	= MbSize - 3;
 static const uint   MbIdInstrument	= MbSize - 4;
 
-class Mixer_class : virtual public Logfacility_class,
-					virtual public Mixer_base
+class Mixer_class :
+	virtual public Logfacility_class,
+	virtual public Mixer_base
 {
+	string className = "";
 	// provides and manages memory array
 public:
 
@@ -66,23 +68,23 @@ public:
 
 	typedef vector<Storage_class>
 						StorageArray_t;
-
 	StorageArray_t 		StA;
+
 	uint8_t				master_volume	= 100;
 	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
-	Memory 				Mono	{ monobuffer_size }; 	// Wavedisplay output
-	Memory 				Mono_out{ monobuffer_size };// Wavedisplay output
-	Memory 				Out_L	{ monobuffer_size };// Output buffer long
-	Memory				Out_R	{ monobuffer_size };//
+	Memory 				Mono			{ monobuffer_size }; 	// Wavedisplay output
+	Memory 				Mono_out		{ monobuffer_size };// Wavedisplay output
+	Memory 				Out_L			{ monobuffer_size };// Output buffer long
+	Memory				Out_R			{ monobuffer_size };//
 
 	vector<Loop_class>	amp_loop_vec {};
 
 	interface_t* 		sds				= nullptr;
-	uint				sdsid			= 0;
 
-	Mixer_class ( Dataworld_class* data, Wavedisplay_class* wd );
+	Mixer_class ( 	Dataworld_class* 	data,
+					Wavedisplay_class* 	wd );
 	~Mixer_class();
 
 	void Store_noteline( uint8_t, Note_class* );

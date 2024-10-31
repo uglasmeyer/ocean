@@ -13,23 +13,23 @@
 
 using namespace std;
 
+static const int	NoKey 	= 0;
+typedef struct key_struct
+{
+	int 	key	= NoKey;
+	uint 	val	= 0;
+} key_struct_t;
 
 
 class Keyboard_base : virtual Logfacility_class
 {
 public:             // Access specifier
-	const static int	NoKey 	= 0;
-
-	typedef struct key_struct
-	{
-		int 	key	= NoKey;
-		uint 	val	= 0;
-	} key_struct_t;
-	key_struct_t 	keystruct;
+	const char			AppExit = '#';
 
 	Keyboard_base();
 	virtual ~Keyboard_base();
 
+	key_struct_t 	keystruct;
 	key_struct_t 	GetKey();
 	void 			Set_ch( char ch );
 	void 			Reset();

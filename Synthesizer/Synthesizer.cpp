@@ -3,7 +3,8 @@
 
 using namespace std;
 
-Logfacility_class		Log( Module );
+Exit_class				Exit{};
+Logfacility_class		Log( "Synthesizer" );
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
 
@@ -22,10 +23,13 @@ External_class 			External( 	&Mixer.StA[ MbIdExternal],
 									DaTA.Cfg_p);
 ProgressBar_class		ProgressBar( &sds->RecCounter );
 Statistic_class 		Statistic{ Log.module };
+Time_class				Timer		( &sds->time_elapsed );
+
 
 Semaphore_class*		Sem	= DaTA.Sem_p;
 Config_class*			Cfg = DaTA.Cfg_p;
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
+const int 				EXITTEST			= 15;;
 
 Core_class				Synthesizer{
 							&Instrument,
@@ -36,7 +40,6 @@ Core_class				Synthesizer{
 							&External,
 							&ProgressBar };
 
-extern void exit_proc( int signal );
 
 void show_AudioServer_Status()
 {
@@ -77,7 +80,7 @@ void activate_sds()
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 
 	for( char key : init_keys )
-		Synthesizer.processKey( key );
+		Synthesizer.Controller( key );
 }
 
 bool sync_mode()
@@ -148,7 +151,6 @@ void ApplicationLoop()
 	Log.Comment(INFO, "Entering Application loop\n");
 	interface_t* 	ifd 		= DaTA.GetSdsAddr( );
 	stereo_t* 		shm_addr 	= DaTA.GetShm_addr( );
-	Time_class		Timer		( &ifd->time_elapsed );
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
 
@@ -163,7 +165,7 @@ void ApplicationLoop()
 		ifd->time_elapsed = Timer.Performance();
 
 		char Key = ifd->KEY;
-		Synthesizer.processKey( Key );
+		Synthesizer.Controller( Key );
 		assert( ifd->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		int note_key = Keyboard.Kbdnote( );
@@ -299,10 +301,8 @@ void exit_proc( int signal )
 
 int main( int argc, char* argv[] )
 {
-	catch_signals( &exit_proc, { SIGINT, SIGHUP, SIGABRT } );
 
 	App.Start( argc, argv );
-
 
 	Dir.Create();
 

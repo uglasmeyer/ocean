@@ -124,7 +124,7 @@ private:
 	void			add_volume( note_itr_t );
 	void			assign_freq();
 	float	 		calc_freq ( uint8_t , notevalue_t );
-	note_t			char2note( char );
+	note_t			char2note( char& ch );
 	void			split_long_notes();
 
 };

@@ -38,7 +38,6 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     this->instrument   		= this->GUI->Read_str( INSTRUMENTSTR_KEY );
     size_t wfid            	= this->ifd->MAIN_spectrum.id;
-    cout << "wfid: " << dec << (int) wfid << endl;
     assert( ( wfid >= 0 ) and ( wfid < Spectrum.Get_waveform_vec().size() ) );
     this->spectrum 			= ifd->MAIN_spectrum;
 
@@ -58,7 +57,7 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
 Spectrum_Dialog_class::~Spectrum_Dialog_class()
 {
-//   if( ui) delete ui;
+//   if( ui) delete(ui);
 }
 
 auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spectrum_t& spec, char id )

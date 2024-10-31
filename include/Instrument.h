@@ -29,6 +29,7 @@ public:
 	vector<Oscillator*>		osc_vector { &vco, &fmo, &main };
 	interface_t*  				ifd;
 
+	const string instr_ext = file_structure().snd_type;
 	Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
 	virtual ~Instrument_class();
 ;

@@ -11,14 +11,7 @@ using namespace std;
 
 Logfacility_class Log_common{"System"};
 
-void catch_signals( sighandler_t proc, vector<uint> sig_v )
-{
-	for ( uint sig : sig_v )
-	{
-		Log_common.Comment(INFO, "Catching signal: " + to_string(sig) );
-		signal( sig	, proc );
-	}
-}
+
 
 void Assert(	bool expr,
 				const string message,

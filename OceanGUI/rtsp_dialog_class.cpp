@@ -61,5 +61,5 @@ void Rtsp_Dialog_class::proc_table_update_all( )
 
 Rtsp_Dialog_class::~Rtsp_Dialog_class()
 {
-
+//	delete(ui);
 }

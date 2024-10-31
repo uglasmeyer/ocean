@@ -21,10 +21,8 @@
 #include <Mixer.h>
 #include <Progressbar.h>
 #include <System.h>
-#include <Print.h>
+#include <Exit.h>
 
-const string			Module 				= "Synthesizer";
-const int 				EXITTEST			= 15;;
 
 
 class Core_class :
@@ -69,7 +67,7 @@ public:
 	virtual ~Core_class()
 	{};
 
-	void processKey( char);
+	void Controller(char key);
 
 private:
 

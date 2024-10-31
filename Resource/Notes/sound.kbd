@@ -1,0 +1,13 @@
+#OSC,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddelay  bps atck hall glide      PMWs
+ OSC,      VCO,rectangle,    218,   1000,     37,  free,  free,  free,   0,   1,  80,   0,   0,      0,
+CONN,      VCO,      VCO,      F,
+CONN,      VCO,      VCO,      V,
+SPEC,      VCO,rectangle,100,  0,  0,  0,  0,  0,  0,  0,100
+ OSC,      FMO,rectangle,    110,   1000,      6,  free,  free,  free,   0,   1,  80,   0,   0,      0,
+CONN,      FMO,      FMO,      F,
+CONN,      FMO,      FMO,      V,
+SPEC,      FMO,rectangle,100, 78,  0,  0,  0,  0,  0,  0,178
+ OSC,     MAIN, Sawtooth,    220,   1000,     69,  free,  free,  free,  93,   3,   1,   4,   0,      0,
+CONN,     MAIN,      FMO,      F,
+CONN,     MAIN,      VCO,      V,
+SPEC,     MAIN, Sawtooth,100,  0,  0, 15,  0,  9,  0,  0,124

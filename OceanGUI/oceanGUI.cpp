@@ -187,7 +187,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     CB_external         = ui->cb_external;
     string wavfile_path = file_structure().Dir.musicdir;
     Qread_filelist( CB_external,
-    				wavfile_path, file_structure().wav_file_type );
+    				wavfile_path, file_structure().wav_type );
     ui->cb_bps->addItems( Qbps_str_lst );
     setwidgetvalues();
 
@@ -603,7 +603,7 @@ void MainWindow::setwidgetvalues()
 void MainWindow::GUI_Exit()
 {
     qDebug("%s", "Exit" );
-    QApplication::quit();
+    QApplication::exit();
 }
 
 auto Slider_Hz = []( Interface_class* IFC, float& fptr, float value, char key )
@@ -611,6 +611,7 @@ auto Slider_Hz = []( Interface_class* IFC, float& fptr, float value, char key )
 		IFC->Set( fptr 			, value);
 		IFC->Set( IFC->addr->KEY 	, key);
 	};
+
 void MainWindow::MAIN_slot_Hz()
 {
 	Slider_Hz( this->Sds, this->Sds->addr->Main_Freq, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
@@ -812,19 +813,19 @@ void MainWindow::Updatewidgets()
 				case RECORDWAVFILEFLAG :
 				{
 					Qread_filelist( CB_external,
-									file_structure().Dir.musicdir, file_structure().wav_file_type);
+									file_structure().Dir.musicdir, file_structure().wav_type);
 					break;
 				}
 				case NEWINSTRUMENTFLAG :
 				{
 					Qread_filelist( this->File_Dialog_p->CB_instruments,
-									file_structure().Dir.instrumentdir, file_structure().file_type);
+									file_structure().Dir.instrumentdir, file_structure().snd_type);
 					break;
 				}
 				case NEWNOTESLINEFLAG :
 				{
 					Qread_filelist( this->File_Dialog_p->CB_notes,
-									file_structure().Dir.notesdir, file_structure().file_type);
+									file_structure().Dir.notesdir, file_structure().nte_type);
 					break;
 				}
 			}

@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
-BASEDIR=$HOME/git/Ocean/
-RESOURCEDIR=$BASEDIR/Resource/
+GITDIR=$HOME/git/Ocean/
+RESOURCEDIR=$GITDIR/Resource/
 INSTBASE=$HOME/OceanBase/
 
 
@@ -11,21 +11,28 @@ cp Ocean.png $INSTBASE/lib
 cp oceansetup.sh $INSTBASE/bin
 
 echo updating git Instruments
-cd $RESOURCEDIR
-for F in *kbd
+cd $RESOURCEDIR/Instruments
+for F in *snd
 do
-	cp ${INSTBASE}/etc/Instruments/*kbd .
-	[ ! -f $INSTBASE/etc/Instruments/$F ] && cp $F $INSTBASE/etc/Instruments
+	cp ${INSTBASE}/etc/Instruments/*snd .
 done
 
 echo updating git Notes
 cd $RESOURCEDIR/Notes
-for F in *kbd
+for F in *nte
 do
-	cp ${INSTBASE}/etc/Notes/*kbd .
-	[ ! -f $INSTBASE/etc/Notes/$F ] && cp $F $INSTBASE/etc/Notes
+	cp ${INSTBASE}/etc/Notes/*nte .
 done
 
+echo updating git etc directory
+cd $RESOURCEDIR
+for F in synthesizer.cfg
+do
+	cp ${INSTBASE}/etc/$F .
+	[ ! -f $INSTBASE/etc/$F ] && cp $F $INSTBASE/etc
+done
+
+echo updating git include directory
 cd $RESOURCEDIR
 for F in main.synth *.inc
 do
@@ -34,5 +41,5 @@ do
 done
 
 cd $RESOURCEDIR
-cp *odt $INSTBASE/doc
+cp *odt *.docx $INSTBASE/doc
 cp oceandeploy.sh $HOME

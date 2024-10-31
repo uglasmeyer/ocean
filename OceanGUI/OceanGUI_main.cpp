@@ -1,23 +1,28 @@
 #include <QApplication>
+#include <Mainwindow.h>
 
-#include <signal.h>
 #include <App.h>
 #include <data/Interface.h>
+#include <Exit.h>
 
 const string		TitleModule = "Ocean Sound Lab";
+
+Exit_class	Exit{};
 Statistic_class 	Statistic	{  TitleModule };
 
-#include <Mainwindow.h>
+
 
 void exit_proc( int signal )
 {
+	cout << endl;
+	cout << TitleModule << " exit on signal " + to_string( signal ) << endl;
+    QApplication::exit(0);
+
 	exit(0);
 }
 
 int main(int argc, char *argv[])
 {
-	catch_signals( &exit_proc, { SIGINT, SIGHUP, SIGABRT } );
-
     QApplication app(argc, argv);
 
     MainWindow 			Win;
@@ -35,7 +40,7 @@ int main(int argc, char *argv[])
     Win.show();
 
     app.exec();
-
     Statistic.Show_Statistic( );
+
     return 0;
 }

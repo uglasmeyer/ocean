@@ -10,19 +10,22 @@
 Dataworld_class::Dataworld_class( uint type_id ) :
 	Logfacility_class( "DaTA")
 {
-
 	this->TypeId	= type_id;
+	auto sds_setup = [ this ]( uint sdsid )
+	{
+		Interface_class SDS {Cfg_p, Sem_p };
+		SDS.Type_Id = TypeId;
+		SDS.Setup_SDS( sdsid, Cfg.Config.sdskeys[sdsid] );
+
+		SDS_vec.push_back( SDS );
+	};
+
 
 	// Shared Data Segment
 
 	for( uint sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
-	{
-		Interface_class SDS {Cfg_p, Sem_p };
-		SDS.Type_Id = type_id;
-		SDS.Setup_SDS( sdsid, Cfg.Config.sdskeys[sdsid] );
+		sds_setup( sdsid );
 
-		SDS_vec.push_back( SDS );
-	}
 	//	test
 	assert( SDS_vec[0].ds.addr != SDS_vec[1].ds.addr );
 

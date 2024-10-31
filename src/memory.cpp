@@ -61,8 +61,9 @@ void Memory::Info( string name )
 //-----------------------------------------------------------------------------
 
 
-void Stereo_Memory::init_data( )
+void Stereo_Memory::Init_data( buffer_t size )
 {
+	Memory_base::ds.size = size;
 	stereo_data = ( stereo_t* ) Init_void();
 
 	SetDs( sizeof( stereo_t ));
@@ -186,7 +187,6 @@ Shared_Memory::Shared_Memory( buffer_t size ) :
 		Logfacility_class("Shm"),
 		Shm_base( size )
 {
-	Comment( INFO, "pre-init shared memory");
 };
 
 Shared_Memory::~Shared_Memory()

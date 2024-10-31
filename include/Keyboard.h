@@ -24,8 +24,7 @@ class Keyboard_class :	virtual  Logfacility_class,
 
 public:
 
-	const string		KbdNote		{ "SDRFTGHUJIKOL" };
-
+	const String		KbdNote		{ "SDRFTGHUJIKOL" };
 	Oscillator 			osc			{ KBDID };
 	Oscillator 			vco			{ VCOID };
 	Oscillator 			fmo			{ FMOID };

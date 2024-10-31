@@ -232,7 +232,6 @@ void exit_proc( int signal )
 
 int main( int argc, char* argv[] )
 {
-	catch_signals( &exit_proc, { SIGINT, SIGHUP, SIGABRT } );
 
 	App.Start( argc, argv );
 

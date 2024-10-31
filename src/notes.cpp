@@ -222,13 +222,13 @@ void Note_class::set_file_name( string str )
 	Notefile = "";
 	for ( string dir : { file_structure().Dir.notesdir , file_structure().Dir.autodir} )
 	{
-		string filename = dir + str + file_structure().file_type;
+		string filename = dir + str + file_structure().nte_type;
 		if ( filesystem::exists( filename) )
 			Notefile = filename;
 	};
 	if ( Notefile == "" )
 	{
-		Notefile = file_structure().Dir.notesdir + str  + file_structure().file_type;
+		Notefile = file_structure().Dir.notesdir + str  + file_structure().nte_type;
 		Comment( ERROR, "note file " + Notefile + " not yet found");
 	}
 }

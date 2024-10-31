@@ -136,6 +136,13 @@ void Application_class::Init_Sds( uint sds_id )
 	this->sds		= Sds->addr;
 }
 
+void Application_class::VersionTxt()
+{
+	fstream File;
+	File.open( file_structure().version_txt, fstream::out );
+	File << "Version: " << Version_No << endl;
+}
+
 void Application_class::Start( int argc, char* argv[] )
 {
     std::set<int> logowner{ GUI_ID, COMPID, RTSPID };
@@ -147,12 +154,15 @@ void Application_class::Start( int argc, char* argv[] )
 	Info2( 2, "Entering application init for ", This_Application );
 	Info2( 1, Line );
 
+	VersionTxt();
+
 	redirect_stderr = (bool) std::freopen( errFile.data(), "w", stderr);
 	if ( redirect_stderr )
 	{
 		Info2(1, "Redirecting stderr");
 		fprintf( stderr, "%s\n", "error file content:\n");
 	}
+
 	this->Cfg					= DaTA->Cfg_p;
 
 	Cfg->Parse_argv(argc, argv );

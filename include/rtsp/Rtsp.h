@@ -11,8 +11,10 @@
 #include <App.h>
 #include <data/Semaphore.h>
 #include <System.h>
+#include <Exit.h>
 
 
+Exit_class			Exit{};
 const string		Module	= "rtsp";
 Logfacility_class	Log( Module );
 Dataworld_class		DaTA( RTSPID );

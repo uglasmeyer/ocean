@@ -14,17 +14,16 @@
 #include <App.h>
 #include <data/Interface.h>
 #include <Keys.h>
+#include <Exit.h>
 
-
+Exit_class				Exit{};
 string					Module			= "comstack";
 Logfacility_class 		Log( Module );
-Keyboard_class			Keyboard;
+Keyboard_class			Keyboard{ };
 Dataworld_class 		DaTA( COMSTACKID );
 Application_class		App( &DaTA );
 interface_t* 			sds 			= nullptr;
 
-Keyboard_base::key_struct_t
-						keys			= Keyboard_base::key_struct();
 string 					waveform_string = "0 ... 10";
 int 					update_counter 	= 1;
 int 					sdsid			= 0;
