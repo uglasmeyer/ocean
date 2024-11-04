@@ -5,8 +5,8 @@
  *      Author: sirius
  */
 
-#include <Notes.h>
 #include <Config.h>
+#include <notes/Notes.h>
 
 Note_class::Note_class()
 : Note_class::Logfacility_class("Notes"),
@@ -23,13 +23,13 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	Instrument_name = instrument->Name;
 	Comment(TEST, "Update notes instrument:  " + Instrument_name);
 	// copy class Oscillator
-	main.wp = instrument->main.wp;
-	main.vp = instrument->main.vp;
-	main.fp = instrument->main.fp;
-	main.vp.data = vco.Mem.Data;
-	main.fp.data = fmo.Mem.Data;
-	main.adsr = instrument->main.adsr;
-	main.spectrum = instrument->main.spectrum;
+	osc.wp = instrument->main.wp;
+	osc.vp = instrument->main.vp;
+	osc.fp = instrument->main.fp;
+	osc.vp.data = vco.Mem.Data;
+	osc.fp.data = fmo.Mem.Data;
+	osc.adsr = instrument->main.adsr;
+	osc.spectrum = instrument->main.spectrum;
 	vco.wp = instrument->vco.wp;
 	vco.vp = instrument->vco.vp;
 	vco.fp = instrument->vco.fp;
@@ -89,59 +89,55 @@ void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO
 			for ( Oscillator* osc : this->osc_group )
 				osc->OSC( offs );
 		};
-
-	auto check_freq = [ this ]( float fnew, float nf, float of, float ocf )
-		{
-			if ( fnew > max_frequency )
-			{
-				cout << "max_frequency =    " << max_frequency ;
-				cout << " < fnew       =    " << fnew <<endl;
-				cout << "notevalue.freq 	" << nf <<endl;
-				cout << "osc.frequency    	" << ocf <<endl;
-				cout << "Octave freqency  	" << of <<endl;
-				Comment( WARN, "max_frequency exceeded." );
-			}
-
-		};
-
-	float fnew = 0;
-
-	uint wp_glide_effect = main.wp.glide_effect;
-	float vco_wp_frequency = vco.wp.frequency;
-	float fmo_wp_frequency = fmo.wp.frequency;
-
-	if ( note.glide.note )
-		main.wp.glide_effect = 100;
-
-	main.Set_long( note.longnote );
-	uint16_t octave_freq = Octave_freq(note.octave);
-	size_t note_chord_len = note.chord.size();
-
-	for ( notevalue_t notevalue : note.chord )
+	auto calc_freq = [ this ]( float base, const pitch_t& pitch )
 	{
-		fnew = ( notevalue.freq * 	vco_wp_frequency ) / octave_freq;
-		check_freq( fnew, notevalue.freq, octave_freq, vco_wp_frequency );
+		int key = pitch.step + pitch.alter;
+		if ( key < 0 )
+		{
+			key		+= 12;
+			base 	= base / 2;
+		}
+		return Calc_frequency( base, key);
+;
+	};
+
+	uint wp_glide_effect = osc.wp.glide_effect;
+	const float vco_wp_frequency = vco.wp.frequency;
+	const float fmo_wp_frequency = fmo.wp.frequency;
+
+	if ( note.glide[0].note )
+		osc.wp.glide_effect = 100;
+
+	osc.Set_long( note.longnote );
+
+	for ( pitch_t pitch : note.chord )
+	{
+
+		float
+		fnew = calc_freq( vco_wp_frequency, pitch );
 		vco.Set_start_freq(fnew);
 		vco.wp.frequency 	= fnew;
 		vco.wp.msec 		= note.duration;
 
-		fnew = ( notevalue.freq * 	fmo_wp_frequency ) / octave_freq;
-		check_freq( fnew, notevalue.freq, octave_freq, fmo_wp_frequency );
+		fnew = calc_freq( fmo_wp_frequency, pitch );
 		fmo.Set_start_freq(fnew);
 		fmo.wp.frequency	= fnew;
 		fmo.wp.msec 		= note.duration;
 
-		main.Set_start_freq( notevalue.freq );
-		main.wp.frequency	= note.glide.chord.freq;
-		main.wp.volume 		= rint( note.volume / note_chord_len );
-		main.wp.msec 		= note.duration;
+		int
+		effective_octave = pitch.octave + Noteline_prefix.Octave - noteline_prefix_default.Octave;
+		fnew = calc_freq(  effective_octave * oct_base_freq , pitch );
+		osc.Set_start_freq( fnew );
+		osc.wp.frequency	= fnew; //note.glide[idx].chord.freq;
+		osc.wp.volume 		= note.volume ;
+		osc.wp.msec 		= note.duration;
 
 		run_osc_group( offs );
 	}
 
 	vco.wp.frequency	= vco_wp_frequency;
 	fmo.wp.frequency	= fmo_wp_frequency;
-	main.wp.glide_effect= wp_glide_effect;
+	osc.wp.glide_effect= wp_glide_effect;
 	return ;
 }
 
@@ -155,9 +151,8 @@ bool Note_class::Generate_note_chunk( )
 		Restart = false;
 	};
 
-	Set_Loglevel(DEBUG, true);
 	int timestamp = 0;
-	this->main.Mem.Clear_data( 0 );
+	this->osc.Mem.Clear_data( 0 );
 
 	restart_note_itr();
 
@@ -165,7 +160,6 @@ bool Note_class::Generate_note_chunk( )
 	{
 		buffer_t frame_offset = (max_frames * timestamp)  / 1000 ;
 
-		Show_note( *note_itr );
 		note2memory( *note_itr, frame_offset );
 		timestamp = timestamp + note_itr->duration;
 
@@ -323,7 +317,7 @@ void Note_class::Test()
 {
 	Note_base::TestNoteBase();
 
-	Assert( notechar2Value( 'A' ) == 0, "Assert test value " + to_string( notechar2Value( 'A' ) ) );
+	Assert( Notechar2Step( 'A' ) == 0, "Assert test value " + to_string( Notechar2Step( 'A' ) ) );
 
 	Instrument_name = "NotesTest";
 	Set_Loglevel(TEST, true );
@@ -340,7 +334,7 @@ void Note_class::Test()
 	advance(note_itr, 1 );
 	assert( note_itr->longnote );
 	assert( noteline_sec == 3 );
-	assert( note_itr->chord[0].value == 2 );
+	assert( note_itr->chord[0].step == 2 );
 
 	Comment( TEST, "fill note list");
 	Set_rhythm_line("5");
@@ -413,7 +407,7 @@ void Note_class::Test()
 //	cout << note_itr->chord[0].value << " " << note_itr->chord[0].doct << endl;
 //	cout << Octave << endl;
 //	cout << calc_freq( Octave, note_itr->chord[0] ) << endl;
-	assert( calc_freq( Octave, note_itr->chord[0] ) <  0.1 );
+	assert( Calc_freq( Octave, note_itr->chord[0] ) <  0.1 );
 	//assert( false );
 
 	Comment( TEST, "garbage test" );
@@ -435,9 +429,9 @@ void Note_class::Test()
 
 	Verify_noteline( Noteline_prefix, "|2(AB)--->|3A" );
 	note_t note = *notelist.begin();
-	assert( note.glide.chord.value == 0 );
-	assert( note.glide.chord.doct == 1 );
-	assert ( ( calc_freq( note.octave,  note.glide.chord ) - 440 ) < 1E-8 );
+	assert( note.glide[0].chord.step == 0 );
+	assert( note.glide[0].chord.alter == 1 );
+	assert ( ( Calc_freq( note.octave,  note.glide[0].chord ) - 440 ) < 1E-8 );
 	Comment( INFO, "Test Note_class OK" );
 
 	Verify_noteline( Noteline_prefix, "A'(AB)(A'B)(AB,)(B,)A'..");
@@ -445,7 +439,7 @@ void Note_class::Test()
 	for( int freq : { 220, 110, 220, 110, 61, 220, 0, 0 } )
 	{
 //		printf("%d = %f %d\n", freq, calc_freq( 1, note_itr->chord[0]), note_itr->chord[0].doct ) ;
-		assert( calc_freq( 1, note_itr->chord[0] ) - freq < 1);
+		assert( Calc_freq( 1, note_itr->chord[0] ) - freq < 1);
 		note_itr++;
 	}
 
@@ -455,7 +449,7 @@ void Note_class::Test()
 	{
 		Show_note( *note_itr );
 //		cout << freq << " = " << calc_freq( 1, note_itr->chord[0] ) << endl;
-		assert( calc_freq( 1, note_itr->chord[0] ) - freq < 1);
+		assert( Calc_freq( 1, note_itr->chord[0] ) - freq < 1);
 		note_itr++;
 	}
 

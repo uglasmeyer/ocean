@@ -9,7 +9,7 @@
 #define VARIATION_H_
 
 #include <Mixer.h>
-#include <Notes.h>
+#include <notes/Notes.h>
 #include <Ocean.h>
 
 using namespace std;

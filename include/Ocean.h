@@ -73,8 +73,8 @@ const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_data;
 const buffer_t 		monobuffer_size   	= max_frames * sizeof_data;
 const Data_t		max_data_amp		= 4096*4;
 
-const uint8_t 		oct_base_freq 		= 55;
 const uint			osc_default_volume	= 100; // %
+const float			oct_base_freq 		= 55.0;//27.5/2.0;
 
 // enumeration of applicatiom Id's
 // see Config_class::typeMap

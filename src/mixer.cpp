@@ -237,7 +237,7 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 	{
 		cout << dec << composer << " " << arr_id << endl;
 		Notes->Generate_note_chunk( );
-		StA[ arr_id ].Store_block( Notes->main.Mem.Data );
+		StA[ arr_id ].Store_block( Notes->osc.Mem.Data );
 		composer--;
 	}
 	StA[ arr_id ].Record_mode( false );

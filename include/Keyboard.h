@@ -12,8 +12,8 @@
 #include <Logfacility.h>
 #include <Osc.h>
 #include <Instrument.h>
-#include <Notesbase.h>
 #include <Kbd.h>
+#include <notes/Notesbase.h>
 #include <Ocean.h>
 
 class Keyboard_class :	virtual  Logfacility_class,

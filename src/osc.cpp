@@ -176,7 +176,7 @@ void Oscillator::mem_init()
 	return;
 }
 
-void Oscillator::OSC (  buffer_t frame_offset )
+void Oscillator::OSC (  const buffer_t& frame_offset )
 /*
  * Generator of sound waves
  */

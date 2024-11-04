@@ -5,27 +5,40 @@
  *      Author: sirius
  */
 
-#include <Notesbase.h>
+#include <notes/Notesbase.h>
 #include <System.h>
 
 Note_base::Note_base () :
 Logfacility_class("NotesBase")
-{};
+{
+	for( uint n = 0; n < root2_limit; n++ )
+	{
+		float x = pow(2, (n+3)/12.0) ;
+		root2.push_back( x );
+	}
+};
 
 Note_base::~Note_base()
 {};
 
-float Note_base::Calc_frequency( const uint8_t& key )
+
+float Note_base::Calc_frequency( const float& base, const int& key )
 {
-	size_t limit = root2.vec.size()-1;
-	if ( key > limit )
+	if ( key  < 0 ) return 0.0;
+	if ( abs( key ) > root2_limit )
 	{
-		Comment( WARN, "Octave key " + to_string( key ) + " adjusted to limit " + to_string( limit ) );
-		return root2.vec[ limit ] * oct_base_freq;
+		Comment( WARN, "Octave key " + to_string( key ) + " adjusted to limit " + to_string( root2_limit ) );
+		return root2[ root2_limit ] * base;
 	}
-	return root2.vec[ key ] * oct_base_freq;
+//	return root2.vec[ key ] * oct_base_freq;
+	return root2[ key ] * base;
 }
 
+void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )
+{
+	this->Noteline_prefix = nlp;
+	Show_noteline_prefix( nlp );
+}
 void Note_base::Show_noteline_prefix( noteline_prefix_t nlp )
 {
 	stringstream strs{ "\n" };

@@ -31,7 +31,7 @@ public:
 	Oscillator( uint8_t id );
 	virtual ~Oscillator();
 
-	void OSC ( buffer_t );
+	void OSC ( const buffer_t& frame_offset );
 	void Set_start_freq( float freq );
 	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
 	void Connect_fmo_data( Oscillator* );

@@ -16,12 +16,13 @@
 #include <App.h>
 #include <data/DataWorld.h>
 #include <Keys.h>
-#include <Notes.h>
 #include <Ocean.h>
 #include <Mixer.h>
 #include <Progressbar.h>
 #include <System.h>
 #include <Exit.h>
+#include <notes/Notes.h>
+#include <notes/MusicXML.h>
 
 
 
@@ -40,6 +41,7 @@ class Core_class :
 	Semaphore_class*	Sem;
 	External_class*		External;
 	ProgressBar_class*	ProgressBar;
+	Musicxml_class*		MusicXML;
 
 public:
 
@@ -49,7 +51,8 @@ public:
 				Wavedisplay_class*	wavedisplay,
 				Dataworld_class*	data,
 				External_class*		external,
-				ProgressBar_class*	progressbar) : Logfacility_class("Core_class")
+				ProgressBar_class*	progressbar,
+				Musicxml_class*		musicxml ) : Logfacility_class("Core_class")
 	{
 		className = Logfacility_class::module;
 		this->DaTA			= data;
@@ -63,6 +66,7 @@ public:
 		this->Wavedisplay	= wavedisplay;
 		this->External		= external;
 		this->ProgressBar	= progressbar;
+		this->MusicXML		= musicxml;
 	};
 	virtual ~Core_class()
 	{};

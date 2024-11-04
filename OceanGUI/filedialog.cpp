@@ -10,7 +10,7 @@
 // Synthesizer includes
 #include <Keys.h>
 #include <Logfacility.h>
-#include <Notes.h>
+#include <notes/Notes.h>
 #include <Ocean.h>
 
 // Qt-includes
@@ -55,9 +55,11 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
     CB_notes                = ui->cb_notefilenames;
     CB_instruments          = ui->cb_instrumentfiles;
-    notes_path          	= file_structure().Dir.notesdir;
+    //    notes_path          	= file_structure().Dir.notesdir;
+    notes_path          	= file_structure().Dir.xmldir;
     instruments_path    	= file_structure().Dir.instrumentdir;
-    Qread_filelist( CB_notes, notes_path, file_structure().nte_type);
+    //	Qread_filelist( CB_notes, notes_path, file_structure().nte_type);
+    Qread_filelist( CB_notes, notes_path, file_structure().xml_type);
     Qread_filelist( CB_instruments, instruments_path, file_structure().snd_type);
     for( string str : convention_names )
     {
@@ -69,6 +71,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     	QString QStr = QString( nps ) ;
     	ui->cb_nps->addItem( QStr );
     }
+	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
     connect(ui->sB_Octave, SIGNAL(valueChanged(int)), this, SLOT( sB_Octave(int)));
     connect(ui->cb_nps, SIGNAL(activated(int)), this, SLOT( cB_NotesPerSec(int)));
@@ -227,8 +230,9 @@ void File_Dialog_class::New_Notes()
 
         // remote shall read and activate the new note line
         sds->Write_str( NOTESSTR_KEY, notes_file);
-        addr->KEY = NEWNOTESLINEKEY;
+        // addr->KEY = NEWNOTESLINEKEY;
         // remote load file to note class
+        addr->KEY = XMLFILE_KEY;
         status_color.setColor(QPalette::Button, Qt::green);
         ui->pbPlayNotes->setText( NotesON );
         SWITCHON = false;
@@ -283,7 +287,8 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
 
         // remote
         sds->Write_str( NOTESSTR_KEY, note_name );
-        addr->KEY = UPDATENOTESKEY; // update notes
+        //        addr->KEY = UPDATENOTESKEY; // update notes
+        addr->KEY = XMLFILE_KEY; // update notes
     }
     else
     {

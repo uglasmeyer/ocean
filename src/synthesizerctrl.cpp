@@ -18,13 +18,32 @@ void Core_class::Controller(char key)
 				"set waveform >" + wf + "< for " + osc->osc_type);
 	};
 	switch (key) {
-	case NULLKEY: {
+
+	case NULLKEY:
+	{
 		break;
 	}
-	case MAINFREQUENCYKEY: {
+	case XMLFILE_KEY :
+	{
+		string name = Sds->Read_str( NOTESSTR_KEY );
+		Comment(INFO, "receive command <setup play xml notes>");
+		string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
+		Comment( INFO, "from filename: " + filename );
+		Note_base::notelist_t nlst = MusicXML->Xml2notelist( filename ) ;
+		Notes->Set_notelist( nlst );
+		sds->Noteline_sec = Notes->noteline_sec;
+		Mixer->status.notes = true;
+		Sds->Update(NEWNOTESLINEFLAG);
+		Sem->Release(SEMAPHORE_NOTES);
+
+		Sds->Commit();
+		break;
+	}
+	case MAINFREQUENCYKEY:
+	{
 		Info("Frequency set to " + to_string(sds->Main_Freq));
 		Instrument->main.Set_frequency(sds->Main_Freq);
-		Notes->main.Set_frequency(sds->Main_Freq);
+		Notes->osc.Set_frequency(sds->Main_Freq);
 		Sds->Commit();
 		break;
 	}
@@ -336,9 +355,8 @@ void Core_class::Controller(char key)
 	{
 		noteline_prefix_t nlp = sds->noteline_prefix;
 		Comment(INFO, "receive command <update notesline prefix");
-		Notes->Show_noteline_prefix(nlp);
-		Notes->Noteline_prefix = nlp;
-		Notes->Verify_noteline(nlp, Notes->Get_note_line());
+		Notes->Set_noteline_prefix(nlp);
+//		Notes->Verify_noteline( nlp, Notes->Get_note_line());
 		Notes->Restart = true;
 		Sds->Commit();
 		break;

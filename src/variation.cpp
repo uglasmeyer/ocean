@@ -28,13 +28,13 @@ void Variation_class::randomize_notes_octave( string str )
 		char ch = gen_random_note( str );//str[0];
 		if ( ch == '\'' )
 		{
-			Random_Notes[n].chord[0].doct = 1;
+			Random_Notes[n].chord[0].alter = 1;
 			Random_Notes[n].str.push_back('\'');
 		}
 		if ( ch == ',' )
 		{
 
-			Random_Notes[n].chord[0].doct = -1;
+			Random_Notes[n].chord[0].alter = -1;
 			Random_Notes[n].str.push_back(',');
 		}
 		if ( Log[TEST] )

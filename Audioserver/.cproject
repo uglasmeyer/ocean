@@ -102,7 +102,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.pthread.1347640657" name="Support for pthread (-pthread)" superClass="gnu.cpp.link.option.pthread" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.link.option.defname.1983202279" name="DEF file name (-Wl,--output-def=)" superClass="gnu.cpp.link.option.defname" value="" valueType="string"/>
-								<option id="gnu.cpp.link.option.soname.79635553" superClass="gnu.cpp.link.option.soname" value="asan" valueType="string"/>
+								<option id="gnu.cpp.link.option.soname.79635553" name="Shared object name (-Wl,-soname=)" superClass="gnu.cpp.link.option.soname" value="asan" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1630171139" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

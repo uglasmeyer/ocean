@@ -67,6 +67,7 @@ public:
 	string instrumentdir= etcdir + "Instruments/";
 	string notesdir  	= etcdir + "Notes/";
 	string includedir	= etcdir + "include/";
+	string xmldir		= etcdir + "musicxml/";
 
 	void Create();
 	void setDir( );
@@ -87,12 +88,12 @@ typedef struct file_structure
 	const string 	snd_type 		= ".snd";	// instruments file extension
 	const string	nte_type		= ".nte";	// notes file extension
 	const string 	wav_type 		= ".wav";
+	const string 	xml_type		= ".musicxml";
 	const string	Audio_bin		= "AudioServer";
 	const string 	Synth_bin		= "Synthesizer";
 	const string 	Comp_bin		= "Composer";
 	const string	Ocean_bin		= "OceanGUI";
 	const string 	Rtsp_bin		= "rtsp";
-//	string 			sound_file 		= Dir.etcdir 		+ "test" + snd_type;
 	string 			audio_bin  		= Dir.bindir 		+ Audio_bin;
 	string 			synth_bin  		= Dir.bindir 		+ Synth_bin;
 	string 			composer_bin	= Dir.bindir		+ Comp_bin;

@@ -11,9 +11,9 @@
 #include <Spectrum.h>
 
 #include <Instrument.h>
+#include <notes/Notesbase.h>
 #include <Oscbase.h>
 #include <Osc.h>
-#include <Notesbase.h>
 #include <Ocean.h>
 #include <System.h>
 
@@ -26,12 +26,12 @@ class Note_class :  virtual public Logfacility_class,
 	string className = "";
 public:
 
-	Oscillator	 	main		{ NOTESID };
+	Oscillator	 	osc		{ NOTESID };
 	Oscillator	 	vco			{ VCOID };
 	Oscillator	 	fmo			{ FMOID };
 
 	vector<Oscillator*>
-					osc_group { &vco, &fmo, &main };
+					osc_group { &vco, &fmo, &osc };
 
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
@@ -43,9 +43,8 @@ public:
 
 	uint16_t 		min_duration 	= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
-	noteline_prefix_t
-					Noteline_prefix	= noteline_prefix_default; // D=default, N=numeric
-	notelist_t 		notelist		{};
+	note_t 			note_buffer 	= note_struct();
+	const note_t	pause_note		= {".",{{0,-12}},min_duration,0,0,{{0,-12}},false };
 
 
 	Note_class( ); // used by Variation
@@ -66,13 +65,19 @@ public:
 	void 			Test();
 	void			Show_note(  note_t );
 	void 			Start_note_itr();
-	uint16_t 		Octave_freq( uint8_t oct );
+	float	 		Octave_freq( uint8_t oct );
+	note_t			Char2note( char& ch );
+	int 			Notechar2Step( char );
+	float	 		Calc_freq ( uint8_t , pitch_t );
+
+	void			Set_notelist( const notelist_t& notelist );
+
 
 	void Show_note_list( auto items ) // list or vector
 	{
 		stringstream strs;
 		uint lineduration = 0;
-		strs << "Chord         Vol  msec Oct dOc  Freq|Oct dOc  Freq|Oct dOc  Freq|";
+		strs << "Chord         Vol  msec  Oct alt Freq| Oct alt Freq| Oct alt Freq|";
 		Comment( INFO, strs.str() );
 
 		for( note_t note : items )
@@ -92,8 +97,6 @@ public:
 
 private:
 	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
-	uint8_t			notes_default_volume
-									= 80;
 	string 			Notefile_name 	= "";
 	string 			Notefile 		= "";
 	string 			Noteline		= "";
@@ -106,7 +109,6 @@ private:
 	size_t	 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
 
-	note_t 			note_buffer 	= note_struct();
 
 	typedef notelist_t::iterator
 					note_itr_t;
@@ -119,12 +121,9 @@ private:
 	void 			note2memory( const note_t&, const buffer_t& );
 	void 			change_alphabet_notes( noteline_prefix_t );
 	void            set_volume_vector( string );
-	int 			notechar2Value( char );
 	void			fill_note_list();
 	void			add_volume( note_itr_t );
 	void			assign_freq();
-	float	 		calc_freq ( uint8_t , notevalue_t );
-	note_t			char2note( char& ch );
 	void			split_long_notes();
 
 };

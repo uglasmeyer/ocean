@@ -13,8 +13,8 @@
 #include <Mixerbase.h>
 #include <Oscbase.h>
 #include <Wavedisplay_base.h>
-#include <Notesbase.h>
 #include <Keys.h>
+#include <notes/Notesbase.h>
 
 enum {
 	 OFFLINE,

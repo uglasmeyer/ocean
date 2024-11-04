@@ -62,7 +62,7 @@ bool Keyboard_class::Attack( int key, uint8_t octave, uint8_t amp )
 {
 	auto set_osc_frequency 	= [ this, key, octave ]( Oscillator* osc )
 		{
-			float 	freq 	= this->Calc_frequency( octave*12 + key );//osc->wp.frequency * ( 12 + key ) / 12.0  ;
+			float 	freq 	= this->Calc_frequency( oct_base_freq, octave*12 + key );//osc->wp.frequency * ( 12 + key ) / 12.0  ;
 			osc->Set_frequency( freq );
 			osc->OSC( 0 );
 		};

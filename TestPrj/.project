@@ -3,6 +3,7 @@
 	<name>testprj</name>
 	<comment></comment>
 	<projects>
+		<project>Ocean</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

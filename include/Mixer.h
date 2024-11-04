@@ -13,9 +13,9 @@
 #include <Ocean.h>
 #include <Wavedisplay.h>
 #include <Mixerbase.h>
-#include <Notes.h>
 #include <data/Memory.h>
 #include <data/DataWorld.h>
+#include <notes/Notes.h>
 
 using namespace std;
 

@@ -24,6 +24,7 @@ External_class 			External( 	&Mixer.StA[ MbIdExternal],
 ProgressBar_class		ProgressBar( &sds->RecCounter );
 Statistic_class 		Statistic{ Log.module };
 Time_class				Timer		( &sds->time_elapsed );
+Musicxml_class			MusicXML{};
 
 
 Semaphore_class*		Sem	= DaTA.Sem_p;
@@ -38,7 +39,8 @@ Core_class				Synthesizer{
 							&Wavedisplay,
 							&DaTA,
 							&External,
-							&ProgressBar };
+							&ProgressBar,
+							&MusicXML};
 
 
 void show_AudioServer_Status()
@@ -53,6 +55,10 @@ void show_AudioServer_Status()
 							DaTA.Sds_p->Decode( state ));
 }
 
+void SetLogLevels()
+{
+	Notes.Set_Loglevel(DEBUG, true );
+}
 void show_usage()
 {
 	printf("---------------------------------------------------------\n");
@@ -119,7 +125,7 @@ void add_sound( stereo_t* shm_addr )
 		Instrument.Run_osc_group(); // generate the modified sound waves
 	Mixer.Add_Sound( 	Instrument.main.Mem.Data,
 						Keyboard.osc.Mem.Data,
-						Notes.main.Mem.Data,
+						Notes.osc.Mem.Data,
 						shm_addr );
 
 	ProgressBar.Update();
@@ -303,7 +309,7 @@ int main( int argc, char* argv[] )
 {
 
 	App.Start( argc, argv );
-
+	SetLogLevels();
 	Dir.Create();
 
 	if ( Cfg->Config.test == 'y' )

@@ -279,6 +279,7 @@ void DirStructure_class::setDir(  )
 	notesdir  		= etcdir + "Notes/";
 	includedir		= etcdir + "include/";
 	rtspdir			= etcdir + "rtsp/";
+	xmldir			= etcdir + "musicxml/";
 	dirs =
 	{
 		basedir,
@@ -294,7 +295,8 @@ void DirStructure_class::setDir(  )
 		notesdir,
 		includedir,
 		autodir,
-		rtspdir
+		rtspdir,
+		xmldir
 	};
 
 };

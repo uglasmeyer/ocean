@@ -12,6 +12,7 @@
 #include <Spectrum.h>
 #include <Ocean.h>
 #include <String.h>
+#include <notes/Notesbase.h>
 
 typedef struct bps_struct
 {

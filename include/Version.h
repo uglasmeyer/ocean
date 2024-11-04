@@ -18,9 +18,9 @@
 
 using namespace std;
 
-#define MAYOR 2
-#define MINOR 4
-#define PATCH 1
+#define MAYOR 3
+#define MINOR 0
+#define PATCH 0
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -33,6 +33,7 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
+version 3.0.0 Introduction of MusicXML
 version 2.4.1 end
 version 2.4.0 deployment
 version 2.3.4 refractoring nps, bps, synthesizer.h

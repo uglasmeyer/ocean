@@ -300,7 +300,11 @@ void MainWindow::File_Director()
     if ( this->File_Dialog_p->isVisible()   )
         this->File_Dialog_p->hide();
     else
-        this->File_Dialog_p->show();
+    {
+		Qread_filelist( this->File_Dialog_p->CB_notes,
+						file_structure().Dir.xmldir, file_structure().xml_type);
+		this->File_Dialog_p->show();
+    }
 }
 
 void MainWindow::Spectrum_Dialog()
@@ -825,7 +829,8 @@ void MainWindow::Updatewidgets()
 				case NEWNOTESLINEFLAG :
 				{
 					Qread_filelist( this->File_Dialog_p->CB_notes,
-									file_structure().Dir.notesdir, file_structure().nte_type);
+									file_structure().Dir.xmldir, file_structure().xml_type);
+//									file_structure().Dir.notesdir, file_structure().nte_type);
 					break;
 				}
 			}
