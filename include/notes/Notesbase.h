@@ -100,7 +100,13 @@ public:
 	void				Set_noteline_prefix( noteline_prefix_t nlp );
 	string 				Noteline_prefix_to_string( noteline_prefix_t nlp );
 	noteline_prefix_t 	String_to_noteline_prefix( string str );
+
+	void			Set_base_octave( uint );
+	float	 		Octave_freq( uint8_t oct );
 	float 				Calc_frequency(const float& base,  const int& key );
+	float	 		Calc_freq ( uint8_t , pitch_t );
+	float	 		CalcFreq ( const float& freq ,  pitch_t& pitch );
+
 	void 				TestNoteBase();
 
 
@@ -111,6 +117,8 @@ public:
 private:
 	vector< float > root2{};
 	const uint root2_limit = 12 * (max_octave+1);
+	int				octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
+
 };
 
 

@@ -20,8 +20,10 @@ class Musicxml_class :
 	string className = "";
 public:
 
+
 	Note_class Notes{};
-	notelist_t notelist{};
+	Note_class::musicxml_t musicxml;
+
 	tinyxml2::XMLDocument XMLdoc;
 	string				Noteline = ""; //compatible with char notes
 
@@ -34,7 +36,7 @@ public:
 	virtual ~Musicxml_class()
 	{};
 
-	notelist_t Xml2notelist( const string& filename );
+	Note_class::musicxml_t Xml2notelist( const string& filename );
 	tinyxml2::XMLElement* NewElement( string name )
 	{ return XMLdoc.NewElement( name.data() ) ; };
 

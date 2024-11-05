@@ -60,12 +60,13 @@ typedef signed short 		data_t; // range -32767 ... +32767
 const uint 			sizeof_data 		= sizeof(Data_t);
 const double 		pi					= 3.1415926536;//3.141592654;
 
-const buffer_t		audio_frames 		= 48000; //2*chunksize * 43 ; // ~44100
-const buffer_t		frames_per_sec  	= 48000;
+const uint			sample_rate			= 48000; //device dependent fix
+const buffer_t		frames_per_sec  	= sample_rate;
 
-const uint8_t		max_sec 			= 1;//8;
+const uint8_t		max_sec 			= 2;//8;
 const uint16_t		max_milli_sec 		= max_sec * 1000;
-const buffer_t		max_frames			= max_sec * audio_frames;
+const buffer_t		max_frames			= max_sec * frames_per_sec;
+const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
 
 const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
@@ -74,7 +75,7 @@ const buffer_t 		monobuffer_size   	= max_frames * sizeof_data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 100; // %
-const float			oct_base_freq 		= 55.0;//27.5/2.0;
+const float			oct_base_freq 		= 27.5/2.0;
 
 // enumeration of applicatiom Id's
 // see Config_class::typeMap

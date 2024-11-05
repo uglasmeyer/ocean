@@ -7,12 +7,9 @@
 #include <notes/Notes.h>
 
 
-void Note_class::Set_base_octave( uint diff )
-{
-	octave_shift = octave_shift + ( 2*diff - 1);
-	if ( octave_shift < 0 )
-		octave_shift = 0;
-}
+
+
+
 
 auto calc_noteline_msec = []( Note_class* C )
 	{
@@ -34,6 +31,8 @@ void Note_class::Set_notelist( const notelist_t& nlst )
 //	add_volume( note_itr );
 	Show_note_list( nlst ); // @suppress("Invalid arguments")
 }
+
+
 
 bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used by GUI
 {
@@ -107,25 +106,6 @@ void Note_class::Start_note_itr()
 	note_itr = notelist.begin();
 }
 
-float Note_class::Octave_freq( uint8_t oct )
-{
-	if ( oct == 0 ) return oct_base_freq;
-	uint oct2 = (uint) oct_base_freq * 2;
-	return oct2 << ( oct - 1 );
-}
-
-float Note_class::Calc_freq ( uint8_t oct, pitch_t nvs )
-{
-	int key = nvs.step + nvs.alter;
-	if ( key < 0 )
-	{
-		key += 12;
-		oct -=  1;
-	}
-	//	uint8_t		octave	= abs( oct + nvs.alter + octave_shift );
-	uint8_t		octave	= abs( oct  + octave_shift );
-	return 		Calc_frequency( oct_base_freq, octave * 12 + key );
-};
 
 void Note_class::Show_note( note_t note )
 {

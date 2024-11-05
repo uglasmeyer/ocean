@@ -41,7 +41,9 @@ void start_audio_stream()
 		Log.Comment( INFO, "Audio Stream is started ") ;
 }
 
-double* frame = nullptr;
+typedef stereo_t frame_t;
+//double* frame = nullptr;
+frame_t* frame = nullptr;
 void shutdown_stream()
 {
 	if ( rtapi.isStreamRunning() )
@@ -278,13 +280,17 @@ void set_rcounter( )
 		record_stop();
 }
 
+//Time_class Measure{};
 void set_ncounter( buffer_t n )
 {
 	if( mode == KEYBOARD )
 		ncounter	= 0;
 
 	if ( n > max_frames - 1 )
+//	if ( n > frames_per_sec - 1 )
 	{
+//		cout << Measure.Time_elapsed() << "[msec]" << endl;
+//		Measure.Start();
 		ncounter = 0;
 		if ( External.status.record )
 		{
@@ -374,7 +380,8 @@ int main( int argc, char *argv[] )
 	// dynamic rtapi output parameter
 	// Tell RtAudio to output all messages, even warnings.
 	rtapi.showWarnings( true );
-	frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
+	//	frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
+	frame = (frame_t* ) calloc( Cfg->Config.channel, sizeof( frame_t ) );
 	oParams.nChannels 		= Cfg->Config.channel;
 	oParams.firstChannel 	= Cfg->Config.ch_offs;
 	get_device_description( Cfg->Config.device );

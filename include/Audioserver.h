@@ -52,7 +52,7 @@ ProgressBar_class		ProgressBar( &sds->RecCounter );
 
 Wavedisplay_class		Wavedisplay	{ DaTA.Sds_p };
 
-
+//cz * 100 = sr, mf / 1.2 = sr , => mf = cz * 100 * 1.2
 
 // runtime parameter
 buffer_t 		ncounter 		= 0;
@@ -60,7 +60,7 @@ uint			rcounter		= 0;
 char 			shm_id 			= 0; // out_data = Shm_a
 stereo_t*		shm_addr 		= nullptr;
 char 			mode 			= FREERUN;
-const buffer_t 	chunksize		= max_frames / 100;//441 , 512; // Audio server chunksize
+const buffer_t 	chunksize		= max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
 
 uint			bufferFrames 	= chunksize;
 bool 			done 			= false;

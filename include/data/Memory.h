@@ -45,8 +45,12 @@ public:
 
 typedef struct stereo_struct
 {
+
 	data_t left;
 	data_t right;
+
+//	data_t left;
+//	data_t right;
 } stereo_t;
 
 

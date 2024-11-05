@@ -82,24 +82,16 @@ void Note_class::set_volume_vector( string volline )
 	assert( volume_vec.size() > 0 );
 }
 
-void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO working
+void Note_class::note2memory( 	const note_t& note,
+								const buffer_t& offs,
+								const uint& duration,
+								const bool& longnote) // TODO working
 {
 	auto run_osc_group = [ this ]( const buffer_t& offs )
 		{
 			for ( Oscillator* osc : this->osc_group )
 				osc->OSC( offs );
 		};
-	auto calc_freq = [ this ]( float base, const pitch_t& pitch )
-	{
-		int key = pitch.step + pitch.alter;
-		if ( key < 0 )
-		{
-			key		+= 12;
-			base 	= base / 2;
-		}
-		return Calc_frequency( base, key);
-;
-	};
 
 	uint wp_glide_effect = osc.wp.glide_effect;
 	const float vco_wp_frequency = vco.wp.frequency;
@@ -108,30 +100,29 @@ void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO
 	if ( note.glide[0].note )
 		osc.wp.glide_effect = 100;
 
-	osc.Set_long( note.longnote );
+	osc.Set_long( note.longnote or longnote );
 
 	for ( pitch_t pitch : note.chord )
 	{
 
 		float
-		fnew = calc_freq( vco_wp_frequency, pitch );
+		fnew = CalcFreq( vco_wp_frequency, pitch );
 		vco.Set_start_freq(fnew);
 		vco.wp.frequency 	= fnew;
-		vco.wp.msec 		= note.duration;
+		vco.wp.msec 		= duration;
 
-		fnew = calc_freq( fmo_wp_frequency, pitch );
+		fnew = CalcFreq( fmo_wp_frequency, pitch );
 		fmo.Set_start_freq(fnew);
 		fmo.wp.frequency	= fnew;
-		fmo.wp.msec 		= note.duration;
+		fmo.wp.msec 		= duration;
 
-		int
-		effective_octave = pitch.octave + Noteline_prefix.Octave - noteline_prefix_default.Octave;
-		fnew = calc_freq(  effective_octave * oct_base_freq , pitch );
-		osc.Set_start_freq( fnew );
-		osc.wp.frequency	= fnew; //note.glide[idx].chord.freq;
+
+		fnew = CalcFreq(  oct_base_freq , pitch );
+		osc.Set_start_freq( fnew);
+		osc.wp.frequency	= fnew;
 		osc.wp.volume 		= note.volume ;
-		osc.wp.msec 		= note.duration;
-
+		osc.wp.msec 		= duration;
+//		cout << fnew << " | " << pitch.freq << " | " << note.duration << endl;
 		run_osc_group( offs );
 	}
 
@@ -141,38 +132,74 @@ void Note_class::note2memory( const note_t& note, const buffer_t& offs ) // TODO
 	return ;
 }
 
+int timestamp = 0;
+uint scoretime = 0;
 bool Note_class::Generate_note_chunk( )
 { 	// generate the memory track for positon n = note_pointer tp
 	// n = note_pointer + chunk_len
+
 	auto restart_note_itr = [ this ]()
 	{
 		if (( note_itr == notelist.end() ) or ( Restart )) // the global note iter shall be restarted.
-			note_itr = notelist.begin(); // track , good
+		{
+			Start_note_itr();
+			timestamp = 0 ;
+			scoretime = 0;
+		}
 		Restart = false;
 	};
 
-	int timestamp = 0;
 	this->osc.Mem.Clear_data( 0 );
 
 	restart_note_itr();
 
+	buffer_t 	frame_offset = (frames_per_sec * timestamp)  / 1000 ;
+	bool 		partnote = false;//( timestamp != 0);
+	int 		lastduration = 0;
+	bool		longnote = false;// ( timestamp != 0 );
 	while ( note_itr != notelist.end() )
 	{
-		buffer_t frame_offset = (max_frames * timestamp)  / 1000 ;
 
-		note2memory( *note_itr, frame_offset );
-		timestamp = timestamp + note_itr->duration;
-
-		note_itr++;
-		if ( timestamp == max_sec*1000 )
+		if ( timestamp == max_milli_sec )
 		{
+			timestamp = 0;
 			return true; // good
 		}
 		if ( timestamp >  max_sec*1000 )
-		{
-			Comment(WARN, "Notes are not aligned by " + to_string( timestamp ) + "[msec]");
+		{	// considers the end pause to finish
+			timestamp = timestamp % max_milli_sec;
+
+			Comment(INFO, "take over " + to_string( timestamp ) + "[msec]");
+			note_itr++;
 			return false;
 		}
+
+		uint duration = rint( note_itr->duration * 2.0 ) ;// musicxml.tempo;
+		scoretime += duration;
+		if ( timestamp + duration > max_milli_sec )
+		{
+			lastduration = duration;
+			duration = max_milli_sec - timestamp ;
+			partnote = true;
+			cout << "part start ";
+		}
+		note2memory( *note_itr, frame_offset, duration, longnote );
+
+		longnote = false;
+		timestamp = timestamp + duration;
+		frame_offset = (frames_per_sec * timestamp)  / 1000 ;
+
+		if ( partnote )
+		{ 	//unaligned end of the measure
+
+			timestamp = lastduration - duration;
+			cout << "T: " << timestamp << endl;
+			if ( scoretime >= noteline_sec * 1000 )
+				note_itr++;
+			return false;
+		}
+		else
+			note_itr++;
 	}
 	note_itr = notelist.begin(); // track done , time is over
 
@@ -181,8 +208,9 @@ bool Note_class::Generate_note_chunk( )
 		return true;
 	}
 	else
-	{
-		Comment(WARN, "Notes are not aligned by " + to_string( timestamp ) + "[msec]");
+	{ 	// there was an uncomplete measure at the end of the notelist
+		Comment(ERROR, "Notes are not aligned by " + to_string( timestamp ) + "[msec]");
+		timestamp = 0;
 	}
 	return false;
 }

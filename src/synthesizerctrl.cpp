@@ -29,14 +29,21 @@ void Core_class::Controller(char key)
 		Comment(INFO, "receive command <setup play xml notes>");
 		string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
 		Comment( INFO, "from filename: " + filename );
-		Note_base::notelist_t nlst = MusicXML->Xml2notelist( filename ) ;
-		Notes->Set_notelist( nlst );
+
+		Notes->musicxml = MusicXML->Xml2notelist( filename );
+		Notes->Set_notelist( Notes->musicxml.notelist );
 		sds->Noteline_sec = Notes->noteline_sec;
+
+
 		Mixer->status.notes = true;
 		Sds->Update(NEWNOTESLINEFLAG);
+
+		Sds->Write_str(INSTRUMENTSTR_KEY, Notes->musicxml.instrument_name ); // other
+		sds->KEY = SETINSTRUMENTKEY;
+
 		Sem->Release(SEMAPHORE_NOTES);
 
-		Sds->Commit();
+//		Sds->Commit();
 		break;
 	}
 	case MAINFREQUENCYKEY:

@@ -13,7 +13,7 @@ Logfacility_class("NotesBase")
 {
 	for( uint n = 0; n < root2_limit; n++ )
 	{
-		float x = pow(2, (n+3)/12.0) ;
+		float x = pow(2.0, (n+3)/12.0) ; // 3 considers A0 = 55/4
 		root2.push_back( x );
 	}
 };
@@ -21,18 +21,63 @@ Logfacility_class("NotesBase")
 Note_base::~Note_base()
 {};
 
+// https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
+float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
+{
+	int step	= nvs.step + nvs.alter;
+	int oct 	= nvs.octave;
+	if ( step 	< 0 )
+	{
+		step 	+= 12;
+		oct 	-=  1;
+	}
+	uint8_t	octave	= abs( oct  + octave_shift );
+	int		key 	= octave *12 + step;
+	return 	Calc_frequency( base, key );
+};
+
+
+float Note_base::Calc_freq ( uint8_t oct, pitch_t nvs )
+{
+	int key = nvs.step + nvs.alter;
+	if ( key < 0 )
+	{
+		key += 12;
+		oct -=  1;
+	}
+	uint8_t	octave	= abs( oct  + octave_shift );
+	return 	Calc_frequency( oct_base_freq, octave * 12 + key );
+};
+
+
 
 float Note_base::Calc_frequency( const float& base, const int& key )
 {
-	if ( key  < 0 ) return 0.0;
+	Assert( not( key < 0 ), "key" + to_string(key) );
 	if ( abs( key ) > root2_limit )
 	{
 		Comment( WARN, "Octave key " + to_string( key ) + " adjusted to limit " + to_string( root2_limit ) );
 		return root2[ root2_limit ] * base;
 	}
-//	return root2.vec[ key ] * oct_base_freq;
 	return root2[ key ] * base;
 }
+
+void Note_base::Set_base_octave( uint diff )
+{
+	octave_shift = octave_shift + ( 2*diff - 1);
+	if ( octave_shift < 0 )
+		octave_shift = 0;
+}
+
+float Note_base::Octave_freq( uint8_t oct )
+{
+	if ( oct == 0 ) return oct_base_freq;
+	uint oct2 = (uint) oct_base_freq * 2;
+	return oct2 << ( oct - 1 );
+}
+
+
+
 
 void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )
 {

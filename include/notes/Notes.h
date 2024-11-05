@@ -17,7 +17,6 @@
 #include <Ocean.h>
 #include <System.h>
 
-
 using namespace std;
 
 class Note_class :  virtual public Logfacility_class,
@@ -26,7 +25,18 @@ class Note_class :  virtual public Logfacility_class,
 	string className = "";
 public:
 
-	Oscillator	 	osc		{ NOTESID };
+	typedef struct musicxml_struct
+	{
+		string 		instrument_name = "";
+		uint		divisions 		= 4;
+		uint		beats			= 4;
+		uint		tempo			= max_sec;
+		uint		scoreduration 	= 0;
+		notelist_t 	notelist 		{};
+	} musicxml_t;
+	musicxml_t		musicxml	= musicxml_struct();
+
+	Oscillator	 	osc			{ NOTESID };
 	Oscillator	 	vco			{ VCOID };
 	Oscillator	 	fmo			{ FMOID };
 
@@ -38,13 +48,13 @@ public:
 	bool			Restart			= false;
 	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
 	uint8_t 		Octave			= noteline_prefix_default.Octave;
-	const uint16_t	measure_duration= max_milli_sec; // 1 sec.
+	const uint16_t	measure_duration= 1000;//max_milli_sec; // 1 sec.
 	const float 	max_frequency 	= Octave_freq ( max_octave + 1 );
 
 	uint16_t 		min_duration 	= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
 	note_t 			note_buffer 	= note_struct();
-	const note_t	pause_note		= {".",{{0,-12}},min_duration,0,0,{{0,-12}},false };
+	const note_t	pause_note		= {".",{pitch_struct()},min_duration,0,0,{glide_struct()},false };
 
 
 	Note_class( ); // used by Variation
@@ -59,16 +69,14 @@ public:
 	void 			Set_rhythm_line(string );
 	bool			Set_notes_per_second( int );
 	bool			Generate_note_chunk( );//Storage::Storage_class* mb );
-	void			Set_base_octave( uint );
 	void			Set_prefix_octave( int );
 	bool			Verify_noteline( noteline_prefix_t, string );
 	void 			Test();
 	void			Show_note(  note_t );
 	void 			Start_note_itr();
-	float	 		Octave_freq( uint8_t oct );
 	note_t			Char2note( char& ch );
+
 	int 			Notechar2Step( char );
-	float	 		Calc_freq ( uint8_t , pitch_t );
 
 	void			Set_notelist( const notelist_t& notelist );
 
@@ -80,12 +88,16 @@ public:
 		strs << "Chord         Vol  msec  Oct alt Freq| Oct alt Freq| Oct alt Freq|";
 		Comment( INFO, strs.str() );
 
+		uint count = 1;
 		for( note_t note : items )
 		{
 			Show_note( note );
 			lineduration += note.duration;
-			if ( ( lineduration % measure_duration ) == 0 )
-				cout << endl;
+			uint mod = lineduration % measure_duration;
+			if ( mod == 0 )
+			{
+				cout << " Measure count: " << count << "" << endl; count++;
+			}
 		}
 		strs.str("");
 		strs << setw(17) << left  << "sentence length" <<
@@ -103,11 +115,10 @@ private:
 	string 			Volumeline 		= "";
 	size_t			volume_vec_len 	= 1;
 	size_t			vcounter		= 0;
-	int				octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
-	int8_t			delta_oct		= 0; 	// |' |, in noteline inc or dec the value of all subsequent
 											// notevalue_struct.doct by one .
 	size_t	 		noteline_len 	= 0;
 	vector<uint>    volume_vec 		{};
+	int8_t			delta_oct		= 0; 	// |' |, in noteline inc or dec the value of all subsequent
 
 
 	typedef notelist_t::iterator
@@ -118,7 +129,10 @@ private:
 	void 			compiler ( noteline_prefix_t,  string );
 	void			set_file_name( string );
 	size_t			noteline_position_parser( size_t );
-	void 			note2memory( const note_t&, const buffer_t& );
+	void 			note2memory( 	const note_t&,
+									const buffer_t&,
+									const uint& duration,
+									const bool& partnote );
 	void 			change_alphabet_notes( noteline_prefix_t );
 	void            set_volume_vector( string );
 	void			fill_note_list();

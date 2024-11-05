@@ -142,6 +142,7 @@ double Oscillator::get_delta_freq( float freq )
 	float dframes =  ( wp.glide_effect * frames / 100.0 ) ;
 
 	if ( abs(dframes) < 1E-4 ) return freq - start_freq; 	// do nothing
+//	Assert( dframes > 0, "dframes: " + to_string(dframes));
 	return ( freq - start_freq ) / dframes;
 
 }
@@ -182,8 +183,8 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
  */
 {
 	buffer_t 			n;
-	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
-	double 				dt 			= 1.0/audio_frames;//seconds per frame
+	buffer_t 			frames  	= ( this->wp.msec*frames_per_sec) / 1000;
+	double 				dt 			= 1.0/frames_per_sec;//seconds per frame
 	float				volume  	= (float) this->wp.volume;
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
@@ -381,13 +382,18 @@ void Oscillator::Set_long( bool l )
 	longnote = l ;
 }
 
+set<int> mainid_set = { MAINID, NOTESID, KBDID };
 bool main_id( int id )
 {
-	for ( int ID : { MAINID, NOTESID, KBDID })
+	if ( mainid_set.contains( id ) ) return true;
+	return false;
+/*
+	for ( int ID : )
 	{
 		if ( id == ID ) return true;
 	}
 	return false;
+	*/
 }
 
 void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
@@ -418,7 +424,7 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 		};
 
 	if ( adsr.bps == 0 ) 		return;
-	if ( not main_id( osc_id ) ) 	return;
+	if ( not main_id( osc_id ) )return;
 
 
 	int 		duration = 1; // each note has a single attack/decay
