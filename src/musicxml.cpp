@@ -11,13 +11,21 @@ using namespace tinyxml2;
 
 string Musicxml_class::get_text( XMLElement* p  )
 {
+	if ( not p ) return "";
 	const char* data  = p->GetText();
 	return string( data );
 }
 
-int Musicxml_class::get_int( XMLElement* p  )
+int Musicxml_class::get_int( int Default, XMLElement* p  )
 {
 	string str = get_text( p );
+	if ( str.length() == 0  )
+	{
+		if (Default < 0 )
+			Exception( "Empty mandatory value in xml file" );
+		else
+			return Default;
+	}
 	return stoi( str ) ;
 }
 
@@ -31,9 +39,7 @@ Note_base::pitch_t Musicxml_class::get_pitch( XMLElement* cp )
 	p = cp->FirstChildElement("octave");
 	if( p )
 	{
-		pitch.octave = get_int( p );
-		Noteline.push_back('|');
-		Noteline.push_back( int2char( pitch.octave ) );
+		pitch.octave = get_int( -1, p );
 	}
 	p = cp->FirstChildElement("step");
 	if( p )
@@ -44,11 +50,7 @@ Note_base::pitch_t Musicxml_class::get_pitch( XMLElement* cp )
 	p = cp->FirstChildElement("alter");
 	if( p )
 	{
-		pitch.alter = get_int( p );
-		if ( pitch.alter < 0 )
-			Noteline.push_back( ',');
-		if ( pitch.alter < 0 )
-			Noteline.push_back('\'');
+		pitch.alter = get_int( 0, p );
 	}
 	pitch.freq = Notes.CalcFreq( oct_base_freq, pitch );
 	return pitch;
@@ -98,22 +100,28 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 	XMLElement* part_p 		= root_p->FirstChildElement("part");
 
 	XMLElement* measure_p 	= part_p->FirstChildElement("measure");
-	XMLElement* measure_e;
+//	XMLElement* measure_e;
 	while( measure_p )
 	{
-		measure_e = measure_p;
+//		measure_e = measure_p;
 		XMLElement*
 		attr_p = measure_p->FirstChildElement("attributes");
 		if ( attr_p )
 		{
 			XMLElement* // get divisions from attributes
 			p = attr_p->FirstChildElement("divisions" );
-			musicxml.divisions = get_int( p ) ;
+			if ( p )
+				musicxml.divisions = get_int( musicxml.divisions, p ) ;
 
 			XMLElement* // get beats from time
 			time_p = attr_p->FirstChildElement("time" );
-			p = time_p->FirstChildElement("beats");
-			musicxml.beats = get_int( p ) ;
+			if ( time_p )
+			{
+				XMLElement*
+				t = time_p->FirstChildElement("beats");
+				if ( t )
+					musicxml.beats = get_int( musicxml.beats, p ) ;
+			}
 		}
 
 		XMLElement* // get notes from measure
@@ -139,7 +147,8 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 			p = note_p->FirstChildElement("duration");
 			if( p )
 			{
-				note.duration = ( get_int( p ) * 250 ) / musicxml.divisions;
+				note.duration = ( get_int( -1, p ) * 250 ) / musicxml.divisions;
+				musicxml.scoreduration += note.duration;
 			}
 							// get chord from note
 			p = note_p->FirstChildElement("chord");
@@ -148,7 +157,6 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 				musicxml.notelist.back().chord.push_back( pitch );
 				musicxml.notelist.back().str.push_back(pitch.step_char );
 				musicxml.notelist.back().glide.push_back( { pitch, false });
-				Noteline.push_back( pitch.step_char );
 			}
 			else
 			{
@@ -159,14 +167,9 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 				note.glide[0] = { pitch, false };
 				musicxml.notelist.push_back( note );
 
-				Noteline.push_back( '(' );
-				Noteline.push_back( pitch.step_char );
 			}
 			note_p = note_p->NextSiblingElement("note");
 
-			if ( note_p )
-			if ( not note_p->FirstChildElement("chord") )
-				Noteline.push_back( ')' );
 
 		}
 
@@ -176,8 +179,8 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 //		appendMeasure( part_p, measure_e );
 	note_t pause = Notes.pause_note;
 	pause.duration = 1000;
-
-	musicxml.notelist.push_back( pause );
+	musicxml.scoreduration += pause.duration;
+	musicxml.notelist.push_back( pause ); // add a pause at the end of the score
 	return musicxml;
 }
 

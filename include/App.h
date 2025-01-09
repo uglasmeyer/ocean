@@ -50,7 +50,7 @@ public:
 	void Shutdown_instance( );
 	void VersionTxt();
 	void Start( int, char* [] );
-	void Init_Sds( uint sds_id );
+	void Init_Sds( );
 	uint8_t GetAppState( uint appid );
 	void Ready();
 

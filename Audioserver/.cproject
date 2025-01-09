@@ -59,7 +59,7 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1266606249" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.44972637" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/Audioserver}/Release" enableCleanBuild="false" id="cdt.managedbuild.target.gnu.builder.base.995503207" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/Audioserver}/Release" enableCleanBuild="false" id="cdt.managedbuild.target.gnu.builder.base.995503207" keepEnvironmentInBuildfile="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.352530342" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.61860154" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.other.pic.755348412" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -97,7 +97,7 @@
 									<listOptionValue builtIn="false" value="/home/sirius/git/Ocean/Audioserver"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.63282798" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" value="Ocean"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="Ocean"/>
 									<listOptionValue builtIn="false" value="rtaudio"/>
 								</option>
 								<option id="gnu.cpp.link.option.pthread.1347640657" name="Support for pthread (-pthread)" superClass="gnu.cpp.link.option.pthread" value="true" valueType="boolean"/>

@@ -32,13 +32,13 @@ void Keyboard_class::setup(  )
 {
 	if ( not instrument ) return;
 	// copy class Oscillator
-	osc.wp 			= instrument->main.wp;
-	osc.vp 			= instrument->main.vp;
+	osc.wp 			= instrument->osc.wp;
+	osc.vp 			= instrument->osc.vp;
 	osc.vp.data		= vco.Mem.Data;
-	osc.fp 			= instrument->main.fp;
+	osc.fp 			= instrument->osc.fp;
 	osc.fp.data		= fmo.Mem.Data;
-	osc.adsr 		= instrument->main.adsr;
-	osc.spectrum	= instrument->main.spectrum;
+	osc.adsr 		= instrument->osc.adsr;
+	osc.spectrum	= instrument->osc.spectrum;
 
 	vco.wp 			= instrument->vco.wp;
 	vco.vp 			= instrument->vco.vp;

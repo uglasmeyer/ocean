@@ -21,13 +21,15 @@ auto calc_noteline_msec = []( Note_class* C )
 		return duration;
 	};
 
+
 void Note_class::Set_notelist( const notelist_t& nlst )
 {
 	notelist = nlst;
 	Start_note_itr();
-	noteline_sec = calc_noteline_msec( this ) / measure_duration;
+//	noteline_sec = calc_noteline_msec( this ) / measure_duration;
 
 	Noteline_prefix = noteline_prefix_default;
+	Noteline_prefix.Octave = 0;
 //	add_volume( note_itr );
 	Show_note_list( nlst ); // @suppress("Invalid arguments")
 }
@@ -69,7 +71,8 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 
 	min_duration 			= measure_duration / prefix.nps;
 
-	compiler( prefix, str );
+	if ( not compiler( prefix, str ) )
+		return false ;
 
 	// post check
 	uint noteline_msec = calc_noteline_msec( this );
@@ -172,7 +175,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 
 	auto get_oct_value = [ this ]( char ch )
 		{
-			return ( OctaveChars.Set.contains( ch ) ) ? char2int( ch )  : Octave ;
+			return ( OctaveChars.Set.contains( ch ) ) ? char2int( ch )  : -1 ;
 		};
 
 	auto set_duration = [ this ]()
@@ -296,6 +299,8 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			if ( Noteline[pos] == ','  ) delta_oct = -1;
 
 			int oct = get_oct_value( Noteline[pos] );
+			if ( oct < 0 )
+				return parse_error;
 			Set_prefix_octave( oct );
 			return pos;
 			break;
@@ -369,7 +374,9 @@ void Note_class::assign_freq()
 			itr->glide[0].chord.freq = Calc_freq( itr->octave, itr->glide[0].chord );
 		}
 		else
+		{
 			itr->glide[0].chord.freq = itr->chord[0].freq;
+		}
 		itr++;
 	}
 }
@@ -453,7 +460,7 @@ void Note_class::add_volume( note_itr_t itr )
 	}
 }
 
-void Note_class::compiler ( noteline_prefix_t prefix, string str )
+bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 {
 	string prefix_str 	= convention_names[ prefix.convention ];
 	String Note_Chars 	{ convention_notes[ prefix.convention ] };
@@ -468,7 +475,9 @@ void Note_class::compiler ( noteline_prefix_t prefix, string str )
 
 	noteline_len = Noteline.length();
 
-	if ( noteline_len  == 0 ) return;
+	if ( noteline_len  == 0 )
+		return false;
+	parse_error = noteline_len + 1;
 	notelist.clear();
 	set_volume_vector( Volumeline );
 
@@ -480,7 +489,10 @@ void Note_class::compiler ( noteline_prefix_t prefix, string str )
 	{
 		char_pos = noteline_position_parser( char_pos );
 		char_pos++;
-	}
+	};
+
+	if ( char_pos >= parse_error )
+		return false;
 
 	change_alphabet_notes( prefix );
 	assign_freq();
@@ -493,6 +505,8 @@ void Note_class::compiler ( noteline_prefix_t prefix, string str )
 	}
 
 	Show_note_list( notelist ); // @suppress("Invalid arguments")
+	return true;
 }
+
 
 

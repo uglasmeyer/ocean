@@ -57,7 +57,7 @@ public:
 		className = Logfacility_class::module;
 		this->DaTA			= data;
 		this->Sds			= DaTA->Sds_p;
-		this->sds_master	= DaTA->Sds_master;
+		this->sds_master	= DaTA->sds_master;
 		this->sds 			= Sds->addr;
 		this->Sem			= DaTA->Sem_p;
 		this->Instrument 	= instrument;

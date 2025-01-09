@@ -25,7 +25,6 @@ public:
 	Note_class::musicxml_t musicxml;
 
 	tinyxml2::XMLDocument XMLdoc;
-	string				Noteline = ""; //compatible with char notes
 
 	Musicxml_class() :
 		Logfacility_class( "Musicxml_class"),
@@ -43,7 +42,7 @@ public:
 private:
 	Note_base::pitch_t 	get_pitch( tinyxml2::XMLElement* cp );
 	string 				get_text( tinyxml2::XMLElement* p  );
-	int 				get_int( tinyxml2::XMLElement* p  );
+	int 				get_int( int, tinyxml2::XMLElement* p  );
 	void 				appendMeasure( tinyxml2::XMLElement* parent, tinyxml2::XMLElement* child);
 
 };

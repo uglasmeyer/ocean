@@ -44,7 +44,7 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     setup_Widgets(  this->spectrum );
     switch ( ifd->Spectrum_type )
     {
-		case MAINID : ui->rb_spec_main->click(); 	break;
+		case INSTRID : ui->rb_spec_main->click(); 	break;
 		case VCOID  : ui->rb_spec_vco->click(); 	break;
 		case FMOID  : ui->rb_spec_fmo->click(); 	break;
 		default 	: 								break;
@@ -77,7 +77,7 @@ void Spectrum_Dialog_class::select_spec_vco()
 }
 void Spectrum_Dialog_class::select_spec_main()
 {
-	select_spec( this, ifd->MAIN_spectrum, MAINID );
+	select_spec( this, ifd->MAIN_spectrum, INSTRID );
 }
 
 void Spectrum_Dialog_class::Update_spectrum()

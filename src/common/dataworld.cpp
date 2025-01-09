@@ -14,7 +14,7 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 	auto sds_setup = [ this ]( uint sdsid )
 	{
 		Interface_class SDS {Cfg_p, Sem_p };
-		SDS.Type_Id = TypeId;
+		SDS.Type_Id = this->TypeId;
 		SDS.Setup_SDS( sdsid, Cfg.Config.sdskeys[sdsid] );
 
 		SDS_vec.push_back( SDS );
@@ -29,11 +29,12 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 	//	test
 	assert( SDS_vec[0].ds.addr != SDS_vec[1].ds.addr );
 
-	Sds_master = (interface_t*) SDS_vec[0].ds.addr;
+	Master_Sds_p	= &SDS_vec[0];
+	sds_master = (interface_t*) SDS_vec[0].ds.addr;
 
-	Reg.Setup( Sds_master, TypeId );
+	Reg.Setup( sds_master, TypeId );
 	SDS_Id = Reg.GetId(  );
-	Sds_master->SDS_Id = 0;
+	sds_master->SDS_Id = 0;
 
 	Sds_p = GetSds();
 
@@ -90,30 +91,25 @@ interface_t* Dataworld_class::GetSdsAddr( int id )
 	Comment( DEBUG, "SDS Id: " + to_string( id ) + " " + Type_map( TypeId ) );
 	if (( id<0) or ( id > (int)MAXCONFIG ))
 	{
-		Comment( ERROR, "no such Shared Data Segment ");
-		return SDS_vec[id].addr;
+		Exception( "no such Shared Data Segment ");
 	}
 	if( not SDS_vec[id].ds.eexist )
 	{
-		Comment( ERROR, "segment not available");
-		return SDS_vec[id].addr;
+		Exception( "segment not available");
 	}
-//	SDS_vec[id].SHM.ShowDs( SDS_vec[id].ds );
 
 	return ( interface_t*) SDS_vec[id].ds.addr;
 }
 
 void Dataworld_class::ClearShm()
 {
-	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
-	int 			shm_id 	= sds->SHMID;
+	int 			shm_id 	= sds_master->SHMID;
 	( shm_id == 0 ) ? SHM_0.Clear() : SHM_1.Clear();
 }
 
 stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 {
-	interface_t* 	sds 	= SDS_vec[ 0 ].addr;
-	int 			shm_id 	= sds->SHMID;
+	uint8_t			shm_id 	= sds_master->SHMID;
 	stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_1 : ShmAddr_0;
 	return addr;
 
@@ -122,14 +118,12 @@ stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 {
 	stereo_t* 		addr;
-	interface_t* 	sds 	= SDS_vec[0].addr;
-	uint 			shm_id 	= sds->SHMID;
-//	uint 			mode 	= sds->MODE;
+	uint8_t			shm_id 	= sds_master->SHMID;
 
 	shm_id 	= ( shm_id + 1 ) % 2;
 	addr 	= (	shm_id == 0 ) ? ShmAddr_0 : ShmAddr_1;
-	sds->SHMID 	= shm_id;
-	sds->MODE 	= FREERUN;
+	sds_master->SHMID 	= shm_id;
+//	sds_master->MODE 	= FREERUN;
 
 	return addr;
 }

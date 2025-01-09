@@ -10,13 +10,7 @@
 
 void Core_class::Controller(char key)
 {
-	//	interface_t* sds = DaTA.GetSdsAddr();
-	auto set_waveform = [this](Oscillator *osc, char id) {
-		osc->Set_waveform(id);
-		string wf = osc->Get_waveform_str(id);
-		this->Comment(INFO,
-				"set waveform >" + wf + "< for " + osc->osc_type);
-	};
+
 	switch (key) {
 
 	case NULLKEY:
@@ -31,8 +25,9 @@ void Core_class::Controller(char key)
 		Comment( INFO, "from filename: " + filename );
 
 		Notes->musicxml = MusicXML->Xml2notelist( filename );
+
 		Notes->Set_notelist( Notes->musicxml.notelist );
-		sds->Noteline_sec = Notes->noteline_sec;
+		sds->Noteline_sec = Notes->musicxml.scoreduration / 1000;
 
 
 		Mixer->status.notes = true;
@@ -48,44 +43,44 @@ void Core_class::Controller(char key)
 	}
 	case MAINFREQUENCYKEY:
 	{
-		Info("Frequency set to " + to_string(sds->Main_Freq));
-		Instrument->main.Set_frequency(sds->Main_Freq);
-		Notes->osc.Set_frequency(sds->Main_Freq);
+		Info("Frequency set to " + to_string(sds->OSC_wp.frequency));
+		Instrument->osc.Set_frequency(sds->OSC_wp.frequency);
+		Notes->osc.Set_frequency(sds->OSC_wp.frequency);
 		Sds->Commit();
 		break;
 	}
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
-		Instrument->vco.Set_frequency(sds->VCO_Freq);
-		Notes->vco.Set_frequency(sds->VCO_Freq);
-		Instrument->main.Connect_vco_data(&Instrument->vco);
+		Instrument->vco.Set_frequency(sds->VCO_wp.frequency);
+		Notes->vco.Set_frequency(sds->VCO_wp.frequency);
+		Instrument->osc.Connect_vco_data(&Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case FMOFREQUENCYKEY: // modify the fm_track data
 	{
-		Instrument->fmo.Set_frequency(sds->FMO_Freq);
-		Notes->fmo.Set_frequency(sds->FMO_Freq);
-		Instrument->main.Connect_fmo_data(&Instrument->fmo);
+		Instrument->fmo.Set_frequency(sds->FMO_wp.frequency);
+		Notes->fmo.Set_frequency(sds->FMO_wp.frequency);
+		Instrument->osc.Connect_fmo_data(&Instrument->fmo);
 		Sds->Commit();
 		break;
 	}
 	case VCOAMPKEY: // modify the VCO volume
 	{
-		Value vol = sds->VCO_Amp;
+		Value vol = sds->VCO_wp.volume;
 		Comment(INFO, "Changing VCO volume to " + vol.str + " %");
 		Instrument->vco.Set_volume(vol.ch);
 		Notes->vco.Set_volume(vol.ch);
-		Instrument->main.Connect_vco_data(&Instrument->vco);
+		Instrument->osc.Connect_vco_data(&Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case FMOAMPKEY: // modify the FMO volume
 	{
-		Value vol = sds->FMO_Amp;
+		Value vol = sds->FMO_wp.volume;
 		Instrument->fmo.Set_volume(vol.ch);
 		Notes->fmo.Set_volume(vol.ch);
-		Instrument->main.Connect_fmo_data(&Instrument->fmo);
+		Instrument->osc.Connect_fmo_data(&Instrument->fmo);
 		Notes->fmo.Set_volume(vol.ch);
 		Sds->Commit();
 		break;
@@ -113,25 +108,29 @@ void Core_class::Controller(char key)
 		Sds->Commit();
 		break;
 	}
-	case ADSR_KEY: {
-		Instrument->main.Set_adsr(sds->Main_adsr);
+	case ADSR_KEY:
+	{
+		Instrument->osc.Set_adsr(sds->Main_adsr);
 		Sds->Commit();
 		break;
 	}
-	case PMWDIALKEY: {
-		Instrument->main.Set_pmw(sds->PMW_dial);
-		Instrument->vco.Set_pmw(sds->PMW_dial);
-		Instrument->fmo.Set_pmw(sds->PMW_dial);
+	case PMWDIALKEY:
+	{
+		Instrument->osc.Set_pmw(sds->VCO_wp.PMW_dial);
+		Instrument->vco.Set_pmw(sds->VCO_wp.PMW_dial);
+		Instrument->fmo.Set_pmw(sds->VCO_wp.PMW_dial);
 		Sds->Commit();
 		break;
 	}
-	case WAVEDISPLAYTYPEKEY: {
+	case WAVEDISPLAYTYPEKEY:
+	{
 		Wavedisplay->Set_type(sds->WD_type_ID);
 		Sds->Commit();
 		break;
 	}
-	case SOFTFREQUENCYKEY: {
-		Instrument->main.Set_glide(sds->Soft_freq);
+	case SOFTFREQUENCYKEY:
+	{
+		Instrument->osc.Set_glide(sds->OSC_wp.glide_effect);
 		Sds->Commit();
 		break;
 	}
@@ -212,10 +211,10 @@ void Core_class::Controller(char key)
 	}
 		;
 	case EXTERNAL_AMPLOOP_KEY: {
-		uint8_t Id = sds->MIX_Id;
-		uint16_t beg = Mixer->StA[Id].Amp;
-		uint16_t end = sds->LOOP_end;
-		uint8_t step = sds->LOOP_step;
+		uint8_t 	Id 	= sds->MIX_Id;
+		uint16_t 	beg = Mixer->StA[Id].Amp;
+		uint16_t 	end = sds->LOOP_end;
+		uint8_t 	step= sds->LOOP_step;
 		Mixer->amp_loop_vec[Id].Start(beg, end, step);
 		Sds->Commit();
 		break;
@@ -233,7 +232,8 @@ void Core_class::Controller(char key)
 		Sds->Commit();
 		break;
 	}
-	case MUTEREC_KEY: {
+	case MUTEREC_KEY:
+	{
 		Value id = { (int) (sds->MIX_Id) };
 		Comment(INFO,
 				"receive command <mute and stop record on id" + id.str
@@ -260,10 +260,10 @@ void Core_class::Controller(char key)
 		Sds->Commit();
 		break;
 	}
-	case TOGGLEMBPLAYKEY: // toggle Memory bank status play
+	case SETSTAPLAY_KEY: // toggle Memory bank status play
 	{
 		Value Id { (int) (sds->MIX_Id) };
-		bool play { !(sds->StA_state[Id.val].play) };
+		bool play { (bool) sds->StA_state[Id.val].play };
 		sds->StA_state[Id.val].play = play;
 		Comment(INFO,
 				"receive command <toggle play on memory bank" + Id.str
@@ -274,9 +274,9 @@ void Core_class::Controller(char key)
 	}
 	case RESETMAINKEY: // reset main
 	{
-		Instrument->main.Mem_vco.Clear_data(max_data_amp);
-		Instrument->main.Mem_fmo.Clear_data(0);
-		Instrument->main.Reset_data(&Instrument->main);
+		Instrument->osc.Mem_vco.Clear_data(max_data_amp);
+		Instrument->osc.Mem_fmo.Clear_data(0);
+		Instrument->osc.Reset_data(&Instrument->osc);
 		Sds->Commit();
 		break;
 	}
@@ -385,7 +385,7 @@ void Core_class::Controller(char key)
 	case CONNECTFMOVCOKEY: // connect FMO volume with vco data
 	{
 		Instrument->fmo.Connect_fmo_data(&Instrument->vco);
-		Instrument->main.Connect_fmo_data(&Instrument->fmo);
+		Instrument->osc.Connect_fmo_data(&Instrument->fmo);
 		Sds->Commit();
 		break;
 	}
@@ -404,22 +404,22 @@ void Core_class::Controller(char key)
 	case CONNECTVCOFMOKEY: //connect VCO frequency with FMO data
 	{
 		Instrument->vco.Connect_vco_data(&Instrument->fmo);
-		Instrument->main.Connect_vco_data(&Instrument->vco);
+		Instrument->osc.Connect_vco_data(&Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMFMOKEY: {
-		set_waveform(&Instrument->fmo, sds->FMO_spectrum.id);
+		Instrument->fmo.Set_waveform( sds->FMO_spectrum.id);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMVCOKEY: {
-		set_waveform(&Instrument->vco, sds->VCO_spectrum.id);
+		Instrument->vco.Set_waveform( sds->VCO_spectrum.id);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMMAINKEY: {
-		set_waveform(&Instrument->main, sds->MAIN_spectrum.id);
+		Instrument->osc.Set_waveform( sds->MAIN_spectrum.id);
 		Sds->Commit();
 		break;
 	}

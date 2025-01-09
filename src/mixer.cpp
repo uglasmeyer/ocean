@@ -201,6 +201,8 @@ void Mixer_class::Update_ifd_status_flags( interface_t* sds )
 
 
 void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id )
+// sample Data for different sound devices
+// by applying mixer volume per device
 {								// 0   1   2   3  In  Kb  Nt  Ex
 	const array<int,8> phase_r = {10,  0,-10,  0,  5, -5,  5, -5 };
 	const array<int,8> phase_l = { 0,-10,  0, 10,  5, -5,  5, -5 };
@@ -221,13 +223,16 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 }
 
 void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
+// sample Data for different Synthesizer into audio memory
+// by applying master volume per Synthesizer
 {
 	float out_percent=master_vol/100.0;
-	for( buffer_t n = 0; n < max_frames; n++ )
+	for( buffer_t n = 0; n < sds->audioframes; n++ )
+//		for( buffer_t n = 0; n < max_frames; n++ )
 	{
 		data[n].left 	+= rint( Out_L.Data[n] * out_percent );
 		data[n].right 	+= rint( Out_R.Data[n] * out_percent );
-		Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
+// managed by Audioserver		Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
 	}
 }
 

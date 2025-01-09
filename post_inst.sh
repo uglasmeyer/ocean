@@ -10,11 +10,15 @@ cd $RESOURCEDIR
 cp Ocean.png $INSTBASE/lib
 cp oceansetup.sh $INSTBASE/bin
 
+
+
+
 echo updating git Instruments
+DIR=$INSTBASE/etc/Instruments
 cd $RESOURCEDIR/Instruments
 for F in *snd
 do
-	cp ${INSTBASE}/etc/Instruments/*snd .
+	cp $DIR/*snd .
 done
 
 echo updating git Notes
@@ -28,8 +32,8 @@ echo updating git etc directory
 cd $RESOURCEDIR
 for F in synthesizer.cfg
 do
-	cp ${INSTBASE}/etc/$F .
-	[ ! -f $INSTBASE/etc/$F ] && cp $F $INSTBASE/etc
+#	cp ${INSTBASE}/etc/$F .
+	cp $F $INSTBASE/etc
 done
 
 echo updating git include directory

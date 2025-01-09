@@ -74,8 +74,8 @@ public:
 	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
-	Memory 				Mono			{ monobuffer_size }; 	// Wavedisplay output
-	Memory 				Mono_out		{ monobuffer_size };// Wavedisplay output
+	Memory 				Mono			{ monobuffer_size };
+	Memory 				Mono_out		{ monobuffer_size };
 	Memory 				Out_L			{ monobuffer_size };// Output buffer long
 	Memory				Out_R			{ monobuffer_size };//
 

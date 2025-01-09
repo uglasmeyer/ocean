@@ -45,7 +45,7 @@ Keyboard_class			Keyboard{};
 Dataworld_class			DaTA( AUDIOID );
 Application_class		App( &DaTA );
 Config_class*			Cfg = DaTA.Cfg_p;
-interface_t*			sds	= DaTA.Sds_master;
+interface_t*			sds	= DaTA.sds_master;
 Memory					mono_out	{ monobuffer_size };
 External_class			External { DaTA.Cfg_p, sds };
 ProgressBar_class		ProgressBar( &sds->RecCounter );

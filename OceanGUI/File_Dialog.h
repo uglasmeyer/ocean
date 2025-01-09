@@ -6,6 +6,8 @@
 #include <QComboBox>
 #include <QMainWindow>
 
+// qtcreator
+#include <Common.h>
 
 // Synthesizer
 #include <Logfacility.h>
@@ -15,11 +17,15 @@ using namespace std;
 
 extern void Qread_filelist( QComboBox* CB, const string& path, const string type );
 
-namespace Ui {
+namespace Ui
+{
 class File_Dialog;
 }
 
-class File_Dialog_class : public QDialog, virtual Logfacility_class, virtual Note_class
+class File_Dialog_class :
+		public QDialog,
+		virtual Logfacility_class,
+		virtual Note_class
 {
     Q_OBJECT
 
@@ -30,15 +36,19 @@ public:
     QComboBox*      CB_instruments	= nullptr;
     QSlider*		Sl_Main_Hz		= nullptr;
     string          notes_path		= "";
+    string          notes_type		= "";
     string          instruments_path= "";
     QString         QNote_Chars		{"Notes: ( )"};
     const QString   NotesON 		= "Notes Off" ;
     const QString   NotesOFF		= "Play Notes";
     bool            SWITCHON 		= false;
-    Interface_class* sds			= nullptr;
+    Interface_class* Sds			= nullptr;
     Semaphore_class* sem			= nullptr;
-    interface_t*	addr			= nullptr;
+    interface_t*	sds_p			= nullptr;
     int8_t			SDS_ID			= 0;
+    QList<QString>	Notestypes		{};
+    QList<QString>	Notesdirs		{};
+    vector<int> 	Noteskeys		{};
 
     explicit File_Dialog_class(	QWidget *parent = nullptr,
     							Interface_class* sds = nullptr,
@@ -56,12 +66,12 @@ private slots:
 
     void on_cb_instrumentfiles_activated(const QString &arg1);
 
-    void pb_PlayNotes_OnOff();
     void pb_Instrument_Done_clicked();
     void pb_Notes_Done_clicked();
     void cB_NotesPerSec(int);
     void cB_Convention( int );
     void sB_Octave(int);
+    void cb_Notestype( int );
 };
 
 #endif // FILE_DIALOG_H

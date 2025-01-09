@@ -125,11 +125,11 @@ void Interface_class::Show_interface()
 		arrno++;
 	}
 
-	lline( "\nShared Data Str. ID", to_string((int) ds.Id ));
+	lline( "\nShared Data Str. ID ", to_string((int) ds.Id ));
 	rline( Version_str 			, addr->version);
 
-	lline( "(M)ain (F)requency:" , addr->Main_Freq );
-	rline( "(A)DSR (G)lide freq:" , (int)addr->Soft_freq);
+	lline( "(M)ain (F)requency:" , addr->OSC_wp.frequency );
+	rline( "(A)DSR (G)lide freq:" , (int)addr->OSC_wp.glide_effect);
 
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
 	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.attack );
@@ -140,17 +140,17 @@ void Interface_class::Show_interface()
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
 	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr.decay );
 
-	lline( "(F)MO  (F)requency:" , addr->FMO_Freq);
-	rline( "(V)CO  (F)requency:" , addr->VCO_Freq);
+	lline( "(F)MO  (F)requency:" , addr->FMO_wp.frequency);
+	rline( "(V)CO  (F)requency:" , addr->VCO_wp.frequency);
 
-	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_Amp);
-	rline( "(V)CO  (A)mplitude:" , (int) addr->VCO_Amp);
+	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
+	rline( "(V)CO  (A)mplitude:" , (int) addr->VCO_wp.volume);
 
 	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.id ]);
 	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.id ]);
 
 	lline( "", "" );
-	rline( "VCO  PMW dial      " , (int)addr->PMW_dial) ;
+	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->MAIN_spectrum ));
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->VCO_spectrum ));
@@ -272,7 +272,8 @@ string Interface_class::Read_str( char selector )
 
 void Interface_class::Announce( )
 {
-	Comment(INFO, "announcing application " + Type_map( Type_Id ) );
+	cout << Type_Id << endl;
+	Comment(INFO, "announcing application " + Type_map( this->Type_Id ) );
 	uint8_t* state = Getstate_ptr( Type_Id );
 	*state = RUNNING;
 	addr->UpdateFlag = true;
@@ -307,11 +308,15 @@ void Interface_class::Dump_ifd()
 {
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
 	assert( dumpFile.size() > 0 );
+	size_t count = 0;
 	FILE* fd = fopen( dumpFile.data() , "w");
-	size_t count = fwrite( addr, sizeof( ifd_data ), 1, fd);
-	fclose( fd );
+	if ( fd )
+	{
+		count = fwrite( addr, sizeof( ifd_data ), 1, fd);
+		fclose( fd );
+	}
 	if( count == 1 ) {;}
-	else Comment( ERROR, "incomplete dump" + Error_text( errno ) );
+	else Exception( "incomplete dump" + Error_text( errno ) );
 }
 
 void Interface_class::Update( char ch )

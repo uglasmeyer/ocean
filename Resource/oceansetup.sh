@@ -24,9 +24,12 @@ done
 
 BASHRC=~/.bashrc
 TMPRC=/tmp/rc.tmp
-RCFILE=$OCEANDIR/etc/ocean.rc
+RCDIR=$OCEANDIR/etc/
+RCFILE=${RCDIR}ocean.rc
+
 
 echo generating ocean.rc
+[ ! -d $RCDIR ] && mkdir $RCDIR
 echo export OCEANDIR=$OCEANDIR >> $RCFILE
 echo export PATH=$OCEANDIR/bin:$PATH >> $RCFILE
 

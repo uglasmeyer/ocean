@@ -20,7 +20,6 @@ void Oscillator_base::Show_csv_comment( int loglevel )
 void Oscillator_base::Set_adsr( adsr_t adsr )
 {
 	this->adsr = adsr;
-	wp.touched = true;
 }
 
 void Oscillator_base::Set_frequency( float freq )
@@ -29,39 +28,35 @@ void Oscillator_base::Set_frequency( float freq )
 
 	if ( freq < 0 ) freq = 0;
 	wp.frequency 	= freq;
-	wp.touched 		= true;
-//	wp.fstruct		= freq_to_freq_struct( freq );
 }
 void Oscillator_base::Set_volume( uint16_t vol)
 {
 	if ( vol < 1 ) vol = 0; // no output if below 2
 	if ( vol > 100 ) vol = 100;
 	wp.volume 		= vol;
-	wp.touched 		= true;
 }
 void Oscillator_base::Set_pmw( uint8_t pmw )
 {
 	wp.PMW_dial = pmw;
-	wp.touched 	= true;
 }
 
 void Oscillator_base::Set_glide( uint8_t value )
 {
 	wp.glide_effect = value;
-	wp.touched 	= true;
 
 }
 
 void Oscillator_base::Set_waveform( char id )
 {
-	spectrum.id 	= id;
-	wp.touched 		= true;
+	spectrum.id	= id;
+	Comment(INFO,
+			"set waveform >" + Get_waveform_str(id) + "< for " + osc_type);
+
 }
 
 void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 {
 	this->spectrum 	= spectrum;
-	wp.touched		= true;
 }
 #include <System.h>
 
@@ -69,14 +64,14 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
-	wp.conf 		= arr;
+//	wp.conf 		= arr;
 
 
 	vp.name			= osc_type;
 	fp.name			= osc_type;
 	spectrum.id		= Get_waveform_id( arr[2] );
 	wp.msec 		= Str.secure_stoi(arr[4]);
-	wp.volume 		= Str.secure_stoi(arr[5]);
+//	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
 	float freq	 	= stof(arr[3]);
 	Set_frequency( freq );

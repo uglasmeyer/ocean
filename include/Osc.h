@@ -54,6 +54,8 @@ private:
 	void 	set_phi( double , double );
 	double 	get_phi( );
 	void 	mem_init();
+	bool 	is_main_id( int id );
+
 
 };
 

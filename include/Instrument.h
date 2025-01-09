@@ -23,10 +23,10 @@ class Instrument_class: virtual public Logfacility_class
 public:
 	string 					Name 		= "";
 
-	Oscillator 				main{ MAINID};
+	Oscillator 				osc{ INSTRID};
 	Oscillator 				vco	{ VCOID };
 	Oscillator 				fmo	{ FMOID };
-	vector<Oscillator*>		osc_vector { &vco, &fmo, &main };
+	vector<Oscillator*>		osc_vector { &vco, &fmo, &osc };
 	interface_t*  				ifd;
 
 	const string instr_ext = file_structure().snd_type;
@@ -37,6 +37,7 @@ public:
 	bool Set( string );
 	void Setup( interface_t* ifd );
 	void Save_Instrument( string );
+	buffer_t Set_msec( int msec );
 	void Update_spectrum();
 	void Test_Instrument();
 	void Run_osc_group();

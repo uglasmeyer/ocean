@@ -32,7 +32,7 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
-
+version 3.0.2 fixes
 version 3.0.1 data exchange rate adopted to 2 sec
 version 3.0.0 Introduction of MusicXML
 version 2.4.1 end

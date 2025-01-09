@@ -35,6 +35,7 @@ typedef struct process_struct
 	int8_t			idx		= -1;
 	uint8_t			sdsId	= 0;
 	uint8_t			type	= NOID;
+	pid_t			pid		= -1;
 } process_t;
 
 const uint	REGISTER_SIZE 	= MAXCONFIG+1;
@@ -49,8 +50,9 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 1; 						// comstack
+	uint8_t			version						= 0; 						// comstack
 	int8_t			SDS_Id						= 0;
+	buffer_t		audioframes					= max_frames;
 
 	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{ 75 };
@@ -60,26 +62,22 @@ typedef struct interface_struct
 	char 			Notes	  [str_buffer_len]	{"default"}; //char array for the notes filename // comstack
 	char 			Other	  [str_buffer_len]	{"default"}; // e.g. external wave file name // comstack
 
-	float 			Main_Freq  					= 110;// comstack
 	uint8_t			Master_Amp 					= 75;// comstack
 	adsr_t 			Main_adsr 					= adsr_struct();// comstack
-	uint8_t			Soft_freq					= 0;// comstack
 
 	uint8_t		 	LOOP_step 					= 0;
 	float			LOOP_end 					= 75;
 
-	float	 		VCO_Freq 					= 0;// comstack
-	uint8_t 		VCO_Amp 					= 0;// comstack
-	uint8_t 		PMW_dial 					= 50; // PMW_dial // comstack
+	wave_t			OSC_wp						= wave_struct();
+	wave_t			VCO_wp						= wave_struct();
+	wave_t			FMO_wp						= wave_struct();
 
-	float	 		FMO_Freq 					= 0;// comstack
-	uint8_t 		FMO_Amp 					= 0;// comstack
-
+	uint8_t			NotestypeId					= 0; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds // comstack
 
-	uint8_t			config						= 0;
+	uint8_t			config						= 0; // reference to the Synthesizer sds
 	keys_arr_t		sds_keys					= {0,0,0,0};
 
 	uint8_t 		MIX_Amp 					= 0;// comstack
@@ -88,7 +86,7 @@ typedef struct interface_struct
 	spectrum_t 		MAIN_spectrum				= Spectrum_base::spec_struct();// comstack
 	spectrum_t 		VCO_spectrum 				= Spectrum_base::spec_struct();// comstack
 	spectrum_t	 	FMO_spectrum 				= Spectrum_base::spec_struct();// comstack
-	uint8_t			Spectrum_type				= MAINID;
+	uint8_t			Spectrum_type				= INSTRID;
 
 	uint8_t 		AudioServer	    			= OFFLINE;// comstack
 	uint8_t 		Synthesizer					= DEFAULT;// indicates that shm is new // comstack

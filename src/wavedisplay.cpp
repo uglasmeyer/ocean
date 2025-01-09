@@ -84,8 +84,9 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 	}
 	else // full, flow
 	{
-		int idx = 0;
-		for ( buffer_t n = offs; n < param.len*param.step + offs; n=n+param.step )
+		int idx 	= 0;
+		int step	= param.step*Sds_p->addr->audioframes / max_frames;
+		for ( buffer_t n = offs; n < param.len*step + offs; n=n+step )
 		{
 			Data_t value = rint( data_ptr_arr[ wdId ][n]);
 			display_buffer[ idx ] = value;

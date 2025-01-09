@@ -23,13 +23,13 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	Instrument_name = instrument->Name;
 	Comment(TEST, "Update notes instrument:  " + Instrument_name);
 	// copy class Oscillator
-	osc.wp = instrument->main.wp;
-	osc.vp = instrument->main.vp;
-	osc.fp = instrument->main.fp;
+	osc.wp = instrument->osc.wp;
+	osc.vp = instrument->osc.vp;
+	osc.fp = instrument->osc.fp;
 	osc.vp.data = vco.Mem.Data;
 	osc.fp.data = fmo.Mem.Data;
-	osc.adsr = instrument->main.adsr;
-	osc.spectrum = instrument->main.spectrum;
+	osc.adsr = instrument->osc.adsr;
+	osc.spectrum = instrument->osc.spectrum;
 	vco.wp = instrument->vco.wp;
 	vco.vp = instrument->vco.vp;
 	vco.fp = instrument->vco.fp;
@@ -240,6 +240,9 @@ string Note_class::get_name()
 
 void Note_class::set_file_name( string str )
 {
+	if ( str.length() == 0 )
+		return;
+
 	Notefile_name = str;
 	Notefile = "";
 	for ( string dir : { file_structure().Dir.notesdir , file_structure().Dir.autodir} )
@@ -345,7 +348,7 @@ void Note_class::Test()
 {
 	Note_base::TestNoteBase();
 
-	Assert( Notechar2Step( 'A' ) == 0, "Assert test value " + to_string( Notechar2Step( 'A' ) ) );
+	Assert( Notechar2Step( 'A' ) == 9, "Assert test value " + to_string( Notechar2Step( 'A' ) ) );
 
 	Instrument_name = "NotesTest";
 	Set_Loglevel(TEST, true );
@@ -362,7 +365,7 @@ void Note_class::Test()
 	advance(note_itr, 1 );
 	assert( note_itr->longnote );
 	assert( noteline_sec == 3 );
-	assert( note_itr->chord[0].step == 2 );
+	Assert( note_itr->chord[0].step == 11, "Assert test value " + to_string( note_itr->chord[0].step  ));
 
 	Comment( TEST, "fill note list");
 	Set_rhythm_line("5");
@@ -457,7 +460,7 @@ void Note_class::Test()
 
 	Verify_noteline( Noteline_prefix, "|2(AB)--->|3A" );
 	note_t note = *notelist.begin();
-	assert( note.glide[0].chord.step == 0 );
+	Assert( note.glide[0].chord.step == 0, "expected: "+ to_string(note.glide[0].chord.step) );
 	assert( note.glide[0].chord.alter == 1 );
 	assert ( ( Calc_freq( note.octave,  note.glide[0].chord ) - 440 ) < 1E-8 );
 	Comment( INFO, "Test Note_class OK" );

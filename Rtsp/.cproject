@@ -142,9 +142,26 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="Rtsp.cdt.managedbuild.target.gnu.exe.1526317662" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="xRelease"/>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/Rtsp"/>
+		</configuration>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/Rtsp"/>
+		</configuration>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.972388560;cdt.managedbuild.config.gnu.exe.release.972388560.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.16637389;cdt.managedbuild.tool.gnu.cpp.compiler.input.1395100156">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989.1007661317;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989.1007661317.;cdt.managedbuild.tool.gnu.c.compiler.base.573763353;cdt.managedbuild.tool.gnu.c.compiler.input.1915809412">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989.1007661317;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.145913989.1007661317.;cdt.managedbuild.tool.gnu.cpp.compiler.base.67691148;cdt.managedbuild.tool.gnu.cpp.compiler.input.47766700">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.985801971;cdt.managedbuild.config.gnu.exe.debug.985801971.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.2107596051;cdt.managedbuild.tool.gnu.c.compiler.input.2090095268">
@@ -157,15 +174,4 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="xRelease"/>
-		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/Rtsp"/>
-		</configuration>
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/Rtsp"/>
-		</configuration>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

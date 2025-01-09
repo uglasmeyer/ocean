@@ -32,6 +32,26 @@ int set_slider( float f )
 	return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
 }
 
+auto set_sl_sta_value = []( MainWindow* C )
+{
+    uint ID = 0;
+    for( QSlider* sl : C->sl_sta_vec )
+    {
+    	sl->setValue( C->Sds->addr->StA_amp_arr[ID] );
+		ID++;
+    }
+
+};
+auto set_cb_sta_value = []( MainWindow* C )
+{
+    uint ID = 0;
+    for( QCheckBox* cb : C->cb_sta_vec )
+    {
+    	cb->setChecked( C->Sds->addr->StA_state[ID].play );
+		ID++;
+    }
+
+};
 Ui::MainWindow	Ui_Mainwindow_obj{};
 
 MainWindow::MainWindow(	QWidget *parent ) :
@@ -84,8 +104,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
     this->setPalette(palette);
 
 
-    status_color_green.setColor(QPalette::Button, Qt::green);
-    status_color_red.setColor(QPalette::Button, Qt::red);
 
     connect( ui->pB_Rtsp, SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
     connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
@@ -114,7 +132,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
     	ui->Slider_mix_vol0, ui->Slider_mix_vol1, ui->Slider_mix_vol2, ui->Slider_mix_vol3,
 		ui->Slider_mix_vol4, ui->Slider_mix_vol5, ui->Slider_mix_vol6, ui->Slider_mix_vol7
     };
-
     connect(ui->Slider_mix_vol0, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix0(int) ));
     connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));
     connect(ui->Slider_mix_vol2, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix2(int) ));
@@ -141,7 +158,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     cb_sta_vec =
     {
     		ui->cb_sta0, ui->cb_sta1, ui->cb_sta2, ui->cb_sta3,
-			ui->cb_sta4, ui->cb_sta5, ui->cb_sta6, ui->cb_sta7,
+			ui->cb_sta4, ui->cb_sta5, ui->cb_sta6, ui->cb_sta7
     };
     connect(ui->cb_sta0, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute0(int)) );
     connect(ui->cb_sta1, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute1(int)) );
@@ -152,11 +169,15 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->cb_sta6, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute6(int)) );
     connect(ui->cb_sta7, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute7(int)) );
 
+    rb_S_vec =
+    {
+    	ui->rb_S0, ui->rb_S0, ui->rb_S0, ui->rb_S0
+    };
     connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_S0()) );
     connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_S1()) );
     connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_S2()) );
     connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_S3()) );
-
+    rb_S_vec[ this->Sds->addr->config ]->setChecked( true );
 
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
@@ -191,26 +212,12 @@ MainWindow::MainWindow(	QWidget *parent ) :
     ui->cb_bps->addItems( Qbps_str_lst );
     setwidgetvalues();
 
-    int
-	ID = 0;
+    int ID = 0;
     for( QRadioButton* rb : rb_sta_vec )
     {
     	rb->setChecked( Sds->addr->StA_state[ID].store );
 		ID++;
     }
-    ID = 0;
-    for( QCheckBox* cb : cb_sta_vec )
-    {
-    	cb->setChecked( Sds->addr->StA_state[ID].play );
-		ID++;
-    }
-    ID = 0;
-    for( QSlider* sl : sl_sta_vec )
-    {
-    	sl->setValue( Sds->addr->StA_amp_arr[ID] );
-		ID++;
-    }
-
 
     ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
@@ -263,7 +270,7 @@ void MainWindow::pB_Wavedisplay_clicked()
 void MainWindow::dial_soft_freq_value_changed()
 {
     int value = ui->dial_soft_freq->value();
-    Sds->Set(Sds->addr->Soft_freq , value);
+    Sds->Set(Sds->addr->OSC_wp.glide_effect , value);
     Sds->Set( Sds->addr->KEY , SOFTFREQUENCYKEY);
 
 };
@@ -278,7 +285,7 @@ void MainWindow::dial_decay_value_changed()
 void MainWindow::dial_PMW_value_changed()
 {
     int dial = ui->dial_PMW->value();
-    Sds->Set(Sds->addr->PMW_dial , dial);
+    Sds->Set(Sds->addr->VCO_wp.PMW_dial , dial);
     Sds->Set( Sds->addr->KEY ,PMWDIALKEY);
 }
 
@@ -327,7 +334,7 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 }
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
-	waveform_slot( &Sds->addr->MAIN_spectrum.id, _wfid, MAINID, SETWAVEFORMMAINKEY, ui->wf_main );
+	waveform_slot( &Sds->addr->MAIN_spectrum.id, _wfid, INSTRID, SETWAVEFORMMAINKEY, ui->wf_main );
 }
 void MainWindow::FMO_Waveform_slot(int _wfid)
 {
@@ -343,8 +350,8 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 {
 
 	this->Sds = DaTA->GetSds( sdsid );
-
-    Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
+	DaTA->Reg.Show_proc_register( sdsid );
+//    Comment( INFO," Ocean GUI set to SDS Id: " + to_string( (int)sdsid));
 
     File_Dialog_obj.SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
@@ -356,9 +363,10 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 	Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1 );
 	Rtsp_Dialog_obj.SDS_ID = sdsid;
 
-	DaTA->Sds_master->config = sdsid;
-	DaTA->Sds_master->UpdateFlag = true;
+	DaTA->sds_master->config = sdsid;
+	DaTA->sds_master->UpdateFlag = true;
 
+	setwidgetvalues();
 };
 
 void MainWindow::select_S0()
@@ -378,43 +386,46 @@ void MainWindow::select_S3()
 	select_Sds( 3);
 }
 
-auto toggle_mute( MainWindow* C, uint id,  int state )
+auto setStaPlay( MainWindow* C, uint id )
 {
-	C->Sds->addr->MIX_Id = id;
-	C->Sds->addr->KEY = TOGGLEMBPLAYKEY;
+    C->Sds->Set( C->Sds->addr->MIX_Id , id );
+    bool play = not C->Sds->addr->StA_state[id].play;
+    C->Sds->Set( C->Sds->addr->StA_state[id].play, play);
+    C->Sds->Set( C->Sds->addr->KEY, SETSTAPLAY_KEY );
+    C->cb_sta_vec[ id ]->setChecked( play ) ;
 }
 
 void MainWindow::toggle_mute0( int state )
 {
-	toggle_mute( this, 0, state );
+	setStaPlay( this, 0 );
 }
 void MainWindow::toggle_mute1( int state )
 {
-	toggle_mute( this, 1,state );
+	setStaPlay( this, 1 );
 }
 void MainWindow::toggle_mute2( int state )
 {
-	toggle_mute( this, 2,state );
+	setStaPlay( this, 2 );
 }
 void MainWindow::toggle_mute3( int state )
 {
-	toggle_mute( this, 3,state );
+	setStaPlay( this, 3 );
 }
 void MainWindow::toggle_mute4( int state )
 {
-	toggle_mute( this, MbIdInstrument,state );
+	setStaPlay( this, MbIdInstrument );
 }
 void MainWindow::toggle_mute5( int state )
 {
-	toggle_mute( this, MbIdKeyboard,state );
+	setStaPlay( this, MbIdKeyboard );
 }
 void MainWindow::toggle_mute6( int state )
 {
-	toggle_mute( this, MbIdNotes, state );
+	setStaPlay( this, MbIdNotes );
 }
 void MainWindow::toggle_mute7( int state )
 {
-	toggle_mute( this, MbIdExternal,state );
+	setStaPlay( this, MbIdExternal );
 }
 
 auto toggle_store_sta( MainWindow* C, int ID )
@@ -552,19 +563,23 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 	Sds->Set( Sds->addr->KEY, ADSR_KEY );
 }
 
+
 void MainWindow::setwidgetvalues()
 {
+
+	set_sl_sta_value( this );
+	set_cb_sta_value( this );
 
 	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 
 
-    ui->Slider_FMO_Hz->setValue(    set_slider( Sds->addr->FMO_Freq) );
-    ui->Slider_VCO_Hz->setValue(    set_slider( Sds->addr->VCO_Freq) );
-    ui->Slider_Main_Hz->setValue(   Sds->addr->Main_Freq);
+    ui->Slider_FMO_Hz->setValue(    set_slider( Sds->addr->FMO_wp.frequency) );
+    ui->Slider_VCO_Hz->setValue(    set_slider( Sds->addr->VCO_wp.frequency) );
+    ui->Slider_Main_Hz->setValue(   Sds->addr->OSC_wp.frequency);
 
     ui->Slider_Main_Vol->setValue(  Sds->addr->Master_Amp);
-    ui->Slider_FMO_vol->setValue(   Sds->addr->FMO_Amp);
-    ui->Slider_VCO_vol->setValue(   Sds->addr->VCO_Amp);
+    ui->Slider_FMO_vol->setValue(   Sds->addr->FMO_wp.volume);
+    ui->Slider_VCO_vol->setValue(   Sds->addr->VCO_wp.volume);
 
 
     ui->labelVCO->setText("VCO");
@@ -581,8 +596,8 @@ void MainWindow::setwidgetvalues()
 
     ui->hs_adsr_sustain->setValue(  (int)Sds->addr->Main_adsr.decay );
     ui->hs_adsr_attack->setValue(  (int) Sds->addr->Main_adsr.attack);
-    ui->dial_PMW->setValue( (int)Sds->addr->PMW_dial  );
-    ui->dial_soft_freq->setValue( (int)  Sds->addr->Soft_freq );
+    ui->dial_PMW->setValue( (int)Sds->addr->VCO_wp.PMW_dial  );
+    ui->dial_soft_freq->setValue( (int)  Sds->addr->OSC_wp.glide_effect );
     ui->hs_hall_effect->setValue( (int)  Sds->addr->Main_adsr.hall );
 
     get_record_status();
@@ -596,8 +611,8 @@ void MainWindow::setwidgetvalues()
     Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
-//    ui->cb_bps->setCurrentText( Qbps_str_lst[ Sds->addr->Main_adsr.bps_id]);
     ui->cb_bps->setCurrentText( QString( int2char( Sds->addr->Main_adsr.bps)));
+
 
     Sds->addr->UserInterface 	= RUNNING;
     Sds->addr->UpdateFlag 		= true;
@@ -618,7 +633,7 @@ auto Slider_Hz = []( Interface_class* IFC, float& fptr, float value, char key )
 
 void MainWindow::MAIN_slot_Hz()
 {
-	Slider_Hz( this->Sds, this->Sds->addr->Main_Freq, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
+	Slider_Hz( this->Sds, this->Sds->addr->OSC_wp.frequency, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
 }
 
 void MainWindow::Slider_VCO_Hz_changed(int value )
@@ -628,7 +643,7 @@ void MainWindow::Slider_VCO_Hz_changed(int value )
 
     ui->VCOLCD_Hz->display( freq );
 
-    Slider_Hz( this->Sds, this->Sds->addr->VCO_Freq, freq, VCOFREQUENCYKEY );
+    Slider_Hz( this->Sds, this->Sds->addr->VCO_wp.frequency, freq, VCOFREQUENCYKEY );
 }
 
 
@@ -639,7 +654,7 @@ void MainWindow::Slider_FMO_Hz_changed(int value )
 
     ui->FMOLCD_Hz->display( freq );
 
-    Slider_Hz( this->Sds, this->Sds->addr->FMO_Freq, freq, FMOFREQUENCYKEY );
+    Slider_Hz( this->Sds, this->Sds->addr->FMO_wp.frequency, freq, FMOFREQUENCYKEY );
 }
 
 auto Slider_volume = []( Interface_class* IF, uint8_t& ch_ptr, char value, char key )
@@ -654,11 +669,11 @@ void MainWindow::MAIN_slot_volume()
 }
 void MainWindow::VCO_slot_volume()
 {
-	Slider_volume( this->Sds, Sds->addr->VCO_Amp, ui->Slider_VCO_vol->value(), VCOAMPKEY );
+	Slider_volume( this->Sds, Sds->addr->VCO_wp.volume, ui->Slider_VCO_vol->value(), VCOAMPKEY );
 }
 void MainWindow::FMO_slot_volume()
 {
-	Slider_volume( this->Sds, Sds->addr->FMO_Amp, ui->Slider_FMO_vol->value(), FMOAMPKEY );
+	Slider_volume( this->Sds, Sds->addr->FMO_wp.volume, ui->Slider_FMO_vol->value(), FMOAMPKEY );
 }
 
 
@@ -688,8 +703,8 @@ void MainWindow::start_synthesizer()
 	    return;
 	}
 
-	int sdsid = DaTA->Reg.GetStartId( Sds_master->config );
-	if ( sdsid <  0 ) return;
+	int sdsid = DaTA->Reg.GetStartId( );
+	if ( sdsid < 0 ) return;
 
 	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
     		file_structure().synth_bin,
@@ -697,7 +712,8 @@ void MainWindow::start_synthesizer()
 
     system_execute( Start_Synthesizer.data() );
     Sem->Lock( SEMAPHORE_STARTED );
-    Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1);
+    select_Sds(sdsid);
+//    Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1);
     setwidgetvalues();
 }
 void MainWindow::read_polygon_data()
@@ -713,16 +729,17 @@ void MainWindow::Controller_Exit()
 			Sem->Release( SEMAPHORE_EXIT );
 		return;
 	}
+	uint idx = Rtsp_Dialog_obj.SDS_ID + SYNTHID ;
     Sds->addr->Synthesizer = EXITSERVER ;
-    DaTA->Reg.Reset( Rtsp_Dialog_obj.SDS_ID, SYNTHID );
+    DaTA->Reg.Reset( idx );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
     Rtsp_Dialog_obj.proc_table_update_row(Rtsp_Dialog_obj.SDS_ID + 1);
 }
 
 void MainWindow::Audio_Exit()
 {
-    DaTA->Sds_master->AudioServer = EXITSERVER;
-    DaTA->Reg.Reset( 0, AUDIOID );
+    DaTA->sds_master->AudioServer = EXITSERVER;
+    DaTA->Reg.Reset(  AUDIOID );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
     Rtsp_Dialog_obj.proc_table_update_row(0);
 }
@@ -810,7 +827,7 @@ void MainWindow::Updatewidgets()
             if ( this->File_Dialog_p != nullptr )
                 this->File_Dialog_p->CB_instruments->textActivated(QStr);
         }
-        if ( not DaTA->Sds_master->Composer )
+        if ( not DaTA->sds_master->Composer )
         {
 			switch( Sds->addr->FLAG )
 			{
@@ -844,25 +861,25 @@ void MainWindow::Updatewidgets()
 
 
     if (Sds_master->AudioServer == RUNNING )
-        ui->pBAudioServer->setPalette(status_color_green);
+        Set_button_color( ui->pBAudioServer, Qt::green);
     else
-        ui->pBAudioServer->setPalette(status_color_red);
+        Set_button_color( ui->pBAudioServer, Qt::red);
 
 
     if (Sds->addr->Synthesizer == RUNNING )
-        ui->pBSynthesizer->setPalette(status_color_green);
+        Set_button_color( ui->pBSynthesizer, Qt::green);
     else
-        ui->pBSynthesizer->setPalette(status_color_red);
+        Set_button_color( ui->pBSynthesizer, Qt::red);
 
     if( Sds_master->Record)
     {
     	ui->pBtoggleRecord->setText( "Stop Rec");
-    	ui->pBtoggleRecord->setPalette( status_color_red );
+        Set_button_color( ui->pBtoggleRecord, Qt::red);
     }
     else
     {
     	ui->pBtoggleRecord->setText( "Record");
-    	ui->pBtoggleRecord->setPalette( status_color_green );
+        Set_button_color( ui->pBtoggleRecord, Qt::green);
     }
     setwidgetvalues();
 

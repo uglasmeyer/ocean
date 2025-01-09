@@ -54,18 +54,18 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_Obj { this, DaTA->Sds_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_Obj;
 
-    interface_t*			Sds_master			= DaTA->Sds_master;
+    interface_t*			Sds_master			= DaTA->sds_master;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
     vector<QString> 		Qwavedisplay_type_str_vec
 												{};
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
+
+    vector<QRadioButton*> 	rb_S_vec			{};
     vector<QRadioButton*> 	rb_sta_vec			{};
     vector<QCheckBox*>		cb_sta_vec			{};
     vector<QSlider*>		sl_sta_vec			{};
-    QPalette status_color_red   = QPalette();
-    QPalette status_color_green = QPalette();
 
     void setwidgetvalues();
     void Updatewidgets();
@@ -178,3 +178,5 @@ private:
 };
 
 #endif // MAINWINDOW_H
+
+

@@ -168,8 +168,6 @@ void Oscillator::mem_init()
 		this->Mem.Data[n] 		= 0;
 	}
 
-	this->wp.touched = true;
-
 	this->vp.data = this->Mem_vco.Data;
 	this->fp.data = this->Mem_fmo.Data;
 	this->vp.name = this->osc_type;
@@ -184,7 +182,8 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 {
 	buffer_t 			n;
 	buffer_t 			frames  	= ( this->wp.msec*frames_per_sec) / 1000;
-	double 				dt 			= 1.0/frames_per_sec;//seconds per frame
+//	double 				dt 			= 1.0/frames_per_sec;//seconds per frame
+	double 				dt 			= 1.0/frames;//seconds per frame
 	float				volume  	= (float) this->wp.volume;
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
@@ -202,10 +201,9 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		vco_shift = 0;
 	}
 
-	float	vol_per_cent =  volume / 100.0; // the volume of the main osc is managed by the mixer!
-	if ( osc_id == MAINID )
-		vol_per_cent= 1; // the volume of the main osc is managed by the mixer
-						 // or notes (NOTEID)!
+	float	vol_per_cent 	= volume / 100.0; // the volume of the main osc is managed by the mixer!
+	if ( is_main_id( osc_id ) )
+		vol_per_cent		= 1; // the volume of the main osc is managed by the mixer
 
 	if ( frames > max_frames )
 		frames = max_frames;
@@ -214,7 +212,6 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	Sum( spectrum );
 	if ( spectrum.sum == 0 ) spectrum.sum  = 1;
 
-	wp.touched = false;
 	switch ( spectrum.id )
 	{
 		case SINUS0 : // s inus + spectrum
@@ -363,8 +360,6 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		phi		= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
 		if ( ( phi > maxphi ) or ( phi < -maxphi ) )
 			cout << "phi overflow: " << phi << endl;
-//		assert( phi <=  lfo_mod );
-//		assert( phi >= -lfo_mod );
 	}
 
 	set_phi( phi, maxphi );
@@ -382,18 +377,9 @@ void Oscillator::Set_long( bool l )
 	longnote = l ;
 }
 
-set<int> mainid_set = { MAINID, NOTESID, KBDID };
-bool main_id( int id )
+bool Oscillator::is_main_id( int id )
 {
-	if ( mainid_set.contains( id ) ) return true;
-	return false;
-/*
-	for ( int ID : )
-	{
-		if ( id == ID ) return true;
-	}
-	return false;
-	*/
+	return mainid_set.contains( id );
 }
 
 void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
@@ -423,14 +409,14 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 
 		};
 
-	if ( adsr.bps == 0 ) 		return;
-	if ( not main_id( osc_id ) )return;
+	if ( adsr.bps == 0 )	 		return;
+	if ( not is_main_id( osc_id ) )	return;
 
 
-	int 		duration = 1; // each note has a single attack/decay
-	if ( osc_id == MAINID )
-		//		duration 	= bps_struct().getbps( adsr.bps );
+	int 		duration 	= 1;// each note has a single attack/decay
+	if ( osc_id == INSTRID )		// apply to instrument only
 				duration 	= adsr.bps;
+
 	buffer_t 	aframes		= 0;
 	float 		da			= 0;
 
@@ -462,8 +448,8 @@ void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
 	// dn is the distance of the wall in frame units
 	//	buffer_t dn 	= ( ( adsr.hall*adsr.hall )/100.0 * max_frames ) / 100;;
 
-	if ( adsr.hall == 0 ) 		return;
-	if ( not main_id( osc_id )) return;
+	if ( adsr.hall == 0 ) 			return;
+	if ( not is_main_id( osc_id )) 	return;
 
 	float 		d0 		= 1; // distance to the receiver of sound
 	float 		distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]
@@ -487,7 +473,6 @@ void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
 
 void Oscillator::Connect_vco_data( Oscillator* osc)
 {
-	this->wp.touched = true;
 	this->vp.data 	= osc->Mem.Data;
 	this->vp.volume = osc->wp.volume;
 	this->vp.name 	= osc->osc_type;
@@ -495,7 +480,6 @@ void Oscillator::Connect_vco_data( Oscillator* osc)
 
 void Oscillator::Connect_fmo_data( Oscillator* osc )
 {
-	this->wp.touched = true;
 	this->fp.data 	= osc->Mem.Data;
 	this->fp.volume = osc->wp.volume;
 	this->fp.name 	= osc->osc_type;
@@ -503,7 +487,6 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 
 void Oscillator::Reset_data( Oscillator* osc )
 {
-	this->wp.touched = true;
 	this->Mem_fmo.Clear_data(0);
 	this->Mem_vco.Clear_data(max_data_amp);
 

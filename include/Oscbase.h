@@ -35,6 +35,17 @@ typedef struct bps_struct
 
 } bps_struct_t;
 
+typedef	struct wave_struct
+{
+	float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
+	uint8_t			PMW_dial 	= 50;
+	uint8_t 		glide_effect= 0;
+	uint16_t 		msec		= max_sec*1000; 	// range 1 ... 8000
+	uint8_t 		volume		= osc_default_volume; 	// range [0..100];
+	buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
+//		vector_str_t 	conf		= {};
+} wave_t;
+
 typedef struct adsr_struct
 {
 	uint8_t bps 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
@@ -65,20 +76,9 @@ typedef struct vco_struct
 class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
 {
 public:
+	set<int> 		mainid_set 		{ INSTRID, NOTESID, KBDID };
 	uint8_t			osc_id 			= OTHERID;
 	string 			osc_type 		= osc_type_vec[ osc_id ] ;
-
-	typedef	struct wave_struct
-	{
-		float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
-		uint 			PMW_dial 	= 50;
-		uint	 		glide_effect= 0;
-		uint16_t 		msec		= max_sec*1000; 	// range 1 ... 8000
-		uint16_t 		volume		= osc_default_volume; 	// range [0..100];
-		buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
-		vector_str_t 	conf		= {};
-		bool 			touched 	= false;// true if set_frequency or set_volume
-	} wave_t;
 
 	adsr_t 				adsr 		= adsr_struct();
 	wave_t 				wp 			= wave_struct();
@@ -104,9 +104,9 @@ public:
 
 private:
 
-	string comment 		= "";
-	string csv_comment 	= "";
-	string command 		= "";
+	string 		comment 		= "";
+	string 		csv_comment 	= "";
+	string 		command 		= "";
 
 
 }; // close class Track class

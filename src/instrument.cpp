@@ -14,7 +14,7 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 : Logfacility_class("Instrument")
 {
 	Setup( ifd );
-	wd->Add_data_ptr("MAIN", main.Mem.Data);
+	wd->Add_data_ptr("MAIN", osc.Mem.Data);
 	wd->Add_data_ptr("VCO", vco.Mem.Data);
 	wd->Add_data_ptr("FMO", fmo.Mem.Data);
 
@@ -36,7 +36,7 @@ void Instrument_class::reuse_GUI_Data()
 	// the update shall take place if the ifd data shall be reused to reach the
 	// commit point of last GUI action.
 	// The data shall be ignored if the ifd is initially created. This is indicated
-	// be the MODE DEFAULT.
+	// by the MODE DEFAULT.
 
 	if ( ifd->MODE == DEFAULT )
 	{
@@ -46,28 +46,34 @@ void Instrument_class::reuse_GUI_Data()
 
 	Comment(INFO, "using Shared Data");
 
-	main.adsr				= ifd->Main_adsr;
-	main.wp.glide_effect	= ifd->Soft_freq 	;
-	main.wp.PMW_dial		= 0;// ifd->PMW_dial; only for vco
+	osc.adsr				= ifd->Main_adsr;
+	osc.wp.glide_effect		= ifd->OSC_wp.glide_effect 	;
+	osc.wp.PMW_dial			= 0;// ifd->PMW_dial; only for vco
 
-	main.wp.frequency 		= ifd->Main_Freq  ;
-	main.wp.msec	 		= max_milli_sec;// ifd->Main_Duration*1000 ; // unused
-	main.spectrum			= ifd->MAIN_spectrum;
-	main.wp.touched			= true;
+	osc.wp.frequency 		= ifd->OSC_wp.frequency  ;
+	osc.wp.msec	 			= max_milli_sec;// ifd->Main_Duration*1000 ; // unused
+	osc.spectrum			= ifd->MAIN_spectrum;
 
-	vco.wp.frequency		= ifd->VCO_Freq 	;
-	vco.wp.volume			= ifd->VCO_Amp 		;
+	vco.wp.frequency		= ifd->VCO_wp.frequency 	;
+	vco.wp.volume			= ifd->VCO_wp.volume 		;
 	vco.wp.msec				= max_milli_sec;// unused max_sec*1000	; // unused
 	vco.spectrum			= ifd->VCO_spectrum;
-	vco.wp.PMW_dial			= ifd->PMW_dial;
-	vco.wp.touched			= true;
+	vco.wp.PMW_dial			= ifd->VCO_wp.PMW_dial;
 
-	fmo.wp.frequency		= ifd->FMO_Freq 		;
-	fmo.wp.volume			= ifd->FMO_Amp 		;
+	fmo.wp.frequency		= ifd->FMO_wp.frequency 		;
+	fmo.wp.volume			= ifd->FMO_wp.volume 		;
 	fmo.wp.msec				= max_milli_sec; // max_sec * 1000; // unused
 	fmo.spectrum			= ifd->FMO_spectrum;
 	fmo.wp.PMW_dial			= 0;// ifd->PMW_dial only for vco
-	fmo.wp.touched			= true;
+}
+
+buffer_t Instrument_class::Set_msec( int msec )
+{
+	for( Oscillator* osc : osc_vector )
+	{
+		osc->wp.msec = msec;
+	}
+	return ( msec*frames_per_sec ) / 1000;
 }
 
 void Instrument_class::setup_GUI_Data()
@@ -81,22 +87,17 @@ void Instrument_class::setup_GUI_Data()
 	Comment(INFO, "setup GUI data");
 
 
-	ifd->Main_adsr 			= main.adsr;
-	ifd->PMW_dial 			= vco.wp.PMW_dial;
-	ifd->Soft_freq			= main.wp.glide_effect;
+	ifd->Main_adsr 		= osc.adsr;
+	ifd->OSC_wp			= osc.wp;
+	ifd->MAIN_spectrum	= osc.spectrum;
 
-	ifd->MAIN_spectrum		= main.spectrum;
-	ifd->Main_Freq  		= main.wp.frequency;
+	ifd->VCO_spectrum	= vco.spectrum;
+	ifd->VCO_wp			= vco.wp;
 
-	ifd->VCO_Freq 			= vco.wp.frequency;
-	ifd->VCO_Amp 			= vco.wp.volume;
-	ifd->VCO_spectrum		= vco.spectrum;
+	ifd->FMO_wp			= fmo.wp;
+	ifd->FMO_spectrum	= fmo.spectrum;
 
-	ifd->FMO_Freq 			= fmo.wp.frequency;
-	ifd->FMO_Amp 			= fmo.wp.volume;
-	ifd->FMO_spectrum		= fmo.spectrum;
-
-	ifd->UserInterface		= UPDATEGUI; // update Instrument reset flag on GUI side
+	ifd->UserInterface	= UPDATEGUI; // update Instrument reset flag on GUI side
 
 
 }
@@ -156,7 +157,7 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 
 	osc->Line_interpreter( arr );
-	if ( osc->osc_id == MAINID )
+	if ( osc->osc_id == INSTRID )
 		assign_adsr( arr );
 	osc->Get_comment( false );
 	osc->Set_csv_comment();
@@ -185,10 +186,10 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 {
 	String 				Str{""};
 
-	main.adsr.decay 	= Str.secure_stoi( arr[9 ]);
-	main.adsr.bps		= Str.secure_stoi( arr[10] );
-	main.adsr.attack	= Str.secure_stoi( arr[11] );
-	main.adsr.hall		= Str.secure_stoi( arr[12] );
+	osc.adsr.decay 	= Str.secure_stoi( arr[9 ]);
+	osc.adsr.bps		= Str.secure_stoi( arr[10] );
+	osc.adsr.attack	= Str.secure_stoi( arr[11] );
+	osc.adsr.hall		= Str.secure_stoi( arr[12] );
 	return true;
 }
 ;
@@ -327,7 +328,7 @@ void Instrument_class::Save_Instrument( string str )
 			<< setw(10)	<< "PMWs"
 			<< endl;
 
-	main.wp.volume = (int)ifd->Master_Amp;
+	osc.wp.volume = (int)ifd->Master_Amp;
 	for ( Oscillator* osc : osc_vector )
 	{
 		FILE 	<< setfill(' ') << right << " OSC,"
@@ -367,12 +368,6 @@ void Instrument_class::Save_Instrument( string str )
 
 void Instrument_class::Run_osc_group()
 {
-	bool touched = false;
-	for ( Oscillator* osc : osc_vector	)
-	{
-		if ( osc->wp.touched ) touched = true;
-	}
-	if ( touched )
 		for ( Oscillator* osc : osc_vector )
 		{
 			osc->OSC( 0 );
@@ -417,24 +412,24 @@ void Instrument_class::Test_Instrument()
 	assert( vco.wp.PMW_dial == 98 );
 	assert( vco.waveform_str_vec[ SGNSIN ].compare( vco.Get_waveform_str( vco.spectrum.id )) == 0 );
 
-	assert( main.fp.data == fmo.Mem.Data );
+	assert( osc.fp.data == fmo.Mem.Data );
 	fmo.wp.frequency 	= 0.75;
 	fmo.wp.volume		= 0;//31;
 	assert( fmo.wp.frequency - 0.75 < 1E-5 );
 	assert( fmo.wp.volume == 0);//31 );
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
-	assert( main.adsr.hall == 0 );
+	assert( osc.adsr.hall == 0 );
 
 	Data_t datan = 0;
 	Data_t data0 = 0;
 	fmo.OSC(0);
-	main.OSC(0);
+	osc.OSC(0);
 	for ( int n = 0; n <10; n++ )
 	{
-		datan = main.Mem.Data[max_frames-1];
+		datan = osc.Mem.Data[max_frames-1];
 		fmo.OSC(0);
-		main.OSC(0);
-		data0 = main.Mem.Data[0];
+		osc.OSC(0);
+		data0 = osc.Mem.Data[0];
 		cout << "> "  << setw(15) << datan << setw(15) << data0 << setw(15) << abs( abs( datan )- abs(data0 ) )  << endl;
 		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
 	}

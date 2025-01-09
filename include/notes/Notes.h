@@ -28,10 +28,10 @@ public:
 	typedef struct musicxml_struct
 	{
 		string 		instrument_name = "";
-		uint		divisions 		= 4;
-		uint		beats			= 4;
+		int			divisions 		= -1;
+		int			beats			= -1;
 		uint		tempo			= max_sec;
-		uint		scoreduration 	= 0;
+		uint		scoreduration 	= 0; // unit milli second
 		notelist_t 	notelist 		{};
 	} musicxml_t;
 	musicxml_t		musicxml	= musicxml_struct();
@@ -86,7 +86,7 @@ public:
 		stringstream strs;
 		uint lineduration = 0;
 		strs << "Chord         Vol  msec  Oct alt Freq| Oct alt Freq| Oct alt Freq|";
-		Comment( INFO, strs.str() );
+		Comment( DEBUG, strs.str() );
 
 		uint count = 1;
 		for( note_t note : items )
@@ -96,13 +96,14 @@ public:
 			uint mod = lineduration % measure_duration;
 			if ( mod == 0 )
 			{
-				cout << " Measure count: " << count << "" << endl; count++;
+				Comment( DEBUG, " Measure count: " + to_string(count));
+				count++;
 			}
 		}
 		strs.str("");
 		strs << setw(17) << left  << "sentence length" <<
 				setw(6) << right << dec << lineduration << " [msec]" ;
-		Comment( INFO, strs.str() );
+		Comment( DEBUG, strs.str() );
 	}
 
 
@@ -117,6 +118,7 @@ private:
 	size_t			vcounter		= 0;
 											// notevalue_struct.doct by one .
 	size_t	 		noteline_len 	= 0;
+	size_t			parse_error		= 0;
 	vector<uint>    volume_vec 		{};
 	int8_t			delta_oct		= 0; 	// |' |, in noteline inc or dec the value of all subsequent
 
@@ -126,7 +128,7 @@ private:
 	note_itr_t  	note_itr 		= notelist.begin();
 
 	string 			get_name();
-	void 			compiler ( noteline_prefix_t,  string );
+	bool 			compiler ( noteline_prefix_t,  string );
 	void			set_file_name( string );
 	size_t			noteline_position_parser( size_t );
 	void 			note2memory( 	const note_t&,

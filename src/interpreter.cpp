@@ -33,15 +33,15 @@ Processor_class( data->Sds_p )
 
 	main_view.wf 	= &ifd->MAIN_spectrum.id;
 	main_view.amp 	= &ifd->StA_amp_arr[MbIdInstrument];
-	main_view.freq 	= &ifd->Main_Freq;
+	main_view.freq 	= &ifd->OSC_wp.frequency;
 
 	vco_view.wf 	= &ifd->VCO_spectrum.id;
-	vco_view.amp 	= &ifd->VCO_Amp;
-	vco_view.freq 	= &ifd->VCO_Freq;
+	vco_view.amp 	= &ifd->VCO_wp.volume;
+	vco_view.freq 	= &ifd->VCO_wp.frequency;
 
 	fmo_view.wf 	= &ifd->FMO_spectrum.id;
-	fmo_view.amp 	= &ifd->FMO_Amp;
-	fmo_view.freq 	= &ifd->FMO_Freq;
+	fmo_view.amp 	= &ifd->FMO_wp.volume;
+	fmo_view.freq 	= &ifd->FMO_wp.frequency;
 
 }
 
@@ -744,7 +744,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		int freq = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Soft_freq, freq, "soft freq"  );
+		Processor_class::Push_ifd( &ifd->OSC_wp.glide_effect, freq, "soft freq"  );
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}
@@ -792,7 +792,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		int dial = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->PMW_dial, dial, "pmw" );
+		Processor_class::Push_ifd( &ifd->VCO_wp.PMW_dial, dial, "pmw" );
 		Processor_class::Push_key( PMWDIALKEY, "set pmw" );
 		return;
 	}

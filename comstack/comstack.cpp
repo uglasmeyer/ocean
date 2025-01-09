@@ -71,10 +71,11 @@ char Key_event( string charlist )
 
 void exit_proc( int signal )
 {
-	exit(0);
+	exit( signal );
 }
 int main( int argc, char* argv[] )
 {
+
 	App.Start( argc, argv );
 
     App.Sds->Announce( );
@@ -102,7 +103,7 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event( "#faw" );
 			switch ( keyevent )
 			{
-			case 'f' : { sds->Main_Freq = getvalue( "Frequency" ); sds->KEY = MAINFREQUENCYKEY; break; }
+			case 'f' : { sds->OSC_wp.frequency = getvalue( "Frequency" ); sds->KEY = MAINFREQUENCYKEY; break; }
 			case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
 			case 'w' : { sds->MAIN_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;
@@ -115,8 +116,8 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { sds->FMO_Freq = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
-			case 'a' : { sds->FMO_Amp  = getvalue( "Amplitude" ); sds->KEY = FMOAMPKEY; break; }
+			case 'f' : { sds->FMO_wp.frequency = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
+			case 'a' : { sds->FMO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = FMOAMPKEY; break; }
 			case 'w' : { sds->FMO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMFMOKEY; break; }
 			default  : break ;
 			}
@@ -128,8 +129,8 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { sds->VCO_Freq = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
-			case 'a' : { sds->VCO_Amp  = getvalue( "Amplitude" ); sds->KEY = VCOAMPKEY; break; }
+			case 'f' : { sds->VCO_wp.frequency = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
+			case 'a' : { sds->VCO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = VCOAMPKEY; break; }
 			case 'w' : { sds->VCO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMVCOKEY; break; }
 			default  : break ;
 			}
@@ -141,7 +142,7 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#bgdsh");
 			switch ( keyevent )
 			{
-			case 'g' : { sds->Soft_freq = getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
+			case 'g' : { sds->OSC_wp.glide_effect = getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
 			case 'd' : { sds->Main_adsr.attack  = getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
 			case 'b' : { sds->Main_adsr.bps  	= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
 			case 's' : { sds->Main_adsr.decay  = getvalue( "Sustain" ); sds->KEY = ADSR_KEY; break; }

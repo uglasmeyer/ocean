@@ -47,7 +47,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := ifdstruct
+BUILD_ARTIFACT_NAME := /home/sirius/OceanBase/bin/x86_64/comstack
 BUILD_ARTIFACT_EXTENSION :=
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -58,19 +58,19 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: ifdstruct
+main-build: /home/sirius/OceanBase/bin/x86_64/comstack
 
 # Tool invocations
-ifdstruct: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
+/home/sirius/OceanBase/bin/x86_64/comstack: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) 
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "ifdstruct" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++  -o "/home/sirius/OceanBase/bin/x86_64/comstack" $(OBJS) $(USER_OBJS) $(LIBS) ""
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) ifdstruct
+	-$(RM) /home/sirius/OceanBase/bin/x86_64/comstack
 	-@echo ' '
 
 .PHONY: all clean dependents main-build

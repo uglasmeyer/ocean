@@ -34,7 +34,8 @@ public:
 	stereo_t* 				ShmAddr_0 	= nullptr;
 	stereo_t* 				ShmAddr_1 	= nullptr;
 	Interface_class*		Sds_p		= nullptr;
-	interface_t*			Sds_master	= nullptr;
+	Interface_class*		Master_Sds_p= nullptr;
+	interface_t*			sds_master	= nullptr;
 
 
 	interface_t* GetSdsAddr();

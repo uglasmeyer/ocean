@@ -36,13 +36,13 @@ void SynthesizerTestCases()
 	interface_t*			sds = DaTA.GetSdsAddr();
 	Mixer_class				Mixer{&DaTA, wd_p };
 	Mixer.Set_Loglevel( TEST, true );
-	Instrument_class 		Instrument( DaTA.Sds_master, wd_p );
+	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
 	Note_class 				Notes;
 	Keyboard_class			Keyboard( 	&Instrument );
 	External_class 			External( 	&Mixer.StA[ MbIdExternal],
 										DaTA.Cfg_p);
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
-	Time_class				Timer( &DaTA.Sds_master->time_elapsed );
+	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.module };
 
 	Semaphore_class*		Sem	= DaTA.Sem_p;
@@ -54,7 +54,7 @@ void SynthesizerTestCases()
 
 	Log.TEST_START( "Application " );
 
-	App.Init_Sds( 0 );
+	App.Init_Sds( );
 
 
 	App.Sds->Announce();
@@ -127,7 +127,7 @@ uint8_t Application_class::GetAppState( uint appid )
 	return state;
 }
 
-void Application_class::Init_Sds( uint sds_id )
+void Application_class::Init_Sds( )
 {
 	this->Sds		= DaTA->GetSds( );
 	assert( this->Sds != nullptr );
@@ -145,7 +145,7 @@ void Application_class::VersionTxt()
 
 void Application_class::Start( int argc, char* argv[] )
 {
-    std::set<int> logowner{ GUI_ID, COMPID, RTSPID };
+    std::set<int> logowner =  { GUI_ID, COMPID, RTSPID };
 	if ( logowner.contains( DaTA->TypeId ) )
 	{
 		Init_log_file();
@@ -163,11 +163,11 @@ void Application_class::Start( int argc, char* argv[] )
 		fprintf( stderr, "%s\n", "error file content:\n");
 	}
 
-	this->Cfg					= DaTA->Cfg_p;
+	this->Cfg = DaTA->Cfg_p;
 
 	Cfg->Parse_argv(argc, argv );
 	Cfg->Show_Config( );
-	Init_Sds( DaTA->SDS_Id );
+	Init_Sds( );
 
 	if ( DaTA->Cfg.Config.clear == 'y' )
 	{

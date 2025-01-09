@@ -85,7 +85,7 @@ void record_thead_fcn()
 		if ( RecordThreadDone )
 			break;
 		SaveRecordFlag = true;
-		Fileno = (int) DaTA.Sds_master->FileNo;
+		Fileno = (int) DaTA.sds_master->FileNo;
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
 		External.Save_record_data( rcounter, Fileno.val );
@@ -241,7 +241,6 @@ void write_waveaudio()
 void call_for_update()
 {
 	DaTA.ClearShm();
-
 	shm_addr = DaTA.SetShm_addr( );
 
 	for ( int n = 0; n < 4; ++n)
@@ -286,7 +285,7 @@ void set_ncounter( buffer_t n )
 	if( mode == KEYBOARD )
 		ncounter	= 0;
 
-	if ( n > max_frames - 1 )
+	if ( n > sds->audioframes - 1 )
 //	if ( n > frames_per_sec - 1 )
 	{
 //		cout << Measure.Time_elapsed() << "[msec]" << endl;
@@ -294,7 +293,7 @@ void set_ncounter( buffer_t n )
 		ncounter = 0;
 		if ( External.status.record )
 		{
-			External.Record_buffer( shm_addr, External.stereo_data, rcounter * max_frames);
+			External.Record_buffer( shm_addr, External.stereo_data, rcounter * sds->audioframes);
 			set_rcounter();
 		}
 
@@ -327,6 +326,7 @@ int RtAudioOut(	void *outputBuffer,
 		for ( uint i{0}; i < chunksize; i++ )
 		{
 			buffer[i]	= shm_addr[ncounter];
+			shm_addr[ncounter] = { 0, 0 };
 			ncounter 	= (ncounter	+ 1 );
 		}
 

@@ -95,3 +95,11 @@ string searchPath( string file )
 
     return string("");
 }
+
+bool Is_running_process( const string& pid_str )
+{
+	string dirname = filesystem::path( "/proc/" + pid_str );
+	return filesystem::is_directory( dirname ) ;
+}
+
+

@@ -22,15 +22,46 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 {
 	this->Type_Id 	= tid;
 	this->sds		= sds;
+	this->Sds_Id 	= 0;
 
-	int id	= GetStartId( sds->config );//scan_proc_register();
-	if ( id  < 0 )
+	switch( tid )
 	{
-		Comment( ERROR, "Nr of started synthesizer processes exeeds limitation" );
-		exit( 1 );
+		case AUDIOID :
+		{
+			string pid_str	= to_string( this->sds->process_arr.at( AUDIOID ).pid );
+			if ( Is_running_process(pid_str) )
+			{
+				Comment( ERROR, "Cannot start second Audioserver" );
+				exit(1);
+			}
+			else
+			{
+				proc_Register();
+			}
+			break;
+		}
+		case SYNTHID :
+		{
+			int id = scan_proc_register();
+			if ( id < 0 )
+			{
+				Comment( ERROR, "Nr of started synthesizer processes exeeds limitation" );
+				exit(1);
+			}
+			else
+			{
+				this->Sds_Id = id;
+				this->sds->config = this->Sds_Id;
+				proc_Register();
+			}
+			break;
+		}
+		default :
+		{
+			cout << "Type_Id: " << Type_Id << endl;
+			break;
+		}
 	}
-	this->Sds_Id = id;
-	proc_Register();
 }
 
 bool Register_class::Is_dataprocess()
@@ -38,20 +69,19 @@ bool Register_class::Is_dataprocess()
 	return 	dataProc.contains( this->Type_Id );
 }
 
-void Register_class::Reset( uint sid, uint tid )
+void Register_class::Reset( uint idx )
 {
-	uint idx = sid + tid;
-	sds->process_arr.at( idx ) = process_struct();
+	sds->process_arr.at( idx ) = noprocess;
 }
+
 void Register_class::Clear_procregister()
 {
 	Comment( WARN, "apply maintenence option -X" );
 	Comment(WARN, "Clearing process register" );
 
-	for( uint n = 0; n < REGISTER_SIZE; n++ )
-	{
-		sds->process_arr.at(n) = process_struct();
-	}
+	for( uint idx = 0; idx < REGISTER_SIZE; idx++ )
+		Reset( idx );
+
 	show_proc_register();
 }
 
@@ -77,6 +107,7 @@ void Register_class::proc_Register()
 	sds->process_arr.at(idx).idx 	= idx;
 	sds->process_arr.at(idx).sdsId 	= Sds_Id;
 	sds->process_arr.at(idx).type	= Type_Id;
+	sds->process_arr.at(idx).pid	= getpid();
 
 	show_proc_register( );
 
@@ -92,49 +123,42 @@ void Register_class::Proc_deRegister(  )
 		Comment( ERROR, "de-register out of range ");
 		return;
 	}
-
-	sds->process_arr.at(idx) = process_struct();
-
+	Reset( idx );
 }
 
 void Register_class::show_proc_register()
 {
 	for( uint idx = 0; idx < REGISTER_SIZE - 1 ; idx++)
 	{
-		cout << (int)sds->process_arr.at(idx).type << ", " ;
+		Show_proc_register(idx);
 	}
-	cout << (int)sds->process_arr.at(REGISTER_SIZE-1).type << endl ;
 }
 
 void Register_class::Show_proc_register( uint idx )
 {
 	process_t proc { sds->process_arr.at(idx) };
 	stringstream strs;
-	strs << Type_map( proc.type ) << endl;
-	strs << SETW << "Index   "	<< to_string(idx) << endl;
-	strs << SETW << "Sds  Id "	<< proc.sdsId << endl;
-	strs << SETW << "Type Id " 	<< Type_map(proc.type) << endl;
-	Comment( TEST, strs.str() );
+	if ( Is_running_process( to_string( proc.pid )))
+	{
+		strs << Type_map( proc.type ) << endl;
+		strs << SETW << "Index   "	<< idx << endl;
+		strs << SETW << "Sds  Id "	<< (int)proc.sdsId << endl;
+		strs << SETW << "Type Id " 	<< Type_map(proc.type) << endl;
+		strs << SETW << "Pid     " 	<< proc.pid << endl << endl;
+		Comment( INFO, strs.str() );
+	}
 }
 
-int Register_class::GetStartId( uint id ) // used by Ocean
+int Register_class::GetStartId(  ) // external use by GUI
 {
-	int ID = id;
-	int idx = id + SYNTHID;
-	if ( sds->process_arr.at( idx ).type == NOID )
-	{
+
+	int ID = scan_proc_register();
+	if ( ID < 0 )
 		return ID;
-	}
 	else
 	{
-		ID = scan_proc_register();
-		if ( ID < 0 )
-			return ID;
-		else
-		{
-			sds->config = ID;
-			return ID;
-		}
+		sds->config = ID;  	// master_sds refers to Synthesizer ID
+		return ID;			// ID is NOID
 	}
 }
 
@@ -142,20 +166,25 @@ int Register_class::GetId()
 {
 	return Sds_Id;
 }
+
+void Register_class::update_register()
+{
+	for( uint idx = 0; idx < REGISTER_SIZE; idx++ )
+	{
+		if ( not Is_running_process( to_string(sds->process_arr.at(idx).pid) ) )
+			Reset( idx );
+	}
+}
 int Register_class::scan_proc_register() // returns Sds_Id
 {
 	assert( Type_Id < NOID );
-	if ( Type_Id == SYNTHID )
+	update_register();
+	for( uint idx = SYNTHID; idx < REGISTER_SIZE; idx++ )
 	{
-		for( uint idx = 1; idx < REGISTER_SIZE; idx++ )
-		{
-			if ( sds->process_arr.at(idx).type == NOID )
-				return idx - Type_Id;
-		}
-		return -1;
+		if ( sds->process_arr.at(idx).type == NOID )
+			return idx - SYNTHID;
 	}
-	else
-		return 0;
+	return -1;
 }
 
 
