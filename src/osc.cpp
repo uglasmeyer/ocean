@@ -130,7 +130,7 @@ Oscillator::~Oscillator(){};
 
 void Oscillator::Set_start_freq( float freq )
 {
-	start_freq = freq;
+	wp.start_frq = freq;
 }
 
 double Oscillator::get_delta_freq( float freq )
@@ -138,12 +138,12 @@ double Oscillator::get_delta_freq( float freq )
 	// 0..100 |-> 0..frames = 0..max_sec
 	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
 
-	if ( abs(start_freq) < 1E-4 ) return freq;  			// do nothing
+	if ( abs(wp.start_frq) < 1E-4 ) return freq;  			// do nothing
 	float dframes =  ( wp.glide_effect * frames / 100.0 ) ;
 
-	if ( abs(dframes) < 1E-4 ) return freq - start_freq; 	// do nothing
+	if ( abs(dframes) < 1E-4 ) return freq - wp.start_frq; 	// do nothing
 //	Assert( dframes > 0, "dframes: " + to_string(dframes));
-	return ( freq - start_freq ) / dframes;
+	return ( freq - wp.start_frq ) / dframes;
 
 }
 void Oscillator::set_phi( double phi, double mod ) //phase at the end of the osc
@@ -180,30 +180,23 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
  * Generator of sound waves
  */
 {
-	buffer_t 			n;
-	buffer_t 			frames  	= ( this->wp.msec*frames_per_sec) / 1000;
-//	double 				dt 			= 1.0/frames_per_sec;//seconds per frame
-	double 				dt 			= 1.0/frames;//seconds per frame
-	float				volume  	= (float) this->wp.volume;
+	float				freq 		= this->wp.frequency;
+	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
+	double 				dt 			= 1.0/frames_per_sec;	//seconds per frame
+
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
-	float 				norm_freq 	= 0.001*(float)this->fp.volume;
 
-	float freq = this->wp.frequency;
+	float 				fmo_vol 	= 0.001*(float)this->fp.volume;
+	Data_t 				vco_shift 	= max_data_amp / 2;
+	float				vol_per_cent= this->wp.volume / 100.0; // the volume of the main osc is managed by the mixer!
 
-	Data_t 	vco_shift 	= max_data_amp/2;
-	if	(
-		( osc_id == VCOID ) or
-		( osc_id == FMOID )
-		)
-	{
-		vco_shift = 0;
-	}
-
-	float	vol_per_cent 	= volume / 100.0; // the volume of the main osc is managed by the mixer!
 	if ( is_main_id( osc_id ) )
 		vol_per_cent		= 1; // the volume of the main osc is managed by the mixer
+	else
+		vco_shift = 0;
+
 
 	if ( frames > max_frames )
 		frames = max_frames;
@@ -264,7 +257,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			const double 	dT		= 2*dt;
 			const float 	frames2 = 1.0 + (float)wp.PMW_dial / 100.0;
 
-			for ( n = 0; frames > n; n++ )
+			for ( buffer_t n = 0; frames > n; n++ )
 			{
 				float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) ; // VCO envelope
 				float phi2 	= phi * frames2 ;
@@ -325,11 +318,25 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	double 			omega_t		= 0;
 	const double 	dT 			= maxphi * dt; // 2pi dt
 	double 			phi			= get_phi( );
-
-	float 			start_freq 	= this->start_freq;
-	float			delta_freq		= get_delta_freq( freq );
+	float 			start_freq 	= wp.start_frq;
+	float			delta_freq	= get_delta_freq( freq );
 				// difference to the target frequency <freq> - <start_freq>
-	for ( n = 0; n < frames ; n++ )
+
+	auto check_phi = [ this, dT, start_freq]( float phi, float maxphi, float dphi )
+	{
+		if ( maxphi < abs(dphi) )
+		{
+			cout << "osc_id     " << osc_type_vec[osc_id]    	<< endl;
+			cout << "dphi       " << dphi    	<< endl;
+			cout << "maxphi     " << maxphi 	<< endl;
+			cout << "phi        " << phi  		<< endl;
+			cout << "dT         " << dT   		<< endl;
+			cout << "start_freq " << start_freq << endl;
+			Exception( "maxphi exceeds limit < " + to_string( abs(dphi)) );
+		}
+	};
+
+	for ( buffer_t n = 0; n < frames ; n++ )
 	{
 		if (( this->osc_id != NOTESID )) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
@@ -344,19 +351,11 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			}
 		}
 
-		if ( abs(freq - start_freq) > 1 ) start_freq = start_freq + delta_freq;
-		dphi	= dT * ( start_freq + norm_freq*fmo_data[n] );
+		if ( abs(freq - start_freq) > 1 )
+			start_freq = start_freq + delta_freq;
+		dphi	= dT * ( start_freq + fmo_vol*fmo_data[n] );
 		phi 	+= dphi;
-		if ( maxphi < abs(dphi) )
-		{
-			cout << "osc_id     " << osc_type_vec[osc_id]    	<< endl;
-			cout << "dphi       " << dphi    	<< endl;
-			cout << "maxphi     " << maxphi 	<< endl;
-			cout << "phi        " << phi  		<< endl;
-			cout << "dT         " << dT   		<< endl;
-			cout << "start_freq " << start_freq << endl;
-			Exception( "maxphi exceeds limit < " + to_string( abs(dphi)) );
-		}
+		check_phi( phi, maxphi, dphi );
 		phi		= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
 		if ( ( phi > maxphi ) or ( phi < -maxphi ) )
 			cout << "phi overflow: " << phi << endl;
@@ -395,14 +394,15 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 			}
 		}
 		};
-	auto decay = [ this, data ]( int duration, buffer_t rframes, buffer_t aframes, float alpha0 )
+	auto decay = [ this, data ]( int duration, buffer_t rframes, buffer_t aframes, float d_alpha )
 		{
+
 		for ( int step = 0; step < duration; step++ )
 		{
 			buffer_t offs = (rframes*step  ); ///duration;
 			for ( buffer_t n = aframes; n < rframes; n++ )
 			{
-				float alpha 	= (n - aframes + decay_shift) * alpha0;
+				float alpha 	= (n - aframes + decay_shift) * d_alpha;
 				data[n+offs]	= data[n+offs] * exp( -alpha )   ;
 			}
 		}
@@ -413,13 +413,13 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 	if ( not is_main_id( osc_id ) )	return;
 
 
-	int 		duration 	= 1;// each note has a single attack/decay
-	if ( osc_id == INSTRID )		// apply to instrument only
-				duration 	= adsr.bps;
+	int 		duration 	= 1;	// each note has a single attack/decay
+	if ( osc_id == INSTRID )		// apply bps to instrument only
+				duration 	= adsr.bps * max_sec;
 
+	// Attack section
 	buffer_t 	aframes		= 0;
 	float 		da			= 0;
-
 	if ( longnote )
 	// decay_shift is last n
 		aframes = 0;
@@ -429,14 +429,15 @@ void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
 		decay_shift	= 0;
 		da 			= 1.0/aframes;
 	}
-
 	attack( duration, aframes, da );
 
+	// Decay section
 	buffer_t  	rframes	=  frames / duration;
-	float 		alpha0 	= ( duration * (100 - adsr.decay )/2.0) / frames;
-
-	decay( duration, rframes, aframes, alpha0 );
-
+	if ( adsr.decay < 100 )
+	{
+		float 		d_alpha 	= ( duration * (100 - adsr.decay )/3.0) / frames;
+		decay( duration, rframes, aframes, d_alpha );
+	}
 	decay_shift = rframes; // remember last n
 }
 

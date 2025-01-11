@@ -178,7 +178,7 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 //	if ( measure_e)
 //		appendMeasure( part_p, measure_e );
 	note_t pause = Notes.pause_note;
-	pause.duration = 1000;
+	pause.duration = max_milli_sec; // duration takes one measure;
 	musicxml.scoreduration += pause.duration;
 	musicxml.notelist.push_back( pause ); // add a pause at the end of the score
 	return musicxml;

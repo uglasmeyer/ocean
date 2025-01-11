@@ -139,14 +139,14 @@ int main( int argc, char* argv[] )
 		case 'a' :
 		{
 			cout << "ADSR ";
-			keyevent = Key_event("#bgdsh");
+			keyevent = Key_event("#abgdh");
 			switch ( keyevent )
 			{
-			case 'g' : { sds->OSC_wp.glide_effect = getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
-			case 'd' : { sds->Main_adsr.attack  = getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
-			case 'b' : { sds->Main_adsr.bps  	= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
-			case 's' : { sds->Main_adsr.decay  = getvalue( "Sustain" ); sds->KEY = ADSR_KEY; break; }
-			case 'h' : { sds->Main_adsr.decay  = getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
+			case 'g' : { sds->OSC_wp.glide_effect 	= getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
+			case 'a' : { sds->Main_adsr.attack  	= getvalue( "Atack" ); sds->KEY = ADSR_KEY; break; }
+			case 'b' : { sds->Main_adsr.bps  		= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
+			case 'd' : { sds->Main_adsr.decay  		= getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
+			case 'h' : { sds->Main_adsr.hall  		= getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
 			default  : break ;
 			}
 			break;

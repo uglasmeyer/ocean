@@ -36,6 +36,7 @@ void Core_class::Controller(char key)
 		Sds->Write_str(INSTRUMENTSTR_KEY, Notes->musicxml.instrument_name ); // other
 		sds->KEY = SETINSTRUMENTKEY;
 
+
 		Sem->Release(SEMAPHORE_NOTES);
 
 //		Sds->Commit();

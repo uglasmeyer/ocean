@@ -40,7 +40,6 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	{
 		Comment(WARN, "initializing data interface using default values ");
 		Reset_ifd();
-//		memcpy( addr	, &ifd_data		, sds_size );
 	}
 	Comment( INFO, "check shared memory version");
 	filesystem::path sds_dump = dumpFile;
@@ -132,19 +131,19 @@ void Interface_class::Show_interface()
 	rline( "(A)DSR (G)lide freq:" , (int)addr->OSC_wp.glide_effect);
 
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
-	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.attack );
+	rline( "(A)DSR (A)ttack:   " , (int)addr->Main_adsr.attack );
 
 	lline( "                   " , 0 );
 	rline( "(A)DSR (B)eats Id  " , (int)addr->Main_adsr.bps) ;
 
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
-	rline( "(A)DSR (S)ustain:  " , (int)addr->Main_adsr.decay );
+	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.decay );
 
 	lline( "(F)MO  (F)requency:" , addr->FMO_wp.frequency);
 	rline( "(V)CO  (F)requency:" , addr->VCO_wp.frequency);
 
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
-	rline( "(V)CO  (A)mplitude:" , (int) addr->VCO_wp.volume);
+	rline( "(V)CO  (A)mplitude:" , (int)addr->VCO_wp.volume);
 
 	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.id ]);
 	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.id ]);
@@ -278,6 +277,7 @@ void Interface_class::Announce( )
 	*state = RUNNING;
 	addr->UpdateFlag = true;
 }
+
 void Interface_class::Reset_ifd()
 {
 	Comment(INFO, "Reset shared data");

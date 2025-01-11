@@ -9,6 +9,10 @@
 #include <Keys.h>
 #include <Wavedisplay_base.h>
 #include <Logfacility.h>
+
+
+
+
 #include <Mixer.h>
 #include <Ocean.h>
 
@@ -32,26 +36,9 @@ int set_slider( float f )
 	return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
 }
 
-auto set_sl_sta_value = []( MainWindow* C )
-{
-    uint ID = 0;
-    for( QSlider* sl : C->sl_sta_vec )
-    {
-    	sl->setValue( C->Sds->addr->StA_amp_arr[ID] );
-		ID++;
-    }
 
-};
-auto set_cb_sta_value = []( MainWindow* C )
-{
-    uint ID = 0;
-    for( QCheckBox* cb : C->cb_sta_vec )
-    {
-    	cb->setChecked( C->Sds->addr->StA_state[ID].play );
-		ID++;
-    }
 
-};
+
 Ui::MainWindow	Ui_Mainwindow_obj{};
 
 MainWindow::MainWindow(	QWidget *parent ) :
@@ -59,6 +46,26 @@ MainWindow::MainWindow(	QWidget *parent ) :
 //	ui(new Ui::MainWindow)
 
 {
+	auto set_sl_sta_value = [ this ](  )
+	{
+	    uint ID = 0;
+	    for( QSlider* sl : sl_sta_vec )
+	    {
+	    	sl->setValue( Sds->addr->StA_amp_arr[ID] );
+			ID++;
+	    }
+
+	};
+
+	auto set_cb_sta_value = [ this ](  )
+	{
+	    uint ID = 0;
+	    for( QCheckBox* cb : cb_sta_vec )
+	    {
+	    	cb->setChecked( Sds->addr->StA_state[ID].play );
+			ID++;
+	    }
+	};
 
     auto Qstringlist = [ ]( const list<string>& str_lst )
 		{
@@ -132,6 +139,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     	ui->Slider_mix_vol0, ui->Slider_mix_vol1, ui->Slider_mix_vol2, ui->Slider_mix_vol3,
 		ui->Slider_mix_vol4, ui->Slider_mix_vol5, ui->Slider_mix_vol6, ui->Slider_mix_vol7
     };
+	set_sl_sta_value(  );
     connect(ui->Slider_mix_vol0, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix0(int) ));
     connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));
     connect(ui->Slider_mix_vol2, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix2(int) ));
@@ -160,6 +168,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     		ui->cb_sta0, ui->cb_sta1, ui->cb_sta2, ui->cb_sta3,
 			ui->cb_sta4, ui->cb_sta5, ui->cb_sta6, ui->cb_sta7
     };
+	set_cb_sta_value(  );
     connect(ui->cb_sta0, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute0(int)) );
     connect(ui->cb_sta1, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute1(int)) );
     connect(ui->cb_sta2, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute2(int)) );
@@ -173,11 +182,11 @@ MainWindow::MainWindow(	QWidget *parent ) :
     {
     	ui->rb_S0, ui->rb_S0, ui->rb_S0, ui->rb_S0
     };
+    rb_S_vec[ this->Sds->addr->config ]->setChecked( true );
     connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_S0()) );
     connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_S1()) );
     connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_S2()) );
     connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_S3()) );
-    rb_S_vec[ this->Sds->addr->config ]->setChecked( true );
 
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
@@ -189,14 +198,10 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect( ui->sB_Main, SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
 
 
-//    connect(record_timer, &QTimer::timeout, this, &MainWindow::get_record_status);
-//    record_timer->start(1000);
 
-//    status_timer = new QTimer( this );
     connect(status_timer, &QTimer::timeout, this, &MainWindow::Updatewidgets);
     status_timer->start(1000);
 
-//    osc_timer = new QTimer( this );
     connect(osc_timer, &QTimer::timeout, this, &MainWindow::read_polygon_data );
     osc_timer->start(20); // 50 Hz
 
@@ -210,15 +215,16 @@ MainWindow::MainWindow(	QWidget *parent ) :
     Qread_filelist( CB_external,
     				wavfile_path, file_structure().wav_type );
     ui->cb_bps->addItems( Qbps_str_lst );
+
     setwidgetvalues();
 
-    int ID = 0;
+/*    int ID = 0;
     for( QRadioButton* rb : rb_sta_vec )
     {
     	rb->setChecked( Sds->addr->StA_state[ID].store );
 		ID++;
     }
-
+*/
     ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
@@ -567,8 +573,6 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 void MainWindow::setwidgetvalues()
 {
 
-	set_sl_sta_value( this );
-	set_cb_sta_value( this );
 
 	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 

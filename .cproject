@@ -27,7 +27,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.490395897" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
 								<option id="gnu.both.lib.option.flags.1885552870" name="Archiver flags" superClass="gnu.both.lib.option.flags" value="-r -v" valueType="string"/>
 							</tool>
-							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${BUILDDIR}/${OUTPUT} ${INPUTS} ${EXTRA_FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.185781359" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${EXTRA_FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.185781359" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1474229127" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option defaultValue="gnu.cpp.compiler.debugging.level.none" id="gnu.cpp.compiler.exe.release.option.debugging.level.757490648" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.807375448" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++2a" valueType="enumerated"/>

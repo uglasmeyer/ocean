@@ -26,8 +26,9 @@ void Oscillator_base::Set_frequency( float freq )
 {
 	//  min_f := 1/max_sec ,  freq = min_f*N = N/max_sec
 
-	if ( freq < 0 ) freq = 0;
-	wp.frequency 	= freq;
+	if ( freq < 0 ) freq= 0;
+	wp.frequency 		= freq;
+	wp.start_frq 		= freq;
 }
 void Oscillator_base::Set_volume( uint16_t vol)
 {
@@ -71,7 +72,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	fp.name			= osc_type;
 	spectrum.id		= Get_waveform_id( arr[2] );
 	wp.msec 		= Str.secure_stoi(arr[4]);
-//	wp.volume 		= Str.secure_stoi(arr[5]);
+	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
 	float freq	 	= stof(arr[3]);
 	Set_frequency( freq );

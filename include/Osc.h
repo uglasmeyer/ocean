@@ -42,7 +42,6 @@ public:
 private:
 	typedef function<Data_t(const float&, const float&)> osc_function;
 	osc_function 	F;
-	float 			start_freq 	= 0;
 	float 			fmophase 	= 0;
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t		decay_shift = 0;

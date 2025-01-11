@@ -323,7 +323,7 @@ int RtAudioOut(	void *outputBuffer,
 
 		// the output loop is implicitly protect against status changes by the fact
 		// that the buffer boundaries are aligned to 44100 respectively one second
-		for ( uint i{0}; i < chunksize; i++ )
+		for ( uint i = 0; i < chunksize; i++ )
 		{
 			buffer[i]	= shm_addr[ncounter];
 			shm_addr[ncounter] = { 0, 0 };

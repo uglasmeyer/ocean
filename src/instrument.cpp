@@ -47,24 +47,15 @@ void Instrument_class::reuse_GUI_Data()
 	Comment(INFO, "using Shared Data");
 
 	osc.adsr				= ifd->Main_adsr;
-	osc.wp.glide_effect		= ifd->OSC_wp.glide_effect 	;
-	osc.wp.PMW_dial			= 0;// ifd->PMW_dial; only for vco
-
-	osc.wp.frequency 		= ifd->OSC_wp.frequency  ;
-	osc.wp.msec	 			= max_milli_sec;// ifd->Main_Duration*1000 ; // unused
+	osc.wp					= ifd->OSC_wp;
 	osc.spectrum			= ifd->MAIN_spectrum;
 
-	vco.wp.frequency		= ifd->VCO_wp.frequency 	;
-	vco.wp.volume			= ifd->VCO_wp.volume 		;
-	vco.wp.msec				= max_milli_sec;// unused max_sec*1000	; // unused
+	vco.wp					= ifd->VCO_wp;
 	vco.spectrum			= ifd->VCO_spectrum;
-	vco.wp.PMW_dial			= ifd->VCO_wp.PMW_dial;
 
-	fmo.wp.frequency		= ifd->FMO_wp.frequency 		;
-	fmo.wp.volume			= ifd->FMO_wp.volume 		;
-	fmo.wp.msec				= max_milli_sec; // max_sec * 1000; // unused
+	fmo.wp					= ifd->FMO_wp;
 	fmo.spectrum			= ifd->FMO_spectrum;
-	fmo.wp.PMW_dial			= 0;// ifd->PMW_dial only for vco
+
 }
 
 buffer_t Instrument_class::Set_msec( int msec )
@@ -315,7 +306,8 @@ void Instrument_class::Save_Instrument( string str )
 	fstream FILE;
 	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
 
-	FILE 	<< setfill(' ') << right << "#OSC,"
+	// Instrument file header
+	FILE 	<< setfill(' ') << right << "Type,"
 			<< setw(10) << "Name"
 			<< setw(10) << "Waveform"
 			<< setw(8)  << "[Hz]"
@@ -324,19 +316,21 @@ void Instrument_class::Save_Instrument( string str )
 			<< setw(7)  << "unused "
 			<< setw(7)  << "unused"
 			<< setw(7)  << "unused"
-			<< setw(18) << "delay  bps atck hall glide"
+			<< setw(18) << "decay  bps atck hall glide"
 			<< setw(10)	<< "PMWs"
 			<< endl;
 
 	osc.wp.volume = (int)ifd->Master_Amp;
 	for ( Oscillator* osc : osc_vector )
 	{
+
+		// Type OSC
 		FILE 	<< setfill(' ') << right << " OSC,"
 				<< setw(10) <<		 osc->osc_type 		+ ","
 				<< setw(10) <<		 osc->Get_waveform_str(osc->spectrum.id) 	+ ","
-				<< setw(7 ) <<dec << osc->wp.frequency 		<< ","
-				<< setw(7 ) <<dec << osc->wp.msec 			<< ","
-				<< setw(7)  <<dec << osc->wp.volume			<< ","
+				<< setw(7 ) << (int) osc->wp.frequency 		<< ","
+				<< setw(7 ) << (int) osc->wp.msec 			<< ","
+				<< setw(7)  << (int) osc->wp.volume			<< ","
 				<< setw(7 ) <<		 "free,"
 				<< setw(7)  <<		 "free,"
 				<< setw(7)  <<		 "free,"
@@ -348,6 +342,7 @@ void Instrument_class::Save_Instrument( string str )
 				<< setw(7)  << (int) osc->wp.PMW_dial 		<< ","
 				<< endl;
 
+		// Type CONN
 		FILE 	<< "CONN,"
 				<< setw(9) << osc->osc_type 	<< ","
 				<< setw(9) << osc->fp.name 	<< ","
@@ -358,6 +353,8 @@ void Instrument_class::Save_Instrument( string str )
 				<< setw(9) << osc->vp.name 	<< ","
 				<< setw(8) 	<< "V,"
 				<< endl;
+
+		// Type SPEC
 		FILE	<< osc->Show_this_spectrum( osc->spectrum )
 				<< endl;
 	}

@@ -72,7 +72,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1973201509" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
 								<outputType id="cdt.managedbuild.tool.gnu.archiver.output.246473563" outputPrefix="lib" superClass="cdt.managedbuild.tool.gnu.archiver.output"/>
 							</tool>
-							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${BUILDDIR}/OceanGUI/${OUTPUT} ${INPUTS} ${EXTRA_FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.2030474057" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${EXTRA_FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.2030474057" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.other.pic.1037219730" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.pthread.1935574153" name="Support for pthread (-pthread)" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.misc.hardening.489160662" name="Hardening options (-fstack-protector-all -Wformat=2 -Wformat-security -Wstrict-overflow)" superClass="gnu.cpp.compiler.option.misc.hardening" useByScannerDiscovery="false" value="true" valueType="boolean"/>

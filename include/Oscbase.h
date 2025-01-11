@@ -38,12 +38,12 @@ typedef struct bps_struct
 typedef	struct wave_struct
 {
 	float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
+	float			start_frq 	= frequency;
 	uint8_t			PMW_dial 	= 50;
 	uint8_t 		glide_effect= 0;
 	uint16_t 		msec		= max_sec*1000; 	// range 1 ... 8000
 	uint8_t 		volume		= osc_default_volume; 	// range [0..100];
 	buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
-//		vector_str_t 	conf		= {};
 } wave_t;
 
 typedef struct adsr_struct

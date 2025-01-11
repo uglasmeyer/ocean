@@ -97,14 +97,13 @@ void activate_sds()
 
 bool sync_mode()
 {
-	int play = 0;
+	bool play = false;
 	for( uint id : Mixer.SycIds)
-		play += (int) Mixer.StA[id].state.play;
+		play |= Mixer.StA[id].state.play;
 
-	Mixer.status.play = (bool) play;
+	Mixer.status.play = play;
 	bool sync =
-		( 	// if true synchronize shm a/b with Audio Server
-//			( Instrument.fmo.wp.frequency < LFO_limit 	)	or
+		( 	// if true use max_second time intervall
 			( Instrument.osc.adsr.bps > 0  				) 	or
 			( Mixer.StA[MbIdExternal].state.store 		)	or
 			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
