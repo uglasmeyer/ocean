@@ -31,12 +31,34 @@
 
 const string Module = "OceanGUI";
 
-int set_slider( float f )
+auto set_rb_sta_value = []( MainWindow* C )
 {
-	return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
-}
+    int ID = 0;
+    for( QRadioButton* rb : C->rb_sta_vec )
+    {
+    	rb->setChecked( C->Sds->addr->StA_state[ID].store );
+		ID++;
+    }
 
-
+};
+auto set_cb_sta_value = []( MainWindow* C )
+{
+    uint ID = 0;
+    for( QCheckBox* cb : C->cb_sta_vec )
+    {
+    	cb->setChecked( C->Sds->addr->StA_state[ID].play );
+		ID++;
+    }
+};
+auto set_sl_sta_value = []( MainWindow* C )
+{
+    uint ID = 0;
+    for( QSlider* sl : C->sl_sta_vec )
+    {
+    	sl->setValue( C->Sds->addr->StA_amp_arr[ID] );
+		ID++;
+    }
+};
 
 
 Ui::MainWindow	Ui_Mainwindow_obj{};
@@ -46,26 +68,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 //	ui(new Ui::MainWindow)
 
 {
-	auto set_sl_sta_value = [ this ](  )
-	{
-	    uint ID = 0;
-	    for( QSlider* sl : sl_sta_vec )
-	    {
-	    	sl->setValue( Sds->addr->StA_amp_arr[ID] );
-			ID++;
-	    }
 
-	};
-
-	auto set_cb_sta_value = [ this ](  )
-	{
-	    uint ID = 0;
-	    for( QCheckBox* cb : cb_sta_vec )
-	    {
-	    	cb->setChecked( Sds->addr->StA_state[ID].play );
-			ID++;
-	    }
-	};
 
     auto Qstringlist = [ ]( const list<string>& str_lst )
 		{
@@ -139,7 +142,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     	ui->Slider_mix_vol0, ui->Slider_mix_vol1, ui->Slider_mix_vol2, ui->Slider_mix_vol3,
 		ui->Slider_mix_vol4, ui->Slider_mix_vol5, ui->Slider_mix_vol6, ui->Slider_mix_vol7
     };
-	set_sl_sta_value(  );
+	set_sl_sta_value( this );
     connect(ui->Slider_mix_vol0, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix0(int) ));
     connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));
     connect(ui->Slider_mix_vol2, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix2(int) ));
@@ -154,6 +157,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     	ui->rb_sta0, ui->rb_sta1, ui->rb_sta2, ui->rb_sta3,
 		ui->rb_sta4, ui->rb_sta5, ui->rb_sta6, ui->rb_sta7
     };
+    set_rb_sta_value( this );
     connect(ui->rb_sta0, SIGNAL(clicked()), this, SLOT( toggle_store_sta0()) );
     connect(ui->rb_sta1, SIGNAL(clicked()), this, SLOT( toggle_store_sta1()) );
     connect(ui->rb_sta2, SIGNAL(clicked()), this, SLOT( toggle_store_sta2()) );
@@ -168,25 +172,25 @@ MainWindow::MainWindow(	QWidget *parent ) :
     		ui->cb_sta0, ui->cb_sta1, ui->cb_sta2, ui->cb_sta3,
 			ui->cb_sta4, ui->cb_sta5, ui->cb_sta6, ui->cb_sta7
     };
-	set_cb_sta_value(  );
-    connect(ui->cb_sta0, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute0(int)) );
-    connect(ui->cb_sta1, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute1(int)) );
-    connect(ui->cb_sta2, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute2(int)) );
-    connect(ui->cb_sta3, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute3(int)) );
-    connect(ui->cb_sta4, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute4(int)) );
-    connect(ui->cb_sta5, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute5(int)) );
-    connect(ui->cb_sta6, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute6(int)) );
-    connect(ui->cb_sta7, SIGNAL(stateChanged(int)), this, SLOT( toggle_mute7(int)) );
+	set_cb_sta_value( this );
+    connect(ui->cb_sta0, SIGNAL(clicked()), this, SLOT( toggle_mute0()) );
+    connect(ui->cb_sta1, SIGNAL(clicked()), this, SLOT( toggle_mute1()) );
+    connect(ui->cb_sta2, SIGNAL(clicked()), this, SLOT( toggle_mute2()) );
+    connect(ui->cb_sta3, SIGNAL(clicked()), this, SLOT( toggle_mute3()) );
+    connect(ui->cb_sta4, SIGNAL(clicked()), this, SLOT( toggle_mute4()) );
+    connect(ui->cb_sta5, SIGNAL(clicked()), this, SLOT( toggle_mute5()) );
+    connect(ui->cb_sta6, SIGNAL(clicked()), this, SLOT( toggle_mute6()) );
+    connect(ui->cb_sta7, SIGNAL(clicked()), this, SLOT( toggle_mute7()) );
 
     rb_S_vec =
     {
     	ui->rb_S0, ui->rb_S0, ui->rb_S0, ui->rb_S0
     };
     rb_S_vec[ this->Sds->addr->config ]->setChecked( true );
-    connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_S0()) );
-    connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_S1()) );
-    connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_S2()) );
-    connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_S3()) );
+    connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_Sds0()) );
+    connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_Sds1()) );
+    connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_Sds2()) );
+    connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_Sds3()) );
 
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
@@ -196,8 +200,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect( ui->sB_FMO , SIGNAL( valueChanged(int)), this, SLOT(FMO_Waveform_slot( int ))) ;
     connect( ui->sB_VCO , SIGNAL( valueChanged(int)), this, SLOT(VCO_Waveform_slot( int ))) ;
     connect( ui->sB_Main, SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
-
-
 
     connect(status_timer, &QTimer::timeout, this, &MainWindow::Updatewidgets);
     status_timer->start(1000);
@@ -218,13 +220,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
     setwidgetvalues();
 
-/*    int ID = 0;
-    for( QRadioButton* rb : rb_sta_vec )
-    {
-    	rb->setChecked( Sds->addr->StA_state[ID].store );
-		ID++;
-    }
-*/
+
     ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
@@ -375,25 +371,26 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 	setwidgetvalues();
 };
 
-void MainWindow::select_S0()
+void MainWindow::select_Sds0()
 {
 	select_Sds( 0);
 }
-void MainWindow::select_S1()
+void MainWindow::select_Sds1()
 {
 	select_Sds( 1);
 }
-void MainWindow::select_S2()
+void MainWindow::select_Sds2()
 {
 	select_Sds( 2);
 }
-void MainWindow::select_S3()
+void MainWindow::select_Sds3()
 {
 	select_Sds( 3);
 }
 
 auto setStaPlay( MainWindow* C, uint id )
 {
+	cout.flush() << "setStaPlay " << id << endl;
     C->Sds->Set( C->Sds->addr->MIX_Id , id );
     bool play = not C->Sds->addr->StA_state[id].play;
     C->Sds->Set( C->Sds->addr->StA_state[id].play, play);
@@ -401,35 +398,35 @@ auto setStaPlay( MainWindow* C, uint id )
     C->cb_sta_vec[ id ]->setChecked( play ) ;
 }
 
-void MainWindow::toggle_mute0( int state )
+void MainWindow::toggle_mute0(  )
 {
 	setStaPlay( this, 0 );
 }
-void MainWindow::toggle_mute1( int state )
+void MainWindow::toggle_mute1(  )
 {
 	setStaPlay( this, 1 );
 }
-void MainWindow::toggle_mute2( int state )
+void MainWindow::toggle_mute2(  )
 {
 	setStaPlay( this, 2 );
 }
-void MainWindow::toggle_mute3( int state )
+void MainWindow::toggle_mute3(  )
 {
 	setStaPlay( this, 3 );
 }
-void MainWindow::toggle_mute4( int state )
+void MainWindow::toggle_mute4(  )
 {
 	setStaPlay( this, MbIdInstrument );
 }
-void MainWindow::toggle_mute5( int state )
+void MainWindow::toggle_mute5(  )
 {
 	setStaPlay( this, MbIdKeyboard );
 }
-void MainWindow::toggle_mute6( int state )
+void MainWindow::toggle_mute6(  )
 {
 	setStaPlay( this, MbIdNotes );
 }
-void MainWindow::toggle_mute7( int state )
+void MainWindow::toggle_mute7(  )
 {
 	setStaPlay( this, MbIdExternal );
 }
@@ -564,7 +561,6 @@ void MainWindow::toggle_Mute()
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
 	uint8_t bps_val = ui->cb_bps->currentText().toInt();
-//    Sds->Set( Sds->addr->Main_adsr.bps_id, bps_id  ); //TODO analyze
     Sds->Set( Sds->addr->Main_adsr.bps, bps_val  );
 	Sds->Set( Sds->addr->KEY, ADSR_KEY );
 }
@@ -572,9 +568,10 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 
 void MainWindow::setwidgetvalues()
 {
-
-
-	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
+	auto set_slider = []( float f )
+	{
+		return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
+	};
 
 
     ui->Slider_FMO_Hz->setValue(    set_slider( Sds->addr->FMO_wp.frequency) );
@@ -616,6 +613,12 @@ void MainWindow::setwidgetvalues()
     ui->pB_Mute->setText( Qstr );
 
     ui->cb_bps->setCurrentText( QString( int2char( Sds->addr->Main_adsr.bps)));
+
+	set_cb_sta_value( this );
+	set_sl_sta_value( this );
+	set_rb_sta_value( this );
+
+	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 
 
     Sds->addr->UserInterface 	= RUNNING;

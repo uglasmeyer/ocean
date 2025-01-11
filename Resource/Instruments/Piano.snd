@@ -7,7 +7,7 @@ SPEC,      VCO,    Sinus,100,  0,  0,  0,  0,  0,  0,  0,100
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 SPEC,      FMO,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,     MAIN,    Sinus,    220,   2000,     75,  free,  free,  free, 100,   2,   0,   0,   0,     42,
+ OSC,     MAIN,    Sinus,    220,   2000,     48,  free,  free,  free,  95,   1,   3,   0,   0,     42,
 CONN,     MAIN,      FMO,      F,
 CONN,     MAIN,      VCO,      V,
 SPEC,     MAIN,    Sinus,100,  0,  0,  0,  0,  0,  0,  0,100

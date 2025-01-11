@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[75];
-    char stringdata0[1068];
+    char stringdata0[1076];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -92,21 +92,21 @@ QT_MOC_LITERAL(56, 793, 17), // "toggle_store_sta4"
 QT_MOC_LITERAL(57, 811, 17), // "toggle_store_sta5"
 QT_MOC_LITERAL(58, 829, 17), // "toggle_store_sta6"
 QT_MOC_LITERAL(59, 847, 17), // "toggle_store_sta7"
-QT_MOC_LITERAL(60, 865, 9), // "select_S0"
-QT_MOC_LITERAL(61, 875, 9), // "select_S1"
-QT_MOC_LITERAL(62, 885, 9), // "select_S2"
-QT_MOC_LITERAL(63, 895, 9), // "select_S3"
-QT_MOC_LITERAL(64, 905, 13), // "File_Director"
-QT_MOC_LITERAL(65, 919, 15), // "Spectrum_Dialog"
-QT_MOC_LITERAL(66, 935, 11), // "Save_Config"
-QT_MOC_LITERAL(67, 947, 11), // "toggle_Mute"
-QT_MOC_LITERAL(68, 959, 11), // "connect_fmo"
-QT_MOC_LITERAL(69, 971, 11), // "connect_vco"
-QT_MOC_LITERAL(70, 983, 17), // "main_adsr_sustain"
-QT_MOC_LITERAL(71, 1001, 16), // "pB_Debug_clicked"
-QT_MOC_LITERAL(72, 1018, 16), // "wavfile_selected"
-QT_MOC_LITERAL(73, 1035, 3), // "arg"
-QT_MOC_LITERAL(74, 1039, 28) // "hs_hall_effect_value_changed"
+QT_MOC_LITERAL(60, 865, 11), // "select_Sds0"
+QT_MOC_LITERAL(61, 877, 11), // "select_Sds1"
+QT_MOC_LITERAL(62, 889, 11), // "select_Sds2"
+QT_MOC_LITERAL(63, 901, 11), // "select_Sds3"
+QT_MOC_LITERAL(64, 913, 13), // "File_Director"
+QT_MOC_LITERAL(65, 927, 15), // "Spectrum_Dialog"
+QT_MOC_LITERAL(66, 943, 11), // "Save_Config"
+QT_MOC_LITERAL(67, 955, 11), // "toggle_Mute"
+QT_MOC_LITERAL(68, 967, 11), // "connect_fmo"
+QT_MOC_LITERAL(69, 979, 11), // "connect_vco"
+QT_MOC_LITERAL(70, 991, 17), // "main_adsr_sustain"
+QT_MOC_LITERAL(71, 1009, 16), // "pB_Debug_clicked"
+QT_MOC_LITERAL(72, 1026, 16), // "wavfile_selected"
+QT_MOC_LITERAL(73, 1043, 3), // "arg"
+QT_MOC_LITERAL(74, 1047, 28) // "hs_hall_effect_value_changed"
 
     },
     "MainWindow\0Rtsp_Dialog\0\0pB_Wavedisplay_clicked\0"
@@ -132,11 +132,12 @@ QT_MOC_LITERAL(74, 1039, 28) // "hs_hall_effect_value_changed"
     "toggle_store_sta2\0toggle_store_sta3\0"
     "toggle_store_sta4\0toggle_store_sta5\0"
     "toggle_store_sta6\0toggle_store_sta7\0"
-    "select_S0\0select_S1\0select_S2\0select_S3\0"
-    "File_Director\0Spectrum_Dialog\0Save_Config\0"
-    "toggle_Mute\0connect_fmo\0connect_vco\0"
-    "main_adsr_sustain\0pB_Debug_clicked\0"
-    "wavfile_selected\0arg\0hs_hall_effect_value_changed"
+    "select_Sds0\0select_Sds1\0select_Sds2\0"
+    "select_Sds3\0File_Director\0Spectrum_Dialog\0"
+    "Save_Config\0toggle_Mute\0connect_fmo\0"
+    "connect_vco\0main_adsr_sustain\0"
+    "pB_Debug_clicked\0wavfile_selected\0arg\0"
+    "hs_hall_effect_value_changed"
 };
 #undef QT_MOC_LITERAL
 
@@ -193,36 +194,36 @@ static const uint qt_meta_data_MainWindow[] = {
       41,    0,  433,    2, 0x08 /* Private */,
       42,    0,  434,    2, 0x08 /* Private */,
       43,    0,  435,    2, 0x08 /* Private */,
-      44,    1,  436,    2, 0x08 /* Private */,
-      45,    1,  439,    2, 0x08 /* Private */,
-      46,    1,  442,    2, 0x08 /* Private */,
-      47,    1,  445,    2, 0x08 /* Private */,
-      48,    1,  448,    2, 0x08 /* Private */,
-      49,    1,  451,    2, 0x08 /* Private */,
-      50,    1,  454,    2, 0x08 /* Private */,
-      51,    1,  457,    2, 0x08 /* Private */,
-      52,    0,  460,    2, 0x08 /* Private */,
-      53,    0,  461,    2, 0x08 /* Private */,
-      54,    0,  462,    2, 0x08 /* Private */,
-      55,    0,  463,    2, 0x08 /* Private */,
-      56,    0,  464,    2, 0x08 /* Private */,
-      57,    0,  465,    2, 0x08 /* Private */,
-      58,    0,  466,    2, 0x08 /* Private */,
-      59,    0,  467,    2, 0x08 /* Private */,
-      60,    0,  468,    2, 0x08 /* Private */,
-      61,    0,  469,    2, 0x08 /* Private */,
-      62,    0,  470,    2, 0x08 /* Private */,
-      63,    0,  471,    2, 0x08 /* Private */,
-      64,    0,  472,    2, 0x08 /* Private */,
-      65,    0,  473,    2, 0x08 /* Private */,
-      66,    0,  474,    2, 0x08 /* Private */,
-      67,    0,  475,    2, 0x08 /* Private */,
-      68,    0,  476,    2, 0x08 /* Private */,
-      69,    0,  477,    2, 0x08 /* Private */,
-      70,    0,  478,    2, 0x08 /* Private */,
-      71,    0,  479,    2, 0x08 /* Private */,
-      72,    1,  480,    2, 0x08 /* Private */,
-      74,    1,  483,    2, 0x08 /* Private */,
+      44,    0,  436,    2, 0x08 /* Private */,
+      45,    0,  437,    2, 0x08 /* Private */,
+      46,    0,  438,    2, 0x08 /* Private */,
+      47,    0,  439,    2, 0x08 /* Private */,
+      48,    0,  440,    2, 0x08 /* Private */,
+      49,    0,  441,    2, 0x08 /* Private */,
+      50,    0,  442,    2, 0x08 /* Private */,
+      51,    0,  443,    2, 0x08 /* Private */,
+      52,    0,  444,    2, 0x08 /* Private */,
+      53,    0,  445,    2, 0x08 /* Private */,
+      54,    0,  446,    2, 0x08 /* Private */,
+      55,    0,  447,    2, 0x08 /* Private */,
+      56,    0,  448,    2, 0x08 /* Private */,
+      57,    0,  449,    2, 0x08 /* Private */,
+      58,    0,  450,    2, 0x08 /* Private */,
+      59,    0,  451,    2, 0x08 /* Private */,
+      60,    0,  452,    2, 0x08 /* Private */,
+      61,    0,  453,    2, 0x08 /* Private */,
+      62,    0,  454,    2, 0x08 /* Private */,
+      63,    0,  455,    2, 0x08 /* Private */,
+      64,    0,  456,    2, 0x08 /* Private */,
+      65,    0,  457,    2, 0x08 /* Private */,
+      66,    0,  458,    2, 0x08 /* Private */,
+      67,    0,  459,    2, 0x08 /* Private */,
+      68,    0,  460,    2, 0x08 /* Private */,
+      69,    0,  461,    2, 0x08 /* Private */,
+      70,    0,  462,    2, 0x08 /* Private */,
+      71,    0,  463,    2, 0x08 /* Private */,
+      72,    1,  464,    2, 0x08 /* Private */,
+      74,    1,  467,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -264,14 +265,14 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -343,14 +344,14 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 36: _t->SaveRecord(); break;
         case 37: _t->read_polygon_data(); break;
         case 38: _t->Clear_Banks(); break;
-        case 39: _t->toggle_mute0((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 40: _t->toggle_mute1((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 41: _t->toggle_mute2((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 42: _t->toggle_mute3((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 43: _t->toggle_mute4((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 44: _t->toggle_mute5((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 45: _t->toggle_mute6((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 46: _t->toggle_mute7((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 39: _t->toggle_mute0(); break;
+        case 40: _t->toggle_mute1(); break;
+        case 41: _t->toggle_mute2(); break;
+        case 42: _t->toggle_mute3(); break;
+        case 43: _t->toggle_mute4(); break;
+        case 44: _t->toggle_mute5(); break;
+        case 45: _t->toggle_mute6(); break;
+        case 46: _t->toggle_mute7(); break;
         case 47: _t->toggle_store_sta0(); break;
         case 48: _t->toggle_store_sta1(); break;
         case 49: _t->toggle_store_sta2(); break;
@@ -359,10 +360,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 52: _t->toggle_store_sta5(); break;
         case 53: _t->toggle_store_sta6(); break;
         case 54: _t->toggle_store_sta7(); break;
-        case 55: _t->select_S0(); break;
-        case 56: _t->select_S1(); break;
-        case 57: _t->select_S2(); break;
-        case 58: _t->select_S3(); break;
+        case 55: _t->select_Sds0(); break;
+        case 56: _t->select_Sds1(); break;
+        case 57: _t->select_Sds2(); break;
+        case 58: _t->select_Sds3(); break;
         case 59: _t->File_Director(); break;
         case 60: _t->Spectrum_Dialog(); break;
         case 61: _t->Save_Config(); break;

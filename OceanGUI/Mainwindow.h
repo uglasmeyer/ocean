@@ -127,14 +127,14 @@ private slots:
 
     void Clear_Banks();
 
-    void toggle_mute0(int);
-    void toggle_mute1(int);
-    void toggle_mute2(int);
-    void toggle_mute3(int);
-    void toggle_mute4(int);
-    void toggle_mute5(int);
-    void toggle_mute6(int);
-    void toggle_mute7(int);
+    void toggle_mute0();
+    void toggle_mute1();
+    void toggle_mute2();
+    void toggle_mute3();
+    void toggle_mute4();
+    void toggle_mute5();
+    void toggle_mute6();
+    void toggle_mute7();
 
 
     void toggle_store_sta0();
@@ -146,10 +146,10 @@ private slots:
     void toggle_store_sta6();
     void toggle_store_sta7();
 
-    void select_S0();
-    void select_S1();
-    void select_S2();
-    void select_S3();
+    void select_Sds0();
+    void select_Sds1();
+    void select_Sds2();
+    void select_Sds3();
 
     void File_Director();
     void Spectrum_Dialog();
