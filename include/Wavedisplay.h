@@ -8,8 +8,8 @@
 #ifndef WAVEDISPLAY_H_
 #define WAVEDISPLAY_H_
 
-#include <data/Interface.h>
 #include <Wavedisplay_base.h>
+#include <data/Interface.h>
 
 class Wavedisplay_class : virtual Logfacility_class
 {
@@ -20,23 +20,27 @@ public:
 	Wavedisplay_class( Interface_class* sds );
 	virtual ~Wavedisplay_class(){};
 
-	void Clear_data		();
-	void Add_data_ptr	( const string& name, Data_t* );
-	void SetId	( size_t wd_id );
+	void Add_data_ptr( const string& wd_name, Data_t* ptr );
+	void Add_data_ptr	( const string& osc_name, const string& wd_name, Data_t* );
+	void SetDataPtr		( size_t wd_id, size_t osc_id  );
 	void Set_type		( int wd_type );
 	void Write_wavedata ( );
 
 private:
-
 	string 			className		= "";
 	int 			frame_counter	= 0;
+	int 			index_counter	= 0;
 	buffer_t 		offs 			= 0;
-	size_t 			wdId 		= 0;
+	size_t 			wdId 			= 0;
+	size_t			osId			= 0;
 	int 			Type			= FULLID;
-	array<Data_t*, WD_SIZE>
-					data_ptr_arr{  };
-	bool			split_switch	= true;
-	wd_arr_t 		display_buffer = {0};
+	array< array< Data_t* , WD_OSC_SIZE>,  WD_DISPLAY_SIZE >
+					data_ptr_arr	{ nullptr };
+	Data_t*			data_ptr 		= nullptr;
+
+	bool			debug_switch	= true;
+	wd_arr_t 		display_buffer 	= { 0 };
+
 	wd_arr_t 		gen_cxwave_data( void  );
 
 
@@ -50,8 +54,8 @@ private:
 	} param_t;
 
 	param_t param_flow;
-	param_t param_full 	= { 0, wavedisplay_len		, frames_per_sec/wavedisplay_len, frames_per_sec };
-	param_t param_split	= { 0, wavedisplay_len / 2	, 1 							, frames_per_sec };
+	param_t param_full 	= { 0, wavedisplay_len		, max_frames/wavedisplay_len, max_frames };
+	param_t param_split	= { 0, wavedisplay_len / 2	, 1 						, max_frames };//frames_per_sec };
 
 };
 

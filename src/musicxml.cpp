@@ -163,7 +163,7 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 				Notes.note_buffer 	= note_struct();
 				note.chord.push_back(pitch);
 				note.str.push_back(pitch.step_char);
-				note.octave = pitch.octave;
+//				note.octave = pitch.octave;
 				note.glide[0] = { pitch, false };
 				musicxml.notelist.push_back( note );
 

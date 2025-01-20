@@ -1354,7 +1354,7 @@
      <rect>
       <x>480</x>
       <y>240</y>
-      <width>131</width>
+      <width>81</width>
       <height>25</height>
      </rect>
     </property>
@@ -1381,14 +1381,14 @@
    <widget class="QPushButton" name="pB_Debug">
     <property name="geometry">
      <rect>
-      <x>620</x>
+      <x>660</x>
       <y>240</y>
       <width>88</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Details</string>
+     <string/>
     </property>
    </widget>
    <widget class="QScrollBar" name="hs_hall_effect">
@@ -1708,7 +1708,7 @@
       <x>630</x>
       <y>480</y>
       <width>462</width>
-      <height>58</height>
+      <height>60</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -1805,6 +1805,19 @@
      <string>RTSP</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pB_oscgroup">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>240</y>
+      <width>81</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -1812,7 +1825,7 @@
      <x>0</x>
      <y>0</y>
      <width>1207</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSound_Lab_GUI">

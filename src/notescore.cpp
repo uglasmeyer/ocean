@@ -41,20 +41,20 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 
 
 	auto brackets_aligned = [str]()
+	{
+		int c=0;
+		for ( char ch : str )
 		{
-			int c=0;
-			for ( char ch : str )
+			switch (ch )
 			{
-				switch (ch )
-				{
-				case '(' : {c++; break;}
-				case ')' : {c--; break;}
-				default  : break;
-				} // switch
-				if ( c < 0 ) return false;
-			} //for
-			return ( c == 0 );
-		}; // lambda
+			case '(' : {c++; break;}
+			case ')' : {c--; break;}
+			default  : break;
+			} // switch
+			if ( c < 0 ) return false;
+		} //for
+		return ( c == 0 );
+	}; // lambda
 
 	// pre check
 	if ( str.length() == 0 )
@@ -104,9 +104,10 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 	return true;
 }
 
-void Note_class::Start_note_itr()
+Note_class::note_t Note_class::Start_note_itr()
 {
 	note_itr = notelist.begin();
+	return *note_itr;
 }
 
 
@@ -121,17 +122,17 @@ void Note_class::Show_note( note_t note )
 		strs << "L";
 	else
 		strs << "|";
-	for ( pitch_t notevalue : note.chord )
+	for ( pitch_t pitch : note.chord )
 	{
 				strs <<
-				setw(4) << right << dec << (int)notevalue.octave <<
-				setw(4) << right << notevalue.alter <<
-				setw(5) << right << dec << rint( notevalue.freq ) <<"|";
+				setw(4) << right << dec << (int)pitch.octave <<
+				setw(4) << right << pitch.alter <<
+				setw(5) << right << dec << rint( pitch.freq ) <<"|";
 	}
 
 	if ( note.glide[0].note )
 	{
-		strs 	<< ">" << setw(5) << right << dec << rint(note.glide[0].chord.freq);
+		strs 	<< ">" << setw(12) << right << dec << rint(note.glide[0].chord.freq);
 	}
 	Comment( DEBUG, strs.str()  );
 
@@ -147,20 +148,24 @@ int Note_class::Notechar2Step( char note_char )
 
 Note_class::note_t Note_class::Char2note( char& ch )
 {
-	pitch_buffer 					= pitch_struct();
-	pitch_buffer.step 				= Notechar2Step( ch );
-	pitch_buffer.alter				= delta_oct;
-	note_buffer.chord.push_back( pitch_buffer );
+	pitch_t pitch 			= pitch_struct();
+	pitch.step 				= Notechar2Step( ch );
+	pitch.step_char			= ch;
+	pitch.alter				= 0;
+	pitch.octave			= Octave;
+	pitch.freq 				= CalcFreq( oct_base_freq, pitch );
+
+	note_buffer.chord.push_back( pitch );
 	note_buffer.str.push_back(ch);
-	note_buffer.octave				= Octave;
 	note_buffer.duration    		= min_duration; // will be updated later
-	note_buffer.glide[0].chord. step	= note_buffer.chord[0].step;
-	if ( note_buffer.chord[0].step < 0 ) // pause is silence
+	note_buffer.glide[0].chord.step	= note_buffer.chord[0].step;
+	if ( note_buffer.chord[0].step 	< 0 ) // pause is silence
 		note_buffer.volume 			= 0;
 	else
 		note_buffer.volume 			= notes_default_volume;//note volume is changed by mixer anf Volumeline
 	return note_buffer;
 }
+
 void Note_class::Set_prefix_octave( int oct )
 {
 	char oct_ch = int2char( oct );
@@ -219,7 +224,8 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 				int oct = get_oct_value( Noteline[pos] );
 				if ( oct > 0 )
 				{
-					note_itr->glide[0].chord.alter 	= oct - note_itr->octave ;
+					note_itr->glide[0].chord.octave	= oct;// - note_itr->chord[0].octave ;
+					note_itr->str.push_back( Noteline[pos] );
 					pos++;
 					if ( out_of_bounds( pos ) ) return noteline_len; // test pos
 					note_itr->str.push_back( Noteline[pos] );
@@ -251,12 +257,12 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 				}
 				if ( ch == '\'' )
 				{
-					note_buffer.chord[nc_pos-1].alter += 1;
+					note_buffer.chord.back().octave += 1;
 					note_buffer.str.push_back(ch);
 				}
 				if ( ch == ',' )
 				{
-					note_buffer.chord[nc_pos-1].alter -= 1;
+					note_buffer.chord.back().octave -= 1;
 					note_buffer.str.push_back(ch);
 				}
 				pos++;
@@ -281,22 +287,23 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 		case '\'' :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
-			note_itr->chord.back().alter += 1;
+			note_itr->chord.back().octave += 1;
 			note_itr->str.push_back( '\'' );
 			break;
 		}
 		case ',' :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
-			note_itr->chord.back().alter -= 1;
+			note_itr->chord.back().octave -= 1;
 			note_itr->str.push_back(',');
 			break;
 		}
 		case '|' : // nextchar may define a new octave
 		{
 			pos++;
-			if ( Noteline[pos] == '\'' ) delta_oct = 1;
-			if ( Noteline[pos] == ','  ) delta_oct = -1;
+
+			if ( Noteline[pos] == '\'' ) Octave += 1;
+			if ( Noteline[pos] == ','  ) Octave -= 1;
 
 			int oct = get_oct_value( Noteline[pos] );
 			if ( oct < 0 )
@@ -316,7 +323,6 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			set_duration(); // duration of the previou note
 			note_buffer = note_struct(); // clear note_buffer;
 			Char2note( note_char );
-			note_buffer.octave = Octave;
 			notelist.push_back( note_buffer );
 			note_buffer = note_struct(); // clear note_buffer once more
 			break;
@@ -367,11 +373,11 @@ void Note_class::assign_freq()
 	{
 		for( size_t i = 0; i < itr->chord.size() ; i++ )
 		{
-			itr->chord[i].freq = Calc_freq( itr->octave, itr->chord[i] );
+			itr->chord[i].freq = CalcFreq( oct_base_freq, itr->chord[i] );
 		}
 		if ( itr->glide[0].note )
 		{
-			itr->glide[0].chord.freq = Calc_freq( itr->octave, itr->glide[0].chord );
+			itr->glide[0].chord.freq = CalcFreq( oct_base_freq, itr->glide[0].chord );
 		}
 		else
 		{
@@ -404,7 +410,7 @@ void Note_class::split_long_notes()
 			itr->duration = rest;
 			if ( note_buffer.glide[0].note )
 			{
-				itr->glide[0].chord.freq = Calc_freq(itr->octave, itr->glide[0].chord );
+				itr->glide[0].chord.freq = CalcFreq( oct_base_freq, itr->glide[0].chord );
 				itr->chord[0].freq = note_buffer.glide[0].chord.freq;
 			}
 			itr->longnote = true;

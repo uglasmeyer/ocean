@@ -20,7 +20,7 @@ using namespace std;
 
 class Oscillator : virtual public Logfacility_class, virtual public Oscillator_base
 {
-
+	string className = "";
 public:
 
 	Memory 			Mem_vco	{ monobuffer_size };
@@ -42,20 +42,17 @@ public:
 private:
 	typedef function<Data_t(const float&, const float&)> osc_function;
 	osc_function 	F;
-	float 			fmophase 	= 0;
-	bool 			longnote	= false; // set trigger for long notes
-	buffer_t		decay_shift = 0;
 	double 			phase 		= 0;
+	bool 			longnote	= false; // set trigger for long notes
+	buffer_t 		beat_cursor = 0;
 
-	void 	apply_hall( adsr_t, buffer_t, Data_t* );
-	void 	apply_adsr(adsr_t , buffer_t , Data_t*);
+	void 	apply_hall( buffer_t, Data_t* );
+	void 	apply_adsr( buffer_t frames, Data_t* data, buffer_t offs );
 	double 	get_delta_freq( float freq );
 	void 	set_phi( double , double );
 	double 	get_phi( );
 	void 	mem_init();
 	bool 	is_main_id( int id );
-
-
 };
 
 

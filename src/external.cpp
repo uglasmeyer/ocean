@@ -120,11 +120,12 @@ void External_class::close(  )
 	fclose( File );
 }
 
-void External_class::Record_buffer( stereo_t* src, stereo_t* dst, buffer_t offs )
+void External_class::Record_buffer( stereo_t* src, buffer_t frames, buffer_t offs )
 {
-	for ( buffer_t n = 0; n < max_frames; n++ )
+	for ( buffer_t n = 0; n < frames; n++ )
 	{
-		dst[n + offs ] = src[ n ];
+		Stereo_Memory::stereo_data[n + offs ] = src[ n ];
+//		dst[n + offs ] = src[ n ];
 	}
 }
 
@@ -285,7 +286,7 @@ void External_class::Save_record_data( uint sec, int filenr)
 
 	Comment( INFO, "Prepare record file " + Name );
 //	long rcounter = StA->record_data;// * 2; //mono to stereo factor
-	long rcounter = sec * max_frames;
+	long rcounter = sec * frames_per_sec;
 	Comment( INFO, "Record frames: " + to_string (rcounter));
 	Stereo_Memory::Info( "External Stereo data");
 
@@ -300,7 +301,7 @@ void External_class::Save_record_data( uint sec, int filenr)
 	long count		= write_audio_data( file_structure().raw_file, rcounter );
 	bool success = ( rcounter == count );
 	if ( success )
-		Comment(INFO,"All " + to_string( rcounter*ds.sizeof_data) + " bytes written to file");
+		Comment(INFO,"All " + to_string( rcounter * ds.sizeof_data ) + " bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(rcounter) + " written");
@@ -323,39 +324,14 @@ void External_class::Save_record_data( uint sec, int filenr)
     Filename = "";
 
 }
-/*
-void External_class::Add_record( Memory* Out_L, Memory* Out_R )
-//, uint8_t StA_ext_vol )
-{
-	auto details = [this]( buffer_t offs )
-		{
-		cout << stereo.ds.name 			<< " "	<<
-		dec << stereo.ds.record_counter 	<< " : " <<
-		hex << &stereo.stereo_data[offs] 	<< endl;
-		};
 
-	if ( stereo.ds.record_counter >= stereo.ds.max_records )
-		return;
-
-	const float rec_percent	= 1.0;
-	buffer_t offs 		= stereo.ds.record_counter * stereo.ds.block_size;
-	if ( Log[DBG2] ) details( offs );
-	details( offs );
-	for( buffer_t n = 0; n < max_frames; n++ )
-	{
-		stereo.stereo_data[n+offs].left = rint( Out_L->Data[n] * rec_percent );
-		stereo.stereo_data[n+offs].right= rint( Out_R->Data[n] * rec_percent );
-	}
-
-	stereo.ds.record_counter++ ;
-}
-*/
 void External_class::Test_External()
 {
-	TEST_START( "External");
-	Log_system.Set_Loglevel( TEST, true);
-	assert( StA->ds.max_records - ds.max_records == 0 );
+	TEST_START( className );
+	Assert( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 ,
+			to_string ( StA->ds.max_records ) + "=" + to_string( Stereo_Memory::ds.max_records));
 
+	Log_system.Set_Loglevel( TEST, true);
 	if ( filesystem::exists( testcounter ))
 		filesystem::remove( testcounter );
 

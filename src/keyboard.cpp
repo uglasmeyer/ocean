@@ -13,6 +13,10 @@ Keyboard_class::Keyboard_class( Instrument_class* instr ) :
 	Keyboard_base()
 {
 	this->instrument 	= instr;
+	instr->wd_p->Add_data_ptr( vco.osc_type, oscgrouo_name, vco.Mem.Data);
+	instr->wd_p->Add_data_ptr( fmo.osc_type, oscgrouo_name, fmo.Mem.Data);
+	instr->wd_p->Add_data_ptr( osc.osc_type, oscgrouo_name, osc.Mem.Data);
+
 }
 
 Keyboard_class::Keyboard_class() :
@@ -38,6 +42,7 @@ void Keyboard_class::setup(  )
 	osc.fp 			= instrument->osc.fp;
 	osc.fp.data		= fmo.Mem.Data;
 	osc.adsr 		= instrument->osc.adsr;
+	osc.adsr.bps	= 1;
 	osc.spectrum	= instrument->osc.spectrum;
 
 	vco.wp 			= instrument->vco.wp;

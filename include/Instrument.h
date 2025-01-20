@@ -27,7 +27,9 @@ public:
 	Oscillator 				vco	{ VCOID };
 	Oscillator 				fmo	{ FMOID };
 	vector<Oscillator*>		osc_vector { &vco, &fmo, &osc };
-	interface_t*  				ifd;
+	constexpr static string oscgrouo_name = wavedisplay_struct().names[INSTRID];
+	interface_t*  			ifd;
+	Wavedisplay_class* 		wd_p;
 
 	const string instr_ext = file_structure().snd_type;
 	Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
@@ -37,7 +39,7 @@ public:
 	bool Set( string );
 	void Setup( interface_t* ifd );
 	void Save_Instrument( string );
-	buffer_t Set_msec( int msec );
+	buffer_t Set_msec( uint16_t msec );
 	void Update_spectrum();
 	void Test_Instrument();
 	void Run_osc_group();

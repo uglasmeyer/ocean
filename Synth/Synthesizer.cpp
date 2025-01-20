@@ -17,7 +17,7 @@ interface_t*			sds = DaTA.GetSdsAddr();
 Dataworld_class*		DaTA_p = &DaTA;
 Mixer_class				Mixer{ DaTA_p, wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument{ sds, wd_p };
-Note_class 				Notes;
+Note_class 				Notes{ wd_p };
 Keyboard_class			Keyboard( 	&Instrument );
 External_class 			External( 	&Mixer.StA[ MbIdExternal],
 									DaTA.Cfg_p);
@@ -97,17 +97,15 @@ void activate_sds()
 
 bool sync_mode()
 {
-	bool play = false;
+	Mixer.status.play = false;
 	for( uint id : Mixer.SycIds)
-		play |= Mixer.StA[id].state.play;
+		Mixer.status.play |= Mixer.StA[id].state.play;
 
-	Mixer.status.play = play;
 	bool sync =
 		( 	// if true use max_second time intervall
-			( Instrument.osc.adsr.bps > 0  				) 	or
-			( Mixer.StA[MbIdExternal].state.store 		)	or
-			( Mixer.status.play 		)	or	// any StA triggers play if itself is in play mode
-			( ProgressBar.active 			)		// StA record external
+			( sds->StA_state[MbIdExternal].store 		)	or
+			( Mixer.status.play 						)	or	// any StA triggers play if itself is in play mode
+			( ProgressBar.active 						)		// StA record external
 		);
 	if ( Mixer.status.kbd )
 		sync = false;
@@ -328,7 +326,7 @@ int main( int argc, char* argv[] )
 	DaTA.Sds_p->Restore_ifd();
 	activate_sds();
 
-	Wavedisplay.SetId( DaTA.Sds_p->addr->Wavedisplay_Id );
+	Wavedisplay.SetDataPtr( DaTA.Sds_p->addr->Wavedisplay_Id, DaTA.Sds_p->addr->WD_group_ID );
 
 	show_usage();
 	show_AudioServer_Status();

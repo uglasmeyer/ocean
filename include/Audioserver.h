@@ -22,6 +22,7 @@
 #include <Wavedisplay.h>
 #include <Keyboard.h>
 #include <Exit.h>
+#include <Mixer.h>
 
 
 typedef struct device_struct

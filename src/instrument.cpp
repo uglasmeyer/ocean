@@ -14,11 +14,12 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 : Logfacility_class("Instrument")
 {
 	Setup( ifd );
-	wd->Add_data_ptr("MAIN", osc.Mem.Data);
-	wd->Add_data_ptr("VCO", vco.Mem.Data);
-	wd->Add_data_ptr("FMO", fmo.Mem.Data);
-
+	wd_p = wd;
+	wd->Add_data_ptr( vco.osc_type, oscgrouo_name, vco.Mem.Data);
+	wd->Add_data_ptr( fmo.osc_type, oscgrouo_name, fmo.Mem.Data);
+	wd->Add_data_ptr( osc.osc_type, oscgrouo_name, osc.Mem.Data);
 }
+
 void Instrument_class::Setup( interface_t* ifd )
 {
 	this->ifd 		= ifd;
@@ -58,13 +59,14 @@ void Instrument_class::reuse_GUI_Data()
 
 }
 
-buffer_t Instrument_class::Set_msec( int msec )
+buffer_t Instrument_class::Set_msec( uint16_t msec )
 {
 	for( Oscillator* osc : osc_vector )
 	{
-		osc->wp.msec = msec;
+		osc->Set_duration( msec );
 	}
-	return ( msec*frames_per_sec ) / 1000;
+	buffer_t frames = msec * frames_per_sec / 1000;
+	return frames;
 }
 
 void Instrument_class::setup_GUI_Data()
@@ -178,17 +180,15 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 	String 				Str{""};
 
 	osc.adsr.decay 	= Str.secure_stoi( arr[9 ]);
-	osc.adsr.bps		= Str.secure_stoi( arr[10] );
+	osc.adsr.bps	= Str.secure_stoi( arr[10] );
 	osc.adsr.attack	= Str.secure_stoi( arr[11] );
-	osc.adsr.hall		= Str.secure_stoi( arr[12] );
+	osc.adsr.hall	= Str.secure_stoi( arr[12] );
 	return true;
 }
 ;
 
 bool Instrument_class::read_instrument( )
 {
-
-
 	String 		Str{""};
 	string 		keyword;
 	fstream 	File;
@@ -365,10 +365,10 @@ void Instrument_class::Save_Instrument( string str )
 
 void Instrument_class::Run_osc_group()
 {
-		for ( Oscillator* osc : osc_vector )
-		{
-			osc->OSC( 0 );
-		}
+	for ( Oscillator* osc : osc_vector )
+	{
+		osc->OSC( 0 );
+	}
 }
 
 bool Instrument_class::Set( string name )

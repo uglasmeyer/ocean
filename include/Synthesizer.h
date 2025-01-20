@@ -8,6 +8,7 @@
 #ifndef SYNTHESIZER_H_
 #define SYNTHESIZER_H_
 
+#include <Wavedisplay_base.h>
 #include <External.h>
 #include <Instrument.h>
 #include <Keyboard.h>

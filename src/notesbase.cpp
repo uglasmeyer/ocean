@@ -49,8 +49,6 @@ float Note_base::Calc_freq ( uint8_t oct, pitch_t nvs )
 	return 	Calc_frequency( oct_base_freq, octave * 12 + key );
 };
 
-
-
 float Note_base::Calc_frequency( const float& base, const int& key )
 {
 	Assert( not( key < 0 ), "key" + to_string(key) );

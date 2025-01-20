@@ -1,13 +1,21 @@
 #! /usr/bin/env bash
 
+Exit(  )
+{
+	echo $1
+	exit
+}
+
 cd ..
 OCEANDIR=`pwd`
-cd bin || exit
+ls $OCEANDIR/bin/oceansetup.sh 2>/dev/null || Exit "cannot find oceansetup in $OCEANDIR" 
+
+cd bin 2>/dev/null || Exit "$OCEANDIR has no bin/ directory" 
 echo using OCEANDIR=$OCEANDIR
 
 ARCH=`uname -p`
+cd $ARCH 2>/dev/null || Exit "$OCEANDIR has no ${ARCH}/ directory" 
 echo using architecture $ARCH
-cd $ARCH || exit
 
 BIN=`echo *`
 echo having binaries $BIN
@@ -30,6 +38,7 @@ RCFILE=${RCDIR}ocean.rc
 
 echo generating ocean.rc
 [ ! -d $RCDIR ] && mkdir $RCDIR
+echo export OCEANTESTCASE=oceantestcase >> $RCFILE
 echo export OCEANDIR=$OCEANDIR >> $RCFILE
 echo export PATH=$OCEANDIR/bin:$PATH >> $RCFILE
 

@@ -110,6 +110,7 @@ typedef struct interface_struct
 
 	uint8_t	 		Wavedisplay_Id				= AUDIOOUT; // Audio out
 	uint16_t		WD_type_ID 					= FULLID;
+	uint8_t			WD_group_ID					= 0; // oscgroup id
 	wd_arr_t		wavedata 					= {0};
 } interface_t;
 

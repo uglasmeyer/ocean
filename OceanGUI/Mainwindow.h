@@ -19,6 +19,7 @@
 #include <Spectrum_dialog_class.h>
 #include <data/Semaphore.h>
 #include <Rtsp_dialog_class.h>
+#include <Wavedisplay_base.h>
 
 
 // qtcreator
@@ -57,10 +58,12 @@ public:
     interface_t*			Sds_master			= DaTA->sds_master;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
-    vector<QString> 		Qwavedisplay_type_str_vec
-												{};
+
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
+    vector<QString>			Qwd_osc_names		{};
+    vector<QString>			Qwavedisplay_names	{};
+    vector<QString> 		Qwd_debugtype_names		{};
 
     vector<QRadioButton*> 	rb_S_vec			{};
     vector<QRadioButton*> 	rb_sta_vec			{};
@@ -81,7 +84,6 @@ private slots:
 //	void show_time_elapsed();
 	void Rtsp_Dialog();
 
-    void pB_Wavedisplay_clicked();
     void dial_soft_freq_value_changed();
     void cB_Beat_per_sec( int );
     void dial_PMW_value_changed();
@@ -163,6 +165,8 @@ private slots:
 
     void pB_Debug_clicked();
     void wavfile_selected( const QString &arg);
+    void pB_oscgroup_clicked();
+    void pB_Wavedisplay_clicked();
 
     void hs_hall_effect_value_changed(int);
 

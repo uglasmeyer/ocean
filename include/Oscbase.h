@@ -49,9 +49,9 @@ typedef	struct wave_struct
 typedef struct adsr_struct
 {
 	uint8_t bps 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
-	uint8_t attack 	= 80; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
-	uint8_t decay  	= 0;
-	uint8_t hall		= 0; // mixing hall effect [0..100} data shift
+	uint8_t attack 	= 0; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
+	uint8_t decay  	= 100;
+	uint8_t hall	= 0; // hall effect [0..100} data shift
 } adsr_t;
 
 typedef struct fmo_struct
@@ -76,31 +76,37 @@ typedef struct vco_struct
 class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
 {
 public:
-	set<int> 		mainid_set 		{ INSTRID, NOTESID, KBDID };
-	uint8_t			osc_id 			= OTHERID;
-	string 			osc_type 		= osc_type_vec[ osc_id ] ;
 
-	adsr_t 				adsr 		= adsr_struct();
-	wave_t 				wp 			= wave_struct();
-	fmo_t 				fp 			= fmo_struct();
-	vco_t 				vp 			= vco_struct();
-	spectrum_t			spectrum	= spec_struct();
+	DataVec_t		adsrdata 	{ };
+	const set<int> 	mainid_set 	{ INSTRID, NOTESID, KBDID };
+	uint8_t			osc_id 		= OTHERID;
+	string 			osc_type 	= osc_type_vec[ osc_id ] ;
+
+	adsr_t 			adsr 		= adsr_struct();
+	wave_t 			wp 			= wave_struct();
+	fmo_t 			fp 			= fmo_struct();
+	vco_t 			vp 			= vco_struct();
+	spectrum_t		spectrum	= spec_struct();
 
 	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
-	{	};
-	virtual 		~Oscillator_base(){};
+	{
+		Set_adsr( adsr );
+	};
+	virtual 	~Oscillator_base(){};
 
-	void 			Show_csv_comment( int );
-	void 			Set_frequency( float freq );
-	void 			Set_volume( uint16_t vol);
-	void 			Line_interpreter( vector_str_t arr );
-	void 			Set_waveform( char  );
-	void 			Set_csv_comment ();
-	void 			Get_comment( bool  );
-	void			Set_adsr( adsr_t );
-	void			Set_pmw( uint8_t );
-	void			Set_glide( uint8_t );
-	void			Set_spectrum( spectrum_t );
+	void 		Show_csv_comment( int );
+	void 		Set_frequency( float freq );
+	void 		Set_volume( uint16_t vol);
+	void 		Line_interpreter( vector_str_t arr );
+	void 		Set_waveform( char  );
+	void 		Set_csv_comment ();
+	void 		Get_comment( bool  );
+	void		Set_adsr( adsr_t );
+	void		Set_pmw( uint8_t );
+	void		Set_glide( uint8_t );
+	void		Set_spectrum( spectrum_t );
+	void		Set_duration( uint16_t );
+	void		Gen_adsrdata( buffer_t );
 
 private:
 

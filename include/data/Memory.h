@@ -45,12 +45,8 @@ public:
 
 typedef struct stereo_struct
 {
-
 	data_t left;
 	data_t right;
-
-//	data_t left;
-//	data_t right;
 } stereo_t;
 
 
@@ -58,8 +54,8 @@ const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
 
 class Stereo_Memory :
-	virtual public Logfacility_class,
-	public virtual Memory_base
+	virtual public 	Logfacility_class,
+	virtual public 	Memory_base
 {
 	string className = "Stereo_Memory";
 public:

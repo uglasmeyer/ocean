@@ -37,7 +37,7 @@ void SynthesizerTestCases()
 	Mixer_class				Mixer{&DaTA, wd_p };
 	Mixer.Set_Loglevel( TEST, true );
 	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
-	Note_class 				Notes;
+	Note_class 				Notes{ wd_p };
 	Keyboard_class			Keyboard( 	&Instrument );
 	External_class 			External( 	&Mixer.StA[ MbIdExternal],
 										DaTA.Cfg_p);

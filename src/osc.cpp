@@ -27,9 +27,7 @@ constexpr int sgn( const float& value )
 
 constexpr Data_t signum(  const float& value)
 {
-	if ( value > 0) return value;
-	else return 0;
-
+	return ( value > 0 ) ? value : 0 ;
 }
 
 float rnd(  const float& amp,  const float& phi )
@@ -114,9 +112,10 @@ constexpr Data_t Sawtooth( const float& amp,  const float& phi )
 }
 
 Oscillator::Oscillator( uint8_t id ) :
-		Logfacility_class( "OSC" ),
+		Logfacility_class( "Oscillator" ),
 		Oscillator_base()
 {
+	className 	= Logfacility_class::module;
 	mem_init();
 	osc_id		= id;
 	osc_type 	= osc_type_vec[id];
@@ -271,8 +270,8 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			}
 			set_phi( phi, maxphi );
 
-			apply_adsr( this->adsr, frames, data);
-			apply_hall( this->adsr, frames, data) ;
+			apply_adsr( frames, data, frame_offset );
+			apply_hall( frames, data) ;
 
 			return;
 			break;
@@ -364,8 +363,8 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	set_phi( phi, maxphi );
 	Set_start_freq(freq);
 
-	apply_adsr( this->adsr, frames, data);
-	apply_hall( this->adsr, frames, data) ;
+	apply_adsr( frames, data, frame_offset );
+	apply_hall( frames, data);
 
 	return;
 
@@ -381,69 +380,20 @@ bool Oscillator::is_main_id( int id )
 	return mainid_set.contains( id );
 }
 
-void Oscillator::apply_adsr(adsr_t adsr, buffer_t frames, Data_t* data  )
+void Oscillator::apply_adsr( buffer_t frames, Data_t* data, buffer_t offs )
 {
-	auto attack = [ frames, data ]( int duration, buffer_t aframes, float da )
-		{
-		for ( int step = 0; step < duration; step++ )
-		{
-			buffer_t offs = ( frames * step ) / duration;
-			for ( buffer_t n = 0; n < aframes ; n++)
-			{
-				data[n + offs ] = data[n + offs ] * (n+1)*da;
-			}
-		}
-		};
-	auto decay = [ this, data ]( int duration, buffer_t rframes, buffer_t aframes, float d_alpha )
-		{
-
-		for ( int step = 0; step < duration; step++ )
-		{
-			buffer_t offs = (rframes*step  ); ///duration;
-			for ( buffer_t n = aframes; n < rframes; n++ )
-			{
-				float alpha 	= (n - aframes + decay_shift) * d_alpha;
-				data[n+offs]	= data[n+offs] * exp( -alpha )   ;
-			}
-		}
-
-		};
-
 	if ( adsr.bps == 0 )	 		return;
 	if ( not is_main_id( osc_id ) )	return;
+	if ( adsrdata.size() == 0 )		return;
 
-
-	int 		duration 	= 1;	// each note has a single attack/decay
-	if ( osc_id == INSTRID )		// apply bps to instrument only
-				duration 	= adsr.bps * max_sec;
-
-	// Attack section
-	buffer_t 	aframes		= 0;
-	float 		da			= 0;
-	if ( longnote )
-	// decay_shift is last n
-		aframes = 0;
-	else
+	for ( uint n = 0; n < frames; n++ )
 	{
-		aframes 	= (( frames * adsr.attack ) / 100 ) / duration;
-		decay_shift	= 0;
-		da 			= 1.0/aframes;
+		data[ n ] = data[ n ] * adsrdata[ beat_cursor ];
+		beat_cursor = ( beat_cursor + 1 ) % adsrdata.size();
 	}
-	attack( duration, aframes, da );
-
-	// Decay section
-	buffer_t  	rframes	=  frames / duration;
-	if ( adsr.decay < 100 )
-	{
-		float 		d_alpha 	= ( duration * (100 - adsr.decay )/3.0) / frames;
-		decay( duration, rframes, aframes, d_alpha );
-	}
-	decay_shift = rframes; // remember last n
 }
 
-Memory 	memtmp	{ monobuffer_size }; //adsr hall - not member of Oscillator
-
-void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
+void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 { 	// adsr.hall determines the distance to a wall
 	// db describes the decay of an amplitude given at the origon n
 	// dn is the distance of the wall in frame units
@@ -452,25 +402,30 @@ void Oscillator::apply_hall( adsr_t adsr, buffer_t frames, Data_t* data )
 	if ( adsr.hall == 0 ) 			return;
 	if ( not is_main_id( osc_id )) 	return;
 
-	float 		d0 		= 1; // distance to the receiver of sound
-	float 		distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]
-	uint 		c		= 330; // sound speed [m/s]
-	float 		dt 		= (2.0 * distance) / c; // time delay [seconds]
-	buffer_t 	dn 		= rint(dt * frames_per_sec) ;// frame delay [# of frames]
-
-	float db 		= 0.5; // the decay is a constant of the wall
-
-	for ( buffer_t n = 0; n < memtmp.ds.data_blocks; n++ )
+	auto gen_halldata = [ this, frames, data]( float db)
 	{
-		buffer_t m =  ( n + dn ) % frames;
-		memtmp.Data[m]	=  data[m] + rint( data[ n ] * db )  ;
-	}
-	for ( buffer_t n = 0; n < frames; n++ )
+		DataVec_t Data {};
+		for ( buffer_t n = 0; n < frames; n++ )
+		{
+			Data.push_back( data[ n ] * db  );
+		}
+		return Data;
+	};
+
+	const float 	d0 		= 1.0; // distance to the receiver of sound
+	const float 	distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]
+	const float		c		= 330.0; // sound speed [m/s]
+	const float 	dt 		= (2.0 * distance) / c; // time delay [seconds]
+	const buffer_t 	dn 		= rint(dt * frames_per_sec) ;// frame delay [# of frames]
+	const float		db 		= 0.8; // the decay is a constant of the wall
+
+	DataVec_t halldata = gen_halldata( db );
+
+	for ( buffer_t n = dn; n < frames; n++ )
 	{
-		data[n] = memtmp.Data[n];
+		data[n] = data[n] + halldata[n-dn];
 	}
 }
-
 
 void Oscillator::Connect_vco_data( Oscillator* osc)
 {
@@ -504,13 +459,11 @@ void Oscillator::Reset_data( Oscillator* osc )
 
 void Oscillator::Test()
 {
-	Set_Loglevel(TEST, true );
-
-	Comment( TEST, "Osc test start");
+	TEST_START( className );
 	osc_id 			= NOTESID;
 	assert( ( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
 	assert( ( Mem_fmo.Data[0]				)	< 1E-8 );
-	assert( Mem.ds.data_blocks 	== frames_per_sec );
+	assert( Mem.ds.data_blocks 	== max_frames );
 
 	vector_str_t arr = { "OSC","MAIN","Sinus","480","1000","40","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
@@ -526,7 +479,6 @@ void Oscillator::Test()
 	longnote = true;
 	adsr.attack = 50;
 	adsr.decay = 5;
-	assert( decay_shift == frames_per_sec );
 
 
 	Comment( TEST, "Osc test finished");

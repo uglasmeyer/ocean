@@ -23,10 +23,11 @@ class External_class :
 	public virtual Stereo_Memory
 
 {
-	Storage_class* 	StA;
-	interface_t*	sds		= nullptr;
-	FILE*			File;
-	Config_class*	Cfg 	= nullptr;
+	string			className 	= "";
+	Storage_class* 	StA			= nullptr;;
+	interface_t*	sds			= nullptr;
+	FILE*			File		= nullptr;;
+	Config_class*	Cfg 		= nullptr;
 
 public:
 	long 			Filedata_size 	= 0;
@@ -42,6 +43,7 @@ public:
 		this->Cfg			= cfg;
 		Stereo_Memory::Init_data( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) );
 		Stereo_Memory::Info	( "External Stereo data") ;
+		className			= Logfacility_class::module;
 	};
 
 
@@ -58,6 +60,7 @@ public:
 		this->sds			= sds;
 		Stereo_Memory::Init_data( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) );
 		Stereo_Memory::Info( "External Stereo data") ;
+		className			= Logfacility_class::module;
 	};
 
 	virtual ~External_class(){};
@@ -72,7 +75,7 @@ public:
 	bool Read_file_header( string );
 	void Save_record_data( uint sec, int filenr );
 	void Mono2Stereo( Data_t* mono, uint size );
-	void Record_buffer( stereo_t* src, stereo_t* dst, buffer_t offs );
+	void Record_buffer( stereo_t* src, buffer_t frames, buffer_t offs );
 	string GetName();
 	void Test_External();
 

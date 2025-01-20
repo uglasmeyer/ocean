@@ -56,8 +56,10 @@ using namespace std;
 typedef unsigned long int 	buffer_t;
 typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
+typedef vector<Data_t>		DataVec_t;
 
-const uint 			sizeof_data 		= sizeof(Data_t);
+const uint 			sizeof_Data 		= sizeof(Data_t);
+const uint 			sizeof_data 		= sizeof(data_t);
 const double 		pi					= 3.1415926536;//3.141592654;
 
 const uint			sample_rate			= 48000; //device dependent fix
@@ -70,8 +72,8 @@ const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
 
 const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
-const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_data; // 3 minutes 32Mb
-const buffer_t 		monobuffer_size   	= max_frames * sizeof_data;
+const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_Data; // 3 minutes 32Mb
+const buffer_t 		monobuffer_size   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 100; // %
@@ -84,6 +86,7 @@ const float			oct_base_freq 		= 27.5/2.0;
 const float			LFO_limit			= 1.0;
 const uint8_t		LFO_count			= 100;
 
+enum { VCOID, FMOID, INSTRID, NOTESID, KBDID, TESTID, OTHERID };
 
 
 

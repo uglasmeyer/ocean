@@ -6,7 +6,7 @@
  */
 
 #include <Mixer.h>
-
+#include <Wavedisplay_base.h>
 //-------------------------------------------------------------------------------------------------
 
 
@@ -107,8 +107,8 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		StA.push_back(Sta);
 	}
 
-	StA_struct_t usr_conf = {"temp"		, max_frames * data->Cfg.Config.temp_sec };
-	StA_struct_t ext_conf = {"External"	, max_frames * data->Cfg.Config.record_sec };
+	StA_struct_t usr_conf = {"temp"		, frames_per_sec * data->Cfg.Config.temp_sec };
+	StA_struct_t ext_conf = {"External"	, frames_per_sec * data->Cfg.Config.record_sec };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
@@ -133,7 +133,9 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		Out_L.Info		( "Output Stereo Left");
 		Out_R.Info		( "Output Stereo Right");
 	}
-	wd->Add_data_ptr( "External IN", StA[ MbIdExternal].Data );
+
+	string wd_name = wavedisplay_struct().names[ EXTERNALIN ];
+	wd->Add_data_ptr( wd_name, StA[ MbIdExternal].Data );
 };
 
 Mixer_class::~Mixer_class()
@@ -182,8 +184,8 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 		default				:	break;
 	}
 
-	if (( play ) and ( id != MbIdInstrument ))
-		 status.play = true;
+//	if (( play ) and ( id != MbIdInstrument )) // do not switch to SYNC mode
+//		 status.play = true;
 
 	StA[id].Play_mode( play );
 

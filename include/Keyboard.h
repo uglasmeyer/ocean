@@ -30,6 +30,8 @@ public:
 	Oscillator 			fmo			{ FMOID };
 
 	vector<Oscillator*> osc_group { &vco, &fmo, &osc };
+	constexpr static  string
+						oscgrouo_name = wavedisplay_struct().names[KBDID];
 
 	Instrument_class* 	instrument	= nullptr;
 	key_struct_t		keystruct 	= key_struct();

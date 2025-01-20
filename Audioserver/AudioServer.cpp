@@ -74,7 +74,7 @@ void shutdown_stream()
 
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
-void record_thead_fcn()
+void save_record_fcn()
 {
 	Log.Comment( INFO, "record thread started ");
 
@@ -89,6 +89,7 @@ void record_thead_fcn()
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
 		External.Save_record_data( rcounter, Fileno.val );
+
 		Log.Comment( INFO, "recording done");
 		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
 		SaveRecordFlag = false;
@@ -97,8 +98,8 @@ void record_thead_fcn()
 	Log.Comment( INFO, "record thread terminated ");
 }
 
+thread Record_thread( save_record_fcn );
 
-thread Record_thread( record_thead_fcn );
 void shutdown_thread( )
 {
 	RecordThreadDone 	= true;
@@ -258,6 +259,7 @@ void record_start( )
 	rcounter = 0;
 	ProgressBar.Set( &rcounter, recduration );
 	RecTimer.Start();
+	sds->StA_state[ MbIdExternal ].store = true;
 	Log.Comment(INFO, "Audioserver starts recording" );
 }
 
@@ -268,6 +270,7 @@ void record_stop()
 	External.status.record = false;
 	ProgressBar.Unset();
 	uint t_el = RecTimer.Time_elapsed();
+	sds->StA_state[ MbIdExternal ].store = false;
 	Log.Comment(INFO, "Record duration: " + to_string( t_el/1000 ) + " sec");
 
 }
@@ -285,7 +288,8 @@ void set_ncounter( buffer_t n )
 	if( mode == KEYBOARD )
 		ncounter	= 0;
 
-	if ( n > sds->audioframes - 1 )
+	buffer_t audioframes = sds->audioframes;
+	if ( n > audioframes - 1 )
 //	if ( n > frames_per_sec - 1 )
 	{
 //		cout << Measure.Time_elapsed() << "[msec]" << endl;
@@ -293,7 +297,7 @@ void set_ncounter( buffer_t n )
 		ncounter = 0;
 		if ( External.status.record )
 		{
-			External.Record_buffer( shm_addr, External.stereo_data, rcounter * sds->audioframes);
+			External.Record_buffer( shm_addr, audioframes, rcounter * audioframes);
 			set_rcounter();
 		}
 
@@ -326,7 +330,6 @@ int RtAudioOut(	void *outputBuffer,
 		for ( uint i = 0; i < chunksize; i++ )
 		{
 			buffer[i]	= shm_addr[ncounter];
-			shm_addr[ncounter] = { 0, 0 };
 			ncounter 	= (ncounter	+ 1 );
 		}
 
@@ -370,8 +373,9 @@ int main( int argc, char *argv[] )
     DaTA.Sem.Reset( SEMAPHORE_RECORD );
 	sds->RecCounter 	= 0;
 
-	Wavedisplay.Add_data_ptr( "Audio Out", mono_out.Data );
-
+	string wd_name = wavedisplay_struct().names[ AUDIOOUT ];
+	Wavedisplay.Add_data_ptr( wd_name, mono_out.Data );
+	Wavedisplay.SetDataPtr( AUDIOOUT , 0 );
 
 //	wav_header.srate 				= Cfg->Config.rate;
 //	wav_header.num_chans 			= Cfg->Config.channel;

@@ -17,9 +17,35 @@ void Oscillator_base::Show_csv_comment( int loglevel )
 	str = csv_comment; //;+"\t" + wp.fstruct.str;
 	Comment( loglevel, str) ;
 }
-void Oscillator_base::Set_adsr( adsr_t adsr )
+void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
 {
-	this->adsr = adsr;
+	uint aframes 	= ( beatframes * adsr.attack ) / 100;
+	float da		= 1.0 / aframes;
+	float d_alpha 	= ( (100 - adsr.decay )/3.0) / beatframes;
+
+	adsrdata.clear();
+	for ( uint n = 0; n < beatframes ; n++ )
+	{
+		if ( n < aframes ) 	// attack
+		{
+			adsrdata.push_back( da * ( n + 1 ) );
+		}
+		else				// decay
+		{
+			float alpha 	= (n - aframes ) * d_alpha;
+			adsrdata.push_back( exp( -alpha ) );
+		}
+	}
+}
+void Oscillator_base::Set_adsr( adsr_t _adsr )
+{
+	this->adsr = _adsr;
+	Gen_adsrdata( frames_per_sec / adsr.bps );
+}
+
+void Oscillator_base::Set_duration( uint16_t msec )
+{
+	wp.msec 	= msec;
 }
 
 void Oscillator_base::Set_frequency( float freq )

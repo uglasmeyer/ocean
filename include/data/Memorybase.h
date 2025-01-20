@@ -69,9 +69,10 @@ class Memory_base : public virtual Logfacility_class
 public:
 	mem_ds_t	ds	= mem_data_struct();
 
-	void 	Info();
-	void* 	Init_void();
-	void 	SetDs( size_t ds_size);
+	void 		Info();
+	void* 		Init_void();
+	void 		SetDs( size_t ds_size );
+	mem_ds_t* 	GetDs();
 
 	Memory_base( buffer_t size );
 	Memory_base() ;

@@ -10,12 +10,6 @@
 
 #include <Ocean.h>
 
-const vector<string> wavedisplay_type_str_vec =
-{
-	"Full",
-	"Flow",
-	"Debug"
-};
 
 enum
 {
@@ -24,22 +18,43 @@ enum
 	DEBUGID
 };
 
-const uint WD_SIZE = 5;
-const array<string,WD_SIZE> wavedisplay_str_arr =
+typedef struct wavedisplay_struct
 {
-    "Audio Out",
-    "External IN",
-	"MAIN",
-    "VCO",
-    "FMO"
-};
+	const vector<string> names =
+	{
+		"Audio Out",
+		"External IN",
+		"Instrument",
+		"Notes",
+		"Keyboard"
+	};
+	const vector<string> oscs =
+	{
+		"VCO",
+		"FMO",
+		"OSC"
+	};
+	const vector<string> types =
+	{
+		"Full",
+		"Flow",
+		"Debug"
+	};
+} wavedisplay_t;
+
+const size_t WD_OSC_SIZE = 3;
+const size_t WD_DISPLAY_SIZE = 5;;
+const size_t WD_DEBUG_SIZE = 3;;
 
 enum
 {
-	AUDIOOUT
+	AUDIOOUT,
+	EXTERNALIN
 };
 
-const uint 				wavedisplay_len		= 512;
+
+const size_t wavedisplay_len		= 512;
+
 typedef array< Data_t,	wavedisplay_len> 	wd_arr_t;
 
 #endif /* WAVEDISPLAY_BASE_H_ */

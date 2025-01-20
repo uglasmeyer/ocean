@@ -21,12 +21,12 @@ class Musicxml_class :
 public:
 
 
-	Note_class Notes{};
 	Note_class::musicxml_t musicxml;
+	Note_class Notes{ };
 
 	tinyxml2::XMLDocument XMLdoc;
 
-	Musicxml_class() :
+	Musicxml_class(  ) :
 		Logfacility_class( "Musicxml_class"),
 		Note_base()
 	{

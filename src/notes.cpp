@@ -15,6 +15,16 @@ Note_class::Note_class()
 	this->className = Logfacility_class::module;
 }
 
+Note_class::Note_class( Wavedisplay_class* wd )
+: Note_class::Logfacility_class("Notes"),
+  Note_base()
+{
+	this->className = Logfacility_class::module;
+	wd->Add_data_ptr( vco.osc_type, oscgrouo_name, vco.Mem.Data);
+	wd->Add_data_ptr( fmo.osc_type, oscgrouo_name, fmo.Mem.Data);
+	wd->Add_data_ptr( osc.osc_type, oscgrouo_name, osc.Mem.Data);
+}
+
 Note_class::~Note_class( )
 {
 }
@@ -29,15 +39,21 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	osc.vp.data = vco.Mem.Data;
 	osc.fp.data = fmo.Mem.Data;
 	osc.adsr = instrument->osc.adsr;
+	osc.adsr.bps = 1;
+	osc.Set_duration( max_milli_sec );
+	osc.Set_adsr( osc.adsr );
 	osc.spectrum = instrument->osc.spectrum;
+
 	vco.wp = instrument->vco.wp;
 	vco.vp = instrument->vco.vp;
 	vco.fp = instrument->vco.fp;
 	vco.spectrum = instrument->vco.spectrum;
+
 	fmo.wp = instrument->fmo.wp;
 	fmo.vp = instrument->fmo.vp;
 	fmo.fp = instrument->fmo.fp;
 	fmo.spectrum = instrument->fmo.spectrum;
+
 	return;
 }
 
@@ -101,6 +117,7 @@ void Note_class::note2memory( 	const note_t& note,
 		osc.wp.glide_effect = 100;
 
 	osc.Set_long( note.longnote or longnote );
+	osc.Gen_adsrdata( ( duration * frames_per_sec ) / 1000 );
 
 	for ( pitch_t pitch : note.chord )
 	{
@@ -129,6 +146,7 @@ void Note_class::note2memory( 	const note_t& note,
 	vco.wp.frequency	= vco_wp_frequency;
 	fmo.wp.frequency	= fmo_wp_frequency;
 	osc.wp.glide_effect= wp_glide_effect;
+
 	return ;
 }
 
@@ -181,7 +199,7 @@ bool Note_class::Generate_note_chunk( )
 			lastduration = duration;
 			duration = max_milli_sec - timestamp ;
 			partnote = true;
-			cout << "part start ";
+//			cout << "part start ";
 		}
 		note2memory( *note_itr, frame_offset, duration, longnote );
 
@@ -193,7 +211,7 @@ bool Note_class::Generate_note_chunk( )
 		{ 	//unaligned end of the measure
 
 			timestamp = lastduration - duration;
-			cout << "T: " << timestamp << endl;
+//			cout << "T: " << timestamp << endl;
 			if ( scoretime >= noteline_sec * 1000 )
 				note_itr++;
 			return false;
@@ -347,7 +365,8 @@ void Note_class::Save( string str, noteline_prefix_t prefix, string nl_str )
 void Note_class::Test()
 {
 	Note_base::TestNoteBase();
-
+	TEST_START( className );
+	Set_Loglevel( DEBUG, true );
 	Assert( Notechar2Step( 'A' ) == 9, "Assert test value " + to_string( Notechar2Step( 'A' ) ) );
 
 	Instrument_name = "NotesTest";
@@ -356,8 +375,9 @@ void Note_class::Test()
 
 	Comment( TEST, "long notes ");// long note
 	Set_rhythm_line("5");
-	Verify_noteline( Noteline_prefix, "C-D--B----d-");
-	note_itr = notelist.begin();
+	Verify_noteline( Noteline_prefix, "A-D--B----d-");
+	Start_note_itr();
+	Assert( note_itr->chord[0].freq == 220, to_string( note_itr->chord[0].freq ));
 	advance(note_itr, 2 );
 	assert( note_itr->longnote );
 	advance(note_itr, 1 );
@@ -401,24 +421,24 @@ void Note_class::Test()
 	Volumeline = "9797";
 	Set_prefix_octave( 0 );
 	Noteline = "|3F--G(AC)-(DC)-";
-	Noteline_prefix = String_to_noteline_prefix( "2,0,4,0,0");
+	Noteline_prefix = String_to_noteline_prefix( "4,0,4,0,0");
 	Save(".testcase", Noteline_prefix, Noteline );
 
 	Volumeline 	= "yyyyy";
 	Noteline 	= "xxxxx";
 	Noteline=Read(".testcase");
-
+	Assert( Noteline_prefix.Octave == 3, to_string( Noteline_prefix.Octave )) ;
 	assert( noteline_sec == 2 );
 	assert( Noteline.compare("|3F--G(AC)-(DC)-") == 0 );
 	assert( Volumeline.compare("9797") == 0 );
 
 	Verify_noteline( Noteline_prefix,  "|3F--|2G(AC)-|3(DC)-");
 	assert( Octave == 3 );
-	note_itr = notelist.begin();
-//	for ( note_struct_t note : notelist )
-//		cout << dec<<(int)note.octave << endl;
-	advance(note_itr, 2);
-	assert( note_itr->octave == 2 );
+	Start_note_itr();
+	//	for ( note_struct_t note : notelist )
+	//		cout << dec<<(int)note.octave << endl;
+	advance(note_itr, 1);
+	assert( note_itr->chord[0].octave == 2 );
 
 	set_volume_vector("");
 	assert( volume_vec[0] == notes_default_volume );
@@ -431,15 +451,9 @@ void Note_class::Test()
 
 	Noteline=".---";
 	Verify_noteline( Noteline_prefix, Noteline );
-	note_itr = notelist.begin();
-
+	Start_note_itr();
 	assert( note_itr->volume == 0 );
 	assert( note_itr->duration == 4*min_duration );
-//	cout << note_itr->chord[0].value << " " << note_itr->chord[0].doct << endl;
-//	cout << Octave << endl;
-//	cout << calc_freq( Octave, note_itr->chord[0] ) << endl;
-	assert( Calc_freq( Octave, note_itr->chord[0] ) <  0.1 );
-	//assert( false );
 
 	Comment( TEST, "garbage test" );
 	Noteline="-xyz";
@@ -458,33 +472,37 @@ void Note_class::Test()
 	Verify_noteline( Noteline_prefix, Noteline );
 	assert( min_duration == 250 );
 
-	Verify_noteline( Noteline_prefix, "|2(AB)--->|3A" );
-	note_t note = *notelist.begin();
-	Assert( note.glide[0].chord.step == 0, "expected: "+ to_string(note.glide[0].chord.step) );
-	assert( note.glide[0].chord.alter == 1 );
-	assert ( ( Calc_freq( note.octave,  note.glide[0].chord ) - 440 ) < 1E-8 );
-	Comment( INFO, "Test Note_class OK" );
+	Verify_noteline( Noteline_prefix, "|4(AB)--->|5A" );
+	note_t note = Start_note_itr();
+	Assert( note.glide[0].chord.step == 9, "expected: "+ to_string(note.glide[0].chord.step) );
+	Assert( note.glide[0].chord.alter == 0, to_string( note.glide[0].chord.alter ) );
+	Assert ( ( Calc_freq( oct_base_freq,  note.glide[0].chord ) - 440 ) < 1E-8 , to_string( Calc_freq( oct_base_freq,  note.glide[0].chord )) );
 
-	Verify_noteline( Noteline_prefix, "A'(AB)(A'B)(AB,)(B,)A'..");
-	note_itr = notelist.begin();
-	for( int freq : { 220, 110, 220, 110, 61, 220, 0, 0 } )
-	{
-//		printf("%d = %f %d\n", freq, calc_freq( 1, note_itr->chord[0]), note_itr->chord[0].doct ) ;
-		assert( Calc_freq( 1, note_itr->chord[0] ) - freq < 1);
-		note_itr++;
-	}
 
-	Verify_noteline( Noteline_prefix, "A|'AA,A|,AAA");
-	note_itr = notelist.begin();
-	for( int freq : { 110, 220, 110, 220, 55, 55, 55 } )
+	Verify_noteline( Noteline_prefix, "|2A'AA,A,AAA");
+	Start_note_itr();
+	for( int freq : { 220, 110, 55, 55, 110, 110, 110 } )
 	{
 		Show_note( *note_itr );
-//		cout << freq << " = " << calc_freq( 1, note_itr->chord[0] ) << endl;
-		assert( Calc_freq( 1, note_itr->chord[0] ) - freq < 1);
+		cout << freq << " = " << note_itr->chord[0].freq  << endl;
+		assert( abs( note_itr->chord[0].freq  - freq ) < 1);
 		note_itr++;
 	}
+
+	Verify_noteline( Noteline_prefix, "|3A(A,a)(A'a)(Aa,)(a,)A'..");
+	note_itr = notelist.begin();
+	for( float freq : { 220, 110, 440, 220, 117, 440, } )
+	{
+		float f = note_itr->chord[0].freq;//CalcFreq( oct_base_freq, note_itr->chord[0] );
+		printf("%f = %f\n", freq, f ) ;
+		Assert( abs(f - freq) < 1, "" );
+		note_itr++;
+	}
+
 
 
 //	assert (false);
+	TEST_END(className );
+
 	Comment( TEST, "Note_class test done ");
 }

@@ -435,6 +435,8 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
 		Rtsp_dialog_class.h \
+		../include/Keyboard.h \
+		../include/Kbd.h \
 		ui_mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -563,6 +565,8 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
 		Rtsp_dialog_class.h \
+		../include/Keyboard.h \
+		../include/Kbd.h \
 		ui_mainwindow.h \
 		../include/Exit.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp

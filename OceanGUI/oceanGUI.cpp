@@ -81,6 +81,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 		};
 
+
+
     auto fromstringvector = [ ]( const vector<string>& str_vec )
 		{
 			vector<QString> Qvec{};
@@ -93,11 +95,11 @@ MainWindow::MainWindow(	QWidget *parent ) :
 		};
 	QWaveform_vec = fromstringvector( Spectrum.Get_waveform_vec() );
 
-	Qwavedisplay_type_str_vec = fromstringvector( wavedisplay_type_str_vec );
+	Qwd_debugtype_names = fromstringvector( wavedisplay_struct().types );
+	Qwd_osc_names 		= fromstringvector( wavedisplay_struct().oscs );
+	Qwavedisplay_names 	= fromstringvector( wavedisplay_struct().names );
 
 	Qbps_str_lst = Qstringlist( bps_struct().Bps_lst );
-
-
 
 	ui = &Ui_Mainwindow_obj;
     ui->setupUi(this);
@@ -112,8 +114,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
-
-
 
     connect( ui->pB_Rtsp, SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
     connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
@@ -137,6 +137,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->cb_bps		, SIGNAL(activated(int)), this, SLOT(cB_Beat_per_sec(int) ));
     connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
     connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
+    connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
+    connect(ui->pB_oscgroup, SIGNAL(clicked()), this, SLOT(pB_oscgroup_clicked()));
 
     sl_sta_vec = {
     	ui->Slider_mix_vol0, ui->Slider_mix_vol1, ui->Slider_mix_vol2, ui->Slider_mix_vol3,
@@ -192,7 +194,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_Sds2()) );
     connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_Sds3()) );
 
-    connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
 
     connect(ui->hs_hall_effect, SIGNAL(valueChanged(int)), this, SLOT(hs_hall_effect_value_changed(int)));
@@ -217,6 +218,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
     Qread_filelist( CB_external,
     				wavfile_path, file_structure().wav_type );
     ui->cb_bps->addItems( Qbps_str_lst );
+
+    ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_group_ID ]);
 
     setwidgetvalues();
 
@@ -260,14 +263,6 @@ void MainWindow::hs_hall_effect_value_changed(int value)
     Sds->Set( Sds->addr->KEY , ADSR_KEY);
 }
 
-void MainWindow::pB_Wavedisplay_clicked()
-{
-    int wd_counter = (Sds->addr->Wavedisplay_Id + 1) % wavedisplay_str_arr.size();
-    QString QStr = QString::fromStdString(wavedisplay_str_arr[ wd_counter]);
-    ui->pB_Wavedisplay->setText( QStr );
-    Sds->Set(Sds->addr->Wavedisplay_Id , wd_counter);
-    Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY);
-};
 
 void MainWindow::dial_soft_freq_value_changed()
 {
@@ -603,9 +598,9 @@ void MainWindow::setwidgetvalues()
 
     get_record_status();
     int wd_counter              = Sds->addr->Wavedisplay_Id;
-    QString Qstr = QString::fromStdString(wavedisplay_str_arr[wd_counter]);
+    QString Qstr = Qwavedisplay_names[wd_counter];
     ui->pB_Wavedisplay->setText( Qstr );
-    ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ (int) Sds->addr->WD_type_ID % 3 ] );
+    ui->pB_Debug->setText( Qwd_debugtype_names[ (int) Sds->addr->WD_type_ID % 3 ] );
 
     ui->dial_ramp_up_down->setValue( Sds->addr->Master_Amp);
 
@@ -792,7 +787,7 @@ void MainWindow::get_record_status( )
 }
 void MainWindow::SaveRecord()
 {
-    Sds->Set( Sds_master->FileNo , 0); // automatic numbering
+    Sds->Set( Sds_master->FileNo , 0); // 0=automatic numbering
 
     if ( Sds_master->Record )
     	Sds_master->AudioServer = RECORDSTOP;
@@ -812,16 +807,32 @@ void MainWindow::main_adsr_sustain()
 
 }
 
+void MainWindow::pB_oscgroup_clicked()
+{
+    uint8_t counter = ( Sds->addr->WD_group_ID + 1 ) % WD_OSC_SIZE;
+    Sds->Set( Sds->addr->WD_group_ID, counter );
+    Sds->Set( Sds->addr->KEY , WAVEDISPLAYGROUP_KEY);
+
+    ui->pB_oscgroup->setText( Qwd_osc_names[ counter ] );
+}
 
 void MainWindow::pB_Debug_clicked()
 {
-    uint16_t counter = ( Sds->addr->WD_type_ID + 1 ) % 3;
+    uint16_t counter = ( Sds->addr->WD_type_ID + 1 ) % WD_DEBUG_SIZE;
     Sds->Set( Sds->addr->WD_type_ID , counter);
     Sds->Set( Sds->addr->KEY , WAVEDISPLAYTYPEKEY);
 
-    ui->pB_Debug->setText( Qwavedisplay_type_str_vec[ counter ] );
+    ui->pB_Debug->setText( Qwd_debugtype_names[ counter ] );
 }
 
+void MainWindow::pB_Wavedisplay_clicked()
+{
+    int wd_counter = (Sds->addr->Wavedisplay_Id + 1) % WD_DISPLAY_SIZE;
+    QString QStr = Qwavedisplay_names[ wd_counter ];
+    ui->pB_Wavedisplay->setText( QStr );
+    Sds->Set(Sds->addr->Wavedisplay_Id , wd_counter);
+    Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY);
+};
 
 void MainWindow::Updatewidgets()
 {

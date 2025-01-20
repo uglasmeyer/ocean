@@ -138,6 +138,7 @@ public:
     QComboBox *cb_bps;
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_Rtsp;
+    QPushButton *pB_oscgroup;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -478,7 +479,7 @@ public:
         glidefrequency->setWordWrap(true);
         pB_Wavedisplay = new QPushButton(centralwidget);
         pB_Wavedisplay->setObjectName(QString::fromUtf8("pB_Wavedisplay"));
-        pB_Wavedisplay->setGeometry(QRect(480, 240, 131, 25));
+        pB_Wavedisplay->setGeometry(QRect(480, 240, 81, 25));
         oscilloscope_view = new QGraphicsView(centralwidget);
         oscilloscope_view->setObjectName(QString::fromUtf8("oscilloscope_view"));
         oscilloscope_view->setGeometry(QRect(480, 270, 512, 166));
@@ -486,7 +487,7 @@ public:
         oscilloscope_view->setLineWidth(2);
         pB_Debug = new QPushButton(centralwidget);
         pB_Debug->setObjectName(QString::fromUtf8("pB_Debug"));
-        pB_Debug->setGeometry(QRect(620, 240, 88, 25));
+        pB_Debug->setGeometry(QRect(660, 240, 88, 25));
         hs_hall_effect = new QScrollBar(centralwidget);
         hs_hall_effect->setObjectName(QString::fromUtf8("hs_hall_effect"));
         hs_hall_effect->setGeometry(QRect(530, 110, 160, 16));
@@ -577,7 +578,7 @@ public:
         cb_external->setEditable(false);
         layoutWidget = new QWidget(centralwidget);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(630, 480, 462, 58));
+        layoutWidget->setGeometry(QRect(630, 480, 462, 60));
         gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -628,10 +629,13 @@ public:
         pB_Rtsp = new QPushButton(centralwidget);
         pB_Rtsp->setObjectName(QString::fromUtf8("pB_Rtsp"));
         pB_Rtsp->setGeometry(QRect(1000, 310, 91, 25));
+        pB_oscgroup = new QPushButton(centralwidget);
+        pB_oscgroup->setObjectName(QString::fromUtf8("pB_oscgroup"));
+        pB_oscgroup->setGeometry(QRect(570, 240, 81, 26));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1207, 22));
+        menubar->setGeometry(QRect(0, 0, 1207, 23));
         menuSound_Lab_GUI = new QMenu(menubar);
         menuSound_Lab_GUI->setObjectName(QString::fromUtf8("menuSound_Lab_GUI"));
         menuIO = new QMenu(menubar);
@@ -709,7 +713,7 @@ public:
         label_11->setText(QCoreApplication::translate("MainWindow", "Attack", nullptr));
         glidefrequency->setText(QCoreApplication::translate("MainWindow", "glide freq.", nullptr));
         pB_Wavedisplay->setText(QString());
-        pB_Debug->setText(QCoreApplication::translate("MainWindow", "Details", nullptr));
+        pB_Debug->setText(QString());
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
         pB_Specrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
         wf_vco->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
@@ -727,6 +731,7 @@ public:
         pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
         pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
         pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
+        pB_oscgroup->setText(QString());
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

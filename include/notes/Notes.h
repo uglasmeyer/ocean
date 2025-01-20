@@ -42,12 +42,14 @@ public:
 
 	vector<Oscillator*>
 					osc_group { &vco, &fmo, &osc };
+	constexpr static string 	oscgrouo_name = wavedisplay_struct().names[NOTESID];
+
 
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
 	bool			Restart			= false;
 	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
-	uint8_t 		Octave			= noteline_prefix_default.Octave;
+	uint8_t 		Octave			= noteline_prefix_default.Octave; // 55
 	const uint16_t	measure_duration= 1000;//max_milli_sec; // 1 sec.
 	const float 	max_frequency 	= Octave_freq ( max_octave + 1 );
 
@@ -57,6 +59,7 @@ public:
 	const note_t	pause_note		= {".",{pitch_struct()},min_duration,0,0,{glide_struct()},false };
 
 
+	Note_class( Wavedisplay_class* wd ); // used by Variation
 	Note_class( ); // used by Variation
 	~Note_class();
 
@@ -73,7 +76,7 @@ public:
 	bool			Verify_noteline( noteline_prefix_t, string );
 	void 			Test();
 	void			Show_note(  note_t );
-	void 			Start_note_itr();
+	note_t 			Start_note_itr();
 	note_t			Char2note( char& ch );
 
 	int 			Notechar2Step( char );
@@ -120,7 +123,6 @@ private:
 	size_t	 		noteline_len 	= 0;
 	size_t			parse_error		= 0;
 	vector<uint>    volume_vec 		{};
-	int8_t			delta_oct		= 0; 	// |' |, in noteline inc or dec the value of all subsequent
 
 
 	typedef notelist_t::iterator

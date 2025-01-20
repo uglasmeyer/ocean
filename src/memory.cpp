@@ -24,7 +24,7 @@ void Memory::Clear_data( Data_t value )
 		Data[n] = value;
 	}
 }
-void Memory_base::SetDs( size_t ds_size)
+void Memory_base::SetDs( size_t data_size)
 {
 	// terminology :
 	// sizeof_data	-> 	data_bytes	= sizeof(unit)
@@ -33,8 +33,8 @@ void Memory_base::SetDs( size_t ds_size)
 	//					mem_blocks	=
 
 	ds.mem_bytes	= ds.size;
-	ds.sizeof_data 	= ds_size;
-	ds.data_blocks 	= ds.size / ds_size;
+	ds.sizeof_data 	= data_size;
+	ds.data_blocks 	= ds.size / data_size;
 	ds.max_records	= ds.data_blocks / ds.block_size;
 
 	if ( not ( ds.size - ds.sizeof_data * ds.max_records * ds.block_size == 0 ))
@@ -42,6 +42,10 @@ void Memory_base::SetDs( size_t ds_size)
 
 }
 
+mem_ds_t* Memory_base::GetDs()
+{
+	return &ds;
+}
 
 void Memory::Init_data( )
 {

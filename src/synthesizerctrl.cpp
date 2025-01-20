@@ -93,7 +93,8 @@ void Core_class::Controller(char key)
 		Sds->Commit();
 		break;
 	}
-	case MASTERAMP_LOOP_KEY: {
+	case MASTERAMP_LOOP_KEY:
+	{
 		uint16_t beg = Mixer->master_volume;
 		uint16_t end = sds->LOOP_end;
 		uint8_t step = sds->LOOP_step;
@@ -120,6 +121,17 @@ void Core_class::Controller(char key)
 		Instrument->osc.Set_pmw(sds->VCO_wp.PMW_dial);
 		Instrument->vco.Set_pmw(sds->VCO_wp.PMW_dial);
 		Instrument->fmo.Set_pmw(sds->VCO_wp.PMW_dial);
+		Sds->Commit();
+		break;
+	}
+	case SETWAVEDISPLAYKEY:
+	{
+		Wavedisplay->SetDataPtr(sds->Wavedisplay_Id, sds->WD_group_ID );
+		Sds->Commit();
+		break;
+	}case WAVEDISPLAYGROUP_KEY :
+	{
+		Wavedisplay->SetDataPtr(sds->Wavedisplay_Id, sds->WD_group_ID );
 		Sds->Commit();
 		break;
 	}
@@ -210,7 +222,6 @@ void Core_class::Controller(char key)
 		Sds->Commit();
 		break;
 	}
-		;
 	case EXTERNAL_AMPLOOP_KEY: {
 		uint8_t 	Id 	= sds->MIX_Id;
 		uint16_t 	beg = Mixer->StA[Id].Amp;
@@ -375,11 +386,6 @@ void Core_class::Controller(char key)
 		if (!Notes->Set_notes_per_second(nps.val)) {
 			Comment(ERROR, nps.str + " notes per second not supported");
 		}
-		Sds->Commit();
-		break;
-	}
-	case SETWAVEDISPLAYKEY: {
-		Wavedisplay->SetId(sds->Wavedisplay_Id);
 		Sds->Commit();
 		break;
 	}
