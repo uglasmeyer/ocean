@@ -88,7 +88,7 @@ void save_record_fcn()
 		Fileno = (int) DaTA.sds_master->FileNo;
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
-		External.Save_record_data( rcounter, Fileno.val );
+		External.Save_record_data( Fileno.val );
 
 		Log.Comment( INFO, "recording done");
 		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
@@ -297,7 +297,7 @@ void set_ncounter( buffer_t n )
 		ncounter = 0;
 		if ( External.status.record )
 		{
-			External.Record_buffer( shm_addr, audioframes, rcounter * audioframes);
+			External.Record_buffer( shm_addr, audioframes );
 			set_rcounter();
 		}
 

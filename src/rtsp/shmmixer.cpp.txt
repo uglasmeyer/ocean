@@ -33,7 +33,7 @@ void ShmMixer_class::AddShm()
 	error = -2;
 	if ( not audio_data ) return;
 
-	assert( max_frames == DaTA_p->SHM_vecL[0].ds.size / sizeof(stereo_t) );
+	assert( max_frames == DaTA_p->SHM_vecL[0].ds.size / sizeof_stereo );
 
 	for( uint shmid = 1; shmid < MAXCONFIG ; shmid ++ )
 	{

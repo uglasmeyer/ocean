@@ -1,13 +1,13 @@
 Type,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddecay  bps atck hall glide      PMWs
- OSC,      VCO,    Sinus,     64,   2000,      0,  free,  free,  free, 100,   1,   0,   0,   0,     42,
+ OSC,      VCO,    Sinus,     64,    250,      0,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
 SPEC,      VCO,    Sinus,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,      FMO,    sinus,     55,   2000,     33,  free,  free,  free, 100,   1,   0,   0,   0,     42,
+ OSC,      FMO,    sinus,     55,    250,     33,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 SPEC,      FMO,    sinus,100,  0, 62,  0, 40,  0,  0,  0,202
- OSC,     MAIN,    Sinus,    220,   2000,     75,  free,  free,  free,  96,   1,   2,  28,   0,     42,
+ OSC,     MAIN,    Sinus,    220,    250,     75,  free,  free,  free,  96,   1,   2,  28,   0,     42,
 CONN,     MAIN,      FMO,      F,
 CONN,     MAIN,      VCO,      V,
 SPEC,     MAIN,    Sinus,100, 66, 37, 18,  9,  0,  0,  0,230

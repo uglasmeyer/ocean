@@ -103,7 +103,7 @@ bool sync_mode()
 
 	bool sync =
 		( 	// if true use max_second time intervall
-			( sds->StA_state[MbIdExternal].store 		)	or
+//			( sds->StA_state[MbIdExternal].store 		)	or
 			( Mixer.status.play 						)	or	// any StA triggers play if itself is in play mode
 			( ProgressBar.active 						)		// StA record external
 		);

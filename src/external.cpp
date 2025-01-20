@@ -55,8 +55,8 @@ bool External_class::Read_file_data(  )
 	}
 
 	buffer_t 	bytes 	= header_struct.dlength;
-	uint 		blocks 	= bytes/sizeof(stereo_t)/StA->ds.block_size;
-	uint 		structs	= bytes/sizeof(stereo_t);
+	uint 		blocks 	= bytes/sizeof_stereo/StA->ds.block_size;
+	uint 		structs	= bytes/sizeof_stereo;
 
 	if (Log[DBG2])
 		StA->Info("Memory Array External");
@@ -91,15 +91,14 @@ bool External_class::Read_file_data(  )
 	}
 }
 
-
 bool External_class::read_stereo_data( long data_bytes  )
 {
 	read_position += fread( stereo_data ,
-							sizeof(stereo_t),
-							data_bytes/sizeof(stereo_t),
+							sizeof_stereo,
+							data_bytes/sizeof_stereo,
 							File  );
 	Comment( DEBUG, to_string( read_position ));
-	long read_bytes = read_position * sizeof(stereo_t);
+	long read_bytes = read_position * sizeof_stereo;
 	Filedata_size 			= read_bytes;
 
 	if ( read_bytes >= data_bytes )
@@ -120,13 +119,14 @@ void External_class::close(  )
 	fclose( File );
 }
 
-void External_class::Record_buffer( stereo_t* src, buffer_t frames, buffer_t offs )
+void External_class::Record_buffer( stereo_t* src, buffer_t frames )
 {
 	for ( buffer_t n = 0; n < frames; n++ )
 	{
-		Stereo_Memory::stereo_data[n + offs ] = src[ n ];
-//		dst[n + offs ] = src[ n ];
+		Stereo_Memory::stereo_data[n + record_size ] = src[ n ];
 	}
+	record_size += frames; // variable frame size (audioframes);
+
 }
 
 //------------------------------------------------------------------------------------------------
@@ -193,7 +193,7 @@ long External_class::write_audio_data( string filename, buffer_t rcounter )
 {
 
 	FILE* fd 	= fopen( filename.data(), "ab" );
-    long count 	= fwrite( this->stereo_data, sizeof(stereo_t), rcounter , fd );
+    long count 	= fwrite( this->stereo_data, sizeof_stereo, rcounter , fd );
     fclose( fd );
     return count;
 }
@@ -277,7 +277,7 @@ string External_class::ffmpeg_cmd( string wav, string mp3 )
 	return cmd;
 }
 
-void External_class::Save_record_data( uint sec, int filenr)
+void External_class::Save_record_data( int filenr)
 {
 	if ( filenr == 0 ) // generate a file name
 		filenr = generate_file_no( MAXWAVFILES );
@@ -285,12 +285,10 @@ void External_class::Save_record_data( uint sec, int filenr)
 	setName( file_structure().filename + to_string( filenr) );
 
 	Comment( INFO, "Prepare record file " + Name );
-//	long rcounter = StA->record_data;// * 2; //mono to stereo factor
-	long rcounter = sec * frames_per_sec;
-	Comment( INFO, "Record frames: " + to_string (rcounter));
+	Comment( INFO, "Record frames: " + to_string (record_size));
 	Stereo_Memory::Info( "External Stereo data");
 
-	if ( rcounter == 0 )
+	if ( record_size == 0 )
 	{
 		Comment( WARN, "Nothing to do");
 		return;
@@ -298,13 +296,13 @@ void External_class::Save_record_data( uint sec, int filenr)
 
 	remove_file( file_structure().raw_file );
 
-	long count		= write_audio_data( file_structure().raw_file, rcounter );
-	bool success = ( rcounter == count );
+	buffer_t count		= write_audio_data( file_structure().raw_file, record_size );
+	bool success = ( record_size == count );
 	if ( success )
-		Comment(INFO,"All " + to_string( rcounter * ds.sizeof_data ) + " bytes written to file");
+		Comment(INFO,"All " + to_string( record_size * ds.sizeof_data ) + " bytes written to file");
 	else
 	{
-		Comment(WARN,to_string(count) + " of " + to_string(rcounter) + " written");
+		Comment(WARN,to_string(count) + " of " + to_string(record_size) + " written");
 		return ;
 	};
 
@@ -322,6 +320,7 @@ void External_class::Save_record_data( uint sec, int filenr)
 
     rename_file( file_structure().wav_file, Filename);
     Filename = "";
+    record_size = 0; // reset size
 
 }
 

@@ -73,20 +73,22 @@ public:
 
 	bool Read_file_data(  );
 	bool Read_file_header( string );
-	void Save_record_data( uint sec, int filenr );
+	void Save_record_data( int filenr );
 	void Mono2Stereo( Data_t* mono, uint size );
-	void Record_buffer( stereo_t* src, buffer_t frames, buffer_t offs );
+	void Record_buffer( stereo_t* src, buffer_t frames );
 	string GetName();
 	void Test_External();
 
 private:
-	const uint 		MAXWAVFILES = 5; // max numbers of file names generated automatically
-	long int 		read_position = 0;
+	const uint 		MAXWAVFILES 	= 5; // max numbers of file names generated automatically
+	long int 		read_position 	= 0;
+	buffer_t		record_size		= 0;
+
 	wav_struct_t 	header_struct;
-	string 			Name 		= "";
-	string 			Filename 	= "";
-	string 			add_header 	= "cat " + file_structure().raw_file +
-								  " >> " + file_structure().wav_file;
+	string 			Name 			= "";
+	string 			Filename 		= "";
+	string 			add_header 		= "cat " + file_structure().raw_file +
+								  	  " >> " + file_structure().wav_file;
 	void 	write_audio_data( string );
 	void 	write_music_file( string );
 	void 	wav_define (  long  );

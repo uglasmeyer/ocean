@@ -48,10 +48,10 @@ typedef struct stereo_struct
 	data_t left;
 	data_t right;
 } stereo_t;
+const char 			sizeof_stereo 		= sizeof( stereo_t );
 
-
-const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof(stereo_t);
-const buffer_t 		sharedbuffer_size 	= max_frames * sizeof(stereo_t );
+const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof_stereo;
+const buffer_t 		sharedbuffer_size 	= max_frames * sizeof_stereo;
 
 class Stereo_Memory :
 	virtual public 	Logfacility_class,
