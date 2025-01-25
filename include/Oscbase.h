@@ -41,7 +41,7 @@ typedef	struct wave_struct
 	float			start_frq 	= frequency;
 	uint8_t			PMW_dial 	= 50;
 	uint8_t 		glide_effect= 0;
-	uint16_t 		msec		= max_sec*1000; 	// range 1 ... 8000
+	uint16_t 		msec		= max_milli_sec; 	// range 1 ... 8000
 	uint8_t 		volume		= osc_default_volume; 	// range [0..100];
 	buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
@@ -56,18 +56,18 @@ typedef struct adsr_struct
 
 typedef struct fmo_struct
 {
-	Data_t*			data		= NULL; // ptr to the fm data
-	uint16_t 		volume		= 1; // volume of the fm track
-	string			name		= "NULL";
+	Data_t*			data		= nullptr; // ptr to the fm data
+	uint16_t 		volume		= 0; // volume of the fm track
+	string			name		= "";
 	bool			stored		= false;
 	bool			generating 	= false;
 } fmo_t;  // all wave parameter for the fmo
 
 typedef struct vco_struct
 {
-	Data_t*			data		= NULL; // ptr to the fm data
-	uint16_t 		volume		= 100; // volume of the fm track
-	string			name		= "NULL";
+	Data_t*			data		= nullptr; // ptr to the vc data
+	uint16_t 		volume		= 0; // volume of the vc track
+	string			name		= "";
 	bool			stored		= false; // stored vco data
 	bool 			generated	= false;
 } vco_t;  // all wave parameter for vco
@@ -78,9 +78,11 @@ class Oscillator_base : virtual public Logfacility_class, virtual public Spectru
 public:
 
 	DataVec_t		adsrdata 	{ };
-	const set<int> 	mainid_set 	{ INSTRID, NOTESID, KBDID };
-	uint8_t			osc_id 		= OTHERID;
-	string 			osc_type 	= osc_type_vec[ osc_id ] ;
+	char			osctype_id	= -1;//osc_struct::OSCID;
+	string 			osc_type 	= "no role";
+	char			oscrole_id	= -1;//osc_struct::INSTRID;
+	string 			osc_role 	= "no role";
+	bool			is_main_osc = false;
 
 	adsr_t 			adsr 		= adsr_struct();
 	wave_t 			wp 			= wave_struct();
@@ -90,7 +92,7 @@ public:
 
 	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
 	{
-		Set_adsr( adsr );
+//		Set_adsr( adsr );
 	};
 	virtual 	~Oscillator_base(){};
 

@@ -19,10 +19,10 @@
  * https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
  */
 
-enum conventionId_t { ENGLISH, NUMERIC, ALPHABET };
 
 class Note_base : virtual public Logfacility_class
 {
+	string 					className		= "";
 public:
 	const string			notes_ext		= file_structure().nte_type;
 	const String 			OctaveChars 	{ "0123456" }; // oct_base = 27.5
@@ -36,13 +36,17 @@ public:
 
 	const vector_str_t 		convention_notes{ 	"CcDdEFfGgAaB",
 												"0123456789AB",
-												"C%D%EF%G%A%B"};
+												"C%D%EF%G%A%B",
+												"CcDdEFfGgAaH"};
 	const vector_str_t 		convention_names{ 	"English",
 												"Numeric",
-												"Alphabet" };
+												"Alphabet",
+												"German"};
+	enum conventionId_t { ENGLISH, NUMERIC, ALPHABET, GERMAN };
 	set<int> 				conventionId_set { 	ENGLISH,
 												NUMERIC,
-												ALPHABET };
+												ALPHABET,
+												GERMAN};
 
 	static const uint8_t	notes_default_volume = 80;
 
@@ -82,7 +86,7 @@ public:
 	typedef struct 	note_struct
 	{
 		string 				str 		= ""; 	// humen readable
-		vector<pitch_t>		chord		{};		// notes are generated at the same time
+		vector<pitch_t>		chord		{ };		// notes are generated at the same time
 		uint16_t 			duration 	= 0; 	// msec
 		uint16_t			volume 		= notes_default_volume;//0; 	// percentage of max_volume
 		uint8_t 			octave 		= 0; 	// 1...9 ( * 55 ) = base frequency ot the octave
@@ -102,8 +106,7 @@ public:
 
 	void				Set_base_octave( uint );
 	float	 			Octave_freq( uint8_t oct );
-	float 				Calc_frequency(const float& base,  const int& key );
-	float	 			Calc_freq ( uint8_t , pitch_t );
+//	float	 			Calc_freq ( uint8_t , pitch_t );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 
 	void 				TestNoteBase();
@@ -114,9 +117,11 @@ public:
 
 
 private:
+
 	vector< float > root2{};
 	const uint root2_limit = 12 * (max_octave+1);
 	int				octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
+	float 				calc_frequency(const float& base,  const int& key );
 
 };
 

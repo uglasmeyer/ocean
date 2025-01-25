@@ -393,6 +393,7 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/Wavedisplay_base.h \
 		../include/data/Register.h \
 		../include/Osc.h \
+		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -429,14 +430,13 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/DataWorld.h \
 		../include/notes/Notes.h \
 		../include/Instrument.h \
+		../include/Oscgroup.h \
 		../include/App.h \
 		File_Dialog.h \
 		Common.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
 		Rtsp_dialog_class.h \
-		../include/Keyboard.h \
-		../include/Kbd.h \
 		ui_mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -559,14 +559,13 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/data/DataWorld.h \
 		../include/notes/Notes.h \
 		../include/Instrument.h \
+		../include/Oscgroup.h \
 		../include/App.h \
 		File_Dialog.h \
 		Common.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
 		Rtsp_dialog_class.h \
-		../include/Keyboard.h \
-		../include/Kbd.h \
 		ui_mainwindow.h \
 		../include/Exit.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp

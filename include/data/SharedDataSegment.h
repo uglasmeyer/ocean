@@ -50,12 +50,12 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 1; 						// comstack
+	uint8_t			version						= 2; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
 	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
-	StA_amp_arr_t	StA_amp_arr					{ 75 };
+	StA_amp_arr_t	StA_amp_arr					{{0}};
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
 
 	char 			Instrument[str_buffer_len] 	{"default"}; //char array // comstack
@@ -63,15 +63,22 @@ typedef struct interface_struct
 	char 			Other	  [str_buffer_len]	{"default"}; // e.g. external wave file name // comstack
 
 	uint8_t			Master_Amp 					= 75;// comstack
-	adsr_t 			Main_adsr 					= adsr_struct();// comstack
-
 	uint8_t		 	LOOP_step 					= 0;
 	float			LOOP_end 					= 75;
+
+	/* instrument definition starts */
+	adsr_t 			OSC_adsr 					= adsr_struct();// comstack
 
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();
 	wave_t			FMO_wp						= wave_struct();
 
+	spectrum_t 		OSC_spectrum				= Spectrum_base::spec_struct();// comstack
+	spectrum_t 		VCO_spectrum 				= Spectrum_base::spec_struct();// comstack
+	spectrum_t	 	FMO_spectrum 				= Spectrum_base::spec_struct();// comstack
+	/* instrument definition ends	 */
+
+	uint8_t			Spectrum_type				= Spectrum_base::spec_struct().osc;
 	uint8_t			NotestypeId					= 0; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
@@ -83,10 +90,6 @@ typedef struct interface_struct
 	uint8_t 		MIX_Amp 					= 0;// comstack
 	uint8_t 		MIX_Id						= 0;// comstack
 
-	spectrum_t 		MAIN_spectrum				= Spectrum_base::spec_struct();// comstack
-	spectrum_t 		VCO_spectrum 				= Spectrum_base::spec_struct();// comstack
-	spectrum_t	 	FMO_spectrum 				= Spectrum_base::spec_struct();// comstack
-	uint8_t			Spectrum_type				= INSTRID;
 
 	uint8_t 		AudioServer	    			= OFFLINE;// comstack
 	uint8_t 		Synthesizer					= DEFAULT;// indicates that shm is new // comstack
@@ -108,9 +111,9 @@ typedef struct interface_struct
 	uint8_t			time_elapsed 				= 0;
 	process_arr_t	process_arr					= { {process_struct()} };
 
-	uint8_t	 		Wavedisplay_Id				= AUDIOOUT; // Audio out
+	uint8_t	 		WD_role_Id					= osc_struct::AUDIOID; // Audio out
+	uint8_t			WD_osc_ID					= osc_struct::OSCID; // oscgroup id
 	uint16_t		WD_type_ID 					= FULLID;
-	uint8_t			WD_group_ID					= 0; // oscgroup id
 	wd_arr_t		wavedata 					= {0};
 } interface_t;
 

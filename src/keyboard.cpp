@@ -9,19 +9,15 @@
 
 Keyboard_class::Keyboard_class( Instrument_class* instr ) :
 	Logfacility_class("Keyboard"),
-	Oscillator_base(),
 	Keyboard_base()
 {
 	this->instrument 	= instr;
-	instr->wd_p->Add_data_ptr( vco.osc_type, oscgrouo_name, vco.Mem.Data);
-	instr->wd_p->Add_data_ptr( fmo.osc_type, oscgrouo_name, fmo.Mem.Data);
-	instr->wd_p->Add_data_ptr( osc.osc_type, oscgrouo_name, osc.Mem.Data);
+	Oscgroup.SetWd( instr->wd_p );
 
 }
 
 Keyboard_class::Keyboard_class() :
 	Logfacility_class("Keyboard"),
-	Oscillator_base(),
 	Keyboard_base()
 {
 
@@ -32,44 +28,48 @@ Keyboard_class::~Keyboard_class()
 };
 
 
-void Keyboard_class::setup(  )
+void Keyboard_class::set_instrument(  )
 {
 	if ( not instrument ) return;
 	// copy class Oscillator
-	osc.wp 			= instrument->osc.wp;
-	osc.vp 			= instrument->osc.vp;
-	osc.vp.data		= vco.Mem.Data;
-	osc.fp 			= instrument->osc.fp;
-	osc.fp.data		= fmo.Mem.Data;
-	osc.adsr 		= instrument->osc.adsr;
-	osc.adsr.bps	= 1;
-	osc.spectrum	= instrument->osc.spectrum;
+	Oscgroup.osc.wp 			= instrument->Oscgroup.osc.wp;
+	Oscgroup.osc.vp 			= instrument->Oscgroup.osc.vp;
+	Oscgroup.osc.vp.data		= Oscgroup.vco.Mem.Data;
+	Oscgroup.osc.fp 			= instrument->Oscgroup.osc.fp;
+	Oscgroup.osc.fp.data		= Oscgroup.fmo.Mem.Data;
+	Oscgroup.osc.adsr 		= instrument->Oscgroup.osc.adsr;
+	Oscgroup.osc.adsr.bps	= 1;
+	Oscgroup.osc.spectrum	= instrument->Oscgroup.osc.spectrum;
 
-	vco.wp 			= instrument->vco.wp;
-	vco.vp 			= instrument->vco.vp;
-	vco.fp 			= instrument->vco.fp;
-	vco.spectrum	= instrument->vco.spectrum;
+	Oscgroup.vco.wp 			= instrument->Oscgroup.vco.wp;
+	Oscgroup.vco.vp 			= instrument->Oscgroup.vco.vp;
+	Oscgroup.vco.fp 			= instrument->Oscgroup.vco.fp;
+	Oscgroup.vco.spectrum	= instrument->Oscgroup.vco.spectrum;
 
-	fmo.wp 			= instrument->fmo.wp;
-	fmo.vp 			= instrument->fmo.vp;
-	fmo.fp 			= instrument->fmo.fp;
-	fmo.spectrum	= instrument->fmo.spectrum;
+	Oscgroup.fmo.wp 			= instrument->Oscgroup.fmo.wp;
+	Oscgroup.fmo.vp 			= instrument->Oscgroup.fmo.vp;
+	Oscgroup.fmo.fp 			= instrument->Oscgroup.fmo.fp;
+	Oscgroup.fmo.spectrum	= instrument->Oscgroup.fmo.spectrum;
+
 }
 
 bool Keyboard_class::Decay(  )
 {
-	if( decayCounter > releaseCounter ) decayCounter--;
+	if( decayCounter > releaseCounter )
+		decayCounter--;
 	return ( decayCounter > releaseCounter );
 
 }
 
-bool Keyboard_class::Attack( int key, uint8_t octave, uint8_t amp )
+
+bool Keyboard_class::Attack( int key, uint8_t octave )
 {
-	auto set_osc_frequency 	= [ this, key, octave ]( Oscillator* osc )
+	auto set_kdb_note 	= [ this, key, octave ]( )
 		{
-			float 	freq 	= this->Calc_frequency( oct_base_freq, octave*12 + key );//osc->wp.frequency * ( 12 + key ) / 12.0  ;
-			osc->Set_frequency( freq );
-			osc->OSC( 0 );
+			Note_base::pitch_t pitch = pitch_struct();
+			pitch.octave 	= octave;
+			pitch.step 		= key ;
+			Oscgroup.Set_Osc_Note(pitch, duration, 100 );
 		};
 
 	if (( key == NOKEY ) or ( decayCounter > releaseCounter ))
@@ -77,9 +77,11 @@ bool Keyboard_class::Attack( int key, uint8_t octave, uint8_t amp )
 
 	decayCounter = attackCounter;
 
-	setup();
-	for ( Oscillator* osc : osc_group )
-		set_osc_frequency( osc );
+	set_instrument();
+	set_kdb_note(  );
+	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
+
+	Oscgroup.Run_Oscgroup( 0 );
 
 	return true;
 }
@@ -87,7 +89,7 @@ bool Keyboard_class::Attack( int key, uint8_t octave, uint8_t amp )
 bool Keyboard_class::Release(  )
 {
 	decayCounter = releaseCounter;
-	osc.Mem.Clear_data( 0 );
+	Oscgroup.osc.Mem.Clear_data( 0 );
 	return true;
 }
 

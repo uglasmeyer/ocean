@@ -49,7 +49,7 @@ void SynthesizerTestCases()
 	uint8_t ch;
 	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
-	Oscillator 				TestOsc{ TESTID };
+	Oscillator 				TestOsc{  };
 	TestOsc.Set_Loglevel( TEST, true );
 
 	Log.TEST_START( "Application " );

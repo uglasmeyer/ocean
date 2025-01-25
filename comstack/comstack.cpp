@@ -105,7 +105,7 @@ int main( int argc, char* argv[] )
 			{
 			case 'f' : { sds->OSC_wp.frequency = getvalue( "Frequency" ); sds->KEY = MAINFREQUENCYKEY; break; }
 			case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
-			case 'w' : { sds->MAIN_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
+			case 'w' : { sds->OSC_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;
 			}
 			break;
@@ -143,10 +143,10 @@ int main( int argc, char* argv[] )
 			switch ( keyevent )
 			{
 			case 'g' : { sds->OSC_wp.glide_effect 	= getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
-			case 'a' : { sds->Main_adsr.attack  	= getvalue( "Atack" ); sds->KEY = ADSR_KEY; break; }
-			case 'b' : { sds->Main_adsr.bps  		= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
-			case 'd' : { sds->Main_adsr.decay  		= getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
-			case 'h' : { sds->Main_adsr.hall  		= getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
+			case 'a' : { sds->OSC_adsr.attack  	= getvalue( "Atack" ); sds->KEY = ADSR_KEY; break; }
+			case 'b' : { sds->OSC_adsr.bps  		= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
+			case 'd' : { sds->OSC_adsr.decay  		= getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
+			case 'h' : { sds->OSC_adsr.hall  		= getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
 			default  : break ;
 			}
 			break;

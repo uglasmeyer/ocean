@@ -12,9 +12,8 @@
 #include <Logfacility.h>
 #include <String.h>
 
-
-
-enum {
+enum waveformId_t
+{
 	SINUS0,
 	SINUS1,
 	SGNSIN,
@@ -26,9 +25,10 @@ enum {
 	DELTA,
 	NOISE,
 	RANDOM
-	};
+};
+
 const static size_t spec_dta_len = 8;
-typedef array<int,spec_dta_len> spec_dta_t;
+typedef array<uint8_t,spec_dta_len> spec_dta_t;
 
 
 
@@ -37,22 +37,22 @@ class Spectrum_base : public virtual Logfacility_class
 public:
 
 	const vector<string> osc_type_vec
-		{
+	{
 		"VCO",
 		"FMO",
-		"MAIN",
+		"OSC",
 		"NOTES",
 		"KBD",
 		"Test",
 		"NULL"
-		};
+	};
 
 	typedef struct spec_struct
 	{
 		spec_dta_t				dta	= { 100,0,0,0,0,0,0,0 } ; 	// [osc, amplitude ... ]
 		int						sum = 100; // max of the array content
 		uint8_t	 				id 	= SINUS1; // waveform id
-		uint8_t					osc = INSTRID;
+		uint8_t					osc = osc_struct::OSCID;
 	} spectrum_t;
 
 	const vector<string> waveform_str_vec
@@ -72,11 +72,12 @@ public:
 
 	const spectrum_t			default_spec 	= spec_struct();
 
+
 	Spectrum_base() : Logfacility_class("Spectrum base") {};
 	~Spectrum_base(){};
 
 	spectrum_t 		Parse_data( vector_str_t, char );
-	void 			Set_spectrum( uint8_t, int, int );
+	void 			Set_spectrum( uint8_t, int, uint8_t );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );

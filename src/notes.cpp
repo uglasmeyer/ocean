@@ -20,9 +20,7 @@ Note_class::Note_class( Wavedisplay_class* wd )
   Note_base()
 {
 	this->className = Logfacility_class::module;
-	wd->Add_data_ptr( vco.osc_type, oscgrouo_name, vco.Mem.Data);
-	wd->Add_data_ptr( fmo.osc_type, oscgrouo_name, fmo.Mem.Data);
-	wd->Add_data_ptr( osc.osc_type, oscgrouo_name, osc.Mem.Data);
+	Oscgroup.SetWd(wd);
 }
 
 Note_class::~Note_class( )
@@ -33,26 +31,16 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	Instrument_name = instrument->Name;
 	Comment(TEST, "Update notes instrument:  " + Instrument_name);
 	// copy class Oscillator
-	osc.wp = instrument->osc.wp;
-	osc.vp = instrument->osc.vp;
-	osc.fp = instrument->osc.fp;
-	osc.vp.data = vco.Mem.Data;
-	osc.fp.data = fmo.Mem.Data;
-	osc.adsr = instrument->osc.adsr;
-	osc.adsr.bps = 1;
-	osc.Set_duration( max_milli_sec );
-	osc.Set_adsr( osc.adsr );
-	osc.spectrum = instrument->osc.spectrum;
 
-	vco.wp = instrument->vco.wp;
-	vco.vp = instrument->vco.vp;
-	vco.fp = instrument->vco.fp;
-	vco.spectrum = instrument->vco.spectrum;
+	Oscgroup.osc 	= instrument->Oscgroup.osc;
+	Oscgroup.vco	= instrument->Oscgroup.vco;
+	Oscgroup.fmo 	= instrument->Oscgroup.fmo;
 
-	fmo.wp = instrument->fmo.wp;
-	fmo.vp = instrument->fmo.vp;
-	fmo.fp = instrument->fmo.fp;
-	fmo.spectrum = instrument->fmo.spectrum;
+	Oscgroup.osc.vp.data = Oscgroup.vco.Mem.Data;
+	Oscgroup.osc.fp.data = Oscgroup.fmo.Mem.Data;
+	Oscgroup.osc.adsr.bps = 1;
+	Oscgroup.osc.Set_duration( max_milli_sec );
+	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 
 	return;
 }
@@ -101,51 +89,31 @@ void Note_class::set_volume_vector( string volline )
 void Note_class::note2memory( 	const note_t& note,
 								const buffer_t& offs,
 								const uint& duration,
-								const bool& longnote) // TODO working
+								const bool& longnote
+								)
 {
-	auto run_osc_group = [ this ]( const buffer_t& offs )
-		{
-			for ( Oscillator* osc : this->osc_group )
-				osc->OSC( offs );
-		};
 
-	uint wp_glide_effect = osc.wp.glide_effect;
-	const float vco_wp_frequency = vco.wp.frequency;
-	const float fmo_wp_frequency = fmo.wp.frequency;
+	uint wp_glide_effect = Oscgroup.osc.wp.glide_effect;
+//	const float vco_wp_frequency = vco.wp.frequency;
+//	const float fmo_wp_frequency = fmo.wp.frequency;
 
 	if ( note.glide[0].note )
-		osc.wp.glide_effect = 100;
+		Oscgroup.osc.Set_glide( 100 );
 
-	osc.Set_long( note.longnote or longnote );
-	osc.Gen_adsrdata( ( duration * frames_per_sec ) / 1000 );
+	Oscgroup.osc.Set_long( note.longnote or longnote );
+	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_sec ) / 1000 );
 
 	for ( pitch_t pitch : note.chord )
 	{
 
-		float
-		fnew = CalcFreq( vco_wp_frequency, pitch );
-		vco.Set_start_freq(fnew);
-		vco.wp.frequency 	= fnew;
-		vco.wp.msec 		= duration;
 
-		fnew = CalcFreq( fmo_wp_frequency, pitch );
-		fmo.Set_start_freq(fnew);
-		fmo.wp.frequency	= fnew;
-		fmo.wp.msec 		= duration;
-
-
-		fnew = CalcFreq(  oct_base_freq , pitch );
-		osc.Set_start_freq( fnew);
-		osc.wp.frequency	= fnew;
-		osc.wp.volume 		= note.volume ;
-		osc.wp.msec 		= duration;
-//		cout << fnew << " | " << pitch.freq << " | " << note.duration << endl;
-		run_osc_group( offs );
+		Oscgroup.Set_Osc_Note(pitch, duration, note.volume);
+		Oscgroup.Run_Oscgroup(offs);
 	}
 
-	vco.wp.frequency	= vco_wp_frequency;
-	fmo.wp.frequency	= fmo_wp_frequency;
-	osc.wp.glide_effect= wp_glide_effect;
+//	vco.wp.frequency	= vco_wp_frequency;
+//	fmo.wp.frequency	= fmo_wp_frequency;
+	Oscgroup.osc.Set_glide( wp_glide_effect );
 
 	return ;
 }
@@ -167,7 +135,8 @@ bool Note_class::Generate_note_chunk( )
 		Restart = false;
 	};
 
-	this->osc.Mem.Clear_data( 0 );
+	for( Oscillator* osc : Oscgroup.oscgroup )
+		osc->Mem.Clear_data( 0 );
 
 	restart_note_itr();
 
@@ -476,7 +445,9 @@ void Note_class::Test()
 	note_t note = Start_note_itr();
 	Assert( note.glide[0].chord.step == 9, "expected: "+ to_string(note.glide[0].chord.step) );
 	Assert( note.glide[0].chord.alter == 0, to_string( note.glide[0].chord.alter ) );
-	Assert ( ( Calc_freq( oct_base_freq,  note.glide[0].chord ) - 440 ) < 1E-8 , to_string( Calc_freq( oct_base_freq,  note.glide[0].chord )) );
+	Show_note( note );
+	Assert ( ( 	abs( CalcFreq( oct_base_freq , note.glide[0].chord ) - 880 )) < 1E-8 ,
+				to_string( CalcFreq( oct_base_freq,  note.glide[0].chord )) );
 
 
 	Verify_noteline( Noteline_prefix, "|2A'AA,A,AAA");

@@ -8,11 +8,12 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
+#include <Ocean.h>
 #include <data/Interface.h>
 #include <Spectrum.h>
 #include <Osc.h>
+#include <Oscgroup.h>
 #include <Wavedisplay.h>
-#include <Ocean.h>
 #include <String.h>
 #include <System.h>
 
@@ -23,13 +24,12 @@ class Instrument_class: virtual public Logfacility_class
 public:
 	string 					Name 		= "";
 
-	Oscillator 				osc{ INSTRID};
-	Oscillator 				vco	{ VCOID };
-	Oscillator 				fmo	{ FMOID };
-	vector<Oscillator*>		osc_vector { &vco, &fmo, &osc };
-	constexpr static string oscgrouo_name = wavedisplay_struct().names[INSTRID];
 	interface_t*  			ifd;
-	Wavedisplay_class* 		wd_p;
+	Oscgroup_class			Oscgroup	{ osc_struct::INSTRID };
+	Oscillator*				osc			= &Oscgroup.osc;
+	Oscillator*				vco			= &Oscgroup.vco;
+	Oscillator*				fmo			= &Oscgroup.fmo;
+	Wavedisplay_class*		wd_p;
 
 	const string instr_ext = file_structure().snd_type;
 	Instrument_class( interface_t* ifd , Wavedisplay_class* wd );

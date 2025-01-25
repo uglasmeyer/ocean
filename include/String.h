@@ -22,7 +22,7 @@ const size_t STRINGNOTFOUND = string::npos;
 
 extern int 		char2int( const char& ch );
 extern char 	int2char( const int& i );
-extern set<int> range_set( int min, int max );
+extern set<int> range_set( const int& min, const int& max );
 extern bool 	strEqual( const string& , const string&  );
 extern string 	notnull( char* cstr );
 

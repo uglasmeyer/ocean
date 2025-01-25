@@ -82,9 +82,6 @@ void activate_sds()
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
 	}
 
-	for ( uint id : Mixer.HghIds )
-		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
-
 	for( char key : init_keys )
 		Synthesizer.Controller( key );
 
@@ -93,6 +90,8 @@ void activate_sds()
 	else
 		Synthesizer.Controller( UPDATENOTESKEY );
 
+	for ( uint id : Mixer.HghIds )
+		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 }
 
 bool sync_mode()
@@ -104,11 +103,12 @@ bool sync_mode()
 	bool sync =
 		( 	// if true use max_second time intervall
 //			( sds->StA_state[MbIdExternal].store 		)	or
-			( Mixer.status.play 						)	or	// any StA triggers play if itself is in play mode
-			( ProgressBar.active 						)		// StA record external
+			( Mixer.status.play 						)		// any StA triggers play if itself is in play mode
+//			or ( ProgressBar.active 						)		// StA record external
+
 		);
-	if ( Mixer.status.kbd )
-		sync = false;
+//	if ( Mixer.status.kbd )
+//		sync = false;
 	return sync ;
 }
 
@@ -121,6 +121,7 @@ void add_sound( )
 {
 	if ( Mixer.status.notes )
 	{
+		cout << "notes-";
 		Notes.Set_instrument( &Instrument );
 		Notes.Generate_note_chunk( );
 	}
@@ -128,15 +129,17 @@ void add_sound( )
 	if ( Mixer.status.instrument )
 		Instrument.Run_osc_group(); // generate the modified sound waves
 
+
+
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
-	Mixer.Add_Sound( 	Instrument.osc.Mem.Data,
-						Keyboard.osc.Mem.Data,
-						Notes.osc.Mem.Data,
+	Mixer.Add_Sound( 	Instrument.osc->Mem.Data,
+						Keyboard.osc->Mem.Data,
+						Notes.osc->Mem.Data,
 						shm_addr );
 
 	ProgressBar.Update();
 
-	if ( sds->Wavedisplay_Id != AUDIOOUT )
+	if ( sds->WD_role_Id != osc_struct::AUDIOID )
 		Wavedisplay.Write_wavedata();
 }
 
@@ -152,7 +155,7 @@ void kbd_release( )
 		cout << "RELEASE" << endl;
 		Keyboard.Release();
 
-		add_sound();
+//		add_sound();
 		Mixer.Set_mixer_state( MbIdKeyboard, false );
 		DaTA.Sds_p->addr->UpdateFlag 	= true;
 	}
@@ -161,7 +164,7 @@ void kbd_release( )
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
-	interface_t* 	sds 		= DaTA.GetSdsAddr( );
+//	interface_t* 	sds 		= DaTA.GetSdsAddr( );
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
 
@@ -180,18 +183,14 @@ void ApplicationLoop()
 		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		int note_key = Keyboard.Kbdnote( );
-		if ( Keyboard.Attack( note_key, sds->noteline_prefix.Octave, 100 ) )
+		if ( Keyboard.Attack( 	note_key, sds->noteline_prefix.Octave ) )
 		{
 			cout << "KEY: " << note_key << endl;
 			Keyboard.Set_ch( 0 );
-			Mixer.StA[ MbIdKeyboard ].state.play = true;
+			kbd_release();
+			Mixer.Set_mixer_state( MbIdKeyboard, true );
 			add_sound( );
-			Mixer.status.kbd	= true;
-			sds->UpdateFlag 	= true;
-			sds->MODE 			= KEYBOARD;
-			while ( sds->MODE 	== KEYBOARD )
-			    this_thread::sleep_for(chrono::nanoseconds(10));
-//				Wait( 10 );
+
 		}
 
 		Mixer.Volume_control(  );
@@ -264,19 +263,20 @@ void stop_threads()
 	SyncThread_done	= true;
 	Sem->Release(Sync_Semaphore);
 	Log.Comment(INFO, "attempting to join sync thread ");
-	if ( Sync_thread.joinable() )
-		Sync_thread.join();
+		if ( Sync_thread.joinable() )
+			Sync_thread.join();
 
 	NotesThread_done	= true;
-	Sem->Release(SEMAPHORE_NOTES );
+	Sem->Reset(SEMAPHORE_NOTES );
 	Log.Comment(INFO, "attempting to join notes thread ");
-	if ( Notes_thread.joinable() )
-		Notes_thread.join();
+		if ( Notes_thread.joinable() )
+			Notes_thread.join();
 
 }
 int sig_counter = 0;
 void exit_proc( int signal )
 {
+	Log.Comment(INFO, "Entering exit procedure for " + Application );
 	if ( sig_counter > 0 )
 	{
 		Log.Comment( ERROR, "Exit procedure failed" );
@@ -290,14 +290,6 @@ void exit_proc( int signal )
 		Log.Comment( ERROR, text );
 	else
 		Log.Comment(INFO, text );
-	if ( signal == EXITTEST )
-	{
-		Log.Comment(TEST, "Entering test cases exit procedure for application" + Application );
-	}
-	else
-	{
-		Log.Comment(INFO, "Entering exit procedure for " + Application );
-	}
 
 	stop_threads();
 
@@ -316,17 +308,16 @@ int main( int argc, char* argv[] )
 
 	if ( Cfg->Config.test == 'y' )
 	{
-
-
 		Sem->Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
-		exit_proc( EXITTEST );
+		exit( 0 );
 	}
 
 	DaTA.Sds_p->Restore_ifd();
 	activate_sds();
 
-	Wavedisplay.SetDataPtr( DaTA.Sds_p->addr->Wavedisplay_Id, DaTA.Sds_p->addr->WD_group_ID );
+	Wavedisplay.SetDataPtr( DaTA.Sds_p->addr->WD_role_Id,
+							DaTA.Sds_p->addr->WD_osc_ID );
 
 	show_usage();
 	show_AudioServer_Status();

@@ -134,8 +134,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		Out_R.Info		( "Output Stereo Right");
 	}
 
-	string wd_name = wavedisplay_struct().names[ EXTERNALIN ];
-	wd->Add_data_ptr( wd_name, StA[ MbIdExternal].Data );
+	wd->Add_role_ptr( osc_struct::EXTID, StA[ MbIdExternal].Data );
 };
 
 Mixer_class::~Mixer_class()
@@ -244,7 +243,7 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 	{
 		cout << dec << composer << " " << arr_id << endl;
 		Notes->Generate_note_chunk( );
-		StA[ arr_id ].Store_block( Notes->osc.Mem.Data );
+		StA[ arr_id ].Store_block( Notes->Oscgroup.osc.Mem.Data );
 		composer--;
 	}
 	StA[ arr_id ].Record_mode( false );
@@ -317,7 +316,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 	// push sound to audio server
 	stereo_out( shm_addr, master_volume );
-	status.play = false;
+//	status.play = false; TODO verify comment
 };
 
 void Mixer_class::Test()

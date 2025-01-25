@@ -10,7 +10,6 @@
 
 #include <data/Memory.h>
 #include <Spectrum.h>
-
 #include <Oscbase.h>
 #include <Ocean.h>
 #include <System.h>
@@ -18,7 +17,8 @@
 using namespace std;
 
 
-class Oscillator : virtual public Logfacility_class, virtual public Oscillator_base
+class Oscillator : 	virtual public Logfacility_class,
+					virtual public Oscillator_base
 {
 	string className = "";
 public:
@@ -28,10 +28,18 @@ public:
 	Memory 			Mem		{ monobuffer_size };
 
 
-	Oscillator( uint8_t id );
+	Oscillator(  );
 	virtual ~Oscillator();
 
+	void operator=(const Oscillator& osc)
+    {
+        this->wp 		= osc.wp;
+        this->adsr		= osc.adsr;
+        this->spectrum	= osc.spectrum;
+    }
+
 	void OSC ( const buffer_t& frame_offset );
+	void SetId( char role, char type );
 	void Set_start_freq( float freq );
 	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
 	void Connect_fmo_data( Oscillator* );
@@ -47,12 +55,11 @@ private:
 	buffer_t 		beat_cursor = 0;
 
 	void 	apply_hall( buffer_t, Data_t* );
-	void 	apply_adsr( buffer_t frames, Data_t* data, buffer_t offs );
+	void 	apply_adsr( buffer_t frames, Data_t* data );
 	double 	get_delta_freq( float freq );
 	void 	set_phi( double , double );
 	double 	get_phi( );
 	void 	mem_init();
-	bool 	is_main_id( int id );
 };
 
 

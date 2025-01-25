@@ -12,6 +12,10 @@
 #define MIXERBASE_H_
 
 static const uint 	MbSize 			= 8;
+static const uint 	MbIdExternal 	= MbSize - 1;
+static const uint 	MbIdNotes 		= MbSize - 2;
+static const uint 	MbIdKeyboard 	= MbSize - 3;
+static const uint   MbIdInstrument	= MbSize - 4;
 
 class Mixer_base
 {

@@ -29,25 +29,25 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     connect( ui->pB_save_spectrum, SIGNAL(clicked()), this, SLOT(save( )));
 
-    this->GUI   		    = gui;
-    ifd 					= GUI->addr;
+    this->Sds   		    = gui;
+    ifd 					= Sds->addr;
     ifd_spectrum_vec 		= { &ifd->VCO_spectrum,
 								&ifd->FMO_spectrum,
-								&ifd->MAIN_spectrum};
+								&ifd->OSC_spectrum};
 
 
-    this->instrument   		= this->GUI->Read_str( INSTRUMENTSTR_KEY );
-    size_t wfid            	= this->ifd->MAIN_spectrum.id;
+    this->instrument   		= this->Sds->Read_str( INSTRUMENTSTR_KEY );
+    size_t wfid            	= this->ifd->OSC_spectrum.id;
     assert( ( wfid >= 0 ) and ( wfid < Spectrum.Get_waveform_vec().size() ) );
-    this->spectrum 			= ifd->MAIN_spectrum;
+    this->spectrum 			= ifd->OSC_spectrum;
 
     setup_Widgets(  this->spectrum );
     switch ( ifd->Spectrum_type )
     {
-		case INSTRID : ui->rb_spec_main->click(); 	break;
-		case VCOID  : ui->rb_spec_vco->click(); 	break;
-		case FMOID  : ui->rb_spec_fmo->click(); 	break;
-		default 	: 								break;
+		case osc_struct::OSCID	: ui->rb_spec_main->click(); 	break;
+		case osc_struct::VCOID  : ui->rb_spec_vco->click(); 	break;
+		case osc_struct::FMOID  : ui->rb_spec_fmo->click(); 	break;
+		default 				: 								break;
 	}
 
     connect(status_timer, &QTimer::timeout, this, &Spectrum_Dialog_class::Update_spectrum);
@@ -69,21 +69,21 @@ auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spectrum_t& spec
 
 void Spectrum_Dialog_class::select_spec_fmo()
 {
-	select_spec( this, ifd->FMO_spectrum, FMOID );
+	select_spec( this, ifd->FMO_spectrum, osc_struct::FMOID );
 }
 void Spectrum_Dialog_class::select_spec_vco()
 {
-	select_spec( this, ifd->VCO_spectrum, VCOID );
+	select_spec( this, ifd->VCO_spectrum, osc_struct::VCOID );
 }
 void Spectrum_Dialog_class::select_spec_main()
 {
-	select_spec( this, ifd->MAIN_spectrum, INSTRID );
+	select_spec( this, ifd->OSC_spectrum, osc_struct::INSTRID );
 }
 
 void Spectrum_Dialog_class::Update_spectrum()
 {
 
-    string  newinstrument      = this->GUI->Read_str( INSTRUMENTSTR_KEY );
+    string  newinstrument      = this->Sds->Read_str( INSTRUMENTSTR_KEY );
 
     if ( newinstrument.compare( instrument ) != 0 )
     {
@@ -98,7 +98,7 @@ auto spec_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 {
     char id = C.ifd->Spectrum_type;
 	C.spectrum = *C.ifd_spectrum_vec[ id ];
-	C.spectrum.dta[ channel ] = value;
+	C.spectrum.dta[ channel ] = (uint8_t)  value;
     C.Spectrum_base::Sum( C.spectrum );
     *C.ifd_spectrum_vec[ id ] = C.spectrum;  // the active GUI spectrum is updated
     C.ifd->KEY = UPDATESPECTRUM_KEY;	// the synthesizer is notified

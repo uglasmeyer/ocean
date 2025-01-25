@@ -283,6 +283,7 @@ public:
         Slider_FMO_vol = new QSlider(centralwidget);
         Slider_FMO_vol->setObjectName(QString::fromUtf8("Slider_FMO_vol"));
         Slider_FMO_vol->setGeometry(QRect(290, 380, 16, 160));
+        Slider_FMO_vol->setMaximum(100);
         Slider_FMO_vol->setOrientation(Qt::Vertical);
         lcdNumber_3 = new QLCDNumber(centralwidget);
         lcdNumber_3->setObjectName(QString::fromUtf8("lcdNumber_3"));

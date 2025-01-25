@@ -19,7 +19,7 @@
 using namespace std;
 
 #define MAYOR 3
-#define MINOR 1
+#define MINOR 2
 #define PATCH 0
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -32,6 +32,10 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
+ *
+ *
+
+version 3.2.0 introduction of oscgroup
 version 3.1.0 variable audioframes
 version 3.0.5 notes test, audioout, adsr optimization + fixes
 version 3.0.4 OceanGUI core dump

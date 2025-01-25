@@ -126,56 +126,52 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 void Wavedisplay_class::Write_wavedata()
 {
 	wd_arr_t display_data = gen_cxwave_data(  );
-	Sds_p->Write_arr( display_data );
+	if (( not debug_switch ) and ( Type == DEBUGID ))
+		Sds_p->Write_arr( display_data );
+	if ( not ( Type == DEBUGID ))
+		Sds_p->Write_arr( display_data );
 }
 
-void Wavedisplay_class::SetDataPtr( size_t wd_id, size_t osc_id )
+void Wavedisplay_class::SetDataPtr		( const char& osctype, const char& wd_role  )
 {
 
-	data_ptr = data_ptr_arr[wd_id][osc_id];
+	data_ptr = data_ptr_arr[wd_role][osctype];
 	if ( data_ptr == nullptr )
-		Comment( WARN, "Cannot set Wavedisplay ptr to null");
+		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(wd_role) + "]" +
+														  "[" + to_string(osctype) + "]");
 	else
 		Comment( INFO, "wave display selected: "+
-						wavedisplay_struct().names[ wd_id ] + " " +
-						wavedisplay_struct().oscs[osc_id]);
+						osc_struct().roles[ wd_role ] + " " +
+						osc_struct().types[ osctype ] );
 }
 
-void Wavedisplay_class::Set_type( int type )
+void Wavedisplay_class::Set_type		( const char& wd_type )
 {
-	Type 			= type;
+	Type 			= wd_type;
 	debug_switch	= false;
 }
 
-void Wavedisplay_class::Add_data_ptr( const string& wd_name, Data_t* ptr )
+void Wavedisplay_class::Add_role_ptr	( const char& wd_role, Data_t* ptr )
 {
-	for( string osc_name : wavedisplay_struct().oscs )
+	for( char osctype : { osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID } )
 	{
-		Add_data_ptr(osc_name, wd_name, ptr );
+		Add_data_ptr( osctype, wd_role, ptr );
 	}
 }
-void Wavedisplay_class::Add_data_ptr( const string& osc_name, const string& wd_name, Data_t* ptr )
+void Wavedisplay_class::Add_data_ptr	( const char& osctype, const char& wd_role, Data_t* ptr )
 {
-	auto get_index = [ this ]( const string& name, vector<string> str_vec )
-	{
-		int idx = 0;
-		for( string v : str_vec )
-		{
-			if ( strEqual(v, name ) ) return idx;
-			idx++;
-		}
-		return -1;
-	};
-
+	set<int> osctype_set = range_set(0, 2);
 	if ( ptr == nullptr )
 	{
 		Exception("Undefined Wavedisplay with index " + to_string( wdId) );
 	}
-	int wd_idx = get_index( wd_name, wavedisplay_struct().names);
-	int wd_osc = get_index( osc_name, wavedisplay_struct().oscs );
-	data_ptr_arr[ wd_idx ][wd_osc ] = ptr;
+	if ( not osctype_set.contains( osctype ) )
+		Exception( "osctype out of bounds" );
+	data_ptr_arr[ wd_role ][osctype ] = ptr;
 
-	Comment( INFO, "adding wave display: " + to_string( wd_idx ) + " " + osc_name +  " - " + wd_name );
+	Comment( INFO, "adding wave display: " + to_string( wd_role ) 	+ " " +
+					osc_struct().roles[wd_role]						+  " - " +
+					osc_struct().types[osctype] );
 
 }
 

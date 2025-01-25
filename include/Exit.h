@@ -16,8 +16,8 @@ extern void exit_proc( int );
 class Exit_class :
 	public virtual Logfacility_class
 {
-	const vector<uint> 	signal_vec = {  SIGINT,   SIGHUP,   SIGABRT };
-	const vector<string>signal_str = { "SIGINT", "SIGHUP", "SIGABRT" };
+	const vector<uint> 	signal_vec = {  SIGINT,   SIGHUP,   SIGABRT, SIGTERM };
+	const vector<string>signal_str = { "SIGINT", "SIGHUP", "SIGABRT", "SIGTERM"};
 	string className = "";
 public:
 

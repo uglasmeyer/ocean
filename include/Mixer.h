@@ -46,10 +46,7 @@ public:
 
 };
 
-static const uint 	MbIdExternal 	= MbSize - 1;
-static const uint 	MbIdNotes 		= MbSize - 2;
-static const uint 	MbIdKeyboard 	= MbSize - 3;
-static const uint   MbIdInstrument	= MbSize - 4;
+
 
 class Mixer_class :
 	virtual public Logfacility_class,
@@ -62,7 +59,7 @@ public:
 	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
 	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5, 6 };
-	const vector<uint>	SycIds		= {0, 1, 2, 3, 6, 7 };
+	const vector<uint>	SycIds		= {0, 1, 2, 3, 6 };
 	const vector<uint>	HghIds		= {4, 5, 6, 7 };
 
 

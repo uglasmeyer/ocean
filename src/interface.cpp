@@ -131,13 +131,13 @@ void Interface_class::Show_interface()
 	rline( "(A)DSR (G)lide freq:" , (int)addr->OSC_wp.glide_effect);
 
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
-	rline( "(A)DSR (A)ttack:   " , (int)addr->Main_adsr.attack );
+	rline( "(A)DSR (A)ttack:   " , (int)addr->OSC_adsr.attack );
 
 	lline( "                   " , 0 );
-	rline( "(A)DSR (B)eats Id  " , (int)addr->Main_adsr.bps) ;
+	rline( "(A)DSR (B)eats Id  " , (int)addr->OSC_adsr.bps) ;
 
-	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->MAIN_spectrum.id ]);
-	rline( "(A)DSR (D)ecay:    " , (int)addr->Main_adsr.decay );
+	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->OSC_spectrum.id ]);
+	rline( "(A)DSR (D)ecay:    " , (int)addr->OSC_adsr.decay );
 
 	lline( "(F)MO  (F)requency:" , addr->FMO_wp.frequency);
 	rline( "(V)CO  (F)requency:" , addr->VCO_wp.frequency);
@@ -151,7 +151,7 @@ void Interface_class::Show_interface()
 	lline( "", "" );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
-	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->MAIN_spectrum ));
+	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->OSC_spectrum ));
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->VCO_spectrum ));
 	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->FMO_spectrum ));
 

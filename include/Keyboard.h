@@ -15,9 +15,11 @@
 #include <Kbd.h>
 #include <notes/Notesbase.h>
 #include <Ocean.h>
+#include <Oscgroup.h>
+#include <Mixerbase.h>
+
 
 class Keyboard_class :	virtual  Logfacility_class,
-						virtual  Oscillator_base,
 						virtual  Note_base,
 						virtual  public Keyboard_base
 {
@@ -25,13 +27,12 @@ class Keyboard_class :	virtual  Logfacility_class,
 public:
 
 	const String		KbdNote		{ "SDRFTGHUJIKOL" };
-	Oscillator 			osc			{ KBDID };
-	Oscillator 			vco			{ VCOID };
-	Oscillator 			fmo			{ FMOID };
 
-	vector<Oscillator*> osc_group { &vco, &fmo, &osc };
-	constexpr static  string
-						oscgrouo_name = wavedisplay_struct().names[KBDID];
+	Oscgroup_class		Oscgroup	{ osc_struct::KBDID };
+	Oscillator*			osc			= &Oscgroup.osc;
+	Oscillator*			vco			= &Oscgroup.vco;
+	Oscillator*			fmo			= &Oscgroup.fmo;
+
 
 	Instrument_class* 	instrument	= nullptr;
 	key_struct_t		keystruct 	= key_struct();
@@ -42,17 +43,19 @@ public:
 	Keyboard_class(); // see comstack
 	virtual ~Keyboard_class();
 
-	bool Attack( int, uint8_t, uint8_t );
+	bool Attack( int, uint8_t );
 	bool Release(  );
 	bool Decay(  );
 	int	 Kbdnote( );
 
+
 private:
 	const int 	releaseCounter	= 0;
-	const int 	attackCounter 	= 7; // TODO depends on the performance
+	const int 	attackCounter 	= 2; // TODO depends on the performance
 	int 		decayCounter 	= 0;
-
-	void setup(  );
+	char		volume			= 0;
+	uint		duration		= 250; // [millisec]
+	void 		set_instrument( );
 
 };
 

@@ -20,10 +20,10 @@ public:
 	Wavedisplay_class( Interface_class* sds );
 	virtual ~Wavedisplay_class(){};
 
-	void Add_data_ptr( const string& wd_name, Data_t* ptr );
-	void Add_data_ptr	( const string& osc_name, const string& wd_name, Data_t* );
-	void SetDataPtr		( size_t wd_id, size_t osc_id  );
-	void Set_type		( int wd_type );
+	void Add_role_ptr	( const char& wd_role, Data_t* ptr );
+	void Add_data_ptr	( const char& osctype, const char& wd_role, Data_t* ptr );
+	void SetDataPtr		( const char& osctype, const char& wd_role  );
+	void Set_type		( const char& wd_type );
 	void Write_wavedata ( );
 
 private:
@@ -35,7 +35,7 @@ private:
 	size_t			osId			= 0;
 	int 			Type			= FULLID;
 	array< array< Data_t* , WD_OSC_SIZE>,  WD_DISPLAY_SIZE >
-					data_ptr_arr	{ nullptr };
+					data_ptr_arr ;
 	Data_t*			data_ptr 		= nullptr;
 
 	bool			debug_switch	= true;

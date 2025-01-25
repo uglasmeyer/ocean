@@ -31,7 +31,7 @@ Processor_class( data->Sds_p )
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 	= &ifd->MAIN_spectrum.id;
+	main_view.wf 	= &ifd->OSC_spectrum.id;
 	main_view.amp 	= &ifd->StA_amp_arr[MbIdInstrument];
 	main_view.freq 	= &ifd->OSC_wp.frequency;
 
@@ -760,7 +760,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 			Exception( "wrong beat duration" );
 		}
 
-		Processor_class::Push_ifd( &ifd->Main_adsr.bps, bps, "beat duration" );
+		Processor_class::Push_ifd( &ifd->OSC_adsr.bps, bps, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
 		return;
 	}
@@ -768,7 +768,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		int attack = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Main_adsr.attack, attack, "adsr attack" );
+		Processor_class::Push_ifd( &ifd->OSC_adsr.attack, attack, "adsr attack" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr attack" );
 		return;
 	}
@@ -776,7 +776,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
 		uint8_t decay = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Main_adsr.decay, decay, "adsr decay" );
+		Processor_class::Push_ifd( &ifd->OSC_adsr.decay, decay, "adsr decay" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr decay" );
 		return;
 	}
@@ -784,7 +784,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		int hall = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->Main_adsr.hall, hall, "hall"  );
+		Processor_class::Push_ifd( &ifd->OSC_adsr.hall, hall, "hall"  );
 		Processor_class::Push_key( ADSR_KEY,  "set hall" );
 		return;
 	}

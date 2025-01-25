@@ -36,11 +36,16 @@ void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
 			adsrdata.push_back( exp( -alpha ) );
 		}
 	}
+
+
 }
 void Oscillator_base::Set_adsr( adsr_t _adsr )
 {
 	this->adsr = _adsr;
-	Gen_adsrdata( frames_per_sec / adsr.bps );
+	if ( adsr.bps != 0 )
+	{
+		Gen_adsrdata( frames_per_sec / adsr.bps );
+	}
 }
 
 void Oscillator_base::Set_duration( uint16_t msec )
@@ -70,7 +75,6 @@ void Oscillator_base::Set_pmw( uint8_t pmw )
 void Oscillator_base::Set_glide( uint8_t value )
 {
 	wp.glide_effect = value;
-
 }
 
 void Oscillator_base::Set_waveform( char id )
@@ -156,7 +160,7 @@ void Oscillator_base::Set_csv_comment ()
 	if ( osc_type.length() == 0 )
 	{
 		osc_type = "unknown";
-		osc_id = OTHERID;
+		osctype_id = -1;
 	}
 
 	csv_comment = "";

@@ -75,7 +75,6 @@ enum {
 
 	// Wavedisplay
 	WAVEDISPLAYTYPEKEY,
-	WAVEDISPLAYGROUP_KEY,
 	SETWAVEDISPLAYKEY,
 
 	// External

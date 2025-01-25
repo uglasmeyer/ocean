@@ -37,8 +37,9 @@ void* Memory_base::Init_void()
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS,
 				0, 0);
-	ds.name			= Logfacility_class::module;
+	ds.name			= Logfacility_class::module + " allocated";
 	ds.mem_bytes	= ds.size;
+
 	return ds.addr;
 }
 void Memory_base::Info()

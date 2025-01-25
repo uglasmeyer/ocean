@@ -16,6 +16,7 @@
 #include <Osc.h>
 #include <Ocean.h>
 #include <System.h>
+#include <Oscgroup.h>
 
 using namespace std;
 
@@ -36,13 +37,10 @@ public:
 	} musicxml_t;
 	musicxml_t		musicxml	= musicxml_struct();
 
-	Oscillator	 	osc			{ NOTESID };
-	Oscillator	 	vco			{ VCOID };
-	Oscillator	 	fmo			{ FMOID };
-
-	vector<Oscillator*>
-					osc_group { &vco, &fmo, &osc };
-	constexpr static string 	oscgrouo_name = wavedisplay_struct().names[NOTESID];
+	Oscgroup_class	Oscgroup	{ osc_struct::NOTESID };
+	Oscillator*		osc			= &Oscgroup.osc;
+	Oscillator*		vco			= &Oscgroup.vco;
+	Oscillator*		fmo			= &Oscgroup.fmo;
 
 
 	string			Instrument_name { "" };

@@ -50,7 +50,7 @@ Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char osci
 }
 
 
-void Spectrum_base::Set_spectrum( uint8_t id, int channel, int value )
+void Spectrum_base::Set_spectrum( uint8_t id, int channel, uint8_t value )
 {
 	spectrum.id = id;
 	spectrum.dta[channel ] = value;
@@ -64,6 +64,7 @@ vector<string> Spectrum_base::Get_waveform_vec()
 
 int Spectrum_base::Get_waveform_id( string wstr )
 {
+
 	int id = 0;
 	for ( string wf : waveform_str_vec)
 	{
@@ -76,7 +77,8 @@ int Spectrum_base::Get_waveform_id( string wstr )
 
 string Spectrum_base::Get_waveform_str( uint id )
 {
-	if (( id >= 0 ) and ( id < waveform_str_vec.size() ))
+	set<int> wfid_set = range_set(0,waveform_str_vec.size());
+	if ( wfid_set.contains( id ) )
 	{
 		return waveform_str_vec[ id ];
 	}
@@ -112,8 +114,8 @@ void Spectrum_base::Sum( spectrum_t& spec )
 		sum = sum + spec.dta[i];
 	if ( sum == 0 )
 	{
-		sum = 1;
-		spec.dta[0] = 1;
+		sum = 100;
+		spec.dta[0] = 100;
 	}
 	spec.sum = sum;
 }

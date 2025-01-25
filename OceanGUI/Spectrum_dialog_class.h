@@ -25,7 +25,7 @@ public:
     Spectrum_base Spectrum{};
     spectrum_t spectrum;
 
-    Interface_class* GUI;
+    Interface_class* Sds;
     interface_t* ifd;
     vector<Spectrum_base::spectrum_t*> ifd_spectrum_vec;
 

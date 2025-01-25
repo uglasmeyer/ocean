@@ -86,8 +86,29 @@ const float			oct_base_freq 		= 27.5/2.0;
 const float			LFO_limit			= 1.0;
 const uint8_t		LFO_count			= 100;
 
-enum { VCOID, FMOID, INSTRID, NOTESID, KBDID, TESTID, OTHERID };
+typedef struct osc_struct
+{
+	const vector<string> roles =
+	{
+		"Instrument",
+		"Notes",
+		"Keyboard",
+		"External",
+		"Audio"
+	};
+	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOID };
+
+	const vector<string> types =
+	{
+		"VCO",
+		"FMO",
+		"OSC",
+		"TEST",
+		"NULL"
+	};
+	enum { VCOID, FMOID, OSCID, TESTID, OTHERID };
 
 
+} osc_roles_t;
 
 #endif /* OCEAN_H */

@@ -16,6 +16,7 @@ Logfacility_class("NotesBase")
 		float x = pow(2.0, (n+3)/12.0) ; // 3 considers A0 = 55/4
 		root2.push_back( x );
 	}
+	className = Logfacility_class::module;
 };
 
 Note_base::~Note_base()
@@ -31,25 +32,12 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 		step 	+= 12;
 		oct 	-=  1;
 	}
-	uint8_t	octave	= abs( oct  + octave_shift );
-	int		key 	= octave *12 + step;
-	return 	Calc_frequency( base, key );
+	uint8_t	octave	= abs( oct );// + octave_shift );
+	int		key 	= octave*12 + step;
+	return 	calc_frequency( base, key );
 };
 
-
-float Note_base::Calc_freq ( uint8_t oct, pitch_t nvs )
-{
-	int key = nvs.step + nvs.alter;
-	if ( key < 0 )
-	{
-		key += 12;
-		oct -=  1;
-	}
-	uint8_t	octave	= abs( oct  + octave_shift );
-	return 	Calc_frequency( oct_base_freq, octave * 12 + key );
-};
-
-float Note_base::Calc_frequency( const float& base, const int& key )
+float Note_base::calc_frequency( const float& base, const int& key )
 {
 	Assert( not( key < 0 ), "key" + to_string(key) );
 	if ( abs( key ) > root2_limit )
@@ -73,9 +61,6 @@ float Note_base::Octave_freq( uint8_t oct )
 	uint oct2 = (uint) oct_base_freq * 2;
 	return oct2 << ( oct - 1 );
 }
-
-
-
 
 void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )
 {
@@ -118,8 +103,8 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 					" to noteline_structure" );//raise( SIGINT );
 		};
 
-	String S = str;
 	noteline_prefix_t nlp;
+	String S = str;
 	vector_str_t arr = S.to_unique_array(',');
 
 	if ( arr.size() < 5 )

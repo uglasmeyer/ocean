@@ -35,9 +35,9 @@ char int2char( const int& i )
 	return (char)( i + 48 );
 }
 
-set<int> range_set( int min, int max )
+set<int> range_set( const int& min, const int& max )
 {
-	set<int> intset{};
+	set<int> intset {};
 	if ( min > max ) return intset;
 	for ( int n = min; n < max + 1; n++ )
 	{
@@ -356,6 +356,10 @@ void String::TestString()
 
 	String Z { "abcdef" };
 	assert( Z.Set.contains('f'));
+
+	set<int> numbers = range_set(0,10);
+	Assert( numbers.contains( 5 ), "expected 5" );
+	Assert( not numbers.contains( -3 ), "expected -3" );
 
 	TEST_END( "String" );
 

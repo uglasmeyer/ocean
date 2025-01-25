@@ -20,20 +20,6 @@ enum
 
 typedef struct wavedisplay_struct
 {
-	const vector<string> names =
-	{
-		"Audio Out",
-		"External IN",
-		"Instrument",
-		"Notes",
-		"Keyboard"
-	};
-	const vector<string> oscs =
-	{
-		"VCO",
-		"FMO",
-		"OSC"
-	};
 	const vector<string> types =
 	{
 		"Full",
@@ -42,15 +28,10 @@ typedef struct wavedisplay_struct
 	};
 } wavedisplay_t;
 
-const size_t WD_OSC_SIZE = 3;
-const size_t WD_DISPLAY_SIZE = 5;;
-const size_t WD_DEBUG_SIZE = 3;;
+const size_t WD_OSC_SIZE 		= 3;//wavedisplay_struct().oscs.size();
+const size_t WD_DISPLAY_SIZE 	= osc_struct().roles.size();
+const size_t WD_DEBUG_SIZE 		= wavedisplay_struct().types.size();
 
-enum
-{
-	AUDIOOUT,
-	EXTERNALIN
-};
 
 
 const size_t wavedisplay_len		= 512;

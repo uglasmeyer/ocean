@@ -45,24 +45,24 @@ void Core_class::Controller(char key)
 	case MAINFREQUENCYKEY:
 	{
 		Info("Frequency set to " + to_string(sds->OSC_wp.frequency));
-		Instrument->osc.Set_frequency(sds->OSC_wp.frequency);
-		Notes->osc.Set_frequency(sds->OSC_wp.frequency);
+		Instrument->osc->Set_frequency(sds->OSC_wp.frequency);
+		Notes->osc->Set_frequency(sds->OSC_wp.frequency);
 		Sds->Commit();
 		break;
 	}
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
-		Instrument->vco.Set_frequency(sds->VCO_wp.frequency);
-		Notes->vco.Set_frequency(sds->VCO_wp.frequency);
-		Instrument->osc.Connect_vco_data(&Instrument->vco);
+		Instrument->vco->Set_frequency(sds->VCO_wp.frequency);
+		Notes->vco->Set_frequency(sds->VCO_wp.frequency);
+		Instrument->osc->Connect_vco_data(Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case FMOFREQUENCYKEY: // modify the fm_track data
 	{
-		Instrument->fmo.Set_frequency(sds->FMO_wp.frequency);
-		Notes->fmo.Set_frequency(sds->FMO_wp.frequency);
-		Instrument->osc.Connect_fmo_data(&Instrument->fmo);
+		Instrument->fmo->Set_frequency(sds->FMO_wp.frequency);
+		Notes->fmo->Set_frequency(sds->FMO_wp.frequency);
+		Instrument->osc->Connect_fmo_data(Instrument->fmo);
 		Sds->Commit();
 		break;
 	}
@@ -70,19 +70,18 @@ void Core_class::Controller(char key)
 	{
 		Value vol = sds->VCO_wp.volume;
 		Comment(INFO, "Changing VCO volume to " + vol.str + " %");
-		Instrument->vco.Set_volume(vol.ch);
-		Notes->vco.Set_volume(vol.ch);
-		Instrument->osc.Connect_vco_data(&Instrument->vco);
+		Instrument->vco->Set_volume(vol.ch);
+		Notes->vco->Set_volume(vol.ch);
+		Instrument->osc->Connect_vco_data(Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case FMOAMPKEY: // modify the FMO volume
 	{
 		Value vol = sds->FMO_wp.volume;
-		Instrument->fmo.Set_volume(vol.ch);
-		Notes->fmo.Set_volume(vol.ch);
-		Instrument->osc.Connect_fmo_data(&Instrument->fmo);
-		Notes->fmo.Set_volume(vol.ch);
+		Instrument->fmo->Set_volume(vol.ch);
+		Notes->fmo->Set_volume(vol.ch);
+		Instrument->osc->Connect_fmo_data(Instrument->fmo);
 		Sds->Commit();
 		break;
 	}
@@ -112,26 +111,21 @@ void Core_class::Controller(char key)
 	}
 	case ADSR_KEY:
 	{
-		Instrument->osc.Set_adsr(sds->Main_adsr);
+		Instrument->osc->Set_adsr(sds->OSC_adsr);
 		Sds->Commit();
 		break;
 	}
 	case PMWDIALKEY:
 	{
-		Instrument->osc.Set_pmw(sds->VCO_wp.PMW_dial);
-		Instrument->vco.Set_pmw(sds->VCO_wp.PMW_dial);
-		Instrument->fmo.Set_pmw(sds->VCO_wp.PMW_dial);
+		Instrument->osc->Set_pmw(sds->VCO_wp.PMW_dial);
+		Instrument->vco->Set_pmw(sds->VCO_wp.PMW_dial);
+		Instrument->fmo->Set_pmw(sds->VCO_wp.PMW_dial);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEDISPLAYKEY:
 	{
-		Wavedisplay->SetDataPtr(sds->Wavedisplay_Id, sds->WD_group_ID );
-		Sds->Commit();
-		break;
-	}case WAVEDISPLAYGROUP_KEY :
-	{
-		Wavedisplay->SetDataPtr(sds->Wavedisplay_Id, sds->WD_group_ID );
+		Wavedisplay->SetDataPtr(sds->WD_osc_ID, sds->WD_role_Id );
 		Sds->Commit();
 		break;
 	}
@@ -143,7 +137,7 @@ void Core_class::Controller(char key)
 	}
 	case SOFTFREQUENCYKEY:
 	{
-		Instrument->osc.Set_glide(sds->OSC_wp.glide_effect);
+		Instrument->osc->Set_glide(sds->OSC_wp.glide_effect);
 		Sds->Commit();
 		break;
 	}
@@ -286,9 +280,9 @@ void Core_class::Controller(char key)
 	}
 	case RESETMAINKEY: // reset main
 	{
-		Instrument->osc.Mem_vco.Clear_data(max_data_amp);
-		Instrument->osc.Mem_fmo.Clear_data(0);
-		Instrument->osc.Reset_data(&Instrument->osc);
+		Instrument->osc->Mem_vco.Clear_data(max_data_amp);
+		Instrument->osc->Mem_fmo.Clear_data(0);
+		Instrument->osc->Reset_data(Instrument->osc);
 		Sds->Commit();
 		break;
 	}
@@ -375,7 +369,6 @@ void Core_class::Controller(char key)
 		noteline_prefix_t nlp = sds->noteline_prefix;
 		Comment(INFO, "receive command <update notesline prefix");
 		Notes->Set_noteline_prefix(nlp);
-//		Notes->Verify_noteline( nlp, Notes->Get_note_line());
 		Notes->Restart = true;
 		Sds->Commit();
 		break;
@@ -391,42 +384,42 @@ void Core_class::Controller(char key)
 	}
 	case CONNECTFMOVCOKEY: // connect FMO volume with vco data
 	{
-		Instrument->fmo.Connect_fmo_data(&Instrument->vco);
-		Instrument->osc.Connect_fmo_data(&Instrument->fmo);
+		Instrument->fmo->Connect_fmo_data(Instrument->vco);
+		Instrument->osc->Connect_fmo_data(Instrument->fmo);
 		Sds->Commit();
 		break;
 	}
 	case RESETVCOKEY: // reset VCO
 	{
-		Instrument->vco.Reset_data(&Instrument->vco);
+		Instrument->vco->Reset_data(Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case RESETFMOKEY: // reset FMO
 	{
-		Instrument->fmo.Reset_data(&Instrument->fmo);
+		Instrument->fmo->Reset_data(Instrument->fmo);
 		Sds->Commit();
 		break;
 	}
 	case CONNECTVCOFMOKEY: //connect VCO frequency with FMO data
 	{
-		Instrument->vco.Connect_vco_data(&Instrument->fmo);
-		Instrument->osc.Connect_vco_data(&Instrument->vco);
+		Instrument->vco->Connect_vco_data(Instrument->fmo);
+		Instrument->osc->Connect_vco_data(Instrument->vco);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMFMOKEY: {
-		Instrument->fmo.Set_waveform( sds->FMO_spectrum.id);
+		Instrument->fmo->Set_waveform( sds->FMO_spectrum.id);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMVCOKEY: {
-		Instrument->vco.Set_waveform( sds->VCO_spectrum.id);
+		Instrument->vco->Set_waveform( sds->VCO_spectrum.id);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMMAINKEY: {
-		Instrument->osc.Set_waveform( sds->MAIN_spectrum.id);
+		Instrument->osc->Set_waveform( sds->OSC_spectrum.id);
 		Sds->Commit();
 		break;
 	}

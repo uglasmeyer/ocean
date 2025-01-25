@@ -7,7 +7,7 @@ SPEC,      VCO,    noise,100,  0,  0,  0,  0,  0,  0,  0,100
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 SPEC,      FMO,    noise,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,     MAIN, triangle,    122,   2000,     63,  free,  free,  free,  89,   4,   3,   0,   0,     42,
-CONN,     MAIN,      FMO,      F,
-CONN,     MAIN,      VCO,      V,
-SPEC,     MAIN, triangle,100,  0,  0,  0,  0,  0,  0,  0,100
+ OSC,     OSC, triangle,    122,   2000,     63,  free,  free,  free,  89,   4,   3,   0,   0,     42,
+CONN,     OSC,      FMO,      F,
+CONN,     OSC,      VCO,      V,
+SPEC,     OSC, triangle,100,  0,  0,  0,  0,  0,  0,  0,100

@@ -9,6 +9,7 @@ echo installing resources
 cd $RESOURCEDIR
 cp Ocean.png $INSTBASE/lib
 cp oceansetup.sh $INSTBASE/bin
+cp clearipc.sh $INSTBASE/bin
 
 
 
