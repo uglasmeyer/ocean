@@ -139,6 +139,7 @@ public:
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_Rtsp;
     QPushButton *pB_oscgroup;
+    QPushButton *pb_fftmode;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -148,7 +149,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1207, 591);
+        MainWindow->resize(1207, 629);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -420,7 +421,7 @@ public:
         cb_sta0->setGeometry(QRect(0, 10, 92, 23));
         pB_Mute_StA = new QPushButton(centralwidget);
         pB_Mute_StA->setObjectName(QString::fromUtf8("pB_Mute_StA"));
-        pB_Mute_StA->setGeometry(QRect(1100, 270, 89, 25));
+        pB_Mute_StA->setGeometry(QRect(1100, 260, 89, 25));
         dial_PMW = new QDial(centralwidget);
         dial_PMW->setObjectName(QString::fromUtf8("dial_PMW"));
         dial_PMW->setGeometry(QRect(480, 170, 50, 64));
@@ -438,13 +439,13 @@ public:
         radioButton_5->setGeometry(QRect(330, 520, 113, 23));
         pBtoggleRecord = new QPushButton(centralwidget);
         pBtoggleRecord->setObjectName(QString::fromUtf8("pBtoggleRecord"));
-        pBtoggleRecord->setGeometry(QRect(480, 440, 89, 25));
+        pBtoggleRecord->setGeometry(QRect(480, 470, 89, 25));
         label_4 = new QLabel(centralwidget);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setGeometry(QRect(480, 80, 111, 17));
         frame_5 = new QFrame(centralwidget);
         frame_5->setObjectName(QString::fromUtf8("frame_5"));
-        frame_5->setGeometry(QRect(1000, 340, 91, 121));
+        frame_5->setGeometry(QRect(1000, 320, 91, 121));
         frame_5->setFrameShape(QFrame::StyledPanel);
         frame_5->setFrameShadow(QFrame::Raised);
         rb_S0 = new QRadioButton(frame_5);
@@ -461,7 +462,7 @@ public:
         rb_S3->setGeometry(QRect(20, 90, 61, 23));
         progressBar_record = new QProgressBar(centralwidget);
         progressBar_record->setObjectName(QString::fromUtf8("progressBar_record"));
-        progressBar_record->setGeometry(QRect(580, 440, 411, 23));
+        progressBar_record->setGeometry(QRect(580, 470, 411, 23));
         progressBar_record->setValue(24);
         MainLCD_Hz = new QLCDNumber(centralwidget);
         MainLCD_Hz->setObjectName(QString::fromUtf8("MainLCD_Hz"));
@@ -480,15 +481,15 @@ public:
         glidefrequency->setWordWrap(true);
         pB_Wavedisplay = new QPushButton(centralwidget);
         pB_Wavedisplay->setObjectName(QString::fromUtf8("pB_Wavedisplay"));
-        pB_Wavedisplay->setGeometry(QRect(480, 240, 81, 25));
+        pB_Wavedisplay->setGeometry(QRect(480, 260, 81, 25));
         oscilloscope_view = new QGraphicsView(centralwidget);
         oscilloscope_view->setObjectName(QString::fromUtf8("oscilloscope_view"));
-        oscilloscope_view->setGeometry(QRect(480, 270, 512, 166));
+        oscilloscope_view->setGeometry(QRect(480, 290, 512, 166));
         oscilloscope_view->setFrameShape(QFrame::Box);
         oscilloscope_view->setLineWidth(2);
         pB_Debug = new QPushButton(centralwidget);
         pB_Debug->setObjectName(QString::fromUtf8("pB_Debug"));
-        pB_Debug->setGeometry(QRect(660, 240, 88, 25));
+        pB_Debug->setGeometry(QRect(660, 260, 88, 25));
         hs_hall_effect = new QScrollBar(centralwidget);
         hs_hall_effect->setObjectName(QString::fromUtf8("hs_hall_effect"));
         hs_hall_effect->setGeometry(QRect(530, 110, 160, 16));
@@ -561,7 +562,7 @@ public:
         sB_FMO->setMaximum(9);
         pb_clear = new QPushButton(centralwidget);
         pb_clear->setObjectName(QString::fromUtf8("pb_clear"));
-        pb_clear->setGeometry(QRect(1000, 270, 88, 25));
+        pb_clear->setGeometry(QRect(1000, 260, 88, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
         label_3->setGeometry(QRect(620, 146, 91, 31));
@@ -575,11 +576,11 @@ public:
         pB_Mute->setGeometry(QRect(330, 120, 88, 25));
         cb_external = new QComboBox(centralwidget);
         cb_external->setObjectName(QString::fromUtf8("cb_external"));
-        cb_external->setGeometry(QRect(480, 470, 131, 25));
+        cb_external->setGeometry(QRect(480, 500, 131, 25));
         cb_external->setEditable(false);
         layoutWidget = new QWidget(centralwidget);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(630, 480, 462, 60));
+        layoutWidget->setGeometry(QRect(630, 500, 462, 60));
         gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -623,16 +624,19 @@ public:
         cb_bps->setGeometry(QRect(620, 190, 86, 25));
         Pbar_telapsed = new QProgressBar(centralwidget);
         Pbar_telapsed->setObjectName(QString::fromUtf8("Pbar_telapsed"));
-        Pbar_telapsed->setGeometry(QRect(451, 270, 20, 161));
+        Pbar_telapsed->setGeometry(QRect(451, 290, 20, 161));
         Pbar_telapsed->setValue(24);
         Pbar_telapsed->setTextVisible(true);
         Pbar_telapsed->setOrientation(Qt::Vertical);
         pB_Rtsp = new QPushButton(centralwidget);
         pB_Rtsp->setObjectName(QString::fromUtf8("pB_Rtsp"));
-        pB_Rtsp->setGeometry(QRect(1000, 310, 91, 25));
+        pB_Rtsp->setGeometry(QRect(1000, 290, 91, 25));
         pB_oscgroup = new QPushButton(centralwidget);
         pB_oscgroup->setObjectName(QString::fromUtf8("pB_oscgroup"));
-        pB_oscgroup->setGeometry(QRect(570, 240, 81, 26));
+        pB_oscgroup->setGeometry(QRect(570, 260, 81, 26));
+        pb_fftmode = new QPushButton(centralwidget);
+        pb_fftmode->setObjectName(QString::fromUtf8("pb_fftmode"));
+        pb_fftmode->setGeometry(QRect(760, 260, 88, 26));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -733,6 +737,7 @@ public:
         pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Synthesizer", nullptr));
         pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
         pB_oscgroup->setText(QString());
+        pb_fftmode->setText(QString());
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

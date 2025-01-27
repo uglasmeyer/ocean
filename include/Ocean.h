@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdlib>
+#include <complex>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -76,7 +77,7 @@ const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_Data;
 const buffer_t 		monobuffer_size   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
-const uint			osc_default_volume	= 100; // %
+const uint			osc_default_volume	= 75; // %
 const float			oct_base_freq 		= 27.5/2.0;
 
 // enumeration of applicatiom Id's

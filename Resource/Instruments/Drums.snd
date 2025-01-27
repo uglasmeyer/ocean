@@ -1,13 +1,13 @@
 Type,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddecay  bps atck hall glide      PMWs
- OSC,      VCO,    noise,     79,   2000,     60,  free,  free,  free,   0,   1,  80,   0,   0,     42,
+TYPE,      VCO,    noise,     79,    250,     60,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
 SPEC,      VCO,    noise,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,      FMO,    noise,     54,   2000,     51,  free,  free,  free,   0,   1,  80,   0,   0,     42,
+TYPE,      FMO,    noise,     54,    250,     51,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
 SPEC,      FMO,    noise,100,  0,  0,  0,  0,  0,  0,  0,100
- OSC,     OSC, triangle,    122,   2000,     63,  free,  free,  free,  89,   4,   3,   0,   0,     42,
-CONN,     OSC,      FMO,      F,
-CONN,     OSC,      VCO,      V,
-SPEC,     OSC, triangle,100,  0,  0,  0,  0,  0,  0,  0,100
+TYPE,      OSC, triangle,    122,    250,     19,  free,  free,  free,  89,   4,   3,   0,   0,     42,
+CONN,      OSC,      FMO,      F,
+CONN,      OSC,      VCO,      V,
+SPEC,      OSC, triangle,100,  0,  0,  0,  0,  0,  0,  0,100

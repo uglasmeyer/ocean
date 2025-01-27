@@ -95,45 +95,15 @@ void Instrument_class::setup_GUI_Data()
 
 void Instrument_class::show_sound_stack() // show_status
 {
-	string star 	= "*";
-	string nostar 	= ".";
-	string active 	;
-	string fp_flag  ;
-	string vp_flag  ;
-	string fp_gen  ;
-	string vp_gen  ;
-	string Play 	;
-
 	stringstream strs{""};
-	strs << "\n Name \tWaveform \tHz \tAmp \tmsec \t  VCO \t  FMO " << endl;
-	for ( Oscillator* osc_ptr : Oscgroup.oscgroup )
-	{
-		active  	= nostar;
-		fp_flag     = nostar;
-		vp_flag     = nostar;
-		fp_gen		= nostar;
-		vp_gen		= nostar;
-		if ( osc_ptr->vp.stored ) 		vp_flag = star;
-		if ( osc_ptr->fp.stored ) 		fp_flag = star;
-		if ( osc_ptr->vp.generated ) 	vp_gen = star;
-		if ( osc_ptr->fp.generating ) 	fp_gen = star;
-		strs 	<< active
-				<< osc_ptr->osc_type +"\t"
-				<< osc_ptr->Get_waveform_str( osc_ptr->spectrum.id ) +"\t"
-				<< to_string( osc_ptr->wp.frequency )+"\t"
-				<< to_string( osc_ptr->wp.volume )+"\t"
-				<< to_string( osc_ptr->wp.msec ) +"\t"
-
-				<< vp_flag
-				<< vp_gen
-				<< osc_ptr->vp.name +"\t"
-
-				<< fp_flag
-				<< fp_gen
-				<< osc_ptr->fp.name
-				<< endl;
-	};
+	strs << "Name \tWaveform \tHz \tAmp \tmsec \t  VCO \t  FMO ";
 	Comment( INFO, strs.str() );
+
+	for ( Oscillator* osc : Oscgroup.oscgroup )
+	{
+		strs = osc->Get_sound_stack() ;
+		Comment( INFO, strs.str() );
+	};
 
 }
 

@@ -16,7 +16,7 @@ OszilloscopeWidget::OszilloscopeWidget( interface_t* ifd, QRectF rectangle)
 
     height 		= drawregion.height();
     shiftY 		= height / 2;
-	data_scale	= height / max_data_amp / 2;
+	data_scale	= height / max_data_amp / 2.0;
 
     this->sds   = ifd;
     this->update();

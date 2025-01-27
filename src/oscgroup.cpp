@@ -31,7 +31,7 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 	wd->Add_data_ptr( osc_struct::OSCID , groupid, osc.Mem.Data);
 
 }
-void Oscgroup_class::Set_Osc_Note( pitch_t pitch, const uint& duration, const uint& volume )
+void Oscgroup_class::Set_Osc_Note( pitch_t& pitch, const uint& duration, const uint& volume )
 {
 	const float vco_wp_frequency = vco.wp.frequency;
 	const float fmo_wp_frequency = fmo.wp.frequency;

@@ -63,8 +63,8 @@ public:
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
     vector<QString>			Qwd_display_names	{};
-    vector<QString> 		Qwd_debugtype_names		{};
-
+    vector<QString> 		Qwd_debugtype_names	{};
+    vector<QString>			Qwd_fftmodes		{};
     vector<QRadioButton*> 	rb_S_vec			{};
     vector<QRadioButton*> 	rb_sta_vec			{};
     vector<QCheckBox*>		cb_sta_vec			{};
@@ -167,6 +167,7 @@ private slots:
     void wavfile_selected( const QString &arg);
     void pB_oscgroup_clicked();
     void pB_Wavedisplay_clicked();
+    void pB_fftmode_clicked();
 
     void hs_hall_effect_value_changed(int);
 

@@ -121,7 +121,6 @@ void add_sound( )
 {
 	if ( Mixer.status.notes )
 	{
-		cout << "notes-";
 		Notes.Set_instrument( &Instrument );
 		Notes.Generate_note_chunk( );
 	}
@@ -139,7 +138,7 @@ void add_sound( )
 
 	ProgressBar.Update();
 
-	if ( sds->WD_role_Id != osc_struct::AUDIOID )
+	if ( sds->WD_status.roleId != osc_struct::AUDIOID )
 		Wavedisplay.Write_wavedata();
 }
 
@@ -148,16 +147,12 @@ void kbd_release( )
 {
 	if ( Keyboard.Decay() )
 	{
-		cout << "DECAY" << endl;
+		add_sound();
 	}
 	else
 	{
-		cout << "RELEASE" << endl;
 		Keyboard.Release();
-
-//		add_sound();
 		Mixer.Set_mixer_state( MbIdKeyboard, false );
-		DaTA.Sds_p->addr->UpdateFlag 	= true;
 	}
 
 }
@@ -185,12 +180,9 @@ void ApplicationLoop()
 		int note_key = Keyboard.Kbdnote( );
 		if ( Keyboard.Attack( 	note_key, sds->noteline_prefix.Octave ) )
 		{
-			cout << "KEY: " << note_key << endl;
 			Keyboard.Set_ch( 0 );
-			kbd_release();
 			Mixer.Set_mixer_state( MbIdKeyboard, true );
-			add_sound( );
-
+			kbd_release();
 		}
 
 		Mixer.Volume_control(  );
@@ -315,9 +307,6 @@ int main( int argc, char* argv[] )
 
 	DaTA.Sds_p->Restore_ifd();
 	activate_sds();
-
-	Wavedisplay.SetDataPtr( DaTA.Sds_p->addr->WD_role_Id,
-							DaTA.Sds_p->addr->WD_osc_ID );
 
 	show_usage();
 	show_AudioServer_Status();

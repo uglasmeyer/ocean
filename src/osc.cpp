@@ -159,6 +159,9 @@ double Oscillator::get_phi( )// phase at the begin of the osc
 
 void Oscillator::mem_init()
 {
+//	Reset_data( this );
+//	return;
+
 	for ( buffer_t n = 0; max_frames > n; n++ )
 	{
 		this->Mem_vco.Data[n] 	= max_data_amp;
@@ -170,7 +173,28 @@ void Oscillator::mem_init()
 	this->fp.data = this->Mem_fmo.Data;
 	this->vp.name = this->osc_type;
 	this->fp.name = this->osc_type;
+	this->vp.osc_id 	= this->osctype_id;
+	this->vp.osc_id 	= this->osctype_id;
+
 	return;
+}
+void Oscillator::Reset_data( Oscillator* osc )
+{
+	this->Mem.Clear_data( 0 );
+	this->Mem_fmo.Clear_data(0);
+	this->Mem_vco.Clear_data(max_data_amp);
+
+	this->vp.data = this->Mem_vco.Data;
+	this->fp.data = this->Mem_fmo.Data;
+
+	this->vp.volume = 0;
+	this->fp.volume = 0;
+
+	this->fp.name = osc->osc_type;
+	this->vp.name = osc->osc_type;
+	this->fp.osc_id = osc->osctype_id;
+	this->vp.osc_id = osc->osctype_id;
+
 }
 
 void Oscillator::OSC (  const buffer_t& frame_offset )
@@ -365,7 +389,10 @@ void Oscillator::Set_long( bool l )
 {
 	longnote = l ;
 }
-
+void Oscillator::Reset_cursor()
+{
+	beat_cursor = 0;
+}
 void Oscillator::apply_adsr( buffer_t frames, Data_t* data )
 {
 	if ( adsr.bps == 0 )	 	return;
@@ -377,6 +404,8 @@ void Oscillator::apply_adsr( buffer_t frames, Data_t* data )
 		data[ n ] = data[ n ] * adsrdata[ beat_cursor ];
 		beat_cursor = ( beat_cursor + 1 ) % adsrdata.size();
 	}
+	if ( oscrole_id == osc_struct::KBDID )
+		cout << "beat_cursor: " << (int) beat_cursor << endl;
 }
 
 void Oscillator::apply_hall( buffer_t frames, Data_t* data )
@@ -416,6 +445,7 @@ void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 void Oscillator::Connect_vco_data( Oscillator* osc)
 {
 	this->vp.data 	= osc->Mem.Data;
+	this->vp.osc_id = osc->osctype_id;
 	this->vp.volume = osc->wp.volume;
 	this->vp.name 	= osc->osc_type;
 }
@@ -423,25 +453,11 @@ void Oscillator::Connect_vco_data( Oscillator* osc)
 void Oscillator::Connect_fmo_data( Oscillator* osc )
 {
 	this->fp.data 	= osc->Mem.Data;
+	this->fp.osc_id = osc->osctype_id;
 	this->fp.volume = osc->wp.volume;
 	this->fp.name 	= osc->osc_type;
 }
 
-void Oscillator::Reset_data( Oscillator* osc )
-{
-	this->Mem_fmo.Clear_data(0);
-	this->Mem_vco.Clear_data(max_data_amp);
-
-	this->vp.data = this->Mem_vco.Data;
-	this->fp.data = this->Mem_fmo.Data;
-
-	this->vp.volume = 50;
-	this->fp.volume = 50;
-
-	this->fp.name = osc->osc_type;
-	this->vp.name = osc->osc_type;
-
-}
 
 void Oscillator::Test()
 {

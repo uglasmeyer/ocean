@@ -57,6 +57,7 @@ typedef struct adsr_struct
 typedef struct fmo_struct
 {
 	Data_t*			data		= nullptr; // ptr to the fm data
+	char 			osc_id		= -1;
 	uint16_t 		volume		= 0; // volume of the fm track
 	string			name		= "";
 	bool			stored		= false;
@@ -66,6 +67,7 @@ typedef struct fmo_struct
 typedef struct vco_struct
 {
 	Data_t*			data		= nullptr; // ptr to the vc data
+	char 			osc_id		= -1;
 	uint16_t 		volume		= 0; // volume of the vc track
 	string			name		= "";
 	bool			stored		= false; // stored vco data
@@ -76,13 +78,14 @@ typedef struct vco_struct
 class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
 {
 public:
-
-	DataVec_t		adsrdata 	{ };
 	char			osctype_id	= -1;//osc_struct::OSCID;
-	string 			osc_type 	= "no role";
+	string 			osc_type 	= "no type";
 	char			oscrole_id	= -1;//osc_struct::INSTRID;
 	string 			osc_role 	= "no role";
 	bool			is_main_osc = false;
+
+
+	DataVec_t		adsrdata 	{ };
 
 	adsr_t 			adsr 		= adsr_struct();
 	wave_t 			wp 			= wave_struct();
@@ -109,13 +112,13 @@ public:
 	void		Set_spectrum( spectrum_t );
 	void		Set_duration( uint16_t );
 	void		Gen_adsrdata( buffer_t );
+	stringstream Get_sound_stack();
 
 private:
 
 	string 		comment 		= "";
 	string 		csv_comment 	= "";
 	string 		command 		= "";
-
 
 }; // close class Track class
 

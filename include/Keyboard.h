@@ -51,10 +51,11 @@ public:
 
 private:
 	const int 	releaseCounter	= 0;
-	const int 	attackCounter 	= 2; // TODO depends on the performance
+	const int 	attackCounter 	= 3; // TODO depends on the performance
 	int 		decayCounter 	= 0;
-	char		volume			= 0;
-	uint		duration		= 250; // [millisec]
+	const uint	kbd_duration	= 1000; // [millisec]
+	const uint  kbd_volume		= 75;
+
 	void 		set_instrument( );
 
 };

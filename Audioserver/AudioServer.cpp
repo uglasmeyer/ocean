@@ -303,7 +303,7 @@ void set_ncounter( buffer_t n )
 
 		call_for_update();
 
-		if ( sds->WD_role_Id == osc_struct::AUDIOID )
+		if ( sds->WD_status.roleId == osc_struct::AUDIOID )
 			write_waveaudio();
 	}
 }
@@ -374,7 +374,10 @@ int main( int argc, char *argv[] )
 	sds->RecCounter 	= 0;
 
 	Wavedisplay.Add_role_ptr( osc_struct::AUDIOID, mono_out.Data );
-	Wavedisplay.SetDataPtr( osc_struct::OSCID, osc_struct::AUDIOID );
+	wd_status_t wd_status = WD_status_struct();
+	wd_status.roleId = osc_struct::AUDIOID;
+	wd_status.typeId = osc_struct::OSCID;
+	Wavedisplay.SetDataPtr( wd_status );
 
 //	wav_header.srate 				= Cfg->Config.rate;
 //	wav_header.num_chans 			= Cfg->Config.channel;

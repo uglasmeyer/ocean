@@ -10,13 +10,10 @@
 
 #include <Ocean.h>
 
+typedef complex<double>	cd_t;
+typedef vector<cd_t>	cd_vec_t;
 
-enum
-{
-	FULLID,
-	FLOWID,
-	DEBUGID
-};
+
 
 typedef struct wavedisplay_struct
 {
@@ -26,16 +23,39 @@ typedef struct wavedisplay_struct
 		"Flow",
 		"Debug"
 	};
+	const vector<string> fftmodes =
+	{
+		"FFT",
+		"FFT-1"
+	};
+	enum
+	{
+		FULLID,
+		FLOWID,
+		DEBUGID,
+		FFTID
+	};
+
 } wavedisplay_t;
 
-const size_t WD_OSC_SIZE 		= 3;//wavedisplay_struct().oscs.size();
-const size_t WD_DISPLAY_SIZE 	= osc_struct().roles.size();
-const size_t WD_DEBUG_SIZE 		= wavedisplay_struct().types.size();
+typedef struct WD_status_struct
+{
+	uint8_t oscId 	= osc_struct::OSCID;
+	uint8_t roleId 	= osc_struct::INSTRID;
+	bool 	fftmode = false;
+	uint8_t typeId 	= wavedisplay_struct::FULLID;
+} wd_status_t;
+
+const size_t WD_OSC_SIZE 	= 3;//wavedisplay_struct().oscs.size();
+const size_t WD_ROLES_SIZE 	= osc_struct().roles.size();
+const size_t WD_TYPES_SIZE 	= wavedisplay_struct().types.size();
 
 
 
 const size_t wavedisplay_len		= 512;
 
 typedef array< Data_t,	wavedisplay_len> 	wd_arr_t;
+
+extern wd_arr_t fft(cd_vec_t data, bool invert);
 
 #endif /* WAVEDISPLAY_BASE_H_ */

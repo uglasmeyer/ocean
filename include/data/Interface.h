@@ -50,6 +50,7 @@ public:
 	bool 	Restore_ifd();
 	void 	Reset_ifd();
 	void 	Announce(  );
+	void 	Set( char& key, bool value);
 	void 	Set( bool& key, bool value);
 	void 	Set( uint8_t& key, uint8_t value);
 	void 	Set( uint16_t& key, uint16_t value);

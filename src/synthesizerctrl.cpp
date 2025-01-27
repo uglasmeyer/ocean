@@ -125,16 +125,13 @@ void Core_class::Controller(char key)
 	}
 	case SETWAVEDISPLAYKEY:
 	{
-		Wavedisplay->SetDataPtr(sds->WD_osc_ID, sds->WD_role_Id );
+		if( sds->WD_status.roleId == osc_struct::AUDIOID )
+			break; // audio data is handled by the Audio server
+		Wavedisplay->SetDataPtr(sds->WD_status );
 		Sds->Commit();
 		break;
 	}
-	case WAVEDISPLAYTYPEKEY:
-	{
-		Wavedisplay->Set_type(sds->WD_type_ID);
-		Sds->Commit();
-		break;
-	}
+
 	case SOFTFREQUENCYKEY:
 	{
 		Instrument->osc->Set_glide(sds->OSC_wp.glide_effect);

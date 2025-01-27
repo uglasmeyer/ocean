@@ -19,29 +19,50 @@ void Oscillator_base::Show_csv_comment( int loglevel )
 }
 void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
 {
-	uint aframes 	= ( beatframes * adsr.attack ) / 100;
-	float da		= 1.0 / aframes;
-	float d_alpha 	= ( (100 - adsr.decay )/3.0) / beatframes;
+	/* maxima
+
+attack  : 10;
+decay	: 95;
+beatframes : 24000;
+aframes : beatframes * attack / 100;
+d_delta	: ( (100 - decay )/3.0) / beatframes;
+y0		: exp( - (beatframes-aframes) * d_delta );
+d_alpha	: (1-y0)/aframes;
+fattack : y0 + n*d_alpha;
+fdecay	: exp( - ( n - aframes ) * d_delta );
+plot2d([fattack, fdecay], [n,0,beatframes]);
+
+	 */
+	uint 	aframes 	= ( beatframes * adsr.attack ) / 100;
+	if ( aframes == 0 )
+		aframes = 1;
+	const float d_delta 	= ( (100 - adsr.decay )/3.0) / beatframes;
+	float y0 = 1.0;
+	float delta = (beatframes - aframes) * d_delta;
+	if ( d_delta > 0 )
+		y0	= expf( - delta );
+	const float d_alpha		= (1.0 - y0) / aframes;
 
 	adsrdata.clear();
 	for ( uint n = 0; n < beatframes ; n++ )
 	{
 		if ( n < aframes ) 	// attack
 		{
-			adsrdata.push_back( da * ( n + 1 ) );
+			adsrdata.push_back( y0 + n*d_alpha );
 		}
 		else				// decay
 		{
-			float alpha 	= (n - aframes ) * d_alpha;
-			adsrdata.push_back( exp( -alpha ) );
+			float delta 	= (n - aframes ) * d_delta;
+			adsrdata.push_back( exp( -delta ) );
 		}
 	}
-
-
 }
+
 void Oscillator_base::Set_adsr( adsr_t _adsr )
 {
 	this->adsr = _adsr;
+	if (( oscrole_id == osc_struct::KBDID ) or ( oscrole_id == osc_struct::NOTESID ))
+		this->adsr.bps = 1;
 	if ( adsr.bps != 0 )
 	{
 		Gen_adsrdata( frames_per_sec / adsr.bps );
@@ -55,7 +76,6 @@ void Oscillator_base::Set_duration( uint16_t msec )
 
 void Oscillator_base::Set_frequency( float freq )
 {
-	//  min_f := 1/max_sec ,  freq = min_f*N = N/max_sec
 
 	if ( freq < 0 ) freq= 0;
 	wp.frequency 		= freq;
@@ -95,65 +115,21 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
-//	wp.conf 		= arr;
-
-
 	vp.name			= osc_type;
 	fp.name			= osc_type;
 	spectrum.id		= Get_waveform_id( arr[2] );
+	float freq	 	= stof(arr[3]);
 	wp.msec 		= Str.secure_stoi(arr[4]);
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
-	float freq	 	= stof(arr[3]);
 	Set_frequency( freq );
 	command 		= osc_type;
-	wp.glide_effect 	= Str.secure_stoi( arr[13] );
-	wp.PMW_dial 		= Str.secure_stoi( arr[14] );
+	wp.glide_effect = Str.secure_stoi( arr[13] );
+	wp.PMW_dial 	= Str.secure_stoi( arr[14] );
 
 	return ;
 };
 
-
-/*
-frequency_t Oscillator_base::freq_to_freq_struct( float freq )
-{
-	frequency_t fstruct;
-
-	if ( freq < oct_base_freq )
-	{
-		fstruct = freq_struct();
-		fstruct.pitch = freq;
-	}
-	else
-	{
-		int oct = -1;
-		int f = freq;
-		while (  f >= oct_base_freq )
-		{
-			f = (f >> 1);
-			oct++;
-		}
-		fstruct.oct = oct;
-
-		fstruct.base= ( oct_base_freq << fstruct.oct );
-		fstruct.note= floor ( ( freq - fstruct.base ) * 12 / fstruct.base );
-		fstruct.name=NoteName[ fstruct.note ];
-		fstruct.pitch = freq - fstruct.base - floor( fstruct.note*fstruct.base/12);
-		fstruct.freq = fstruct.base + fstruct.note * fstruct.base/12 + fstruct.pitch;
-	}
-
-	fstruct.str  =
-			"f "	+ to_string( fstruct.freq ) +
-			" (oct "	+ to_string( fstruct.oct )  +
-			" base " + to_string( fstruct.base ) +
-			" note " + to_string( fstruct.note ) +
-						fstruct.name +
-			" pitch "+ to_string( fstruct.pitch )+ ")" ;
-
-	return fstruct;
-}
-
-*/
 
 void Oscillator_base::Set_csv_comment ()
 {
@@ -179,4 +155,40 @@ void Oscillator_base::Get_comment( bool variable )
 	comment.append( to_string( wp.msec ) + " msec ");
 	comment.append( "Vol: " + to_string( wp.volume ) );
 	return ;
+}
+
+stringstream Oscillator_base::Get_sound_stack()
+{
+	const string star 	= "*";
+	const string nostar = ".";
+
+	string active  	= nostar;
+	string fp_flag  = nostar;
+	string vp_flag	= nostar;
+	string fp_gen	= nostar;
+	string vp_gen	= nostar;
+	if ( vp.stored ) 		vp_flag = star;
+	if ( fp.stored ) 		fp_flag = star;
+	if ( vp.generated ) 	vp_gen = star;
+	if ( fp.generating ) 	fp_gen = star;
+
+	stringstream strs{""};
+	strs 	<< active
+			<< osc_type +"\t"
+			<< Get_waveform_str( spectrum.id ) +"\t\t"
+			<< fixed << setprecision(2) << wp.frequency << "\t"
+			<< (int) wp.volume << "\t"
+			<< (int) wp.msec << "\t"
+
+			<< vp_flag
+			<< vp_gen
+			<< vp.name +"\t"
+
+			<< fp_flag
+			<< fp_gen
+			<< fp.name
+			;
+
+	return strs;
+
 }

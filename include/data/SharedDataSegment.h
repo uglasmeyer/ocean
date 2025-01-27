@@ -50,7 +50,7 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 2; 						// comstack
+	uint8_t			version						= 1; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
@@ -111,10 +111,13 @@ typedef struct interface_struct
 	uint8_t			time_elapsed 				= 0;
 	process_arr_t	process_arr					= { {process_struct()} };
 
-	uint8_t	 		WD_role_Id					= osc_struct::AUDIOID; // Audio out
-	uint8_t			WD_osc_ID					= osc_struct::OSCID; // oscgroup id
-	uint16_t		WD_type_ID 					= FULLID;
+	wd_status_t		WD_status					= WD_status_struct();
+//	uint8_t	 		WD_role_Id					= osc_struct::INSTRID; // Audio out
+//	uint8_t			WD_osc_ID					= osc_struct::OSCID; // oscgroup id
+//	uint16_t		WD_type_ID 					= wavedisplay_struct::FULLID;
+//	bool			WD_fft_mode					= false;
 	wd_arr_t		wavedata 					= {0};
+
 } interface_t;
 
 

@@ -38,7 +38,6 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 
 	Oscgroup.osc.vp.data = Oscgroup.vco.Mem.Data;
 	Oscgroup.osc.fp.data = Oscgroup.fmo.Mem.Data;
-	Oscgroup.osc.adsr.bps = 1;
 	Oscgroup.osc.Set_duration( max_milli_sec );
 	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 

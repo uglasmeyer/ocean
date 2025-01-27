@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1207</width>
-    <height>591</height>
+    <height>629</height>
    </rect>
   </property>
   <property name="palette">
@@ -1119,7 +1119,7 @@
     <property name="geometry">
      <rect>
       <x>1100</x>
-      <y>270</y>
+      <y>260</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -1194,7 +1194,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>440</y>
+      <y>470</y>
       <width>89</width>
       <height>25</height>
      </rect>
@@ -1220,7 +1220,7 @@
     <property name="geometry">
      <rect>
       <x>1000</x>
-      <y>340</y>
+      <y>320</y>
       <width>91</width>
       <height>121</height>
      </rect>
@@ -1288,7 +1288,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>440</y>
+      <y>470</y>
       <width>411</width>
       <height>23</height>
      </rect>
@@ -1356,7 +1356,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>240</y>
+      <y>260</y>
       <width>81</width>
       <height>25</height>
      </rect>
@@ -1369,7 +1369,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>270</y>
+      <y>290</y>
       <width>512</width>
       <height>166</height>
      </rect>
@@ -1385,7 +1385,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>240</y>
+      <y>260</y>
       <width>88</width>
       <height>25</height>
      </rect>
@@ -1638,7 +1638,7 @@
     <property name="geometry">
      <rect>
       <x>1000</x>
-      <y>270</y>
+      <y>260</y>
       <width>88</width>
       <height>25</height>
      </rect>
@@ -1696,7 +1696,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>470</y>
+      <y>500</y>
       <width>131</width>
       <height>25</height>
      </rect>
@@ -1709,7 +1709,7 @@
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>480</y>
+      <y>500</y>
       <width>462</width>
       <height>60</height>
      </rect>
@@ -1780,7 +1780,7 @@
     <property name="geometry">
      <rect>
       <x>451</x>
-      <y>270</y>
+      <y>290</y>
       <width>20</width>
       <height>161</height>
      </rect>
@@ -1799,7 +1799,7 @@
     <property name="geometry">
      <rect>
       <x>1000</x>
-      <y>310</y>
+      <y>290</y>
       <width>91</width>
       <height>25</height>
      </rect>
@@ -1812,8 +1812,21 @@
     <property name="geometry">
      <rect>
       <x>570</x>
-      <y>240</y>
+      <y>260</y>
       <width>81</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pb_fftmode">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>260</y>
+      <width>88</width>
       <height>26</height>
      </rect>
     </property>

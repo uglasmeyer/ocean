@@ -77,7 +77,7 @@ void Spectrum_Dialog_class::select_spec_vco()
 }
 void Spectrum_Dialog_class::select_spec_main()
 {
-	select_spec( this, ifd->OSC_spectrum, osc_struct::INSTRID );
+	select_spec( this, ifd->OSC_spectrum, osc_struct::OSCID );
 }
 
 void Spectrum_Dialog_class::Update_spectrum()

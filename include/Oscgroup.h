@@ -29,7 +29,7 @@ public:
 	Oscgroup_class( char id );
 	virtual ~Oscgroup_class();
 
-	void Set_Osc_Note( pitch_t pitch, const uint& duration, const uint& volume  );
+	void Set_Osc_Note( pitch_t& pitch, const uint& duration, const uint& volume  );
 	void Run_Oscgroup( buffer_t offs );
 	void SetWd( Wavedisplay_class* wd );
 

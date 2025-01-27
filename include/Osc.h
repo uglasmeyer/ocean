@@ -45,6 +45,8 @@ public:
 	void Connect_fmo_data( Oscillator* );
 	void Reset_data( Oscillator* );
 	void Set_long( bool );
+	void Reset_cursor();
+
 	void Test();
 
 private:
@@ -53,6 +55,7 @@ private:
 	double 			phase 		= 0;
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t 		beat_cursor = 0;
+
 
 	void 	apply_hall( buffer_t, Data_t* );
 	void 	apply_adsr( buffer_t frames, Data_t* data );

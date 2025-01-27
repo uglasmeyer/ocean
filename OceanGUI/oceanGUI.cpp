@@ -99,6 +99,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	Qwd_debugtype_names = fromstringvector( wavedisplay_struct().types );
 	Qwd_osc_names 		= fromstringvector( osc_struct().types );
 	Qwd_display_names 	= fromstringvector( osc_struct().roles );
+	Qwd_fftmodes		= fromstringvector( wavedisplay_struct().fftmodes );
 
 	Qbps_str_lst = Qstringlist( bps_struct().Bps_lst );
 
@@ -140,6 +141,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
     connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->pB_oscgroup, SIGNAL(clicked()), this, SLOT(pB_oscgroup_clicked()));
+    connect(ui->pb_fftmode, SIGNAL(clicked()), this, SLOT(pB_fftmode_clicked()));
 
     sl_sta_vec = {
     	ui->Slider_mix_vol0, ui->Slider_mix_vol1, ui->Slider_mix_vol2, ui->Slider_mix_vol3,
@@ -220,7 +222,10 @@ MainWindow::MainWindow(	QWidget *parent ) :
     				wavfile_path, file_structure().wav_type );
     ui->cb_bps->addItems( Qbps_str_lst );
 
-    ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_osc_ID ]);
+    ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
+    ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_status.fftmode ]);
+    ui->pB_Debug->setText( Qwd_debugtype_names[ Sds->addr->WD_status.typeId ]);
+    ui->pB_Wavedisplay->setText( Qwd_display_names[ Sds->addr->WD_status.roleId ]);
 
     setwidgetvalues();
 
@@ -353,7 +358,7 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 
     File_Dialog_obj.SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_Obj.ifd = this->Sds->addr;
-	if ( Sds->addr->WD_role_Id == osc_struct::AUDIOID )
+	if ( Sds->addr->WD_status.roleId == osc_struct::AUDIOID )
 		OscW_item->sds = Sds_master;
 	else
 		OscW_item->sds = this->Sds->addr;
@@ -569,7 +574,6 @@ void MainWindow::setwidgetvalues()
 		return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
 	};
 
-
     ui->Slider_FMO_Hz->setValue(    set_slider( Sds->addr->FMO_wp.frequency) );
     ui->Slider_VCO_Hz->setValue(    set_slider( Sds->addr->VCO_wp.frequency) );
     ui->Slider_Main_Hz->setValue(   Sds->addr->OSC_wp.frequency);
@@ -598,14 +602,10 @@ void MainWindow::setwidgetvalues()
     ui->hs_hall_effect->setValue( (int)  Sds->addr->OSC_adsr.hall );
 
     get_record_status();
-    int wd_counter              = Sds->addr->WD_role_Id;
-    QString Qstr = Qwd_display_names[wd_counter];
-    ui->pB_Wavedisplay->setText( Qstr );
-    ui->pB_Debug->setText( Qwd_debugtype_names[ (int) Sds->addr->WD_type_ID % 3 ] );
 
     ui->dial_ramp_up_down->setValue( Sds->addr->Master_Amp);
 
-    Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
+    QString Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
     ui->cb_bps->setCurrentText( QString( int2char( Sds->addr->OSC_adsr.bps)));
@@ -805,37 +805,46 @@ void MainWindow::main_adsr_sustain()
     int value = ui->hs_adsr_sustain->value();
     Sds->Set( Sds->addr->OSC_adsr.decay , value);
     Sds->Set( Sds->addr->KEY ,ADSR_KEY);
-
 }
 
 
 void MainWindow::pB_Debug_clicked()
 {
-    uint16_t counter = ( Sds->addr->WD_type_ID + 1 ) % WD_DEBUG_SIZE;
-    Sds->Set( Sds->addr->WD_type_ID , counter);
-    Sds->Set( Sds->addr->KEY , WAVEDISPLAYTYPEKEY);
+    uint8_t counter = ( Sds->addr->WD_status.typeId + 1 ) % WD_TYPES_SIZE;
+    Sds->Set( Sds->addr->WD_status.typeId , counter);
+    Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY );
 
-    ui->pB_Debug->setText( Qwd_debugtype_names[ counter ] );
+    ui->pB_Debug->setText( Qwd_debugtype_names[ (int)counter ] );
 }
 
 void MainWindow::pB_oscgroup_clicked()
 {
-    uint8_t counter = ( Sds->addr->WD_osc_ID + 1 ) % WD_OSC_SIZE;
-    Sds->Set( Sds->addr->WD_osc_ID, counter );
+    uint8_t counter = ( Sds->addr->WD_status.oscId + 1 ) % WD_OSC_SIZE;
+    Sds->Set( Sds->addr->WD_status.oscId, counter );
     Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY);
 
-    ui->pB_oscgroup->setText( Qwd_osc_names[ counter ] );
+    ui->pB_oscgroup->setText( Qwd_osc_names[ (int)counter ] );
 }
 
 void MainWindow::pB_Wavedisplay_clicked()
 {
-    int counter = (Sds->addr->WD_role_Id + 1) % WD_DISPLAY_SIZE;
-    Sds->Set( Sds->addr->WD_role_Id , counter);
+    uint8_t counter = (Sds->addr->WD_status.roleId + 1) % WD_ROLES_SIZE;
+    Sds->Set( Sds->addr->WD_status.roleId , counter);
     Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY);
 
-    ui->pB_Wavedisplay->setText( Qwd_display_names[ counter ] );
+    ui->pB_Wavedisplay->setText( Qwd_display_names[ (int)counter ] );
 };
 
+void MainWindow::pB_fftmode_clicked()
+{
+	bool fft_mode = not (Sds->addr->WD_status.fftmode );
+	Sds->Set( Sds->addr->WD_status.fftmode, fft_mode );
+	Sds->Set( Sds->addr->KEY, SETWAVEDISPLAYKEY );
+	cout << "pB_fftmode_clicked" << boolalpha << Sds->addr->WD_status.fftmode << endl;
+
+	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );
+
+}
 void MainWindow::Updatewidgets()
 {
     if (  Sds_master->UserInterface == UPDATEGUI  )

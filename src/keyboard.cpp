@@ -32,32 +32,26 @@ void Keyboard_class::set_instrument(  )
 {
 	if ( not instrument ) return;
 	// copy class Oscillator
-	Oscgroup.osc.wp 			= instrument->Oscgroup.osc.wp;
-	Oscgroup.osc.vp 			= instrument->Oscgroup.osc.vp;
-	Oscgroup.osc.vp.data		= Oscgroup.vco.Mem.Data;
-	Oscgroup.osc.fp 			= instrument->Oscgroup.osc.fp;
-	Oscgroup.osc.fp.data		= Oscgroup.fmo.Mem.Data;
-	Oscgroup.osc.adsr 		= instrument->Oscgroup.osc.adsr;
-	Oscgroup.osc.adsr.bps	= 1;
-	Oscgroup.osc.spectrum	= instrument->Oscgroup.osc.spectrum;
 
-	Oscgroup.vco.wp 			= instrument->Oscgroup.vco.wp;
-	Oscgroup.vco.vp 			= instrument->Oscgroup.vco.vp;
-	Oscgroup.vco.fp 			= instrument->Oscgroup.vco.fp;
-	Oscgroup.vco.spectrum	= instrument->Oscgroup.vco.spectrum;
+	Oscgroup.osc 	= instrument->Oscgroup.osc;
+	Oscgroup.vco	= instrument->Oscgroup.vco;
+	Oscgroup.fmo 	= instrument->Oscgroup.fmo;
 
-	Oscgroup.fmo.wp 			= instrument->Oscgroup.fmo.wp;
-	Oscgroup.fmo.vp 			= instrument->Oscgroup.fmo.vp;
-	Oscgroup.fmo.fp 			= instrument->Oscgroup.fmo.fp;
-	Oscgroup.fmo.spectrum	= instrument->Oscgroup.fmo.spectrum;
-
+	Oscgroup.osc.vp.data = Oscgroup.vco.Mem.Data;
+	Oscgroup.osc.fp.data = Oscgroup.fmo.Mem.Data;
+	Oscgroup.osc.Set_duration( 500 );
+	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
+	Oscgroup.osc.Reset_cursor();
 }
 
 bool Keyboard_class::Decay(  )
 {
-	if( decayCounter > releaseCounter )
+	bool decay = ( decayCounter > releaseCounter );
+	if( decay )
 		decayCounter--;
-	return ( decayCounter > releaseCounter );
+	cout << "DECAY " << (int)decayCounter << endl;
+
+	return decay;
 
 }
 
@@ -69,17 +63,17 @@ bool Keyboard_class::Attack( int key, uint8_t octave )
 			Note_base::pitch_t pitch = pitch_struct();
 			pitch.octave 	= octave;
 			pitch.step 		= key ;
-			Oscgroup.Set_Osc_Note(pitch, duration, 100 );
+			Oscgroup.Set_Osc_Note(pitch, kbd_duration, kbd_volume );
 		};
 
 	if (( key == NOKEY ) or ( decayCounter > releaseCounter ))
 		return false;
 
+	cout << "ATTACK KEY: " << key << endl;
 	decayCounter = attackCounter;
 
 	set_instrument();
 	set_kdb_note(  );
-	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 
 	Oscgroup.Run_Oscgroup( 0 );
 
@@ -88,8 +82,10 @@ bool Keyboard_class::Attack( int key, uint8_t octave )
 
 bool Keyboard_class::Release(  )
 {
+	cout << "RELEASE" << endl;
 	decayCounter = releaseCounter;
-	Oscgroup.osc.Mem.Clear_data( 0 );
+	osc->Mem.Clear_data( 0 );
+
 	return true;
 }
 
