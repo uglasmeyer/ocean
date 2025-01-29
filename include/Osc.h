@@ -56,6 +56,9 @@ private:
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t 		beat_cursor = 0;
 
+	osc_roles_t	OscRole		= osc_struct();
+
+
 
 	void 	apply_hall( buffer_t, Data_t* );
 	void 	apply_adsr( buffer_t frames, Data_t* data );

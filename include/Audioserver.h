@@ -60,7 +60,6 @@ buffer_t 		ncounter 		= 0;
 uint			rcounter		= 0;
 char 			shm_id 			= 0; // out_data = Shm_a
 stereo_t*		shm_addr 		= nullptr;
-char 			mode 			= FREERUN;
 const buffer_t 	chunksize		= max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
 
 uint			bufferFrames 	= chunksize;

@@ -85,7 +85,7 @@ void activate_sds()
 	for( char key : init_keys )
 		Synthesizer.Controller( key );
 
-	if ( sds->NotestypeId == 0 )
+	if ( sds->NotestypeId == 0 ) // music xml file
 		Synthesizer.Controller( XMLFILE_KEY );
 	else
 		Synthesizer.Controller( UPDATENOTESKEY );
@@ -94,28 +94,18 @@ void activate_sds()
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 }
 
-bool sync_mode()
+void SetAudioframes()
 {
 	Mixer.status.play = false;
 	for( uint id : Mixer.SycIds)
 		Mixer.status.play |= Mixer.StA[id].state.play;
+	if ( Mixer.status.play )
+		sds->audioframes = Instrument.Set_msec( max_milli_sec );
+	else
+		sds->audioframes = Instrument.Set_msec( min_milli_sec );
 
-	bool sync =
-		( 	// if true use max_second time intervall
-//			( sds->StA_state[MbIdExternal].store 		)	or
-			( Mixer.status.play 						)		// any StA triggers play if itself is in play mode
-//			or ( ProgressBar.active 						)		// StA record external
-
-		);
-//	if ( Mixer.status.kbd )
-//		sync = false;
-	return sync ;
 }
 
-
-/*------------------------------Sync block
- *
- */
 
 void add_sound( )
 {
@@ -128,9 +118,8 @@ void add_sound( )
 	if ( Mixer.status.instrument )
 		Instrument.Run_osc_group(); // generate the modified sound waves
 
-
-
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
+
 	Mixer.Add_Sound( 	Instrument.osc->Mem.Data,
 						Keyboard.osc->Mem.Data,
 						Notes.osc->Mem.Data,
@@ -177,6 +166,8 @@ void ApplicationLoop()
 		Synthesizer.Controller( Key );
 		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
+		if ( Mixer.status.kbd )
+			kbd_release(  );
 		int note_key = Keyboard.Kbdnote( );
 		if ( Keyboard.Attack( 	note_key, sds->noteline_prefix.Octave ) )
 		{
@@ -190,19 +181,10 @@ void ApplicationLoop()
 		if ( sds->Synthesizer != EXITSERVER )
 			sds->Synthesizer = RUNNING;
 
-		if( sync_mode()  )
-		{
-			sds->MODE 	= SYNC; // sync thread
-			sds->audioframes = Instrument.Set_msec( max_milli_sec );
-		}
-		else
-		{
-			sds->MODE	= FREERUN;
-			sds->audioframes = Instrument.Set_msec( 250 );
+		if ( sds->WD_status.wd_mode == wavedisplay_struct::FLOWID )
+			Wavedisplay.Write_wavedata();
 
-			if ( Mixer.status.kbd )
-				kbd_release(  );
-		}
+		SetAudioframes();
 	} ;
 
 

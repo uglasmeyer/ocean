@@ -76,6 +76,7 @@ public:
     QSlider *Slider_mix_vol7;
     QSlider *Slider_mix_vol6;
     QSlider *Slider_mix_vol0;
+    QLabel *label_12;
     QFrame *frame_4;
     QCheckBox *cb_sta1;
     QCheckBox *cb_sta2;
@@ -105,7 +106,7 @@ public:
     QLabel *glidefrequency;
     QPushButton *pB_Wavedisplay;
     QGraphicsView *oscilloscope_view;
-    QPushButton *pB_Debug;
+    QPushButton *pB_wd_mode;
     QScrollBar *hs_hall_effect;
     QLabel *label_5;
     QScrollBar *hs_adsr_sustain;
@@ -140,6 +141,8 @@ public:
     QPushButton *pB_Rtsp;
     QPushButton *pB_oscgroup;
     QPushButton *pb_fftmode;
+    QLabel *lb_FMO_LFO;
+    QLabel *lb_VCO_LFO;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -390,6 +393,9 @@ public:
         Slider_mix_vol0->setGeometry(QRect(0, 10, 160, 16));
         Slider_mix_vol0->setMaximum(100);
         Slider_mix_vol0->setOrientation(Qt::Horizontal);
+        label_12 = new QLabel(frame_2);
+        label_12->setObjectName(QString::fromUtf8("label_12"));
+        label_12->setGeometry(QRect(0, 0, 161, 18));
         frame_4 = new QFrame(centralwidget);
         frame_4->setObjectName(QString::fromUtf8("frame_4"));
         frame_4->setGeometry(QRect(1100, 10, 91, 251));
@@ -487,9 +493,9 @@ public:
         oscilloscope_view->setGeometry(QRect(480, 290, 512, 166));
         oscilloscope_view->setFrameShape(QFrame::Box);
         oscilloscope_view->setLineWidth(2);
-        pB_Debug = new QPushButton(centralwidget);
-        pB_Debug->setObjectName(QString::fromUtf8("pB_Debug"));
-        pB_Debug->setGeometry(QRect(660, 260, 88, 25));
+        pB_wd_mode = new QPushButton(centralwidget);
+        pB_wd_mode->setObjectName(QString::fromUtf8("pB_wd_mode"));
+        pB_wd_mode->setGeometry(QRect(660, 260, 88, 25));
         hs_hall_effect = new QScrollBar(centralwidget);
         hs_hall_effect->setObjectName(QString::fromUtf8("hs_hall_effect"));
         hs_hall_effect->setGeometry(QRect(530, 110, 160, 16));
@@ -510,6 +516,7 @@ public:
         hs_adsr_attack = new QScrollBar(centralwidget);
         hs_adsr_attack->setObjectName(QString::fromUtf8("hs_adsr_attack"));
         hs_adsr_attack->setGeometry(QRect(530, 50, 160, 16));
+        hs_adsr_attack->setMinimum(2);
         hs_adsr_attack->setMaximum(100);
         hs_adsr_attack->setPageStep(1);
         hs_adsr_attack->setOrientation(Qt::Horizontal);
@@ -637,6 +644,12 @@ public:
         pb_fftmode = new QPushButton(centralwidget);
         pb_fftmode->setObjectName(QString::fromUtf8("pb_fftmode"));
         pb_fftmode->setGeometry(QRect(760, 260, 88, 26));
+        lb_FMO_LFO = new QLabel(centralwidget);
+        lb_FMO_LFO->setObjectName(QString::fromUtf8("lb_FMO_LFO"));
+        lb_FMO_LFO->setGeometry(QRect(260, 400, 31, 18));
+        lb_VCO_LFO = new QLabel(centralwidget);
+        lb_VCO_LFO->setObjectName(QString::fromUtf8("lb_VCO_LFO"));
+        lb_VCO_LFO->setGeometry(QRect(260, 210, 31, 18));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -696,6 +709,7 @@ public:
         rb_sta5->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
         rb_sta0->setText(QCoreApplication::translate("MainWindow", "Storage Area 0", nullptr));
         rb_sta6->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
+        label_12->setText(QCoreApplication::translate("MainWindow", "0                                     100", nullptr));
         cb_sta1->setText(QCoreApplication::translate("MainWindow", "play", nullptr));
         cb_sta2->setText(QCoreApplication::translate("MainWindow", "play", nullptr));
         cb_sta3->setText(QCoreApplication::translate("MainWindow", "play", nullptr));
@@ -718,7 +732,7 @@ public:
         label_11->setText(QCoreApplication::translate("MainWindow", "Attack", nullptr));
         glidefrequency->setText(QCoreApplication::translate("MainWindow", "glide freq.", nullptr));
         pB_Wavedisplay->setText(QString());
-        pB_Debug->setText(QString());
+        pB_wd_mode->setText(QString());
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
         pB_Specrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
         wf_vco->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
@@ -738,6 +752,8 @@ public:
         pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
         pB_oscgroup->setText(QString());
         pb_fftmode->setText(QString());
+        lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
+        lb_VCO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

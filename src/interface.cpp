@@ -355,7 +355,9 @@ uint8_t* Interface_class::Getstate_ptr( uint TypeId )
 	return state_p;
 }
 
-void Interface_class::Set( char& key, bool value )
+
+
+void Interface_class::Set( char& key, char value )
 {
 	if ( reject( addr->Composer, Type_Id ) ) return;
 	key = value;

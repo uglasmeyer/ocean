@@ -63,7 +63,7 @@ public:
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
     vector<QString>			Qwd_display_names	{};
-    vector<QString> 		Qwd_debugtype_names	{};
+    vector<QString> 		Qwd_wdmode_names	{};
     vector<QString>			Qwd_fftmodes		{};
     vector<QRadioButton*> 	rb_S_vec			{};
     vector<QRadioButton*> 	rb_sta_vec			{};

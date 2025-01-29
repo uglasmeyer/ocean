@@ -188,21 +188,15 @@ bool Instrument_class::read_instrument( )
 		arr = Str.to_array( ',' );
 
 		keyword = arr[0];
-		if ( ( strEqual("OSC", keyword) ) or ( strEqual("TYPE", keyword)) )
+		if ( ( strEqual("OSC", keyword) ) or ( strEqual("TYPE", keyword)) ) // TYPE compatibility
 		{
-			for ( Oscillator* osc : Oscgroup.oscgroup )
-			{
-				if ( osc->osc_type.compare( arr[1] ) == 0 )
-					init_data_structure( osc, arr );
-			}
+			Oscillator* osc = get_osc_by_name( arr[1] );
+			init_data_structure( osc, arr );
 		}
 		if ( keyword.compare("SPEC") == 0 )
 		{
-			for ( Oscillator* osc : Oscgroup.oscgroup )
-			{
-				if ( osc->osc_type.compare( arr[1] ) == 0 )
-					osc->spectrum =  osc->Parse_data( arr, osc->osctype_id );
-			}
+			Oscillator* osc = get_osc_by_name( arr[1] );
+			osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id );
 		}
 
 	} while( getline( File, Str.Str));
@@ -216,10 +210,11 @@ Oscillator* Instrument_class::get_osc_by_name( string name )
 {
 	for ( Oscillator* osc : Oscgroup.oscgroup )
 	{
-		if ( osc->osc_type.compare( name ) == 0 )
+		if ( strEqual( osc->osc_type, name ) )
 			return osc;
 	}
-
+	if ( strEqual( "MAIN", name  ) ) // compatibility
+		return osc;
 	Exception( "incomplete instrument definition for " + name );
 	return nullptr;
 }

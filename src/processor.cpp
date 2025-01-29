@@ -213,6 +213,8 @@ void Processor_class::Execute()
 			printf("%d ldc %p %s \n", SI.prgline, addr, str );
 			fprintf(LOG, "%d ldc %p %s \n", SI.prgline, addr, str );
 			this->sds->Write_str( SI.value, SI.str );
+			if ( SI.value == NOTESSTR_KEY )
+				sds->addr->NotestypeId = 1;
 
 			printf("%d ldc %p %d \t| set %s ", SI.prgline, &ifd->KEY, SI.key, str );
 			fprintf(LOG, "%d ldc %p %d \t| set %s ", SI.prgline, &ifd->KEY, SI.key, str );

@@ -36,17 +36,6 @@ class Spectrum_base : public virtual Logfacility_class
 {
 public:
 
-	const vector<string> osc_type_vec
-	{
-		"VCO",
-		"FMO",
-		"OSC",
-		"NOTES",
-		"KBD",
-		"Test",
-		"NULL"
-	};
-
 	typedef struct spec_struct
 	{
 		spec_dta_t				dta	= { 100,0,0,0,0,0,0,0 } ; 	// [osc, amplitude ... ]
@@ -85,8 +74,8 @@ public:
 	void 			Sum( spectrum_t& );
 
 private:
-	spectrum_t				spectrum		= spec_struct();
-
+	spectrum_t		spectrum	= spec_struct();
+	osc_roles_t		OscRole		= osc_struct();
 
 };
 

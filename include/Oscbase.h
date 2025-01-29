@@ -79,9 +79,10 @@ class Oscillator_base : virtual public Logfacility_class, virtual public Spectru
 {
 public:
 	char			osctype_id	= -1;//osc_struct::OSCID;
-	string 			osc_type 	= "no type";
 	char			oscrole_id	= -1;//osc_struct::INSTRID;
-	string 			osc_role 	= "no role";
+	string 		osc_role 	= "";
+	string 		osc_type 	= "";
+
 	bool			is_main_osc = false;
 
 
@@ -115,7 +116,6 @@ public:
 	stringstream Get_sound_stack();
 
 private:
-
 	string 		comment 		= "";
 	string 		csv_comment 	= "";
 	string 		command 		= "";

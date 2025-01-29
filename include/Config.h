@@ -46,9 +46,6 @@ private:
 
 };
 
-
-
-
 class DirStructure_class : virtual Logfacility_class
 {
 public:

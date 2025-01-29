@@ -25,7 +25,10 @@ void Core_class::Controller(char key)
 		Comment( INFO, "from filename: " + filename );
 
 		Notes->musicxml = MusicXML->Xml2notelist( filename );
-
+		if ( Notes->musicxml.scoreduration == 0 )
+		{
+			break;
+		}
 		Notes->Set_notelist( Notes->musicxml.notelist );
 		sds->Noteline_sec = Notes->musicxml.scoreduration / 1000;
 
@@ -197,17 +200,17 @@ void Core_class::Controller(char key)
 		Comment(INFO,
 				"receiving command <store sound to memory bank " + MbNr.str
 						+ " >");
-		for (int id : Mixer->MemIds) {
-			if (MbNr.val == id) {
-				string status = Mixer->StA[MbNr.val].Record_mode(true); // start record-stop play
-				Comment(INFO,
-						" Storage Id " + MbNr.str + " recording is "
-								+ status);
-				ProgressBar->Set(Mixer->StA[MbNr.val].Get_storeCounter_p(),
-						Mixer->StA[MbNr.val].ds.max_records);
-			} else // only one mb shall store data
+		for (int StaId : Mixer->MemIds)
+		{
+			if (MbNr.val == StaId)
 			{
-				Mixer->StA[id].Record_mode(false);
+				string status = Mixer->StA[StaId].Record_mode(true); // start record-stop play
+				ProgressBar->Set(Mixer->StA[StaId].Get_storeCounter_p(),
+						Mixer->StA[StaId].ds.max_records);
+			}
+			else // only one mb shall store data
+			{
+				Mixer->StA[StaId].Record_mode(false);
 			}
 		}
 		Sds->Commit();
@@ -355,7 +358,8 @@ void Core_class::Controller(char key)
 		Sds->Commit();
 		break;
 	}
-	case SETBASEOCTAVE_KEY: {
+	case SETBASEOCTAVE_KEY:
+	{
 		Value diff_oct { (int) (sds->FLAG) };
 		Notes->Set_base_octave(diff_oct.val); // is positive, therefore identify 0 -> -1, 1 -> 1
 		Sds->Commit();

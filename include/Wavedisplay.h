@@ -26,7 +26,7 @@ public:
 	void Write_wavedata ( );
 
 private:
-	void set_type		( const char& wd_type );
+	void set_wdmode		( const char& mode );
 	void setFFTmode		( const bool& mode );
 
 	string 			className		= "";
@@ -35,11 +35,12 @@ private:
 	buffer_t 		offs 			= 0;
 	size_t 			wdId 			= 0;
 	size_t			osId			= 0;
-	int 			Type			= wavedisplay_struct::FULLID;
+	int 			WdMode			= wavedisplay_struct::FULLID;
 	array< array< Data_t* , WD_OSC_SIZE>,  WD_ROLES_SIZE >
 					data_ptr_arr ;
 	Data_t*			data_ptr 		= nullptr;
 
+	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_switch	= true;
 	bool			fft_mode		= false;
 	wd_arr_t 		display_buffer 	= { 0 };
@@ -50,13 +51,13 @@ private:
 
 	typedef struct param_struct
 	{
-		int 	 drift 		= 20;
+		uint 	 drift 		= 20;
 		buffer_t len		= wavedisplay_len;	// length of the output buffer
-		buffer_t step 		= 10; 				// ignore step # of data points
+		buffer_t step 		= 10; 				// jump over step values of data
 		buffer_t max_offs 	= max_frames - len*step ;
 	} param_t;
 
-	param_t param_flow;
+	param_t param_flow	= param_struct();
 	param_t param_full 	= { 0, wavedisplay_len		, max_frames/wavedisplay_len, max_frames };
 	param_t param_split	= { 0, wavedisplay_len / 2	, 1 						, max_frames };//frames_per_sec };
 

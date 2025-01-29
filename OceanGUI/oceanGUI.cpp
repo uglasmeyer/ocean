@@ -96,7 +96,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	QWaveform_vec = fromstringvector( Spectrum.Get_waveform_vec() );
 
 
-	Qwd_debugtype_names = fromstringvector( wavedisplay_struct().types );
+	Qwd_wdmode_names = fromstringvector( wavedisplay_struct().types );
 	Qwd_osc_names 		= fromstringvector( osc_struct().types );
 	Qwd_display_names 	= fromstringvector( osc_struct().roles );
 	Qwd_fftmodes		= fromstringvector( wavedisplay_struct().fftmodes );
@@ -139,7 +139,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->cb_bps		, SIGNAL(activated(int)), this, SLOT(cB_Beat_per_sec(int) ));
     connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
     connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
-    connect(ui->pB_Debug, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
+    connect(ui->pB_wd_mode, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
     connect(ui->pB_oscgroup, SIGNAL(clicked()), this, SLOT(pB_oscgroup_clicked()));
     connect(ui->pb_fftmode, SIGNAL(clicked()), this, SLOT(pB_fftmode_clicked()));
 
@@ -224,7 +224,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
     ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
     ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_status.fftmode ]);
-    ui->pB_Debug->setText( Qwd_debugtype_names[ Sds->addr->WD_status.typeId ]);
+    ui->pB_wd_mode->setText( Qwd_wdmode_names[ Sds->addr->WD_status.wd_mode ]);
     ui->pB_Wavedisplay->setText( Qwd_display_names[ Sds->addr->WD_status.roleId ]);
 
     setwidgetvalues();
@@ -644,6 +644,11 @@ void MainWindow::Slider_VCO_Hz_changed(int value )
     float freq = ( value >= LFO_count ) 	?  value - LFO_count
     								:  (float) value / LFO_count;
 
+    if ( value < LFO_count )
+    	ui->lb_VCO_LFO->show();
+    else
+    	ui->lb_VCO_LFO->hide();
+
     ui->VCOLCD_Hz->display( freq );
 
     Slider_Hz( this->Sds, this->Sds->addr->VCO_wp.frequency, freq, VCOFREQUENCYKEY );
@@ -654,6 +659,10 @@ void MainWindow::Slider_FMO_Hz_changed(int value )
 {
     float freq = ( value >= LFO_count ) 	?  value - LFO_count
     								:  (float) value / LFO_count;
+    if ( value < LFO_count )
+    	ui->lb_FMO_LFO->show();
+    else
+    	ui->lb_FMO_LFO->hide();
 
     ui->FMOLCD_Hz->display( freq );
 
@@ -810,11 +819,11 @@ void MainWindow::main_adsr_sustain()
 
 void MainWindow::pB_Debug_clicked()
 {
-    uint8_t counter = ( Sds->addr->WD_status.typeId + 1 ) % WD_TYPES_SIZE;
-    Sds->Set( Sds->addr->WD_status.typeId , counter);
+    uint8_t counter = ( Sds->addr->WD_status.wd_mode + 1 ) % WD_MODE_SIZE;
+    Sds->Set( Sds->addr->WD_status.wd_mode , counter);
     Sds->Set( Sds->addr->KEY , SETWAVEDISPLAYKEY );
 
-    ui->pB_Debug->setText( Qwd_debugtype_names[ (int)counter ] );
+    ui->pB_wd_mode->setText( Qwd_wdmode_names[ (int)counter ] );
 }
 
 void MainWindow::pB_oscgroup_clicked()
@@ -838,8 +847,8 @@ void MainWindow::pB_Wavedisplay_clicked()
 void MainWindow::pB_fftmode_clicked()
 {
 	bool fft_mode = not (Sds->addr->WD_status.fftmode );
-	Sds->Set( Sds->addr->WD_status.fftmode, fft_mode );
-	Sds->Set( Sds->addr->KEY, SETWAVEDISPLAYKEY );
+	Sds->_Set( Sds->addr->WD_status.fftmode, fft_mode );
+	Sds->_Set( Sds->addr->KEY, SETWAVEDISPLAYKEY );
 	cout << "pB_fftmode_clicked" << boolalpha << Sds->addr->WD_status.fftmode << endl;
 
 	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );

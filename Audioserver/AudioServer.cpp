@@ -232,10 +232,15 @@ void Application_loop()
 
 void write_waveaudio()
 {
+	if ( sds->WD_status.roleId != osc_struct::AUDIOID )
+		return;
+
 	for( buffer_t n = 0; n < max_frames; n++ )
 	{
 		mono_out.Data[n] = shm_addr[n].left + shm_addr[n].right;
 	}
+
+	Wavedisplay.SetDataPtr( sds->WD_status );
 	Wavedisplay.Write_wavedata();
 }
 
@@ -285,12 +290,9 @@ void set_rcounter( )
 //Time_class Measure{};
 void set_ncounter( buffer_t n )
 {
-	if( mode == KEYBOARD )
-		ncounter	= 0;
 
 	buffer_t audioframes = sds->audioframes;
 	if ( n > audioframes - 1 )
-//	if ( n > frames_per_sec - 1 )
 	{
 //		cout << Measure.Time_elapsed() << "[msec]" << endl;
 //		Measure.Start();
@@ -303,8 +305,7 @@ void set_ncounter( buffer_t n )
 
 		call_for_update();
 
-		if ( sds->WD_status.roleId == osc_struct::AUDIOID )
-			write_waveaudio();
+		write_waveaudio();
 	}
 }
 
@@ -373,10 +374,11 @@ int main( int argc, char *argv[] )
     DaTA.Sem.Reset( SEMAPHORE_RECORD );
 	sds->RecCounter 	= 0;
 
-	Wavedisplay.Add_role_ptr( osc_struct::AUDIOID, mono_out.Data );
-	wd_status_t wd_status = WD_status_struct();
-	wd_status.roleId = osc_struct::AUDIOID;
-	wd_status.typeId = osc_struct::OSCID;
+	wd_status_t wd_status 	= WD_status_struct();
+	wd_status.roleId 		= osc_struct::AUDIOID;
+	wd_status.oscId 		= osc_struct::OSCID;
+
+	Wavedisplay.Add_role_ptr( wd_status.roleId, mono_out.Data );
 	Wavedisplay.SetDataPtr( wd_status );
 
 //	wav_header.srate 				= Cfg->Config.rate;

@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-//#include <rtsp/Rtsp.h>
+#include <rtsp/Rtsp.h>
 
 
 #include <Time.h>
@@ -110,7 +110,7 @@ int main(  int argc, char* argv[] )
 	string cfg = "";
 	if( Cfg->Config.composer == 'y' )
 	{
-		Start_synthesizer( DaTA.Cfg.Config.SDS_key );
+		Start_synthesizer( 0 );
 
 		Log.Comment( INFO, "waiting for release of SEMAPHORE_STARTED");
 		Sem->Lock( SEMAPHORE_STARTED );

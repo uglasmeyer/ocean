@@ -68,24 +68,23 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 		}
 	};
 
-
-	cd_vec_t cdv {};
-	auto gen_fft = [ this, &cdv ]( param_t param )
+	auto gen_fft = [ this ]( param_t param )
 	{
+		cd_vec_t cdv {};
 		buffer_t 	audioframes = Sds_p->addr->audioframes;
 		param.step	= rint( audioframes / 512 );
 		for ( buffer_t n = 0; n < audioframes; n = n + param.step )
 		{
-			Data_t value = rint( data_ptr[n] );
-			cdv.push_back( cd_t((double)value ));
+			Data_t value = data_ptr[n];
+			cdv.push_back( cd_t( (double)value, 0.0 ));
 		}
+		display_buffer = fft( cdv, false );
 	};
-
 
 	auto gen_flow = [ this ]( param_t param )
 	{
-		int idx 	= 0;
-		int step	= param.step;
+		uint idx 	= 0;
+		uint step	= param.step;
 		for ( buffer_t n = offs; n < param.len*step + offs; n = n + step )
 		{
 			Data_t value = rint( data_ptr[n] );
@@ -101,37 +100,33 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 	}
 
 	param_t param;
-	switch ( Type )
+	switch ( WdMode )
 	{
-	case wavedisplay_struct::FULLID :
+		case wavedisplay_struct::FULLID :
 		{
 			param = param_full;
 			gen_full( param );
 			break;
 		}
-	case wavedisplay_struct::FLOWID :
+		case wavedisplay_struct::FLOWID :
 		{
 			param = param_flow;
+			param.max_offs = Sds_p->addr->audioframes - param.len*param.step;
 			gen_flow( param );
 			break;
 		}
-	case wavedisplay_struct::DEBUGID :
+		case wavedisplay_struct::DEBUGID :
 		{
 			param = param_split;
 			gen_debug( param );
 			break;
 		}
-	case wavedisplay_struct::FFTID :
+		case wavedisplay_struct::FFTID :
 		{
-			if ( fft_mode )
-			{
-				cout << "gen fft- ";
-				gen_fft( param_full );
-				display_buffer = fft( cdv, false );
-			}
+			gen_fft( param_full );
 			break;
 		}
-	default :
+		default :
 		{
 			Comment(ERROR,"No valid wave display type provided to gen_cxwave_data");
 			return display_buffer;
@@ -151,9 +146,9 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 void Wavedisplay_class::Write_wavedata()
 {
 	wd_arr_t display_data = gen_cxwave_data(  );
-	if (( not debug_switch ) and ( Type == wavedisplay_struct::DEBUGID ))
+	if (( not debug_switch ) and ( WdMode == wavedisplay_struct::DEBUGID ))
 		Sds_p->Write_arr( display_data );
-	if ( not ( Type == wavedisplay_struct::DEBUGID ))
+	if ( not ( WdMode == wavedisplay_struct::DEBUGID ))
 		Sds_p->Write_arr( display_data );
 }
 
@@ -165,23 +160,23 @@ void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 														  "[" + to_string(status.oscId) + "]");
 	else
 		Comment( INFO, "wave display selected: "+
-						osc_struct().roles[ status.roleId ] + " " +
-						osc_struct().types[ status.oscId ] );
-	set_type( status.typeId );
+						OscRole.roles[ status.roleId ] + " " +
+						OscRole.types[ status.oscId ] );
+	set_wdmode( status.wd_mode );
 	setFFTmode( status.fftmode );
 }
 
-void Wavedisplay_class::set_type		( const char& wd_type )
+void Wavedisplay_class::set_wdmode		( const char& _mode )
 {
-	Type 			= wd_type;
+	WdMode 			= _mode;
 	debug_switch	= false;
 }
 
 void Wavedisplay_class::setFFTmode( const bool& mode )
 {
 	if ( mode )
-		Type		= wavedisplay_struct::FFTID;
-	fft_mode = mode;
+		WdMode		= wavedisplay_struct::FFTID;
+//	fft_mode = mode;
 }
 void Wavedisplay_class::Add_role_ptr	( const char& wd_role, Data_t* ptr )
 {
@@ -202,8 +197,8 @@ void Wavedisplay_class::Add_data_ptr	( const char& osctype, const char& wd_role,
 	data_ptr_arr[ wd_role ][osctype ] = ptr;
 
 	Comment( INFO, "adding wave display: " + to_string( wd_role ) 	+ " " +
-					osc_struct().roles[wd_role]						+  " - " +
-					osc_struct().types[osctype] );
+					OscRole.roles[wd_role]						+  " - " +
+					OscRole.types[osctype] );
 
 }
 

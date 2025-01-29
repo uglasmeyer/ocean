@@ -63,7 +63,7 @@ wd_arr_t fft(cd_vec_t data, bool invert)
     float max = 0;
 	for( uint n  = 0; n < wavedisplay_len; n++)
 	{
-		if ( n < data_len )
+		if ( n < data_len / 2 )
 		{
 			wd_arr[n] = abs( real( data[n])  );
 			if ( wd_arr[n] > max )

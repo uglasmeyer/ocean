@@ -211,9 +211,9 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 	assert( phase_r.size() == StA.size() );
 	assert( sta_amp <= 100 );
 
-	float volpercent=sta_amp/100.0;
-	float Data_r = (phase_r[id] * volpercent)/10;
-	float Data_l = (phase_l[id] * volpercent)/10;
+	float volpercent= sta_amp / 100.0;
+	float Data_r 	= (phase_r[id] * volpercent)/10;
+	float Data_l 	= (phase_l[id] * volpercent)/10;
 
 	for( buffer_t n = 0; n < max_frames; n++)
 	{

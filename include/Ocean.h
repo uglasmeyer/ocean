@@ -68,6 +68,8 @@ const buffer_t		frames_per_sec  	= sample_rate;
 
 const uint8_t		max_sec 			= 2;//8;
 const uint16_t		max_milli_sec 		= max_sec * 1000;
+const uint16_t		min_milli_sec		= 250;
+
 const buffer_t		max_frames			= max_sec * frames_per_sec;
 const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
 
@@ -103,11 +105,9 @@ typedef struct osc_struct
 	{
 		"VCO",
 		"FMO",
-		"OSC",
-		"TEST",
-		"NULL"
+		"OSC"
 	};
-	enum { VCOID, FMOID, OSCID, TESTID, OTHERID };
+	enum { VCOID, FMOID, OSCID };
 
 
 } osc_roles_t;

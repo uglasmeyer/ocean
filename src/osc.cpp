@@ -112,12 +112,12 @@ Oscillator::~Oscillator()
 void Oscillator::SetId( char role, char type )
 {
 	osctype_id	= type;
-	osc_type 	= osc_struct().types[osctype_id];
+	osc_type 	= OscRole.types[osctype_id];
 
 	oscrole_id	= role;
-	osc_role	= osc_struct().roles[oscrole_id];
+	osc_role	= OscRole.roles[oscrole_id];
 
-	is_main_osc = ( osctype_id == osc_struct::OSCID );
+	is_main_osc = ( osctype_id == OscRole.OSCID );
 
 	mem_init();
 	Mem_vco.Info( osc_type );
@@ -152,7 +152,7 @@ void Oscillator::set_phi( double phi, double mod ) //phase at the end of the osc
 
 double Oscillator::get_phi( )// phase at the begin of the osc
 {
-	if ( oscrole_id == osc_struct::NOTESID )
+	if ( oscrole_id == OscRole.NOTESID )
 		this->phase = 0.0;
 	return this->phase;
 }
@@ -354,7 +354,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 
 	for ( buffer_t n = 0; n < frames ; n++ )
 	{
-		if (( this->oscrole_id != osc_struct::NOTESID )) // enable polyphone adding of notes - notes::note2memory
+		if (( this->oscrole_id != OscRole.NOTESID )) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
 
 		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) / spectrum.sum; // VCO envelope
@@ -404,7 +404,7 @@ void Oscillator::apply_adsr( buffer_t frames, Data_t* data )
 		data[ n ] = data[ n ] * adsrdata[ beat_cursor ];
 		beat_cursor = ( beat_cursor + 1 ) % adsrdata.size();
 	}
-	if ( oscrole_id == osc_struct::KBDID )
+	if ( oscrole_id == OscRole.KBDID )
 		cout << "beat_cursor: " << (int) beat_cursor << endl;
 }
 
@@ -462,7 +462,7 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 void Oscillator::Test()
 {
 	TEST_START( className );
-	SetId( osc_struct::NOTESID, osc_struct::OSCID );
+	SetId( OscRole.NOTESID, OscRole.OSCID );
 	assert( abs( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
 	assert( abs( Mem_fmo.Data[0]				)	< 1E-8 );
 	assert( Mem.ds.data_blocks 	== max_frames );

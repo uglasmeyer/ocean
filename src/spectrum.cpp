@@ -97,7 +97,7 @@ string Spectrum_base::Show_this_spectrum( spectrum_t spec )
 	auto show_struct = [ this, &strs, &show_dta ]( auto spec )
 		{
 			strs 	<< right << "SPEC,"
-					<< setw(9) << osc_type_vec[ spec.osc ] << ","
+					<< setw(9) << OscRole.types[ spec.osc ] << ","
 					<< setw(9) << Get_waveform_str( spec.id ) << ",";
 			std::ranges::for_each( spec.dta, show_dta);
 			strs << dec << setw(3) << spec.sum ;
