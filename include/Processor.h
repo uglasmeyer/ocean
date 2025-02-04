@@ -33,11 +33,13 @@ class Processor_class : virtual Logfacility_class
 	interface_t* 		ifd ;
 	Semaphore_class*	Sem ;
 	Time_class			Timer{};
+	string				className = "";
 
 public:
 
 	Processor_class( Interface_class* gui ) : Logfacility_class("Processor")
 	{
+		className	= Logfacility_class::module;
 		this->sds = gui;
 		this->ifd = gui->addr;
 		this->Sem = gui->Sem_p;

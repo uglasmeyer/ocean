@@ -25,7 +25,7 @@ public:
 
 	typedef struct mixer_status_struct // mixer status
 	{
-		bool 	play			= false; // explicite sync mode
+		bool 	sync			= false; // explicite sync mode
 		bool 	notes			= false; // play notes
 		bool 	external		= false; // external play or record
 		bool	mute			= false; // mute master volume

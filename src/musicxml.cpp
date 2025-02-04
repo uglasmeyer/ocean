@@ -147,7 +147,7 @@ Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 			p = note_p->FirstChildElement("duration");
 			if( p )
 			{
-				note.duration = ( get_int( -1, p ) * 250 ) / musicxml.divisions;
+				note.duration = ( get_int( -1, p ) * 500 ) / musicxml.divisions;
 				musicxml.scoreduration += note.duration;
 			}
 							// get chord from note

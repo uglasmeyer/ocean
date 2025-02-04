@@ -156,7 +156,7 @@ void 	Storage_class::Reset_counter( )
 
 string 	Storage_class::Play_mode( bool flag )
 {
-	Comment(INFO, "mute " + StAparam.name );
+//	Comment(INFO, "mute " + StAparam.name );
 	state.play = flag;
 	return (state.play) ? "ON" : "OFF";
 }

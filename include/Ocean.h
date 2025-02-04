@@ -25,7 +25,7 @@
 #include <random>
 #include <ranges>
 #include <set>
-#include <source_location> // Assert
+#include <experimental/source_location> // Assert
 #include <stdexcept>
 #include <sstream>
 #include <string>
@@ -58,10 +58,11 @@ typedef unsigned long int 	buffer_t;
 typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
 typedef vector<Data_t>		DataVec_t;
+typedef double		phi_t;
 
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
-const double 		pi					= 3.1415926536;//3.141592654;
+const phi_t 		pi					= 3.1415926536;//3.141592654;
 
 const uint			sample_rate			= 48000; //device dependent fix
 const buffer_t		frames_per_sec  	= sample_rate;

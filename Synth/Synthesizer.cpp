@@ -5,6 +5,7 @@ using namespace std;
 
 Exit_class				Exit{};
 Logfacility_class		Log( "Synthesizer" );
+
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
 
@@ -96,19 +97,22 @@ void activate_sds()
 
 void SetAudioframes()
 {
-	Mixer.status.play = false;
+	Mixer.status.sync = false;
 	for( uint id : Mixer.SycIds)
-		Mixer.status.play |= Mixer.StA[id].state.play;
-	if ( Mixer.status.play )
+		Mixer.status.sync |= ( Mixer.StA[id].state.play or Mixer.StA[id].state.store );
+
+	if ( Mixer.status.sync )
 		sds->audioframes = Instrument.Set_msec( max_milli_sec );
 	else
 		sds->audioframes = Instrument.Set_msec( min_milli_sec );
-
 }
 
 
 void add_sound( )
 {
+
+	SetAudioframes();
+
 	if ( Mixer.status.notes )
 	{
 		Notes.Set_instrument( &Instrument );
@@ -127,8 +131,7 @@ void add_sound( )
 
 	ProgressBar.Update();
 
-	if ( sds->WD_status.roleId != osc_struct::AUDIOID )
-		Wavedisplay.Write_wavedata();
+
 }
 
 
@@ -164,6 +167,7 @@ void ApplicationLoop()
 
 		char Key = sds->KEY;
 		Synthesizer.Controller( Key );
+
 		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
 		if ( Mixer.status.kbd )
@@ -181,10 +185,10 @@ void ApplicationLoop()
 		if ( sds->Synthesizer != EXITSERVER )
 			sds->Synthesizer = RUNNING;
 
-		if ( sds->WD_status.wd_mode == wavedisplay_struct::FLOWID )
+//		if ( sds->WD_status.wd_mode == wavedisplay_struct::FLOWID )
+//			Wavedisplay.Write_wavedata();
+		if ( sds->WD_status.roleId != osc_struct::AUDIOID )
 			Wavedisplay.Write_wavedata();
-
-		SetAudioframes();
 	} ;
 
 
@@ -255,15 +259,15 @@ void exit_proc( int signal )
 	{
 		Log.Comment( ERROR, "Exit procedure failed" );
 		Log.Comment( WARN, "Synthesizer reached target exit " + to_string( signal ));
-		exit( signal );
+		exit( 0 );
 	}
 	sig_counter++;
 
-	string text = "received signal: " + to_string( signal );
+//	string text = "received signal: " + to_string( signal ); - lost pointer
 	if ( signal > 2 )
-		Log.Comment( ERROR, text );
+		Log.Comment( ERROR, "received signal: " + to_string( signal ) );
 	else
-		Log.Comment(INFO, text );
+		Log.Comment(INFO, "received signal: " + to_string( signal ) );
 
 	stop_threads();
 

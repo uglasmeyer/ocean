@@ -26,6 +26,7 @@ extern set<int> range_set( const int& min, const int& max );
 extern bool 	strEqual( const string& , const string&  );
 extern string 	notnull( char* cstr );
 
+
 template< typename C > vector<C> set2vector( set<C> s )
 {
 	vector<C> v {};
@@ -81,14 +82,14 @@ class String : virtual public Logfacility_class
 {
 public:
 	string 			Str{""};
-	vector<string> 	vec{""};
+	vector<string> 	Vec{};
 	set<char>		Set{};
 
 	String( const string& str ) : Logfacility_class("String")
 	{
 		this->Str = str;
         this->Set = to_set( );
-
+        std::ranges::for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});
 	}
 	~String(){};
 

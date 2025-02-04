@@ -103,7 +103,7 @@ void Interface_class::Show_interface()
 	string status1 {};
 	status1 	= 	      conv_bool_s(addr->mixer_status.external) +
 					"," + conv_bool_s(addr->mixer_status.notes) +
-					"," + conv_bool_s(addr->mixer_status.play) +
+					"," + conv_bool_s(addr->mixer_status.sync) +
 					"," + conv_bool_s(addr->mixer_status.mute) +
 					"," + conv_bool_s(addr->mixer_status.kbd) +
 					"," + conv_bool_s(addr->mixer_status.instrument );
@@ -177,10 +177,10 @@ void Interface_class::Show_interface()
 	lline( "Instrument        :" , addr->Instrument);
 	rline( "Wav filename      :" , addr->Other );
 
-	lline( "Notes             :" , addr->Notes );
+	lline( "Notes             :" , addr->Notes + NotesExtension[ addr->NotestypeId ] );
 	rline( "Noteline duration :" , (int) addr->Noteline_sec);
 
-	Lline( "Status Extr,Note,Play,Mute,Kbd,Inst:" , status1 );
+	Lline( "Status Extr,Note,Sync,Mute,Kbd,Inst:" , status1 );
 	rline( "StA #:Amp         :" , status3.str() );
 	rline( "Status StA #:ps,  :" , status2.str() );
 
@@ -283,7 +283,6 @@ void Interface_class::Reset_ifd()
 	Comment(INFO, "Reset shared data");
 	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
 	Dump_ifd();
-
 }
 
 bool Interface_class::Restore_ifd()
@@ -354,36 +353,4 @@ uint8_t* Interface_class::Getstate_ptr( uint TypeId )
 	assert( state_p != nullptr );
 	return state_p;
 }
-
-
-
-void Interface_class::Set( char& key, char value )
-{
-	if ( reject( addr->Composer, Type_Id ) ) return;
-	key = value;
-}
-void Interface_class::Set( bool& key, bool value )
-{
-	if ( reject( addr->Composer, Type_Id ) ) return;
-	key = value;
-}
-
-void Interface_class::Set( uint8_t& key, uint8_t value )
-{
-	if ( reject( addr->Composer, Type_Id ) ) return;
-	key = value;
-}
-
-void Interface_class::Set( uint16_t& key, uint16_t value )
-{
-	if ( reject( addr->Composer, Type_Id ) ) return;
-	key = value;
-}
-
-void Interface_class::Set( float& key, float value )
-{
-	if ( reject( addr->Composer, Type_Id ) ) return;
-	key = value;
-}
-
 

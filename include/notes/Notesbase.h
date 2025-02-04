@@ -19,6 +19,7 @@
  * https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
  */
 
+const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
 
 class Note_base : virtual public Logfacility_class
 {
@@ -42,7 +43,10 @@ public:
 												"Numeric",
 												"Alphabet",
 												"German"};
-	enum conventionId_t { ENGLISH, NUMERIC, ALPHABET, GERMAN };
+	enum 					conventionId_t { 	ENGLISH,
+												NUMERIC,
+												ALPHABET,
+												GERMAN };
 	set<int> 				conventionId_set { 	ENGLISH,
 												NUMERIC,
 												ALPHABET,

@@ -104,15 +104,17 @@ void SynthesizerTestCases()
 	Log.TEST_END( "Application " );
 
 	DaTA.Reg.Test_Register();
+	System_Test();
 }
 
-Application_class::Application_class( 	Dataworld_class* DaTA ) :
+Application_class::Application_class( 	Dataworld_class* _DaTA ) :
 Logfacility_class( "App" )
 {
-	this->Name 					= Logfacility_class::module ;
-	this->DaTA					= DaTA;
+	this->Name 					= _DaTA->Cfg.prgname;
+	this->className				= Logfacility_class::module ;
+	this->DaTA					= _DaTA;
 
-	this->This_Application 		= Application + Name + " " + Version_str;
+	this->This_Application 		= Application + DaTA->Cfg.prgname + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
 
 }
@@ -192,7 +194,7 @@ Application_class::~Application_class()
 
 void Application_class::deRegister( )
 {
-	auto closeStderr = [ this ]( string errFile )
+/*	auto closeStderr = [ this ]( string errFile )
 	{
 		Info2(1, "Closing stderr");
 
@@ -210,7 +212,7 @@ void Application_class::deRegister( )
 
 	    cFile.close( );
 	};
-
+*/
 
 	auto setState = [ this ](  )
 	{
@@ -227,14 +229,14 @@ void Application_class::deRegister( )
 
 
 	setState( );
-	closeStderr( errFile );
+//	closeStderr( errFile ); TODO causes valgrind error
 }
 
 void Application_class::Ready(  )
 {
 	Statistic.Show_Statistic( );
 
-	Comment(INFO, Name + " is ready");
+	Comment(INFO, DaTA->Cfg.prgname + " is ready");
 	cout << Line << endl;
 }
 

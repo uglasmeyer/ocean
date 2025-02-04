@@ -20,6 +20,7 @@
 #include <data/Semaphore.h>
 #include <Rtsp_dialog_class.h>
 #include <Wavedisplay_base.h>
+#include <Sds_dialog_class.h>
 
 
 // qtcreator
@@ -55,6 +56,9 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_Obj { this, DaTA->Sds_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_Obj;
 
+    SDS_Dialog_class		SDS_Dialog_Obj		{ this, Sds };
+    SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
+
     interface_t*			Sds_master			= DaTA->sds_master;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = "default";
@@ -83,6 +87,7 @@ private slots:
 
 //	void show_time_elapsed();
 	void Rtsp_Dialog();
+	void SDS_Dialog();
 
     void dial_soft_freq_value_changed();
     void cB_Beat_per_sec( int );

@@ -75,11 +75,11 @@ void Loop_class::Test()
 
 	ch =0; Loop.Start(0, 0, 0);
 	for( int i = 0; i<10; i++ ) Loop.Next_amp();
-	Assert( ch == 0, "ch " + to_string( ch ) );
+	ASSERTION( ch == 0, "ch " , ch, "0" );
 
 	ch = 0; Loop.Start(0, 0, -1);
 	for( int i = 0; i<10; i++ ) Loop.Next_amp( );
-	Assert( ch == 0,  "ch " + to_string( ch ) );
+	ASSERTION( ch == 0, "ch " , ch, "0" );
 
 	ch = 10; Loop.Start(10, 20, -1);
 	for( int i = 0; i<20; i++ ) Loop.Next_amp( );

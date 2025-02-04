@@ -13,19 +13,8 @@ Logfacility_class Log_common{"System"};
 
 
 
-void Assert(	bool expr,
-				const string message,
-				const source_location location ) // @suppress("Function cannot be resolved") // @suppress("Type cannot be resolved")
-{
-	if ( expr ) return;
-	cout 	<< "file: "
-			<< location.file_name() << '(' // @suppress("Method cannot be resolved")
-			<< location.line() << ':' // @suppress("Method cannot be resolved")
-			<< location.column() << ") `" // @suppress("Method cannot be resolved")
-			<< location.function_name() << "`: " // @suppress("Method cannot be resolved")
-			<< message << '\n';
-	Exception( message  );
-}
+
+
 void Exception( const string& err_str )
 {
 	Log_common.Comment( ERROR, err_str );
@@ -96,10 +85,14 @@ string searchPath( string file )
     return string("");
 }
 
-bool Is_running_process( const string& pid_str )
+void System_Test()
 {
-	string dirname = filesystem::path( "/proc/" + pid_str );
-	return filesystem::is_directory( dirname ) ;
+	Log_common.TEST_START( "System" );
+	ASSERTION( Is_running_process(   1  ), "Process", Is_running_process(  1 ), true) ;
+	ASSERTION( Is_running_process(  "1" ), "Process", Is_running_process(  1 ), true) ;
+	ASSERTION( not Is_running_process(  -1 ), "Process", Is_running_process(  1 ), false ) ;
+	Log_common.TEST_END( "System" );
+
 }
 
 

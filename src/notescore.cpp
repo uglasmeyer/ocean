@@ -104,10 +104,11 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 	return true;
 }
 
-Note_class::note_t Note_class::Start_note_itr()
+void Note_class::Start_note_itr()
 {
 	note_itr = notelist.begin();
-	return *note_itr;
+	if ( note_itr == notelist.end() )
+		Comment( WARN, "Empty notelist" );
 }
 
 
@@ -302,13 +303,14 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 		{
 			pos++;
 
-			if ( Noteline[pos] == '\'' ) Octave += 1;
-			if ( Noteline[pos] == ','  ) Octave -= 1;
+			if ( Noteline[pos] == '\'' ) { Octave += 1; break; }
+			if ( Noteline[pos] == ','  ) { Octave -= 1; break; }
 
 			int oct = get_oct_value( Noteline[pos] );
 			if ( oct < 0 )
 				return parse_error;
-			Set_prefix_octave( oct );
+			Octave = oct;
+//			Set_prefix_octave( oct );
 			return pos;
 			break;
 		}

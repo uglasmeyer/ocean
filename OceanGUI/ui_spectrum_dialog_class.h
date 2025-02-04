@@ -14,6 +14,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
@@ -27,13 +28,13 @@ class Ui_Spectrum_Dialog_class
 public:
     QFrame *frame;
     QGridLayout *gridLayout_2;
-    QSlider *vS_1;
+    QSlider *fS_1;
     QSlider *vS_2;
-    QSlider *vS_3;
+    QSlider *fS_3;
     QSlider *vS_4;
-    QSlider *vS_5;
+    QSlider *fS_5;
     QSlider *vS_6;
-    QSlider *vS_7;
+    QSlider *fS_7;
     QSlider *vS_8;
     QPushButton *pB_save_spectrum;
     QLabel *lbl_instrument;
@@ -41,17 +42,20 @@ public:
     QLabel *label;
     QLabel *label_2;
     QFrame *frame_rb_osc;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QGridLayout *gridLayout_3;
     QRadioButton *rb_spec_main;
     QRadioButton *rb_spec_vco;
     QRadioButton *rb_spec_fmo;
+    QLCDNumber *lcd_spectrumDisplay;
+    QLabel *lbl_spectrumDisplay;
+    QRadioButton *rb_reset;
 
     void setupUi(QDialog *Spectrum_Dialog_class)
     {
         if (Spectrum_Dialog_class->objectName().isEmpty())
             Spectrum_Dialog_class->setObjectName(QString::fromUtf8("Spectrum_Dialog_class"));
-        Spectrum_Dialog_class->resize(298, 217);
+        Spectrum_Dialog_class->resize(339, 217);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -147,12 +151,12 @@ public:
         frame->setFrameShadow(QFrame::Raised);
         gridLayout_2 = new QGridLayout(frame);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        vS_1 = new QSlider(frame);
-        vS_1->setObjectName(QString::fromUtf8("vS_1"));
-        vS_1->setMaximum(100);
-        vS_1->setOrientation(Qt::Vertical);
+        fS_1 = new QSlider(frame);
+        fS_1->setObjectName(QString::fromUtf8("fS_1"));
+        fS_1->setMaximum(100);
+        fS_1->setOrientation(Qt::Vertical);
 
-        gridLayout_2->addWidget(vS_1, 0, 0, 1, 1);
+        gridLayout_2->addWidget(fS_1, 0, 0, 1, 1);
 
         vS_2 = new QSlider(frame);
         vS_2->setObjectName(QString::fromUtf8("vS_2"));
@@ -161,12 +165,12 @@ public:
 
         gridLayout_2->addWidget(vS_2, 0, 1, 1, 1);
 
-        vS_3 = new QSlider(frame);
-        vS_3->setObjectName(QString::fromUtf8("vS_3"));
-        vS_3->setMaximum(100);
-        vS_3->setOrientation(Qt::Vertical);
+        fS_3 = new QSlider(frame);
+        fS_3->setObjectName(QString::fromUtf8("fS_3"));
+        fS_3->setMaximum(100);
+        fS_3->setOrientation(Qt::Vertical);
 
-        gridLayout_2->addWidget(vS_3, 0, 2, 1, 1);
+        gridLayout_2->addWidget(fS_3, 0, 2, 1, 1);
 
         vS_4 = new QSlider(frame);
         vS_4->setObjectName(QString::fromUtf8("vS_4"));
@@ -175,12 +179,12 @@ public:
 
         gridLayout_2->addWidget(vS_4, 0, 3, 1, 1);
 
-        vS_5 = new QSlider(frame);
-        vS_5->setObjectName(QString::fromUtf8("vS_5"));
-        vS_5->setMaximum(100);
-        vS_5->setOrientation(Qt::Vertical);
+        fS_5 = new QSlider(frame);
+        fS_5->setObjectName(QString::fromUtf8("fS_5"));
+        fS_5->setMaximum(100);
+        fS_5->setOrientation(Qt::Vertical);
 
-        gridLayout_2->addWidget(vS_5, 0, 4, 1, 1);
+        gridLayout_2->addWidget(fS_5, 0, 4, 1, 1);
 
         vS_6 = new QSlider(frame);
         vS_6->setObjectName(QString::fromUtf8("vS_6"));
@@ -189,12 +193,12 @@ public:
 
         gridLayout_2->addWidget(vS_6, 0, 5, 1, 1);
 
-        vS_7 = new QSlider(frame);
-        vS_7->setObjectName(QString::fromUtf8("vS_7"));
-        vS_7->setMaximum(100);
-        vS_7->setOrientation(Qt::Vertical);
+        fS_7 = new QSlider(frame);
+        fS_7->setObjectName(QString::fromUtf8("fS_7"));
+        fS_7->setMaximum(100);
+        fS_7->setOrientation(Qt::Vertical);
 
-        gridLayout_2->addWidget(vS_7, 0, 6, 1, 1);
+        gridLayout_2->addWidget(fS_7, 0, 6, 1, 1);
 
         vS_8 = new QSlider(frame);
         vS_8->setObjectName(QString::fromUtf8("vS_8"));
@@ -205,7 +209,7 @@ public:
 
         pB_save_spectrum = new QPushButton(Spectrum_Dialog_class);
         pB_save_spectrum->setObjectName(QString::fromUtf8("pB_save_spectrum"));
-        pB_save_spectrum->setGeometry(QRect(209, 11, 80, 25));
+        pB_save_spectrum->setGeometry(QRect(230, 11, 80, 25));
         lbl_instrument = new QLabel(Spectrum_Dialog_class);
         lbl_instrument->setObjectName(QString::fromUtf8("lbl_instrument"));
         lbl_instrument->setGeometry(QRect(102, 160, 70, 17));
@@ -280,30 +284,39 @@ public:
         label_2->setGeometry(QRect(20, 190, 74, 17));
         frame_rb_osc = new QFrame(Spectrum_Dialog_class);
         frame_rb_osc->setObjectName(QString::fromUtf8("frame_rb_osc"));
-        frame_rb_osc->setGeometry(QRect(209, 42, 80, 106));
+        frame_rb_osc->setGeometry(QRect(230, 42, 80, 106));
         frame_rb_osc->setFrameShape(QFrame::StyledPanel);
         frame_rb_osc->setFrameShadow(QFrame::Raised);
-        widget = new QWidget(frame_rb_osc);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(10, 10, 60, 83));
-        gridLayout_3 = new QGridLayout(widget);
+        layoutWidget = new QWidget(frame_rb_osc);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(10, 10, 60, 86));
+        gridLayout_3 = new QGridLayout(layoutWidget);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         gridLayout_3->setContentsMargins(0, 0, 0, 0);
-        rb_spec_main = new QRadioButton(widget);
+        rb_spec_main = new QRadioButton(layoutWidget);
         rb_spec_main->setObjectName(QString::fromUtf8("rb_spec_main"));
 
         gridLayout_3->addWidget(rb_spec_main, 0, 0, 1, 1);
 
-        rb_spec_vco = new QRadioButton(widget);
+        rb_spec_vco = new QRadioButton(layoutWidget);
         rb_spec_vco->setObjectName(QString::fromUtf8("rb_spec_vco"));
 
         gridLayout_3->addWidget(rb_spec_vco, 1, 0, 1, 1);
 
-        rb_spec_fmo = new QRadioButton(widget);
+        rb_spec_fmo = new QRadioButton(layoutWidget);
         rb_spec_fmo->setObjectName(QString::fromUtf8("rb_spec_fmo"));
 
         gridLayout_3->addWidget(rb_spec_fmo, 2, 0, 1, 1);
 
+        lcd_spectrumDisplay = new QLCDNumber(Spectrum_Dialog_class);
+        lcd_spectrumDisplay->setObjectName(QString::fromUtf8("lcd_spectrumDisplay"));
+        lcd_spectrumDisplay->setGeometry(QRect(260, 152, 64, 31));
+        lbl_spectrumDisplay = new QLabel(Spectrum_Dialog_class);
+        lbl_spectrumDisplay->setObjectName(QString::fromUtf8("lbl_spectrumDisplay"));
+        lbl_spectrumDisplay->setGeometry(QRect(260, 190, 66, 18));
+        rb_reset = new QRadioButton(Spectrum_Dialog_class);
+        rb_reset->setObjectName(QString::fromUtf8("rb_reset"));
+        rb_reset->setGeometry(QRect(190, 150, 61, 24));
 
         retranslateUi(Spectrum_Dialog_class);
 
@@ -321,6 +334,8 @@ public:
         rb_spec_main->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Main", nullptr));
         rb_spec_vco->setText(QCoreApplication::translate("Spectrum_Dialog_class", "VCO", nullptr));
         rb_spec_fmo->setText(QCoreApplication::translate("Spectrum_Dialog_class", "FMO", nullptr));
+        lbl_spectrumDisplay->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));
+        rb_reset->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Reset", nullptr));
     } // retranslateUi
 
 };

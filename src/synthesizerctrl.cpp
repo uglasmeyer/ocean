@@ -45,37 +45,42 @@ void Core_class::Controller(char key)
 //		Sds->Commit();
 		break;
 	}
-	case MAINFREQUENCYKEY:
+	case OSCFREQUENCYKEY:
 	{
-		Info("Frequency set to " + to_string(sds->OSC_wp.frequency));
-		Instrument->osc->Set_frequency(sds->OSC_wp.frequency);
-		Notes->osc->Set_frequency(sds->OSC_wp.frequency);
+		float freq = sds->OSC_wp.frequency;
+		Info("Frequency set to " + to_string( freq ));
+		Instrument->osc->Set_frequency( freq );
+		sds->OSC_spectrum.base = freq;
+
 		Sds->Commit();
 		break;
 	}
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
-		Instrument->vco->Set_frequency(sds->VCO_wp.frequency);
-		Notes->vco->Set_frequency(sds->VCO_wp.frequency);
+		float freq = sds->VCO_wp.frequency;
+		Instrument->vco->Set_frequency( freq );
 		Instrument->osc->Connect_vco_data(Instrument->vco);
+		sds->VCO_spectrum.base = freq;
+
 		Sds->Commit();
 		break;
 	}
 	case FMOFREQUENCYKEY: // modify the fm_track data
 	{
-		Instrument->fmo->Set_frequency(sds->FMO_wp.frequency);
-		Notes->fmo->Set_frequency(sds->FMO_wp.frequency);
+		float freq = sds->FMO_wp.frequency;
+		Instrument->fmo->Set_frequency( freq );
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
+		sds->FMO_spectrum.base = freq;
+
 		Sds->Commit();
 		break;
 	}
 	case VCOAMPKEY: // modify the VCO volume
 	{
 		Value vol = sds->VCO_wp.volume;
-		Comment(INFO, "Changing VCO volume to " + vol.str + " %");
 		Instrument->vco->Set_volume(vol.ch);
-		Notes->vco->Set_volume(vol.ch);
 		Instrument->osc->Connect_vco_data(Instrument->vco);
+//		Notes->vco->Set_volume(vol.ch);
 		Sds->Commit();
 		break;
 	}
@@ -83,8 +88,8 @@ void Core_class::Controller(char key)
 	{
 		Value vol = sds->FMO_wp.volume;
 		Instrument->fmo->Set_volume(vol.ch);
-		Notes->fmo->Set_volume(vol.ch);
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
+//		Notes->fmo->Set_volume(vol.ch);
 		Sds->Commit();
 		break;
 	}
@@ -145,7 +150,8 @@ void Core_class::Controller(char key)
 	{
 		Comment(INFO, "receive command <set instrument>");
 		string instrument = Sds->Read_str(INSTRUMENTSTR_KEY); // other
-		if (Instrument->Set(instrument)) {
+		if (Instrument->Set(instrument))
+		{
 			Comment(INFO, "sucessfully loaded instrument " + instrument);
 			Notes->Set_instrument(Instrument);
 		} else {
@@ -204,9 +210,9 @@ void Core_class::Controller(char key)
 		{
 			if (MbNr.val == StaId)
 			{
-				string status = Mixer->StA[StaId].Record_mode(true); // start record-stop play
-				ProgressBar->Set(Mixer->StA[StaId].Get_storeCounter_p(),
-						Mixer->StA[StaId].ds.max_records);
+				string status = 	Mixer->StA[StaId].Record_mode(true); // start record-stop play
+				ProgressBar->Set(	Mixer->StA[StaId].Get_storeCounter_p(),
+									Mixer->StA[StaId].ds.max_records);
 			}
 			else // only one mb shall store data
 			{

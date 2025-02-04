@@ -14,13 +14,16 @@ using namespace std;
 Logfacility_class::Logfacility_class( string module )
 {
 	this->module = module ;
-//	this->File.open( logFile, fstream::app );
 	setup();
 };
 
 Logfacility_class::~Logfacility_class(  )
 {
-//	this->File.close();
+	fstream		LogFILE { "/tmp/log/Synthesizer.log", fstream::app };
+	for ( string str : LogVector )
+	{
+		LogFILE.flush() << str;
+	}
 };
 
 void Logfacility_class::setup()
@@ -60,7 +63,7 @@ void Logfacility_class::setup()
 	error_vector.push_back(  {"EMLINK","Too many links"});
 	error_vector.push_back(  {"EPIPE","Broken pipe"});
 
-	filesystem::create_directories( logdir);
+	filesystem::create_directories( logDir);
 
 }
 
@@ -107,16 +110,17 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 
 void Logfacility_class::Comment( const int& level, const string& logcomment )
 {
+	stringstream strs {};
+
 	if (level < logmax + 1 )
 	{
 		if ( Log[ level ] )
 		{
-//			Print( level, logcomment );
-			string comment_str = module + ":" +  Prefix[ level] ;
+			comment_str = module + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
-			fstream LOGFILE( logFile, fstream::app);
-			LOGFILE.flush() << setw(20) << comment_str << logcomment << endl;
-
+//			LogFILE.flush() << setw(20) << comment_str << logcomment << endl;
+			strs << setw(20) << comment_str << logcomment << endl;
+			LogVector.push_back( strs.str() );
 		}
 	}
 }

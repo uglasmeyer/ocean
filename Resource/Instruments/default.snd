@@ -2,12 +2,15 @@ Type,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddecay  bps
 TYPE,      VCO,    Sinus,     64,    250,      0,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
-SPEC,      VCO,    Sinus,100,  0,  0,  0,  0,  0,  0,  0,100
+SPEV      VCO,    Sinus,    1,    0,    0,    0,
+SPEF      VCO,    Sinus,    0,    0,    0,    0,
 TYPE,      FMO,    sinus,     54,    250,      0,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
-SPEC,      FMO,    sinus,100,  0,  0,  0,  0,  0,  0,  0,100
-TYPE,      OSC,    Sinus,    220,    250,     27,  free,  free,  free,  92,   2,  14,   0,   0,     42,
+SPEV      FMO,    sinus,    1,    0,    0,    0,
+SPEF      FMO,    sinus,    0,    0,    0,    0,
+TYPE,      OSC,    Sinus,    220,    250,     75,  free,  free,  free,  92,   2,  14,   0,   0,     42,
 CONN,      OSC,      FMO,      F,
 CONN,      OSC,      VCO,      V,
-SPEC,      OSC,    Sinus,100,  0,  0,  0,  0,  0,  0,  0,100
+SPEV      OSC,    Sinus,    1,    0,    0,    0,
+SPEF      OSC,    Sinus,    0,    0,    0,    0,

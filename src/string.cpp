@@ -16,6 +16,7 @@ bool strEqual( const string& a, const string& b )
 	return ( a.compare( b ) == 0 );
 }
 
+
 string notnull( char* cstr )
 {
 	const char* empty = "";
@@ -55,15 +56,15 @@ vector_str_t String::to_array( char ch )
 	stringstream ss( Str );
     string substr;
 
-    vec.clear();
+    Vec.clear();
 	while( ss.good() )
 	{
 	    getline( ss, substr, ch );
-	    vec.push_back(substr);
+	    Vec.push_back(substr);
 	}
-	if ( vec.size() == 0 )
-		vec[0] = Str;
-	return vec;
+	if ( Vec.size() == 0 )
+		Vec[0] = Str;
+	return Vec;
 
 }
 
@@ -81,16 +82,16 @@ vector_str_t String::to_unique_array( char ch )
 	stringstream ss( Str );
     string substr;
 
-    vec.clear();
+    Vec.clear();
 	while( ss.good() )
 	{
 	    getline( ss, substr, ch );
 	    if ( substr.length() > 0 )
-	    	vec.push_back(substr);
+	    	Vec.push_back(substr);
 	}
-	if ( ( vec.size() == 0 ) )
-    	vec.push_back( "" );
-	return vec;
+	if ( ( Vec.size() == 0 ) )
+    	Vec.push_back( "" );
+	return Vec;
 	;
 }
 
@@ -106,15 +107,15 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	replace_char('\t', ' ');
 	to_unique_array(' ');
 	int count = count_char( ch, Str );
-	if ( count == 0 ) return vec;
+	if ( count == 0 ) return Vec;
 	if (( count % 2 ) != 0 )
 	{
 		string err = "missing ";
 		err.push_back(ch);
 		if ( Log[TEST] )
 		{
-			vec[0] = err;
-			return vec;
+			Vec[0] = err;
+			return Vec;
 		}
 		else
 		{
@@ -125,16 +126,16 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	vector<string> 	result{};
 	string sub 		{""};
 
-	while( pos != vec.size() )
+	while( pos != Vec.size() )
 	{
-		string arrpos = vec[ pos ];
+		string arrpos = Vec[ pos ];
 		if ( arrpos[0] == ch )
 		{
 			sub = arrpos.substr(1, STRINGNOTFOUND );
-			while( ( arrpos.back() != ch ) and ( pos != vec.size()-1 ) )
+			while( ( arrpos.back() != ch ) and ( pos != Vec.size()-1 ) )
 			{
 				pos++;
-				arrpos	= vec[pos];
+				arrpos	= Vec[pos];
 				sub.append(arrpos);
 			}
 			sub = sub.substr(0, sub.length()-1);
@@ -358,8 +359,8 @@ void String::TestString()
 	assert( Z.Set.contains('f'));
 
 	set<int> numbers = range_set(0,10);
-	Assert( numbers.contains( 5 ), "expected 5" );
-	Assert( not numbers.contains( -3 ), "expected -3" );
+	ASSERTION( numbers.contains( 5 )		, "range 0..10", 5, "true" );
+	ASSERTION( not numbers.contains( -3 )	, "range 0..10", -3, "false" );
 
 	TEST_END( "String" );
 

@@ -39,7 +39,7 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 
 float Note_base::calc_frequency( const float& base, const int& key )
 {
-	Assert( not( key < 0 ), "key" + to_string(key) );
+	ASSERTION( not( key < 0 ), "key: ", key, "< 0" );
 	if ( abs( key ) > root2_limit )
 	{
 		Comment( WARN, "Octave key " + to_string( key ) + " adjusted to limit " + to_string( root2_limit ) );

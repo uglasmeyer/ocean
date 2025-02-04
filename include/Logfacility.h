@@ -15,8 +15,11 @@
 #include <iostream>
 #include <filesystem>
 #include <assert.h>
+#include <source_location>
 
 using namespace std;
+
+
 
 
 #define SETW setw(20)
@@ -25,17 +28,18 @@ enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
 
 class Logfacility_class
 {
+	const string 		logDir 		{ "/tmp/log/"};
+	const string 		logFileName	{ "Synthesizer" };
+	const string 		logFile	 	{ logDir + logFileName + ".log" };
+
 public:
+	const string 		errFile		{ logDir + logFileName + ".err" };
 	string 				module 		= "";
 	static const int 	logmax 		= 6;
 	const size_t 		logsize		= logmax + 1;
 	const string 		Line = "-----------------------------------------------------------";
 	vector<bool> Log { true, false, true, true, false, true, false };
-	string 				logdir 		{ "/tmp/log/"};
-	string 				logfileName	{ "Synthesizer" };
-	string 				logFile		{ logdir + logfileName + ".log" };
-	string 				errFile		{ logdir + logfileName + ".err" };
-//	fstream				File;
+
 
 	Logfacility_class( string  );
 	virtual ~Logfacility_class(  );
@@ -79,6 +83,9 @@ public:
 
 
 private:
+	vector<string> LogVector {};
+
+
 	void Info2( size_t& ){}; // redirect
 
 	typedef struct pair_struct
@@ -88,7 +95,7 @@ private:
 	} pair_struct_t;
 	vector<pair_struct_t> error_vector {};
 
-
+	string comment_str = "";
 	// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 
 	const string 	boldon		= "\033[1m";

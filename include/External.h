@@ -73,7 +73,7 @@ public:
 
 	bool Read_file_data(  );
 	bool Read_file_header( string );
-	void Save_record_data( int filenr );
+	int Save_record_data( int filenr );
 	void Mono2Stereo( Data_t* mono, uint size );
 	void Record_buffer( stereo_t* src, buffer_t frames );
 	string GetName();
@@ -94,7 +94,7 @@ private:
 	void 	wav_define (  long  );
 	long 	write_wav_header( string );
 	long 	write_audio_data( string, buffer_t );
-	void 	setName( string );
+	void 	setName( string name );
 	bool 	read_stereo_data( long );
 	string 	ffmpeg_cmd( string wav, string mp3 );
 	string 	id3tool_cmd( string mp3 );

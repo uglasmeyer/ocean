@@ -18,6 +18,8 @@ class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_base
     Q_OBJECT
 
 public:
+    Ui::Spectrum_Dialog_class* ui;
+
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
                                    Interface_class* gui = nullptr );
     ~Spectrum_Dialog_class();
@@ -34,23 +36,25 @@ public:
 
     void setup_Widgets( Spectrum_base::spectrum_t );
     void Update_spectrum();
+    void SetLabelWaveform( const QString& wf );
+    void SetLabelInstrument( const QString& instr );
 
 private slots:
-    void vS1( int );
+    void fS1( int );
     void vS2( int );
-    void vS3( int );
+    void fS3( int );
     void vS4( int );
-    void vS5( int );
+    void fS5( int );
     void vS6( int );
-    void vS7( int );
+    void fS7( int );
     void vS8( int );
     void save( );
     void select_spec_fmo();
     void select_spec_vco();
     void select_spec_main();
+    void reset();
 
 private:
-    Ui::Spectrum_Dialog_class* ui;
     QTimer	status_timer_obj 	{ this };
     QTimer* status_timer 		= &status_timer_obj;
 

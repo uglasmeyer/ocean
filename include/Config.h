@@ -12,6 +12,45 @@
 #include <Configbase.h>
 #include <System.h>
 
+typedef struct dir_struct
+{
+	const string homedir 		= notnull( getenv("HOME") ) + "/";
+	const string basedir 		= homedir + "OceanBase/";
+	const string etcdir 		= basedir + "etc/";
+	const string bindir  		= basedir + "bin/";
+	const string libdir  		= basedir + "lib/";
+	const string tmpdir  		= basedir + "tmp/";
+	const string vardir			= basedir + "var/";
+	const string autodir 		= vardir  + "auto/";
+	const string musicdir 		= vardir  + "wav/";
+	const string docdir 		= basedir + "doc/";
+	const string rtspdir		= etcdir  + "rtsp/";
+	const string instrumentdir	= etcdir  + "Instruments/";
+	const string notesdir  		= etcdir  + "Notes/";
+	const string includedir		= etcdir  + "include/";
+	const string xmldir			= etcdir  + "musicxml/";
+	const string logdir			= tmpdir ;
+
+	vector<string> dirs =
+	{
+		basedir,
+		docdir,
+		etcdir,
+		bindir,
+		libdir,
+		logdir,
+		tmpdir,
+		vardir,
+		musicdir,
+		instrumentdir,
+		notesdir,
+		includedir,
+		autodir,
+		rtspdir,
+		xmldir
+	};
+
+} dir_t;
 
 class Config_class : virtual Logfacility_class
 {
@@ -48,23 +87,9 @@ private:
 
 class DirStructure_class : virtual Logfacility_class
 {
+	string className = "";
 public:
 
-	string homedir 		= notnull( getenv("HOME") ) + "/";
-	string basedir 		= homedir + "OceanBase/";
-	string etcdir 		= basedir + "etc/";
-	string bindir  		= basedir + "bin/";
-	string libdir  		= basedir + "lib/";
-	string tmpdir  		= basedir + "tmp/";
-	string vardir		= basedir + "var/";
-	string autodir 		= vardir  + "auto/";
-	string musicdir 	= vardir  + "wav/";
-	string docdir 		= basedir + "doc/";
-	string rtspdir		= etcdir + "rtsp/";
-	string instrumentdir= etcdir + "Instruments/";
-	string notesdir  	= etcdir + "Notes/";
-	string includedir	= etcdir + "include/";
-	string xmldir		= etcdir + "musicxml/";
 
 	void Create();
 	void setDir( );
@@ -74,12 +99,12 @@ public:
 	virtual ~DirStructure_class(){};
 
 private:
-	vector <string> dirs {};
+	vector <string> dirs = dir_struct().dirs;
 };
 
 typedef struct file_structure
 {
-	DirStructure_class Dir{};
+	dir_t Dir = dir_struct();
 
 	const string 	filename 		= "synthesizer";
 	const string 	snd_type 		= ".snd";	// instruments file extension
@@ -91,23 +116,31 @@ typedef struct file_structure
 	const string 	Comp_bin		= "Composer";
 	const string	Ocean_bin		= "OceanGUI";
 	const string 	Rtsp_bin		= "rtsp";
-	string 			audio_bin  		= Dir.bindir 		+ Audio_bin;
-	string 			synth_bin  		= Dir.bindir 		+ Synth_bin;
-	string 			composer_bin	= Dir.bindir		+ Comp_bin;
-	string 			ocean_bin		= Dir.bindir		+ Ocean_bin;
-	string 			rtsp_bin		= Dir.bindir		+ Rtsp_bin;
-	string 			ifd_file 		= Dir.libdir 		+ "ifd_data.bin";
-	string 			wav_file 		= Dir.musicdir 		+ filename + wav_type;
-	string 			mp3_file		= Dir.musicdir 		+ filename + ".mp3";
-	string 			raw_file 		= Dir.tmpdir 		+ filename + ".raw";
-	string 			config_file  	= Dir.etcdir		+ filename + ".cfg";
-	string			version_txt		= Dir.etcdir		+ "version.txt";
-	string			datacfg_file	= Dir.etcdir		+ "Data.cfg";
-	string 			counter_file 	= Dir.libdir 		+ "counter.bin";
-	string 			program_file	= Dir.includedir 	+ "main.synth";
-	string			log_file		= "/tmp/log/composer.log";
+	const string 	audio_bin  		= Dir.bindir 		+ Audio_bin;
+	const string 	synth_bin  		= Dir.bindir 		+ Synth_bin;
+	const string 	composer_bin	= Dir.bindir		+ Comp_bin;
+	const string 	ocean_bin		= Dir.bindir		+ Ocean_bin;
+	const string 	rtsp_bin		= Dir.bindir		+ Rtsp_bin;
+	const string 	ifd_file 		= Dir.libdir 		+ "ifd_data.bin";
+	const string 	wav_file 		= Dir.musicdir 		+ filename + wav_type;
+	const string 	mp3_file		= Dir.musicdir 		+ filename + ".mp3";
+	const string 	raw_file 		= Dir.tmpdir 		+ filename + ".raw";
+	const string 	config_file  	= Dir.etcdir		+ filename + ".cfg";
+	const string	version_txt		= Dir.etcdir		+ "version.txt";
+	const string	datacfg_file	= Dir.etcdir		+ "Data.cfg";
+	const string 	counter_file 	= Dir.libdir 		+ "counter.bin";
+	const string 	program_file	= Dir.includedir 	+ "main.synth";
+	const string	log_file		= Dir.logdir		+ "composer.log";
 	const string 	doc_filename 	= "Ocean.odt";
-	string 			doc_file 		= Dir.docdir 		+ doc_filename;
+	const string 	doc_file 		= Dir.docdir 		+ doc_filename;
+
+    vector<string> Notestypes	= { xml_type, nte_type } ;
+    vector<string> Notesdirs	= { Dir.xmldir,  Dir.notesdir } ;
+
+    string get_rec_filename( uint no )
+    {
+    	return filename + to_string( no ) ;
+    }
 } dir_struct_t;
 
 

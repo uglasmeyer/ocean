@@ -74,7 +74,7 @@ public:
 	bool			Verify_noteline( noteline_prefix_t, string );
 	void 			Test();
 	void			Show_note(  note_t );
-	note_t 			Start_note_itr();
+	void 			Start_note_itr();
 	note_t			Char2note( char& ch );
 
 	int 			Notechar2Step( char );
@@ -129,7 +129,7 @@ private:
 
 	string 			get_name();
 	bool 			compiler ( noteline_prefix_t,  string );
-	void			set_file_name( string );
+	bool			set_file_name( string );
 	size_t			noteline_position_parser( size_t );
 	void 			note2memory( 	const note_t&,
 									const buffer_t&,

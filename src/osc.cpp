@@ -7,8 +7,8 @@
 
 #include <Osc.h>
 
-double	dphi 	= 0.0;
-double 	maxphi 	= 2*pi;
+phi_t	dphi 	= 0.0;
+phi_t 	maxphi 	= 2*pi;
 
 random_device 	rd;
 mt19937 		engine(rd());
@@ -66,35 +66,35 @@ constexpr Data_t maximum(  const float& x,  const float& y)
 {
 	return ( x > y ) ? x : y;
 }
-constexpr Data_t One( const float& amp, const float& phi )
+constexpr Data_t One( const float& amp, const phi_t& phi )
 {
 	return 1;
 }
-constexpr Data_t Zero( const float& amp, const float& phi)
+constexpr Data_t Zero( const float& amp, const phi_t& phi)
 {
 	return 0;
 }
-constexpr Data_t Sin(  const float& amp,  const float& phi )
+constexpr Data_t Sin(  const float& amp,  const phi_t& phi )
 {
 	return (  amp * sin( phi ));
 }
-constexpr Data_t SignSin( const float& amp, const float& phi )
+constexpr Data_t SignSin( const float& amp, const phi_t& phi )
 {
 	return ( signum( amp * sin ( phi ) ));
 }
-constexpr Data_t rectangle( const float& amp, const float& phi ) // 'r'
+constexpr Data_t rectangle( const float& amp, const phi_t& phi ) // 'r'
 { // maxima: round(mod(phi,1))*amp*2-amp;
 	return -amp*( round(floor(phi)-phi)) - amp/2;
 }
-constexpr Data_t Triangle( const float& amp, const float& phi ) // 'T'
+constexpr Data_t Triangle( const float& amp, const phi_t& phi ) // 'T'
 { // maxima: f:2*amp*(abs(max( 1 - mod(phi, 2), -1 ) )-1)+amp;
 	return round(2*amp*(abs(maximum( 1 - modulo(phi, 2), -1 ) )-1)+amp);
 }
-constexpr Data_t sawtooth( const float& amp,  const float& phi )
+constexpr Data_t sawtooth( const float& amp,  const phi_t& phi )
 {
 	return rint( amp * modulo(phi,1 ));
 }
-constexpr Data_t Sawtooth( const float& amp,  const float& phi )
+constexpr Data_t Sawtooth( const float& amp,  const phi_t& phi )
 {
 	return rint(amp* (1.0 - modulo(phi,1 )));
 }
@@ -204,7 +204,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 {
 	float				freq 		= this->wp.frequency;
 	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
-	double 				dt 			= 1.0/frames_per_sec;	//seconds per frame
+	phi_t 				dt 			= 1.0/frames_per_sec;	//seconds per frame
 
 	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
@@ -233,7 +233,6 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	}
 
 	Sum( spectrum );
-	if ( spectrum.sum == 0 ) spectrum.sum  = 1;
 
 	switch ( spectrum.id )
 	{
@@ -332,14 +331,13 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		}
 	} // close switch waveform
 
-	double 			omega_t		= 0;
-	const double 	dT 			= maxphi * dt; // 2pi dt
-	double 			phi			= get_phi( );
+	const phi_t 	dT 			= maxphi * dt; // 2pi dt
+	phi_t 			phi			= get_phi( );
 	float 			start_freq 	= wp.start_frq;
 	float			delta_freq	= get_delta_freq( freq );
 				// difference to the target frequency <freq> - <start_freq>
 
-	auto check_phi = [ this, dT, start_freq]( float phi, float maxphi, float dphi )
+	auto check_phi = [ this, dT, start_freq]( phi_t phi, phi_t maxphi, phi_t dphi )
 	{
 		if ( maxphi < abs(dphi) )
 		{
@@ -351,30 +349,48 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			Exception( "maxphi exceeds limit: " + to_string(maxphi) + " < " + to_string( abs(dphi)) );
 		}
 	};
+	auto modphi = []( phi_t phi, phi_t maxphi)
+	{
+		return ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
+;
+	};
 
 	for ( buffer_t n = 0; n < frames ; n++ )
 	{
 		if (( this->oscrole_id != OscRole.NOTESID )) // enable polyphone adding of notes - notes::note2memory
 			data[n] = 0;
 
-		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) / spectrum.sum; // VCO envelope
-		for ( size_t mode = 0; mode < spec_dta_len; mode++ )
+		//TODO - check spectrum.sum
+		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ); // VCO envelope
+		data[n]	= data[n] + F( vco_vol*(1.0 - spectrum.sum), phi );
+
+		for ( size_t mode = 0; mode < spec_arr_len; mode++ )
 		{
-			if ( spectrum.dta[mode] != 0 )
+			phi_t
+			omega	= spectrum.phi[mode];
+			if ( spectrum.vol[mode] > 0.0 )
 			{
-				omega_t =   phi * ( 2 + mode ) * 0.5 ;
-				data[n]	=   data[n] + F(spectrum.dta[mode]*vco_vol, omega_t);
+				size_t m = mode + 1;
+				phi_t
+				d_omega	=	dT *( start_freq * m * (1 + spectrum.frq[mode]) + fmo_vol*fmo_data[n] );
+				omega	+= d_omega;
+				data[n]	=   data[n] + F( spectrum.vol[mode]*vco_vol, omega );
+				omega 	=  modphi( omega, maxphi );
 			}
+			spectrum.phi[mode] = omega;
+
 		}
 
 		if ( abs(freq - start_freq) > 1 )
 			start_freq = start_freq + delta_freq;
+
 		dphi	= dT * ( start_freq + fmo_vol*fmo_data[n] );
 		phi 	+= dphi;
 		check_phi( phi, maxphi, dphi );
-		phi		= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
-		if ( ( phi > maxphi ) or ( phi < -maxphi ) )
-			cout << "phi overflow: " << phi << endl;
+		phi 	= modphi( phi, maxphi );
+
+//		if ( ( phi > maxphi ) or ( phi < -maxphi ) )
+//			cout << "phi overflow: " << phi << endl;
 	}
 
 	set_phi( phi, maxphi );
@@ -483,7 +499,7 @@ void Oscillator::Test()
 
 	Oscillator testosc {};
 	testosc = *this; // test copy constructor
-	Assert( adsr.attack == 50 , to_string( adsr.attack ));
+	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );
 
 	Comment( TEST, "Osc test finished");
 }

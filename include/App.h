@@ -30,7 +30,7 @@ extern void thread_fnc( const string& a );
 class Application_class :
 	virtual Logfacility_class
 {
-	string className = "Application_class";
+	string className = "";
 public:
 
 	Statistic_class 	Statistic	{ className };

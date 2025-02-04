@@ -13,10 +13,10 @@
 
 
 
-Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char oscid )
+Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char oscid, char _type )
 {
 
-	auto assign_dta = [ this ]( vector<string> arr )
+	auto assign_dta = [ this, _type ]( vector<string> arr )
 	{
 		arr.erase( arr.begin()); 	// 0:SPEC
 		arr.erase( arr.begin());	// 1:MAIN,VCO,FMO
@@ -25,14 +25,26 @@ Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char osci
 
 		for ( string str : arr )
 		{
-			if ( i < spec_dta_len ) // ignore further entries
+			if ( i < spec_arr_len ) // ignore further entries
 			{
-				if ( str.length() > 0 )
-					spectrum.dta[i] = stoi( str );
+				if ( _type == 0 )
+				{
+					if ( str.length() > 0 )
+						spectrum.vol[i] = stof( str );
+					else
+						spectrum.vol[i] = 0;
+				}
 				else
-					spectrum.dta[i] = 0;
-				i++;
+				{
+					if ( str.length() > 0 )
+						spectrum.frq[i] = stof( str );
+					else
+						spectrum.frq[i] = 0;
+
+				}
 			}
+			i++;
+
 		}
 	};
 
@@ -50,10 +62,10 @@ Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char osci
 }
 
 
-void Spectrum_base::Set_spectrum( uint8_t id, int channel, uint8_t value )
+//void Spectrum_base::Set_spectrum( uint8_t id, int channel, spec_dta_t value )
+void Spectrum_base::Set_spectrum( uint8_t id, spectrum_t spec )
 {
-	spectrum.id = id;
-	spectrum.dta[channel ] = value;
+	spectrum = spec;
 	Sum( spectrum );
 }
 
@@ -90,34 +102,38 @@ string Spectrum_base::Show_this_spectrum( spectrum_t spec )
 {
 	stringstream strs{""};
 
-	auto show_dta = [ &strs ]( int val)
+	auto show_dta = [ &strs ]( spec_dta_t val)
 		{
-		  strs << dec << setw(3) << val << ",";
+		  strs << setprecision(2) << setw(5) << val << ",";
 		};
-	auto show_struct = [ this, &strs, &show_dta ]( auto spec )
+	auto show_struct = [ this, &strs, &show_dta ]( string _type, spectrum_t spec )
 		{
-			strs 	<< right << "SPEC,"
+			strs 	<< right << _type << ","
 					<< setw(9) << OscRole.types[ spec.osc ] << ","
 					<< setw(9) << Get_waveform_str( spec.id ) << ",";
-			std::ranges::for_each( spec.dta, show_dta);
-			strs << dec << setw(3) << spec.sum ;
+			if ( strEqual( "SPEV", _type) )
+				std::ranges::for_each( spec.vol, show_dta);
+			else
+				std::ranges::for_each( spec.frq, show_dta);
+			strs 	<< endl;
 		};
 
-	show_struct( spec );
+	show_struct( "SPEV", spec );
+	show_struct( "SPEF", spec );
+
 	return strs.str();
 }
 
 void Spectrum_base::Sum( spectrum_t& spec )
 {
-	int sum = 0;
-	for ( size_t i = 0; i < spec_dta_len ; i++ )
-		sum = sum + spec.dta[i];
-	if ( sum == 0 )
-	{
-		sum = 100;
-		spec.dta[0] = 100;
-	}
+	spec_dta_t sum = 0;
+	for ( size_t i = 0; i < spec_arr_len ; i++ )
+		sum += spec.vol[i];
+
 	spec.sum = sum;
+
+
+
 }
 
 

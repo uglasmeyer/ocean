@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>298</width>
+    <width>339</width>
     <height>217</height>
    </rect>
   </property>
@@ -472,7 +472,7 @@
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
-     <widget class="QSlider" name="vS_1">
+     <widget class="QSlider" name="fS_1">
       <property name="maximum">
        <number>100</number>
       </property>
@@ -492,7 +492,7 @@
      </widget>
     </item>
     <item row="0" column="2">
-     <widget class="QSlider" name="vS_3">
+     <widget class="QSlider" name="fS_3">
       <property name="maximum">
        <number>100</number>
       </property>
@@ -512,7 +512,7 @@
      </widget>
     </item>
     <item row="0" column="4">
-     <widget class="QSlider" name="vS_5">
+     <widget class="QSlider" name="fS_5">
       <property name="maximum">
        <number>100</number>
       </property>
@@ -532,7 +532,7 @@
      </widget>
     </item>
     <item row="0" column="6">
-     <widget class="QSlider" name="vS_7">
+     <widget class="QSlider" name="fS_7">
       <property name="maximum">
        <number>100</number>
       </property>
@@ -556,7 +556,7 @@
   <widget class="QPushButton" name="pB_save_spectrum">
    <property name="geometry">
     <rect>
-     <x>209</x>
+     <x>230</x>
      <y>11</y>
      <width>80</width>
      <height>25</height>
@@ -1071,7 +1071,7 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
   <widget class="QFrame" name="frame_rb_osc">
    <property name="geometry">
     <rect>
-     <x>209</x>
+     <x>230</x>
      <y>42</y>
      <width>80</width>
      <height>106</height>
@@ -1083,13 +1083,13 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
    <property name="frameShadow">
     <enum>QFrame::Raised</enum>
    </property>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
       <width>60</width>
-      <height>83</height>
+      <height>86</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_3">
@@ -1116,6 +1116,42 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QLCDNumber" name="lcd_spectrumDisplay">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>152</y>
+     <width>64</width>
+     <height>31</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lbl_spectrumDisplay">
+   <property name="geometry">
+    <rect>
+     <x>260</x>
+     <y>190</y>
+     <width>66</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="rb_reset">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>150</y>
+     <width>61</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Reset</string>
+   </property>
   </widget>
  </widget>
  <resources/>

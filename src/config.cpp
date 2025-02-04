@@ -64,7 +64,7 @@ void Config_class::Read_config(	string cfgfile )
 			String 	Str	{""};
 			string 	tmp = string( Get[ str ]);
 			int		val = (key_t ) Str.to_int( tmp );
-			Assert( val > 0, "invalid synthesizer.cfg entry: " + str );
+			ASSERTION( val > 0, "invalid synthesizer.cfg entry: ", tmp, str );
 
 			return ( tmp.length() == 0 ) ? old : (key_t) val ;
 		};
@@ -97,7 +97,7 @@ void Config_class::Read_config(	string cfgfile )
 
 	Config.test		= get_char( Config.test, "test" );
 	std::set<char> yn = {'n', 'y', 0 };
-	Assert( yn.contains( Config.test ), "invalid synthesizer.cfg entry: test" ) ;
+	ASSERTION( yn.contains( Config.test ), "invalid synthesizer.cfg entry: ",Config.test, "y or n" ) ;
 //	Show_Config();
 }
 
@@ -265,7 +265,7 @@ void DirStructure_class::Create()
 
 void DirStructure_class::setDir(  )
 {
-
+/*
 	etcdir 			= basedir + "etc/";
 	bindir  		= basedir + "bin/";
 	libdir  		= basedir + "lib/";
@@ -273,31 +273,15 @@ void DirStructure_class::setDir(  )
 	vardir			= basedir + "var/";
 	autodir 		= vardir  + "auto/";
 	musicdir 		= vardir  + "wav/";
-	logdir 			= "/tmp/log/";
 	docdir 			= basedir + "doc/";
 	instrumentdir	= etcdir + "Instruments/";
 	notesdir  		= etcdir + "Notes/";
 	includedir		= etcdir + "include/";
 	rtspdir			= etcdir + "rtsp/";
 	xmldir			= etcdir + "musicxml/";
-	dirs =
-	{
-		basedir,
-		docdir,
-		etcdir,
-		bindir,
-		libdir,
-		logdir,
-		tmpdir,
-		vardir,
-		musicdir,
-		instrumentdir,
-		notesdir,
-		includedir,
-		autodir,
-		rtspdir,
-		xmldir
-	};
+	*/
+
+	dir_t dir = dir_struct();
 
 };
 
@@ -313,6 +297,7 @@ void DirStructure_class::Test()
 DirStructure_class::DirStructure_class() :
 	Logfacility_class("DirStructure")
 {
+	className = Logfacility_class::module;
 	setDir();
 };
 

@@ -15,7 +15,6 @@
 
 using namespace std;
 
-extern void Qread_filelist( QComboBox* CB, const string& path, const string type );
 
 namespace Ui
 {
@@ -35,7 +34,7 @@ public:
     QComboBox*      CB_notes		= nullptr  ;
     QComboBox*      CB_instruments	= nullptr;
     QSlider*		Sl_Main_Hz		= nullptr;
-    string          notes_path		= "";
+    string          NotesDir		= "";
     string          notes_type		= "";
     string          instruments_path= "";
     QString         QNote_Chars		{"Notes: ( )"};
@@ -46,13 +45,13 @@ public:
     Semaphore_class* sem			= nullptr;
     interface_t*	sds_p			= nullptr;
     int8_t			SDS_ID			= 0;
-    QList<QString>	Notestypes		{};
-    QList<QString>	Notesdirs		{};
+    QList<QString>	QNotestypes		{};
+    QList<QString>	QNotesdirs		{};
     vector<int> 	Noteskeys		{};
 
-    explicit File_Dialog_class(	QWidget *parent = nullptr,
-    							Interface_class* sds = nullptr,
-								Semaphore_class* sem = nullptr);//, QSlider* = nullptr );
+    explicit File_Dialog_class(	QWidget* 		 parent	= nullptr,
+    							Interface_class* sds 	= nullptr,
+								Semaphore_class* sem 	= nullptr);
     ~File_Dialog_class();
     void Setup_widgets();
     void New_Notes();

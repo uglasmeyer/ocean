@@ -52,13 +52,17 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = OceanGUI_main.cpp moc_File_Dialog.cpp \
+SOURCES       = OceanGUI_main.cpp \
+		sds_dialog_class.cpp moc_File_Dialog.cpp \
 		moc_Mainwindow.cpp \
+		moc_Sds_dialog_class.cpp \
 		moc_Spectrum_dialog_class.cpp \
 		moc_Rtsp_dialog_class.cpp
 OBJECTS       = OceanGUI_main.o \
+		sds_dialog_class.o \
 		moc_File_Dialog.o \
 		moc_Mainwindow.o \
+		moc_Sds_dialog_class.o \
 		moc_Spectrum_dialog_class.o \
 		moc_Rtsp_dialog_class.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -142,8 +146,10 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		OceanGUI.pro File_Dialog.h \
 		Mainwindow.h \
 		Oszilloscopewidget.h \
+		Sds_dialog_class.h \
 		Spectrum_dialog_class.h \
-		Rtsp_dialog_class.h OceanGUI_main.cpp
+		Rtsp_dialog_class.h OceanGUI_main.cpp \
+		sds_dialog_class.cpp
 QMAKE_TARGET  = OceanGUI
 DESTDIR       = 
 TARGET        = OceanGUI
@@ -152,7 +158,7 @@ TARGET        = OceanGUI
 first: all
 ####### Build rules
 
-OceanGUI: ui_File_Dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h $(OBJECTS)  
+OceanGUI: ui_File_Dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_sds_dialog_class.h ui_spectrum_dialog_class.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: OceanGUI.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -329,9 +335,9 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents File_Dialog.h Mainwindow.h Oszilloscopewidget.h Spectrum_dialog_class.h Rtsp_dialog_class.h $(DISTDIR)/
-	$(COPY_FILE) --parents OceanGUI_main.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents File_Dialog.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
+	$(COPY_FILE) --parents File_Dialog.h Mainwindow.h Oszilloscopewidget.h Sds_dialog_class.h Spectrum_dialog_class.h Rtsp_dialog_class.h $(DISTDIR)/
+	$(COPY_FILE) --parents OceanGUI_main.cpp sds_dialog_class.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents File_Dialog.ui mainwindow.ui Rtsp_dialog_class.ui sds_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -364,22 +370,22 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	clang++ -pipe -g -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_File_Dialog.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp
+compiler_moc_header_make_all: moc_File_Dialog.cpp moc_Mainwindow.cpp moc_Sds_dialog_class.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_File_Dialog.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp
+	-$(DEL_FILE) moc_File_Dialog.cpp moc_Mainwindow.cpp moc_Sds_dialog_class.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp
 moc_File_Dialog.cpp: File_Dialog.h \
 		Common.h \
+		../include/Ocean.h \
+		../include/System.h \
+		../include/String.h \
 		../include/Logfacility.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
-		../include/Ocean.h \
-		../include/String.h \
 		../include/Instrument.h \
 		../include/data/Interface.h \
 		../include/Config.h \
 		../include/Configbase.h \
 		../include/Version.h \
-		../include/System.h \
 		../include/Keys.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
@@ -437,10 +443,37 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
 		Rtsp_dialog_class.h \
+		Sds_dialog_class.h \
 		ui_mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Mainwindow.h -o moc_Mainwindow.cpp
+
+moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
+		../include/data/Interface.h \
+		../include/Ocean.h \
+		../include/Config.h \
+		../include/Logfacility.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/System.h \
+		../include/String.h \
+		../include/Keys.h \
+		../include/Spectrum.h \
+		../include/data/Semaphore.h \
+		../include/Time.h \
+		../include/data/SharedDataSegment.h \
+		../include/Mixerbase.h \
+		../include/data/Memory.h \
+		../include/data/Memorybase.h \
+		../include/data/Statistic.h \
+		../include/Oscbase.h \
+		../include/notes/Notesbase.h \
+		../include/Wavedisplay_base.h \
+		../include/data/Register.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Sds_dialog_class.h -o moc_Sds_dialog_class.cpp
 
 moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Ocean.h \
@@ -499,9 +532,9 @@ compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_File_Dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
+compiler_uic_make_all: ui_File_Dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_sds_dialog_class.h ui_spectrum_dialog_class.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_File_Dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
+	-$(DEL_FILE) ui_File_Dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_sds_dialog_class.h ui_spectrum_dialog_class.h
 ui_File_Dialog.h: File_Dialog.ui \
 		/usr/lib/qt5/bin/uic
 	/usr/lib/qt5/bin/uic File_Dialog.ui -o ui_File_Dialog.h
@@ -513,6 +546,10 @@ ui_mainwindow.h: mainwindow.ui \
 ui_Rtsp_dialog_class.h: Rtsp_dialog_class.ui \
 		/usr/lib/qt5/bin/uic
 	/usr/lib/qt5/bin/uic Rtsp_dialog_class.ui -o ui_Rtsp_dialog_class.h
+
+ui_sds_dialog_class.h: sds_dialog_class.ui \
+		/usr/lib/qt5/bin/uic
+	/usr/lib/qt5/bin/uic sds_dialog_class.ui -o ui_sds_dialog_class.h
 
 ui_spectrum_dialog_class.h: spectrum_dialog_class.ui \
 		/usr/lib/qt5/bin/uic
@@ -566,15 +603,44 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
 		Rtsp_dialog_class.h \
+		Sds_dialog_class.h \
 		ui_mainwindow.h \
 		../include/Exit.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp
+
+sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
+		../include/data/Interface.h \
+		../include/Ocean.h \
+		../include/Config.h \
+		../include/Logfacility.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/System.h \
+		../include/String.h \
+		../include/Keys.h \
+		../include/Spectrum.h \
+		../include/data/Semaphore.h \
+		../include/Time.h \
+		../include/data/SharedDataSegment.h \
+		../include/Mixerbase.h \
+		../include/data/Memory.h \
+		../include/data/Memorybase.h \
+		../include/data/Statistic.h \
+		../include/Oscbase.h \
+		../include/notes/Notesbase.h \
+		../include/Wavedisplay_base.h \
+		../include/data/Register.h \
+		ui_sds_dialog_class.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sds_dialog_class.o sds_dialog_class.cpp
 
 moc_File_Dialog.o: moc_File_Dialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_File_Dialog.o moc_File_Dialog.cpp
 
 moc_Mainwindow.o: moc_Mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Mainwindow.o moc_Mainwindow.cpp
+
+moc_Sds_dialog_class.o: moc_Sds_dialog_class.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Sds_dialog_class.o moc_Sds_dialog_class.cpp
 
 moc_Spectrum_dialog_class.o: moc_Spectrum_dialog_class.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Spectrum_dialog_class.o moc_Spectrum_dialog_class.cpp

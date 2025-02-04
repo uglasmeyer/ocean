@@ -6,31 +6,20 @@
 #include "ui_File_Dialog.h"
 #include <File_Dialog.h>
 #include <Mainwindow.h>
+#include <Common.h>
 
 // Synthesizer includes
 #include <Keys.h>
 #include <Logfacility.h>
 #include <notes/Notes.h>
 #include <Ocean.h>
+#include <Config.h>
 
 // Qt-includes
 #include <QDebug>
 #include <QString>
 
-void Qread_filelist( QComboBox* CB, const string& path, const string type )
-{
 
-    if ( not CB ) return;
-    CB->clear();
-    vector_str_t files = List_directory( path, type );
-    sort( files.begin(), files.end() );
-    for ( string& file : files )
-    {
-    	size_t len = file.length() - type.length();
-    	string name = file.substr(0, len);
-    	CB->addItem( QString::fromStdString( name ) );
-    }
-}
 
 Ui::File_Dialog	UI_FileDialog_obj{};
 
@@ -55,30 +44,30 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
     CB_notes                = ui->cb_notefilenames;
     CB_instruments          = ui->cb_instrumentfiles;
-    //    notes_path          	= file_structure().Dir.notesdir;
-    notes_path          	= file_structure().Dir.xmldir;
+    NotesDir          	= file_structure().Dir.xmldir;
     instruments_path    	= file_structure().Dir.instrumentdir;
 
-    Notestypes	= {	QString::fromStdString(file_structure().xml_type),
-    				QString::fromStdString(file_structure().nte_type) };
-    Notesdirs	= {	QString::fromStdString(file_structure().Dir.xmldir),
-    				QString::fromStdString(file_structure().Dir.notesdir) };
+
+    QNotestypes	= Qstringvector( file_structure().Notestypes );
+    QNotesdirs	= Qstringvector( file_structure().Notesdirs );
     Noteskeys 	= { XMLFILE_KEY, UPDATENOTESKEY};
 
-    ui->cb_Notestype->addItems( Notestypes );
-    Qread_filelist( CB_notes, notes_path, file_structure().xml_type);
+    int notestype = sds_p->NotestypeId;
 
-    Qread_filelist( CB_instruments, instruments_path, file_structure().snd_type);
-    for( string str : convention_names )
-    {
-    	QString Qstr = QString::fromStdString( str );
-    	ui->cb_convention->addItem( Qstr );
-    }
-    for( char nps : NpsChars.Str )
-    {
-    	QString QStr = QString( nps ) ;
-    	ui->cb_nps->addItem( QStr );
-    }
+    ui->cb_Notestype->addItems( QNotestypes );
+    ui->cb_Notestype->setCurrentText( QNotestypes [ notestype] );
+
+    Qread_filelist( CB_notes, file_structure().Notesdirs[ notestype ], file_structure().Notestypes [ notestype] );
+
+    Qread_filelist( CB_instruments, instruments_path , file_structure().snd_type );
+
+    QStringList
+	QStrL = Qstringvector( convention_names );
+    ui->cb_convention->addItems( QStrL );
+
+    QStrL = Qstringvector( NpsChars.Vec );
+	ui->cb_nps->addItems( QStrL );
+
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
 	connect(ui->cb_Notestype, SIGNAL(activated( int )), this, SLOT( cb_Notestype( int )));
@@ -109,32 +98,31 @@ void File_Dialog_class::SetSds( Interface_class* Sds, int8_t id )
 
 void File_Dialog_class::sB_Octave(int sb_value )
 {
-	sds_p->noteline_prefix.Octave = sb_value;
-	sds_p->KEY = UPDATE_NLP_KEY;
+	Sds->Set( sds_p->noteline_prefix.Octave , sb_value );
+	Sds->Set( sds_p->KEY , UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cb_Notestype( int cb_value )
 {
-	sds_p->NotestypeId 	= cb_value;
-    notes_path         	= Notesdirs[ cb_value ].toStdString() ;
-    notes_type			= Notestypes[ cb_value ].toStdString();
-    Qread_filelist( CB_notes, notes_path, notes_type );
+	Sds->Set( sds_p->NotestypeId 	, cb_value );
+    NotesDir         	= QNotesdirs[ cb_value ].toStdString() ;
+    notes_type			= QNotestypes[ cb_value ].toStdString();
+    Qread_filelist( CB_notes, NotesDir, notes_type );
 }
 
 void File_Dialog_class::cB_Convention( int cb_value )
 {
 	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
 	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
-	sds_p->noteline_prefix.convention = cb_value;
-	sds_p->KEY = UPDATE_NLP_KEY;
+	Sds->Set( sds_p->noteline_prefix.convention , cb_value );
+	Sds->Set( sds_p->KEY , UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cB_NotesPerSec(int nps_id )
 {
 	int nps = ui->cb_nps->currentText().toInt();
-	cout << nps << endl;
-	sds_p->noteline_prefix.nps = nps;
-	sds_p->KEY = UPDATE_NLP_KEY;
+	Sds->Set( sds_p->noteline_prefix.nps , nps );
+	Sds->Set( sds_p->KEY , UPDATE_NLP_KEY );
 }
 
 
@@ -203,7 +191,7 @@ void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &arg1)
     if ( str.length() > 0 )
     {
         Sds->Write_str( INSTRUMENTSTR_KEY, str );
-        sds_p->KEY = SETINSTRUMENTKEY;
+        Sds->Set( sds_p->KEY , SETINSTRUMENTKEY );
     }
     ui->lE_Instrument->setText( QStr );
 }
@@ -217,7 +205,7 @@ void File_Dialog_class::New_Instrument()
     if ( instrument.length() > 0 )
     {
         Sds->Write_str( INSTRUMENTSTR_KEY, instrument );
-        sds_p->KEY = NEWINSTRUMENTKEY;
+        Sds->Set( sds_p->KEY , NEWINSTRUMENTKEY );
     }
 
 }
@@ -230,7 +218,7 @@ void File_Dialog_class::New_Notes()
 {
 	if ( sds_p->NotestypeId == 0 )
 	{
-    	sds_p->KEY = Noteskeys[ 0 ];
+		Sds->Set( sds_p->KEY , Noteskeys[ 0 ] );
     	return;
 	}
 
@@ -252,7 +240,7 @@ void File_Dialog_class::New_Notes()
         // remote shall read and activate the new note line
         Sds->Write_str( NOTESSTR_KEY, notes_file);
 
-        sds_p->KEY = Noteskeys[ 1 ];
+        Sds->Set( sds_p->KEY , Noteskeys[ 1 ] );
 
     	Set_button_color( ui->pbNotesDone, Qt::green );
     	sem->Release( SEMAPHORE_NOTES );
@@ -281,7 +269,7 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
 
     if ( sds_p->NotestypeId == 0 )
     {
-        sds_p->KEY = Noteskeys[ 0 ];
+    	Sds->Set( sds_p->KEY , Noteskeys[ 0 ] );
 		return;
     }
 
@@ -296,7 +284,7 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString &arg1)
 
 	// remote
 
-	sds_p->KEY = Noteskeys[ 1 ];
+	Sds->Set( sds_p->KEY , Noteskeys[ 1 ] );
 }
 
 void File_Dialog_class::pb_Instrument_Done_clicked()

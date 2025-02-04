@@ -44,12 +44,13 @@ void start_audio_stream()
 typedef stereo_t frame_t;
 //double* frame = nullptr;
 frame_t* frame = nullptr;
+string txt {""};
 void shutdown_stream()
 {
 	if ( rtapi.isStreamRunning() )
 	{
-		Log.Comment(INFO,"stream will be stopped");
-		try
+//		Log.Comment(INFO,"stream will be stopped");
+/*		try
 		{
 			rtapi.stopStream();  // or could call dac.abortStream();
 		}
@@ -57,6 +58,8 @@ void shutdown_stream()
 		{
 			cout << "bad alloc" << endl;
 		}
+*/
+		// TODO  - causes valgrind error
 	}
 	if ( rtapi.isStreamOpen() )
 	{
@@ -65,7 +68,7 @@ void shutdown_stream()
 		if ( rtapi.isStreamOpen() )
 			Log.Comment( ERROR, "stream is still open");
 	}
-	string txt = rtapi.getErrorText();
+	txt = rtapi.getErrorText();
 	if ( txt.length() == 0 )  txt = "None";
 	Log.Comment( ERROR, txt );
 
@@ -85,12 +88,15 @@ void save_record_fcn()
 		if ( RecordThreadDone )
 			break;
 		SaveRecordFlag = true;
-		Fileno = (int) DaTA.sds_master->FileNo;
+		Fileno = 0;
+		sds->FileNo = Fileno.val;// 0=generate file no - (int) DaTA.sds_master->FileNo;
 		Log.Comment( INFO, "record thread received job " + Fileno.str);
 
-		External.Save_record_data( Fileno.val );
-
-		Log.Comment( INFO, "recording done");
+		Fileno = External.Save_record_data( Fileno.val );
+		sds->FileNo = Fileno.val;
+		string filename = file_structure().get_rec_filename( Fileno.val);
+		Sds->Write_str( OTHERSTR_KEY, filename );
+		Log.Info( "recording to file " + filename + "done");
 		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
 		SaveRecordFlag = false;
 	}
@@ -151,7 +157,7 @@ void exit_proc( int signal )
 void show_usage( void )
 {
 	string str;
-	str = "Usage: " + App.Name + " -c #1 -r #2 -d #3 -o #4 \n";
+	str = "Usage: " + DaTA.Cfg.prgname + " -c #1 -r #2 -d #3 -o #4 \n";
 	str.append("       where \n");
 	str.append("       #1 = number of channels (default=2),\n");
 	str.append("       #2 = the sample rate (default = 44100),\n");
@@ -219,7 +225,7 @@ void get_device_description( uint index )
 void Application_loop()
 {
 	Log.Comment(INFO, "Entering Application loop \n");
-	Log.Comment(INFO, App.Name + " is ready");
+	Log.Comment(INFO, DaTA.Cfg.prgname + " is ready");
 
 	while ( not done and rtapi.isStreamRunning() )
 	{

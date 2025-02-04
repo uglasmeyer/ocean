@@ -20,7 +20,7 @@ using namespace std;
 
 #define MAYOR 3
 #define MINOR 3
-#define PATCH 1
+#define PATCH 2
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -35,6 +35,7 @@ const string Application = "Ocean Sound ";
  *
  *
 
+version 3.3.2 multi oscillators and ASSERTION macro
 version 3.3.1 re-integrate composer and rtsp
 version 3.3.0 integration of fft
 version 3.2.0 introduction of oscgroup

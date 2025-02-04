@@ -70,36 +70,14 @@ MainWindow::MainWindow(	QWidget *parent ) :
 {
 
 
-    auto Qstringlist = [ ]( const list<string>& str_lst )
-		{
-			QStringList Qlist{};
-			for ( string str : str_lst )
-			{
-                Qlist.push_back( ( QString::fromStdString( str ) ) );
-			}
-			return Qlist;
 
-		};
+	QWaveform_vec = Vstringvector( Spectrum.Get_waveform_vec() );
 
 
-
-    auto fromstringvector = [ ]( const vector<string>& str_vec )
-		{
-			vector<QString> Qvec{};
-			for ( string str : str_vec )
-			{
-                Qvec.push_back( ( QString::fromStdString( str ) ) );
-			}
-			return Qvec;
-
-		};
-	QWaveform_vec = fromstringvector( Spectrum.Get_waveform_vec() );
-
-
-	Qwd_wdmode_names = fromstringvector( wavedisplay_struct().types );
-	Qwd_osc_names 		= fromstringvector( osc_struct().types );
-	Qwd_display_names 	= fromstringvector( osc_struct().roles );
-	Qwd_fftmodes		= fromstringvector( wavedisplay_struct().fftmodes );
+	Qwd_wdmode_names 	= Vstringvector( wavedisplay_struct().types );
+	Qwd_osc_names 		= Vstringvector( osc_struct().types );
+	Qwd_display_names 	= Vstringvector( osc_struct().roles );
+	Qwd_fftmodes		= Vstringvector( wavedisplay_struct().fftmodes );
 
 	Qbps_str_lst = Qstringlist( bps_struct().Bps_lst );
 
@@ -118,6 +96,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     this->setPalette(palette);
 
     connect( ui->pB_Rtsp, SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
+    connect( ui->pb_SDSview, SIGNAL(clicked()), this, SLOT( SDS_Dialog() ));
     connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
     connect( ui->pBAudioServer, 	SIGNAL(clicked()), this, SLOT( start_audio_srv() ));
 
@@ -220,6 +199,10 @@ MainWindow::MainWindow(	QWidget *parent ) :
     string wavfile_path = file_structure().Dir.musicdir;
     Qread_filelist( CB_external,
     				wavfile_path, file_structure().wav_type );
+    string file		= Sds->Read_str( OTHERSTR_KEY );
+    QString Qfile	= QString::fromStdString( file );
+    CB_external->setCurrentText( Qfile );
+
     ui->cb_bps->addItems( Qbps_str_lst );
 
     ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
@@ -304,6 +287,17 @@ void MainWindow::Rtsp_Dialog()
         Rtsp_Dialog_p->proc_table_update_all( );
     }
 }
+void MainWindow::SDS_Dialog()
+{
+    if ( this->SDS_Dialog_p->isVisible()   )
+    {
+        this->SDS_Dialog_p->hide();
+    }
+    else
+    {
+        this->SDS_Dialog_p->show();
+    }
+}
 
 void MainWindow::File_Director()
 {
@@ -311,8 +305,10 @@ void MainWindow::File_Director()
         this->File_Dialog_p->hide();
     else
     {
+    	int notetype = Sds->addr->NotestypeId;
 		Qread_filelist( this->File_Dialog_p->CB_notes,
-						file_structure().Dir.xmldir, file_structure().xml_type);
+						file_structure().Notesdirs[ notetype],
+						file_structure().Notestypes[notetype]);
 		this->File_Dialog_p->show();
     }
 }
@@ -334,6 +330,7 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 	*wf_addr = wfid;
 	Sds->Set( Sds->addr->KEY , wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
+	this->Spectrum_Dialog_p->SetLabelWaveform( QWaveform_vec[ wfid ] );
 }
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
@@ -617,8 +614,8 @@ void MainWindow::setwidgetvalues()
 	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 
 
-    Sds->addr->UserInterface 	= RUNNING;
-    Sds->addr->UpdateFlag 		= true;
+    Sds->Set( Sds->addr->UserInterface 	, RUNNING );
+    Sds->Set( Sds->addr->UpdateFlag 		, true );
     MainWindow::show();
 }
 
@@ -636,7 +633,8 @@ auto Slider_Hz = []( Interface_class* IFC, float& fptr, float value, char key )
 
 void MainWindow::MAIN_slot_Hz()
 {
-	Slider_Hz( this->Sds, this->Sds->addr->OSC_wp.frequency, ui->Slider_Main_Hz->value(), MAINFREQUENCYKEY );
+	int value = ui->Slider_Main_Hz->value();
+	Slider_Hz( this->Sds, this->Sds->addr->OSC_wp.frequency, value, OSCFREQUENCYKEY );
 }
 
 void MainWindow::Slider_VCO_Hz_changed(int value )
@@ -742,7 +740,7 @@ void MainWindow::Controller_Exit()
 		return;
 	}
 	uint idx = Rtsp_Dialog_obj.SDS_ID + SYNTHID ;
-    Sds->addr->Synthesizer = EXITSERVER ;
+    Sds->Set( Sds->addr->Synthesizer , EXITSERVER );
     DaTA->Reg.Reset( idx );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
     Rtsp_Dialog_obj.proc_table_update_row(Rtsp_Dialog_obj.SDS_ID + 1);
@@ -847,8 +845,8 @@ void MainWindow::pB_Wavedisplay_clicked()
 void MainWindow::pB_fftmode_clicked()
 {
 	bool fft_mode = not (Sds->addr->WD_status.fftmode );
-	Sds->_Set( Sds->addr->WD_status.fftmode, fft_mode );
-	Sds->_Set( Sds->addr->KEY, SETWAVEDISPLAYKEY );
+	Sds->Set( Sds->addr->WD_status.fftmode, fft_mode );
+	Sds->Set( Sds->addr->KEY, SETWAVEDISPLAYKEY );
 	cout << "pB_fftmode_clicked" << boolalpha << Sds->addr->WD_status.fftmode << endl;
 
 	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );
@@ -856,14 +854,17 @@ void MainWindow::pB_fftmode_clicked()
 }
 void MainWindow::Updatewidgets()
 {
+
     if (  Sds_master->UserInterface == UPDATEGUI  )
     {
         if ( Sds->addr->KEY == INSTRUMENTSTR_KEY )
         {
             string str = Sds->Read_str( INSTRUMENTSTR_KEY );
-            QString QStr ;
+            Instrument_name = QString::fromStdString( str );
             if ( this->File_Dialog_p != nullptr )
-                this->File_Dialog_p->CB_instruments->textActivated(QStr);
+                this->File_Dialog_p->CB_instruments->textActivated( Instrument_name );
+            if ( this->Spectrum_Dialog_p != nullptr )
+            	Spectrum_Dialog_p->SetLabelInstrument( Instrument_name );
         }
         if ( not DaTA->sds_master->Composer )
         {
@@ -871,8 +872,12 @@ void MainWindow::Updatewidgets()
 			{
 				case RECORDWAVFILEFLAG :
 				{
+					Info( "update recording info");
 					Qread_filelist( CB_external,
 									file_structure().Dir.musicdir, file_structure().wav_type);
+					string file		= Sds->Read_str( OTHERSTR_KEY );
+					QString Qfile	= QString::fromStdString( file );
+					CB_external->setCurrentText( Qfile );
 					break;
 				}
 				case NEWINSTRUMENTFLAG :
@@ -883,9 +888,10 @@ void MainWindow::Updatewidgets()
 				}
 				case NEWNOTESLINEFLAG :
 				{
+					int notetype = Sds->addr->NotestypeId;
 					Qread_filelist( this->File_Dialog_p->CB_notes,
-									file_structure().Dir.xmldir, file_structure().xml_type);
-//									file_structure().Dir.notesdir, file_structure().nte_type);
+									file_structure().Notesdirs[ notetype],
+									file_structure().Notestypes[notetype]);
 					break;
 				}
 			}

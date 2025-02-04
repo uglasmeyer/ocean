@@ -19,7 +19,7 @@ Processor_class( data->Sds_p )
 	main_view.name		= "Main osc";
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
 	main_view.ampkey 	= SETMBAMPPLAYKEY;//MASTERAMP_KEY;
-	main_view.freqkey 	= MAINFREQUENCYKEY;
+	main_view.freqkey 	= OSCFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
 	vco_view.wfkey 		= SETWAVEFORMVCOKEY;

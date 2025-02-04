@@ -143,6 +143,7 @@ public:
     QPushButton *pb_fftmode;
     QLabel *lb_FMO_LFO;
     QLabel *lb_VCO_LFO;
+    QPushButton *pb_SDSview;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -650,6 +651,9 @@ public:
         lb_VCO_LFO = new QLabel(centralwidget);
         lb_VCO_LFO->setObjectName(QString::fromUtf8("lb_VCO_LFO"));
         lb_VCO_LFO->setGeometry(QRect(260, 210, 31, 18));
+        pb_SDSview = new QPushButton(centralwidget);
+        pb_SDSview->setObjectName(QString::fromUtf8("pb_SDSview"));
+        pb_SDSview->setGeometry(QRect(1000, 450, 88, 26));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -754,6 +758,7 @@ public:
         pb_fftmode->setText(QString());
         lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
         lb_VCO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
+        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

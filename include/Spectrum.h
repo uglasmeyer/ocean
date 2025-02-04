@@ -27,9 +27,10 @@ enum waveformId_t
 	RANDOM
 };
 
-const static size_t spec_dta_len = 8;
-typedef array<uint8_t,spec_dta_len> spec_dta_t;
-
+const static size_t 	spec_arr_len = 4;
+typedef float 			spec_dta_t;
+typedef array<spec_dta_t,	spec_arr_len> spec_arr_t;
+typedef array<phi_t		,	spec_arr_len> spec_darr_t;
 
 
 class Spectrum_base : public virtual Logfacility_class
@@ -38,10 +39,15 @@ public:
 
 	typedef struct spec_struct
 	{
-		spec_dta_t				dta	= { 100,0,0,0,0,0,0,0 } ; 	// [osc, amplitude ... ]
-		int						sum = 100; // max of the array content
+		spec_arr_t				vol	= { 0.0 } ;
+		// [osc, amplitude ... ]
+		spec_arr_t				frq	= { 0.0 } ;
+		// [osc, frequency shift... ]
+		spec_dta_t				sum = 0;
+		spec_darr_t				phi {0.0};
 		uint8_t	 				id 	= SINUS1; // waveform id
 		uint8_t					osc = osc_struct::OSCID;
+		float					base= oct_base_freq;
 	} spectrum_t;
 
 	const vector<string> waveform_str_vec
@@ -65,8 +71,8 @@ public:
 	Spectrum_base() : Logfacility_class("Spectrum base") {};
 	~Spectrum_base(){};
 
-	spectrum_t 		Parse_data( vector_str_t, char );
-	void 			Set_spectrum( uint8_t, int, uint8_t );
+	spectrum_t 		Parse_data( vector_str_t, char oscid, char _type );
+	void 			Set_spectrum( uint8_t, spectrum_t );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );

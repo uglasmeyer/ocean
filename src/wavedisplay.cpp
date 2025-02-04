@@ -159,7 +159,7 @@ void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(status.roleId) + "]" +
 														  "[" + to_string(status.oscId) + "]");
 	else
-		Comment( INFO, "wave display selected: "+
+		Comment( DEBUG, "wave display selected: "+
 						OscRole.roles[ status.roleId ] + " " +
 						OscRole.types[ status.oscId ] );
 	set_wdmode( status.wd_mode );

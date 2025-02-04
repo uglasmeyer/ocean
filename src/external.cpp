@@ -15,10 +15,10 @@ string External_class::GetName()
 {
 	return Filename;
 }
-void External_class::setName( string name )
+void External_class::setName( string  _name )
 {
-	Name 		= name;
-	Filename 	= file_structure().Dir.musicdir + Name + ".wav";
+	Name 		= _name;
+	Filename 	= file_structure().Dir.musicdir + Name + file_structure().wav_type;
 }
 
 bool External_class::Read_file_header( string name )
@@ -277,12 +277,12 @@ string External_class::ffmpeg_cmd( string wav, string mp3 )
 	return cmd;
 }
 
-void External_class::Save_record_data( int filenr)
+int External_class::Save_record_data( int filenr)
 {
 	if ( filenr == 0 ) // generate a file name
 		filenr = generate_file_no( MAXWAVFILES );
 
-	setName( file_structure().filename + to_string( filenr) );
+	setName( file_structure().get_rec_filename( filenr) );
 
 	Comment( INFO, "Prepare record file " + Name );
 	Comment( INFO, "Record frames: " + to_string (record_size));
@@ -291,7 +291,7 @@ void External_class::Save_record_data( int filenr)
 	if ( record_size == 0 )
 	{
 		Comment( WARN, "Nothing to do");
-		return;
+		return 0;
 	}
 
 	remove_file( file_structure().raw_file );
@@ -303,7 +303,7 @@ void External_class::Save_record_data( int filenr)
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(record_size) + " written");
-		return ;
+		return 0;
 	};
 
 	remove_file( file_structure().wav_file );
@@ -322,13 +322,14 @@ void External_class::Save_record_data( int filenr)
     Filename = "";
     record_size = 0; // reset size
 
+    return filenr;
+
 }
 
 void External_class::Test_External()
 {
 	TEST_START( className );
-	Assert( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 ,
-			to_string ( StA->ds.max_records ) + "=" + to_string( Stereo_Memory::ds.max_records));
+	ASSERTION( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 , "", StA->ds.max_records, Stereo_Memory::ds.max_records);
 
 	Log_system.Set_Loglevel( TEST, true);
 	if ( filesystem::exists( testcounter ))

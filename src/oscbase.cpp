@@ -80,6 +80,7 @@ void Oscillator_base::Set_frequency( float freq )
 	if ( freq < 0 ) freq= 0;
 	wp.frequency 		= freq;
 	wp.start_frq 		= freq;
+	spectrum.base		= freq;
 }
 void Oscillator_base::Set_volume( uint16_t vol)
 {

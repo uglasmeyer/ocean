@@ -103,7 +103,7 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event( "#faw" );
 			switch ( keyevent )
 			{
-			case 'f' : { sds->OSC_wp.frequency = getvalue( "Frequency" ); sds->KEY = MAINFREQUENCYKEY; break; }
+			case 'f' : { sds->OSC_wp.frequency = getvalue( "Frequency" ); sds->KEY = OSCFREQUENCYKEY; break; }
 			case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
 			case 'w' : { sds->OSC_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;

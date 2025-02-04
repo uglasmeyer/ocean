@@ -193,10 +193,15 @@ bool Instrument_class::read_instrument( )
 			Oscillator* osc = get_osc_by_name( arr[1] );
 			init_data_structure( osc, arr );
 		}
-		if ( keyword.compare("SPEC") == 0 )
+		if ( keyword.compare("SPEV") == 0 )
 		{
 			Oscillator* osc = get_osc_by_name( arr[1] );
-			osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id );
+			osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id, 0 );
+		}
+		if ( keyword.compare("SPEF") == 0 )
+		{
+			Oscillator* osc = get_osc_by_name( arr[1] );
+			osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id, 1 );
 		}
 
 	} while( getline( File, Str.Str));

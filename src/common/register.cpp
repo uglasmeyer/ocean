@@ -71,7 +71,8 @@ bool Register_class::Is_dataprocess()
 
 void Register_class::Reset( uint idx )
 {
-	sds->process_arr.at( idx ) = noprocess;
+	if ( not Is_running_process( sds->process_arr.at( idx ).pid ) )
+		sds->process_arr.at( idx ) = noprocess;
 }
 
 void Register_class::Clear_procregister()
