@@ -7,20 +7,17 @@
 
 #include <notes/Notesbase.h>
 #include <System.h>
+#include <Exit.h>
 
 Note_base::Note_base () :
 Logfacility_class("NotesBase")
 {
-	for( uint n = 0; n < root2_limit; n++ )
-	{
-		float x = pow(2.0, (n+3)/12.0) ; // 3 considers A0 = 55/4
-		root2.push_back( x );
-	}
 	className = Logfacility_class::module;
 };
 
 Note_base::~Note_base()
-{};
+{
+};
 
 // https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
 float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
@@ -33,10 +30,11 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 		oct 	-=  1;
 	}
 	uint8_t	octave	= abs( oct );// + octave_shift );
-	int		key 	= octave*12 + step;
-	return 	calc_frequency( base, key );
+	int		key 	= octave*12 + step + noteFreq.A0;
+	return 	noteFreq.Calc(base, key);//calc_frequency( base, key );
 };
 
+/*
 float Note_base::calc_frequency( const float& base, const int& key )
 {
 	ASSERTION( not( key < 0 ), "key: ", key, "< 0" );
@@ -47,6 +45,7 @@ float Note_base::calc_frequency( const float& base, const int& key )
 	}
 	return root2[ key ] * base;
 }
+*/
 
 void Note_base::Set_base_octave( uint diff )
 {

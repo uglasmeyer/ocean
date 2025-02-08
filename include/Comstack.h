@@ -19,6 +19,8 @@
 Exit_class				Exit{};
 string					Module			= "comstack";
 Logfacility_class 		Log( Module );
+Frequency_class 				Frequency 		{};
+
 Keyboard_class			Keyboard{ };
 Dataworld_class 		DaTA( COMSTACKID );
 Application_class		App( &DaTA );

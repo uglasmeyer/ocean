@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[78];
-    char stringdata0[1126];
+    char stringdata0[1117];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -41,84 +41,84 @@ QT_MOC_LITERAL(5, 64, 15), // "cB_Beat_per_sec"
 QT_MOC_LITERAL(6, 80, 22), // "dial_PMW_value_changed"
 QT_MOC_LITERAL(7, 103, 24), // "dial_decay_value_changed"
 QT_MOC_LITERAL(8, 128, 17), // "get_record_status"
-QT_MOC_LITERAL(9, 146, 12), // "MAIN_slot_Hz"
-QT_MOC_LITERAL(10, 159, 16), // "MAIN_slot_volume"
-QT_MOC_LITERAL(11, 176, 15), // "VCO_slot_volume"
-QT_MOC_LITERAL(12, 192, 21), // "Slider_FMO_Hz_changed"
-QT_MOC_LITERAL(13, 214, 21), // "Slider_VCO_Hz_changed"
-QT_MOC_LITERAL(14, 236, 15), // "FMO_slot_volume"
-QT_MOC_LITERAL(15, 252, 13), // "waveform_slot"
-QT_MOC_LITERAL(16, 266, 8), // "uint8_t*"
-QT_MOC_LITERAL(17, 275, 7), // "uint8_t"
-QT_MOC_LITERAL(18, 283, 7), // "QLabel*"
-QT_MOC_LITERAL(19, 291, 18), // "Main_Waveform_slot"
-QT_MOC_LITERAL(20, 310, 17), // "VCO_Waveform_slot"
-QT_MOC_LITERAL(21, 328, 17), // "FMO_Waveform_slot"
-QT_MOC_LITERAL(22, 346, 15), // "Controller_Exit"
-QT_MOC_LITERAL(23, 362, 8), // "GUI_Exit"
-QT_MOC_LITERAL(24, 371, 10), // "Audio_Exit"
-QT_MOC_LITERAL(25, 382, 17), // "start_synthesizer"
-QT_MOC_LITERAL(26, 400, 15), // "start_audio_srv"
-QT_MOC_LITERAL(27, 416, 14), // "start_composer"
-QT_MOC_LITERAL(28, 431, 10), // "set_mode_f"
-QT_MOC_LITERAL(29, 442, 10), // "set_mode_v"
-QT_MOC_LITERAL(30, 453, 10), // "set_mode_o"
-QT_MOC_LITERAL(31, 464, 7), // "Sl_mix0"
-QT_MOC_LITERAL(32, 472, 7), // "Sl_mix1"
-QT_MOC_LITERAL(33, 480, 7), // "Sl_mix2"
-QT_MOC_LITERAL(34, 488, 7), // "Sl_mix3"
-QT_MOC_LITERAL(35, 496, 7), // "Sl_mix4"
-QT_MOC_LITERAL(36, 504, 7), // "Sl_mix5"
-QT_MOC_LITERAL(37, 512, 7), // "Sl_mix6"
-QT_MOC_LITERAL(38, 520, 7), // "Sl_mix7"
-QT_MOC_LITERAL(39, 528, 22), // "slot_dial_ramp_up_down"
-QT_MOC_LITERAL(40, 551, 12), // "memory_clear"
-QT_MOC_LITERAL(41, 564, 10), // "SaveRecord"
-QT_MOC_LITERAL(42, 575, 17), // "read_polygon_data"
-QT_MOC_LITERAL(43, 593, 11), // "Clear_Banks"
-QT_MOC_LITERAL(44, 605, 12), // "toggle_mute0"
-QT_MOC_LITERAL(45, 618, 12), // "toggle_mute1"
-QT_MOC_LITERAL(46, 631, 12), // "toggle_mute2"
-QT_MOC_LITERAL(47, 644, 12), // "toggle_mute3"
-QT_MOC_LITERAL(48, 657, 12), // "toggle_mute4"
-QT_MOC_LITERAL(49, 670, 12), // "toggle_mute5"
-QT_MOC_LITERAL(50, 683, 12), // "toggle_mute6"
-QT_MOC_LITERAL(51, 696, 12), // "toggle_mute7"
-QT_MOC_LITERAL(52, 709, 17), // "toggle_store_sta0"
-QT_MOC_LITERAL(53, 727, 17), // "toggle_store_sta1"
-QT_MOC_LITERAL(54, 745, 17), // "toggle_store_sta2"
-QT_MOC_LITERAL(55, 763, 17), // "toggle_store_sta3"
-QT_MOC_LITERAL(56, 781, 17), // "toggle_store_sta4"
-QT_MOC_LITERAL(57, 799, 17), // "toggle_store_sta5"
-QT_MOC_LITERAL(58, 817, 17), // "toggle_store_sta6"
-QT_MOC_LITERAL(59, 835, 17), // "toggle_store_sta7"
-QT_MOC_LITERAL(60, 853, 11), // "select_Sds0"
-QT_MOC_LITERAL(61, 865, 11), // "select_Sds1"
-QT_MOC_LITERAL(62, 877, 11), // "select_Sds2"
-QT_MOC_LITERAL(63, 889, 11), // "select_Sds3"
-QT_MOC_LITERAL(64, 901, 13), // "File_Director"
-QT_MOC_LITERAL(65, 915, 15), // "Spectrum_Dialog"
-QT_MOC_LITERAL(66, 931, 11), // "Save_Config"
-QT_MOC_LITERAL(67, 943, 11), // "toggle_Mute"
-QT_MOC_LITERAL(68, 955, 11), // "connect_fmo"
-QT_MOC_LITERAL(69, 967, 11), // "connect_vco"
-QT_MOC_LITERAL(70, 979, 17), // "main_adsr_sustain"
-QT_MOC_LITERAL(71, 997, 16), // "pB_Debug_clicked"
-QT_MOC_LITERAL(72, 1014, 16), // "wavfile_selected"
-QT_MOC_LITERAL(73, 1031, 3), // "arg"
-QT_MOC_LITERAL(74, 1035, 19), // "pB_oscgroup_clicked"
-QT_MOC_LITERAL(75, 1055, 22), // "pB_Wavedisplay_clicked"
-QT_MOC_LITERAL(76, 1078, 18), // "pB_fftmode_clicked"
-QT_MOC_LITERAL(77, 1097, 28) // "hs_hall_effect_value_changed"
+QT_MOC_LITERAL(9, 146, 16), // "MAIN_slot_volume"
+QT_MOC_LITERAL(10, 163, 15), // "VCO_slot_volume"
+QT_MOC_LITERAL(11, 179, 15), // "FMO_slot_volume"
+QT_MOC_LITERAL(12, 195, 15), // "Slider_OSC_Freq"
+QT_MOC_LITERAL(13, 211, 15), // "Slider_FMO_Freq"
+QT_MOC_LITERAL(14, 227, 15), // "Slider_VCO_Freq"
+QT_MOC_LITERAL(15, 243, 13), // "waveform_slot"
+QT_MOC_LITERAL(16, 257, 8), // "uint8_t*"
+QT_MOC_LITERAL(17, 266, 7), // "uint8_t"
+QT_MOC_LITERAL(18, 274, 7), // "QLabel*"
+QT_MOC_LITERAL(19, 282, 18), // "Main_Waveform_slot"
+QT_MOC_LITERAL(20, 301, 17), // "VCO_Waveform_slot"
+QT_MOC_LITERAL(21, 319, 17), // "FMO_Waveform_slot"
+QT_MOC_LITERAL(22, 337, 15), // "Controller_Exit"
+QT_MOC_LITERAL(23, 353, 8), // "GUI_Exit"
+QT_MOC_LITERAL(24, 362, 10), // "Audio_Exit"
+QT_MOC_LITERAL(25, 373, 17), // "start_synthesizer"
+QT_MOC_LITERAL(26, 391, 15), // "start_audio_srv"
+QT_MOC_LITERAL(27, 407, 14), // "start_composer"
+QT_MOC_LITERAL(28, 422, 10), // "set_mode_f"
+QT_MOC_LITERAL(29, 433, 10), // "set_mode_v"
+QT_MOC_LITERAL(30, 444, 10), // "set_mode_o"
+QT_MOC_LITERAL(31, 455, 7), // "Sl_mix0"
+QT_MOC_LITERAL(32, 463, 7), // "Sl_mix1"
+QT_MOC_LITERAL(33, 471, 7), // "Sl_mix2"
+QT_MOC_LITERAL(34, 479, 7), // "Sl_mix3"
+QT_MOC_LITERAL(35, 487, 7), // "Sl_mix4"
+QT_MOC_LITERAL(36, 495, 7), // "Sl_mix5"
+QT_MOC_LITERAL(37, 503, 7), // "Sl_mix6"
+QT_MOC_LITERAL(38, 511, 7), // "Sl_mix7"
+QT_MOC_LITERAL(39, 519, 22), // "slot_dial_ramp_up_down"
+QT_MOC_LITERAL(40, 542, 12), // "memory_clear"
+QT_MOC_LITERAL(41, 555, 10), // "SaveRecord"
+QT_MOC_LITERAL(42, 566, 17), // "read_polygon_data"
+QT_MOC_LITERAL(43, 584, 11), // "Clear_Banks"
+QT_MOC_LITERAL(44, 596, 12), // "toggle_mute0"
+QT_MOC_LITERAL(45, 609, 12), // "toggle_mute1"
+QT_MOC_LITERAL(46, 622, 12), // "toggle_mute2"
+QT_MOC_LITERAL(47, 635, 12), // "toggle_mute3"
+QT_MOC_LITERAL(48, 648, 12), // "toggle_mute4"
+QT_MOC_LITERAL(49, 661, 12), // "toggle_mute5"
+QT_MOC_LITERAL(50, 674, 12), // "toggle_mute6"
+QT_MOC_LITERAL(51, 687, 12), // "toggle_mute7"
+QT_MOC_LITERAL(52, 700, 17), // "toggle_store_sta0"
+QT_MOC_LITERAL(53, 718, 17), // "toggle_store_sta1"
+QT_MOC_LITERAL(54, 736, 17), // "toggle_store_sta2"
+QT_MOC_LITERAL(55, 754, 17), // "toggle_store_sta3"
+QT_MOC_LITERAL(56, 772, 17), // "toggle_store_sta4"
+QT_MOC_LITERAL(57, 790, 17), // "toggle_store_sta5"
+QT_MOC_LITERAL(58, 808, 17), // "toggle_store_sta6"
+QT_MOC_LITERAL(59, 826, 17), // "toggle_store_sta7"
+QT_MOC_LITERAL(60, 844, 11), // "select_Sds0"
+QT_MOC_LITERAL(61, 856, 11), // "select_Sds1"
+QT_MOC_LITERAL(62, 868, 11), // "select_Sds2"
+QT_MOC_LITERAL(63, 880, 11), // "select_Sds3"
+QT_MOC_LITERAL(64, 892, 13), // "File_Director"
+QT_MOC_LITERAL(65, 906, 15), // "Spectrum_Dialog"
+QT_MOC_LITERAL(66, 922, 11), // "Save_Config"
+QT_MOC_LITERAL(67, 934, 11), // "toggle_Mute"
+QT_MOC_LITERAL(68, 946, 11), // "connect_fmo"
+QT_MOC_LITERAL(69, 958, 11), // "connect_vco"
+QT_MOC_LITERAL(70, 970, 17), // "main_adsr_sustain"
+QT_MOC_LITERAL(71, 988, 16), // "pB_Debug_clicked"
+QT_MOC_LITERAL(72, 1005, 16), // "wavfile_selected"
+QT_MOC_LITERAL(73, 1022, 3), // "arg"
+QT_MOC_LITERAL(74, 1026, 19), // "pB_oscgroup_clicked"
+QT_MOC_LITERAL(75, 1046, 22), // "pB_Wavedisplay_clicked"
+QT_MOC_LITERAL(76, 1069, 18), // "pB_fftmode_clicked"
+QT_MOC_LITERAL(77, 1088, 28) // "hs_hall_effect_value_changed"
 
     },
     "MainWindow\0Rtsp_Dialog\0\0SDS_Dialog\0"
     "dial_soft_freq_value_changed\0"
     "cB_Beat_per_sec\0dial_PMW_value_changed\0"
     "dial_decay_value_changed\0get_record_status\0"
-    "MAIN_slot_Hz\0MAIN_slot_volume\0"
-    "VCO_slot_volume\0Slider_FMO_Hz_changed\0"
-    "Slider_VCO_Hz_changed\0FMO_slot_volume\0"
+    "MAIN_slot_volume\0VCO_slot_volume\0"
+    "FMO_slot_volume\0Slider_OSC_Freq\0"
+    "Slider_FMO_Freq\0Slider_VCO_Freq\0"
     "waveform_slot\0uint8_t*\0uint8_t\0QLabel*\0"
     "Main_Waveform_slot\0VCO_Waveform_slot\0"
     "FMO_Waveform_slot\0Controller_Exit\0"
@@ -171,66 +171,66 @@ static const uint qt_meta_data_MainWindow[] = {
       11,    0,  385,    2, 0x08 /* Private */,
       12,    1,  386,    2, 0x08 /* Private */,
       13,    1,  389,    2, 0x08 /* Private */,
-      14,    0,  392,    2, 0x08 /* Private */,
-      15,    5,  393,    2, 0x08 /* Private */,
-      19,    1,  404,    2, 0x08 /* Private */,
-      20,    1,  407,    2, 0x08 /* Private */,
-      21,    1,  410,    2, 0x08 /* Private */,
-      22,    0,  413,    2, 0x08 /* Private */,
-      23,    0,  414,    2, 0x08 /* Private */,
-      24,    0,  415,    2, 0x08 /* Private */,
-      25,    0,  416,    2, 0x08 /* Private */,
-      26,    0,  417,    2, 0x08 /* Private */,
-      27,    0,  418,    2, 0x08 /* Private */,
-      28,    0,  419,    2, 0x08 /* Private */,
-      29,    0,  420,    2, 0x08 /* Private */,
-      30,    0,  421,    2, 0x08 /* Private */,
-      31,    1,  422,    2, 0x08 /* Private */,
-      32,    1,  425,    2, 0x08 /* Private */,
-      33,    1,  428,    2, 0x08 /* Private */,
-      34,    1,  431,    2, 0x08 /* Private */,
-      35,    1,  434,    2, 0x08 /* Private */,
-      36,    1,  437,    2, 0x08 /* Private */,
-      37,    1,  440,    2, 0x08 /* Private */,
-      38,    1,  443,    2, 0x08 /* Private */,
-      39,    0,  446,    2, 0x08 /* Private */,
-      40,    0,  447,    2, 0x08 /* Private */,
-      41,    0,  448,    2, 0x08 /* Private */,
-      42,    0,  449,    2, 0x08 /* Private */,
-      43,    0,  450,    2, 0x08 /* Private */,
-      44,    0,  451,    2, 0x08 /* Private */,
-      45,    0,  452,    2, 0x08 /* Private */,
-      46,    0,  453,    2, 0x08 /* Private */,
-      47,    0,  454,    2, 0x08 /* Private */,
-      48,    0,  455,    2, 0x08 /* Private */,
-      49,    0,  456,    2, 0x08 /* Private */,
-      50,    0,  457,    2, 0x08 /* Private */,
-      51,    0,  458,    2, 0x08 /* Private */,
-      52,    0,  459,    2, 0x08 /* Private */,
-      53,    0,  460,    2, 0x08 /* Private */,
-      54,    0,  461,    2, 0x08 /* Private */,
-      55,    0,  462,    2, 0x08 /* Private */,
-      56,    0,  463,    2, 0x08 /* Private */,
-      57,    0,  464,    2, 0x08 /* Private */,
-      58,    0,  465,    2, 0x08 /* Private */,
-      59,    0,  466,    2, 0x08 /* Private */,
-      60,    0,  467,    2, 0x08 /* Private */,
-      61,    0,  468,    2, 0x08 /* Private */,
-      62,    0,  469,    2, 0x08 /* Private */,
-      63,    0,  470,    2, 0x08 /* Private */,
-      64,    0,  471,    2, 0x08 /* Private */,
-      65,    0,  472,    2, 0x08 /* Private */,
-      66,    0,  473,    2, 0x08 /* Private */,
-      67,    0,  474,    2, 0x08 /* Private */,
-      68,    0,  475,    2, 0x08 /* Private */,
-      69,    0,  476,    2, 0x08 /* Private */,
-      70,    0,  477,    2, 0x08 /* Private */,
-      71,    0,  478,    2, 0x08 /* Private */,
-      72,    1,  479,    2, 0x08 /* Private */,
-      74,    0,  482,    2, 0x08 /* Private */,
-      75,    0,  483,    2, 0x08 /* Private */,
-      76,    0,  484,    2, 0x08 /* Private */,
-      77,    1,  485,    2, 0x08 /* Private */,
+      14,    1,  392,    2, 0x08 /* Private */,
+      15,    5,  395,    2, 0x08 /* Private */,
+      19,    1,  406,    2, 0x08 /* Private */,
+      20,    1,  409,    2, 0x08 /* Private */,
+      21,    1,  412,    2, 0x08 /* Private */,
+      22,    0,  415,    2, 0x08 /* Private */,
+      23,    0,  416,    2, 0x08 /* Private */,
+      24,    0,  417,    2, 0x08 /* Private */,
+      25,    0,  418,    2, 0x08 /* Private */,
+      26,    0,  419,    2, 0x08 /* Private */,
+      27,    0,  420,    2, 0x08 /* Private */,
+      28,    0,  421,    2, 0x08 /* Private */,
+      29,    0,  422,    2, 0x08 /* Private */,
+      30,    0,  423,    2, 0x08 /* Private */,
+      31,    1,  424,    2, 0x08 /* Private */,
+      32,    1,  427,    2, 0x08 /* Private */,
+      33,    1,  430,    2, 0x08 /* Private */,
+      34,    1,  433,    2, 0x08 /* Private */,
+      35,    1,  436,    2, 0x08 /* Private */,
+      36,    1,  439,    2, 0x08 /* Private */,
+      37,    1,  442,    2, 0x08 /* Private */,
+      38,    1,  445,    2, 0x08 /* Private */,
+      39,    0,  448,    2, 0x08 /* Private */,
+      40,    0,  449,    2, 0x08 /* Private */,
+      41,    0,  450,    2, 0x08 /* Private */,
+      42,    0,  451,    2, 0x08 /* Private */,
+      43,    0,  452,    2, 0x08 /* Private */,
+      44,    0,  453,    2, 0x08 /* Private */,
+      45,    0,  454,    2, 0x08 /* Private */,
+      46,    0,  455,    2, 0x08 /* Private */,
+      47,    0,  456,    2, 0x08 /* Private */,
+      48,    0,  457,    2, 0x08 /* Private */,
+      49,    0,  458,    2, 0x08 /* Private */,
+      50,    0,  459,    2, 0x08 /* Private */,
+      51,    0,  460,    2, 0x08 /* Private */,
+      52,    0,  461,    2, 0x08 /* Private */,
+      53,    0,  462,    2, 0x08 /* Private */,
+      54,    0,  463,    2, 0x08 /* Private */,
+      55,    0,  464,    2, 0x08 /* Private */,
+      56,    0,  465,    2, 0x08 /* Private */,
+      57,    0,  466,    2, 0x08 /* Private */,
+      58,    0,  467,    2, 0x08 /* Private */,
+      59,    0,  468,    2, 0x08 /* Private */,
+      60,    0,  469,    2, 0x08 /* Private */,
+      61,    0,  470,    2, 0x08 /* Private */,
+      62,    0,  471,    2, 0x08 /* Private */,
+      63,    0,  472,    2, 0x08 /* Private */,
+      64,    0,  473,    2, 0x08 /* Private */,
+      65,    0,  474,    2, 0x08 /* Private */,
+      66,    0,  475,    2, 0x08 /* Private */,
+      67,    0,  476,    2, 0x08 /* Private */,
+      68,    0,  477,    2, 0x08 /* Private */,
+      69,    0,  478,    2, 0x08 /* Private */,
+      70,    0,  479,    2, 0x08 /* Private */,
+      71,    0,  480,    2, 0x08 /* Private */,
+      72,    1,  481,    2, 0x08 /* Private */,
+      74,    0,  484,    2, 0x08 /* Private */,
+      75,    0,  485,    2, 0x08 /* Private */,
+      76,    0,  486,    2, 0x08 /* Private */,
+      77,    1,  487,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -245,7 +245,7 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, 0x80000000 | 16, 0x80000000 | 17, QMetaType::Int, QMetaType::Int, 0x80000000 | 18,    2,    2,    2,    2,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
@@ -322,12 +322,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 4: _t->dial_PMW_value_changed(); break;
         case 5: _t->dial_decay_value_changed(); break;
         case 6: _t->get_record_status(); break;
-        case 7: _t->MAIN_slot_Hz(); break;
-        case 8: _t->MAIN_slot_volume(); break;
-        case 9: _t->VCO_slot_volume(); break;
-        case 10: _t->Slider_FMO_Hz_changed((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 11: _t->Slider_VCO_Hz_changed((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 12: _t->FMO_slot_volume(); break;
+        case 7: _t->MAIN_slot_volume(); break;
+        case 8: _t->VCO_slot_volume(); break;
+        case 9: _t->FMO_slot_volume(); break;
+        case 10: _t->Slider_OSC_Freq((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 11: _t->Slider_FMO_Freq((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 12: _t->Slider_VCO_Freq((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 13: _t->waveform_slot((*reinterpret_cast< uint8_t*(*)>(_a[1])),(*reinterpret_cast< uint8_t(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4])),(*reinterpret_cast< QLabel*(*)>(_a[5]))); break;
         case 14: _t->Main_Waveform_slot((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 15: _t->VCO_Waveform_slot((*reinterpret_cast< int(*)>(_a[1]))); break;

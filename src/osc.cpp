@@ -99,6 +99,9 @@ constexpr Data_t Sawtooth( const float& amp,  const phi_t& phi )
 	return rint(amp* (1.0 - modulo(phi,1 )));
 }
 
+
+
+
 Oscillator::Oscillator( ) :
 		Logfacility_class( "Oscillator" ),
 		Oscillator_base()
@@ -113,7 +116,6 @@ void Oscillator::SetId( char role, char type )
 {
 	osctype_id	= type;
 	osc_type 	= OscRole.types[osctype_id];
-
 	oscrole_id	= role;
 	osc_role	= OscRole.roles[oscrole_id];
 
@@ -127,6 +129,8 @@ void Oscillator::SetId( char role, char type )
 	Comment( INFO, osc_role + " " + osc_type + " initialized" );
 
 }
+
+
 void Oscillator::Set_start_freq( float freq )
 {
 	wp.start_frq = freq;
@@ -483,15 +487,15 @@ void Oscillator::Test()
 	assert( abs( Mem_fmo.Data[0]				)	< 1E-8 );
 	assert( Mem.ds.data_blocks 	== max_frames );
 
-	vector_str_t arr = { "TYPE","VCO","Sinus","480","2000","40","2","1","1","69","2","0","-1","0","42" };
+	vector_str_t arr = { "TYPE","VCO","Sinus","83","2000","40","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
-	assert( abs(wp.frequency) - 480 < 1 );
+	ASSERTION( abs(wp.frequency - 440) < 1, "Frequency", abs(wp.frequency), 440 );
 	Set_duration( max_milli_sec );
 
 	spectrum = spec_struct();
 	OSC( 0 );
 	cout << "Phase: " << phase <<  " " << 2*pi << endl;
-	assert (( abs(phase - 2*pi ) < 1E-5) );
+	assert (( abs( sin(phase - 2*pi) ) < 1E-5) );
 
 	longnote = true;
 	adsr.attack = 50;
@@ -500,7 +504,6 @@ void Oscillator::Test()
 	Oscillator testosc {};
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );
-
-	Comment( TEST, "Osc test finished");
+	TEST_END( className );
 }
 

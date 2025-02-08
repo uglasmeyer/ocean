@@ -59,7 +59,7 @@ void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
 	process_stack.push_back( move( stack_item ) );
 };
 
-void Processor_class::Push_ifd( float* uiaddr, float value, string str )
+void Processor_class::Push_ifd( int* uiaddr, int value, string str )
 {
 	stack_struct_t stack_item = stack_struct();
 	stack_item.prgline = prgline;

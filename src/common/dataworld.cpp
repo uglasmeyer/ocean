@@ -7,6 +7,7 @@
 
 #include <data/DataWorld.h>
 
+
 Dataworld_class::Dataworld_class( uint type_id ) :
 	Logfacility_class( "DaTA")
 {

@@ -245,7 +245,7 @@ void stop_threads()
 			Sync_thread.join();
 
 	NotesThread_done	= true;
-	Sem->Reset(SEMAPHORE_NOTES );
+	Sem->Reset( SEMAPHORE_NOTES );
 	Log.Comment(INFO, "attempting to join notes thread ");
 		if ( Notes_thread.joinable() )
 			Notes_thread.join();
@@ -254,16 +254,14 @@ void stop_threads()
 int sig_counter = 0;
 void exit_proc( int signal )
 {
-	Log.Comment(INFO, "Entering exit procedure for " + Application );
+	Log.Comment(INFO, "Entering exit procedure for " + App.ProgamName );
 	if ( sig_counter > 0 )
 	{
 		Log.Comment( ERROR, "Exit procedure failed" );
 		Log.Comment( WARN, "Synthesizer reached target exit " + to_string( signal ));
-		exit( 0 );
 	}
 	sig_counter++;
 
-//	string text = "received signal: " + to_string( signal ); - lost pointer
 	if ( signal > 2 )
 		Log.Comment( ERROR, "received signal: " + to_string( signal ) );
 	else

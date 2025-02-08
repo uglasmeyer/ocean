@@ -111,7 +111,7 @@ auto specFreq = []( spectrum_t spec, int channel )
 
 auto value2frq = []( auto value )
 {
-	return (  (spec_dta_t) value - 50.0 ) / 100.0;
+	return (  (spec_dta_ft) value - 50.0 ) / 100.0;
 };
 auto frq2value = []( auto frq )
 {
@@ -123,6 +123,7 @@ auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
     char id = C.ifd->Spectrum_type;
 	C.spectrum = *C.ifd_spectrum_vec[ id ];
 	C.spectrum.frq[ channel ] = value2frq( value );
+	C.spectrum.idx[ channel ] = value;
     *C.ifd_spectrum_vec[ id ] = C.spectrum;  // the active GUI spectrum is updated
     C.ifd->KEY = UPDATESPECTRUM_KEY;	// the synthesizer is notified
     C.ui->lcd_spectrumDisplay->display( specFreq( C.spectrum, channel ));
@@ -133,7 +134,7 @@ auto spec_vol_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 {
     char id = C.ifd->Spectrum_type;
 	C.spectrum = *C.ifd_spectrum_vec[ id ];
-	C.spectrum.vol[ channel ] = (spec_dta_t)  value / 100.0;
+	C.spectrum.vol[ channel ] = (spec_dta_ft)  value / 100.0;
     C.Spectrum_base::Sum( C.spectrum );
     *C.ifd_spectrum_vec[ id ] = C.spectrum;  // the active GUI spectrum is updated
     C.ifd->KEY = UPDATESPECTRUM_KEY;	// emit synthesizer event

@@ -280,7 +280,7 @@ void Instrument_class::Save_Instrument( string str )
 	FILE 	<< setfill(' ') << right << "Type,"
 			<< setw(10) << "Name"
 			<< setw(10) << "Waveform"
-			<< setw(8)  << "[Hz]"
+			<< setw(8)  << "[idx]"
 			<< setw(8) 	<< "unused"
 			<< setw(8)  << "Amp.[%]"
 			<< setw(7)  << "unused "
@@ -298,10 +298,10 @@ void Instrument_class::Save_Instrument( string str )
 		FILE 	<< setfill(' ') << right << "TYPE,"
 				<< setw(10) <<		 osc->osc_type 		+ ","
 				<< setw(10) <<		 osc->Get_waveform_str(osc->spectrum.id) 	+ ","
-				<< setw(7 ) << (int) osc->wp.frequency 		<< ","
+				<< setw(7 ) << (int) osc->wp.frqidx << ","//osc->wp.frequency 		<< ","
 				<< setw(7 ) << (int) osc->wp.msec 			<< ","
 				<< setw(7)  << (int) osc->wp.volume			<< ","
-				<< setw(7 ) <<		 "free,"
+				<< setw(7 ) << 		 "free,"
 				<< setw(7)  <<		 "free,"
 				<< setw(7)  <<		 "free,"
 				<< setw(4) 	<< (int) osc->adsr.decay 	<< ","
@@ -325,7 +325,8 @@ void Instrument_class::Save_Instrument( string str )
 				<< endl;
 
 		// Type SPEC
-		FILE	<< osc->Show_this_spectrum( osc->spectrum )
+		FILE	<< osc->Show_spectrum( "SPECV", osc->spectrum ) << endl
+				<< osc->Show_spectrum( "SPECF", osc->spectrum )
 				<< endl;
 	}
 	FILE.close();
@@ -367,6 +368,7 @@ void Instrument_class::Test_Instrument()
 	assert( Set( ".test" ) );
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.id = SGNSIN;
+	Oscgroup.vco.wp.frequency = 57;
 	assert( Oscgroup.vco.waveform_str_vec[ SGNSIN ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.id )) == 0 );
 
 	Save_Instrument( ".test" );
@@ -380,10 +382,8 @@ void Instrument_class::Test_Instrument()
 	assert( Oscgroup.vco.waveform_str_vec[ SGNSIN ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.id )) == 0 );
 
 	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
-	Oscgroup.fmo.wp.frequency 	= 0.75;
+	Oscgroup.fmo.wp.frequency 	= frequency.Calc( 1 );
 	Oscgroup.fmo.wp.volume		= 0;//31;
-	assert( Oscgroup.fmo.wp.frequency - 0.75 < 1E-5 );
-	assert( Oscgroup.fmo.wp.volume == 0);//31 );
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
 	assert( Oscgroup.osc.adsr.hall == 0 );
 

@@ -1,16 +1,19 @@
-Type,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddecay  bps atck hall glide      PMWs
-TYPE,      VCO,    Sinus,     64,    250,      0,  free,  free,  free, 100,   1,   0,   0,   0,     42,
+Type,      Name  Waveform   [idx]  unused Amp.[%]unused  unused unuseddecay  bps atck hall glide      PMWs
+TYPE,      VCO,    Sinus,     49,    250,     35,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
-SPEV      VCO,    Sinus,    1,    0,    0,    0,
-SPEF      VCO,    Sinus,    0,    0,    0,    0,
-TYPE,      FMO,    sinus,     54,    250,      0,  free,  free,  free, 100,   1,   0,   0,   0,     42,
+SPEV,      OSC,    Sinus,    0,    0,    0,    0,
+SPEF,      OSC,    Sinus,    0,    0,    0,    0,
+
+TYPE,      FMO,    sinus,     60,    250,      9,  free,  free,  free, 100,   1,   0,   0,   0,     42,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
-SPEV      FMO,    sinus,    1,    0,    0,    0,
-SPEF      FMO,    sinus,    0,    0,    0,    0,
-TYPE,      OSC,    Sinus,    220,    250,     75,  free,  free,  free,  92,   2,  14,   0,   0,     42,
+SPEV,      OSC,    sinus,    0,    0,    0,    0,
+SPEF,      OSC,    sinus,    0,    0,    0,    0,
+
+TYPE,      OSC,    Sinus,     74,    250,     75,  free,  free,  free,  92,   2,  14,   0,   0,     42,
 CONN,      OSC,      FMO,      F,
 CONN,      OSC,      VCO,      V,
-SPEV      OSC,    Sinus,    1,    0,    0,    0,
-SPEF      OSC,    Sinus,    0,    0,    0,    0,
+SPEV,      OSC,    Sinus,    0,    0,    0,    0,
+SPEF,      OSC,    Sinus,    0,    0,    0,    0,
+

@@ -31,17 +31,17 @@ Processor_class( data->Sds_p )
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 	= &ifd->OSC_spectrum.id;
-	main_view.amp 	= &ifd->StA_amp_arr[MbIdInstrument];
-	main_view.freq 	= &ifd->OSC_wp.frequency;
+	main_view.wf 		= &ifd->OSC_spectrum.id;
+	main_view.amp 		= &ifd->StA_amp_arr[MbIdInstrument];
+	main_view.frqidx 	= &ifd->OSC_wp.frqidx;
 
-	vco_view.wf 	= &ifd->VCO_spectrum.id;
-	vco_view.amp 	= &ifd->VCO_wp.volume;
-	vco_view.freq 	= &ifd->VCO_wp.frequency;
+	vco_view.wf 		= &ifd->VCO_spectrum.id;
+	vco_view.amp 		= &ifd->VCO_wp.volume;
+	vco_view.frqidx 	= &ifd->VCO_wp.frqidx;
 
-	fmo_view.wf 	= &ifd->FMO_spectrum.id;
-	fmo_view.amp 	= &ifd->FMO_wp.volume;
-	fmo_view.freq 	= &ifd->FMO_wp.frequency;
+	fmo_view.wf 		= &ifd->FMO_spectrum.id;
+	fmo_view.amp 		= &ifd->FMO_wp.volume;
+	fmo_view.frqidx 	= &ifd->FMO_wp.frqidx;
 
 }
 
@@ -439,7 +439,7 @@ void Interpreter_class::Osc( vector_str_t arr )
 	expect = { "main", "vco", "fmo" };
 	vector_str_t tmp = arr;
 	intro( arr, 3);
-	osc_struct_t view = osc_struct();
+	view_struct_t view = view_struct();
 	if ( cmpkeyword( "main" ))
 	{
 		view = main_view;
@@ -477,7 +477,7 @@ void Interpreter_class::Osc( vector_str_t arr )
 
 }
 
-void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
+void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 {
 	expect = { "mute", "unmute", "reset", "freq", "loop", "wf", "amp" };
 	intro( arr, 2);
@@ -575,7 +575,7 @@ void Interpreter_class::osc_view( osc_struct_t view, vector_str_t arr )
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
-			Processor_class::Push_ifd(  view.freq, freq, "frequency"  );
+			Processor_class::Push_ifd(  view.frqidx, freq, "frequency"  );
 			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			Pause( { "pause", duration });
 		}

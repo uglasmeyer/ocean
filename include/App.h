@@ -39,7 +39,7 @@ public:
 	Config_class*		Cfg 		= nullptr;
 	Interface_class*	Sds			= nullptr;
 
-	string 				Name 				= "";
+	string 				ProgamName 				= "";
 	string 				This_Application 	= "";
 	uint 				client_id			= NOID;
 	bool				Server_init			= true;

@@ -40,7 +40,7 @@ public:
     QWidget *centralwidget;
     QLabel *label;
     QLCDNumber *MainLCD_Amp;
-    QSlider *Slider_Main_Hz;
+    QSlider *Slider_OSC_Hz;
     QSlider *Slider_Main_Vol;
     QSlider *Slider_VCO_Hz;
     QSlider *Slider_VCO_vol;
@@ -100,7 +100,7 @@ public:
     QRadioButton *rb_S2;
     QRadioButton *rb_S3;
     QProgressBar *progressBar_record;
-    QLCDNumber *MainLCD_Hz;
+    QLCDNumber *OSCLCD_Hz;
     QLabel *label_11;
     QDial *dial_soft_freq;
     QLabel *glidefrequency;
@@ -250,13 +250,13 @@ public:
         MainLCD_Amp = new QLCDNumber(centralwidget);
         MainLCD_Amp->setObjectName(QString::fromUtf8("MainLCD_Amp"));
         MainLCD_Amp->setGeometry(QRect(330, 10, 111, 51));
-        Slider_Main_Hz = new QSlider(centralwidget);
-        Slider_Main_Hz->setObjectName(QString::fromUtf8("Slider_Main_Hz"));
-        Slider_Main_Hz->setGeometry(QRect(250, 10, 16, 160));
-        Slider_Main_Hz->setMinimum(1);
-        Slider_Main_Hz->setMaximum(3520);
-        Slider_Main_Hz->setPageStep(12);
-        Slider_Main_Hz->setOrientation(Qt::Vertical);
+        Slider_OSC_Hz = new QSlider(centralwidget);
+        Slider_OSC_Hz->setObjectName(QString::fromUtf8("Slider_OSC_Hz"));
+        Slider_OSC_Hz->setGeometry(QRect(250, 10, 16, 160));
+        Slider_OSC_Hz->setMinimum(1);
+        Slider_OSC_Hz->setMaximum(72);
+        Slider_OSC_Hz->setPageStep(12);
+        Slider_OSC_Hz->setOrientation(Qt::Vertical);
         Slider_Main_Vol = new QSlider(centralwidget);
         Slider_Main_Vol->setObjectName(QString::fromUtf8("Slider_Main_Vol"));
         Slider_Main_Vol->setGeometry(QRect(290, 10, 16, 160));
@@ -265,8 +265,10 @@ public:
         Slider_VCO_Hz = new QSlider(centralwidget);
         Slider_VCO_Hz->setObjectName(QString::fromUtf8("Slider_VCO_Hz"));
         Slider_VCO_Hz->setGeometry(QRect(250, 190, 16, 160));
-        Slider_VCO_Hz->setMaximum(400);
+        Slider_VCO_Hz->setMinimum(1);
+        Slider_VCO_Hz->setMaximum(72);
         Slider_VCO_Hz->setSingleStep(1);
+        Slider_VCO_Hz->setPageStep(12);
         Slider_VCO_Hz->setOrientation(Qt::Vertical);
         Slider_VCO_vol = new QSlider(centralwidget);
         Slider_VCO_vol->setObjectName(QString::fromUtf8("Slider_VCO_vol"));
@@ -282,8 +284,10 @@ public:
         Slider_FMO_Hz = new QSlider(centralwidget);
         Slider_FMO_Hz->setObjectName(QString::fromUtf8("Slider_FMO_Hz"));
         Slider_FMO_Hz->setGeometry(QRect(250, 380, 16, 160));
-        Slider_FMO_Hz->setMaximum(800);
+        Slider_FMO_Hz->setMinimum(1);
+        Slider_FMO_Hz->setMaximum(72);
         Slider_FMO_Hz->setSingleStep(1);
+        Slider_FMO_Hz->setPageStep(12);
         Slider_FMO_Hz->setOrientation(Qt::Vertical);
         Slider_FMO_vol = new QSlider(centralwidget);
         Slider_FMO_vol->setObjectName(QString::fromUtf8("Slider_FMO_vol"));
@@ -471,9 +475,9 @@ public:
         progressBar_record->setObjectName(QString::fromUtf8("progressBar_record"));
         progressBar_record->setGeometry(QRect(580, 470, 411, 23));
         progressBar_record->setValue(24);
-        MainLCD_Hz = new QLCDNumber(centralwidget);
-        MainLCD_Hz->setObjectName(QString::fromUtf8("MainLCD_Hz"));
-        MainLCD_Hz->setGeometry(QRect(60, 10, 158, 49));
+        OSCLCD_Hz = new QLCDNumber(centralwidget);
+        OSCLCD_Hz->setObjectName(QString::fromUtf8("OSCLCD_Hz"));
+        OSCLCD_Hz->setGeometry(QRect(60, 10, 158, 49));
         label_11 = new QLabel(centralwidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         label_11->setGeometry(QRect(480, 50, 51, 17));
@@ -671,9 +675,7 @@ public:
         menubar->addAction(menuIO->menuAction());
 
         retranslateUi(MainWindow);
-        QObject::connect(Slider_Main_Hz, SIGNAL(valueChanged(int)), MainLCD_Hz, SLOT(display(int)));
         QObject::connect(Slider_Main_Vol, SIGNAL(valueChanged(int)), MainLCD_Amp, SLOT(display(int)));
-        QObject::connect(Slider_Main_Hz, SIGNAL(valueChanged(int)), MainWindow, SLOT(MAIN_slot_Hz()));
         QObject::connect(rb_reset, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
         QObject::connect(radioButton_2, SIGNAL(clicked()), MainWindow, SLOT(set_mode_v()));
         QObject::connect(radioButton_3, SIGNAL(clicked()), MainWindow, SLOT(set_mode_f()));

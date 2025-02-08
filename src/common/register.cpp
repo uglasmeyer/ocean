@@ -28,11 +28,11 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 	{
 		case AUDIOID :
 		{
-			string pid_str	= to_string( this->sds->process_arr.at( AUDIOID ).pid );
-			if ( Is_running_process(pid_str) )
+//			string pid_str	= this->sds->process_arr.at( AUDIOID ).pid ;
+			if ( Is_running_process((int)this->sds->process_arr.at( AUDIOID ).pid ) )
 			{
-				Comment( ERROR, "Cannot start second Audioserver" );
-				exit(1);
+				Info( "Running Audioserver " + to_string( this->sds->process_arr.at( AUDIOID ).pid ) + "detected");
+				Exception( "Cannot start second Audioserver" );
 			}
 			else
 			{
@@ -71,7 +71,7 @@ bool Register_class::Is_dataprocess()
 
 void Register_class::Reset( uint idx )
 {
-	if ( not Is_running_process( sds->process_arr.at( idx ).pid ) )
+	if ( not Is_running_process( (int)sds->process_arr.at( idx ).pid ) )
 		sds->process_arr.at( idx ) = noprocess;
 }
 
@@ -139,7 +139,7 @@ void Register_class::Show_proc_register( uint idx )
 {
 	process_t proc { sds->process_arr.at(idx) };
 	stringstream strs;
-	if ( Is_running_process( to_string( proc.pid )))
+	if ( Is_running_process( (int) proc.pid ))
 	{
 		strs << Type_map( proc.type ) << endl;
 		strs << SETW << "Index   "	<< idx << endl;
@@ -172,7 +172,7 @@ void Register_class::update_register()
 {
 	for( uint idx = 0; idx < REGISTER_SIZE; idx++ )
 	{
-		if ( not Is_running_process( to_string(sds->process_arr.at(idx).pid) ) )
+		if ( not Is_running_process( (int) sds->process_arr.at(idx).pid)  )
 			Reset( idx );
 	}
 }
@@ -192,6 +192,7 @@ int Register_class::scan_proc_register() // returns Sds_Id
 void Register_class::Test_Register()
 {
 	TEST_START( className );
+
 	show_proc_register();
 	Clear_procregister();
 	show_proc_register();

@@ -52,7 +52,7 @@ const set<string> Keywords {
 */
 class Interpreter_class : virtual Logfacility_class, virtual public Processor_class
 {
-	typedef struct osc_struct
+	typedef struct view_struct
 	{
 		string 		name 	= "none";
 		uint8_t 	wfkey	= 0;
@@ -60,9 +60,9 @@ class Interpreter_class : virtual Logfacility_class, virtual public Processor_cl
 		uint8_t		ampkey	= 0;
 		uint8_t* 	amp		= nullptr;
 		uint8_t		freqkey	= 0;
-		float*		freq	= nullptr;
+		int*		frqidx	= nullptr;
 
-	} osc_struct_t;
+	} view_struct_t;
 
 	typedef struct var_struct
 	{
@@ -76,7 +76,7 @@ public:
 	Config_class*		Cfg;
 	interface_t* 		ifd;
 	Variation_class Variation{};
-	osc_struct_t main_view, fmo_view, vco_view;
+	view_struct_t main_view, fmo_view, vco_view;
 
 	String Str{""};
 	string cmdline = "";
@@ -132,7 +132,7 @@ private:
 	void 	check_file( vector_str_t, string );
 	bool 	no_error( int );
 	void 	intro( vector_str_t, uint );
-	void 	osc_view( osc_struct_t, vector_str_t );
+	void 	osc_view( view_struct_t, vector_str_t );
 	bool	cmpkeyword ( const string&  );
 
 };

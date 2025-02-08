@@ -98,35 +98,29 @@ string Spectrum_base::Get_waveform_str( uint id )
 		return "unknown";
 };
 
-string Spectrum_base::Show_this_spectrum( spectrum_t spec )
+string Spectrum_base::Show_spectrum( const string& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
 
-	auto show_dta = [ &strs ]( spec_dta_t val)
+	auto show_dta = [ &strs ]( spec_dta_ft val)
 		{
 		  strs << setprecision(2) << setw(5) << val << ",";
 		};
-	auto show_struct = [ this, &strs, &show_dta ]( string _type, spectrum_t spec )
-		{
-			strs 	<< right << _type << ","
-					<< setw(9) << OscRole.types[ spec.osc ] << ","
-					<< setw(9) << Get_waveform_str( spec.id ) << ",";
-			if ( strEqual( "SPEV", _type) )
-				std::ranges::for_each( spec.vol, show_dta);
-			else
-				std::ranges::for_each( spec.frq, show_dta);
-			strs 	<< endl;
-		};
 
-	show_struct( "SPEV", spec );
-	show_struct( "SPEF", spec );
 
+	strs 	<< right << _type << ","
+			<< setw(9) << OscRole.types[ spec.osc ] << ","
+			<< setw(9) << Get_waveform_str( spec.id ) << ",";
+	if ( strEqual( "SPEV", _type) )
+		std::ranges::for_each( spec.vol, show_dta);
+	else
+		std::ranges::for_each( spec.frq, show_dta);
 	return strs.str();
 }
 
 void Spectrum_base::Sum( spectrum_t& spec )
 {
-	spec_dta_t sum = 0;
+	spec_dta_ft sum = 0;
 	for ( size_t i = 0; i < spec_arr_len ; i++ )
 		sum += spec.vol[i];
 

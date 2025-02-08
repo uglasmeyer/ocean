@@ -113,7 +113,8 @@ public:
 	void 			replace_char( char , char  );
 	void 			normalize(			);
 	bool			is_number( 			);
-	int 			secure_stoi( string	);
+	int 			secure_stoi( string	str );
+	float 			secure_stof( string str );
 	string 			to_hex( long )	;
 	void 			TestString();
 	void 			to_lower( );

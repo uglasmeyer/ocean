@@ -47,30 +47,32 @@ void Core_class::Controller(char key)
 	}
 	case OSCFREQUENCYKEY:
 	{
-		float freq = sds->OSC_wp.frequency;
-		Info("Frequency set to " + to_string( freq ));
-		Instrument->osc->Set_frequency( freq );
-		sds->OSC_spectrum.base = freq;
+		int frqidx = sds->OSC_wp.frqidx;
+		Instrument->osc->Set_frequency( frqidx );
+		sds->OSC_spectrum.base = frequency.Calc( frqidx );
 
 		Sds->Commit();
 		break;
 	}
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
-		float freq = sds->VCO_wp.frequency;
-		Instrument->vco->Set_frequency( freq );
+		int frqidx = sds->VCO_wp.frqidx;
+		Instrument->vco->Set_frequency( frqidx );
+		sds->VCO_spectrum.base = frequency.Calc( frqidx );
+
 		Instrument->osc->Connect_vco_data(Instrument->vco);
-		sds->VCO_spectrum.base = freq;
 
 		Sds->Commit();
 		break;
 	}
 	case FMOFREQUENCYKEY: // modify the fm_track data
 	{
-		float freq = sds->FMO_wp.frequency;
-		Instrument->fmo->Set_frequency( freq );
+		int frqidx = sds->FMO_wp.frqidx;
+		Instrument->fmo->Set_frequency( frqidx );
+		sds->FMO_spectrum.base = frequency.Calc( frqidx );
+
+
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
-		sds->FMO_spectrum.base = freq;
 
 		Sds->Commit();
 		break;

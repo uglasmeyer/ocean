@@ -50,7 +50,7 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 1; 						// comstack
+	uint8_t			version						= 0; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
@@ -64,11 +64,12 @@ typedef struct interface_struct
 
 	uint8_t			Master_Amp 					= 75;// comstack
 	uint8_t		 	LOOP_step 					= 0;
-	float			LOOP_end 					= 75;
+	int				LOOP_end 					= 75;
 
 	/* instrument definition starts */
 	adsr_t 			OSC_adsr 					= adsr_struct();// comstack
 
+//	array<int,3>	frqidx_arr					= {0,0,0}; //TODO adjust
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();
 	wave_t			FMO_wp						= wave_struct();

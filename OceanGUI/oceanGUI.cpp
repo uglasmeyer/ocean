@@ -30,6 +30,7 @@
 #include <unistd.h> //sleep
 
 const string Module = "OceanGUI";
+Frequency_class 				Frequency			{};
 
 auto set_rb_sta_value = []( MainWindow* C )
 {
@@ -104,8 +105,9 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect( ui->pBtoggleRecord, SIGNAL(clicked(bool)), this, SLOT(SaveRecord() ));
     connect( ui->pB_Mute, SIGNAL(clicked()), this, SLOT(toggle_Mute()));
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
-    connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Hz_changed(int)));
-    connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Hz_changed(int)));
+    connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Freq(int)));
+    connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Freq(int)));
+    connect( ui->Slider_OSC_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_OSC_Freq(int)));
 
     connect(ui->pB_play_notes, SIGNAL(clicked()), this, SLOT(File_Director() ));
     connect(ui->pB_Specrum, SIGNAL(clicked()), this, SLOT(Spectrum_Dialog() ));
@@ -194,6 +196,19 @@ MainWindow::MainWindow(	QWidget *parent ) :
     ui->sB_Main->setMaximum(sb_max);
     ui->sB_FMO->setMaximum(sb_max);
     ui->sB_VCO->setMaximum(sb_max);
+
+
+    ui->Slider_FMO_Hz->setMinimum( 1 );
+    ui->Slider_VCO_Hz->setMinimum( 1 );
+    ui->Slider_OSC_Hz->setMinimum( 1 );
+
+    ui->Slider_FMO_Hz->setMaximum( Frequency.frq_vector_len-1 );
+    ui->Slider_VCO_Hz->setMaximum( Frequency.frq_vector_len-1 );
+    ui->Slider_OSC_Hz->setMaximum( Frequency.frq_vector_len-1 );
+
+    ui->Slider_FMO_Hz->setValue( Sds->addr->FMO_wp.frqidx );
+    ui->Slider_VCO_Hz->setValue( Sds->addr->VCO_wp.frqidx );;
+    ui->Slider_OSC_Hz->setValue( Sds->addr->OSC_wp.frqidx );;
 
     CB_external         = ui->cb_external;
     string wavfile_path = file_structure().Dir.musicdir;
@@ -334,15 +349,15 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 }
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
-	waveform_slot( &Sds->addr->OSC_spectrum.id, _wfid, osc_struct::OSCID, SETWAVEFORMMAINKEY, ui->wf_main );
+	waveform_slot( &Sds->addr->OSC_spectrum.id, _wfid, OSCID, SETWAVEFORMMAINKEY, ui->wf_main );
 }
 void MainWindow::FMO_Waveform_slot(int _wfid)
 {
-	waveform_slot( &Sds->addr->FMO_spectrum.id, _wfid, osc_struct::FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
+	waveform_slot( &Sds->addr->FMO_spectrum.id, _wfid, FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
 }
 void MainWindow::VCO_Waveform_slot( int _wfid )
 {
-	waveform_slot( &Sds->addr->VCO_spectrum.id, _wfid, osc_struct::VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
+	waveform_slot( &Sds->addr->VCO_spectrum.id, _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
 }
 
 
@@ -566,18 +581,14 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 
 void MainWindow::setwidgetvalues()
 {
-	auto set_slider = []( float f )
-	{
-		return ( f < LFO_limit ) ? f * LFO_count : f + (float) LFO_count;
-	};
-
-    ui->Slider_FMO_Hz->setValue(    set_slider( Sds->addr->FMO_wp.frequency) );
-    ui->Slider_VCO_Hz->setValue(    set_slider( Sds->addr->VCO_wp.frequency) );
-    ui->Slider_Main_Hz->setValue(   Sds->addr->OSC_wp.frequency);
 
     ui->Slider_Main_Vol->setValue(  Sds->addr->Master_Amp);
     ui->Slider_FMO_vol->setValue(   Sds->addr->FMO_wp.volume);
     ui->Slider_VCO_vol->setValue(   Sds->addr->VCO_wp.volume);
+
+    ui->FMOLCD_Hz->display( Sds->addr->FMO_wp.frequency );
+    ui->VCOLCD_Hz->display( Sds->addr->VCO_wp.frequency );
+    ui->OSCLCD_Hz->display( Sds->addr->OSC_wp.frequency );
 
 
     ui->labelVCO->setText("VCO");
@@ -625,53 +636,37 @@ void MainWindow::GUI_Exit()
     QApplication::exit();
 }
 
-auto Slider_Hz = []( Interface_class* IFC, float& fptr, float value, char key )
-	{
-		IFC->Set( fptr 			, value);
-		IFC->Set( IFC->addr->KEY 	, key);
-	};
-
-void MainWindow::MAIN_slot_Hz()
+auto Slider_Freq = []( Interface_class* IFC, wave_t& fptr, QLCDNumber* lcd, int value, char key )
 {
-	int value = ui->Slider_Main_Hz->value();
-	Slider_Hz( this->Sds, this->Sds->addr->OSC_wp.frequency, value, OSCFREQUENCYKEY );
+	float freq 		= Frequency.Calc( value );
+	lcd->display( freq );//	IFC->Set( fptr 			, w );
+	fptr.frequency 	= freq;
+	fptr.frqidx 	= value;
+	IFC->Set( IFC->addr->KEY, (char) key);
+};
+void MainWindow::Slider_OSC_Freq( int value )
+{
+	Slider_Freq( this->Sds, Sds->addr->OSC_wp, ui->OSCLCD_Hz, value, OSCFREQUENCYKEY );
+}
+void MainWindow::Slider_VCO_Freq( int value )
+{
+	( value < Frequency.A0 ) ? ui->lb_VCO_LFO->show() : ui->lb_VCO_LFO->hide();
+
+    Slider_Freq( this->Sds, Sds->addr->VCO_wp, ui->VCOLCD_Hz, value, VCOFREQUENCYKEY );
+}
+void MainWindow::Slider_FMO_Freq( int value )
+{
+	( value < Frequency.A0 ) ? ui->lb_FMO_LFO->show() : ui->lb_FMO_LFO->hide();
+
+    Slider_Freq( this->Sds, Sds->addr->FMO_wp, ui->FMOLCD_Hz, value, FMOFREQUENCYKEY );
 }
 
-void MainWindow::Slider_VCO_Hz_changed(int value )
-{
-    float freq = ( value >= LFO_count ) 	?  value - LFO_count
-    								:  (float) value / LFO_count;
-
-    if ( value < LFO_count )
-    	ui->lb_VCO_LFO->show();
-    else
-    	ui->lb_VCO_LFO->hide();
-
-    ui->VCOLCD_Hz->display( freq );
-
-    Slider_Hz( this->Sds, this->Sds->addr->VCO_wp.frequency, freq, VCOFREQUENCYKEY );
-}
-
-
-void MainWindow::Slider_FMO_Hz_changed(int value )
-{
-    float freq = ( value >= LFO_count ) 	?  value - LFO_count
-    								:  (float) value / LFO_count;
-    if ( value < LFO_count )
-    	ui->lb_FMO_LFO->show();
-    else
-    	ui->lb_FMO_LFO->hide();
-
-    ui->FMOLCD_Hz->display( freq );
-
-    Slider_Hz( this->Sds, this->Sds->addr->FMO_wp.frequency, freq, FMOFREQUENCYKEY );
-}
 
 auto Slider_volume = []( Interface_class* IF, uint8_t& ch_ptr, char value, char key )
-	{
-		IF->Set( ch_ptr , value);
-		IF->Set( IF->addr->KEY , key);
-	};
+{
+	IF->Set( ch_ptr , value);
+	IF->Set( IF->addr->KEY , key);
+};
 
 void MainWindow::MAIN_slot_volume()
 {

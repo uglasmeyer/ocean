@@ -34,7 +34,7 @@ void ASSERTION (	bool expr,
 	raise( SIGTERM );
 };// @suppress("Function cannot be instantiated")
 */
-#define ASSERTION(	expr, message, input, expected )\
+#define ASSERTION(	 expr , message, input, expected )\
 	if ( not (expr) ) \
 	{\
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\

@@ -11,12 +11,7 @@
 
 
 
-void Oscillator_base::Show_csv_comment( int loglevel )
-{
-	string str;
-	str = csv_comment; //;+"\t" + wp.fstruct.str;
-	Comment( loglevel, str) ;
-}
+
 void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
 {
 	/* maxima
@@ -74,13 +69,12 @@ void Oscillator_base::Set_duration( uint16_t msec )
 	wp.msec 	= msec;
 }
 
-void Oscillator_base::Set_frequency( float freq )
+void Oscillator_base::Set_frequency( int idx )
 {
-
-	if ( freq < 0 ) freq= 0;
-	wp.frequency 		= freq;
-	wp.start_frq 		= freq;
-	spectrum.base		= freq;
+	wp.frqidx			= idx;
+	wp.frequency 		= frequency.Calc( idx );
+	wp.start_frq 		= wp.frequency;
+	spectrum.base		= wp.frequency;
 }
 void Oscillator_base::Set_volume( uint16_t vol)
 {
@@ -101,8 +95,7 @@ void Oscillator_base::Set_glide( uint8_t value )
 void Oscillator_base::Set_waveform( char id )
 {
 	spectrum.id	= id;
-	Comment(INFO,
-			"set waveform >" + Get_waveform_str(id) + "< for " + osc_type);
+	Info( "set waveform >" + Get_waveform_str(id) + "< for " + osc_type);
 
 }
 
@@ -110,27 +103,33 @@ void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 {
 	this->spectrum 	= spectrum;
 }
-#include <System.h>
 
 void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
+	command 		= osc_type;
 	vp.name			= osc_type;
 	fp.name			= osc_type;
 	spectrum.id		= Get_waveform_id( arr[2] );
-	float freq	 	= stof(arr[3]);
+	int frqidx	 	= Str.secure_stoi( arr[3] );
+	Set_frequency( frqidx );
+
 	wp.msec 		= Str.secure_stoi(arr[4]);
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	wp.frames 		= wp.msec*audio_frames/1000;
-	Set_frequency( freq );
-	command 		= osc_type;
 	wp.glide_effect = Str.secure_stoi( arr[13] );
 	wp.PMW_dial 	= Str.secure_stoi( arr[14] );
 
 	return ;
 };
 
+void Oscillator_base::Show_csv_comment( int loglevel )
+{
+	string str;
+	str = csv_comment; //;+"\t" + wp.fstruct.str;
+	Comment( loglevel, str) ;
+}
 
 void Oscillator_base::Set_csv_comment ()
 {

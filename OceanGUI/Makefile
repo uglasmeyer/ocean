@@ -379,8 +379,10 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Logfacility.h \
+		../include/Exit.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
+		../include/Frequency.h \
 		../include/Instrument.h \
 		../include/data/Interface.h \
 		../include/Config.h \
@@ -395,8 +397,8 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		../include/Osc.h \
 		../include/Oscgroup.h \
@@ -414,8 +416,10 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/Version.h \
 		../include/System.h \
 		../include/String.h \
+		../include/Exit.h \
 		../include/Keys.h \
 		../include/Spectrum.h \
+		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -424,8 +428,8 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
@@ -438,13 +442,13 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/Instrument.h \
 		../include/Oscgroup.h \
 		../include/App.h \
+		Rtsp_dialog_class.h \
+		ui_mainwindow.h \
 		File_Dialog.h \
 		Common.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
-		Rtsp_dialog_class.h \
 		Sds_dialog_class.h \
-		ui_mainwindow.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Mainwindow.h -o moc_Mainwindow.cpp
@@ -458,8 +462,10 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/Version.h \
 		../include/System.h \
 		../include/String.h \
+		../include/Exit.h \
 		../include/Keys.h \
 		../include/Spectrum.h \
+		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -468,8 +474,8 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -480,6 +486,8 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Spectrum.h \
 		../include/Logfacility.h \
 		../include/String.h \
+		../include/Exit.h \
+		../include/Frequency.h \
 		../include/data/Interface.h \
 		../include/Config.h \
 		../include/Configbase.h \
@@ -494,8 +502,8 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -511,8 +519,10 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/Version.h \
 		../include/System.h \
 		../include/String.h \
+		../include/Exit.h \
 		../include/Keys.h \
 		../include/Spectrum.h \
+		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -521,8 +531,8 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -574,8 +584,10 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/Version.h \
 		../include/System.h \
 		../include/String.h \
+		../include/Exit.h \
 		../include/Keys.h \
 		../include/Spectrum.h \
+		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -584,8 +596,8 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
@@ -598,14 +610,13 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/Instrument.h \
 		../include/Oscgroup.h \
 		../include/App.h \
+		Rtsp_dialog_class.h \
+		ui_mainwindow.h \
 		File_Dialog.h \
 		Common.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
-		Rtsp_dialog_class.h \
-		Sds_dialog_class.h \
-		ui_mainwindow.h \
-		../include/Exit.h
+		Sds_dialog_class.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp
 
 sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
@@ -617,8 +628,10 @@ sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
 		../include/Version.h \
 		../include/System.h \
 		../include/String.h \
+		../include/Exit.h \
 		../include/Keys.h \
 		../include/Spectrum.h \
+		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -627,8 +640,8 @@ sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Oscbase.h \
-		../include/notes/Notesbase.h \
 		../include/Wavedisplay_base.h \
+		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		ui_sds_dialog_class.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o sds_dialog_class.o sds_dialog_class.cpp

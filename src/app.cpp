@@ -84,12 +84,12 @@ void SynthesizerTestCases()
 	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
 	Mixer.Test_Logging();
+	TestStr.TestString();
 
 	Keyboard.Test();
 
 	External.Test_External();
 
-	TestStr.TestString();
 
 	set<string> Ss { "ab", "cd", "ef", "gh" };
 	assert( Ss.contains("cd"));
@@ -110,10 +110,10 @@ void SynthesizerTestCases()
 Application_class::Application_class( 	Dataworld_class* _DaTA ) :
 Logfacility_class( "App" )
 {
-	this->Name 					= _DaTA->Cfg.prgname;
+	this->ProgamName			= _DaTA->Cfg.prgname;
 	this->className				= Logfacility_class::module ;
 	this->DaTA					= _DaTA;
-
+	this->Statistic.module		= ProgamName;
 	this->This_Application 		= Application + DaTA->Cfg.prgname + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
 
@@ -158,7 +158,7 @@ void Application_class::Start( int argc, char* argv[] )
 
 	VersionTxt();
 
-	redirect_stderr = (bool) std::freopen( errFile.data(), "w", stderr);
+	redirect_stderr = false;//(bool) std::freopen( errFile.data(), "w", stderr);
 	if ( redirect_stderr )
 	{
 		Info2(1, "Redirecting stderr");
@@ -250,7 +250,7 @@ void Application_class::Shutdown_instance( )
 	}
 	else
 	{
-		Info2( 3, "No other " , Name , " is running"	);
+		Info2( 3, "No other " , ProgamName , " is running"	);
 	}
 	Server_init = false;
 }

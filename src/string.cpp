@@ -177,25 +177,49 @@ void String::normalize()
 	Str = erase_char( '\t');
 
 }
+
 bool String::is_number(  )
 {
 	try
 	{
 		stoi( this->Str);
+		return true;
 	}
 	catch (const std::invalid_argument& exception )
 	{
-		cout << exception.what() << endl;
-		return false;
+		try
+		{
+			stof( this->Str );
+			return true;
+		}
+		catch ( const std::invalid_argument& exception )
+		{
+			Comment(ERROR, exception.what());
+			return false;
+		}
 	}
-	return true;
+	return false;
+}
+
+float String::secure_stof( string str)
+{
+	if ( str.length() == 0 ) return 0;
+	this->Str = str;
+	if ( is_number(  ) )
+	{
+		return stof( str );
+	}
+	else
+	{
+		Exception( "cannot convert string: >"+str+"< to integer " );
+	}
+	return -1;
 }
 
 int String::secure_stoi( string str)
 {
-	this->Str = str;
-//	cout << "secure_stoi " << str << endl;
 	if ( str.length() == 0 ) return 0;
+	this->Str = str;
 	if ( is_number(  ) )
 	{
 		return stoi( str );
@@ -360,7 +384,11 @@ void String::TestString()
 
 	set<int> numbers = range_set(0,10);
 	ASSERTION( numbers.contains( 5 )		, "range 0..10", 5, "true" );
-	ASSERTION( not numbers.contains( -3 )	, "range 0..10", -3, "false" );
+	ASSERTION( (not numbers.contains( -3 ))	, "range 0..10", -3, "false" );
+
+	ASSERTION(  secure_stoi( "-10" ),"secure_stof", secure_stoi( "-10" ), -10 );
+	bool b = (abs(secure_stof( "-10.05" )) - 10.05) < 1E-2;
+	ASSERTION(  ( b ),"secure_stof", secure_stof( "-10.05" ), -10.05 );
 
 	TEST_END( "String" );
 

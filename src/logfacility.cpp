@@ -11,6 +11,8 @@
 
 using namespace std;
 
+
+
 Logfacility_class::Logfacility_class( string module )
 {
 	this->module = module ;

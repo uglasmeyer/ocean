@@ -26,7 +26,6 @@
 #include <notes/MusicXML.h>
 
 
-
 class Core_class :
 	virtual Logfacility_class
 {
@@ -75,6 +74,7 @@ public:
 	void Controller(char key);
 
 private:
+	Frequency_class	frequency {};
 
 };
 #endif /* SYNTHESIZER_H_ */

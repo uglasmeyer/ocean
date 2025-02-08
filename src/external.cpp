@@ -349,7 +349,7 @@ void External_class::Test_External()
 	ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
 	id3tool_cmd( file_structure().mp3_file );
 
-	TEST_END( "External");
+	TEST_END( className );
 }
 
 

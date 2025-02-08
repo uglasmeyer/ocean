@@ -124,10 +124,11 @@ void Interface_class::Show_interface()
 		arrno++;
 	}
 
+
 	lline( "\nShared Data Str. ID ", to_string((int) ds.Id ));
 	rline( Version_str 			, addr->version);
 
-	lline( "(M)ain (F)requency:" , addr->OSC_wp.frequency );
+	lline( "(M)ain (F)requency:" , Frequency.Calc( addr->OSC_wp.frqidx ));
 	rline( "(A)DSR (G)lide freq:" , (int)addr->OSC_wp.glide_effect);
 
 	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
@@ -139,8 +140,8 @@ void Interface_class::Show_interface()
 	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->OSC_spectrum.id ]);
 	rline( "(A)DSR (D)ecay:    " , (int)addr->OSC_adsr.decay );
 
-	lline( "(F)MO  (F)requency:" , addr->FMO_wp.frequency);
-	rline( "(V)CO  (F)requency:" , addr->VCO_wp.frequency);
+	lline( "(F)MO  (F)requency:" , Frequency.Calc( addr->FMO_wp.frqidx ) );
+	rline( "(V)CO  (F)requency:" , Frequency.Calc( addr->VCO_wp.frqidx ) );
 
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
 	rline( "(V)CO  (A)mplitude:" , (int)addr->VCO_wp.volume);
@@ -151,9 +152,12 @@ void Interface_class::Show_interface()
 	lline( "", "" );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
-	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->OSC_spectrum ));
-	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->VCO_spectrum ));
-	rline( "Spectrum:          " , Spectrum.Show_this_spectrum( addr->FMO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPECV", addr->OSC_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPECV", addr->VCO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPECV", addr->FMO_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPECF", addr->OSC_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPECF", addr->VCO_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPECF", addr->FMO_spectrum ));
 
 
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );

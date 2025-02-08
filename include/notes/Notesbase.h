@@ -122,10 +122,10 @@ public:
 
 private:
 
-	vector< float > root2{};
-	const uint root2_limit = 12 * (max_octave+1);
-	int				octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
-	float 				calc_frequency(const float& base,  const int& key );
+	int			octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
+	Frequency_class	noteFreq		{ };
+
+	float 		calc_frequency(const float& base,  const int& key );
 
 };
 

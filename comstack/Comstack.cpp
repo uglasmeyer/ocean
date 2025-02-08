@@ -103,7 +103,7 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event( "#faw" );
 			switch ( keyevent )
 			{
-			case 'f' : { sds->OSC_wp.frequency = getvalue( "Frequency" ); sds->KEY = OSCFREQUENCYKEY; break; }
+			case 'f' : { sds->OSC_wp.frqidx = getvalue( "Frequency" ); sds->KEY = OSCFREQUENCYKEY; break; }
 			case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
 			case 'w' : { sds->OSC_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
 			default  : break ;
@@ -116,7 +116,7 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { sds->FMO_wp.frequency = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
+			case 'f' : { sds->FMO_wp.frqidx = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
 			case 'a' : { sds->FMO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = FMOAMPKEY; break; }
 			case 'w' : { sds->FMO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMFMOKEY; break; }
 			default  : break ;
@@ -129,7 +129,7 @@ int main( int argc, char* argv[] )
 			keyevent = Key_event("#faw");
 			switch ( keyevent )
 			{
-			case 'f' : { sds->VCO_wp.frequency = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
+			case 'f' : { sds->VCO_wp.frqidx = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
 			case 'a' : { sds->VCO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = VCOAMPKEY; break; }
 			case 'w' : { sds->VCO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMVCOKEY; break; }
 			default  : break ;

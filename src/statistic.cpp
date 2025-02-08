@@ -23,7 +23,7 @@ Statistic_class::~Statistic_class()
 void Statistic_class::Show_Statistic( )
 {
 	long total = statistic.data + statistic.stereo + statistic.shm;
-	Info("Memory Statistic for "+ module);
+	Info("Memory Statistic for " + module);
 	Info("Data        : "+ to_string( statistic.data ));
 	Info("Stereo Data : "+ to_string( statistic.stereo ));
 	Info("Shared Data : "+ to_string( statistic.shm ));

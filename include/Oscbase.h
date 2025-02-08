@@ -12,7 +12,7 @@
 #include <Spectrum.h>
 #include <Ocean.h>
 #include <String.h>
-#include <notes/Notesbase.h>
+#include <Frequency.h>
 
 typedef struct bps_struct
 {
@@ -35,9 +35,13 @@ typedef struct bps_struct
 
 } bps_struct_t;
 
+
+
+
 typedef	struct wave_struct
 {
 	float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
+	int				frqidx		= 9;
 	float			start_frq 	= frequency;
 	uint8_t			PMW_dial 	= 50;
 	uint8_t 		glide_effect= 0;
@@ -80,8 +84,8 @@ class Oscillator_base : virtual public Logfacility_class, virtual public Spectru
 public:
 	char			osctype_id	= -1;//osc_struct::OSCID;
 	char			oscrole_id	= -1;//osc_struct::INSTRID;
-	string 		osc_role 	= "";
-	string 		osc_type 	= "";
+	string 			osc_role 	= "";
+	string 			osc_type 	= "";
 
 	bool			is_main_osc = false;
 
@@ -93,15 +97,16 @@ public:
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
 	spectrum_t		spectrum	= spec_struct();
+	Frequency_class		frequency	{};
 
 	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
 	{
-//		Set_adsr( adsr );
 	};
+
 	virtual 	~Oscillator_base(){};
 
 	void 		Show_csv_comment( int );
-	void 		Set_frequency( float freq );
+	void 		Set_frequency( int idx );
 	void 		Set_volume( uint16_t vol);
 	void 		Line_interpreter( vector_str_t arr );
 	void 		Set_waveform( char  );

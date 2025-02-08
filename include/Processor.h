@@ -53,7 +53,7 @@ public:
 	void Push_key( uint8_t, string );
 	void Push_ifd( uint8_t*, uint8_t, string );
 	void Push_ifd( bool*, bool, string );
-	void Push_ifd( float*, float, string );
+	void Push_ifd( int*, int, string );
 	void Push_wait( uint8_t, int, string );
 	void Push_text( string );
 	void Execute();
@@ -68,7 +68,7 @@ private:
 		int 		key    	= 0;
 		bool*		boaddr	= nullptr;
 		uint8_t*	chaddr	= nullptr;
-		float*	 	uiaddr 	= nullptr;
+		int*	 	uiaddr 	= nullptr;
 		int			value  	= 0;
 		string		str		{};
 	} stack_struct_t;

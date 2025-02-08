@@ -90,6 +90,14 @@ const float			oct_base_freq 		= 27.5/2.0;
 const float			LFO_limit			= 1.0;
 const uint8_t		LFO_count			= 100;
 
+typedef struct oscParam_struct
+{
+	int 	min_octave = 0;
+	uint 	max_octave = 6;
+} oscParam_t;
+
+
+
 typedef struct osc_struct
 {
 	const vector<string> roles =
@@ -110,7 +118,9 @@ typedef struct osc_struct
 	};
 	enum { VCOID, FMOID, OSCID };
 
-
+	oscParam_t oscParam = {  0, 6 };
+	oscParam_t vcoParam = { -6, 6 };
+	oscParam_t fmoParam = { -6, 6 };
 } osc_roles_t;
 
 #endif /* OCEAN_H */

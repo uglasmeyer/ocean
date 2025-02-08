@@ -25,6 +25,8 @@ static const uint STATE_MAP_SIZE = LASTNUM;
 
 class Interface_class : virtual public Logfacility_class
 {
+	Frequency_class 		Frequency 		{};
+
 public:
 
 	interface_t 			ifd_data;
@@ -50,13 +52,6 @@ public:
 	bool 	Restore_ifd();
 	void 	Reset_ifd();
 	void 	Announce(  );
-
-/*	void 	Set( char& key, char value);
-	void 	Set( bool& key, bool value);
-	void 	Set( uint8_t& key, uint8_t value);
-	void 	Set( uint16_t& key, uint16_t value);
-	void 	Set( float& key, float value);
-*/
 	string 	Decode( uint8_t idx );
 	uint8_t* Getstate_ptr( uint TypeID );
 	void 	State_pMap();
@@ -79,7 +74,8 @@ private:
 	array<uint8_t*,APP_SIZE>
 							state_p_map	{};
 
-	Spectrum_base			Spectrum 		{};
+	Spectrum_base	Spectrum 		{};
+
 	bool 	reject(char status, int id );
 	void	stateMap();
 

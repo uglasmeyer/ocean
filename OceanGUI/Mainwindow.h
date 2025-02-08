@@ -14,17 +14,17 @@
 #include <Mixer.h>
 #include <Spectrum.h>
 #include <App.h>
-#include <File_Dialog.h>
-#include <Oszilloscopewidget.h>
-#include <Spectrum_dialog_class.h>
 #include <data/Semaphore.h>
 #include <Rtsp_dialog_class.h>
 #include <Wavedisplay_base.h>
-#include <Sds_dialog_class.h>
 
 
 // qtcreator
 #include "ui_mainwindow.h"
+#include <File_Dialog.h>
+#include <Oszilloscopewidget.h>
+#include <Spectrum_dialog_class.h>
+#include <Sds_dialog_class.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -74,6 +74,7 @@ public:
     vector<QCheckBox*>		cb_sta_vec			{};
     vector<QSlider*>		sl_sta_vec			{};
 
+
     void setwidgetvalues();
     void Updatewidgets();
     void select_Sds( uint sdsid );
@@ -95,12 +96,13 @@ private slots:
     void dial_decay_value_changed();
     void get_record_status( );
 
-    void MAIN_slot_Hz();
     void MAIN_slot_volume();
     void VCO_slot_volume();
-    void Slider_FMO_Hz_changed(int);
-    void Slider_VCO_Hz_changed(int);
     void FMO_slot_volume();
+
+    void Slider_OSC_Freq( int );
+    void Slider_FMO_Freq( int);
+    void Slider_VCO_Freq( int);
 
     void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );
     void Main_Waveform_slot( int );
@@ -185,6 +187,11 @@ private:
     QGraphicsScene  	Scene { this };
     QGraphicsScene*     scene 				= &Scene;
     OszilloscopeWidget* OscW_item			= nullptr;
+    int
+	OSCID = osc_struct::OSCID,
+    VCOID = osc_struct::VCOID,
+	FMOID = osc_struct::FMOID;
+
 };
 
 #endif // MAINWINDOW_H

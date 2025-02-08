@@ -27,10 +27,10 @@ class Statistic_class :
 	public virtual Logfacility_class
 {
 	string className = "";
-	string module = "";
 
 public:
 
+	string module = "";
 	void Show_Statistic( );
 
 	Statistic_class( string module );

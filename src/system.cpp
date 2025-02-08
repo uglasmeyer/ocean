@@ -88,7 +88,8 @@ string searchPath( string file )
 void System_Test()
 {
 	Log_common.TEST_START( "System" );
-	ASSERTION( Is_running_process(   1  ), "Process", Is_running_process(  1 ), true) ;
+	uint8_t pid = 1;
+	ASSERTION( Is_running_process( (int)  pid  ), "Process", Is_running_process(  1 ), true) ;
 	ASSERTION( Is_running_process(  "1" ), "Process", Is_running_process(  1 ), true) ;
 	ASSERTION( not Is_running_process(  -1 ), "Process", Is_running_process(  1 ), false ) ;
 	Log_common.TEST_END( "System" );

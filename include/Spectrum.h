@@ -11,16 +11,19 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <String.h>
+#include <Exit.h>
+#include <Frequency.h>
+
 
 enum waveformId_t
 {
 	SINUS0,
 	SINUS1,
+	TRIANGLE,
 	SGNSIN,
 	RECTANGLE,
 	SAWTOOTHL,
 	SAWTOOTHR,
-	TRIANGLE,
 	PMW,
 	DELTA,
 	NOISE,
@@ -28,9 +31,11 @@ enum waveformId_t
 };
 
 const static size_t 	spec_arr_len = 4;
-typedef float 			spec_dta_t;
-typedef array<spec_dta_t,	spec_arr_len> spec_arr_t;
-typedef array<phi_t		,	spec_arr_len> spec_darr_t;
+typedef float 			spec_dta_ft;
+typedef uint			spec_dta_ut;
+typedef array<spec_dta_ft,	spec_arr_len> spec_arr_ft;
+typedef array<phi_t		,	spec_arr_len> spec_arr_dt;
+typedef array<spec_dta_ut,	spec_arr_len> spec_arr_ut;
 
 
 class Spectrum_base : public virtual Logfacility_class
@@ -39,12 +44,11 @@ public:
 
 	typedef struct spec_struct
 	{
-		spec_arr_t				vol	= { 0.0 } ;
-		// [osc, amplitude ... ]
-		spec_arr_t				frq	= { 0.0 } ;
-		// [osc, frequency shift... ]
-		spec_dta_t				sum = 0;
-		spec_darr_t				phi {0.0};
+		spec_arr_ft				vol	= { 0.0 } ;		// [osc, amplitude ... ]
+		spec_arr_ft				frq	= { 0.0 } ;		// [osc, frequency shift... ]
+		spec_arr_ut				idx = { 0 };
+		spec_dta_ft				sum = 0;
+		spec_arr_dt				phi {0.0};
 		uint8_t	 				id 	= SINUS1; // waveform id
 		uint8_t					osc = osc_struct::OSCID;
 		float					base= oct_base_freq;
@@ -54,11 +58,11 @@ public:
 	{ // consistence with docu Table Standard Waveforms
 		"sinus",		// 0
 		"Sinus",		// 1
+		"triangle",		// 6
 		"sgnSin",		// 2
 		"rectangle",	// 3
 		"sawtooth",		// 4
 		"Sawtooth",		// 5
-		"triangle",		// 6
 		"PMW",			// 7
 		"delta",		// 8
 		"noise",		// 9
@@ -76,7 +80,7 @@ public:
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );
-	string 			Show_this_spectrum( spectrum_t );
+	string 			Show_spectrum( const string& _type, const spectrum_t& spec );
 	void 			Sum( spectrum_t& );
 
 private:

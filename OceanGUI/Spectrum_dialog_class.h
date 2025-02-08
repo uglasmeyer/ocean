@@ -31,6 +31,8 @@ public:
     interface_t* ifd;
     vector<Spectrum_base::spectrum_t*> ifd_spectrum_vec;
 
+    Frequency_class	Frequency {};
+
     string instrument{};
     uint8_t waveform_id;
 
