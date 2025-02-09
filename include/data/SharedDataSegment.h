@@ -43,7 +43,7 @@ const uint 	str_buffer_len 	= 32;
 
 typedef		array<process_t, REGISTER_SIZE>	process_arr_t;
 typedef 	Note_base::noteline_prefix_t	noteline_prefix_t;
-typedef 	Spectrum_base::spectrum_t		spectrum_t;
+typedef 	Spectrum_class::spectrum_t		spectrum_t;
 typedef		Mixer_base::mixer_status_t		mixer_status_t;
 typedef		Mixer_base::StA_amp_arr_t		StA_amp_arr_t;
 typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
@@ -74,12 +74,12 @@ typedef struct interface_struct
 	wave_t			VCO_wp						= wave_struct();
 	wave_t			FMO_wp						= wave_struct();
 
-	spectrum_t 		OSC_spectrum				= Spectrum_base::spec_struct();// comstack
-	spectrum_t 		VCO_spectrum 				= Spectrum_base::spec_struct();// comstack
-	spectrum_t	 	FMO_spectrum 				= Spectrum_base::spec_struct();// comstack
+	spectrum_t 		OSC_spectrum				= Spectrum_class::spec_struct();// comstack
+	spectrum_t 		VCO_spectrum 				= Spectrum_class::spec_struct();// comstack
+	spectrum_t	 	FMO_spectrum 				= Spectrum_class::spec_struct();// comstack
 	/* instrument definition ends	 */
 
-	uint8_t			Spectrum_type				= Spectrum_base::spec_struct().osc;
+	uint8_t			Spectrum_type				= Spectrum_class::spec_struct().osc;
 	uint8_t			NotestypeId					= 0; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };

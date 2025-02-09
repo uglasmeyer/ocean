@@ -687,7 +687,6 @@ public:
         QObject::connect(pB_Mute_StA, SIGNAL(clicked()), MainWindow, SLOT(Clear_Banks()));
         QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
-        QObject::connect(pB_Save, SIGNAL(clicked()), MainWindow, SLOT(Save_Config()));
         QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
         QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
         QObject::connect(pBAudioServerExit, SIGNAL(clicked()), MainWindow, SLOT(Audio_Exit()));

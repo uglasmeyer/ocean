@@ -13,7 +13,7 @@ namespace Ui {
 class Spectrum_Dialog_class;
 }
 
-class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_base
+class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_class
 {
     Q_OBJECT
 
@@ -24,19 +24,19 @@ public:
                                    Interface_class* gui = nullptr );
     ~Spectrum_Dialog_class();
 
-    Spectrum_base Spectrum{};
+    Spectrum_class Spectrum{};
     spectrum_t spectrum;
 
     Interface_class* Sds;
     interface_t* ifd;
-    vector<Spectrum_base::spectrum_t*> ifd_spectrum_vec;
+    vector<Spectrum_class::spectrum_t*> ifd_spectrum_vec;
 
     Frequency_class	Frequency {};
 
     string instrument{};
     uint8_t waveform_id;
 
-    void setup_Widgets( Spectrum_base::spectrum_t );
+    void setup_Widgets( Spectrum_class::spectrum_t );
     void Update_spectrum();
     void SetLabelWaveform( const QString& wf );
     void SetLabelInstrument( const QString& instr );

@@ -105,6 +105,8 @@ void SynthesizerTestCases()
 
 	DaTA.Reg.Test_Register();
 	System_Test();
+	Spectrum_class Spectrum {};
+	Spectrum.Test_Spectrum();
 }
 
 Application_class::Application_class( 	Dataworld_class* _DaTA ) :

@@ -368,20 +368,20 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ); // VCO envelope
 		data[n]	= data[n] + F( vco_vol*(1.0 - spectrum.sum), phi );
 
-		for ( size_t mode = 0; mode < spec_arr_len; mode++ )
+		for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 		{
 			phi_t
-			omega	= spectrum.phi[mode];
-			if ( spectrum.vol[mode] > 0.0 )
+			omega	= spectrum.phi[channel];
+			if ( spectrum.vol[channel] > 0.0 )
 			{
-				size_t m = mode + 1;
 				phi_t
-				d_omega	=	dT *( start_freq * m * (1 + spectrum.frq[mode]) + fmo_vol*fmo_data[n] );
+//				d_omega	=	dT *( start_freq * (1+channel) * (1.0 + (float)spectrum.idx[channel]/100.0) + fmo_vol*fmo_data[n] );
+				d_omega	=	dT *( start_freq + fmo_vol*fmo_data[n] ) * spectrum.frq[channel] ;
 				omega	+= d_omega;
-				data[n]	=   data[n] + F( spectrum.vol[mode]*vco_vol, omega );
+				data[n]	=   data[n] + F( spectrum.vol[channel]*vco_vol, omega );
 				omega 	=  modphi( omega, maxphi );
 			}
-			spectrum.phi[mode] = omega;
+			spectrum.phi[channel] = omega;
 
 		}
 

@@ -116,7 +116,7 @@ public:
 	void Test(  );
 
 private:
-	Spectrum_base Spectrum;
+	Spectrum_class Spectrum;
 	vector_str_t stack {};
 	vector<var_struct_t> varlist {};
 	string	command 	{""};

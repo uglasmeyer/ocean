@@ -266,11 +266,13 @@ void record_start( )
 		Log.Comment( WARN, "Audioserver is still saving data. ... Wait ");
 		return;
 	}
+	Sds->addr->Record = true;
 	External.status.record = true;
 	rcounter = 0;
 	ProgressBar.Set( &rcounter, recduration );
 	RecTimer.Start();
 	sds->StA_state[ MbIdExternal ].store = true;
+
 	Log.Comment(INFO, "Audioserver starts recording" );
 }
 
@@ -282,6 +284,8 @@ void record_stop()
 	ProgressBar.Unset();
 	uint t_el = RecTimer.Time_elapsed();
 	sds->StA_state[ MbIdExternal ].store = false;
+	Sds->addr->Record = false;
+
 	Log.Comment(INFO, "Record duration: " + to_string( t_el/1000 ) + " sec");
 
 }

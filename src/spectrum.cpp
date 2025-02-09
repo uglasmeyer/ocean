@@ -13,7 +13,7 @@
 
 
 
-Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char oscid, char _type )
+Spectrum_class::spectrum_t Spectrum_class::Parse_data( vector_str_t arr, char oscid, char _type )
 {
 
 	auto assign_dta = [ this, _type ]( vector<string> arr )
@@ -63,18 +63,18 @@ Spectrum_base::spectrum_t Spectrum_base::Parse_data( vector_str_t arr, char osci
 
 
 //void Spectrum_base::Set_spectrum( uint8_t id, int channel, spec_dta_t value )
-void Spectrum_base::Set_spectrum( uint8_t id, spectrum_t spec )
+void Spectrum_class::Set_spectrum( uint8_t id, spectrum_t spec )
 {
 	spectrum = spec;
 	Sum( spectrum );
 }
 
-vector<string> Spectrum_base::Get_waveform_vec()
+vector<string> Spectrum_class::Get_waveform_vec()
 {
 	return waveform_str_vec;
 }
 
-int Spectrum_base::Get_waveform_id( string wstr )
+int Spectrum_class::Get_waveform_id( string wstr )
 {
 
 	int id = 0;
@@ -87,7 +87,7 @@ int Spectrum_base::Get_waveform_id( string wstr )
 };
 
 
-string Spectrum_base::Get_waveform_str( uint id )
+string Spectrum_class::Get_waveform_str( uint id )
 {
 	set<int> wfid_set = range_set(0,waveform_str_vec.size());
 	if ( wfid_set.contains( id ) )
@@ -98,15 +98,14 @@ string Spectrum_base::Get_waveform_str( uint id )
 		return "unknown";
 };
 
-string Spectrum_base::Show_spectrum( const string& _type, const spectrum_t& spec )
+string Spectrum_class::Show_spectrum( const string& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
 
 	auto show_dta = [ &strs ]( spec_dta_ft val)
-		{
-		  strs << setprecision(2) << setw(5) << val << ",";
-		};
-
+	{
+		strs << setprecision(2) << setw(5) << val << ",";
+	};
 
 	strs 	<< right << _type << ","
 			<< setw(9) << OscRole.types[ spec.osc ] << ","
@@ -118,16 +117,23 @@ string Spectrum_base::Show_spectrum( const string& _type, const spectrum_t& spec
 	return strs.str();
 }
 
-void Spectrum_base::Sum( spectrum_t& spec )
+void Spectrum_class::Sum( spectrum_t& spec )
 {
-	spec_dta_ft sum = 0;
-	for ( size_t i = 0; i < spec_arr_len ; i++ )
-		sum += spec.vol[i];
+	spec.sum = 0;
+	std::ranges::for_each( spec.vol, [ &spec ]( float f){ spec.sum += f ;});
 
-	spec.sum = sum;
+}
+
+void Spectrum_class::Test_Spectrum()
+{
+	TEST_START( className );
+	spectrum_t spec = spec_struct();
+	spec.vol = { 1, 2, 4, 6 };
+	Sum( spec );
+	ASSERTION( spec.sum == 13, "spectrum.sum", spec.sum, "= 13" );
 
 
-
+	TEST_END( className );
 }
 
 

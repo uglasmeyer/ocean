@@ -66,7 +66,7 @@ public:
 private:
 	string			dumpFile		= "";
 	size_t			sds_size		= sizeof( ifd_data );
-	Spectrum_base	GUIspectrum 	{};
+	Spectrum_class	GUIspectrum 	{};
 	vector<string>	Waveform_vec	{};
 	char 			previous_status = OFFLINE;
 	array<string, STATE_MAP_SIZE>
@@ -74,7 +74,7 @@ private:
 	array<uint8_t*,APP_SIZE>
 							state_p_map	{};
 
-	Spectrum_base	Spectrum 		{};
+	Spectrum_class	Spectrum 		{};
 
 	bool 	reject(char status, int id );
 	void	stateMap();

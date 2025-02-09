@@ -79,7 +79,7 @@ typedef struct vco_struct
 } vco_t;  // all wave parameter for vco
 
 
-class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_base
+class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_class
 {
 public:
 	char			osctype_id	= -1;//osc_struct::OSCID;
@@ -99,7 +99,7 @@ public:
 	spectrum_t		spectrum	= spec_struct();
 	Frequency_class		frequency	{};
 
-	Oscillator_base() : Logfacility_class("Osc"), Spectrum_base()
+	Oscillator_base() : Logfacility_class("Osc"), Spectrum_class()
 	{
 	};
 

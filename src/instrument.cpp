@@ -112,8 +112,9 @@ void Instrument_class::Update_spectrum()
 
 	Comment(INFO, "receive command <update Spectrum>");
 
-	Oscillator* osc = Oscgroup.oscgroup[ ifd->Spectrum_type ];
-	osc->Set_spectrum( *ifd_spectrum_vec[ ifd->Spectrum_type ] ) ;
+	uint oscid = ifd->Spectrum_type;
+	Oscillator* osc = Oscgroup.oscgroup[ oscid ];
+	osc->Set_spectrum( *ifd_spectrum_vec[ oscid ] ) ;
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -325,8 +326,8 @@ void Instrument_class::Save_Instrument( string str )
 				<< endl;
 
 		// Type SPEC
-		FILE	<< osc->Show_spectrum( "SPECV", osc->spectrum ) << endl
-				<< osc->Show_spectrum( "SPECF", osc->spectrum )
+		FILE	<< osc->Show_spectrum( "SPEV", osc->spectrum ) << endl
+				<< osc->Show_spectrum( "SPEF", osc->spectrum )
 				<< endl;
 	}
 	FILE.close();

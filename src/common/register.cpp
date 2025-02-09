@@ -145,8 +145,8 @@ void Register_class::Show_proc_register( uint idx )
 		strs << SETW << "Index   "	<< idx << endl;
 		strs << SETW << "Sds  Id "	<< (int)proc.sdsId << endl;
 		strs << SETW << "Type Id " 	<< Type_map(proc.type) << endl;
-		strs << SETW << "Pid     " 	<< proc.pid << endl << endl;
-		Comment( INFO, strs.str() );
+		strs << SETW << "Pid     " 	<< proc.pid << endl;
+		Info( strs.str() );
 	}
 }
 

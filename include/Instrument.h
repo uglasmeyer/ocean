@@ -45,7 +45,7 @@ public:
 	void Run_osc_group();
 
 private:
-	vector<Spectrum_base::spectrum_t*> 	ifd_spectrum_vec;
+	vector<Spectrum_class::spectrum_t*> 	ifd_spectrum_vec;
 	string 					Instrument_file;
 	string 					Default_instrument_file;
 

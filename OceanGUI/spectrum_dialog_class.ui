@@ -460,7 +460,7 @@
     <rect>
      <x>21</x>
      <y>11</y>
-     <width>211</width>
+     <width>241</width>
      <height>131</height>
     </rect>
    </property>
@@ -496,8 +496,11 @@
     </item>
     <item row="0" column="0">
      <widget class="QSlider" name="fS_1">
+      <property name="minimum">
+       <number>-50</number>
+      </property>
       <property name="maximum">
-       <number>100</number>
+       <number>50</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -506,8 +509,11 @@
     </item>
     <item row="0" column="6">
      <widget class="QSlider" name="fS_5">
+      <property name="minimum">
+       <number>-50</number>
+      </property>
       <property name="maximum">
-       <number>100</number>
+       <number>50</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -516,8 +522,11 @@
     </item>
     <item row="0" column="9">
      <widget class="QSlider" name="fS_7">
+      <property name="minimum">
+       <number>-50</number>
+      </property>
       <property name="maximum">
-       <number>100</number>
+       <number>50</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -536,8 +545,11 @@
     </item>
     <item row="0" column="3">
      <widget class="QSlider" name="fS_3">
+      <property name="minimum">
+       <number>-50</number>
+      </property>
       <property name="maximum">
-       <number>100</number>
+       <number>50</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -595,7 +607,7 @@
   <widget class="QPushButton" name="pB_save_spectrum">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>270</x>
      <y>11</y>
      <width>80</width>
      <height>25</height>
@@ -1110,7 +1122,7 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
   <widget class="QFrame" name="frame_rb_osc">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>270</x>
      <y>42</y>
      <width>80</width>
      <height>106</height>
@@ -1161,15 +1173,15 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
     <rect>
      <x>280</x>
      <y>152</y>
-     <width>64</width>
-     <height>31</height>
+     <width>81</width>
+     <height>51</height>
     </rect>
    </property>
   </widget>
   <widget class="QLabel" name="lbl_spectrumDisplay">
    <property name="geometry">
     <rect>
-     <x>280</x>
+     <x>210</x>
      <y>190</y>
      <width>66</width>
      <height>18</height>

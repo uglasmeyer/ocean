@@ -59,6 +59,15 @@ public:
 		return Calc( oct_base_freq, idx);
 	}
 
+	float SpecFreq( float base, int idx, int channel )
+	{
+		int 	mode		= 1 + channel;
+		float 	channel_base= base * mode; // 1 ... 4
+		float 	step		= (float)idx / 100.0 / mode;
+		float 	freq		= channel_base * ( 1.0 + step ); // ( +0.5 ...+1.5 ) + base
+		return 	freq;
+	};
+
 	Frequency_class()
 	{
 		initFrqVector();

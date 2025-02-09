@@ -44,7 +44,7 @@ public:
     Config_class*			Cfg 	= DaTA->Cfg_p;
     Interface_class*		Sds		= DaTA->Sds_p;
 
-    Spectrum_base          	Spectrum			{};
+    Spectrum_class          	Spectrum			{};
     Semaphore_class*		Sem					= DaTA->Sem_p;
 
     Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA};

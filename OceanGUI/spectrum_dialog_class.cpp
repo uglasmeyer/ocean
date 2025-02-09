@@ -2,13 +2,12 @@
 #include "qtimer.h"
 #include "ui_spectrum_dialog_class.h"
 
-
 Ui::Spectrum_Dialog_class	UI_obj;
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
                                              Interface_class *gui) :
     Logfacility_class("Spectrum"),
-	Spectrum_base(),
+	Spectrum_class(),
 	QDialog(parent)
 //    ui(new Ui::Spectrum_Dialog_class )
 {
@@ -61,10 +60,10 @@ Spectrum_Dialog_class::~Spectrum_Dialog_class()
 //   if( ui) delete(ui);
 }
 
-auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_base::spectrum_t& spec, char id )
+auto select_spec = []( Spectrum_Dialog_class* C, Spectrum_class::spectrum_t& spec, char oscid )
 {
-	C->ifd->Spectrum_type = id;
-	C->spectrum			= spec;
+	C->ifd->Spectrum_type 	= oscid;
+	C->spectrum				= spec;
 	C->setup_Widgets( spec );
 };
 
@@ -104,29 +103,18 @@ void Spectrum_Dialog_class::Update_spectrum()
     }
 }
 
-auto specFreq = []( spectrum_t spec, int channel )
-{
-	return ( spec.base * (1+channel) * ( 1.0 + spec.frq[ channel ]) );
-};
 
-auto value2frq = []( auto value )
-{
-	return (  (spec_dta_ft) value - 50.0 ) / 100.0;
-};
-auto frq2value = []( auto frq )
-{
-	return rint( 100+frq*100 );
-};
 
 auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 {
-    char id = C.ifd->Spectrum_type;
-	C.spectrum = *C.ifd_spectrum_vec[ id ];
-	C.spectrum.frq[ channel ] = value2frq( value );
+    char oscid = C.ifd->Spectrum_type;
+	C.spectrum = *C.ifd_spectrum_vec[ oscid ];
 	C.spectrum.idx[ channel ] = value;
-    *C.ifd_spectrum_vec[ id ] = C.spectrum;  // the active GUI spectrum is updated
+	float frq =  ( 1 + channel + (float)value / 100.0 ); // see osc.cpp
+	C.spectrum.frq[ channel ] = frq;
+    *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
     C.ifd->KEY = UPDATESPECTRUM_KEY;	// the synthesizer is notified
-    C.ui->lcd_spectrumDisplay->display( specFreq( C.spectrum, channel ));
+    C.ui->lcd_spectrumDisplay->display( frq );
     C.ui->lbl_spectrumDisplay->setText( "[Hz]");
 };
 
@@ -135,11 +123,11 @@ auto spec_vol_slider = []( Spectrum_Dialog_class& C, int channel, int value )
     char id = C.ifd->Spectrum_type;
 	C.spectrum = *C.ifd_spectrum_vec[ id ];
 	C.spectrum.vol[ channel ] = (spec_dta_ft)  value / 100.0;
-    C.Spectrum_base::Sum( C.spectrum );
+    C.Spectrum_class::Sum( C.spectrum );
     *C.ifd_spectrum_vec[ id ] = C.spectrum;  // the active GUI spectrum is updated
     C.ifd->KEY = UPDATESPECTRUM_KEY;	// emit synthesizer event
     C.ui->lcd_spectrumDisplay->display(value);
-    C.ui->lbl_spectrumDisplay->setText( "Aml [%]");
+    C.ui->lbl_spectrumDisplay->setText( "Amp [%]");
 };
 
 void Spectrum_Dialog_class::fS1( int value )
@@ -188,15 +176,15 @@ void Spectrum_Dialog_class::SetLabelInstrument( const QString& instr )
 {
 	ui->lbl_instrument->setText( instr );
 }
-void Spectrum_Dialog_class::setup_Widgets(  Spectrum_base::spectrum_t spectrum)
+void Spectrum_Dialog_class::setup_Widgets(  Spectrum_class::spectrum_t spectrum)
 {
-    ui->fS_1->setValue( frq2value( spectrum.frq[0] ) );
+    ui->fS_1->setValue( spectrum.idx[0]  );
     ui->vS_2->setValue( rint(spectrum.vol[0]*100) );
-    ui->fS_3->setValue( frq2value( spectrum.frq[1] ) );
+    ui->fS_3->setValue( spectrum.idx[1]  );
     ui->vS_4->setValue( rint(spectrum.vol[1]*100) );
-    ui->fS_5->setValue( frq2value( spectrum.frq[2] ) );
+    ui->fS_5->setValue( spectrum.idx[2]  );
     ui->vS_6->setValue( rint(spectrum.vol[2]*100) );
-    ui->fS_7->setValue( frq2value( spectrum.frq[3] ) );
+    ui->fS_7->setValue( spectrum.idx[3]  );
     ui->vS_8->setValue( rint(spectrum.vol[3]*100));
 
     QString Qinstrument = QString::fromStdString( instrument );

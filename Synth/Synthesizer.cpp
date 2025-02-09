@@ -8,13 +8,13 @@ Logfacility_class		Log( "Synthesizer" );
 
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
-
-Wavedisplay_class 		Wavedisplay{ DaTA.Master_Sds_p };
+interface_t*			sds = DaTA.GetSdsAddr();
+Interface_class*		Sds_p = DaTA.GetSds();
+Wavedisplay_class 		Wavedisplay{ Sds_p };//DaTA.Master_Sds_p };
 Wavedisplay_class*		wd_p = &Wavedisplay;
 
 Application_class		App( &DaTA );
 
-interface_t*			sds = DaTA.GetSdsAddr();
 Dataworld_class*		DaTA_p = &DaTA;
 Mixer_class				Mixer{ DaTA_p, wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument{ sds, wd_p };

@@ -26,11 +26,9 @@
 
 
 
-// System
-#include <unistd.h> //sleep
 
-const string Module = "OceanGUI";
-Frequency_class 				Frequency			{};
+const string 		Module 		= "OceanGUI";
+Frequency_class 	Frequency	{};
 
 auto set_rb_sta_value = []( MainWindow* C )
 {
@@ -104,6 +102,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect( ui->pBComposer, SIGNAL(clicked()), this, SLOT( start_composer() ));
     connect( ui->pBtoggleRecord, SIGNAL(clicked(bool)), this, SLOT(SaveRecord() ));
     connect( ui->pB_Mute, SIGNAL(clicked()), this, SLOT(toggle_Mute()));
+    connect( ui->pB_Save, SIGNAL(clicked()), this, SLOT(Save_Config()));
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
     connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Freq(int)));
     connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Freq(int)));
@@ -168,10 +167,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
     connect(ui->cb_sta6, SIGNAL(clicked()), this, SLOT( toggle_mute6()) );
     connect(ui->cb_sta7, SIGNAL(clicked()), this, SLOT( toggle_mute7()) );
 
-    rb_S_vec =
-    {
-    	ui->rb_S0, ui->rb_S0, ui->rb_S0, ui->rb_S0
-    };
+    rb_S_vec = { ui->rb_S0, ui->rb_S0, ui->rb_S0, ui->rb_S0 };
     rb_S_vec[ this->Sds->addr->config ]->setChecked( true );
     connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_Sds0()) );
     connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_Sds1()) );
@@ -242,11 +238,6 @@ MainWindow::~MainWindow()
 	delete OscW_item;
 //	if ( ui ) delete ui;
 }
-
-
-
-
-
 
 void MainWindow::wavfile_selected( const QString &arg)
 {
@@ -736,8 +727,8 @@ void MainWindow::Controller_Exit()
 	}
 	uint idx = Rtsp_Dialog_obj.SDS_ID + SYNTHID ;
     Sds->Set( Sds->addr->Synthesizer , EXITSERVER );
-    DaTA->Reg.Reset( idx );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
+    DaTA->Reg.Reset( idx );
     Rtsp_Dialog_obj.proc_table_update_row(Rtsp_Dialog_obj.SDS_ID + 1);
 }
 
@@ -749,7 +740,6 @@ void MainWindow::Audio_Exit()
     Rtsp_Dialog_obj.proc_table_update_row(0);
 }
 
-// button save Cfg->Config to default instrument
 void MainWindow::Save_Config()
 {
     Sds->Write_str( INSTRUMENTSTR_KEY, "default");
@@ -780,12 +770,9 @@ void MainWindow::connect_vco()
     Sds->Set( Sds->addr->KEY , CONNECTVCOFMOKEY);
 }
 
-int pb_value = 0;
-
 void MainWindow::get_record_status( )
 {
-    pb_value = Sds->addr->RecCounter;
-//    cout << "Rec status value: " << pb_value << endl;
+    int pb_value = Sds->addr->RecCounter;
     ui->progressBar_record->setValue( pb_value );
 }
 void MainWindow::SaveRecord()
@@ -799,7 +786,7 @@ void MainWindow::SaveRecord()
     	Sds_master->AudioServer = RECORDSTART;
     }
 
-	Sds->Set( Sds->addr->Record, not Sds->addr->Record );
+//	Sds->Set( Sds->addr->Record, not Sds->addr->Record );
 }
 
 void MainWindow::main_adsr_sustain()
@@ -894,9 +881,6 @@ void MainWindow::Updatewidgets()
     }
 
     Sds->addr->UserInterface = OFFLINE ;
-
-	// init new SDS
-    // SetSds(  );
 
 
     if (Sds_master->AudioServer == RUNNING )

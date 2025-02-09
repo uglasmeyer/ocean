@@ -2121,22 +2121,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>pB_Save</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Save_Config()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1090</x>
-     <y>541</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1092</x>
-     <y>524</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_3</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>

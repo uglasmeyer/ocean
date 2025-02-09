@@ -152,12 +152,12 @@ void Interface_class::Show_interface()
 	lline( "", "" );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPECV", addr->OSC_spectrum ));
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPECV", addr->VCO_spectrum ));
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPECV", addr->FMO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPECF", addr->OSC_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPECF", addr->VCO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPECF", addr->FMO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->OSC_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->VCO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->FMO_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->OSC_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->VCO_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->FMO_spectrum ));
 
 
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );
