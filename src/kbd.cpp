@@ -144,13 +144,14 @@ void Keyboard_base::Test()
 {
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Keyboard test running");
+	uint nr = 0;
 	do
 	{
 		cout << GetKey().key ;
 		Comment( TEST, " > Press # to finish keyboard test");
-
+		nr++;
 	}
-	while( not ( GetKey().key == '#' ) );
+	while( not ( GetKey().key == '#' ) and ( nr < 20 ));
 
 	Comment( TEST, "Keyboard test finished");
 //	assert( false );

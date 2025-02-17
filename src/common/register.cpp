@@ -28,11 +28,11 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 	{
 		case AUDIOID :
 		{
-//			string pid_str	= this->sds->process_arr.at( AUDIOID ).pid ;
 			if ( Is_running_process((int)this->sds->process_arr.at( AUDIOID ).pid ) )
 			{
 				Info( "Running Audioserver " + to_string( this->sds->process_arr.at( AUDIOID ).pid ) + "detected");
-				Exception( "Cannot start second Audioserver" );
+				if ( not Log[TEST] )
+					EXCEPTION( "Cannot start second Audioserver" );
 			}
 			else
 			{
@@ -88,6 +88,7 @@ void Register_class::Clear_procregister()
 
 auto regComment = []( Register_class* C, string pref, string tstr, uint s, uint idx )
 {
+	if ( not C ) return;
 	stringstream strs {""};
 	strs << pref << "Register " << tstr<< s<< " idx "<< idx ;
 	C->Comment( INFO, strs.str() );

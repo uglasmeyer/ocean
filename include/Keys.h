@@ -26,8 +26,12 @@ enum {
 	VCOAMPKEY,
 	FMOAMPKEY,
 	MASTERAMP_KEY,
-	MASTERAMP_LOOP_KEY,	 // parameter, LOOP_end, LOOP_step
+	// parameter, LOOP_end, LOOP_step
+	MASTERAMP_LOOP_KEY,
 	MASTERAMP_MUTE_KEY,
+
+	// OSC adjust
+	ADJUST_KEY,
 
 	// OSC connect
 	CONNECTVCOFMOKEY,

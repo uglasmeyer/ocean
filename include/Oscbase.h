@@ -24,7 +24,7 @@ typedef struct bps_struct
 	bps_struct( )
 	{
 		uint8_t index = 0;
-		for( uint bps : Bps_vec )
+		for( uint8_t bps : Bps_vec )
 		{
 			string str = to_string( bps );
 			Bps_str_set.insert( string(1,int2char(bps)) );
@@ -41,18 +41,19 @@ typedef struct bps_struct
 typedef	struct wave_struct
 {
 	float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
-	int				frqidx		= 9;
+	int				frqidx		= 0;
 	float			start_frq 	= frequency;
 	uint8_t			PMW_dial 	= 50;
 	uint8_t 		glide_effect= 0;
 	uint16_t 		msec		= max_milli_sec; 	// range 1 ... 8000
 	uint8_t 		volume		= osc_default_volume; 	// range [0..100];
+	uint8_t			adjust		= 0;
 	buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
 
 typedef struct adsr_struct
 {
-	uint8_t bps 	= 1; // {0.1,2,3,4 }  => 0, 1, 1/2, 1/4, 1/8 sec., 0,1,2,4,8 beats per second
+	uint8_t  bps 	= 0; // { 0, 1/2, 1, 2, 3, 4 }  => 2, 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
 	uint8_t attack 	= 0; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
 	uint8_t decay  	= 100;
 	uint8_t hall	= 0; // hall effect [0..100} data shift
@@ -79,15 +80,20 @@ typedef struct vco_struct
 } vco_t;  // all wave parameter for vco
 
 
-class Oscillator_base : virtual public Logfacility_class, virtual public Spectrum_class
+class Oscillator_base :
+	virtual public Logfacility_class,
+	virtual public Spectrum_class
 {
+
 public:
+
 	char			osctype_id	= -1;//osc_struct::OSCID;
 	char			oscrole_id	= -1;//osc_struct::INSTRID;
 	string 			osc_role 	= "";
 	string 			osc_type 	= "";
 
 	bool			is_main_osc = false;
+	bool			is_notes_role = false;
 
 
 	DataVec_t		adsrdata 	{ };
@@ -97,9 +103,10 @@ public:
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
 	spectrum_t		spectrum	= spec_struct();
-	Frequency_class		frequency	{};
 
-	Oscillator_base() : Logfacility_class("Osc"), Spectrum_class()
+	Oscillator_base() :
+		Logfacility_class("Osc"),
+		Spectrum_class()
 	{
 	};
 

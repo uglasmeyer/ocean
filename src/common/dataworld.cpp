@@ -62,8 +62,8 @@ Dataworld_class::~Dataworld_class()
 		SHM_0.Detach( SHM_0.ds.addr );
 		SHM_1.Detach( SHM_1.ds.addr );
 	}
-	Sds_p->SHM.Detach( Sds_p->SHM.ds.addr );
 
+	cout << "visited ~" <<  className << endl;
 }
 
 void Dataworld_class::init_Shm( Shared_Memory& SHM, key_t key, uint idx )
@@ -92,11 +92,11 @@ interface_t* Dataworld_class::GetSdsAddr( int id )
 	Comment( DEBUG, "SDS Id: " + to_string( id ) + " " + Type_map( TypeId ) );
 	if (( id<0) or ( id > (int)MAXCONFIG ))
 	{
-		Exception( "no such Shared Data Segment ");
+		EXCEPTION( "no such Shared Data Segment ");
 	}
 	if( not SDS_vec[id].ds.eexist )
 	{
-		Exception( "segment not available");
+		EXCEPTION( "segment not available");
 	}
 
 	return ( interface_t*) SDS_vec[id].ds.addr;

@@ -26,7 +26,8 @@ public:
     Interface_class*		Sds;
     interface_t*			Sds_master;
     uint					SDS_ID = 0;
-    Ui::Rtsp_Dialog_class*	ui;
+//    Ui::Rtsp_Dialog_class*	ui;
+	unique_ptr<Ui::Rtsp_Dialog_class>		ui;
 
 	QTableWidgetItem	twItem {};
 	QTableWidgetItem*	twItem_p = new QTableWidgetItem();
@@ -37,7 +38,7 @@ public:
     explicit Rtsp_Dialog_class(
     		QWidget* 			parent 	= nullptr,
 			Dataworld_class*	data	= nullptr);
-    ~Rtsp_Dialog_class();
+    virtual ~Rtsp_Dialog_class();
 
 private slots:
 

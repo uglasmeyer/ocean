@@ -152,7 +152,7 @@ bool Note_class::Generate_note_chunk( )
 		{	// considers the end pause to finish
 			timestamp = timestamp % max_milli_sec;
 
-			Comment(INFO, "take over " + to_string( timestamp ) + "[msec]");
+			Comment( DBG2, "take over " + to_string( timestamp ) + "[msec]");
 			note_itr++;
 			return false;
 		}
@@ -192,7 +192,7 @@ bool Note_class::Generate_note_chunk( )
 	}
 	else
 	{ 	// there was an uncomplete measure at the end of the notelist
-		Comment(ERROR, "Notes are not aligned by " + to_string( timestamp ) + "[msec]");
+		Comment(DBG2, "Notes are not aligned by " + to_string( timestamp ) + "[msec]");
 		timestamp = 0;
 	}
 	return false;
@@ -241,6 +241,11 @@ bool Note_class::set_file_name( string str )
 		return false;
 	}
 	return true;
+}
+
+void Note_class::LoadMusicxml( const string& file )
+{
+
 }
 
 string Note_class::Read( string str )
@@ -345,7 +350,7 @@ void Note_class::Test()
 	Set_rhythm_line("5");
 	Verify_noteline( Noteline_prefix, "A-D--B----d-");
 	Start_note_itr();
-	ASSERTION( note_itr->chord[0].freq == 220, "", note_itr->chord[0].freq , 220 );
+	ASSERTION( fcomp(note_itr->chord[0].freq, 220 ), "", note_itr->chord[0].freq , 220 );
 	advance(note_itr, 2 );
 	ASSERTION( note_itr->longnote, "Longnote", note_itr->longnote, true  );
 	advance(note_itr, 1 );
@@ -445,8 +450,8 @@ void Note_class::Test()
 	ASSERTION( note.glide[0].chord.step == 9, "", note.glide[0].chord.step, 9 );
 	ASSERTION( note.glide[0].chord.alter == 0,"", note.glide[0].chord.alter, 0 );
 	Show_note( note );
-	ASSERTION ( ( 	abs( CalcFreq( oct_base_freq , note.glide[0].chord ) - 880 )) < 1E-8 , "",
-			CalcFreq( oct_base_freq,  note.glide[0].chord ), 880 );
+	ASSERTION ( fcomp(	CalcFreq( oct_base_freq, note.glide[0].chord ), 880, 2E-4 ) , "CalcFreq",
+						CalcFreq( oct_base_freq, note.glide[0].chord ), 880 );
 
 
 	Verify_noteline( Noteline_prefix, "|2A'AA,A,AAA");

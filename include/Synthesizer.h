@@ -26,7 +26,7 @@
 #include <notes/MusicXML.h>
 
 
-class Core_class :
+class Event_class :
 	virtual Logfacility_class
 {
 	string 				className = "";
@@ -45,7 +45,7 @@ class Core_class :
 
 public:
 
-	Core_class( Instrument_class* 	instrument,
+	Event_class( Instrument_class* 	instrument,
 				Note_class*			notes,
 				Mixer_class*		mixer,
 				Wavedisplay_class*	wavedisplay,
@@ -68,13 +68,12 @@ public:
 		this->ProgressBar	= progressbar;
 		this->MusicXML		= musicxml;
 	};
-	virtual ~Core_class()
+	virtual ~Event_class()
 	{};
 
-	void Controller(char key);
+	void Handler( uint key);
 
 private:
-	Frequency_class	frequency {};
 
 };
 #endif /* SYNTHESIZER_H_ */

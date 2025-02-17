@@ -11,29 +11,6 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-/*
-template < typename I, typename W>
-void ASSERTION (	bool expr,
-				const string message,
-				I input,
-				W expected,
-				source_location location = source_location::current() // @suppress("Function cannot be resolved") // @suppress("Type cannot be resolved")
-			)
-{
-	if ( expr ) return;
-
-	cout 	<< "file: "
-			<< location.file_name() << '(' // @suppress("Method cannot be resolved")
-			<< location.line() << ':' // @suppress("Method cannot be resolved")
-			<< location.column() << ") `" // @suppress("Method cannot be resolved")
-			<< location.function_name()  // @suppress("Method cannot be resolved")
-			<< message 							<< '\n'
-			<< "input    value: " << input 		<< '\n'
-			<< "expected value: " << expected 	<< endl;
-
-	raise( SIGTERM );
-};// @suppress("Function cannot be instantiated")
-*/
 #define ASSERTION(	 expr , message, input, expected )\
 	if ( not (expr) ) \
 	{\
@@ -44,16 +21,40 @@ void ASSERTION (	bool expr,
 	raise( SIGINT ); \
 	};
 
+#define EXCEPTION( err_str )\
+	{\
+	cout << "An application exception occured " << endl;\
+	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;\
+	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;\
+	string s;\
+	cin >> s;\
+	raise( SIGINT );\
+	};
+
 
 extern void exit_proc( int );
 
 class Exit_class :
 	public virtual Logfacility_class
 {
-	const vector<uint> 	signal_vec = {  SIGINT,   SIGHUP,   SIGABRT,   SIGTERM };
-	const vector<string>signal_str = { "SIGINT", "SIGHUP", "SIGABRT", "SIGTERM"};
+
+	typedef struct signalmap_struct
+	{
+		int 	signal	= -1;
+		string 	name	=  "";
+	} signalmap_t;
+
+	const vector<signalmap_t> signalmap =
+	{
+			{ SIGINT, "SIGINT" },
+			{ SIGHUP, "SIGHUP" },
+			{ SIGABRT,"SIGABRT" },
+			{ SIGTERM,"SIGTERM"}
+	};
+
 	string className = "";
 public:
+
 
 	Exit_class( ) :
 		Logfacility_class("Exit_class")
@@ -62,18 +63,17 @@ public:
 		catch_signals();
 	};
 	virtual ~Exit_class()
-	{};
+	{
+		cout << "visited ~Exit_class" << endl;
+	};
 
 private:
 	void catch_signals( )
 	{
-		uint idx = 0;
-		for ( uint sig : signal_vec )
+		for ( signalmap_t sig : signalmap )
 		{
-			string sig_str = signal_str[ idx ];
-			Comment(INFO, "Catching signal: " + sig_str );
-			signal( sig	, &exit_proc );
-			idx++;
+			Comment(INFO, "Catching signal: " + sig.name );
+			signal( sig.signal	, &exit_proc );
 		}
 	}
 

@@ -78,15 +78,21 @@ shm_ds_t* Shm_base::Get( key_t key )
 	shmget( ds.key, ds.size , S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL );
 	ds.eexist = ( EEXIST == errno );
 
+
 	ds.shmid = shmget ( ds.key, ds.size, S_IRUSR | S_IWUSR | IPC_CREAT );
-	statistic.shm += ds.size;
 
 	if ( ds.shmid < 0 )
 	{
 		Comment( ERROR, Error_text( errno ));
-		Exception("cannot get shared memory" + to_string( ds.shmid ) );
+		ShowDs( ds );
+		EXCEPTION("cannot get shared memory" + to_string( ds.shmid ) );
+	}
+	else
+	{
+		;//ds.eexist = true;
 	}
 	ds.addr = Attach( ds.shmid ); //shmat (ds.id, 0, 0);
+	statistic.shm += ds.size;
 
 	return &ds;
 }
@@ -119,13 +125,25 @@ void Shm_base::ShowDs( shm_ds_t ds )
 
 void Shm_base::Detach( void* addr )
 {
+/*
+
 	Comment( INFO , "Detach shared memory id: " + to_string( ds.shmid ));
 	if ( addr == nullptr )
 	{
-		Comment( ERROR, "Cannot detache nullptr" );
+		Comment( ERROR, "Cannot detach nullptr" );
 		return;
 	}
-	shmdt( addr );
+*/
+	Comment( INFO , "Detach shared memory id: " + to_string( ds.shmid ));
+
+	if ( addr )
+		shmdt( addr );
+/*	if( errno )
+	{
+		Comment( ERROR, Error_text( errno ) );
+		ShowDs( ds );
+	}
+*/
 }
 
 void Shm_base::Test_Memory()

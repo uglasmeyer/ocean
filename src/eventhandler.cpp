@@ -8,10 +8,12 @@
 
 #include <Synthesizer.h>
 
-void Core_class::Controller(char key)
+void Event_class::Handler( uint eventKey)
 {
 
-	switch (key) {
+
+	switch (eventKey)
+	{
 
 	case NULLKEY:
 	{
@@ -19,11 +21,12 @@ void Core_class::Controller(char key)
 	}
 	case XMLFILE_KEY :
 	{
+		Sem->Release( SEMAPHORE_INITNOTES ); //other
 		string name = Sds->Read_str( NOTESSTR_KEY );
-		Comment(INFO, "receive command <setup play xml notes>");
+		Comment(INFO, "receive command <setup play xml notes>");/*
+
 		string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
 		Comment( INFO, "from filename: " + filename );
-
 		Notes->musicxml = MusicXML->Xml2notelist( filename );
 		if ( Notes->musicxml.scoreduration == 0 )
 		{
@@ -32,24 +35,32 @@ void Core_class::Controller(char key)
 		Notes->Set_notelist( Notes->musicxml.notelist );
 		sds->Noteline_sec = Notes->musicxml.scoreduration / 1000;
 
-
 		Mixer->status.notes = true;
 		Sds->Update(NEWNOTESLINEFLAG);
 
 		Sds->Write_str(INSTRUMENTSTR_KEY, Notes->musicxml.instrument_name ); // other
 		sds->KEY = SETINSTRUMENTKEY;
 
+*/
 
-		Sem->Release(SEMAPHORE_NOTES);
+//		Sem->Release(SEMAPHORE_SYNCNOTES);
 
-//		Sds->Commit();
+		Sds->Commit();
 		break;
 	}
+	case UPDATESPECTRUM_KEY:
+	{
+		Instrument->Update_spectrum();
+		Sds->Commit();
+		break;
+	}
+
 	case OSCFREQUENCYKEY:
 	{
 		int frqidx = sds->OSC_wp.frqidx;
 		Instrument->osc->Set_frequency( frqidx );
-		sds->OSC_spectrum.base = frequency.Calc( frqidx );
+		sds->OSC_spectrum.base = Instrument->osc->Calc( frqidx );
+		sds->OSC_spectrum.frqidx[0] = frqidx;
 
 		Sds->Commit();
 		break;
@@ -58,7 +69,8 @@ void Core_class::Controller(char key)
 	{
 		int frqidx = sds->VCO_wp.frqidx;
 		Instrument->vco->Set_frequency( frqidx );
-		sds->VCO_spectrum.base = frequency.Calc( frqidx );
+		sds->VCO_spectrum.base = Instrument->osc->Calc( frqidx );
+		sds->VCO_spectrum.frqidx[0] = frqidx;
 
 		Instrument->osc->Connect_vco_data(Instrument->vco);
 
@@ -69,7 +81,8 @@ void Core_class::Controller(char key)
 	{
 		int frqidx = sds->FMO_wp.frqidx;
 		Instrument->fmo->Set_frequency( frqidx );
-		sds->FMO_spectrum.base = frequency.Calc( frqidx );
+		sds->FMO_spectrum.base = Instrument->osc->Calc( frqidx );
+		sds->FMO_spectrum.frqidx[0] = frqidx;
 
 
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
@@ -82,7 +95,9 @@ void Core_class::Controller(char key)
 		Value vol = sds->VCO_wp.volume;
 		Instrument->vco->Set_volume(vol.ch);
 		Instrument->osc->Connect_vco_data(Instrument->vco);
-//		Notes->vco->Set_volume(vol.ch);
+		sds->VCO_spectrum.vol[0] = vol.val * 0.01;
+		sds->VCO_spectrum.volidx[0] = vol.val;
+
 		Sds->Commit();
 		break;
 	}
@@ -91,14 +106,22 @@ void Core_class::Controller(char key)
 		Value vol = sds->FMO_wp.volume;
 		Instrument->fmo->Set_volume(vol.ch);
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
-//		Notes->fmo->Set_volume(vol.ch);
+		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
+		sds->FMO_spectrum.volidx[0] = vol.val;
 		Sds->Commit();
 		break;
 	}
 	case MASTERAMP_KEY: // modify main volume
 	{
-		Mixer->master_volume = sds->Master_Amp;
+		Mixer->master_volume = sds_master->Master_Amp;
 		Mixer->status.mute = false;
+		Sds->Commit();
+		break;
+	}
+	case ADJUST_KEY:
+	{
+		Instrument->vco->wp.adjust = sds->VCO_wp.adjust;
+		Instrument->fmo->wp.adjust = sds->FMO_wp.adjust;
 		Sds->Commit();
 		break;
 	}
@@ -152,11 +175,13 @@ void Core_class::Controller(char key)
 	{
 		Comment(INFO, "receive command <set instrument>");
 		string instrument = Sds->Read_str(INSTRUMENTSTR_KEY); // other
+
 		if (Instrument->Set(instrument))
 		{
 			Comment(INFO, "sucessfully loaded instrument " + instrument);
 			Notes->Set_instrument(Instrument);
-		} else {
+		} else
+		{
 			Comment(ERROR, "cannot load instrument" + instrument);
 		}
 		Sds->Commit(); // reset flags on GUI side
@@ -301,7 +326,7 @@ void Core_class::Controller(char key)
 		Notes->Set_instrument(Instrument);
 		Notes->Read(notes_name);
 		sds->Noteline_sec = Notes->noteline_sec;
-		Sem->Release(SEMAPHORE_NOTES);
+		Sem->Release(SEMAPHORE_SYNCNOTES);
 		Sds->Commit();
 		break;
 	}
@@ -313,7 +338,7 @@ void Core_class::Controller(char key)
 		Mixer->status.notes = true;
 		Sds->Update(NEWNOTESLINEFLAG);
 		sds->Noteline_sec = Notes->noteline_sec;
-		Sem->Release(SEMAPHORE_NOTES);
+		Sem->Release(SEMAPHORE_SYNCNOTES);
 		//			Notes->Start_note_itr();
 		break;
 	}
@@ -347,7 +372,7 @@ void Core_class::Controller(char key)
 		Comment(INFO, "receive command < notes on " + amp.str + "%>");
 		Mixer->StA[MbIdNotes].Amp = amp.val;
 		Mixer->Set_mixer_state(MbIdNotes, true);
-		Sem->Release(SEMAPHORE_NOTES);
+		Sem->Release(SEMAPHORE_SYNCNOTES);
 		//			Notes->Start_note_itr();
 		Sds->Commit();
 		break;
@@ -418,26 +443,23 @@ void Core_class::Controller(char key)
 		break;
 	}
 	case SETWAVEFORMFMOKEY: {
-		Instrument->fmo->Set_waveform( sds->FMO_spectrum.id);
+		Instrument->fmo->Set_waveform( sds->FMO_spectrum.wfid);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMVCOKEY: {
-		Instrument->vco->Set_waveform( sds->VCO_spectrum.id);
+		Instrument->vco->Set_waveform( sds->VCO_spectrum.wfid);
 		Sds->Commit();
 		break;
 	}
-	case SETWAVEFORMMAINKEY: {
-		Instrument->osc->Set_waveform( sds->OSC_spectrum.id);
+	case SETWAVEFORMMAINKEY:
+	{
+		Instrument->osc->Set_waveform( sds->OSC_spectrum.wfid);
 		Sds->Commit();
 		break;
 	}
-	case UPDATESPECTRUM_KEY: {
-		Instrument->Update_spectrum();
-		Sds->Commit();
-		break;
-	}
-	case SAVEINSTRUMENTKEY: {
+	case SAVEINSTRUMENTKEY:
+	{
 		Comment(INFO,
 				"saving current config to instrument " + Instrument->Name);
 		Instrument->Save_Instrument(Instrument->Name);
@@ -453,8 +475,8 @@ void Core_class::Controller(char key)
 		break;
 	}
 	default: {
-		Exception(
-				"Communication Key Id >" + to_string((int) (key))
+		EXCEPTION(
+				"Communication Key Id >" + to_string((int) (eventKey))
 						+ "< undefined");
 	}
 	} // switch char

@@ -12,34 +12,31 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* sds )
 : Logfacility_class("Wavedisplay")
 {
 	this->className = Logfacility_class::module;
-	debug_switch = false;
 	this->Sds_p = sds;
 }
 
-
-
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
-wd_arr_t Wavedisplay_class::gen_cxwave_data( )
+void Wavedisplay_class::gen_cxwave_data( )
 {
 
 	auto gen_debug = [ this ]( param_t param )
 	{
-		if ( debug_switch ) // n = param.len ... 2*param.len - right half
-		{
-			debug_switch = false;
+		if ( debug_right ) // n = param.len ... 2*param.len - left data range -> back buffer range
+		{	// fill this area thereafter
+			debug_right = not debug_right;
 			for ( buffer_t n = 0; n < param.len; n++ )
 			{
-				Data_t value = rint(data_ptr[n]);
-				display_buffer[ n + param.len  ] = value;
+				Data_t value = data_ptr[n];
+				display_buffer[ n + param.len  ] = value;   // right half
 			}
 		}
-		else // n=0 ... param.len - left half
-		{
-			debug_switch = true;
+		else // n=0 ... param.len - right data range -> front buffer range
+		{	// fill this area first
+			debug_right = not debug_right;
 			buffer_t frames = Sds_p->addr->audioframes;
 			for ( buffer_t n = frames - param.len; n < frames; n++ )
 			{
-				Data_t value = rint(data_ptr[n]);
+				Data_t value = data_ptr[n];
 				display_buffer[ n + param.len - frames ] = value;
 			}
 		}
@@ -96,7 +93,6 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 	if ( data_ptr == nullptr )
 	{
 		Comment(ERROR, "wave display got nullptr at index " + to_string(wdId)) ;
-		return display_buffer;
 	}
 
 	param_t param;
@@ -129,7 +125,6 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 		default :
 		{
 			Comment(ERROR,"No valid wave display type provided to gen_cxwave_data");
-			return display_buffer;
 		}
 	} // switch type
 
@@ -140,16 +135,20 @@ wd_arr_t Wavedisplay_class::gen_cxwave_data( )
 		frame_counter 	= 0;
 		offs			= 0;
 	}
-	return display_buffer;
 }
 
 void Wavedisplay_class::Write_wavedata()
 {
-	wd_arr_t display_data = gen_cxwave_data(  );
-	if (( not debug_switch ) and ( WdMode == wavedisplay_struct::DEBUGID ))
-		Sds_p->Write_arr( display_data );
-	if ( not ( WdMode == wavedisplay_struct::DEBUGID ))
-		Sds_p->Write_arr( display_data );
+	gen_cxwave_data(  );
+	if ( WdMode == wavedisplay_struct::DEBUGID )
+	{
+		if ( not debug_right )
+			Sds_p->Write_arr( display_buffer );
+	}
+	else
+	{
+		Sds_p->Write_arr( display_buffer );
+	}
 }
 
 void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
@@ -169,7 +168,7 @@ void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 void Wavedisplay_class::set_wdmode		( const char& _mode )
 {
 	WdMode 			= _mode;
-	debug_switch	= false;
+	debug_right	= false;
 }
 
 void Wavedisplay_class::setFFTmode( const bool& mode )
@@ -190,10 +189,12 @@ void Wavedisplay_class::Add_data_ptr	( const char& osctype, const char& wd_role,
 	set<int> osctype_set = range_set(0, 2);
 	if ( ptr == nullptr )
 	{
-		Exception("Undefined Wavedisplay with index " + to_string( wdId) );
+		EXCEPTION("Undefined Wavedisplay with index " + to_string( wdId) );
 	}
 	if ( not osctype_set.contains( osctype ) )
-		Exception( "osctype out of bounds" );
+	{
+		EXCEPTION( "osctype out of bounds" );
+	}
 	data_ptr_arr[ wd_role ][osctype ] = ptr;
 
 	Comment( INFO, "adding wave display: " + to_string( wd_role ) 	+ " " +

@@ -57,10 +57,10 @@ float rnd_step(  const float& amp,  const float& y )
 	else
 		return rndprev;
 }
-constexpr float modulo(  const float& x,  const int& n )
+constexpr float modulo(  const float& x,  const float& n )
 {
-	long int d = floor ( x / n ); // floor corresponds to the gaussian bracket
-	return x - d*n;
+	float 	d 	= floor ( x / n ); // floor corresponds to the gaussian bracket
+	return 	x - d*n;
 }
 constexpr Data_t maximum(  const float& x,  const float& y)
 {
@@ -88,17 +88,20 @@ constexpr Data_t rectangle( const float& amp, const phi_t& phi ) // 'r'
 }
 constexpr Data_t Triangle( const float& amp, const phi_t& phi ) // 'T'
 { // maxima: f:2*amp*(abs(max( 1 - mod(phi, 2), -1 ) )-1)+amp;
-	return round(2*amp*(abs(maximum( 1 - modulo(phi, 2), -1 ) )-1)+amp);
+	return (2*amp*(abs(maximum( 1 - modulo(phi, 2), -1 ) )-1)+amp);
 }
 constexpr Data_t sawtooth( const float& amp,  const phi_t& phi )
 {
-	return rint( amp * modulo(phi,1 ));
+	return ( amp * modulo(phi,1 ));
 }
 constexpr Data_t Sawtooth( const float& amp,  const phi_t& phi )
 {
-	return rint(amp* (1.0 - modulo(phi,1 )));
+	return (amp* (1.0 - modulo(phi,1 )));
 }
-
+constexpr Data_t Pmw( const float& maxphi, const phi_t& phi )
+{
+	return abs(round(modulo(phi , maxphi)));
+}
 
 
 
@@ -120,6 +123,7 @@ void Oscillator::SetId( char role, char type )
 	osc_role	= OscRole.roles[oscrole_id];
 
 	is_main_osc = ( osctype_id == OscRole.OSCID );
+	is_notes_role = ( oscrole_id == OscRole.NOTESID );
 
 	mem_init();
 	Mem_vco.Info( osc_type );
@@ -149,17 +153,7 @@ double Oscillator::get_delta_freq( float freq )
 	return ( freq - wp.start_frq ) / dframes;
 
 }
-void Oscillator::set_phi( double phi, double mod ) //phase at the end of the osc
-{
-	this->phase	= phi;//( phi > mod ) ? phi-mod : phi ;
-}
 
-double Oscillator::get_phi( )// phase at the begin of the osc
-{
-	if ( oscrole_id == OscRole.NOTESID )
-		this->phase = 0.0;
-	return this->phase;
-}
 
 void Oscillator::mem_init()
 {
@@ -201,6 +195,9 @@ void Oscillator::Reset_data( Oscillator* osc )
 
 }
 
+#define MODPHI( phi, maxphi )\
+	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
+
 void Oscillator::OSC (  const buffer_t& frame_offset )
 /*
  * Generator of sound waves
@@ -210,18 +207,24 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
 	phi_t 				dt 			= 1.0/frames_per_sec;	//seconds per frame
 
-	Data_t* 			data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
+	Data_t* 			Data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
 
+	float 				start_freq 	= wp.start_frq;
 	float 				fmo_vol 	= 0.001*(float)this->fp.volume;
-	Data_t 				vco_shift 	= max_data_amp / 2;
-	float				vol_per_cent= this->wp.volume / 100.0; // the volume of the main osc is managed by the mixer!
+	Data_t 				vco_adjust 	= max_data_amp / 2;
+	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
 
 	if ( is_main_osc )
-		vol_per_cent		= 1; // the volume of the main osc is managed by the mixer
-	else
-		vco_shift = 0;
+		if ( not is_notes_role  )
+			vol_per_cent		= 1; // the volume of the main osc if it has not notes
+										// role is managed by the mixer.
+									 // If it has notes role the main osc volume is managrf by the rhythm volume
+	// and the mixer
+
+	if ( not is_main_osc )
+		vco_adjust = 0;
 
 	if ( frames > max_frames )
 		frames = max_frames;
@@ -238,7 +241,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 
 	Sum( spectrum );
 
-	switch ( spectrum.id )
+	switch ( spectrum.wfid )
 	{
 		case SINUS0 : // s inus + spectrum
 		{
@@ -285,27 +288,27 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		case PMW :// PMW
 		{
 			maxphi 					= 1;
-			double 			phi 	= this->phase;
+			double 			phi 	= this->phase[0];
 			dphi					= 0.0;
+			F						= Pmw;
 			const double 	dT		= 2*dt;
-			const float 	frames2 = 1.0 + (float)wp.PMW_dial / 100.0;
+			const float 	frames2 = 1.0 + (float)wp.PMW_dial * 0.01;
 
 			for ( buffer_t n = 0; frames > n; n++ )
 			{
-				float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ) ; // VCO envelope
+				float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ) ; // VCO envelope
 				float phi2 	= phi * frames2 ;
-				data[n] = round(vco_vol)*		abs(round(modulo(phi , maxphi))) *
-												abs(round(modulo(phi2, maxphi)));
+				Data[n] 	= vco_vol * F( maxphi , phi ) * F( maxphi, phi2 );
 				dphi		= dT  * freq ;
 				phi 		= phi + dphi;
 				phi			= ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
 				if ( ( phi > maxphi ) or ( phi < -maxphi ) )
 					cout << "phi overflow: " << phi << endl;
 			}
-			set_phi( phi, maxphi );
+			this->phase[0] = phi;
 
-			apply_adsr( frames, data );
-			apply_hall( frames, data ) ;
+			apply_adsr( frames, Data );
+			apply_hall( frames, Data ) ;
 
 			return;
 			break;
@@ -335,10 +338,10 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		}
 	} // close switch waveform
 
+
 	const phi_t 	dT 			= maxphi * dt; // 2pi dt
-	phi_t 			phi			= get_phi( );
-	float 			start_freq 	= wp.start_frq;
 	float			delta_freq	= get_delta_freq( freq );
+	phi_t			omega = 0, d_omega = 0;
 				// difference to the target frequency <freq> - <start_freq>
 
 	auto check_phi = [ this, dT, start_freq]( phi_t phi, phi_t maxphi, phi_t dphi )
@@ -350,58 +353,40 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			cout << "phi        " << phi  		<< endl;
 			cout << "dT         " << dT   		<< endl;
 			cout << "start_freq " << start_freq << endl;
-			Exception( "maxphi exceeds limit: " + to_string(maxphi) + " < " + to_string( abs(dphi)) );
+			EXCEPTION( "maxphi exceeds limit: " + to_string(maxphi) + " < " + to_string( abs(dphi)) );
 		}
-	};
-	auto modphi = []( phi_t phi, phi_t maxphi)
-	{
-		return ( abs(phi) > maxphi ) ? phi-sgn(phi)*maxphi : phi ;
-;
 	};
 
 	for ( buffer_t n = 0; n < frames ; n++ )
 	{
 		if (( this->oscrole_id != OscRole.NOTESID )) // enable polyphone adding of notes - notes::note2memory
-			data[n] = 0;
+			Data[n] = max_data_amp * wp.adjust * 0.01;
 
-		//TODO - check spectrum.sum
-		float vco_vol = ((vco_shift + vco_data[n]) * vol_per_cent ); // VCO envelope
-		data[n]	= data[n] + F( vco_vol*(1.0 - spectrum.sum), phi );
+		float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
+		float fmo_shift = fmo_vol * fmo_data[n];
 
 		for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 		{
-			phi_t
-			omega	= spectrum.phi[channel];
 			if ( spectrum.vol[channel] > 0.0 )
 			{
-				phi_t
-//				d_omega	=	dT *( start_freq * (1+channel) * (1.0 + (float)spectrum.idx[channel]/100.0) + fmo_vol*fmo_data[n] );
-				d_omega	=	dT *( start_freq + fmo_vol*fmo_data[n] ) * spectrum.frq[channel] ;
+				omega	= phase[channel];
+				Data[n]	=   Data[n] + vco_vol * F( spectrum.vol[channel], omega );
+				d_omega	=	dT *( start_freq + fmo_shift ) * spectrum.frqadj[channel] ;
 				omega	+= d_omega;
-				data[n]	=   data[n] + F( spectrum.vol[channel]*vco_vol, omega );
-				omega 	=  modphi( omega, maxphi );
+				check_phi( omega, maxphi, d_omega );
+				omega 	=  MODPHI( omega, maxphi );
+				phase[channel] = omega;
 			}
-			spectrum.phi[channel] = omega;
-
 		}
-
 		if ( abs(freq - start_freq) > 1 )
 			start_freq = start_freq + delta_freq;
-
-		dphi	= dT * ( start_freq + fmo_vol*fmo_data[n] );
-		phi 	+= dphi;
-		check_phi( phi, maxphi, dphi );
-		phi 	= modphi( phi, maxphi );
-
-//		if ( ( phi > maxphi ) or ( phi < -maxphi ) )
-//			cout << "phi overflow: " << phi << endl;
 	}
 
-	set_phi( phi, maxphi );
+
 	Set_start_freq(freq);
 
-	apply_adsr( frames, data );
-	apply_hall( frames, data );
+	apply_adsr( frames, Data );
+	apply_hall( frames, Data );
 
 }
 
@@ -482,28 +467,47 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 void Oscillator::Test()
 {
 	TEST_START( className );
-	SetId( OscRole.NOTESID, OscRole.OSCID );
+
+	ASSERTION( fcomp( modulo(1,2), 1 ), "modulo", modulo(1,2), "1")
+	ASSERTION( fcomp( modulo(2,1.2), 0.8), "modulo", modulo(2,1.2), "0.8")
+	ASSERTION( fcomp( modulo(1,0.9), 0.1), "modulo", modulo(1,0.9), "0.1")
+	ASSERTION( fcomp( modulo(2,0.9), 0.2), "modulo", modulo(2,0.9), "0.2")
+
+	SetId( OscRole.NOTESID, OscRole.VCOID );
 	assert( abs( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
 	assert( abs( Mem_fmo.Data[0]				)	< 1E-8 );
 	assert( Mem.ds.data_blocks 	== max_frames );
 
-	vector_str_t arr = { "TYPE","VCO","Sinus","83","2000","40","2","1","1","69","2","0","-1","0","42" };
+	vector_str_t arr = { "TYPE","VCO","Sinus","17","2000","100","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
-	ASSERTION( abs(wp.frequency - 440) < 1, "Frequency", abs(wp.frequency), 440 );
+	ASSERTION( fcomp( wp.frequency, 8) , "Frequency", wp.frequency, 8 );
 	Set_duration( max_milli_sec );
 
-	spectrum = spec_struct();
-	OSC( 0 );
-	cout << "Phase: " << phase <<  " " << 2*pi << endl;
-	assert (( abs( sin(phase - 2*pi) ) < 1E-5) );
+	ASSERTION( fcomp( oct_base_freq, Calc( C0 )), "osc_base_freq" , oct_base_freq, Calc( C0 ));
+	spectrum 	= spec_struct();
+	adsr 		= adsr_struct();
+
 
 	longnote = true;
 	adsr.attack = 50;
 	adsr.decay = 5;
 
 	Oscillator testosc {};
+	testosc.SetId( osc_struct::INSTRID, osc_struct::OSCID );
+	phase[0]	= 0.444;
+	testosc.Set_frequency(220);
+	testosc.wp.volume	= 100;
+	testosc.OSC( 0 );
+	testosc.OSC( 0 );
+	float a2 = testosc.Mem.Data[0];
+
+	ASSERTION( fcomp( a2 , 56.5486  ), "Osc volume", a2 , 56.5486)
+
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );
+	ASSERTION( wp.frequency == 8 , "",wp.frequency , 8 );
+
+
 	TEST_END( className );
 }
 

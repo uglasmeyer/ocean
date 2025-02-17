@@ -17,7 +17,9 @@ using namespace std;
 
 
 
-class Memory : virtual public Logfacility_class, virtual public Memory_base
+class Memory :
+		virtual public Logfacility_class,
+		virtual public Memory_base
 {
 	string className = "Memory";
 public:
@@ -95,7 +97,9 @@ typedef struct StA_status_struct // memory array status
 	bool 	store			= false; // record into this memory array
 } StA_status_t;
 
-class Storage_class :  virtual public Logfacility_class, virtual public Memory
+class Storage_class :
+		virtual public Logfacility_class,
+		virtual public Memory
 {
 	string className = "Storage_class";
 public:
@@ -136,7 +140,9 @@ private:
 };
 
 
-class Shared_Memory : virtual public Logfacility_class, virtual public Shm_base
+class Shared_Memory :
+		virtual public Logfacility_class,
+		virtual public Shm_base
 {
 
 public:

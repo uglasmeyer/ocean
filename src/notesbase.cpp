@@ -10,7 +10,8 @@
 #include <Exit.h>
 
 Note_base::Note_base () :
-Logfacility_class("NotesBase")
+	Logfacility_class("NotesBase"),
+	Frequency_class()
 {
 	className = Logfacility_class::module;
 };
@@ -30,8 +31,8 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 		oct 	-=  1;
 	}
 	uint8_t	octave	= abs( oct );// + octave_shift );
-	int		key 	= octave*12 + step + noteFreq.A0;
-	return 	noteFreq.Calc(base, key);//calc_frequency( base, key );
+	int		key 	= octave*12 + step + Frequency_class::C0 ;
+	return 	Frequency_class::Calc(base, key);//calc_frequency( base, key );
 };
 
 /*
@@ -97,7 +98,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 			Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
 												to_string( range[1] ) + "}" );
 			if ( Log[ TEST ] ) return;
-			Exception( "Cannot assign noteline_prefix " +
+			EXCEPTION( "Cannot assign noteline_prefix " +
 					 to_string( val ) +
 					" to noteline_structure" );//raise( SIGINT );
 		};
@@ -109,7 +110,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 	if ( arr.size() < 5 )
 	{
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		Exception( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
+		EXCEPTION( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
 	}
 
 	char oct_ch = arr[0][0];
@@ -127,7 +128,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 	if ( not NpsChars.Set.contains( nps_ch ) )
 	{
 		if ( Log[ TEST ] ) return noteline_prefix_default;
-		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
+		EXCEPTION( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
 	}
 	else
 		nlp.nps = char2int( nps_ch );

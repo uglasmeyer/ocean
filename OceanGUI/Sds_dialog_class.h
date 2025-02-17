@@ -18,7 +18,7 @@ public:
     explicit SDS_Dialog_class( QWidget *parent = nullptr,
     		Interface_class* Sds = nullptr
 );
-    ~SDS_Dialog_class();
+    virtual ~SDS_Dialog_class();
 
 private:
     Ui::SDS_Dialog_class *ui;

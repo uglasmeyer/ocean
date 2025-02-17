@@ -31,25 +31,30 @@ Log.Comment(INFO , 	"Parameters in use:\n       buffer size        " +
 void start_audio_stream()
 {
 	if ( not rtapi.isStreamOpen() )
-		Exception( "Failed to open Audio Stream" );
+	{
+		EXCEPTION( "Failed to open Audio Stream" );
+	}
 	else
 		Log.Comment( INFO, "Audio Stream is open ") ;
 
 	if ( rtapi.startStream() )
-		Exception( rtapi.getErrorText() );
+	{
+		EXCEPTION( rtapi.getErrorText() );
+	}
 	else
 		Log.Comment( INFO, "Audio Stream is started ") ;
 }
 
 typedef stereo_t frame_t;
-//double* frame = nullptr;
 frame_t* frame = nullptr;
+
 string txt {""};
 void shutdown_stream()
 {
 	if ( rtapi.isStreamRunning() )
 	{
-//		Log.Comment(INFO,"stream will be stopped");
+		Log.Comment(INFO,"stream will be stopped");
+
 /*		try
 		{
 			rtapi.stopStream();  // or could call dac.abortStream();
@@ -61,6 +66,9 @@ void shutdown_stream()
 */
 		// TODO  - causes valgrind error
 	}
+	else
+		return;
+
 	if ( rtapi.isStreamOpen() )
 	{
 		Log.Comment(INFO, "stream will be closed");
@@ -142,7 +150,7 @@ void exit_proc( int signal )
 
 	if ( signal )
 	{
-		shutdown_stream();
+//		shutdown_stream();
 		if ( frame )
 			free( frame);
 		exit(0);
@@ -380,9 +388,10 @@ int main( int argc, char *argv[] )
 	{
 		DaTA.Sem.Reset( SEMAPHORE_SENDDATA0 + n );
 	}
-    DaTA.Sem.Release( SEMAPHORE_STARTED );
+    DaTA.Sem.Reset( SEMAPHORE_STARTED );
     DaTA.Sem.Reset( SEMAPHORE_RECORD );
 	sds->RecCounter 	= 0;
+	sds->Record			= false;
 
 	wd_status_t wd_status 	= WD_status_struct();
 	wd_status.roleId 		= osc_struct::AUDIOID;

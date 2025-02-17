@@ -21,23 +21,22 @@
 
 
 
-Ui::File_Dialog	UI_FileDialog_obj{};
+//Ui::File_Dialog	UI_FileDialog_obj{};
 
 File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 										Interface_class* Sds,
 										Semaphore_class* sem) ://, QSlider* sl_main_hz ) :
     Logfacility_class("FileDialog"),
     Note_class( ),
-	QDialog(parent)
-//    ui(new Ui::File_Dialog)
+	QDialog(parent),
+    ui(new Ui::File_Dialog)
 {
-
 
 
 	this->Sds 	= Sds;
 	this->sds_p	= Sds->addr;
 	this->sem	= sem;
-	ui 			= &UI_FileDialog_obj;
+//	ui 			= &UI_FileDialog_obj;
 
     ui->setupUi(this);
 
@@ -57,9 +56,13 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     ui->cb_Notestype->addItems( QNotestypes );
     ui->cb_Notestype->setCurrentText( QNotestypes [ notestype] );
 
-    Qread_filelist( CB_notes, file_structure().Notesdirs[ notestype ], file_structure().Notestypes [ notestype] );
+    CB_notes->clear();
+    CB_notes->addItems( Qread_filenames(file_structure().Notesdirs[ notestype ],
+    									file_structure().Notestypes [ notestype] ) );
 
-    Qread_filelist( CB_instruments, instruments_path , file_structure().snd_type );
+
+    CB_instruments->clear();
+	CB_instruments->addItems( Qread_filenames( instruments_path , file_structure().snd_type ) );
 
     QStringList
 	QStrL = Qstringvector( convention_names );
@@ -87,10 +90,10 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
 void File_Dialog_class::SetSds( Interface_class* Sds, int8_t id )
 {
-	this->Sds 	= Sds;
+	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
-	this->SDS_ID	= id;
-    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) SDS_ID ));
+//	this->SDS_ID	= id;
+    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) id ));
 
 	Setup_widgets();
 
@@ -107,7 +110,8 @@ void File_Dialog_class::cb_Notestype( int cb_value )
 	Sds->Set( sds_p->NotestypeId 	, cb_value );
     NotesDir         	= QNotesdirs[ cb_value ].toStdString() ;
     notes_type			= QNotestypes[ cb_value ].toStdString();
-    Qread_filelist( CB_notes, NotesDir, notes_type );
+    CB_notes->clear();
+    CB_notes->addItems( Qread_filenames( NotesDir, notes_type ) );
 }
 
 void File_Dialog_class::cB_Convention( int cb_value )
@@ -183,6 +187,12 @@ File_Dialog_class::~File_Dialog_class()
  //   if( ui ) delete( ui );
 }
 
+void File_Dialog_class::Set_button_color( QPushButton* pb, QColor color  )
+{
+	QPalette status_color = QPalette();
+	status_color.setColor(QPalette::Button, color);
+	pb->setPalette( status_color );
+};
 
 void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &arg1)
 {
@@ -243,7 +253,7 @@ void File_Dialog_class::New_Notes()
         Sds->Set( sds_p->KEY , Noteskeys[ 1 ] );
 
     	Set_button_color( ui->pbNotesDone, Qt::green );
-    	sem->Release( SEMAPHORE_NOTES );
+    	sem->Release( SEMAPHORE_SYNCNOTES );
 
     }
     else

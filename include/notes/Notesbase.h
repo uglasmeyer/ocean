@@ -21,14 +21,29 @@
 
 const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
 
-class Note_base : virtual public Logfacility_class
+class Note_base :
+	virtual public Logfacility_class,
+	virtual Frequency_class
 {
 	string 					className		= "";
+
+	template <typename T>
+	constexpr string octchar_T( T min, T max )
+	{
+		string str{};
+		for( T i = min; i < max; i++ )
+		{
+			str.push_back( char(i + 48) );
+		}
+		return str;
+	};
+
+
 public:
+	const String			OctaveChars		{ octchar_T(min_octave, max_octave ) };
+
 	const string			notes_ext		= file_structure().nte_type;
-	const String 			OctaveChars 	{ "0123456" }; // oct_base = 27.5
-	const uint				max_octave		= (uint) OctaveChars.Str.length()-1;
-	const uint 				min_octave 		= 0;
+
 
 	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
@@ -83,7 +98,7 @@ public:
 
 	typedef struct glide_struct
 	{
-		pitch_t			chord		= pitch_struct() ;		// eg. B-->F (glide = F)
+		pitch_t				chord		= pitch_struct() ;		// eg. B-->F (glide = F)
 		bool				note		= false;
 	} glide_t ;
 
@@ -99,8 +114,7 @@ public:
 
 	} note_t;
 	typedef list<note_t>	notelist_t;
-	notelist_t 		notelist		{};
-
+	notelist_t 				notelist	{};
 
 
 	void 				Show_noteline_prefix( noteline_prefix_t nlp );
@@ -110,7 +124,6 @@ public:
 
 	void				Set_base_octave( uint );
 	float	 			Octave_freq( uint8_t oct );
-//	float	 			Calc_freq ( uint8_t , pitch_t );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 
 	void 				TestNoteBase();
@@ -122,10 +135,8 @@ public:
 
 private:
 
-	int			octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
-	Frequency_class	noteFreq		{ };
-
-	float 		calc_frequency(const float& base,  const int& key );
+	int					octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
+//	Frequency_class		Frequency		{ };
 
 };
 

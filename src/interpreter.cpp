@@ -31,15 +31,15 @@ Processor_class( data->Sds_p )
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 		= &ifd->OSC_spectrum.id;
+	main_view.wf 		= &ifd->OSC_spectrum.wfid;
 	main_view.amp 		= &ifd->StA_amp_arr[MbIdInstrument];
 	main_view.frqidx 	= &ifd->OSC_wp.frqidx;
 
-	vco_view.wf 		= &ifd->VCO_spectrum.id;
+	vco_view.wf 		= &ifd->VCO_spectrum.wfid;
 	vco_view.amp 		= &ifd->VCO_wp.volume;
 	vco_view.frqidx 	= &ifd->VCO_wp.frqidx;
 
-	fmo_view.wf 		= &ifd->FMO_spectrum.id;
+	fmo_view.wf 		= &ifd->FMO_spectrum.wfid;
 	fmo_view.amp 		= &ifd->FMO_wp.volume;
 	fmo_view.frqidx 	= &ifd->FMO_wp.frqidx;
 
@@ -313,7 +313,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		if( cmpkeyword("octave") )
 		{
 			expect = { "octave value" };
-			uint oct = pop_int( Variation.min_octave, Variation.max_octave ) ;
+			uint oct = pop_int( min_octave, max_octave ) ;
 			Variation.Set_prefix_octave( oct );
 			Processor_class::Push_ifd( &ifd->noteline_prefix.Octave ,oct, "update octave" );
 			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
@@ -523,7 +523,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		if ( wfid < 0 )
 		{
 			Wrong_keyword(expect, waveform);
-			Exception( "wrong keyword" );
+			EXCEPTION( "wrong keyword" );
 		}
 		expect 		= { " duration in seconds" };
 		option_default = "0";
@@ -757,7 +757,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		if ( not bps_struct().Bps_set.contains( bps ) )
 		{
 			Wrong_keyword( expect , Bps );
-			Exception( "wrong beat duration" );
+			EXCEPTION( "wrong beat duration" );
 		}
 
 		Processor_class::Push_ifd( &ifd->OSC_adsr.bps, bps, "beat duration" );
@@ -858,7 +858,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	if ( Keywords.contains( varname ) )
 	{
 		if ( not testrun)
-			Exception( "var " + varname + " is keyword" );//raise( SIGINT);
+			EXCEPTION( "var " + varname + " is keyword" );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -874,7 +874,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	if ( Keywords.contains( varvalue ) )
 	{
 		if ( not testrun)
-			Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
+			EXCEPTION( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -975,7 +975,7 @@ int Interpreter_class::Find_position( vector<line_struct_t>* program, vector_str
 	std::for_each( p.begin(), p.end(),
 			[] ( line_struct_t line )
 			{ if ( line.keyw[0] == ':' ) cout << line.keyw << " " ;} );
-	Exception( "line >" + keyword.Str + " not found" );//raise( SIGINT );
+	EXCEPTION( "line >" + keyword.Str + " not found" );//raise( SIGINT );
  	return -2;
 }
 
@@ -1030,7 +1030,7 @@ bool Interpreter_class::no_error( int nr )
 		if ( nr > 1 ) cout << " more ..." ;
 		cout << endl;
 		if ( not dialog_mode )
-			Exception( "unexpected" );//raise( SIGINT );
+			EXCEPTION( "unexpected" );//raise( SIGINT );
 		return false;
 	}
 	return true;
@@ -1102,7 +1102,7 @@ int Interpreter_class::pop_int( int min, int max )
 			Comment( ERROR, "Value "+ Str.Str + " out of bounds" );
 			Comment( INFO, "rejected: " + to_string(min) + "<" + Str.Str + "<" + to_string(max));
 			show_expected();
-			Exception( "unexpected" );//raise(SIGINT);
+			EXCEPTION( "unexpected" );//raise(SIGINT);
 		}
 		return stack_value;
 	}
@@ -1132,7 +1132,7 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 		DirList = List_directory( dir, file_structure().snd_type );
 		cout << show_type( DirList ) << endl;
 	}
-	Exception( "no such file " + name );//raise( SIGINT );
+	EXCEPTION( "no such file " + name );//raise( SIGINT );
 }
 
 

@@ -45,11 +45,10 @@ public:
 	void Run_osc_group();
 
 private:
-	vector<Spectrum_class::spectrum_t*> 	ifd_spectrum_vec;
+	vector<spectrum_t*>		ifd_spectrum_vec;
 	string 					Instrument_file;
 	string 					Default_instrument_file;
 
-	Frequency_class				frequency {};
 	void set_name( string );
 	void set_new_name( string );
 	bool assign_adsr 	( vector_str_t );

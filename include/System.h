@@ -15,7 +15,6 @@
 extern vector<string> 	List_directory( const string& path, const string& filter );
 extern string 			searchPath( string filename );
 extern void 			system_execute( const string& );
-extern void 			Exception( const string& );
 extern void 			System_Test();
 
 template< typename T>

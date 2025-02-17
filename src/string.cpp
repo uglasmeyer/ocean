@@ -10,6 +10,10 @@
 
 
 
+bool fcomp( const float& a, const float& b, float precision )
+{
+	return ( abs(abs(a) - abs(b)) < precision ) ? true : false;
+}
 
 bool strEqual( const string& a, const string& b )
 {
@@ -119,7 +123,7 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 		}
 		else
 		{
-			Exception( err );
+			{ EXCEPTION( err ); }
 		}
 	}
 	size_t pos 		= 0;
@@ -211,7 +215,7 @@ float String::secure_stof( string str)
 	}
 	else
 	{
-		Exception( "cannot convert string: >"+str+"< to integer " );
+		EXCEPTION( "cannot convert string: >"+str+"< to integer " );
 	}
 	return -1;
 }
@@ -226,7 +230,7 @@ int String::secure_stoi( string str)
 	}
 	else
 	{
-		Exception( "cannot convert string: >"+str+"< to integer " );
+		EXCEPTION( "cannot convert string: >"+str+"< to integer " );
 	}
 	return -1;
 }
@@ -286,7 +290,7 @@ void String::TestString()
 	assert( i == 0 );
 
 	String Env = notnull( std::getenv("OCEANTESTCASE") );
-	assert( strEqual( Env.Str, "oceantestcase") );
+	ASSERTION( strEqual( Env.Str, "oceantestcase"), "getenv", notnull( std::getenv("OCEANTESTCASE") ), "oceantestcase"  );
 
 	string str 		= "a=abc=def";
 	String 			S{""};
@@ -344,6 +348,9 @@ void String::TestString()
 	arr = S.to_unique_array(' ');
 	assert( String( arr[1] ) == String("Synthesizer") );
 
+	S 				= "1,2,3,4,5";
+	arr = S.to_array(',');
+	ASSERTION( arr.size() == 5, "arr size", arr.size(), 5 );
 
 	String St( "this is a test" );
 	assert( St == String("this is a test") 	);

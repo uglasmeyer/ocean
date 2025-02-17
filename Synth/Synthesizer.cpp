@@ -33,7 +33,7 @@ Config_class*			Cfg = DaTA.Cfg_p;
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 const int 				EXITTEST			= 15;;
 
-Core_class				Synthesizer{
+Event_class				Event{
 							&Instrument,
 							&Notes,
 							&Mixer,
@@ -83,15 +83,16 @@ void activate_sds()
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
 	}
 
-	for( char key : init_keys )
-		Synthesizer.Controller( key );
+	std::ranges::for_each( init_keys, [  ]( char key ){ Event.Handler( key );} );
+//	for( char key : init_keys )
+//		Event.Handler( key );
 
 	if ( sds->NotestypeId == 0 ) // music xml file
-		Synthesizer.Controller( XMLFILE_KEY );
+		Event.Handler( XMLFILE_KEY );
 	else
-		Synthesizer.Controller( UPDATENOTESKEY );
+		Event.Handler( UPDATENOTESKEY );
 
-	for ( uint id : Mixer.HghIds )
+	for ( uint id : Mixer.HghIds ) // after a restart low id buffers are empty
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 }
 
@@ -123,6 +124,7 @@ void add_sound( )
 		Instrument.Run_osc_group(); // generate the modified sound waves
 
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
+	Mixer.master_volume = DaTA.sds_master->Master_Amp;
 
 	Mixer.Add_Sound( 	Instrument.osc->Mem.Data,
 						Keyboard.osc->Mem.Data,
@@ -165,8 +167,7 @@ void ApplicationLoop()
 	{
 		sds->time_elapsed = Timer.Performance();
 
-		char Key = sds->KEY;
-		Synthesizer.Controller( Key );
+		Event.Handler( sds->KEY );
 
 		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
@@ -185,8 +186,7 @@ void ApplicationLoop()
 		if ( sds->Synthesizer != EXITSERVER )
 			sds->Synthesizer = RUNNING;
 
-//		if ( sds->WD_status.wd_mode == wavedisplay_struct::FLOWID )
-//			Wavedisplay.Write_wavedata();
+
 		if ( sds->WD_status.roleId != osc_struct::AUDIOID )
 			Wavedisplay.Write_wavedata();
 	} ;
@@ -210,45 +210,87 @@ void synchronize_fnc( )
 		if ( SyncThread_done )
 			break;
 		add_sound( );
-		DaTA.Sds_p->addr->UpdateFlag = true;
 	}
 
 	Log.Comment(INFO, "Sync thread terminated" );
 }
 thread Sync_thread	( synchronize_fnc );
 
-bool NotesThread_done	= false;
-void notes_fnc( )
+bool SyncNotesThread_done	= false;
+void sync_notes_fnc( )
 {
-	Log.Comment(INFO, "Notes thread started" );
+	Log.Comment(INFO, "Syncronize Notes thread started" );
 
 	while( true )
 	{
-		Sem->Lock( SEMAPHORE_NOTES );
-		if ( NotesThread_done )
+		Sem->Lock( SEMAPHORE_SYNCNOTES );
+		if ( SyncNotesThread_done )
 			break;
-		DaTA.Sem.Release( SEMAPHORE_NOTES ); //other
+		DaTA.Sem.Release( SEMAPHORE_SYNCNOTES ); //other
 		Notes.Restart = true;//Notes.Start_note_itr();
 		Log.Comment(INFO, "reset note pointer");
 	}
 
 	Log.Comment(INFO, "Notes thread terminated" );
 }
-thread Notes_thread	( notes_fnc );
+thread SyncNotes_thread	( sync_notes_fnc );
+
+bool InitNotesThread_done	= false;
+void init_notes_fnc( )
+{
+	Log.Comment(INFO, "Syncronize Notes thread started" );
+
+	while( true )
+	{
+		Sem->Lock( SEMAPHORE_INITNOTES );
+		if ( SyncNotesThread_done )
+			break;
+
+		string name = DaTA.Sds_p->Read_str( NOTESSTR_KEY );
+		string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
+		Log.Comment( INFO, "from filename: " + filename );
+		Notes.musicxml = MusicXML.Xml2notelist( filename );
+		if ( Notes.musicxml.scoreduration != 0 )
+		{
+			Notes.Set_notelist( Notes.musicxml.notelist );
+			sds->Noteline_sec = Notes.musicxml.scoreduration / 1000;
+
+			Mixer.status.notes = true;
+			DaTA.Sds_p->Update(NEWNOTESLINEFLAG);
+
+			DaTA.Sds_p->Write_str(INSTRUMENTSTR_KEY, Notes.musicxml.instrument_name ); // other
+			sds->KEY = SETINSTRUMENTKEY;
+
+			Notes.Restart = true;//Notes.Start_note_itr();
+			Log.Comment(INFO, "xml notes loaded");
+
+		}
+
+	}
+
+	Log.Comment(INFO, "Notes thread terminated" );
+}
+thread InitNotes_thread	( sync_notes_fnc );
 
 void stop_threads()
 {
 	SyncThread_done	= true;
 	Sem->Release(Sync_Semaphore);
 	Log.Comment(INFO, "attempting to join sync thread ");
-		if ( Sync_thread.joinable() )
-			Sync_thread.join();
+	if ( Sync_thread.joinable() )
+		Sync_thread.join();
 
-	NotesThread_done	= true;
-	Sem->Reset( SEMAPHORE_NOTES );
+	SyncNotesThread_done	= true;
+	Sem->Reset( SEMAPHORE_SYNCNOTES );
 	Log.Comment(INFO, "attempting to join notes thread ");
-		if ( Notes_thread.joinable() )
-			Notes_thread.join();
+	if ( SyncNotes_thread.joinable() )
+		SyncNotes_thread.join();
+
+	InitNotesThread_done	= true;
+	Sem->Reset( SEMAPHORE_INITNOTES );
+	Log.Comment(INFO, "attempting to join read notes thread ");
+	if ( InitNotes_thread.joinable() )
+		InitNotes_thread.join();
 
 }
 int sig_counter = 0;

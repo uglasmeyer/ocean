@@ -41,11 +41,11 @@ private:
 	Data_t*			data_ptr 		= nullptr;
 
 	osc_roles_t		OscRole			= osc_struct();
-	bool			debug_switch	= true;
+	bool			debug_right		= true;
 	bool			fft_mode		= false;
 	wd_arr_t 		display_buffer 	= { 0 };
 
-	wd_arr_t 		gen_cxwave_data( void  );
+	void	 		gen_cxwave_data( void  );
 
 
 

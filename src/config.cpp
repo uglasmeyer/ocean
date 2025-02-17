@@ -2,6 +2,7 @@
 #include <String.h>
 #include <System.h>
 #include <data/Memorybase.h>
+#include <Exit.h>
 
 Config_class::Config_class( string Module ) :
 	Logfacility_class( Module )
@@ -30,7 +31,7 @@ void Config_class::Read_config(	string cfgfile )
 	ifstream cFile( configfile  );
 	if ( not cFile.is_open() )
 	{
-		Exception("Couldn't open config file " + configfile);
+		EXCEPTION("Couldn't open config file " + configfile);
 	}
 
 	String Line{""};
@@ -219,14 +220,14 @@ string Config_class::baseDir()
 	return string("");
 }
 
-string Config_class::Server_cmd( string term, string srv, string opt)
+string Config_class::Server_cmd( string term, string srv, string srvopt)
 {
 	string cmd = "";
 	if ( term.length() == 0 )
 	{
 		cmd = srv;
 		cmd.append(" ");
-		cmd.append( opt );
+		cmd.append( srvopt );
 		cmd.append( " &" );
 	}
 	else
@@ -235,7 +236,7 @@ string Config_class::Server_cmd( string term, string srv, string opt)
 		cmd.append( " '");
 		cmd.append(srv),
 		cmd.append(" ");
-		cmd.append(opt);
+		cmd.append(srvopt);
 		cmd.append("' &");
 	}
 	Comment( INFO, "command:" + cmd );

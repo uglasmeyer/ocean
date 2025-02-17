@@ -9,23 +9,12 @@
 
 using namespace std;
 
-Logfacility_class Log_common{"System"};
 
 
 
 
 
-void Exception( const string& err_str )
-{
-	Log_common.Comment( ERROR, err_str );
-	cout << "An application exception occured " << endl;
-	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;
-	cout << Log_common.Line << endl;
-	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;
-	string s;
-	cin >> s;
-	raise( SIGINT );
-}
+
 
 void system_execute( const string& cmd )
 {
@@ -34,15 +23,9 @@ void system_execute( const string& cmd )
 
 	if ( ret != 0 )
 	{
-		Exception( cmd + "\ncheck out system error message " );
+		EXCEPTION( cmd + "\ncheck out system error message " );
 	}
 }
-
-
-
-
-
-
 
 vector<string> List_directory( const string& path, const string& filter )
 {
@@ -51,7 +34,7 @@ vector<string> List_directory( const string& path, const string& filter )
 	const std::filesystem::path dir{ path };
     if ( not filesystem::exists(path) )
     {
-    	Log_common.Comment( ERROR, "Directory does not exists:\n " + path );
+//    	Log_common.Comment( ERROR, "Directory does not exists:\n " + path );
     	return dir_entry_vec;
     }
     for (auto const& dir_entry : std::filesystem::directory_iterator{ dir })
@@ -62,10 +45,11 @@ vector<string> List_directory( const string& path, const string& filter )
     		dir_entry_vec.push_back( dir_entry.path().filename() );
     	}
     }
-    sort( dir_entry_vec.begin(), dir_entry_vec.end() );
+    std::ranges::sort( dir_entry_vec );//.begin(), dir_entry_vec.end() );
 
     return dir_entry_vec;
 }
+
 string searchPath( string file )
 {
 	string filename = filesystem::path( file ).filename( );
@@ -87,6 +71,8 @@ string searchPath( string file )
 
 void System_Test()
 {
+	Logfacility_class Log_common{"System"};
+
 	Log_common.TEST_START( "System" );
 	uint8_t pid = 1;
 	ASSERTION( Is_running_process( (int)  pid  ), "Process", Is_running_process(  1 ), true) ;

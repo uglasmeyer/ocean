@@ -29,7 +29,7 @@ class Interface_class : virtual public Logfacility_class
 
 public:
 
-	interface_t 			ifd_data;
+	interface_t 			ifd_data 	= interface_struct();
 	Shm_base				SHM{ sizeof( ifd_data )};
 	interface_t* 			addr		= nullptr;
 	shm_ds_t				ds			= shm_data_struct();
@@ -50,7 +50,7 @@ public:
 	void 	Show_interface();
 	void	Dump_ifd();
 	bool 	Restore_ifd();
-	void 	Reset_ifd();
+	void 	Reset_ifd( );
 	void 	Announce(  );
 	string 	Decode( uint8_t idx );
 	uint8_t* Getstate_ptr( uint TypeID );

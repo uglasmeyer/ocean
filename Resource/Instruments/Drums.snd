@@ -1,13 +1,16 @@
-Type,      Name  Waveform    [Hz]  unused Amp.[%]unused  unused unuseddecay  bps atck hall glide      PMWs
-TYPE,      VCO,    noise,     79,    250,     60,  free,  free,  free, 100,   1,   0,   0,   0,     42,
+Type,      Name  Waveform   [idx]  unused Amp.[%]unused  unused unuseddecay  bps atck hall glide      PMWs
+TYPE,      VCO,    noise,     79,    250,     60,  free,  free,  free, 100,   0,   0,   0,   0,     42,
 CONN,      VCO,      VCO,      F,
 CONN,      VCO,      VCO,      V,
-SPEC,      VCO,    noise,100,  0,  0,  0,  0,  0,  0,  0,100
-TYPE,      FMO,    noise,     54,    250,     51,  free,  free,  free, 100,   1,   0,   0,   0,     42,
+SPEV,      VCO,    noise,   100,     0,     0,     0,     0,
+SPEF,      VCO,    noise,     0,     0,     0,     0,     0,
+TYPE,      FMO,    noise,     54,    250,     51,  free,  free,  free, 100,   0,   0,   0,   0,     42,
 CONN,      FMO,      FMO,      F,
 CONN,      FMO,      FMO,      V,
-SPEC,      FMO,    noise,100,  0,  0,  0,  0,  0,  0,  0,100
-TYPE,      OSC, triangle,    122,    250,     19,  free,  free,  free,  89,   4,   3,   0,   0,     42,
+SPEV,      FMO,    noise,   100,     0,     0,     0,     0,
+SPEF,      FMO,    noise,     0,     0,     0,     0,     0,
+TYPE,      OSC, triangle,    122,    250,     43,  free,  free,  free,  89,   4,   3,   0,   0,     42,
 CONN,      OSC,      FMO,      F,
 CONN,      OSC,      VCO,      V,
-SPEC,      OSC, triangle,100,  0,  0,  0,  0,  0,  0,  0,100
+SPEV,      OSC, triangle,   100,     0,     0,     0,     0,
+SPEF,      OSC, triangle,     0,     0,     0,     0,     0,

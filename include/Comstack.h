@@ -17,19 +17,20 @@
 #include <Exit.h>
 
 Exit_class				Exit{};
-string					Module			= "comstack";
+string					Module			= "Comstack";
 Logfacility_class 		Log( Module );
-Frequency_class 				Frequency 		{};
+Frequency_class 		Frequency 		{};
 
 Keyboard_class			Keyboard{ };
 Dataworld_class 		DaTA( COMSTACKID );
 Application_class		App( &DaTA );
-interface_t* 			sds 			= nullptr;
+interface_t*			sds_master		= DaTA.sds_master;
 
 string 					waveform_string = "0 ... 10";
 int 					update_counter 	= 1;
-int 					sdsid			= 0;
+int 					sdsid			= sds_master->config;
 Interface_class*		Sds				= DaTA.GetSds( sdsid );
+interface_t* 			sds 			= Sds->addr;
 
 
 

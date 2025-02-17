@@ -48,7 +48,7 @@ public:
 	void 		ClearShm();
 
 	Dataworld_class( uint id );
-	~Dataworld_class();
+	virtual ~Dataworld_class();
 
 
 private:

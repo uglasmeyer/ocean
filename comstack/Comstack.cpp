@@ -33,11 +33,11 @@ int getvalue(string text )
 
 void show_ifd()
 {
-	if ( sds->UpdateFlag )
+	if (( sds->UpdateFlag ) or (sds_master->UpdateFlag ))
 	{
 		Sds = DaTA.GetSds(sdsid);
 		sds->UpdateFlag = false;
-
+		sds_master->UpdateFlag = false;
 		Sds->Show_interface();
 
 		cout.flush() << "Exit with <#> or Ctrl c       " <<  "Commit counter " << update_counter;
@@ -45,19 +45,19 @@ void show_ifd()
 
 		update_counter++;
 	}
-
 }
 
 void set_sdsid( int delta )
 {
 	sdsid = ( sdsid + delta ) % MAXCONFIG;
 	if ( sdsid < 0 ) sdsid = MAXCONFIG - 1;
+	if( delta == 0 )
+		sdsid = DaTA.sds_master->config;
 	sds->UpdateFlag = true;
 }
 
 char Key_event( string charlist )
 {
-//	keys.key = '$';
 	String Str{ charlist };
 	key_struct_t key = key_struct();
 	while ( not Str.Set.contains( key.key )  )
@@ -79,7 +79,6 @@ int main( int argc, char* argv[] )
 	App.Start( argc, argv );
 
     App.Sds->Announce( );
-	sds = DaTA.SDS_vec[sdsid].addr;
 
     App.Sds->Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
@@ -89,71 +88,71 @@ int main( int argc, char* argv[] )
 		keyevent = Key_event( "#mvfa+-" );
 		switch (keyevent)
 		{
-		case '+' :
-		{
-			set_sdsid(1); break;
-		}
-		case '-' :
-		{
-			set_sdsid(-1); break;
-		}
-		case 'm' :
-		{
-			cout << "Main ";
-			keyevent = Key_event( "#faw" );
-			switch ( keyevent )
+			case '+' :
 			{
-			case 'f' : { sds->OSC_wp.frqidx = getvalue( "Frequency" ); sds->KEY = OSCFREQUENCYKEY; break; }
-			case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
-			case 'w' : { sds->OSC_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
-			default  : break ;
+				set_sdsid(1); break;
 			}
-			break;
-		}
-		case 'f' :
-		{
-			cout << "FMO ";
-			keyevent = Key_event("#faw");
-			switch ( keyevent )
+			case '-' :
 			{
-			case 'f' : { sds->FMO_wp.frqidx = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
-			case 'a' : { sds->FMO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = FMOAMPKEY; break; }
-			case 'w' : { sds->FMO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMFMOKEY; break; }
-			default  : break ;
+				set_sdsid(-1); break;
 			}
-			break;
-		}
-		case 'v' :
-		{
-			cout << "VCO ";
-			keyevent = Key_event("#faw");
-			switch ( keyevent )
+			case 'm' :
 			{
-			case 'f' : { sds->VCO_wp.frqidx = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
-			case 'a' : { sds->VCO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = VCOAMPKEY; break; }
-			case 'w' : { sds->VCO_spectrum.id  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMVCOKEY; break; }
-			default  : break ;
+				cout << "Main ";
+				keyevent = Key_event( "#faw" );
+				switch ( keyevent )
+				{
+				case 'f' : { sds->OSC_wp.frqidx = getvalue( "Frequency" ); sds->KEY = OSCFREQUENCYKEY; break; }
+				case 'a' : { sds->Master_Amp  = getvalue( "Amplitude" ); sds->KEY = MASTERAMP_KEY; break; }
+				case 'w' : { sds->OSC_spectrum.wfid  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMMAINKEY; break; }
+				default  : break ;
+				}
+				break;
 			}
-			break;
-		}
-		case 'a' :
-		{
-			cout << "ADSR ";
-			keyevent = Key_event("#abgdh");
-			switch ( keyevent )
+			case 'f' :
 			{
-			case 'g' : { sds->OSC_wp.glide_effect 	= getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
-			case 'a' : { sds->OSC_adsr.attack  	= getvalue( "Atack" ); sds->KEY = ADSR_KEY; break; }
-			case 'b' : { sds->OSC_adsr.bps  		= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
-			case 'd' : { sds->OSC_adsr.decay  		= getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
-			case 'h' : { sds->OSC_adsr.hall  		= getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
-			default  : break ;
+				cout << "FMO ";
+				keyevent = Key_event("#faw");
+				switch ( keyevent )
+				{
+				case 'f' : { sds->FMO_wp.frqidx = getvalue( "Frequency" ); sds->KEY = FMOFREQUENCYKEY; break; }
+				case 'a' : { sds->FMO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = FMOAMPKEY; break; }
+				case 'w' : { sds->FMO_spectrum.wfid  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMFMOKEY; break; }
+				default  : break ;
+				}
+				break;
 			}
-			break;
-		}
+			case 'v' :
+			{
+				cout << "VCO ";
+				keyevent = Key_event("#faw");
+				switch ( keyevent )
+				{
+				case 'f' : { sds->VCO_wp.frqidx = getvalue( "Frequency" ); sds->KEY = VCOFREQUENCYKEY; break; }
+				case 'a' : { sds->VCO_wp.volume  = getvalue( "Amplitude" ); sds->KEY = VCOAMPKEY; break; }
+				case 'w' : { sds->VCO_spectrum.wfid  = getvalue( waveform_string ); sds->KEY = SETWAVEFORMVCOKEY; break; }
+				default  : break ;
+				}
+				break;
+			}
+			case 'a' :
+			{
+				cout << "ADSR ";
+				keyevent = Key_event("#abgdh");
+				switch ( keyevent )
+				{
+				case 'g' : { sds->OSC_wp.glide_effect 	= getvalue( "Frequency" ); sds->KEY = SOFTFREQUENCYKEY; break; }
+				case 'a' : { sds->OSC_adsr.attack  	= getvalue( "Atack" ); sds->KEY = ADSR_KEY; break; }
+				case 'b' : { sds->OSC_adsr.bps  		= getvalue( "Beats p.sec" ); sds->KEY = ADSR_KEY; break; }
+				case 'd' : { sds->OSC_adsr.decay  		= getvalue( "Decay" ); sds->KEY = ADSR_KEY; break; }
+				case 'h' : { sds->OSC_adsr.hall  		= getvalue( "Hall" ); sds->KEY = ADSR_KEY; break; }
+				default  : break ;
+				}
+				break;
+			}
 
-		default:
-			break;
+			default:
+				break;
 		}
 		if ( tainted )
 		{

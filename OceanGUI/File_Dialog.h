@@ -29,7 +29,8 @@ class File_Dialog_class :
     Q_OBJECT
 
 public:
-    Ui::File_Dialog* ui;
+    unique_ptr<Ui::File_Dialog> 	ui;
+
     QPalette        status_color 	= QPalette();
     QComboBox*      CB_notes		= nullptr  ;
     QComboBox*      CB_instruments	= nullptr;
@@ -52,13 +53,15 @@ public:
     explicit File_Dialog_class(	QWidget* 		 parent	= nullptr,
     							Interface_class* sds 	= nullptr,
 								Semaphore_class* sem 	= nullptr);
-    ~File_Dialog_class();
+    virtual ~File_Dialog_class();
     void Setup_widgets();
     void New_Notes();
     void New_Instrument();
     void set_le_instrument( QString );
     void set_le_notes( QString );
     void SetSds( Interface_class* sds, int8_t id );
+    void Set_button_color( QPushButton* pb, QColor color  );
+
 
 private slots:
     void on_cb_notefilenames_activated(const QString &arg1);

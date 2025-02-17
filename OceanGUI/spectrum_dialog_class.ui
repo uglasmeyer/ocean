@@ -1139,7 +1139,7 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>60</width>
+      <width>66</width>
       <height>86</height>
      </rect>
     </property>
@@ -1147,7 +1147,7 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
      <item row="0" column="0">
       <widget class="QRadioButton" name="rb_spec_main">
        <property name="text">
-        <string>Main</string>
+        <string>OSC</string>
        </property>
       </widget>
      </item>

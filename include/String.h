@@ -24,6 +24,8 @@ extern int 		char2int( const char& ch );
 extern char 	int2char( const int& i );
 extern set<int> range_set( const int& min, const int& max );
 extern bool 	strEqual( const string& , const string&  );
+extern bool		fcomp( const float& a, const float& b, float precision = 1E-4 );
+
 extern string 	notnull( char* cstr );
 
 
@@ -98,6 +100,11 @@ public:
         this->Str=str;
         this->Set = to_set( );
     }
+	void operator=(const char* p )
+	{
+		this->Str.assign( p );
+		this->Set = to_set( );
+	}
 
     friend bool operator==(const String& A, const String& B )
 	{

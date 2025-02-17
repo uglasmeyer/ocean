@@ -119,7 +119,7 @@ void Processor_class::Execute()
 
 	cout << "waiting for Synthesizer to start" << endl;
 
-	sds->Reset_ifd();
+	sds->Reset_ifd( );
 	sds->Commit();
 
 	FILE* LOG;
@@ -248,7 +248,7 @@ void Processor_class::Execute()
 		default :
 		{
 			fclose( LOG );
-			Exception( to_string( ps.prgline) + " default SIGINT");//raise( SIGINT);
+			EXCEPTION( to_string( ps.prgline) + " default SIGINT");//raise( SIGINT);
 			break;
 		}
 		} // end switch

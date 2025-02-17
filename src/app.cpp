@@ -16,7 +16,7 @@
 #include <Config.h>
 #include <Mixer.h>
 #include <Keyboard.h>
-
+#include <Exit.h>
 
 
 
@@ -61,6 +61,10 @@ void SynthesizerTestCases()
 
     std::set<string> abc{"a","b","c"};
     assert( abc.contains("b"));
+	TestStr.TestString();
+
+	Spectrum_class Spectrum {};
+	Spectrum.Test_Spectrum();
 
 	Log.Set_Loglevel( TEST, true);
 	Log.Comment(TEST, "entering test classes ");
@@ -84,7 +88,6 @@ void SynthesizerTestCases()
 	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
 	Mixer.Test_Logging();
-	TestStr.TestString();
 
 	Keyboard.Test();
 
@@ -105,8 +108,7 @@ void SynthesizerTestCases()
 
 	DaTA.Reg.Test_Register();
 	System_Test();
-	Spectrum_class Spectrum {};
-	Spectrum.Test_Spectrum();
+
 }
 
 Application_class::Application_class( 	Dataworld_class* _DaTA ) :
@@ -176,7 +178,7 @@ void Application_class::Start( int argc, char* argv[] )
 	if ( DaTA->Cfg.Config.clear == 'y' )
 	{
 		DaTA->Reg.Clear_procregister();
-		Exception( "Restart processes");
+		EXCEPTION( "Restart processes");
 	}
 
 }

@@ -50,7 +50,7 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 0; 						// comstack
+	uint8_t			version						= 1; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
@@ -69,7 +69,6 @@ typedef struct interface_struct
 	/* instrument definition starts */
 	adsr_t 			OSC_adsr 					= adsr_struct();// comstack
 
-//	array<int,3>	frqidx_arr					= {0,0,0}; //TODO adjust
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();
 	wave_t			FMO_wp						= wave_struct();
@@ -86,7 +85,7 @@ typedef struct interface_struct
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds // comstack
 
 	uint8_t			config						= 0; // reference to the Synthesizer sds
-	keys_arr_t		sds_keys					= {0,0,0,0};
+	keys_arr_t		sds_keys					= { 0,0,0,0 };
 
 	uint8_t 		MIX_Amp 					= 0;// comstack
 	uint8_t 		MIX_Id						= 0;// comstack
@@ -113,15 +112,9 @@ typedef struct interface_struct
 	process_arr_t	process_arr					= { {process_struct()} };
 
 	wd_status_t		WD_status					= WD_status_struct();
-//	uint8_t	 		WD_role_Id					= osc_struct::INSTRID; // Audio out
-//	uint8_t			WD_osc_ID					= osc_struct::OSCID; // oscgroup id
-//	uint16_t		WD_type_ID 					= wavedisplay_struct::FULLID;
-//	bool			WD_fft_mode					= false;
 	wd_arr_t		wavedata 					= {0};
 
 } interface_t;
-
-
 
 
 

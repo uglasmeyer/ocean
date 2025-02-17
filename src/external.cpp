@@ -175,7 +175,7 @@ void remove_file( string file )
 	if ( filesystem::exists( file ) )
 		filesystem::remove( file);
 	if ( filesystem::exists( file ))
-		Exception( "cannot remove file: " + file );
+		EXCEPTION( "cannot remove file: " + file );
 
 }
 void rename_file( string old_name, string new_name )
@@ -184,7 +184,7 @@ void rename_file( string old_name, string new_name )
     filesystem::rename( old_name, new_name);
 
 	if ( filesystem::exists( old_name ))
-		Exception( "cannot remove file: " + old_name );
+		EXCEPTION( "cannot remove file: " + old_name );
 }
 
 // --------------------------------------------------------------------------------------------

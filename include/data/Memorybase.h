@@ -30,7 +30,8 @@ typedef struct shm_data_struct
 
 
 
-class Shm_base : virtual Logfacility_class
+class Shm_base :
+		virtual public Logfacility_class
 {
 	string className = "Shm_base";
 public:
@@ -63,7 +64,8 @@ typedef struct mem_data_struct
 } mem_ds_t;
 
 
-class Memory_base : public virtual Logfacility_class
+class Memory_base :
+		public virtual Logfacility_class
 {
 	string className = "";
 public:

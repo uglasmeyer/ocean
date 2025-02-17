@@ -30,6 +30,13 @@ void OszilloscopeWidget::paint(QPainter *painter,
     painter->drawRect( drawregion );
     polygon_item.setPolygon( polygon);
     polygon_item.paint( painter, option, widget);
+
+    if ( sds->WD_status.wd_mode == wavedisplay_struct::DEBUGID )
+    {
+    	painter->setPen(QPen(Qt::black, 2, Qt::DashDotLine, Qt::RoundCap));
+    	painter->drawLine( 256, 0, 256, height);
+    }
+
 }
 
 void OszilloscopeWidget::read_polygon_data(  )

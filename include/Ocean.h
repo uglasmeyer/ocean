@@ -62,7 +62,7 @@ typedef double		phi_t;
 
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
-const phi_t 		pi					= 3.1415926536;//3.141592654;
+const phi_t 		pi					= numbers::pi;//3.1415926536;//3.141592654;
 
 const uint			sample_rate			= 48000; //device dependent fix
 const buffer_t		frames_per_sec  	= sample_rate;
@@ -81,7 +81,7 @@ const buffer_t 		monobuffer_size   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 75; // %
-const float			oct_base_freq 		= 27.5/2.0;
+const float			oct_base_freq 		= 16.3516;//27.5/2.0; // = C0
 
 // enumeration of applicatiom Id's
 // see Config_class::typeMap
@@ -118,9 +118,10 @@ typedef struct osc_struct
 	};
 	enum { VCOID, FMOID, OSCID };
 
-	oscParam_t oscParam = {  0, 6 };
-	oscParam_t vcoParam = { -6, 6 };
-	oscParam_t fmoParam = { -6, 6 };
+
 } osc_roles_t;
+
+const uint				max_octave		= 6;
+const uint 				min_octave 		= 0;
 
 #endif /* OCEAN_H */

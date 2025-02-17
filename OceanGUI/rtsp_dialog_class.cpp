@@ -3,16 +3,17 @@
 #include "ui_Rtsp_dialog_class.h"
 
 
-Ui::Rtsp_Dialog_class UI_Rtsp_Dialog_Obj{};
+//Ui::Rtsp_Dialog_class UI_Rtsp_Dialog_Obj{};
 
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
 )
     : Logfacility_class(Ui::ClassName),
 	  Config_class( Ui::ClassName ),
-	  QDialog(parent)
+	  QDialog(parent),
+	  ui( new Ui::Rtsp_Dialog_class)
 {
-	ui = &UI_Rtsp_Dialog_Obj;
+//	ui = &UI_Rtsp_Dialog_Obj;
     ui->setupUi(this);
     this->DaTA		= data;
     this->Sds		= DaTA->GetSds( SDS_ID );

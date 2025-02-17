@@ -21,11 +21,17 @@ Logfacility_class::Logfacility_class( string module )
 
 Logfacility_class::~Logfacility_class(  )
 {
+
+	if( LogVector.size() == 0 )
+		return;
 	fstream		LogFILE { "/tmp/log/Synthesizer.log", fstream::app };
 	for ( string str : LogVector )
 	{
 		LogFILE.flush() << str;
 	}
+	LogVector.clear();
+	cout << "visited ~" << className << "." << module << endl;
+
 };
 
 void Logfacility_class::setup()

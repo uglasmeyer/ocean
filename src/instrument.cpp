@@ -181,29 +181,32 @@ bool Instrument_class::read_instrument( )
 		}
 
 	}
+
+	Oscillator* osc = nullptr;
 	getline( File, Str.Str );
 	do
 	{
 		Str.normalize();
 
 		arr = Str.to_array( ',' );
-
 		keyword = arr[0];
 		if ( ( strEqual("OSC", keyword) ) or ( strEqual("TYPE", keyword)) ) // TYPE compatibility
 		{
-			Oscillator* osc = get_osc_by_name( arr[1] );
+			osc = get_osc_by_name( arr[1] );
 			init_data_structure( osc, arr );
 		}
-		if ( keyword.compare("SPEV") == 0 )
+		if ( osc != nullptr)
 		{
-			Oscillator* osc = get_osc_by_name( arr[1] );
-			osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id, 0 );
+			for( string s : { "SPEV", "SPEF" } )
+			{
+				if ( strEqual(keyword, s ) )
+				{
+					osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id );
+					*ifd_spectrum_vec[ osc->osctype_id ] = osc->spectrum;
+				}
+			}
 		}
-		if ( keyword.compare("SPEF") == 0 )
-		{
-			Oscillator* osc = get_osc_by_name( arr[1] );
-			osc->spectrum 	=  osc->Parse_data( arr, osc->osctype_id, 1 );
-		}
+
 
 	} while( getline( File, Str.Str));
 
@@ -221,7 +224,7 @@ Oscillator* Instrument_class::get_osc_by_name( string name )
 	}
 	if ( strEqual( "MAIN", name  ) ) // compatibility
 		return osc;
-	Exception( "incomplete instrument definition for " + name );
+	EXCEPTION( "incomplete instrument definition for " + name );
 	return nullptr;
 }
 
@@ -298,7 +301,7 @@ void Instrument_class::Save_Instrument( string str )
 		// Type OSC TYPE
 		FILE 	<< setfill(' ') << right << "TYPE,"
 				<< setw(10) <<		 osc->osc_type 		+ ","
-				<< setw(10) <<		 osc->Get_waveform_str(osc->spectrum.id) 	+ ","
+				<< setw(10) <<		 osc->Get_waveform_str(osc->spectrum.wfid) 	+ ","
 				<< setw(7 ) << (int) osc->wp.frqidx << ","//osc->wp.frequency 		<< ","
 				<< setw(7 ) << (int) osc->wp.msec 			<< ","
 				<< setw(7)  << (int) osc->wp.volume			<< ","
@@ -349,7 +352,7 @@ bool Instrument_class::Set( string name )
 	if ( not read_instrument( ) ) 	return false;
 	if ( not init_connections() ) 	return false;
 	setup_GUI_Data();
-	reuse_GUI_Data();
+//	reuse_GUI_Data();
 	Run_osc_group();
 	show_sound_stack();
 	return true;
@@ -368,28 +371,34 @@ void Instrument_class::Test_Instrument()
 
 	assert( Set( ".test" ) );
 	Oscgroup.vco.wp.PMW_dial = 98;
-	Oscgroup.vco.spectrum.id = SGNSIN;
+	Oscgroup.vco.spectrum.wfid = SGNSIN;
 	Oscgroup.vco.wp.frequency = 57;
-	assert( Oscgroup.vco.waveform_str_vec[ SGNSIN ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.id )) == 0 );
+	assert( Oscgroup.vco.waveform_str_vec[ SGNSIN ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid )) == 0 );
 
 	Save_Instrument( ".test" );
 	Oscgroup.vco.wp.PMW_dial = 0;
-	Oscgroup.vco.spectrum.id = RECTANGLE;
-	assert( Oscgroup.vco.waveform_str_vec[ RECTANGLE ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.id )) == 0 );
+	Oscgroup.vco.spectrum.wfid = RECTANGLE;
+	assert( Oscgroup.vco.waveform_str_vec[ RECTANGLE ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid )) == 0 );
 
 
 	assert( Set( ".test" ) );
 	assert( Oscgroup.vco.wp.PMW_dial == 98 );
-	assert( Oscgroup.vco.waveform_str_vec[ SGNSIN ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.id )) == 0 );
+	assert( Oscgroup.vco.waveform_str_vec[ SGNSIN ].compare( Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid )) == 0 );
 
 	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
-	Oscgroup.fmo.wp.frequency 	= frequency.Calc( 1 );
+	Oscgroup.fmo.wp.frequency 	= Oscgroup.fmo.Calc( Oscgroup.fmo.C0 );
+
+	ASSERTION( fcomp( Oscgroup.fmo.wp.frequency, 16.3516 ), "" ,Oscgroup.fmo.wp.frequency, 16.3516 );
 	Oscgroup.fmo.wp.volume		= 0;//31;
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
 	assert( Oscgroup.osc.adsr.hall == 0 );
 
 	Data_t datan = 0;
 	Data_t data0 = 0;
+
+	Oscgroup.fmo.Set_duration( max_milli_sec );
+	Oscgroup.vco.Set_duration( max_milli_sec );
+	Oscgroup.osc.Set_duration( max_milli_sec );
 	Oscgroup.fmo.OSC(0);
 	Oscgroup.osc.OSC(0);
 	for ( int n = 0; n <10; n++ )
@@ -398,8 +407,7 @@ void Instrument_class::Test_Instrument()
 		Oscgroup.fmo.OSC(0);
 		Oscgroup.osc.OSC(0);
 		data0 = Oscgroup.osc.Mem.Data[0];
-		cout << "> "  << setw(15) << datan << setw(15) << data0 << setw(15) << abs( abs( datan )- abs(data0 ) )  << endl;
-		assert( abs( abs( datan )- abs(data0 ) )   < 400 );
+		ASSERTION( abs( abs( datan )- abs(data0 )) < 400, "oscgroup", abs( abs( datan )- abs(data0 )), "<400" );
 	}
 
 	TEST_END( "Instrument" );

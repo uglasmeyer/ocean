@@ -22,7 +22,9 @@ int Musicxml_class::get_int( int Default, XMLElement* p  )
 	if ( str.length() == 0  )
 	{
 		if (Default < 0 )
-			Exception( "Empty mandatory value in xml file" );
+		{
+			EXCEPTION( "Empty mandatory value in xml file" );
+		}
 		else
 			return Default;
 	}

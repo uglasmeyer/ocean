@@ -486,8 +486,8 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Spectrum.h \
 		../include/Logfacility.h \
 		../include/String.h \
-		../include/Exit.h \
 		../include/Frequency.h \
+		../include/Exit.h \
 		../include/data/Interface.h \
 		../include/Config.h \
 		../include/Configbase.h \

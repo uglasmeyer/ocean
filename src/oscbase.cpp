@@ -72,15 +72,18 @@ void Oscillator_base::Set_duration( uint16_t msec )
 void Oscillator_base::Set_frequency( int idx )
 {
 	wp.frqidx			= idx;
-	wp.frequency 		= frequency.Calc( idx );
+	wp.frequency 		= Calc( idx );
 	wp.start_frq 		= wp.frequency;
 	spectrum.base		= wp.frequency;
+	spectrum.frqadj[0]	= 1.0;
+
 }
 void Oscillator_base::Set_volume( uint16_t vol)
 {
 	if ( vol < 1 ) vol = 0; // no output if below 2
 	if ( vol > 100 ) vol = 100;
 	wp.volume 		= vol;
+	spectrum.vol[0] = (float)vol * 0.01;
 }
 void Oscillator_base::Set_pmw( uint8_t pmw )
 {
@@ -94,7 +97,7 @@ void Oscillator_base::Set_glide( uint8_t value )
 
 void Oscillator_base::Set_waveform( char id )
 {
-	spectrum.id	= id;
+	spectrum.wfid	= id;
 	Info( "set waveform >" + Get_waveform_str(id) + "< for " + osc_type);
 
 }
@@ -111,7 +114,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	command 		= osc_type;
 	vp.name			= osc_type;
 	fp.name			= osc_type;
-	spectrum.id		= Get_waveform_id( arr[2] );
+	spectrum.wfid		= Get_waveform_id( arr[2] );
 	int frqidx	 	= Str.secure_stoi( arr[3] );
 	Set_frequency( frqidx );
 
@@ -141,7 +144,7 @@ void Oscillator_base::Set_csv_comment ()
 
 	csv_comment = "";
 	csv_comment.append(osc_type);
-	csv_comment.append(",\t" + waveform_str_vec[spectrum.id] );
+	csv_comment.append(",\t" + waveform_str_vec[spectrum.wfid] );
 	csv_comment.append(",\t" + to_string( wp.frequency ));
 	csv_comment.append(",\t" + to_string( wp.msec ) );
 	csv_comment.append(",\t" + to_string( wp.volume ) );
@@ -150,7 +153,7 @@ void Oscillator_base::Set_csv_comment ()
 
 void Oscillator_base::Get_comment( bool variable )
 {
-	comment = Get_waveform_str( spectrum.id );
+	comment = Get_waveform_str( spectrum.wfid );
 	comment.append( "\t(" + to_string( wp.frequency ) + " Hz)");
 	comment.append( to_string( wp.msec ) + " msec ");
 	comment.append( "Vol: " + to_string( wp.volume ) );
@@ -175,7 +178,7 @@ stringstream Oscillator_base::Get_sound_stack()
 	stringstream strs{""};
 	strs 	<< active
 			<< osc_type +"\t"
-			<< Get_waveform_str( spectrum.id ) +"\t\t"
+			<< Get_waveform_str( spectrum.wfid ) +"\t\t"
 			<< fixed << setprecision(2) << wp.frequency << "\t"
 			<< (int) wp.volume << "\t"
 			<< (int) wp.msec << "\t"

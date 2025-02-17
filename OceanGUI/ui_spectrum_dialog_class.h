@@ -309,7 +309,7 @@ public:
         frame_rb_osc->setFrameShadow(QFrame::Raised);
         layoutWidget = new QWidget(frame_rb_osc);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(10, 10, 60, 86));
+        layoutWidget->setGeometry(QRect(10, 10, 66, 86));
         gridLayout_3 = new QGridLayout(layoutWidget);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         gridLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -351,7 +351,7 @@ public:
         lbl_waveform->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));
         label->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Instrument", nullptr));
         label_2->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Wave form", nullptr));
-        rb_spec_main->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Main", nullptr));
+        rb_spec_main->setText(QCoreApplication::translate("Spectrum_Dialog_class", "OSC", nullptr));
         rb_spec_vco->setText(QCoreApplication::translate("Spectrum_Dialog_class", "VCO", nullptr));
         rb_spec_fmo->setText(QCoreApplication::translate("Spectrum_Dialog_class", "FMO", nullptr));
         lbl_spectrumDisplay->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));

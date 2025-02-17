@@ -38,7 +38,7 @@ void Memory_base::SetDs( size_t data_size)
 	ds.max_records	= ds.data_blocks / ds.block_size;
 
 	if ( not ( ds.size - ds.sizeof_data * ds.max_records * ds.block_size == 0 ))
-		Exception( "init memory" );
+		EXCEPTION( "init memory" );
 
 }
 

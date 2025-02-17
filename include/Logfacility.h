@@ -31,6 +31,7 @@ class Logfacility_class
 	const string 		logDir 		{ "/tmp/log/"};
 	const string 		logFileName	{ "Synthesizer" };
 	const string 		logFile	 	{ logDir + logFileName + ".log" };
+	string 				className	{ "Logfacility_class" };
 
 public:
 	const string 		errFile		{ logDir + logFileName + ".err" };

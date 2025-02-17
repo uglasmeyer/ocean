@@ -104,12 +104,12 @@ void Variation_class::Define_fix( string notes )
 		};
 	if ( notes.length() < 4 )
 	{
-		Exception( "Constant_chars contains less than 4 characters" );
+		EXCEPTION( "Constant_chars contains less than 4 characters" );
 	}
 
 	if ( notes[0] == '-' )
 	{
-		Exception( "Constant_chars must not start with specified character " );
+		EXCEPTION( "Constant_chars must not start with specified character " );
 	}
 	String Valid { "r(),.-'| " + Note_class::OctaveChars.Str + Note_class::Note_Chars.Str };
 //	Charset_class Valid_set ( "r(),.-'| " + Note_class::OctaveChars + Note_class::Note_Chars );
@@ -344,7 +344,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	}
 	else
 	{
-		Exception( "Note line rules were not confirmed." );
+		EXCEPTION( "Note line rules were not confirmed." );
 	}
 	return noteline;
 }

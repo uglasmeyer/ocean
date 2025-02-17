@@ -183,8 +183,6 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 		default				:	break;
 	}
 
-//	if (( play ) and ( id != MbIdInstrument )) // do not switch to SYNC mode
-//		 status.play = true;
 
 	StA[id].Play_mode( play );
 
@@ -264,7 +262,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 					return id;
 			return -1;
 		};
-
+/*
 	auto calc_amp_mod = [ this ]()
 		{
 			float sum 	= 0.0;
@@ -279,6 +277,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 			float 	mean = 100.0 / sum;
 			return 	mean;
 		};
+*/
 
 	clear_memory();
 
@@ -287,9 +286,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 		stereo_out( shm_addr, master_volume );
 		return;
 	}
-
-
-	float amp_mod 	= calc_amp_mod();
+	float amp_mod 	= 1.0;//calc_amp_mod();
 
 	// add osc sound
 	if ( StA[ MbIdInstrument].state.play )
@@ -316,7 +313,6 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 	// push sound to audio server
 	stereo_out( shm_addr, master_volume );
-//	status.play = false; TODO verify comment
 };
 
 void Mixer_class::Test()

@@ -14,6 +14,7 @@
 Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 : Logfacility_class("Shared Data" )
 {
+
 	stateMap();
 
 	this->Sem_p	= sem;
@@ -23,6 +24,7 @@ Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 
 Interface_class::~Interface_class()
 {
+	//SHM.Detach( ds.addr );
 }
 
 
@@ -34,21 +36,26 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	ds.Id	= sdsid;
 	this->addr = ( interface_t* ) ds.addr;
 	SHM.ShowDs(ds);
-
 	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
+
+
 	if ( not ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
-		Reset_ifd();
+		Reset_ifd(  );
 	}
 	Comment( INFO, "check shared memory version");
+
 	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{
 		size_t fsize = filesystem::file_size( sds_dump );
 		if ( fsize != sds_size)
 		{
-			Exception( "IPC version " + to_string( ifd_data.version ) + " differs in size" );
+			EXCEPTION( 	"sds dump size " + to_string( fsize ) +
+						" differs in sizeof sds" +
+						to_string( sds_size ));
+
 		}
 	}
 	if (( ifd_data.version == addr->version ))
@@ -58,7 +65,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	else
 	{
 		Comment( ERROR, "Setup SDS failed");
-		Exception( "IPC version " + to_string( ifd_data.version ) +
+		EXCEPTION( "IPC version " + to_string( ifd_data.version ) +
 				" differs from BIN version " + to_string( addr->version )  +
 				" or lib/ifd_data.bin size ");
 	}
@@ -129,15 +136,15 @@ void Interface_class::Show_interface()
 	rline( Version_str 			, addr->version);
 
 	lline( "(M)ain (F)requency:" , Frequency.Calc( addr->OSC_wp.frqidx ));
-	rline( "(A)DSR (G)lide freq:" , (int)addr->OSC_wp.glide_effect);
+	rline( "(A)DSR (G)lide freq:", (int)addr->OSC_wp.glide_effect);
 
-	lline( "(M)ain (A)mplitude:" , (int)addr->Master_Amp );
+	lline( "(M)aster(A)mplitude:", (int)addr->Master_Amp );
 	rline( "(A)DSR (A)ttack:   " , (int)addr->OSC_adsr.attack );
 
 	lline( "                   " , 0 );
 	rline( "(A)DSR (B)eats Id  " , (int)addr->OSC_adsr.bps) ;
 
-	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->OSC_spectrum.id ]);
+	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->OSC_spectrum.wfid ]);
 	rline( "(A)DSR (D)ecay:    " , (int)addr->OSC_adsr.decay );
 
 	lline( "(F)MO  (F)requency:" , Frequency.Calc( addr->FMO_wp.frqidx ) );
@@ -146,17 +153,17 @@ void Interface_class::Show_interface()
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
 	rline( "(V)CO  (A)mplitude:" , (int)addr->VCO_wp.volume);
 
-	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.id ]);
-	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.id ]);
+	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.wfid ]);
+	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.wfid ]);
 
 	lline( "", "" );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
 	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->OSC_spectrum ));
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->VCO_spectrum ));
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->FMO_spectrum ));
 	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->OSC_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->VCO_spectrum ));
 	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->VCO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->FMO_spectrum ));
 	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->FMO_spectrum ));
 
 
@@ -164,7 +171,7 @@ void Interface_class::Show_interface()
 	rline( "Mixer Id           " , (int)addr->MIX_Id );
 
 	lline( "Sync data id       " , (int) addr->SHMID);
-	rline( "Communication Key  " , (int) addr->KEY );
+	rline( "Event ID           " , (int) addr->KEY );
 
 	lline( "Record Progress   :" , (int)addr->RecCounter);
 	rline( "File No.          :" , (int)addr->FileNo );
@@ -282,9 +289,10 @@ void Interface_class::Announce( )
 	addr->UpdateFlag = true;
 }
 
-void Interface_class::Reset_ifd()
+void Interface_class::Reset_ifd(  )
 {
 	Comment(INFO, "Reset shared data");
+	// copy ifd data into shared memory
 	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
 	Dump_ifd();
 }
@@ -293,6 +301,8 @@ bool Interface_class::Restore_ifd()
 {
 
 	Comment(INFO,"Restore shared data from file");
+	assert( dumpFile.size() > 0 );
+
 	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
 	int sdsid 				= addr->config;
 
@@ -311,6 +321,7 @@ void Interface_class::Dump_ifd()
 {
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
 	assert( dumpFile.size() > 0 );
+
 	size_t count = 0;
 	FILE* fd = fopen( dumpFile.data() , "w");
 	if ( fd )
@@ -318,8 +329,8 @@ void Interface_class::Dump_ifd()
 		count = fwrite( addr, sizeof( ifd_data ), 1, fd);
 		fclose( fd );
 	}
-	if( count == 1 ) {;}
-	else Exception( "incomplete dump" + Error_text( errno ) );
+	if( count != 1 )
+		EXCEPTION( "incomplete dump" + Error_text( errno ) );
 }
 
 void Interface_class::Update( char ch )

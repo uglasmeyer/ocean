@@ -113,12 +113,14 @@ typedef struct file_structure
 	const string 	xml_type		= ".musicxml";
 	const string	Audio_bin		= "AudioServer";
 	const string 	Synth_bin		= "Synthesizer";
-	const string 	Comp_bin		= "Composer";
+	const string 	Composer_bin	= "Composer";
 	const string	Ocean_bin		= "OceanGUI";
 	const string 	Rtsp_bin		= "rtsp";
+	const string 	Comstack_bin	= "Comstack";
 	const string 	audio_bin  		= Dir.bindir 		+ Audio_bin;
 	const string 	synth_bin  		= Dir.bindir 		+ Synth_bin;
-	const string 	composer_bin	= Dir.bindir		+ Comp_bin;
+	const string 	composer_bin	= Dir.bindir		+ Composer_bin;
+	const string 	comstack_bin	= Dir.bindir		+ Comstack_bin;
 	const string 	ocean_bin		= Dir.bindir		+ Ocean_bin;
 	const string 	rtsp_bin		= Dir.bindir		+ Rtsp_bin;
 	const string 	ifd_file 		= Dir.libdir 		+ "ifd_data.bin";

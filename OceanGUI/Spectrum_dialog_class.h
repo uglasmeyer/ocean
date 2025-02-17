@@ -18,17 +18,18 @@ class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_class
     Q_OBJECT
 
 public:
-    Ui::Spectrum_Dialog_class* ui;
+    unique_ptr<Ui::Spectrum_Dialog_class> 		ui;
 
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
                                    Interface_class* gui = nullptr );
-    ~Spectrum_Dialog_class();
+    virtual ~Spectrum_Dialog_class();
 
     Spectrum_class Spectrum{};
     spectrum_t spectrum;
 
     Interface_class* Sds;
-    interface_t* ifd;
+    interface_t* sds_p;
+
     vector<Spectrum_class::spectrum_t*> ifd_spectrum_vec;
 
     Frequency_class	Frequency {};
@@ -36,10 +37,11 @@ public:
     string instrument{};
     uint8_t waveform_id;
 
-    void setup_Widgets( Spectrum_class::spectrum_t );
+    void Setup_widgets( Spectrum_class::spectrum_t );
     void Update_spectrum();
     void SetLabelWaveform( const QString& wf );
     void SetLabelInstrument( const QString& instr );
+    void SetSds( Interface_class* Sds, int8_t id );
 
 private slots:
     void fS1( int );
@@ -57,8 +59,8 @@ private slots:
     void reset();
 
 private:
-    QTimer	status_timer_obj 	{ this };
-    QTimer* status_timer 		= &status_timer_obj;
+//    QTimer	status_timer_obj 	{ this };
+//    QTimer* status_timer 		= &status_timer_obj;
 
 };
 
