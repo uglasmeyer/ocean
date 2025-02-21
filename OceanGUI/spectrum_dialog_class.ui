@@ -453,7 +453,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Spectrum</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">

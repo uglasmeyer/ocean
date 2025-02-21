@@ -11,7 +11,7 @@ Memory_base::Memory_base( buffer_t size ) :
 	Logfacility_class( "Memory_base" )
 {
 	ds.size = size;
-	className = Logfacility_class::module;
+	className = Logfacility_class::className;
 	Comment( INFO, "pre-init memory size " + to_string( size ));
 
 //	Log[ TEST ] = true;
@@ -21,7 +21,7 @@ Memory_base::Memory_base( buffer_t size ) :
 Memory_base::Memory_base() :
 	Logfacility_class( "Memory_base" )
 {
-	className = Logfacility_class::module;
+	className = Logfacility_class::className;
 	Comment( INFO, "pre-init memory size " + to_string( 0 ));
 };
 
@@ -37,7 +37,7 @@ void* Memory_base::Init_void()
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS,
 				0, 0);
-	ds.name			= Logfacility_class::module + " allocated";
+	ds.name			= Logfacility_class::className + " allocated";
 	ds.mem_bytes	= ds.size;
 
 	return ds.addr;

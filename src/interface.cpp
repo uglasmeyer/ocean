@@ -282,7 +282,6 @@ string Interface_class::Read_str( char selector )
 
 void Interface_class::Announce( )
 {
-	cout << Type_Id << endl;
 	Comment(INFO, "announcing application " + Type_map( this->Type_Id ) );
 	uint8_t* state = Getstate_ptr( Type_Id );
 	*state = RUNNING;

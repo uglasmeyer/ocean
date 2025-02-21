@@ -11,15 +11,6 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-#define ASSERTION(	 expr , message, input, expected )\
-	if ( not (expr) ) \
-	{\
-	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
-	cout 	<< message 							<< '\n'\
-			<< "input    value: " << (input) 		<< '\n'\
-			<< "expected value: " << (expected) 	<< endl;\
-	raise( SIGINT ); \
-	};
 
 #define EXCEPTION( err_str )\
 	{\
@@ -59,7 +50,7 @@ public:
 	Exit_class( ) :
 		Logfacility_class("Exit_class")
 	{
-		this->className = Logfacility_class::module;
+		this->className = Logfacility_class::className;
 		catch_signals();
 	};
 	virtual ~Exit_class()

@@ -9,29 +9,15 @@
 
 
 
-using namespace std;
-
-
-
-Logfacility_class::Logfacility_class( string module )
+Logfacility_class::Logfacility_class( string module)
 {
-	this->module = module ;
+	this->className = module ;
 	setup();
 };
 
 Logfacility_class::~Logfacility_class(  )
 {
-
-	if( LogVector.size() == 0 )
-		return;
-	fstream		LogFILE { "/tmp/log/Synthesizer.log", fstream::app };
-	for ( string str : LogVector )
-	{
-		LogFILE.flush() << str;
-	}
-	LogVector.clear();
-	cout << "visited ~" << className << "." << module << endl;
-
+	cout.flush() << "visited ~Logfacility_class." << className  << endl;
 };
 
 void Logfacility_class::setup()
@@ -71,15 +57,41 @@ void Logfacility_class::setup()
 	error_vector.push_back(  {"EMLINK","Too many links"});
 	error_vector.push_back(  {"EPIPE","Broken pipe"});
 
-	filesystem::create_directories( logDir);
+	string _path = string( logDir );
+	filesystem::create_directories( _path );
 
 }
 
 void Logfacility_class::Init_log_file()
 {
 	Comment( INFO, "Initialize Log file ");
-	if (filesystem::exists( logFile ))
-		filesystem::remove( logFile );
+	string _path = string( logFile );
+	if (filesystem::exists( _path ))
+		filesystem::remove( _path );
+}
+void Logfacility_class::WriteLogFile()
+{
+	if( not LogVector_p )
+		return;
+	if( LogVector_p->size() == 0 )
+		return;
+
+	fstream	LogFILE ;
+	LogFILE.open( "/tmp/log/Synthesizer.log", fstream::out );
+	if( not LogFILE.is_open() )
+	{
+		cout << "cannot open logfile to write " << endl;
+		return;
+	}
+	for ( string str : *LogVector_p )
+	{
+		LogFILE.flush() << str << endl;
+	}
+}
+
+void Logfacility_class::StartFileLogging( LogVector_t* lvp )
+{
+	this->LogVector_p = lvp;
 }
 
 void Logfacility_class::Show_loglevel()
@@ -116,19 +128,19 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 }
 
 
-void Logfacility_class::Comment( const int& level, const string& logcomment )
+void Logfacility_class::Comment( const int& level, const string logcomment )
 {
-	stringstream strs {};
-
+	//stringstream strs {""};
 	if (level < logmax + 1 )
 	{
 		if ( Log[ level ] )
 		{
-			comment_str = module + ":" +  Prefix[ level] ;
+			comment_str = className + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
 //			LogFILE.flush() << setw(20) << comment_str << logcomment << endl;
-			strs << setw(20) << comment_str << logcomment << endl;
-			LogVector.push_back( strs.str() );
+			string strs { comment_str + logcomment };
+			if ( LogVector_p )
+				LogVector_p->push_back( strs );
 		}
 	}
 }
@@ -144,27 +156,30 @@ void Logfacility_class::TEST_START( const string& name)
 {
 	Set_Loglevel( TEST, true) ;
 
+	Comment( TEST, Line );
 	Comment( TEST, "Test " + name + " start" ) ;
 }
 
 void Logfacility_class::TEST_END( const string& name )
 {
 	Comment( TEST, "Test " + name + " finished" );
+	Comment( TEST, Line );
 	Set_Loglevel( TEST, false) ;
 }
 
+#include <String.h>
 
 void Logfacility_class::Test_Logging( )
 {
 //	InfoT( "Variatic", " arguments");
 
 	string str = Error_text( EEXIST );
-	assert( str.compare( "[EEXIST] File exists") 		== 0 );
+	ASSERTION( strEqual( str, "[EEXIST] File exists" ), "error string", str, "[EEXIST] File exists" );
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Logfacility test start");
 	stringstream True;
 	True << boolalpha << Log[TEST];// no endl
-	assert( True.str().compare("true") == 0 );
+	ASSERTION( strEqual( True.str(), "true"), "true", True.str(), "=true" );
 	Comment( TEST, "Logfacility test OK");
 
 }

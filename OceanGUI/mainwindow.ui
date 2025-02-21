@@ -1758,7 +1758,7 @@
       </widget>
      </item>
      <item row="1" column="4">
-      <widget class="QPushButton" name="pushButton_3">
+      <widget class="QPushButton" name="pBGuiExit">
        <property name="text">
         <string>GUI EXIT</string>
        </property>
@@ -2127,54 +2127,6 @@
     <hint type="destinationlabel">
      <x>354</x>
      <y>369</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButton_3</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>GUI_Exit()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1090</x>
-     <y>581</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1082</x>
-     <y>557</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pBSynthesizer</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>start_synthesizer()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>857</x>
-     <y>541</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>946</x>
-     <y>455</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pBAudioServerExit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Audio_Exit()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>716</x>
-     <y>581</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>604</x>
-     <y>572</y>
     </hint>
    </hints>
   </connection>

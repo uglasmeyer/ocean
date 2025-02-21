@@ -56,7 +56,7 @@ enum
 };
 
 template < typename T >
-string Type_map( T app_id )
+constexpr string Type_map( T app_id )
 {
 	switch ( app_id )
 	{

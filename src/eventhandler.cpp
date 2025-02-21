@@ -11,7 +11,8 @@
 void Event_class::Handler( uint eventKey)
 {
 
-
+	if ( eventKey != NULLKEY )
+		cout << (int) eventKey << ":" ;
 	switch (eventKey)
 	{
 
@@ -22,8 +23,8 @@ void Event_class::Handler( uint eventKey)
 	case XMLFILE_KEY :
 	{
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
-		string name = Sds->Read_str( NOTESSTR_KEY );
-		Comment(INFO, "receive command <setup play xml notes>");/*
+		Comment(INFO, "receive command <setup play xml notes>");
+/*
 
 		string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
 		Comment( INFO, "from filename: " + filename );

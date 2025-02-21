@@ -258,13 +258,35 @@ void write_waveaudio()
 	Wavedisplay.Write_wavedata();
 }
 
+void SetAudioFrames()
+{
+	interface_t* ifd;
+	bool sync = false;
+	for ( uint sdsid = 0; sdsid < 4; sdsid++ )
+	{
+		ifd = DaTA.GetSdsAddr( sdsid );
+		if( ifd->Synthesizer == RUNNING )
+			sync |= ifd->mixer_status.sync;
+	}
+
+	if ( sync )
+		audioframes = max_frames;
+	else
+		audioframes = min_frames;
+	sds->audioframes = audioframes;
+
+}
 void call_for_update()
 {
 	DaTA.ClearShm();
+	SetAudioFrames();
+
 	shm_addr = DaTA.SetShm_addr( );
 
 	for ( int n = 0; n < 4; ++n)
 		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 + n );
+
+
 }
 
 void record_start( )
@@ -309,7 +331,6 @@ void set_rcounter( )
 void set_ncounter( buffer_t n )
 {
 
-	buffer_t audioframes = sds->audioframes;
 	if ( n > audioframes - 1 )
 	{
 //		cout << Measure.Time_elapsed() << "[msec]" << endl;

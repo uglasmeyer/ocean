@@ -24,7 +24,7 @@ Variation_class 		Variation;
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
-Statistic_class			Statistic{ Log.module };
+Statistic_class			Statistic{ Log.className };
 Config_class*			Cfg = DaTA.Cfg_p;
 
 

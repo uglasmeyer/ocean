@@ -1,13 +1,5 @@
-#{'c','c#', 'd','d#', 'e','f','f#', 'g','g#','a','a#','h'}
-#  C   c     D   d     E   F   f     G   g    A   a    H
-
-# ' next octave eg. c'
-# , octave down eg. c,
-# . pause
-# - increase the duration of the previous note eg. C---
-# | end of a sentence
-# |x change the octave to the value of x {1...9}
-
+#See the documentation file Ocean.odt
+#about the specification of Prefix, Notes and Volume 
+P=3,0,4,0,0
 N=|3EF-F |2EF-F |2EF-F GGDG CADD ADDD GGDD CCAA |3EF-F CADD ADCG 
 V=96
-#available volume pitches: {1 2 ... 9} = 10%, 20%, ... 90% 

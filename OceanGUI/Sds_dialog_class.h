@@ -21,7 +21,7 @@ public:
     virtual ~SDS_Dialog_class();
 
 private:
-    Ui::SDS_Dialog_class *ui;
+    unique_ptr<Ui::SDS_Dialog_class>  ui;
 };
 
 #endif // SDS_DIALOG_CLASS_H

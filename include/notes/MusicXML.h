@@ -30,7 +30,7 @@ public:
 		Logfacility_class( "Musicxml_class"),
 		Note_base()
 	{
-		className = Logfacility_class::module;
+		className = Logfacility_class::className;
 	};
 	virtual ~Musicxml_class()
 	{};

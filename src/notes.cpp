@@ -12,14 +12,14 @@ Note_class::Note_class()
 : Note_class::Logfacility_class("Notes"),
   Note_base()
 {
-	this->className = Logfacility_class::module;
+	this->className = Logfacility_class::className;
 }
 
 Note_class::Note_class( Wavedisplay_class* wd )
 : Note_class::Logfacility_class("Notes"),
   Note_base()
 {
-	this->className = Logfacility_class::module;
+	this->className = Logfacility_class::className;
 	Oscgroup.SetWd(wd);
 }
 

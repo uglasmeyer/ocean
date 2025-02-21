@@ -32,7 +32,7 @@ vector<string> List_directory( const string& path, const string& filter )
     vector<string> dir_entry_vec{};
 
 	const std::filesystem::path dir{ path };
-    if ( not filesystem::exists(path) )
+    if ( not filesystem::exists(dir) )
     {
 //    	Log_common.Comment( ERROR, "Directory does not exists:\n " + path );
     	return dir_entry_vec;
@@ -50,9 +50,10 @@ vector<string> List_directory( const string& path, const string& filter )
     return dir_entry_vec;
 }
 
+
 string searchPath( string file )
 {
-	string filename = filesystem::path( file ).filename( );
+	string filename = std::filesystem::path( file ).filename( );
 	string Path = notnull( getenv( "PATH" )) ;
 	if( Path.length() == 0 )
 		return "";

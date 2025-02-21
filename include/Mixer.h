@@ -35,7 +35,7 @@ public:
 		Logfacility_class( "Loop_class")
 	{
 		this->ptr8 = ptr;
-		this->className = Logfacility_class::module;
+		this->className = Logfacility_class::className;
 	};
 	~Loop_class(){};
 

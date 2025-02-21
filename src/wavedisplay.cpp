@@ -11,7 +11,7 @@
 Wavedisplay_class::Wavedisplay_class( Interface_class* sds )
 : Logfacility_class("Wavedisplay")
 {
-	this->className = Logfacility_class::module;
+	this->className = Logfacility_class::className;
 	this->Sds_p = sds;
 }
 
@@ -153,12 +153,15 @@ void Wavedisplay_class::Write_wavedata()
 
 void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 {
-	data_ptr = data_ptr_arr[status.roleId][status.oscId];
-	if ( data_ptr == nullptr )
+	Data_t* ptr = data_ptr_arr[status.roleId][status.oscId];
+	if ( ptr == nullptr )
+	{
 		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(status.roleId) + "]" +
 														  "[" + to_string(status.oscId) + "]");
-	else
-		Comment( DEBUG, "wave display selected: "+
+		return;
+	}
+	data_ptr = ptr;
+	Comment( DEBUG, "wave display selected: "+
 						OscRole.roles[ status.roleId ] + " " +
 						OscRole.types[ status.oscId ] );
 	set_wdmode( status.wd_mode );

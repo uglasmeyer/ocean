@@ -67,11 +67,12 @@ const phi_t 		pi					= numbers::pi;//3.1415926536;//3.141592654;
 const uint			sample_rate			= 48000; //device dependent fix
 const buffer_t		frames_per_sec  	= sample_rate;
 
-const uint8_t		max_sec 			= 2;//8;
+const uint8_t		max_sec 			= 2;
 const uint16_t		max_milli_sec 		= max_sec * 1000;
 const uint16_t		min_milli_sec		= 250;
 
 const buffer_t		max_frames			= max_sec * frames_per_sec;
+const buffer_t		min_frames			= frames_per_sec * min_milli_sec / 1000;
 const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
 
 const uint			recduration 		= 3*60; // seconds
@@ -123,5 +124,16 @@ typedef struct osc_struct
 
 const uint				max_octave		= 6;
 const uint 				min_octave 		= 0;
+
+#define ASSERTION(	 expr , message, input, expected )\
+	if ( not (expr) ) \
+	{\
+	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
+	cout 	<< message 							<< '\n'\
+			<< "input    value: " << (input) 		<< '\n'\
+			<< "expected value: " << (expected) 	<< endl;\
+	raise( SIGINT ); \
+	};
+
 
 #endif /* OCEAN_H */

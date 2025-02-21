@@ -9,20 +9,14 @@
 #include <Keys.h>
 #include <Wavedisplay_base.h>
 #include <Logfacility.h>
-
-
-
-
 #include <Mixer.h>
 #include <Ocean.h>
 
 // Qt
 #include <QLabel>
-#include <QByteArray>
 #include <QPolygon>
 #include <QTimer>
 #include <QRect>
-#include <QEvent>
 
 
 
@@ -34,44 +28,41 @@ const string 		Module 		= "OceanGUI";
 auto set_rb_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::rb_state_t map : M->rb_sta_vec )
-    	map.rb->setChecked( *map.state );
+    	map.rb->setChecked( M->Sds->addr->StA_state[map.id].store );
 };
 auto set_cb_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::cb_state_t map : M->cb_sta_vec )
-    	map.cb->setChecked( *map.state );
+    	map.cb->setChecked( M->Sds->addr->StA_state[map.id].play );
 };
 auto set_sl_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::sl_value_t map : M->sl_sta_vec )
-    	map.sl->setValue( *map.value );
+    	map.sl->setValue( M->Sds->addr->StA_amp_arr[map.id] );
 };
 
 
 
 MainWindow::MainWindow(	QWidget *parent ) :
-	Logfacility_class( Module ),
-	ui(new Ui::MainWindow() )
-
+	Logfacility_class( Module )
+	,	ui(new Ui::MainWindow{} )
 {
-//	ui = &Ui_Mainwindow_obj;
-    ui->setupUi(this);
 
-    initPanel();
+   ui->setupUi(this);
 
-//	select_Sds(Sds_master->config );
-    Sds_master->UpdateFlag = true;
-    Sds->addr->UpdateFlag = true;
-    Sds_master->Record = false;
+	initPanel();
 
-    initWavedisplay();
+	Sds_master->UpdateFlag = true;
+	Sds->addr->UpdateFlag = true;
+	Sds_master->Record = false;
+	DaTA->Master_Sds_p->Announce( );
+
+	initWavedisplay();
     initOscWidget();
     initMixerVector();
     initFreqSlider();
     initScrollbars();
     initComboBoxes();
-
-
 
     initUiConnectors();
     initTimer();
@@ -79,7 +70,9 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 MainWindow::~MainWindow()
 {
-	delete OscW_item;
+	cout << "visited ~MainWindow" << endl;
+	printf( "%p\n\n", OscW_item );
+	if ( OscW_item ) delete OscW_item;
 //	if ( ui ) delete ui;
 }
 
@@ -139,13 +132,13 @@ void MainWindow::Rtsp_Dialog()
     }
     else
     {
-        this->Rtsp_Dialog_p->show();
         Rtsp_Dialog_p->proc_table_update_all( );
+        this->Rtsp_Dialog_p->show();
     }
 }
 void MainWindow::SDS_Dialog()
 {
-    string Start_Comstack = Cfg->Server_cmd( Cfg->Config.Term, file_structure().comstack_bin, "" );
+    string Start_Comstack = Cfg->Server_cmd( Cfg->Config.Term, fs.comstack_bin, "" );
 	system_execute( Start_Comstack.data() );
 	return;
 
@@ -165,19 +158,10 @@ void MainWindow::File_Director()
         this->File_Dialog_p->hide();
     else
     {
-    	int notetype = Sds->addr->NotestypeId;
-    	File_Dialog_p->CB_notes->clear();
-    	File_Dialog_p->CB_notes->addItems( Qread_filenames( file_structure().Notesdirs[ notetype],
-															file_structure().Notestypes[notetype]) );
+    	File_Dialog_p->Setup_widgets();
 		this->File_Dialog_p->show();
     }
 }
-void MainWindow::setButtonColor( QPushButton* pb, QColor color  )
-{
-	QPalette status_color = QPalette();
-	status_color.setColor(QPalette::Button, color);
-	pb->setPalette( status_color );
-};
 
 void MainWindow::Spectrum_Dialog()
 {
@@ -214,13 +198,19 @@ void MainWindow::VCO_Waveform_slot( int _wfid )
 
 void MainWindow::select_Sds( uint sdsid ) // TODO working
 {
+
 	this->Sds_master->config = sdsid;
 	this->Sds_master->UpdateFlag = true;
 	this->Sds->addr->UpdateFlag = true;
 	this->SDS_ID = sdsid;
 
 	this->Sds = DaTA->GetSds( sdsid );
-    Info( App.This_Application + " set to SDS Id: " + to_string( (int) Sds->addr->SDS_Id ));
+
+	initMixerVector();
+	initWavedisplay();
+	wp_vec = { &Sds->addr->VCO_wp, &Sds->addr->FMO_wp, &Sds->addr->OSC_wp };
+
+    Info( Type_map( GUI_ID) + " set to SDS Id: " + to_string( (int) Sds->addr->SDS_Id ));
 	DaTA->Reg.Show_proc_register( sdsid );
 
 	File_Dialog_p->SetSds( this->Sds, sdsid );
@@ -228,8 +218,6 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 
 	Rtsp_Dialog_p->proc_table_update_row( sdsid + 1 );
 	Rtsp_Dialog_p->SDS_ID = sdsid;
-
-	wp_vec = { &Sds->addr->VCO_wp, &Sds->addr->FMO_wp, &Sds->addr->OSC_wp };
 
 
 };
@@ -488,6 +476,8 @@ void MainWindow::setwidgetvalues()
 		OscW_item->sds = this->Sds->addr;
 	if( Spectrum_Dialog_p->isVisible( ))
 		Spectrum_Dialog_p->Update_spectrum();
+	if( Rtsp_Dialog_p->isVisible() )
+		Rtsp_Dialog_p->proc_table_update_all();
 
     Sds->Set( Sds->addr->UserInterface 	, RUNNING );
     MainWindow::show();
@@ -563,7 +553,7 @@ void MainWindow::Slider_FMO_Adjust( int value )
 
 void MainWindow::start_composer()
 {
-    string Start_Composer = Cfg->Server_cmd( Cfg->Config.Term, file_structure().composer_bin, "" );
+    string Start_Composer = Cfg->Server_cmd( Cfg->Config.Term, fs.composer_bin, "" );
 	system_execute( Start_Composer.data() );
 }
 
@@ -572,11 +562,11 @@ void MainWindow::start_audio_srv()
 	if( Sds->addr->Rtsp == RUNNING )
 		return;
     string Start_Audio_Srv = Cfg->Server_cmd( Cfg->Config.Term,
-    		file_structure().audio_bin,
+    		fs.audio_bin,
 			"-S 0");
 	system_execute( Start_Audio_Srv.data() );
-    Sem->Lock( SEMAPHORE_STARTED );
-    Rtsp_Dialog_obj.proc_table_update_row( 0 );
+    Sem->Lock( SEMAPHORE_STARTED, 2 );
+	setwidgetvalues();
 }
 
 void MainWindow::start_synthesizer()
@@ -592,16 +582,15 @@ void MainWindow::start_synthesizer()
 	if ( sdsid < 0 ) return;
 
 	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
-    		file_structure().synth_bin,
+    		fs.synth_bin,
 			"-S " + to_string( sdsid ) );
 
     system_execute( Start_Synthesizer.data() );
-    Sem->Lock( SEMAPHORE_STARTED );
+    Sem->Lock( SEMAPHORE_STARTED, 2 );
     select_Sds(sdsid);
 	setwidgetvalues();
-
-//    Rtsp_Dialog_obj.proc_table_update_row( sdsid + 1);
 }
+
 void MainWindow::read_polygon_data()
 {
     OscW_item->read_polygon_data();
@@ -615,19 +604,16 @@ void MainWindow::Controller_Exit()
 			Sem->Release( SEMAPHORE_EXIT );
 		return;
 	}
-	uint idx = Rtsp_Dialog_obj.SDS_ID + SYNTHID ;
     Sds->Set( Sds->addr->Synthesizer , EXITSERVER );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
-    DaTA->Reg.Reset( idx );
-    Rtsp_Dialog_obj.proc_table_update_row(Rtsp_Dialog_obj.SDS_ID + 1);
+	setwidgetvalues();
 }
 
 void MainWindow::Audio_Exit()
 {
     Sds_master->AudioServer = EXITSERVER;
-    DaTA->Reg.Reset(  AUDIOID );
     DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
-    Rtsp_Dialog_obj.proc_table_update_row(0);
+	setwidgetvalues();
 }
 
 void MainWindow::Save_Config()
@@ -724,16 +710,16 @@ void MainWindow::pB_fftmode_clicked()
 	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );
 
 }
+
+
 void MainWindow::updateWidgets()
 {
-
     if (  Sds_master->UserInterface == UPDATEGUI  )
     {
         if ( Sds->addr->KEY == INSTRUMENTSTR_KEY )
         {
-            string str = Sds->Read_str( INSTRUMENTSTR_KEY );
-            Instrument_name = QString::fromStdString( str );
-            File_Dialog_p->CB_instruments->textActivated( Instrument_name );
+            Instrument_name = QReadStr( Sds, INSTRUMENTSTR_KEY );
+            File_Dialog_p->Setup_widgets();
         }
         if ( not Sds_master->Composer )
         {
@@ -743,24 +729,20 @@ void MainWindow::updateWidgets()
 				{
 					Info( "update recording info");
 					CB_external->clear();
-					CB_external->addItems( Qread_filenames( file_structure().Dir.musicdir, file_structure().wav_type) );
-					string file		= Sds->Read_str( OTHERSTR_KEY );
-					QString Qfile	= QString::fromStdString( file );
+					Path_t path{ fs.Dir.musicdir, fs.wav_type };
+					CB_external->addItems( Qread_filenames( path ));
+					QString Qfile	= QReadStr( Sds, OTHERSTR_KEY );
 					CB_external->setCurrentText( Qfile );
 					break;
 				}
 				case NEWINSTRUMENTFLAG :
 				{
-					File_Dialog_p->CB_instruments->clear();
-					File_Dialog_p->CB_instruments->addItems( Qread_filenames( file_structure().Dir.instrumentdir, file_structure().snd_type));
+					File_Dialog_p->Setup_widgets();
 					break;
 				}
 				case NEWNOTESLINEFLAG :
 				{
-					int notetype = Sds->addr->NotestypeId;
-					File_Dialog_p->CB_notes->clear();
-					File_Dialog_p->CB_notes->addItems( Qread_filenames(file_structure().Notesdirs[ notetype],
-									file_structure().Notestypes[notetype]) );
+					File_Dialog_p->Setup_widgets();
 					break;
 				}
 			}
@@ -769,31 +751,23 @@ void MainWindow::updateWidgets()
 
     Sds->addr->UserInterface = OFFLINE ;
 
+    bool a_running = ( Sds_master->AudioServer == RUNNING );
+    setButton( ui->pBAudioServer, a_running );
 
-    if (Sds_master->AudioServer == RUNNING )
-        setButtonColor( ui->pBAudioServer, Qt::green);
-    else
-        setButtonColor( ui->pBAudioServer, Qt::red);
+    bool s_running = ( Sds->addr->Synthesizer == RUNNING );
+    setButton( ui->pBSynthesizer, s_running );
 
-
-    if (Sds->addr->Synthesizer == RUNNING )
-        setButtonColor( ui->pBSynthesizer, Qt::green);
-    else
-        setButtonColor( ui->pBSynthesizer, Qt::red);
-
-    if( Sds_master->Record)
+    bool record = ( Sds_master->Record);
+    setButton( ui->pBtoggleRecord, not record );
+    if( record )
     {
     	ui->pBtoggleRecord->setText( "Stop Rec");
-        setButtonColor( ui->pBtoggleRecord, Qt::red);
     }
     else
     {
     	ui->pBtoggleRecord->setText( "Record");
-        setButtonColor( ui->pBtoggleRecord, Qt::green);
     }
+
     setwidgetvalues();
 
 }
-
-
-

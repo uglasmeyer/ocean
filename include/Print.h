@@ -56,7 +56,7 @@ public:
 		if ( (count-1) == (argc)  )
 		{
 
-			string format = LogPrint.module + ":" +  "INFO > " ;
+			string format = LogPrint.className + ":" +  "INFO > " ;
 			File.flush() <<  SETW << format  << logcomment << " ";
 			cout << Color[INFO] <<  SETW << format << logcomment << " ";
 		}

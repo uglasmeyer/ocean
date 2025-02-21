@@ -28,7 +28,7 @@ public:
 		Logfacility_class( "ShmMixer_class" )
 	{
 		DaTA_p = data;
-		className = Logfacility_class::module;
+		className = Logfacility_class::className;
 		Set_Loglevel( DEBUG, true);
 
 	};

@@ -131,7 +131,7 @@ public:
     QGridLayout *gridLayout;
     QPushButton *pBComposer;
     QPushButton *pBAudioServer;
-    QPushButton *pushButton_3;
+    QPushButton *pBGuiExit;
     QPushButton *pB_Save;
     QPushButton *pBAudioServerExit;
     QPushButton *pBSynthesizerExit;
@@ -610,10 +610,10 @@ public:
 
         gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
 
-        pushButton_3 = new QPushButton(layoutWidget);
-        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pBGuiExit = new QPushButton(layoutWidget);
+        pBGuiExit->setObjectName(QString::fromUtf8("pBGuiExit"));
 
-        gridLayout->addWidget(pushButton_3, 1, 4, 1, 1);
+        gridLayout->addWidget(pBGuiExit, 1, 4, 1, 1);
 
         pB_Save = new QPushButton(layoutWidget);
         pB_Save->setObjectName(QString::fromUtf8("pB_Save"));
@@ -704,9 +704,6 @@ public:
         QObject::connect(pB_Mute_StA, SIGNAL(clicked()), MainWindow, SLOT(Clear_Banks()));
         QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
         QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
-        QObject::connect(pushButton_3, SIGNAL(clicked()), MainWindow, SLOT(GUI_Exit()));
-        QObject::connect(pBSynthesizer, SIGNAL(clicked()), MainWindow, SLOT(start_synthesizer()));
-        QObject::connect(pBAudioServerExit, SIGNAL(clicked()), MainWindow, SLOT(Audio_Exit()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -766,7 +763,7 @@ public:
         pB_Mute->setText(QString());
         pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
         pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
-        pushButton_3->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
+        pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
         pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
         pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
         pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));

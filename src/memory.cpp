@@ -72,7 +72,7 @@ void Stereo_Memory::Init_data( buffer_t size )
 
 	SetDs( sizeof_stereo );
 	statistic.stereo += ds.mem_bytes;
-	ds.name			= Logfacility_class::module;
+	ds.name			= Logfacility_class::className;
 }
 
 void Stereo_Memory::Clear_data()

@@ -76,7 +76,7 @@ public:
 		Logfacility_class("Spectrum"),
 		Frequency_class()
 	{
-		className = Logfacility_class::module;
+		className = Logfacility_class::className;
 	};
 	virtual ~Spectrum_class(){};
 

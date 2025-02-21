@@ -14,7 +14,7 @@
 
 class Dataworld_class : virtual Logfacility_class
 {
-	string className = "Dataworld_class";
+	string className = "";
 public:
 
 	typedef vector<Interface_class> SDS_vec_t;
@@ -38,14 +38,16 @@ public:
 	interface_t*			sds_master	= nullptr;
 
 
-	interface_t* GetSdsAddr();
-	interface_t* GetSdsAddr( int id );
-	Interface_class* GetSds(  );
-	Interface_class* GetSds( int id );
+	interface_t* 		GetSdsAddr();
+	interface_t* 		GetSdsAddr( int id );
+	Interface_class*	GetSds(  );
+	Interface_class*	GetSds( int id );
 
-	stereo_t* 	SetShm_addr( ); 			// Audioserver
-	stereo_t* 	GetShm_addr( ); 			// Synthesizer
-	void 		ClearShm();
+	stereo_t* 			SetShm_addr( ); 			// Audioserver
+	stereo_t* 			GetShm_addr( ); 			// Synthesizer
+	void 				ClearShm();
+
+	void				Test_Dataworld();
 
 	Dataworld_class( uint id );
 	virtual ~Dataworld_class();

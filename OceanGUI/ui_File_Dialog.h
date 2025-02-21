@@ -272,7 +272,7 @@ public:
 
     void retranslateUi(QDialog *File_Dialog)
     {
-        File_Dialog->setWindowTitle(QCoreApplication::translate("File_Dialog", "File Director", nullptr));
+        File_Dialog->setWindowTitle(QCoreApplication::translate("File_Dialog", "Notes&Instruments", nullptr));
         label_3->setText(QCoreApplication::translate("File_Dialog", "NPS", nullptr));
         label->setText(QCoreApplication::translate("File_Dialog", "Instruments", nullptr));
         pbInstrumentDone->setText(QCoreApplication::translate("File_Dialog", "Instrument Done", nullptr));

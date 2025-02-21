@@ -43,7 +43,7 @@ void SynthesizerTestCases()
 										DaTA.Cfg_p);
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
-	Statistic_class 		Statistic{ Log.module };
+	Statistic_class 		Statistic{ Log.className };
 
 	Semaphore_class*		Sem	= DaTA.Sem_p;
 	uint8_t ch;
@@ -107,6 +107,7 @@ void SynthesizerTestCases()
 	Log.TEST_END( "Application " );
 
 	DaTA.Reg.Test_Register();
+	DaTA.Test_Dataworld();
 	System_Test();
 
 }
@@ -115,7 +116,7 @@ Application_class::Application_class( 	Dataworld_class* _DaTA ) :
 Logfacility_class( "App" )
 {
 	this->ProgamName			= _DaTA->Cfg.prgname;
-	this->className				= Logfacility_class::module ;
+	this->className				= Logfacility_class::className ;
 	this->DaTA					= _DaTA;
 	this->Statistic.module		= ProgamName;
 	this->This_Application 		= Application + DaTA->Cfg.prgname + " " + Version_str;
@@ -147,6 +148,7 @@ void Application_class::VersionTxt()
 	fstream File;
 	File.open( file_structure().version_txt, fstream::out );
 	File << "Version: " << Version_No << endl;
+	File.close();
 }
 
 void Application_class::Start( int argc, char* argv[] )
@@ -241,6 +243,7 @@ void Application_class::Ready(  )
 	Statistic.Show_Statistic( );
 
 	Comment(INFO, DaTA->Cfg.prgname + " is ready");
+	Info2( 2, "SDS ID: ", (int) DaTA->SDS_Id );
 	cout << Line << endl;
 }
 

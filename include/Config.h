@@ -136,8 +136,6 @@ typedef struct file_structure
 	const string 	doc_filename 	= "Ocean.odt";
 	const string 	doc_file 		= Dir.docdir 		+ doc_filename;
 
-    vector<string> Notestypes	= { xml_type, nte_type } ;
-    vector<string> Notesdirs	= { Dir.xmldir,  Dir.notesdir } ;
 
     string get_rec_filename( uint no )
     {

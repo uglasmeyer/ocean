@@ -459,7 +459,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>File Director</string>
+   <string>Notes&amp;Instruments</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="10" column="2">

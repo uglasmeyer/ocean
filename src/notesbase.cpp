@@ -13,7 +13,7 @@ Note_base::Note_base () :
 	Logfacility_class("NotesBase"),
 	Frequency_class()
 {
-	className = Logfacility_class::module;
+	className = Logfacility_class::className;
 };
 
 Note_base::~Note_base()

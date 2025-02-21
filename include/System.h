@@ -21,7 +21,7 @@ template< typename T>
 bool Is_running_process( const T& pid )
 {
 	stringstream strs {};
-	strs << "/proc/" << pid ;
+	strs << "/proc/" << dec  <<  pid ;
 
 	bool isdir = filesystem::is_directory( strs.str() ) ;
 	return isdir ;

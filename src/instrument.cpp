@@ -57,14 +57,13 @@ void Instrument_class::reuse_GUI_Data()
 
 }
 
-buffer_t Instrument_class::Set_msec( uint16_t msec )
+void Instrument_class::Set_msec( buffer_t frames )
 {
+	uint16_t msec = frames * 1000 / frames_per_sec;
 	for( Oscillator* osc : Oscgroup.oscgroup )
 	{
 		osc->Set_duration( msec );
 	}
-	buffer_t frames = msec * frames_per_sec / 1000;
-	return frames;
 }
 
 void Instrument_class::setup_GUI_Data()

@@ -95,7 +95,7 @@ void Loop_class::Test()
 Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 : Logfacility_class("Mixer")
 {
-	this->className = Logfacility_class::module;
+	this->className = Logfacility_class::className;
 
 	cout << "Init Mixer_class" << endl;
 	this->sds 	= data->GetSdsAddr( );

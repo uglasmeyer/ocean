@@ -39,7 +39,7 @@ public:
 
 	Processor_class( Interface_class* gui ) : Logfacility_class("Processor")
 	{
-		className	= Logfacility_class::module;
+		className	= Logfacility_class::className;
 		this->sds = gui;
 		this->ifd = gui->addr;
 		this->Sem = gui->Sem_p;

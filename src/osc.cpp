@@ -109,7 +109,7 @@ Oscillator::Oscillator( ) :
 		Logfacility_class( "Oscillator" ),
 		Oscillator_base()
 {
-	className 	= Logfacility_class::module;
+	className 	= Logfacility_class::className;
 }
 Oscillator::~Oscillator()
 {

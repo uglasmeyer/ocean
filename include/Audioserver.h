@@ -62,6 +62,7 @@ uint			rcounter		= 0;
 char 			shm_id 			= 0; // out_data = Shm_a
 stereo_t*		shm_addr 		= nullptr;
 const buffer_t 	chunksize		= max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
+buffer_t 		audioframes 	= sds->audioframes;
 
 uint			bufferFrames 	= chunksize;
 bool 			done 			= false;

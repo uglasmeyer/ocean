@@ -28,6 +28,7 @@ public:
 	void 	Test_Register();
 	void 	Proc_deRegister();
 	int 	GetStartId( );
+	void	Update_register();
 
 	Register_class( ) ;
 	virtual ~Register_class();
@@ -42,7 +43,6 @@ private:
 	void 	proc_Register();
 	int 	scan_proc_register(); // returns SDS_id
 	void 	show_proc_register();
-	void	update_register();
 };
 
 

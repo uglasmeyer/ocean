@@ -1,5 +1,5 @@
 #See the documentation file Ocean.odt
 #about the specification of Prefix, Notes and Volume 
-P=1,0,4,0,0
-N=|2(AC)-(DC)- |2(AC)-(DC)- |2(AC)-(DC)- CGGF FC-- F-G- .---DCGF FC-- |2(AC)-(DC)- FDCF F--F 
+P=3,0,4,0,0
+N=(AC)-(DC)- (AC)-(DC)- (AC)-(DC)- CGGF FC-- F-G- .---DCGF FC-- (AC)-(DC)- FDCF F--F 
 V=8

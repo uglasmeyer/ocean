@@ -10,7 +10,7 @@
 void MainWindow::initPanel()
 {
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
-    QString Ocean_png = QString::fromStdString( file_structure().Dir.libdir + "Ocean.png" );
+    QString Ocean_png = QString::fromStdString( fs.Dir.libdir + "Ocean.png" );
     QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
 
@@ -24,12 +24,12 @@ void MainWindow::initPanel()
 void MainWindow::initComboBoxes()
 {
     CB_external         = ui->cb_external;
-    string wavfile_path = file_structure().Dir.musicdir;
+    string wavfile_path = fs.Dir.musicdir;
     CB_external->clear();
 
-    CB_external->addItems( Qread_filenames(	wavfile_path, file_structure().wav_type ) );
-    string file		= Sds->Read_str( OTHERSTR_KEY );
-    QString Qfile	= QString::fromStdString( file );
+    Path_t path { wavfile_path, fs.wav_type } ;
+    CB_external->addItems( Qread_filenames(	path ) );
+    QString Qfile	= QReadStr( Sds, OTHERSTR_KEY );
     CB_external->setCurrentText( Qfile );
 
 	Qbps_str_lst 		= Qstringlist( bps_struct().Bps_lst );
@@ -130,34 +130,38 @@ void MainWindow::initMixerVector()
 
 void MainWindow::initUiConnectors()
 {
-    connect( ui->pB_Rtsp, SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
-    connect( ui->pb_SDSview, SIGNAL(clicked()), this, SLOT( SDS_Dialog() ));
+    connect( ui->pB_Rtsp, 		SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
+    connect( ui->pb_SDSview,	SIGNAL(clicked()), this, SLOT( SDS_Dialog() ));
+    connect( ui->pB_Specrum,	SIGNAL(clicked()), this, SLOT( Spectrum_Dialog() ));
+    connect( ui->pB_play_notes, SIGNAL(clicked()), this, SLOT( File_Director() ));
+
+    connect( ui->pBSynthesizer	, 	SIGNAL(clicked()), this, SLOT( start_synthesizer() ));
     connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
     connect( ui->pBAudioServer, 	SIGNAL(clicked()), this, SLOT( start_audio_srv() ));
+    connect( ui->pBAudioServerExit,	SIGNAL(clicked()), this, SLOT( Audio_Exit() ));
+    connect( ui->pBComposer, 		SIGNAL(clicked()), this, SLOT( start_composer() ));
+    connect( ui->pBGuiExit, 		SIGNAL(clicked()), this, SLOT( GUI_Exit() ));
 
-    connect( ui->pBComposer, SIGNAL(clicked()), this, SLOT( start_composer() ));
     connect( ui->pBtoggleRecord, SIGNAL(clicked(bool)), this, SLOT(SaveRecord() ));
     connect( ui->pB_Mute, SIGNAL(clicked()), this, SLOT(toggle_Mute()));
     connect( ui->pB_Save, SIGNAL(clicked()), this, SLOT(Save_Config()));
     connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
+
     connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Freq(int)));
     connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Freq(int)));
     connect( ui->Slider_OSC_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_OSC_Freq(int)));
-
-    connect(ui->pB_play_notes, SIGNAL(clicked()), this, SLOT(File_Director() ));
-    connect(ui->pB_Specrum, SIGNAL(clicked()), this, SLOT(Spectrum_Dialog() ));
 
     connect(ui->dial_soft_freq, SIGNAL(valueChanged(int)), this, SLOT(dial_soft_freq_value_changed() ));
     connect(ui->dial_PMW      , SIGNAL(valueChanged(int)), this, SLOT(dial_PMW_value_changed() ));
     connect(ui->dial_ramp_up_down, SIGNAL( valueChanged(int)), this, SLOT(slot_dial_ramp_up_down()) );
     connect(ui->hs_adsr_attack , SIGNAL(valueChanged(int)), this, SLOT(dial_decay_value_changed() ));
+    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int))	, this, SLOT(main_adsr_sustain() ));
 
-    connect(ui->cb_bps		, SIGNAL(activated(int)), this, SLOT(cB_Beat_per_sec(int) ));
-    connect(ui->hs_adsr_sustain, SIGNAL(valueChanged(int)), this, SLOT(main_adsr_sustain() ));
-    connect(ui->pB_Wavedisplay , SIGNAL(clicked()), this, SLOT(pB_Wavedisplay_clicked()));
-    connect(ui->pB_wd_mode, SIGNAL(clicked()), this, SLOT(pB_Debug_clicked()));
-    connect(ui->pB_oscgroup, SIGNAL(clicked()), this, SLOT(pB_oscgroup_clicked()));
-    connect(ui->pb_fftmode, SIGNAL(clicked()), this, SLOT(pB_fftmode_clicked()));
+    connect(ui->cb_bps			, SIGNAL(activated(int))	, this, SLOT(cB_Beat_per_sec(int) ));
+    connect(ui->pB_Wavedisplay 	, SIGNAL(clicked())			, this, SLOT(pB_Wavedisplay_clicked()));
+    connect(ui->pB_wd_mode		, SIGNAL(clicked())			, this, SLOT(pB_Debug_clicked()));
+    connect(ui->pB_oscgroup		, SIGNAL(clicked())			, this, SLOT(pB_oscgroup_clicked()));
+    connect(ui->pb_fftmode		, SIGNAL(clicked())			, this, SLOT(pB_fftmode_clicked()));
 
     connect(ui->Slider_mix_vol0, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix0(int) ));
     connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));

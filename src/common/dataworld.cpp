@@ -9,8 +9,9 @@
 
 
 Dataworld_class::Dataworld_class( uint type_id ) :
-	Logfacility_class( "DaTA")
+	Logfacility_class( "Dataworld_cl")
 {
+	className = Logfacility_class::className;
 	this->TypeId	= type_id;
 	auto sds_setup = [ this ]( uint sdsid )
 	{
@@ -54,13 +55,13 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 
 Dataworld_class::~Dataworld_class()
 {
-	Reg.Proc_deRegister( );
 
 	if ( Reg.Is_dataprocess() )
 	{
 		Sem.Release(SEMAPHORE_EXIT);
 		SHM_0.Detach( SHM_0.ds.addr );
 		SHM_1.Detach( SHM_1.ds.addr );
+		Reg.Proc_deRegister( );
 	}
 
 	cout << "visited ~" <<  className << endl;
@@ -124,9 +125,29 @@ stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 	shm_id 	= ( shm_id + 1 ) % 2;
 	addr 	= (	shm_id == 0 ) ? ShmAddr_0 : ShmAddr_1;
 	sds_master->SHMID 	= shm_id;
-//	sds_master->MODE 	= FREERUN;
 
 	return addr;
 }
 
+void Dataworld_class::Test_Dataworld()
+{
+	TEST_START( className );
+	Interface_class* Sds;
+	for ( uint sdsid = 0; sdsid < 4; sdsid++ )
+	{
+		Sds = GetSds( sdsid );
+		string str = Sds->Read_str( OTHERSTR_KEY );
+		Sds->Write_str( OTHERSTR_KEY, str );
+		cout << "read/write on Sds " << sdsid << " ok: " << str << endl;
+	}
+	sds_master->SHMID = 0;
+	ClearShm();
+	cout << "read/write on SHM " << 0 << " ok: " << endl;
+
+	sds_master->SHMID = 1;
+	ClearShm();
+	cout << "read/write on SHM " << 1 << " ok: " << endl;
+	TEST_END( className );
+
+}
 

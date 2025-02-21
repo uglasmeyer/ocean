@@ -43,7 +43,7 @@ public:
 		this->Cfg			= cfg;
 		Stereo_Memory::Init_data( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) );
 		Stereo_Memory::Info	( "External Stereo data") ;
-		className			= Logfacility_class::module;
+		className			= Logfacility_class::className;
 	};
 
 
@@ -60,7 +60,7 @@ public:
 		this->sds			= sds;
 		Stereo_Memory::Init_data( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) );
 		Stereo_Memory::Info( "External Stereo data") ;
-		className			= Logfacility_class::module;
+		className			= Logfacility_class::className;
 	};
 
 	virtual ~External_class(){};

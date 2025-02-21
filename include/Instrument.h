@@ -39,7 +39,7 @@ public:
 	bool Set( string );
 	void Setup( interface_t* ifd );
 	void Save_Instrument( string );
-	buffer_t Set_msec( uint16_t msec );
+	void Set_msec( buffer_t frames );
 	void Update_spectrum();
 	void Test_Instrument();
 	void Run_osc_group();

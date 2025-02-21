@@ -52,9 +52,10 @@ public:
 				Dataworld_class*	data,
 				External_class*		external,
 				ProgressBar_class*	progressbar,
-				Musicxml_class*		musicxml ) : Logfacility_class("Core_class")
+				Musicxml_class*		musicxml ) :
+					Logfacility_class("Event_class")
 	{
-		className = Logfacility_class::module;
+		className = Logfacility_class::className;
 		this->DaTA			= data;
 		this->Sds			= DaTA->Sds_p;
 		this->sds_master	= DaTA->sds_master;

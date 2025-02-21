@@ -298,7 +298,7 @@ void DirStructure_class::Test()
 DirStructure_class::DirStructure_class() :
 	Logfacility_class("DirStructure")
 {
-	className = Logfacility_class::module;
+	className = Logfacility_class::className;
 	setDir();
 };
 

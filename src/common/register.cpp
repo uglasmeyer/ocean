@@ -11,7 +11,9 @@
 Register_class::Register_class( ) :
 	Logfacility_class( "Process Reg")
 {
-	className 	= Logfacility_class::module;
+	className 	= Logfacility_class::className;
+//	Set_Loglevel( DEBUG, true);
+
 };
 
 Register_class::~Register_class()
@@ -71,8 +73,11 @@ bool Register_class::Is_dataprocess()
 
 void Register_class::Reset( uint idx )
 {
-	if ( not Is_running_process( (int)sds->process_arr.at( idx ).pid ) )
-		sds->process_arr.at( idx ) = noprocess;
+	if ( (idx<0) or (idx>REGISTER_SIZE-1)) return;
+	int pid = (int)sds->process_arr.at( idx ).pid ;
+	sds->process_arr.at( idx ) = noprocess;
+	if ( Log[DEBUG] )
+		Info2( 5, "Process idx: ", idx , "reset process ", dec, pid );
 }
 
 void Register_class::Clear_procregister()
@@ -111,13 +116,15 @@ void Register_class::proc_Register()
 	sds->process_arr.at(idx).type	= Type_Id;
 	sds->process_arr.at(idx).pid	= getpid();
 
-	show_proc_register( );
+	if( Log[DEBUG] )
+	{
+		Info2( 3, "Register process pid ",dec, (int)sds->process_arr.at(idx).pid );
+		show_proc_register( );
+	}
 
 }
 void Register_class::Proc_deRegister(  )
 {
-	if( not Is_dataprocess() )
-		return;
 	uint idx = Type_Id + Sds_Id ;
 	regComment( this, "De-", Type_map( Type_Id ), Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
@@ -169,7 +176,7 @@ int Register_class::GetId()
 	return Sds_Id;
 }
 
-void Register_class::update_register()
+void Register_class::Update_register()
 {
 	for( uint idx = 0; idx < REGISTER_SIZE; idx++ )
 	{
@@ -180,7 +187,7 @@ void Register_class::update_register()
 int Register_class::scan_proc_register() // returns Sds_Id
 {
 	assert( Type_Id < NOID );
-	update_register();
+	Update_register();
 	for( uint idx = SYNTHID; idx < REGISTER_SIZE; idx++ )
 	{
 		if ( sds->process_arr.at(idx).type == NOID )

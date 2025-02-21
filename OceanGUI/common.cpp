@@ -8,6 +8,7 @@
 #include <Common.h>
 
 
+
 QStringList Qstringlist ( const list<string>& str_lst )
 {
 	QStringList Qlist{};
@@ -41,14 +42,14 @@ vector<QString> Vstringvector( const vector<string>& str_vec )
 
 };
 
-QStringList Qread_filenames( const string& path, const string& type )
+QStringList Qread_filenames( const Path_t dir_ext )
 {
 	QStringList qlist{};
-    for ( string file : List_directory( path, type ) )
+	vector<string> dir_vec = List_directory( dir_ext.dir, dir_ext.ext );
+    for ( string str :  dir_vec )
     {
-    	size_t len = file.length() - type.length();
-    	string name = file.substr(0, len);
-    	qlist.push_back( QString::fromStdString( name ) );
+    	std::filesystem::path path{ str };
+   		qlist.push_back( QString::fromStdString( path.stem() ) );
     }
     return qlist;
 }

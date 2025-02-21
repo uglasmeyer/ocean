@@ -345,7 +345,7 @@ public:
 
     void retranslateUi(QDialog *Spectrum_Dialog_class)
     {
-        Spectrum_Dialog_class->setWindowTitle(QCoreApplication::translate("Spectrum_Dialog_class", "Dialog", nullptr));
+        Spectrum_Dialog_class->setWindowTitle(QCoreApplication::translate("Spectrum_Dialog_class", "Spectrum", nullptr));
         pB_save_spectrum->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Save", nullptr));
         lbl_instrument->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));
         lbl_waveform->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));

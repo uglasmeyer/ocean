@@ -31,24 +31,12 @@ class File_Dialog_class :
 public:
     unique_ptr<Ui::File_Dialog> 	ui;
 
-    QPalette        status_color 	= QPalette();
-    QComboBox*      CB_notes		= nullptr  ;
-    QComboBox*      CB_instruments	= nullptr;
-    QSlider*		Sl_Main_Hz		= nullptr;
-    string          NotesDir		= "";
-    string          notes_type		= "";
-    string          instruments_path= "";
     QString         QNote_Chars		{"Notes: ( )"};
-    const QString   NotesON 		= "Notes Off" ;
-    const QString   NotesOFF		= "Play Notes";
-    bool            SWITCHON 		= false;
     Interface_class* Sds			= nullptr;
     Semaphore_class* sem			= nullptr;
     interface_t*	sds_p			= nullptr;
     int8_t			SDS_ID			= 0;
-    QList<QString>	QNotestypes		{};
-    QList<QString>	QNotesdirs		{};
-    vector<int> 	Noteskeys		{};
+
 
     explicit File_Dialog_class(	QWidget* 		 parent	= nullptr,
     							Interface_class* sds 	= nullptr,
@@ -60,8 +48,9 @@ public:
     void set_le_instrument( QString );
     void set_le_notes( QString );
     void SetSds( Interface_class* sds, int8_t id );
-    void Set_button_color( QPushButton* pb, QColor color  );
 
+private:
+    enum { XML_ID, NTE_ID };
 
 private slots:
     void on_cb_notefilenames_activated(const QString &arg1);

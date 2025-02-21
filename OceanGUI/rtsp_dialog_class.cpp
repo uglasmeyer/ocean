@@ -51,6 +51,7 @@ void Rtsp_Dialog_class::proc_table_update_row( uint row )
 
 void Rtsp_Dialog_class::proc_table_update_all( )
 {
+	DaTA->Reg.Update_register();
 	for( uint row = 0 ; row < REGISTER_SIZE; row++ )
 	{
 		proc_table_update_row(row);

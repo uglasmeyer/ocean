@@ -3,12 +3,16 @@
 
 using namespace std;
 
+LogVector_t LogVector{ "Synthesizer" };
+
 Exit_class				Exit{};
 Logfacility_class		Log( "Synthesizer" );
 
 DirStructure_class		Dir;
 Dataworld_class			DaTA( SYNTHID );
 interface_t*			sds = DaTA.GetSdsAddr();
+interface_t*			sds_master = DaTA.GetSdsAddr( 0 );
+
 Interface_class*		Sds_p = DaTA.GetSds();
 Wavedisplay_class 		Wavedisplay{ Sds_p };//DaTA.Master_Sds_p };
 Wavedisplay_class*		wd_p = &Wavedisplay;
@@ -23,7 +27,7 @@ Keyboard_class			Keyboard( 	&Instrument );
 External_class 			External( 	&Mixer.StA[ MbIdExternal],
 									DaTA.Cfg_p);
 ProgressBar_class		ProgressBar( &sds->RecCounter );
-Statistic_class 		Statistic{ Log.module };
+Statistic_class 		Statistic{ Log.className };
 Time_class				Timer		( &sds->time_elapsed );
 Musicxml_class			MusicXML{};
 
@@ -96,23 +100,22 @@ void activate_sds()
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 }
 
-void SetAudioframes()
+void SetSyncState()
 {
 	Mixer.status.sync = false;
-	for( uint id : Mixer.SycIds)
-		Mixer.status.sync |= ( Mixer.StA[id].state.play or Mixer.StA[id].state.store );
+	for( uint id : Mixer.SycIds )
+		Mixer.status.sync |= ( 	Mixer.StA[id].state.play or
+								Mixer.StA[id].state.store );
 
-	if ( Mixer.status.sync )
-		sds->audioframes = Instrument.Set_msec( max_milli_sec );
-	else
-		sds->audioframes = Instrument.Set_msec( min_milli_sec );
+	sds->mixer_status.sync = Mixer.status.sync;
 }
 
 
 void add_sound( )
 {
 
-	SetAudioframes();
+	SetSyncState();
+	Instrument.Set_msec( sds->audioframes  );
 
 	if ( Mixer.status.notes )
 	{
@@ -120,7 +123,7 @@ void add_sound( )
 		Notes.Generate_note_chunk( );
 	}
 
-	if ( Mixer.status.instrument )
+	if (( Mixer.status.instrument ) )
 		Instrument.Run_osc_group(); // generate the modified sound waves
 
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
@@ -153,12 +156,12 @@ void kbd_release( )
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
-//	interface_t* 	sds 		= DaTA.GetSdsAddr( );
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
 
 	if( Sem->Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
 		Sem->Release( SEMAPHORE_STARTED );
+
 	sds->Synthesizer = RUNNING;
 
 	App.Ready();
@@ -199,27 +202,29 @@ void ApplicationLoop()
 
 } // Application loop
 
-bool SyncThread_done	= false;
+bool SyncAudioThread_done	= false;
+string SyncAudioThread_name	= "audio sync thread";
 void synchronize_fnc( )
 {
-	Log.Comment(INFO, "Sync thread started" );
+	Log.Comment(INFO, SyncAudioThread_name + "started" );
 
 	while( true )
 	{
 		Sem->Lock( Sync_Semaphore );
-		if ( SyncThread_done )
+		if ( SyncAudioThread_done )
 			break;
 		add_sound( );
 	}
 
-	Log.Comment(INFO, "Sync thread terminated" );
+	Log.Comment(INFO, SyncAudioThread_name + " terminated" );
 }
-thread Sync_thread	( synchronize_fnc );
+thread SyncAudio_thread	( synchronize_fnc );
 
 bool SyncNotesThread_done	= false;
+string SyncNotesThread_name	= "notes sync thread";
 void sync_notes_fnc( )
 {
-	Log.Comment(INFO, "Syncronize Notes thread started" );
+	Log.Comment(INFO, SyncNotesThread_name + " started" );
 
 	while( true )
 	{
@@ -228,18 +233,19 @@ void sync_notes_fnc( )
 			break;
 		DaTA.Sem.Release( SEMAPHORE_SYNCNOTES ); //other
 		Notes.Restart = true;//Notes.Start_note_itr();
-		Log.Comment(INFO, "reset note pointer");
+		Log.Info( "reset note pointer");
 	}
 
-	Log.Comment(INFO, "Notes thread terminated" );
+	Log.Comment(INFO, SyncNotesThread_name + " terminated" );
 }
 thread SyncNotes_thread	( sync_notes_fnc );
 
-bool InitNotesThread_done	= false;
-void init_notes_fnc( )
+bool ReadNotesThread_done	= false;
+string ReadNotesThread_name	= "read notes thread";
+void read_notes_fnc( )
 {
-	Log.Comment(INFO, "Syncronize Notes thread started" );
-
+	Log.Comment(INFO, ReadNotesThread_name + " started" );
+	Sem->Reset( SEMAPHORE_INITNOTES );
 	while( true )
 	{
 		Sem->Lock( SEMAPHORE_INITNOTES );
@@ -263,34 +269,32 @@ void init_notes_fnc( )
 
 			Notes.Restart = true;//Notes.Start_note_itr();
 			Log.Comment(INFO, "xml notes loaded");
-
 		}
-
 	}
 
-	Log.Comment(INFO, "Notes thread terminated" );
+	Log.Comment(INFO, ReadNotesThread_name + " terminated" );
 }
-thread InitNotes_thread	( sync_notes_fnc );
+thread ReadNotes_thread	( read_notes_fnc );
 
 void stop_threads()
 {
-	SyncThread_done	= true;
+	SyncAudioThread_done	= true;
 	Sem->Release(Sync_Semaphore);
-	Log.Comment(INFO, "attempting to join sync thread ");
-	if ( Sync_thread.joinable() )
-		Sync_thread.join();
+	Log.Comment(INFO, "attempting to join " + SyncAudioThread_name );
+	if ( SyncAudio_thread.joinable() )
+		SyncAudio_thread.join();
 
 	SyncNotesThread_done	= true;
 	Sem->Reset( SEMAPHORE_SYNCNOTES );
-	Log.Comment(INFO, "attempting to join notes thread ");
+	Log.Comment(INFO, "attempting to join " + SyncNotesThread_name );
 	if ( SyncNotes_thread.joinable() )
 		SyncNotes_thread.join();
 
-	InitNotesThread_done	= true;
+	ReadNotesThread_done	= true;
 	Sem->Reset( SEMAPHORE_INITNOTES );
-	Log.Comment(INFO, "attempting to join read notes thread ");
-	if ( InitNotes_thread.joinable() )
-		InitNotes_thread.join();
+	Log.Comment(INFO, "attempting to join " + ReadNotesThread_name );
+	if ( ReadNotes_thread.joinable() )
+		ReadNotes_thread.join();
 
 }
 int sig_counter = 0;
@@ -313,12 +317,23 @@ void exit_proc( int signal )
 
 	Sem->Release( SEMAPHORE_STARTED ); // if start was not successful release waiting processes here
     Log.Comment(INFO, "Synthesizer reached target exit 0" );
-	exit( 0 );
+
+    Log.WriteLogFile();
+
+    if ( signal > 0 )
+    	exit( signal );
 }
 
+void activate_logging()
+{
+	Log.StartFileLogging( &LogVector );
+	Instrument.StartFileLogging( &LogVector );
+	Notes.StartFileLogging( &LogVector );
+}
 
 int main( int argc, char* argv[] )
 {
+	activate_logging();
 
 	App.Start( argc, argv );
 	SetLogLevels();
@@ -328,7 +343,8 @@ int main( int argc, char* argv[] )
 	{
 		Sem->Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
-		exit( 0 );
+		exit_proc( 0 );
+		return 0;
 	}
 
 	DaTA.Sds_p->Restore_ifd();
@@ -343,6 +359,6 @@ int main( int argc, char* argv[] )
 
 	ApplicationLoop( );
 	exit_proc( 0 );
-//	return 0;
+	return 0;
 };
 

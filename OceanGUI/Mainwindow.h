@@ -17,7 +17,7 @@
 #include <data/Semaphore.h>
 #include <Rtsp_dialog_class.h>
 #include <Wavedisplay_base.h>
-
+#include <Configbase.h>
 
 // qtcreator
 #include "ui_mainwindow.h"
@@ -31,14 +31,36 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+template< typename T >
+QString QReadStr ( T* Sds, uint key  )
+{
+    string str 		= Sds->Read_str( key );
+    QString QStr 	= QString::fromStdString( str );
+	return QStr;
+};
 
-class MainWindow : public QMainWindow, 	virtual public Logfacility_class
+template< typename T >
+void setButton( T* pb, bool state  )
+{
+	QPalette color = QPalette();
+	if ( state )
+		color.setColor(QPalette::Button, Qt::green );
+	else
+		color.setColor(QPalette::Button, Qt::red );
+
+	pb->setPalette( color );
+};
+
+class MainWindow :
+		public QMainWindow,
+		virtual public Logfacility_class
 {
     Q_OBJECT
 
 public:
     Dataworld_class			DaTA_class			{ GUI_ID };
-    Dataworld_class*		DaTA 				= &DaTA_class;
+    Dataworld_class*
+    						DaTA  = &DaTA_class;
     Application_class		App					{ DaTA };
 
     Config_class*			Cfg 				= DaTA->Cfg_p;
@@ -62,7 +84,7 @@ public:
     SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
 
     QComboBox*              CB_external         = nullptr;
-    QString                 Instrument_name     = QString::fromStdString( Sds->Read_str( INSTRUMENTSTR_KEY ) );
+    QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
 
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
@@ -99,7 +121,7 @@ public:
     vector<wave_t*>			wp_vec				{ 	&Sds->addr->VCO_wp,
     												&Sds->addr->FMO_wp,
 													&Sds->addr->OSC_wp };
-;
+    dir_struct_t 			fs					= file_structure();
 
 
     explicit MainWindow(	QWidget*			parent 	= nullptr);
@@ -137,7 +159,6 @@ private:
     void initTimer();
     void sliderFreq( uint8_t oscid, QLCDNumber* lcd, int value, char key );
     void sliderVolume( uint8_t oscid, QLCDNumber* lcd, int value, char key);
-    void setButtonColor( QPushButton* pb, QColor color  );
 
 
 private slots:
