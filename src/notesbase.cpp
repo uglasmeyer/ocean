@@ -97,7 +97,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 		{
 			Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
 												to_string( range[1] ) + "}" );
-			if ( Log[ TEST ] ) return;
+			if ( LogMask[ TEST ] ) return;
 			EXCEPTION( "Cannot assign noteline_prefix " +
 					 to_string( val ) +
 					" to noteline_structure" );//raise( SIGINT );
@@ -109,7 +109,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 
 	if ( arr.size() < 5 )
 	{
-		if ( Log[ TEST ] ) return noteline_prefix_default;
+		if ( LogMask[ TEST ] ) return noteline_prefix_default;
 		EXCEPTION( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
 	}
 
@@ -127,7 +127,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 	char nps_ch = arr[2][0];
 	if ( not NpsChars.Set.contains( nps_ch ) )
 	{
-		if ( Log[ TEST ] ) return noteline_prefix_default;
+		if ( LogMask[ TEST ] ) return noteline_prefix_default;
 		EXCEPTION( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
 	}
 	else

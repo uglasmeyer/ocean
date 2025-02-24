@@ -58,7 +58,7 @@ bool External_class::Read_file_data(  )
 	uint 		blocks 	= bytes/sizeof_stereo/StA->ds.block_size;
 	uint 		structs	= bytes/sizeof_stereo;
 
-	if (Log[DBG2])
+	if (LogMask[DBG2])
 		StA->Info("Memory Array External");
 	if ( structs > StA->ds.data_blocks )
 	{
@@ -138,7 +138,7 @@ int generate_file_no( uint maxfileno )
 {
 	fstream File;
 	string counterfile = file_structure().counter_file;
-	if ( Log_system.Log[ TEST ])
+	if ( LogMask[ TEST ])
 	{
 		counterfile = testcounter;
 	}

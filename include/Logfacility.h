@@ -16,6 +16,8 @@
 typedef vector<string> LogVector_t;
 
 enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
+const 	uint8_t 	LOGMAX 		= 7;
+extern 	array<bool, LOGMAX > LogMask;
 
 class Logfacility_class
 {
@@ -23,11 +25,9 @@ class Logfacility_class
 	const string 		logFileName	{ "Synthesizer" };
 	const string 		logFile	 	{ logDir + logFileName + ".log" };
 	LogVector_t*		LogVector_p = nullptr;
-	static const int 	logmax 		= 6;
 
 public:
 	const string 		Line = "-----------------------------------------------------------";
-	vector<bool> Log { true, false, true, true, false, true, false };
 	string 				className 	= "";
 
 	void Comment( const int& level, const string logcomment );

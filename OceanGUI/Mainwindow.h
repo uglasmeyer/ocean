@@ -80,8 +80,9 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA->Sds_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
-    SDS_Dialog_class		SDS_Dialog_Obj		{ this, Sds };
-    SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
+//not used
+//SDS_Dialog_class		SDS_Dialog_Obj		{ this, Sds };
+//SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
 
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
@@ -137,8 +138,8 @@ private:
     QTimer				status_timer_obj	{};
     QTimer*				status_timer		= &status_timer_obj;
     QGraphicsScene  	Scene 				{ this };
-    QGraphicsScene*     scene 				{ &Scene };
-    OszilloscopeWidget* OscW_item;			//	created by "new";
+    QGraphicsScene*     scene 				= &Scene ;
+    OszilloscopeWidget* OscWidget_item;			//	created by "new";
 
     const int
 	OSCID = osc_struct::OSCID,

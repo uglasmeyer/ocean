@@ -116,7 +116,7 @@ public:
 	void 		Set_frequency( int idx );
 	void 		Set_volume( uint16_t vol);
 	void 		Line_interpreter( vector_str_t arr );
-	void 		Set_waveform( char  );
+	void 		Set_waveform( spec_arr_8t wf_vec   );
 	void 		Set_csv_comment ();
 	void 		Get_comment( bool  );
 	void		Set_adsr( adsr_t );

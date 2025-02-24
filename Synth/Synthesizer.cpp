@@ -56,13 +56,17 @@ void show_AudioServer_Status()
 		Log.Comment(INFO, "Sound server is up" );
 	}
 	else
-		Log.Comment( ERROR,"Sound server not running with status " +
+		Log.Comment( WARN,"Sound server not running with status " +
 							DaTA.Sds_p->Decode( state ));
 }
 
 void SetLogLevels()
 {
-	Notes.Set_Loglevel(DEBUG, true );
+	Notes.Set_Loglevel(DEBUG, false );
+	LogMask[ DEBUG ] = false;
+	LogMask[ INFO ] = false;
+	Log.Show_loglevel();
+
 }
 void show_usage()
 {
@@ -124,7 +128,7 @@ void add_sound( )
 	}
 
 	if (( Mixer.status.instrument ) )
-		Instrument.Run_osc_group(); // generate the modified sound waves
+		Instrument.Oscgroup.Run_Oscgroup( 0 ); // generate the modified sound waves
 
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
 	Mixer.master_volume = DaTA.sds_master->Master_Amp;
@@ -170,7 +174,7 @@ void ApplicationLoop()
 	{
 		sds->time_elapsed = Timer.Performance();
 
-		Event.Handler( sds->KEY );
+		Event.Handler( sds->EVENT );
 
 		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
@@ -265,7 +269,7 @@ void read_notes_fnc( )
 			DaTA.Sds_p->Update(NEWNOTESLINEFLAG);
 
 			DaTA.Sds_p->Write_str(INSTRUMENTSTR_KEY, Notes.musicxml.instrument_name ); // other
-			sds->KEY = SETINSTRUMENTKEY;
+			sds->EVENT = SETINSTRUMENTKEY;
 
 			Notes.Restart = true;//Notes.Start_note_itr();
 			Log.Comment(INFO, "xml notes loaded");
@@ -324,25 +328,29 @@ void exit_proc( int signal )
     	exit( signal );
 }
 
-void activate_logging()
+constexpr void activate_logging()
 {
-	Log.StartFileLogging( &LogVector );
-	Instrument.StartFileLogging( &LogVector );
-	Notes.StartFileLogging( &LogVector );
+	LogMask.at( DEBUG ) 	= false;
+//	Log.Set_Loglevel( INFO, false );
+//	Log.StartFileLogging( &LogVector );
+//	Instrument.StartFileLogging( &LogVector );
+//	Notes.StartFileLogging( &LogVector );
 }
 
 int main( int argc, char* argv[] )
 {
 	activate_logging();
+	SetLogLevels();
 
 	App.Start( argc, argv );
-	SetLogLevels();
 	Dir.Create();
 
 	if ( Cfg->Config.test == 'y' )
 	{
 		Sem->Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
+		Log.Show_loglevel();
+
 		exit_proc( 0 );
 		return 0;
 	}

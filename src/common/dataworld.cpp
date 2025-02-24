@@ -9,7 +9,7 @@
 
 
 Dataworld_class::Dataworld_class( uint type_id ) :
-	Logfacility_class( "Dataworld_cl")
+	Logfacility_class( "Dataworld_class")
 {
 	className = Logfacility_class::className;
 	this->TypeId	= type_id;

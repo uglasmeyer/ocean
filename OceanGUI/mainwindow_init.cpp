@@ -19,6 +19,16 @@ void MainWindow::initPanel()
     palette.setColor(QPalette::WindowText, Qt::white);
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
+
+    QRect rect = Spectrum_Dialog_p->geometry();  //get current geometry of help window
+    QRect parentRect = this->geometry();      //get current geometry of this window
+    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
+    Spectrum_Dialog_p ->setGeometry(rect);
+
+    rect = File_Dialog_p->geometry();  //get current geometry of help window
+    parentRect = this->geometry();      //get current geometry of this window
+    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
+    File_Dialog_p->setGeometry(rect);
 }
 
 void MainWindow::initComboBoxes()
@@ -38,11 +48,12 @@ void MainWindow::initComboBoxes()
 
 void MainWindow::initOscWidget()
 {
-    ui->oscilloscope_view->setScene( scene );
     QRectF rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
-    OscW_item = new OszilloscopeWidget( Sds->addr, rect ) ;
-    scene->addItem( OscW_item );
+    OscWidget_item = new OszilloscopeWidget( Sds->addr, rect ) ;
+
+    ui->oscilloscope_view->setScene( scene );
+    scene->addItem( OscWidget_item );
 }
 
 void MainWindow::initWavedisplay()

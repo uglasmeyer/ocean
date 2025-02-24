@@ -29,7 +29,7 @@ public:
 	{
 		DaTA_p = data;
 		className = Logfacility_class::className;
-		Set_Loglevel( DEBUG, true);
+//		Set_Loglevel( DEBUG, true);
 
 	};
 	virtual ~ShmMixer_class()

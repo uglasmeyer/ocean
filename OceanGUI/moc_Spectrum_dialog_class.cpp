@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Spectrum_Dialog_class_t {
-    QByteArrayData data[15];
-    char stringdata0[115];
+    QByteArrayData data[19];
+    char stringdata0[143];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -42,15 +42,20 @@ QT_MOC_LITERAL(6, 39, 3), // "fS5"
 QT_MOC_LITERAL(7, 43, 3), // "vS6"
 QT_MOC_LITERAL(8, 47, 3), // "fS7"
 QT_MOC_LITERAL(9, 51, 3), // "vS8"
-QT_MOC_LITERAL(10, 55, 4), // "save"
-QT_MOC_LITERAL(11, 60, 15), // "select_spec_fmo"
-QT_MOC_LITERAL(12, 76, 15), // "select_spec_vco"
-QT_MOC_LITERAL(13, 92, 16), // "select_spec_main"
-QT_MOC_LITERAL(14, 109, 5) // "reset"
+QT_MOC_LITERAL(10, 55, 6), // "sb_wf1"
+QT_MOC_LITERAL(11, 62, 6), // "sb_wf2"
+QT_MOC_LITERAL(12, 69, 6), // "sb_wf3"
+QT_MOC_LITERAL(13, 76, 6), // "sb_wf4"
+QT_MOC_LITERAL(14, 83, 4), // "save"
+QT_MOC_LITERAL(15, 88, 15), // "select_spec_fmo"
+QT_MOC_LITERAL(16, 104, 15), // "select_spec_vco"
+QT_MOC_LITERAL(17, 120, 16), // "select_spec_main"
+QT_MOC_LITERAL(18, 137, 5) // "reset"
 
     },
     "Spectrum_Dialog_class\0fS1\0\0vS2\0fS3\0"
-    "vS4\0fS5\0vS6\0fS7\0vS8\0save\0select_spec_fmo\0"
+    "vS4\0fS5\0vS6\0fS7\0vS8\0sb_wf1\0sb_wf2\0"
+    "sb_wf3\0sb_wf4\0save\0select_spec_fmo\0"
     "select_spec_vco\0select_spec_main\0reset"
 };
 #undef QT_MOC_LITERAL
@@ -61,7 +66,7 @@ static const uint qt_meta_data_Spectrum_Dialog_class[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      13,   14, // methods
+      17,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -69,21 +74,29 @@ static const uint qt_meta_data_Spectrum_Dialog_class[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   79,    2, 0x08 /* Private */,
-       3,    1,   82,    2, 0x08 /* Private */,
-       4,    1,   85,    2, 0x08 /* Private */,
-       5,    1,   88,    2, 0x08 /* Private */,
-       6,    1,   91,    2, 0x08 /* Private */,
-       7,    1,   94,    2, 0x08 /* Private */,
-       8,    1,   97,    2, 0x08 /* Private */,
-       9,    1,  100,    2, 0x08 /* Private */,
-      10,    0,  103,    2, 0x08 /* Private */,
-      11,    0,  104,    2, 0x08 /* Private */,
-      12,    0,  105,    2, 0x08 /* Private */,
-      13,    0,  106,    2, 0x08 /* Private */,
-      14,    0,  107,    2, 0x08 /* Private */,
+       1,    1,   99,    2, 0x08 /* Private */,
+       3,    1,  102,    2, 0x08 /* Private */,
+       4,    1,  105,    2, 0x08 /* Private */,
+       5,    1,  108,    2, 0x08 /* Private */,
+       6,    1,  111,    2, 0x08 /* Private */,
+       7,    1,  114,    2, 0x08 /* Private */,
+       8,    1,  117,    2, 0x08 /* Private */,
+       9,    1,  120,    2, 0x08 /* Private */,
+      10,    1,  123,    2, 0x08 /* Private */,
+      11,    1,  126,    2, 0x08 /* Private */,
+      12,    1,  129,    2, 0x08 /* Private */,
+      13,    1,  132,    2, 0x08 /* Private */,
+      14,    0,  135,    2, 0x08 /* Private */,
+      15,    0,  136,    2, 0x08 /* Private */,
+      16,    0,  137,    2, 0x08 /* Private */,
+      17,    0,  138,    2, 0x08 /* Private */,
+      18,    0,  139,    2, 0x08 /* Private */,
 
  // slots: parameters
+    QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void, QMetaType::Int,    2,
+    QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
@@ -115,11 +128,15 @@ void Spectrum_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 5: _t->vS6((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 6: _t->fS7((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 7: _t->vS8((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 8: _t->save(); break;
-        case 9: _t->select_spec_fmo(); break;
-        case 10: _t->select_spec_vco(); break;
-        case 11: _t->select_spec_main(); break;
-        case 12: _t->reset(); break;
+        case 8: _t->sb_wf1((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 9: _t->sb_wf2((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 10: _t->sb_wf3((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 11: _t->sb_wf4((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 12: _t->save(); break;
+        case 13: _t->select_spec_fmo(); break;
+        case 14: _t->select_spec_vco(); break;
+        case 15: _t->select_spec_main(); break;
+        case 16: _t->reset(); break;
         default: ;
         }
     }
@@ -156,13 +173,13 @@ int Spectrum_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 13)
+        if (_id < 17)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 17;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 13)
+        if (_id < 17)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 13;
+        _id -= 17;
     }
     return _id;
 }

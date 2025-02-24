@@ -31,15 +31,15 @@ Processor_class( data->Sds_p )
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 		= &ifd->OSC_spectrum.wfid;
+	main_view.wf 		= &ifd->OSC_spectrum.wfid[0];
 	main_view.amp 		= &ifd->StA_amp_arr[MbIdInstrument];
 	main_view.frqidx 	= &ifd->OSC_wp.frqidx;
 
-	vco_view.wf 		= &ifd->VCO_spectrum.wfid;
+	vco_view.wf 		= &ifd->VCO_spectrum.wfid[0];
 	vco_view.amp 		= &ifd->VCO_wp.volume;
 	vco_view.frqidx 	= &ifd->VCO_wp.frqidx;
 
-	fmo_view.wf 		= &ifd->FMO_spectrum.wfid;
+	fmo_view.wf 		= &ifd->FMO_spectrum.wfid[0];
 	fmo_view.amp 		= &ifd->FMO_wp.volume;
 	fmo_view.frqidx 	= &ifd->FMO_wp.frqidx;
 

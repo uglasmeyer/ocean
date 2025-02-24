@@ -19,7 +19,8 @@
 
 
 
-class Instrument_class: virtual public Logfacility_class
+class Instrument_class:
+		virtual public Logfacility_class
 {
 public:
 	string 					Name 		= "";
@@ -42,7 +43,6 @@ public:
 	void Set_msec( buffer_t frames );
 	void Update_spectrum();
 	void Test_Instrument();
-	void Run_osc_group();
 
 private:
 	vector<spectrum_t*>		ifd_spectrum_vec;

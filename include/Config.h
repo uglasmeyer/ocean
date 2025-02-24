@@ -12,7 +12,7 @@
 #include <Configbase.h>
 #include <System.h>
 
-typedef struct dir_struct
+struct dir_struct
 {
 	const string homedir 		= notnull( getenv("HOME") ) + "/";
 	const string basedir 		= homedir + "OceanBase/";
@@ -50,7 +50,8 @@ typedef struct dir_struct
 		xmldir
 	};
 
-} dir_t;
+};
+typedef dir_struct dir_t;
 
 class Config_class : virtual Logfacility_class
 {
@@ -81,7 +82,6 @@ public:
 
 private:
 	string baseDir();
-//	void typeidMap();
 
 };
 
@@ -92,14 +92,14 @@ public:
 
 
 	void Create();
-	void setDir( );
+//	void setDir( );
 	void Test();
 
 	DirStructure_class();
 	virtual ~DirStructure_class(){};
 
 private:
-	vector <string> dirs = dir_struct().dirs;
+//	vector <string> dirs = dir_struct().dirs;
 };
 
 typedef struct file_structure

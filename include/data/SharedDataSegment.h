@@ -9,11 +9,11 @@
 #define DATA_SHAREDDATASEGMENT_H_
 
 
+#include <EventKeys.h>
 #include <Ocean.h>
 #include <Mixerbase.h>
 #include <Oscbase.h>
 #include <Wavedisplay_base.h>
-#include <Keys.h>
 #include <notes/Notesbase.h>
 
 enum {
@@ -50,7 +50,7 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct
 {
-	uint8_t			version						= 1; 						// comstack
+	uint8_t			version						= 0; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
@@ -99,7 +99,7 @@ typedef struct interface_struct
 	uint8_t			Rtsp						= OFFLINE;//
 
 	uint8_t	 		FLAG						= NULLKEY;
-	uint8_t 		KEY 						= NULLKEY;// comstack
+	uint8_t 		EVENT 						= NULLKEY;// comstack
 
 	uint8_t 		RecCounter					= 0;	// handshake data exchange// comstack
 	bool			Record						= false; // Audioserver recording

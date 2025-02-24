@@ -16,7 +16,7 @@
 #include <Wavedisplay.h>
 #include <App.h>
 #include <data/DataWorld.h>
-#include <Keys.h>
+#include <EventKeys.h>
 #include <Ocean.h>
 #include <Mixer.h>
 #include <Progressbar.h>

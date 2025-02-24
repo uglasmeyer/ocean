@@ -249,12 +249,12 @@ string Config_class::Server_cmd( string term, string srv, string srvopt)
 void DirStructure_class::Create()
 {
 	Comment(INFO,"Checking directory structure");
-
-	for( string dir : dirs )
+	ASSERTION( ( dir_struct().dirs.size() != 0 ),"DirStructure_class::Create",dir_struct().dirs.size(),"not=0");
+	for( string dir : dir_struct().dirs )
 	{
-		if( Log[ TEST ])
+		if( LogMask[ TEST ])
 		{
-			 Comment( TEST, "test simulating dir " + dir );
+			 Comment( TEST, "Create: " + dir );
 		}
 		else
 		{
@@ -263,43 +263,31 @@ void DirStructure_class::Create()
 		}
 	}
 }
-
+/*
 void DirStructure_class::setDir(  )
 {
-/*
-	etcdir 			= basedir + "etc/";
-	bindir  		= basedir + "bin/";
-	libdir  		= basedir + "lib/";
-	tmpdir  		= basedir + "tmp/";
-	vardir			= basedir + "var/";
-	autodir 		= vardir  + "auto/";
-	musicdir 		= vardir  + "wav/";
-	docdir 			= basedir + "doc/";
-	instrumentdir	= etcdir + "Instruments/";
-	notesdir  		= etcdir + "Notes/";
-	includedir		= etcdir + "include/";
-	rtspdir			= etcdir + "rtsp/";
-	xmldir			= etcdir + "musicxml/";
-	*/
+
 
 	dir_t dir = dir_struct();
 
 };
-
+*/
 void DirStructure_class::Test()
 {
+	TEST_START( className );
 	Set_Loglevel( TEST, true );
-//	string t = getenv_str( "PATH" );
+	string t = notnull(getenv( "PATH" ));
 //	cout << t  << endl;
-//	assert( t.length() > 0 );
-
+	assert( t.length() > 0 );
+	Create();
+	TEST_END( className );
 }
 
 DirStructure_class::DirStructure_class() :
 	Logfacility_class("DirStructure")
 {
 	className = Logfacility_class::className;
-	setDir();
+//	setDir();
 };
 
 

@@ -16,7 +16,6 @@ Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 {
 
 	stateMap();
-
 	this->Sem_p	= sem;
 	this->Cfg_p = cfg;
 	Waveform_vec = GUIspectrum.Get_waveform_vec();
@@ -144,7 +143,7 @@ void Interface_class::Show_interface()
 	lline( "                   " , 0 );
 	rline( "(A)DSR (B)eats Id  " , (int)addr->OSC_adsr.bps) ;
 
-	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->OSC_spectrum.wfid ]);
+	lline( "(M)ain (W)aveform: " , Waveform_vec[ (int)addr->OSC_spectrum.wfid[0] ]);
 	rline( "(A)DSR (D)ecay:    " , (int)addr->OSC_adsr.decay );
 
 	lline( "(F)MO  (F)requency:" , Frequency.Calc( addr->FMO_wp.frqidx ) );
@@ -153,25 +152,30 @@ void Interface_class::Show_interface()
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
 	rline( "(V)CO  (A)mplitude:" , (int)addr->VCO_wp.volume);
 
-	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.wfid ]);
-	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.wfid ]);
+	lline( "(F)MO  (W)aveform: " , Waveform_vec[ (int)addr->FMO_spectrum.wfid[0] ]);
+	rline( "(V)CO  (W)aveform: " , Waveform_vec[ (int)addr->VCO_spectrum.wfid[0] ]);
 
 	lline( "", "" );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
 	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->OSC_spectrum ));
 	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->OSC_spectrum ));
+	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum( "SPEW", addr->OSC_spectrum ));
+
 	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->VCO_spectrum ));
 	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->VCO_spectrum ));
+	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum( "SPEW", addr->VCO_spectrum ));
+
 	rline( "Spectrum volume    " , Spectrum.Show_spectrum( "SPEV", addr->FMO_spectrum ));
 	rline( "Spectrum frequency " , Spectrum.Show_spectrum( "SPEF", addr->FMO_spectrum ));
+	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum( "SPEW", addr->FMO_spectrum ));
 
 
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );
 	rline( "Mixer Id           " , (int)addr->MIX_Id );
 
 	lline( "Sync data id       " , (int) addr->SHMID);
-	rline( "Event ID           " , (int) addr->KEY );
+	rline( "Event ID           " , (int) addr->EVENT );
 
 	lline( "Record Progress   :" , (int)addr->RecCounter);
 	rline( "File No.          :" , (int)addr->FileNo );
@@ -341,7 +345,7 @@ void Interface_class::Update( char ch )
 }
 void Interface_class::Commit()
 {
-	addr->KEY 	= NULLKEY;
+	addr->EVENT 	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
 	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )

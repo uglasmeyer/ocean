@@ -9,11 +9,11 @@
 #include <Common.h>
 
 // Synthesizer includes
-#include <Keys.h>
 #include <Logfacility.h>
 #include <notes/Notes.h>
 #include <Ocean.h>
 #include <Config.h>
+#include <EventKeys.h>
 
 // Qt-includes
 #include <QDebug>
@@ -40,7 +40,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 	ui->setupUi(this);
 
 	ui->cb_Notestype->clear();
-    ui->cb_Notestype->addItems( QStringList{ Event0.path.Qext, Event1.path.Qext } );
+    ui->cb_Notestype->addItems( QStringList{ EventXML.path.Qext, EventNTE.path.Qext } );
 
     QStringList
 	QStrL = Qstringvector( convention_names );
@@ -81,14 +81,14 @@ void File_Dialog_class::SetSds( Interface_class* Sds, int8_t id )
 void File_Dialog_class::sB_Octave(int sb_value )
 {
 	Sds->Set( sds_p->noteline_prefix.Octave , sb_value );
-	Sds->Set( sds_p->KEY , UPDATE_NLP_KEY );
+	Sds->Set( sds_p->EVENT , UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cb_Notestype( int cb_value )
 {
 	Sds->Set( sds_p->NotestypeId 	, cb_value );
     ui->cb_notefilenames->clear();
-    ui->cb_notefilenames->addItems( Qread_filenames( Path_vec[ cb_value].path ) );
+    ui->cb_notefilenames->addItems( Qread_filenames( Event_vec[ cb_value].path ) );
 }
 
 void File_Dialog_class::cB_Convention( int cb_value )
@@ -96,14 +96,14 @@ void File_Dialog_class::cB_Convention( int cb_value )
 	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
 	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
 	Sds->Set( sds_p->noteline_prefix.convention , cb_value );
-	Sds->Set( sds_p->KEY , UPDATE_NLP_KEY );
+	Sds->Set( sds_p->EVENT , UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cB_NotesPerSec(int nps_id )
 {
 	int nps = ui->cb_nps->currentText().toInt();
 	Sds->Set( sds_p->noteline_prefix.nps , nps );
-	Sds->Set( sds_p->KEY , UPDATE_NLP_KEY );
+	Sds->Set( sds_p->EVENT , UPDATE_NLP_KEY );
 }
 
 
@@ -115,13 +115,13 @@ void File_Dialog_class::Setup_widgets()
     QString Instrument_name = QReadStr( Sds, INSTRUMENTSTR_KEY );
     ui->lE_Instrument->setText( Instrument_name );
     ui->cb_instrumentfiles->clear();
-    ui->cb_instrumentfiles->addItems( Qread_filenames( Event2.path ));
+    ui->cb_instrumentfiles->addItems( Qread_filenames( EventINS.path ));
     ui->cb_instrumentfiles->setCurrentText( Instrument_name );
 
     QString Notes_name = QReadStr( Sds, NOTESSTR_KEY ) ;
     ui->lE_NotesFile->setText( Notes_name  );
     ui->cb_notefilenames->clear();
-    ui->cb_notefilenames->addItems( Qread_filenames( Path_vec[ notestypeId ].path ));
+    ui->cb_notefilenames->addItems( Qread_filenames( Event_vec[ notestypeId ].path ));
     ui->cb_notefilenames->setCurrentText( Notes_name );
 
     if ( sds_p->NotestypeId == XML_ID )
@@ -159,7 +159,7 @@ void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &QStr)
     if ( str.length() > 0 )
     {
         Sds->Write_str( INSTRUMENTSTR_KEY, str );
-        Sds->Set( sds_p->KEY , SETINSTRUMENTKEY );
+        Sds->Set( sds_p->EVENT , EventINS.event );
     }
     ui->lE_Instrument->setText( QStr );
 }
@@ -178,7 +178,7 @@ void File_Dialog_class::New_Notes()
 {
 	if ( sds_p->NotestypeId == XML_ID )
 	{
-		Sds->Set( sds_p->KEY , Path_vec[ XML_ID ].event );
+		Sds->Set( sds_p->EVENT , Event_vec[ XML_ID ].event );
     	return;
 	}
 
@@ -200,7 +200,7 @@ void File_Dialog_class::New_Notes()
         // remote shall read and activate the new note line
         Sds->Write_str( NOTESSTR_KEY, notes_file);
 
-        Sds->Set( sds_p->KEY , Path_vec[NTE_ID].event );
+        Sds->Set( sds_p->EVENT , Event_vec[NTE_ID].event );
         Info( "sync notes" );
     	sem->Release( SEMAPHORE_SYNCNOTES );
 
@@ -216,7 +216,7 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString& Note_name)
     string note_name = Note_name.toStdString();
     Sds->Write_str( NOTESSTR_KEY, note_name );
     uint8_t notestypeId = sds_p->NotestypeId;
-    Sds->Set( sds_p->KEY , Path_vec[ notestypeId ].event);
+//    Sds->Set( sds_p->EVENT , Event_vec[ notestypeId ].event);
 
     if ( notestypeId == XML_ID ) return;
 

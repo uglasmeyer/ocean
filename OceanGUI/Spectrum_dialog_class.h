@@ -7,13 +7,15 @@
 #include <Ocean.h>
 #include <Spectrum.h>
 #include <data/Interface.h>
-#include <Keys.h>
+#include <EventKeys.h>
 
 namespace Ui {
 class Spectrum_Dialog_class;
 }
 
-class Spectrum_Dialog_class : public QDialog, public virtual Spectrum_class
+class Spectrum_Dialog_class :
+		public QDialog,
+		public virtual Spectrum_class
 {
     Q_OBJECT
 
@@ -36,6 +38,9 @@ public:
 
     string instrument{};
     uint8_t waveform_id;
+    vector<QString> Waveform_vec {};
+    uint waveform_vec_len = 0;
+
 
     void Setup_widgets( Spectrum_class::spectrum_t );
     void Update_spectrum();
@@ -52,6 +57,12 @@ private slots:
     void vS6( int );
     void fS7( int );
     void vS8( int );
+
+    void sb_wf1(int);
+    void sb_wf2(int);
+    void sb_wf3(int);
+    void sb_wf4(int);
+
     void save( );
     void select_spec_fmo();
     void select_spec_vco();
@@ -59,8 +70,6 @@ private slots:
     void reset();
 
 private:
-//    QTimer	status_timer_obj 	{ this };
-//    QTimer* status_timer 		= &status_timer_obj;
 
 };
 

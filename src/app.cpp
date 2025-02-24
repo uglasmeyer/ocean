@@ -17,6 +17,7 @@
 #include <Mixer.h>
 #include <Keyboard.h>
 #include <Exit.h>
+#include <Oscgroup.h>
 
 
 
@@ -50,7 +51,6 @@ void SynthesizerTestCases()
 	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
 	Oscillator 				TestOsc{  };
-	TestOsc.Set_Loglevel( TEST, true );
 
 	Log.TEST_START( "Application " );
 
@@ -80,10 +80,10 @@ void SynthesizerTestCases()
 	Notes.Test();
 
 	TestOsc.Test();
-
+	TestOsc.Test_wf();
 
 	Timer.Start();
-	Instrument.Run_osc_group();
+
 	Timer.Stop();
 	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
@@ -101,7 +101,9 @@ void SynthesizerTestCases()
 	Timer.Test();
 
 	Sem->Test();
+
 	Instrument.Test_Instrument();
+	Instrument.Oscgroup.Run_Oscgroup( 0 );
 
 	Log.Test_Logging();
 	Log.TEST_END( "Application " );

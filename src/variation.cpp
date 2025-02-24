@@ -37,7 +37,7 @@ void Variation_class::randomize_notes_octave( string str )
 			Random_Notes[n].chord[0].alter = -1;
 			Random_Notes[n].str.push_back(',');
 		}
-		if ( Log[TEST] )
+		if ( LogMask[TEST] )
 			Note_class::Show_note( this->Random_Notes[n] );
 		n++;
 	}
@@ -153,7 +153,7 @@ Variation_class::noteword_t Variation_class::gen_random_note_word()
 		}
 		note.octave = Note_class::Octave;
 		word.push_back( note );
-		if ( Log[TEST] )
+		if ( LogMask[TEST] )
 			Note_class::Show_note( note );
 	}
 	return word;
@@ -205,7 +205,7 @@ string Variation_class::scan_sentence( char s0 )
 	{
 		for ( note_t& note : word )
 		{
-			if ( Log[TEST] )
+			if ( LogMask[TEST] )
 				Note_class::Show_note( note );
 			if ( Note_class::OctaveChars.Set.contains( s0 ) )
 				note.octave = s0 - 48;

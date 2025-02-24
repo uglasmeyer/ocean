@@ -13,11 +13,11 @@
 #include <Oscbase.h>
 #include <Ocean.h>
 #include <System.h>
+#include <Oscwaveform.h>
 
-using namespace std;
 
 
-class Oscillator : 	virtual public Logfacility_class,
+class Oscillator : //	virtual public Logfacility_class,
 					virtual public Oscillator_base
 {
 	string className = "";
@@ -50,21 +50,17 @@ public:
 	void Test();
 
 private:
-	typedef function<Data_t(const float&, const float&)> osc_function;
-	osc_function 	F;
+
 	spec_arr_dt		phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t 		beat_cursor = 0;
 
-	osc_roles_t	OscRole		= osc_struct();
-
-
+	osc_roles_t		OscRole		= osc_struct();
 
 	void 	apply_hall( buffer_t, Data_t* );
 	void 	apply_adsr( buffer_t frames, Data_t* data );
 	double 	get_delta_freq( float freq );
-//	void 	set_phi( double , double );
-//	double 	get_phi( );
+
 	void 	mem_init();
 };
 

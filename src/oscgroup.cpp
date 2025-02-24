@@ -11,10 +11,11 @@ Oscgroup_class::Oscgroup_class( char id ) :
   Logfacility_class( "Oscgroup" ),
   Note_base()
 {
-	groupid = id;
-	osc.SetId( id, osc_struct::OSCID );
-	vco.SetId( id, osc_struct::VCOID );
-	fmo.SetId( id, osc_struct::FMOID );
+	oscroleId = id;
+	osc.SetId( oscroleId, osc_struct::OSCID );
+	vco.SetId( oscroleId, osc_struct::VCOID );
+	fmo.SetId( oscroleId, osc_struct::FMOID );
+
 	oscgroup = { &vco, &fmo, &osc };
 
 }
@@ -26,9 +27,9 @@ Oscgroup_class::~Oscgroup_class()
 
 void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 {
-	wd->Add_data_ptr( osc_struct::VCOID , groupid, vco.Mem.Data);
-	wd->Add_data_ptr( osc_struct::FMOID , groupid, fmo.Mem.Data);
-	wd->Add_data_ptr( osc_struct::OSCID , groupid, osc.Mem.Data);
+	wd->Add_data_ptr( osc_struct::VCOID , oscroleId, vco.Mem.Data);
+	wd->Add_data_ptr( osc_struct::FMOID , oscroleId, fmo.Mem.Data);
+	wd->Add_data_ptr( osc_struct::OSCID , oscroleId, osc.Mem.Data);
 
 }
 void Oscgroup_class::Set_Osc_Note( pitch_t& pitch, const uint& duration, const uint& volume )
@@ -59,8 +60,12 @@ void Oscgroup_class::Set_Osc_Note( pitch_t& pitch, const uint& duration, const u
 
 void Oscgroup_class::Run_Oscgroup( buffer_t offs )
 {
+	if ( oscroleId != osc_struct::NOTESID )
+		osc.Mem.Clear_data( max_data_amp * osc.wp.adjust * 0.01 );
 	for ( Oscillator* osc : oscgroup )
 	{
+		if ( oscroleId != osc_struct::NOTESID )
+			osc->Mem.Clear_data( max_data_amp * osc->wp.adjust * 0.01 );
 		osc->OSC( offs );
 	}
 }

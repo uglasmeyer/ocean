@@ -11,10 +11,7 @@
 
 
 
-
-void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
-{
-	/* maxima
+/* maxima
 
 attack  : 10;
 decay	: 95;
@@ -27,7 +24,10 @@ fattack : y0 + n*d_alpha;
 fdecay	: exp( - ( n - aframes ) * d_delta );
 plot2d([fattack, fdecay], [n,0,beatframes]);
 
-	 */
+*/
+void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
+{
+
 	uint 	aframes 	= ( beatframes * adsr.attack ) / 100;
 	if ( aframes == 0 )
 		aframes = 1;
@@ -36,14 +36,14 @@ plot2d([fattack, fdecay], [n,0,beatframes]);
 	float delta = (beatframes - aframes) * d_delta;
 	if ( d_delta > 0 )
 		y0	= expf( - delta );
-	const float d_alpha		= (1.0 - y0) / aframes;
+	const float dy		= (1.0 - y0) / aframes;
 
 	adsrdata.clear();
 	for ( uint n = 0; n < beatframes ; n++ )
 	{
 		if ( n < aframes ) 	// attack
 		{
-			adsrdata.push_back( y0 + n*d_alpha );
+			adsrdata.push_back( y0 + n*dy );
 		}
 		else				// decay
 		{
@@ -56,7 +56,10 @@ plot2d([fattack, fdecay], [n,0,beatframes]);
 void Oscillator_base::Set_adsr( adsr_t _adsr )
 {
 	this->adsr = _adsr;
-	if (( oscrole_id == osc_struct::KBDID ) or ( oscrole_id == osc_struct::NOTESID ))
+	if (
+			( oscrole_id == osc_struct::KBDID )
+		or	( oscrole_id == osc_struct::NOTESID )
+	)
 		this->adsr.bps = 1;
 	if ( adsr.bps != 0 )
 	{
@@ -95,10 +98,10 @@ void Oscillator_base::Set_glide( uint8_t value )
 	wp.glide_effect = value;
 }
 
-void Oscillator_base::Set_waveform( char id )
+void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
 {
-	spectrum.wfid	= id;
-	Info( "set waveform >" + Get_waveform_str(id) + "< for " + osc_type);
+	spectrum.wfid	= wf_vec;
+//	Info( "set waveform >" + Get_waveform_str(id) + "< for " + osc_type);
 
 }
 
@@ -114,7 +117,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	command 		= osc_type;
 	vp.name			= osc_type;
 	fp.name			= osc_type;
-	spectrum.wfid		= Get_waveform_id( arr[2] );
+	spectrum.wfid[0]		= Get_waveform_id( arr[2] );
 	int frqidx	 	= Str.secure_stoi( arr[3] );
 	Set_frequency( frqidx );
 
@@ -144,7 +147,7 @@ void Oscillator_base::Set_csv_comment ()
 
 	csv_comment = "";
 	csv_comment.append(osc_type);
-	csv_comment.append(",\t" + waveform_str_vec[spectrum.wfid] );
+	csv_comment.append(",\t" + waveform_str_vec[spectrum.wfid[0]] );
 	csv_comment.append(",\t" + to_string( wp.frequency ));
 	csv_comment.append(",\t" + to_string( wp.msec ) );
 	csv_comment.append(",\t" + to_string( wp.volume ) );
@@ -153,7 +156,7 @@ void Oscillator_base::Set_csv_comment ()
 
 void Oscillator_base::Get_comment( bool variable )
 {
-	comment = Get_waveform_str( spectrum.wfid );
+	comment = Get_waveform_str( spectrum.wfid[0] );
 	comment.append( "\t(" + to_string( wp.frequency ) + " Hz)");
 	comment.append( to_string( wp.msec ) + " msec ");
 	comment.append( "Vol: " + to_string( wp.volume ) );
@@ -178,7 +181,7 @@ stringstream Oscillator_base::Get_sound_stack()
 	stringstream strs{""};
 	strs 	<< active
 			<< osc_type +"\t"
-			<< Get_waveform_str( spectrum.wfid ) +"\t\t"
+			<< Get_waveform_str( spectrum.wfid[0] ) +"\t\t"
 			<< fixed << setprecision(2) << wp.frequency << "\t"
 			<< (int) wp.volume << "\t"
 			<< (int) wp.msec << "\t"

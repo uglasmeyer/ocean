@@ -25,8 +25,8 @@ typedef struct wavedisplay_struct
 	};
 	const vector<string> fftmodes =
 	{
-		"FFT",
-		"FFT-1"
+		"A(τ)",
+		"A(ω)"
 	};
 	enum
 	{

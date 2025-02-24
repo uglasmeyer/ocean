@@ -151,7 +151,6 @@ string Semaphore_class::Stat( uint8_t num )
 void Semaphore_class::Test()
 {
 	TEST_START( className );
-	Set_Loglevel( DEBUG, true);
 
 	Comment( TEST, "Semaphore with rimeout" );
 	Time_class t{};

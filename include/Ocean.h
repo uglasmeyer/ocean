@@ -58,7 +58,7 @@ typedef unsigned long int 	buffer_t;
 typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
 typedef vector<Data_t>		DataVec_t;
-typedef double		phi_t;
+typedef double				phi_t;
 
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
@@ -82,20 +82,7 @@ const buffer_t 		monobuffer_size   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 75; // %
-const float			oct_base_freq 		= 16.3516;//27.5/2.0; // = C0
-
-// enumeration of applicatiom Id's
-// see Config_class::typeMap
-
-
-const float			LFO_limit			= 1.0;
-const uint8_t		LFO_count			= 100;
-
-typedef struct oscParam_struct
-{
-	int 	min_octave = 0;
-	uint 	max_octave = 6;
-} oscParam_t;
+const float			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 
 
 
@@ -131,7 +118,7 @@ const uint 				min_octave 		= 0;
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
 	cout 	<< message 							<< '\n'\
 			<< "input    value: " << (input) 		<< '\n'\
-			<< "expected value: " << (expected) 	<< endl;\
+			<< "expected value: " << dec << (expected) 	<< endl;\
 	raise( SIGINT ); \
 	};
 

@@ -1233,6 +1233,9 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
      <height>27</height>
     </rect>
    </property>
+   <property name="wrapping">
+    <bool>false</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

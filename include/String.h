@@ -64,7 +64,10 @@ template<class C> string show_items( C all_items )
 	stringstream strs{ "" };
     for ( auto item : all_items )
     {
-    	strs << item << " ";
+    	if ( typeid( item ) == typeid( uint8_t ) )
+    		strs << dec << (int)item << " ";
+    	else
+    		strs << dec << item << " ";
     }
     return strs.str();
 }
@@ -79,6 +82,11 @@ template<typename T> string show_type( T all_items )
     return strs.str();
 }
 
+template < typename T>
+bool is_string( T v )
+{
+	return (typeid( v )  == typeid(string())) ? true : false ;
+}
 
 class String : virtual public Logfacility_class
 {

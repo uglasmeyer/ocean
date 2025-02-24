@@ -12,7 +12,7 @@
 #include <Config.h>
 #include <data/DataWorld.h>
 #include <data/Interface.h>
-#include <Keys.h>
+#include <EventKeys.h>
 #include <Processor.h>
 #include <Spectrum.h>
 #include <Ocean.h>

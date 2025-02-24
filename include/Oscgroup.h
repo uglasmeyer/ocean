@@ -16,15 +16,16 @@
 
 typedef vector<Oscillator*> oscvec_t;
 
-class Oscgroup_class : 	public virtual Logfacility_class,
-						public virtual Note_base
+class Oscgroup_class :
+		public virtual Logfacility_class,
+		public virtual Note_base
 {
 public:
 	Oscillator 				osc;
 	Oscillator 				vco;
 	Oscillator 				fmo;
 	oscvec_t				oscgroup;
-	char					groupid;
+	char					oscroleId;
 
 	Oscgroup_class( char id );
 	virtual ~Oscgroup_class();

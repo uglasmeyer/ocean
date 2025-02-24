@@ -7,9 +7,13 @@
 
 #include <Osc.h>
 
+
+
+
 Oscillator::Oscillator( ) :
 		Logfacility_class( "Oscillator" ),
-		Oscillator_base()
+		Oscillator_base(),
+		Oscwaveform_class()
 {
 	className = Logfacility_class::className;
 }
@@ -144,11 +148,10 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	Sum( spectrum );
 
 
-	param_t param 	= param_struct();
+	param_t param = param_struct();
 	param.pmw		= 1.0 + (float)wp.PMW_dial * 0.01;
-	phi_t dT 		= 0;
-	float delta_freq= get_delta_freq( freq );
-	float fmo_shift = 0;
+	phi_t dT = 0;//			omega = 0, d_omega = 0;
+	float			delta_freq	= get_delta_freq( freq );
 				// difference to the target frequency <freq> - <start_freq>
 
 	auto check_phi = [ this, start_freq]( param_t param, phi_t dT )
@@ -164,40 +167,34 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		}
 	};
 
-//	for ( buffer_t n = 0; n < frames ; n++ )
+	for ( buffer_t n = 0; n < frames ; n++ )
 //	for ( buffer_t n = 0; n < (max_frames - frame_offset); n++ )
-//	{
-
-	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
-		if ( spectrum.vol[channel] > 0.0 )
+		if (( this->oscrole_id != OscRole.NOTESID )) // enable polyphone adding of notes - notes::note2memory
+			Data[n] = max_data_amp * wp.adjust * 0.01;
+
+		float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
+		float fmo_shift = fmo_vol * fmo_data[n];
+
+		for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 		{
-			param.phi	= phase[channel];
-			uint8_t wfid= spectrum.wfid[channel];
-			param.maxphi= waveFunction_vec[ wfid ].maxphi;
-			dT 			= param.maxphi * dt; // 2pi dt
-			param.amp	= spectrum.vol[channel];
-			for( buffer_t n = 0; n < frames; n++ )
+			if ( spectrum.vol[channel] > 0.0 )
 			{
-//				if (( this->oscrole_id != OscRole.NOTESID )) // enable polyphone adding of notes - notes::note2memory
-//					Data[n] = max_data_amp * wp.adjust * 0.01;
-
-				float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
-				fmo_shift = fmo_vol * fmo_data[n];
-				Data[n]	=   Data[n] + vco_vol * waveFunction_vec[ wfid ].fnc( param );
-
-				if ( abs(freq - start_freq) > 1 )
-					start_freq = start_freq + delta_freq;
+				param.phi	= phase[channel];
+				param.maxphi= waveFunction_vec[channel].maxphi;
+				dT 			= param.maxphi * dt; // 2pi dt
+				param.amp	= spectrum.vol[channel] * vco_vol;
+				Data[n]	=   Data[n] + waveFunction_vec[channel].fnc( param );
 				param.dphi	=	dT *( start_freq + fmo_shift ) * spectrum.frqadj[channel] ;
 				param.phi	+= param.dphi;
+				check_phi( param, dT );
+				param.phi 	=  MODPHI( param.phi, param.maxphi );
+				phase[channel] = param.phi;
 			}
-			check_phi( param, dT );
-			param.phi 	=  MODPHI( param.phi, param.maxphi );
-			phase[channel] = param.phi;
 		}
+		if ( abs(freq - start_freq) > 1 )
+			start_freq = start_freq + delta_freq;
 	}
-
-//	}
 
 
 	Set_start_freq(freq);
@@ -314,7 +311,7 @@ void Oscillator::Test()
 	testosc.OSC( 0 );
 	float a2 = testosc.Mem.Data[0];
 
-	ASSERTION( fcomp( a2 , 56.5484  ), "Osc volume", a2 , 56.5484)
+	ASSERTION( fcomp( a2 , 56.5486  ), "Osc volume", a2 , 56.5486)
 
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );

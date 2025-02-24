@@ -380,15 +380,15 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/String.h \
 		../include/Logfacility.h \
 		../include/Exit.h \
+		../include/Config.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/EventKeys.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
 		../include/Instrument.h \
 		../include/data/Interface.h \
-		../include/Config.h \
-		../include/Configbase.h \
-		../include/Version.h \
-		../include/Keys.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -401,6 +401,7 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		../include/Osc.h \
+		../include/Oscwaveform.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
 		moc_predefs.h \
@@ -417,12 +418,12 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Exit.h \
-		../include/Keys.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
@@ -433,6 +434,7 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
+		../include/Oscwaveform.h \
 		../include/External.h \
 		../include/Progressbar.h \
 		../include/Wav.h \
@@ -463,12 +465,12 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Exit.h \
-		../include/Keys.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
@@ -493,10 +495,10 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Configbase.h \
 		../include/Version.h \
 		../include/System.h \
-		../include/Keys.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
@@ -520,12 +522,12 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Exit.h \
-		../include/Keys.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
@@ -585,12 +587,12 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Exit.h \
-		../include/Keys.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
@@ -601,6 +603,7 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
+		../include/Oscwaveform.h \
 		../include/External.h \
 		../include/Progressbar.h \
 		../include/Wav.h \
@@ -629,12 +632,12 @@ sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Exit.h \
-		../include/Keys.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \

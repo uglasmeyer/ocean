@@ -33,7 +33,7 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 			if ( Is_running_process((int)this->sds->process_arr.at( AUDIOID ).pid ) )
 			{
 				Info( "Running Audioserver " + to_string( this->sds->process_arr.at( AUDIOID ).pid ) + "detected");
-				if ( not Log[TEST] )
+				if ( not LogMask[TEST] )
 					EXCEPTION( "Cannot start second Audioserver" );
 			}
 			else
@@ -76,7 +76,7 @@ void Register_class::Reset( uint idx )
 	if ( (idx<0) or (idx>REGISTER_SIZE-1)) return;
 	int pid = (int)sds->process_arr.at( idx ).pid ;
 	sds->process_arr.at( idx ) = noprocess;
-	if ( Log[DEBUG] )
+	if ( LogMask[DEBUG] )
 		Info2( 5, "Process idx: ", idx , "reset process ", dec, pid );
 }
 
@@ -116,7 +116,7 @@ void Register_class::proc_Register()
 	sds->process_arr.at(idx).type	= Type_Id;
 	sds->process_arr.at(idx).pid	= getpid();
 
-	if( Log[DEBUG] )
+	if( LogMask[DEBUG] )
 	{
 		Info2( 3, "Register process pid ",dec, (int)sds->process_arr.at(idx).pid );
 		show_proc_register( );

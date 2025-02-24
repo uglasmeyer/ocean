@@ -116,7 +116,7 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	{
 		string err = "missing ";
 		err.push_back(ch);
-		if ( Log[TEST] )
+		if ( LogMask[TEST] )
 		{
 			Vec[0] = err;
 			return Vec;
@@ -207,7 +207,8 @@ bool String::is_number(  )
 
 float String::secure_stof( string str)
 {
-	if ( str.length() == 0 ) return 0;
+	if ( str.length() == 0 )
+		return 0;
 	this->Str = str;
 	if ( is_number(  ) )
 	{
@@ -220,13 +221,14 @@ float String::secure_stof( string str)
 	return -1;
 }
 
-int String::secure_stoi( string str)
+int String::secure_stoi( string str )
 {
-	if ( str.length() == 0 ) return 0;
+	if ( str.length() == 0 )
+		return 0;
 	this->Str = str;
 	if ( is_number(  ) )
 	{
-		return stoi( str );
+		return stoi( Str );
 	}
 	else
 	{

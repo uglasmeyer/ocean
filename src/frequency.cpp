@@ -13,7 +13,7 @@ constexpr void initFrqVector(  )
 	if ( frq_vector[0] > 1 ) return ;
 	uint C0idx = 25;
 
-	for ( uint n = 0; n < FRQARR_SIZE; n++)
+	for ( uint n = 0; n < FRQARR_SIZE-1; n++)
 	{
 		float x = 0;
 		if ( n < 9 )
@@ -23,7 +23,7 @@ constexpr void initFrqVector(  )
 			if (n < C0idx )
 				x = n - 8  ;
 			else
-				x = pow(2.0, (n-(C0idx))/12.0) ; // 3 considers C0 = 55/4
+				x = pow(2.0, (n-(C0idx))/12.0) ; // C0 = 55/4
 		}
 		frq_vector[n+1] = x ;
 	}

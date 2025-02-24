@@ -7,17 +7,19 @@
 
 #include <Logfacility.h>
 
+array<bool, LOGMAX> LogMask { true, false, true, true, false, true, false };
 
 
 Logfacility_class::Logfacility_class( string module)
 {
-	this->className = module ;
+	this->className = module.substr(0, 12) ;
 	setup();
 };
 
 Logfacility_class::~Logfacility_class(  )
 {
-	cout.flush() << "visited ~Logfacility_class." << className  << endl;
+	if( LogMask[ DEBUG ])
+		cout.flush() << "visited ~Logfacility_class." << className  << endl;
 };
 
 void Logfacility_class::setup()
@@ -98,9 +100,9 @@ void Logfacility_class::Show_loglevel()
 {
 	string on;
 	Comment( INFO, "Log level activation state");
-	for ( int level = 0; level < logmax+1; level++ )
+	for ( int level = 0; level < LOGMAX; level++ )
 	{
-		on =  Log[ level ] ? "On" : "Off";
+		on =  LogMask[ level ] ? "On" : "Off";
 		Comment( INFO, "Log level " + Levelname[ level ] + " is " + on );
 	}
 }
@@ -122,18 +124,21 @@ string Logfacility_class::Error_text( uint err )
 
 void Logfacility_class::Set_Loglevel( int level, bool on )
 {
-	if ( level > logmax ) level=logmax;
-	if ( level < 2 ) level = 1;
-	Log[ level ] = on;
+	if(( level < 0 ) or ( level > LOGMAX -1 ))
+	{
+		Info( "Loglevel out of bounds in " + className );
+		return;
+	}
+	LogMask[ level ] = on;
 }
 
 
 void Logfacility_class::Comment( const int& level, const string logcomment )
 {
 	//stringstream strs {""};
-	if (level < logmax + 1 )
+	if ( level < LOGMAX + 1 )
 	{
-		if ( Log[ level ] )
+		if ( LogMask[ level ] )
 		{
 			comment_str = className + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
@@ -178,7 +183,7 @@ void Logfacility_class::Test_Logging( )
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Logfacility test start");
 	stringstream True;
-	True << boolalpha << Log[TEST];// no endl
+	True << boolalpha << LogMask[TEST];// no endl
 	ASSERTION( strEqual( True.str(), "true"), "true", True.str(), "=true" );
 	Comment( TEST, "Logfacility test OK");
 

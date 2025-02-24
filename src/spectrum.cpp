@@ -31,27 +31,39 @@ void Spectrum_class::assign_vol( int i, string str  )
 	if ( str.length() > 0 )
 	{
 		f = Str.secure_stoi( str );
-		( f == 0 ) ? spectrum.volidx[i] = 0 : spectrum.volidx[i] = f;
+		( f <0 ) ? spectrum.volidx[i] = 0 : spectrum.volidx[i] = f;
 	}
 	else
 		spectrum.volidx[i] = 0;
 };
+void Spectrum_class::assign_waveform( int i, string str  )
+{
+	uint8_t f = 0;
+	String Str{ "" };
+	f = Str.secure_stoi( str );
+	spectrum.wfid[i] = f;
+
+};
+
 
 Spectrum_class::spectrum_t Spectrum_class::Parse_data( vector_str_t arr, char oscid )
 {
 
+
 	auto assign_dta = [ this  ]( vector<string> arr )
 	{
-
-		String Str{""};
 
 		uint8_t _type = 0;
 		if ( strEqual( arr[0], "SPEF") )
 			_type = 1;
+		if ( strEqual( arr[0], "SPEW") )
+			_type = 2;
 
 		arr.erase( arr.begin()); 	// 0:SPEV, 1:SPEF
 		arr.erase( arr.begin());	// 1:MAIN,VCO,FMO
-		arr.erase( arr.begin());	// 2:waveform str
+		String Str{ arr[0] };		// compatibility
+		if ( not Str.is_number() )
+			arr.erase( arr.begin());	// 2:waveform str
 
 		size_t i = 0;
 		for ( string str : arr )
@@ -62,9 +74,13 @@ Spectrum_class::spectrum_t Spectrum_class::Parse_data( vector_str_t arr, char os
 				{
 					assign_vol( i, str );
 				}
-				else
+				if ( _type == 1 )
 				{
 					assign_frq( i, str );
+				}
+				if ( _type == 2 )
+				{
+					assign_waveform(i, str);
 				}
 			}
 			i++;
@@ -74,16 +90,6 @@ Spectrum_class::spectrum_t Spectrum_class::Parse_data( vector_str_t arr, char os
 
 	spectrum = default_spec;
 	spectrum.osc = oscid;
-
-	int id 	= Get_waveform_id( arr[2] );
-	if ( id < 0 )
-	{
-		return spectrum;
-		Comment( WARN, "Spectrum does not have a valid waveformid" );
-	}
-	else
-		spectrum.wfid = id;
-
 
 
 	assign_dta( arr );
@@ -125,18 +131,19 @@ string Spectrum_class::Show_spectrum( const string& _type, const spectrum_t& spe
 {
 	stringstream strs{""};
 
-	auto show_dta = [ &strs ]( spec_dta_ft val)
+	auto show_dta = [ &strs ]( auto val)
 	{
-		strs << setprecision(3) << setw(6) << val << ",";
+		strs << setw(6) << dec << (int)val << ",";
 	};
 
 	strs 	<< right << _type << ","
-			<< setw(9) << OscRole.types[ spec.osc ] << ","
-			<< setw(9) << Get_waveform_str( spec.wfid ) << ",";
+			<< setw(9) << OscRole.types[ spec.osc ] << ",";
 	if ( strEqual( "SPEV", _type) )
 		std::ranges::for_each( spec.volidx, show_dta);
-	else
+	if ( strEqual( "SPEF", _type) )
 		std::ranges::for_each( spec.frqidx, show_dta);
+	if ( strEqual( "SPEW", _type) )
+		std::ranges::for_each( spec.wfid, show_dta);
 	return strs.str();
 }
 
@@ -152,17 +159,22 @@ void Spectrum_class::Test_Spectrum()
 {
 	TEST_START( className );
 
-	String str { "SPEF,VCO,sinus,1,2,3,4,5" };
+	String str { "SPEF,VCO,1,2,3,4,5" };
 	vector_str_t arr = str.to_array( ',' );
 	Parse_data( arr, osc_struct::VCOID );
 	ASSERTION( spectrum.osc == osc_struct::VCOID, "oscid", osc_struct::VCOID, osc_struct::VCOID );
 	ASSERTION( ( abs(spectrum.frqadj[4]) - 5.05) < 1E-6, "frqadj4", ( abs(spectrum.frqadj[4])) , 5.05 );
 
-	str = "SPEV,FMO,sinus,1.0,1,3,2,3" ;
+	str = "SPEV,FMO,1.0,1,3,2,3" ;
 	arr = str.to_array( ',' );
 	Parse_data( arr, osc_struct::FMOID );
-	cout << show_items( spectrum.vol ) << endl;
+	cout << show_items( spectrum.vol) << endl;
 	ASSERTION( ( abs( spectrum.vol[1] - 1.0/10.0) < 1E-6),"",abs( spectrum.vol[1] - 1.0/10.0), 0 );
+
+	ASSERTION( strEqual( waveform_str_vec[3], waveFunction_vec[3].name),
+			"waveform_str_vec",
+			waveform_str_vec[3],
+			waveFunction_vec[3].name );
 
 	TEST_END( className );
 }

@@ -11,7 +11,6 @@
 
 #include <Ocean.h>
 #include <Config.h>
-#include <Keys.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <Version.h>
@@ -19,6 +18,7 @@
 #include <data/SharedDataSegment.h>
 #include <data/Register.h>
 #include <data/Memory.h>
+#include <EventKeys.h>
 
 static const uint STATE_MAP_SIZE = LASTNUM;
 

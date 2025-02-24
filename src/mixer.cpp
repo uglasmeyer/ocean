@@ -123,7 +123,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 	Loop_class loop{ &sds->Master_Amp };
 	amp_loop_vec.push_back( loop );
 
-	if( Log[ TEST ] )
+	if( LogMask[ TEST ] )
 	{
 		for ( uint n : MemIds )
 			StA[n].Memory_base::Info();
@@ -317,17 +317,16 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 void Mixer_class::Test()
 {
-	Set_Loglevel(TEST, true );
+	TEST_START( className );
 	Mono.Set_Loglevel( TEST, true );
 	Mono_out.Set_Loglevel( TEST, true );
 	Out_L.Set_Loglevel( TEST, true );
 	Out_R.Set_Loglevel( TEST, true );
-//	stereo->Set_Loglevel( TEST, true );
 	for ( Memory& sta : StA )
 		sta.Set_Loglevel( TEST, true );
 	Mono.Memory_base::Info();
 
-	Comment( TEST, "Testing Mixer_class" );
+	TEST_END( className );
 
 
 }

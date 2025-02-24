@@ -93,6 +93,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 	if ( data_ptr == nullptr )
 	{
 		Comment(ERROR, "wave display got nullptr at index " + to_string(wdId)) ;
+		return;
 	}
 
 	param_t param;

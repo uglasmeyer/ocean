@@ -1246,7 +1246,7 @@
      <rect>
       <x>1000</x>
       <y>320</y>
-      <width>91</width>
+      <width>151</width>
       <height>121</height>
      </rect>
     </property>
@@ -1261,12 +1261,12 @@
       <rect>
        <x>20</x>
        <y>0</y>
-       <width>61</width>
+       <width>111</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>S0</string>
+      <string>Instrument 0</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="rb_S1">
@@ -1274,12 +1274,12 @@
       <rect>
        <x>20</x>
        <y>30</y>
-       <width>61</width>
+       <width>111</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>S1</string>
+      <string>Instrument 1</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="rb_S2">
@@ -1287,12 +1287,12 @@
       <rect>
        <x>20</x>
        <y>60</y>
-       <width>61</width>
+       <width>111</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>S2</string>
+      <string>Inatrument 2</string>
      </property>
     </widget>
     <widget class="QRadioButton" name="rb_S3">
@@ -1300,12 +1300,12 @@
       <rect>
        <x>20</x>
        <y>90</y>
-       <width>61</width>
+       <width>121</width>
        <height>23</height>
       </rect>
      </property>
      <property name="text">
-      <string>S3</string>
+      <string>Instrument 3</string>
      </property>
     </widget>
    </widget>
@@ -1788,7 +1788,7 @@
      <item row="0" column="1">
       <widget class="QPushButton" name="pBSynthesizer">
        <property name="text">
-        <string>Synthesizer</string>
+        <string>Instrument</string>
        </property>
       </widget>
      </item>

@@ -339,7 +339,6 @@ void Note_class::Test()
 	Note_base::TestNoteBase();
 
 	TEST_START( className );
-	Set_Loglevel( DEBUG, true );
 	ASSERTION( Notechar2Step( 'A' ) == 9, "Assert test value ","A", 9  )  ;
 
 	Instrument_name = "NotesTest";

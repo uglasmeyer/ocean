@@ -21,6 +21,11 @@ Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 
     proc_table_update_all();
 }
+Rtsp_Dialog_class::~Rtsp_Dialog_class()
+{
+	delete ( twItem_p );
+//	delete(ui);
+}
 
 void Rtsp_Dialog_class::proc_table( uint row, uint col, string text)
 {
@@ -61,7 +66,3 @@ void Rtsp_Dialog_class::proc_table_update_all( )
 
 
 
-Rtsp_Dialog_class::~Rtsp_Dialog_class()
-{
-//	delete(ui);
-}
