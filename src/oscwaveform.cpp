@@ -7,6 +7,7 @@
 
 #include <Oscwaveform.h>
 
+
 random_device 	rd;
 mt19937 		engine(rd());
 uniform_real_distribution<> distrib( -1, 1 );
@@ -64,7 +65,7 @@ Data_t Zero( const float& x)
 {
 	return 0.0;
 }
-Data_t Sin( param_t& p )
+Data_t Sinus( param_t& p )
 {
 	return (  p.amp * sin( p.phi ));
 }
@@ -97,6 +98,17 @@ Data_t Pmw( param_t& p )
 }
 
 
+vector<string> waveform_str_vec {};
+void Oscwaveform_class::init_waveform_str_vec()
+{
+	if ( waveform_str_vec.size() > 0 ) return;
+	cout<<"init waveform_str_vector"<<endl;
+	for ( uint n = 0; n < 10; n++ )
+	{
+		waveform_str_vec.push_back( waveFunction_vec[n].name  );
+	}
+
+}
 
 void Oscwaveform_class::Test_wf()
 {

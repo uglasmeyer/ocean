@@ -13,7 +13,7 @@
 #include <String.h>
 
 
-
+extern vector<string> waveform_str_vec ;
 
 struct param_struct
 {
@@ -35,7 +35,7 @@ extern  	float 	maximum(	const float& x,
 extern 		Data_t 	Rnd(  		param_t& param );
 extern 		Data_t 	Delta( 		param_t& param );
 extern 		Data_t	Rnd_step( 	param_t& param );
-extern 		Data_t 	Sin( 		param_t& param );
+extern 		Data_t 	Sinus( 		param_t& param );
 extern  	Data_t 	SignSin( 	param_t& param );
 extern  	Data_t 	Rectangle( 	param_t& param );
 extern  	Data_t 	Triangle( 	param_t& param );
@@ -52,27 +52,19 @@ class Oscwaveform_class :
 public:
 
 
-	Oscwaveform_class() :
-		Logfacility_class("Oscwaveform_class")
-	{
-		className = Logfacility_class::className;
-	};
-	~Oscwaveform_class() {};
 
 	typedef function<Data_t( param_t& )>
 						wave_function_t;
 	struct waveFnc_struct
 	{
-		uint8_t 		idx 	= 0;
-		wave_function_t fnc 	= Sin;
+		wave_function_t fnc 	= Sinus;
 		string			name	= "sinus";
 		phi_t 			maxphi 	= 2*numbers::pi;
 	};
 	typedef waveFnc_struct waveFnc_t;
 	enum waveformId_t
 	{
-		SINUS0,
-		SINUS1,
+		SINUS,
 		TRIANGLE,
 		SGNSIN,
 		RECTANGLE,
@@ -85,21 +77,29 @@ public:
 	};
 	const vector<waveFnc_t> waveFunction_vec =
 	{
-		{ SINUS0	, Sin		, "sinus"		, 2*pi 	},
-		{ SINUS1	, Sin		, "Sinus"		, 2*pi 	},
-		{ TRIANGLE	, Triangle	, "triangle"	, 2		},
-		{ SGNSIN	, SignSin	, "signsin"		, 2*pi 	},
-		{ RECTANGLE	, Rectangle	, "rectangle"	, 2 	},
-		{ SAWTOOTHL	, SawTooth	, "sawtoothL"	, 2		},
-		{ SAWTOOTHR	, Sawtooth	, "sawtoothR"	, 2		},
-		{ PMW		, Pmw		, "PMW"			, 1		},
-		{ DELTA		, Delta		, "delta"		, 1		},
-		{ NOISE		, Rnd		, "noise"		, 1		},
-		{ RANDOM	, Rnd_step	, "random"		, 1		}
+		{  Sinus	, "sinus"		, 2*pi 	},
+		{  Triangle	, "triangle"	, 2		},
+		{  SignSin	, "signsin"		, 2*pi 	},
+		{  Rectangle, "rectangle"	, 1 	},
+		{  SawTooth	, "sawtoothL"	, 1		},
+		{  Sawtooth	, "sawtoothR"	, 1		},
+		{  Pmw		, "PMW"			, 1		},
+		{  Delta	, "delta"		, 1		},
+		{  Rnd		, "noise"		, 1		},
+		{  Rnd_step	, "random"		, 1		}
 	};
 
+	Oscwaveform_class() :
+		Logfacility_class("Oscwaveform_class")
+	{
+		className = Logfacility_class::className;
+		init_waveform_str_vec();
+	};
+	~Oscwaveform_class() {};
 
 	void 			Test_wf();
+	void init_waveform_str_vec();
+
 
 
 private:

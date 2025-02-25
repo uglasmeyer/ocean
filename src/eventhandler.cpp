@@ -60,7 +60,7 @@ void Event_class::Handler( uint eventKey)
 	{
 		int frqidx = sds->OSC_wp.frqidx;
 		Instrument->osc->Set_frequency( frqidx );
-		sds->OSC_spectrum.base = Instrument->osc->Calc( frqidx );
+		sds->OSC_spectrum.base = Instrument->osc->wp.frequency;
 		sds->OSC_spectrum.frqidx[0] = frqidx;
 
 		Sds->Commit();

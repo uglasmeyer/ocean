@@ -25,7 +25,7 @@ class Instrument_class:
 public:
 	string 					Name 		= "";
 
-	interface_t*  			ifd;
+	interface_t*  			sds;
 	Oscgroup_class			Oscgroup	{ osc_struct::INSTRID };
 	Oscillator*				osc			= &Oscgroup.osc;
 	Oscillator*				vco			= &Oscgroup.vco;

@@ -60,7 +60,7 @@ class Interpreter_class : virtual Logfacility_class, virtual public Processor_cl
 		uint8_t		ampkey	= 0;
 		uint8_t* 	amp		= nullptr;
 		uint8_t		freqkey	= 0;
-		int*		frqidx	= nullptr;
+		uint8_t*	frqidx	= nullptr;
 
 	} view_struct_t;
 

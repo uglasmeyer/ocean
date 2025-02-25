@@ -41,7 +41,7 @@ typedef struct bps_struct
 typedef	struct wave_struct
 {
 	float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
-	int				frqidx		= 0;
+	uint8_t			frqidx		= 0;
 	float			start_frq 	= frequency;
 	uint8_t			PMW_dial 	= 50;
 	uint8_t 		glide_effect= 0;
@@ -105,10 +105,9 @@ public:
 	spectrum_t		spectrum	= spec_struct();
 
 	Oscillator_base() :
-		Logfacility_class("Osc"),
+		Logfacility_class("Oscillator_base"),
 		Spectrum_class()
-	{
-	};
+	{};
 
 	virtual 	~Oscillator_base(){};
 

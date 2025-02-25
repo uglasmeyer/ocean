@@ -14,6 +14,7 @@
 #include <Frequency.h>
 #include <Oscwaveform.h>
 
+
 const static size_t 		spec_arr_len = 5;
 typedef float 				spec_dta_ft;
 typedef int					spec_dta_it;
@@ -36,12 +37,11 @@ public:
 		spec_arr_it				frqidx 	= { 0, 0, 0, 0, 0 };				// frq slider value
 		spec_arr_it				volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
 		spec_dta_ft				sum 	= 1.0;								// sum over .vol
-		spec_arr_8t				wfid 	= {SINUS1, SINUS1, SINUS1, SINUS1, SINUS1 };// waveform wdid
+		spec_arr_8t				wfid 	= {SINUS, SINUS, SINUS, SINUS, SINUS };// waveform wdid
 		uint8_t					osc 	= osc_struct::OSCID;
 		float					base	= oct_base_freq;
 	} spectrum_t;
 
-	vector<string> waveform_str_vec {};
 
 	const spectrum_t	default_spec 	= spec_struct();
 	string 				className = "";
@@ -53,10 +53,6 @@ public:
 		Oscwaveform_class()
 	{
 		className = Logfacility_class::className;
-		for ( waveFnc_t waveFnc : waveFunction_vec )
-		{
-			waveform_str_vec.push_back( waveFnc.name );
-		}
 	};
 	virtual ~Spectrum_class(){};
 

@@ -20,7 +20,7 @@ using namespace std;
 
 #define MAYOR 3
 #define MINOR 4
-#define PATCH 3
+#define PATCH 4
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -34,6 +34,7 @@ const string Application = "Ocean Sound ";
 /*
  *
  *
+version 3.4.4 waveformvector external
 version 3.4.3 oscwavefunction class
 version 3.4.2 file dialog path_t structure
 version 3.4.1 structure and workflow changes

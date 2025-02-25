@@ -164,9 +164,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		}
 	};
 
-//	for ( buffer_t n = 0; n < frames ; n++ )
-//	for ( buffer_t n = 0; n < (max_frames - frame_offset); n++ )
-//	{
+
 
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
@@ -179,8 +177,6 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			param.amp	= spectrum.vol[channel];
 			for( buffer_t n = 0; n < frames; n++ )
 			{
-//				if (( this->oscrole_id != OscRole.NOTESID )) // enable polyphone adding of notes - notes::note2memory
-//					Data[n] = max_data_amp * wp.adjust * 0.01;
 
 				float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
 				fmo_shift = fmo_vol * fmo_data[n];
@@ -249,12 +245,12 @@ void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 		return Data;
 	};
 
-	const float 	d0 		= 1.0; // distance to the receiver of sound
+	const float 	d0 		= 10.0; // distance to the receiver of sound
 	const float 	distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]
 	const float		c		= 330.0; // sound speed [m/s]
 	const float 	dt 		= (2.0 * distance) / c; // time delay [seconds]
 	const buffer_t 	dn 		= rint(dt * frames_per_sec) ;// frame delay [# of frames]
-	const float		db 		= 0.8; // the decay is a constant of the wall
+	const float		db 		= 0.4; // the decay is a constant of the wall
 
 	DataVec_t halldata = gen_halldata( db );
 

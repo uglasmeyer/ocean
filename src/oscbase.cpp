@@ -78,7 +78,7 @@ void Oscillator_base::Set_frequency( int idx )
 	wp.frequency 		= Calc( idx );
 	wp.start_frq 		= wp.frequency;
 	spectrum.base		= wp.frequency;
-	spectrum.frqadj[0]	= 1.0;
+	spectrum.frqadj[0]	= 0.0;
 
 }
 void Oscillator_base::Set_volume( uint16_t vol)

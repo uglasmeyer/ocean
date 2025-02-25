@@ -14,15 +14,17 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 : Logfacility_class("Instrument")
 {
 	Setup( ifd );
+
+
 	Oscgroup.SetWd( wd );
 	wd_p = wd;
 }
 
-void Instrument_class::Setup( interface_t* ifd )
+void Instrument_class::Setup( interface_t* _sds )
 {
-	this->ifd 		= ifd;
+	this->sds 		= sds;
 	Default_instrument_file = file_structure().Dir.instrumentdir + "default" + instr_ext;
-	ifd_spectrum_vec = { &ifd->VCO_spectrum, &ifd->FMO_spectrum, &ifd->OSC_spectrum};
+	ifd_spectrum_vec = { &sds->VCO_spectrum, &sds->FMO_spectrum, &sds->OSC_spectrum};
 }
 
 Instrument_class::~Instrument_class()
@@ -37,7 +39,7 @@ void Instrument_class::reuse_GUI_Data()
 	// The data shall be ignored if the ifd is initially created. This is indicated
 	// by the MODE DEFAULT.
 
-	if ( ifd->MODE == DEFAULT )
+	if ( sds->MODE == DEFAULT )
 	{
 		Comment(INFO, "default Shared Data is not reused");
 		return;
@@ -45,15 +47,15 @@ void Instrument_class::reuse_GUI_Data()
 
 	Comment(INFO, "using Shared Data");
 
-	Oscgroup.osc.adsr				= ifd->OSC_adsr;
-	Oscgroup.osc.wp					= ifd->OSC_wp;
-	Oscgroup.osc.spectrum			= ifd->OSC_spectrum;
+	Oscgroup.osc.adsr				= sds->OSC_adsr;
+	Oscgroup.osc.wp					= sds->OSC_wp;
+	Oscgroup.osc.spectrum			= sds->OSC_spectrum;
 
-	Oscgroup.vco.wp					= ifd->VCO_wp;
-	Oscgroup.vco.spectrum			= ifd->VCO_spectrum;
+	Oscgroup.vco.wp					= sds->VCO_wp;
+	Oscgroup.vco.spectrum			= sds->VCO_spectrum;
 
-	Oscgroup.fmo.wp					= ifd->FMO_wp;
-	Oscgroup.fmo.spectrum			= ifd->FMO_spectrum;
+	Oscgroup.fmo.wp					= sds->FMO_wp;
+	Oscgroup.fmo.spectrum			= sds->FMO_spectrum;
 
 }
 
@@ -77,17 +79,17 @@ void Instrument_class::setup_GUI_Data()
 	Comment(INFO, "setup GUI data");
 
 
-	ifd->OSC_adsr 		= Oscgroup.osc.adsr;
-	ifd->OSC_wp			= Oscgroup.osc.wp;
-	ifd->OSC_spectrum	= Oscgroup.osc.spectrum;
+	sds->OSC_adsr 		= Oscgroup.osc.adsr;
+	sds->OSC_wp			= Oscgroup.osc.wp;
+	sds->OSC_spectrum	= Oscgroup.osc.spectrum;
 
-	ifd->VCO_spectrum	= Oscgroup.vco.spectrum;
-	ifd->VCO_wp			= Oscgroup.vco.wp;
+	sds->VCO_spectrum	= Oscgroup.vco.spectrum;
+	sds->VCO_wp			= Oscgroup.vco.wp;
 
-	ifd->FMO_wp			= Oscgroup.fmo.wp;
-	ifd->FMO_spectrum	= Oscgroup.fmo.spectrum;
+	sds->FMO_wp			= Oscgroup.fmo.wp;
+	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
 
-	ifd->UserInterface	= UPDATEGUI; // update Instrument reset flag on GUI side
+	sds->UserInterface	= UPDATEGUI; // update Instrument reset flag on GUI side
 
 
 }
@@ -111,20 +113,16 @@ void Instrument_class::Update_spectrum()
 
 	Comment(INFO, "receive command <update Spectrum>");
 
-	uint oscid = ifd->Spectrum_type;
+	uint oscid = sds->Spectrum_type;
 	Oscillator* osc = Oscgroup.oscgroup[ oscid ];
 	osc->Set_spectrum( *ifd_spectrum_vec[ oscid ] ) ;
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
-
 	osc->Line_interpreter( arr );
 	if ( osc->is_main_osc  )
 		assign_adsr( arr );
-	osc->Get_comment( false );
-	osc->Set_csv_comment();
-	osc->Show_csv_comment( TEST );
 
 }
 void Instrument_class::set_new_name( string name )
@@ -204,6 +202,9 @@ bool Instrument_class::read_instrument( )
 					*ifd_spectrum_vec[ osc->osctype_id ] = osc->spectrum;
 				}
 			}
+			osc->Get_comment( false );
+			osc->Set_csv_comment();
+			osc->Show_csv_comment( TEST );
 		}
 
 
@@ -293,7 +294,7 @@ void Instrument_class::Save_Instrument( string str )
 			<< setw(10)	<< "PMWs"
 			<< endl;
 
-	Oscgroup.osc.wp.volume = (int)ifd->Master_Amp;
+	Oscgroup.osc.wp.volume = (int)sds->Master_Amp;
 	for ( Oscillator* osc : Oscgroup.oscgroup )
 	{
 
@@ -359,25 +360,26 @@ void Instrument_class::Test_Instrument()
 
 	for ( Oscillator* osc : Oscgroup.oscgroup	)
 		osc->Set_Loglevel( TEST, true);
-	ifd->MODE = FREERUN;
+	sds->MODE = FREERUN;
 
 	assert( Set( ".test" ) );
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;
 	Oscgroup.vco.wp.frequency = 57;
-	assert( strEqual( 	Oscgroup.vco.waveform_str_vec[ Oscwaveform_class::SGNSIN ],
+	assert( strEqual( 	waveform_str_vec[ Oscwaveform_class::SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 	Save_Instrument( ".test" );
 	Oscgroup.vco.wp.PMW_dial = 0;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::RECTANGLE;
-	assert( strEqual( 	Oscgroup.vco.waveform_str_vec[ Oscwaveform_class::RECTANGLE ],
+	assert( strEqual( 	waveform_str_vec[ Oscwaveform_class::RECTANGLE ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 
 	assert( Set( ".test" ) );
+	ASSERTION( sds->VCO_wp.PMW_dial == 98,"Set",98,98);
 	assert( Oscgroup.vco.wp.PMW_dial == 98 );
-	string a = Oscgroup.vco.waveform_str_vec[ Oscwaveform_class::SGNSIN ];
+	string a = waveform_str_vec[ Oscwaveform_class::SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
 
@@ -403,8 +405,8 @@ void Instrument_class::Test_Instrument()
 		Oscgroup.fmo.OSC(0);
 		Oscgroup.osc.OSC(0);
 		data0 = Oscgroup.osc.Mem.Data[max_frames-1];
-		cout << data0 << ":" << datan << endl;
-		ASSERTION( abs( abs( datan )- abs(data0 )) < 400, "oscgroup", abs( abs( datan )- abs(data0 )), "<400" );
+		cout << data0 << ":" << datan << data0 - datan << endl;
+		ASSERTION( fcomp( datan, data0, 20 ), "oscgroup", abs( datan - data0 ), "<20" );
 	}
 
 

@@ -83,17 +83,15 @@ void MainWindow::initScrollbars()
 
 void MainWindow::initFreqSlider()
 {
-    ui->Slider_FMO_Hz->setMinimum( 1 );
-    ui->Slider_VCO_Hz->setMinimum( 1 );
-    ui->Slider_OSC_Hz->setMinimum( 1 );
-
-    ui->Slider_FMO_Hz->setMaximum( Spectrum.frq_vector_len-1 );
-    ui->Slider_VCO_Hz->setMaximum( Spectrum.frq_vector_len-1 );
-    ui->Slider_OSC_Hz->setMaximum( Spectrum.frq_vector_len-1 );
-
+	for( sl_lcd_t map : sl_frqidx_vec )
+	{
+		map.sl->setMinimum( 1 );
+		map.sl->setMaximum( Spectrum.frq_vector_len-1 );
+		map.sl->setValue( Spectrum.Calc( *map.value));
+	}
 }
 
-void MainWindow::initMixerVector()
+void MainWindow::initGuiVectors()
 {
 
     rb_S_vec =
@@ -133,8 +131,24 @@ void MainWindow::initMixerVector()
 		{ 6, ui->Slider_mix_vol6, &Sds->addr->StA_amp_arr[6]  },
 		{ 7, ui->Slider_mix_vol7, &Sds->addr->StA_amp_arr[7]  }
 	};
-
-
+    sl_frqidx_vec =
+    {
+   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->VCO_wp.frqidx },
+   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &Sds->addr->FMO_wp.frqidx },
+   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &Sds->addr->OSC_wp.frqidx }
+    };
+    sl_volume_vec =
+    {
+   		{ VCOFREQUENCYKEY, ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume },
+   		{ FMOFREQUENCYKEY, ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume },
+   		{ OSCFREQUENCYKEY, ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &Sds_master->Master_Amp }
+    };
+    sB_lbl_vec =
+    {
+        { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &Sds->addr->VCO_spectrum.wfid[0] },
+       	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->FMO_spectrum.wfid[0] },
+       	{ OSCFREQUENCYKEY, ui->sB_Main, ui->wf_main, &Sds->addr->OSC_spectrum.wfid[0] }
+    };
     rb_S_vec[ this->Sds_master->config ]->setChecked( true );
 
 }
@@ -182,7 +196,6 @@ void MainWindow::initUiConnectors()
     connect(ui->Slider_mix_vol5, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix5(int) ));
     connect(ui->Slider_mix_vol6, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix6(int) ));
     connect(ui->Slider_mix_vol7, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix7(int) ));
-
 
     connect(ui->rb_sta0, SIGNAL(clicked()), this, SLOT( toggle_store_sta0()) );
     connect(ui->rb_sta1, SIGNAL(clicked()), this, SLOT( toggle_store_sta1()) );

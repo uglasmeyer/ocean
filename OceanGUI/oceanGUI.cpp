@@ -56,9 +56,10 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	Sds_master->Record = false;
 	DaTA->Master_Sds_p->Announce( );
 
+    initGuiVectors();
+
 	initWavedisplay();
     initOscWidget();
-    initMixerVector();
     initFreqSlider();
     initScrollbars();
     initComboBoxes();
@@ -203,14 +204,14 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 
 	this->Sds_master->config = sdsid;
 	this->Sds_master->UpdateFlag = true;
-	this->Sds->addr->UpdateFlag = true;
+	this->Sds->addr->UpdateFlag = true; // update old sds
+
 	this->SDS_ID = sdsid;
+	this->Sds = DaTA->GetSds( sdsid ); // set new sds
 
-	this->Sds = DaTA->GetSds( sdsid );
-
-	initMixerVector();
+	initGuiVectors();
 	initWavedisplay();
-	wp_vec = { &Sds->addr->VCO_wp, &Sds->addr->FMO_wp, &Sds->addr->OSC_wp };
+//	wp_vec = { &Sds->addr->VCO_wp, &Sds->addr->FMO_wp, &Sds->addr->OSC_wp };
 
     Info( Type_map( GUI_ID) + " set to SDS Id: " + to_string( (int) Sds->addr->SDS_Id ));
 	DaTA->Reg.Show_proc_register( sdsid );
@@ -423,26 +424,18 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 
 void MainWindow::setwidgetvalues()
 {
-    ui->Slider_FMO_Hz->setValue( Sds->addr->FMO_wp.frqidx );
-    ui->Slider_VCO_Hz->setValue( Sds->addr->VCO_wp.frqidx );;
-    ui->Slider_OSC_Hz->setValue( Sds->addr->OSC_wp.frqidx );;
+	for ( int oscid : {VCOID, FMOID, OSCID } )
+	{
+		sl_volume_vec[oscid].sl->setValue( *sl_volume_vec[oscid].value );
+		sl_volume_vec[oscid].lcd->display( *sl_volume_vec[oscid].value );
 
-    ui->Slider_FMO_Hz->setValue( Sds->addr->FMO_wp.frqidx );
-    ui->Slider_VCO_Hz->setValue( Sds->addr->VCO_wp.frqidx );;
-    ui->Slider_OSC_Hz->setValue( Sds->addr->OSC_wp.frqidx );;
+		sl_frqidx_vec[oscid].sl->setValue( *sl_frqidx_vec[oscid].value );
+		sl_frqidx_vec[oscid].lcd->display( Spectrum.Calc( *sl_frqidx_vec[oscid].value ));
 
-    ui->Slider_FMO_vol->setValue(   Sds->addr->FMO_wp.volume);
-    ui->Slider_VCO_vol->setValue(   Sds->addr->VCO_wp.volume);
-    ui->Slider_OSC_Vol->setValue(  Sds_master->Master_Amp);
-
-    ui->FMOLCD_Hz->display( Sds->addr->FMO_wp.frequency );
-    ui->VCOLCD_Hz->display( Sds->addr->VCO_wp.frequency );
-    ui->OSCLCD_Hz->display( Sds->addr->OSC_wp.frequency );
-
-    ui->FMOLCD_Amp->display( Sds->addr->FMO_wp.volume );
-    ui->VCOLCD_Amp->display( Sds->addr->VCO_wp.volume );
-    ui->OSCLCD_Amp->display( Sds_master->Master_Amp);
-
+		sB_lbl_vec[oscid].lbl->setText( QWaveform_vec[ *sB_lbl_vec[oscid].value] );
+		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
+	};
+/*
     ui->wf_fmo->setText( QWaveform_vec[ Sds->addr->FMO_spectrum.wfid[0] ] );
     ui->wf_vco->setText( QWaveform_vec[ Sds->addr->VCO_spectrum.wfid[0] ] );
     ui->wf_main->setText( QWaveform_vec[ Sds->addr->OSC_spectrum.wfid[0] ] );
@@ -450,7 +443,7 @@ void MainWindow::setwidgetvalues()
     ui->sB_Main->setValue( Sds->addr->OSC_spectrum.wfid[0] );
     ui->sB_FMO->setValue(  Sds->addr->FMO_spectrum.wfid[0]  );
     ui->sB_VCO->setValue(  Sds->addr->VCO_spectrum.wfid[0]  );
-
+*/
     ui->hs_adsr_sustain->setValue(  (int)Sds->addr->OSC_adsr.decay );
     ui->hs_adsr_attack->setValue(  (int) Sds->addr->OSC_adsr.attack);
     ui->dial_PMW->setValue( (int)Sds->addr->VCO_wp.PMW_dial  );
@@ -485,61 +478,53 @@ void MainWindow::setwidgetvalues()
     MainWindow::show();
 }
 
-void MainWindow::sliderFreq( uint8_t oscid,  QLCDNumber* lcd, int value, char key )
+void MainWindow::sliderFreq( sl_lcd_t map, int value )
 {
 	float freq 		= Spectrum.Calc( value );
-	lcd->display( freq );
+	map.lcd->display( freq );
 
-	wp_vec[ oscid ]->frequency 	= freq;
-	wp_vec[ oscid ]->frqidx 	= value;
+	*map.value = value;
+	this->Sds->Set( this->Sds->addr->EVENT, map.event );
 
-	this->Sds->Set( this->Sds->addr->EVENT, (char) key);
 };
 void MainWindow::Slider_OSC_Freq( int value )
 {
-	sliderFreq( OSCID, ui->OSCLCD_Hz, value, OSCFREQUENCYKEY );
+	sliderFreq( sl_frqidx_vec[OSCID], value );
 }
 void MainWindow::Slider_VCO_Freq( int value )
 {
 	( value < Spectrum.C0 ) ? ui->lb_VCO_LFO->show() : ui->lb_VCO_LFO->hide();
 
-    sliderFreq( VCOID, ui->VCOLCD_Hz, value, VCOFREQUENCYKEY );
+	sliderFreq( sl_frqidx_vec[VCOID], value );
 }
 void MainWindow::Slider_FMO_Freq( int value )
 {
 	( value < Spectrum.C0 ) ? ui->lb_FMO_LFO->show() : ui->lb_FMO_LFO->hide();
 
-    sliderFreq( FMOID, ui->FMOLCD_Hz, value, FMOFREQUENCYKEY );
+	sliderFreq( sl_frqidx_vec[FMOID], value );
 }
 
 
-void MainWindow::sliderVolume( uint8_t oscid, QLCDNumber* lcd, int value, char key )
+void MainWindow::sliderVolume( uint8_t oscid, QLCDNumber* lcd, char key )
 {
-	if ( oscid == OSCID )
-	{
-		Sds_master->Master_Amp 	= value;
-	}
-	else
-	{
-		wp_vec[ oscid ]->volume = value;
-		lcd->display( value );
-	}
+	int value = sl_volume_vec[oscid].sl->value();
+	*sl_volume_vec[oscid].value = value;
+	lcd->display( value );
 
 	this->Sds->Set( this->Sds->addr->EVENT, (char) key);
-
 };
 
 void MainWindow::MAIN_slot_volume()
 {
-	sliderVolume( OSCID, ui->OSCLCD_Amp, ui->Slider_OSC_Vol->value(), MASTERAMP_KEY );
+	sliderVolume( OSCID, ui->OSCLCD_Amp, MASTERAMP_KEY );
 }
 void MainWindow::VCO_slot_volume()
 {
-	sliderVolume( VCOID, ui->VCOLCD_Amp, ui->Slider_VCO_vol->value(), VCOAMPKEY );
+	sliderVolume( VCOID, ui->VCOLCD_Amp, VCOAMPKEY );
 }
 void MainWindow::FMO_slot_volume()
 {
-	sliderVolume( FMOID, ui->FMOLCD_Amp, ui->Slider_FMO_vol->value(), FMOAMPKEY );
+	sliderVolume( FMOID, ui->FMOLCD_Amp, FMOAMPKEY );
 }
 
 void MainWindow::Slider_VCO_Adjust( int value )
@@ -710,7 +695,6 @@ void MainWindow::pB_fftmode_clicked()
 	cout << "pB_fftmode_clicked" << boolalpha << Sds->addr->WD_status.fftmode << endl;
 
 	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );
-
 }
 
 

@@ -117,11 +117,27 @@ public:
     	QSlider*		sl;
     	uint8_t*		value;
     } sl_value_t;
+    struct sl_lcd_map
+    {
+    	int				event; // Mixer id
+    	QLCDNumber*		lcd;
+    	QSlider*		sl;
+    	uint8_t*		value;
+    };
+    typedef sl_lcd_map 	sl_lcd_t;
+    struct sB_lbl_map
+    {
+    	int 			event;
+    	QSpinBox* 		sb;
+    	QLabel* 		lbl;
+		uint8_t*		value;
+    };
+    typedef sB_lbl_map 	sB_lbl_t;
     vector<sl_value_t>		sl_sta_vec 			{};
+    vector<sl_lcd_t>		sl_frqidx_vec		{};
+    vector<sl_lcd_t>		sl_volume_vec		{};
+    vector<sB_lbl_t>		sB_lbl_vec			{};
 
-    vector<wave_t*>			wp_vec				{ 	&Sds->addr->VCO_wp,
-    												&Sds->addr->FMO_wp,
-													&Sds->addr->OSC_wp };
     dir_struct_t 			fs					= file_structure();
 
 
@@ -150,7 +166,7 @@ private:
     void updateWidgets();
     void initPanel();
     void select_Sds( uint sdsid );
-    void initMixerVector();
+    void initGuiVectors();
     void initOscWidget();
     void initFreqSlider();
     void initScrollbars();
@@ -158,8 +174,8 @@ private:
     void initComboBoxes();
     void initUiConnectors();
     void initTimer();
-    void sliderFreq( uint8_t oscid, QLCDNumber* lcd, int value, char key );
-    void sliderVolume( uint8_t oscid, QLCDNumber* lcd, int value, char key);
+    void sliderFreq( sl_lcd_t map, int value );
+    void sliderVolume( uint8_t oscid, QLCDNumber* lcd, char key);
 
 
 private slots:

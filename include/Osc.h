@@ -17,8 +17,9 @@
 
 
 
-class Oscillator : //	virtual public Logfacility_class,
-					virtual public Oscillator_base
+class Oscillator :
+		virtual public Logfacility_class,
+		virtual public Oscillator_base
 {
 	string className = "";
 public:
