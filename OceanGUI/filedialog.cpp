@@ -81,7 +81,7 @@ void File_Dialog_class::SetSds( Interface_class* Sds, int8_t id )
 void File_Dialog_class::sB_Octave(int sb_value )
 {
 	Sds->Set( sds_p->noteline_prefix.Octave , sb_value );
-	Sds->Set( sds_p->EVENT , UPDATE_NLP_KEY );
+	Sds->Event( UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cb_Notestype( int cb_value )
@@ -96,14 +96,14 @@ void File_Dialog_class::cB_Convention( int cb_value )
 	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
 	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
 	Sds->Set( sds_p->noteline_prefix.convention , cb_value );
-	Sds->Set( sds_p->EVENT , UPDATE_NLP_KEY );
+	Sds->Event( UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cB_NotesPerSec(int nps_id )
 {
 	int nps = ui->cb_nps->currentText().toInt();
 	Sds->Set( sds_p->noteline_prefix.nps , nps );
-	Sds->Set( sds_p->EVENT , UPDATE_NLP_KEY );
+	Sds->Event( UPDATE_NLP_KEY );
 }
 
 
@@ -159,7 +159,7 @@ void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &QStr)
     if ( str.length() > 0 )
     {
         Sds->Write_str( INSTRUMENTSTR_KEY, str );
-        Sds->Set( sds_p->EVENT , EventINS.event );
+        Sds->Event( EventINS.event );
     }
     ui->lE_Instrument->setText( QStr );
 }
@@ -178,7 +178,7 @@ void File_Dialog_class::New_Notes()
 {
 	if ( sds_p->NotestypeId == XML_ID )
 	{
-		Sds->Set( sds_p->EVENT , Event_vec[ XML_ID ].event );
+		Sds->Event( Event_vec[ XML_ID ].event );
     	return;
 	}
 
@@ -200,7 +200,7 @@ void File_Dialog_class::New_Notes()
         // remote shall read and activate the new note line
         Sds->Write_str( NOTESSTR_KEY, notes_file);
 
-        Sds->Set( sds_p->EVENT , Event_vec[NTE_ID].event );
+        Sds->Event( Event_vec[NTE_ID].event );
         Info( "sync notes" );
     	sem->Release( SEMAPHORE_SYNCNOTES );
 
@@ -216,7 +216,6 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString& Note_name)
     string note_name = Note_name.toStdString();
     Sds->Write_str( NOTESSTR_KEY, note_name );
     uint8_t notestypeId = sds_p->NotestypeId;
-//    Sds->Set( sds_p->EVENT , Event_vec[ notestypeId ].event);
 
     if ( notestypeId == XML_ID ) return;
 

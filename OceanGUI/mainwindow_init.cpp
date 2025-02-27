@@ -46,7 +46,7 @@ void MainWindow::initComboBoxes()
     ui->cb_bps->addItems( Qbps_str_lst );
 }
 
-void MainWindow::initOscWidget()
+void MainWindow::initOscillatorDisplay()
 {
     QRectF rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
@@ -56,7 +56,7 @@ void MainWindow::initOscWidget()
     scene->addItem( OscWidget_item );
 }
 
-void MainWindow::initWavedisplay()
+void MainWindow::initOscillatorButtons()
 {
 	Qwd_osc_names 	= Vstringvector( osc_struct().types );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
@@ -73,9 +73,9 @@ void MainWindow::initWavedisplay()
 
 void MainWindow::initScrollbars()
 {
-	QWaveform_vec 		= Vstringvector( Spectrum.Get_waveform_vec() );
-
+	QWaveform_vec 		= Vstringvector( waveform_str_vec);
     uint sb_max = QWaveform_vec.size()-1;
+
     ui->sB_Main->setMaximum(sb_max);
     ui->sB_FMO->setMaximum(sb_max);
     ui->sB_VCO->setMaximum(sb_max);
@@ -96,7 +96,10 @@ void MainWindow::initGuiVectors()
 
     rb_S_vec =
     {
-    	ui->rb_S0, ui->rb_S1, ui->rb_S2, ui->rb_S3
+    	ui->rb_S0,
+		ui->rb_S1,
+		ui->rb_S2,
+		ui->rb_S3
     };
     rb_sta_vec =
     {
@@ -139,9 +142,9 @@ void MainWindow::initGuiVectors()
     };
     sl_volume_vec =
     {
-   		{ VCOFREQUENCYKEY, ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume },
-   		{ FMOFREQUENCYKEY, ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume },
-   		{ OSCFREQUENCYKEY, ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &Sds_master->Master_Amp }
+   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume },
+   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume },
+   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &Sds_master->Master_Amp }
     };
     sB_lbl_vec =
     {
@@ -149,7 +152,6 @@ void MainWindow::initGuiVectors()
        	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->FMO_spectrum.wfid[0] },
        	{ OSCFREQUENCYKEY, ui->sB_Main, ui->wf_main, &Sds->addr->OSC_spectrum.wfid[0] }
     };
-    rb_S_vec[ this->Sds_master->config ]->setChecked( true );
 
 }
 

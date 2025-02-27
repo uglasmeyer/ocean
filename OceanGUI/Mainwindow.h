@@ -167,15 +167,17 @@ private:
     void initPanel();
     void select_Sds( uint sdsid );
     void initGuiVectors();
-    void initOscWidget();
+    void initOscillatorDisplay();
     void initFreqSlider();
     void initScrollbars();
-    void initWavedisplay();
+    void initOscillatorButtons();
     void initComboBoxes();
     void initUiConnectors();
     void initTimer();
     void sliderFreq( sl_lcd_t map, int value );
-    void sliderVolume( uint8_t oscid, QLCDNumber* lcd, char key);
+    void sliderVolume( sl_lcd_t map );
+    void mixer_slider( sl_value_t map );
+
 
 
 private slots:

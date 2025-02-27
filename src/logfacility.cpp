@@ -135,14 +135,12 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 
 void Logfacility_class::Comment( const int& level, const string logcomment )
 {
-	//stringstream strs {""};
 	if ( level < LOGMAX + 1 )
 	{
 		if ( LogMask[ level ] )
 		{
 			comment_str = className + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
-//			LogFILE.flush() << setw(20) << comment_str << logcomment << endl;
 			string strs { comment_str + logcomment };
 			if ( LogVector_p )
 				LogVector_p->push_back( strs );

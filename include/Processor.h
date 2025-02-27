@@ -29,8 +29,8 @@ enum  {
 
 class Processor_class : virtual Logfacility_class
 {
-	Interface_class* 	sds ;
-	interface_t* 		ifd ;
+	Interface_class* 	Sds ;
+	interface_t* 		sds ;
 	Semaphore_class*	Sem ;
 	Time_class			Timer{};
 	string				className = "";
@@ -40,9 +40,9 @@ public:
 	Processor_class( Interface_class* gui ) : Logfacility_class("Processor")
 	{
 		className	= Logfacility_class::className;
-		this->sds = gui;
-		this->ifd = gui->addr;
-		this->Sem = gui->Sem_p;
+		this->Sds 	= gui;
+		this->sds	= gui->addr;
+		this->Sem 	= gui->Sem_p;
 		process_stack.clear();
 	};
 

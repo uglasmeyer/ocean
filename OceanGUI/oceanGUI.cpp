@@ -28,17 +28,17 @@ const string 		Module 		= "OceanGUI";
 auto set_rb_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::rb_state_t map : M->rb_sta_vec )
-    	map.rb->setChecked( M->Sds->addr->StA_state[map.id].store );
+    	map.rb->setChecked( *map.state);
 };
 auto set_cb_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::cb_state_t map : M->cb_sta_vec )
-    	map.cb->setChecked( M->Sds->addr->StA_state[map.id].play );
+    	map.cb->setChecked( *map.state );
 };
 auto set_sl_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::sl_value_t map : M->sl_sta_vec )
-    	map.sl->setValue( M->Sds->addr->StA_amp_arr[map.id] );
+    	map.sl->setValue( *map.value );
 };
 
 
@@ -58,8 +58,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
     initGuiVectors();
 
-	initWavedisplay();
-    initOscWidget();
+	initOscillatorButtons();
+    initOscillatorDisplay();
     initFreqSlider();
     initScrollbars();
     initComboBoxes();
@@ -89,7 +89,7 @@ void MainWindow::wavfile_selected( const QString &arg)
     if ( str.length() > 0 )
     {
         Sds->Write_str( WAVEFILESTR_KEY, str );
-        Sds->Set(Sds->addr->EVENT , READ_EXTERNALWAVEFILE);
+        Sds->Event( READ_EXTERNALWAVEFILE);
     }
 }
 
@@ -97,7 +97,7 @@ void MainWindow::wavfile_selected( const QString &arg)
 void MainWindow::hs_hall_effect_value_changed(int value)
 {
     Sds->Set(Sds->addr->OSC_adsr.hall , value);
-    Sds->Set( Sds->addr->EVENT , ADSR_KEY);
+    Sds->Event( ADSR_KEY);
 }
 
 
@@ -105,7 +105,7 @@ void MainWindow::dial_soft_freq_value_changed()
 {
     int value = ui->dial_soft_freq->value();
     Sds->Set(Sds->addr->OSC_wp.glide_effect , value);
-    Sds->Set( Sds->addr->EVENT , SOFTFREQUENCYKEY);
+    Sds->Event( SOFTFREQUENCYKEY);
 
 };
 
@@ -113,14 +113,14 @@ void MainWindow::dial_decay_value_changed()
 {
     int dial = ui->hs_adsr_attack->value();
     Sds->Set(Sds->addr->OSC_adsr.attack , dial);
-    Sds->Set(Sds->addr->EVENT, ADSR_KEY);
+    Sds->Event( ADSR_KEY);
 
 }
 void MainWindow::dial_PMW_value_changed()
 {
     int dial = ui->dial_PMW->value();
     Sds->Set(Sds->addr->VCO_wp.PMW_dial , dial);
-    Sds->Set( Sds->addr->EVENT ,PMWDIALKEY);
+    Sds->Event(PMWDIALKEY);
 }
 
 void MainWindow::Rtsp_Dialog()
@@ -181,7 +181,7 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 								QLabel* label  )
 {
 	*wf_addr = wfid;
-	Sds->Set( Sds->addr->EVENT , wf_key);
+	Sds->Event( wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
 	this->Spectrum_Dialog_p->SetLabelWaveform( QWaveform_vec[ wfid ] );
 }
@@ -210,8 +210,7 @@ void MainWindow::select_Sds( uint sdsid ) // TODO working
 	this->Sds = DaTA->GetSds( sdsid ); // set new sds
 
 	initGuiVectors();
-	initWavedisplay();
-//	wp_vec = { &Sds->addr->VCO_wp, &Sds->addr->FMO_wp, &Sds->addr->OSC_wp };
+	initOscillatorButtons();
 
     Info( Type_map( GUI_ID) + " set to SDS Id: " + to_string( (int) Sds->addr->SDS_Id ));
 	DaTA->Reg.Show_proc_register( sdsid );
@@ -251,7 +250,7 @@ auto setStaPlay( MainWindow* M, uint id )
     M->Sds->Set( M->Sds->addr->MIX_Id , id );
     bool play = not M->Sds->addr->StA_state[id].play;
     M->Sds->Set( M->Sds->addr->StA_state[id].play, play);
-    M->Sds->Set( M->Sds->addr->EVENT, SETSTAPLAY_KEY );
+    M->Sds->Event( SETSTAPLAY_KEY );
     M->cb_sta_vec[ id ].cb->setChecked( play ) ;
 }
 
@@ -293,11 +292,11 @@ auto toggle_store_sta( MainWindow* M, int ID )
     M->Sds->Set( M->Sds->addr->MIX_Id , ID );
     if ( M->Sds->addr->StA_state[ID].store )
     {
-    	M->Sds->Set( M->Sds->addr->EVENT , STOPRECORD_KEY);
+    	M->Sds->Event( STOPRECORD_KEY);
     }
     else
     {
-        M->Sds->Set( M->Sds->addr->EVENT , STORESOUNDKEY);
+        M->Sds->Event( STORESOUNDKEY);
     }
     M->rb_sta_vec[ ID ].rb->setChecked( false );
 };
@@ -348,47 +347,48 @@ void MainWindow::memory_clear()
     	}
     	id++;
     }
-    Sds->Set( Sds->addr->EVENT, CLEAR_KEY );
+    Sds->Event( CLEAR_KEY );
 }
 
-auto mixer_slider( MainWindow* C, int ID, int value )
+void MainWindow::mixer_slider( sl_value_t map )
 {
-    C->Sds->Set( C->Sds->addr->MIX_Id , ID );
-    C->Sds->Set( C->Sds->addr->StA_amp_arr[ID], value );
-    C->Sds->Set( C->Sds->addr->EVENT 	, SETMBAMPPLAYKEY);
+
+    Sds->Set( Sds->addr->MIX_Id , map.id );
+    Sds->Set( *map.value, (uint8_t)map.sl->value() );
+    Sds->Event( SETMBAMPPLAYKEY);
 };
 
 void MainWindow::Sl_mix0( int value )
 {
-	mixer_slider( this, 0, value );
+	mixer_slider( sl_sta_vec[0] );
 };
 void MainWindow::Sl_mix1( int value )
 {
-	mixer_slider( this, 1, value );
+	mixer_slider( sl_sta_vec[1] );
 };
 void MainWindow::Sl_mix2( int value )
 {
-	mixer_slider( this, 2, value );
+	mixer_slider( sl_sta_vec[2] );
 };
 void MainWindow::Sl_mix3( int value )
 {
-	mixer_slider( this, 3, value );
+	mixer_slider( sl_sta_vec[3] );
 };
 void MainWindow::Sl_mix4( int value )
 {
-	mixer_slider( this, MbIdInstrument, value );
+	mixer_slider( sl_sta_vec[4] );
 };
 void MainWindow::Sl_mix5( int value )
 {
-	mixer_slider( this, MbIdKeyboard, value );
+	mixer_slider( sl_sta_vec[5] );
 };
 void MainWindow::Sl_mix6( int value )
 {
-    mixer_slider( this, MbIdNotes, value );
+	mixer_slider( sl_sta_vec[6] );
 };
 void MainWindow::Sl_mix7( int value )
 {
-    mixer_slider( this, MbIdExternal, value );
+	mixer_slider( sl_sta_vec[7] );
 };
 
 void MainWindow::slot_dial_ramp_up_down()
@@ -396,7 +396,7 @@ void MainWindow::slot_dial_ramp_up_down()
     float value = ui->dial_ramp_up_down->value();
     Sds->Set( Sds->addr->LOOP_end, value);
     Sds->Set( Sds->addr->LOOP_step, 1 );
-    Sds->Set( Sds->addr->EVENT, MASTERAMP_LOOP_KEY);
+    Sds->Event( MASTERAMP_LOOP_KEY);
 }
 
 void MainWindow::Clear_Banks()
@@ -404,13 +404,13 @@ void MainWindow::Clear_Banks()
 	for( cb_state_t map : cb_sta_vec )
 		map.cb->setChecked(false);
 
-    Sds->Set( Sds->addr->EVENT , MUTEMBKEY);
+    Sds->Event( MUTEMBKEY);
 
 }
 void MainWindow::toggle_Mute()
 {
     bool mute_flag 	= not Sds->addr->mixer_status.mute ;
-    Sds->Set( Sds->addr->EVENT , MASTERAMP_MUTE_KEY);
+    Sds->Event( MASTERAMP_MUTE_KEY);
     QString Qstr = mute_flag ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 }
@@ -419,7 +419,7 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 {
 	uint8_t bps_val = ui->cb_bps->currentText().toInt();
     Sds->Set( Sds->addr->OSC_adsr.bps, bps_val  );
-	Sds->Set( Sds->addr->EVENT, ADSR_KEY );
+	Sds->Event( ADSR_KEY );
 }
 
 void MainWindow::setwidgetvalues()
@@ -430,20 +430,12 @@ void MainWindow::setwidgetvalues()
 		sl_volume_vec[oscid].lcd->display( *sl_volume_vec[oscid].value );
 
 		sl_frqidx_vec[oscid].sl->setValue( *sl_frqidx_vec[oscid].value );
-		sl_frqidx_vec[oscid].lcd->display( Spectrum.Calc( *sl_frqidx_vec[oscid].value ));
+		sl_frqidx_vec[oscid].lcd->display( rint( Spectrum.Calc( *sl_frqidx_vec[oscid].value ) ));
 
 		sB_lbl_vec[oscid].lbl->setText( QWaveform_vec[ *sB_lbl_vec[oscid].value] );
 		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
 	};
-/*
-    ui->wf_fmo->setText( QWaveform_vec[ Sds->addr->FMO_spectrum.wfid[0] ] );
-    ui->wf_vco->setText( QWaveform_vec[ Sds->addr->VCO_spectrum.wfid[0] ] );
-    ui->wf_main->setText( QWaveform_vec[ Sds->addr->OSC_spectrum.wfid[0] ] );
 
-    ui->sB_Main->setValue( Sds->addr->OSC_spectrum.wfid[0] );
-    ui->sB_FMO->setValue(  Sds->addr->FMO_spectrum.wfid[0]  );
-    ui->sB_VCO->setValue(  Sds->addr->VCO_spectrum.wfid[0]  );
-*/
     ui->hs_adsr_sustain->setValue(  (int)Sds->addr->OSC_adsr.decay );
     ui->hs_adsr_attack->setValue(  (int) Sds->addr->OSC_adsr.attack);
     ui->dial_PMW->setValue( (int)Sds->addr->VCO_wp.PMW_dial  );
@@ -481,10 +473,10 @@ void MainWindow::setwidgetvalues()
 void MainWindow::sliderFreq( sl_lcd_t map, int value )
 {
 	float freq 		= Spectrum.Calc( value );
-	map.lcd->display( freq );
+	map.lcd->display( rint( freq ) );
 
 	*map.value = value;
-	this->Sds->Set( this->Sds->addr->EVENT, map.event );
+	this->Sds->Event( map.event );
 
 };
 void MainWindow::Slider_OSC_Freq( int value )
@@ -505,37 +497,37 @@ void MainWindow::Slider_FMO_Freq( int value )
 }
 
 
-void MainWindow::sliderVolume( uint8_t oscid, QLCDNumber* lcd, char key )
+void MainWindow::sliderVolume( sl_lcd_t map )
 {
-	int value = sl_volume_vec[oscid].sl->value();
-	*sl_volume_vec[oscid].value = value;
-	lcd->display( value );
+	int value = map.sl->value();
+	*map.value = value;
+	map.lcd->display( value );
 
-	this->Sds->Set( this->Sds->addr->EVENT, (char) key);
+	this->Sds->Event( map.event);
 };
 
 void MainWindow::MAIN_slot_volume()
 {
-	sliderVolume( OSCID, ui->OSCLCD_Amp, MASTERAMP_KEY );
+	sliderVolume( sl_volume_vec[ OSCID ] );
 }
 void MainWindow::VCO_slot_volume()
 {
-	sliderVolume( VCOID, ui->VCOLCD_Amp, VCOAMPKEY );
+	sliderVolume( sl_volume_vec[ VCOID ] );
 }
 void MainWindow::FMO_slot_volume()
 {
-	sliderVolume( FMOID, ui->FMOLCD_Amp, FMOAMPKEY );
+	sliderVolume( sl_volume_vec[ FMOID ] );
 }
 
 void MainWindow::Slider_VCO_Adjust( int value )
 {
 	Sds->Set( Sds->addr->VCO_wp.adjust, value);
-	Sds->Set( Sds->addr->EVENT, ADJUST_KEY);
+	this->Sds->Event( ADJUST_KEY);
 }
 void MainWindow::Slider_FMO_Adjust( int value )
 {
 	Sds->Set( Sds->addr->FMO_wp.adjust, value);
-	Sds->Set( Sds->addr->EVENT, ADJUST_KEY);
+	this->Sds->Event( ADJUST_KEY );
 }
 
 void MainWindow::start_composer()
@@ -606,31 +598,31 @@ void MainWindow::Audio_Exit()
 void MainWindow::Save_Config()
 {
     Sds->Write_str( INSTRUMENTSTR_KEY, "default");
-    Sds->Set( Sds->addr->EVENT , SAVEINSTRUMENTKEY); //
+	this->Sds->Event( SAVEINSTRUMENTKEY);
 }
 
 void MainWindow::set_mode_f()
 {
-    Sds->Set( Sds->addr->EVENT , RESETFMOKEY);
+	this->Sds->Event(RESETFMOKEY );
 }
 
 void MainWindow::set_mode_v()
 {
-    Sds->Set( Sds->addr->EVENT , RESETVCOKEY); //
+    Sds->Event( RESETVCOKEY); //
 }
 void MainWindow::set_mode_o()
 {
-    Sds->Set( Sds->addr->EVENT , RESETMAINKEY); //
+    Sds->Event( RESETMAINKEY); //
 }
 
 void MainWindow::connect_fmo()
 {
-    Sds->Set( Sds->addr->EVENT , CONNECTFMOVCOKEY);
+    Sds->Event( CONNECTFMOVCOKEY);
 }
 
 void MainWindow::connect_vco()
 {
-    Sds->Set( Sds->addr->EVENT , CONNECTVCOFMOKEY);
+    Sds->Event( CONNECTVCOFMOKEY);
 }
 
 void MainWindow::get_record_status( )
@@ -656,7 +648,7 @@ void MainWindow::main_adsr_sustain()
 {
     int value = ui->hs_adsr_sustain->value();
     Sds->Set( Sds->addr->OSC_adsr.decay , value);
-    Sds->Set( Sds->addr->EVENT ,ADSR_KEY);
+    Sds->Event(ADSR_KEY);
 }
 
 
@@ -664,7 +656,7 @@ void MainWindow::pB_Debug_clicked()
 {
     uint8_t counter = ( Sds->addr->WD_status.wd_mode + 1 ) % WD_MODE_SIZE;
     Sds->Set( Sds->addr->WD_status.wd_mode , counter);
-    Sds->Set( Sds->addr->EVENT , SETWAVEDISPLAYKEY );
+    Sds->Event( SETWAVEDISPLAYKEY );
 
     ui->pB_wd_mode->setText( Qwd_wdmode_names[ (int)counter ] );
 }
@@ -673,7 +665,7 @@ void MainWindow::pB_oscgroup_clicked()
 {
     uint8_t counter = ( Sds->addr->WD_status.oscId + 1 ) % WD_OSC_SIZE;
     Sds->Set( Sds->addr->WD_status.oscId, counter );
-    Sds->Set( Sds->addr->EVENT , SETWAVEDISPLAYKEY);
+    Sds->Event( SETWAVEDISPLAYKEY);
 
     ui->pB_oscgroup->setText( Qwd_osc_names[ (int)counter ] );
 }
@@ -682,7 +674,7 @@ void MainWindow::pB_Wavedisplay_clicked()
 {
     uint8_t counter = (Sds->addr->WD_status.roleId + 1) % WD_ROLES_SIZE;
     Sds->Set( Sds->addr->WD_status.roleId , counter);
-    Sds->Set( Sds->addr->EVENT , SETWAVEDISPLAYKEY);
+    Sds->Event( SETWAVEDISPLAYKEY);
 
     ui->pB_Wavedisplay->setText( Qwd_display_names[ (int)counter ] );
 };
@@ -691,7 +683,7 @@ void MainWindow::pB_fftmode_clicked()
 {
 	bool fft_mode = not (Sds->addr->WD_status.fftmode );
 	Sds->Set( Sds->addr->WD_status.fftmode, fft_mode );
-	Sds->Set( Sds->addr->EVENT, SETWAVEDISPLAYKEY );
+	Sds->Event( SETWAVEDISPLAYKEY );
 	cout << "pB_fftmode_clicked" << boolalpha << Sds->addr->WD_status.fftmode << endl;
 
 	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );
@@ -715,7 +707,6 @@ void MainWindow::updateWidgets()
 				{
 					Info( "update recording info");
 					CB_external->clear();
-//					Path_t path{ EventWAV.path };
 					CB_external->addItems( Qread_filenames( EventWAV.path ));
 					QString Qfile	= QReadStr( Sds, EventWAV.event );
 					CB_external->setCurrentText( Qfile );

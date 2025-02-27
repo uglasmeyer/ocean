@@ -13,8 +13,7 @@
 #include <String.h>
 
 
-extern vector<string> waveform_str_vec ;
-
+extern vector<string> waveform_str_vec;
 struct param_struct
 {
 	float amp		= 0.0;
@@ -43,7 +42,37 @@ extern  	Data_t 	SawTooth( 	param_t& param );
 extern  	Data_t 	Sawtooth( 	param_t& param );
 extern  	Data_t 	Pmw( 		param_t& param );
 
+typedef function<Data_t( param_t& )>
+					wave_function_t;
+struct waveFnc_struct
+{
+	wave_function_t fnc 	= Sinus;
+	string			name	= "sinus";
+	phi_t 			maxphi 	= 2*numbers::pi;
+};
+typedef waveFnc_struct waveFnc_t;
 
+const vector<waveFnc_t> waveFunction_vec =
+{
+	{  Sinus	, "sinus"		, 2*pi 	},
+	{  Triangle	, "triangle"	, 2		},
+	{  SignSin	, "signsin"		, 2*pi 	},
+	{  Rectangle, "rectangle"	, 1 	},
+	{  SawTooth	, "sawtoothL"	, 1		},
+	{  Sawtooth	, "sawtoothR"	, 1		},
+	{  Pmw		, "PMW"			, 1		},
+	{  Delta	, "delta"		, 1		},
+	{  Rnd		, "noise"		, 1		},
+	{  Rnd_step	, "random"		, 1		}
+};
+template<typename T >
+auto gen_waveform_str_vec ( T fnc_vec )
+{
+	vector<string> vec{};
+	for ( waveFnc_t wf : fnc_vec )
+		vec.push_back( wf.name  );
+	return vec;
+};
 
 class Oscwaveform_class :
 	public virtual Logfacility_class
@@ -53,15 +82,7 @@ public:
 
 
 
-	typedef function<Data_t( param_t& )>
-						wave_function_t;
-	struct waveFnc_struct
-	{
-		wave_function_t fnc 	= Sinus;
-		string			name	= "sinus";
-		phi_t 			maxphi 	= 2*numbers::pi;
-	};
-	typedef waveFnc_struct waveFnc_t;
+
 	enum waveformId_t
 	{
 		SINUS,
@@ -74,19 +95,6 @@ public:
 		DELTA,
 		NOISE,
 		RANDOM
-	};
-	const vector<waveFnc_t> waveFunction_vec =
-	{
-		{  Sinus	, "sinus"		, 2*pi 	},
-		{  Triangle	, "triangle"	, 2		},
-		{  SignSin	, "signsin"		, 2*pi 	},
-		{  Rectangle, "rectangle"	, 1 	},
-		{  SawTooth	, "sawtoothL"	, 1		},
-		{  Sawtooth	, "sawtoothR"	, 1		},
-		{  Pmw		, "PMW"			, 1		},
-		{  Delta	, "delta"		, 1		},
-		{  Rnd		, "noise"		, 1		},
-		{  Rnd_step	, "random"		, 1		}
 	};
 
 	Oscwaveform_class() :

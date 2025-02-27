@@ -78,9 +78,9 @@ void Oscillator_base::Set_frequency( int idx )
 	wp.frequency 		= Calc( idx );
 	wp.start_frq 		= wp.frequency;
 	spectrum.base		= wp.frequency;
-	spectrum.frqadj[0]	= 0.0;
-
+	spectrum.frqadj[0]	= Frqadj(0, 0);//1.0; // 1*freq
 }
+
 void Oscillator_base::Set_volume( uint16_t vol)
 {
 	if ( vol < 1 ) vol = 0; // no output if below 2
@@ -139,6 +139,7 @@ void Oscillator_base::Show_csv_comment( int loglevel )
 
 void Oscillator_base::Set_csv_comment ()
 {
+	ASSERTION( waveform_str_vec.size() > 1,"waveform_str_vec ",waveform_str_vec.size(),">1");
 	if ( osc_type.length() == 0 )
 	{
 		osc_type = "unknown";
@@ -156,7 +157,7 @@ void Oscillator_base::Set_csv_comment ()
 
 void Oscillator_base::Get_comment( bool variable )
 {
-	comment = Get_waveform_str( spectrum.wfid[0] );
+	comment = waveform_str_vec[spectrum.wfid[0]] ;
 	comment.append( "\t(" + to_string( wp.frequency ) + " Hz)");
 	comment.append( to_string( wp.msec ) + " msec ");
 	comment.append( "Vol: " + to_string( wp.volume ) );

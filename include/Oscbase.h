@@ -45,9 +45,9 @@ typedef	struct wave_struct
 	float			start_frq 	= frequency;
 	uint8_t			PMW_dial 	= 50;
 	uint8_t 		glide_effect= 0;
-	uint16_t 		msec		= max_milli_sec; 	// range 1 ... 8000
+	uint16_t 		msec		= max_milli_sec; 	// min_milli_sec or max_milli_sec
 	uint8_t 		volume		= osc_default_volume; 	// range [0..100];
-	uint8_t			adjust		= 0;
+	uint8_t			adjust		= 0; // used by vco and fmo, osc = 0
 	buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
 
@@ -92,8 +92,9 @@ public:
 	string 			osc_role 	= "";
 	string 			osc_type 	= "";
 
-	bool			is_main_osc = false;
+	bool			is_osc_type = false;
 	bool			is_notes_role = false;
+	bool			is_instr_role = false;
 
 
 	DataVec_t		adsrdata 	{ };

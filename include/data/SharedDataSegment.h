@@ -29,6 +29,12 @@ enum {
 	 RECORDSTOP,
 	 LASTNUM
 };
+typedef struct EventPtr
+{
+	uint8_t 		first 	= 0;
+	uint8_t 		last 	= 0;
+	uint8_t			length	= 0;
+} eventptr_t;
 
 typedef struct process_struct
 {
@@ -40,7 +46,8 @@ typedef struct process_struct
 
 const uint	REGISTER_SIZE 	= MAXCONFIG+1;
 const uint 	str_buffer_len 	= 32;
-
+const uint  MAXQUESIZE		= 100;
+typedef 	array< uint8_t, MAXQUESIZE>		deque_t ;
 typedef		array<process_t, REGISTER_SIZE>	process_arr_t;
 typedef 	Note_base::noteline_prefix_t	noteline_prefix_t;
 typedef 	Spectrum_class::spectrum_t		spectrum_t;
@@ -111,6 +118,8 @@ typedef struct interface_struct
 	uint8_t			time_elapsed 				= 0;
 	process_arr_t	process_arr					= { {process_struct()} };
 
+	deque_t			deque						{ NULLKEY };
+	eventptr_t		eventptr					= EventPtr();
 	wd_status_t		WD_status					= WD_status_struct();
 	wd_arr_t		wavedata 					= {0};
 

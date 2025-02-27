@@ -22,7 +22,7 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 
 void Instrument_class::Setup( interface_t* _sds )
 {
-	this->sds 		= sds;
+	this->sds 		= _sds;
 	Default_instrument_file = file_structure().Dir.instrumentdir + "default" + instr_ext;
 	ifd_spectrum_vec = { &sds->VCO_spectrum, &sds->FMO_spectrum, &sds->OSC_spectrum};
 }
@@ -121,7 +121,10 @@ void Instrument_class::Update_spectrum()
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 	osc->Line_interpreter( arr );
-	if ( osc->is_main_osc  )
+	osc->spectrum = Spectrum_class::spec_struct();
+	osc->spectrum.osc = osc->osctype_id;
+
+	if ( osc->is_osc_type  )
 		assign_adsr( arr );
 
 }
@@ -329,9 +332,9 @@ void Instrument_class::Save_Instrument( string str )
 				<< endl;
 
 		// Type SPEC
-		FILE	<< osc->Show_spectrum( "SPEV", osc->spectrum ) << endl
-				<< osc->Show_spectrum( "SPEF", osc->spectrum ) << endl
-				<< osc->Show_spectrum( "SPEW", osc->spectrum ) << endl;
+		FILE	<< osc->Show_spectrum_type( "SPEV", osc->spectrum ) << endl
+				<< osc->Show_spectrum_type( "SPEF", osc->spectrum ) << endl
+				<< osc->Show_spectrum_type( "SPEW", osc->spectrum ) << endl;
 	}
 	FILE.close();
 

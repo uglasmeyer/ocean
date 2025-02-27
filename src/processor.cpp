@@ -119,8 +119,8 @@ void Processor_class::Execute()
 
 	cout << "waiting for Synthesizer to start" << endl;
 
-	sds->Reset_ifd( );
-	sds->Commit();
+	Sds->Reset_ifd( );
+	Sds->Commit();
 
 	FILE* LOG;
 	LOG = fopen( file_structure().log_file.data(), "w");
@@ -129,7 +129,7 @@ void Processor_class::Execute()
 
 	for ( stack_struct_t ps : process_stack )
 	{
-		sds->addr->Composer = RUNNING;
+		Sds->addr->Composer = RUNNING;
 		const char* str = ps.str.data();
 
 		switch ( ps.cmd )
@@ -137,7 +137,7 @@ void Processor_class::Execute()
 		case CMD_CHADDR : // write char address
 		{
 			const char* fmt = "%d ldc %p %d \t| %s";
-			printf(fmt, ps.prgline, ps.chaddr, ps.value, str );
+			printf(		fmt, ps.prgline, ps.chaddr, ps.value, str );
 			fprintf(LOG,fmt, ps.prgline, ps.chaddr, ps.value, str );
 			if ( not ps.chaddr == 0 )
 				*ps.chaddr = (char) ps.value ;
@@ -146,8 +146,8 @@ void Processor_class::Execute()
 		case CMD_BOADDR : // write char address
 		{
 			const char* fmt = "%d ldc %p %d \t| %s";
-			printf( fmt, ps.prgline, ps.boaddr, ps.value, str );
-			fprintf(LOG, fmt , ps.prgline, ps.boaddr, ps.value, str );
+			printf( 	fmt, ps.prgline, ps.boaddr, ps.value, str );
+			fprintf(LOG,fmt, ps.prgline, ps.boaddr, ps.value, str );
 			if ( not ps.boaddr == 0 )
 				*ps.boaddr = (bool) ps.value ;
 			break;
@@ -155,8 +155,8 @@ void Processor_class::Execute()
 		case CMD_UIADDR : // write uint16_t address
 		{
 			const char* fmt = "%d ldu %p %d \t| %s";
-			printf( fmt , ps.prgline, ps.uiaddr, ps.value, str );
-			fprintf(LOG, fmt , ps.prgline, ps.uiaddr, ps.value, str );
+			printf( 	fmt , ps.prgline, ps.uiaddr, ps.value, str );
+			fprintf(LOG,fmt , ps.prgline, ps.uiaddr, ps.value, str );
 			if ( not ps.uiaddr == 0 )
 				*ps.uiaddr = (uint16_t) ps.value;
 			break;
@@ -164,17 +164,17 @@ void Processor_class::Execute()
 		case CMD_KEY : // write command key value
 		{
 			const char* fmt = "%d ldc %p %d \t| %s";
-			printf( fmt, ps.prgline,  &ifd->EVENT, ps.key, str );
-			fprintf(LOG, fmt, ps.prgline,  &ifd->EVENT, ps.key, str );
-			ifd->EVENT = ps.key;
+			printf( 	fmt, ps.prgline,  &sds->EVENT, ps.key, str );
+			fprintf(LOG,fmt, ps.prgline,  &sds->EVENT, ps.key, str );
+			Sds->Event( ps.key );
 			wait_for_commit();
 			break;
 		}
 		case CMD_EXE :
 		{
 			const char* fmt = "%d exe %s ";
-			printf(fmt, ps.prgline, str );
-			fprintf(LOG, fmt, ps.prgline, str );
+			printf(		fmt, ps.prgline, str );
+			fprintf(LOG,fmt, ps.prgline, str );
 			system_execute( ps.str );
 			break;
 		}
@@ -182,26 +182,26 @@ void Processor_class::Execute()
 		{
 			if  ( ps.value < 0 )
 			{
-				printf( "%d %s", ps.prgline, str );
-				fprintf(LOG, "%d %s", ps.prgline, str );
+				printf( 	"%d %s", ps.prgline, str );
+				fprintf(LOG,"%d %s", ps.prgline, str );
 				getc(stdin);
 			}
 			else
 			{
-				printf("%d wait %d", ps.prgline, ps.value );
-				fprintf(LOG, "%d wait %d", ps.prgline, ps.value );
+				printf(		"%d wait %d", ps.prgline, ps.value );
+				fprintf(LOG,"%d wait %d", ps.prgline, ps.value );
 			    this_thread::sleep_for(chrono::seconds( ps.value));
 			}
 			break;
 		}
 		case CMD_COND_WAIT :
 		{
-			uint8_t sec = ifd->Noteline_sec;
+			uint8_t sec = sds->Noteline_sec;
 			const char* fmt = "%d conditional wait %d sec\t| %s (%d)";
-			printf( fmt, ps.prgline,  sec, str, sec );
-			fprintf(LOG, fmt, ps.prgline,  sec, str, sec );
+			printf( 	fmt, ps.prgline,  sec, str, sec );
+			fprintf(LOG,fmt, ps.prgline,  sec, str, sec );
 		    this_thread::sleep_for(chrono::seconds(sec));
-			ifd->Noteline_sec = 0;
+			sds->Noteline_sec = 0;
 			break;
 		}
 		case CMD_STR : // write string
@@ -209,24 +209,24 @@ void Processor_class::Execute()
 			char* addr = nullptr;
 			switch( ps.value )
 			{
-				case INSTRUMENTSTR_KEY 	: { addr = sds->addr->Instrument;break; }
-				case NOTESSTR_KEY 		: { addr = sds->addr->Notes; break; }
-				case OTHERSTR_KEY 		: { addr = sds->addr->Other; break; }
+				case INSTRUMENTSTR_KEY 	: { addr = Sds->addr->Instrument;break; }
+				case NOTESSTR_KEY 		: { addr = Sds->addr->Notes; break; }
+				case OTHERSTR_KEY 		: { addr = Sds->addr->Other; break; }
 				default 				: { addr = nullptr; break; }
 			}
 			assert( addr != nullptr );
 
 			const char* fmt1 ="%d ldc %p %s \n";
-			printf( fmt1, ps.prgline, addr, str );
-			fprintf(LOG, fmt1, ps.prgline, addr, str );
-			this->sds->Write_str( ps.value, ps.str );
+			printf( 	fmt1, ps.prgline, addr, str );
+			fprintf(LOG,fmt1, ps.prgline, addr, str );
+			this->Sds->Write_str( ps.value, ps.str );
 			if ( ps.value == NOTESSTR_KEY )
-				sds->addr->NotestypeId = 1;
+				Sds->addr->NotestypeId = 1;
 
 			const char* fmt2 = "%d ldc %p %d \t| set %s ";
-			printf( fmt2, ps.prgline, &ifd->EVENT, ps.key, str );
-			fprintf(LOG, fmt2, ps.prgline, &ifd->EVENT, ps.key, str );
-			ifd->EVENT = ps.key;
+			printf( 	fmt2, ps.prgline, &sds->EVENT, ps.key, str );
+			fprintf(LOG,fmt2, ps.prgline, &sds->EVENT, ps.key, str );
+			Sds->Event( ps.key );
 			wait_for_commit();
 			break;
 		}

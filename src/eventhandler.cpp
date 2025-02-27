@@ -8,12 +8,17 @@
 
 #include <Synthesizer.h>
 
-void Event_class::Handler( uint eventKey)
+
+
+void Event_class::Handler()
 {
 
-	if ( eventKey != NULLKEY )
-		cout << (int) eventKey << ":" ;
-	switch (eventKey)
+	uint8_t event = eventque.get();
+
+//	if ( event != NULLKEY )
+//		cout << (int) sds->eventptr.length << " " << (int) event << ":" << endl;
+
+	switch ( event )
 	{
 
 	case NULLKEY:
@@ -109,6 +114,7 @@ void Event_class::Handler( uint eventKey)
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
 		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
 		sds->FMO_spectrum.volidx[0] = vol.val;
+
 		Sds->Commit();
 		break;
 	}
@@ -477,7 +483,7 @@ void Event_class::Handler( uint eventKey)
 	}
 	default: {
 		EXCEPTION(
-				"Communication Key Id >" + to_string((int) (eventKey))
+				"Communication Key Id >" + to_string((int) (event ))
 						+ "< undefined");
 	}
 	} // switch char

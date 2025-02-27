@@ -45,6 +45,7 @@ public:
 
 	const spectrum_t	default_spec 	= spec_struct();
 	string 				className = "";
+	vector<string>	spectrumType { "SPEV", "SPEF", "SPEW" };
 
 
 	Spectrum_class() :
@@ -60,7 +61,8 @@ public:
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );
-	string 			Show_spectrum( const string& _type, const spectrum_t& spec );
+	string 			Show_this_spectrum( );
+	string 			Show_spectrum_type( const string& _type, const spectrum_t& spec );
 	void 			Sum( spectrum_t& );
 	void 			Test_Spectrum();
 

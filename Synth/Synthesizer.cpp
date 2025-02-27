@@ -91,14 +91,20 @@ void activate_sds()
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
 	}
 
-	std::ranges::for_each( init_keys, [  ]( char key ){ Event.Handler( key );} );
-//	for( char key : init_keys )
-//		Event.Handler( key );
+	std::ranges::for_each( init_keys, [  ]( char key )
+			{	DaTA.Sds_p->Event( key );
+				Event.Handler(  );} );
+
 
 	if ( sds->NotestypeId == 0 ) // music xml file
-		Event.Handler( XMLFILE_KEY );
+	{
+		DaTA.Sds_p->Event( XMLFILE_KEY );
+	}
 	else
-		Event.Handler( UPDATENOTESKEY );
+	{
+		DaTA.Sds_p->Event( UPDATENOTESKEY );
+	}
+	Event.Handler(  );
 
 	for ( uint id : Mixer.HghIds ) // after a restart low id buffers are empty
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
@@ -174,7 +180,7 @@ void ApplicationLoop()
 	{
 		sds->time_elapsed = Timer.Performance();
 
-		Event.Handler( sds->EVENT );
+		Event.Handler(  );
 
 		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
 
@@ -248,7 +254,7 @@ bool ReadNotesThread_done	= false;
 string ReadNotesThread_name	= "read notes thread";
 void read_notes_fnc( )
 {
-	Log.Comment(INFO, ReadNotesThread_name + " started" );
+	Log.Info( ReadNotesThread_name + " started" );
 	Sem->Reset( SEMAPHORE_INITNOTES );
 	while( true )
 	{
@@ -269,7 +275,7 @@ void read_notes_fnc( )
 			DaTA.Sds_p->Update(NEWNOTESLINEFLAG);
 
 			DaTA.Sds_p->Write_str(INSTRUMENTSTR_KEY, Notes.musicxml.instrument_name ); // other
-			sds->EVENT = SETINSTRUMENTKEY;
+			DaTA.Sds_p->Event( SETINSTRUMENTKEY );
 
 			Notes.Restart = true;//Notes.Start_note_itr();
 			Log.Comment(INFO, "xml notes loaded");

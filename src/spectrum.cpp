@@ -10,18 +10,18 @@
  * Spectrum_base
  */
 
-void Spectrum_class::assign_frq( int i, string str  )
+void Spectrum_class::assign_frq( int channel, string str  )
 {
-	uint8_t f = 0;
+	uint8_t value = 0;
 	String Str{""};
 	if ( str.length() > 0 )
 	{
-		f = Str.secure_stoi( str );
-		( f == 0 ) ? spectrum.frqidx[i] = 0 : spectrum.frqidx[i] = f;
+		value = Str.secure_stoi( str );
+		( value == 0 ) ? spectrum.frqidx[channel] = 0 : spectrum.frqidx[channel] = value;
 	}
 	else
-		spectrum.frqidx[i] = 0;
-	spectrum.frqadj[i] = Frqadj(i, f );
+		spectrum.frqidx[channel] = 0;
+	spectrum.frqadj[channel] = Frqadj(channel, value );
 };
 
 void Spectrum_class::assign_vol( int i, string str  )
@@ -127,7 +127,21 @@ string Spectrum_class::Get_waveform_str( uint id )
 		return "unknown";
 };
 
-string Spectrum_class::Show_spectrum( const string& _type, const spectrum_t& spec )
+string Spectrum_class::Show_this_spectrum( )
+{
+	stringstream strs{""};
+
+	for ( string type : spectrumType )
+	{
+		strs << Show_spectrum_type( type, spectrum ) ;
+		strs << endl;
+	}
+	strs << endl;
+	return strs.str();
+}
+
+
+string Spectrum_class::Show_spectrum_type( const string& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
 
@@ -138,6 +152,7 @@ string Spectrum_class::Show_spectrum( const string& _type, const spectrum_t& spe
 
 	strs 	<< right << _type << ","
 			<< setw(9) << OscRole.types[ spec.osc ] << ",";
+
 	if ( strEqual( "SPEV", _type) )
 		std::ranges::for_each( spec.volidx, show_dta);
 	if ( strEqual( "SPEF", _type) )

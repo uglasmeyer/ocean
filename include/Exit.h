@@ -17,6 +17,8 @@
 	cout << "An application exception occured " << endl;\
 	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;\
 	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;\
+	string str {err_str};\
+	printf("%s\n", str.data() ) ;\
 	string s;\
 	cin >> s;\
 	raise( SIGINT );\

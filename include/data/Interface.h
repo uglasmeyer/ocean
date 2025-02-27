@@ -21,6 +21,39 @@
 #include <EventKeys.h>
 
 static const uint STATE_MAP_SIZE = LASTNUM;
+typedef struct EventQueue : EventPtr
+{
+	interface_t*	addr	= nullptr;
+	eventptr_t		eventptr;
+	EventQueue(  )  : eventptr()
+	{};
+	void setup( interface_t* _addr )
+	{
+		addr = _addr;
+	}
+	~EventQueue(){};
+	void add( uint8_t event )
+	{
+		if ( event == NULLKEY ) return;
+		eventptr = addr->eventptr;
+
+		if ( eventptr.length >= MAXQUESIZE ) return;
+		addr->deque[last] = event;
+		eventptr.last = ( eventptr.last + 1 ) % MAXQUESIZE;
+		eventptr.length += 1;
+		addr->eventptr = eventptr;
+	}
+
+	uint8_t get()
+	{
+		eventptr = addr->eventptr;
+		if ( eventptr.length == 0 ) return NULLKEY;
+		eventptr.first = ( eventptr.first + 1 ) % MAXQUESIZE;
+		eventptr.length -= 1;
+		addr->eventptr = eventptr;
+		return addr->deque[first];
+	}
+} eventque_t;
 
 
 class Interface_class : virtual public Logfacility_class
@@ -35,6 +68,7 @@ public:
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;
 	Config_class*			Cfg_p		= nullptr;
+	eventque_t				eventque;
 	uint					Type_Id		= NOID;
 
 
@@ -57,17 +91,20 @@ public:
 	void 	State_pMap();
 
 	template < typename K, typename V >
-	void Set( K& key, V value )
+	void Set( K& ref, V value )
 	{
 		if ( reject( addr->Composer, Type_Id ) ) return;
-		key = value;
+		ref = value;
 	};
+	void Event( uint8_t event )
+	{
+		eventque.add( event );
+	}
+
 
 private:
 	string			dumpFile		= "";
 	size_t			sds_size		= sizeof( ifd_data );
-	Spectrum_class	GUIspectrum 	{};
-	vector<string>	Waveform_vec	{};
 	char 			previous_status = OFFLINE;
 	array<string, STATE_MAP_SIZE>
 					state_map {""};

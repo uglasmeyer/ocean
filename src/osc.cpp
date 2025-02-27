@@ -24,8 +24,9 @@ void Oscillator::SetId( char role, char type )
 	oscrole_id	= role;
 	osc_role	= OscRole.roles[oscrole_id];
 
-	is_main_osc = ( osctype_id == OscRole.OSCID );
+	is_osc_type = ( osctype_id == OscRole.OSCID );
 	is_notes_role = ( oscrole_id == OscRole.NOTESID );
+	is_instr_role = ( oscrole_id == OscRole.INSTRID );
 
 	mem_init();
 	Mem_vco.Info( osc_type );
@@ -105,6 +106,19 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
  * Generator of sound waves
  */
 {
+	auto check_phi = [ this ]( param_t param, phi_t dT, float start_freq )
+	{
+		if ( param.maxphi < abs(param.dphi) )
+		{
+			cout << "osctype    " << osc_type  		<< endl;
+			cout << "maxphi     " << param.maxphi 	<< endl;
+			cout << "phi        " << param.phi  	<< endl;
+			cout << "dT         " << dT   			<< endl;
+			cout << "start_freq " << start_freq 	<< endl;
+			EXCEPTION( "maxphi exceeds limit: " + to_string(param.maxphi) + " < " + to_string( abs(param.dphi)) );
+		}
+	};
+
 	float				freq 		= this->wp.frequency;
 	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
 	phi_t 				dt 			= 1.0/frames_per_sec;	//seconds per frame
@@ -113,19 +127,21 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
 
-	float 				start_freq 	= wp.start_frq;
+	float 				start_frq 	= wp.start_frq;
+
+
 	float 				fmo_vol 	= 0.001*(float)this->fp.volume;
 	Data_t 				vco_adjust 	= max_data_amp / 2;
 	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
 
-	if ( is_main_osc )
+	if ( is_osc_type )
 		if ( not is_notes_role  )
-			vol_per_cent		= 1; // the volume of the main osc if it has not notes
-										// role is managed by the mixer.
-									 // If it has notes role the main osc volume is managrf by the rhythm volume
-	// and the mixer
+			vol_per_cent		= 1;// the volume of the osc is constant for the instr role
+									// the volume is managed by the mixer
+									 // If the osc has the notes role the osc volume is managed
+									// by the rhythm volume and the mixer
 
-	if ( not is_main_osc )
+	if ( not is_osc_type )
 		vco_adjust = 0;
 
 	if ( frames > max_frames )
@@ -151,21 +167,13 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	float fmo_shift = 0;
 				// difference to the target frequency <freq> - <start_freq>
 
-	auto check_phi = [ this, start_freq]( param_t param, phi_t dT )
-	{
-		if ( param.maxphi < abs(param.dphi) )
-		{
-			cout << "osctype    " << osc_type  	<< endl;
-			cout << "maxphi     " << param.maxphi 	<< endl;
-			cout << "phi        " << param.phi  		<< endl;
-			cout << "dT         " << dT   		<< endl;
-			cout << "start_freq " << start_freq << endl;
-			EXCEPTION( "maxphi exceeds limit: " + to_string(maxphi) + " < " + to_string( abs(dphi)) );
-		}
-	};
 
-
-
+/*	if (
+			( osctype_id == osc_struct::FMOID ) )
+//			and		( oscrole_id == osc_struct::INSTRID ))
+		cout << osc_role<< ":" << osc_type << ":" << vol_per_cent << ":"
+		<< freq << " " << start_frq << endl;
+*/
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
 		if ( spectrum.vol[channel] > 0.0 )
@@ -177,17 +185,16 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 			param.amp	= spectrum.vol[channel];
 			for( buffer_t n = 0; n < frames; n++ )
 			{
-
 				float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
 				fmo_shift = fmo_vol * fmo_data[n];
 				Data[n]	=   Data[n] + vco_vol * waveFunction_vec[ wfid ].fnc( param );
 
-				if ( abs(freq - start_freq) > 1 )
-					start_freq = start_freq + delta_freq;
-				param.dphi	=	dT *( start_freq + fmo_shift ) * spectrum.frqadj[channel] ;
+				if ( abs(freq - start_frq) > 1 )
+					start_frq = start_frq + delta_freq;
+				param.dphi	=	dT *( start_frq + fmo_shift ) * spectrum.frqadj[channel] ;
 				param.phi	+= param.dphi;
 			}
-			check_phi( param, dT );
+			check_phi( param, dT, start_frq );
 			param.phi 	=  MODPHI( param.phi, param.maxphi );
 			phase[channel] = param.phi;
 		}
@@ -214,7 +221,7 @@ void Oscillator::Reset_cursor()
 void Oscillator::apply_adsr( buffer_t frames, Data_t* data )
 {
 	if ( adsr.bps == 0 )	 	return;
-	if ( not is_main_osc )		return;
+	if ( not is_osc_type )		return;
 	if ( adsrdata.size() == 0 )	return;
 
 	for ( uint n = 0; n < frames; n++ )
@@ -233,7 +240,7 @@ void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 	//	buffer_t dn 	= ( ( adsr.hall*adsr.hall )/100.0 * max_frames ) / 100;;
 
 	if ( adsr.hall == 0 )	return;
-	if ( not is_main_osc ) 	return;
+	if ( not is_osc_type ) 	return;
 
 	auto gen_halldata = [ this, frames, data]( float db)
 	{
@@ -308,9 +315,11 @@ void Oscillator::Test()
 	testosc.wp.volume	= 100;
 	testosc.OSC( 0 );
 	testosc.OSC( 0 );
-	float a2 = testosc.Mem.Data[0];
-
-	ASSERTION( fcomp( a2 , 56.5484  ), "Osc volume", a2 , 56.5484)
+	Comment( TEST, testosc.Show_this_spectrum() );
+	float a0 = testosc.Mem.Data[0];
+	float a2 = testosc.Mem.Data[2];
+	ASSERTION( not fcomp( a0, a2 ), "gen data", a0-a2, "not null" );
+	ASSERTION( fcomp( a0 , 56.5484  ), "Osc volume", a0 , 56.5484)
 
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );

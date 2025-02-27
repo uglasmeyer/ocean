@@ -1,18 +1,19 @@
 
 #include <Audioserver.h>
 
-RtAudio::StreamParameters 	oParams;
-RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
-										.numberOfBuffers = 8,
-										.streamName = Application };
+
 
 
 void errorCallback( RtAudioErrorType /*type*/, const string& errorText )
 {
-	Log.Comment(ERROR, errorText ) ;
+	//Log.Comment(ERROR, errorText ) ;
+	cout.flush() << errorText << endl;
 }
 RtAudio rtapi( RtAudio::LINUX_PULSE, &errorCallback );
-
+RtAudio::StreamParameters 	oParams;
+RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
+										.numberOfBuffers = 8,
+										.streamName = Application };
 
 void 	show_parameter()
 {

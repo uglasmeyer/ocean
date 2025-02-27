@@ -7,6 +7,7 @@
 
 #include <Oscwaveform.h>
 
+vector<string> waveform_str_vec = gen_waveform_str_vec( waveFunction_vec );
 
 random_device 	rd;
 mt19937 		engine(rd());
@@ -34,9 +35,8 @@ float Rnd( param_t& p )
 
 Data_t 	Delta( param_t& p )
 {
-	float f1 = fmod(p.phi+p.dphi, p.maxphi + p.dphi);
-	float f2 = fmod(p.phi+p.dphi, p.maxphi );
-	return p.amp * ( f1-f2 );
+	float f1 = fmod(p.phi, p.phi + p.dphi);
+	return ( f1 < p.phi ) ? p.amp : 0.0;
 }
 
 Data_t recprev = 0.0;
@@ -98,16 +98,11 @@ Data_t Pmw( param_t& p )
 }
 
 
-vector<string> waveform_str_vec {};
+
+
 void Oscwaveform_class::init_waveform_str_vec()
 {
-	if ( waveform_str_vec.size() > 0 ) return;
-	cout<<"init waveform_str_vector"<<endl;
-	for ( uint n = 0; n < 10; n++ )
-	{
-		waveform_str_vec.push_back( waveFunction_vec[n].name  );
-	}
-
+//	cout<<"init waveform_str_vector"<<endl;
 }
 
 void Oscwaveform_class::Test_wf()

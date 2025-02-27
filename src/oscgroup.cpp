@@ -60,11 +60,10 @@ void Oscgroup_class::Set_Osc_Note( pitch_t& pitch, const uint& duration, const u
 
 void Oscgroup_class::Run_Oscgroup( buffer_t offs )
 {
-	if ( oscroleId != osc_struct::NOTESID )
-		osc.Mem.Clear_data( max_data_amp * osc.wp.adjust * 0.01 );
+
 	for ( Oscillator* osc : oscgroup )
 	{
-		if ( oscroleId != osc_struct::NOTESID )
+		if ( oscroleId == osc_struct::INSTRID )
 			osc->Mem.Clear_data( max_data_amp * osc->wp.adjust * 0.01 );
 		osc->OSC( offs );
 	}

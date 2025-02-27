@@ -112,7 +112,7 @@ auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 	float frqadj =  C.Spectrum.Frqadj(channel, value); // see osc.cpp
 	C.spectrum.frqadj[ channel ] = frqadj;
     *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
-    C.sds_p->EVENT = UPDATESPECTRUM_KEY;	// the synthesizer is notified
+    C.Sds->Event( UPDATESPECTRUM_KEY );	// the synthesizer is notified
     C.ui->lcd_spectrumDisplay->display( frqadj );
     C.ui->lbl_spectrumDisplay->setText( "[Hz]");
 };
@@ -124,7 +124,7 @@ auto spec_vol_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 	C.spectrum.volidx[ channel ] = value;
     C.Sum( C.spectrum ); // fill vol
     *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
-    C.sds_p->EVENT = UPDATESPECTRUM_KEY;	// emit synthesizer event
+    C.Sds->Event( UPDATESPECTRUM_KEY );	// the synthesizer is notified
     C.ui->lcd_spectrumDisplay->display( C.spectrum.vol[ channel ] * 100 );
     C.ui->lbl_spectrumDisplay->setText( "Amp [%]");
 };
@@ -168,7 +168,7 @@ auto ScrollBar_Wafeform = [  ]( Spectrum_Dialog_class* S, uint id, int value  )
 	S->spectrum = *S->ifd_spectrum_vec[ oscid ];
 	S->spectrum.wfid[id] = value;
 	*S->ifd_spectrum_vec[oscid ] = S->spectrum;
-	S->sds_p->EVENT = UPDATESPECTRUM_KEY ;
+	S->Sds->Event( UPDATESPECTRUM_KEY );
 
 	QString QStr = S->Waveform_vec[ value ];
 	S->ui->lbl_waveform->setText( QStr );
@@ -202,7 +202,7 @@ void Spectrum_Dialog_class::sb_wf4(int value )
 
 void Spectrum_Dialog_class::save()
 {
-	sds_p->EVENT = SAVEINSTRUMENTKEY;
+	Sds->Event( SAVEINSTRUMENTKEY );
 }
 
 void Spectrum_Dialog_class::SetLabelWaveform( const QString& wf )

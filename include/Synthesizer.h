@@ -42,10 +42,10 @@ class Event_class :
 	External_class*		External;
 	ProgressBar_class*	ProgressBar;
 	Musicxml_class*		MusicXML;
-
+	eventque_t			eventque{};
 public:
 
-	Event_class( Instrument_class* 	instrument,
+	Event_class(Instrument_class* 	instrument,
 				Note_class*			notes,
 				Mixer_class*		mixer,
 				Wavedisplay_class*	wavedisplay,
@@ -53,7 +53,7 @@ public:
 				External_class*		external,
 				ProgressBar_class*	progressbar,
 				Musicxml_class*		musicxml ) :
-					Logfacility_class("Event_class")
+		Logfacility_class("Event_class")
 	{
 		className = Logfacility_class::className;
 		this->DaTA			= data;
@@ -68,11 +68,13 @@ public:
 		this->External		= external;
 		this->ProgressBar	= progressbar;
 		this->MusicXML		= musicxml;
+		eventque.setup( this->sds );
 	};
 	virtual ~Event_class()
 	{};
 
-	void Handler( uint key);
+
+	void Handler( );
 
 private:
 
