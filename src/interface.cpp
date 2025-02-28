@@ -33,7 +33,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	ds 		= *SHM.Get( key );
 	ds.Id	= sdsid;
 	this->addr = ( interface_t* ) ds.addr;
-	eventque.setup(addr);
+	Eventque.setup(addr);
 	SHM.ShowDs(ds);
 	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
 
@@ -176,7 +176,7 @@ void Interface_class::Show_interface()
 	rline( "Mixer Id           " , (int)addr->MIX_Id );
 
 	lline( "Sync data id       " , (int) addr->SHMID);
-	rline( "Event ID           " , (int) addr->EVENT );
+	rline( "Event ID           " , Eventque.show());
 
 	lline( "Record Progress   :" , (int)addr->RecCounter);
 	rline( "File No.          :" , (int)addr->FileNo );
@@ -373,4 +373,73 @@ uint8_t* Interface_class::Getstate_ptr( uint TypeId )
 	assert( state_p != nullptr );
 	return state_p;
 }
+
+void Interface_class::Test_interface()
+{
+	TEST_START( className );
+	Eventque.reset();
+	for( uint n = 0; n<10; n++ )
+	{
+		Eventque.add( n*n );
+	}
+	cout << Eventque.show() << endl;
+	uint8_t value = Eventque.get();
+	ASSERTION( value == 1, "eventque.get()", value, 1 );
+	cout << Eventque.show()<< endl;
+	cout << dec << (int)Eventque.get() << endl;
+	cout << Eventque.show()<< endl;
+	cout 	<< " length: " << dec << (int)addr->eventptr.length << ":"
+			<< " first : " << (int) addr->eventptr.first
+			<< " last  : " << (int) addr->eventptr.last << endl;
+	TEST_END( className );
+}
+
+
+
+void EventQue_class::setup( interface_t* _addr )
+{
+	addr = _addr;
+	reset();
+}
+void EventQue_class::reset()
+{
+	addr->eventptr = EventPtr_struct();
+}
+void EventQue_class::add( uint8_t event )
+{
+	if ( event == NULLKEY ) return;
+	eventptr = addr->eventptr;
+
+	if ( eventptr.length >= MAXQUESIZE ) return;
+	addr->deque[eventptr.last] = event;
+	eventptr.last = ( eventptr.last + 1 ) % MAXQUESIZE;
+	eventptr.length += 1;
+	addr->eventptr = eventptr;
+}
+
+uint8_t EventQue_class::get()
+{
+	eventptr = addr->eventptr;
+	if ( eventptr.length == 0 ) return NULLKEY;
+	uint8_t value = addr->deque[eventptr.first];
+	eventptr.first = ( eventptr.first + 1 ) % MAXQUESIZE;
+	eventptr.length -= 1;
+	addr->eventptr = eventptr;
+	return value;
+}
+
+string EventQue_class::show()
+{
+	stringstream strs{};
+	eventptr = addr->eventptr;
+	uint index = eventptr.first;
+	for( uint n = 0 ; n < eventptr.length; n++ )
+	{
+		strs << dec << (int) addr->deque[ index ] << ":";
+		index = ( index + 1 ) % MAXQUESIZE;
+	}
+	return strs.str();
+}
+
+
 

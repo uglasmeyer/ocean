@@ -29,7 +29,7 @@ enum {
 	 RECORDSTOP,
 	 LASTNUM
 };
-typedef struct EventPtr
+typedef struct EventPtr_struct
 {
 	uint8_t 		first 	= 0;
 	uint8_t 		last 	= 0;
@@ -119,7 +119,7 @@ typedef struct interface_struct
 	process_arr_t	process_arr					= { {process_struct()} };
 
 	deque_t			deque						{ NULLKEY };
-	eventptr_t		eventptr					= EventPtr();
+	eventptr_t		eventptr					= EventPtr_struct();
 	wd_status_t		WD_status					= WD_status_struct();
 	wd_arr_t		wavedata 					= {0};
 

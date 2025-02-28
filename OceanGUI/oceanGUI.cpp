@@ -694,11 +694,6 @@ void MainWindow::updateWidgets()
 {
     if (  Sds_master->UserInterface == UPDATEGUI  )
     {
-        if ( Sds->addr->EVENT == INSTRUMENTSTR_KEY )
-        {
-            Instrument_name = QReadStr( Sds, INSTRUMENTSTR_KEY );
-            File_Dialog_p->Setup_widgets();
-        }
         if ( not Sds_master->Composer )
         {
 			switch( Sds->addr->FLAG )

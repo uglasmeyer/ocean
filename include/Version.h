@@ -20,7 +20,7 @@ using namespace std;
 
 #define MAYOR 3
 #define MINOR 5
-#define PATCH 0
+#define PATCH 1
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -33,6 +33,7 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
  *
+version 3.5.1 EventQue_class and Test_interface()
 version 3.5.0 introduction of an eventque
 version 3.4.4 waveformvector external
 version 3.4.3 oscwavefunction class

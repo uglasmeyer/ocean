@@ -164,8 +164,8 @@ void Processor_class::Execute()
 		case CMD_KEY : // write command key value
 		{
 			const char* fmt = "%d ldc %p %d \t| %s";
-			printf( 	fmt, ps.prgline,  &sds->EVENT, ps.key, str );
-			fprintf(LOG,fmt, ps.prgline,  &sds->EVENT, ps.key, str );
+			printf( 	fmt, ps.prgline,  &sds->deque, ps.key, str );
+			fprintf(LOG,fmt, ps.prgline,  &sds->deque, ps.key, str );
 			Sds->Event( ps.key );
 			wait_for_commit();
 			break;
@@ -224,8 +224,8 @@ void Processor_class::Execute()
 				Sds->addr->NotestypeId = 1;
 
 			const char* fmt2 = "%d ldc %p %d \t| set %s ";
-			printf( 	fmt2, ps.prgline, &sds->EVENT, ps.key, str );
-			fprintf(LOG,fmt2, ps.prgline, &sds->EVENT, ps.key, str );
+			printf( 	fmt2, ps.prgline, &sds->deque, ps.key, str );
+			fprintf(LOG,fmt2, ps.prgline, &sds->deque, ps.key, str );
 			Sds->Event( ps.key );
 			wait_for_commit();
 			break;

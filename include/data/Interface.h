@@ -21,39 +21,23 @@
 #include <EventKeys.h>
 
 static const uint STATE_MAP_SIZE = LASTNUM;
-typedef struct EventQueue : EventPtr
+
+class EventQue_class :
+		EventPtr_struct
 {
+public:
 	interface_t*	addr	= nullptr;
 	eventptr_t		eventptr;
-	EventQueue(  )  : eventptr()
+	EventQue_class(  )  : eventptr()
 	{};
-	void setup( interface_t* _addr )
-	{
-		addr = _addr;
-	}
-	~EventQueue(){};
-	void add( uint8_t event )
-	{
-		if ( event == NULLKEY ) return;
-		eventptr = addr->eventptr;
+	virtual ~EventQue_class(){};
 
-		if ( eventptr.length >= MAXQUESIZE ) return;
-		addr->deque[last] = event;
-		eventptr.last = ( eventptr.last + 1 ) % MAXQUESIZE;
-		eventptr.length += 1;
-		addr->eventptr = eventptr;
-	}
-
-	uint8_t get()
-	{
-		eventptr = addr->eventptr;
-		if ( eventptr.length == 0 ) return NULLKEY;
-		eventptr.first = ( eventptr.first + 1 ) % MAXQUESIZE;
-		eventptr.length -= 1;
-		addr->eventptr = eventptr;
-		return addr->deque[first];
-	}
-} eventque_t;
+	void setup( interface_t* _addr );
+	void reset();
+	void add( uint8_t event );
+	uint8_t get();
+	string show();
+};
 
 
 class Interface_class : virtual public Logfacility_class
@@ -68,7 +52,7 @@ public:
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;
 	Config_class*			Cfg_p		= nullptr;
-	eventque_t				eventque;
+	EventQue_class			Eventque	{};
 	uint					Type_Id		= NOID;
 
 
@@ -98,8 +82,9 @@ public:
 	};
 	void Event( uint8_t event )
 	{
-		eventque.add( event );
+		Eventque.add( event );
 	}
+	void Test_interface();
 
 
 private:

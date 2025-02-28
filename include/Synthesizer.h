@@ -42,7 +42,7 @@ class Event_class :
 	External_class*		External;
 	ProgressBar_class*	ProgressBar;
 	Musicxml_class*		MusicXML;
-	eventque_t			eventque{};
+	EventQue_class		Eventque{};
 public:
 
 	Event_class(Instrument_class* 	instrument,
@@ -68,7 +68,7 @@ public:
 		this->External		= external;
 		this->ProgressBar	= progressbar;
 		this->MusicXML		= musicxml;
-		eventque.setup( this->sds );
+		Eventque.setup( this->sds );
 	};
 	virtual ~Event_class()
 	{};

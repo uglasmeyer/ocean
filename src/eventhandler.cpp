@@ -12,44 +12,22 @@
 
 void Event_class::Handler()
 {
-
-	uint8_t event = eventque.get();
-
-//	if ( event != NULLKEY )
-//		cout << (int) sds->eventptr.length << " " << (int) event << ":" << endl;
+//	cout << Eventque.show() ;
+	uint8_t event = Eventque.get();
+	if ( event == NULLKEY ) return;
 
 	switch ( event )
 	{
 
-	case NULLKEY:
+/*	case NULLKEY:
 	{
 		break;
 	}
+	*/
 	case XMLFILE_KEY :
 	{
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
 		Comment(INFO, "receive command <setup play xml notes>");
-/*
-
-		string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
-		Comment( INFO, "from filename: " + filename );
-		Notes->musicxml = MusicXML->Xml2notelist( filename );
-		if ( Notes->musicxml.scoreduration == 0 )
-		{
-			break;
-		}
-		Notes->Set_notelist( Notes->musicxml.notelist );
-		sds->Noteline_sec = Notes->musicxml.scoreduration / 1000;
-
-		Mixer->status.notes = true;
-		Sds->Update(NEWNOTESLINEFLAG);
-
-		Sds->Write_str(INSTRUMENTSTR_KEY, Notes->musicxml.instrument_name ); // other
-		sds->KEY = SETINSTRUMENTKEY;
-
-*/
-
-//		Sem->Release(SEMAPHORE_SYNCNOTES);
 
 		Sds->Commit();
 		break;

@@ -31,6 +31,7 @@ void SynthesizerTestCases()
 	DirStructure_class		Dir;
 
 	Dataworld_class			DaTA( SYNTHID );
+
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
 	Application_class		App( &DaTA );
@@ -58,7 +59,6 @@ void SynthesizerTestCases()
 
 
 	App.Sds->Announce();
-
     std::set<string> abc{"a","b","c"};
     assert( abc.contains("b"));
 	TestStr.TestString();
@@ -111,6 +111,7 @@ void SynthesizerTestCases()
 	DaTA.Reg.Test_Register();
 	DaTA.Test_Dataworld();
 	System_Test();
+	DaTA.Sds_p->Test_interface();
 
 }
 
