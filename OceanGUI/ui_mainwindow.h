@@ -117,8 +117,8 @@ public:
     QLabel *wf_vco;
     QSpinBox *sB_VCO;
     QFrame *frame_8;
-    QSpinBox *sB_Main;
-    QLabel *wf_main;
+    QSpinBox *sB_OSC;
+    QLabel *wf_OSC;
     QFrame *frame_9;
     QLabel *wf_fmo;
     QSpinBox *sB_FMO;
@@ -148,6 +148,7 @@ public:
     QSlider *SliderFMOadjust;
     QLabel *label_6;
     QLabel *label_13;
+    QPushButton *pB_Capture;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -282,6 +283,7 @@ public:
         VCOLCD_Hz = new QLCDNumber(centralwidget);
         VCOLCD_Hz->setObjectName(QString::fromUtf8("VCOLCD_Hz"));
         VCOLCD_Hz->setGeometry(QRect(60, 190, 131, 51));
+        VCOLCD_Hz->setDigitCount(5);
         FMOLCD_Amp = new QLCDNumber(centralwidget);
         FMOLCD_Amp->setObjectName(QString::fromUtf8("FMOLCD_Amp"));
         FMOLCD_Amp->setGeometry(QRect(330, 380, 111, 51));
@@ -304,6 +306,7 @@ public:
         FMOLCD_Hz = new QLCDNumber(centralwidget);
         FMOLCD_Hz->setObjectName(QString::fromUtf8("FMOLCD_Hz"));
         FMOLCD_Hz->setGeometry(QRect(60, 380, 131, 51));
+        FMOLCD_Hz->setDigitCount(5);
         labelVCO = new QLabel(centralwidget);
         labelVCO->setObjectName(QString::fromUtf8("labelVCO"));
         labelVCO->setGeometry(QRect(260, 190, 31, 17));
@@ -482,6 +485,8 @@ public:
         OSCLCD_Hz = new QLCDNumber(centralwidget);
         OSCLCD_Hz->setObjectName(QString::fromUtf8("OSCLCD_Hz"));
         OSCLCD_Hz->setGeometry(QRect(60, 10, 141, 51));
+        OSCLCD_Hz->setDigitCount(5);
+        OSCLCD_Hz->setProperty("value", QVariant(0.000000000000000));
         label_11 = new QLabel(centralwidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         label_11->setGeometry(QRect(480, 50, 51, 17));
@@ -555,14 +560,14 @@ public:
         frame_8->setGeometry(QRect(60, 90, 131, 41));
         frame_8->setFrameShape(QFrame::StyledPanel);
         frame_8->setFrameShadow(QFrame::Raised);
-        sB_Main = new QSpinBox(frame_8);
-        sB_Main->setObjectName(QString::fromUtf8("sB_Main"));
-        sB_Main->setGeometry(QRect(90, 0, 44, 41));
-        sB_Main->setWrapping(true);
-        sB_Main->setMaximum(9);
-        wf_main = new QLabel(frame_8);
-        wf_main->setObjectName(QString::fromUtf8("wf_main"));
-        wf_main->setGeometry(QRect(0, 10, 66, 17));
+        sB_OSC = new QSpinBox(frame_8);
+        sB_OSC->setObjectName(QString::fromUtf8("sB_OSC"));
+        sB_OSC->setGeometry(QRect(90, 0, 44, 41));
+        sB_OSC->setWrapping(true);
+        sB_OSC->setMaximum(9);
+        wf_OSC = new QLabel(frame_8);
+        wf_OSC->setObjectName(QString::fromUtf8("wf_OSC"));
+        wf_OSC->setGeometry(QRect(0, 10, 66, 17));
         frame_9 = new QFrame(centralwidget);
         frame_9->setObjectName(QString::fromUtf8("frame_9"));
         frame_9->setGeometry(QRect(60, 460, 131, 41));
@@ -581,7 +586,8 @@ public:
         pb_clear->setGeometry(QRect(1000, 260, 88, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(620, 146, 91, 31));
+        label_3->setGeometry(QRect(620, 146, 81, 31));
+        label_3->setWordWrap(true);
         label_10 = new QLabel(centralwidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
         label_10->setGeometry(QRect(310, 20, 16, 131));
@@ -678,6 +684,9 @@ public:
         label_13 = new QLabel(centralwidget);
         label_13->setObjectName(QString::fromUtf8("label_13"));
         label_13->setGeometry(QRect(30, 350, 66, 18));
+        pB_Capture = new QPushButton(centralwidget);
+        pB_Capture->setObjectName(QString::fromUtf8("pB_Capture"));
+        pB_Capture->setGeometry(QRect(330, 260, 88, 26));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -755,10 +764,10 @@ public:
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
         pB_Specrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
         wf_vco->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
-        wf_main->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
+        wf_OSC->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         wf_fmo->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pb_clear->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
-        label_3->setText(QCoreApplication::translate("MainWindow", "Beat per sec", nullptr));
+        label_3->setText(QCoreApplication::translate("MainWindow", "Beat per measure", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
         pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
@@ -776,6 +785,7 @@ public:
         pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         label_13->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
+        pB_Capture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

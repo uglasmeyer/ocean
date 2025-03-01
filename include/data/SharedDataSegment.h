@@ -106,11 +106,11 @@ typedef struct interface_struct
 	uint8_t			Rtsp						= OFFLINE;//
 
 	uint8_t	 		FLAG						= NULLKEY;
-	uint8_t 		EVENT 						= NULLKEY;// comstack
+	uint8_t 		slidermode					= FIXED;	// comstack
 
-	uint8_t 		RecCounter					= 0;	// handshake data exchange// comstack
-	bool			Record						= false; // Audioserver recording
-	uint8_t 		FileNo						= 0;// comstack
+	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
+	bool			Record						= false; 	// Audioserver recording
+	uint8_t 		FileNo						= 0;		// comstack
 
 	uint8_t 		SHMID 						= 0;// comstack
 	uint8_t		 	MODE						= FREERUN;// comstack

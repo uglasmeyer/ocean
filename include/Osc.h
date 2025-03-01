@@ -60,7 +60,7 @@ private:
 
 	void 	apply_hall( buffer_t, Data_t* );
 	void 	apply_adsr( buffer_t frames, Data_t* data );
-	double 	get_delta_freq( float freq );
+	float 	get_delta_freq( float freq );
 
 	void 	mem_init();
 };

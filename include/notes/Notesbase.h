@@ -20,6 +20,7 @@
  */
 
 const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
+enum { XML_ID, NTE_ID };
 
 class Note_base :
 	virtual public Logfacility_class,

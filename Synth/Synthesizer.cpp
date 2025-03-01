@@ -80,34 +80,18 @@ void show_usage()
 	return;
 }
 
-
-
 void activate_sds()
 {
+	std::ranges::for_each( init_keys, [  ]( char key )
+			{	DaTA.Sds_p->Event( key );	} );
 
+	for ( uint id : Mixer.HghIds ) // after a restart low id buffers are empty
+		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 	for ( uint id : Mixer.MemIds )
 	{
 		Mixer.StA[ id ].Amp 	= DaTA.Sds_p->addr->StA_amp_arr[id];
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
 	}
-
-	std::ranges::for_each( init_keys, [  ]( char key )
-			{	DaTA.Sds_p->Event( key );
-				Event.Handler(  );} );
-
-
-	if ( sds->NotestypeId == 0 ) // music xml file
-	{
-		DaTA.Sds_p->Event( XMLFILE_KEY );
-	}
-	else
-	{
-		DaTA.Sds_p->Event( UPDATENOTESKEY );
-	}
-	Event.Handler(  );
-
-	for ( uint id : Mixer.HghIds ) // after a restart low id buffers are empty
-		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 }
 
 void SetSyncState()

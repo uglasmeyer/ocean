@@ -135,7 +135,8 @@ typedef struct file_structure
 	const string	log_file		= Dir.logdir		+ "composer.log";
 	const string 	doc_filename 	= "Ocean.odt";
 	const string 	doc_file 		= Dir.docdir 		+ doc_filename;
-
+	const string	reclog_file		= Dir.tmpdir		+ "session.log";
+	const string	session_dump_file=Dir.tmpdir		+ "session.lib";
 
     string get_rec_filename( uint no )
     {

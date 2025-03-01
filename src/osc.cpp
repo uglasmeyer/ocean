@@ -43,18 +43,27 @@ void Oscillator::Set_start_freq( float freq )
 	wp.start_frq = freq;
 }
 
-double Oscillator::get_delta_freq( float freq )
+float Oscillator::get_delta_freq( float freq ) // TODO - working
 {
 	// 0..100 |-> 0..frames = 0..max_sec
-	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
+//	buffer_t frames = ( this->wp.msec*audio_frames) / 1000;
+	buffer_t frames = beatframes;
+	if( not is_instr_role )
+		frames = ( this->wp.msec*audio_frames) / 1000;
 
-	if ( abs(wp.start_frq) < 1E-4 ) return freq;  			// do nothing
+	if ( abs(wp.start_frq) < 1E-4 )
+	{
+		wp.start_frq = freq;
+		return 0.0;  				// do nothing
+	}
 	float dframes =  ( wp.glide_effect * frames / 100.0 ) ;
 
-	if ( abs(dframes) < 1E-4 ) return freq - wp.start_frq; 	// do nothing
-//	Assert( dframes > 0, "dframes: " + to_string(dframes));
+	if ( abs(dframes) < 1E-4 )
+	{
+		wp.start_frq = freq;
+		return 0.0;//freq - wp.start_frq; // do nothing
+	}
 	return ( freq - wp.start_frq ) / dframes;
-
 }
 
 
@@ -127,6 +136,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
 
+	float 				delta_frq	= get_delta_freq( freq );
 	float 				start_frq 	= wp.start_frq;
 
 
@@ -163,17 +173,10 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	param_t param 	= param_struct();
 	param.pmw		= 1.0 + (float)wp.PMW_dial * 0.01;
 	phi_t dT 		= 0;
-	float delta_freq= get_delta_freq( freq );
 	float fmo_shift = 0;
 				// difference to the target frequency <freq> - <start_freq>
 
 
-/*	if (
-			( osctype_id == osc_struct::FMOID ) )
-//			and		( oscrole_id == osc_struct::INSTRID ))
-		cout << osc_role<< ":" << osc_type << ":" << vol_per_cent << ":"
-		<< freq << " " << start_frq << endl;
-*/
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
 		if ( spectrum.vol[channel] > 0.0 )
@@ -190,7 +193,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 				Data[n]	=   Data[n] + vco_vol * waveFunction_vec[ wfid ].fnc( param );
 
 				if ( abs(freq - start_frq) > 1 )
-					start_frq = start_frq + delta_freq;
+					start_frq = start_frq + delta_frq; // TODO - working
 				param.dphi	=	dT *( start_frq + fmo_shift ) * spectrum.frqadj[channel] ;
 				param.phi	+= param.dphi;
 			}
@@ -200,10 +203,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		}
 	}
 
-//	}
-
-
-	Set_start_freq(freq);
+	Set_start_freq( start_frq );
 
 	apply_adsr( frames, Data );
 	apply_hall( frames, Data );
@@ -311,7 +311,7 @@ void Oscillator::Test()
 	Oscillator testosc {};
 	testosc.SetId( osc_struct::INSTRID, osc_struct::OSCID );
 	phase[0]	= 0.444;
-	testosc.Set_frequency(220);
+	testosc.Set_frequency(220, FIXED );
 	testosc.wp.volume	= 100;
 	testosc.OSC( 0 );
 	testosc.OSC( 0 );

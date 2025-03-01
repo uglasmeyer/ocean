@@ -567,6 +567,9 @@
       <height>51</height>
      </rect>
     </property>
+    <property name="digitCount">
+     <number>5</number>
+    </property>
    </widget>
    <widget class="QLCDNumber" name="FMOLCD_Amp">
     <property name="geometry">
@@ -637,6 +640,9 @@
       <width>131</width>
       <height>51</height>
      </rect>
+    </property>
+    <property name="digitCount">
+     <number>5</number>
     </property>
    </widget>
    <widget class="QLabel" name="labelVCO">
@@ -1331,6 +1337,12 @@
       <height>51</height>
      </rect>
     </property>
+    <property name="digitCount">
+     <number>5</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
    </widget>
    <widget class="QLabel" name="label_11">
     <property name="geometry">
@@ -1587,7 +1599,7 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QSpinBox" name="sB_Main">
+    <widget class="QSpinBox" name="sB_OSC">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -1603,7 +1615,7 @@
       <number>9</number>
      </property>
     </widget>
-    <widget class="QLabel" name="wf_main">
+    <widget class="QLabel" name="wf_OSC">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -1680,12 +1692,15 @@
      <rect>
       <x>620</x>
       <y>146</y>
-      <width>91</width>
+      <width>81</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Beat per sec</string>
+     <string>Beat per measure</string>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="label_10">
@@ -1957,6 +1972,19 @@
     </property>
     <property name="text">
      <string>adjust</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pB_Capture">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>260</y>
+      <width>88</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Capture</string>
     </property>
    </widget>
   </widget>

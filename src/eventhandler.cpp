@@ -12,23 +12,20 @@
 
 void Event_class::Handler()
 {
-//	cout << Eventque.show() ;
+	string str = Eventque.show();
 	uint8_t event = Eventque.get();
-	if ( event == NULLKEY ) return;
 
+	if ( event == NULLKEY ) return;
+	cout << str << endl;
 	switch ( event )
 	{
 
-/*	case NULLKEY:
-	{
-		break;
-	}
-	*/
+
 	case XMLFILE_KEY :
 	{
+		if ( sds->NotestypeId == NTE_ID ) break;
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
 		Comment(INFO, "receive command <setup play xml notes>");
-
 		Sds->Commit();
 		break;
 	}
@@ -38,12 +35,10 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-
 	case OSCFREQUENCYKEY:
 	{
-		int frqidx = sds->OSC_wp.frqidx;
-		Instrument->osc->Set_frequency( frqidx );
-		sds->OSC_spectrum.base = Instrument->osc->wp.frequency;
+		uint8_t frqidx = Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->slidermode );
+		sds->OSC_spectrum.base = Instrument->osc->spectrum.base;
 		sds->OSC_spectrum.frqidx[0] = frqidx;
 
 		Sds->Commit();
@@ -51,9 +46,8 @@ void Event_class::Handler()
 	}
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
-		int frqidx = sds->VCO_wp.frqidx;
-		Instrument->vco->Set_frequency( frqidx );
-		sds->VCO_spectrum.base = Instrument->osc->Calc( frqidx );
+		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->slidermode );
+		sds->VCO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
 		sds->VCO_spectrum.frqidx[0] = frqidx;
 
 		Instrument->osc->Connect_vco_data(Instrument->vco);
@@ -63,9 +57,8 @@ void Event_class::Handler()
 	}
 	case FMOFREQUENCYKEY: // modify the fm_track data
 	{
-		int frqidx = sds->FMO_wp.frqidx;
-		Instrument->fmo->Set_frequency( frqidx );
-		sds->FMO_spectrum.base = Instrument->osc->Calc( frqidx );
+		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->slidermode );
+		sds->FMO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
 		sds->FMO_spectrum.frqidx[0] = frqidx;
 
 
@@ -307,6 +300,7 @@ void Event_class::Handler()
 	case UPDATENOTESKEY: // update notes
 	{
 		Comment(INFO, "receive command <update notes>");
+		if ( sds->NotestypeId == XML_ID ) break;
 		string notes_name = Sds->Read_str(NOTESSTR_KEY);
 		Notes->Set_instrument(Instrument);
 		Notes->Read(notes_name);

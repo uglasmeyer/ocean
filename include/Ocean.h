@@ -109,6 +109,8 @@ typedef struct osc_struct
 
 } osc_roles_t;
 
+enum { STEP, FIXED }; // frequency and volume change mode
+
 const uint				max_octave		= 6;
 const uint 				min_octave 		= 0;
 

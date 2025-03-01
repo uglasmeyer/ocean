@@ -25,9 +25,9 @@ fdecay	: exp( - ( n - aframes ) * d_delta );
 plot2d([fattack, fdecay], [n,0,beatframes]);
 
 */
-void Oscillator_base::Gen_adsrdata( buffer_t beatframes )
+void Oscillator_base::Gen_adsrdata( buffer_t bf)
 {
-
+	beatframes = bf;
 	uint 	aframes 	= ( beatframes * adsr.attack ) / 100;
 	if ( aframes == 0 )
 		aframes = 1;
@@ -61,9 +61,11 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 		or	( oscrole_id == osc_struct::NOTESID )
 	)
 		this->adsr.bps = 1;
+	beatframes = max_frames;
 	if ( adsr.bps != 0 )
 	{
-		Gen_adsrdata( frames_per_sec / adsr.bps );
+//		Gen_adsrdata( frames_per_sec / adsr.bps );
+		Gen_adsrdata( max_frames / adsr.bps );
 	}
 }
 
@@ -72,13 +74,36 @@ void Oscillator_base::Set_duration( uint16_t msec )
 	wp.msec 	= msec;
 }
 
-void Oscillator_base::Set_frequency( int idx )
+template< typename T>
+T step( T src, T dst, uint min, uint max )
 {
-	wp.frqidx			= idx;
-	wp.frequency 		= Calc( idx );
-	wp.start_frq 		= wp.frequency;
+	int diff = dst - src;
+	if (diff == 0 )
+		return src; // nothing to do
+	int delta = diff/abs(diff);
+	T value	= src + delta;
+	if (( value < min) or (value > max ))
+		return dst; // out of bounds
+	return value;
+};
+uint8_t Oscillator_base::Set_frequency( uint8_t idx, uint mode )
+{
+
+	if ( mode == FIXED )
+	{
+		wp.frqidx		= idx;
+		wp.frequency	= Calc( wp.frqidx );
+	// 	wp.start_frq 	= unchanged
+	}
+	if ( mode == STEP )
+	{
+		wp.frqidx		= step( wp.frqidx, idx, 2, FRQARR_SIZE );
+		wp.frequency	= Calc( wp.frqidx );
+		wp.start_frq	= wp.frequency;
+	}
 	spectrum.base		= wp.frequency;
-	spectrum.frqadj[0]	= Frqadj(0, 0);//1.0; // 1*freq
+	spectrum.frqadj[0]	= Frqadj(0, 0);//1.0;
+	return wp.frqidx;
 }
 
 void Oscillator_base::Set_volume( uint16_t vol)
@@ -119,7 +144,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	fp.name			= osc_type;
 	spectrum.wfid[0]		= Get_waveform_id( arr[2] );
 	int frqidx	 	= Str.secure_stoi( arr[3] );
-	Set_frequency( frqidx );
+	Set_frequency( frqidx, FIXED );
 
 	wp.msec 		= Str.secure_stoi(arr[4]);
 	wp.volume 		= Str.secure_stoi(arr[5]);

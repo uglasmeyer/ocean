@@ -346,7 +346,6 @@ void Interface_class::Update( char ch )
 }
 void Interface_class::Commit()
 {
-	addr->EVENT	= NULLKEY;
 	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
 	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )

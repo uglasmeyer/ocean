@@ -56,7 +56,7 @@ void MainWindow::initOscillatorDisplay()
     scene->addItem( OscWidget_item );
 }
 
-void MainWindow::initOscillatorButtons()
+void MainWindow::initStateButtons()
 {
 	Qwd_osc_names 	= Vstringvector( osc_struct().types );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
@@ -69,6 +69,11 @@ void MainWindow::initOscillatorButtons()
 
 	Qwd_display_names 	= Vstringvector( osc_struct().roles );
 	ui->pB_Wavedisplay->setText( Qwd_display_names[ Sds->addr->WD_status.roleId ]);
+
+    setButton( ui->pB_Capture, Sds->capture_flag );
+    ( Sds->capture_flag) ? ui->pB_Capture->setText( "running" ): ui->pB_Capture->setText("Capture");
+
+
 }
 
 void MainWindow::initScrollbars()
@@ -76,7 +81,7 @@ void MainWindow::initScrollbars()
 	QWaveform_vec 		= Vstringvector( waveform_str_vec);
     uint sb_max = QWaveform_vec.size()-1;
 
-    ui->sB_Main->setMaximum(sb_max);
+    ui->sB_OSC->setMaximum(sb_max);
     ui->sB_FMO->setMaximum(sb_max);
     ui->sB_VCO->setMaximum(sb_max);
 }
@@ -150,7 +155,7 @@ void MainWindow::initGuiVectors()
     {
         { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &Sds->addr->VCO_spectrum.wfid[0] },
        	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->FMO_spectrum.wfid[0] },
-       	{ OSCFREQUENCYKEY, ui->sB_Main, ui->wf_main, &Sds->addr->OSC_spectrum.wfid[0] }
+       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &Sds->addr->OSC_spectrum.wfid[0] }
     };
 
 }
@@ -228,10 +233,14 @@ void MainWindow::initUiConnectors()
 
     connect( ui->sB_FMO , SIGNAL( valueChanged(int)), this, SLOT(FMO_Waveform_slot( int ))) ;
     connect( ui->sB_VCO , SIGNAL( valueChanged(int)), this, SLOT(VCO_Waveform_slot( int ))) ;
-    connect( ui->sB_Main, SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
+    connect( ui->sB_OSC , SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
 
     connect(ui->SliderFMOadjust, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Adjust(int) ));
     connect(ui->SliderVCOadjust, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Adjust(int) ));
+
+    connect(ui->pB_Capture, SIGNAL(clicked()), this, SLOT(pb_Capture() ));
+
+
 }
 
 void MainWindow::initTimer()

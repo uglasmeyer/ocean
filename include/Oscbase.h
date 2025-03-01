@@ -96,7 +96,7 @@ public:
 	bool			is_notes_role = false;
 	bool			is_instr_role = false;
 
-
+	buffer_t		beatframes	= max_frames;
 	DataVec_t		adsrdata 	{ };
 
 	adsr_t 			adsr 		= adsr_struct();
@@ -113,7 +113,7 @@ public:
 	virtual 	~Oscillator_base(){};
 
 	void 		Show_csv_comment( int );
-	void 		Set_frequency( int idx );
+	uint8_t		Set_frequency( uint8_t idx, uint mode );
 	void 		Set_volume( uint16_t vol);
 	void 		Line_interpreter( vector_str_t arr );
 	void 		Set_waveform( spec_arr_8t wf_vec   );

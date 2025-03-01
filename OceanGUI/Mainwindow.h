@@ -60,7 +60,10 @@ class MainWindow :
 public:
     Dataworld_class			DaTA_class			{ GUI_ID };
     Dataworld_class*
-    						DaTA  = &DaTA_class;
+    						DaTA  				= &DaTA_class;
+    EventLog_class			Eventlog			{ DaTA };
+    EventLog_class*			Eventlog_p			= &Eventlog;
+
     Application_class		App					{ DaTA };
 
     Config_class*			Cfg 				= DaTA->Cfg_p;
@@ -74,10 +77,10 @@ public:
     Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA};
     Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
 
-    File_Dialog_class		File_Dialog_obj		{ this, DaTA->Sds_p, DaTA->Sem_p };
+    File_Dialog_class		File_Dialog_obj		{ this, DaTA, Eventlog_p  };
     File_Dialog_class*		File_Dialog_p		= &File_Dialog_obj;
 
-    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA->Sds_p };
+    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA->Sds_p, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
 //not used
@@ -113,7 +116,7 @@ public:
 
     typedef struct sl_value_map
     {
-    	int				id; // Mixer id
+    	uint8_t			id; // Mixer id
     	QSlider*		sl;
     	uint8_t*		value;
     } sl_value_t;
@@ -165,24 +168,28 @@ private:
     void setwidgetvalues();
     void updateWidgets();
     void initPanel();
-    void select_Sds( uint sdsid );
+    void select_Sds( uint8_t sdsid );
     void initGuiVectors();
     void initOscillatorDisplay();
     void initFreqSlider();
     void initScrollbars();
-    void initOscillatorButtons();
+    void initStateButtons();
     void initComboBoxes();
     void initUiConnectors();
     void initTimer();
-    void sliderFreq( sl_lcd_t map, int value );
+    void sliderFreq( sl_lcd_t map, uint8_t value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
+    void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );
 
 
 
 private slots:
 
 //	void show_time_elapsed();
+
+	void pb_Capture();
+
 	void Rtsp_Dialog();
 	void SDS_Dialog();
 
@@ -203,7 +210,6 @@ private slots:
     void Slider_VCO_Adjust( int );
     void Slider_FMO_Adjust( int );
 
-    void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );
     void Main_Waveform_slot( int );
     void VCO_Waveform_slot( int );
     void FMO_Waveform_slot( int );
@@ -275,7 +281,7 @@ private slots:
     void pB_Wavedisplay_clicked();
     void pB_fftmode_clicked();
 
-    void hs_hall_effect_value_changed(int);
+    void hs_hall_effect_value_changed( int );
 
 };
 

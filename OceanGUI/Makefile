@@ -387,6 +387,7 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/Instrument.h \
 		../include/data/Interface.h \
 		../include/data/Semaphore.h \
@@ -401,9 +402,9 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/notes/Notesbase.h \
 		../include/data/Register.h \
 		../include/Osc.h \
-		../include/Oscwaveform.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
+		../include/data/DataWorld.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include File_Dialog.h -o moc_File_Dialog.cpp
@@ -420,6 +421,7 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -434,7 +436,6 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
-		../include/Oscwaveform.h \
 		../include/External.h \
 		../include/Progressbar.h \
 		../include/Wav.h \
@@ -467,6 +468,7 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -490,6 +492,7 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/String.h \
 		../include/Frequency.h \
 		../include/Exit.h \
+		../include/Oscwaveform.h \
 		../include/data/Interface.h \
 		../include/Config.h \
 		../include/Configbase.h \
@@ -507,6 +510,7 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
 		../include/data/Register.h \
+		../include/data/DataWorld.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Spectrum_dialog_class.h -o moc_Spectrum_dialog_class.cpp
@@ -524,6 +528,7 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -589,6 +594,7 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -603,7 +609,6 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/data/Register.h \
 		../include/Mixer.h \
 		../include/Osc.h \
-		../include/Oscwaveform.h \
 		../include/External.h \
 		../include/Progressbar.h \
 		../include/Wav.h \
@@ -634,6 +639,7 @@ sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \

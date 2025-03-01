@@ -7,7 +7,8 @@
 //Ui::Spectrum_Dialog_class	UI_obj;
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
-                                             Interface_class *gui) :
+                                             Interface_class* 	gui,
+											 EventLog_class*	_log) :
     Logfacility_class("Spectrum"),
 	Spectrum_class(),
 	QDialog(parent),
@@ -41,6 +42,7 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     this->Sds   		    = gui;
     sds_p 					= Sds->addr;
+    Eventlog_p				= _log;
 
     ifd_spectrum_vec 		= { &sds_p->VCO_spectrum,
 								&sds_p->FMO_spectrum,
@@ -112,7 +114,7 @@ auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 	float frqadj =  C.Spectrum.Frqadj(channel, value); // see osc.cpp
 	C.spectrum.frqadj[ channel ] = frqadj;
     *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
-    C.Sds->Event( UPDATESPECTRUM_KEY );	// the synthesizer is notified
+    C.Eventlog_p->add( C.SDS_ID, UPDATESPECTRUM_KEY );	// the synthesizer is notified
     C.ui->lcd_spectrumDisplay->display( frqadj );
     C.ui->lbl_spectrumDisplay->setText( "[Hz]");
 };
@@ -124,7 +126,7 @@ auto spec_vol_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 	C.spectrum.volidx[ channel ] = value;
     C.Sum( C.spectrum ); // fill vol
     *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
-    C.Sds->Event( UPDATESPECTRUM_KEY );	// the synthesizer is notified
+    C.Eventlog_p->add( C.SDS_ID, UPDATESPECTRUM_KEY );	// the synthesizer is notified
     C.ui->lcd_spectrumDisplay->display( C.spectrum.vol[ channel ] * 100 );
     C.ui->lbl_spectrumDisplay->setText( "Amp [%]");
 };
@@ -168,7 +170,7 @@ auto ScrollBar_Wafeform = [  ]( Spectrum_Dialog_class* S, uint id, int value  )
 	S->spectrum = *S->ifd_spectrum_vec[ oscid ];
 	S->spectrum.wfid[id] = value;
 	*S->ifd_spectrum_vec[oscid ] = S->spectrum;
-	S->Sds->Event( UPDATESPECTRUM_KEY );
+	S->Eventlog_p->add( S->SDS_ID, UPDATESPECTRUM_KEY );
 
 	QString QStr = S->Waveform_vec[ value ];
 	S->ui->lbl_waveform->setText( QStr );
@@ -202,7 +204,7 @@ void Spectrum_Dialog_class::sb_wf4(int value )
 
 void Spectrum_Dialog_class::save()
 {
-	Sds->Event( SAVEINSTRUMENTKEY );
+	Eventlog_p->add( SDS_ID, SAVEINSTRUMENTKEY );
 }
 
 void Spectrum_Dialog_class::SetLabelWaveform( const QString& wf )
@@ -217,7 +219,7 @@ void Spectrum_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 {
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
-//	this->SDS_ID	= sdsid;
+	this->SDS_ID	= sdsid;
     Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) sdsid ));
     ifd_spectrum_vec 		= { &sds_p->VCO_spectrum,
 								&sds_p->FMO_spectrum,

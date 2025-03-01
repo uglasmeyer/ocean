@@ -8,6 +8,7 @@
 #include <Spectrum.h>
 #include <data/Interface.h>
 #include <EventKeys.h>
+#include <data/DataWorld.h>
 
 namespace Ui {
 class Spectrum_Dialog_class;
@@ -23,7 +24,8 @@ public:
     unique_ptr<Ui::Spectrum_Dialog_class> 		ui;
 
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
-                                   Interface_class* gui = nullptr );
+                                   Interface_class* gui = nullptr,
+								   EventLog_class* _log = nullptr);
     virtual ~Spectrum_Dialog_class();
 
     Spectrum_class Spectrum{};
@@ -31,6 +33,8 @@ public:
 
     Interface_class* Sds;
     interface_t* sds_p;
+
+    EventLog_class*	Eventlog_p;
 
     vector<Spectrum_class::spectrum_t*> ifd_spectrum_vec;
 
@@ -40,6 +44,7 @@ public:
     uint8_t waveform_id;
     vector<QString> Waveform_vec {};
     uint waveform_vec_len = 0;
+    uint8_t SDS_ID = 0;
 
 
     void Setup_widgets( Spectrum_class::spectrum_t );

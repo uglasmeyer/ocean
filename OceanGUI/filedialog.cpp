@@ -24,18 +24,20 @@
 //Ui::File_Dialog	UI_FileDialog_obj{};
 
 File_Dialog_class::File_Dialog_class( 	QWidget *parent,
-										Interface_class* Sds,
-										Semaphore_class* sem) ://, QSlider* sl_main_hz ) :
+										Dataworld_class* 	_data,
+										EventLog_class*		_log) :
     Logfacility_class("FileDialog"),
     Note_class( ),
 	QDialog(parent),
     ui(new Ui::File_Dialog)
 {
 
-
-	this->Sds 	= Sds;
-	this->sds_p	= Sds->addr;
-	this->sem	= sem;
+	this->DaTA 		= _data;
+	this->Sds 		= DaTA->Sds_p;
+	this->sds_p		= Sds->addr;
+	this->sem		= DaTA->Sem_p;
+	this->SDS_ID	= sds_p->SDS_Id;
+	this->Eventlog_p= _log;
 
 	ui->setupUi(this);
 
@@ -54,8 +56,8 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
 	connect(ui->cb_Notestype, SIGNAL(activated( int )), this, SLOT( cb_Notestype( int )));
-    connect(ui->sB_Octave, SIGNAL(valueChanged(int)), this, SLOT( sB_Octave(int)));
-    connect(ui->cb_nps, SIGNAL(activated(int)), this, SLOT( cB_NotesPerSec(int)));
+    connect(ui->sB_Octave, SIGNAL(valueChanged(int)), this, SLOT( sB_Octave( int)));
+    connect(ui->cb_nps, SIGNAL(activated(int)), this, SLOT( cB_NotesPerSec( int )));
     connect(ui->cb_convention, SIGNAL(activated( int )), this, SLOT(cB_Convention( int ) ));
     connect(ui->pbInstrumentDone, SIGNAL(clicked()), this, SLOT(pb_Instrument_Done_clicked()) );
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
@@ -68,25 +70,26 @@ File_Dialog_class::~File_Dialog_class()
  //   if( ui ) delete( ui );
 }
 
-void File_Dialog_class::SetSds( Interface_class* Sds, int8_t id )
+void File_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 {
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
-    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) id ));
+	this->SDS_ID	= sdsid;
+    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) sdsid ));
 
 	Setup_widgets();
 
 }
 
-void File_Dialog_class::sB_Octave(int sb_value )
+void File_Dialog_class::sB_Octave( int sb_value )
 {
-	Sds->Set( sds_p->noteline_prefix.Octave , sb_value );
-	Sds->Event( UPDATE_NLP_KEY );
+	Sds->Set( sds_p->noteline_prefix.Octave , (uint8_t)sb_value );
+	Eventlog_p->add( SDS_ID, UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cb_Notestype( int cb_value )
 {
-	Sds->Set( sds_p->NotestypeId 	, cb_value );
+	Sds->Set( sds_p->NotestypeId , (uint8_t)cb_value );
     ui->cb_notefilenames->clear();
     ui->cb_notefilenames->addItems( Qread_filenames( Event_vec[ cb_value].path ) );
 }
@@ -95,15 +98,15 @@ void File_Dialog_class::cB_Convention( int cb_value )
 {
 	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
 	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
-	Sds->Set( sds_p->noteline_prefix.convention , cb_value );
-	Sds->Event( UPDATE_NLP_KEY );
+	Sds->Set( sds_p->noteline_prefix.convention , (uint8_t)cb_value );
+	Eventlog_p->add( SDS_ID,  UPDATE_NLP_KEY );
 }
 
-void File_Dialog_class::cB_NotesPerSec(int nps_id )
+void File_Dialog_class::cB_NotesPerSec( int nps_id )
 {
-	int nps = ui->cb_nps->currentText().toInt();
-	Sds->Set( sds_p->noteline_prefix.nps , nps );
-	Sds->Event( UPDATE_NLP_KEY );
+	uint8_t nps = ui->cb_nps->currentText().toInt();
+	Sds->Set( sds_p->noteline_prefix.nps , (uint8_t)nps );
+	Eventlog_p->add( SDS_ID,  UPDATE_NLP_KEY );
 }
 
 
@@ -159,7 +162,7 @@ void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &QStr)
     if ( str.length() > 0 )
     {
         Sds->Write_str( INSTRUMENTSTR_KEY, str );
-        Sds->Event( EventINS.event );
+        Eventlog_p->add( SDS_ID,  EventINS.event );
     }
     ui->lE_Instrument->setText( QStr );
 }
@@ -178,7 +181,7 @@ void File_Dialog_class::New_Notes()
 {
 	if ( sds_p->NotestypeId == XML_ID )
 	{
-		Sds->Event( Event_vec[ XML_ID ].event );
+		Eventlog_p->add( SDS_ID,  Event_vec[ XML_ID ].event );
     	return;
 	}
 
@@ -200,7 +203,7 @@ void File_Dialog_class::New_Notes()
         // remote shall read and activate the new note line
         Sds->Write_str( NOTESSTR_KEY, notes_file);
 
-        Sds->Event( Event_vec[NTE_ID].event );
+        Eventlog_p->add( SDS_ID,  Event_vec[NTE_ID].event );
         Info( "sync notes" );
     	sem->Release( SEMAPHORE_SYNCNOTES );
 

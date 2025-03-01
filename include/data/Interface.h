@@ -54,7 +54,8 @@ public:
 	Config_class*			Cfg_p		= nullptr;
 	EventQue_class			Eventque	{};
 	uint					Type_Id		= NOID;
-
+	bool					capture_flag= false;
+	string					dumpFile	= "";
 
 	Interface_class( Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
@@ -74,8 +75,8 @@ public:
 	uint8_t* Getstate_ptr( uint TypeID );
 	void 	State_pMap();
 
-	template < typename K, typename V >
-	void Set( K& ref, V value )
+	template < typename V >
+	void Set( V& ref, V value )
 	{
 		if ( reject( addr->Composer, Type_Id ) ) return;
 		ref = value;
@@ -88,7 +89,6 @@ public:
 
 
 private:
-	string			dumpFile		= "";
 	size_t			sds_size		= sizeof( ifd_data );
 	char 			previous_status = OFFLINE;
 	array<string, STATE_MAP_SIZE>
