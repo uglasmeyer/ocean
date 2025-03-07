@@ -70,7 +70,7 @@ void Event_class::Handler()
 	case VCOAMPKEY: // modify the VCO volume
 	{
 		Value vol = sds->VCO_wp.volume;
-		Instrument->vco->Set_volume(vol.ch);
+		Instrument->vco->Set_volume(vol.ch, sds->slidermode);
 		Instrument->osc->Connect_vco_data(Instrument->vco);
 		sds->VCO_spectrum.vol[0] = vol.val * 0.01;
 		sds->VCO_spectrum.volidx[0] = vol.val;
@@ -81,7 +81,7 @@ void Event_class::Handler()
 	case FMOAMPKEY: // modify the FMO volume
 	{
 		Value vol = sds->FMO_wp.volume;
-		Instrument->fmo->Set_volume(vol.ch);
+		Instrument->fmo->Set_volume(vol.ch, sds->slidermode);
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
 		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
 		sds->FMO_spectrum.volidx[0] = vol.val;
@@ -91,8 +91,10 @@ void Event_class::Handler()
 	}
 	case MASTERAMP_KEY: // modify main volume
 	{
-		Mixer->master_volume = sds_master->Master_Amp;
 		Mixer->status.mute = false;
+		Mixer->Set_master_volume( 	sds_master->Master_Amp,
+									sds_master->vol_slidemode,
+									sds_master->slide_duration );
 		Sds->Commit();
 		break;
 	}
@@ -105,16 +107,15 @@ void Event_class::Handler()
 	}
 	case MASTERAMP_LOOP_KEY:
 	{
-		uint16_t beg = Mixer->master_volume;
-		uint16_t end = sds->LOOP_end;
-		uint8_t step = sds->LOOP_step;
-		Mixer->amp_loop_vec[MbSize].Start(beg, end, step);
+		Mixer->Set_master_volume(	sds_master->Master_Amp,
+									SLIDE,
+									sds_master->slide_duration );
 		Sds->Commit();
 		break;
 	}
 	case MASTERAMP_MUTE_KEY: // Mute Main Volume
 	{
-		Mixer->status.mute = !sds->mixer_status.mute;
+		Mixer->status.mute = not sds->mixer_status.mute;
 		string str = (Mixer->status.mute) ? "Mute" : "UnMute";
 		Comment(INFO, "receiving command <" + str + "> master volume>");
 		Sds->Commit();
@@ -227,12 +228,10 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case EXTERNAL_AMPLOOP_KEY: {
-		uint8_t 	Id 	= sds->MIX_Id;
-		uint16_t 	beg = Mixer->StA[Id].Amp;
-		uint16_t 	end = sds->LOOP_end;
-		uint8_t 	step= sds->LOOP_step;
-		Mixer->amp_loop_vec[Id].Start(beg, end, step);
+	case EXTERNAL_AMPLOOP_KEY: // TODO not working
+	{
+		uint8_t 	Id 		= sds->MIX_Id;
+		Mixer->StA[Id].Amp 	= sds->StA_amp_arr[Id];
 		Sds->Commit();
 		break;
 	}

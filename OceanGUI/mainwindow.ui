@@ -1513,7 +1513,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QDial" name="dial_ramp_up_down">
+   <widget class="QDial" name="dial_glide_vol">
     <property name="geometry">
      <rect>
       <x>380</x>
@@ -1521,6 +1521,9 @@
       <width>50</width>
       <height>64</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
     </property>
     <property name="maximum">
      <number>100</number>
@@ -1807,6 +1810,9 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="cB_Capture"/>
+     </item>
     </layout>
    </widget>
    <widget class="QComboBox" name="cb_bps">
@@ -1972,19 +1978,6 @@
     </property>
     <property name="text">
      <string>adjust</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pB_Capture">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>260</y>
-      <width>88</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Capture</string>
     </property>
    </widget>
   </widget>

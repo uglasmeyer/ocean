@@ -114,6 +114,7 @@
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/14/"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1255689573" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="Ocean"/>
 									<listOptionValue builtIn="false" value="Qt5Core"/>
 									<listOptionValue builtIn="false" value="Qt5Gui"/>
 									<listOptionValue builtIn="false" value="Qt5Widgets"/>

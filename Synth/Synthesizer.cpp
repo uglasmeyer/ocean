@@ -109,7 +109,7 @@ void add_sound( )
 {
 
 	SetSyncState();
-	Instrument.Set_msec( sds->audioframes  );
+	Instrument.Set_msec( sds_master->audioframes  );
 
 	if ( Mixer.status.notes )
 	{
@@ -121,7 +121,7 @@ void add_sound( )
 		Instrument.Oscgroup.Run_Oscgroup( 0 ); // generate the modified sound waves
 
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
-	Mixer.master_volume = DaTA.sds_master->Master_Amp;
+//	Mixer.master_volume = DaTA.sds_master->Master_Amp;
 
 	Mixer.Add_Sound( 	Instrument.osc->Mem.Data,
 						Keyboard.osc->Mem.Data,
@@ -178,7 +178,6 @@ void ApplicationLoop()
 			kbd_release();
 		}
 
-		Mixer.Volume_control(  );
 
 		if ( sds->Synthesizer != EXITSERVER )
 			sds->Synthesizer = RUNNING;

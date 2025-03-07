@@ -7,6 +7,9 @@
 
 #include <data/DataWorld.h>
 
+/****************
+ * Dataworld_class
+ ***************/
 
 Dataworld_class::Dataworld_class( uint type_id ) :
 	Logfacility_class( "Dataworld_class")
@@ -150,4 +153,89 @@ void Dataworld_class::Test_Dataworld()
 	TEST_END( className );
 
 }
+
+/****************
+ * EventLog_class
+ ***************/
+
+EventLog_class::EventLog_class( Dataworld_class* _data ) :
+	Logfacility_class("EventLog_class")
+{
+	className 	= Logfacility_class::className;
+	DaTA		= _data;
+};
+EventLog_class::~EventLog_class()
+{
+	write_log();
+};
+
+void EventLog_class::add( uint8_t sdsid, uint8_t event )
+{
+	add( { sdsid, event } );
+}
+void EventLog_class::add( event_t ev )
+{
+	DaTA->SDS_vec[ ev.sdsid ].Event( ev.event );
+	if ( capture_flag)
+		rawlog_vec.push_back( ev );
+}
+void EventLog_class::write_log()
+{
+	fstream File;
+	File.open( logfile_name, fstream::out );
+	for( event_t ev : rawlog_vec )
+	{
+		File << dec << (int)ev.sdsid << ":" << (int)ev.event << endl;
+	}
+}
+void EventLog_class::spool()
+{
+	fstream 		File;
+	String Str		{""};
+	vector_str_t 	arr;
+	event_t			ev;
+	File.open( logfile_name, fstream::in );
+	if ( File.is_open() )
+	{
+		while( getline( File, Str.Str))
+		{
+			arr = Str.to_array(':');
+			ev.sdsid = (uint8_t)Str.secure_stoi( arr[0]);
+			ev.event = (uint8_t)Str.secure_stoi( arr[1]);
+			add( ev );
+		}
+	}
+
+}
+bool EventLog_class::capture( uint8_t sdsid, bool flag )
+{
+
+	capture_flag = flag;
+	Interface_class* Sds = DaTA->GetSds( sdsid );
+	if ( capture_flag )
+	{
+		capture_state = CAPTURING;
+		rawlog_vec.clear();
+		Sds->Dump_ifd();
+		filesystem::copy( 	Sds->dumpFile ,
+							file_structure().session_dump_file,
+							filesystem::copy_options::overwrite_existing);
+		Sds->Eventque.reset();
+		Sds->Update( INSTRUMENTSTR_KEY );
+	}
+	else
+	{
+		capture_state = SPOOLING;
+		filesystem::copy( 	file_structure().session_dump_file,
+							Sds->dumpFile,
+							filesystem::copy_options::overwrite_existing );
+		Sds->Restore_ifd();
+		write_log();
+		spool();
+		Sds->Update( INSTRUMENTSTR_KEY );
+		capture_state = CAPTURE;
+	}
+	return flag;
+}
+
 

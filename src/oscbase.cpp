@@ -74,44 +74,46 @@ void Oscillator_base::Set_duration( uint16_t msec )
 	wp.msec 	= msec;
 }
 
-template< typename T>
-T step( T src, T dst, uint min, uint max )
+uint8_t Oscillator_base::Set_frequency( uint8_t arridx, uint mode )
 {
-	int diff = dst - src;
-	if (diff == 0 )
-		return src; // nothing to do
-	int delta = diff/abs(diff);
-	T value	= src + delta;
-	if (( value < min) or (value > max ))
-		return dst; // out of bounds
-	return value;
-};
-uint8_t Oscillator_base::Set_frequency( uint8_t idx, uint mode )
-{
-
-	if ( mode == FIXED )
+	arridx = check_range( freqarr_range, arridx );
+	switch ( mode )
 	{
-		wp.frqidx		= idx;
-		wp.frequency	= Calc( wp.frqidx );
-	// 	wp.start_frq 	= unchanged
-	}
-	if ( mode == STEP )
-	{
-		wp.frqidx		= step( wp.frqidx, idx, 2, FRQARR_SIZE );
-		wp.frequency	= Calc( wp.frqidx );
-		wp.start_frq	= wp.frequency;
+		case FIXED :
+		{
+			wp.frqidx		= arridx;
+			wp.frequency	= Calc( wp.frqidx );
+		 	wp.start_frq 	= wp.frequency;
+			break;
+		}
+		case STEP :
+		{
+			wp.frqidx		= step( wp.frqidx, arridx, freqarr_range );
+			wp.frequency	= Calc( wp.frqidx );
+			wp.start_frq	= wp.frequency;
+			break;
+		}
+		case SLIDE :
+		{
+			wp.frqidx		= arridx;
+			wp.frequency	= Calc( wp.frqidx );
+		// 	wp.start_frq 	= unchanged
+			break;
+		}
 	}
 	spectrum.base		= wp.frequency;
 	spectrum.frqadj[0]	= Frqadj(0, 0);//1.0;
+	spectrum.frqidx[0]	= wp.frqidx;
 	return wp.frqidx;
 }
 
-void Oscillator_base::Set_volume( uint16_t vol)
+void Oscillator_base::Set_volume( uint8_t vol, uint mode )
 {
-	if ( vol < 1 ) vol = 0; // no output if below 2
-	if ( vol > 100 ) vol = 100;
-	wp.volume 		= vol;
-	spectrum.vol[0] = (float)vol * 0.01;
+
+	vol = check_range( volidx_range, vol );
+	wp.volume			= vol;
+	spectrum.vol[0] 	= (float)vol * 0.01;
+	spectrum.volidx[0]	= vol;
 }
 void Oscillator_base::Set_pmw( uint8_t pmw )
 {
@@ -142,7 +144,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	command 		= osc_type;
 	vp.name			= osc_type;
 	fp.name			= osc_type;
-	spectrum.wfid[0]		= Get_waveform_id( arr[2] );
+	spectrum.wfid[0]= Get_waveform_id( arr[2] );
 	int frqidx	 	= Str.secure_stoi( arr[3] );
 	Set_frequency( frqidx, FIXED );
 
@@ -164,7 +166,7 @@ void Oscillator_base::Show_csv_comment( int loglevel )
 
 void Oscillator_base::Set_csv_comment ()
 {
-	ASSERTION( waveform_str_vec.size() > 1,"waveform_str_vec ",waveform_str_vec.size(),">1");
+//	ASSERTION( waveform_str_vec.size() > 1,"waveform_str_vec ",waveform_str_vec.size(),">1");
 	if ( osc_type.length() == 0 )
 	{
 		osc_type = "unknown";

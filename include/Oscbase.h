@@ -14,6 +14,19 @@
 #include <String.h>
 #include <Frequency.h>
 
+template< typename T>
+T step( T src, T dst, range_t<uint8_t> range)
+{
+	int diff = dst - src;
+	if (diff == 0 )
+		return src; // src=dst, nothing to do
+	int delta = diff/abs(diff);
+	T value	= src + delta;
+	if (( value < range.min) or (value > range.max ))
+		return dst; // out of bounds
+	return value;
+};
+
 typedef struct bps_struct
 {
 	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8 };
@@ -40,20 +53,20 @@ typedef struct bps_struct
 
 typedef	struct wave_struct
 {
-	float	 		frequency 	= oct_base_freq;	// base_freq + note pitch
-	uint8_t			frqidx		= 0;
-	float			start_frq 	= frequency;
-	uint8_t			PMW_dial 	= 50;
-	uint8_t 		glide_effect= 0;
-	uint16_t 		msec		= max_milli_sec; 	// min_milli_sec or max_milli_sec
-	uint8_t 		volume		= osc_default_volume; 	// range [0..100];
-	uint8_t			adjust		= 0; // used by vco and fmo, osc = 0
-	buffer_t 		frames		= max_frames; 	// range 1 ... max_frames;
+	float	 	frequency 	= oct_base_freq;	// base_freq + note pitch
+	uint8_t		frqidx		= 0;
+	float		start_frq 	= frequency;
+	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
+	uint8_t		PMW_dial 	= 50;
+	uint8_t 	glide_effect= 0;
+	uint16_t	msec		= max_milli_sec; 	// min_milli_sec or max_milli_sec
+	uint8_t		adjust		= 0; // used by vco and fmo, osc = 0
+	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
 
 typedef struct adsr_struct
 {
-	uint8_t  bps 	= 0; // { 0, 1/2, 1, 2, 3, 4 }  => 2, 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
+	uint8_t bps 	= 0; // { 0, 1/2, 1, 2, 3, 4 }  => 2, 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
 	uint8_t attack 	= 0; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
 	uint8_t decay  	= 100;
 	uint8_t hall	= 0; // hall effect [0..100} data shift
@@ -114,7 +127,7 @@ public:
 
 	void 		Show_csv_comment( int );
 	uint8_t		Set_frequency( uint8_t idx, uint mode );
-	void 		Set_volume( uint16_t vol);
+	void 		Set_volume( uint8_t vol, uint mode);
 	void 		Line_interpreter( vector_str_t arr );
 	void 		Set_waveform( spec_arr_8t wf_vec   );
 	void 		Set_csv_comment ();
@@ -131,6 +144,9 @@ private:
 	string 		comment 		= "";
 	string 		csv_comment 	= "";
 	string 		command 		= "";
+	range_t<uint8_t> volidx_range {0, 100};
+	range_t<uint8_t> freqarr_range {1, FRQARR_SIZE };
+	range_t<uint8_t> freqidx_range { 0, 100 };
 
 }; // close class Track class
 

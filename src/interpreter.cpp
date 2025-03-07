@@ -183,7 +183,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		{
 			expect = { "loop final volume" };
 			int amp = pop_int(0, 100);
-			Loop( amp, EXTERNAL_AMPLOOP_KEY );
+			Loop( amp, MASTERAMP_KEY ); // TODO - working
 			return;
 		}
 		Wrong_keyword( expect , keyword.Str );
@@ -542,7 +542,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		expect = { "volume [%]" };
 		int amp = pop_int(0,100);
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
-		if ( loop )
+		if ( loop ) // TODO-working
 		{
 			Loop( amp, MASTERAMP_LOOP_KEY );
 		}
@@ -631,12 +631,12 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	if ( cmpkeyword( "loop" ))
 	{
 		int id = pop_int( 0, max_id );
-		int end = pop_int(0, 100 );
-		int step = pop_int(0, 100 );
+		uint8_t end = pop_int(0, 100 );
+//		int step = pop_int(0, 100 );
 
 		Processor_class::Push_ifd( &ifd->MIX_Id , id, "mixer id" );
-		Processor_class::Push_ifd( &ifd->LOOP_end , end, "loop end " );
-		Processor_class::Push_ifd( &ifd->LOOP_step , step, "loop step " );
+		Processor_class::Push_ifd( &ifd->StA_amp_arr[id] , end, "% slide duration " );
+		Processor_class::Push_ifd( &ifd->vol_slidemode , SLIDE, "slide mode" );
 		Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
 
 		return;
@@ -942,9 +942,9 @@ void Interpreter_class::Loop( int max, int key )
 		Processor_class::Push_wait( CMD_WAIT, -1, "not yet implemented" );
 		return;
 	}
-	Processor_class::Push_ifd( &ifd->LOOP_end , max, "loop end" );
-	Processor_class::Push_ifd( &ifd->LOOP_step, 1  , "loop step");
-	Processor_class::Push_key( key,"set amp loop" );
+	Processor_class::Push_ifd( &ifd->slide_duration , max	, "slide duration" );
+	Processor_class::Push_ifd( &ifd->vol_slidemode	, SLIDE	, "volume slide mode");
+	Processor_class::Push_key( key,"set sliding volume" );
 }
 
 void Interpreter_class::ExitInterpreter()

@@ -41,7 +41,9 @@ public:
 
 	void OSC ( const buffer_t& frame_offset );
 	void SetId( char role, char type );
+
 	void Set_start_freq( float freq );
+
 	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
 	void Connect_fmo_data( Oscillator* );
 	void Reset_data( Oscillator* );
@@ -49,10 +51,10 @@ public:
 	void Reset_cursor();
 
 	void Test();
+	spec_arr_dt		phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};
 
 private:
 
-	spec_arr_dt		phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};
 	bool 			longnote	= false; // set trigger for long notes
 	buffer_t 		beat_cursor = 0;
 

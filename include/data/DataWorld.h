@@ -59,14 +59,17 @@ private:
 };
 
 
+/*
+ * EventLog_class
+ */
+
 class EventLog_class :
 	virtual Logfacility_class
 {
 	string className = "";
-	bool capture_flag = false;
 
-public:
-	Dataworld_class* DaTA;
+
+	Dataworld_class* 	DaTA;
 	string logfile_name = file_structure().reclog_file;
 	struct event_struct
 	{
@@ -74,74 +77,24 @@ public:
 		uint8_t event = 0;
 	};
 	typedef event_struct event_t;
-	vector<event_t> rawlog_vec{};
+	vector<event_t> 	rawlog_vec		{};
 
-	EventLog_class( Dataworld_class* _data ) :
-		Logfacility_class("EventLog_class")
-	{
-		className 	= Logfacility_class::className;
-		DaTA		= _data;
-	};
-	~EventLog_class()
-	{
-		write_log();
-	};
+public:
 
-	void add( uint8_t sdsid, uint8_t event )
-	{
-		DaTA->SDS_vec[ sdsid ].Event( event );
-		if ( capture_flag)
-			rawlog_vec.push_back( { sdsid, event } );
-	}
-	void write_log()
-	{
-		fstream File;
-		File.open( logfile_name, fstream::out );
-		for( event_t ev : rawlog_vec )
-		{
-			File << dec << (int)ev.sdsid << ":" << (int)ev.event << endl;
-		}
-	}
-	void spool()
-	{
-		fstream File;
-		String Str{""};
-		vector_str_t arr;
-		event_t	ev;
+	uint 				capture_state 	= CAPTURE;
+	bool 				capture_flag 	= false;
+	enum { CAPTURE, CAPTURING, SPOOL, SPOOLING };
 
-		File.open( logfile_name, fstream::in );
-		while( getline( File, Str.Str))
-		{
-			arr = Str.to_array(':');
-			ev.sdsid = (uint8_t)Str.secure_stoi( arr[0]);
-			ev.event = (uint8_t)Str.secure_stoi( arr[1]);
-			add( ev.sdsid, ev.event );
-		}
+	EventLog_class( Dataworld_class* _data );
+	virtual ~EventLog_class();
 
-	}
-	bool capture( uint8_t sdsid, bool flag )
-	{
-
-		capture_flag = flag;
-		Interface_class* Sds = DaTA->GetSds( sdsid );
-		if ( capture_flag )
-		{
-			rawlog_vec.clear();
-			filesystem::remove( file_structure().session_dump_file );
-			filesystem::copy( Sds->dumpFile , file_structure().session_dump_file );
-		}
-		else
-		{
-			filesystem::remove( Sds->dumpFile );
-			filesystem::copy( file_structure().session_dump_file, Sds->dumpFile );
-			Sds->Restore_ifd();
-			write_log();
-			spool();
-		}
-		return flag;
-	}
+	void add( uint8_t sdsid, uint8_t event );
+	void write_log();
+	void spool();
+	bool capture( uint8_t sdsid, bool flag );
 
 private:
+	void add( event_t ev );
 };
 
 

@@ -40,14 +40,18 @@ QString QReadStr ( T* Sds, uint key  )
 };
 
 template< typename T >
-void setButton( T* pb, bool state  )
+void setButton( T* pb, bool state, bool init=false  )
 {
 	QPalette color = QPalette();
-	if ( state )
-		color.setColor(QPalette::Button, Qt::green );
+	if ( init )
+		color.setColor( QPalette::Button, QColor(153, 193, 241) );
 	else
-		color.setColor(QPalette::Button, Qt::red );
-
+	{
+		if ( state )
+			color.setColor(QPalette::Button, Qt::green );
+		else
+			color.setColor(QPalette::Button, Qt::red );
+	}
 	pb->setPalette( color );
 };
 
@@ -96,6 +100,7 @@ public:
     vector<QString>			Qwd_display_names	{};
     vector<QString> 		Qwd_wdmode_names	{};
     vector<QString>			Qwd_fftmodes		{};
+    QStringList				QCapture_str_lst	{};
 
     vector<QRadioButton*> 	rb_S_vec 			{};
     typedef struct rb_state_map
@@ -141,7 +146,7 @@ public:
     vector<sl_lcd_t>		sl_volume_vec		{};
     vector<sB_lbl_t>		sB_lbl_vec			{};
 
-    dir_struct_t 			fs					= file_structure();
+    const dir_struct_t 		fs					= file_structure();
 
 
     explicit MainWindow(	QWidget*			parent 	= nullptr);
@@ -188,7 +193,7 @@ private slots:
 
 //	void show_time_elapsed();
 
-	void pb_Capture();
+	void cB_Capture( QString str );
 
 	void Rtsp_Dialog();
 	void SDS_Dialog();
@@ -234,7 +239,7 @@ private slots:
     void Sl_mix6( int );
     void Sl_mix7( int );
 
-    void slot_dial_ramp_up_down();
+    void dial_glide_volume(int);
     void memory_clear();
     void SaveRecord();
     void read_polygon_data();

@@ -8,7 +8,7 @@
 #include <Mixer.h>
 #include <Wavedisplay_base.h>
 //-------------------------------------------------------------------------------------------------
-
+/*
 
 void Loop_class::Start( uint16_t beg, uint16_t end, uint8_t step )
 {
@@ -88,7 +88,7 @@ void Loop_class::Test()
 
 
 };
-
+*/
 //-------------------------------------------------------------------------------------------------
 
 
@@ -98,7 +98,9 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 	this->className = Logfacility_class::className;
 
 	cout << "Init Mixer_class" << endl;
-	this->sds 	= data->GetSdsAddr( );
+	this->sds 			= data->GetSdsAddr( );
+	this->sds_master 	= data->sds_master;
+	this->DaTA			= data;
 
 	for( uint n : MemIds )
 	{
@@ -114,15 +116,10 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		StA[n].Setup(usr_conf);
 	StA[MbIdExternal].Setup(ext_conf);
 
-	// init loops for all StA + master volume
-	for ( uint n : MemIds )
-	{
-		Loop_class loop{ &sds->StA_amp_arr[n] };
-		amp_loop_vec.push_back( loop );
-	}
-	Loop_class loop{ &sds->Master_Amp };
-	amp_loop_vec.push_back( loop );
-
+	Set_master_volume( 	sds_master->Master_Amp,
+						FIXED,
+						sds_master->slide_duration ); //set start and master_volume
+	present_vol 			= future_volume;
 	if( LogMask[ TEST ] )
 	{
 		for ( uint n : MemIds )
@@ -161,16 +158,6 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 		sta.Reset_counter();
 }
 
-void Mixer_class::Volume_control( )
-{
-	for ( uint n = 0; n< MbSize ; n++ )
-	{
-		amp_loop_vec[n].Next_amp();
-		StA[n].Amp = sds->StA_amp_arr[n];
-	}
-	amp_loop_vec[ MbSize ].Next_amp();
-	master_volume = sds->Master_Amp;
-}
 
 void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 {
@@ -221,17 +208,56 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 	}
 }
 
-void Mixer_class::stereo_out( stereo_t* data, const uint8_t& master_vol )
+void Mixer_class::Set_master_volume( uint8_t vol, int mode, uint8_t sl_duration )
+{
+	future_volume	= check_range( volume_range, 		vol );
+	slide_duration 	= check_range( slide_duration_range,sl_duration );
+	audio_frames	= sds_master->audioframes;
+
+	switch ( mode )
+	{
+		case FIXED :
+		{
+			past_volume	= future_volume;
+			present_vol = future_volume;
+			break;
+		}
+		case SLIDE :
+		{
+			past_volume	= rint( present_vol );
+			break;
+		}
+		default :
+			assert( false );
+			break;
+	}
+}
+
+void Mixer_class::stereo_out( stereo_t* data )
 // sample Data for different Synthesizer into audio memory
 // by applying master volume per Synthesizer
 {
-	float out_percent=master_vol/100.0;
-	for( buffer_t n = 0; n < sds->audioframes; n++ )
-//		for( buffer_t n = 0; n < max_frames; n++ )
+	float		slide_percent 	= float( slide_duration ) * 0.01 ;
+	buffer_t 	slide_frames	= 4 * max_frames * slide_percent;
+	float 		delta_volume	= future_volume - past_volume;
+	buffer_t 	frames 			= audio_frames;
+	float		dvol			= delta_volume / slide_frames;
+	float 		vol_percent 	= present_vol * 0.01;
+
+	for( buffer_t n = 0; n < frames ; n++ )
 	{
-		data[n].left 	+= rint( Out_L.Data[n] * out_percent );
-		data[n].right 	+= rint( Out_R.Data[n] * out_percent );
-// managed by Audioserver		Mono_out.Data[n]= ( Mono.Data[n]  * out_percent ); // Wavedisplay mono data
+		if( not fcomp( present_vol , future_volume, 2*dvol ) )
+		{
+			present_vol		= present_vol + dvol;
+			vol_percent 	= present_vol * 0.01;
+		}
+		data[n].left 	+= rint( Out_L.Data[n] * vol_percent );
+		data[n].right 	+= rint( Out_R.Data[n] * vol_percent );
+	}
+	if( fcomp( present_vol, future_volume, 2*dvol ) )
+	{
+		past_volume = future_volume;
+		present_vol = future_volume;
 	}
 }
 
@@ -262,28 +288,13 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 					return id;
 			return -1;
 		};
-/*
-	auto calc_amp_mod = [ this ]()
-		{
-			float sum 	= 0.0;
-			uint count 	= 0;
-			for( uint id : MemIds )
-			{
-				if (( StA[id].state.play ) )
-					{ sum += StA[id].Amp; count++; }
-			}
-			if ( count 	== 	1 ) 	return (float) 1.0;
-			if ( sum 	< 	0.1 ) 	return (float) 1.0;
-			float 	mean = 100.0 / sum;
-			return 	mean;
-		};
-*/
+
 
 	clear_memory();
 
 	if ( status.mute )
 	{
-		stereo_out( shm_addr, master_volume );
+		stereo_out( shm_addr );
 		return;
 	}
 	float amp_mod 	= 1.0;//calc_amp_mod();
@@ -312,12 +323,43 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 		StA[ store_id ].Store_block( Mono.Data );
 
 	// push sound to audio server
-	stereo_out( shm_addr, master_volume );
+	stereo_out( shm_addr );
 };
 
 void Mixer_class::Test()
 {
 	TEST_START( className );
+	assert( check_range(volume_range, (uint8_t)   2 ) == 2 );
+	assert( check_range(volume_range, (uint8_t) 112 ) == 100 );
+
+	stereo_t* shm_addr = DaTA->ShmAddr_0;
+
+	sds_master->audioframes = max_frames;
+
+	Set_master_volume( 100, FIXED, 1 );
+	Set_master_volume( 75 , SLIDE, 1 );
+	stereo_out( shm_addr );
+	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
+
+	Set_master_volume( 50, FIXED, 1 );
+	Set_master_volume( 75, SLIDE, 1 );
+	stereo_out( shm_addr );
+	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
+
+	Set_master_volume( 50, FIXED, 10 );
+	Set_master_volume( 75, SLIDE, 25 );
+	stereo_out( shm_addr );
+
+	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
+
+	Set_master_volume( 50, FIXED, 20 );
+	Set_master_volume( 0, SLIDE, 20 );
+	stereo_out( shm_addr );
+	stereo_out( shm_addr );
+	stereo_out( shm_addr );
+	stereo_out( shm_addr );
+	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
+
 	Mono.Set_Loglevel( TEST, true );
 	Mono_out.Set_Loglevel( TEST, true );
 	Out_L.Set_Loglevel( TEST, true );

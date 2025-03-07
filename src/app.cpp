@@ -38,6 +38,8 @@ void SynthesizerTestCases()
 	interface_t*			sds = DaTA.GetSdsAddr();
 	Mixer_class				Mixer{&DaTA, wd_p };
 	Mixer.Set_Loglevel( TEST, true );
+	Mixer.Test();
+
 	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
 	Note_class 				Notes{ wd_p };
 	Keyboard_class			Keyboard( 	&Instrument );
@@ -48,8 +50,8 @@ void SynthesizerTestCases()
 	Statistic_class 		Statistic{ Log.className };
 
 	Semaphore_class*		Sem	= DaTA.Sem_p;
-	uint8_t ch;
-	Loop_class 				Loop{ &ch };
+//	uint8_t ch;
+//	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
 	Oscillator 				TestOsc{  };
 
@@ -74,12 +76,11 @@ void SynthesizerTestCases()
 	Log.Init_log_file();
 	Log.Test_Logging();
 
-	Loop.Test();
+//	Loop.Test();
 
 
 	Notes.Test();
 
-	TestOsc.Test();
 	TestOsc.Test_wf();
 
 	Timer.Start();
@@ -106,13 +107,14 @@ void SynthesizerTestCases()
 	Instrument.Oscgroup.Run_Oscgroup( 0 );
 
 	Log.Test_Logging();
-	Log.TEST_END( "Application " );
 
 	DaTA.Reg.Test_Register();
 	DaTA.Test_Dataworld();
 	System_Test();
 	DaTA.Sds_p->Test_interface();
 
+
+	Log.TEST_END( "Application " );
 }
 
 Application_class::Application_class( 	Dataworld_class* _DaTA ) :

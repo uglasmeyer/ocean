@@ -111,7 +111,7 @@ public:
     QLabel *label_5;
     QScrollBar *hs_adsr_sustain;
     QScrollBar *hs_adsr_attack;
-    QDial *dial_ramp_up_down;
+    QDial *dial_glide_vol;
     QPushButton *pB_Specrum;
     QFrame *frame_7;
     QLabel *wf_vco;
@@ -136,6 +136,7 @@ public:
     QPushButton *pBAudioServerExit;
     QPushButton *pBSynthesizerExit;
     QPushButton *pBSynthesizer;
+    QComboBox *cB_Capture;
     QComboBox *cb_bps;
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_Rtsp;
@@ -148,7 +149,6 @@ public:
     QSlider *SliderFMOadjust;
     QLabel *label_6;
     QLabel *label_13;
-    QPushButton *pB_Capture;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -535,10 +535,11 @@ public:
         hs_adsr_attack->setPageStep(1);
         hs_adsr_attack->setOrientation(Qt::Horizontal);
         hs_adsr_attack->setInvertedControls(false);
-        dial_ramp_up_down = new QDial(centralwidget);
-        dial_ramp_up_down->setObjectName(QString::fromUtf8("dial_ramp_up_down"));
-        dial_ramp_up_down->setGeometry(QRect(380, 60, 50, 64));
-        dial_ramp_up_down->setMaximum(100);
+        dial_glide_vol = new QDial(centralwidget);
+        dial_glide_vol->setObjectName(QString::fromUtf8("dial_glide_vol"));
+        dial_glide_vol->setGeometry(QRect(380, 60, 50, 64));
+        dial_glide_vol->setMinimum(1);
+        dial_glide_vol->setMaximum(100);
         pB_Specrum = new QPushButton(centralwidget);
         pB_Specrum->setObjectName(QString::fromUtf8("pB_Specrum"));
         pB_Specrum->setGeometry(QRect(610, 10, 88, 25));
@@ -641,6 +642,11 @@ public:
 
         gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
 
+        cB_Capture = new QComboBox(layoutWidget);
+        cB_Capture->setObjectName(QString::fromUtf8("cB_Capture"));
+
+        gridLayout->addWidget(cB_Capture, 1, 3, 1, 1);
+
         cb_bps = new QComboBox(centralwidget);
         cb_bps->setObjectName(QString::fromUtf8("cb_bps"));
         cb_bps->setGeometry(QRect(620, 190, 86, 25));
@@ -684,9 +690,6 @@ public:
         label_13 = new QLabel(centralwidget);
         label_13->setObjectName(QString::fromUtf8("label_13"));
         label_13->setGeometry(QRect(30, 350, 66, 18));
-        pB_Capture = new QPushButton(centralwidget);
-        pB_Capture->setObjectName(QString::fromUtf8("pB_Capture"));
-        pB_Capture->setGeometry(QRect(330, 260, 88, 26));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -785,7 +788,6 @@ public:
         pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         label_13->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
-        pB_Capture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

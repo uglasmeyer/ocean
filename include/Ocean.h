@@ -84,6 +84,22 @@ const Data_t		max_data_amp		= 4096*4;
 const uint			osc_default_volume	= 75; // %
 const float			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 
+template< typename T >
+struct range_t
+{
+		T min ;
+		T max ;
+};
+
+template< typename T>
+T check_range( range_t<T> r, T val )
+{
+	if( val < r.min )
+		return r.min;
+	if (val > r.max )
+		return r.max;
+	return val;
+}
 
 
 typedef struct osc_struct
@@ -109,12 +125,14 @@ typedef struct osc_struct
 
 } osc_roles_t;
 
-enum { STEP, FIXED }; // frequency and volume change mode
+enum { STEP, FIXED, SLIDE }; // frequency and volume change mode
 
+const uint				oct_steps		= 12;
 const uint				max_octave		= 6;
 const uint 				min_octave 		= 0;
 
 #define ASSERTION(	 expr , message, input, expected )\
+	printf( "test: %s\n", (message) );\
 	if ( not (expr) ) \
 	{\
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\

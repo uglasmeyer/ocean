@@ -27,11 +27,11 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 	int oct 	= nvs.octave;
 	if ( step 	< 0 )
 	{
-		step 	+= 12;
+		step 	+= oct_steps;
 		oct 	-=  1;
 	}
 	uint8_t	octave	= abs( oct );// + octave_shift );
-	int		key 	= octave*12 + step + Frequency_class::C0 ;
+	int		key 	= octave*oct_steps + step + C0 ;
 	return 	Frequency_class::Calc(base, key);//calc_frequency( base, key );
 };
 

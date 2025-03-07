@@ -55,14 +55,14 @@ typedef		Mixer_base::mixer_status_t		mixer_status_t;
 typedef		Mixer_base::StA_amp_arr_t		StA_amp_arr_t;
 typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
-typedef struct interface_struct
+typedef struct interface_struct // with reasonable defaults
 {
-	uint8_t			version						= 0; 						// comstack
+	uint8_t			version						= 2; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
 	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
-	StA_amp_arr_t	StA_amp_arr					{{0}};
+	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
 
 	char 			Instrument[str_buffer_len] 	{"default"}; //char array // comstack
@@ -70,8 +70,8 @@ typedef struct interface_struct
 	char 			Other	  [str_buffer_len]	{"default"}; // e.g. external wave file name // comstack
 
 	uint8_t			Master_Amp 					= 75;// comstack
-	uint8_t		 	LOOP_step 					= 0;
-	int				LOOP_end 					= 75;
+	uint8_t		 	vol_slidemode 				= FIXED;
+	int				slide_duration 				= 100; // % of 4*max_seconds
 
 	/* instrument definition starts */
 	adsr_t 			OSC_adsr 					= adsr_struct();// comstack
@@ -124,7 +124,6 @@ typedef struct interface_struct
 	wd_arr_t		wavedata 					= {0};
 
 } interface_t;
-
 
 
 

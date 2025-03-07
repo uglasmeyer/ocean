@@ -9,6 +9,7 @@
 #define INCLUDE_MIXER_H_
 
 #include <Osc.h>
+#include <Oscbase.h>
 #include <External.h>
 #include <Ocean.h>
 #include <Wavedisplay.h>
@@ -17,10 +18,9 @@
 #include <data/DataWorld.h>
 #include <notes/Notes.h>
 
-using namespace std;
 
 
-
+/*
 class Loop_class :
 	virtual Logfacility_class
 {
@@ -46,13 +46,15 @@ public:
 
 };
 
-
+*/
 
 class Mixer_class :
 	virtual public Logfacility_class,
 	virtual public Mixer_base
 {
 	string className = "";
+	Dataworld_class* DaTA;
+
 	// provides and manages memory array
 public:
 
@@ -67,7 +69,7 @@ public:
 						StorageArray_t;
 	StorageArray_t 		StA;
 
-	uint8_t				master_volume	= 100;
+	uint8_t				future_volume	= 100;
 	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
@@ -76,10 +78,9 @@ public:
 	Memory 				Out_L			{ monobuffer_size };// Output buffer long
 	Memory				Out_R			{ monobuffer_size };//
 
-	vector<Loop_class>	amp_loop_vec {};
-
+//	vector<Loop_class>	amp_loop_vec {};
 	interface_t* 		sds				= nullptr;
-
+	interface_t*		sds_master		= nullptr;
 	Mixer_class ( 	Dataworld_class* 	data,
 					Wavedisplay_class* 	wd );
 	~Mixer_class();
@@ -88,17 +89,21 @@ public:
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
 	void Update_ifd_status_flags( interface_t* sds );
-	void Volume_control( );
+	void Set_master_volume( uint8_t vol, int mode, uint8_t sl_duration );
 	void Set_mixer_state( const uint& id, const bool& play );
 
 	void Test();
 
 private:
+	range_t<uint8_t> 	volume_range 		{ 0, 100};
+	range_t<uint8_t>	slide_duration_range{ 1, 100 };
+	uint8_t				past_volume		= 0;
+	uint8_t 			slide_duration		= 1;
+	buffer_t 			audio_frames		= max_frames * 4;
+	float				present_vol				= 0.0;
 	void clear_memory();
 	void add_mono( Data_t*, const uint8_t&, const uint& );
-	void stereo_out( stereo_t*, const uint8_t& );
-
-
+	void stereo_out( stereo_t* );
 };
 
 

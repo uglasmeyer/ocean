@@ -44,6 +44,10 @@ void MainWindow::initComboBoxes()
 
 	Qbps_str_lst 		= Qstringlist( bps_struct().Bps_lst );
     ui->cb_bps->addItems( Qbps_str_lst );
+
+    QCapture_str_lst	= Qstringlist( {"Capture", "capturing", "Spool", "spooling" } );
+    ui->cB_Capture->addItems( QCapture_str_lst );
+    ui->cB_Capture->setCurrentText( QCapture_str_lst[0] );
 }
 
 void MainWindow::initOscillatorDisplay()
@@ -69,11 +73,6 @@ void MainWindow::initStateButtons()
 
 	Qwd_display_names 	= Vstringvector( osc_struct().roles );
 	ui->pB_Wavedisplay->setText( Qwd_display_names[ Sds->addr->WD_status.roleId ]);
-
-    setButton( ui->pB_Capture, Sds->capture_flag );
-    ( Sds->capture_flag) ? ui->pB_Capture->setText( "running" ): ui->pB_Capture->setText("Capture");
-
-
 }
 
 void MainWindow::initScrollbars()
@@ -157,90 +156,84 @@ void MainWindow::initGuiVectors()
        	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->FMO_spectrum.wfid[0] },
        	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &Sds->addr->OSC_spectrum.wfid[0] }
     };
-
 }
 
 void MainWindow::initUiConnectors()
 {
-    connect( ui->pB_Rtsp, 		SIGNAL(clicked()), this, SLOT( Rtsp_Dialog() ));
-    connect( ui->pb_SDSview,	SIGNAL(clicked()), this, SLOT( SDS_Dialog() ));
-    connect( ui->pB_Specrum,	SIGNAL(clicked()), this, SLOT( Spectrum_Dialog() ));
-    connect( ui->pB_play_notes, SIGNAL(clicked()), this, SLOT( File_Director() ));
+    connect(ui->pB_Rtsp			, SIGNAL(clicked() )		,this, SLOT(Rtsp_Dialog() ));
+    connect(ui->pb_SDSview		, SIGNAL(clicked() )		,this, SLOT(SDS_Dialog() ));
+    connect(ui->pB_Specrum		, SIGNAL(clicked() )		,this, SLOT(Spectrum_Dialog() ));
+    connect(ui->pB_play_notes	, SIGNAL(clicked() )		,this, SLOT(File_Director() ));
 
-    connect( ui->pBSynthesizer	, 	SIGNAL(clicked()), this, SLOT( start_synthesizer() ));
-    connect( ui->pBSynthesizerExit, SIGNAL(clicked()), this, SLOT( Controller_Exit() ));
-    connect( ui->pBAudioServer, 	SIGNAL(clicked()), this, SLOT( start_audio_srv() ));
-    connect( ui->pBAudioServerExit,	SIGNAL(clicked()), this, SLOT( Audio_Exit() ));
-    connect( ui->pBComposer, 		SIGNAL(clicked()), this, SLOT( start_composer() ));
-    connect( ui->pBGuiExit, 		SIGNAL(clicked()), this, SLOT( GUI_Exit() ));
+    connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
+    connect(ui->pBSynthesizerExit,SIGNAL(clicked() )		,this, SLOT(Controller_Exit() ));
+    connect(ui->pBAudioServer	, SIGNAL(clicked() )		,this, SLOT(start_audio_srv() ));
+    connect(ui->pBAudioServerExit,SIGNAL(clicked() )		,this, SLOT(Audio_Exit() ));
+    connect(ui->pBComposer		, SIGNAL(clicked() )		,this, SLOT(start_composer() ));
+    connect(ui->pBGuiExit		, SIGNAL(clicked() )		,this, SLOT(GUI_Exit() ));
+    connect(ui->pBtoggleRecord	, SIGNAL(clicked(bool) )	,this, SLOT(SaveRecord() ));
+    connect(ui->pB_Mute			, SIGNAL(clicked() )		,this, SLOT(toggle_Mute() ));
+    connect(ui->pB_Save			, SIGNAL(clicked() )		,this, SLOT(Save_Config() ));
+    connect(ui->pb_clear		, SIGNAL(clicked() )		,this, SLOT(memory_clear() ));
 
-    connect( ui->pBtoggleRecord, SIGNAL(clicked(bool)), this, SLOT(SaveRecord() ));
-    connect( ui->pB_Mute, SIGNAL(clicked()), this, SLOT(toggle_Mute()));
-    connect( ui->pB_Save, SIGNAL(clicked()), this, SLOT(Save_Config()));
-    connect( ui->pb_clear, SIGNAL(clicked()), this, SLOT(memory_clear()));
+    connect(ui->Slider_VCO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Freq(int) ));
+    connect(ui->Slider_FMO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Freq(int) ));
+    connect(ui->Slider_OSC_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_OSC_Freq(int) ));
 
-    connect( ui->Slider_VCO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Freq(int)));
-    connect( ui->Slider_FMO_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Freq(int)));
-    connect( ui->Slider_OSC_Hz, SIGNAL(valueChanged(int)), this, SLOT(Slider_OSC_Freq(int)));
+    connect(ui->dial_soft_freq	, SIGNAL(valueChanged(int) ),this, SLOT(dial_soft_freq_value_changed() ));
+    connect(ui->dial_PMW      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
+    connect(ui->dial_glide_vol	, SIGNAL(valueChanged(int) ),this, SLOT(dial_glide_volume(int)) );
 
-    connect(ui->dial_soft_freq, SIGNAL(valueChanged(int)), this, SLOT(dial_soft_freq_value_changed() ));
-    connect(ui->dial_PMW      , SIGNAL(valueChanged(int)), this, SLOT(dial_PMW_value_changed() ));
-    connect(ui->dial_ramp_up_down, SIGNAL( valueChanged(int)), this, SLOT(slot_dial_ramp_up_down()) );
-    connect(ui->hs_adsr_attack , SIGNAL(valueChanged(int)), this, SLOT(dial_decay_value_changed() ));
-    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int))	, this, SLOT(main_adsr_sustain() ));
+    connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(dial_decay_value_changed() ));
+    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(main_adsr_sustain() ));
+    connect(ui->hs_hall_effect	, SIGNAL(valueChanged(int) ),this, SLOT(hs_hall_effect_value_changed(int) ));
 
-    connect(ui->cb_bps			, SIGNAL(activated(int))	, this, SLOT(cB_Beat_per_sec(int) ));
-    connect(ui->pB_Wavedisplay 	, SIGNAL(clicked())			, this, SLOT(pB_Wavedisplay_clicked()));
-    connect(ui->pB_wd_mode		, SIGNAL(clicked())			, this, SLOT(pB_Debug_clicked()));
-    connect(ui->pB_oscgroup		, SIGNAL(clicked())			, this, SLOT(pB_oscgroup_clicked()));
-    connect(ui->pb_fftmode		, SIGNAL(clicked())			, this, SLOT(pB_fftmode_clicked()));
+    connect(ui->cb_bps			, SIGNAL(activated(int) )	,this, SLOT(cB_Beat_per_sec(int) ));
+    connect(ui->pB_Wavedisplay 	, SIGNAL(clicked() )		,this, SLOT(pB_Wavedisplay_clicked() ));
+    connect(ui->pB_wd_mode		, SIGNAL(clicked() )		,this, SLOT(pB_Debug_clicked() ));
+    connect(ui->pB_oscgroup		, SIGNAL(clicked() )		,this, SLOT(pB_oscgroup_clicked() ));
+    connect(ui->pb_fftmode		, SIGNAL(clicked() )		,this, SLOT(pB_fftmode_clicked() ));
 
-    connect(ui->Slider_mix_vol0, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix0(int) ));
-    connect(ui->Slider_mix_vol1, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix1(int) ));
-    connect(ui->Slider_mix_vol2, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix2(int) ));
-    connect(ui->Slider_mix_vol3, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix3(int) ));
-    connect(ui->Slider_mix_vol4, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix4(int) ));
-    connect(ui->Slider_mix_vol5, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix5(int) ));
-    connect(ui->Slider_mix_vol6, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix6(int) ));
-    connect(ui->Slider_mix_vol7, SIGNAL(valueChanged(int)), this, SLOT(Sl_mix7(int) ));
+    connect(ui->Slider_mix_vol0	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix0(int) ));
+    connect(ui->Slider_mix_vol1	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix1(int) ));
+    connect(ui->Slider_mix_vol2	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix2(int) ));
+    connect(ui->Slider_mix_vol3	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix3(int) ));
+    connect(ui->Slider_mix_vol4	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix4(int) ));
+    connect(ui->Slider_mix_vol5	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix5(int) ));
+    connect(ui->Slider_mix_vol6	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix6(int) ));
+    connect(ui->Slider_mix_vol7	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix7(int) ));
 
-    connect(ui->rb_sta0, SIGNAL(clicked()), this, SLOT( toggle_store_sta0()) );
-    connect(ui->rb_sta1, SIGNAL(clicked()), this, SLOT( toggle_store_sta1()) );
-    connect(ui->rb_sta2, SIGNAL(clicked()), this, SLOT( toggle_store_sta2()) );
-    connect(ui->rb_sta3, SIGNAL(clicked()), this, SLOT( toggle_store_sta3()) );
-    connect(ui->rb_sta4, SIGNAL(clicked()), this, SLOT( toggle_store_sta4()) );
-    connect(ui->rb_sta5, SIGNAL(clicked()), this, SLOT( toggle_store_sta5()) );
-    connect(ui->rb_sta6, SIGNAL(clicked()), this, SLOT( toggle_store_sta6()) );
-    connect(ui->rb_sta7, SIGNAL(clicked()), this, SLOT( toggle_store_sta7()) );
+    connect(ui->rb_sta0			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta0() ));
+    connect(ui->rb_sta1			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta1() ));
+    connect(ui->rb_sta2			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta2() ));
+    connect(ui->rb_sta3			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta3() ));
+    connect(ui->rb_sta4			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta4() ));
+    connect(ui->rb_sta5			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta5() ));
+    connect(ui->rb_sta6			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta6() ));
+    connect(ui->rb_sta7			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta7() ));
 
-    connect(ui->cb_sta0, SIGNAL(clicked()), this, SLOT( toggle_mute0()) );
-    connect(ui->cb_sta1, SIGNAL(clicked()), this, SLOT( toggle_mute1()) );
-    connect(ui->cb_sta2, SIGNAL(clicked()), this, SLOT( toggle_mute2()) );
-    connect(ui->cb_sta3, SIGNAL(clicked()), this, SLOT( toggle_mute3()) );
-    connect(ui->cb_sta4, SIGNAL(clicked()), this, SLOT( toggle_mute4()) );
-    connect(ui->cb_sta5, SIGNAL(clicked()), this, SLOT( toggle_mute5()) );
-    connect(ui->cb_sta6, SIGNAL(clicked()), this, SLOT( toggle_mute6()) );
-    connect(ui->cb_sta7, SIGNAL(clicked()), this, SLOT( toggle_mute7()) );
+    connect(ui->cb_sta0			, SIGNAL(clicked() )		,this, SLOT(toggle_mute0() ));
+    connect(ui->cb_sta1			, SIGNAL(clicked() )		,this, SLOT(toggle_mute1() ));
+    connect(ui->cb_sta2			, SIGNAL(clicked() )		,this, SLOT(toggle_mute2() ));
+    connect(ui->cb_sta3			, SIGNAL(clicked() )		,this, SLOT(toggle_mute3() ));
+    connect(ui->cb_sta4			, SIGNAL(clicked() )		,this, SLOT(toggle_mute4() ));
+    connect(ui->cb_sta5			, SIGNAL(clicked() )		,this, SLOT(toggle_mute5() ));
+    connect(ui->cb_sta6			, SIGNAL(clicked() )		,this, SLOT(toggle_mute6() ));
+    connect(ui->cb_sta7			, SIGNAL(clicked() )		,this, SLOT(toggle_mute7() ));
+    connect(ui->rb_S0			, SIGNAL(clicked() )		,this, SLOT(select_Sds0() ));
+    connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));
+    connect(ui->rb_S2			, SIGNAL(clicked() )		,this, SLOT(select_Sds2() ));
+    connect(ui->rb_S3			, SIGNAL(clicked() )		,this, SLOT(select_Sds3() ));
 
-    connect(ui->rb_S0, SIGNAL(clicked()), this, SLOT( select_Sds0()) );
-    connect(ui->rb_S1, SIGNAL(clicked()), this, SLOT( select_Sds1()) );
-    connect(ui->rb_S2, SIGNAL(clicked()), this, SLOT( select_Sds2()) );
-    connect(ui->rb_S3, SIGNAL(clicked()), this, SLOT( select_Sds3()) );
+    connect(ui->sB_FMO			, SIGNAL(valueChanged(int) ),this, SLOT(FMO_Waveform_slot(int) )) ;
+    connect(ui->sB_VCO			, SIGNAL(valueChanged(int) ),this, SLOT(VCO_Waveform_slot(int) )) ;
+    connect(ui->sB_OSC			, SIGNAL(valueChanged(int) ),this, SLOT(Main_Waveform_slot(int) )) ;
 
-    connect(ui->cb_external, SIGNAL(activated(QString)), this, SLOT(wavfile_selected(QString)));
+    connect(ui->SliderFMOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Adjust(int) ));
+    connect(ui->SliderVCOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Adjust(int) ));
 
-    connect(ui->hs_hall_effect, SIGNAL(valueChanged(int)), this, SLOT(hs_hall_effect_value_changed(int)));
-
-    connect( ui->sB_FMO , SIGNAL( valueChanged(int)), this, SLOT(FMO_Waveform_slot( int ))) ;
-    connect( ui->sB_VCO , SIGNAL( valueChanged(int)), this, SLOT(VCO_Waveform_slot( int ))) ;
-    connect( ui->sB_OSC , SIGNAL( valueChanged(int)), this, SLOT(Main_Waveform_slot( int ))) ;
-
-    connect(ui->SliderFMOadjust, SIGNAL(valueChanged(int)), this, SLOT(Slider_FMO_Adjust(int) ));
-    connect(ui->SliderVCOadjust, SIGNAL(valueChanged(int)), this, SLOT(Slider_VCO_Adjust(int) ));
-
-    connect(ui->pB_Capture, SIGNAL(clicked()), this, SLOT(pb_Capture() ));
-
-
+    connect(ui->cB_Capture		, SIGNAL(activated(QString) ),this, SLOT(cB_Capture(QString) ));
+    connect(ui->cb_external		, SIGNAL(activated(QString) ),this, SLOT(wavfile_selected(QString) ));
 }
 
 void MainWindow::initTimer()

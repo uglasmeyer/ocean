@@ -11,7 +11,7 @@
 
 
 Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
-: Logfacility_class("Instrument")
+: Logfacility_class("Instrument_class")
 {
 	Setup( ifd );
 
@@ -103,7 +103,7 @@ void Instrument_class::show_sound_stack() // show_status
 	for ( Oscillator* osc : Oscgroup.oscgroup )
 	{
 		strs = osc->Get_sound_stack() ;
-		Comment( INFO, strs.str() );
+		Comment( TEST, strs.str() );
 	};
 
 }
@@ -111,18 +111,19 @@ void Instrument_class::show_sound_stack() // show_status
 void Instrument_class::Update_spectrum()
 {
 
-	Comment(INFO, "receive command <update Spectrum>");
 
 	uint oscid = sds->Spectrum_type;
 	Oscillator* osc = Oscgroup.oscgroup[ oscid ];
 	osc->Set_spectrum( *ifd_spectrum_vec[ oscid ] ) ;
+	Info2( 3, "receive command <update Spectrum", osc->osc_type, ">");
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
-	osc->Line_interpreter( arr );
 	osc->spectrum = Spectrum_class::spec_struct();
 	osc->spectrum.osc = osc->osctype_id;
+
+	osc->Line_interpreter( arr );
 
 	if ( osc->is_osc_type  )
 		assign_adsr( arr );
@@ -151,9 +152,9 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 	String 				Str{""};
 
 	Oscgroup.osc.adsr.decay 	= Str.secure_stoi( arr[9 ]);
-	Oscgroup.osc.adsr.bps	= Str.secure_stoi( arr[10] );
+	Oscgroup.osc.adsr.bps		= Str.secure_stoi( arr[10] );
 	Oscgroup.osc.adsr.attack	= Str.secure_stoi( arr[11] );
-	Oscgroup.osc.adsr.hall	= Str.secure_stoi( arr[12] );
+	Oscgroup.osc.adsr.hall		= Str.secure_stoi( arr[12] );
 	return true;
 }
 ;
@@ -297,7 +298,7 @@ void Instrument_class::Save_Instrument( string str )
 			<< setw(10)	<< "PMWs"
 			<< endl;
 
-	Oscgroup.osc.wp.volume = (int)sds->Master_Amp;
+	Oscgroup.osc.wp.volume = 100;//(int)sds->Master_Amp;
 	for ( Oscillator* osc : Oscgroup.oscgroup )
 	{
 
@@ -353,22 +354,23 @@ bool Instrument_class::Set( string name )
 	Oscgroup.Run_Oscgroup( 0 );
 	show_sound_stack();
 	return true;
-
 }
 
 
 void Instrument_class::Test_Instrument()
 {
-	TEST_START( "Instrument" );
+	osc->Test();
+	TEST_START( className );
+	vco->Test();
+	assert( Set( ".test" ) );
 
 	for ( Oscillator* osc : Oscgroup.oscgroup	)
 		osc->Set_Loglevel( TEST, true);
 	sds->MODE = FREERUN;
 
-	assert( Set( ".test" ) );
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;
-	Oscgroup.vco.wp.frequency = 57;
+	Oscgroup.vco.Set_frequency(A1, FIXED);
 	assert( strEqual( 	waveform_str_vec[ Oscwaveform_class::SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
@@ -387,33 +389,34 @@ void Instrument_class::Test_Instrument()
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
 
 	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
-	Oscgroup.fmo.wp.frequency 	= Oscgroup.fmo.Calc( Oscgroup.fmo.C0 );
+	Oscgroup.fmo.Set_frequency( C0, FIXED );
 
 	ASSERTION( fcomp( Oscgroup.fmo.wp.frequency, 16.3516 ), "" ,Oscgroup.fmo.wp.frequency, 16.3516 );
-	Oscgroup.fmo.wp.volume		= 0;//31;
+	Oscgroup.fmo.Set_volume( 0, FIXED );//31;
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
 	assert( Oscgroup.osc.adsr.hall == 0 );
-
-	Data_t datan = 0;
-	Data_t data0 = 0;
 
 	Oscgroup.fmo.Set_duration( max_milli_sec );
 	Oscgroup.vco.Set_duration( max_milli_sec );
 	Oscgroup.osc.Set_duration( max_milli_sec );
-	Oscgroup.fmo.OSC(0);
+	Oscgroup.osc.Set_frequency( A3, FIXED );
+	Oscgroup.osc.Set_waveform( {0,0,0,0,0} );
+
+	Comment( TEST, Oscgroup.osc.Show_this_spectrum( Oscgroup.osc.spectrum ) );
+	phi_t dphi = 2*pi*Oscgroup.osc.wp.frequency/frames_per_sec;
+	Oscgroup.osc.phase[0] = 0;
 	Oscgroup.osc.OSC(0);
 	for ( int n = 0; n <10; n++ )
 	{
-		datan = Oscgroup.osc.Mem.Data[max_frames-1];
-		Oscgroup.fmo.OSC(0);
+		phi_t phi0 = Oscgroup.osc.phase[0];
 		Oscgroup.osc.OSC(0);
-		data0 = Oscgroup.osc.Mem.Data[max_frames-1];
-		cout << data0 << ":" << datan << data0 - datan << endl;
-		ASSERTION( fcomp( datan, data0, 20 ), "oscgroup", abs( datan - data0 ), "<20" );
+		phi_t phi1 = Oscgroup.osc.phase[0];
+
+		ASSERTION( fcomp( phi0, phi1, dphi ), "oscgroup", abs( phi1 - phi0 ), dphi );
 	}
 
 
-	TEST_END( "Instrument" );
+	TEST_END( className );
 }
 
 

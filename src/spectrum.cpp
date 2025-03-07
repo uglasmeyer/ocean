@@ -127,16 +127,16 @@ string Spectrum_class::Get_waveform_str( uint id )
 		return "unknown";
 };
 
-string Spectrum_class::Show_this_spectrum( )
+string Spectrum_class::Show_this_spectrum( spectrum_t spec )
 {
 	stringstream strs{""};
+	strs << endl;
 
 	for ( string type : spectrumType )
 	{
-		strs << Show_spectrum_type( type, spectrum ) ;
+		strs << Show_spectrum_type( type, spec ) ;
 		strs << endl;
 	}
-	strs << endl;
 	return strs.str();
 }
 

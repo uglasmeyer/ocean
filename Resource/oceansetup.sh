@@ -37,12 +37,15 @@ RCFILE=${RCDIR}ocean.rc
 
 
 echo generating ocean.rc
+[ "$PATH_BACKUP" == "" ] && PATH_BACKUP=$PATH
 [ ! -d $RCDIR ] && mkdir $RCDIR
-echo export OCEANTESTCASE=oceantestcase >> $RCFILE
-echo export OCEANDIR=$OCEANDIR >> $RCFILE
-echo export PATH=$OCEANDIR/bin:$PATH >> $RCFILE
+echo export OCEANTESTCASE=oceantestcase 	> $RCFILE
+echo export OCEANDIR=$OCEANDIR 				>> $RCFILE
+echo export PATH=$OCEANDIR/bin:$PATH_BACKUP >> $RCFILE
 
 echo updating $BASHRC
-cat $BASHRC | grep -v ocean.rc > $TMPRC
-echo . $OCEANDIR/etc/ocean.rc >> $TMPRC
+cat $BASHRC | grep -v ocean.rc\
+			| grep -v PATH_BACKUP> $TMPRC
+echo PATH_BACKUP=$PATH			>> $TMPRC
+echo . $OCEANDIR/etc/ocean.rc 	>> $TMPRC
 mv $TMPRC $BASHRC

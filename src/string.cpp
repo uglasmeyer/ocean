@@ -228,7 +228,7 @@ int String::secure_stoi( string str )
 	this->Str = str;
 	if ( is_number(  ) )
 	{
-		return stoi( Str );
+		return stoi( str.data() );
 	}
 	else
 	{

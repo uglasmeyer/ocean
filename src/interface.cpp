@@ -394,6 +394,9 @@ void Interface_class::Test_interface()
 }
 
 
+/****************
+ * EventQue_class
+ ***************/
 
 void EventQue_class::setup( interface_t* _addr )
 {
@@ -403,6 +406,7 @@ void EventQue_class::setup( interface_t* _addr )
 void EventQue_class::reset()
 {
 	addr->eventptr = EventPtr_struct();
+	std::ranges::for_each( addr->deque, [](uint element ){ element = NULLKEY  ;});
 }
 void EventQue_class::add( uint8_t event )
 {

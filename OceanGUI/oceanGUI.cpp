@@ -48,7 +48,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	,	ui(new Ui::MainWindow{} )
 {
 	ui->setupUi(this);
-
 	initPanel();
 
 	Sds->Set(Sds_master->UpdateFlag, true);
@@ -93,14 +92,13 @@ void MainWindow::wavfile_selected( const QString &arg)
     }
 }
 
-void MainWindow::pb_Capture()
+void MainWindow::cB_Capture( QString str )
 {
 	Sds->capture_flag = Eventlog.capture( SDS_ID, not Sds->capture_flag );
-    setButton( ui->pB_Capture, Sds->capture_flag);
-    (Sds->capture_flag) ? 	ui->pB_Capture->setText( "running" ):
-    						ui->pB_Capture->setText( "Capture" );
-
+    (Sds->capture_flag) ? 	ui->cB_Capture->setCurrentText( QCapture_str_lst[Eventlog.CAPTURING] ):
+    						ui->cB_Capture->setCurrentText( QCapture_str_lst[Eventlog.SPOOLING ] );
 }
+
 void MainWindow::hs_hall_effect_value_changed( int value)
 {
     Sds->Set(Sds->addr->OSC_adsr.hall , (uint8_t) value);
@@ -397,12 +395,12 @@ void MainWindow::Sl_mix7( int value )
 	mixer_slider( sl_sta_vec[7] );
 };
 
-void MainWindow::slot_dial_ramp_up_down()
+void MainWindow::dial_glide_volume( int value )
 {
-    int value = ui->dial_ramp_up_down->value();
-    Sds->Set( Sds->addr->LOOP_end, value);
-    Sds->Set( Sds->addr->LOOP_step, (uint8_t)1 );
-    Eventlog.add( SDS_ID, MASTERAMP_LOOP_KEY);
+//    int value = ui->dial_glide_vol->value();
+    Sds->Set( Sds_master->slide_duration, value); // % of 4*max_seconds
+//    Sds->Set( Sds->addr->LOOP_step, (uint8_t)1 );
+    Eventlog.add( 0, MASTERAMP_KEY);
 }
 
 void MainWindow::Clear_Banks()
@@ -450,7 +448,7 @@ void MainWindow::setwidgetvalues()
 
     get_record_status();
 
-    ui->dial_ramp_up_down->setValue( Sds->addr->Master_Amp);
+    ui->dial_glide_vol->setValue( Sds->addr->slide_duration);//Master_Amp);
 
     QString Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
@@ -473,7 +471,8 @@ void MainWindow::setwidgetvalues()
 		Rtsp_Dialog_p->proc_table_update_all();
 
     Sds->Set( Sds->addr->UserInterface 	, (uint8_t)RUNNING );
-    MainWindow::show();
+
+   	ui->cB_Capture->setCurrentText( QCapture_str_lst[ Eventlog.capture_state ] );
 }
 
 void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
@@ -483,7 +482,7 @@ void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
 
 	uint diff = abs(value - *map.value);
 	if ( diff > 1 )
-		Sds->Set( Sds->addr->slidermode, (uint8_t)FIXED);
+		Sds->Set( Sds->addr->slidermode, (uint8_t)SLIDE);
 	else
 		Sds->Set( Sds->addr->slidermode, (uint8_t)STEP);
 	Sds->Set( *map.value, value );
@@ -495,13 +494,13 @@ void MainWindow::Slider_OSC_Freq( int value )
 }
 void MainWindow::Slider_VCO_Freq( int value )
 {
-	( value < Spectrum.C0 ) ? ui->lb_VCO_LFO->show() : ui->lb_VCO_LFO->hide();
+	( (uint)value < C0 ) ? ui->lb_VCO_LFO->show() : ui->lb_VCO_LFO->hide();
 
 	sliderFreq( sl_frqidx_vec[VCOID], value );
 }
 void MainWindow::Slider_FMO_Freq( int value )
 {
-	( value < Spectrum.C0 ) ? ui->lb_FMO_LFO->show() : ui->lb_FMO_LFO->hide();
+	( (uint)value < C0 ) ? ui->lb_FMO_LFO->show() : ui->lb_FMO_LFO->hide();
 
 	sliderFreq( sl_frqidx_vec[FMOID], value );
 }
@@ -512,7 +511,11 @@ void MainWindow::sliderVolume( sl_lcd_t map )
 	uint8_t value = map.sl->value();
 	Sds->Set( *map.value, value);
 	map.lcd->display( value );
-
+//	uint diff = abs(value - *map.value);
+//	if ( diff > 1 )
+	Sds->Set( Sds_master->vol_slidemode, (uint8_t)SLIDE);
+//	else
+//		Sds->Set( Sds_master->LOOP_step, (uint8_t)STEP);
 	Eventlog.add( SDS_ID, map.event);
 };
 

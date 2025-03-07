@@ -148,7 +148,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 		if ( not is_notes_role  )
 			vol_per_cent		= 1;// the volume of the osc is constant for the instr role
 									// the volume is managed by the mixer
-									 // If the osc has the notes role the osc volume is managed
+									// If the osc has the notes role the osc volume is managed
 									// by the rhythm volume and the mixer
 
 	if ( not is_osc_type )
@@ -196,9 +196,9 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 					start_frq = start_frq + delta_frq; // TODO - working
 				param.dphi	=	dT *( start_frq + fmo_shift ) * spectrum.frqadj[channel] ;
 				param.phi	+= param.dphi;
+				param.phi 	=  MODPHI( param.phi, param.maxphi );
 			}
 			check_phi( param, dT, start_frq );
-			param.phi 	=  MODPHI( param.phi, param.maxphi );
 			phase[channel] = param.phi;
 		}
 	}
@@ -289,7 +289,6 @@ void Oscillator::Test()
 	TEST_START( className );
 
 
-	SetId( OscRole.NOTESID, OscRole.VCOID );
 	assert( abs( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
 	assert( abs( Mem_fmo.Data[0]				)	< 1E-8 );
 	assert( Mem.ds.data_blocks 	== max_frames );
@@ -310,16 +309,17 @@ void Oscillator::Test()
 
 	Oscillator testosc {};
 	testosc.SetId( osc_struct::INSTRID, osc_struct::OSCID );
-	phase[0]	= 0.444;
-	testosc.Set_frequency(220, FIXED );
-	testosc.wp.volume	= 100;
+	phase[0]	= 0.0;
+	testosc.Set_frequency(A1+3*12, FIXED ); // 220 Hz
+	testosc.Set_volume( 100, FIXED );
 	testosc.OSC( 0 );
+	float a2 = testosc.Mem.Data[0];
 	testosc.OSC( 0 );
-	Comment( TEST, testosc.Show_this_spectrum() );
+	Comment( TEST, testosc.Show_this_spectrum ( testosc.spectrum ) );
 	float a0 = testosc.Mem.Data[0];
-	float a2 = testosc.Mem.Data[2];
+//	cout << "a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
 	ASSERTION( not fcomp( a0, a2 ), "gen data", a0-a2, "not null" );
-	ASSERTION( fcomp( a0 , 56.5484  ), "Osc volume", a0 , 56.5484)
+	ASSERTION( fcomp( a0 , 14.1371  ), "Osc volume", a0 , 14.1371)
 
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );

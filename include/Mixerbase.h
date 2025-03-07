@@ -33,11 +33,8 @@ public:
 		bool	instrument		= false; // play instrument
 	} mixer_status_t;
 
-
-	typedef array< uint8_t, MbSize> 				StA_amp_arr_t;
+	typedef array< uint8_t, MbSize> 	StA_amp_arr_t;
 	typedef	array<StA_status_t, MbSize>	StA_state_arr_t;
-
-
 };
 
 
