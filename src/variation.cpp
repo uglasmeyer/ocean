@@ -421,12 +421,13 @@ void Variation_class::Test()
 	cout << T << endl;
 	assert( T.compare("A") == 0 );
 
-	Define_fix("fGBA");
+	Define_fix("|2AGBA");
 	Gen_noteline("c4c", "auto" );
 	noteline = Note_class::Get_note_line();
+	Note_class::Noteline_prefix.Octave = 2;
 	Comment( BINFO, noteline );
 	I = Sentence[0][2].octave; 	assert( I == 4 );
-	I = Sentence[1][2].octave;	assert( I == 2 );
+	I = Sentence[1][2].octave;	assert( I == 0 );
 	Gen_noteline("4cc", "auto" );
 	noteline = Note_class::Get_note_line();
 	Comment( BINFO, noteline );

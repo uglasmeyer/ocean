@@ -40,6 +40,7 @@ private:
 					data_ptr_arr ;
 	Data_t*			data_ptr 		= nullptr;
 
+	wd_status_t		wd_status		= WD_status_struct();
 	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_right		= true;
 	bool			fft_mode		= false;

@@ -45,11 +45,7 @@ public:
 	void Info( string );
 };
 
-typedef struct stereo_struct
-{
-	data_t left;
-	data_t right;
-} stereo_t;
+
 const char 			sizeof_stereo 		= sizeof( stereo_t );
 
 const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof_stereo;
@@ -85,17 +81,10 @@ private:
 
 };
 
-typedef struct StA_struct
-{
-	string 		name = "";
-	buffer_t	size = max_frames;
-} StA_struct_t;
-
-typedef struct StA_status_struct // memory array status
-{
-	bool 	play			= false; // play this memory array
-	bool 	store			= false; // record into this memory array
-} StA_status_t;
+#include <Volume.h>
+/***************************
+ * Storage_class
+ **************************/
 
 class Storage_class :
 		virtual public Logfacility_class,
@@ -105,11 +94,11 @@ class Storage_class :
 public:
 	// dynamic properties
 //	uint 			max_counter 	= 0;
-	uint8_t 		Amp				= osc_default_volume; // same as in GUI application
 	StA_struct_t 	StAparam		= StA_struct();
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
+	Volume_class	Volume			{};
 
 	StA_status_t state = StA_status_struct();
 

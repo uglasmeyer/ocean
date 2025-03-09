@@ -40,7 +40,8 @@ public:
 };
 
 
-class Interface_class : virtual public Logfacility_class
+class Interface_class :
+		virtual public Logfacility_class
 {
 	Frequency_class 		Frequency 		{};
 

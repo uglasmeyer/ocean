@@ -59,6 +59,12 @@ typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
 typedef vector<Data_t>		DataVec_t;
 typedef double				phi_t;
+struct stereo_struct
+{
+	data_t left;
+	data_t right;
+};
+typedef stereo_struct 		stereo_t;
 
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
@@ -130,6 +136,7 @@ enum { STEP, FIXED, SLIDE }; // frequency and volume change mode
 const uint				oct_steps		= 12;
 const uint				max_octave		= 6;
 const uint 				min_octave 		= 0;
+const string			OctChars		= "CcDdEFfGgAaB";
 
 #define ASSERTION(	 expr , message, input, expected )\
 	printf( "test: %s\n", (message) );\

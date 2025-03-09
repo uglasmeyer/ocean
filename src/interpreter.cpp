@@ -592,7 +592,7 @@ void Interpreter_class::Play( vector_str_t arr )
 
 	expect 			= { "storage id "};
 	if( not set_stack( arr, 3 ) ) return;
-	char mb_id 		= pop_int( 0, MbSize -1);
+	char staId 		= pop_int( 0, MbSize -1);
 
 	expect 			= { "amp" };
 	string k1 		= pop_stack( 1); // amp always
@@ -604,17 +604,19 @@ void Interpreter_class::Play( vector_str_t arr )
 		keyword.Str = k2;
 		if ( cmpkeyword( "loop") )
 		{
-			Processor_class::Push_ifd( &ifd->MIX_Id, mb_id, "mixer id");
 			expect = { " dest amp"};
 			int max = pop_int(0,100);
-			Loop( max, 0);
+			Processor_class::Push_ifd( &ifd->MIX_Id , staId, "mixer id" );
+			Processor_class::Push_ifd( &ifd->StA_amp_arr[staId] , max, "% slide duration " );
+			Processor_class::Push_ifd( &ifd->vol_slidemode , SLIDE, "slide mode" );
+			Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );			Loop( max, 0);
 			return;
 		}
 		else
 		{
 			option_default = "10";
 			string duration 	= k2;
-			RecStA( {"rec", "amp", to_string( mb_id ), duration } );
+			RecStA( {"rec", "amp", to_string( staId ), duration } );
 			return;
 		}
 	}

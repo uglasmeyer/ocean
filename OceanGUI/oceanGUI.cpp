@@ -398,7 +398,7 @@ void MainWindow::Sl_mix7( int value )
 void MainWindow::dial_glide_volume( int value )
 {
 //    int value = ui->dial_glide_vol->value();
-    Sds->Set( Sds_master->slide_duration, value); // % of 4*max_seconds
+    Sds->Set( Sds_master->slide_duration, (uint8_t)value); // % of 4*max_seconds
 //    Sds->Set( Sds->addr->LOOP_step, (uint8_t)1 );
     Eventlog.add( 0, MASTERAMP_KEY);
 }

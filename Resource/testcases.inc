@@ -7,6 +7,7 @@ call :maintest
 exit
 
 :syntaxtest1
+call :sliding
 instrument load piano
 text load instrument file piano.kbd
 
@@ -79,4 +80,11 @@ record play RECFILE 5
 text record file name is synthesizer77.wav and synthesizer.mp3
 pause key
 
+exit
+
+:sliding
+osc main reset 
+play 4 amp 75 5
+osc main set sinus 54 80 auto
+pause key
 exit

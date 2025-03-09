@@ -92,7 +92,9 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 	if ( data_ptr == nullptr )
 	{
-		Comment(ERROR, "wave display got nullptr at index " + to_string(wdId)) ;
+		Comment(ERROR, "wave display got nullptr at index " +
+						to_string(wd_status.roleId) + "," +
+						to_string(wd_status.oscId)) ;
 		return;
 	}
 
@@ -154,6 +156,7 @@ void Wavedisplay_class::Write_wavedata()
 
 void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 {
+	wd_status = status;
 	Data_t* ptr = data_ptr_arr[status.roleId][status.oscId];
 	if ( ptr == nullptr )
 	{
@@ -183,6 +186,7 @@ void Wavedisplay_class::setFFTmode( const bool& mode )
 }
 void Wavedisplay_class::Add_role_ptr	( const char& wd_role, Data_t* ptr )
 {
+	// special case for role external and audioserver. They do not have osc's
 	for( char osctype : { osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID } )
 	{
 		Add_data_ptr( osctype, wd_role, ptr );

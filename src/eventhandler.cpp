@@ -92,9 +92,8 @@ void Event_class::Handler()
 	case MASTERAMP_KEY: // modify main volume
 	{
 		Mixer->status.mute = false;
-		Mixer->Set_master_volume( 	sds_master->Master_Amp,
-									sds_master->vol_slidemode,
-									sds_master->slide_duration );
+		Mixer->Volume.Set( 	sds_master->Master_Amp,
+									sds_master->vol_slidemode);
 		Sds->Commit();
 		break;
 	}
@@ -107,9 +106,8 @@ void Event_class::Handler()
 	}
 	case MASTERAMP_LOOP_KEY:
 	{
-		Mixer->Set_master_volume(	sds_master->Master_Amp,
-									SLIDE,
-									sds_master->slide_duration );
+		Mixer->Volume.Set(	sds_master->Master_Amp,
+							SLIDE);
 		Sds->Commit();
 		break;
 	}
@@ -184,7 +182,7 @@ void Event_class::Handler()
 		if (External->Read_file_header(wavefile)) {
 			External->Read_file_data();
 			Mixer->StA[MbIdExternal].Play_mode(true);
-			Mixer->StA[MbIdExternal].Amp = 100; //ifd->StA_amp_arr[MbIdExternal];
+			Mixer->StA[MbIdExternal].Volume.Set( 100, FIXED );
 			Mixer->status.external = true;
 			ProgressBar->SetValue(
 					100 * External->Filedata_size / External->ds.mem_bytes);
@@ -231,7 +229,7 @@ void Event_class::Handler()
 	case EXTERNAL_AMPLOOP_KEY: // TODO not working
 	{
 		uint8_t 	Id 		= sds->MIX_Id;
-		Mixer->StA[Id].Amp 	= sds->StA_amp_arr[Id];
+		Mixer->StA[Id].Volume.Set( sds->StA_amp_arr[Id], SLIDE);
 		Sds->Commit();
 		break;
 	}
@@ -240,7 +238,7 @@ void Event_class::Handler()
 		Value mixid { sds->MIX_Id };
 		Value amp { sds->StA_amp_arr[mixid.val] };
 		Value play { sds->StA_state[mixid.val].play };
-		Mixer->StA[mixid.val].Amp = amp.val;
+		Mixer->StA[mixid.val].Volume.Set( amp.val, SLIDE);
 		Mixer->Set_mixer_state(mixid.val, (bool) (play.val));
 		Comment(INFO,
 				"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
@@ -348,7 +346,7 @@ void Event_class::Handler()
 	case NOTESONKEY: {
 		Value amp { (int) (sds->StA_amp_arr[MbIdNotes]) };
 		Comment(INFO, "receive command < notes on " + amp.str + "%>");
-		Mixer->StA[MbIdNotes].Amp = amp.val;
+		Mixer->StA[MbIdNotes].Volume.Set( amp.val, FIXED );
 		Mixer->Set_mixer_state(MbIdNotes, true);
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		//			Notes->Start_note_itr();

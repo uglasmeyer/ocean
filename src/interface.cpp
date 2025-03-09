@@ -295,14 +295,16 @@ void Interface_class::Announce( )
 
 void Interface_class::Reset_ifd(  )
 {
+	// copy default values into sds memory
+
 	Comment(INFO, "Reset shared data");
-	// copy ifd data into shared memory
 	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
-	Dump_ifd();
+//	Dump_ifd();
 }
 
 bool Interface_class::Restore_ifd()
 {
+	// copy dump file data into memory
 
 	Comment(INFO,"Restore shared data from file");
 	assert( dumpFile.size() > 0 );
@@ -323,6 +325,8 @@ bool Interface_class::Restore_ifd()
 
 void Interface_class::Dump_ifd()
 {
+	// copy shared memory data to dumpfile
+
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
 	assert( dumpFile.size() > 0 );
 

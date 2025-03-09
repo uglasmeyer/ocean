@@ -17,43 +17,16 @@
 #include <data/Memory.h>
 #include <data/DataWorld.h>
 #include <notes/Notes.h>
+#include <Volume.h>
 
 
-
-/*
-class Loop_class :
-	virtual Logfacility_class
-{
-	string className = "";
-public:
-	uint16_t beg=0, end=0, counter=0, counts=0, max_counts=0;
-	int8_t 		step 	= 0;
-	uint8_t* 	ptr8 	= nullptr;
-	bool 		active 	= false;
-
-	Loop_class( uint8_t* ptr ) :
-		Logfacility_class( "Loop_class")
-	{
-		this->ptr8 = ptr;
-		this->className = Logfacility_class::className;
-	};
-	~Loop_class(){};
-
-	void Start( uint16_t beg, uint16_t end, uint8_t step );
-	void Next_freq( );
-	void Next_amp ( );
-	void Test();
-
-};
-
-*/
 
 class Mixer_class :
 	virtual public Logfacility_class,
 	virtual public Mixer_base
 {
 	string className = "";
-	Dataworld_class* DaTA;
+	Dataworld_class* 	DaTA;
 
 	// provides and manages memory array
 public:
@@ -77,8 +50,8 @@ public:
 	Memory 				Mono_out		{ monobuffer_size };
 	Memory 				Out_L			{ monobuffer_size };// Output buffer long
 	Memory				Out_R			{ monobuffer_size };//
+	Volume_class		Volume			{};
 
-//	vector<Loop_class>	amp_loop_vec {};
 	interface_t* 		sds				= nullptr;
 	interface_t*		sds_master		= nullptr;
 	Mixer_class ( 	Dataworld_class* 	data,
@@ -89,21 +62,14 @@ public:
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
 	void Update_ifd_status_flags( interface_t* sds );
-	void Set_master_volume( uint8_t vol, int mode, uint8_t sl_duration );
 	void Set_mixer_state( const uint& id, const bool& play );
 
 	void Test();
 
 private:
-	range_t<uint8_t> 	volume_range 		{ 0, 100};
-	range_t<uint8_t>	slide_duration_range{ 1, 100 };
-	uint8_t				past_volume		= 0;
-	uint8_t 			slide_duration		= 1;
-	buffer_t 			audio_frames		= max_frames * 4;
-	float				present_vol				= 0.0;
 	void clear_memory();
-	void add_mono( Data_t*, const uint8_t&, const uint& );
-	void stereo_out( stereo_t* );
+	void add_mono( Data_t*, const uint& staId );
+	void add_stereo( stereo_t* data  );
 };
 
 

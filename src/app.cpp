@@ -31,6 +31,7 @@ void SynthesizerTestCases()
 	DirStructure_class		Dir;
 
 	Dataworld_class			DaTA( SYNTHID );
+	DaTA.Sds_p->Reset_ifd();
 
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
@@ -118,7 +119,7 @@ void SynthesizerTestCases()
 }
 
 Application_class::Application_class( 	Dataworld_class* _DaTA ) :
-Logfacility_class( "App" )
+Logfacility_class( "Application" )
 {
 	this->ProgamName			= _DaTA->Cfg.prgname;
 	this->className				= Logfacility_class::className ;
@@ -194,8 +195,7 @@ Application_class::~Application_class()
 {
 	deRegister();
 
-
-    if ( DaTA->TypeId == SYNTHID )
+    if (( DaTA->TypeId == SYNTHID ) and ( not LogMask[TEST] ))
 	{
 		Sds->Dump_ifd();
 	}

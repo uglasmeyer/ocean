@@ -15,7 +15,7 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 {
 	Setup( ifd );
 
-
+	assert ( Oscgroup.osc.Mem.Data != nullptr );
 	Oscgroup.SetWd( wd );
 	wd_p = wd;
 }

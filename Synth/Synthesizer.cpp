@@ -89,8 +89,8 @@ void activate_sds()
 		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
 	for ( uint id : Mixer.MemIds )
 	{
-		Mixer.StA[ id ].Amp 	= DaTA.Sds_p->addr->StA_amp_arr[id];
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
+		Mixer.StA[ id ].Volume.Set( DaTA.Sds_p->addr->StA_amp_arr[id], FIXED );
 	}
 }
 
@@ -121,7 +121,6 @@ void add_sound( )
 		Instrument.Oscgroup.Run_Oscgroup( 0 ); // generate the modified sound waves
 
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
-//	Mixer.master_volume = DaTA.sds_master->Master_Amp;
 
 	Mixer.Add_Sound( 	Instrument.osc->Mem.Data,
 						Keyboard.osc->Mem.Data,
@@ -166,8 +165,6 @@ void ApplicationLoop()
 
 		Event.Handler(  );
 
-		assert( sds->StA_amp_arr[0 ]== Mixer.StA[0].Amp );
-
 		if ( Mixer.status.kbd )
 			kbd_release(  );
 		int note_key = Keyboard.Kbdnote( );
@@ -183,7 +180,8 @@ void ApplicationLoop()
 			sds->Synthesizer = RUNNING;
 
 
-		if ( sds->WD_status.roleId != osc_struct::AUDIOID )
+		if (( sds->WD_status.roleId != osc_struct::AUDIOID ) and
+			( sds->Composer != RUNNING ))
 			Wavedisplay.Write_wavedata();
 	} ;
 

@@ -7,90 +7,101 @@
 
 #include <Mixer.h>
 #include <Wavedisplay_base.h>
-//-------------------------------------------------------------------------------------------------
-/*
 
-void Loop_class::Start( uint16_t beg, uint16_t end, uint8_t step )
+/**********************
+ * Volume_class
+ *********************/
+
+Volume_class::Volume_class() : Logfacility_class("Volume_class")
 {
-	active = true;
-	this->beg = beg;
-	this->end = end;
-	int diff = end - beg;
-	if ( step > abs(diff) ) step = abs(diff);
-	if ( diff >= 0 )
-		this->step = abs(step);
-	else
-		this->step = -abs(step);
+	className = Logfacility_class::className ;
+};
+Volume_class::~Volume_class()
+{
+};
 
-	this->counts = 0;
-	this->counter = beg ;
-	if ( this->step == 0 )
-		this->max_counts = 0;
-	else
-		this->max_counts = (abs( diff )/abs(step )  );
-
-	stringstream strs{""};
-	String Str{""};
-	strs << "Loop starts on addr " << Str.to_hex( (long)ptr8 ) << endl;
-	strs << SETW << "with parameter step:" << (int) step << " begin: " << (int)beg << " end: " << end ;
-	Comment( INFO,  strs.str() );
+void Volume_class::Set(	uint8_t future_vol,
+						int _mode)
+{
+	future			= check_range( volume_range, future_vol );
+	this->mode		= _mode;
+	switch ( this->mode )
+	{
+		case FIXED :
+		{
+			past		= future;
+			present 	= future;
+			present_pc 	= present * 0.01;
+			break;
+		}
+		case SLIDE :
+		{
+			past	= rint( present );
+			break;
+		}
+		default :
+			assert( false );
+			break;
+	}
 }
 
-
-void Loop_class::Next_amp(  ) // Amplify
+float Volume_class::Delta_vol ( uint8_t sl_duration )
 {
-	auto inc = [this]()
-	{
-		counts++;
-		counter = counter + step;
-	};
+	slideduration 	= check_range( slide_duration_range,sl_duration );
+	float		slide_percent 	= float( slideduration) * 0.01 ;
+	buffer_t 	slide_frames	= 4 * max_frames * slide_percent;
+	float 		delta_volume	= this->future - this->past;
+				dvol			= delta_volume / slide_frames;
+	return dvol;
+};
 
-
-	if ( not active ) return;
-	if ( counts == max_counts ) active = false;
-	if ( active )
+float Volume_class::Get( )
+{
+	if( this->mode == FIXED )
+		return present_pc;
+	if( not fcomp( present , (float) future, 1 ) )
 	{
-		inc();
-		*ptr8 = counter;
+		present		= present + dvol;
+		present_pc	= present * 0.01;
 	}
-};
+	return present_pc;
+}
 
-
-void Loop_class::Test()
+void Volume_class::Update()
 {
-
-	uint8_t 	 ch = 20;
-
-	Loop_class Loop{ &ch};
-
-
-	Loop.Start(20, 10, 1);
-	for( int i = 0; i<20; i++ ) Loop.Next_amp( );
-	assert( ch == 10 );
-
-
-	ch=20;Loop.Start(20, 10, -1);
-	for( int i = 0; i<20; i++ ) Loop.Next_amp();
-	assert( ch == 10 );
-
-	ch =0; Loop.Start(0, 0, 0);
-	for( int i = 0; i<10; i++ ) Loop.Next_amp();
-	ASSERTION( ch == 0, "ch " , ch, "0" );
-
-	ch = 0; Loop.Start(0, 0, -1);
-	for( int i = 0; i<10; i++ ) Loop.Next_amp( );
-	ASSERTION( ch == 0, "ch " , ch, "0" );
-
-	ch = 10; Loop.Start(10, 20, -1);
-	for( int i = 0; i<20; i++ ) Loop.Next_amp( );
-	assert( ch == 20 );
+	if( fcomp( present, (float) future, 1 ) )
+	{
+		past 	= future;
+		present = future;
+	}
+}
+void Volume_class::Show( bool on )
+{
+	if ( on )
+		Set_Loglevel( DBG2, true);
+	Comment( DBG2,	" mode   " + to_string( mode) +
+ 					" past   " + to_string( past ) +
+					" present" + to_string( present ) +
+					" future " + to_string( future ) +
+					" dvol   " + to_string( dvol ));
+	Set_Loglevel( DBG2, false );
+}
+void Volume_class::Test()
+{
+	TEST_START( className );
+	assert( check_range( volume_range, (uint8_t)   2 ) == 2 );
+	assert( check_range( volume_range, (uint8_t) 112 ) == 100 );
 
 
 
-};
-*/
-//-------------------------------------------------------------------------------------------------
+	TEST_END( className );
 
+
+}
+
+/************************
+ *  Mixer_class
+ ***********************/
 
 Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 : Logfacility_class("Mixer")
@@ -116,10 +127,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		StA[n].Setup(usr_conf);
 	StA[MbIdExternal].Setup(ext_conf);
 
-	Set_master_volume( 	sds_master->Master_Amp,
-						FIXED,
-						sds_master->slide_duration ); //set start and master_volume
-	present_vol 			= future_volume;
+	Volume.Set( sds_master->Master_Amp,	FIXED ); //set start and master_volume
 	if( LogMask[ TEST ] )
 	{
 		for ( uint n : MemIds )
@@ -181,12 +189,11 @@ void Mixer_class::Update_ifd_status_flags( interface_t* sds )
 	for ( uint id :  MemIds )
 	{
 		sds->StA_state[id] 	=  StA[id].state;
-		sds->StA_amp_arr[id] 	=  StA[id].Amp;
 	}
 }
 
 
-void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id )
+void Mixer_class::add_mono(Data_t* Data, const uint& id )
 // sample Data for different sound devices
 // by applying mixer volume per device
 {								// 0   1   2   3  In  Kb  Nt  Ex
@@ -194,72 +201,38 @@ void Mixer_class::add_mono(Data_t* Data, const uint8_t& sta_amp, const uint& id 
 	const array<int,8> phase_l = { 0,-10,  0, 10,  5, -5,  5, -5 };
 
 	assert( phase_r.size() == StA.size() );
-	assert( sta_amp <= 100 );
 
-	float volpercent= sta_amp / 100.0;
-	float Data_r 	= (phase_r[id] * volpercent)/10;
-	float Data_l 	= (phase_l[id] * volpercent)/10;
-
+	StA[id].Volume.Delta_vol( sds_master->slide_duration );
 	for( buffer_t n = 0; n < max_frames; n++)
 	{
-		Out_L.Data[n] 		+= rint( Data[n]*Data_l );
-		Out_R.Data[n] 		+= rint( Data[n]*Data_r );
-		Mono.Data[n]  		+= rint( Data[n]*volpercent );	// collect mono data by using sta-amp
+		float
+		volpermill 		= StA[id].Volume.Get() * 0.1;
+		Out_L.Data[n] 	+= rint( Data[n] * phase_l[id] * volpermill );
+		Out_R.Data[n] 	+= rint( Data[n] * phase_r[id] * volpermill );
+		Mono.Data[n]  	+= rint( Data[n] );//*volpercent );	// collect mono data for store
 	}
+	StA[id].Volume.Update();
+
 }
 
-void Mixer_class::Set_master_volume( uint8_t vol, int mode, uint8_t sl_duration )
-{
-	future_volume	= check_range( volume_range, 		vol );
-	slide_duration 	= check_range( slide_duration_range,sl_duration );
-	audio_frames	= sds_master->audioframes;
-
-	switch ( mode )
-	{
-		case FIXED :
-		{
-			past_volume	= future_volume;
-			present_vol = future_volume;
-			break;
-		}
-		case SLIDE :
-		{
-			past_volume	= rint( present_vol );
-			break;
-		}
-		default :
-			assert( false );
-			break;
-	}
-}
-
-void Mixer_class::stereo_out( stereo_t* data )
+void Mixer_class::add_stereo( stereo_t* data  )
 // sample Data for different Synthesizer into audio memory
 // by applying master volume per Synthesizer
 {
-	float		slide_percent 	= float( slide_duration ) * 0.01 ;
-	buffer_t 	slide_frames	= 4 * max_frames * slide_percent;
-	float 		delta_volume	= future_volume - past_volume;
-	buffer_t 	frames 			= audio_frames;
-	float		dvol			= delta_volume / slide_frames;
-	float 		vol_percent 	= present_vol * 0.01;
+	buffer_t	audioframes		= sds_master->audioframes;
 
-	for( buffer_t n = 0; n < frames ; n++ )
+	Volume.Delta_vol( sds_master->slide_duration);
+	for( buffer_t n = 0; n < audioframes ; n++ )
 	{
-		if( not fcomp( present_vol , future_volume, 2*dvol ) )
-		{
-			present_vol		= present_vol + dvol;
-			vol_percent 	= present_vol * 0.01;
-		}
-		data[n].left 	+= rint( Out_L.Data[n] * vol_percent );
-		data[n].right 	+= rint( Out_R.Data[n] * vol_percent );
+		float
+		vol_percent 	= Volume.Get();
+		data[n].left 	+= rint( Out_L.Data[n]	* vol_percent );
+		data[n].right 	+= rint( Out_R.Data[n] 	* vol_percent );
 	}
-	if( fcomp( present_vol, future_volume, 2*dvol ) )
-	{
-		past_volume = future_volume;
-		present_vol = future_volume;
-	}
+	Volume.Update();
+
 }
+
 
 void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 {
@@ -294,18 +267,20 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 	if ( status.mute )
 	{
-		stereo_out( shm_addr );
+		add_stereo( shm_addr );
 		return;
 	}
-	float amp_mod 	= 1.0;//calc_amp_mod();
 
 	// add osc sound
 	if ( StA[ MbIdInstrument].state.play )
-		add_mono( instrument_osc, StA[ MbIdInstrument ].Amp * amp_mod, MbIdInstrument );
+	{
+		add_mono( instrument_osc, MbIdInstrument );
+//		StA[MbIdInstrument].Volume.Show( true );
+	}
 	if ( StA[ MbIdNotes 	].state.play )
-		add_mono( notes_osc, StA[ MbIdNotes ].Amp 			* amp_mod, MbIdNotes );
+		add_mono( notes_osc		, MbIdNotes );
 	if ( StA[ MbIdKeyboard	].state.play )
-		add_mono( keyboard_osc, StA[MbIdKeyboard].Amp 		* amp_mod, MbIdKeyboard );
+		add_mono( keyboard_osc	, MbIdKeyboard );
 
 	// add StA sound
 	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
@@ -313,7 +288,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 		Data_t* read_data = StA[ DAid ].Get_next_block();
 		if ( read_data )
 		{
-			add_mono( read_data, StA[ DAid ].Amp * amp_mod, DAid );
+			add_mono( read_data, DAid );
 		}
 	}
 
@@ -323,43 +298,53 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 		StA[ store_id ].Store_block( Mono.Data );
 
 	// push sound to audio server
-	stereo_out( shm_addr );
+	add_stereo( shm_addr );
 };
 
 void Mixer_class::Test()
 {
-	TEST_START( className );
-	assert( check_range(volume_range, (uint8_t)   2 ) == 2 );
-	assert( check_range(volume_range, (uint8_t) 112 ) == 100 );
+	DaTA->Sds_p->Set_Loglevel( INFO, true );
+	DaTA->Sds_p->Reset_ifd();
 
-	stereo_t* shm_addr = DaTA->ShmAddr_0;
+	Volume.Test( );
 
+	sds_master->audioframes = min_frames;
+	sds_master->slide_duration = 1;
+
+	Volume.Set( 100, FIXED );
+	Volume.Set( 75 , SLIDE );
+	add_stereo( DaTA->ShmAddr_0 );
+
+	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
+			(int)Volume.past,(int)Volume.future);
+
+	Volume.Set( 50, FIXED );
+	Volume.Set( 75, SLIDE );
+	add_stereo( DaTA->ShmAddr_0 );
+
+	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
+			(int)Volume.past,(int)Volume.future);
+
+	Volume.Set( 50, FIXED );
+	Volume.Set( 75, SLIDE );
+	add_stereo( DaTA->ShmAddr_0 );
+
+	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
+			(int)Volume.past,(int)Volume.future);
+
+	sds_master->slide_duration = 100;
 	sds_master->audioframes = max_frames;
+	Volume.Set( 50, FIXED );
+	Volume.Set( 0, SLIDE );
+	for( uint n = 0; n < 10; n++ )
+	{
+		add_stereo( DaTA->ShmAddr_0 );
 
-	Set_master_volume( 100, FIXED, 1 );
-	Set_master_volume( 75 , SLIDE, 1 );
-	stereo_out( shm_addr );
-	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
+	}
+	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
+			(int)Volume.past,(int)Volume.future);
 
-	Set_master_volume( 50, FIXED, 1 );
-	Set_master_volume( 75, SLIDE, 1 );
-	stereo_out( shm_addr );
-	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
-
-	Set_master_volume( 50, FIXED, 10 );
-	Set_master_volume( 75, SLIDE, 25 );
-	stereo_out( shm_addr );
-
-	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
-
-	Set_master_volume( 50, FIXED, 20 );
-	Set_master_volume( 0, SLIDE, 20 );
-	stereo_out( shm_addr );
-	stereo_out( shm_addr );
-	stereo_out( shm_addr );
-	stereo_out( shm_addr );
-	ASSERTION( past_volume == future_volume, "start_volume", (int)past_volume, (int)future_volume);
-
+	TEST_START( className );
 	Mono.Set_Loglevel( TEST, true );
 	Mono_out.Set_Loglevel( TEST, true );
 	Out_L.Set_Loglevel( TEST, true );

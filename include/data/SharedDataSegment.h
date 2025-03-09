@@ -57,7 +57,7 @@ typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
 
 typedef struct interface_struct // with reasonable defaults
 {
-	uint8_t			version						= 2; 						// comstack
+	uint8_t			version						= 0; 						// comstack
 	int8_t			SDS_Id						= 0;
 	buffer_t		audioframes					= max_frames;
 
@@ -71,7 +71,7 @@ typedef struct interface_struct // with reasonable defaults
 
 	uint8_t			Master_Amp 					= 75;// comstack
 	uint8_t		 	vol_slidemode 				= FIXED;
-	int				slide_duration 				= 100; // % of 4*max_seconds
+	uint8_t			slide_duration 				= 100; // % of 4*max_seconds
 
 	/* instrument definition starts */
 	adsr_t 			OSC_adsr 					= adsr_struct();// comstack

@@ -51,7 +51,7 @@ public:
 	const vector<int> 		flat_pitch 		{ 2,7,0,5,10,3,8 };
 	const vector<int> 		sharp_pitch		{ 8,3,10,5,0,7,2 };
 
-	const vector_str_t 		convention_notes{ 	"CcDdEFfGgAaB",
+	const vector_str_t 		convention_notes{ 	OctChars,
 												"0123456789AB",
 												"C%D%EF%G%A%B",
 												"CcDdEFfGgAaH"};

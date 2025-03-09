@@ -6,6 +6,38 @@
  */
 #include <Frequency.h>
 
+array<string, FRQARR_SIZE> frqNamesArray = {""};
+
+constexpr void initFrqNamesArray()
+{
+	if ( frqNamesArray[C0].length() > 0 ) return ;
+
+	auto index = [  ]( int oct, uint step  )
+	{
+		return (int) oct*oct_steps + step + C0;
+	};
+
+	for ( int oct = min_octave; oct < (int)max_octave; oct++)
+	{
+		char octave = int2char(oct);
+		for( uint step = 0; step < oct_steps; step++ )
+		{
+			string 	frqName {""};
+			frqName.push_back(OctChars[step]);
+			frqName.push_back(octave);
+			frqNamesArray[ index( oct, step ) ] = frqName;
+//			cout << dec << (int) oct << (int)step<<" "<<(int)oct*oct_steps + step + C0 << " " << frqName << endl;
+		}
+	}
+//	for( uint n = 0; n< FRQARR_SIZE-1; n++ )
+//	{
+//		cout << dec << (int) n << " " << frqNamesArray[n] << endl;
+//	}
+	cout << "Frequency Names initialized at " << hex << &frqNamesArray << endl;
+
+}
+
+
 array<float,FRQARR_SIZE> frq_vector = {0};
 
 constexpr void initFrqVector(  )
@@ -35,10 +67,11 @@ constexpr void initFrqVector(  )
 Frequency_class::Frequency_class()
 {
 	initFrqVector();
+	initFrqNamesArray();
 	frq_vector_len = frq_vector.size();
 
 	ASSERTION( frq_vector_len == FRQARR_SIZE, "frq_vector", frq_vector_len, " >1" );
-
+	ASSERTION( strEqual( frqNamesArray[C0], "C0"), "frqNamesArray", frqNamesArray[C0], "C0" );
 }
 Frequency_class::~Frequency_class(){};
 

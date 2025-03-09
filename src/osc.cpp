@@ -49,14 +49,14 @@ float Oscillator::get_delta_freq( float freq ) // TODO - working
 //	buffer_t frames = ( this->wp.msec*audio_frames) / 1000;
 	buffer_t frames = beatframes;
 	if( not is_instr_role )
-		frames = ( this->wp.msec*audio_frames) / 1000;
+		frames = ( this->wp.msec*audio_frames) * 0.001;
 
 	if ( abs(wp.start_frq) < 1E-4 )
 	{
 		wp.start_frq = freq;
 		return 0.0;  				// do nothing
 	}
-	float dframes =  ( wp.glide_effect * frames / 100.0 ) ;
+	float dframes =  wp.glide_effect * frames * 0.01;
 
 	if ( abs(dframes) < 1E-4 )
 	{

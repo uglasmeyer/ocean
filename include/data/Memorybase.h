@@ -16,6 +16,18 @@
  *
  */
 
+typedef struct StA_struct
+{
+	string 		name = "";
+	buffer_t	size = max_frames;
+} StA_struct_t;
+
+typedef struct StA_status_struct // memory array status
+{
+	bool 	play			= false; // play this memory array
+	bool 	store			= false; // record into this memory array
+} StA_status_t;
+
 
 
 typedef struct shm_data_struct
