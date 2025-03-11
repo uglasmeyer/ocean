@@ -126,6 +126,7 @@ public:
 	virtual 	~Oscillator_base(){};
 
 	void 		Show_csv_comment( int );
+	uint8_t 	Set_frequency( string frqName, uint mode );
 	uint8_t		Set_frequency( uint8_t idx, uint mode );
 	void 		Set_volume( uint8_t vol, uint mode);
 	void 		Line_interpreter( vector_str_t arr );

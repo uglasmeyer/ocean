@@ -2,6 +2,7 @@
 #include <Exit.h>
 #include <notes/MusicXML.h>
 #include <notes/Notes.h>
+#include <Table.h>
 
 LogVector_t LogFile{"Xmltest"};
 Logfacility_class Log{"Xmltest"};
@@ -43,12 +44,17 @@ void exit_proc( int signal )
 	exit(0);
 }
 
+
 int main()
 {
 
 
+	Table_class Table {  };
+	Table.TestTable(  );
+
+/*
 	Log.StartFileLogging( &LogFile);
-//	ASSERTION( 1 == 2, "False", 1 , 1);
+	ASSERTION( 1 == 2, "False", 1 , 1);
 	MusicXML.Notes.Set_Loglevel( DEBUG, true );
 	Notes.musicxml = MusicXML.Xml2notelist( file_structure().Dir.xmldir + "second.musicxml" );
 	MusicXML.Notes.Show_note_list( Notes.musicxml.notelist ); // @suppress("Invalid arguments")
@@ -58,5 +64,6 @@ int main()
 	cout << "beats          : " <<  Notes.musicxml.beats<<endl;
 
 	Log.WriteLogFile();
+	*/
     return 0;
 }

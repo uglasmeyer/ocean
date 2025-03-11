@@ -85,6 +85,8 @@ exit
 :sliding
 osc main reset 
 play 4 amp 75 5
-osc main set sinus 54 80 auto
+osc main set sinus A4 80 5
+set main freq A2
+set fmo freq 1
 pause key
 exit

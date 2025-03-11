@@ -18,6 +18,7 @@
 #include <Ocean.h>
 #include <Variation.h>
 #include <String.h>
+#include <Frequency.h>
 
 typedef struct line_struct
 {
@@ -116,7 +117,8 @@ public:
 	void Test(  );
 
 private:
-	Spectrum_class Spectrum;
+	Spectrum_class 		Spectrum	{};
+	Frequency_class 	Frequency	{};
 	vector_str_t stack {};
 	vector<var_struct_t> varlist {};
 	string	command 	{""};

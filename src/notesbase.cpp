@@ -155,6 +155,7 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 
 void Note_base::TestNoteBase()
 {
+
 	TEST_START("Notes_base");
 
 	Show_noteline_prefix( noteline_prefix_default );

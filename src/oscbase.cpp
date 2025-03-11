@@ -74,6 +74,12 @@ void Oscillator_base::Set_duration( uint16_t msec )
 	wp.msec 	= msec;
 }
 
+uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
+{
+	uint index = Index( frqName );
+	return Set_frequency( index, mode );
+}
+
 uint8_t Oscillator_base::Set_frequency( uint8_t arridx, uint mode )
 {
 	arridx = check_range( freqarr_range, arridx );

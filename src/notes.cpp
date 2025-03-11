@@ -75,7 +75,7 @@ void Note_class::set_volume_vector( string volline )
 		if ( valid.contains( ch ))
 			volume_vec.push_back( char2int( ch ) * 10);
 		else
-			Info2( 3, "Rhythm line value " , ch, "not valid" );
+			Info( "Rhythm line value " , ch, "not valid" );
 	}
 
 	volume_vec_len = volume_vec.size();

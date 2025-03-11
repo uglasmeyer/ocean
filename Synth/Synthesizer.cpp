@@ -235,7 +235,7 @@ bool ReadNotesThread_done	= false;
 string ReadNotesThread_name	= "read notes thread";
 void read_notes_fnc( )
 {
-	Log.Info( ReadNotesThread_name + " started" );
+	Log.Info( ReadNotesThread_name, " started" );
 	Sem->Reset( SEMAPHORE_INITNOTES );
 	while( true )
 	{

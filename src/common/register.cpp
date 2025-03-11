@@ -77,7 +77,7 @@ void Register_class::Reset( uint idx )
 	int pid = (int)sds->process_arr.at( idx ).pid ;
 	sds->process_arr.at( idx ) = noprocess;
 	if ( LogMask[DEBUG] )
-		Info2( 5, "Process idx: ", idx , "reset process ", dec, pid );
+		Info( "Process idx: ", idx , "reset process ", dec, pid );
 }
 
 void Register_class::Clear_procregister()
@@ -118,7 +118,7 @@ void Register_class::proc_Register()
 
 	if( LogMask[DEBUG] )
 	{
-		Info2( 3, "Register process pid ",dec, (int)sds->process_arr.at(idx).pid );
+		Info( "Register process pid ",dec, (int)sds->process_arr.at(idx).pid );
 		show_proc_register( );
 	}
 

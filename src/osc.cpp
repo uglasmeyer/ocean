@@ -286,6 +286,9 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 
 void Oscillator::Test()
 {
+
+	this->TestFrequency();
+
 	TEST_START( className );
 
 
@@ -309,17 +312,19 @@ void Oscillator::Test()
 
 	Oscillator testosc {};
 	testosc.SetId( osc_struct::INSTRID, osc_struct::OSCID );
+	uint A3 = testosc.Index("A3");
+	ASSERTION( fcomp( frqArray[ A3 ], 220), "frq index", frqArray[ A3 ], 220 );
 	phase[0]	= 0.0;
-	testosc.Set_frequency(A1+3*12, FIXED ); // 220 Hz
+	testosc.Set_frequency( A3, FIXED ); // 220 Hz
 	testosc.Set_volume( 100, FIXED );
 	testosc.OSC( 0 );
 	float a2 = testosc.Mem.Data[0];
 	testosc.OSC( 0 );
 	Comment( TEST, testosc.Show_this_spectrum ( testosc.spectrum ) );
 	float a0 = testosc.Mem.Data[0];
-//	cout << "a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
+	cout << "a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
 	ASSERTION( not fcomp( a0, a2 ), "gen data", a0-a2, "not null" );
-	ASSERTION( fcomp( a0 , 14.1371  ), "Osc volume", a0 , 14.1371)
+	ASSERTION( fcomp( a0 ,9.42478   ), "Osc volume", a0 , 9.42478)
 
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );

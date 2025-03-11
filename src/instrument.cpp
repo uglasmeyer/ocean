@@ -115,7 +115,7 @@ void Instrument_class::Update_spectrum()
 	uint oscid = sds->Spectrum_type;
 	Oscillator* osc = Oscgroup.oscgroup[ oscid ];
 	osc->Set_spectrum( *ifd_spectrum_vec[ oscid ] ) ;
-	Info2( 3, "receive command <update Spectrum", osc->osc_type, ">");
+	Info( "receive command <update Spectrum", osc->osc_type, ">");
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -370,7 +370,7 @@ void Instrument_class::Test_Instrument()
 
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;
-	Oscgroup.vco.Set_frequency(A1, FIXED);
+	Oscgroup.vco.Set_frequency( "A1", FIXED);
 	assert( strEqual( 	waveform_str_vec[ Oscwaveform_class::SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
@@ -399,7 +399,7 @@ void Instrument_class::Test_Instrument()
 	Oscgroup.fmo.Set_duration( max_milli_sec );
 	Oscgroup.vco.Set_duration( max_milli_sec );
 	Oscgroup.osc.Set_duration( max_milli_sec );
-	Oscgroup.osc.Set_frequency( A3, FIXED );
+	Oscgroup.osc.Set_frequency( "A4", FIXED );
 	Oscgroup.osc.Set_waveform( {0,0,0,0,0} );
 
 	Comment( TEST, Oscgroup.osc.Show_this_spectrum( Oscgroup.osc.spectrum ) );

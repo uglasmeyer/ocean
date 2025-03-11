@@ -164,16 +164,16 @@ void Application_class::Start( int argc, char* argv[] )
 	{
 		Init_log_file();
 	}
-	Info2( 1, Line );
-	Info2( 2, "Entering application init for ", This_Application );
-	Info2( 1, Line );
+	Info(Line );
+	Info("Entering application init for ", This_Application );
+	Info(Line );
 
 	VersionTxt();
 
 	redirect_stderr = false;//(bool) std::freopen( errFile.data(), "w", stderr);
 	if ( redirect_stderr )
 	{
-		Info2(1, "Redirecting stderr");
+		Info( "Redirecting stderr");
 		fprintf( stderr, "%s\n", "error file content:\n");
 	}
 
@@ -228,7 +228,7 @@ void Application_class::deRegister( )
 	auto setState = [ this ](  )
 	{
 		cout << endl;
-		Info2(2, "De-register " ,Type_map( DaTA->TypeId ) );
+		Info( "De-register " ,Type_map( DaTA->TypeId ) );
 		assert ( state_p != nullptr );
 		*state_p 	= OFFLINE;
 		if(( sds->UserInterface != OFFLINE ) and  ( DaTA->TypeId == SYNTHID ) )
@@ -248,7 +248,7 @@ void Application_class::Ready(  )
 	Statistic.Show_Statistic( );
 
 	Comment(INFO, DaTA->Cfg.prgname + " is ready");
-	Info2( 2, "SDS ID: ", (int) DaTA->SDS_Id );
+	Info( "SDS ID: ", (int) DaTA->SDS_Id );
 	cout << Line << endl;
 }
 
@@ -262,7 +262,7 @@ void Application_class::Shutdown_instance( )
 	}
 	else
 	{
-		Info2( 3, "No other " , ProgamName , " is running"	);
+		Info( "No other " , ProgamName , " is running"	);
 	}
 	Server_init = false;
 }

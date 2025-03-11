@@ -126,7 +126,7 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 {
 	if(( level < 0 ) or ( level > LOGMAX -1 ))
 	{
-		Info( "Loglevel out of bounds in " + className );
+		Info( "Loglevel out of bounds in ", className );
 		return;
 	}
 	LogMask[ level ] = on;
@@ -147,13 +147,14 @@ void Logfacility_class::Comment( const int& level, const string logcomment )
 		}
 	}
 }
-
-
-void Logfacility_class::Info( string text )
+/*
+template <class... ArgsT>
+void Logfacility_class::Info( ArgsT... args )
 {
-	Comment( INFO, text );
+	(std::cout << ... << args  ) << "\n";
+//	Comment( INFO, text );
 }
-
+*/
 
 void Logfacility_class::TEST_START( const string& name)
 {

@@ -203,7 +203,7 @@ void Mixer_class::add_mono(Data_t* Data, const uint& id )
 	assert( phase_r.size() == StA.size() );
 
 	StA[id].Volume.Delta_vol( sds_master->slide_duration );
-	for( buffer_t n = 0; n < max_frames; n++)
+	for( buffer_t n = 0; n < sds_master->audioframes/*max_frames*/; n++)
 	{
 		float
 		volpermill 		= StA[id].Volume.Get() * 0.1;
@@ -212,7 +212,6 @@ void Mixer_class::add_mono(Data_t* Data, const uint& id )
 		Mono.Data[n]  	+= rint( Data[n] );//*volpercent );	// collect mono data for store
 	}
 	StA[id].Volume.Update();
-
 }
 
 void Mixer_class::add_stereo( stereo_t* data  )

@@ -12,6 +12,7 @@
 
 
 
+
 #define SETW setw(20)
 typedef vector<string> LogVector_t;
 
@@ -34,7 +35,8 @@ public:
 	void Set_Loglevel( int level, bool on );
 	void Show_loglevel();
 	string Error_text( uint );
-	void Info( string str );
+
+//	void Info( string str );
 	void Init_log_file();
 	void WriteLogFile();
 	void StartFileLogging( LogVector_t* lvp );
@@ -45,7 +47,15 @@ public:
 	Logfacility_class( string className = "" );
 	virtual ~Logfacility_class(  );
 
-	template<class T, class... Targs>
+	template <class... ArgsT>
+	void Info( ArgsT... args )
+	{
+		string format = className + ":" +  Prefix[INFO] ;
+		cout.flush() << Color[INFO] <<  SETW << format <<  " ";
+		( cout <<  ... << args  ) << endc << endl;
+	};
+
+/*	template<class T, class... Targs>
 	void Info2( size_t count, T logcomment, Targs... Fargs) // recursive variadic function
 	{
 	    size_t argc = sizeof...( Fargs );
@@ -66,7 +76,7 @@ public:
 		}
 		Info2( count, Fargs... );
 	}
-
+*/
 
 private:
 

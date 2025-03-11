@@ -562,7 +562,22 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "freq") )
 	{
 		expect = { "frequency" };
-		int freq = pop_int(0, 0xFFFF );
+		int freq = 0; // pop_int(0, 0xFFFF );
+		String f { pop_stack(1) };
+		if ( f.is_number() )
+		{
+			freq = f.secure_stoi( f.Str );
+			cout << "frqindex: " << freq << endl;
+		}
+
+		else
+		{
+			if ( f.Str.length() == 2 )
+			{
+				freq = Frequency.Index( f.Str );
+			}
+		}
+
 		Comment( INFO, "Set frequency " + to_string(freq) + " for " + view.name );
 		if ( loop )
 		{
