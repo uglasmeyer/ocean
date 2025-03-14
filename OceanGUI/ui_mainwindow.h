@@ -149,6 +149,7 @@ public:
     QSlider *SliderFMOadjust;
     QLabel *label_6;
     QLabel *label_13;
+    QLabel *glidefrequency_2;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -690,6 +691,10 @@ public:
         label_13 = new QLabel(centralwidget);
         label_13->setObjectName(QString::fromUtf8("label_13"));
         label_13->setGeometry(QRect(30, 350, 66, 18));
+        glidefrequency_2 = new QLabel(centralwidget);
+        glidefrequency_2->setObjectName(QString::fromUtf8("glidefrequency_2"));
+        glidefrequency_2->setGeometry(QRect(350, 70, 41, 31));
+        glidefrequency_2->setWordWrap(true);
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -788,6 +793,7 @@ public:
         pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         label_13->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
+        glidefrequency_2->setText(QCoreApplication::translate("MainWindow", "glide vol.", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

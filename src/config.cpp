@@ -61,14 +61,16 @@ void Config_class::Read_config(	string cfgfile )
 		};
 
 	auto get_value = [ &Get ]( key_t old, string str )
-		{
-			String 	Str	{""};
-			string 	tmp = string( Get[ str ]);
-			int		val = (key_t ) Str.to_int( tmp );
-			ASSERTION( val > 0, "invalid synthesizer.cfg entry: ", tmp, str );
+	{
+		String 	Str	{""};
+		string 	tmp = string( Get[ str ]);
+		int		val = (key_t ) Str.to_int( tmp );
+		string 	comment = "synthesizer.cfg entry " + str;
+		const char*	char_comment = comment.data();
+		ASSERTION( val > 0, char_comment, tmp, str );
 
-			return ( tmp.length() == 0 ) ? old : (key_t) val ;
-		};
+		return ( tmp.length() == 0 ) ? old : (key_t) val ;
+	};
 
 	auto get_char = [ &Get ]( char old, string str )
 	{
@@ -98,8 +100,7 @@ void Config_class::Read_config(	string cfgfile )
 
 	Config.test		= get_char( Config.test, "test" );
 	std::set<char> yn = {'n', 'y', 0 };
-	ASSERTION( yn.contains( Config.test ), "invalid synthesizer.cfg entry: ",Config.test, "y or n" ) ;
-//	Show_Config();
+	ASSERTION( yn.contains( Config.test ), "synthesizer.cfg test: ",Config.test, "y or n" ) ;
 }
 
 void Config_class::Test()
@@ -116,37 +117,31 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 
 	Comment(INFO, "Evaluating startup arguments");
 
-
+	char 	ch;
 	for ( int ndx = 1; ndx < argc; ndx ++ )
 	{
 		string arg = argv[ ndx ];
+		( arg.length() > 1) ? ch = arg[1] : ch = 0;
 		( ndx + 1 == argc  ) ? next = "" : next = argv[ ndx + 1 ];
-		if ( arg.compare("-c") == 0 )
-			Config.channel	= Str.to_int( next );
-		if ( arg.compare("-C") == 0 )
-			Config.composer	= 'y';
-		if ( arg.compare("-G") == 0 )
-			Config.oceangui	= 'y';
-		if ( arg.compare("-r") == 0 )
-			Config.rate 	= Str.to_int( next );
-		if ( arg.compare("-d") == 0 )
-			Config.device 	= Str.to_int( next );
-		if ( arg.compare("-o") == 0 )
-			Config.ch_offs	= Str.to_int( next );
-		if ( arg.compare("-k") == 0 )
-			Config.SDS_key = Str.to_int( next );
-		if ( arg.compare("-t") == 0 )
-			Config.test 	= 'y';
-		if ( arg.compare("-D") == 0 )
-			Config.dialog 	= 'y';
-		if ( arg.compare("-X") == 0 ) // force clear proc register
-			Config.clear = 'y';
-
+		switch ( ch )
+		{
+			case 'r' : Config.rate 		= Str.to_int( next ); break;
+			case 'd' : Config.device 	= Str.to_int( next ); break;
+			case 'o' : Config.ch_offs	= Str.to_int( next ); break;
+			case 'k' : Config.SDS_key 	= Str.to_int( next ); break;
+			case 'c' : Config.channel	= Str.to_int( next ); break;
+			case 'C' : Config.composer	= 'y'; break;
+			case 'G' : Config.oceangui	= 'y'; break;
+			case 't' : Config.test 		= 'y'; break;
+			case 'D' : Config.dialog 	= 'y'; break;
+			case 'X' : Config.clear 	= 'y'; break;
+			default  : Comment( ERROR, "unrecognized option ", arg ); break;
+		}
 	}
 
 }
 
-void Config_class::Show_Config( )
+string Config_class::Show_Config( )
 {
 	stringstream strs{""};
 
@@ -177,7 +172,8 @@ void Config_class::Show_Config( )
 	lline( "temp storage sec", Config.temp_sec	);
 	lline( "record storage sec", Config.record_sec	);
 
-	Comment( INFO, strs.str() );
+	Comment( DEBUG, strs.str() );
+	return strs.str();
 }
 
 string Config_class::baseDir()

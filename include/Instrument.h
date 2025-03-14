@@ -16,6 +16,7 @@
 #include <Wavedisplay.h>
 #include <String.h>
 #include <System.h>
+#include <Table.h>
 
 
 
@@ -48,18 +49,26 @@ private:
 	vector<spectrum_t*>		ifd_spectrum_vec;
 	string 					Instrument_file;
 	string 					Default_instrument_file;
+	int 					file_version = -1;
+	set<int>				supported { 0, 1, 2 };
 
-	void set_name( string );
-	void set_new_name( string );
-	bool assign_adsr 	( vector_str_t );
-	bool read_instrument( );
-	bool init_connections( );
+	void 	set_name( string );
+	void 	set_new_name( string );
+	bool 	assign_adsr ( vector_str_t );
+	bool	assign_adsr2( const vector_str_t& arr );
+
+	bool 	read_instrument( );
+	bool 	init_connections( fstream* File );
 	Oscillator* get_osc_by_name( string );
-	bool connect(string, string, string );
-	void init_data_structure( Oscillator*, vector_str_t);
-	void setup_GUI_Data();
-	void reuse_GUI_Data();
-	void show_sound_stack();
+	bool 	connect(string, string, string );
+	void 	init_data_structure( Oscillator*, vector_str_t);
+	void 	setup_GUI_Data();
+	void 	reuse_GUI_Data();
+	void 	show_sound_stack();
+	int 	getVersion( fstream& File );
+	bool	read_version1( fstream* File );
+	bool	read_version2( fstream* File );
+
 
 
 };

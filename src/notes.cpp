@@ -131,7 +131,7 @@ bool Note_class::Generate_note_chunk( )
 		Restart = false;
 	};
 
-	for( Oscillator* osc : Oscgroup.oscgroup )
+	for( Oscillator* osc : Oscgroup.member )
 		osc->Mem.Clear_data( 0 );
 
 	restart_note_itr();

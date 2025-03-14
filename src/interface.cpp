@@ -159,17 +159,17 @@ void Interface_class::Show_interface()
 	lline( "", "" );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( "SPEV", addr->OSC_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( "SPEF", addr->OSC_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( "SPEW", addr->OSC_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->OSC_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, addr->OSC_spectrum ));
+	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, addr->OSC_spectrum ));
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( "SPEV", addr->VCO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( "SPEF", addr->VCO_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( "SPEW", addr->VCO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->VCO_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, addr->VCO_spectrum ));
+	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, addr->VCO_spectrum ));
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( "SPEV", addr->FMO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( "SPEF", addr->FMO_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( "SPEW", addr->FMO_spectrum ));
+	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->FMO_spectrum ));
+	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, addr->FMO_spectrum ));
+	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, addr->FMO_spectrum ));
 
 
 	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );

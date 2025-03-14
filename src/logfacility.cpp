@@ -132,7 +132,7 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 	LogMask[ level ] = on;
 }
 
-
+/*
 void Logfacility_class::Comment( const int& level, const string logcomment )
 {
 	if ( level < LOGMAX + 1 )
@@ -141,18 +141,11 @@ void Logfacility_class::Comment( const int& level, const string logcomment )
 		{
 			comment_str = className + ":" +  Prefix[ level] ;
 			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
-			string strs { comment_str + logcomment };
+			string str { comment_str + logcomment };
 			if ( LogVector_p )
-				LogVector_p->push_back( strs );
+				LogVector_p->push_back( str );
 		}
 	}
-}
-/*
-template <class... ArgsT>
-void Logfacility_class::Info( ArgsT... args )
-{
-	(std::cout << ... << args  ) << "\n";
-//	Comment( INFO, text );
 }
 */
 

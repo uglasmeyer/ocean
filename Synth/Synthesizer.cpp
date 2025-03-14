@@ -63,8 +63,9 @@ void show_AudioServer_Status()
 void SetLogLevels()
 {
 	Notes.Set_Loglevel(DEBUG, false );
+	DaTA.Set_Loglevel( INFO, true );
 	LogMask[ DEBUG ] = false;
-	LogMask[ INFO ] = false;
+	LogMask[ INFO ] = true;
 	Log.Show_loglevel();
 
 }
@@ -82,6 +83,7 @@ void show_usage()
 
 void activate_sds()
 {
+	Event.Set_Loglevel( DEBUG, true );
 	std::ranges::for_each( init_keys, [  ]( char key )
 			{	DaTA.Sds_p->Event( key );	} );
 
@@ -92,6 +94,7 @@ void activate_sds()
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
 		Mixer.StA[ id ].Volume.Set( DaTA.Sds_p->addr->StA_amp_arr[id], FIXED );
 	}
+	Event.Set_Loglevel( DEBUG, false );
 }
 
 void SetSyncState()
@@ -209,7 +212,7 @@ void synchronize_fnc( )
 
 	Log.Comment(INFO, SyncAudioThread_name + " terminated" );
 }
-thread SyncAudio_thread	( synchronize_fnc );
+thread* SyncAudio_thread_p = nullptr;
 
 bool SyncNotesThread_done	= false;
 string SyncNotesThread_name	= "notes sync thread";
@@ -229,7 +232,7 @@ void sync_notes_fnc( )
 
 	Log.Comment(INFO, SyncNotesThread_name + " terminated" );
 }
-thread SyncNotes_thread	( sync_notes_fnc );
+thread* SyncNotes_thread_p = nullptr;
 
 bool ReadNotesThread_done	= false;
 string ReadNotesThread_name	= "read notes thread";
@@ -265,29 +268,83 @@ void read_notes_fnc( )
 
 	Log.Comment(INFO, ReadNotesThread_name + " terminated" );
 }
-thread ReadNotes_thread	( read_notes_fnc );
+thread* ReadNotes_thread_p = nullptr;
+
+constexpr void activate_logging()
+{
+	LogMask.at( DEBUG ) 	= false;
+//	Log.Set_Loglevel( INFO, false );
+//	Log.StartFileLogging( &LogVector );
+//	Instrument.StartFileLogging( &LogVector );
+//	Notes.StartFileLogging( &LogVector );
+}
+
+int main( int argc, char* argv[] )
+{
+	activate_logging();
+
+	App.Start( argc, argv );
+	Dir.Create();
+
+	if ( Cfg->Config.test == 'y' )
+	{
+		Sem->Release( SEMAPHORE_STARTED );
+		SynthesizerTestCases();
+		Log.Show_loglevel();
+
+		exit_proc( 0 );
+		return 0;
+	}
+
+	DaTA.Sds_p->Restore_ifd();
+	activate_sds();
+
+	SetLogLevels();
+
+	show_usage();
+	show_AudioServer_Status();
+
+    DaTA.Sds_p->Announce( );
+
+    thread SyncNotes_thread	( sync_notes_fnc );
+    SyncNotes_thread_p = &SyncNotes_thread;
+
+    thread ReadNotes_thread	( read_notes_fnc );
+    ReadNotes_thread_p = &ReadNotes_thread;
+
+    thread SyncAudio_thread	( synchronize_fnc );
+    SyncAudio_thread_p = &SyncAudio_thread;
+
+    Log.Comment(INFO, "Application initialized");
+	ApplicationLoop( );
+	exit_proc( 0 );
+	return 0;
+};
 
 void stop_threads()
 {
+	if ( Cfg->Config.test == 'y' ) return;
+
 	SyncAudioThread_done	= true;
 	Sem->Release(Sync_Semaphore);
 	Log.Comment(INFO, "attempting to join " + SyncAudioThread_name );
-	if ( SyncAudio_thread.joinable() )
-		SyncAudio_thread.join();
+	if ( SyncAudio_thread_p->joinable() )
+		SyncAudio_thread_p->join();
 
 	SyncNotesThread_done	= true;
 	Sem->Reset( SEMAPHORE_SYNCNOTES );
 	Log.Comment(INFO, "attempting to join " + SyncNotesThread_name );
-	if ( SyncNotes_thread.joinable() )
-		SyncNotes_thread.join();
+	if ( SyncNotes_thread_p->joinable() )
+		SyncNotes_thread_p->join();
 
 	ReadNotesThread_done	= true;
 	Sem->Reset( SEMAPHORE_INITNOTES );
 	Log.Comment(INFO, "attempting to join " + ReadNotesThread_name );
-	if ( ReadNotes_thread.joinable() )
-		ReadNotes_thread.join();
+	if ( ReadNotes_thread_p->joinable() )
+		ReadNotes_thread_p->join();
 
 }
+
 int sig_counter = 0;
 void exit_proc( int signal )
 {
@@ -314,46 +371,3 @@ void exit_proc( int signal )
     if ( signal > 0 )
     	exit( signal );
 }
-
-constexpr void activate_logging()
-{
-	LogMask.at( DEBUG ) 	= false;
-//	Log.Set_Loglevel( INFO, false );
-//	Log.StartFileLogging( &LogVector );
-//	Instrument.StartFileLogging( &LogVector );
-//	Notes.StartFileLogging( &LogVector );
-}
-
-int main( int argc, char* argv[] )
-{
-	activate_logging();
-	SetLogLevels();
-
-	App.Start( argc, argv );
-	Dir.Create();
-
-	if ( Cfg->Config.test == 'y' )
-	{
-		Sem->Release( SEMAPHORE_STARTED );
-		SynthesizerTestCases();
-		Log.Show_loglevel();
-
-		exit_proc( 0 );
-		return 0;
-	}
-
-	DaTA.Sds_p->Restore_ifd();
-	activate_sds();
-
-	show_usage();
-	show_AudioServer_Status();
-
-    DaTA.Sds_p->Announce( );
-
-	Log.Comment(INFO, "Application initialized");
-
-	ApplicationLoop( );
-	exit_proc( 0 );
-	return 0;
-};
-

@@ -13,7 +13,9 @@
 #include <String.h>
 #include <Frequency.h>
 #include <Oscwaveform.h>
+#include <Table.h>
 
+enum  { SPEV, SPEF, SPEW };
 
 const static size_t 		spec_arr_len = 5;
 typedef float 				spec_dta_ft;
@@ -30,6 +32,9 @@ class Spectrum_class :
 
 {
 public:
+	const array<int		,3> spectrumNum = {  SPEV,   SPEF,   SPEW  };
+	const array<string	,3> spectrumTag = { "SPEV", "SPEF", "SPEW" };
+
 	typedef struct spec_struct
 	{
 		spec_arr_ft				vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
@@ -45,7 +50,6 @@ public:
 
 	const spectrum_t	default_spec 	= spec_struct();
 	string 				className = "";
-	vector<string>		spectrumType { "SPEV", "SPEF", "SPEW" };
 
 
 	Spectrum_class() :
@@ -57,12 +61,14 @@ public:
 	};
 	virtual ~Spectrum_class(){};
 
-	spectrum_t 		Parse_data( vector_str_t, char oscid );
+	spectrum_t 		Parse_data( vector_str_t arr,
+								const char& oscid, const int& _type );
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( uint );
 	vector<string>	Get_waveform_vec( );
 	string 			Show_this_spectrum( spectrum_t spec );
-	string 			Show_spectrum_type( const string& _type, const spectrum_t& spec );
+	string 			Show_spectrum_type( const int& _type, const spectrum_t& spec );
+	void			Save_spectrum_table(fstream* f, const spectrum_t& spec );
 	void 			Sum( spectrum_t& );
 	void 			Test_Spectrum();
 

@@ -147,7 +147,6 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
-	command 		= osc_type;
 	vp.name			= osc_type;
 	fp.name			= osc_type;
 	spectrum.wfid[0]= Get_waveform_id( arr[2] );
@@ -172,7 +171,6 @@ void Oscillator_base::Show_csv_comment( int loglevel )
 
 void Oscillator_base::Set_csv_comment ()
 {
-//	ASSERTION( waveform_str_vec.size() > 1,"waveform_str_vec ",waveform_str_vec.size(),">1");
 	if ( osc_type.length() == 0 )
 	{
 		osc_type = "unknown";
@@ -213,20 +211,18 @@ stringstream Oscillator_base::Get_sound_stack()
 	if ( fp.generating ) 	fp_gen = star;
 
 	stringstream strs{""};
-	strs 	<< active
-			<< osc_type +"\t"
-			<< Get_waveform_str( spectrum.wfid[0] ) +"\t\t"
-			<< fixed << setprecision(2) << wp.frequency << "\t"
-			<< (int) wp.volume << "\t"
-			<< (int) wp.msec << "\t"
+	strs 	<< setw(4) << osc_type
+			<< setw(10)<< Get_waveform_str( spectrum.wfid[0] )
+			<< setw(8) << fixed << setprecision(2) << wp.frequency
+			<< setw(8) << (int) wp.volume
 
-			<< vp_flag
-			<< vp_gen
-			<< vp.name +"\t"
+			<< setw(4) << vp_flag
+			<< setw(1) << vp_gen
+			<< setw(3) << vp.name
 
-			<< fp_flag
-			<< fp_gen
-			<< fp.name
+			<< setw(4) << fp_flag
+			<< setw(1) << fp_gen
+			<< setw(3) << fp.name
 			;
 
 	return strs;

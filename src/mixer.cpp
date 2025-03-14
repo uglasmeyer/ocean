@@ -47,7 +47,7 @@ void Volume_class::Set(	uint8_t future_vol,
 
 float Volume_class::Delta_vol ( uint8_t sl_duration )
 {
-	slideduration 	= check_range( slide_duration_range,sl_duration );
+				slideduration 	= check_range( slide_duration_range,sl_duration );
 	float		slide_percent 	= float( slideduration) * 0.01 ;
 	buffer_t 	slide_frames	= 4 * max_frames * slide_percent;
 	float 		delta_volume	= this->future - this->past;
@@ -73,6 +73,7 @@ void Volume_class::Update()
 	{
 		past 	= future;
 		present = future;
+		Show( false );
 	}
 }
 void Volume_class::Show( bool on )
@@ -80,6 +81,7 @@ void Volume_class::Show( bool on )
 	if ( on )
 		Set_Loglevel( DBG2, true);
 	Comment( DBG2,	" mode   " + to_string( mode) +
+					" slide% " + to_string( slideduration ) +
  					" past   " + to_string( past ) +
 					" present" + to_string( present ) +
 					" future " + to_string( future ) +

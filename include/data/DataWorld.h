@@ -11,7 +11,7 @@
 
 #include <data/Interface.h>
 class Dataworld_class :
-		virtual Logfacility_class
+		virtual public Logfacility_class
 {
 	string className = "";
 public:

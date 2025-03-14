@@ -12,6 +12,7 @@
 #include <Logfacility.h>
 #include <String.h>
 #include <Exit.h>
+#include <Table.h>
 
 typedef float 	frq_t;
 const 	uint 	C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
@@ -31,6 +32,7 @@ class Frequency_class :
 	string className = "";
 public:
 	uint frq_vector_len	= 0;
+	range_t<uint8_t> freqarr_range {1, FRQARR_SIZE };
 
 	frq_t Calc( const frq_t& _base_freq, const int& idx );
 	frq_t Calc( const int& idx );
@@ -43,6 +45,8 @@ public:
 	virtual ~Frequency_class();
 
 private:
+	Table_class Table{};
+
 };
 
 

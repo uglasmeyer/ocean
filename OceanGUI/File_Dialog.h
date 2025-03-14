@@ -58,7 +58,7 @@ private:
 private slots:
     void on_cb_notefilenames_activated(const QString &arg1);
 
-    void on_cb_instrumentfiles_activated(const QString &arg1);
+//    void on_cb_instrumentfiles_activated(const QString &arg1);
 
     void pb_Instrument_Done_clicked();
     void pb_Notes_Done_clicked();

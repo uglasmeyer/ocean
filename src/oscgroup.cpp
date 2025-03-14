@@ -12,11 +12,11 @@ Oscgroup_class::Oscgroup_class( char id ) :
   Note_base()
 {
 	oscroleId = id;
-	osc.SetId( oscroleId, osc_struct::OSCID );
 	vco.SetId( oscroleId, osc_struct::VCOID );
 	fmo.SetId( oscroleId, osc_struct::FMOID );
+	osc.SetId( oscroleId, osc_struct::OSCID );
 
-	oscgroup = { &vco, &fmo, &osc };
+	member = { &vco, &fmo, &osc };
 
 }
 
@@ -61,7 +61,7 @@ void Oscgroup_class::Set_Osc_Note( pitch_t& pitch, const uint& duration, const u
 void Oscgroup_class::Run_Oscgroup( buffer_t offs )
 {
 
-	for ( Oscillator* osc : oscgroup )
+	for ( Oscillator* osc : member )
 	{
 		if ( oscroleId == osc_struct::INSTRID )
 			osc->Mem.Clear_data( max_data_amp * osc->wp.adjust * 0.01 );

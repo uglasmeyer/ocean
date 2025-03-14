@@ -387,6 +387,7 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/Instrument.h \
 		../include/data/Interface.h \
@@ -397,6 +398,7 @@ moc_File_Dialog.cpp: File_Dialog.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -421,6 +423,7 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
@@ -430,6 +433,7 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -468,6 +472,7 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
@@ -477,6 +482,7 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -492,6 +498,7 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/String.h \
 		../include/Frequency.h \
 		../include/Exit.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Interface.h \
 		../include/Config.h \
@@ -506,6 +513,7 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -528,6 +536,7 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
@@ -537,6 +546,7 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -594,6 +604,7 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
@@ -603,6 +614,7 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -639,6 +651,7 @@ sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
 		../include/Exit.h \
 		../include/Spectrum.h \
 		../include/Frequency.h \
+		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
@@ -648,6 +661,7 @@ sds_dialog_class.o: sds_dialog_class.cpp Sds_dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Volume.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \

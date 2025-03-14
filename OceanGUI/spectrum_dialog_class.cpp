@@ -85,8 +85,7 @@ void Spectrum_Dialog_class::select_spec_main()
 
 void Spectrum_Dialog_class::reset()
 {
-	spectrum.frqadj = spec_struct().frqadj;
-	spectrum.vol 	= spec_struct().vol;
+	spectrum.volidx	= spec_struct().volidx;
 	spectrum.frqidx = spec_struct().frqidx;
 	Setup_widgets( spectrum );
 	ui->rb_reset->setChecked( false );
@@ -110,7 +109,7 @@ auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 {
     char oscid = C.sds_p->Spectrum_type;
 	C.spectrum = *C.ifd_spectrum_vec[ oscid ];
-	C.spectrum.frqidx[ channel ] = value;
+	C.spectrum.frqidx[ channel ] = check_range(  C.Frequency.freqarr_range, (uint8_t)value);
 	float frqadj =  C.Spectrum.Frqadj(channel, value); // see osc.cpp
 	C.spectrum.frqadj[ channel ] = frqadj;
     *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated

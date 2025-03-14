@@ -156,7 +156,7 @@ void File_Dialog_class::Setup_widgets()
 	ui->sB_Octave->setValue( sds_p->noteline_prefix.Octave );
 }
 
-void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &QStr)
+/*void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &QStr)
 {
     string str = QStr.toStdString();
     if ( str.length() > 0 )
@@ -172,7 +172,7 @@ void File_Dialog_class::New_Instrument()
     const QString QStr = ui->lE_Instrument->text();
     on_cb_instrumentfiles_activated( QStr );
 }
-
+*/
 
 
 
@@ -233,7 +233,13 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString& Note_name)
 
 void File_Dialog_class::pb_Instrument_Done_clicked()
 {
-    New_Instrument();
+//    New_Instrument();
+    const QString QStr 	= ui->lE_Instrument->text();
+    string str			= QStr.toStdString();
+    Sds->Write_str( INSTRUMENTSTR_KEY, str );
+
+	Eventlog_p->add( SDS_ID, SAVEINSTRUMENTKEY );
+
 }
 void File_Dialog_class::pb_Notes_Done_clicked()
 {

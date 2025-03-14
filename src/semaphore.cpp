@@ -152,14 +152,15 @@ void Semaphore_class::Test()
 {
 	TEST_START( className );
 
-	Comment( TEST, "Semaphore with rimeout" );
+	Comment( TEST, "Semaphore with timeout" );
 	Time_class t{};
 	t.Start();
 	this->Lock( SEMAPHORE_TEST, 2 );
 	long tel = t.Time_elapsed();
 	stringstream strs;
-	strs << "time elapsed " << tel << " ms" ;
-	Info( strs.str());
+	Info( "time elapsed ", to_string(tel), " [ms]" );
+	ASSERTION( tel - 2001 < 1, "timeout", tel, "<2001" );
+
 	TEST_END( className );
 }
 

@@ -31,12 +31,10 @@ public:
 	const string 		Line = "-----------------------------------------------------------";
 	string 				className 	= "";
 
-	void Comment( const int& level, const string logcomment );
+//	void Comment( const int& level, const string logcomment );
 	void Set_Loglevel( int level, bool on );
 	void Show_loglevel();
 	string Error_text( uint );
-
-//	void Info( string str );
 	void Init_log_file();
 	void WriteLogFile();
 	void StartFileLogging( LogVector_t* lvp );
@@ -55,28 +53,22 @@ public:
 		( cout <<  ... << args  ) << endc << endl;
 	};
 
-/*	template<class T, class... Targs>
-	void Info2( size_t count, T logcomment, Targs... Fargs) // recursive variadic function
+	template <class... ArgsT>
+	void Comment( const int& level, ArgsT... args )
 	{
-	    size_t argc = sizeof...( Fargs );
-		if ( (count-1) == (argc)  )
-		{
 
-			string format = className + ":" +  Prefix[INFO] ;
-			cout.flush() << Color[INFO] <<  SETW << format << logcomment << " ";
-		}
-		else
+		if ( level > LOGMAX - 1 )
+			return;
+
+		if ( LogMask[ level ] )
 		{
-			if ( argc == 0 )
-			{
-				cout << logcomment << endc << endl;
-				return;
-			}
-			cout << logcomment << " ";
+			comment_str = className + ":" +  Prefix[ level] ;
+			cout.flush() << Color[level] << SETW << comment_str ;
+			( cout.flush() <<  ... << args ) << endc << endl  ;
 		}
-		Info2( count, Fargs... );
 	}
-*/
+
+
 
 private:
 
@@ -111,7 +103,6 @@ private:
 		bred, 		magenta, 	green 	, yellow, yellow , bgreen, blue };
 
 	void setup();
-	void Info2( size_t& ){}; // redirect
 
 };
 

@@ -19,14 +19,14 @@ Oscillator::~Oscillator()
 
 void Oscillator::SetId( char role, char type )
 {
-	osctype_id	= type;
-	osc_type 	= OscRole.types[osctype_id];
-	oscrole_id	= role;
-	osc_role	= OscRole.roles[oscrole_id];
+	osctype_id		= type;
+	osc_type 		= OscRole.types[osctype_id];
+	oscrole_id		= role;
+	osc_role		= OscRole.roles[oscrole_id];
 
-	is_osc_type = ( osctype_id == OscRole.OSCID );
-	is_notes_role = ( oscrole_id == OscRole.NOTESID );
-	is_instr_role = ( oscrole_id == OscRole.INSTRID );
+	is_osc_type 	= ( osctype_id == OscRole.OSCID );
+	is_notes_role 	= ( oscrole_id == OscRole.NOTESID );
+	is_instr_role 	= ( oscrole_id == OscRole.INSTRID );
 
 	mem_init();
 	Mem_vco.Info( osc_type );
@@ -79,12 +79,12 @@ void Oscillator::mem_init()
 		this->Mem.Data[n] 		= 0;
 	}
 
-	this->vp.data = this->Mem_vco.Data;
-	this->fp.data = this->Mem_fmo.Data;
-	this->vp.name = this->osc_type;
-	this->fp.name = this->osc_type;
-	this->vp.osc_id 	= this->osctype_id;
-	this->vp.osc_id 	= this->osctype_id;
+	this->vp.data 	= this->Mem_vco.Data;
+	this->fp.data 	= this->Mem_fmo.Data;
+	this->vp.name 	= this->osc_type;
+	this->fp.name 	= this->osc_type;
+	this->vp.osc_id = this->osctype_id;
+	this->vp.osc_id = this->osctype_id;
 
 	return;
 }
@@ -106,6 +106,22 @@ void Oscillator::Reset_data( Oscillator* osc )
 	this->vp.osc_id = osc->osctype_id;
 
 }
+void Oscillator::Connect_vco_data( Oscillator* osc)
+{
+	this->vp.data 	= osc->Mem.Data;
+	this->vp.osc_id = osc->osctype_id;
+	this->vp.volume = osc->wp.volume;
+	this->vp.name 	= osc->osc_type;
+}
+
+void Oscillator::Connect_fmo_data( Oscillator* osc )
+{
+	this->fp.data 	= osc->Mem.Data;
+	this->fp.osc_id = osc->osctype_id;
+	this->fp.volume = osc->wp.volume;
+	this->fp.name 	= osc->osc_type;
+}
+
 
 #define MODPHI( phi, maxphi )\
 	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
@@ -267,21 +283,7 @@ void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 	}
 }
 
-void Oscillator::Connect_vco_data( Oscillator* osc)
-{
-	this->vp.data 	= osc->Mem.Data;
-	this->vp.osc_id = osc->osctype_id;
-	this->vp.volume = osc->wp.volume;
-	this->vp.name 	= osc->osc_type;
-}
 
-void Oscillator::Connect_fmo_data( Oscillator* osc )
-{
-	this->fp.data 	= osc->Mem.Data;
-	this->fp.osc_id = osc->osctype_id;
-	this->fp.volume = osc->wp.volume;
-	this->fp.name 	= osc->osc_type;
-}
 
 
 void Oscillator::Test()

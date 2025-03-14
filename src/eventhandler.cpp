@@ -16,7 +16,7 @@ void Event_class::Handler()
 	uint8_t event = Eventque.get();
 
 	if ( event == NULLKEY ) return;
-	cout << str << endl;
+	Comment( DEBUG, str );
 	switch ( event )
 	{
 
@@ -93,7 +93,7 @@ void Event_class::Handler()
 	{
 		Mixer->status.mute = false;
 		Mixer->Volume.Set( 	sds_master->Master_Amp,
-									sds_master->vol_slidemode);
+							sds_master->vol_slidemode);
 		Sds->Commit();
 		break;
 	}

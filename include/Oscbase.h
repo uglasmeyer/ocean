@@ -146,7 +146,6 @@ private:
 	string 		csv_comment 	= "";
 	string 		command 		= "";
 	range_t<uint8_t> volidx_range {0, 100};
-	range_t<uint8_t> freqarr_range {1, FRQARR_SIZE };
 	range_t<uint8_t> freqidx_range { 0, 100 };
 
 }; // close class Track class

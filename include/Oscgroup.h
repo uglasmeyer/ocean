@@ -24,7 +24,7 @@ public:
 	Oscillator 				osc;
 	Oscillator 				vco;
 	Oscillator 				fmo;
-	oscvec_t				oscgroup;
+	oscvec_t				member;
 	char					oscroleId;
 
 	Oscgroup_class( char id );

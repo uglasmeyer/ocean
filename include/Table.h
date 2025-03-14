@@ -17,11 +17,21 @@ class Table_class :
 	string className = "";
 public:
 
+	char separator = ' ';
+	fstream* File = nullptr;
 
-	Table_class( ) :
+	Table_class(  ) :
 		Logfacility_class("Table_class")
 	{
+		className 	= Logfacility_class::className ;
 	};
+	Table_class( fstream* F, char s ) :
+		Logfacility_class("Table_class")
+	{
+		className 	= Logfacility_class::className ;
+		separator 	= s;
+		File		= F;
+	}
 	~Table_class() {};
 
 	struct header_struct
@@ -43,21 +53,38 @@ public:
 		uint argc = sizeof...(args);
 		if ( argc > header_v.size() )
 		{
-			cout << "Invalid number of columns" << endl;
+			Comment(ERROR, "Invalid number of columns: ", argc, " expected: ", header_v.size());
 			return;
 		}
 		uint n	= 0;
-		((std::cout << dec << left << setw(header_v[n++].width)  << args ), ...);
-		cout << endl;
+		if ( not File )
+		{
+			((  cout << dec << left << setw(header_v[n++].width)  << args << separator), ...);
+			cout << endl;
+		}
+		else
+		{
+			if( File->is_open() )
+			{
+				(( *File << dec << left << setw(header_v[n++].width)  << args << separator), ...);
+				*File << '\n';
+			}
+		}
 	}
 
 	void PrintHeader()
 	{
 		for( header_t row : header_v )
 		{
-			cout  << dec << setw(row.width) << left << setfill(' ')<< row.txt;
+			if ( not File )
+				 cout  << dec << setw(row.width) << left << setfill(' ')<< row.txt << separator;
+			else
+				*File  << dec << setw(row.width) << left << setfill(' ')<< row.txt << separator;
 		}
-		cout << endl;
+		if( not File )
+			cout << endl;
+		else
+			*File << '\n';
 	}
 
 	void TestTable()
@@ -70,6 +97,7 @@ public:
 		AddRow( 1,2,numbers::pi);
 		AddRow( 1,2,3,4 );
 		AddRow(1, ':', "Hello");
+
 
 	}
 

@@ -76,7 +76,7 @@ public:
 
 	void Read_config( string cfgfile );
 	void Parse_argv( int argc, char* argv[] );
-	void Show_Config(  );
+	string Show_Config(  );
 	string Server_cmd( string term, string srv, string opt );
 	void Test();
 
