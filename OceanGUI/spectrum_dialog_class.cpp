@@ -109,7 +109,7 @@ auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
 {
     char oscid = C.sds_p->Spectrum_type;
 	C.spectrum = *C.ifd_spectrum_vec[ oscid ];
-	C.spectrum.frqidx[ channel ] = check_range(  C.Frequency.freqarr_range, (uint8_t)value);
+	C.spectrum.frqidx[ channel ] = check_range(  freqarr_range, value);
 	float frqadj =  C.Spectrum.Frqadj(channel, value); // see osc.cpp
 	C.spectrum.frqadj[ channel ] = frqadj;
     *C.ifd_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated

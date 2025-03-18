@@ -8,99 +8,6 @@
 #include <Mixer.h>
 #include <Wavedisplay_base.h>
 
-/**********************
- * Volume_class
- *********************/
-
-Volume_class::Volume_class() : Logfacility_class("Volume_class")
-{
-	className = Logfacility_class::className ;
-};
-Volume_class::~Volume_class()
-{
-};
-
-void Volume_class::Set(	uint8_t future_vol,
-						int _mode)
-{
-	future			= check_range( volume_range, future_vol );
-	this->mode		= _mode;
-	switch ( this->mode )
-	{
-		case FIXED :
-		{
-			past		= future;
-			present 	= future;
-			present_pc 	= present * 0.01;
-			break;
-		}
-		case SLIDE :
-		{
-			past	= rint( present );
-			break;
-		}
-		default :
-			assert( false );
-			break;
-	}
-}
-
-float Volume_class::Delta_vol ( uint8_t sl_duration )
-{
-				slideduration 	= check_range( slide_duration_range,sl_duration );
-	float		slide_percent 	= float( slideduration) * 0.01 ;
-	buffer_t 	slide_frames	= 4 * max_frames * slide_percent;
-	float 		delta_volume	= this->future - this->past;
-				dvol			= delta_volume / slide_frames;
-	return dvol;
-};
-
-float Volume_class::Get( )
-{
-	if( this->mode == FIXED )
-		return present_pc;
-	if( not fcomp( present , (float) future, 1 ) )
-	{
-		present		= present + dvol;
-		present_pc	= present * 0.01;
-	}
-	return present_pc;
-}
-
-void Volume_class::Update()
-{
-	if( fcomp( present, (float) future, 1 ) )
-	{
-		past 	= future;
-		present = future;
-		Show( false );
-	}
-}
-void Volume_class::Show( bool on )
-{
-	if ( on )
-		Set_Loglevel( DBG2, true);
-	Comment( DBG2,	" mode   " + to_string( mode) +
-					" slide% " + to_string( slideduration ) +
- 					" past   " + to_string( past ) +
-					" present" + to_string( present ) +
-					" future " + to_string( future ) +
-					" dvol   " + to_string( dvol ));
-	Set_Loglevel( DBG2, false );
-}
-void Volume_class::Test()
-{
-	TEST_START( className );
-	assert( check_range( volume_range, (uint8_t)   2 ) == 2 );
-	assert( check_range( volume_range, (uint8_t) 112 ) == 100 );
-
-
-
-	TEST_END( className );
-
-
-}
-
 /************************
  *  Mixer_class
  ***********************/
@@ -129,7 +36,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		StA[n].Setup(usr_conf);
 	StA[MbIdExternal].Setup(ext_conf);
 
-	Volume.Set( sds_master->Master_Amp,	FIXED ); //set start and master_volume
+	DynVolume.Set( sds_master->Master_Amp,	FIXED ); //set start and master_volume
 	if( LogMask[ TEST ] )
 	{
 		for ( uint n : MemIds )
@@ -204,11 +111,11 @@ void Mixer_class::add_mono(Data_t* Data, const uint& id )
 
 	assert( phase_r.size() == StA.size() );
 
-	StA[id].Volume.Delta_vol( sds_master->slide_duration );
+	StA[id].Volume.DeltaVol( sds_master->slide_duration );
 	for( buffer_t n = 0; n < sds_master->audioframes/*max_frames*/; n++)
 	{
 		float
-		volpermill 		= StA[id].Volume.Get() * 0.1;
+		volpermill 		= StA[id].Volume.GetVol() * 0.1;
 		Out_L.Data[n] 	+= rint( Data[n] * phase_l[id] * volpermill );
 		Out_R.Data[n] 	+= rint( Data[n] * phase_r[id] * volpermill );
 		Mono.Data[n]  	+= rint( Data[n] );//*volpercent );	// collect mono data for store
@@ -222,15 +129,15 @@ void Mixer_class::add_stereo( stereo_t* data  )
 {
 	buffer_t	audioframes		= sds_master->audioframes;
 
-	Volume.Delta_vol( sds_master->slide_duration);
+	DynVolume.DeltaVol( sds_master->slide_duration);
 	for( buffer_t n = 0; n < audioframes ; n++ )
 	{
 		float
-		vol_percent 	= Volume.Get();
+		vol_percent 	= DynVolume.GetVol();
 		data[n].left 	+= rint( Out_L.Data[n]	* vol_percent );
 		data[n].right 	+= rint( Out_R.Data[n] 	* vol_percent );
 	}
-	Volume.Update();
+	DynVolume.Update();
 
 }
 
@@ -307,43 +214,43 @@ void Mixer_class::Test()
 	DaTA->Sds_p->Set_Loglevel( INFO, true );
 	DaTA->Sds_p->Reset_ifd();
 
-	Volume.Test( );
+	DynVolume.Test( );
 
 	sds_master->audioframes = min_frames;
 	sds_master->slide_duration = 1;
 
-	Volume.Set( 100, FIXED );
-	Volume.Set( 75 , SLIDE );
+	DynVolume.Set( 100, FIXED );
+	DynVolume.Set( 75 , SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
-			(int)Volume.past,(int)Volume.future);
+	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
+			(int)DynVolume.past,(int)DynVolume.future);
 
-	Volume.Set( 50, FIXED );
-	Volume.Set( 75, SLIDE );
+	DynVolume.Set( 50, FIXED );
+	DynVolume.Set( 75, SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
-			(int)Volume.past,(int)Volume.future);
+	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
+			(int)DynVolume.past,(int)DynVolume.future);
 
-	Volume.Set( 50, FIXED );
-	Volume.Set( 75, SLIDE );
+	DynVolume.Set( 50, FIXED );
+	DynVolume.Set( 75, SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
-			(int)Volume.past,(int)Volume.future);
+	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
+			(int)DynVolume.past,(int)DynVolume.future);
 
 	sds_master->slide_duration = 100;
 	sds_master->audioframes = max_frames;
-	Volume.Set( 50, FIXED );
-	Volume.Set( 0, SLIDE );
+	DynVolume.Set( 50, FIXED );
+	DynVolume.Set( 0, SLIDE );
 	for( uint n = 0; n < 10; n++ )
 	{
 		add_stereo( DaTA->ShmAddr_0 );
 
 	}
-	ASSERTION(   Volume.past ==   Volume.future, "start_volume",
-			(int)Volume.past,(int)Volume.future);
+	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
+			(int)DynVolume.past,(int)DynVolume.future);
 
 	TEST_START( className );
 	Mono.Set_Loglevel( TEST, true );

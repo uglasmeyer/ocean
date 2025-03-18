@@ -12,7 +12,7 @@
 
 void Spectrum_class::assign_frq( int channel, string str  )
 {
-	uint8_t value = 0;
+	int value = 0;
 	String Str{""};
 	if ( str.length() > 0 )
 	{
@@ -26,23 +26,27 @@ void Spectrum_class::assign_frq( int channel, string str  )
 
 void Spectrum_class::assign_vol( int i, string str  )
 {
-	uint8_t f = 0;
+	int value = 0;
 	String Str{""};
 	if ( str.length() > 0 )
 	{
-		f = Str.secure_stoi( str );
-		( f <0 ) ? spectrum.volidx[i] = 0 : spectrum.volidx[i] = f;
+		value = Str.secure_stoi( str );
+		spectrum.volidx[i] = check_range( volume_range, value );
 	}
 	else
 		spectrum.volidx[i] = 0;
 };
 void Spectrum_class::assign_waveform( int i, string str  )
 {
-	uint8_t f = 0;
-	String Str{ "" };
-	f = Str.secure_stoi( str );
-	spectrum.wfid[i] = f;
-
+	int value = 0;
+	String Str{""};
+	if ( str.length() > 0 )
+	{
+		value = Str.secure_stoi( str );
+		spectrum.wfid[i] = check_range( waveform_range, value );
+	}
+	else
+		spectrum.wfid[i] = 0;
 };
 
 
@@ -89,22 +93,18 @@ int Spectrum_class::Get_waveform_id( string wstr )
 	int id = 0;
 	for ( string wf : waveform_str_vec)
 	{
-		if ( wf.compare( wstr ) == 0 ) return id;
+		if ( wf.compare( wstr ) == 0 )
+			return id;
 		id++;
 	}
-	return -1;
+	return 0;
 };
 
 
-string Spectrum_class::Get_waveform_str( uint id )
+string Spectrum_class::Get_waveform_str( int id )
 {
-	set<int> wfid_set = range_set(0,waveform_str_vec.size());
-	if ( wfid_set.contains( id ) )
-	{
-		return waveform_str_vec[ id ];
-	}
-	else
-		return "unknown";
+	int wfid = check_range( waveform_range, (int) id );
+	return waveform_str_vec[ wfid ];
 };
 
 string Spectrum_class::Show_this_spectrum( spectrum_t spec )
@@ -125,11 +125,11 @@ void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 	Table_class Table{ f, ','};
 	Table.AddColumn("Type", 6);
 	Table.AddColumn("Name", 6);
-	Table.AddColumn("0",6);
-	Table.AddColumn("1",6 );
-	Table.AddColumn("2",6 );
-	Table.AddColumn("3",6 );
-	Table.AddColumn("4",6 );
+	Table.AddColumn("Main",6);
+	Table.AddColumn("harm1",6 );
+	Table.AddColumn("harm2",6 );
+	Table.AddColumn("harm3",6 );
+	Table.AddColumn("harm4",6 );
 	Table.PrintHeader();
 	Table.AddRow( 	spectrumTag[SPEV], OscRole.types[ spec.osc ],
 		(int)spec.volidx[0], (int)spec.volidx[1], (int)spec.volidx[2], (int)spec.volidx[3],	(int)spec.volidx[4]);

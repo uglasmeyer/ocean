@@ -16,29 +16,30 @@
 
 typedef float 	frq_t;
 const 	uint 	C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
-//const	uint	A1			= 35;	// 55Hz
-//const 	uint	A2			= A1+12;// 110Hz
-//const 	uint	A3			= A2+12;// 220Hz
 const 	size_t 	FRQARR_SIZE = ( max_octave  * oct_steps ) + C0 - 1;
+static_assert(  FRQARR_SIZE < 128 );// ensure limitation to uint8
 
 extern array<frq_t, FRQARR_SIZE> frqArray ;
 constexpr void initFrqArray();
+
 extern array<string, FRQARR_SIZE> frqNamesArray ;
 constexpr void initFrqNamesArray();
+
+const range_t<int > freqarr_range {1, FRQARR_SIZE-1 }; // provide limitation to uint8
 
 class Frequency_class :
 		virtual Logfacility_class
 {
 	string className = "";
+
 public:
-	uint frq_vector_len	= 0;
-	range_t<uint8_t> freqarr_range {1, FRQARR_SIZE };
+	range_t<float> freqfloat_range { 0.0, 0.0 };
 
 	frq_t Calc( const frq_t& _base_freq, const int& idx );
 	frq_t Calc( const int& idx );
-	uint Index( string frqName );
-	void ShowFrqTable();
 	frq_t Frqadj( const uint8_t& channel, const int8_t& value );
+	uint Index( const string& frqName );
+	void ShowFrqTable();
 	void TestFrequency();
 
 	Frequency_class();

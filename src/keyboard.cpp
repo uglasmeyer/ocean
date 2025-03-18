@@ -63,7 +63,8 @@ bool Keyboard_class::Attack( int key, uint8_t octave )
 			Note_base::pitch_t pitch = pitch_struct();
 			pitch.octave 	= octave;
 			pitch.step 		= key ;
-			Oscgroup.Set_Osc_Note(pitch, kbd_duration, kbd_volume );
+			int frqidx = GetFrqIndex( pitch );
+			Oscgroup.Set_Osc_Note( frqidx, kbd_duration, kbd_volume, instrument->sds->slidermode );
 		};
 
 	if (( key == NOKEY ) or ( decayCounter > releaseCounter ))

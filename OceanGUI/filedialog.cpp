@@ -55,11 +55,13 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
+    connect(ui->cb_instrumentfiles, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
+    connect(ui->pbInstrumentDone	, SIGNAL(clicked())		,this, SLOT(Instrument_Save()) );
+
 	connect(ui->cb_Notestype, SIGNAL(activated( int )), this, SLOT( cb_Notestype( int )));
     connect(ui->sB_Octave, SIGNAL(valueChanged(int)), this, SLOT( sB_Octave( int)));
     connect(ui->cb_nps, SIGNAL(activated(int)), this, SLOT( cB_NotesPerSec( int )));
     connect(ui->cb_convention, SIGNAL(activated( int )), this, SLOT(cB_Convention( int ) ));
-    connect(ui->pbInstrumentDone, SIGNAL(clicked()), this, SLOT(pb_Instrument_Done_clicked()) );
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
 
     Comment( INFO," File_Dialog initialized");
@@ -156,17 +158,7 @@ void File_Dialog_class::Setup_widgets()
 	ui->sB_Octave->setValue( sds_p->noteline_prefix.Octave );
 }
 
-/*void File_Dialog_class::on_cb_instrumentfiles_activated(const QString &QStr)
-{
-    string str = QStr.toStdString();
-    if ( str.length() > 0 )
-    {
-        Sds->Write_str( INSTRUMENTSTR_KEY, str );
-        Eventlog_p->add( SDS_ID,  EventINS.event );
-    }
-    ui->lE_Instrument->setText( QStr );
-}
-
+/*
 void File_Dialog_class::New_Instrument()
 {
     const QString QStr = ui->lE_Instrument->text();
@@ -210,7 +202,7 @@ void File_Dialog_class::New_Notes()
     }
 }
 
-void File_Dialog_class::on_cb_notefilenames_activated(const QString& Note_name)
+void File_Dialog_class::on_cb_notefilenames_activated(QString Note_name)
 {
     if ( Note_name.length() == 0 ) return;
 
@@ -231,15 +223,25 @@ void File_Dialog_class::on_cb_notefilenames_activated(const QString& Note_name)
 	ui->lE_Rythm->setText( Rhythmline );
 }
 
-void File_Dialog_class::pb_Instrument_Done_clicked()
+
+void File_Dialog_class::Instrument_Select(QString QStr)
 {
-//    New_Instrument();
+    string str = QStr.toStdString();
+    if ( str.length() > 0 )
+    {
+        Sds->Write_str( INSTRUMENTSTR_KEY, str );
+        Eventlog_p->add( SDS_ID,  EventINS.event );
+    }
+    ui->lE_Instrument->setText( QStr );
+}
+
+void File_Dialog_class::Instrument_Save()
+{
     const QString QStr 	= ui->lE_Instrument->text();
     string str			= QStr.toStdString();
     Sds->Write_str( INSTRUMENTSTR_KEY, str );
 
 	Eventlog_p->add( SDS_ID, SAVEINSTRUMENTKEY );
-
 }
 void File_Dialog_class::pb_Notes_Done_clicked()
 {

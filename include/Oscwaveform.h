@@ -74,6 +74,8 @@ auto gen_waveform_str_vec ( T fnc_vec )
 	return vec;
 };
 
+const range_t<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
+
 class Oscwaveform_class :
 	public virtual Logfacility_class
 {

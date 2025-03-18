@@ -24,7 +24,7 @@ enum { XML_ID, NTE_ID };
 
 class Note_base :
 	virtual public Logfacility_class,
-	virtual Frequency_class
+	virtual public Frequency_class
 {
 	string 					className		= "";
 
@@ -126,7 +126,7 @@ public:
 	void				Set_base_octave( uint );
 	float	 			Octave_freq( uint8_t oct );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
-
+	uint8_t 			GetFrqIndex( const pitch_t& nvs);
 	void 				TestNoteBase();
 
 

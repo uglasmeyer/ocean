@@ -249,6 +249,14 @@ void MainWindow::select_Sds3()
 	setwidgetvalues();
 }
 
+void MainWindow::CombineFreq()
+{
+	if ( ui->cB_Combine->isChecked() )
+		Sds->Set( Sds->addr->slidermode, (uint8_t) COMBINE );
+	else
+		Sds->Set( Sds->addr->slidermode, (uint8_t) FIXED );
+}
+
 auto setStaPlay( MainWindow* M, uint8_t id )
 {
     M->Sds->Set( M->Sds->addr->MIX_Id , id );
@@ -479,10 +487,11 @@ void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
 	map.lcd->display(  freq  );
 
 	uint diff = abs(value - *map.value);
-	if ( diff > 1 )
-		Sds->Set( Sds->addr->slidermode, (uint8_t)SLIDE);
-	else
-		Sds->Set( Sds->addr->slidermode, (uint8_t)STEP);
+	if ( Sds->addr->slidermode != COMBINE )
+	{
+		if ( diff > 0 )
+			Sds->Set( Sds->addr->slidermode, (uint8_t)SLIDE);
+	}
 	Sds->Set( *map.value, value );
 	Eventlog.add( SDS_ID, map.event );
 };
@@ -720,6 +729,7 @@ void MainWindow::updateWidgets()
 				case NEWINSTRUMENTFLAG :
 				{
 					File_Dialog_p->Setup_widgets();
+					Sds->Commit();
 					break;
 				}
 				case NEWNOTESLINEFLAG :

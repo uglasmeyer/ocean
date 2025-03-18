@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_File_Dialog_class_t {
     QByteArrayData data[11];
-    char stringdata0[187];
+    char stringdata0[162];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,18 +36,17 @@ QT_MOC_LITERAL(0, 0, 17), // "File_Dialog_class"
 QT_MOC_LITERAL(1, 18, 29), // "on_cb_notefilenames_activated"
 QT_MOC_LITERAL(2, 48, 0), // ""
 QT_MOC_LITERAL(3, 49, 4), // "arg1"
-QT_MOC_LITERAL(4, 54, 31), // "on_cb_instrumentfiles_activated"
-QT_MOC_LITERAL(5, 86, 26), // "pb_Instrument_Done_clicked"
-QT_MOC_LITERAL(6, 113, 21), // "pb_Notes_Done_clicked"
-QT_MOC_LITERAL(7, 135, 14), // "cB_NotesPerSec"
-QT_MOC_LITERAL(8, 150, 13), // "cB_Convention"
-QT_MOC_LITERAL(9, 164, 9), // "sB_Octave"
-QT_MOC_LITERAL(10, 174, 12) // "cb_Notestype"
+QT_MOC_LITERAL(4, 54, 17), // "Instrument_Select"
+QT_MOC_LITERAL(5, 72, 15), // "Instrument_Save"
+QT_MOC_LITERAL(6, 88, 21), // "pb_Notes_Done_clicked"
+QT_MOC_LITERAL(7, 110, 14), // "cB_NotesPerSec"
+QT_MOC_LITERAL(8, 125, 13), // "cB_Convention"
+QT_MOC_LITERAL(9, 139, 9), // "sB_Octave"
+QT_MOC_LITERAL(10, 149, 12) // "cb_Notestype"
 
     },
     "File_Dialog_class\0on_cb_notefilenames_activated\0"
-    "\0arg1\0on_cb_instrumentfiles_activated\0"
-    "pb_Instrument_Done_clicked\0"
+    "\0arg1\0Instrument_Select\0Instrument_Save\0"
     "pb_Notes_Done_clicked\0cB_NotesPerSec\0"
     "cB_Convention\0sB_Octave\0cb_Notestype"
 };
@@ -95,9 +94,9 @@ void File_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         auto *_t = static_cast<File_Dialog_class *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->on_cb_notefilenames_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 1: _t->on_cb_instrumentfiles_activated((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 2: _t->pb_Instrument_Done_clicked(); break;
+        case 0: _t->on_cb_notefilenames_activated((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 1: _t->Instrument_Select((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 2: _t->Instrument_Save(); break;
         case 3: _t->pb_Notes_Done_clicked(); break;
         case 4: _t->cB_NotesPerSec((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 5: _t->cB_Convention((*reinterpret_cast< int(*)>(_a[1]))); break;

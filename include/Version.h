@@ -20,7 +20,7 @@ using namespace std;
 
 #define MAYOR 3
 #define MINOR 6
-#define PATCH 3
+#define PATCH 4
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -32,6 +32,8 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
+ *
+version 3.6.4 reduction of redundancies
 version 3,6.3 Test rework
 version 3,6.2 formatted Table
 version 3.6.1 Volume_class, FrqNamesArray

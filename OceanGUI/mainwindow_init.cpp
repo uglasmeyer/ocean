@@ -90,9 +90,11 @@ void MainWindow::initFreqSlider()
 	for( sl_lcd_t map : sl_frqidx_vec )
 	{
 		map.sl->setMinimum( 1 );
-		map.sl->setMaximum( Spectrum.frq_vector_len-1 );
+		map.sl->setMaximum( freqarr_range.max );
 		map.sl->setValue( Spectrum.Calc( *map.value));
 	}
+	if ( Sds->addr->slidermode == COMBINE )
+		ui->cB_Combine->setChecked( true );
 }
 
 void MainWindow::initGuiVectors()
@@ -220,10 +222,13 @@ void MainWindow::initUiConnectors()
     connect(ui->cb_sta5			, SIGNAL(clicked() )		,this, SLOT(toggle_mute5() ));
     connect(ui->cb_sta6			, SIGNAL(clicked() )		,this, SLOT(toggle_mute6() ));
     connect(ui->cb_sta7			, SIGNAL(clicked() )		,this, SLOT(toggle_mute7() ));
+
     connect(ui->rb_S0			, SIGNAL(clicked() )		,this, SLOT(select_Sds0() ));
     connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));
     connect(ui->rb_S2			, SIGNAL(clicked() )		,this, SLOT(select_Sds2() ));
     connect(ui->rb_S3			, SIGNAL(clicked() )		,this, SLOT(select_Sds3() ));
+
+    connect(ui->cB_Combine		, SIGNAL(clicked() )		,this, SLOT(CombineFreq() ));
 
     connect(ui->sB_FMO			, SIGNAL(valueChanged(int) ),this, SLOT(FMO_Waveform_slot(int) )) ;
     connect(ui->sB_VCO			, SIGNAL(valueChanged(int) ),this, SLOT(VCO_Waveform_slot(int) )) ;

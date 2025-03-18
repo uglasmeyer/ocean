@@ -23,7 +23,6 @@ class Oscillator :
 {
 	string className = "";
 public:
-
 	Memory 			Mem_vco	{ monobuffer_size };
 	Memory 			Mem_fmo	{ monobuffer_size };
 	Memory 			Mem		{ monobuffer_size };
@@ -42,11 +41,10 @@ public:
 	void OSC ( const buffer_t& frame_offset );
 	void SetId( char role, char type );
 
-	void Set_start_freq( float freq );
 
 	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
 	void Connect_fmo_data( Oscillator* );
-	void Reset_data( Oscillator* );
+	void Reset_data( );
 	void Set_long( bool );
 	void Reset_cursor();
 
@@ -62,7 +60,6 @@ private:
 
 	void 	apply_hall( buffer_t, Data_t* );
 	void 	apply_adsr( buffer_t frames, Data_t* data );
-	float 	get_delta_freq( float freq );
 
 	void 	mem_init();
 };

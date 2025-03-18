@@ -1996,6 +1996,19 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QCheckBox" name="cB_Combine">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>150</y>
+      <width>92</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Combine</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

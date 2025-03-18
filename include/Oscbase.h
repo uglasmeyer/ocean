@@ -15,7 +15,7 @@
 #include <Frequency.h>
 
 template< typename T>
-T step( T src, T dst, range_t<uint8_t> range)
+T step( T src, T dst, range_t<int> range)
 {
 	int diff = dst - src;
 	if (diff == 0 )
@@ -53,9 +53,7 @@ typedef struct bps_struct
 
 typedef	struct wave_struct
 {
-	float	 	frequency 	= oct_base_freq;	// base_freq + note pitch
-	uint8_t		frqidx		= 0;
-	float		start_frq 	= frequency;
+	uint8_t		frqidx		= C0;
 	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
 	uint8_t		PMW_dial 	= 50;
 	uint8_t 	glide_effect= 0;
@@ -118,6 +116,8 @@ public:
 	vco_t 			vp 			= vco_struct();
 	spectrum_t		spectrum	= spec_struct();
 
+	Dynamic_class	DynFrequency{ freqarr_range };
+
 	Oscillator_base() :
 		Logfacility_class("Oscillator_base"),
 		Spectrum_class()
@@ -127,7 +127,7 @@ public:
 
 	void 		Show_csv_comment( int );
 	uint8_t 	Set_frequency( string frqName, uint mode );
-	uint8_t		Set_frequency( uint8_t idx, uint mode );
+	uint8_t		Set_frequency( int idx, uint mode );
 	void 		Set_volume( uint8_t vol, uint mode);
 	void 		Line_interpreter( vector_str_t arr );
 	void 		Set_waveform( spec_arr_8t wf_vec   );

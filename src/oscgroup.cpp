@@ -32,30 +32,26 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 	wd->Add_data_ptr( osc_struct::OSCID , oscroleId, osc.Mem.Data);
 
 }
-void Oscgroup_class::Set_Osc_Note( pitch_t& pitch, const uint& duration, const uint& volume )
+
+void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
 {
-	const float vco_wp_frequency = vco.wp.frequency;
-	const float fmo_wp_frequency = fmo.wp.frequency;
+	if ( idx < 0 ) return;
+	if ( idx == osc.wp.frqidx ) return; // nothing to do
 
-	float
-	fnew = CalcFreq( vco_wp_frequency, pitch );
-	vco.Set_start_freq(fnew);
-	vco.wp.frequency 	= fnew;
-	vco.wp.msec 		= duration;
+	int diff = idx - osc.wp.frqidx;
+	osc.Set_frequency( idx, mode );
+	vco.Set_frequency( vco.wp.frqidx + diff, mode );
+	fmo.Set_frequency( fmo.wp.frqidx + diff, mode );
+}
 
-	fnew = CalcFreq( fmo_wp_frequency, pitch );
-	fmo.Set_start_freq(fnew);
-	fmo.wp.frequency	= fnew;
-	fmo.wp.msec 		= duration;
-
-	fnew = CalcFreq(  oct_base_freq , pitch );
-	osc.Set_start_freq( fnew);
-	osc.wp.frequency	= fnew;
-	osc.wp.volume 		= volume ;
-	osc.wp.msec 		= duration;
-
-	vco.wp.frequency = vco_wp_frequency;
-	fmo.wp.frequency = fmo_wp_frequency;
+void Oscgroup_class::Set_Osc_Note( 	const uint8_t& key,
+									const uint& duration,
+									const uint& volume,
+									const uint& mode)
+{
+	Set_Frequency( key, mode );
+	osc.wp.volume	= volume ;
+	std::ranges::for_each( member, [ &duration ](Oscillator*  o){ o->wp.msec = duration ;});
 }
 
 void Oscgroup_class::Run_Oscgroup( buffer_t offs )

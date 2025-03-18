@@ -37,9 +37,20 @@ void Event_class::Handler()
 	}
 	case OSCFREQUENCYKEY:
 	{
-		uint8_t frqidx = Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->slidermode );
-		sds->OSC_spectrum.base = Instrument->osc->spectrum.base;
-		sds->OSC_spectrum.frqidx[0] = frqidx;
+		Info( "Slider Mode:" , slidermodes[sds->slidermode] );
+		if ( sds->slidermode == COMBINE )
+		{
+			Instrument->Oscgroup.Set_Frequency( sds->OSC_wp.frqidx, sds->slidermode );
+			sds->VCO_spectrum = Instrument->vco->spectrum;
+			sds->VCO_wp.frqidx= Instrument->vco->wp.frqidx;
+			sds->FMO_spectrum = Instrument->fmo->spectrum;
+			sds->FMO_wp.frqidx= Instrument->fmo->wp.frqidx;
+		}
+		else
+		{
+			Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->slidermode );
+		}
+		sds->OSC_spectrum = Instrument->osc->spectrum;
 
 		Sds->Commit();
 		break;
@@ -47,7 +58,7 @@ void Event_class::Handler()
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
 		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->slidermode );
-		sds->VCO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
+//		sds->VCO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
 		sds->VCO_spectrum.frqidx[0] = frqidx;
 
 		Instrument->osc->Connect_vco_data(Instrument->vco);
@@ -58,7 +69,7 @@ void Event_class::Handler()
 	case FMOFREQUENCYKEY: // modify the fm_track data
 	{
 		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->slidermode );
-		sds->FMO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
+//		sds->FMO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
 		sds->FMO_spectrum.frqidx[0] = frqidx;
 
 
@@ -92,8 +103,8 @@ void Event_class::Handler()
 	case MASTERAMP_KEY: // modify main volume
 	{
 		Mixer->status.mute = false;
-		Mixer->Volume.Set( 	sds_master->Master_Amp,
-							sds_master->vol_slidemode);
+		Mixer->DynVolume.Set( 	sds_master->Master_Amp,
+								sds_master->vol_slidemode);
 		Sds->Commit();
 		break;
 	}
@@ -106,7 +117,7 @@ void Event_class::Handler()
 	}
 	case MASTERAMP_LOOP_KEY:
 	{
-		Mixer->Volume.Set(	sds_master->Master_Amp,
+		Mixer->DynVolume.Set(	sds_master->Master_Amp,
 							SLIDE);
 		Sds->Commit();
 		break;
@@ -290,7 +301,7 @@ void Event_class::Handler()
 	{
 		Instrument->osc->Mem_vco.Clear_data(max_data_amp);
 		Instrument->osc->Mem_fmo.Clear_data(0);
-		Instrument->osc->Reset_data(Instrument->osc);
+		Instrument->osc->Reset_data();
 		Sds->Commit();
 		break;
 	}
@@ -401,13 +412,13 @@ void Event_class::Handler()
 	}
 	case RESETVCOKEY: // reset VCO
 	{
-		Instrument->vco->Reset_data(Instrument->vco);
+		Instrument->vco->Reset_data();
 		Sds->Commit();
 		break;
 	}
 	case RESETFMOKEY: // reset FMO
 	{
-		Instrument->fmo->Reset_data(Instrument->fmo);
+		Instrument->fmo->Reset_data();
 		Sds->Commit();
 		break;
 	}
@@ -439,7 +450,7 @@ void Event_class::Handler()
 		Comment(INFO,
 				"saving current config to instrument " + Instrument->Name);
 		Instrument->Save_Instrument(Instrument->Name);
-		Sds->Commit();
+		Sds->Update(NEWINSTRUMENTFLAG);
 		break;
 	}
 	case NEWINSTRUMENTKEY: // save instrument file

@@ -16,8 +16,8 @@
 #include <Mixerbase.h>
 #include <data/Memory.h>
 #include <data/DataWorld.h>
+#include <Dynamic.h>
 #include <notes/Notes.h>
-#include <Volume.h>
 
 
 
@@ -42,7 +42,6 @@ public:
 						StorageArray_t;
 	StorageArray_t 		StA;
 
-	uint8_t				future_volume	= 100;
 	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
@@ -50,7 +49,8 @@ public:
 	Memory 				Mono_out		{ monobuffer_size };
 	Memory 				Out_L			{ monobuffer_size };// Output buffer long
 	Memory				Out_R			{ monobuffer_size };//
-	Volume_class		Volume			{};
+
+	Dynamic_class		DynVolume		{ volume_range };
 
 	interface_t* 		sds				= nullptr;
 	interface_t*		sds_master		= nullptr;

@@ -20,8 +20,8 @@ Note_base::~Note_base()
 {
 };
 
-// https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
-float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
+
+uint8_t Note_base::GetFrqIndex( const pitch_t& nvs)
 {
 	int step	= nvs.step + nvs.alter;
 	int oct 	= nvs.octave;
@@ -30,8 +30,24 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 		step 	+= oct_steps;
 		oct 	-=  1;
 	}
+	int	octave	= abs( oct );// + octave_shift );
+	int key = octave*oct_steps + step + C0;
+	return check_range( freqarr_range, key );
+}
+// https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
+float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
+{
+/*	int step	= nvs.step + nvs.alter;
+	int oct 	= nvs.octave;
+	if ( step 	< 0 )
+	{
+		step 	+= oct_steps;
+		oct 	-=  1;
+	}
 	uint8_t	octave	= abs( oct );// + octave_shift );
 	int		key 	= octave*oct_steps + step + C0 ;
+*/
+	int key = GetFrqIndex( nvs );
 	return 	Frequency_class::Calc(base, key);//calc_frequency( base, key );
 };
 

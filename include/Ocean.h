@@ -96,6 +96,7 @@ struct range_t
 		T min ;
 		T max ;
 };
+const range_t<int>		volume_range		{ 0, 100 };
 
 template< typename T>
 T check_range( range_t<T> r, T val )
@@ -131,7 +132,9 @@ typedef struct osc_struct
 
 } osc_roles_t;
 
-enum { STEP, FIXED, SLIDE }; // frequency and volume change mode
+enum { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
+const vector<string> slidermodes = { "Fixed", "Slide", "Combine" };
+
 
 const uint				oct_steps		= 12;
 const uint				max_octave		= 6;

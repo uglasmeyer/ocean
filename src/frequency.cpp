@@ -74,36 +74,33 @@ constexpr void initFrqArray(  )
 Frequency_class::Frequency_class() :
 		Logfacility_class("Frequency_class")
 {
-	className = Logfacility_class::className;
-	initFrqArray();
-	initFrqNamesArray();
-	frq_vector_len = frqArray.size();
+	className 			= Logfacility_class::className;
 
-	ASSERTION( frq_vector_len == FRQARR_SIZE, "frq_vector", frq_vector_len, " >1" );
-	ASSERTION( strEqual( frqNamesArray[C0], "C0"), "frqNamesArray", frqNamesArray[C0], "C0" );
+	initFrqArray();
+	freqfloat_range.max = frqArray[freqarr_range.max ];
+
+	initFrqNamesArray();
+
 }
 Frequency_class::~Frequency_class(){};
-
 
 frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 {
 	frq_t frq = 0;
-	uint _idx = idx;
-	if ( _idx >= frq_vector_len )
-		_idx = frq_vector_len-1;
+	uint _idx = check_range( freqarr_range, idx );
 
 	( _idx < C0 ) ? frq = frqArray[ _idx ] : frq = frqArray[ _idx ]* _base_freq / oct_base_freq;
 	return frq;
-
 }
 
 frq_t Frequency_class::Calc( const int& idx )
 {
-	return frqArray[ idx]; //Calc( oct_base_freq, idx);
+	uint frqidx = check_range( freqarr_range, idx );
+	return frqArray[ frqidx];
 }
-uint Frequency_class::Index( string frqName )
+uint Frequency_class::Index( const string& frqName )
 {
-	for( uint n = 0; n < FRQARR_SIZE; n++ )
+	for( int n = freqarr_range.min; n <= freqarr_range.max; n++ )
 		if ( strEqual( frqNamesArray[n], frqName ) )
 			return n;
 	return 0; // = ""
@@ -119,7 +116,7 @@ void Frequency_class::ShowFrqTable()
 	Table.AddColumn( "Frequency", 16 );
 	Table.AddColumn( "Name", 4);
 	Table.PrintHeader();
-	for( uint n = 1; n < FRQARR_SIZE; n++ )
+	for( int n = freqarr_range.min; n <= freqarr_range.max; n++ )
 	{
 		Table.AddRow( n, frqArray[n], frqNamesArray[n] );
 	}

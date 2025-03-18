@@ -150,6 +150,7 @@ public:
     QLabel *label_6;
     QLabel *label_13;
     QLabel *glidefrequency_2;
+    QCheckBox *cB_Combine;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -695,6 +696,9 @@ public:
         glidefrequency_2->setObjectName(QString::fromUtf8("glidefrequency_2"));
         glidefrequency_2->setGeometry(QRect(350, 70, 41, 31));
         glidefrequency_2->setWordWrap(true);
+        cB_Combine = new QCheckBox(centralwidget);
+        cB_Combine->setObjectName(QString::fromUtf8("cB_Combine"));
+        cB_Combine->setGeometry(QRect(70, 150, 92, 24));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -794,6 +798,7 @@ public:
         label_6->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         label_13->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         glidefrequency_2->setText(QCoreApplication::translate("MainWindow", "glide vol.", nullptr));
+        cB_Combine->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

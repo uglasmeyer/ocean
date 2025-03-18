@@ -106,7 +106,8 @@ void Interface_class::Show_interface()
 		{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
 	auto conv_bool_s = []( bool b )
 		{ return ( b ) ? string("yes") : string("no "); };
-
+	auto frq_str = [ this ](uint8_t idx)
+		{ return ( to_string( Frequency.Calc( idx ) ) + ", " + frqNamesArray[idx] ); };
 	string status1 {};
 	status1 	= 	      conv_bool_s(addr->mixer_status.external) +
 					"," + conv_bool_s(addr->mixer_status.notes) +
@@ -135,7 +136,7 @@ void Interface_class::Show_interface()
 	lline( "\nShared Data Str. ID ", to_string((int) ds.Id ));
 	rline( Version_str 			, addr->version);
 
-	lline( "(M)ain (F)requency:" , Frequency.Calc( addr->OSC_wp.frqidx ));
+	lline( "(M)ain (F)requency:" , frq_str( addr->OSC_wp.frqidx ));
 	rline( "(A)DSR (G)lide freq:", (int)addr->OSC_wp.glide_effect);
 
 	lline( "(M)aster(A)mplitude:", (int)addr->Master_Amp );
@@ -147,8 +148,8 @@ void Interface_class::Show_interface()
 	lline( "(M)ain (W)aveform: " , waveform_str_vec[ (int)addr->OSC_spectrum.wfid[0] ]);
 	rline( "(A)DSR (D)ecay:    " , (int)addr->OSC_adsr.decay );
 
-	lline( "(F)MO  (F)requency:" , Frequency.Calc( addr->FMO_wp.frqidx ) );
-	rline( "(V)CO  (F)requency:" , Frequency.Calc( addr->VCO_wp.frqidx ) );
+	lline( "(F)MO  (F)requency:" , frq_str( addr->FMO_wp.frqidx ) );
+	rline( "(V)CO  (F)requency:" , frq_str( addr->VCO_wp.frqidx ) );
 
 	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
 	rline( "(V)CO  (A)mplitude:" , (int)addr->VCO_wp.volume);

@@ -485,10 +485,10 @@ void Instrument_class::Test_Instrument()
 	Comment( TEST, Oscgroup.osc.Show_this_spectrum( Oscgroup.osc.spectrum ) );
 
 	Oscgroup.osc.Set_duration( max_milli_sec );
-	ASSERTION( fcomp( 	Oscgroup.osc.wp.frequency, 220), "frequency",
-						Oscgroup.osc.wp.frequency, 220 );
-	ASSERTION( fcomp( 	sds->OSC_wp.frequency, 220), "frequency",
-						sds->OSC_wp.frequency, 220 );
+	float f = Oscgroup.osc.Calc( Oscgroup.osc.wp.frqidx );
+	ASSERTION( fcomp( 	f, 220), "frequency", f, 220 );
+	ASSERTION( fcomp( 	sds->OSC_spectrum.frqidx[0], 71), "frequency",
+						sds->OSC_spectrum.frqidx[0], 71 );
 
 	Oscgroup.osc.phase[0] = 0;
 	Oscgroup.Run_Oscgroup(0);
@@ -531,8 +531,8 @@ void Instrument_class::Test_Instrument()
 
 	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
 	Oscgroup.fmo.Set_frequency( C0, FIXED );
-
-	ASSERTION( fcomp( Oscgroup.fmo.wp.frequency, 16.3516 ), "" ,Oscgroup.fmo.wp.frequency, 16.3516 );
+	f = Oscgroup.fmo.Calc( Oscgroup.fmo.wp.frqidx);
+	ASSERTION( fcomp( f, 16.3516 ), "" ,f, 16.3516 );
 
 
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);

@@ -8,6 +8,7 @@
 #ifndef INCLUDE_SPECTRUM_H_
 #define INCLUDE_SPECTRUM_H_
 
+#include <Dynamic.h>
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <String.h>
@@ -44,7 +45,7 @@ public:
 		spec_dta_ft				sum 	= 1.0;								// sum over .vol
 		spec_arr_8t				wfid 	= {SINUS, SINUS, SINUS, SINUS, SINUS };// waveform wdid
 		uint8_t					osc 	= osc_struct::OSCID;
-		float					base	= oct_base_freq;
+//		float					base	= oct_base_freq;
 	} spectrum_t;
 
 
@@ -64,7 +65,7 @@ public:
 	spectrum_t 		Parse_data( vector_str_t arr,
 								const char& oscid, const int& _type );
 	int 			Get_waveform_id( string );
-	string 			Get_waveform_str( uint );
+	string 			Get_waveform_str( int );
 	vector<string>	Get_waveform_vec( );
 	string 			Show_this_spectrum( spectrum_t spec );
 	string 			Show_spectrum_type( const int& _type, const spectrum_t& spec );

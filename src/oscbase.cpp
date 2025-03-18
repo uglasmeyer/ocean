@@ -80,36 +80,12 @@ uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
 	return Set_frequency( index, mode );
 }
 
-uint8_t Oscillator_base::Set_frequency( uint8_t arridx, uint mode )
+uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 {
-	arridx = check_range( freqarr_range, arridx );
-	switch ( mode )
-	{
-		case FIXED :
-		{
-			wp.frqidx		= arridx;
-			wp.frequency	= Calc( wp.frqidx );
-		 	wp.start_frq 	= wp.frequency;
-			break;
-		}
-		case STEP :
-		{
-			wp.frqidx		= step( wp.frqidx, arridx, freqarr_range );
-			wp.frequency	= Calc( wp.frqidx );
-			wp.start_frq	= wp.frequency;
-			break;
-		}
-		case SLIDE :
-		{
-			wp.frqidx		= arridx;
-			wp.frequency	= Calc( wp.frqidx );
-		// 	wp.start_frq 	= unchanged
-			break;
-		}
-	}
-	spectrum.base		= wp.frequency;
-	spectrum.frqadj[0]	= Frqadj(0, 0);//1.0;
+	wp.frqidx = DynFrequency.Set( arridx, mode );
+	spectrum.frqadj[0] 	= Frqadj(0, 0);
 	spectrum.frqidx[0]	= wp.frqidx;
+//	DynFrequency.Show( true );
 	return wp.frqidx;
 }
 
@@ -180,7 +156,7 @@ void Oscillator_base::Set_csv_comment ()
 	csv_comment = "";
 	csv_comment.append(osc_type);
 	csv_comment.append(",\t" + waveform_str_vec[spectrum.wfid[0]] );
-	csv_comment.append(",\t" + to_string( wp.frequency ));
+	csv_comment.append(",\t" + to_string( Calc( wp.frqidx) ));
 	csv_comment.append(",\t" + to_string( wp.msec ) );
 	csv_comment.append(",\t" + to_string( wp.volume ) );
 }
@@ -189,7 +165,7 @@ void Oscillator_base::Set_csv_comment ()
 void Oscillator_base::Get_comment( bool variable )
 {
 	comment = waveform_str_vec[spectrum.wfid[0]] ;
-	comment.append( "\t(" + to_string( wp.frequency ) + " Hz)");
+	comment.append( "\t(" + to_string( Calc( wp.frqidx) ) + " Hz)");
 	comment.append( to_string( wp.msec ) + " msec ");
 	comment.append( "Vol: " + to_string( wp.volume ) );
 	return ;
@@ -213,7 +189,7 @@ stringstream Oscillator_base::Get_sound_stack()
 	stringstream strs{""};
 	strs 	<< setw(4) << osc_type
 			<< setw(10)<< Get_waveform_str( spectrum.wfid[0] )
-			<< setw(8) << fixed << setprecision(2) << wp.frequency
+			<< setw(8) << fixed << setprecision(2) << Calc( wp.frqidx)
 			<< setw(8) << (int) wp.volume
 
 			<< setw(4) << vp_flag

@@ -270,6 +270,8 @@ private slots:
     void select_Sds2();
     void select_Sds3();
 
+    void CombineFreq();
+
     void File_Director();
     void Spectrum_Dialog();
 

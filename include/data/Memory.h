@@ -81,7 +81,7 @@ private:
 
 };
 
-#include <Volume.h>
+#include <Dynamic.h>
 /***************************
  * Storage_class
  **************************/
@@ -98,7 +98,7 @@ public:
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
-	Volume_class	Volume			{};
+	Dynamic_class	Volume			{ volume_range };
 
 	StA_status_t state = StA_status_struct();
 

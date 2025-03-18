@@ -99,14 +99,21 @@ void Note_class::note2memory( 	const note_t& note,
 
 	if ( note.glide[0].note )
 		Oscgroup.osc.Set_glide( 100 );
+	else
+		Oscgroup.osc.Set_glide( 0 );
 
 	Oscgroup.osc.Set_long( note.longnote or longnote );
 	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_sec ) / 1000 );
 
 	for ( pitch_t pitch : note.chord )
 	{
-		Oscgroup.Set_Osc_Note(pitch, duration, note.volume);
+		const int vco_wp_frqidx = Oscgroup.vco.wp.frqidx;
+		const int fmo_wp_frqidx = Oscgroup.fmo.wp.frqidx;
+		uint8_t key = GetFrqIndex( pitch );
+		Oscgroup.Set_Osc_Note( key, duration, note.volume, SLIDE );
 		Oscgroup.Run_Oscgroup(offs);
+		Oscgroup.vco.Set_frequency( vco_wp_frqidx, SLIDE );
+		Oscgroup.fmo.Set_frequency( fmo_wp_frqidx, SLIDE );
 	}
 
 	Oscgroup.osc.Set_glide( wp_glide_effect );
