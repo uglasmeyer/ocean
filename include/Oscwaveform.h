@@ -82,9 +82,6 @@ class Oscwaveform_class :
 	string className = "";
 public:
 
-
-
-
 	enum waveformId_t
 	{
 		SINUS,
@@ -103,12 +100,10 @@ public:
 		Logfacility_class("Oscwaveform_class")
 	{
 		className = Logfacility_class::className;
-		init_waveform_str_vec();
 	};
 	~Oscwaveform_class() {};
 
 	void 			Test_wf();
-	void init_waveform_str_vec();
 
 
 

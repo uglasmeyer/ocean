@@ -104,6 +104,7 @@ public:
 	string 			osc_type 	= "";
 
 	bool			is_osc_type = false;
+	bool			is_fmo_type = false;
 	bool			is_notes_role = false;
 	bool			is_instr_role = false;
 

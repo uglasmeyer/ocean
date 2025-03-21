@@ -58,7 +58,7 @@ private:
 	bool	assign_adsr2( const vector_str_t& arr );
 
 	bool 	read_instrument( );
-	bool 	init_connections( fstream* File );
+	bool 	init_connections(  );
 	Oscillator* get_osc_by_name( string );
 	bool 	connect(string, string, string );
 	void 	init_data_structure( Oscillator*, vector_str_t);

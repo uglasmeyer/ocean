@@ -13,45 +13,44 @@
 #include <String.h>
 #include <Frequency.h>
 
-const range_t<uint8_t>	slide_duration_range{ 1, 100 };
 
 class Dynamic_class :
 	Logfacility_class
 {
-	string 		className 			= "";
-	uint8_t		slideduration 		= 0;
-	float		delta 				= 0.0;
-	float		present				= 0.0;
-	float 		present_pc			= present * 0.01;
-	uint8_t		mode				= FIXED;
-	range_t<int>range				{ 0, 0 };
+	string 			className 			= "";
+	uint8_t			slideduration 		= 0;
+	float			delta 				= 0.0;
+	uint8_t			mode				= FIXED;
+	float 			future_f			= 0.0;
+	float			past_f				= 0.0;
+	const buffer_t	test_frames			= 1000;
+	range_t<int>	range				{ 0, 0 };
+	const range_t<uint8_t>
+					slide_duration_range{ 0, 100 };
 
 public:
 	uint8_t		future				= 0;
 	uint8_t		past				= 0;
-
+	float		present				= 0.0;
 
 	Frequency_class	Frequency {};
 
 	Dynamic_class( range_t<int> r );
 	virtual ~Dynamic_class();
 
-	uint8_t	Set(int future_vol,	int	mode);
+	uint8_t	SetupVol(int future_vol, int mode);
+	uint8_t SetupFrq(int future_frq, int mode);
 
-	void 	DeltaVol( const uint8_t& sl_duration  );
-	float 	GetVol( );
-	void 	DeltaFrq( const uint8_t& sl_duration );
-	float	GetFrq( );
-
+	void 	SetDelta( const uint8_t& sl_duration  );
+	float 	Get( );
 	void 	Update();
 
 	void 	Show( bool on );
-
 	void 	Test();
 
 private:
 	constexpr buffer_t slideFrames( const uint8_t& sl_duration );
-
+	uint8_t setup(	int future_value, int _mode);
 };
 
 

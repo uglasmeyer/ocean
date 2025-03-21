@@ -489,8 +489,9 @@ void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
 	uint diff = abs(value - *map.value);
 	if ( Sds->addr->slidermode != COMBINE )
 	{
-		if ( diff > 0 )
-			Sds->Set( Sds->addr->slidermode, (uint8_t)SLIDE);
+		( diff > 1 ) ?
+			Sds->Set( Sds->addr->slidermode, (uint8_t) SLIDE ) :
+			Sds->Set( Sds->addr->slidermode, (uint8_t) FIXED ) ;
 	}
 	Sds->Set( *map.value, value );
 	Eventlog.add( SDS_ID, map.event );
@@ -632,7 +633,7 @@ void MainWindow::set_mode_v()
 }
 void MainWindow::set_mode_o()
 {
-    Eventlog.add( SDS_ID, RESETMAINKEY); //
+    Eventlog.add( SDS_ID, RESETOSCKEY); //
 }
 
 void MainWindow::connect_fmo()

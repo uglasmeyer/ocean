@@ -108,6 +108,8 @@ void SynthesizerTestCases()
 	Instrument.Oscgroup.Run_Oscgroup( 0 );
 
 	Log.Test_Logging();
+	Frequency_class Frq {};
+	Frq.TestFrequency();
 
 	DaTA.Reg.Test_Register();
 	DaTA.Test_Dataworld();

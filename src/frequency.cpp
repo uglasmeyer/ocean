@@ -45,7 +45,7 @@ constexpr void initFrqNamesArray()
 }
 
 
-array<float,FRQARR_SIZE> frqArray = {0};
+array<frq_t,FRQARR_SIZE> frqArray = {0};
 
 constexpr void initFrqArray(  )
 {
@@ -64,7 +64,7 @@ constexpr void initFrqArray(  )
 			else
 				x = pow(2.0, (n-C0idx)/((float)oct_steps) ) * oct_base_freq ; // C0 = oct_base_freq
 		}
-		frqArray[n+1] = x ;
+		frqArray[n+1] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
 	}
 	cout << "Piano key frequencies initialized at " << hex << &frqArray << endl;
 	frqArray[0] = C0;
@@ -115,10 +115,17 @@ void Frequency_class::ShowFrqTable()
 	Table.AddColumn( "Index", 6);
 	Table.AddColumn( "Frequency", 16 );
 	Table.AddColumn( "Name", 4);
+	Table.AddColumn( "",8);
+	Table.AddColumn( "Index", 6);
+	Table.AddColumn( "Frequency", 16 );
+	Table.AddColumn( "Name", 4);
+
 	Table.PrintHeader();
-	for( int n = freqarr_range.min; n <= freqarr_range.max; n++ )
+	const uint m = freqarr_range.max / 2;
+	for( int n = freqarr_range.min; n <= freqarr_range.max / 2; n++ )
 	{
-		Table.AddRow( n, frqArray[n], frqNamesArray[n] );
+		Table.AddRow( n, frqArray[n], frqNamesArray[n], "|",
+				n+m, frqArray[n+m], frqNamesArray[n+m] );
 	}
 }
 

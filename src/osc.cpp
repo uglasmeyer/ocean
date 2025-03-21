@@ -12,7 +12,6 @@ Oscillator::Oscillator( ) :
 		Oscillator_base()
 {
 	className = Logfacility_class::className;
-	DynFrequency.Set( C0, FIXED );
 }
 Oscillator::~Oscillator()
 {
@@ -26,10 +25,12 @@ void Oscillator::SetId( char role, char type )
 	osc_role		= OscRole.roles[oscrole_id];
 
 	is_osc_type 	= ( osctype_id == OscRole.OSCID );
+	is_fmo_type		= ( osctype_id == OscRole.FMOID );
 	is_notes_role 	= ( oscrole_id == OscRole.NOTESID );
 	is_instr_role 	= ( oscrole_id == OscRole.INSTRID );
 
-	Reset_data();
+	Data_reset();
+	Connection_reset();
 
 	Mem_vco.Info( osc_type );
 	Mem_fmo.Info( osc_type );
@@ -39,26 +40,13 @@ void Oscillator::SetId( char role, char type )
 
 }
 
-
-
-void Oscillator::Reset_data(  )
+void Oscillator::Data_reset(  )
 {
 	this->Mem.Clear_data( 0 );
 	this->Mem_fmo.Clear_data(0);
 	this->Mem_vco.Clear_data(max_data_amp);
-
-	this->vp.data = this->Mem_vco.Data;
-	this->fp.data = this->Mem_fmo.Data;
-
-	this->vp.volume = 0;
-	this->fp.volume = 0;
-
-	this->fp.name = this->osc_type;
-	this->vp.name = this->osc_type;
-	this->fp.osc_id = this->osctype_id;
-	this->vp.osc_id = this->osctype_id;
-
 }
+
 void Oscillator::Connect_vco_data( Oscillator* osc)
 {
 	this->vp.data 	= osc->Mem.Data;
@@ -75,6 +63,33 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 	this->fp.name 	= osc->osc_type;
 }
 
+void Oscillator::Connection_reset( )
+{
+	this->vp.data 	= this->Mem_vco.Data;
+	this->fp.data 	= this->Mem_fmo.Data;
+
+	this->vp.volume = 0;
+	this->fp.volume = 0;
+
+	this->fp.name 	= this->osc_type;
+	this->vp.name 	= this->osc_type;
+
+	this->fp.osc_id = this->osctype_id;
+	this->vp.osc_id = this->osctype_id;
+}
+
+auto check_phi = [ ]( string type, param_t param, phi_t dT, float start_freq )
+{
+	if ( param.maxphi < abs(param.dphi) )
+	{
+		cout << "osctype    " << type	  		<< endl;
+		cout << "maxphi     " << param.maxphi 	<< endl;
+		cout << "phi        " << param.phi  	<< endl;
+		cout << "dT         " << dT   			<< endl;
+		cout << "start_freq " << start_freq 	<< endl;
+		EXCEPTION( "maxphi exceeds limit: " + to_string(param.maxphi) + " < " + to_string( abs(param.dphi)) );
+	}
+};
 
 #define MODPHI( phi, maxphi )\
 	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
@@ -84,22 +99,17 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
  * Generator of sound waves
  */
 {
-	auto check_phi = [ this ]( param_t param, phi_t dT, float start_freq )
-	{
-		if ( param.maxphi < abs(param.dphi) )
-		{
-			cout << "osctype    " << osc_type  		<< endl;
-			cout << "maxphi     " << param.maxphi 	<< endl;
-			cout << "phi        " << param.phi  	<< endl;
-			cout << "dT         " << dT   			<< endl;
-			cout << "start_freq " << start_freq 	<< endl;
-			EXCEPTION( "maxphi exceeds limit: " + to_string(param.maxphi) + " < " + to_string( abs(param.dphi)) );
-		}
-	};
 
 
-	float				freq 		= Calc( DynFrequency.past );//this->wp.frequency;
-	DynFrequency.DeltaFrq( wp.glide_effect );
+	// feature fmo freq decay
+//	if ( is_fmo_type )
+//	{
+//		DynFrequency.future = 0;
+//	}
+
+
+	float				freq 		= DynFrequency.present ;//this->wp.frequency;
+	DynFrequency.SetDelta( wp.glide_effect );
 	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
 	phi_t 				dt 			= 1.0/frames_per_sec;	//seconds per frame
 
@@ -107,9 +117,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
 	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
 
-
 	float 				fmo_vol 	= 0.001*(float)this->fp.volume;
-	Data_t 				vco_adjust 	= max_data_amp / 2;
 	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
 
 	if ( is_osc_type )
@@ -119,6 +127,8 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 									// If the osc has the notes role the osc volume is managed
 									// by the rhythm volume and the mixer
 
+	Data_t	vol_adjust	= ( max_data_amp * wp.adjust ) * 0.005;
+	Data_t 	vco_adjust 	= max_data_amp / 2;
 	if ( not is_osc_type )
 		vco_adjust = 0;
 
@@ -137,7 +147,6 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 
 	Sum( spectrum );
 
-
 	param_t param 	= param_struct();
 	param.pmw		= 1.0 + (float)wp.PMW_dial * 0.01;
 	phi_t dT 		= 0;
@@ -147,43 +156,42 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
-		if ( spectrum.vol[channel] > 0.0 )
+		if ( spectrum.volidx[channel] > 0 )
 		{
-			param.phi	= phase[channel];
 			uint8_t wfid= spectrum.wfid[channel];
 			param.maxphi= waveFunction_vec[ wfid ].maxphi;
+			param.phi	= phase[channel];
 			dT 			= param.maxphi * dt; // 2pi dt
 			param.amp	= spectrum.vol[channel];
 
 			for( buffer_t n = 0; n < frames; n++ )
 			{
-				float vco_vol = ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
-				Data[n]	=   Data[n] + vco_vol * waveFunction_vec[ wfid ].fnc( param );
+				float vco_vol 	= ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
+				Data[n]			= Data[n] + vol_adjust + vco_vol * waveFunction_vec[ wfid ].fnc( param );
 
-				fmo_shift = fmo_vol * fmo_data[n];
-				freq = DynFrequency.GetFrq();
-				param.dphi	=	dT *( freq + fmo_shift ) * spectrum.frqadj[channel] ;
+				fmo_shift 		= fmo_vol * fmo_data[n];
+				freq 			= DynFrequency.Get();
+				param.dphi		= dT *( freq + fmo_shift ) * spectrum.frqadj[channel] ;
 
-				param.phi	+= param.dphi;
-				param.phi 	=  MODPHI( param.phi, param.maxphi );
+				param.phi		+= param.dphi;
+				param.phi 		=  MODPHI( param.phi, param.maxphi );
 			}
-			check_phi( param, dT, freq );
+			check_phi( osc_type, param, dT, freq );
 			phase[channel] = param.phi;
 		}
 	}
 	DynFrequency.Update();
-//	Set_start_freq( start_frq );
 
 	apply_adsr( frames, Data );
 	apply_hall( frames, Data );
 
 }
 
-void Oscillator::Set_long( bool l )
+void Oscillator::Set_long_note( bool l )
 {
 	longnote = l ;
 }
-void Oscillator::Reset_cursor()
+void Oscillator::Reset_beat_cursor()
 {
 	beat_cursor = 0;
 }
@@ -242,7 +250,6 @@ void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 void Oscillator::Test()
 {
 
-	this->TestFrequency();
 
 	TEST_START( className );
 
@@ -270,20 +277,22 @@ void Oscillator::Test()
 	testosc.SetId( osc_struct::INSTRID, osc_struct::OSCID );
 	uint A3 = testosc.Index("A3");
 	ASSERTION( fcomp( frqArray[ A3 ], 220), "frq index", frqArray[ A3 ], 220 );
+
 	phase[0]	= 0.0;
+//	frqArray[A3] = 220.0;
 	testosc.Set_frequency( A3, FIXED ); // 220 Hz
 	testosc.Set_volume( 100, FIXED );
+
 	testosc.OSC( 0 );
 	testosc.OSC( 0 );
 	float a2 = testosc.Mem.Data[0];
 	testosc.OSC( 0 );
-	Comment( TEST, testosc.Show_this_spectrum ( testosc.spectrum ) );
 	float a0 = testosc.Mem.Data[0];
-	cout << "a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
+	Comment( TEST, testosc.Show_this_spectrum ( testosc.spectrum ) );
+	cout << "A3: " << A3 << " a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
 //	for( uint n = 0; n<10;n++ )
 //		cout << dec << (int)testosc.Mem.Data[n] << endl;
 	ASSERTION( fcomp( a0, a2 ), "gen data", a0-a2, "null" );
-//	ASSERTION( fcomp( a0 ,9.42478   ), "Osc volume", a0 , 9.42478)
 
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );

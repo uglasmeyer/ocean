@@ -98,7 +98,7 @@ public:
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
-	Dynamic_class	Volume			{ volume_range };
+	Dynamic_class	DynVolume			{ volume_range };
 
 	StA_status_t state = StA_status_struct();
 

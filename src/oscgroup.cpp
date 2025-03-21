@@ -36,7 +36,7 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
 {
 	if ( idx < 0 ) return;
-	if ( idx == osc.wp.frqidx ) return; // nothing to do
+//	if ( idx == osc.wp.frqidx ) return; // nothing to do but  what about notes
 
 	int diff = idx - osc.wp.frqidx;
 	osc.Set_frequency( idx, mode );
@@ -51,16 +51,22 @@ void Oscgroup_class::Set_Osc_Note( 	const uint8_t& key,
 {
 	Set_Frequency( key, mode );
 	osc.wp.volume	= volume ;
-	std::ranges::for_each( member, [ &duration ](Oscillator*  o){ o->wp.msec = duration ;});
+	std::ranges::for_each( member,
+			[ &duration ](Oscillator*  o){ o->Set_duration( duration );});
+}
+void Oscgroup_class::Data_Reset()
+{
+	std::ranges::for_each( member,
+			[](Oscillator*  o){ o->Data_reset() ;});
+}
+void Oscgroup_class::Connection_Reset()
+{
+	std::ranges::for_each( member,
+			[](Oscillator*  o){ o->Connection_reset() ;});
 }
 
-void Oscgroup_class::Run_Oscgroup( buffer_t offs )
+void Oscgroup_class::Run_Oscgroup( const buffer_t& offs )
 {
-
-	for ( Oscillator* osc : member )
-	{
-		if ( oscroleId == osc_struct::INSTRID )
-			osc->Mem.Clear_data( max_data_amp * osc->wp.adjust * 0.01 );
-		osc->OSC( offs );
-	}
+	std::ranges::for_each( member,
+			[ &offs ](Oscillator* o){ o->OSC( offs ) ;} );
 }

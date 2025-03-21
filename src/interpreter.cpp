@@ -504,7 +504,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
-		Processor_class::Push_key( RESETMAINKEY , "reset main"  );
+		Processor_class::Push_key( RESETOSCKEY , "reset main"  );
 		return;
 	}
 

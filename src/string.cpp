@@ -12,7 +12,7 @@
 
 bool fcomp( const float& a, const float& b, float precision )
 {
-	return ( abs(abs(a) - abs(b)) <= precision ) ? true : false;
+	return ( abs(abs(a) - abs(b)) <= abs(precision) ) ? true : false;
 }
 
 bool strEqual( const string& a, const string& b )

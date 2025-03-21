@@ -30,12 +30,15 @@ public:
 	Oscgroup_class( char id );
 	virtual ~Oscgroup_class();
 
-	void Set_Frequency( const uint8_t& idx, const uint& mode );
+	void Set_Frequency( const uint8_t& idx,
+						const uint& mode );
 	void Set_Osc_Note( 	const uint8_t& key,
 						const uint& duration,
 						const uint& volume,
 						const uint& mode);
-	void Run_Oscgroup( buffer_t offs );
+	void Run_Oscgroup( 	const buffer_t& offs );
+	void Data_Reset();
+	void Connection_Reset();
 	void SetWd( Wavedisplay_class* wd );
 
 };

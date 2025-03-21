@@ -41,12 +41,13 @@ public:
 	void OSC ( const buffer_t& frame_offset );
 	void SetId( char role, char type );
 
-
 	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
 	void Connect_fmo_data( Oscillator* );
-	void Reset_data( );
-	void Set_long( bool );
-	void Reset_cursor();
+	void Connection_reset( );
+
+	void Data_reset( );
+	void Set_long_note( bool );
+	void Reset_beat_cursor();
 
 	void Test();
 	spec_arr_dt		phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};

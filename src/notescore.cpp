@@ -132,7 +132,7 @@ void Note_class::Show_note( note_t note )
 				setw(5) << right << dec << rint( pitch.freq ) <<"|";
 	}
 
-	if ( note.glide[0].note )
+	if ( note.glide[0].glide )
 	{
 		strs 	<< ">" << setw(12) << right << dec << rint(note.glide[0].chord.freq);
 	}
@@ -216,7 +216,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len; // test note_itr
 			note_itr->str.push_back( '>' );
-			note_itr->glide[0].note = true;
+			note_itr->glide[0].glide = true;
 			pos++; //
 			if ( Noteline[pos] == '|' ) // oct change case >|3F
 			{
@@ -378,7 +378,7 @@ void Note_class::assign_freq()
 		{
 			itr->chord[i].freq = CalcFreq( oct_base_freq, itr->chord[i] );
 		}
-		if ( itr->glide[0].note )
+		if ( itr->glide[0].glide )
 		{
 			itr->glide[0].chord.freq = CalcFreq( oct_base_freq, itr->glide[0].chord );
 		}
@@ -402,7 +402,7 @@ void Note_class::split_long_notes()
 		{
 			// old
 			note_buffer = *itr;
-			if ( note_buffer.glide[0].note )
+			if ( note_buffer.glide[0].glide )
 			{
 				float dfreq = note_buffer.glide[0].chord.freq - note_buffer.chord[0].freq;
 				note_buffer.glide[0].chord.freq = note_buffer.chord[0].freq + dfreq * (note_buffer.duration-rest)/(note_buffer.duration);
@@ -411,7 +411,7 @@ void Note_class::split_long_notes()
 			notelist.insert( itr, note_buffer );
 			//new
 			itr->duration = rest;
-			if ( note_buffer.glide[0].note )
+			if ( note_buffer.glide[0].glide )
 			{
 				itr->glide[0].chord.freq = CalcFreq( oct_base_freq, itr->glide[0].chord );
 				itr->chord[0].freq = note_buffer.glide[0].chord.freq;

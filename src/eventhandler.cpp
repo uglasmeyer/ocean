@@ -12,32 +12,38 @@
 
 void Event_class::Handler()
 {
-	string str = Eventque.show();
-	uint8_t event = Eventque.get();
+	auto EvInfo = [ this ]( string str )
+	{
+		if( Eventque.repeat ) return;
+		Info( str );
+	};
+
+	string 	str 	= Eventque.show();
+	uint8_t event 	= Eventque.get();
 
 	if ( event == NULLKEY ) return;
-	Comment( DEBUG, str );
+	EvInfo( str );
 	switch ( event )
 	{
-
-
 	case XMLFILE_KEY :
 	{
 		if ( sds->NotestypeId == NTE_ID ) break;
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
-		Comment(INFO, "receive command <setup play xml notes>");
+		EvInfo( "receive command <setup play xml notes>");
 		Sds->Commit();
 		break;
 	}
 	case UPDATESPECTRUM_KEY:
 	{
+		EvInfo( "Spectrum update");
+
 		Instrument->Update_spectrum();
 		Sds->Commit();
 		break;
 	}
 	case OSCFREQUENCYKEY:
 	{
-		Info( "Slider Mode:" , slidermodes[sds->slidermode] );
+		EvInfo( "Slider Mode: " + slidermodes[sds->slidermode] );
 		if ( sds->slidermode == COMBINE )
 		{
 			Instrument->Oscgroup.Set_Frequency( sds->OSC_wp.frqidx, sds->slidermode );
@@ -58,27 +64,20 @@ void Event_class::Handler()
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
 		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->slidermode );
-//		sds->VCO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
 		sds->VCO_spectrum.frqidx[0] = frqidx;
-
 		Instrument->osc->Connect_vco_data(Instrument->vco);
-
 		Sds->Commit();
 		break;
 	}
-	case FMOFREQUENCYKEY: // modify the fm_track data
+	case FMOFREQUENCYKEY : // modify the fm_track data
 	{
 		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->slidermode );
-//		sds->FMO_spectrum.base = Instrument->osc->spectrum.base;//Calc( frqidx );
 		sds->FMO_spectrum.frqidx[0] = frqidx;
-
-
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
-
 		Sds->Commit();
 		break;
 	}
-	case VCOAMPKEY: // modify the VCO volume
+	case VCOAMPKEY : // modify the VCO volume
 	{
 		Value vol = sds->VCO_wp.volume;
 		Instrument->vco->Set_volume(vol.ch, sds->slidermode);
@@ -89,7 +88,7 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case FMOAMPKEY: // modify the FMO volume
+	case FMOAMPKEY : // modify the FMO volume
 	{
 		Value vol = sds->FMO_wp.volume;
 		Instrument->fmo->Set_volume(vol.ch, sds->slidermode);
@@ -100,24 +99,24 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case MASTERAMP_KEY: // modify main volume
+	case MASTERAMP_KEY : // modify main volume
 	{
 		Mixer->status.mute = false;
-		Mixer->DynVolume.Set( 	sds_master->Master_Amp,
+		Mixer->DynVolume.SetupVol( sds_master->Master_Amp,
 								sds_master->vol_slidemode);
 		Sds->Commit();
 		break;
 	}
-	case ADJUST_KEY:
+	case ADJUST_KEY :
 	{
 		Instrument->vco->wp.adjust = sds->VCO_wp.adjust;
 		Instrument->fmo->wp.adjust = sds->FMO_wp.adjust;
 		Sds->Commit();
 		break;
 	}
-	case MASTERAMP_LOOP_KEY:
+	case MASTERAMP_LOOP_KEY :
 	{
-		Mixer->DynVolume.Set(	sds_master->Master_Amp,
+		Mixer->DynVolume.SetupVol(	sds_master->Master_Amp,
 							SLIDE);
 		Sds->Commit();
 		break;
@@ -126,7 +125,7 @@ void Event_class::Handler()
 	{
 		Mixer->status.mute = not sds->mixer_status.mute;
 		string str = (Mixer->status.mute) ? "Mute" : "UnMute";
-		Comment(INFO, "receiving command <" + str + "> master volume>");
+		EvInfo( "receiving command <" + str + "> master volume>");
 		Sds->Commit();
 		break;
 	}
@@ -177,7 +176,7 @@ void Event_class::Handler()
 	}
 	case SAVE_EXTERNALWAVFILEKEY: // record and save wav file
 	{
-		if (sds_master->Record)
+		if ( sds_master->Record )
 			// Composer - Interpreter
 			sds_master->AudioServer = RECORDSTART; // start and  wait
 		else
@@ -190,14 +189,17 @@ void Event_class::Handler()
 		Comment(INFO, "receive command <set external wave file>");
 		string wavefile = Sds->Read_str(WAVEFILESTR_KEY);
 		Sem->Lock(SEMAPHORE_TEST, 1); // assume record thread is working on that file
-		if (External->Read_file_header(wavefile)) {
+		if (External->Read_file_header(wavefile))
+		{
 			External->Read_file_data();
 			Mixer->StA[MbIdExternal].Play_mode(true);
-			Mixer->StA[MbIdExternal].Volume.Set( 100, FIXED );
+			Mixer->StA[MbIdExternal].DynVolume.SetupVol( 100, FIXED );
 			Mixer->status.external = true;
 			ProgressBar->SetValue(
 					100 * External->Filedata_size / External->ds.mem_bytes);
-		} else {
+		}
+		else
+		{
 			Comment(ERROR, "Failed to setup header");
 		}
 		Sds->Commit();
@@ -240,7 +242,7 @@ void Event_class::Handler()
 	case EXTERNAL_AMPLOOP_KEY: // TODO not working
 	{
 		uint8_t 	Id 		= sds->MIX_Id;
-		Mixer->StA[Id].Volume.Set( sds->StA_amp_arr[Id], SLIDE);
+		Mixer->StA[Id].DynVolume.SetupVol( sds->StA_amp_arr[Id], SLIDE);
 		Sds->Commit();
 		break;
 	}
@@ -249,7 +251,7 @@ void Event_class::Handler()
 		Value mixid { sds->MIX_Id };
 		Value amp { sds->StA_amp_arr[mixid.val] };
 		Value play { sds->StA_state[mixid.val].play };
-		Mixer->StA[mixid.val].Volume.Set( amp.val, SLIDE);
+		Mixer->StA[mixid.val].DynVolume.SetupVol( amp.val, SLIDE);
 		Mixer->Set_mixer_state(mixid.val, (bool) (play.val));
 		Comment(INFO,
 				"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
@@ -277,7 +279,8 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case CLEAR_KEY: {
+	case CLEAR_KEY:
+	{
 		uint8_t id = sds->MIX_Id;
 		Comment(INFO, "Clear StA: " + to_string(id));
 		Mixer->StA[id].Reset_counter();
@@ -294,14 +297,6 @@ void Event_class::Handler()
 				"receive command <toggle play on memory bank" + Id.str
 						+ " >" + to_string(play));
 		Mixer->Set_mixer_state(Id.val, play);
-		Sds->Commit();
-		break;
-	}
-	case RESETMAINKEY: // reset main
-	{
-		Instrument->osc->Mem_vco.Clear_data(max_data_amp);
-		Instrument->osc->Mem_fmo.Clear_data(0);
-		Instrument->osc->Reset_data();
 		Sds->Commit();
 		break;
 	}
@@ -354,17 +349,19 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case NOTESONKEY: {
+	case NOTESONKEY:
+	{
 		Value amp { (int) (sds->StA_amp_arr[MbIdNotes]) };
 		Comment(INFO, "receive command < notes on " + amp.str + "%>");
-		Mixer->StA[MbIdNotes].Volume.Set( amp.val, FIXED );
+		Mixer->StA[MbIdNotes].DynVolume.SetupVol( amp.val, FIXED );
 		Mixer->Set_mixer_state(MbIdNotes, true);
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		//			Notes->Start_note_itr();
 		Sds->Commit();
 		break;
 	}
-	case NOTESOFFKEY: {
+	case NOTESOFFKEY:
+	{
 		Comment(INFO, "receive command < notes off>");
 		Mixer->Set_mixer_state(MbIdNotes, false);
 		Sds->Commit();
@@ -403,22 +400,27 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case CONNECTFMOVCOKEY: // connect FMO volume with vco data
+	case RESETOSCKEY: // reset main
 	{
-		Instrument->fmo->Connect_fmo_data(Instrument->vco);
-		Instrument->osc->Connect_fmo_data(Instrument->fmo);
+		Instrument->osc->Data_reset();
+		Instrument->osc->Connection_reset();
+
 		Sds->Commit();
 		break;
 	}
 	case RESETVCOKEY: // reset VCO
 	{
-		Instrument->vco->Reset_data();
+		Instrument->vco->Data_reset();
+		Instrument->vco->Connection_reset();
+
 		Sds->Commit();
 		break;
 	}
 	case RESETFMOKEY: // reset FMO
 	{
-		Instrument->fmo->Reset_data();
+		Instrument->fmo->Data_reset();
+		Instrument->fmo->Connection_reset();
+
 		Sds->Commit();
 		break;
 	}
@@ -429,18 +431,30 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case SETWAVEFORMFMOKEY: {
+	case CONNECTFMOVCOKEY: // connect FMO volume with vco data
+	{
+		Instrument->fmo->Connect_fmo_data(Instrument->vco);
+		Instrument->osc->Connect_fmo_data(Instrument->fmo);
+		Sds->Commit();
+		break;
+	}
+	case SETWAVEFORMFMOKEY:
+	{
+		EvInfo( "FMO waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
 		Instrument->fmo->Set_waveform( sds->FMO_spectrum.wfid);
 		Sds->Commit();
 		break;
 	}
-	case SETWAVEFORMVCOKEY: {
+	case SETWAVEFORMVCOKEY:
+	{
+		EvInfo( "VCO waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
 		Instrument->vco->Set_waveform( sds->VCO_spectrum.wfid);
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMMAINKEY:
 	{
+		EvInfo( "OSC waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
 		Instrument->osc->Set_waveform( sds->OSC_spectrum.wfid);
 		Sds->Commit();
 		break;
@@ -461,10 +475,9 @@ void Event_class::Handler()
 		Sds->Update(NEWINSTRUMENTFLAG);
 		break;
 	}
-	default: {
-		EXCEPTION(
-				"Communication Key Id >" + to_string((int) (event ))
-						+ "< undefined");
+	default:
+	{
+		EXCEPTION( "Communication Key Id >" + to_string((int) (event ))	+ "< undefined");
 	}
 	} // switch char
 	Mixer->Update_ifd_status_flags(sds);

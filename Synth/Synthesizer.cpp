@@ -92,7 +92,7 @@ void activate_sds()
 	for ( uint id : Mixer.MemIds )
 	{
 		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
-		Mixer.StA[ id ].Volume.Set( DaTA.Sds_p->addr->StA_amp_arr[id], FIXED );
+		Mixer.StA[ id ].DynVolume.SetupVol( DaTA.Sds_p->addr->StA_amp_arr[id], FIXED );
 	}
 	Event.Set_Loglevel( DEBUG, false );
 }
@@ -121,8 +121,10 @@ void add_sound( )
 	}
 
 	if (( Mixer.status.instrument ) )
+	{
+		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_Oscgroup( 0 ); // generate the modified sound waves
-
+	}
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
 	Mixer.Add_Sound( 	Instrument.osc->Mem.Data,

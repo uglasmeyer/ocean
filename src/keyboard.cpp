@@ -41,7 +41,7 @@ void Keyboard_class::set_instrument(  )
 	Oscgroup.osc.fp.data = Oscgroup.fmo.Mem.Data;
 	Oscgroup.osc.Set_duration( 500 );
 	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
-	Oscgroup.osc.Reset_cursor();
+	Oscgroup.osc.Reset_beat_cursor();
 }
 
 bool Keyboard_class::Decay(  )

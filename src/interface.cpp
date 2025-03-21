@@ -415,24 +415,33 @@ void EventQue_class::reset()
 }
 void EventQue_class::add( uint8_t event )
 {
-	if ( event == NULLKEY ) return;
+	if ( event == NULLKEY )
+		return;
 	eventptr = addr->eventptr;
 
-	if ( eventptr.length >= MAXQUESIZE ) return;
-	addr->deque[eventptr.last] = event;
-	eventptr.last = ( eventptr.last + 1 ) % MAXQUESIZE;
-	eventptr.length += 1;
-	addr->eventptr = eventptr;
+	if ( eventptr.length >= MAXQUESIZE )
+	{
+		Comment( ERROR, "Event que overflow");
+		return;
+	}
+
+	addr->deque[eventptr.last] 	= event;
+	eventptr.last 				= ( eventptr.last + 1 ) % MAXQUESIZE;
+	eventptr.length 			+= 1;
+	addr->eventptr 				= eventptr;
 }
 
 uint8_t EventQue_class::get()
 {
-	eventptr = addr->eventptr;
-	if ( eventptr.length == 0 ) return NULLKEY;
-	uint8_t value = addr->deque[eventptr.first];
-	eventptr.first = ( eventptr.first + 1 ) % MAXQUESIZE;
-	eventptr.length -= 1;
-	addr->eventptr = eventptr;
+	eventptr 					= addr->eventptr;
+	if ( eventptr.length == 0 )
+		return NULLKEY;
+	uint8_t value 				= addr->deque[eventptr.first];
+	repeat 						= ( value == prev_event );
+	prev_event 					= value;
+	eventptr.first 				= ( eventptr.first + 1 ) % MAXQUESIZE;
+	eventptr.length 			-= 1;
+	addr->eventptr 				= eventptr;
 	return value;
 }
 

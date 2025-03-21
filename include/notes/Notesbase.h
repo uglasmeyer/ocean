@@ -100,7 +100,7 @@ public:
 	typedef struct glide_struct
 	{
 		pitch_t				chord		= pitch_struct() ;		// eg. B-->F (glide = F)
-		bool				note		= false;
+		bool				glide		= false;
 	} glide_t ;
 
 	typedef struct 	note_struct

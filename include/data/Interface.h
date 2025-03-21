@@ -23,11 +23,15 @@
 static const uint STATE_MAP_SIZE = LASTNUM;
 
 class EventQue_class :
+		virtual Logfacility_class,
 		EventPtr_struct
 {
 public:
-	interface_t*	addr	= nullptr;
+	interface_t*	addr		= nullptr;
 	eventptr_t		eventptr;
+	bool			repeat		= false;
+	uint8_t			prev_event	= NULLKEY;
+
 	EventQue_class(  )  : eventptr()
 	{};
 	virtual ~EventQue_class(){};
