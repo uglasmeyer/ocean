@@ -56,13 +56,15 @@ public:
 	interface_t*		sds_master		= nullptr;
 	Mixer_class ( 	Dataworld_class* 	data,
 					Wavedisplay_class* 	wd );
-	~Mixer_class();
+	virtual ~Mixer_class();
 
 	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
-	void Update_ifd_status_flags( interface_t* sds );
+	void Update_sds_state( interface_t* sds );
 	void Set_mixer_state( const uint& id, const bool& play );
+	bool GetSyncState();
+
 
 	void Test();
 

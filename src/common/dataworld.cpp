@@ -11,15 +11,18 @@
  * Dataworld_class
  ***************/
 
-Dataworld_class::Dataworld_class( uint type_id ) :
-	Logfacility_class( "Dataworld_class")
+Dataworld_class::Dataworld_class( uint appId ) :
+	Logfacility_class( "Dataworld_class"),
+	Appstate( appId ),
+	Reg( appId, Appstate.Name )
 {
 	className = Logfacility_class::className;
-	this->TypeId	= type_id;
+	this->AppId	= appId;
+
 	auto sds_setup = [ this ]( uint sdsid )
 	{
 		Interface_class SDS {Cfg_p, Sem_p };
-		SDS.Type_Id = this->TypeId;
+		SDS.AppId = this->AppId;
 		SDS.Setup_SDS( sdsid, Cfg.Config.sdskeys[sdsid] );
 
 		SDS_vec.push_back( SDS );
@@ -34,16 +37,16 @@ Dataworld_class::Dataworld_class( uint type_id ) :
 	//	test
 	assert( SDS_vec[0].ds.addr != SDS_vec[1].ds.addr );
 
-	Master_Sds_p	= &SDS_vec[0];
+	Sds_master	= &SDS_vec[0];
 	sds_master = (interface_t*) SDS_vec[0].ds.addr;
 
-	Reg.Setup( sds_master, TypeId );
+	Reg.Setup( sds_master );
 	SDS_Id = Reg.GetId(  );
 	sds_master->SDS_Id = 0;
 
 	Sds_p = GetSds();
-
-
+	( AppId == SYNTHID ) ? 	Appstate.Setup( Sds_p->addr ) :
+							Appstate.Setup( sds_master ) ;
 	if ( Reg.Is_dataprocess() )
 	{
 		Comment(INFO,"Attaching stereo buffers");
@@ -93,7 +96,7 @@ interface_t* Dataworld_class::GetSdsAddr( )
 }
 interface_t* Dataworld_class::GetSdsAddr( int id )
 {
-	Comment( DEBUG, "SDS Id: " + to_string( id ) + " " + Type_map( TypeId ) );
+	Comment( DEBUG, "SDS Id: " + to_string( id ) + " " + Appstate.Name );
 	if (( id<0) or ( id > (int)MAXCONFIG ))
 	{
 		EXCEPTION( "no such Shared Data Segment ");
@@ -131,6 +134,16 @@ stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 
 	return addr;
 }
+
+void Dataworld_class::EmitEvent( const uint8_t flag, string comment )
+{
+	if ( sds_master->UserInterface != RUNNING )
+		return;
+	sds_master->FLAG = flag;
+	Sds_master->Write_str( UPDATELOG_EVENT, comment );
+	Sem_p->Release( SEMAPHORE_EVENT );
+};
+
 
 void Dataworld_class::Test_Dataworld()
 {
@@ -221,7 +234,7 @@ bool EventLog_class::capture( uint8_t sdsid, bool flag )
 							file_structure().session_dump_file,
 							filesystem::copy_options::overwrite_existing);
 		Sds->Eventque.reset();
-		Sds->Update( INSTRUMENTSTR_KEY );
+		DaTA->EmitEvent( INSTRUMENTSTR_KEY );
 	}
 	else
 	{
@@ -232,7 +245,7 @@ bool EventLog_class::capture( uint8_t sdsid, bool flag )
 		Sds->Restore_ifd();
 		write_log();
 		spool();
-		Sds->Update( INSTRUMENTSTR_KEY );
+		DaTA->EmitEvent( INSTRUMENTSTR_KEY );
 		capture_state = CAPTURE;
 	}
 	return flag;

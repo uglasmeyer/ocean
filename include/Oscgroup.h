@@ -21,13 +21,14 @@ class Oscgroup_class :
 		public virtual Note_base
 {
 public:
-	Oscillator 				osc;
-	Oscillator 				vco;
-	Oscillator 				fmo;
-	oscvec_t				member;
+	Oscillator 				vco;//{ osc_struct::VCOID };
+	Oscillator 				fmo;//{ osc_struct::FMOID };
+	Oscillator 				osc;//{ osc_struct::OSCID };
+
+	oscvec_t				member{};// = { &vco, &fmo, &osc };
 	char					oscroleId;
 
-	Oscgroup_class( char id );
+	Oscgroup_class( char role );
 	virtual ~Oscgroup_class();
 
 	void Set_Frequency( const uint8_t& idx,
@@ -36,10 +37,17 @@ public:
 						const uint& duration,
 						const uint& volume,
 						const uint& mode);
-	void Run_Oscgroup( 	const buffer_t& offs );
+	void Run_OSCs( 	const buffer_t& offs );
+	void Set_Duration( 	const uint& duration );
+
 	void Data_Reset();
 	void Connection_Reset();
 	void SetWd( Wavedisplay_class* wd );
+	string Show_Spectrum( );
+	Oscillator* Get_osc_by_name( const string& name );
+	void SetSlide( const uint8_t& value );
+
+
 
 };
 

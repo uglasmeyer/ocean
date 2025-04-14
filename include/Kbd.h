@@ -11,7 +11,6 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-using namespace std;
 
 static const int	NoKey 	= 0;
 typedef struct key_struct

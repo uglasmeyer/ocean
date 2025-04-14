@@ -7,30 +7,26 @@
 
 #include <Osc.h>
 
-Oscillator::Oscillator( ) :
+Oscillator::Oscillator( char role,  char type ) :
 		Logfacility_class( "Oscillator" ),
 		Oscillator_base()
 {
-	className = Logfacility_class::className;
-}
-Oscillator::~Oscillator()
-{
-}
+	className 	= Logfacility_class::className;
+	osctype_id	= type;
+	osc_type 	= OscRole.types[osctype_id];
 
-void Oscillator::SetId( char role, char type )
-{
-	osctype_id		= type;
-	osc_type 		= OscRole.types[osctype_id];
 	oscrole_id		= role;
 	osc_role		= OscRole.roles[oscrole_id];
 
 	is_osc_type 	= ( osctype_id == OscRole.OSCID );
 	is_fmo_type		= ( osctype_id == OscRole.FMOID );
+	is_vco_type		= ( osctype_id == OscRole.VCOID );
+	is_kbd_role 	= ( oscrole_id == OscRole.KBDID );
 	is_notes_role 	= ( oscrole_id == OscRole.NOTESID );
 	is_instr_role 	= ( oscrole_id == OscRole.INSTRID );
 
-	Data_reset();
 	Connection_reset();
+	Data_reset();
 
 	Mem_vco.Info( osc_type );
 	Mem_fmo.Info( osc_type );
@@ -38,18 +34,26 @@ void Oscillator::SetId( char role, char type )
 
 	Comment( INFO, osc_role + " " + osc_type + " initialized" );
 
+
 }
 
+Oscillator::~Oscillator() = default;
+
+
+void Oscillator::Phase_reset()
+{
+	phase = default_phase;
+}
 void Oscillator::Data_reset(  )
 {
+	this->fp.Mem->Clear_data( 0 );
+	this->vp.Mem->Clear_data( 0 );//max_data_amp );
 	this->Mem.Clear_data( 0 );
-	this->Mem_fmo.Clear_data(0);
-	this->Mem_vco.Clear_data(max_data_amp);
 }
 
 void Oscillator::Connect_vco_data( Oscillator* osc)
 {
-	this->vp.data 	= osc->Mem.Data;
+	this->vp.Mem	= &osc->Mem;
 	this->vp.osc_id = osc->osctype_id;
 	this->vp.volume = osc->wp.volume;
 	this->vp.name 	= osc->osc_type;
@@ -57,7 +61,7 @@ void Oscillator::Connect_vco_data( Oscillator* osc)
 
 void Oscillator::Connect_fmo_data( Oscillator* osc )
 {
-	this->fp.data 	= osc->Mem.Data;
+	this->fp.Mem 	= &osc->Mem;
 	this->fp.osc_id = osc->osctype_id;
 	this->fp.volume = osc->wp.volume;
 	this->fp.name 	= osc->osc_type;
@@ -65,8 +69,9 @@ void Oscillator::Connect_fmo_data( Oscillator* osc )
 
 void Oscillator::Connection_reset( )
 {
-	this->vp.data 	= this->Mem_vco.Data;
-	this->fp.data 	= this->Mem_fmo.Data;
+
+	this->vp.Mem 	= &this->Mem_vco;
+	this->fp.Mem 	= &this->Mem_fmo;
 
 	this->vp.volume = 0;
 	this->fp.volume = 0;
@@ -78,7 +83,12 @@ void Oscillator::Connection_reset( )
 	this->vp.osc_id = this->osctype_id;
 }
 
-auto check_phi = [ ]( string type, param_t param, phi_t dT, float start_freq )
+Data_t* Oscillator::MemData()
+	{ return Mem.Data; };
+Data_t Oscillator::MemData( buffer_t n)
+	{ return Mem.Data[n]; };
+
+auto check_phi = [ ]( string type, param_t param, phi_t dT, float freq )
 {
 	if ( param.maxphi < abs(param.dphi) )
 	{
@@ -86,51 +96,50 @@ auto check_phi = [ ]( string type, param_t param, phi_t dT, float start_freq )
 		cout << "maxphi     " << param.maxphi 	<< endl;
 		cout << "phi        " << param.phi  	<< endl;
 		cout << "dT         " << dT   			<< endl;
-		cout << "start_freq " << start_freq 	<< endl;
+		cout << "freq       " << freq 			<< endl;
 		EXCEPTION( "maxphi exceeds limit: " + to_string(param.maxphi) + " < " + to_string( abs(param.dphi)) );
 	}
 };
+auto hallphi = [  ]( uint8_t adsr_hall, phi_t max )
+{
+	//	const float 	d0 		= 10.0; // distance to the receiver of sound
+	//	const float 	distance= adsr.hall * 0.05  + d0 ; // distance to a wall in meter [m]
+	//	const float		c		= 330.0; // speed of sound  [m/s]
+	//	const float 	hT 		= distance / c; // time delay [seconds]
+	//	const buffer_t 	hframes	= rint( hT * frames_per_sec  ) ;// frame delay [# of frames]
 
+	return max * adsr_hall * 0.01;
+};
 #define MODPHI( phi, maxphi )\
 	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
 
-void Oscillator::OSC (  const buffer_t& frame_offset )
+void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 /*
  * Generator of sound waves
  */
 {
 
 
-	// feature fmo freq decay
-//	if ( is_fmo_type )
-//	{
-//		DynFrequency.future = 0;
-//	}
-
-
-	float				freq 		= DynFrequency.present ;//this->wp.frequency;
-	DynFrequency.SetDelta( wp.glide_effect );
-	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
+// see set_duration //	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
+	buffer_t 			frames		= wp.frames;
 	phi_t 				dt 			= 1.0/frames_per_sec;	//seconds per frame
 
-	Data_t* 			Data 		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
-	Data_t*				fmo_data	= this->fp.data 	+ frame_offset;// * sizeof_data;
-	Data_t* 			vco_data	= this->vp.data 	+ frame_offset;// * sizeof_data;
+	Data_t* 			oscData		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
+	Data_t*				fmoData		= this->fp.Mem->Data+ frame_offset;// * sizeof_data;
+	Data_t* 			vcoData		= this->vp.Mem->Data+ frame_offset;// * sizeof_data;
 
 	float 				fmo_vol 	= 0.001*(float)this->fp.volume;
 	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
 
 	if ( is_osc_type )
 		if ( not is_notes_role  )
-			vol_per_cent		= 1;// the volume of the osc is constant for the instr role
-									// the volume is managed by the mixer
-									// If the osc has the notes role the osc volume is managed
-									// by the rhythm volume and the mixer
+			vol_per_cent	= 1;// the volume of the osc is constant for the instr role
+								// because this volume is managed by the mixer
+								// If the osc has the notes role the osc volume is managed
+								// by the rhythm volume and the mixer
 
-	Data_t	vol_adjust	= ( max_data_amp * wp.adjust ) * 0.005;
 	Data_t 	vco_adjust 	= max_data_amp / 2;
-	if ( not is_osc_type )
-		vco_adjust = 0;
+	Data_t	vol_adjust	= ( vco_adjust * wp.adjust ) * 0.01;
 
 	if ( frames > max_frames )
 		frames = max_frames;
@@ -146,103 +155,72 @@ void Oscillator::OSC (  const buffer_t& frame_offset )
 	}
 
 	Sum( spectrum );
-
-	param_t param 	= param_struct();
-	param.pmw		= 1.0 + (float)wp.PMW_dial * 0.01;
-	phi_t dT 		= 0;
-	float fmo_shift = 0;
-				// difference to the target frequency <freq> - <start_freq>
-
+	DynFrequency.SetDelta( wp.glide_effect );
+	param_t 	param 		= param_struct();
+				param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
 
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
 		if ( spectrum.volidx[channel] > 0 )
 		{
-			uint8_t wfid= spectrum.wfid[channel];
-			param.maxphi= waveFunction_vec[ wfid ].maxphi;
-			param.phi	= phase[channel];
-			dT 			= param.maxphi * dt; // 2pi dt
-			param.amp	= spectrum.vol[channel];
+			frq_t 			freq 			= DynFrequency.Reset_state();
+			frq_t			frq_adjust		= spectrum.frqadj[channel];
+			uint8_t 		wfid			= spectrum.wfid[channel];
+			wave_function_t	fnc 			= waveFunction_vec[ wfid ].fnc;
+							param.maxphi	= waveFunction_vec[ wfid ].maxphi;
+							param.phi		= phase[channel];
+							param.amp		= spectrum.vol[channel];
+							phi_t dT		= param.maxphi * dt;
 
 			for( buffer_t n = 0; n < frames; n++ )
 			{
-				float vco_vol 	= ((vco_adjust + vco_data[n]) * vol_per_cent ); // VCO envelope
-				Data[n]			= Data[n] + vol_adjust + vco_vol * waveFunction_vec[ wfid ].fnc( param );
+				float 	vco_vol 	= ((vco_adjust 	+ vcoData[n]) 	* vol_per_cent );
+						oscData[n]	= oscData[n]	+ vol_adjust 	+ vco_vol * fnc( param );
 
-				fmo_shift 		= fmo_vol * fmo_data[n];
-				freq 			= DynFrequency.Get();
-				param.dphi		= dT *( freq + fmo_shift ) * spectrum.frqadj[channel] ;
+						freq 		= DynFrequency.Get();
+						param.dphi	= dT *( freq + fmo_vol * fmoData[n] ) * frq_adjust;
 
-				param.phi		+= param.dphi;
-				param.phi 		=  MODPHI( param.phi, param.maxphi );
+						param.phi	= param.phi + param.dphi;
+						param.phi 	= MODPHI( param.phi, param.maxphi );
 			}
 			check_phi( osc_type, param, dT, freq );
 			phase[channel] = param.phi;
+			DynFrequency.Update();
 		}
 	}
-	DynFrequency.Update();
 
-	apply_adsr( frames, Data );
-	apply_hall( frames, Data );
-
+	if (  is_osc_type )
+		apply_adsr( frames, oscData );
 }
 
 void Oscillator::Set_long_note( bool l )
 {
 	longnote = l ;
 }
+
 void Oscillator::Reset_beat_cursor()
 {
-	beat_cursor = 0;
+	beat_cursorL = 0;
+	set_beatcursorR();
 }
 void Oscillator::apply_adsr( buffer_t frames, Data_t* data )
 {
-	if ( adsr.bps == 0 )	 	return;
-	if ( not is_osc_type )		return;
-	if ( adsrdata.size() == 0 )	return;
+	if ( adsr.bps == 0 ) return;
+	if ( beat_frames == 0 ) return;
 
+	float	dbL = 0.5;
+	float 	dbR	= 1.0 - dbL;
 	for ( uint n = 0; n < frames; n++ )
 	{
-		data[ n ] = data[ n ] * adsrdata[ beat_cursor ];
-		beat_cursor = ( beat_cursor + 1 ) % adsrdata.size();
+		data[ n ] = data[ n ] * ( adsrdata[ beat_cursorL ]*dbL + adsrdata[ beat_cursorR ]*dbR );
+		beat_cursorL = ( beat_cursorL + 1 ) % beat_frames;;
+		beat_cursorR = ( beat_cursorR + 1 ) % beat_frames;;
 	}
-	if ( oscrole_id == OscRole.KBDID )
-		cout << "beat_cursor: " << (int) beat_cursor << endl;
+	if ( is_kbd_role )
+		Comment( DEBUG, "beat_cursor: " , (int) beat_cursorL );
 }
 
-void Oscillator::apply_hall( buffer_t frames, Data_t* data )
-{ 	// adsr.hall determines the distance to a wall
-	// db describes the decay of an amplitude given at the origon n
-	// dn is the distance of the wall in frame units
-	//	buffer_t dn 	= ( ( adsr.hall*adsr.hall )/100.0 * max_frames ) / 100;;
 
-	if ( adsr.hall == 0 )	return;
-	if ( not is_osc_type ) 	return;
-
-	auto gen_halldata = [ this, frames, data]( float db)
-	{
-		DataVec_t Data {};
-		for ( buffer_t n = 0; n < frames; n++ )
-		{
-			Data.push_back( data[ n ] * db  );
-		}
-		return Data;
-	};
-
-	const float 	d0 		= 10.0; // distance to the receiver of sound
-	const float 	distance= d0 + adsr.hall/10.0; // distance to a wall in meter [m]
-	const float		c		= 330.0; // sound speed [m/s]
-	const float 	dt 		= (2.0 * distance) / c; // time delay [seconds]
-	const buffer_t 	dn 		= rint(dt * frames_per_sec) ;// frame delay [# of frames]
-	const float		db 		= 0.4; // the decay is a constant of the wall
-
-	DataVec_t halldata = gen_halldata( db );
-
-	for ( buffer_t n = dn; n < frames; n++ )
-	{
-		data[n] = data[n] + halldata[n-dn];
-	}
-}
 
 
 
@@ -250,21 +228,22 @@ void Oscillator::apply_hall( buffer_t frames, Data_t* data )
 void Oscillator::Test()
 {
 
+	DynFrequency.TestFrq();
 
 	TEST_START( className );
 
 
-	assert( abs( Mem_vco.Data[0] - max_data_amp)	< 1E-8 );
-	assert( abs( Mem_fmo.Data[0]				)	< 1E-8 );
+	assert( abs( Mem_vco.Data[0] )	< 1E-8 );
+	assert( abs( Mem_fmo.Data[0] )	< 1E-8 );
 	assert( Mem.ds.data_blocks 	== max_frames );
 
 	vector_str_t arr = { "TYPE","VCO","Sinus","17","2000","100","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
-	float f = Calc( wp.frqidx);
+	float f = GetFrq( wp.frqidx);
 	ASSERTION( fcomp( f, 8) , "Frequency", f, 8 );
 	Set_duration( max_milli_sec );
 
-	ASSERTION( fcomp( oct_base_freq, Calc( C0 )), "osc_base_freq" , oct_base_freq, Calc( C0 ));
+	ASSERTION( fcomp( oct_base_freq, GetFrq( C0 )), "osc_base_freq" , oct_base_freq, GetFrq( C0 ));
 	spectrum 	= spec_struct();
 	adsr 		= adsr_struct();
 
@@ -273,13 +252,11 @@ void Oscillator::Test()
 	adsr.attack = 50;
 	adsr.decay = 5;
 
-	Oscillator testosc {};
-	testosc.SetId( osc_struct::INSTRID, osc_struct::OSCID );
+	Oscillator testosc {osc_struct::INSTRID,  osc_struct::OSCID };
 	uint A3 = testosc.Index("A3");
 	ASSERTION( fcomp( frqArray[ A3 ], 220), "frq index", frqArray[ A3 ], 220 );
 
 	phase[0]	= 0.0;
-//	frqArray[A3] = 220.0;
 	testosc.Set_frequency( A3, FIXED ); // 220 Hz
 	testosc.Set_volume( 100, FIXED );
 
@@ -288,7 +265,7 @@ void Oscillator::Test()
 	float a2 = testosc.Mem.Data[0];
 	testosc.OSC( 0 );
 	float a0 = testosc.Mem.Data[0];
-	Comment( TEST, testosc.Show_this_spectrum ( testosc.spectrum ) );
+	Comment( TEST, testosc.Show_this_spectrum (  ) );
 	cout << "A3: " << A3 << " a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
 //	for( uint n = 0; n<10;n++ )
 //		cout << dec << (int)testosc.Mem.Data[n] << endl;
@@ -296,11 +273,57 @@ void Oscillator::Test()
 
 	testosc = *this; // test copy constructor
 	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );
-	float fthis = Calc( this->wp.frqidx );
-	float ftest = Calc( testosc.wp.frqidx);
+	float fthis = GetFrq( this->wp.frqidx );
+	float ftest = GetFrq( testosc.wp.frqidx);
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );
 
 
 	TEST_END( className );
 }
 
+/*
+               Receiver                Data[Event]              Data[Event]
+              _Amplitude          _    Emission                 Receiver
+                         |___r__|_ w |                          present data[0], past data[h]
+                         |\     |    |
+                         | \    |    |
+                         |  \   |   /|
+                         |   \  |  / |
+                         |    \ | /  |                          past data[h]
+               h=2r/c    |\    \|/   | present data[0]
+                         | \    |    |
+                         |  \   |\   |
+                         |   \  | \  |                          present data[h]
+                         |\   \ |  \ |                                        ]
+               he=r/c    | \   \|   \| past data[0]
+                         |  \   |   /|
+                         |   \  |\ / |
+                 _____________\_|_/  |                          present data[0], past data[h1]
+                         |\    \|/ \ | present data[h]
+                         | \    |   \| past data[0]
+                         |  \   |\  /|
+                         |   \  | \/ |
+ A[(2w+r)/c]  =A[h]+A[t] |    \ |_/\ |                          past data[h0]
+                         |\    \|/  \| present data[0[
+                         | \    |    |
+                         |  \   |\   |
+                         |   \  | \  |                          present data[h]
+                         |\   \ |  \ |
+                         | \   \|   \| past data[h1]
+                         |  \   |   /|
+                         |   \  |\ / |
+           __________________ \_| \  |_                         present data[h0], past data[0]
+                         |\    \|/ \ | present data[h1]
+                         | \    |   \| past data[h0]
+                         |  \   |   /|
+                         |   \  |  / |
+  	                     |    \ | /  |
+                         |  r  \|/ w | present data[h0]
+ 	              Receiver   Sender   Wall (db coefficient)
+
+
+
+
+
+ *
+ */

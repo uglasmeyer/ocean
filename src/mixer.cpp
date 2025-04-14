@@ -12,12 +12,12 @@
  *  Mixer_class
  ***********************/
 
-Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
-: Logfacility_class("Mixer")
+Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
+	Logfacility_class("Mixer")
 {
 	this->className = Logfacility_class::className;
 
-	cout << "Init Mixer_class" << endl;
+	Info( "Init Mixer_class" );
 	this->sds 			= data->GetSdsAddr( );
 	this->sds_master 	= data->sds_master;
 	this->DaTA			= data;
@@ -64,17 +64,26 @@ void Mixer_class::clear_memory()
 	// clear temporary memories
 	Out_L.Clear_data(0);
 	Out_R.Clear_data(0);
-	Mono.Clear_data(0); // Wavedisplay mono col data
+	Mono.Clear_data(0);
 }
 
 void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 {
 	Comment( INFO, "Reset SDS state" );
-	std::ranges::for_each( state_arr, 	[ ]( auto& state ){ state.store = false;});
+	std::ranges::for_each( state_arr, 	[ ]( auto& state )
+			{ state.store = false;});
 	for ( Storage_class sta : StA )
 		sta.Reset_counter();
 }
 
+bool Mixer_class::GetSyncState()
+{
+	status.sync = false;
+
+	std::ranges::for_each( SycIds, [ this ](auto id )
+			{ status.sync |= ( StA[id].state.play or StA[id].state.store )  ;} );
+	return status.sync;
+}
 
 void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 {
@@ -87,11 +96,10 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 		default				:	break;
 	}
 
-
 	StA[id].Play_mode( play );
 
 };
-void Mixer_class::Update_ifd_status_flags( interface_t* sds )
+void Mixer_class::Update_sds_state( interface_t* sds )
 {
 
 	sds->mixer_status =  status;
@@ -111,6 +119,7 @@ void Mixer_class::add_mono(Data_t* Data, const uint& id )
 
 	assert( phase_r.size() == StA.size() );
 
+
 	StA[id].DynVolume.SetDelta( sds_master->slide_duration );
 	for( buffer_t n = 0; n < sds_master->audioframes/*max_frames*/; n++)
 	{
@@ -128,14 +137,16 @@ void Mixer_class::add_stereo( stereo_t* data  )
 // by applying master volume per Synthesizer
 {
 	buffer_t	audioframes		= sds_master->audioframes;
+	float balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
+	float balanceR	= 1.0 - balanceL;
 
 	DynVolume.SetDelta( sds_master->slide_duration);
 	for( buffer_t n = 0; n < audioframes ; n++ )
 	{
 		float
 		vol_percent 	= DynVolume.Get();
-		data[n].left 	+= rint( Out_L.Data[n]	* vol_percent );
-		data[n].right 	+= rint( Out_R.Data[n] 	* vol_percent );
+		data[n].left 	+= rint( Out_L.Data[n]	* vol_percent * balanceL );
+		data[n].right 	+= rint( Out_R.Data[n] 	* vol_percent * balanceR );
 	}
 	DynVolume.Update();
 
@@ -148,7 +159,7 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 	{
 		cout << dec << composer << " " << arr_id << endl;
 		Notes->Generate_note_chunk( );
-		StA[ arr_id ].Store_block( Notes->Oscgroup.osc.Mem.Data );
+		StA[ arr_id ].Store_block( Notes->Oscgroup.osc.MemData() );
 		composer--;
 	}
 	StA[ arr_id ].Record_mode( false );
@@ -211,10 +222,13 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 void Mixer_class::Test()
 {
+
 	DaTA->Sds_p->Set_Loglevel( INFO, true );
 	DaTA->Sds_p->Reset_ifd();
 
-	DynVolume.Test( );
+	DynVolume.TestVol( );
+
+	TEST_START( className);
 
 	sds_master->audioframes = min_frames;
 	sds_master->slide_duration = 1;
@@ -223,22 +237,22 @@ void Mixer_class::Test()
 	DynVolume.SetupVol( 75 , SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
-			(int)DynVolume.past,(int)DynVolume.future);
+	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
+			(int)DynVolume.current.past,(int)DynVolume.current.future);
 
 	DynVolume.SetupVol( 50, FIXED );
 	DynVolume.SetupVol( 75, SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
-			(int)DynVolume.past,(int)DynVolume.future);
+	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
+			(int)DynVolume.current.past,(int)DynVolume.current.future);
 
 	DynVolume.SetupVol( 50, FIXED );
 	DynVolume.SetupVol( 75, SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
-			(int)DynVolume.past,(int)DynVolume.future);
+	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
+			(int)DynVolume.current.past,(int)DynVolume.current.future);
 
 	sds_master->slide_duration = 100;
 	sds_master->audioframes = max_frames;
@@ -249,8 +263,8 @@ void Mixer_class::Test()
 		add_stereo( DaTA->ShmAddr_0 );
 
 	}
-	ASSERTION(   DynVolume.past ==   DynVolume.future, "start_volume",
-			(int)DynVolume.past,(int)DynVolume.future);
+	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
+			(int)DynVolume.current.past,(int)DynVolume.current.future);
 
 	TEST_START( className );
 	Mono.Set_Loglevel( TEST, true );

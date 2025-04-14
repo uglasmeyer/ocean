@@ -94,6 +94,7 @@ public:
 		int			 		alter 		= 0 ; 	// -1,0, +1
 		int 				step		= -12 ;	// -12, 0, 1...12
 		uint 				octave		= 2	;
+		uint8_t				frqidx		= 1 ;
 		float				freq		= 0.0;
 	} pitch_t;
 

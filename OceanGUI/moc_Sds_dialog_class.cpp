@@ -1,48 +1,66 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Sds_dialog_class.h'
 **
-** Created by: The Qt Meta Object Compiler version 67 (Qt 5.15.15)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.6.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include <memory>
 #include "Sds_dialog_class.h"
-#include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
+
+#if __has_include(<QtCore/qtmochelpers.h>)
+#include <QtCore/qtmochelpers.h>
+#else
+QT_BEGIN_MOC_NAMESPACE
+#endif
+
+
+#include <memory>
+
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Sds_dialog_class.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 67
-#error "This file was generated using the moc from 5.15.15. It"
+#elif Q_MOC_OUTPUT_REVISION != 68
+#error "This file was generated using the moc from 6.6.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
 
-QT_BEGIN_MOC_NAMESPACE
+#ifndef Q_CONSTINIT
+#define Q_CONSTINIT
+#endif
+
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_SDS_Dialog_class_t {
-    QByteArrayData data[1];
+QT_WARNING_DISABLE_GCC("-Wuseless-cast")
+namespace {
+
+#ifdef QT_MOC_HAS_STRINGDATA
+struct qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS_t {};
+constexpr auto qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS = QtMocHelpers::stringData(
+    "SDS_Dialog_class"
+);
+#else  // !QT_MOC_HAS_STRING_DATA
+struct qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS_t {
+    uint offsetsAndSizes[2];
     char stringdata0[17];
 };
-#define QT_MOC_LITERAL(idx, ofs, len) \
-    Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
-    qptrdiff(offsetof(qt_meta_stringdata_SDS_Dialog_class_t, stringdata0) + ofs \
-        - idx * sizeof(QByteArrayData)) \
-    )
-static const qt_meta_stringdata_SDS_Dialog_class_t qt_meta_stringdata_SDS_Dialog_class = {
+#define QT_MOC_LITERAL(ofs, len) \
+    uint(sizeof(qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS_t::offsetsAndSizes) + ofs), len 
+Q_CONSTINIT static const qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS_t qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS = {
     {
-QT_MOC_LITERAL(0, 0, 16) // "SDS_Dialog_class"
-
+        QT_MOC_LITERAL(0, 16)   // "SDS_Dialog_class"
     },
     "SDS_Dialog_class"
 };
 #undef QT_MOC_LITERAL
+#endif // !QT_MOC_HAS_STRING_DATA
+} // unnamed namespace
 
-static const uint qt_meta_data_SDS_Dialog_class[] = {
+Q_CONSTINIT static const uint qt_meta_data_CLASSSDS_Dialog_classENDCLASS[] = {
 
  // content:
-       8,       // revision
+      12,       // revision
        0,       // classname
        0,    0, // classinfo
        0,    0, // methods
@@ -55,6 +73,19 @@ static const uint qt_meta_data_SDS_Dialog_class[] = {
        0        // eod
 };
 
+Q_CONSTINIT const QMetaObject SDS_Dialog_class::staticMetaObject = { {
+    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
+    qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS.offsetsAndSizes,
+    qt_meta_data_CLASSSDS_Dialog_classENDCLASS,
+    qt_static_metacall,
+    nullptr,
+    qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS_t,
+        // Q_OBJECT / Q_GADGET
+        QtPrivate::TypeAndForceComplete<SDS_Dialog_class, std::true_type>
+    >,
+    nullptr
+} };
+
 void SDS_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     (void)_o;
@@ -62,16 +93,6 @@ void SDS_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
     (void)_c;
     (void)_a;
 }
-
-QT_INIT_METAOBJECT const QMetaObject SDS_Dialog_class::staticMetaObject = { {
-    QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_SDS_Dialog_class.data,
-    qt_meta_data_SDS_Dialog_class,
-    qt_static_metacall,
-    nullptr,
-    nullptr
-} };
-
 
 const QMetaObject *SDS_Dialog_class::metaObject() const
 {
@@ -81,7 +102,7 @@ const QMetaObject *SDS_Dialog_class::metaObject() const
 void *SDS_Dialog_class::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_SDS_Dialog_class.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_CLASSSDS_Dialog_classENDCLASS.stringdata0))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }
@@ -92,4 +113,3 @@ int SDS_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     return _id;
 }
 QT_WARNING_POP
-QT_END_MOC_NAMESPACE

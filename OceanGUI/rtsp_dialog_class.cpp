@@ -1,9 +1,7 @@
 
-#include "Rtsp_dialog_class.h"
-#include "ui_Rtsp_dialog_class.h"
+#include <Rtsp_dialog_class.h>
 
 
-//Ui::Rtsp_Dialog_class UI_Rtsp_Dialog_Obj{};
 
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
@@ -11,14 +9,14 @@ Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
     : Logfacility_class(Ui::ClassName),
 	  Config_class( Ui::ClassName ),
 	  QDialog(parent),
-	  ui( new Ui::Rtsp_Dialog_class)
+	  ui( new Ui::Rtsp_Dialog_class {})
 {
-//	ui = &UI_Rtsp_Dialog_Obj;
     ui->setupUi(this);
     this->DaTA		= data;
     this->Sds		= DaTA->GetSds( SDS_ID );
     this->Sds_master= DaTA->GetSdsAddr( 0 );
 
+    UpdateLog( "Init RTSP log" );
     proc_table_update_all();
 }
 Rtsp_Dialog_class::~Rtsp_Dialog_class()
@@ -27,6 +25,10 @@ Rtsp_Dialog_class::~Rtsp_Dialog_class()
 //	delete(ui);
 }
 
+void Rtsp_Dialog_class::UpdateLog( const QString& logstr )
+{
+	ui->tB_log->append( logstr );
+}
 void Rtsp_Dialog_class::proc_table( uint row, uint col, string text)
 {
 	QVariant 			Text( QString( text.data() ));
@@ -39,7 +41,7 @@ void Rtsp_Dialog_class::proc_table( uint row, uint col, string text)
 void Rtsp_Dialog_class::proc_table_update_row( uint row )
 {
 	process_t proc { Sds_master->process_arr.at( row ) };
-	string text = Type_map( proc.type );
+	string text = AppIdName( proc.type );
 	proc_table( row, 0, text );
 
 	if ( row > 0 )

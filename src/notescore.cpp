@@ -155,7 +155,7 @@ Note_class::note_t Note_class::Char2note( char& ch )
 	pitch.step_char			= ch;
 	pitch.alter				= 0;
 	pitch.octave			= Octave;
-	pitch.freq 				= CalcFreq( oct_base_freq, pitch );
+//	pitch.freq 				= CalcFreq( oct_base_freq, pitch );
 
 	note_buffer.chord.push_back( pitch );
 	note_buffer.str.push_back(ch);
@@ -377,14 +377,17 @@ void Note_class::assign_freq()
 		for( size_t i = 0; i < itr->chord.size() ; i++ )
 		{
 			itr->chord[i].freq = CalcFreq( oct_base_freq, itr->chord[i] );
+			itr->chord[i].frqidx = GetFrqIndex( itr->chord[i] );
 		}
 		if ( itr->glide[0].glide )
 		{
 			itr->glide[0].chord.freq = CalcFreq( oct_base_freq, itr->glide[0].chord );
+			itr->glide[0].chord.frqidx = GetFrqIndex( itr->glide[0].chord );
 		}
 		else
 		{
 			itr->glide[0].chord.freq = itr->chord[0].freq;
+			itr->glide[0].chord.frqidx = itr->chord[0].frqidx;
 		}
 		itr++;
 	}

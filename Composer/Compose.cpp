@@ -243,7 +243,7 @@ int main( int argc, char* argv[] )
 		exit_proc( 0 );
 	}
 
-	App.Sds->Announce(  );
+	DaTA.Appstate.Announce(  );
 
     App.Ready();
 

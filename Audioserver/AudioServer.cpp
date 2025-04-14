@@ -106,7 +106,8 @@ void save_record_fcn()
 		string filename = file_structure().get_rec_filename( Fileno.val);
 		Sds->Write_str( OTHERSTR_KEY, filename );
 		Log.Info( "recording to file " + filename + "done");
-		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
+		DaTA.EmitEvent( RECORDWAVFILEFLAG );
+//		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
 		SaveRecordFlag = false;
 	}
 
@@ -145,7 +146,6 @@ void exit_intro( int signal )
 void exit_proc( int signal )
 {
 	exit_intro( signal );
-
 
 	shutdown_thread();
 
@@ -404,7 +404,7 @@ int main( int argc, char *argv[] )
 	App.Shutdown_instance( );
 
 
-	App.Sds->Announce(  );
+	DaTA.Appstate.Announce();
 
 	for ( int n = 0; n < 4; ++n)
 	{

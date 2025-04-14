@@ -54,6 +54,7 @@ Note_base::pitch_t Musicxml_class::get_pitch( XMLElement* cp )
 	{
 		pitch.alter = get_int( 0, p );
 	}
+	pitch.frqidx = Notes.GetFrqIndex( pitch );
 	pitch.freq = Notes.CalcFreq( oct_base_freq, pitch );
 	return pitch;
 }

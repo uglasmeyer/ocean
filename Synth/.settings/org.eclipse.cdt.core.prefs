@@ -9,6 +9,11 @@ environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.1136292454/ARC
 environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.1136292454/ARCH/value=${ArchType}
 environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.1136292454/append=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.1136292454/appendContributed=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.839808185/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.839808185/ARCH/operation=replace
+environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.839808185/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.839808185/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.248701302.839808185/appendContributed=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.248701302/ARCH/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.248701302/ARCH/operation=replace
 environment/project/cdt.managedbuild.toolchain.gnu.base.248701302/ARCH/value=${ArchType}

@@ -92,7 +92,8 @@ int main(  int argc, char* argv[] )
 	App.Shutdown_instance( );
 
 	sds->Rtsp = EXITSERVER;
-	App.Sds->Announce();
+	DaTA.Appstate.Announce(  );
+
 
 	Sem->Release( SYNTHESIZER_START);
 

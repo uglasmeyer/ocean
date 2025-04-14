@@ -30,11 +30,15 @@ enum
 	SEMAPHORE_SENDDATA0,
 	SEMAPHORE_SENDDATA1,
 	SEMAPHORE_SENDDATA2,
-	SEMAPHORE_SENDDATA3
+	SEMAPHORE_SENDDATA3,
+	SEMAPHORE_EVENT
 };
+
 static const uint 	SEMNUM_SIZE = 16;
 
-class Semaphore_class  : virtual public Logfacility_class, Time_class
+class Semaphore_class  :
+		virtual public Logfacility_class,
+		virtual Time_class
 {
 	string className = "Semaphore_class";
 public:
@@ -50,6 +54,7 @@ public:
 	void 	Lock	( uint8_t semnum );	// wait for release
 	void 	Lock	( uint8_t semnum, uint timeout );	// wait for release
 	int  	Getval	( uint8_t semnum , int op);
+
 	string 	Stat	( uint8_t semnum );
 	void	Test( );
 

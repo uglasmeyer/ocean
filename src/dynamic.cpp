@@ -22,66 +22,70 @@ Dynamic_class::~Dynamic_class()
 {
 };
 
-uint8_t Dynamic_class::setup(	int _future,
-								int _mode)
+uint8_t Dynamic_class::SetupVol(int future_vol,	int _mode)
 {
-	this->mode		= _mode;
-	if ( past == 0 ) // initialize past
+	if ( _mode == COMBINE )
+		current.mode = SLIDE;
+	else
+		current.mode 	= _mode;
+	current.future	= check_range( range, future_vol );
+	current.future_f= current.future * 0.01;
+	setup();
+	return current.future;
+}
+
+uint8_t Dynamic_class::SetupFrq(int future_frq, int _mode)
+{
+	if ( _mode == COMBINE )
+		current.mode = SLIDE;
+	else
+		current.mode 	= _mode;
+	current.future	= check_range( range, future_frq );
+	current.future_f= Frequency.GetFrq( current.future );
+	setup();
+	return current.future;
+}
+void Dynamic_class::setup()
+{
+	if ( current.past == 0 ) // initialize past
 	{
-		mode = FIXED;
+		current.past = current.future;
+		current.mode = FIXED;
 	}
-	if ( _mode == FIXED )
-	{
-		present 	= future_f;
-		past		= future;
-	}
-	return past;
-
+	if ( current.mode == FIXED )
+		end();
 }
-
-uint8_t Dynamic_class::SetupVol(int future_vol,
-								int _mode)
+float Dynamic_class::Reset_state()
 {
-	future		= check_range( range, future_vol );
-	future_f 	= future * 0.01;
-	past 		= setup( future, _mode );
-	if (_mode == FIXED ) // else : past was unchanged
-		past_f		= past * 0.01;
-
-	return future;
+	current 	= restorestate;
+	return current.present;
 }
-
-uint8_t Dynamic_class::SetupFrq(int future_frq,
-								int _mode)
+void Dynamic_class::set_state()
 {
-	future		= check_range( range, future_frq );
-	future_f	= Frequency.Calc( future );
-	past		= setup( future, _mode);
-	if (_mode == FIXED ) // else : past was unchanged b< setup
-		past_f		= Frequency.Calc( past );
-
-	return future;
+	restorestate= current;
 }
+
 void Dynamic_class::SetDelta ( const uint8_t& sl_duration )
 {
 	if( sl_duration == 0 ) // disable dynamic
 	{
-		this->mode = FIXED;
-		past = future;
-		past_f = future_f;
-		present = future_f;
-		delta = 0.0;
+		current.mode = FIXED;
+		end();
+		current.delta = 0.0;
+		set_state();
 		return;
 	}
 	else
 	{
-		this->mode = SLIDE;
+		current.mode = SLIDE;
 	}
 	buffer_t 	slide_frames	= slideFrames( sl_duration );
-//	float 		delta_value		= this->future_f - this->past*0.01;
-	float 		delta_value		= this->future_f - this->past_f;
-				delta			= delta_value / slide_frames;
+	float 		delta_value		= current.future_f - current.past_f;
+	current.delta				= abs( delta_value / slide_frames );
+	set_state();
+	return;
 };
+
 constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& sl_duration )
 {
 				slideduration 	= check_range( slide_duration_range, sl_duration );
@@ -89,108 +93,126 @@ constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& sl_duration )
 	buffer_t 	frames 			= 4 * max_frames * slide_percent ;
 	if (LogMask[TEST])
 		frames = test_frames;
-	return 	frames;
 
+	return 	frames;
 }
 
 
 
 float Dynamic_class::Get( )
 {
-	if( this->mode == FIXED )
-		return future_f;
-	if( not fcomp( present , future_f, 2*delta ) )
+	if( current.mode == FIXED )
+		return current.future_f;
+	if( fcomp( current.present , current.future_f, 2*current.delta ) )
 	{
-		present		= present + delta;
+		current.mode 	= FIXED;
+		end();
 	}
-	return present;
+	else
+	{
+		if ( current.present > current.future_f )
+			current.present	= current.present - current.delta;
+		else
+			current.present	= current.present + current.delta;
+	}
+	return current.present;
 }
 
 void Dynamic_class::Update()
 {
-	if( fcomp( present, future_f, 2*delta ) )
+	if( fcomp( current.present, current.future_f, 2*current.delta ) )
 	{
-		past 	= future;
-		past_f 	= future_f;
-		present = future_f;
-		Show( true );
+		end();
 	}
 }
 
+void Dynamic_class::end()
+{
+	current.past 	= current.future;
+	current.past_f	= current.future_f;
+	current.present	= current.future_f;
+}
 
 void Dynamic_class::Show( bool on )
 {
-	Comment( TEST,	" mode   : " + to_string( mode) +
+
+	Comment( TEST,	" mode   : " + to_string( current.mode) +
 					" slide% : " + to_string( slideduration ) +
- 					" past   : " + to_string( past ) +
-					" present: " + to_string( present ) +
-					" future : " + to_string( future_f ) +
-					" delta  : " + to_string( delta ));
+ 					" past   : " + to_string( current.past ) +
+					" present: " + to_string( current.present ) +
+					" future : " + to_string( current.future_f ) +
+					" delta  : " + to_string( current.delta ));
 }
 
-void Dynamic_class::Test()
+void Dynamic_class::TestFrq()
+{
+	// Test Frequency
+	//
+	TEST_START( className );
+	range = freqarr_range ;
+	SetupFrq(C0, FIXED );
+	SetupFrq(71, SLIDE );
+	SetDelta( 1 );
+	for( uint n = 0; n < test_frames - 5 ; n++ )
+	{
+		Get();
+	}
+	Update();
+	Show( true );
+	assert( fcomp( 	current.present+5*current.delta, current.future_f, current.delta ));
+
+	SetDelta( 1 );
+	for( uint n = 0; n < test_frames  ; n++ )
+	{
+		Get();
+	}
+	Update();
+	Show( true );
+	ASSERTION( fcomp( 	current.present, current.future_f ), "Dyntest Frq",
+			current.present, current.future_f );
+
+	SetupFrq(100, FIXED );
+	SetupFrq(71 , SLIDE );
+	SetDelta( 0 );
+	for( uint n = 0; n < test_frames ; n++ )
+	{
+		Get();
+	}
+	Update();
+	Show( true );
+	ASSERTION( fcomp( 	current.present, current.future_f ), "Dyntest Frq",
+			current.present, current.future_f );
+	TEST_END( className );
+
+
+}
+void Dynamic_class::TestVol()
 {
 	TEST_START( className );
 	assert( check_range( range,    2 ) == 2 );
 	assert( check_range( range,  112 ) == 100 );
 
-	Dynamic_class	TestVol { volume_range };
-	TestVol.SetupVol(50, FIXED );
-	TestVol.SetupVol(26, SLIDE );
-	TestVol.SetDelta( 1 );
+	range = volume_range;
+	SetupVol(50, FIXED );
+	SetupVol(26, SLIDE );
+	SetDelta( 1 );
 	for( uint n = 0; n < test_frames - 5 ; n++ )
 	{
-		TestVol.Get();
+		Get();
 	}
-	TestVol.Update();
-	TestVol.Show( true );
-	ASSERTION( fcomp( 	TestVol.present+5*TestVol.delta, TestVol.future_f ), "Dyntest Vol",
-						TestVol.present+5*TestVol.delta, TestVol.future_f );
-	TestVol.SetDelta( 1 );
+	Update();
+	Show( true );
+	ASSERTION( fcomp( 	current.present-5*current.delta, current.future_f ), "Dyntest Vol",
+			current.present+5*current.delta, current.future_f );
+	SetDelta( 1 );
 	for( uint n = 0; n < test_frames  ; n++ )
 	{
-		TestVol.Get();
+		Get();
 	}
-	TestVol.Update();
-	TestVol.Show( true );
-	ASSERTION( fcomp( 	TestVol.present, TestVol.future_f ), "Dyntest Vol",
-						TestVol.present, TestVol.future_f );
-
-	// Test Frequency
-	//
-	Dynamic_class	TestFrq { volume_range };
-	TestFrq.SetupFrq(C0, FIXED );
-	TestFrq.SetupFrq(71, SLIDE );
-	TestFrq.SetDelta( 1 );
-	for( uint n = 0; n < test_frames - 5 ; n++ )
-	{
-		TestFrq.Get();
-	}
-	TestFrq.Update();
-	TestFrq.Show( true );
-	assert( fcomp( 	TestFrq.present+5*TestFrq.delta, TestFrq.future_f, TestFrq.delta ));
-
-	TestFrq.SetDelta( 1 );
-	for( uint n = 0; n < test_frames  ; n++ )
-	{
-		TestFrq.Get();
-	}
-	TestFrq.Update();
-	TestFrq.Show( true );
-	ASSERTION( fcomp( 	TestFrq.present, TestFrq.future_f ), "Dyntest Frq",
-						TestFrq.present, TestFrq.future_f );
-
-	TestFrq.SetupFrq(100, FIXED );
-	TestFrq.SetupFrq(71 , SLIDE );
-	TestFrq.SetDelta( 0 );
-	for( uint n = 0; n < test_frames ; n++ )
-	{
-		TestFrq.Get();
-	}
-	TestFrq.Update();
-	TestFrq.Show( true );
-	ASSERTION( fcomp( 	TestFrq.present, TestFrq.future_f ), "Dyntest Frq",
-						TestFrq.present, TestFrq.future_f );
+	Update();
+	Show( true );
+	ASSERTION( fcomp( 	current.present, current.future_f ), "Dyntest Vol",
+			current.present, current.future_f );
 
 //	assert( false );
 

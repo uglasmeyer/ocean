@@ -1,0 +1,223 @@
+[92m        Exit:Info > Catching signal: SIGINT[0m[39m
+[92m        Exit:Info > Catching signal: SIGHUP[0m[39m
+[92m        Exit:Info > Catching signal: SIGABRT[0m[39m
+[92m        Exit:Info > Catching signal: SIGTERM[0m[39m
+Piano key frequencies initialized at 0x63a937ab2d80
+Frequency Names initialized at 0x63a937969260
+tcsetattr(): Inappropriate ioctl for device
+tcsetattr(): Inappropriate ioctl for device
+tcsetattr ICANON: Inappropriate ioctl for device
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > Name             : VCO[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m      Memory:Info > Name             : VCO[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m      Memory:Info > Name             : VCO[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m  Oscillator:Info > Keyboard VCO initialized[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > Name             : FMO[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m      Memory:Info > Name             : FMO[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m      Memory:Info > Name             : FMO[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m  Oscillator:Info > Keyboard FMO initialized[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m      Memory:Info > Name             : OSC[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m      Memory:Info > Name             : OSC[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m      Memory:Info > Name             : OSC[0m[39m
+[92m      Memory:Info > Memory bytes     : 384000[0m[39m
+
+[92m  Oscillator:Info > Keyboard OSC initialized[0m[39m
+[92m      Config:Info > Program name: AudioServer[0m[39m
+[92m      Config:Info > using OCEANDIR /home/sirius/OceanBase/[0m[39m
+[92m      Config:Info > Reading config file /home/sirius/OceanBase/etc/synthesizer.cfg[0m[39m
+[92m   Semaphore:Info > initializing the semaphore facility[0m[39m
+[92m   Semaphore:Info > using semaphore key 64485[0m[39m
+[92m   Semaphore:Info > num    0 pid        0 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    1 pid        0 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    2 pid     9340 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    3 pid        0 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    4 pid    22217 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    5 pid    22217 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    6 pid        0 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    7 pid        0 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    8 pid    22244 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num    9 pid    22244 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num   10 pid        0 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num   11 pid    22244 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num   12 pid    22217 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num   13 pid    22217 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num   14 pid    22217 val    0 ncn    0 zcn    0[0m[39m
+[92m   Semaphore:Info > num   15 pid    22497 val    1 ncn    0 zcn    1[0m[39m
+[92m   Semaphore:Info > attached to semaphore set 0[0m[39m
+[92m         Shm:Info > pre-init shared memory size 384000[0m[39m
+[92m         Shm:Info > pre-init shared memory size 384000[0m[39m
+[92m         Shm:Info > pre-init shared memory size 3152[0m[39m
+[92m Shared Data:Info > allocating shared memory for IPC 0[0m[39m
+[92m         Shm:Info > attaching to id: 25[0m[39m
+[92m         Shm:Info > Shared Memory data structure
+             Id   : 0
+             Addr : 0x797de77ca000
+             shmid: 25
+             Key  : 26211
+             Size : 3152
+             Exist: true
+[0m[39m
+[92m Shared Data:Info > check shared memory version[0m[39m
+[92m Shared Data:Info > OK[0m[39m
+[92m         Shm:Info > pre-init shared memory size 3152[0m[39m
+[92m Shared Data:Info > allocating shared memory for IPC 1[0m[39m
+[92m         Shm:Info > attaching to id: 26[0m[39m
+[92m         Shm:Info > Shared Memory data structure
+             Id   : 1
+             Addr : 0x797de77c9000
+             shmid: 26
+             Key  : 26212
+             Size : 3152
+             Exist: true
+[0m[39m
+[92m Shared Data:Info > check shared memory version[0m[39m
+[92m Shared Data:Info > OK[0m[39m
+[92m         Shm:Info > pre-init shared memory size 3152[0m[39m
+[92m Shared Data:Info > allocating shared memory for IPC 2[0m[39m
+[92m         Shm:Info > attaching to id: 27[0m[39m
+[92m         Shm:Info > Shared Memory data structure
+             Id   : 2
+             Addr : 0x797de77c8000
+             shmid: 27
+             Key  : 26213
+             Size : 3152
+             Exist: true
+[0m[39m
+[92m Shared Data:Info > check shared memory version[0m[39m
+[92m Shared Data:Info > OK[0m[39m
+[92m         Shm:Info > pre-init shared memory size 3152[0m[39m
+[92m Shared Data:Info > allocating shared memory for IPC 3[0m[39m
+[92m         Shm:Info > attaching to id: 28[0m[39m
+[92m         Shm:Info > Shared Memory data structure
+             Id   : 3
+             Addr : 0x797de77c7000
+             shmid: 28
+             Key  : 26214
+             Size : 3152
+             Exist: true
+[0m[39m
+[92m Shared Data:Info > check shared memory version[0m[39m
+[92m Shared Data:Info > OK[0m[39m
+[92m Process Reg:Info > Register Audioserver0 idx 0[0m[39m
+[92m   Dataworld:Info > Attaching stereo buffers[0m[39m
+[92m         Shm:Info > attaching to id: 30[0m[39m
+[92m         Shm:Info > Shared Memory data structure
+             Id   : 0
+             Addr : 0x797de5fc9000
+             shmid: 30
+             Key  : 18
+             Size : 384000
+             Exist: true
+[0m[39m
+[92m         Shm:Info > attaching to id: 31[0m[39m
+[92m         Shm:Info > Shared Memory data structure
+             Id   : 1
+             Addr : 0x797de5f6b000
+             shmid: 31
+             Key  : 19
+             Size : 384000
+             Exist: true
+[0m[39m
+[92m Application:Info > Ocean Sound /home/sirius/OceanBase/bin/AudioServer  initialized [0m[39m
+[92m      Memory:Info > pre-init memory size 384000[0m[39m
+[92m    External:Info > pre-init memory size 0[0m[39m
+[92m    External:Info > Name             : External Stereo data[0m[39m
+[92m    External:Info > Memory bytes     : 38400000[0m[39m
+
+[92m Application:Info > -----------------------------------------------------------[0m[39m
+[92m Application:Info > Entering application init for Ocean Sound /home/sirius/OceanBase/bin/AudioServer [0m[39m
+[92m Application:Info > -----------------------------------------------------------[0m[39m
+[92m AudioServer:Info > record thread started [0m[39m
+[92m      Config:Info > Evaluating startup arguments[0m[39m
+[1m[91m      Config:Error> unrecognized option -S[0m[39m
+[1m[91m      Config:Error> unrecognized option 0[0m[39m
+[92m AudioServer:Info > Log level activation state[0m[39m
+[92m AudioServer:Info > Log level error is On[0m[39m
+[92m AudioServer:Info > Log level debug is Off[0m[39m
+[92m AudioServer:Info > Log level info  is On[0m[39m
+[92m AudioServer:Info > Log level warn  is On[0m[39m
+[92m AudioServer:Info > Log level dbg2  is Off[0m[39m
+[92m AudioServer:Info > Log level binfo is On[0m[39m
+[92m AudioServer:Info > Log level test is Off[0m[39m
+[92m Application:Info > No other /home/sirius/OceanBase/bin/AudioServer is running[0m[39m
+[92m    Appstate:Info > announcing application Audioserver[0m[39m
+[92m Wavedisplay:Info > adding wave display: 4 Audio - VCO[0m[39m
+[92m Wavedisplay:Info > adding wave display: 4 Audio - FMO[0m[39m
+[92m Wavedisplay:Info > adding wave display: 4 Audio - OSC[0m[39m
+[92m AudioServer:Info > record thread received job 0[0m[39m
+[92m    External:Info > Prepare record file synthesizer3[0m[39m
+[92m    External:Info > Record frames: 0[0m[39m
+[92m    External:Info > Name             : External Stereo data[0m[39m
+[92m    External:Info > Memory bytes     : 38400000[0m[39m
+
+[33m    External:Warn > Nothing to do[0m[39m
+[92m AudioServer:Info > recording to file synthesizer0done[0m[39m
+[92m AudioServer:Info > Available  audio devices :[0m[39m
+[92m AudioServer:Info > device Id: 129 Built-in Audio[0m[39m
+[92m AudioServer:Info > Usage: /home/sirius/OceanBase/bin/AudioServer -c #1 -r #2 -d #3 -o #4 
+       where 
+       #1 = number of channels (default=2),
+       #2 = the sample rate (default = 44100),
+       #3 = device index (default = 0, default device),
+       #4 = channelOffset on the device (default = 0) [0m[39m
+[92m AudioServer:Info > Opening Audio Stream[0m[39m
+[92m AudioServer:Info > Audio Stream is open [0m[39m
+[92m AudioServer:Info > Audio Stream is started [0m[39m
+[92m AudioServer:Info > Parameters in use:
+       buffer size        2000
+       number of buffers  8
+       Stream latency     0
+       Stream sample rate 48000
+       Stream name        Ocean Sound 
+       RtApi option flags 4
+       Device Id          129
+       Device name        default output device[0m[39m
+[92m AudioServer:Info > Application initialized[0m[39m
+[92m AudioServer:Info > Entering Application loop
+[0m[39m
+[92m   Statistic:Info > Memory Statistic for /home/sirius/OceanBase/bin/AudioServer[0m[39m
+[92m   Statistic:Info > Data        : 3840000[0m[39m
+[92m   Statistic:Info > Stereo Data : 38400000[0m[39m
+[92m   Statistic:Info > Shared Data : 780608[0m[39m
+[92m   Statistic:Info > total       : 43020608[0m[39m
+[92m Application:Info > /home/sirius/OceanBase/bin/AudioServer is ready[0m[39m
+[92m Application:Info > SDS ID: 0[0m[39m
+-----------------------------------------------------------
+[92m AudioServer:Info > Ocean Sound received command exit signal 0[0m[39m
+[92m AudioServer:Info > Entering exit procedure for Ocean Sound /home/sirius/OceanBase/bin/AudioServer [0m[39m
+[92m AudioServer:Info > suspend server[0m[39m
+[92m AudioServer:Info > record thread terminated [0m[39m
+[92m AudioServer:Info > Record thread joined[0m[39m
+[92m AudioServer:Info > AudioServer reached target exit main()[0m[39m
+
+[92m Application:Info > De-register Audioserver[0m[39m
+[92m         Shm:Info > Detach shared memory id: 30[0m[39m
+[92m         Shm:Info > Detach shared memory id: 31[0m[39m
+[92m Process Reg:Info > De-Register Audioserver0 idx 0[0m[39m
+visited ~Dataworld
+tcsetattr ~ICANON: Inappropriate ioctl for device
+visited ~Exit_class

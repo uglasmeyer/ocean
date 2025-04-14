@@ -59,7 +59,7 @@ Data_t Zero( const float& x)
 }
 Data_t Sinus( param_t& p )
 {
-	return (  p.amp * sin( p.phi ));
+	return p.amp * (  sin( p.phi ) );
 }
 Data_t SignSin( param_t& p )
 {

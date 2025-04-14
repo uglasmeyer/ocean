@@ -1,27 +1,23 @@
 // System includes
-#include <data/Interface.h>
 #include <dirent.h>
 
-// qtcreator includes
-#include "ui_File_Dialog.h"
-#include <File_Dialog.h>
-#include <Mainwindow.h>
-#include <Common.h>
-
-// Synthesizer includes
-#include <Logfacility.h>
-#include <notes/Notes.h>
-#include <Ocean.h>
-#include <Config.h>
-#include <EventKeys.h>
-
-// Qt-includes
+// QT
 #include <QDebug>
 #include <QString>
 
+// Synthesizer includes
+#include <Ocean.h>
+#include <data/Interface.h>
+#include <Logfacility.h>
+#include <notes/Notes.h>
+#include <Config.h>
+#include <EventKeys.h>
 
+// OceanGUI includes
+#include "ui_File_Dialog_class.h"
+#include <File_Dialog_class.h>
+#include <Common.h>
 
-//Ui::File_Dialog	UI_FileDialog_obj{};
 
 File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 										Dataworld_class* 	_data,
@@ -29,11 +25,11 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     Logfacility_class("FileDialog"),
     Note_class( ),
 	QDialog(parent),
-    ui(new Ui::File_Dialog)
+	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
 
 	this->DaTA 		= _data;
-	this->Sds 		= DaTA->Sds_p;
+	this->Sds		= DaTA->Sds_p;
 	this->sds_p		= Sds->addr;
 	this->sem		= DaTA->Sem_p;
 	this->SDS_ID	= sds_p->SDS_Id;
@@ -55,7 +51,9 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
-    connect(ui->cb_instrumentfiles, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
+    connect(ui->cb_instrumentfiles	, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
+    connect(ui->cb_notefilenames	, SIGNAL(textActivated(QString)),this, SLOT(Notes_Select(QString)) );
+
     connect(ui->pbInstrumentDone	, SIGNAL(clicked())		,this, SLOT(Instrument_Save()) );
 
 	connect(ui->cb_Notestype, SIGNAL(activated( int )), this, SLOT( cb_Notestype( int )));
@@ -67,10 +65,8 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     Comment( INFO," File_Dialog initialized");
     Setup_widgets();
 }
-File_Dialog_class::~File_Dialog_class()
-{
- //   if( ui ) delete( ui );
-}
+
+File_Dialog_class::~File_Dialog_class() = default;
 
 void File_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 {
@@ -158,13 +154,7 @@ void File_Dialog_class::Setup_widgets()
 	ui->sB_Octave->setValue( sds_p->noteline_prefix.Octave );
 }
 
-/*
-void File_Dialog_class::New_Instrument()
-{
-    const QString QStr = ui->lE_Instrument->text();
-    on_cb_instrumentfiles_activated( QStr );
-}
-*/
+
 
 
 
@@ -202,7 +192,7 @@ void File_Dialog_class::New_Notes()
     }
 }
 
-void File_Dialog_class::on_cb_notefilenames_activated(QString Note_name)
+void File_Dialog_class::Notes_Select(QString Note_name)
 {
     if ( Note_name.length() == 0 ) return;
 

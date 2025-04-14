@@ -19,19 +19,28 @@ class Dynamic_class :
 {
 	string 			className 			= "";
 	uint8_t			slideduration 		= 0;
-	float			delta 				= 0.0;
-	uint8_t			mode				= FIXED;
-	float 			future_f			= 0.0;
-	float			past_f				= 0.0;
+
 	const buffer_t	test_frames			= 1000;
 	range_t<int>	range				{ 0, 0 };
 	const range_t<uint8_t>
 					slide_duration_range{ 0, 100 };
 
+	typedef struct state_struct
+	{
+		float		present				= 0.0;
+		float 		future_f			= 0.0;
+		float		past_f				= 0.0;
+		float		delta 				= 0.0;
+		uint8_t		future				= 0;
+		uint8_t		past				= 0;
+		uint8_t		mode				= FIXED;
+	} state_t;
+
+	state_t 		restorestate;
+
 public:
-	uint8_t		future				= 0;
-	uint8_t		past				= 0;
-	float		present				= 0.0;
+
+	state_t			current;
 
 	Frequency_class	Frequency {};
 
@@ -44,13 +53,21 @@ public:
 	void 	SetDelta( const uint8_t& sl_duration  );
 	float 	Get( );
 	void 	Update();
+	float 	Reset_state();
+
 
 	void 	Show( bool on );
-	void 	Test();
+	void 	TestVol();
+	void 	TestFrq();
+
 
 private:
 	constexpr buffer_t slideFrames( const uint8_t& sl_duration );
-	uint8_t setup(	int future_value, int _mode);
+	void	setup();
+	void 	end();
+	void 	set_state();
+
+
 };
 
 

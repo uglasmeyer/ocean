@@ -12,9 +12,6 @@
 #include <notes/Notes.h>
 #include <Ocean.h>
 
-using namespace std;
-
-#include <assert.h>
 
 class Charset_class //: virtual public string
 {

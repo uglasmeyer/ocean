@@ -20,6 +20,7 @@ struct param_struct
 	phi_t phi		= 0.0;
 	phi_t dphi		= 0.0;
 	phi_t maxphi 	= 0.0;
+	phi_t hphi		= 0.0;
 	float pmw		= 0.0;
 };
 typedef param_struct param_t;

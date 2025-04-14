@@ -1,28 +1,24 @@
-#ifndef FILE_DIALOG_H
-#define FILE_DIALOG_H
+#ifndef FILE_DIALOG_CLASS_H
+#define FILE_DIALOG_CLASS_H
 
 // Qt includes
 #include <QDialog>
 #include <QComboBox>
 #include <QMainWindow>
 
-// qtcreator
-#include <Common.h>
-
 // Synthesizer
 #include <Logfacility.h>
 #include <notes/Notes.h>
 #include <data/DataWorld.h>
 
-using namespace std;
+// OceanGUI
+#include <ui_File_Dialog_class.h>
+#include <Common.h>
 
 
-namespace Ui
-{
-class File_Dialog;
-}
 
-class File_Dialog_class :
+
+class File_Dialog_class : // class name refers to file name File_Dialog_class.ui
 		public QDialog,
 		virtual Logfacility_class,
 		virtual Note_class
@@ -30,8 +26,8 @@ class File_Dialog_class :
     Q_OBJECT
 
 public:
-    unique_ptr<Ui::File_Dialog> 	ui;
-
+    unique_ptr<Ui::File_Dialog_class> 	ui;
+//	Ui::File_Dialog_class*			ui;
     QString         QNote_Chars		{"Notes: ( )"};
     Dataworld_class* DaTA			= nullptr;
     Interface_class* Sds			= nullptr;
@@ -41,31 +37,40 @@ public:
     int8_t			SDS_ID			= 0;
 
 
-    explicit File_Dialog_class(	QWidget* 		 parent	= nullptr,
-    							Dataworld_class* _data 	= nullptr,
-								EventLog_class*  _log	= nullptr
-								);
-    virtual ~File_Dialog_class();
-    void Setup_widgets();
     void New_Notes();
     void New_Instrument();
     void set_le_instrument( QString );
     void set_le_notes( QString );
     void SetSds( Interface_class* sds, int8_t id );
 
+    explicit
+	File_Dialog_class(	QWidget* 		 parent	= nullptr,
+    					Dataworld_class* _data 	= nullptr,
+						EventLog_class*  _log	= nullptr
+						);
+    virtual
+	~File_Dialog_class();
+
 private:
 
+public slots:
+    void Setup_widgets();
+
 private slots:
-    void on_cb_notefilenames_activated(QString arg1);
+
+    void Notes_Select(QString arg1);
 
     void Instrument_Select(QString arg1);
-
     void Instrument_Save();
+
+
     void pb_Notes_Done_clicked();
     void cB_NotesPerSec( int);
     void cB_Convention( int );
     void sB_Octave( int);
     void cb_Notestype( int );
 };
+
+//namespace Ui { class File_Dialog_class{ }; }
 
 #endif // FILE_DIALOG_H

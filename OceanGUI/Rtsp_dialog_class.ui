@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
-    <height>227</height>
+    <width>619</width>
+    <height>302</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,6 +71,22 @@
      <string>Notes</string>
     </property>
    </column>
+  </widget>
+  <widget class="QTextBrowser" name="tB_log">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>601</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 255, 255);</string>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOn</enum>
+   </property>
   </widget>
  </widget>
  <resources/>

@@ -65,29 +65,10 @@ void Memory::Info( string name )
 //-----------------------------------------------------------------------------
 
 
-void Stereo_Memory::Init_data( buffer_t size )
-{
-	Memory_base::ds.size = size;
-	stereo_data = ( stereo_t* ) Init_void();
 
-	SetDs( sizeof_stereo );
-	statistic.stereo += ds.mem_bytes;
-	ds.name			= Logfacility_class::className;
-}
 
-void Stereo_Memory::Clear_data()
-{
-	stereo_t stereo = { 0,0 };
-	for ( buffer_t n = 0 ; n < ds.data_blocks ; n++ )
-		stereo_data[n] = stereo;
 
-}
 
-void Stereo_Memory::Info( string name )
-{
-	ds.name = name;
-	Memory_base::Info();
-}
 
 //-----------------------------------------------------------------------------
 

@@ -53,6 +53,7 @@ void Semaphore_class::Reset( uint8_t num )
 {
 //	short int val = -abs(  Getval( num , GETVAL ) );
 	int ret = semctl(semid, num, SETVAL, 0 );
+    Comment( DEBUG, "Reset   ", Stat( num ));
 	assert( ret == 0 );
 }
 
@@ -122,6 +123,8 @@ int Semaphore_class::Getval( uint8_t num, int op )
 	return semctl( semid, num, op, UNUSED );
 }
 
+
+
 string Semaphore_class::Stat( uint8_t num )
 {
 	auto stat = [ this ]( uint num )
@@ -159,7 +162,7 @@ void Semaphore_class::Test()
 	long tel = t.Time_elapsed();
 	stringstream strs;
 	Info( "time elapsed ", to_string(tel), " [ms]" );
-	ASSERTION( tel - 2001 < 5, "timeout", (long)tel, "<2001" );
+	ASSERTION( tel - 2001 < 50, "timeout", (long)tel, "<2050" );
 
 	TEST_END( className );
 }

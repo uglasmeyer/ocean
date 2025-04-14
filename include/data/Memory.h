@@ -8,13 +8,11 @@
 #ifndef SYNTHSHM_H_
 #define SYNTHSHM_H_
 
-using namespace std;
 
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <data/Memorybase.h>
-
-
+#include <Dynamic.h>
 
 
 class Memory :
@@ -51,37 +49,61 @@ const char 			sizeof_stereo 		= sizeof( stereo_t );
 const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof_stereo;
 const buffer_t 		sharedbuffer_size 	= max_frames * sizeof_stereo;
 
+/***************************
+ * Stereo_Memory
+ **************************/
+template< typename stereo >
 class Stereo_Memory :
 	virtual public 	Logfacility_class,
 	virtual public 	Memory_base
 {
-	string className = "Stereo_Memory";
+	string className = "";
 public:
-	stereo_t* stereo_data = nullptr;
-
+	stereo* stereo_data = nullptr;
+	Logfacility_class Log{"Memory_base"};
 	Stereo_Memory(buffer_t size) :
-		Logfacility_class( "Memory_base"),
+		//Logfacility_class( ),
 		Memory_base( size )
 	{
+		className = Logfacility_class::className;
 		Init_data( size );
 	}
 	Stereo_Memory() :
 		Logfacility_class( "Memory_base"),
 		Memory_base( )
-	{
-	}
-	virtual ~Stereo_Memory( )
 	{};
 
-	void Clear_data(  );
-	void Info( string );
-	void Init_data( buffer_t size );
+	virtual ~Stereo_Memory( ) = default;
+
+	void Init_data( buffer_t size )
+	{
+		Memory_base::ds.size = size;
+		stereo_data = ( stereo* ) Init_void();
+
+		SetDs( sizeof_stereo );
+		statistic.stereo += ds.mem_bytes;
+		ds.name	= Logfacility_class::className;
+	}
+	void Clear_data()
+	{
+		stereo zero = { 0,0 };
+		for ( buffer_t n = 0 ; n < ds.data_blocks ; n++ )
+			stereo_data[n] = zero;
+
+	}
+	void Info( string name )
+	{
+		ds.name = name;
+		Memory_base::Info();
+	}
+//	void Clear_data(  );
+//	void Info( string );
+//	void Init_data( buffer_t size );
 
 private:
 
 };
 
-#include <Dynamic.h>
 /***************************
  * Storage_class
  **************************/
@@ -98,7 +120,7 @@ public:
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
-	Dynamic_class	DynVolume			{ volume_range };
+	Dynamic_class	DynVolume		{ volume_range };
 
 	StA_status_t state = StA_status_struct();
 

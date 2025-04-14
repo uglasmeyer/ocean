@@ -75,7 +75,6 @@ typedef struct mem_data_struct
 	uint 			max_records		= 0;
 } mem_ds_t;
 
-
 class Memory_base :
 		public virtual Logfacility_class
 {

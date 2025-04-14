@@ -1,25 +1,24 @@
 /*
- * synthesizercore.cpp
+ * eventhandler.cpp
  *
  *  Created on: Oct 28, 2024
  *      Author: sirius
  */
 
-
 #include <Synthesizer.h>
-
 
 
 void Event_class::Handler()
 {
 	auto EvInfo = [ this ]( string str )
 	{
-		if( Eventque.repeat ) return;
-		Info( str );
+		if( EventQue->repeat ) return;
+		string eventstr = Info( str );
+		DaTA->EmitEvent( UPDATELOG_EVENT, eventstr );
 	};
 
-	string 	str 	= Eventque.show();
-	uint8_t event 	= Eventque.get();
+	string 	str 	= EventQue->show();
+	uint8_t event 	= EventQue->get();
 
 	if ( event == NULLKEY ) return;
 	EvInfo( str );
@@ -63,6 +62,8 @@ void Event_class::Handler()
 	}
 	case VCOFREQUENCYKEY: // modify the secondary oscillator
 	{
+		EvInfo( "VCO frequency change");
+
 		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->slidermode );
 		sds->VCO_spectrum.frqidx[0] = frqidx;
 		Instrument->osc->Connect_vco_data(Instrument->vco);
@@ -71,6 +72,8 @@ void Event_class::Handler()
 	}
 	case FMOFREQUENCYKEY : // modify the fm_track data
 	{
+		EvInfo( "FMO frequency change");
+
 		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->slidermode );
 		sds->FMO_spectrum.frqidx[0] = frqidx;
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
@@ -79,6 +82,8 @@ void Event_class::Handler()
 	}
 	case VCOAMPKEY : // modify the VCO volume
 	{
+		EvInfo( "VCO amplitude change");
+
 		Value vol = sds->VCO_wp.volume;
 		Instrument->vco->Set_volume(vol.ch, sds->slidermode);
 		Instrument->osc->Connect_vco_data(Instrument->vco);
@@ -90,6 +95,8 @@ void Event_class::Handler()
 	}
 	case FMOAMPKEY : // modify the FMO volume
 	{
+		EvInfo( "FMO amplitude change");
+
 		Value vol = sds->FMO_wp.volume;
 		Instrument->fmo->Set_volume(vol.ch, sds->slidermode);
 		Instrument->osc->Connect_fmo_data(Instrument->fmo);
@@ -101,12 +108,15 @@ void Event_class::Handler()
 	}
 	case MASTERAMP_KEY : // modify main volume
 	{
+		EvInfo( "Audio volume change");
+
 		Mixer->status.mute = false;
 		Mixer->DynVolume.SetupVol( sds_master->Master_Amp,
 								sds_master->vol_slidemode);
 		Sds->Commit();
 		break;
 	}
+
 	case ADJUST_KEY :
 	{
 		Instrument->vco->wp.adjust = sds->VCO_wp.adjust;
@@ -131,12 +141,16 @@ void Event_class::Handler()
 	}
 	case ADSR_KEY:
 	{
+		EvInfo( "ADSR change");
+
 		Instrument->osc->Set_adsr(sds->OSC_adsr);
 		Sds->Commit();
 		break;
 	}
-	case PMWDIALKEY:
+	case PWMDIALKEY:
 	{
+		EvInfo( "PWM change");
+
 		Instrument->osc->Set_pmw(sds->VCO_wp.PMW_dial);
 		Instrument->vco->Set_pmw(sds->VCO_wp.PMW_dial);
 		Instrument->fmo->Set_pmw(sds->VCO_wp.PMW_dial);
@@ -154,7 +168,8 @@ void Event_class::Handler()
 
 	case SOFTFREQUENCYKEY:
 	{
-		Instrument->osc->Set_glide(sds->OSC_wp.glide_effect);
+		EvInfo( "Frequency slide effect update ");
+		Instrument->Oscgroup.SetSlide( sds->OSC_wp.glide_effect );
 		Sds->Commit();
 		break;
 	}
@@ -203,7 +218,8 @@ void Event_class::Handler()
 			Comment(ERROR, "Failed to setup header");
 		}
 		Sds->Commit();
-		Sds->addr->UserInterface = UPDATEGUI; //set cb_sta play flag for external
+		DaTA->EmitEvent( READ_EXTERNALWAVEFILE );
+
 		break;
 	}
 	case STOPRECORD_KEY: // stop record on data array id
@@ -246,15 +262,14 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case SETMBAMPPLAYKEY: // 109 change volume and play data array
+	case SETMBAMPPLAYKEY:
 	{
 		Value mixid { sds->MIX_Id };
 		Value amp { sds->StA_amp_arr[mixid.val] };
 		Value play { sds->StA_state[mixid.val].play };
 		Mixer->StA[mixid.val].DynVolume.SetupVol( amp.val, SLIDE);
 		Mixer->Set_mixer_state(mixid.val, (bool) (play.val));
-		Comment(INFO,
-				"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
+		EvInfo(	"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
 						+ play.boolstr);
 		Sds->Commit();
 		break;
@@ -318,10 +333,10 @@ void Event_class::Handler()
 		string notes_file = Sds->Read_str(NOTESSTR_KEY);
 		Notes->Read(notes_file); // notes have been written to file by the GUI already
 		Mixer->status.notes = true;
-		Sds->Update(NEWNOTESLINEFLAG);
+		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		sds->Noteline_sec = Notes->noteline_sec;
 		Sem->Release(SEMAPHORE_SYNCNOTES);
-		//			Notes->Start_note_itr();
+		Sds->Commit();
 		break;
 	}
 	case PLAYNOTESREC_ON_KEY: // play modnt.composer = true;
@@ -356,7 +371,6 @@ void Event_class::Handler()
 		Mixer->StA[MbIdNotes].DynVolume.SetupVol( amp.val, FIXED );
 		Mixer->Set_mixer_state(MbIdNotes, true);
 		Sem->Release(SEMAPHORE_SYNCNOTES);
-		//			Notes->Start_note_itr();
 		Sds->Commit();
 		break;
 	}
@@ -402,24 +416,24 @@ void Event_class::Handler()
 	}
 	case RESETOSCKEY: // reset main
 	{
-		Instrument->osc->Data_reset();
 		Instrument->osc->Connection_reset();
+		Instrument->osc->Data_reset();
 
 		Sds->Commit();
 		break;
 	}
 	case RESETVCOKEY: // reset VCO
 	{
-		Instrument->vco->Data_reset();
 		Instrument->vco->Connection_reset();
+		Instrument->vco->Data_reset();
 
 		Sds->Commit();
 		break;
 	}
 	case RESETFMOKEY: // reset FMO
 	{
-		Instrument->fmo->Data_reset();
 		Instrument->fmo->Connection_reset();
+		Instrument->fmo->Data_reset();
 
 		Sds->Commit();
 		break;
@@ -464,7 +478,9 @@ void Event_class::Handler()
 		Comment(INFO,
 				"saving current config to instrument " + Instrument->Name);
 		Instrument->Save_Instrument(Instrument->Name);
-		Sds->Update(NEWINSTRUMENTFLAG);
+//		Sds->Update(NEWINSTRUMENTFLAG);
+		DaTA->EmitEvent( NEWINSTRUMENTFLAG, "Save " + Instrument->Name );
+		Sds->Commit();
 		break;
 	}
 	case NEWINSTRUMENTKEY: // save instrument file
@@ -472,13 +488,16 @@ void Event_class::Handler()
 		string instrument = Sds->Read_str(INSTRUMENTSTR_KEY);
 		Comment(INFO, "receiving instrument change to " + instrument);
 		Instrument->Save_Instrument(instrument);
-		Sds->Update(NEWINSTRUMENTFLAG);
+//		Sds->Update(NEWINSTRUMENTFLAG);
+		DaTA->EmitEvent( NEWINSTRUMENTFLAG, instrument );
+		Sds->Commit();
 		break;
 	}
 	default:
 	{
 		EXCEPTION( "Communication Key Id >" + to_string((int) (event ))	+ "< undefined");
 	}
-	} // switch char
-	Mixer->Update_ifd_status_flags(sds);
+	} // switch event
+
+	Mixer->Update_sds_state(sds);
 }

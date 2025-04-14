@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 // Qt
-//#include <QGuiApplication>
 #include <QMainWindow>
 #include <QDebug>
 #include <Qt>
@@ -15,13 +14,13 @@
 #include <Spectrum.h>
 #include <App.h>
 #include <data/Semaphore.h>
-#include <Rtsp_dialog_class.h>
 #include <Wavedisplay_base.h>
 #include <Configbase.h>
 
-// qtcreator
+// OceanGUI
+#include <Rtsp_dialog_class.h>
+#include <File_Dialog_class.h>
 #include "ui_mainwindow.h"
-#include <File_Dialog.h>
 #include <Oszilloscopewidget.h>
 #include <Spectrum_dialog_class.h>
 #include <Sds_dialog_class.h>
@@ -31,33 +30,11 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-template< typename T >
-QString QReadStr ( T* Sds, uint key  )
-{
-    string str 		= Sds->Read_str( key );
-    QString QStr 	= QString::fromStdString( str );
-	return QStr;
-};
 
-template< typename T >
-void setButton( T* pb, bool state, bool init=false  )
-{
-	QPalette color = QPalette();
-	if ( init )
-		color.setColor( QPalette::Button, QColor(153, 193, 241) );
-	else
-	{
-		if ( state )
-			color.setColor(QPalette::Button, Qt::green );
-		else
-			color.setColor(QPalette::Button, Qt::red );
-	}
-	pb->setPalette( color );
-};
 
 class MainWindow :
 		public QMainWindow,
-		virtual public Logfacility_class
+		virtual Logfacility_class
 {
     Q_OBJECT
 
@@ -90,10 +67,9 @@ public:
 //not used
 //SDS_Dialog_class		SDS_Dialog_Obj		{ this, Sds };
 //SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
-
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
-
+    QRect 					Spectrum_Dialog_Rect= QRect( QPoint(0,0),QSize(0,0) );
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
@@ -171,7 +147,6 @@ private:
 	FMOID = osc_struct::FMOID;
 
     void setwidgetvalues();
-    void updateWidgets();
     void initPanel();
     void select_Sds( uint8_t sdsid );
     void initGuiVectors();
@@ -188,6 +163,9 @@ private:
     void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );
 
 
+public slots:
+	void update_CB_external();
+    void updateColorButtons();
 
 private slots:
 
@@ -198,10 +176,12 @@ private slots:
 	void Rtsp_Dialog();
 	void SDS_Dialog();
 
-    void dial_soft_freq_value_changed();
+    void slideFrq( int );
     void cB_Beat_per_sec( int );
     void dial_PMW_value_changed();
-    void dial_decay_value_changed();
+    void adsr_attack();
+    void mixer_balance();
+
     void get_record_status( );
 
     void MAIN_slot_volume();
@@ -239,7 +219,7 @@ private slots:
     void Sl_mix6( int );
     void Sl_mix7( int );
 
-    void dial_glide_volume(int);
+    void slideVol(int);
     void memory_clear();
     void SaveRecord();
     void read_polygon_data();
@@ -280,7 +260,7 @@ private slots:
     void connect_fmo();
     void connect_vco();
 
-    void main_adsr_sustain();
+    void adsr_decay();
 
     void pB_Debug_clicked();
     void wavfile_selected( const QString &arg);
@@ -288,7 +268,7 @@ private slots:
     void pB_Wavedisplay_clicked();
     void pB_fftmode_clicked();
 
-    void hs_hall_effect_value_changed( int );
+    void adsr_hall(  );
 
 };
 

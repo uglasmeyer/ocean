@@ -15,7 +15,7 @@ Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
 : Logfacility_class("Shared Data" )
 {
 
-	stateMap();
+	initStateMap();
 	this->Sem_p	= sem;
 	this->Cfg_p = cfg;
 }
@@ -33,7 +33,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	ds 		= *SHM.Get( key );
 	ds.Id	= sdsid;
 	this->addr = ( interface_t* ) ds.addr;
-	Eventque.setup(addr);
+	Eventque.setup( addr );
 	SHM.ShowDs(ds);
 	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
 
@@ -70,10 +70,9 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	}
 	ds.eexist = true;
 	addr->SDS_Id = sdsid;
-	State_pMap();
 }
 
-void Interface_class::stateMap()
+void Interface_class::initStateMap()
 {
 	state_map[OFFLINE]		= "Offline";
 	state_map[RUNNING] 		= "Running";
@@ -92,7 +91,6 @@ void Interface_class::stateMap()
 string Interface_class::Decode( uint8_t idx)
 {
 	return state_map[ idx ];
-
 }
 
 void Interface_class::Show_interface()
@@ -107,7 +105,7 @@ void Interface_class::Show_interface()
 	auto conv_bool_s = []( bool b )
 		{ return ( b ) ? string("yes") : string("no "); };
 	auto frq_str = [ this ](uint8_t idx)
-		{ return ( to_string( Frequency.Calc( idx ) ) + ", " + frqNamesArray[idx] ); };
+		{ return ( to_string( Frequency.GetFrq( idx ) ) + ", " + frqNamesArray[idx] ); };
 	string status1 {};
 	status1 	= 	      conv_bool_s(addr->mixer_status.external) +
 					"," + conv_bool_s(addr->mixer_status.notes) +
@@ -157,7 +155,7 @@ void Interface_class::Show_interface()
 	lline( "(F)MO  (W)aveform: " , waveform_str_vec[ (int)addr->FMO_spectrum.wfid[0] ]);
 	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)addr->VCO_spectrum.wfid[0] ]);
 
-	lline( "", "" );
+	lline( "Time elapsed", (int)addr->time_elapsed );
 	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
 
 	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->OSC_spectrum ));
@@ -227,7 +225,7 @@ void Interface_class::Write_arr( const wd_arr_t& arr )
 
 void Interface_class::Write_str(const char selector, const string str )
 {
-	if (reject( addr->Composer, Type_Id )) return;
+	if (reject( addr->Composer, AppId )) return;
 
 	if ( addr->Comstack != RUNNING )
 		addr->UpdateFlag = true;
@@ -248,6 +246,11 @@ void Interface_class::Write_str(const char selector, const string str )
 		case OTHERSTR_KEY :
 		{
 			strcpy( addr->Other, str.data() );
+			break;
+		}
+		case UPDATELOG_EVENT :
+		{
+			strcpy( addr->eventstr, str.data() );
 			break;
 		}
 		default:
@@ -274,6 +277,11 @@ string Interface_class::Read_str( char selector )
 			str.assign( addr->Notes );
 			break;
 		}
+		case UPDATELOG_EVENT :
+		{
+			str.assign( addr->eventstr );
+			break;
+		}
 		default :
 		{
 			str.assign( addr->Other );
@@ -286,13 +294,7 @@ string Interface_class::Read_str( char selector )
 }
 
 
-void Interface_class::Announce( )
-{
-	Comment(INFO, "announcing application " + Type_map( this->Type_Id ) );
-	uint8_t* state = Getstate_ptr( Type_Id );
-	*state = RUNNING;
-	addr->UpdateFlag = true;
-}
+
 
 void Interface_class::Reset_ifd(  )
 {
@@ -312,6 +314,7 @@ bool Interface_class::Restore_ifd()
 
 	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
 	int sdsid 				= addr->config;
+//	int state				= addr->AudioServer; // TODO - test
 
 	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
@@ -321,6 +324,8 @@ bool Interface_class::Restore_ifd()
 
 	addr->process_arr 	= procarr;
 	addr->config		= sdsid;
+//	addr->AudioServer 	= state;
+	Eventque.reset();
 	return ( size == sizeof( ifd_data ));
 }
 
@@ -330,7 +335,7 @@ void Interface_class::Dump_ifd()
 
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
 	assert( dumpFile.size() > 0 );
-
+	Eventque.reset();
 	size_t count = 0;
 	FILE* fd = fopen( dumpFile.data() , "w");
 	if ( fd )
@@ -342,41 +347,18 @@ void Interface_class::Dump_ifd()
 		EXCEPTION( "incomplete dump" + Error_text( errno ) );
 }
 
-void Interface_class::Update( char ch )
-{
-	Commit();
 
-	addr->FLAG = ch;
-	addr->UserInterface = UPDATEGUI;
-}
 void Interface_class::Commit()
 {
-	addr->FLAG 	= NULLKEY;
 	addr->UpdateFlag = true;
 	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
 		Sem_p->Release( PROCESSOR_WAIT );
 }
 
-void Interface_class::State_pMap( )
-{
-	assert( addr != nullptr );
-	state_p_map[NOID]		= nullptr;
-	state_p_map[SYNTHID]	= &addr->Synthesizer,
-	state_p_map[COMPID]		= &addr->Composer;
-	state_p_map[GUI_ID]		= &addr->UserInterface;
-	state_p_map[COMSTACKID]	= &addr->Comstack;
-	state_p_map[AUDIOID]	= &addr->AudioServer;
-	state_p_map[RTSPID]		= &addr->Rtsp;
-
-}
 
 
-uint8_t* Interface_class::Getstate_ptr( uint TypeId )
-{
-	uint8_t* state_p = state_p_map[ TypeId ];
-	assert( state_p != nullptr );
-	return state_p;
-}
+
+
 
 void Interface_class::Test_interface()
 {
@@ -410,8 +392,9 @@ void EventQue_class::setup( interface_t* _addr )
 }
 void EventQue_class::reset()
 {
-	addr->eventptr = EventPtr_struct();
-	std::ranges::for_each( addr->deque, [](uint element ){ element = NULLKEY  ;});
+	eventptr 		= EventPtr_struct();
+	addr->eventptr 	= eventptr;
+	std::ranges::for_each( addr->deque, [](uint8_t& element ){ element = NULLKEY  ;});
 }
 void EventQue_class::add( uint8_t event )
 {

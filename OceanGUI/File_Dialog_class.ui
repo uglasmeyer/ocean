@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>File_Dialog</class>
- <widget class="QDialog" name="File_Dialog">
+ <class>File_Dialog_class</class>
+ <widget class="QDialog" name="File_Dialog_class">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>344</width>
+    <width>340</width>
     <height>311</height>
    </rect>
   </property>

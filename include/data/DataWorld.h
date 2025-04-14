@@ -10,6 +10,8 @@
 
 
 #include <data/Interface.h>
+#include <data/Appstate.h>
+
 class Dataworld_class :
 		virtual public Logfacility_class
 {
@@ -18,7 +20,7 @@ public:
 
 	typedef vector<Interface_class> SDS_vec_t;
 
-	uint					TypeId		= NOID;
+	uint					AppId		= NOID;
 	int						SDS_Id		= -1;
 
 	Config_class			Cfg			{ "Config" };
@@ -28,14 +30,15 @@ public:
 	SDS_vec_t			 	SDS_vec 	{ };
 	Shared_Memory			SHM_0		{ sharedbuffer_size };
 	Shared_Memory			SHM_1		{ sharedbuffer_size };
-	Register_class			Reg			{ };
 
 	stereo_t* 				ShmAddr_0 	= nullptr;
 	stereo_t* 				ShmAddr_1 	= nullptr;
 	Interface_class*		Sds_p		= nullptr;
-	Interface_class*		Master_Sds_p= nullptr;
+	Interface_class*		Sds_master= nullptr;
 	interface_t*			sds_master	= nullptr;
 
+	Appstate_class 			Appstate;
+	Register_class			Reg			;
 
 	interface_t* 		GetSdsAddr();
 	interface_t* 		GetSdsAddr( int id );
@@ -45,6 +48,8 @@ public:
 	stereo_t* 			SetShm_addr( ); 			// Audioserver
 	stereo_t* 			GetShm_addr( ); 			// Synthesizer
 	void 				ClearShm();
+
+	void 				EmitEvent( const uint8_t flag, string comment = ""  );
 
 	void				Test_Dataworld();
 

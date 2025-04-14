@@ -21,7 +21,7 @@
 	printf("%s\n", str.data() ) ;\
 	string s;\
 	cin >> s;\
-	raise( SIGINT );\
+	raise( SIGTERM );\
 	};
 
 

@@ -39,10 +39,8 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	osc->Connect_fmo_data(fmo);
 	osc->Connect_vco_data(vco);
 
-//	Oscgroup.osc.Connect_vco_data( vco );
-//	Oscgroup.osc.fp.data = Oscgroup.fmo.Mem.Data;
-	Oscgroup.osc.Set_duration( max_milli_sec );
-	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
+//	Oscgroup.Set_Duration( max_milli_sec );
+//	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 
 	return;
 }
@@ -98,22 +96,20 @@ void Note_class::note2memory( 	const note_t& note,
 	uint wp_glide_effect = Oscgroup.osc.wp.glide_effect;
 
 	if ( note.glide[0].glide )
-		Oscgroup.osc.Set_glide( 100 );
+		Oscgroup.SetSlide( 100 );
 	else
-		Oscgroup.osc.Set_glide( 0 );
+		Oscgroup.SetSlide( 0 );
 
 	Oscgroup.osc.Set_long_note( note.longnote or longnote );
 	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_sec ) / 1000 );
 
 	for ( pitch_t pitch : note.chord )
 	{
-//		const int vco_wp_frqidx = Oscgroup.vco.wp.frqidx;
-//		const int fmo_wp_frqidx = Oscgroup.fmo.wp.frqidx;
+
 		uint8_t key = GetFrqIndex( pitch );
 		Oscgroup.Set_Osc_Note( key, duration, note.volume, SLIDE );
-		Oscgroup.Run_Oscgroup(offs);
-//		Oscgroup.vco.Set_frequency( vco_wp_frqidx, SLIDE );
-//		Oscgroup.fmo.Set_frequency( fmo_wp_frqidx, SLIDE );
+		Oscgroup.Run_OSCs(offs);
+
 	}
 
 	Oscgroup.osc.Set_glide( wp_glide_effect );
@@ -138,8 +134,9 @@ bool Note_class::Generate_note_chunk( )
 		Restart = false;
 	};
 
-	for( Oscillator* osc : Oscgroup.member )
-		osc->Mem.Clear_data( 0 );
+	Oscgroup.Data_Reset();
+//	for( Oscillator* osc : Oscgroup.member )
+//		osc->Data_reset()Mem.Clear_data( 0 );
 
 	restart_note_itr();
 

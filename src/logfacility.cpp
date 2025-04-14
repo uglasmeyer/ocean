@@ -7,12 +7,14 @@
 
 #include <Logfacility.h>
 
-array<bool, LOGMAX> LogMask { true, false, true, true, false, true, false };
+logmask_t LogMask { true, false, true, true, false, true, false };
+const logmask_t defaultLogMask = LogMask;
 
 
 Logfacility_class::Logfacility_class( string module)
 {
-	this->className = module.substr(0, 12) ;
+	size_t pos = module.find('_' );
+	this->className = module.substr(0, pos ) ;
 	setup();
 };
 
@@ -22,8 +24,14 @@ Logfacility_class::~Logfacility_class(  )
 		cout.flush() << "visited ~Logfacility_class." << className  << endl;
 };
 
+void Logfacility_class::ResetLogMask()
+{
+	LogMask = defaultLogMask;
+}
 void Logfacility_class::setup()
 {
+
+
 	error_vector.clear();
 	error_vector.push_back(  {"NOERR","no error"});
 	error_vector.push_back(  {"EPERM","Operation not permitted"});
@@ -64,7 +72,7 @@ void Logfacility_class::setup()
 
 }
 
-void Logfacility_class::Init_log_file()
+void Logfacility_class::Init_log_file( )
 {
 	Comment( INFO, "Initialize Log file ");
 	string _path = string( logFile );
@@ -98,13 +106,15 @@ void Logfacility_class::StartFileLogging( LogVector_t* lvp )
 
 void Logfacility_class::Show_loglevel()
 {
+	Info( Line );
 	string on;
 	Comment( INFO, "Log level activation state");
 	for ( int level = 0; level < LOGMAX; level++ )
 	{
 		on =  LogMask[ level ] ? "On" : "Off";
-		Comment( INFO, "Log level " + Levelname[ level ] + " is " + on );
+		Comment( level, "Log level " + Prefix[ level ].name + " is " + on );
 	}
+	Info( Line );
 }
 
 string Logfacility_class::Error_text( uint err )
@@ -132,22 +142,7 @@ void Logfacility_class::Set_Loglevel( int level, bool on )
 	LogMask[ level ] = on;
 }
 
-/*
-void Logfacility_class::Comment( const int& level, const string logcomment )
-{
-	if ( level < LOGMAX + 1 )
-	{
-		if ( LogMask[ level ] )
-		{
-			comment_str = className + ":" +  Prefix[ level] ;
-			cout.flush() 	<< Color[level] << SETW << comment_str << logcomment << endc << endl;
-			string str { comment_str + logcomment };
-			if ( LogVector_p )
-				LogVector_p->push_back( str );
-		}
-	}
-}
-*/
+
 
 void Logfacility_class::TEST_START( const string& name)
 {
@@ -159,6 +154,7 @@ void Logfacility_class::TEST_START( const string& name)
 
 void Logfacility_class::TEST_END( const string& name )
 {
+	Set_Loglevel( TEST, true) ;
 	Comment( TEST, "Test " + name + " finished" );
 	Comment( TEST, Line );
 	Set_Loglevel( TEST, false) ;

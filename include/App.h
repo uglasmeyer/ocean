@@ -33,13 +33,15 @@ class Application_class :
 	string className = "";
 public:
 
-	Statistic_class 	Statistic	{ className };
+	Statistic_class 	Statistic	;
 	Dataworld_class*	DaTA		= nullptr;
 	interface_t* 		sds			= nullptr;
+	interface_t*		sds_master	= nullptr;
 	Config_class*		Cfg 		= nullptr;
 	Interface_class*	Sds			= nullptr;
 
-	string 				ProgamName 				= "";
+
+	string 				ProgramName 				= "";
 	string 				This_Application 	= "";
 	uint 				client_id			= NOID;
 	bool				Server_init			= true;
@@ -51,7 +53,6 @@ public:
 	void VersionTxt();
 	void Start( int, char* [] );
 	void Init_Sds( );
-	uint8_t GetAppState( uint appid );
 	void Ready();
 
 

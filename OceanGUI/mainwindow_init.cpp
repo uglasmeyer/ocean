@@ -20,12 +20,15 @@ void MainWindow::initPanel()
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
 
-    QRect rect = Spectrum_Dialog_p->geometry();  //get current geometry of help window
+    Spectrum_Dialog_Rect = Spectrum_Dialog_p->geometry();  //get current geometry of help window
     QRect parentRect = this->geometry();      //get current geometry of this window
-    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
-    Spectrum_Dialog_p ->setGeometry(rect);
+    QPoint oscview_TopLeft = QPoint( ui->oscilloscope_view->geometry().topLeft() );
+    Spectrum_Dialog_Rect= QRect( oscview_TopLeft, Spectrum_Dialog_p->geometry().size() );
+    //get current geometry of this window
+    //    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
+//    rect.moveTo(mapToGlobal( Spectrum_Dialog_TopLeft ));
 
-    rect = File_Dialog_p->geometry();  //get current geometry of help window
+    QRect rect = File_Dialog_p->geometry();  //get current geometry of help window
     parentRect = this->geometry();      //get current geometry of this window
     rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
     File_Dialog_p->setGeometry(rect);
@@ -73,6 +76,13 @@ void MainWindow::initStateButtons()
 
 	Qwd_display_names 	= Vstringvector( osc_struct().roles );
 	ui->pB_Wavedisplay->setText( Qwd_display_names[ Sds->addr->WD_status.roleId ]);
+
+    setButton( ui->pB_Rtsp, 2 );
+    setButton( ui->pB_play_notes, 2 );
+    setButton( ui->pB_Specrum, 2 );
+
+
+
 }
 
 void MainWindow::initScrollbars()
@@ -91,7 +101,7 @@ void MainWindow::initFreqSlider()
 	{
 		map.sl->setMinimum( 1 );
 		map.sl->setMaximum( freqarr_range.max );
-		map.sl->setValue( Spectrum.Calc( *map.value));
+		map.sl->setValue( Spectrum.GetFrq( *map.value));
 	}
 	if ( Sds->addr->slidermode == COMBINE )
 		ui->cB_Combine->setChecked( true );
@@ -182,13 +192,14 @@ void MainWindow::initUiConnectors()
     connect(ui->Slider_FMO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Freq(int) ));
     connect(ui->Slider_OSC_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_OSC_Freq(int) ));
 
-    connect(ui->dial_soft_freq	, SIGNAL(valueChanged(int) ),this, SLOT(dial_soft_freq_value_changed() ));
+    connect(ui->Slider_slideFrq	, SIGNAL(valueChanged(int) ),this, SLOT(slideFrq(int )) );
     connect(ui->dial_PMW      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
-    connect(ui->dial_glide_vol	, SIGNAL(valueChanged(int) ),this, SLOT(dial_glide_volume(int)) );
+    connect(ui->Slider_slideVol	, SIGNAL(valueChanged(int) ),this, SLOT(slideVol(int)) );
 
-    connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(dial_decay_value_changed() ));
-    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(main_adsr_sustain() ));
-    connect(ui->hs_hall_effect	, SIGNAL(valueChanged(int) ),this, SLOT(hs_hall_effect_value_changed(int) ));
+    connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_attack() ));
+    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_decay() ));
+    connect(ui->hs_hall_effect	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_hall() ));
+    connect(ui->hs_balance		, SIGNAL(valueChanged(int) ),this, SLOT(mixer_balance() ));
 
     connect(ui->cb_bps			, SIGNAL(activated(int) )	,this, SLOT(cB_Beat_per_sec(int) ));
     connect(ui->pB_Wavedisplay 	, SIGNAL(clicked() )		,this, SLOT(pB_Wavedisplay_clicked() ));
@@ -237,13 +248,13 @@ void MainWindow::initUiConnectors()
     connect(ui->SliderFMOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Adjust(int) ));
     connect(ui->SliderVCOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Adjust(int) ));
 
-    connect(ui->cB_Capture		, SIGNAL(activated(QString) ),this, SLOT(cB_Capture(QString) ));
-    connect(ui->cb_external		, SIGNAL(activated(QString) ),this, SLOT(wavfile_selected(QString) ));
+    connect(ui->cB_Capture		, SIGNAL(textActivated(QString) ),this, SLOT(cB_Capture(QString) ));
+    connect(ui->cb_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
 }
 
 void MainWindow::initTimer()
 {
-    connect(status_timer, &QTimer::timeout, this, &MainWindow::updateWidgets);
+    connect(status_timer, &QTimer::timeout, this, &MainWindow::setwidgetvalues );
     connect(osc_timer, &QTimer::timeout, this, &MainWindow::read_polygon_data );
     status_timer->start(1000); 	// update widgets
     osc_timer->start(250); 		// update oscilloscope widget 4 Hz

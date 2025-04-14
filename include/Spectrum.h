@@ -66,7 +66,7 @@ public:
 	int 			Get_waveform_id( string );
 	string 			Get_waveform_str( int );
 	vector<string>	Get_waveform_vec( );
-	string 			Show_this_spectrum( spectrum_t spec );
+	string 			Show_this_spectrum( );
 	string 			Show_spectrum_type( const int& _type, const spectrum_t& spec );
 	void			Save_spectrum_table(fstream* f, const spectrum_t& spec );
 	void 			Sum( spectrum_t& );

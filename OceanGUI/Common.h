@@ -8,15 +8,57 @@
 #ifndef GUICOMMON_H
 #define GUICOMMON_H
 
-#include <Ocean.h>
-#include <System.h>
-#include <Config.h>
-#include <EventKeys.h>
+
 #include <QDialog>
 #include <QComboBox>
 #include <QString>
 #include <QStringList>
 
+#include <Ocean.h>
+#include <System.h>
+#include <Config.h>
+#include <EventKeys.h>
+
+template< typename T >
+QString QReadStr ( T* Sds, uint key  )
+{
+    string str 		= Sds->Read_str( key );
+    QString QStr 	= QString::fromStdString( str );
+	return QStr;
+};
+//#76BAFA
+template< typename T >
+void setButton( T* pb, int state, bool init=false  )
+{
+	QPalette color = QPalette();
+	QColor default_color = QColor(153, 193, 241);
+	if ( init )
+		color.setColor( QPalette::Button, default_color );
+	else
+	{
+		switch ( state )
+		{
+			case 0 :
+			{
+				color.setColor(QPalette::Button, Qt::red );
+				break;
+			}
+			case 1 :
+			{
+				color.setColor(QPalette::Button, Qt::green );
+				break;
+			}
+			case 2 :
+			{
+				color.setColor(QPalette::Button, default_color );
+				break;
+			}
+			default:
+				break;
+		}
+	}
+	pb->setPalette( color );
+};
 
 struct PathStruct
 {

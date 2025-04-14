@@ -12,6 +12,7 @@
 #include <Logfacility.h>
 #include <Configbase.h>
 #include <data/SharedDataSegment.h>
+#include <data/Appstate.h>
 
 class Register_class :  virtual public  Logfacility_class
 {
@@ -19,7 +20,7 @@ class Register_class :  virtual public  Logfacility_class
 	interface_t*	sds 		= nullptr;
 public:
 
-	void	Setup( interface_t* sds, const uint& tid );
+	void	Setup( interface_t* sds );
 	int 	GetId();
 	bool 	Is_dataprocess();
 	void 	Clear_procregister();
@@ -30,13 +31,14 @@ public:
 	int 	GetStartId( );
 	void	Update_register();
 
-	Register_class( ) ;
+	Register_class( uint id, string name ) ;
 	virtual ~Register_class();
 
 
 private:
 	std::set<int> 	dataProc	{ AUDIOID, SYNTHID };
-	uint 			Type_Id 	= NOID;
+	uint 			AppId 	= NOID;
+	string			AppName		= "";
 	uint 			Sds_Id		= -1;
 	process_t 		noprocess 	{};
 

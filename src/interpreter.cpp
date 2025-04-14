@@ -810,7 +810,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		int dial = pop_int(0,100);
 		Processor_class::Push_ifd( &ifd->VCO_wp.PMW_dial, dial, "pmw" );
-		Processor_class::Push_key( PMWDIALKEY, "set pmw" );
+		Processor_class::Push_key( PWMDIALKEY, "set pmw" );
 		return;
 	}
 

@@ -8,8 +8,6 @@
 
 #include <Comstack.h>
 
-using namespace std;
-
 
 bool tainted=false;
 void getvalue( uint8_t* addr, string text, uint event )
@@ -58,6 +56,8 @@ char Key_event( string charlist )
 	while ( not Str.Set.contains( key.key )  )
 	{
 		this_thread::sleep_for(chrono::milliseconds(1000));
+		if ( DaTA.sds_master->Comstack == EXITSERVER )
+			exit_proc( 0 );
 		show_ifd();
 		key = Keyboard.GetKey();
 	}
@@ -73,7 +73,7 @@ int main( int argc, char* argv[] )
 
 	App.Start( argc, argv );
 
-    App.Sds->Announce( );
+    DaTA.Appstate.Announce( );
 
     App.Sds->Show_interface();
 	cout << "Exit with <#> or Ctrl c" << endl ;
@@ -154,7 +154,7 @@ int main( int argc, char* argv[] )
 			tainted = false;
 			Sds->Show_interface();
 		}
-		if ( keyevent == Keyboard.AppExit )
+		if (( keyevent == Keyboard.AppExit ))
 			exit_proc( 0 );
 	} // while key
 

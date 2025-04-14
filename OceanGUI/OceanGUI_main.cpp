@@ -1,13 +1,32 @@
-#include <QApplication>
-#include <Mainwindow.h>
 
+// Qt
+#include <QApplication>
+#include <QThread>
+
+// OceanGUI
+#include <Mainwindow.h>
+#include <Dispatcher.h>
+
+// Synthesizer
 #include <App.h>
 #include <Exit.h>
+#include <Logfacility.h>
+#include <Rtsp_dialog_class.h>
+
 
 const string		TitleModule = "Ocean Sound Lab";
 
-Exit_class	Exit{};
+Exit_class			Exit		{};
 Statistic_class 	Statistic	{  TitleModule };
+Logfacility_class	Log			{ TitleModule };
+
+
+
+
+
+/*
+ * https://doc.qt.io/qt-6/qthread.html
+ */
 
 void exit_proc( int signal )
 {
@@ -16,8 +35,10 @@ void exit_proc( int signal )
 	Statistic.Show_Statistic( );
 
 
+
     QApplication::exit(0);
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -31,15 +52,14 @@ int main(int argc, char *argv[])
     QString QModule		= QString::fromStdString( TitleModule);
     Window.setWindowTitle( QModule + " " + QVersion  );
 
+    Controller_class Controller{ Window };
+
     Window.App.Start( argc, argv );
-
-
-
-
 
     Window.show();
 
     Windowapp.exec();
+
     exit_proc( 0 );
 
 }

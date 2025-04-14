@@ -21,6 +21,7 @@
 #include <iterator>
 #include <list>
 #include <map>
+#include <memory> // unique_ptr
 #include <numeric>
 #include <random>
 #include <ranges>
@@ -59,6 +60,12 @@ typedef float		 		Data_t; // range -32767 ... +32767
 typedef signed short 		data_t; // range -32767 ... +32767
 typedef vector<Data_t>		DataVec_t;
 typedef double				phi_t;
+struct Stereo_struct
+{
+	Data_t left;
+	Data_t right;
+};
+typedef Stereo_struct 		Stereo_t;
 struct stereo_struct
 {
 	data_t left;
@@ -88,7 +95,7 @@ const buffer_t 		monobuffer_size   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 75; // %
-const float			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
+const phi_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 
 template< typename T >
 struct range_t
@@ -107,7 +114,18 @@ T check_range( range_t<T> r, T val )
 		return r.max;
 	return val;
 }
-
+enum APPID
+{
+	AUDIOID,
+	SYNTHID,
+	COMPID,
+	GUI_ID,
+	COMSTACKID,
+	RTSPID,
+	TESTID,
+	NOID,
+	APP_SIZE
+};
 
 typedef struct osc_struct
 {
@@ -132,8 +150,14 @@ typedef struct osc_struct
 
 } osc_roles_t;
 
-enum { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
-const vector<string> slidermodes = { "Fixed", "Slide", "Combine" };
+const vector<string> slidermodes =
+{
+		"Fixed",
+		"Slide",
+		"Combine"
+};
+enum DYNAMIC
+{ FIXED, SLIDE, COMBINE }; // frequency and volume change mode
 
 
 const uint				oct_steps		= 12;
@@ -142,9 +166,9 @@ const uint 				min_octave 		= 0;
 const string			OctChars		= "CcDdEFfGgAaB";
 
 #define ASSERTION(	 expr , message, input, expected )\
-	printf( "test: %s\n", (message) );\
 	if ( not (expr) ) \
 	{\
+/*	printf( "test: %s\n", (message) );\ */\
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
 	cout 	<< message 							<< '\n'\
 			<< "input    value: " << (input) 		<< '\n'\

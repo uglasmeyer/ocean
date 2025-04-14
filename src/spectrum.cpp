@@ -107,14 +107,14 @@ string Spectrum_class::Get_waveform_str( int id )
 	return waveform_str_vec[ wfid ];
 };
 
-string Spectrum_class::Show_this_spectrum( spectrum_t spec )
+string Spectrum_class::Show_this_spectrum( )
 {
 	stringstream strs{""};
 	strs << endl;
 
 	for ( int type : spectrumNum ) //spectrumTag )
 	{
-		strs << Show_spectrum_type( type, spec ) ;
+		strs << Show_spectrum_type( type, this->spectrum ) ;
 		strs << endl;
 	}
 	return strs.str();

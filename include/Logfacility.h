@@ -10,29 +10,30 @@
 
 #include <Ocean.h>
 
-
-
-
 #define SETW setw(20)
 typedef vector<string> LogVector_t;
 
 enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
+
 const 	uint8_t 	LOGMAX 		= 7;
-extern 	array<bool, LOGMAX > LogMask;
+typedef array<bool, LOGMAX> logmask_t;
+extern 	logmask_t LogMask;
 
 class Logfacility_class
 {
 	const string 		logDir 		{ "/tmp/log/"};
 	const string 		logFileName	{ "Synthesizer" };
-	const string 		logFile	 	{ logDir + logFileName + ".log" };
 	LogVector_t*		LogVector_p = nullptr;
 
 public:
 	const string 		Line = "-----------------------------------------------------------";
-	string 				className 	= "";
+	range_t<int>		loglevel_range {0, LOGMAX -1 };
 
-//	void Comment( const int& level, const string logcomment );
+	string 				className 	= "";
+	const string 		logFile	 	{ logDir + logFileName + ".log" };
+
 	void Set_Loglevel( int level, bool on );
+	void ResetLogMask();
 	void Show_loglevel();
 	string Error_text( uint );
 	void Init_log_file();
@@ -46,29 +47,28 @@ public:
 	virtual ~Logfacility_class(  );
 
 	template <class... ArgsT>
-	void Info( ArgsT... args )
+	string Info( ArgsT... args )
 	{
-		string format = className + ":" +  Prefix[INFO] ;
-		cout.flush() << Color[INFO] <<  SETW << format <<  " ";
-		( cout <<  ... << args  ) << endc << endl;
+		stringstream strs{};
+		string prefix = className + ":" +  Prefix[ INFO].name;
+		strs <<  SETW << prefix ;
+		( strs <<  ... << args  ) ;
+		cout.flush() << Prefix[INFO].color << strs.str() << endc << endl;
+		return strs.str();
 	};
 
 	template <class... ArgsT>
 	void Comment( const int& level, ArgsT... args )
 	{
+		int id = check_range( loglevel_range, level );
 
-		if ( level > LOGMAX - 1 )
-			return;
-
-		if ( LogMask[ level ] )
+		if ( LogMask[ id ] )
 		{
-			comment_str = className + ":" +  Prefix[ level] ;
-			cout.flush() << Color[level] << SETW << comment_str ;
-			( cout.flush() <<  ... << args ) << endc << endl  ;
+			comment_str = className + ":" +  Prefix[ id].name ;
+			cout.flush() << Prefix[id].color << SETW << comment_str << dec << setprecision(2) ;
+			( cout.flush() <<  ... << args )  << endc << endl  ;
 		}
 	}
-
-
 
 private:
 
@@ -95,12 +95,26 @@ private:
 	const string 	bgreen		= boldon + green;
 	const string 	bred		= boldon + red;
 
-	const vector<string> Levelname	= {
-		"error", 	"debug", 	"info " ,"warn ", "dbg2 "    , "binfo", "test"};
-	const vector<string> Prefix 	= {
-		"Error> ",	"Debug> ",   "Info > "	,"Warn > ", "Dbg2 >" , "Info > ", "Test > "};
-	const vector<string> Color 		= {
-		bred, 		magenta, 	green 	, yellow, yellow , bgreen, blue };
+	struct log_struct
+	{
+		string name;
+		string color;
+		log_struct( string n, string c )
+		{
+			name = n;
+			color = c;
+		}
+		~log_struct() = default;
+	};
+	const vector<log_struct> Prefix = {
+			{"Error", bred },
+			{"Debug", magenta },
+			{"Info ", green },
+			{"Warn ", yellow },
+			{"Dbg2 ", yellow },
+			{"bInfo", bgreen },
+			{"Test ", blue }
+	};
 
 	void setup();
 

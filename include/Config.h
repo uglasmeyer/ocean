@@ -133,6 +133,7 @@ typedef struct file_structure
 	const string 	counter_file 	= Dir.libdir 		+ "counter.bin";
 	const string 	program_file	= Dir.includedir 	+ "main.synth";
 	const string	log_file		= Dir.logdir		+ "composer.log";
+	const string	nohup_file		= Dir.logdir		+ "nohup.log";
 	const string 	doc_filename 	= "Ocean.odt";
 	const string 	doc_file 		= Dir.docdir 		+ doc_filename;
 	const string	reclog_file		= Dir.tmpdir		+ "session.log";

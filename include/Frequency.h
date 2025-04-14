@@ -36,7 +36,7 @@ public:
 	range_t<float> freqfloat_range { 0.0, 0.0 };
 
 	frq_t Calc( const frq_t& _base_freq, const int& idx );
-	frq_t Calc( const int& idx );
+	frq_t GetFrq( const int& idx );
 	frq_t Frqadj( const uint8_t& channel, const int8_t& value );
 	uint Index( const string& frqName );
 	void ShowFrqTable();

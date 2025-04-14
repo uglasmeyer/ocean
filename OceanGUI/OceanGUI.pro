@@ -10,19 +10,21 @@ CONFIG += -std=c++2a
 # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        OceanGUI_main.cpp \
-        sds_dialog_class.cpp
+    Dispatcher.cpp \
+    OceanGUI_main.cpp \
+    filedialog.cpp
 
 HEADERS += \
-        File_Dialog.h \
-        Mainwindow.h \
-        Oszilloscopewidget.h \
-        Sds_dialog_class.h \
-        Spectrum_dialog_class.h \
-        Rtsp_dialog_class.h
+    File_Dialog_class.h \
+    Mainwindow.h \
+    Oszilloscopewidget.h \
+    Sds_dialog_class.h \
+    Spectrum_dialog_class.h \
+    Rtsp_dialog_class.h \
+    Dispatcher.h
 
 FORMS += \
-    File_Dialog.ui \
+    File_Dialog_class.ui \
     mainwindow.ui \
     Rtsp_dialog_class.ui \
     sds_dialog_class.ui \

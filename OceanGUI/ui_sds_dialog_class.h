@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'sds_dialog_class.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.15
+** Created by: Qt User Interface Compiler version 6.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -26,13 +26,13 @@ public:
     void setupUi(QDialog *SDS_Dialog_class)
     {
         if (SDS_Dialog_class->objectName().isEmpty())
-            SDS_Dialog_class->setObjectName(QString::fromUtf8("SDS_Dialog_class"));
+            SDS_Dialog_class->setObjectName("SDS_Dialog_class");
         SDS_Dialog_class->resize(400, 300);
         le_sdsid = new QLineEdit(SDS_Dialog_class);
-        le_sdsid->setObjectName(QString::fromUtf8("le_sdsid"));
+        le_sdsid->setObjectName("le_sdsid");
         le_sdsid->setGeometry(QRect(80, 0, 113, 26));
         label = new QLabel(SDS_Dialog_class);
-        label->setObjectName(QString::fromUtf8("label"));
+        label->setObjectName("label");
         label->setGeometry(QRect(0, 0, 66, 18));
 
         retranslateUi(SDS_Dialog_class);

@@ -20,7 +20,7 @@
 
 class External_class :
 	public virtual Logfacility_class,
-	public virtual Stereo_Memory
+	public virtual Stereo_Memory<stereo_t>
 
 {
 	string			className 	= "";

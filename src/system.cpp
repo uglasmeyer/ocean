@@ -7,15 +7,6 @@
 #include <Logfacility.h>
 #include <System.h>
 
-using namespace std;
-
-
-
-
-
-
-
-
 void system_execute( const string& cmd )
 {
 	std::cout.flush();

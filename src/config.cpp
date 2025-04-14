@@ -218,24 +218,16 @@ string Config_class::baseDir()
 
 string Config_class::Server_cmd( string term, string srv, string srvopt)
 {
-	string cmd = "";
-	if ( term.length() == 0 )
-	{
-		cmd = srv;
-		cmd.append(" ");
-		cmd.append( srvopt );
-		cmd.append( " &" );
-	}
-	else
-	{
-		cmd = term;
-		cmd.append( " '");
-		cmd.append(srv),
-		cmd.append(" ");
-		cmd.append(srvopt);
-		cmd.append("' &");
-	}
-	Comment( INFO, "command:" + cmd );
+
+	string cmd = "unknown TERM or NOHUP";
+
+	if ( strEqual( term, Config.Nohup ) )
+		cmd = term + " " + srv + " " + srvopt + " &";
+
+	if ( strEqual( term, Config.Term ) )
+		cmd = term + " '" + srv + " " + srvopt + "' &";
+
+	Comment( BINFO, "command: " , cmd );
 
 	return cmd;
 }
@@ -248,15 +240,9 @@ void DirStructure_class::Create()
 	ASSERTION( ( dir_struct().dirs.size() != 0 ),"DirStructure_class::Create",dir_struct().dirs.size(),"not=0");
 	for( string dir : dir_struct().dirs )
 	{
-		if( LogMask[ TEST ])
-		{
-			 Comment( TEST, "Create: " + dir );
-		}
-		else
-		{
-			if( filesystem::create_directories( dir ) )
-				Comment( INFO, "Synthesizer directory " + dir + " created");
-		}
+		Comment( TEST, "Create: " + dir );
+		if( filesystem::create_directories( dir ) )
+			Comment( INFO, "Synthesizer directory " + dir + " created");
 	}
 }
 /*

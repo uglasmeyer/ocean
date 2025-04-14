@@ -22,13 +22,14 @@ class Oscillator :
 		virtual public Oscillator_base
 {
 	string className = "";
-public:
 	Memory 			Mem_vco	{ monobuffer_size };
 	Memory 			Mem_fmo	{ monobuffer_size };
 	Memory 			Mem		{ monobuffer_size };
 
+public:
 
-	Oscillator(  );
+
+	Oscillator( char role, char type_id );
 	virtual ~Oscillator();
 
 	void operator=(const Oscillator& osc)
@@ -38,31 +39,31 @@ public:
         this->spectrum	= osc.spectrum;
     }
 
-	void OSC ( const buffer_t& frame_offset );
-	void SetId( char role, char type );
+	void 	OSC ( const buffer_t& frame_offset, bool hall_flag = true );
 
-	void Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
-	void Connect_fmo_data( Oscillator* );
-	void Connection_reset( );
+	void 	Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
+	void 	Connect_fmo_data( Oscillator* );
+	void 	Connection_reset( );
 
-	void Data_reset( );
-	void Set_long_note( bool );
-	void Reset_beat_cursor();
-
-	void Test();
-	spec_arr_dt		phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};
+	void 	Data_reset( );
+	void 	Phase_reset();
+	void 	Set_long_note( bool );
+	void 	Reset_beat_cursor();
+	Data_t* MemData();
+	Data_t 	MemData( buffer_t n);
+	void 	Test();
 
 private:
 
-	bool 			longnote	= false; // set trigger for long notes
-	buffer_t 		beat_cursor = 0;
+	spec_arr_dt	default_phase 	= { 0.0, 0.0, 0.0, 0.0, 0.0};
+	spec_arr_dt	phase 			= default_phase;
 
-	osc_roles_t		OscRole		= osc_struct();
+	bool 		longnote	= false; // set trigger for long notes
 
-	void 	apply_hall( buffer_t, Data_t* );
-	void 	apply_adsr( buffer_t frames, Data_t* data );
+	osc_roles_t	OscRole		= osc_struct();
 
-	void 	mem_init();
+	void 		apply_adsr( buffer_t frames, Data_t* data );
+	void 		mem_init();
 };
 
 

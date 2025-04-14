@@ -29,7 +29,7 @@ T step( T src, T dst, range_t<int> range)
 
 typedef struct bps_struct
 {
-	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8 };
+	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8,10 };
 	const vector<uint8_t>	Bps_vec	= set2vector( Bps_set );
 	list<string>			Bps_lst	= {};
 	set<string>			Bps_str_set	= {};
@@ -72,7 +72,8 @@ typedef struct adsr_struct
 
 typedef struct fmo_struct
 {
-	Data_t*			data		= nullptr; // ptr to the fm data
+//	Data_t*			data		= nullptr; // ptr to the fm data
+	Memory*			Mem			= nullptr;
 	char 			osc_id		= -1;
 	uint16_t 		volume		= 0; // volume of the fm track
 	string			name		= "";
@@ -82,7 +83,8 @@ typedef struct fmo_struct
 
 typedef struct vco_struct
 {
-	Data_t*			data		= nullptr; // ptr to the vc data
+//	Data_t*			data		= nullptr; // ptr to the vc data
+	Memory*			Mem			= nullptr;
 	char 			osc_id		= -1;
 	uint16_t 		volume		= 0; // volume of the vc track
 	string			name		= "";
@@ -90,6 +92,7 @@ typedef struct vco_struct
 	bool 			generated	= false;
 } vco_t;  // all wave parameter for vco
 
+static const buffer_t 	max_beatframes 	= max_frames + min_frames;
 
 class Oscillator_base :
 	virtual public Logfacility_class,
@@ -98,18 +101,21 @@ class Oscillator_base :
 
 public:
 
-	char			osctype_id	= -1;//osc_struct::OSCID;
-	char			oscrole_id	= -1;//osc_struct::INSTRID;
-	string 			osc_role 	= "";
-	string 			osc_type 	= "";
+	char			osctype_id		= -1;//osc_struct::OSCID;
+	char			oscrole_id		= -1;//osc_struct::INSTRID;
+	string 			osc_role 		= "";
+	string 			osc_type 		= "";
 
-	bool			is_osc_type = false;
-	bool			is_fmo_type = false;
-	bool			is_notes_role = false;
-	bool			is_instr_role = false;
+	bool			is_osc_type 	= false;
+	bool			is_fmo_type 	= false;
+	bool			is_vco_type 	= false;
+	bool			is_kbd_role   	= false;
+	bool			is_notes_role 	= false;
+	bool			is_instr_role 	= false;
 
-	buffer_t		beatframes	= max_frames;
-	DataVec_t		adsrdata 	{ };
+	buffer_t		beat_frames		= max_frames;
+	array<Data_t, max_beatframes>
+					adsrdata 		{ };
 
 	adsr_t 			adsr 		= adsr_struct();
 	wave_t 			wp 			= wave_struct();
@@ -124,22 +130,23 @@ public:
 		Spectrum_class()
 	{};
 
-	virtual 	~Oscillator_base(){};
+	virtual 	~Oscillator_base() = default;
+	buffer_t 	beat_cursorL = 0;
+	buffer_t 	beat_cursorR = 0;
 
-	void 		Show_csv_comment( int );
 	uint8_t 	Set_frequency( string frqName, uint mode );
 	uint8_t		Set_frequency( int idx, uint mode );
 	void 		Set_volume( uint8_t vol, uint mode);
 	void 		Line_interpreter( vector_str_t arr );
 	void 		Set_waveform( spec_arr_8t wf_vec   );
-	void 		Set_csv_comment ();
-	void 		Get_comment( bool  );
-	void		Set_adsr( adsr_t );
 	void		Set_pmw( uint8_t );
 	void		Set_glide( uint8_t );
 	void		Set_spectrum( spectrum_t );
 	void		Set_duration( uint16_t );
+
+	void		Set_adsr( adsr_t );
 	void		Gen_adsrdata( buffer_t );
+	void	 	set_beatcursorR();
 	stringstream Get_sound_stack();
 
 private:

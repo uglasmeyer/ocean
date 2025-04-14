@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'Rtsp_dialog_class.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.15
+** Created by: Qt User Interface Compiler version 6.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -14,6 +14,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTableWidget>
+#include <QtWidgets/QTextBrowser>
 
 QT_BEGIN_NAMESPACE
 
@@ -21,12 +22,13 @@ class Ui_Rtsp_Dialog_class
 {
 public:
     QTableWidget *process_table;
+    QTextBrowser *tB_log;
 
     void setupUi(QDialog *Rtsp_Dialog_class)
     {
         if (Rtsp_Dialog_class->objectName().isEmpty())
-            Rtsp_Dialog_class->setObjectName(QString::fromUtf8("Rtsp_Dialog_class"));
-        Rtsp_Dialog_class->resize(356, 227);
+            Rtsp_Dialog_class->setObjectName("Rtsp_Dialog_class");
+        Rtsp_Dialog_class->resize(619, 302);
         Rtsp_Dialog_class->setStyleSheet(QString::fromUtf8("background-color: rgb(153, 193, 241);"));
         process_table = new QTableWidget(Rtsp_Dialog_class);
         if (process_table->columnCount() < 3)
@@ -49,10 +51,15 @@ public:
         process_table->setVerticalHeaderItem(3, __qtablewidgetitem6);
         QTableWidgetItem *__qtablewidgetitem7 = new QTableWidgetItem();
         process_table->setVerticalHeaderItem(4, __qtablewidgetitem7);
-        process_table->setObjectName(QString::fromUtf8("process_table"));
+        process_table->setObjectName("process_table");
         process_table->setGeometry(QRect(10, 9, 331, 192));
         process_table->setRowCount(5);
         process_table->setColumnCount(3);
+        tB_log = new QTextBrowser(Rtsp_Dialog_class);
+        tB_log->setObjectName("tB_log");
+        tB_log->setGeometry(QRect(10, 190, 601, 101));
+        tB_log->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);"));
+        tB_log->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
         retranslateUi(Rtsp_Dialog_class);
 

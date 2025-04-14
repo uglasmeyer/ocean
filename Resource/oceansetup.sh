@@ -8,6 +8,7 @@ Exit(  )
 
 cd ..
 OCEANDIR=`pwd`
+LIBDIR=$OCEANDIR/lib
 ls $OCEANDIR/bin/oceansetup.sh 2>/dev/null || Exit "cannot find oceansetup in $OCEANDIR" 
 
 cd bin 2>/dev/null || Exit "$OCEANDIR has no bin/ directory" 
@@ -42,7 +43,7 @@ echo generating ocean.rc
 echo export OCEANTESTCASE=oceantestcase 	> $RCFILE
 echo export OCEANDIR=$OCEANDIR 				>> $RCFILE
 echo export PATH=$OCEANDIR/bin:$PATH_BACKUP >> $RCFILE
-
+echo export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBDIR >> $RCFILE
 echo updating $BASHRC
 cat $BASHRC | grep -v ocean.rc\
 			| grep -v PATH_BACKUP> $TMPRC

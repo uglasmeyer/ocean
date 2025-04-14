@@ -1,10 +1,14 @@
 #ifndef RTSP_DIALOG_CLASS_H
 #define RTSP_DIALOG_CLASS_H
 
+// Qt
 #include <QDialog>
 #include <QtWidgets/QTableWidget>
 
+// OceanGUI
+#include "ui_Rtsp_dialog_class.h"
 
+// Synthesizer
 #include <data/DataWorld.h>
 #include <Ocean.h>
 #include <data/Interface.h>
@@ -16,7 +20,10 @@ const string ClassName = "Rtsp";
 class Rtsp_Dialog_class;
 }
 
-class Rtsp_Dialog_class : public QDialog, virtual Logfacility_class, virtual Config_class
+class Rtsp_Dialog_class :
+	public QDialog,
+	virtual Logfacility_class,
+	virtual Config_class
 {
     Q_OBJECT
 
@@ -40,8 +47,8 @@ public:
 			Dataworld_class*	data	= nullptr);
     virtual ~Rtsp_Dialog_class();
 
-private slots:
-
+    public slots:
+	void UpdateLog( const QString& logstr );
 
 
 private:

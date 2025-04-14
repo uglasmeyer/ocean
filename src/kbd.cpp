@@ -38,7 +38,7 @@ void Keyboard_base::Init()
 	new_flags.c_lflag 		&= ~ICANON;	// non-standard mode
 	new_flags.c_lflag 		&= ~ECHO;	// disable echo and erase
 
-	new_flags.c_cc[VMIN] 		= 0;//1;
+	new_flags.c_cc[VMIN] 	= 0;//1;
 	new_flags.c_cc[VTIME] 	= 1;//0; //0->HIGH cpu load
 	// In this case TIME is a total read timeout. (timeout in multiples of 0.1 sec)
 	// The read returns if either MIN bytes are received before the timer expires
@@ -142,8 +142,7 @@ void Keyboard_base::pressKey()
 
 void Keyboard_base::Test()
 {
-	Set_Loglevel( TEST, true );
-	Comment( TEST, "Keyboard test running");
+	TEST_START( className );
 	uint nr = 0;
 	do
 	{
@@ -151,10 +150,11 @@ void Keyboard_base::Test()
 		Comment( TEST, " > Press # to finish keyboard test");
 		nr++;
 	}
-	while( not ( GetKey().key == '#' ) and ( nr < 20 ));
+	while( not ( GetKey().key == '#' ) and ( nr < 10 ));
 
 	Comment( TEST, "Keyboard test finished");
 //	assert( false );
+	TEST_END( className );
 
 }
 

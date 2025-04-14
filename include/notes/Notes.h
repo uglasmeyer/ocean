@@ -9,7 +9,6 @@
 #define INCLUDE_PLAYNOTES_H_
 
 #include <Spectrum.h>
-
 #include <Instrument.h>
 #include <notes/Notesbase.h>
 #include <Oscbase.h>
@@ -18,7 +17,6 @@
 #include <System.h>
 #include <Oscgroup.h>
 
-using namespace std;
 
 class Note_class :  virtual public Logfacility_class,
 					virtual public Note_base

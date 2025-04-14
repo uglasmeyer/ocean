@@ -38,8 +38,7 @@ void SynthesizerTestCases()
 	Application_class		App( &DaTA );
 	interface_t*			sds = DaTA.GetSdsAddr();
 	Mixer_class				Mixer{&DaTA, wd_p };
-	Mixer.Set_Loglevel( TEST, true );
-	Mixer.Test();
+
 
 	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
 	Note_class 				Notes{ wd_p };
@@ -54,14 +53,14 @@ void SynthesizerTestCases()
 //	uint8_t ch;
 //	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
-	Oscillator 				TestOsc{  };
+	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID };
 
 	Log.TEST_START( "Application " );
 
 	App.Init_Sds( );
 
 
-	App.Sds->Announce();
+	App.DaTA->Appstate.Announce();
     std::set<string> abc{"a","b","c"};
     assert( abc.contains("b"));
 	TestStr.TestString();
@@ -83,6 +82,9 @@ void SynthesizerTestCases()
 	Notes.Test();
 
 	TestOsc.Test_wf();
+	TestOsc.DynFrequency.TestFrq();
+
+	Mixer.Test();
 
 	Timer.Start();
 
@@ -105,7 +107,7 @@ void SynthesizerTestCases()
 	Sem->Test();
 
 	Instrument.Test_Instrument();
-	Instrument.Oscgroup.Run_Oscgroup( 0 );
+	Instrument.Oscgroup.Run_OSCs( 0 );
 
 	Log.Test_Logging();
 	Frequency_class Frq {};
@@ -120,33 +122,24 @@ void SynthesizerTestCases()
 	Log.TEST_END( "Application " );
 }
 
-Application_class::Application_class( 	Dataworld_class* _DaTA ) :
-Logfacility_class( "Application" )
+Application_class::Application_class( Dataworld_class* _DaTA ) :
+		Logfacility_class( "Application_class" ),
+		Statistic( _DaTA->Cfg.prgname )
 {
-	this->ProgamName			= _DaTA->Cfg.prgname;
+	this->ProgramName			= _DaTA->Cfg.prgname;
 	this->className				= Logfacility_class::className ;
 	this->DaTA					= _DaTA;
-	this->Statistic.module		= ProgamName;
-	this->This_Application 		= Application + DaTA->Cfg.prgname + " " + Version_str;
+	this->sds_master			= DaTA->sds_master;
+	this->This_Application 		= Application + ProgramName + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
 
-}
-
-uint8_t Application_class::GetAppState( uint appid )
-{
-	uint8_t state;
-	if ( appid == DaTA->TypeId )
-		state = *Sds->Getstate_ptr( appid );
-	else
-		state = *DaTA->SDS_vec[0].Getstate_ptr( appid );
-	return state;
 }
 
 void Application_class::Init_Sds( )
 {
 	this->Sds		= DaTA->GetSds( );
 	assert( this->Sds != nullptr );
-	this->state_p	= this->Sds->Getstate_ptr( DaTA->TypeId );
+	this->state_p	= DaTA->Appstate.ptr;
 
 	this->sds		= Sds->addr;
 }
@@ -162,7 +155,7 @@ void Application_class::VersionTxt()
 void Application_class::Start( int argc, char* argv[] )
 {
     std::set<int> logowner =  { GUI_ID, COMPID, RTSPID };
-	if ( logowner.contains( DaTA->TypeId ) )
+	if ( logowner.contains( DaTA->AppId ) )
 	{
 		Init_log_file();
 	}
@@ -197,7 +190,7 @@ Application_class::~Application_class()
 {
 	deRegister();
 
-    if (( DaTA->TypeId == SYNTHID ) and ( not LogMask[TEST] ))
+    if (( DaTA->AppId == SYNTHID ) and ( not LogMask[TEST] ))
 	{
 		Sds->Dump_ifd();
 	}
@@ -230,28 +223,32 @@ void Application_class::deRegister( )
 	auto setState = [ this ](  )
 	{
 		cout << endl;
-		Info( "De-register " ,Type_map( DaTA->TypeId ) );
+		Info( "De-register " , DaTA->Appstate.Name  );
 		assert ( state_p != nullptr );
 		*state_p 	= OFFLINE;
-		if(( sds->UserInterface != OFFLINE ) and  ( DaTA->TypeId == SYNTHID ) )
-		{
-			sds->UserInterface = UPDATEGUI;
-		}
-		sds->UpdateFlag = true;
+
 	};
 
-
 	setState( );
-//	closeStderr( errFile ); TODO causes valgrind error
+	if(( sds_master->UserInterface == RUNNING ) )
+	{
+		DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
+	}
+	sds->UpdateFlag = true;//	closeStderr( errFile ); TODO causes valgrind error
 }
 
 void Application_class::Ready(  )
 {
 	Statistic.Show_Statistic( );
-
-	Comment(INFO, DaTA->Cfg.prgname + " is ready");
+	if ( state_p )
+	{
+		*state_p	= RUNNING;
+	}
+	Comment(INFO, ProgramName + " is ready");
 	Info( "SDS ID: ", (int) DaTA->SDS_Id );
 	cout << Line << endl;
+	DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
+
 }
 
 void Application_class::Shutdown_instance( )
@@ -260,11 +257,10 @@ void Application_class::Shutdown_instance( )
 	if ( *state_p == RUNNING )
 	{
 		*state_p	= EXITSERVER;
-		DaTA->Sem.Lock(SEMAPHORE_EXIT, 1);
 	}
 	else
 	{
-		Info( "No other " , ProgamName , " is running"	);
+		Info( "No other " , ProgramName , " is running"	);
 	}
 	Server_init = false;
 }

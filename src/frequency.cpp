@@ -93,7 +93,7 @@ frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 	return frq;
 }
 
-frq_t Frequency_class::Calc( const int& idx )
+frq_t Frequency_class::GetFrq( const int& idx )
 {
 	uint frqidx = check_range( freqarr_range, idx );
 	return frqArray[ frqidx];
@@ -134,11 +134,11 @@ void Frequency_class::TestFrequency()
 	TEST_START( className );
 	ShowFrqTable();
 	frq_t f;
-	f = Calc( 10 );
+	f = GetFrq( 10 );
 	ASSERTION( f == 1, "Frq calc 10", f, 1 );
 	uint i;
 	i = Index( "A3" );
-	f = Calc( i );
+	f = GetFrq( i );
 	ASSERTION( fcomp(f,220), "Frq calc A3", f, 220 );
 	i = Index( "C2" );
 	f = Calc( 10, i);

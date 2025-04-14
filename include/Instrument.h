@@ -18,22 +18,19 @@
 #include <System.h>
 #include <Table.h>
 
-
-
 class Instrument_class:
 		virtual public Logfacility_class
 {
 public:
 	string 					Name 		= "";
 
-	interface_t*  			sds;
+	interface_t*  			sds			= nullptr;
 	Oscgroup_class			Oscgroup	{ osc_struct::INSTRID };
 	Oscillator*				osc			= &Oscgroup.osc;
 	Oscillator*				vco			= &Oscgroup.vco;
 	Oscillator*				fmo			= &Oscgroup.fmo;
-	Wavedisplay_class*		wd_p;
+	Wavedisplay_class*		wd_p		= nullptr;
 
-	const string instr_ext = file_structure().snd_type;
 	Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
 	virtual ~Instrument_class();
 ;
@@ -46,11 +43,12 @@ public:
 	void Test_Instrument();
 
 private:
-	vector<spectrum_t*>		ifd_spectrum_vec;
-	string 					Instrument_file;
-	string 					Default_instrument_file;
-	int 					file_version = -1;
-	set<int>				supported { 0, 1, 2 };
+	vector<spectrum_t*>		ifd_spectrum_vec		{};
+	string 					Instrument_file			= "";
+	string 					Default_instrument_file = "";
+	int 					file_version 			= -1;
+	set<int>				supported 				{ 0, 1, 2 };
+	const string 			instr_ext 				= file_structure().snd_type;
 
 	void 	set_name( string );
 	void 	set_new_name( string );
@@ -59,7 +57,6 @@ private:
 
 	bool 	read_instrument( );
 	bool 	init_connections(  );
-	Oscillator* get_osc_by_name( string );
 	bool 	connect(string, string, string );
 	void 	init_data_structure( Oscillator*, vector_str_t);
 	void 	setup_GUI_Data();
@@ -68,9 +65,6 @@ private:
 	int 	getVersion( fstream& File );
 	bool	read_version1( fstream* File );
 	bool	read_version2( fstream* File );
-
-
-
 };
 
 #endif /* INSTRUMENT_H_ */

@@ -5,34 +5,69 @@
  *      Author: sirius
  */
 
-#include  <data/Register.h>
-#include <data/SharedDataSegment.h>
+#include <data/Appstate.h>
 
-Register_class::Register_class( ) :
+void Appstate_class::Setup( interface_t* _sds )
+{
+	sds = _sds;
+	ptr = State_pMap( _sds );
+}
+
+uint8_t* Appstate_class::State_pMap( interface_t* sds )
+{
+	switch ( AppId )
+	{
+		case APPID::AUDIOID		: return &sds->AudioServer;
+		case APPID::SYNTHID		: return &sds->Synthesizer;
+		case APPID::COMPID		: return &sds->Composer;
+		case APPID::GUI_ID		: return &sds->UserInterface;
+		case APPID::COMSTACKID	: return &sds->Comstack;
+		case APPID::RTSPID		: return &sds->Rtsp;
+		case APPID::TESTID		: return &sds->Rtsp;
+		case APPID::NOID		: return nullptr;
+		default 		: 	{
+							cout << "WARN: unknown application id: " << AppId << endl;
+							return nullptr;
+							};
+	}
+}
+
+void Appstate_class::Announce( )
+{
+	Comment(INFO, "announcing application " + Name );
+	*ptr = RUNNING;
+	sds->UpdateFlag = true;
+}
+
+
+
+#include  <data/Register.h>
+
+Register_class::Register_class( uint id, string name ) :
 	Logfacility_class( "Process Reg")
 {
 	className 	= Logfacility_class::className;
-//	Set_Loglevel( DEBUG, true);
-
+	AppName 	= name;
+	AppId 		= id;
 };
 
 Register_class::~Register_class()
 {
 };
 
-void Register_class::Setup( interface_t* sds, const uint& tid  )
+void Register_class::Setup( interface_t* sds )
 {
-	this->Type_Id 	= tid;
 	this->sds		= sds;
 	this->Sds_Id 	= 0;
 
-	switch( tid )
+	switch( AppId )
 	{
-		case AUDIOID :
+		case APPID::AUDIOID :
 		{
-			if ( Is_running_process((int)this->sds->process_arr.at( AUDIOID ).pid ) )
+			if ( Is_running_process((int)this->sds->process_arr.at( APPID::AUDIOID ).pid ) )
 			{
-				Info( "Running Audioserver " + to_string( this->sds->process_arr.at( AUDIOID ).pid ) + "detected");
+				Info( 	"Running Audioserver " +
+						to_string( this->sds->process_arr.at( APPID::AUDIOID ).pid ) + "detected");
 				if ( not LogMask[TEST] )
 					EXCEPTION( "Cannot start second Audioserver" );
 			}
@@ -42,7 +77,7 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 			}
 			break;
 		}
-		case SYNTHID :
+		case APPID::SYNTHID :
 		{
 			int id = scan_proc_register();
 			if ( id < 0 )
@@ -60,7 +95,7 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 		}
 		default :
 		{
-			cout << "Type_Id: " << Type_Id << endl;
+			cout << "App Id:  " << AppId << endl;
 			break;
 		}
 	}
@@ -68,7 +103,7 @@ void Register_class::Setup( interface_t* sds, const uint& tid  )
 
 bool Register_class::Is_dataprocess()
 {
-	return 	dataProc.contains( this->Type_Id );
+	return 	dataProc.contains( this->AppId );
 }
 
 void Register_class::Reset( uint idx )
@@ -103,8 +138,8 @@ void Register_class::proc_Register()
 {
 	if( not Is_dataprocess() )
 		return;
-	uint idx = Type_Id + Sds_Id;
-	regComment( this, "", Type_map( Type_Id ), Sds_Id, idx );
+	uint idx = AppId + Sds_Id;
+	regComment( this, "", AppName, Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
 	{
 		Comment( ERROR, "register out of range ");
@@ -113,7 +148,7 @@ void Register_class::proc_Register()
 
 	sds->process_arr.at(idx).idx 	= idx;
 	sds->process_arr.at(idx).sdsId 	= Sds_Id;
-	sds->process_arr.at(idx).type	= Type_Id;
+	sds->process_arr.at(idx).type	= AppId;
 	sds->process_arr.at(idx).pid	= getpid();
 
 	if( LogMask[DEBUG] )
@@ -125,8 +160,8 @@ void Register_class::proc_Register()
 }
 void Register_class::Proc_deRegister(  )
 {
-	uint idx = Type_Id + Sds_Id ;
-	regComment( this, "De-", Type_map( Type_Id ), Sds_Id, idx );
+	uint idx = AppId + Sds_Id ;
+	regComment( this, "De-",AppName, Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
 	{
 		Comment( ERROR, "de-register out of range ");
@@ -147,12 +182,13 @@ void Register_class::Show_proc_register( uint idx )
 {
 	process_t proc { sds->process_arr.at(idx) };
 	stringstream strs;
+
 	if ( Is_running_process( (int) proc.pid ))
 	{
-		strs << Type_map( proc.type ) << endl;
+		strs << AppIdName( proc.type ) << endl;
 		strs << SETW << "Index   "	<< idx << endl;
 		strs << SETW << "Sds  Id "	<< (int)proc.sdsId << endl;
-		strs << SETW << "Type Id " 	<< Type_map(proc.type) << endl;
+		strs << SETW << "App  Id " 	<< AppIdName(proc.type) << endl;
 		strs << SETW << "Pid     " 	<< proc.pid << endl;
 		Info( strs.str() );
 	}
@@ -186,12 +222,12 @@ void Register_class::Update_register()
 }
 int Register_class::scan_proc_register() // returns Sds_Id
 {
-	assert( Type_Id < NOID );
+	assert( AppId < NOID );
 	Update_register();
-	for( uint idx = SYNTHID; idx < REGISTER_SIZE; idx++ )
+	for( uint idx = APPID::SYNTHID; idx < REGISTER_SIZE; idx++ )
 	{
-		if ( sds->process_arr.at(idx).type == NOID )
-			return idx - SYNTHID;
+		if ( sds->process_arr.at(idx).type == APPID::NOID )
+			return idx - APPID::SYNTHID;
 	}
 	return -1;
 }
@@ -204,8 +240,8 @@ void Register_class::Test_Register()
 	show_proc_register();
 	Clear_procregister();
 	show_proc_register();
-	Setup( sds, SYNTHID );
-	Setup( sds, AUDIOID );
+	Setup( sds );
+	Setup( sds );
 	Clear_procregister();
 	show_proc_register();
 

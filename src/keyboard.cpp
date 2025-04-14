@@ -37,9 +37,9 @@ void Keyboard_class::set_instrument(  )
 	Oscgroup.vco	= instrument->Oscgroup.vco;
 	Oscgroup.fmo 	= instrument->Oscgroup.fmo;
 
-	Oscgroup.osc.vp.data = Oscgroup.vco.Mem.Data;
-	Oscgroup.osc.fp.data = Oscgroup.fmo.Mem.Data;
-	Oscgroup.osc.Set_duration( 500 );
+//	Oscgroup.osc.vp.Mem = Oscgroup.vco.MemData();
+//	Oscgroup.osc.fp.Mem = Oscgroup.fmo.MemData();
+	Oscgroup.Set_Duration( 500 );
 	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 	Oscgroup.osc.Reset_beat_cursor();
 }
@@ -76,7 +76,7 @@ bool Keyboard_class::Attack( int key, uint8_t octave )
 	set_instrument();
 	set_kdb_note(  );
 
-	Oscgroup.Run_Oscgroup( 0 );
+	Oscgroup.Run_OSCs( 0 );
 
 	return true;
 }
@@ -85,7 +85,7 @@ bool Keyboard_class::Release(  )
 {
 	cout << "RELEASE" << endl;
 	decayCounter = releaseCounter;
-	osc->Mem.Clear_data( 0 );
+	osc->Data_reset();
 
 	return true;
 }

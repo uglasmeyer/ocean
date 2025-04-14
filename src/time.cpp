@@ -2,7 +2,7 @@
 #include <Time.h>
 #include <Ocean.h>
 
-using namespace std::chrono;
+using namespace std::chrono ;
 
 Time_class::Time_class( uint8_t* t )
 : Logfacility_class("Timer")
@@ -28,7 +28,7 @@ Time_class::~Time_class( )
 long int Time_class::Time_elapsed()
 {
 	Stop();
-	long long int start_count = duration_cast<milliseconds>(start_time.time_since_epoch()).count();
+	long long int start_count = duration_cast<milliseconds>( start_time.time_since_epoch()).count();
 	long long int stop_count  = duration_cast<milliseconds>( stop_time.time_since_epoch()).count();
 	return stop_count - start_count;
 }
@@ -58,9 +58,15 @@ void Time_class::Block()
 uint Time_class::Performance( )
 {
 	Stop();
-	uint perf 	= Time_elapsed() / 10; // time elapsed in percentage w.r.t. 1 second = 1000 msec
+	uint tel = Time_elapsed();
 	Start();
-	return perf;
+
+	// limit the CPU load by thread sleep
+	if ( tel < 100 )
+		std::this_thread::sleep_for( chrono::milliseconds( 100 - tel  ) );
+
+	*time_elapsed 	= (uint8_t) tel / 10;// time elapsed in percentage w.r.t. 1 second = 1000 msec
+	return (uint) tel;
 }
 
 void Time_class::Wait( const uint& d )
