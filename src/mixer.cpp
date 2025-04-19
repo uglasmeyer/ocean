@@ -44,8 +44,8 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 		Mono.Info		( "Mono data");
 		Mono_out.Info	( "Wave display data");
-		Out_L.Info		( "Output Stereo Left");
-		Out_R.Info		( "Output Stereo Right");
+		Out.Info		( "Output Stereo Data");
+//		Out_R.Info		( "Output Stereo Right");
 	}
 
 	wd->Add_role_ptr( osc_struct::EXTID, StA[ MbIdExternal].Data );
@@ -62,8 +62,8 @@ Mixer_class::~Mixer_class()
 void Mixer_class::clear_memory()
 {
 	// clear temporary memories
-	Out_L.Clear_data(0);
-	Out_R.Clear_data(0);
+	Out.Clear_data();
+//	Out_R.Clear_data(0);
 	Mono.Clear_data(0);
 }
 
@@ -125,8 +125,8 @@ void Mixer_class::add_mono(Data_t* Data, const uint& id )
 	{
 		float
 		volpermill 		= StA[id].DynVolume.Get() * 0.1;
-		Out_L.Data[n] 	+= rint( Data[n] * phase_l[id] * volpermill );
-		Out_R.Data[n] 	+= rint( Data[n] * phase_r[id] * volpermill );
+		Out.stereo_data[n].left 	+= rint( Data[n] * phase_l[id] * volpermill );
+		Out.stereo_data[n].right 	+= rint( Data[n] * phase_r[id] * volpermill );
 		Mono.Data[n]  	+= rint( Data[n] );//*volpercent );	// collect mono data for store
 	}
 	StA[id].DynVolume.Update();
@@ -145,8 +145,8 @@ void Mixer_class::add_stereo( stereo_t* data  )
 	{
 		float
 		vol_percent 	= DynVolume.Get();
-		data[n].left 	+= rint( Out_L.Data[n]	* vol_percent * balanceL );
-		data[n].right 	+= rint( Out_R.Data[n] 	* vol_percent * balanceR );
+		data[n].left 	+= rint( Out.stereo_data[n].left	* vol_percent * balanceL );
+		data[n].right 	+= rint( Out.stereo_data[n].right 	* vol_percent * balanceR );
 	}
 	DynVolume.Update();
 
@@ -269,8 +269,7 @@ void Mixer_class::Test()
 	TEST_START( className );
 	Mono.Set_Loglevel( TEST, true );
 	Mono_out.Set_Loglevel( TEST, true );
-	Out_L.Set_Loglevel( TEST, true );
-	Out_R.Set_Loglevel( TEST, true );
+	Out.Set_Loglevel( TEST, true );
 	for ( Memory& sta : StA )
 		sta.Set_Loglevel( TEST, true );
 	Mono.Memory_base::Info();

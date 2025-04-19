@@ -31,7 +31,21 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 {
 
 	std::ranges::for_each( member, [ this, wd ](Oscillator*  o)
-			{ wd->Add_data_ptr(o->osctype_id, oscroleId, o->MemData() ); });
+			{ wd->Add_data_ptr(o->osc_id, oscroleId, o->MemData() ); });
+}
+
+void Oscgroup_class::Show_sound_stack() // show_status
+{
+	Table_class 	Table{"Sound stack" };
+	Table.AddColumn( "Osc", 4 );
+	Table.AddColumn( "Waveform", 10 );
+	Table.AddColumn( "Frq", 8 );
+	Table.AddColumn( "Amp", 8 );
+	Table.AddColumn( "Vol", 8 );
+	Table.AddColumn( "Frq", 8 );
+	Table.PrintHeader();
+	std::ranges::for_each( member, [ this, &Table ](Oscillator*  o)
+			{ o->Get_sound_stack( &Table) ; });
 }
 
 void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
@@ -86,9 +100,11 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 	Oscillator* ret = nullptr;
 
 	std::ranges::for_each( member, [ name, &ret ](Oscillator* o)
-			{ if ( strEqual( o->osc_type, name ))
-				ret = o;} );
-
+			{ if ( strEqual( o->osc_name, name ) )
+				{
+					ret = o;
+				}
+			} );
 	if ( strEqual( "MAIN", name  ) ) // compatibility
 		ret = member[ osc_struct::OSCID ];
 	if ( ret == nullptr )

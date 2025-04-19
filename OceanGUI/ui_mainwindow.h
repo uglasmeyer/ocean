@@ -55,9 +55,6 @@ public:
     QLabel *label_7;
     QLabel *label_8;
     QLabel *label_9;
-    QRadioButton *rb_reset;
-    QRadioButton *radioButton_2;
-    QRadioButton *radioButton_3;
     QFrame *frame;
     QRadioButton *rb_sta1;
     QRadioButton *rb_sta2;
@@ -90,8 +87,6 @@ public:
     QDial *dial_PMW;
     QLabel *label_2;
     QPushButton *pB_play_notes;
-    QRadioButton *radioButton_4;
-    QRadioButton *radioButton_5;
     QPushButton *pBtoggleRecord;
     QLabel *label_4;
     QFrame *frame_5;
@@ -153,6 +148,12 @@ public:
     QScrollBar *hs_hall_effect;
     QScrollBar *hs_balance;
     QLabel *label_14;
+    QCheckBox *cb_connect_vco;
+    QCheckBox *cb_connect_fmo;
+    QCheckBox *cb_connect_oscv;
+    QCheckBox *cb_connect_oscf;
+    QLabel *label_15;
+    QLabel *label_16;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -327,15 +328,6 @@ public:
         label_9 = new QLabel(centralwidget);
         label_9->setObjectName("label_9");
         label_9->setGeometry(QRect(60, 60, 111, 20));
-        rb_reset = new QRadioButton(centralwidget);
-        rb_reset->setObjectName("rb_reset");
-        rb_reset->setGeometry(QRect(330, 150, 112, 23));
-        radioButton_2 = new QRadioButton(centralwidget);
-        radioButton_2->setObjectName("radioButton_2");
-        radioButton_2->setGeometry(QRect(330, 310, 112, 23));
-        radioButton_3 = new QRadioButton(centralwidget);
-        radioButton_3->setObjectName("radioButton_3");
-        radioButton_3->setGeometry(QRect(330, 500, 113, 23));
         frame = new QFrame(centralwidget);
         frame->setObjectName("frame");
         frame->setGeometry(QRect(960, 10, 131, 251));
@@ -454,12 +446,6 @@ public:
         pB_play_notes = new QPushButton(centralwidget);
         pB_play_notes->setObjectName("pB_play_notes");
         pB_play_notes->setGeometry(QRect(480, 10, 89, 25));
-        radioButton_4 = new QRadioButton(centralwidget);
-        radioButton_4->setObjectName("radioButton_4");
-        radioButton_4->setGeometry(QRect(330, 330, 112, 23));
-        radioButton_5 = new QRadioButton(centralwidget);
-        radioButton_5->setObjectName("radioButton_5");
-        radioButton_5->setGeometry(QRect(330, 520, 113, 23));
         pBtoggleRecord = new QPushButton(centralwidget);
         pBtoggleRecord->setObjectName("pBtoggleRecord");
         pBtoggleRecord->setGeometry(QRect(480, 470, 89, 25));
@@ -584,7 +570,7 @@ public:
         label_10->setWordWrap(true);
         pB_Mute = new QPushButton(centralwidget);
         pB_Mute->setObjectName("pB_Mute");
-        pB_Mute->setGeometry(QRect(330, 120, 88, 25));
+        pB_Mute->setGeometry(QRect(330, 80, 88, 25));
         cb_external = new QComboBox(centralwidget);
         cb_external->setObjectName("cb_external");
         cb_external->setGeometry(QRect(480, 500, 131, 25));
@@ -716,6 +702,24 @@ public:
         label_14 = new QLabel(centralwidget);
         label_14->setObjectName("label_14");
         label_14->setGeometry(QRect(470, 140, 66, 17));
+        cb_connect_vco = new QCheckBox(centralwidget);
+        cb_connect_vco->setObjectName("cb_connect_vco");
+        cb_connect_vco->setGeometry(QRect(330, 460, 111, 24));
+        cb_connect_fmo = new QCheckBox(centralwidget);
+        cb_connect_fmo->setObjectName("cb_connect_fmo");
+        cb_connect_fmo->setGeometry(QRect(330, 270, 111, 24));
+        cb_connect_oscv = new QCheckBox(centralwidget);
+        cb_connect_oscv->setObjectName("cb_connect_oscv");
+        cb_connect_oscv->setGeometry(QRect(330, 150, 111, 24));
+        cb_connect_oscf = new QCheckBox(centralwidget);
+        cb_connect_oscf->setObjectName("cb_connect_oscf");
+        cb_connect_oscf->setGeometry(QRect(330, 120, 111, 24));
+        label_15 = new QLabel(centralwidget);
+        label_15->setObjectName("label_15");
+        label_15->setGeometry(QRect(330, 240, 111, 20));
+        label_16 = new QLabel(centralwidget);
+        label_16->setObjectName("label_16");
+        label_16->setGeometry(QRect(330, 430, 111, 20));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
@@ -733,15 +737,6 @@ public:
         menubar->addAction(menuIO->menuAction());
 
         retranslateUi(MainWindow);
-        QObject::connect(rb_reset, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
-        QObject::connect(radioButton_2, SIGNAL(clicked()), MainWindow, SLOT(set_mode_v()));
-        QObject::connect(radioButton_3, SIGNAL(clicked()), MainWindow, SLOT(set_mode_f()));
-        QObject::connect(Slider_OSC_Vol, SIGNAL(valueChanged(int)), MainWindow, SLOT(MAIN_slot_volume()));
-        QObject::connect(Slider_VCO_vol, SIGNAL(valueChanged(int)), MainWindow, SLOT(VCO_slot_volume()));
-        QObject::connect(Slider_FMO_vol, SIGNAL(valueChanged(int)), MainWindow, SLOT(FMO_slot_volume()));
-        QObject::connect(pB_Mute_StA, SIGNAL(clicked()), MainWindow, SLOT(Clear_Banks()));
-        QObject::connect(radioButton_5, SIGNAL(clicked()), MainWindow, SLOT(set_mode_o()));
-        QObject::connect(radioButton_4, SIGNAL(clicked()), MainWindow, SLOT(connect_fmo()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -755,9 +750,6 @@ public:
         label_7->setText(QCoreApplication::translate("MainWindow", "Frequency [Hz]", nullptr));
         label_8->setText(QCoreApplication::translate("MainWindow", "Frequency [Hz]", nullptr));
         label_9->setText(QCoreApplication::translate("MainWindow", "Frequency [Hz]", nullptr));
-        rb_reset->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
-        radioButton_2->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
-        radioButton_3->setText(QCoreApplication::translate("MainWindow", "Reset", nullptr));
         rb_sta1->setText(QCoreApplication::translate("MainWindow", "Storage Area 1", nullptr));
         rb_sta2->setText(QCoreApplication::translate("MainWindow", "Storage Area 2", nullptr));
         rb_sta3->setText(QCoreApplication::translate("MainWindow", "Storage Area 3", nullptr));
@@ -778,8 +770,6 @@ public:
         pB_Mute_StA->setText(QCoreApplication::translate("MainWindow", "Mute", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PMW", nullptr));
         pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
-        radioButton_4->setText(QCoreApplication::translate("MainWindow", "connect FMO", nullptr));
-        radioButton_5->setText(QCoreApplication::translate("MainWindow", "connect VCO", nullptr));
         pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Decay", nullptr));
         rb_S0->setText(QCoreApplication::translate("MainWindow", "Instrument 0", nullptr));
@@ -817,6 +807,12 @@ public:
         glidefrequency_2->setText(QCoreApplication::translate("MainWindow", "glide vol.", nullptr));
         cB_Combine->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
         label_14->setText(QCoreApplication::translate("MainWindow", "Balance", nullptr));
+        cb_connect_vco->setText(QCoreApplication::translate("MainWindow", "connect VCO", nullptr));
+        cb_connect_fmo->setText(QCoreApplication::translate("MainWindow", "connect FMO", nullptr));
+        cb_connect_oscv->setText(QCoreApplication::translate("MainWindow", "connect VCO", nullptr));
+        cb_connect_oscf->setText(QCoreApplication::translate("MainWindow", "connect FMO", nullptr));
+        label_15->setText(QCoreApplication::translate("MainWindow", "Volume [%]", nullptr));
+        label_16->setText(QCoreApplication::translate("MainWindow", "Volume [%]", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

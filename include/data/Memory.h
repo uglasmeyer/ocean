@@ -44,10 +44,6 @@ public:
 };
 
 
-const char 			sizeof_stereo 		= sizeof( stereo_t );
-
-const buffer_t		stereobuffer_size 	= recduration*frames_per_sec * sizeof_stereo;
-const buffer_t 		sharedbuffer_size 	= max_frames * sizeof_stereo;
 
 /***************************
  * Stereo_Memory
@@ -59,6 +55,9 @@ class Stereo_Memory :
 {
 	string className = "";
 public:
+
+	static const buffer_t	stereobuffer_size 	= recduration*frames_per_sec * sizeof( stereo );
+
 	stereo* stereo_data = nullptr;
 	Logfacility_class Log{"Memory_base"};
 	Stereo_Memory(buffer_t size) :
@@ -80,7 +79,7 @@ public:
 		Memory_base::ds.size = size;
 		stereo_data = ( stereo* ) Init_void();
 
-		SetDs( sizeof_stereo );
+		SetDs( sizeof( stereo ) );
 		statistic.stereo += ds.mem_bytes;
 		ds.name	= Logfacility_class::className;
 	}
@@ -96,9 +95,6 @@ public:
 		ds.name = name;
 		Memory_base::Info();
 	}
-//	void Clear_data(  );
-//	void Info( string );
-//	void Init_data( buffer_t size );
 
 private:
 
@@ -157,6 +153,7 @@ class Shared_Memory :
 {
 
 public:
+	static const buffer_t 	sharedbuffer_size 	= max_frames * sizeof( stereo_t );
 	stereo_t* 	addr 		= nullptr;
 	shm_ds_t	ds 			= shm_data_struct();
 

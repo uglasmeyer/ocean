@@ -29,7 +29,7 @@ class Oscillator :
 public:
 
 
-	Oscillator( char role, char type_id );
+	Oscillator( char role_id, char type_id );
 	virtual ~Oscillator();
 
 	void operator=(const Oscillator& osc)
@@ -41,8 +41,11 @@ public:
 
 	void 	OSC ( const buffer_t& frame_offset, bool hall_flag = true );
 
-	void 	Connect_vco_data( Oscillator* ); // connect the vco data of itr to this osc
-	void 	Connect_fmo_data( Oscillator* );
+	void 	Connect_vol_data( Oscillator* ); // connect the vco data of itr to this osc
+	void 	Connect_frq_data( Oscillator* );
+	void 	Reset_frq_data();
+	void 	Reset_vol_data();
+
 	void 	Connection_reset( );
 
 	void 	Data_reset( );

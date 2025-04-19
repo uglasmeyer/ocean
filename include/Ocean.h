@@ -73,6 +73,8 @@ struct stereo_struct
 };
 typedef stereo_struct 		stereo_t;
 
+const size_t		sizeof_stereo		= sizeof(stereo_t);
+const size_t		sizeof_Stereo		= sizeof(Stereo_t);
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
 const phi_t 		pi					= numbers::pi;//3.1415926536;//3.141592654;
@@ -104,6 +106,7 @@ struct range_t
 		T max ;
 };
 const range_t<int>		volume_range		{ 0, 100 };
+const range_t<buffer_t>	frames_range		{ 0, max_frames };
 
 template< typename T>
 T check_range( range_t<T> r, T val )

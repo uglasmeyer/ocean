@@ -7,20 +7,20 @@
 
 #include <Osc.h>
 
-Oscillator::Oscillator( char role,  char type ) :
+Oscillator::Oscillator( char role_id,  char type_id ) :
 		Logfacility_class( "Oscillator" ),
 		Oscillator_base()
 {
-	className 	= Logfacility_class::className;
-	osctype_id	= type;
-	osc_type 	= OscRole.types[osctype_id];
+	className 		= Logfacility_class::className;
+	osc_id		= type_id;
+	osc_name 	= OscRole.types[osc_id];
 
-	oscrole_id		= role;
-	osc_role		= OscRole.roles[oscrole_id];
+	oscrole_id		= role_id;
+	oscrole_name		= OscRole.roles[oscrole_id];
 
-	is_osc_type 	= ( osctype_id == OscRole.OSCID );
-	is_fmo_type		= ( osctype_id == OscRole.FMOID );
-	is_vco_type		= ( osctype_id == OscRole.VCOID );
+	is_osc_type 	= ( osc_id == OscRole.OSCID );
+	is_fmo_type		= ( osc_id == OscRole.FMOID );
+	is_vco_type		= ( osc_id == OscRole.VCOID );
 	is_kbd_role 	= ( oscrole_id == OscRole.KBDID );
 	is_notes_role 	= ( oscrole_id == OscRole.NOTESID );
 	is_instr_role 	= ( oscrole_id == OscRole.INSTRID );
@@ -28,11 +28,11 @@ Oscillator::Oscillator( char role,  char type ) :
 	Connection_reset();
 	Data_reset();
 
-	Mem_vco.Info( osc_type );
-	Mem_fmo.Info( osc_type );
-	Mem.Info	( osc_type );
+	Mem_vco.Info( osc_name );
+	Mem_fmo.Info( osc_name );
+	Mem.Info	( osc_name );
 
-	Comment( INFO, osc_role + " " + osc_type + " initialized" );
+	Comment( INFO, oscrole_name + " " + osc_name + " initialized" );
 
 
 }
@@ -51,36 +51,48 @@ void Oscillator::Data_reset(  )
 	this->Mem.Clear_data( 0 );
 }
 
-void Oscillator::Connect_vco_data( Oscillator* osc)
-{
+void Oscillator::Connect_vol_data( Oscillator* osc)
+{	// connect this volume with osc data
+	if ( this->osc_id == osc->osc_id ) return;
 	this->vp.Mem	= &osc->Mem;
-	this->vp.osc_id = osc->osctype_id;
+	this->vp.osc_id = osc->osc_id;
+	this->vp.name 	= osc->osc_name;
 	this->vp.volume = osc->wp.volume;
-	this->vp.name 	= osc->osc_type;
+	this->connect.vol = true;
 }
 
-void Oscillator::Connect_fmo_data( Oscillator* osc )
-{
+void Oscillator::Connect_frq_data( Oscillator* osc )
+{	// connect this frequency with osc data
+	if ( this->osc_id == osc->osc_id ) return;
 	this->fp.Mem 	= &osc->Mem;
-	this->fp.osc_id = osc->osctype_id;
+	this->fp.osc_id = osc->osc_id;
+	this->fp.name 	= osc->osc_name;
 	this->fp.volume = osc->wp.volume;
-	this->fp.name 	= osc->osc_type;
+	this->connect.frq = true;
+}
+void Oscillator::Reset_vol_data()
+{
+
+	this->vp.Mem 		= &this->Mem_vco;
+	this->vp.volume 	= 0;
+	this->vp.name 		= this->osc_name;
+	this->vp.osc_id 	= this->osc_id;
+	this->connect.vol 	= false;
+}
+void Oscillator::Reset_frq_data()
+{
+
+	this->fp.Mem 		= &this->Mem_fmo;
+	this->fp.volume 	= 0;
+	this->fp.name 		= this->osc_name;
+	this->fp.osc_id 	= this->osc_id;
+	this->connect.frq 	= false;
 }
 
 void Oscillator::Connection_reset( )
 {
-
-	this->vp.Mem 	= &this->Mem_vco;
-	this->fp.Mem 	= &this->Mem_fmo;
-
-	this->vp.volume = 0;
-	this->fp.volume = 0;
-
-	this->fp.name 	= this->osc_type;
-	this->vp.name 	= this->osc_type;
-
-	this->fp.osc_id = this->osctype_id;
-	this->vp.osc_id = this->osctype_id;
+	Reset_frq_data();
+	Reset_vol_data();
 }
 
 Data_t* Oscillator::MemData()
@@ -120,8 +132,8 @@ void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 {
 
 
-// see set_duration //	buffer_t 			frames  	= ( this->wp.msec * frames_per_sec) / 1000;
-	buffer_t 			frames		= wp.frames;
+	buffer_t 			frames 		= wp.frames;
+
 	phi_t 				dt 			= 1.0/frames_per_sec;	//seconds per frame
 
 	Data_t* 			oscData		= this->Mem.Data	+ frame_offset;// * sizeof_data; // define snd data ptr
@@ -141,16 +153,10 @@ void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 	Data_t 	vco_adjust 	= max_data_amp / 2;
 	Data_t	vol_adjust	= ( vco_adjust * wp.adjust ) * 0.01;
 
-	if ( frames > max_frames )
-		frames = max_frames;
-	this->wp.frames = frames;
 
 	if ( frame_offset + frames > max_frames )
 	{
-		Comment(WARN, "buffer overflow: " +
-				to_string( frame_offset ) +" + "+
-				to_string( frames ) +" > "+
-				to_string( max_frames ));
+		Comment(ERROR, "frames overflow: " , frame_offset , " + ", frames, " > " , max_frames );
 		return;
 	}
 
@@ -174,7 +180,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 
 			for( buffer_t n = 0; n < frames; n++ )
 			{
-				float 	vco_vol 	= ((vco_adjust 	+ vcoData[n]) 	* vol_per_cent );
+				float 	vco_vol 	= (vco_adjust 	+ vcoData[n]) 	* vol_per_cent ;
 						oscData[n]	= oscData[n]	+ vol_adjust 	+ vco_vol * fnc( param );
 
 						freq 		= DynFrequency.Get();
@@ -183,7 +189,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 						param.phi	= param.phi + param.dphi;
 						param.phi 	= MODPHI( param.phi, param.maxphi );
 			}
-			check_phi( osc_type, param, dT, freq );
+			check_phi( osc_name, param, dT, freq );
 			phase[channel] = param.phi;
 			DynFrequency.Update();
 		}

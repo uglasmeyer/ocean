@@ -26,6 +26,7 @@ public:
 	Oscillator 				osc;//{ osc_struct::OSCID };
 
 	oscvec_t				member{};// = { &vco, &fmo, &osc };
+
 	char					oscroleId;
 
 	Oscgroup_class( char role );
@@ -46,6 +47,7 @@ public:
 	string Show_Spectrum( );
 	Oscillator* Get_osc_by_name( const string& name );
 	void SetSlide( const uint8_t& value );
+	void Show_sound_stack();
 
 
 

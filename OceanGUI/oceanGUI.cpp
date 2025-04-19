@@ -243,13 +243,14 @@ void MainWindow::select_Sds( uint8_t sdsid ) // TODO working
 	initStateButtons();
 
     Info( AppIdName( GUI_ID) + " set to SDS Id: " + to_string( (int) Sds->addr->SDS_Id ));
-	DaTA->Reg.Show_proc_register( sdsid );
 
 	File_Dialog_p->SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_p->SetSds( this->Sds, sdsid );
 
 	Rtsp_Dialog_p->proc_table_update_row( sdsid + 1 );
 	Rtsp_Dialog_p->SDS_ID = sdsid;
+
+    rb_S_vec[sdsid]->setChecked( true );
 
 
 };
@@ -280,7 +281,7 @@ void MainWindow::CombineFreq()
 	if ( ui->cB_Combine->isChecked() )
 		Sds->Set( Sds->addr->slidermode, (uint8_t) COMBINE );
 	else
-		Sds->Set( Sds->addr->slidermode, (uint8_t) FIXED );
+		Sds->Set( Sds->addr->slidermode, (uint8_t) SLIDE );
 }
 
 auto setStaPlay( MainWindow* M, uint8_t id )
@@ -439,9 +440,7 @@ void MainWindow::Clear_Banks()
 {
 	for( cb_state_t map : cb_sta_vec )
 		map.cb->setChecked(false);
-
     Eventlog.add( SDS_ID, MUTEMBKEY);
-
 }
 void MainWindow::toggle_Mute()
 {
@@ -450,8 +449,6 @@ void MainWindow::toggle_Mute()
     QString Qstr = mute_flag ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 }
-
-
 
 void MainWindow::setwidgetvalues()
 {
@@ -507,23 +504,22 @@ void MainWindow::setwidgetvalues()
 
    	bool combine = ( Sds->addr->slidermode == COMBINE );
    	ui->cB_Combine->setChecked( combine );
+    rb_S_vec[ Sds->addr->SDS_Id ]->setChecked( true );
 
-   	updateColorButtons();
+    ui->cb_connect_fmo->setChecked ( Sds->addr->connect[FMOID].vol );
+    ui->cb_connect_vco->setChecked ( Sds->addr->connect[VCOID].vol );
+    ui->cb_connect_oscv->setChecked( Sds->addr->connect[OSCID].vol );
+    ui->cb_connect_oscf->setChecked( Sds->addr->connect[OSCID].frq );
+
+    updateColorButtons();
 }
 
 void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
 {
 	float freq 		= Spectrum.GetFrq( value );
 	map.lcd->display(  freq  );
-
-	uint diff = abs(value - *map.value);
-	if ( Sds->addr->slidermode != COMBINE )
-	{
-		( diff > 1 ) ?
-			Sds->Set( Sds->addr->slidermode, (uint8_t) SLIDE ) :
-			Sds->Set( Sds->addr->slidermode, (uint8_t) FIXED ) ;
-	}
 	Sds->Set( *map.value, value );
+
 	Eventlog.add( SDS_ID, map.event );
 };
 void MainWindow::Slider_OSC_Freq( int value )
@@ -535,12 +531,16 @@ void MainWindow::Slider_VCO_Freq( int value )
 	( (uint)value < C0 ) ? ui->lb_VCO_LFO->show() : ui->lb_VCO_LFO->hide();
 
 	sliderFreq( sl_frqidx_vec[VCOID], value );
+	Sds->Set( Sds->addr->connect[osc_struct::OSCID].vol, true );
+
 }
 void MainWindow::Slider_FMO_Freq( int value )
 {
 	( (uint)value < C0 ) ? ui->lb_FMO_LFO->show() : ui->lb_FMO_LFO->hide();
 
 	sliderFreq( sl_frqidx_vec[FMOID], value );
+	Sds->Set( Sds->addr->connect[osc_struct::OSCID].frq, true );
+
 }
 
 
@@ -549,25 +549,24 @@ void MainWindow::sliderVolume( sl_lcd_t map )
 	uint8_t value = map.sl->value();
 	Sds->Set( *map.value, value);
 	map.lcd->display( value );
-//	uint diff = abs(value - *map.value);
-//	if ( diff > 1 )
-	Sds->Set( Sds_master->vol_slidemode, (uint8_t)SLIDE);
-//	else
-//		Sds->Set( Sds_master->LOOP_step, (uint8_t)STEP);
 	Eventlog.add( SDS_ID, map.event);
 };
 
-void MainWindow::MAIN_slot_volume()
+void MainWindow::Main_slot_volume()
 {
 	sliderVolume( sl_volume_vec[ OSCID ] );
 }
 void MainWindow::VCO_slot_volume()
 {
 	sliderVolume( sl_volume_vec[ VCOID ] );
+	Sds->Set( Sds->addr->connect[osc_struct::OSCID].vol, true );
+
 }
 void MainWindow::FMO_slot_volume()
 {
 	sliderVolume( sl_volume_vec[ FMOID ] );
+	Sds->Set( Sds->addr->connect[osc_struct::OSCID].frq, true );
+
 }
 
 void MainWindow::Slider_VCO_Adjust( int value )
@@ -595,6 +594,7 @@ void MainWindow::start_audio_srv()
 			" > " + fs.nohup_file);
 
 	system_execute( Start_Audio_Srv.data() );
+
 }
 
 void MainWindow::start_synthesizer()
@@ -607,6 +607,7 @@ void MainWindow::start_synthesizer()
 	}
 
 	int sdsid = DaTA->Reg.GetStartId( );
+	cout << (int) sdsid << endl;
 	if ( sdsid < 0 ) return;
 
 	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Nohup, fs.synth_bin,
@@ -614,6 +615,8 @@ void MainWindow::start_synthesizer()
 
     system_execute( Start_Synthesizer.data() );
     select_Sds(sdsid);
+
+
 }
 
 void MainWindow::read_polygon_data()
@@ -645,28 +648,25 @@ void MainWindow::Save_Config()
 	Eventlog.add( SDS_ID, SAVEINSTRUMENTKEY);
 }
 
-void MainWindow::set_mode_f()
+void MainWindow::connect_oscf( bool val ) // TODO no yet ready
 {
-	Eventlog.add( SDS_ID, RESETFMOKEY );
+	Sds->Set( Sds->addr->connect[OSCID].frq, val );
+	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
 }
-
-void MainWindow::set_mode_v()
+void MainWindow::connect_oscv( bool val )
 {
-    Eventlog.add( SDS_ID, RESETVCOKEY); //
+	Sds->Set( Sds->addr->connect[OSCID].vol, val );
+	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
 }
-void MainWindow::set_mode_o()
+void MainWindow::connect_fmo( bool val )
 {
-    Eventlog.add( SDS_ID, RESETOSCKEY); //
+	Sds->Set( Sds->addr->connect[FMOID].vol, val );
+	Eventlog.add( SDS_ID, CONNECTFMO_KEY );
 }
-
-void MainWindow::connect_fmo()
-{
-    Eventlog.add( SDS_ID, CONNECTFMOVCOKEY);
-}
-
-void MainWindow::connect_vco()
-{
-    Eventlog.add( SDS_ID, CONNECTVCOFMOKEY);
+void MainWindow::connect_vco( bool val )
+{	//connect VCO volume with FMO data
+	Sds->Set( Sds->addr->connect[VCOID].vol, val );
+	Eventlog.add( SDS_ID, CONNECTVCO_KEY );
 }
 
 void MainWindow::get_record_status( )

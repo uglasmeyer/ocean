@@ -184,7 +184,7 @@ private slots:
 
     void get_record_status( );
 
-    void MAIN_slot_volume();
+    void Main_slot_volume();
     void VCO_slot_volume();
     void FMO_slot_volume();
 
@@ -206,9 +206,10 @@ private slots:
     void start_audio_srv();
     void start_composer();
 
-    void set_mode_f();
-    void set_mode_v();
-    void set_mode_o();
+    void connect_oscf( bool );
+    void connect_oscv( bool );
+    void connect_fmo( bool );
+    void connect_vco( bool );
 
     void Sl_mix0( int );
     void Sl_mix1( int );
@@ -257,8 +258,6 @@ private slots:
 
     void Save_Config();
     void toggle_Mute();
-    void connect_fmo();
-    void connect_vco();
 
     void adsr_decay();
 

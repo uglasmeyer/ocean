@@ -13,22 +13,18 @@
 Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 : Logfacility_class("Instrument_class")
 {
-	Setup( ifd );
+	this->sds 				= ifd;
+	ifd_spectrum_vec 		= { &sds->VCO_spectrum,
+								&sds->FMO_spectrum,
+								&sds->OSC_spectrum};
+
+	Default_instrument_file = file_structure().Dir.instrumentdir + "default" + instr_ext;
 
 	assert ( Oscgroup.osc.MemData() != nullptr );
 	Oscgroup.SetWd( wd );
 	wd_p = wd;
 }
 
-void Instrument_class::Setup( interface_t* _sds )
-{
-	this->sds 				= _sds;
-	ifd_spectrum_vec 		= { &sds->VCO_spectrum,
-								&sds->FMO_spectrum,
-								&sds->OSC_spectrum};
-
-	Default_instrument_file = file_structure().Dir.instrumentdir + "default" + instr_ext;
-}
 
 Instrument_class::~Instrument_class() = default;
 
@@ -65,14 +61,14 @@ void Instrument_class::Set_msec( buffer_t frames )
 	Oscgroup.Set_Duration( msec );
 }
 
-void Instrument_class::setup_GUI_Data()
+void Instrument_class::Update_sds()
 {
 	// use this function to update the ifd with the current set of shared information.
 	// that are generated during the Set procedure, with the purpose to
 	// update the SndlabGUI and to
 	// notify comstack about the new data.
 
-	Comment(INFO, "setup GUI data");
+	Comment(INFO, "Update SDS data");
 
 	sds->OSC_adsr 		= Oscgroup.osc.adsr;
 	sds->OSC_wp			= Oscgroup.osc.wp;
@@ -84,25 +80,7 @@ void Instrument_class::setup_GUI_Data()
 	sds->FMO_wp			= Oscgroup.fmo.wp;
 	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
 
-	sds->UserInterface	= UPDATEGUI; // update Instrument reset flag on GUI side
-}
-
-void Instrument_class::show_sound_stack() // show_status
-{
-	stringstream strs{""};
-	strs 	<< setw(4)	<< "Osc."
-			<< setw(10)	<< "Waveform"
-			<< setw(8)	<< "Hz"
-			<< setw(8)	<< "Amp"
-			<< setw(8)	<< "VCO"
-			<< setw(8)	<< "FMO";
-	Comment( INFO, strs.str() );
-
-	for ( Oscillator* osc : Oscgroup.member )
-	{
-		strs = osc->Get_sound_stack() ;
-		Comment( TEST, strs.str() );
-	};
+	Update_sds_connect();
 }
 
 void Instrument_class::Update_spectrum()
@@ -115,7 +93,7 @@ void Instrument_class::Update_spectrum()
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 	osc->spectrum = Spectrum_class::spec_struct();
-	osc->spectrum.osc = osc->osctype_id;
+	osc->spectrum.osc = osc->osc_id;
 
 	osc->Line_interpreter( arr );
 
@@ -155,7 +133,7 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 
 auto showOscfeatures = [  ]( Oscillator* osc, Oscillator* vco )
 {
-	Table_class Table {};
+	Table_class Table { "Features" };
 	Table.AddColumn( "Attack"	, 6 );
 	Table.AddColumn( "Decay"	, 6 );
 	Table.AddColumn( "Hall"		, 6 );
@@ -229,8 +207,8 @@ bool Instrument_class::read_version1( fstream* File )
 			{
 				if ( strEqual(keyword, Spectr.spectrumTag[num] ) )
 				{
-					osc->spectrum = osc->Parse_data( arr, osc->osctype_id, num );
-					*ifd_spectrum_vec[ osc->osctype_id ] = osc->spectrum;
+					osc->spectrum = osc->Parse_data( arr, osc->osc_id, num );
+					*ifd_spectrum_vec[ osc->osc_id ] = osc->spectrum;
 				}
 			}
 
@@ -248,6 +226,7 @@ bool Instrument_class::read_version2( fstream* File )
 	string 			keyword	{""};
 	vector_str_t 	arr 	{};
 	Oscillator* 	osc 	= nullptr;
+//	Oscillator_base::connect_t connect = Oscillator_base::connect_struct();
 
 	getline( *File, Str.Str );
 	do
@@ -268,27 +247,27 @@ bool Instrument_class::read_version2( fstream* File )
 		}
 		if ( strEqual( "SPEV", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->osctype_id, SPEV );
+			osc->spectrum 		= osc->Parse_data( arr, osc->osc_id, SPEV );
 			osc->Set_volume( 	osc->spectrum.volidx[0], FIXED );
 		}
 		if ( strEqual( "SPEF", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->osctype_id, SPEF );
+			osc->spectrum 		= osc->Parse_data( arr, osc->osc_id, SPEF );
 			osc->Set_frequency( osc->spectrum.frqidx[0], FIXED );
 		}
 		if ( strEqual( "SPEW", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->osctype_id, SPEW );
+			osc->spectrum 		= osc->Parse_data( arr, osc->osc_id, SPEW );
 			osc->Set_waveform( 	osc->spectrum.wfid );
 		}
-		if ( strEqual( "CONN_defunc", keyword ))
+		if ( strEqual( "CONN", keyword ))
 		{
 			Oscillator* sec 	= Oscgroup.Get_osc_by_name( arr[2]);
 			char 		mode 	= arr[3][0];
 			switch ( mode )
 			{
-				case 'F' : osc->Connect_fmo_data( sec ); break;
-				case 'V' : osc->Connect_vco_data( sec ); break;
+				case 'F' : osc->Connect_frq_data( sec ); break;
+				case 'V' : osc->Connect_vol_data( sec ); break;
 				default  : Comment( ERROR, "unknown connection mode ", (char) mode ); break;
 			}
 		}
@@ -297,6 +276,12 @@ bool Instrument_class::read_version2( fstream* File )
 
 
 	return true;
+}
+
+void Instrument_class::Update_sds_connect( )
+{
+	for( Oscillator* osc : Oscgroup.member )
+		sds->connect[osc->osc_id] = osc->connect;
 }
 
 bool Instrument_class::read_instrument( )
@@ -335,68 +320,70 @@ bool Instrument_class::read_instrument( )
 			break;
 	}
 
+
 	if ( code )
-		show_sound_stack();
+		Oscgroup.Show_sound_stack();
 
 	return code;
 }
 
-bool Instrument_class::connect( string osc, string sec, string mode )
+void Instrument_class::Connect( Oscillator* osc, Oscillator* sec, char mode )
 {
-	if ( sec.compare(osc) == 0)
+	Oscillator_base::connect_t connect = sds->connect[osc->osc_id];
+	switch ( mode )
+	{
+		case 'F' 	: { ( connect.frq ) ? osc->Connect_frq_data( sec ):osc->Reset_frq_data(); break; }
+		case 'V' 	: { ( connect.vol ) ? osc->Connect_vol_data( sec ):osc->Reset_vol_data(); break; }
+		default 	: { ; break; }
+	}
+}
+bool Instrument_class::connect_by_name( string osc, string sec, char mode )
+{
+	if ( strEqual( sec, osc ) )
 		return true; // handled by initOSCs
-	Oscillator* OSC;
-	Oscillator* SEC;
-	OSC = Oscgroup.Get_osc_by_name( osc );
-	SEC = Oscgroup.Get_osc_by_name( sec );
-	if ( mode[0] == 'F' )
-	{
-		OSC->Connect_fmo_data( SEC );
-	}
-	if ( mode[0] == 'V' )
-	{
-		OSC->Connect_vco_data( SEC );
-	}
 
-	return true;
+	bool ret = true;
+	Oscillator* OSC = Oscgroup.Get_osc_by_name( osc );
+	Oscillator* SEC = Oscgroup.Get_osc_by_name( sec );;
+
+	switch ( mode )
+	{
+		case 'F' 	: { OSC->Connect_frq_data( SEC ); break; }
+		case 'V' 	: { OSC->Connect_vol_data( SEC ); break; }
+		default 	: { ret = false; break; }
+	}
+	if ( ret )
+		Update_sds_connect();
+	return ret;
 }
 
 bool Instrument_class::init_connections( )
 {
-	String 			Str{""};
-	vector_str_t 	arr;
+	String 			Str		{""};
+	vector_str_t 	arr		{};
 
-	fstream File;
+	fstream 		File	{};
 	File.open( Instrument_file, fstream::in );
 	Comment( INFO, "Reading oscillator connections");
+
 	getline( File, Str.Str );
 	do
 	{
 		Str.normalize();
 		arr 	= Str.to_array( ',');
-		string
-		keyword = arr[0];
-		if ( strEqual( "CONN", keyword ) )
-			if ( ! connect(arr[1], arr[2], arr[3]) )
+
+		if ( strEqual( "CONN", arr[0] ) )
+			if ( not connect_by_name(arr[1], arr[2], arr[3][0]) )
 				return false;
 
 	} while( getline( File, Str.Str));
+
 	return true;
 }
 
-void Instrument_class::Save_Instrument( string str )
+void Instrument_class::save_features( fstream& FILE )
 {
-	set_new_name( str );
-	Comment( INFO,  "saving sound to: " + Instrument_file);
-
-	fstream FILE;
-	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
 	Table_class Table{ &FILE, ',' };
-
-	// Instrument file version
-	FILE 	<< "VERSION=2" << endl;
-
-	// Instrument file header
 	Table.AddColumn("Type",	6 );
 	Table.AddColumn("Name",	6 );
 	Table.AddColumn("decay",6 );
@@ -407,6 +394,7 @@ void Instrument_class::Save_Instrument( string str )
 	Table.AddColumn("pmw",	6 );
 	Table.PrintHeader();
 
+	// Type Features
 	Table.AddRow( "ADSR", "OSC",
 			(int) osc->adsr.decay,
 			(int) osc->adsr.bps,
@@ -416,20 +404,48 @@ void Instrument_class::Save_Instrument( string str )
 			(int) vco->wp.PMW_dial
 			);
 
+}
+void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
+{
+	Table_class Table{ &FILE, ',' };
+	Table.AddColumn("Type",	6 );
+	Table.AddColumn("Osc",	6 );
+	Table.AddColumn("Sec",	6 );
+	Table.AddColumn("Mode",	6 );
+	Table.PrintHeader();
+
+	// Type Connection
+	Table.AddRow("CONN",
+			osc->osc_name,
+			osc->fp.name,
+			"F");
+	Table.AddRow("CONN",
+			osc->osc_name,
+			osc->vp.name,
+			"V");
+
+
+}
+void Instrument_class::Save_Instrument( string str )
+{
+	set_new_name( str );
+	Comment( INFO,  "saving sound to: " + Instrument_file);
+
+	fstream FILE;
+	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
+
+	// Instrument file version
+	FILE 	<< "VERSION=2" << endl;
+
+	// Type ADSR
+	save_features( FILE );
+
 	for ( Oscillator* osc : Oscgroup.member )
 	{
-		// Type CONN
-		Table.AddRow("CONN",
-				osc->osc_type,
-				osc->fp.name,
-				"F");
-		Table.AddRow("CONN",
-				osc->osc_type,
-				osc->vp.name,
-				"V");
-
 		// Type SPEC
 		osc->Save_spectrum_table( &FILE, osc->spectrum );
+		// Type CONN
+		save_connections( FILE, osc );
 	}
 
 	FILE.close();
@@ -441,14 +457,15 @@ bool Instrument_class::Set( string name )
 {
 	set_name( name );
 
-	if ( not read_instrument( ) ) 	return false;
 	Oscgroup.Data_Reset();
 	Oscgroup.Connection_Reset();
-	if ( not init_connections() ) 	return false;
-	setup_GUI_Data();
+
+	if ( not read_instrument( ) ) 	return false;
+
+//	if ( not init_connections() ) 	return false;
+	Update_sds();
 //	reuse_GUI_Data();
 //	Oscgroup.Run_Oscgroup( 0 );
-	show_sound_stack();
 	return true;
 }
 

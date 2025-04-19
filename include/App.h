@@ -17,7 +17,6 @@
 #include <Progressbar.h>
 #include <Time.h>
 
-extern void SynthesizerTestCases();
 
 extern void thread_fnc( const string& a );
 

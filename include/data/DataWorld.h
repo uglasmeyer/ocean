@@ -28,8 +28,8 @@ public:
 	Semaphore_class			Sem			{ Cfg_p};
 	Semaphore_class*		Sem_p		= &Sem;
 	SDS_vec_t			 	SDS_vec 	{ };
-	Shared_Memory			SHM_0		{ sharedbuffer_size };
-	Shared_Memory			SHM_1		{ sharedbuffer_size };
+	Shared_Memory			SHM_0		{ Shared_Memory::sharedbuffer_size };
+	Shared_Memory			SHM_1		{ Shared_Memory::sharedbuffer_size };
 
 	stereo_t* 				ShmAddr_0 	= nullptr;
 	stereo_t* 				ShmAddr_1 	= nullptr;

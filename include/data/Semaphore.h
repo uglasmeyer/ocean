@@ -12,6 +12,8 @@
 #include <Logfacility.h>
 #include <Config.h>
 #include <Time.h>
+#include <Table.h>
+
 
 
 enum

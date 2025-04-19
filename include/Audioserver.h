@@ -23,6 +23,7 @@
 #include <Keyboard.h>
 #include <Exit.h>
 #include <Mixer.h>
+#include <Thread.h>
 
 
 typedef struct device_struct
@@ -53,7 +54,8 @@ External_class			External { DaTA.Cfg_p, sds };
 ProgressBar_class		ProgressBar( &sds->RecCounter );
 
 Wavedisplay_class		Wavedisplay	{ DaTA.Sds_p };
-
+extern void save_record_fcn();
+Thread_class			SaveRecord{ DaTA.Sem_p, SEMAPHORE_RECORD, save_record_fcn, "save record" };
 //cz * 100 = sr, mf / 1.2 = sr , => mf = cz * 100 * 1.2
 
 // runtime parameter

@@ -101,10 +101,11 @@ class Oscillator_base :
 
 public:
 
-	char			osctype_id		= -1;//osc_struct::OSCID;
+	char			osc_id			= -1;//osc_struct::OSCID;
+	string 			osc_name 		= "";
+
 	char			oscrole_id		= -1;//osc_struct::INSTRID;
-	string 			osc_role 		= "";
-	string 			osc_type 		= "";
+	string 			oscrole_name 	= "";
 
 	bool			is_osc_type 	= false;
 	bool			is_fmo_type 	= false;
@@ -116,6 +117,13 @@ public:
 	buffer_t		beat_frames		= max_frames;
 	array<Data_t, max_beatframes>
 					adsrdata 		{ };
+	struct connect_struct
+	{
+		bool 	vol = false;
+		bool	frq = false;
+	};
+	typedef connect_struct connect_t;
+	connect_t 		connect			= connect_struct();
 
 	adsr_t 			adsr 		= adsr_struct();
 	wave_t 			wp 			= wave_struct();
@@ -147,7 +155,7 @@ public:
 	void		Set_adsr( adsr_t );
 	void		Gen_adsrdata( buffer_t );
 	void	 	set_beatcursorR();
-	stringstream Get_sound_stack();
+	void 		Get_sound_stack( Table_class* T );
 
 private:
 	string 		comment 		= "";

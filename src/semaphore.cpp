@@ -114,7 +114,6 @@ void Semaphore_class::Lock( uint8_t num, uint timeout )
 	Aquire( num );
 	Semop( num, OP_WAIT );
     ReleaseProxy_thread.join();
-
 }
 
 int Semaphore_class::Getval( uint8_t num, int op )
@@ -124,30 +123,38 @@ int Semaphore_class::Getval( uint8_t num, int op )
 }
 
 
-
 string Semaphore_class::Stat( uint8_t num )
 {
-	auto stat = [ this ]( uint num )
+	Table_class Table {};
+	Table.AddColumn( "num", 4 );
+	Table.AddColumn( "pid", 8 );
+	Table.AddColumn( "val", 4 );
+	Table.AddColumn( "ncn", 4 );
+	Table.AddColumn( "zcn", 4 );
+	if ( LogMask[TEST] )
+		Table.PrintHeader();
+
+	auto stat = [ this, &Table ]( uint num )
 	{
-		stringstream strs;
-		strs <<
-				"num " << setw(4) << (int) num 				<< " " <<
-				"pid " << setw(8) << Getval( num, GETPID ) 	<< " " <<
-				"val " << setw(4) << Getval( num, GETVAL ) 	<< " " <<
-				"ncn " << setw(4) << Getval( num, GETNCNT ) 	<< " " <<
-				"zcn " << setw(4) << Getval( num, GETZCNT ) 	;
-		return strs.str();
+		if ( not LogMask[TEST] ) return;
+		Table.AddRow( 	(int) num,
+						Getval( num, GETPID ),
+						Getval( num, GETVAL ),
+						Getval( num, GETNCNT ),
+						Getval( num, GETZCNT )
+					);
 	};
 
 	if ( num == SEMNUM_SIZE )
 	{
 		for ( uint n = 0; n < SEMNUM_SIZE; n++ )
-			Comment( INFO,  stat( n ) );
+			stat(n);
 		return "";
 	}
 	else
 	{
-		return stat( num ) ;
+		stat( num ) ;
+		return "";
 	}
 }
 

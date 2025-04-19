@@ -504,7 +504,9 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
-		Processor_class::Push_key( RESETOSCKEY , "reset main"  );
+		Processor_class::Push_ifd( &ifd->connect[osc_struct::OSCID].frq, false, "reset fmo connect" );
+		Processor_class::Push_ifd( &ifd->connect[osc_struct::OSCID].vol, false, "reset fmo connect" );
+		Processor_class::Push_key( CONNECTOSC_KEY , "reset main"  );
 		return;
 	}
 

@@ -46,7 +46,6 @@ public:
 	virtual ~Frequency_class();
 
 private:
-	Table_class Table{};
 
 };
 

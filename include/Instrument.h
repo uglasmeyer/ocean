@@ -36,10 +36,12 @@ public:
 ;
 
 	bool Set( string );
-	void Setup( interface_t* ifd );
 	void Save_Instrument( string );
 	void Set_msec( buffer_t frames );
 	void Update_spectrum();
+	void Update_sds_connect( );
+	void Connect( Oscillator* osc, Oscillator* sec, char mode );
+
 	void Test_Instrument();
 
 private:
@@ -57,14 +59,17 @@ private:
 
 	bool 	read_instrument( );
 	bool 	init_connections(  );
-	bool 	connect(string, string, string );
+	bool 	connect_by_name(string, string, char );
 	void 	init_data_structure( Oscillator*, vector_str_t);
-	void 	setup_GUI_Data();
+	void 	Update_sds();
 	void 	reuse_GUI_Data();
-	void 	show_sound_stack();
 	int 	getVersion( fstream& File );
 	bool	read_version1( fstream* File );
 	bool	read_version2( fstream* File );
+	void 	save_features( fstream& FILE );
+	void 	save_connections( fstream& FILE, Oscillator* osc );
+
+
 };
 
 #endif /* INSTRUMENT_H_ */

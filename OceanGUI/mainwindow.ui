@@ -713,45 +713,6 @@
      <string>Frequency [Hz]</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="rb_reset">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>150</y>
-      <width>112</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Reset</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_2">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>310</y>
-      <width>112</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Reset</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_3">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>500</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Reset</string>
-    </property>
-   </widget>
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
@@ -1196,32 +1157,6 @@
     </property>
     <property name="text">
      <string>Notes</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_4">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>330</y>
-      <width>112</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>connect FMO</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioButton_5">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>520</y>
-      <width>113</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>connect VCO</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pBtoggleRecord">
@@ -1678,7 +1613,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>120</y>
+      <y>80</y>
       <width>88</width>
       <height>25</height>
      </rect>
@@ -2059,6 +1994,84 @@
      <string>Balance</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="cb_connect_vco">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>460</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>connect VCO</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_connect_fmo">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>270</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>connect FMO</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_connect_oscv">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>150</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>connect VCO</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cb_connect_oscf">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>120</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>connect FMO</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>240</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Volume [%]</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>430</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Volume [%]</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -2085,152 +2098,7 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>rb_reset</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_mode_o()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>415</x>
-     <y>195</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>500</x>
-     <y>130</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_2</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_mode_v()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>428</x>
-     <y>355</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>486</x>
-     <y>301</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_3</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_mode_f()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>344</x>
-     <y>527</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>475</x>
-     <y>504</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Slider_OSC_Vol</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>MAIN_slot_volume()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>297</x>
-     <y>177</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>466</x>
-     <y>180</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Slider_VCO_vol</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>VCO_slot_volume()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>299</x>
-     <y>356</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>418</x>
-     <y>356</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Slider_FMO_vol</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>FMO_slot_volume()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>301</x>
-     <y>554</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>393</x>
-     <y>554</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pB_Mute_StA</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>Clear_Banks()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1100</x>
-     <y>292</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>963</x>
-     <y>222</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_5</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>set_mode_o()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>390</x>
-     <y>557</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>335</x>
-     <y>573</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton_4</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>connect_fmo()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>406</x>
-     <y>357</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>354</x>
-     <y>369</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>MAIN_slot_Hz()</slot>
   <slot>VCO_slot_Hz()</slot>

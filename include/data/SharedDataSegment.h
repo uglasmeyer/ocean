@@ -55,6 +55,8 @@ typedef 	Spectrum_class::spectrum_t		spectrum_t;
 typedef		Mixer_base::mixer_status_t		mixer_status_t;
 typedef		Mixer_base::StA_amp_arr_t		StA_amp_arr_t;
 typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
+typedef		array<Oscillator_base::connect_t, 3>
+											osc_connect_t;
 
 typedef struct interface_struct // with reasonable defaults
 {
@@ -85,6 +87,8 @@ typedef struct interface_struct // with reasonable defaults
 	spectrum_t 		OSC_spectrum				= Spectrum_class::spec_struct();// comstack
 	spectrum_t 		VCO_spectrum 				= Spectrum_class::spec_struct();// comstack
 	spectrum_t	 	FMO_spectrum 				= Spectrum_class::spec_struct();// comstack
+
+	osc_connect_t	connect						= { { Oscillator_base::connect_struct() } };
 	/* instrument definition ends	 */
 
 	uint8_t			Spectrum_type				= Spectrum_class::spec_struct().osc;

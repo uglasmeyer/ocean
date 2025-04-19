@@ -86,43 +86,32 @@ void shutdown_stream()
 
 bool 					SaveRecordFlag 		= false;
 bool 					RecordThreadDone 	= false;
+Value Fileno {0};
+
 void save_record_fcn()
 {
-	Log.Comment( INFO, "record thread started ");
+	SaveRecordFlag = true;
+	Fileno = 0;
+	sds->FileNo = Fileno.val;// 0=generate file no - (int) DaTA.sds_master->FileNo;
+	Log.Comment( INFO, "record thread received job " + Fileno.str);
 
-	Value Fileno {0};
-	while ( true )
-	{
-		DaTA.Sem.Lock( SEMAPHORE_RECORD );
-		if ( RecordThreadDone )
-			break;
-		SaveRecordFlag = true;
-		Fileno = 0;
-		sds->FileNo = Fileno.val;// 0=generate file no - (int) DaTA.sds_master->FileNo;
-		Log.Comment( INFO, "record thread received job " + Fileno.str);
-
-		Fileno = External.Save_record_data( Fileno.val );
-		sds->FileNo = Fileno.val;
-		string filename = file_structure().get_rec_filename( Fileno.val);
-		Sds->Write_str( OTHERSTR_KEY, filename );
-		Log.Info( "recording to file " + filename + "done");
-		DaTA.EmitEvent( RECORDWAVFILEFLAG );
-//		DaTA.Sds_p->Update( RECORDWAVFILEFLAG );
-		SaveRecordFlag = false;
-	}
-
-	Log.Comment( INFO, "record thread terminated ");
+	Fileno = External.Save_record_data( Fileno.val );
+	sds->FileNo = Fileno.val;
+	string filename = file_structure().get_rec_filename( Fileno.val);
+	Sds->Write_str( OTHERSTR_KEY, filename );
+	Log.Info( "recording to file " + filename + "done");
+	DaTA.EmitEvent( RECORDWAVFILEFLAG );
+	SaveRecordFlag = false;
 }
+thread 	SaveRecord_thread( &Thread_class::Loop, &SaveRecord ); // run class method: Loop in a thread
+thread* SaveRecord_thread_p = &SaveRecord_thread;
 
 thread Record_thread( save_record_fcn );
 
 void shutdown_thread( )
 {
-	RecordThreadDone 	= true;
-	DaTA.Sem.Release( SEMAPHORE_RECORD );
-
-	if ( Record_thread.joinable() )
-		Record_thread.join();
+	SaveRecord.StopLoop();
+	SaveRecord_thread_p->join();
 	Log.Comment( INFO, "Record thread joined" );
 }
 
@@ -411,7 +400,7 @@ int main( int argc, char *argv[] )
 		DaTA.Sem.Reset( SEMAPHORE_SENDDATA0 + n );
 	}
     DaTA.Sem.Reset( SEMAPHORE_STARTED );
-    DaTA.Sem.Reset( SEMAPHORE_RECORD );
+//    DaTA.Sem.Reset( SEMAPHORE_RECORD );
 	sds->RecCounter 	= 0;
 	sds->Record			= false;
 

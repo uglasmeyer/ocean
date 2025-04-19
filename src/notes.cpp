@@ -36,8 +36,8 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	Oscgroup.vco	= instrument->Oscgroup.vco;
 	Oscgroup.fmo 	= instrument->Oscgroup.fmo;
 
-	osc->Connect_fmo_data(fmo);
-	osc->Connect_vco_data(vco);
+	osc->Connect_frq_data(fmo);
+	osc->Connect_vol_data(vco);
 
 //	Oscgroup.Set_Duration( max_milli_sec );
 //	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );

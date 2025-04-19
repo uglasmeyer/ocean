@@ -16,8 +16,8 @@ constexpr string AppIdName( const T& app_id )
 {
 	switch ( app_id )
 	{
-		case APPID::AUDIOID	: return "Audioserver";
-		case APPID::SYNTHID	: return "Synthesizer";
+		case APPID::AUDIOID		: return "Audioserver";
+		case APPID::SYNTHID		: return "Synthesizer";
 		case APPID::COMPID		: return "Composer";
 		case APPID::GUI_ID		: return "UserInterface";
 		case APPID::COMSTACKID	: return "Comstack";

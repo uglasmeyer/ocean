@@ -47,8 +47,9 @@ public:
 
 	Memory 				Mono			{ monobuffer_size };
 	Memory 				Mono_out		{ monobuffer_size };
-	Memory 				Out_L			{ monobuffer_size };// Output buffer long
-	Memory				Out_R			{ monobuffer_size };//
+	Stereo_Memory<Stereo_t>
+						Out				{ Stereo_Memory<Stereo_t>::stereobuffer_size };
+
 
 	Dynamic_class		DynVolume		{ volume_range };
 

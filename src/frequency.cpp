@@ -112,6 +112,7 @@ frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
 
 void Frequency_class::ShowFrqTable()
 {
+	Table_class Table{ "", 0 };
 	Table.AddColumn( "Index", 6);
 	Table.AddColumn( "Frequency", 16 );
 	Table.AddColumn( "Name", 4);

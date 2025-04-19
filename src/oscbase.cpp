@@ -83,6 +83,7 @@ void Oscillator_base::Set_duration( uint16_t msec )
 {
 	wp.msec 	= msec;
 	wp.frames	= rint( wp.msec * frames_per_sec * 0.001 );
+	wp.frames	= check_range( frames_range, wp.frames );
 }
 
 uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
@@ -102,8 +103,7 @@ uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 
 void Oscillator_base::Set_volume( uint8_t vol, uint mode )
 {
-	vol = check_range( volidx_range, vol );
-	wp.volume			= vol;
+	wp.volume = check_range( volidx_range, vol );
 	spectrum.vol[0] 	= (float)vol * 0.01;
 	spectrum.volidx[0]	= vol;
 }
@@ -132,8 +132,8 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
-	vp.name			= osc_type;
-	fp.name			= osc_type;
+	vp.name			= osc_name;
+	fp.name			= osc_name;
 	spectrum.wfid[0]= Get_waveform_id( arr[2] );
 	int frqidx	 	= Str.secure_stoi( arr[3] );
 	Set_frequency( frqidx, FIXED );
@@ -150,19 +150,14 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 
 
 
-stringstream Oscillator_base::Get_sound_stack()
+void Oscillator_base::Get_sound_stack( Table_class* T )
 {
 
-	stringstream strs{""};
-	strs 	<< setw(4) << osc_type
-			<< setw(10)<< Get_waveform_str( spectrum.wfid[0] )
-			<< setw(8) << fixed << setprecision(2) << GetFrq( wp.frqidx)
-			<< setw(8) << (int) wp.volume
-
-			<< setw(8) << vp.name
-			<< setw(8) << fp.name
-			;
-
-	return strs;
-
+	T->AddRow( 	osc_name,
+				Get_waveform_str( spectrum.wfid[0] ),
+				GetFrq( wp.frqidx),
+				(int) wp.volume,
+				vp.name,
+				fp.name
+			);
 }

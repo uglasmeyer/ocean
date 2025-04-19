@@ -135,13 +135,21 @@ void Dynamic_class::end()
 
 void Dynamic_class::Show( bool on )
 {
-
-	Comment( TEST,	" mode   : " + to_string( current.mode) +
-					" slide% : " + to_string( slideduration ) +
- 					" past   : " + to_string( current.past ) +
-					" present: " + to_string( current.present ) +
-					" future : " + to_string( current.future_f ) +
-					" delta  : " + to_string( current.delta ));
+	Table_class	Table{ "Dynamics" };
+	Table.AddColumn( "mode    ", 8 );
+	Table.AddColumn( "slide   ", 8 );
+	Table.AddColumn( "past    ", 8 );
+	Table.AddColumn( "present ", 8 );
+	Table.AddColumn( "future  ", 8 );
+	Table.AddColumn( "delta   ", 8 );
+	Table.PrintHeader();
+	Table.AddRow(	(uint) current.mode,
+					(uint) slideduration,
+					(uint) current.past,
+					current.present,
+					current.future_f,
+					current.delta
+				);
 }
 
 void Dynamic_class::TestFrq()

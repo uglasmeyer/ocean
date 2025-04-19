@@ -185,12 +185,17 @@ void MainWindow::initUiConnectors()
     connect(ui->pBGuiExit		, SIGNAL(clicked() )		,this, SLOT(GUI_Exit() ));
     connect(ui->pBtoggleRecord	, SIGNAL(clicked(bool) )	,this, SLOT(SaveRecord() ));
     connect(ui->pB_Mute			, SIGNAL(clicked() )		,this, SLOT(toggle_Mute() ));
+    connect(ui->pB_Mute_StA		, SIGNAL(clicked() )		,this, SLOT(Clear_Banks() ));
     connect(ui->pB_Save			, SIGNAL(clicked() )		,this, SLOT(Save_Config() ));
     connect(ui->pb_clear		, SIGNAL(clicked() )		,this, SLOT(memory_clear() ));
 
     connect(ui->Slider_VCO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Freq(int) ));
     connect(ui->Slider_FMO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Freq(int) ));
     connect(ui->Slider_OSC_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_OSC_Freq(int) ));
+
+    connect(ui->Slider_VCO_vol	, SIGNAL(valueChanged(int) ),this, SLOT(VCO_slot_volume() ));
+    connect(ui->Slider_FMO_vol	, SIGNAL(valueChanged(int) ),this, SLOT(FMO_slot_volume() ));
+    connect(ui->Slider_OSC_Vol	, SIGNAL(valueChanged(int) ),this, SLOT(Main_slot_volume() ));
 
     connect(ui->Slider_slideFrq	, SIGNAL(valueChanged(int) ),this, SLOT(slideFrq(int )) );
     connect(ui->dial_PMW      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
@@ -250,6 +255,11 @@ void MainWindow::initUiConnectors()
 
     connect(ui->cB_Capture		, SIGNAL(textActivated(QString) ),this, SLOT(cB_Capture(QString) ));
     connect(ui->cb_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
+
+    connect(ui->cb_connect_fmo	, SIGNAL(clicked( bool ))	,this, SLOT( connect_fmo( bool ) ));
+    connect(ui->cb_connect_vco	, SIGNAL(clicked( bool ))	,this, SLOT( connect_vco( bool ) ));
+    connect(ui->cb_connect_oscf	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscf( bool ) ));
+    connect(ui->cb_connect_oscv	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscv( bool ) ));
 }
 
 void MainWindow::initTimer()
