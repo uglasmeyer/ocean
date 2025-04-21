@@ -19,7 +19,7 @@
 
 #define MAYOR 3
 #define MINOR 7
-#define PATCH 0
+#define PATCH 1
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -31,12 +31,14 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
- *
 
+
+version 3.7.1 Keyboard fixes
+				logmask bitset
 version 3.7.0 connection feature rework
-sem timeout during valgrind test
-simplify dynamic
-dynamic frequency for fmo and vco
+				sem timeout during valgrind test
+				simplify dynamic
+				dynamic frequency for fmo and vco
 version 3.6.6 rework hall effect feature
 version 3.6.5 rework Dynamic_class
 version 3.6.4 reduction of redundancies

@@ -62,7 +62,7 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 	adsr = _adsr;
 
 	// overwrite instrument settings
-	if ( ( is_kbd_role ) or ( is_notes_role ) )
+	if ( ( has_kbd_role ) or ( has_notes_role ) )
 	{
 		adsr.bps = 1;
 		beat_frames = wp.frames;

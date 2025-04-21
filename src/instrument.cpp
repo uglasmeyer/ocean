@@ -93,7 +93,7 @@ void Instrument_class::Update_spectrum()
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 	osc->spectrum = Spectrum_class::spec_struct();
-	osc->spectrum.osc = osc->osc_id;
+	osc->spectrum.osc = osc->oscId;
 
 	osc->Line_interpreter( arr );
 
@@ -207,8 +207,8 @@ bool Instrument_class::read_version1( fstream* File )
 			{
 				if ( strEqual(keyword, Spectr.spectrumTag[num] ) )
 				{
-					osc->spectrum = osc->Parse_data( arr, osc->osc_id, num );
-					*ifd_spectrum_vec[ osc->osc_id ] = osc->spectrum;
+					osc->spectrum = osc->Parse_data( arr, osc->oscId, num );
+					*ifd_spectrum_vec[ osc->oscId ] = osc->spectrum;
 				}
 			}
 
@@ -247,17 +247,17 @@ bool Instrument_class::read_version2( fstream* File )
 		}
 		if ( strEqual( "SPEV", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->osc_id, SPEV );
+			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEV );
 			osc->Set_volume( 	osc->spectrum.volidx[0], FIXED );
 		}
 		if ( strEqual( "SPEF", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->osc_id, SPEF );
+			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEF );
 			osc->Set_frequency( osc->spectrum.frqidx[0], FIXED );
 		}
 		if ( strEqual( "SPEW", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->osc_id, SPEW );
+			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEW );
 			osc->Set_waveform( 	osc->spectrum.wfid );
 		}
 		if ( strEqual( "CONN", keyword ))
@@ -281,7 +281,7 @@ bool Instrument_class::read_version2( fstream* File )
 void Instrument_class::Update_sds_connect( )
 {
 	for( Oscillator* osc : Oscgroup.member )
-		sds->connect[osc->osc_id] = osc->connect;
+		sds->connect[osc->oscId] = osc->connect;
 }
 
 bool Instrument_class::read_instrument( )
@@ -329,7 +329,7 @@ bool Instrument_class::read_instrument( )
 
 void Instrument_class::Connect( Oscillator* osc, Oscillator* sec, char mode )
 {
-	Oscillator_base::connect_t connect = sds->connect[osc->osc_id];
+	Oscillator_base::connect_t connect = sds->connect[osc->oscId];
 	switch ( mode )
 	{
 		case 'F' 	: { ( connect.frq ) ? osc->Connect_frq_data( sec ):osc->Reset_frq_data(); break; }

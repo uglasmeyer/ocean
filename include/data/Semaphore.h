@@ -56,8 +56,8 @@ public:
 	void 	Lock	( uint8_t semnum );	// wait for release
 	void 	Lock	( uint8_t semnum, uint timeout );	// wait for release
 	int  	Getval	( uint8_t semnum , int op);
+	string 	State(uint8_t num);
 
-	string 	Stat	( uint8_t semnum );
 	void	Test( );
 
 private:

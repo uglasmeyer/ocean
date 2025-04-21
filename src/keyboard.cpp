@@ -39,43 +39,48 @@ void Keyboard_class::set_instrument(  )
 
 //	Oscgroup.osc.vp.Mem = Oscgroup.vco.MemData();
 //	Oscgroup.osc.fp.Mem = Oscgroup.fmo.MemData();
-	Oscgroup.Set_Duration( 500 );
+	Oscgroup.Set_Duration( max_milli_sec );
 	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 	Oscgroup.osc.Reset_beat_cursor();
 }
 
 bool Keyboard_class::Decay(  )
 {
+	buffer_t cursor = attackCounter - decayCounter;
+	buffer_t frame_offset = min_frames * cursor;
+	Kbd_Data = osc->KbdData(frame_offset);
 	bool decay = ( decayCounter > releaseCounter );
 	if( decay )
 		decayCounter--;
-	cout << "DECAY " << (int)decayCounter << endl;
+	cout <<  cursor ;
 
 	return decay;
 
 }
 
 
-bool Keyboard_class::Attack( int key, uint8_t octave )
+bool Keyboard_class::Attack()
 {
-	auto set_kdb_note 	= [ this, key, octave ]( )
+	auto set_kdb_note 	= [ this ]( )
 		{
-			Note_base::pitch_t pitch = pitch_struct();
-			pitch.octave 	= octave;
-			pitch.step 		= key ;
-			int frqidx = GetFrqIndex( pitch );
-			Oscgroup.Set_Osc_Note( frqidx, kbd_duration, kbd_volume, instrument->sds->slidermode );
+			Note_base::
+			pitch_t 	pitch 			= pitch_struct();
+						pitch.octave 	= instrument->sds->noteline_prefix.Octave;
+						pitch.step 		= note_key ;
+			int 		frqidx 			= GetFrqIndex( pitch );
+						Oscgroup.Set_Osc_Note( frqidx, kbd_duration, kbd_volume, FIXED );
 		};
 
-	if (( key == NOKEY ) or ( decayCounter > releaseCounter ))
+	if (( note_key == NOKEY ) )
 		return false;
 
-	cout << "ATTACK KEY: " << key << endl;
+	cout << "ATTACK KEY: " << note_key << " ";
 	decayCounter = attackCounter;
 
 	set_instrument();
 	set_kdb_note(  );
 
+	osc->Data_reset();
 	Oscgroup.Run_OSCs( 0 );
 
 	return true;
@@ -83,9 +88,8 @@ bool Keyboard_class::Attack( int key, uint8_t octave )
 
 bool Keyboard_class::Release(  )
 {
-	cout << "RELEASE" << endl;
+	cout << "RELEASE " ;
 	decayCounter = releaseCounter;
-	osc->Data_reset();
 
 	return true;
 }
@@ -100,7 +104,7 @@ int Keyboard_class::Kbdnote()
 	if ( anykey == AppExit )
 	{
 		Comment( WARN, "Exit by user request");
-		raise( SIGINT );
+		instrument->sds->Synthesizer = EXITSERVER;
 	}
 	// check if key is in set KbdNote
 	size_t note = KbdNote.Str.find( anykey );
@@ -115,6 +119,16 @@ int Keyboard_class::Kbdnote()
 
 }
 
-
+void Keyboard_class::KbdEvent()
+{
+	if ( not Decay() )
+		Release();
+	note_key = Kbdnote( );
+	if ( Attack( ) )
+	{
+		Decay();
+		Set_ch( 0 );
+	}
+}
 
 

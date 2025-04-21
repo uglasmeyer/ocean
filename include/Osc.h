@@ -52,8 +52,11 @@ public:
 	void 	Phase_reset();
 	void 	Set_long_note( bool );
 	void 	Reset_beat_cursor();
+
 	Data_t* MemData();
+	Data_t* KbdData( const buffer_t& frame_offset );
 	Data_t 	MemData( buffer_t n);
+
 	void 	Test();
 
 private:

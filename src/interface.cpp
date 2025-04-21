@@ -93,6 +93,10 @@ string Interface_class::Decode( uint8_t idx)
 	return state_map[ idx ];
 }
 
+void Interface_class::Show_Que()
+{
+	cout << addr->deque.data() << endl;
+}
 void Interface_class::Show_interface()
 {
 
@@ -180,11 +184,11 @@ void Interface_class::Show_interface()
 	lline( "Record Progress   :" , (int)addr->RecCounter);
 	rline( "File No.          :" , (int)addr->FileNo );
 
-	lline( "AudioServer status:" , Decode(addr->AudioServer));
-	rline( "Composer status   :" , Decode(addr->Composer));
+	lline( "(A)udioServer stat:" , Decode(addr->AudioServer));
+	rline( "(C)omposer status :" , Decode(addr->Composer));
 
-	lline( "Synthesizer status:" , Decode(addr->Synthesizer));
-	rline( "Userinterface stat:" , Decode(addr->UserInterface));
+	lline( "(S)ynthesizer stat:" , Decode(addr->Synthesizer));
+	rline( "(U)serinterface   :" , Decode(addr->UserInterface));
 
 	lline( "Rtsp status       :" , Decode(addr->Rtsp));
 	rline( "Data Mode         :" , Decode(addr->MODE));

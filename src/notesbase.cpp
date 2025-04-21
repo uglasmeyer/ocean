@@ -85,15 +85,17 @@ void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )
 }
 void Note_base::Show_noteline_prefix( noteline_prefix_t nlp )
 {
-	stringstream strs{ "\n" };
-	string nlp_str = convention_names[nlp.convention ];
-	strs << "Note prefix:" << endl;
-	strs << setw(20) << left << "Octave: " 			<< (int) nlp.Octave << endl;
-	strs << setw(20) << left << "Convention: " 		<< (int) nlp.convention << ":" << nlp_str << endl;
-	strs << setw(20) << left << "Notes per sec: " 	<< (int) nlp.nps << endl;
-	strs << setw(20) << left << "Flats: " 			<< (int) nlp.flat << endl;
-	strs << setw(20) << left << "Sharps: " 			<< (int) nlp.sharp << endl;
-	Comment( INFO, strs.str() );
+	Table_class Table {"Noteline Prefix", 22 };
+	Table.AddColumn( "Prefix", 20 );
+	Table.AddColumn( "Value", 15 );
+	Table.PrintHeader();
+
+	string convention = to_string( nlp.convention) + ":" + convention_names[nlp.convention ];
+	Table.AddRow( "Convention"	,  convention );
+	Table.AddRow( "Octave"		, (int) nlp.Octave );
+	Table.AddRow( "Notes per sec",(int) nlp.nps );
+	Table.AddRow( "Flats"		, (int) nlp.flat );
+	Table.AddRow( "Sharps"		, (int) nlp.sharp );
 }
 
 string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )

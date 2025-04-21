@@ -33,9 +33,9 @@ class Processor_class : virtual Logfacility_class
 	interface_t* 		sds ;
 	Semaphore_class*	Sem ;
 	Time_class			Timer{};
-	string				className = "";
 
 public:
+	string				className = "";
 
 	Processor_class( Interface_class* gui ) : Logfacility_class("Processor")
 	{

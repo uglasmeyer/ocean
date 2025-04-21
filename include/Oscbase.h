@@ -101,18 +101,18 @@ class Oscillator_base :
 
 public:
 
-	char			osc_id			= -1;//osc_struct::OSCID;
+	char			oscId			= -1;//osc_struct::OSCID;
 	string 			osc_name 		= "";
 
-	char			oscrole_id		= -1;//osc_struct::INSTRID;
+	char			oscroleId		= -1;//osc_struct::INSTRID;
 	string 			oscrole_name 	= "";
 
 	bool			is_osc_type 	= false;
 	bool			is_fmo_type 	= false;
 	bool			is_vco_type 	= false;
-	bool			is_kbd_role   	= false;
-	bool			is_notes_role 	= false;
-	bool			is_instr_role 	= false;
+	bool			has_kbd_role   	= false;
+	bool			has_notes_role 	= false;
+	bool			has_instr_role 	= false;
 
 	buffer_t		beat_frames		= max_frames;
 	array<Data_t, max_beatframes>

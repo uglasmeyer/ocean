@@ -12,7 +12,7 @@
 #include <Oscbase.h>
 #include <String.h>
 #include <Config.h>
-
+#include <Table.h>
 
 /*
  * References

@@ -12,7 +12,7 @@ void SynthesizerTestCases()
 	Shm_base Shm_test{0};
 	Shm_test.Test_Memory();
 
-	Logfacility_class		Log( "Synthesizer test" );
+	Logfacility_class		Log( "SynthesizerTest" );
 	DirStructure_class		Dir;
 
 	Dataworld_class			DaTA( SYNTHID );
@@ -44,6 +44,10 @@ void SynthesizerTestCases()
 
 	Log.TEST_START( "Application " );
 
+	Log.Init_log_file();
+	Log.Test_Logging();
+
+
 	App.Init_Sds( );
 
 
@@ -59,9 +63,6 @@ void SynthesizerTestCases()
 	Log.Comment(TEST, "entering test classes ");
 
 	Dir.Test();
-
-	Log.Init_log_file();
-	Log.Test_Logging();
 
 //	Loop.Test();
 
@@ -119,5 +120,42 @@ void SynthesizerTestCases()
 
 	Log.TEST_END( "Application " );
 }
+
+#include <Interpreter.h>
+void ComposerTestCases()
+{
+
+	Exit_class				Exit{};
+	string					Module = "Composer";
+	Logfacility_class 		Log( Module );
+	Dataworld_class			DaTA( SYNTHID );
+	Application_class		App( &DaTA );
+	Interpreter_class 		Compiler( &DaTA );
+	Variation_class 		Variation {};
+	vector<int>				pos_stack {};
+	String 					Str{""};
+	vector<line_struct_t> 	Program{};
+	Statistic_class			Statistic{ Log.className };
+//	Config_class*			Cfg = DaTA.Cfg_p;
+
+	char* args = "-t";
+	App.Start(1, &args );
+	Variation.Test();
+
+//	Note_class Testnote;
+//	Testnote.Test();
+
+	Charset_class A("abdefabdef");
+	A.test();
+
+//	String teststring{""};
+//	teststring.TestString();
+
+//	Log.Test_Logging();
+
+	Compiler.Test( );
+
+}
+
 
 

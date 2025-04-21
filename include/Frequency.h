@@ -19,10 +19,13 @@ const 	uint 	C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
 const 	size_t 	FRQARR_SIZE = ( max_octave  * oct_steps ) + C0 - 1;
 static_assert(  FRQARR_SIZE < 128 );// ensure limitation to uint8
 
-extern array<frq_t, FRQARR_SIZE> frqArray ;
+typedef array<string, FRQARR_SIZE> frqstrarr_t;
+typedef array<frq_t, FRQARR_SIZE> frqarray_t;
+
+extern frqarray_t frqArray ;
 constexpr void initFrqArray();
 
-extern array<string, FRQARR_SIZE> frqNamesArray ;
+extern frqstrarr_t frqNamesArray ;
 constexpr void initFrqNamesArray();
 
 const range_t<int > freqarr_range {1, FRQARR_SIZE-1 }; // provide limitation to uint8

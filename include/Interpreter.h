@@ -51,7 +51,9 @@ const set<string> Keywords {
 
 /*
 */
-class Interpreter_class : virtual Logfacility_class, virtual public Processor_class
+class Interpreter_class :
+		virtual Logfacility_class,
+		virtual public Processor_class
 {
 	typedef struct view_struct
 	{

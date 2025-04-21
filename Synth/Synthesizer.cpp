@@ -1,6 +1,7 @@
 
 #include <Synthesizer.h>
-;
+extern void ComposerTestCases();
+
 
 LogVector_t LogVector{ "Synthesizer" };
 
@@ -94,6 +95,8 @@ void activate_sds()
 	Event.Set_Loglevel( DEBUG, false );
 }
 
+
+
 void add_sound( )
 {
 	Mixer.status = sds->mixer_status;
@@ -112,10 +115,14 @@ void add_sound( )
 		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
+	if ( Mixer.status.kbd )
+	{
+		Keyboard.KbdEvent();
+	}
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
 	Mixer.Add_Sound( 	Instrument.osc->MemData(),
-						Keyboard.osc->MemData(),
+						Keyboard.Kbd_Data,
 						Notes.osc->MemData(),
 						shm_addr );
 
@@ -131,19 +138,6 @@ Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add_sound" );
 thread* 		SyncAudio_thread_p = nullptr;
 
 
-void kbd_release( )
-{
-	if ( Keyboard.Decay() )
-	{
-		add_sound();
-	}
-	else
-	{
-		Keyboard.Release();
-		Mixer.Set_mixer_state( MbIdKeyboard, false );
-	}
-
-}
 void ApplicationLoop()
 {
 	Log.Comment(INFO, "Entering Application loop\n");
@@ -163,19 +157,8 @@ void ApplicationLoop()
 
 		Event.Handler(  );
 
-		if ( Mixer.status.kbd )
-			kbd_release(  );
-		int note_key = Keyboard.Kbdnote( );
-		if ( Keyboard.Attack( 	note_key, sds->noteline_prefix.Octave ) )
-		{
-			Keyboard.Set_ch( 0 );
-			Mixer.Set_mixer_state( MbIdKeyboard, true );
-			kbd_release();
-		}
-
 		if ( sds->Synthesizer != EXITSERVER )
 			sds->Synthesizer = RUNNING;
-
 	} ;
 
 
@@ -220,9 +203,9 @@ void read_notes_fnc( )
 Thread_class 	ReadNotes( DaTA.Sem_p, SEMAPHORE_INITNOTES, read_notes_fnc, "read_notes_fnc" );
 thread* 		ReadNotes_thread_p = nullptr;
 
-constexpr void activate_logging()
+void activate_logging()
 {
-	LogMask.at( DEBUG ) 	= false;
+	LogMask.set( DEBUG );
 //	Log.Set_Loglevel( INFO, false );
 //	Log.StartFileLogging( &LogVector );
 //	Instrument.StartFileLogging( &LogVector );
@@ -241,6 +224,7 @@ int main( int argc, char* argv[] )
 		Log.Set_Loglevel( TEST, true );
 		Sem->Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
+		ComposerTestCases();
 		Log.Show_loglevel();
 
 		exit_proc( 0 );
@@ -287,7 +271,6 @@ void stop_threads()
 
 	ReadNotes.StopLoop();
 	ReadNotes_thread_p->join();
-
 }
 
 int sig_counter = 0;

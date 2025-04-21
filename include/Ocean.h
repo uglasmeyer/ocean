@@ -179,5 +179,14 @@ const string			OctChars		= "CcDdEFfGgAaB";
 	raise( SIGINT ); \
 	};
 
+template< typename T >
+constexpr bool isTTY ( const T io )
+{
+    if (isatty(fileno( io )))
+    	return true; // "stdout is tty"
+    else
+       return false; 	//"stdout is not tty");
+};
+const bool is_a_tty	= isTTY( stdout );
 
 #endif /* OCEAN_H */

@@ -12,18 +12,18 @@ Oscillator::Oscillator( char role_id,  char type_id ) :
 		Oscillator_base()
 {
 	className 		= Logfacility_class::className;
-	osc_id		= type_id;
-	osc_name 	= OscRole.types[osc_id];
+	oscId		= type_id;
+	osc_name 	= OscRole.types[oscId];
 
-	oscrole_id		= role_id;
-	oscrole_name		= OscRole.roles[oscrole_id];
+	oscroleId		= role_id;
+	oscrole_name		= OscRole.roles[oscroleId];
 
-	is_osc_type 	= ( osc_id == OscRole.OSCID );
-	is_fmo_type		= ( osc_id == OscRole.FMOID );
-	is_vco_type		= ( osc_id == OscRole.VCOID );
-	is_kbd_role 	= ( oscrole_id == OscRole.KBDID );
-	is_notes_role 	= ( oscrole_id == OscRole.NOTESID );
-	is_instr_role 	= ( oscrole_id == OscRole.INSTRID );
+	is_osc_type 	= ( oscId == OscRole.OSCID );
+	is_fmo_type		= ( oscId == OscRole.FMOID );
+	is_vco_type		= ( oscId == OscRole.VCOID );
+	has_kbd_role 	= ( oscroleId == OscRole.KBDID );
+	has_notes_role 	= ( oscroleId == OscRole.NOTESID );
+	has_instr_role 	= ( oscroleId == OscRole.INSTRID );
 
 	Connection_reset();
 	Data_reset();
@@ -53,40 +53,47 @@ void Oscillator::Data_reset(  )
 
 void Oscillator::Connect_vol_data( Oscillator* osc)
 {	// connect this volume with osc data
-	if ( this->osc_id == osc->osc_id ) return;
-	this->vp.Mem	= &osc->Mem;
-	this->vp.osc_id = osc->osc_id;
+	if ( this->oscId == osc->oscId )
+	{
+		this->vp.Mem 		= &Mem_vco;
+		this->connect.vol	= false;
+		this->vp.volume		= 0;
+	}
+	else
+	{
+		this->vp.Mem		= &osc->Mem;
+		this->connect.vol 	= true;
+		this->vp.volume 	= osc->wp.volume;
+	}
+	this->vp.osc_id = osc->oscId;
 	this->vp.name 	= osc->osc_name;
-	this->vp.volume = osc->wp.volume;
-	this->connect.vol = true;
 }
 
 void Oscillator::Connect_frq_data( Oscillator* osc )
 {	// connect this frequency with osc data
-	if ( this->osc_id == osc->osc_id ) return;
-	this->fp.Mem 	= &osc->Mem;
-	this->fp.osc_id = osc->osc_id;
+	if ( this->oscId == osc->oscId )
+	{
+		this->fp.Mem 		= &Mem_fmo;
+		this->connect.vol	= false;
+		this->fp.volume 	= 0;
+	}
+	else
+	{
+		this->fp.Mem		= &osc->Mem;
+		this->connect.vol 	= true;
+		this->fp.volume 	= osc->wp.volume;
+	}
+	this->fp.osc_id = osc->oscId;
 	this->fp.name 	= osc->osc_name;
-	this->fp.volume = osc->wp.volume;
-	this->connect.frq = true;
 }
+
 void Oscillator::Reset_vol_data()
 {
-
-	this->vp.Mem 		= &this->Mem_vco;
-	this->vp.volume 	= 0;
-	this->vp.name 		= this->osc_name;
-	this->vp.osc_id 	= this->osc_id;
-	this->connect.vol 	= false;
+	Connect_vol_data( this );
 }
 void Oscillator::Reset_frq_data()
 {
-
-	this->fp.Mem 		= &this->Mem_fmo;
-	this->fp.volume 	= 0;
-	this->fp.name 		= this->osc_name;
-	this->fp.osc_id 	= this->osc_id;
-	this->connect.frq 	= false;
+	Connect_frq_data( this );
 }
 
 void Oscillator::Connection_reset( )
@@ -99,6 +106,8 @@ Data_t* Oscillator::MemData()
 	{ return Mem.Data; };
 Data_t Oscillator::MemData( buffer_t n)
 	{ return Mem.Data[n]; };
+Data_t* Oscillator::KbdData( const buffer_t& frame_offset )
+	{ return Mem.Data + frame_offset; }
 
 auto check_phi = [ ]( string type, param_t param, phi_t dT, float freq )
 {
@@ -144,7 +153,7 @@ void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
 
 	if ( is_osc_type )
-		if ( not is_notes_role  )
+		if ( not has_notes_role  )
 			vol_per_cent	= 1;// the volume of the osc is constant for the instr role
 								// because this volume is managed by the mixer
 								// If the osc has the notes role the osc volume is managed
@@ -222,7 +231,7 @@ void Oscillator::apply_adsr( buffer_t frames, Data_t* data )
 		beat_cursorL = ( beat_cursorL + 1 ) % beat_frames;;
 		beat_cursorR = ( beat_cursorR + 1 ) % beat_frames;;
 	}
-	if ( is_kbd_role )
+	if ( has_kbd_role )
 		Comment( DEBUG, "beat_cursor: " , (int) beat_cursorL );
 }
 

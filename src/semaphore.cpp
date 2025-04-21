@@ -27,11 +27,11 @@ void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
     if ( sop < 0 ) text = "Release ";
     if ( sop ==0 ) text = "Lock    ";
     if ( sop > 0 ) text = "Aquire  ";
-    Comment( DEBUG, text + Stat( num ));
+    Comment( DEBUG, text + State( num ));
     if ( ret < 0 )
     {
     	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
-        Comment( ERROR, Stat( num ));
+        Comment( ERROR, State( num ));
     }
 //    assert( ret == 0 );
 }
@@ -53,7 +53,7 @@ void Semaphore_class::Reset( uint8_t num )
 {
 //	short int val = -abs(  Getval( num , GETVAL ) );
 	int ret = semctl(semid, num, SETVAL, 0 );
-    Comment( DEBUG, "Reset   ", Stat( num ));
+    Comment( DEBUG, "Reset   ", State( num ));
 	assert( ret == 0 );
 }
 
@@ -75,7 +75,7 @@ void Semaphore_class::init()
         perror("semget");
         exit( 1 );
     }
-    Stat( SEMNUM_SIZE );
+    State( SEMNUM_SIZE );
 	Comment( INFO, "attached to semaphore set " + to_string( semid ));
 }
 
@@ -121,39 +121,36 @@ int Semaphore_class::Getval( uint8_t num, int op )
 	assert( num < SEMNUM_SIZE );
 	return semctl( semid, num, op, UNUSED );
 }
-
-
-string Semaphore_class::Stat( uint8_t num )
+string Semaphore_class::State(uint8_t num)
 {
-	Table_class Table {};
-	Table.AddColumn( "num", 4 );
-	Table.AddColumn( "pid", 8 );
-	Table.AddColumn( "val", 4 );
-	Table.AddColumn( "ncn", 4 );
-	Table.AddColumn( "zcn", 4 );
-	if ( LogMask[TEST] )
+	Table_class Table { };
+	Table.AddColumn("num", 4);
+	Table.AddColumn("pid", 8);
+	Table.AddColumn("val", 4);
+	Table.AddColumn("ncn", 4);
+	Table.AddColumn("zcn", 4);
+	if (LogMask[TEST])
 		Table.PrintHeader();
 
-	auto stat = [ this, &Table ]( uint num )
+	auto cout_semstate = [ this, &Table](uint num)
 	{
-		if ( not LogMask[TEST] ) return;
-		Table.AddRow( 	(int) num,
-						Getval( num, GETPID ),
-						Getval( num, GETVAL ),
-						Getval( num, GETNCNT ),
-						Getval( num, GETZCNT )
-					);
+		if ( LogMask[TEST] )
+			Table.AddRow(	num,
+							Getval(num, GETPID),
+							Getval(num, GETVAL),
+							Getval(num, GETNCNT),
+							Getval(num, GETZCNT));
 	};
 
-	if ( num == SEMNUM_SIZE )
+	if (num == SEMNUM_SIZE)
 	{
-		for ( uint n = 0; n < SEMNUM_SIZE; n++ )
-			stat(n);
+		for (uint n = 0; n < SEMNUM_SIZE; n++)
+			cout_semstate(n);
 		return "";
 	}
 	else
 	{
-		stat( num ) ;
+		cout_semstate(num);
 		return "";
 	}
 }

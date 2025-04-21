@@ -17,7 +17,7 @@ Time_class Timer{};
 void Start_audioserver()
 {
     string Start_Audio_Srv = Cfg->Server_cmd( Cfg->Config.Term, file_structure().audio_bin, "-S 0" );
-	system_execute( Start_Audio_Srv.data() );
+	system_execute( Start_Audio_Srv );
 }
 
 void Start_synthesizer( uint cfgid )
@@ -25,14 +25,14 @@ void Start_synthesizer( uint cfgid )
     string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Term,
     											file_structure().synth_bin,
 												" -S " + to_string( cfgid ) );
-    system_execute( Start_Synthesizer.data() );
+    system_execute( Start_Synthesizer );
 
 }
 
 void Start_gui()
 {
     string Start_GUI = file_structure().ocean_bin + " &" ;
-    system_execute( Start_GUI.data() );
+    system_execute( Start_GUI );
     Log.Comment( INFO, Start_GUI );
 }
 
@@ -94,7 +94,6 @@ int main(  int argc, char* argv[] )
 	sds->Rtsp = EXITSERVER;
 	DaTA.Appstate.Announce(  );
 
-
 	Sem->Release( SYNTHESIZER_START);
 
 	Sem->Release( RTSP_STARTED );
@@ -107,16 +106,18 @@ int main(  int argc, char* argv[] )
 		Start_gui();
 		return 0;
 	}
-
+	assert( sds->UserInterface == OFFLINE );
 	string cfg = "";
 	if( Cfg->Config.composer == 'y' )
 	{
-		Start_synthesizer( 0 );
+		Start_audioserver();
+
 
 		Log.Comment( INFO, "waiting for release of SEMAPHORE_STARTED");
 		Sem->Lock( SEMAPHORE_STARTED );
 
-		Start_audioserver();
+		Start_synthesizer( 0 );
+
 
 		Log.Comment( INFO, "waiting for release of SEMAPHORE_EXIT");
 		Sem->Lock( SEMAPHORE_EXIT );

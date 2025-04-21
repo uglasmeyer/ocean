@@ -52,6 +52,7 @@ public:
 	string 	Read_str( char );
 	void 	Commit();
 	void 	Show_interface();
+	void 	Show_Que();
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd( );

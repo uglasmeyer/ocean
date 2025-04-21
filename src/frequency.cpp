@@ -6,7 +6,7 @@
  */
 #include <Frequency.h>
 
-array<string, FRQARR_SIZE> frqNamesArray = {""};
+frqstrarr_t frqNamesArray = {""};
 
 constexpr void initFrqNamesArray()
 {
@@ -45,7 +45,7 @@ constexpr void initFrqNamesArray()
 }
 
 
-array<frq_t,FRQARR_SIZE> frqArray = {0};
+frqarray_t frqArray = {0};
 
 constexpr void initFrqArray(  )
 {

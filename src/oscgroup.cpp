@@ -31,7 +31,7 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 {
 
 	std::ranges::for_each( member, [ this, wd ](Oscillator*  o)
-			{ wd->Add_data_ptr(o->osc_id, oscroleId, o->MemData() ); });
+			{ wd->Add_data_ptr(o->oscId, oscroleId, o->MemData() ); });
 }
 
 void Oscgroup_class::Show_sound_stack() // show_status

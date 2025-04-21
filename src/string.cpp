@@ -116,7 +116,8 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 	{
 		string err = "missing ";
 		err.push_back(ch);
-		if ( LogMask[TEST] )
+
+		if ( LogMask.test( TEST ) )
 		{
 			Vec[0] = err;
 			return Vec;
@@ -312,14 +313,13 @@ void String::TestString()
 
 	S 	= " test \"two	 words\" \"three words 123 \" end";
 	arr = S.to_bracket_array( '\"');
-//	for ( string s : arr ) cout << s << endl;
+	for ( string s : arr ) cout << s << endl;
 	assert( arr[0].compare("test") 					== 0 );
 	assert( arr[1].compare("twowords") 				== 0 );
-	assert( arr[2].compare("threewords123") 			== 0 );
+	assert( arr[2].compare("threewords123") 		== 0 );
 	assert( arr[3].compare("end") 					== 0 );
 
-	S 	= " test a \"two words\" \"three words bc  d";
-	Str = S.Str;
+	Str 	= " test a \"two words\" \"three words bc  d";
 	arr = to_bracket_array( '\"');
 	cout << arr[0] << endl;
 	assert( arr[0].compare("missing \"") == 0 );

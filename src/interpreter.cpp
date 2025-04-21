@@ -1203,5 +1203,6 @@ void Interpreter_class::Test(  )
 	cout << show_type( List_directory( file_structure().Dir.instrumentdir, file_structure().snd_type ) ) << endl;
 //	assert ( false );
 	varlist.clear();
+	TEST_END( className );
 
 }

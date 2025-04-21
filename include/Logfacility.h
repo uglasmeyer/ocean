@@ -9,17 +9,28 @@
 #define LOGFACILITY_H_
 
 #include <Ocean.h>
+#include <bitset>
 
 typedef vector<string> LogVector_t;
 
-enum { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST } ;
-
 const 	uint					LOGIDENT	= 20;
-const 	uint8_t 				LOGMAX 		= 7;
+const 	uint8_t 				LOGMAX 		= 8;
 #define SETW 					setw( LOGIDENT )
 
-typedef array<bool, LOGMAX> 	logmask_t;
-extern 	logmask_t 				LogMask;
+// global Log facility structure
+typedef 	bitset<8>			logmask_t;
+enum 		LOG { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST, PLAIN } ;
+constexpr auto setdefaultLogMask()
+{
+	logmask_t lm;
+	for ( uint bit : { ERROR, INFO, WARN, BINFO } )
+		lm.set( bit );
+	return lm;
+}
+const 	logmask_t 	defaultLogMask 	= setdefaultLogMask();
+extern 	logmask_t 	LogMask; // define as: logmask_t LogMask = defaultLogMask in cpp file
+// end
+
 
 class Logfacility_class
 {
@@ -28,11 +39,11 @@ class Logfacility_class
 	LogVector_t*		LogVector_p = nullptr;
 
 public:
-	const string 		Line = "----------------------------------------------------------";
-	range_t<int>		loglevel_range {0, LOGMAX -1 };
-	string 				className 	= "";
-	string 				prefixClass = "";
-	const string 		logFile	 	{ logDir + logFileName + ".log" };
+	const string 		Line 			= "---------------------------------------------------------";
+	range_t<int>		loglevel_range 	{ 0, LOGMAX - 1 };
+	string 				className 		= "";
+	string 				prefixClass 	= "";
+	const string 		logFile	 		{ logDir + logFileName + ".log" };
 
 	void 	Set_Loglevel( int level, bool on );
 	void 	ResetLogMask();
@@ -60,7 +71,7 @@ public:
 	void Comment( const int& level, ArgsT... args )
 	{
 		int id = check_range( loglevel_range, level );
-		if ( LogMask[ id ] )
+		if ( LogMask.test( id ) )
 		{
 			stringstream strs{};
 			( strs <<  ... << args  ) ;
@@ -77,7 +88,6 @@ private:
 	} pair_struct_t;
 	array<pair_struct_t, 35> error_arr ;
 
-	string comment_str = "";
 	// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 
 	const string 	boldon		= "\033[1m";
@@ -89,9 +99,10 @@ private:
 	const string 	magenta 	= "\033[95m";
 	const string 	yellow  	= "\033[33m";
 	const string 	blue 		= "\033[94m";
-	const string 	endc		= boldoff+ "\033[39m";
+		  string 	endc		= boldoff+ "\033[39m";
 	const string 	bgreen		= boldon + green;
 	const string 	bred		= boldon + red;
+	const string	nocolor		= "";
 
 	struct log_struct
 	{
@@ -108,15 +119,17 @@ private:
 	{
 			{"Error", bred },
 			{"Debug", magenta },
-			{"Info ", green },
+			{"Info ", black },
 			{"Warn ", yellow },
 			{"Dbg2 ", yellow },
 			{"bInfo", bgreen },
-			{"Test ", blue }
+			{"Test ", blue },
+			{""		, nocolor }
 	};
 
 	string 	cout_log( uint logid, string str );
-	void 	setup();
+	void 	seterrText();
+
 
 };
 

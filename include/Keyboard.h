@@ -38,23 +38,26 @@ public:
 	key_struct_t		keystruct 	= key_struct();
 	const int			NOKEY 		= -1;
 	int 				prevKey 	= NOKEY;
+	Data_t*				Kbd_Data	= osc->KbdData( 0 );
 
 	Keyboard_class( Instrument_class* );
 	Keyboard_class(); // see comstack
 	virtual ~Keyboard_class();
 
-	bool Attack( int, uint8_t );
+	bool Attack(  );
 	bool Release(  );
 	bool Decay(  );
 	int	 Kbdnote( );
+	void KbdEvent();
 
 
 private:
 	const int 	releaseCounter	= 0;
-	const int 	attackCounter 	= 3; // TODO depends on the performance
+	const int 	attackCounter 	= rint( max_frames / min_frames );
 	int 		decayCounter 	= 0;
-	const uint	kbd_duration	= 1000; // [millisec]
+	const uint	kbd_duration	= max_milli_sec; // [millisec]
 	const uint  kbd_volume		= 75;
+	int 		note_key 		= NOKEY;
 
 	void 		set_instrument( );
 

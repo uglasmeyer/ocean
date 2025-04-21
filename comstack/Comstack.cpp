@@ -9,7 +9,8 @@
 #include <Comstack.h>
 
 
-bool tainted=false;
+bool tainted	=	false;
+
 void getvalue( uint8_t* addr, string text, uint event )
 {
 	String S {""};
@@ -80,7 +81,7 @@ int main( int argc, char* argv[] )
 	char keyevent = '$';
 	while( true )
 	{
-		keyevent = Key_event( "#mvfa+-" );
+		keyevent = Key_event( "afmvr#2+-" );
 		switch (keyevent)
 		{
 			case '+' :
@@ -90,6 +91,26 @@ int main( int argc, char* argv[] )
 			case '-' :
 			{
 				set_sdsid(-1); break;
+			}
+			case '2' :
+			{
+				Sds->Show_Que();
+				break;
+			}
+			case 'r' :
+			{
+				cout << "Reset run state: ";
+				char key = Key_event( "#acsu" );
+				switch ( key )
+				{
+				case 'a': { sds->AudioServer 	= OFFLINE;break; }
+				case 'c': { sds->Composer 		= OFFLINE;break; }
+				case 's': { sds->Synthesizer	= OFFLINE;break; }
+				case 'u': { sds->UserInterface 	= OFFLINE;break; }
+				default : { break; }
+				}
+				tainted = true;
+				break;
 			}
 			case 'm' :
 			{

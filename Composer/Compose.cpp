@@ -1,5 +1,6 @@
 
 #include <Composer.h>
+extern void ComposerTestCases();
 
 int return_pos( int pos )
 {
@@ -205,25 +206,6 @@ void composer_dialog()
 
 }
 
-void maintest()
-{
-
-	Variation.Test();
-
-	Note_class testnote;
-	testnote.Test();
-
-	Charset_class A("abdefabdef");
-	A.test();
-
-	String teststring{""};
-	teststring.TestString();
-
-	Log.Test_Logging();
-
-	Compiler.Test( );
-
-}
 
 void exit_proc( int signal )
 {
@@ -237,7 +219,7 @@ int main( int argc, char* argv[] )
 
 	if ( Cfg->Config.test == 'y' )
 	{
-		maintest();
+		ComposerTestCases();
 		Statistic.Show_Statistic(  );
 
 		exit_proc( 0 );

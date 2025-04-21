@@ -7,18 +7,19 @@
 
 #include <Logfacility.h>
 
-logmask_t LogMask { true, false, true, true, false, true, false };
-const logmask_t defaultLogMask = LogMask;
+logmask_t 	LogMask 		= defaultLogMask;
 
 
 Logfacility_class::Logfacility_class( string module)
 {
-	size_t pos = module.find('_' );
-	this->className = module.substr(0, pos ) ;
-	stringstream strs {};
-	strs << setw(15) << right << className << ":";
-	prefixClass = strs.str();
-	setup();
+	size_t 			pos 			= module.find('_' );
+					this->className = module.substr(0, pos ) ;
+	stringstream 	strs 			{};
+					strs << setw(15) << right << className << ":";
+					prefixClass 	= strs.str();
+	string 			_path 			= string( logDir );
+					filesystem::create_directories( _path );
+					seterrText();
 };
 
 Logfacility_class::~Logfacility_class(  )
@@ -26,6 +27,7 @@ Logfacility_class::~Logfacility_class(  )
 	if( LogMask[ DEBUG ])
 		cout.flush() << "visited ~Logfacility_class." << className  << endl;
 };
+
 
 string Logfacility_class::cout_log( uint id, string str )
 {
@@ -38,6 +40,11 @@ string Logfacility_class::cout_log( uint id, string str )
 	}
 	string 			prefix 	= prefixClass + Prefix_vec[ INFO].name;
 	stringstream 	strs 	{};
+	if ( not is_a_tty )
+	{
+		id = PLAIN;
+		endc = "";
+	}
 	strs << Prefix_vec[ id ].color << prefix << str << endc << endl;
 	cout.flush() << strs.str();
 	return str;
@@ -47,49 +54,45 @@ void Logfacility_class::ResetLogMask()
 	LogMask = defaultLogMask;
 }
 #define NOERR 0
-void Logfacility_class::setup()
+void Logfacility_class::seterrText()
 {
 	// defined in /usr/include/asm-generic/errno-base.h
 
-	error_arr[NOERR] 	=   {"NOERR","no error"};
-	error_arr[EPERM] 	=   {"EPERM","Operation not permitted"};
-	error_arr[ENOENT] 	=   {"ENOENT","No such file or directory"};
-	error_arr[ESRCH] 	=   {"ESRCH","No such process"};
-	error_arr[EINTR] 	=   {"EINTR","Interrupted system call"};
-	error_arr[EIO] 		=   {"EIO","I/O error"};
-	error_arr[ENXIO] 	=   {"ENXIO","No such device or address "};
-	error_arr[E2BIG] 	=   {"E2BIG","Argument list too long "};
-	error_arr[ENOEXEC] 	= 	{"ENOEXEC","Exec format error"};
-	error_arr[EBADF] 	=   {"EBADF","Bad file number"};
-	error_arr[ECHILD] 	=   {"ECHILD","No child processes"};
-	error_arr[EAGAIN] 	=   {"EAGAIN","Try again"};
-	error_arr[ENOMEM] 	=   {"ENOMEM","Out of memory"};
-	error_arr[EACCES] 	=   {"EACCES","Permission denied"};
-	error_arr[EFAULT] 	=   {"EFAULT","Bad address"};
-	error_arr[ENOTBLK] 	=   {"ENOTBLK","Block device required"};
-	error_arr[EBUSY] 	=   {"EBUSY","Device or resource busy"};
-	error_arr[EEXIST] 	=   {"EEXIST","File exists"};
-	error_arr[EXDEV] 	=   {"EXDEV","Cross-device link"};
-	error_arr[ENODEV] 	=   {"ENODEV","No such device"};
-	error_arr[ENOTDIR] 	=   {"ENOTDIR","Not a directory"};
-	error_arr[EISDIR] 	=   {"EISDIR","Is a directory"};
-	error_arr[EINVAL] 	=   {"EINVAL","Invalid argument"};
-	error_arr[ENFILE] 	=   {"ENFILE","File table overflow"};
-	error_arr[ENOTTY] 	=   {"ENOTTY","Too many open files"};
-	error_arr[ENOTTY] 	=   {"ENOTTY","Not a typewriter"};
-	error_arr[ETXTBSY] 	=   {"ETXTBSY","Text file busy"};
-	error_arr[EFBIG] 	=   {"EFBIG","File too large"};
-	error_arr[ENOSPC] 	=   {"ENOSPC","No space left on device"};
-	error_arr[ESPIPE] 	=   {"ESPIPE","Illegal seek"};
-	error_arr[EROFS] 	=   {"EROFS","Read-only file system"};
-	error_arr[EMLINK] 	=   {"EMLINK","Too many links"};
-	error_arr[EPIPE] 	=   {"EPIPE","Broken pipe"};
-	error_arr[EDOM] 	=   {"EDOM","Math argument out of domain of func"};
-	error_arr[ERANGE] 	=   {"ERANGE","Math result not representable"};
-
-	string _path = string( logDir );
-	filesystem::create_directories( _path );
-
+	error_arr[NOERR] 	=   {"NOERR",	"no error"};
+	error_arr[EPERM] 	=   {"EPERM",	"Operation not permitted"};
+	error_arr[ENOENT] 	=   {"ENOENT",	"No such file or directory"};
+	error_arr[ESRCH] 	=   {"ESRCH",	"No such process"};
+	error_arr[EINTR] 	=   {"EINTR",	"Interrupted system call"};
+	error_arr[EIO] 		=   {"EIO",		"I/O error"};
+	error_arr[ENXIO] 	=   {"ENXIO",	"No such device or address "};
+	error_arr[E2BIG] 	=   {"E2BIG",	"Argument list too long "};
+	error_arr[ENOEXEC] 	= 	{"ENOEXEC",	"Exec format error"};
+	error_arr[EBADF] 	=   {"EBADF",	"Bad file number"};
+	error_arr[ECHILD] 	=   {"ECHILD",	"No child processes"};
+	error_arr[EAGAIN] 	=   {"EAGAIN",	"Try again"};
+	error_arr[ENOMEM] 	=   {"ENOMEM",	"Out of memory"};
+	error_arr[EACCES] 	=   {"EACCES",	"Permission denied"};
+	error_arr[EFAULT] 	=   {"EFAULT",	"Bad address"};
+	error_arr[ENOTBLK] 	=   {"ENOTBLK",	"Block device required"};
+	error_arr[EBUSY] 	=   {"EBUSY",	"Device or resource busy"};
+	error_arr[EEXIST] 	=   {"EEXIST",	"File exists"};
+	error_arr[EXDEV] 	=   {"EXDEV",	"Cross-device link"};
+	error_arr[ENODEV] 	=   {"ENODEV",	"No such device"};
+	error_arr[ENOTDIR] 	=   {"ENOTDIR",	"Not a directory"};
+	error_arr[EISDIR] 	=   {"EISDIR",	"Is a directory"};
+	error_arr[EINVAL] 	=   {"EINVAL",	"Invalid argument"};
+	error_arr[ENFILE] 	=   {"ENFILE",	"File table overflow"};
+	error_arr[ENOTTY] 	=   {"ENOTTY",	"Too many open files"};
+	error_arr[ENOTTY] 	=   {"ENOTTY",	"Not a typewriter"};
+	error_arr[ETXTBSY] 	=   {"ETXTBSY",	"Text file busy"};
+	error_arr[EFBIG] 	=   {"EFBIG",	"File too large"};
+	error_arr[ENOSPC] 	=   {"ENOSPC",	"No space left on device"};
+	error_arr[ESPIPE] 	=   {"ESPIPE",	"Illegal seek"};
+	error_arr[EROFS] 	=   {"EROFS",	"Read-only file system"};
+	error_arr[EMLINK] 	=   {"EMLINK",	"Too many links"};
+	error_arr[EPIPE] 	=   {"EPIPE",	"Broken pipe"};
+	error_arr[EDOM] 	=   {"EDOM",	"Math argument out of domain of func"};
+	error_arr[ERANGE] 	=   {"ERANGE",	"Math result not representable"};
 }
 
 void Logfacility_class::Init_log_file( )
@@ -127,8 +130,9 @@ void Logfacility_class::StartFileLogging( LogVector_t* lvp )
 void Logfacility_class::Show_loglevel()
 {
 	Info( Line );
-	string on;
-	Comment( INFO, "Log level activation state");
+	string on = "";
+	string logmode = ( is_a_tty ) ? "console logging" : "file logging";
+	Comment( INFO, "Log level activation state with " + logmode );
 	for ( int level = 0; level < LOGMAX; level++ )
 	{
 		on =  LogMask[ level ] ? "On" : "Off";
@@ -154,14 +158,11 @@ string Logfacility_class::Error_text( uint err )
 	}
 }
 
-void Logfacility_class::Set_Loglevel( int level, bool on )
+void Logfacility_class::Set_Loglevel( int _level, bool _on )
 {
-	if(( level < 0 ) or ( level > LOGMAX -1 ))
-	{
-		Info( "Loglevel out of bounds in ", className );
-		return;
-	}
-	LogMask[ level ] = on;
+
+	uint level = check_range(loglevel_range, _level );
+	LogMask.set( level, _on );
 }
 
 
@@ -183,11 +184,14 @@ void Logfacility_class::TEST_END( const string& name )
 }
 
 #include <String.h>
-
 void Logfacility_class::Test_Logging( )
 {
-//	InfoT( "Variatic", " arguments");
+	LogMask = defaultLogMask;
 
+	TEST_START( className );
+	Show_loglevel();
+	ASSERTION( LogMask.count() == 5, "logmask count", LogMask.count(), 5  );
+	ASSERTION( LogMask[ TEST ], "logmask", LogMask[TEST], true );
 	string str = Error_text( EEXIST );
 	ASSERTION( strEqual( str, "[EEXIST] File exists" ), "error string", str, "[EEXIST] File exists" );
 	Set_Loglevel( TEST, true );
@@ -195,6 +199,11 @@ void Logfacility_class::Test_Logging( )
 	stringstream True;
 	True << boolalpha << LogMask[TEST];// no endl
 	ASSERTION( strEqual( True.str(), "true"), "true", True.str(), "=true" );
-	Comment( TEST, "Logfacility test OK");
+	int L = ( 4 | 8 );
+	ASSERTION( L == 12, "OR", L, 12 )
+	bitset<4> bs = 0b1100;
+	ASSERTION( bs[WARN] | bs[ERROR], "bitset", bs.test(ERROR), true );
+	ASSERTION( isTTY( stdout ), "isTTY", isTTY( stdout ), true);
+	TEST_END( className );
 
 }
