@@ -6,16 +6,109 @@
  */
 #include <Frequency.h>
 
-frqstrarr_t frqNamesArray = {""};
+frqstrarr_t frqNamesArray {""};
+frqarray_t frqArray {0};
 
-constexpr void initFrqNamesArray()
+bool frqnamesarray_done = false;
+bool frqarray_done = false;
+
+
+Frequency_class::Frequency_class() :
+		Logfacility_class("Frequency_class")
 {
-	if ( frqNamesArray[C0].length() > 0 ) return ;
+	className 			= Logfacility_class::className;
 
-	auto index = [  ]( int oct, uint step  )
+	if ( not frqarray_done )
+		initFrqArray();
+	frequency_range.min = frqArray[1];
+	frequency_range.max = frqArray[FRQARR_SIZE-1] ;
+
+	if ( not frqnamesarray_done )
+		initFrqNamesArray();
+
+}
+Frequency_class::~Frequency_class(){};
+
+frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
+{
+	frq_t frq = 0;
+	uint _idx = check_range( frqarr_range, idx );
+
+	( _idx < C0 ) ? frq = frqArray[ _idx ] : frq = frqArray[ _idx ]* _base_freq / oct_base_freq;
+	return frq;
+}
+
+frq_t Frequency_class::GetFrq( const int& idx )
+{
+//	cout << "index";
+	uint frqidx = check_range( frqarr_range, idx );
+	return frqArray[ frqidx];
+}
+
+
+uint Frequency_class::Index( const string& frqName )
+{
+	for( int n = frqarr_range.min; n <= frqarr_range.max; n++ )
+		if ( strEqual( frqNamesArray[n], frqName ) )
+			return n;
+	// if frqName is a string of an index, needed by the interpreter
+	String idx { frqName };
+	if ( idx.is_number() )
+		return idx.secure_stoi( frqName );
+	cout << "WARNING: " << frqName << "-index set to default" << endl;
+	return C0; // = ""
+}
+frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
+{
+	return ( 1 + channel + (float)value * 0.01 );
+};
+
+void Frequency_class::ShowFrqTable()
+{
+	Table_class Table{ "", 0 };
+	Table.AddColumn( "Index", 6);
+	Table.AddColumn( "Frequency", 16 );
+	Table.AddColumn( "Name", 4);
+	Table.AddColumn( "",8);
+	Table.AddColumn( "Index", 6);
+	Table.AddColumn( "Frequency", 16 );
+	Table.AddColumn( "Name", 4);
+
+	Table.PrintHeader();
+	const uint m = frqarr_range.max / 2;
+	for( int n = frqarr_range.min; n <= frqarr_range.max / 2; n++ )
 	{
-		return (int) oct*oct_steps + step + C0;
-	};
+		Table.AddRow( n, frqArray[n], frqNamesArray[n], "|",
+				n+m, frqArray[n+m], frqNamesArray[n+m] );
+	}
+}
+
+void Frequency_class::initFrqArray(  )
+{
+
+	uint C0idx = C0-1;
+
+	for ( uint n = 0; n < FRQARR_SIZE-1; n++)
+	{
+		float x = 0;
+		if ( n < 9 ) 			// range 0.1 ... 0.9
+			x = (n + 1 ) * 0.1;
+		else
+		{
+			if (n < C0idx )		// range 1 ... 16
+				x = n - 8  ;
+			else
+				x = pow(2.0, (n-C0idx)/((float)oct_steps) ) * oct_base_freq ; // C0 = oct_base_freq
+		}
+		frqArray[n+1] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
+	}
+	frqArray[0] = C0;
+	cout << "Piano key frequencies initialized at " << hex << &frqArray << endl;
+	frqarray_done = true;
+}
+
+void Frequency_class::initFrqNamesArray()
+{
 
 	for ( uint n = 1; n<10;n++ )
 	{
@@ -37,97 +130,12 @@ constexpr void initFrqNamesArray()
 			string 	frqName {""};
 			frqName.push_back(OctChars[step]);
 			frqName.push_back(octave);
-			frqNamesArray[ index( oct, step ) ] = frqName;
+			frqNamesArray[ FrqIndex( oct, step ) ] = frqName;
 		}
 	}
-	cout << "Frequency Names initialized at " << hex << &frqNamesArray << endl;
 
-}
-
-
-frqarray_t frqArray = {0};
-
-constexpr void initFrqArray(  )
-{
-	if ( frqArray[0] > 0 ) return ;
-	uint C0idx = C0-1;
-
-	for ( uint n = 0; n < FRQARR_SIZE-1; n++)
-	{
-		float x = 0;
-		if ( n < 9 ) 			// range 0.1 ... 0.9
-			x = (n + 1 ) * 0.1;
-		else
-		{
-			if (n < C0idx )		// range 1 ... 16
-				x = n - 8  ;
-			else
-				x = pow(2.0, (n-C0idx)/((float)oct_steps) ) * oct_base_freq ; // C0 = oct_base_freq
-		}
-		frqArray[n+1] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
-	}
-	cout << "Piano key frequencies initialized at " << hex << &frqArray << endl;
-	frqArray[0] = C0;
-}
-
-
-Frequency_class::Frequency_class() :
-		Logfacility_class("Frequency_class")
-{
-	className 			= Logfacility_class::className;
-
-	initFrqArray();
-	freqfloat_range.max = frqArray[freqarr_range.max ];
-
-	initFrqNamesArray();
-
-}
-Frequency_class::~Frequency_class(){};
-
-frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
-{
-	frq_t frq = 0;
-	uint _idx = check_range( freqarr_range, idx );
-
-	( _idx < C0 ) ? frq = frqArray[ _idx ] : frq = frqArray[ _idx ]* _base_freq / oct_base_freq;
-	return frq;
-}
-
-frq_t Frequency_class::GetFrq( const int& idx )
-{
-	uint frqidx = check_range( freqarr_range, idx );
-	return frqArray[ frqidx];
-}
-uint Frequency_class::Index( const string& frqName )
-{
-	for( int n = freqarr_range.min; n <= freqarr_range.max; n++ )
-		if ( strEqual( frqNamesArray[n], frqName ) )
-			return n;
-	return 0; // = ""
-}
-frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
-{
-	return ( 1 + channel + (float)value * 0.01 );
-};
-
-void Frequency_class::ShowFrqTable()
-{
-	Table_class Table{ "", 0 };
-	Table.AddColumn( "Index", 6);
-	Table.AddColumn( "Frequency", 16 );
-	Table.AddColumn( "Name", 4);
-	Table.AddColumn( "",8);
-	Table.AddColumn( "Index", 6);
-	Table.AddColumn( "Frequency", 16 );
-	Table.AddColumn( "Name", 4);
-
-	Table.PrintHeader();
-	const uint m = freqarr_range.max / 2;
-	for( int n = freqarr_range.min; n <= freqarr_range.max / 2; n++ )
-	{
-		Table.AddRow( n, frqArray[n], frqNamesArray[n], "|",
-				n+m, frqArray[n+m], frqNamesArray[n+m] );
-	}
+	cout << "Frequency Names initialized " << endl;
+	frqnamesarray_done = true;
 }
 
 void Frequency_class::TestFrequency()

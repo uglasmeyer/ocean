@@ -11,60 +11,55 @@
  * Dataworld_class
  ***************/
 
-Dataworld_class::Dataworld_class( uint appId ) :
-	Logfacility_class( "Dataworld_class"),
-	Appstate( appId ),
-	Reg( appId, Appstate.Name )
+
+Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class* sem ) :
+Logfacility_class( "Dataworld_class"),
+SDS( appId, cfg, sem ),
+Reg( appId, SDS.master ),
+Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.vec[0] )
 {
+
 	className = Logfacility_class::className;
 	this->AppId	= appId;
+	this->Cfg_p = cfg;
+	this->Sem_p = sem;
 
-	auto sds_setup = [ this ]( uint sdsid )
-	{
-		Interface_class SDS {Cfg_p, Sem_p };
-		SDS.AppId = this->AppId;
-		SDS.Setup_SDS( sdsid, Cfg.Config.sdskeys[sdsid] );
+	Sds_master	= SDS.Master;
+	sds_master 	= SDS.master;//(interface_t*) SdsVec.vec[0].ds.addr;
 
-		SDS_vec.push_back( SDS );
-	};
-
-
-	// Shared Data Segment
-
-	for( uint sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
-		sds_setup( sdsid );
-
-	//	test
-	assert( SDS_vec[0].ds.addr != SDS_vec[1].ds.addr );
-
-	Sds_master	= &SDS_vec[0];
-	sds_master = (interface_t*) SDS_vec[0].ds.addr;
-
-	Reg.Setup( sds_master );
+//	Reg.Setup( sds_master ); // sds of the process register
 	SDS_Id = Reg.GetId(  );
 	sds_master->SDS_Id = 0;
 
 	Sds_p = GetSds();
-	( AppId == SYNTHID ) ? 	Appstate.Setup( Sds_p->addr ) :
-							Appstate.Setup( sds_master ) ;
+
 	if ( Reg.Is_dataprocess() )
 	{
 		Comment(INFO,"Attaching stereo buffers");
 
-		init_Shm( SHM_0, Cfg.Config.SHM_keyl, 0 );
+		init_Shm( SHM_0, Cfg_p->Config.SHM_keyl, 0 );
 		ShmAddr_0 = (stereo_t*) SHM_0.ds.addr;
 
-		init_Shm( SHM_1, Cfg.Config.SHM_keyr, 1 );
+		init_Shm( SHM_1, Cfg_p->Config.SHM_keyr, 1 );
 		ShmAddr_1 = (stereo_t*) SHM_1.ds.addr;
 	}
 }
 
+Interface_class* Dataworld_class::GetSds(  )
+{
+	return SDS.GetSds( SDS_Id );
+}
+
+interface_t* Dataworld_class::GetSdsAddr( )
+{
+	Comment( DEBUG, "SDS Id: " + to_string( SDS_Id ) + " " + Appstate.Name );
+	return SDS.GetSdsAddr( SDS_Id );
+}
+
 Dataworld_class::~Dataworld_class()
 {
-
 	if ( Reg.Is_dataprocess() )
 	{
-		Sem.Release(SEMAPHORE_EXIT);
 		SHM_0.Detach( SHM_0.ds.addr );
 		SHM_1.Detach( SHM_1.ds.addr );
 		Reg.Proc_deRegister( );
@@ -81,33 +76,6 @@ void Dataworld_class::init_Shm( Shared_Memory& SHM, key_t key, uint idx )
 	SHM.ShowDs( SHM.ds );
 }
 
-Interface_class* Dataworld_class::GetSds(  )
-{
-	return &SDS_vec[ SDS_Id ];
-}
-Interface_class* Dataworld_class::GetSds( int id )
-{
-	return &SDS_vec[ id ];
-}
-
-interface_t* Dataworld_class::GetSdsAddr( )
-{
-	return GetSdsAddr( SDS_Id );
-}
-interface_t* Dataworld_class::GetSdsAddr( int id )
-{
-	Comment( DEBUG, "SDS Id: " + to_string( id ) + " " + Appstate.Name );
-	if (( id<0) or ( id > (int)MAXCONFIG ))
-	{
-		EXCEPTION( "no such Shared Data Segment ");
-	}
-	if( not SDS_vec[id].ds.eexist )
-	{
-		EXCEPTION( "segment not available");
-	}
-
-	return ( interface_t*) SDS_vec[id].ds.addr;
-}
 
 void Dataworld_class::ClearShm()
 {
@@ -137,7 +105,7 @@ stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 
 void Dataworld_class::EmitEvent( const uint8_t flag, string comment )
 {
-	if ( sds_master->UserInterface != RUNNING )
+	if ( not Appstate.IsRunning( sds_master, GUI_ID ) )
 		return;
 	sds_master->FLAG = flag;
 	Sds_master->Write_str( UPDATELOG_EVENT, comment );
@@ -151,7 +119,7 @@ void Dataworld_class::Test_Dataworld()
 	Interface_class* Sds;
 	for ( uint sdsid = 0; sdsid < 4; sdsid++ )
 	{
-		Sds = GetSds( sdsid );
+		Sds = SDS.GetSds( sdsid );
 		string str = Sds->Read_str( OTHERSTR_KEY );
 		Sds->Write_str( OTHERSTR_KEY, str );
 		cout << "read/write on Sds " << sdsid << " ok: " << str << endl;
@@ -188,7 +156,7 @@ void EventLog_class::add( uint8_t sdsid, uint8_t event )
 }
 void EventLog_class::add( event_t ev )
 {
-	DaTA->SDS_vec[ ev.sdsid ].Event( ev.event );
+	DaTA->SDS.Vec[ ev.sdsid ].Event( ev.event );
 	if ( capture_flag)
 		rawlog_vec.push_back( ev );
 }
@@ -224,7 +192,7 @@ bool EventLog_class::capture( uint8_t sdsid, bool flag )
 {
 
 	capture_flag = flag;
-	Interface_class* Sds = DaTA->GetSds( sdsid );
+	Interface_class* Sds = DaTA->SDS.GetSds( sdsid );
 	if ( capture_flag )
 	{
 		capture_state = CAPTURING;

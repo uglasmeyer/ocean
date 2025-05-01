@@ -18,7 +18,7 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 								&sds->FMO_spectrum,
 								&sds->OSC_spectrum};
 
-	Default_instrument_file = file_structure().Dir.instrumentdir + "default" + instr_ext;
+	Default_instrument_file = file_structure().instrumentdir + "default" + instr_ext;
 
 	assert ( Oscgroup.osc.MemData() != nullptr );
 	Oscgroup.SetWd( wd );
@@ -36,7 +36,7 @@ void Instrument_class::reuse_GUI_Data()
 	// The data shall be ignored if the ifd is initially created. This is indicated
 	// by the MODE DEFAULT.
 
-	if ( sds->MODE == DEFAULT )
+	if ( sds->MODE == state_struct::DEFAULT )
 	{
 		Comment(INFO, "default Shared Data is not reused");
 		return;
@@ -104,17 +104,17 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 void Instrument_class::set_new_name( string name )
 {
 	Name = name;
-	Instrument_file 		= file_structure().Dir.instrumentdir + Name + instr_ext;
+	Instrument_file 		= file_structure().instrumentdir + Name + instr_ext;
 }
 
 void Instrument_class::set_name( string name )
 {
-	Instrument_file 		= file_structure().Dir.instrumentdir + name + instr_ext;
+	Instrument_file 		= file_structure().instrumentdir + name + instr_ext;
 	if ( filesystem::exists( Instrument_file ) )
 		Name = name;
 	else
 		Name = "default";
-	Instrument_file 		= file_structure().Dir.instrumentdir + Name + instr_ext;
+	Instrument_file 		= file_structure().instrumentdir + Name + instr_ext;
 
 	Comment( INFO, "Instrument Name: " + Name);
 }
@@ -253,7 +253,7 @@ bool Instrument_class::read_version2( fstream* File )
 		if ( strEqual( "SPEF", keyword ))
 		{
 			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEF );
-			osc->Set_frequency( osc->spectrum.frqidx[0], FIXED );
+			osc->Set_frequency( osc->spectrum.frqidx[0], SLIDE );
 		}
 		if ( strEqual( "SPEW", keyword ))
 		{
@@ -383,7 +383,10 @@ bool Instrument_class::init_connections( )
 
 void Instrument_class::save_features( fstream& FILE )
 {
-	Table_class Table{ &FILE, ',' };
+	tableopt_t opt = defaultopt;
+	opt.FILE = &FILE;
+	opt.Separator = ',';
+	Table_class Table{ opt };
 	Table.AddColumn("Type",	6 );
 	Table.AddColumn("Name",	6 );
 	Table.AddColumn("decay",6 );
@@ -407,7 +410,10 @@ void Instrument_class::save_features( fstream& FILE )
 }
 void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
 {
-	Table_class Table{ &FILE, ',' };
+	tableopt_t opt = defaultopt;
+	opt.FILE = &FILE;
+	opt.Separator = ',';
+	Table_class Table{ opt };
 	Table.AddColumn("Type",	6 );
 	Table.AddColumn("Osc",	6 );
 	Table.AddColumn("Sec",	6 );
@@ -489,12 +495,16 @@ void Instrument_class::Test_Instrument()
 	Comment( TEST, Oscgroup.Show_Spectrum() );
 
 	Oscgroup.Data_Reset();
+	osc->Connection_reset();
+	fmo->Set_volume(100,FIXED);
+	vco->Set_volume(0,FIXED);
+	Oscgroup.Show_sound_stack();
 	Oscgroup.Run_OSCs(0);
 	assert( Oscgroup.osc.DynFrequency.current.past == Oscgroup.osc.spectrum.frqidx[0]);
 	float amp0 = Oscgroup.osc.MemData(0) ;
 	for ( int n = 0; n < 9; n++ )
 	{
-//		Oscgroup.Data_Reset();
+		Oscgroup.Data_Reset();
 		Oscgroup.Run_OSCs( 0 );
 		float amp1 = Oscgroup.osc.MemData(0) ;
 		assert( Oscgroup.osc.wp.frqidx == Oscgroup.osc.spectrum.frqidx[0] );
@@ -507,9 +517,7 @@ void Instrument_class::Test_Instrument()
 	vco->Test();
 	assert( Set( ".test2" ) );
 	ASSERTION( file_version == 2, "version", file_version , 2);
-	for ( Oscillator* osc : Oscgroup.member	)
-		osc->Set_Loglevel( TEST, true);
-	sds->MODE = FREERUN;
+	sds->MODE = state_struct::FREERUN;
 
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;

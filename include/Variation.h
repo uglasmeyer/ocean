@@ -135,8 +135,11 @@ public:
 
 };
 
-class Variation_class : virtual public Logfacility_class, virtual public Note_class
+class Variation_class :
+		virtual public Logfacility_class,
+		virtual public Note_class
 {
+	string className = "";
 public:
 
 	Variation_class() ;

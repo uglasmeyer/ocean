@@ -27,29 +27,32 @@ extern void thread_fnc( const string& a );
 
 
 class Application_class :
-	virtual Logfacility_class
+	virtual Logfacility_class,
+	state_struct
 {
-	string className = "";
+	string 				className 			= "";
+	char 				AppId				= NOID;
 public:
 
-	Statistic_class 	Statistic	;
-	Dataworld_class*	DaTA		= nullptr;
-	interface_t* 		sds			= nullptr;
-	interface_t*		sds_master	= nullptr;
-	Config_class*		Cfg 		= nullptr;
-	Interface_class*	Sds			= nullptr;
+	Statistic_class 	Statistic			;
+	Dataworld_class*	DaTA				= nullptr;
+	Appstate_class*		Appstate			= nullptr;
+	interface_t* 		sds					= nullptr;
+	interface_t*		sds_master			= nullptr;
+	Config_class*		Cfg 				= nullptr;
+	Interface_class*	Sds					= nullptr;
 
 
-	string 				ProgramName 				= "";
+	string 				ProgramName 		= "";
 	string 				This_Application 	= "";
 	uint 				client_id			= NOID;
 	bool				Server_init			= true;
+    std::set<int> 		logowner 			=  { GUI_ID, COMPID, RTSPID };
 
 	Application_class( Dataworld_class* );
 	virtual ~Application_class();
 
 	void Shutdown_instance( );
-	void VersionTxt();
 	void Start( int, char* [] );
 	void Init_Sds( );
 	void Ready();
@@ -57,9 +60,9 @@ public:
 
 private:
 	bool 				redirect_stderr 	= false;
-	uint8_t*			state_p				= nullptr;
-
-	void deRegister( );
+	void 				app_properties		();
+	void 				deRegister			();
+	void 				versionTxt			();
 
 };
 

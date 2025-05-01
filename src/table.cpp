@@ -11,15 +11,14 @@ Table_class::Table_class( string title, uint ident ) :
 	Logfacility_class("Table_class")
 {
 	className 	= Logfacility_class::className ;
-	Title 		= title;
-	Ident		= ident;
+	opt.Titel	= title;
+	opt.Ident	= ident;
 };
-Table_class::Table_class( fstream* F, char s ) :
+Table_class::Table_class( tableopt_t _opt  ) :
 	Logfacility_class("Table_class")
 {
 	className 	= Logfacility_class::className ;
-	separator 	= s;
-	File		= F;
+	opt			= _opt;
 }
 Table_class::~Table_class() {};
 
@@ -29,25 +28,26 @@ void Table_class::AddColumn( string name, uint width )
 	header_v.push_back({name, width} );
 }
 
-
 void Table_class::PrintHeader()
 {
-	if ( Title.length() == 0 )
-		cout << setw( Ident ) << left << "";
-	else
-		cout << setw( Ident ) << left << setfill('.') << Title ;
-
+//	if ( opt.Titel.length() == 0 )
+//		cout << setw( opt.Ident ) << left << "";
+//	else
+	string color = Logfacility_class::bblack;
+	cout << color << setw( opt.Ident ) << left << setfill('.') << opt.Titel << endcolor ;
+	if ( opt.Titel.length() > opt.Ident )
+		cout << endl;
 	for( header_t row : header_v )
 	{
-		if ( not File )
-			 cout  << dec << setw(row.width) << left << setfill(' ')<< row.txt << separator;
+		if ( not opt.FILE )
+			 cout  << dec << setw(row.width) << left << setfill(' ')<< row.txt << opt.Separator;
 		else
-			*File  << dec << setw(row.width) << left << setfill(' ')<< row.txt << separator;
+			*opt.FILE  << dec << setw(row.width) << left << setfill(' ')<< row.txt << opt.Separator;
 	}
-	if( not File )
+	if( not opt.FILE )
 		cout << endl;
 	else
-		*File << '\n';
+		*opt.FILE << '\n';
 }
 
 void Table_class::TestTable()

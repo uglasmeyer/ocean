@@ -101,7 +101,7 @@ uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 	return wp.frqidx;
 }
 
-void Oscillator_base::Set_volume( uint8_t vol, uint mode )
+void Oscillator_base::Set_volume( int vol, uint mode )
 {
 	wp.volume = check_range( volidx_range, vol );
 	spectrum.vol[0] 	= (float)vol * 0.01;

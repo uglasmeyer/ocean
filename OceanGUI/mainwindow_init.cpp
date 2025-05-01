@@ -10,7 +10,7 @@
 void MainWindow::initPanel()
 {
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
-    QString Ocean_png = QString::fromStdString( fs.Dir.libdir + "Ocean.png" );
+    QString Ocean_png = QString::fromStdString( fs.libdir + "Ocean.png" );
     QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
 
@@ -37,7 +37,7 @@ void MainWindow::initPanel()
 void MainWindow::initComboBoxes()
 {
     CB_external         = ui->cb_external;
-    string wavfile_path = fs.Dir.musicdir;
+    string wavfile_path = fs.musicdir;
     CB_external->clear();
 
     Path_t path { wavfile_path, fs.wav_type } ;
@@ -100,10 +100,10 @@ void MainWindow::initFreqSlider()
 	for( sl_lcd_t map : sl_frqidx_vec )
 	{
 		map.sl->setMinimum( 1 );
-		map.sl->setMaximum( freqarr_range.max );
+		map.sl->setMaximum( frqarr_range.max );
 		map.sl->setValue( Spectrum.GetFrq( *map.value));
 	}
-	if ( Sds->addr->slidermode == COMBINE )
+	if ( Sds->addr->frq_slidermode == COMBINE )
 		ui->cB_Combine->setChecked( true );
 }
 
@@ -117,6 +117,7 @@ void MainWindow::initGuiVectors()
 		ui->rb_S2,
 		ui->rb_S3
     };
+
     rb_sta_vec =
     {
     	{ 0, ui->rb_sta0, &Sds->addr->StA_state[0].store },
@@ -243,6 +244,7 @@ void MainWindow::initUiConnectors()
     connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));
     connect(ui->rb_S2			, SIGNAL(clicked() )		,this, SLOT(select_Sds2() ));
     connect(ui->rb_S3			, SIGNAL(clicked() )		,this, SLOT(select_Sds3() ));
+   	rb_S_vec[ Sds_master->config ]->setChecked( true );
 
     connect(ui->cB_Combine		, SIGNAL(clicked() )		,this, SLOT(CombineFreq() ));
 
@@ -260,6 +262,7 @@ void MainWindow::initUiConnectors()
     connect(ui->cb_connect_vco	, SIGNAL(clicked( bool ))	,this, SLOT( connect_vco( bool ) ));
     connect(ui->cb_connect_oscf	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscf( bool ) ));
     connect(ui->cb_connect_oscv	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscv( bool ) ));
+
 }
 
 void MainWindow::initTimer()

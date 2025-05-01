@@ -11,7 +11,9 @@
 #include <Wavedisplay_base.h>
 #include <data/Interface.h>
 
-class Wavedisplay_class : virtual Logfacility_class
+class Wavedisplay_class :
+		virtual Logfacility_class,
+		wavedisplay_struct
 {
 	Interface_class* Sds_p = nullptr;
 

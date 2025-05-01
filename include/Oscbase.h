@@ -131,7 +131,7 @@ public:
 	vco_t 			vp 			= vco_struct();
 	spectrum_t		spectrum	= spec_struct();
 
-	Dynamic_class	DynFrequency{ freqarr_range };
+	Dynamic_class	DynFrequency{ frqarr_range };
 
 	Oscillator_base() :
 		Logfacility_class("Oscillator_base"),
@@ -144,7 +144,7 @@ public:
 
 	uint8_t 	Set_frequency( string frqName, uint mode );
 	uint8_t		Set_frequency( int idx, uint mode );
-	void 		Set_volume( uint8_t vol, uint mode);
+	void 		Set_volume( int vol, uint mode);
 	void 		Line_interpreter( vector_str_t arr );
 	void 		Set_waveform( spec_arr_8t wf_vec   );
 	void		Set_pmw( uint8_t );
@@ -161,8 +161,6 @@ private:
 	string 		comment 		= "";
 	string 		csv_comment 	= "";
 	string 		command 		= "";
-	range_t<uint8_t> volidx_range {0, 100};
-	range_t<uint8_t> freqidx_range { 0, 100 };
 
 }; // close class Track class
 

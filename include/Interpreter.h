@@ -58,6 +58,7 @@ class Interpreter_class :
 	typedef struct view_struct
 	{
 		string 		name 	= "none";
+		uint8_t		oscid	= 0;
 		uint8_t 	wfkey	= 0;
 		uint8_t*	wf		= nullptr;
 		uint8_t		ampkey	= 0;
@@ -75,9 +76,9 @@ class Interpreter_class :
 
 
 public:
-	Interface_class* 	GUI;
+	Interface_class* 	Sds;
 	Config_class*		Cfg;
-	interface_t* 		ifd;
+	interface_t* 		sds;
 	Variation_class Variation{};
 	view_struct_t main_view, fmo_view, vco_view;
 
@@ -113,7 +114,7 @@ public:
 	vector_str_t InsertVariable( vector_str_t );
 	int  Find_position( vector<line_struct_t>*, vector_str_t );
 	void Set_dialog_mode( bool );
-	void ExitInterpreter();
+	bool Exit();
 	void Set( vector_str_t );
 	void Clear_stack();
 	void Test(  );

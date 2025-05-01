@@ -21,29 +21,31 @@
 #include <EventKeys.h>
 #include <data/EventQue.h>
 
-static const uint STATE_MAP_SIZE = LASTNUM;
 
 
 
 class Interface_class :
-		virtual public Logfacility_class
+		virtual public Logfacility_class,
+		state_struct
 {
-	Frequency_class 		Frequency 		{};
 
 public:
 
+	Frequency_class 		Frequency 		{};
+	Spectrum_class			Spectrum 		{};
+
 	interface_t 			ifd_data 	= interface_struct();
-	Shm_base				SHM{ sizeof( ifd_data )};
+	Shm_base				SHM			{ sizeof( ifd_data ) };
 	interface_t* 			addr		= nullptr;
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;
 	Config_class*			Cfg_p		= nullptr;
 	EventQue_class			Eventque	{};
-	uint					AppId		= NOID;
+	char					AppId		= NOID;
 	bool					capture_flag= false;
 	string					dumpFile	= "";
 
-	Interface_class( Config_class*, Semaphore_class* );
+	Interface_class( uint8_t sdsid,  Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
 
 	void	Setup_SDS( uint sdsid, key_t key );
@@ -51,12 +53,25 @@ public:
 	void 	Write_str( char, string );
 	string 	Read_str( char );
 	void 	Commit();
-	void 	Show_interface();
-	void 	Show_Que();
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd( );
 	string 	Decode( uint8_t idx );
+	bool reject(char status, int id )
+	{
+		if (( status == RUNNING ) and ( id != COMPID ))
+		{
+/*			if( previous_status != status )
+				cout << "Observer mode ON" << endl;
+			previous_status = status;
+*/
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	};
 
 	template < typename V >
 	void Set( V& ref, V value )
@@ -74,18 +89,48 @@ public:
 private:
 	size_t			sds_size		= sizeof( ifd_data );
 	char 			previous_status = OFFLINE;
-	static const uint		map_size = LASTNUM ;
-	typedef 	array< string, LASTNUM>		state_map_t ;
 
-	state_map_t state_map {""};
-	Spectrum_class	Spectrum 		{};
 
-	bool 	reject(char status, int id );
-	void	initStateMap();
+//	bool 	reject(char status, int id );
 
 
 };
 
+
+
+enum  { ESC=27, F1=239, F2=241, F3=243, F4=245, F5=53 };
+
+class ViewInterface_class :
+	Interface_class,
+	osc_struct
+{
+	string 				className 	= "";
+	Interface_class*	Sds_p 		= nullptr;
+	interface_t* 		sds 		= nullptr;
+public:
+	ViewInterface_class( char appid, Config_class* cfg, Semaphore_class* sem, Interface_class* sds_p ) :
+		Interface_class(appid, cfg, sem )
+	{
+		className = Logfacility_class::className;
+		Sds_p			= sds_p;
+	};
+	~ViewInterface_class() = default;
+
+
+	void	ShowPage( interface_t* sds, int nr );
+
+private:
+
+	void 	showSdsPage0();
+	void 	showSdsPage1();
+	void 	showSdsPage2() ;
+
+	void 	show_Que();
+	void 	show_Adsr();
+
+	void	printHeader();
+
+};
 
 
 #endif /* GUIINTERFACE_H_ */

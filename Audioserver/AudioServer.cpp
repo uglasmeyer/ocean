@@ -155,7 +155,7 @@ void exit_proc( int signal )
 void show_usage( void )
 {
 	string str;
-	str = "Usage: " + DaTA.Cfg.prgname + " -c #1 -r #2 -d #3 -o #4 \n";
+	str = "Usage: " + DaTA.Cfg_p->prgname + " -c #1 -r #2 -d #3 -o #4 \n";
 	str.append("       where \n");
 	str.append("       #1 = number of channels (default=2),\n");
 	str.append("       #2 = the sample rate (default = 44100),\n");
@@ -223,7 +223,7 @@ void get_device_description( uint index )
 void Application_loop()
 {
 	Log.Comment(INFO, "Entering Application loop \n");
-	Log.Comment(INFO, DaTA.Cfg.prgname + " is ready");
+	Log.Comment(INFO, DaTA.Cfg_p->prgname + " is ready");
 
 	while ( not done and rtapi.isStreamRunning() )
 	{
@@ -254,8 +254,8 @@ void SetAudioFrames()
 	bool sync = false;
 	for ( uint sdsid = 0; sdsid < 4; sdsid++ )
 	{
-		ifd = DaTA.GetSdsAddr( sdsid );
-		if( ifd->Synthesizer == RUNNING )
+		ifd = DaTA.SDS.GetSdsAddr( sdsid );
+		if( DaTA.Appstate.IsRunning( ifd, SYNTHID ))
 			sync |= ifd->mixer_status.sync;
 	}
 
@@ -274,7 +274,7 @@ void call_for_update()
 	shm_addr = DaTA.SetShm_addr( );
 
 	for ( int n = 0; n < 4; ++n)
-		DaTA.Sem.Release( SEMAPHORE_SENDDATA0 + n );
+		DaTA.Sem_p->Release( SEMAPHORE_SENDDATA0 + n );
 
 
 }
@@ -298,7 +298,7 @@ void record_start( )
 
 void record_stop()
 {
-	DaTA.Sem.Release( SEMAPHORE_RECORD );
+	DaTA.Sem_p->Release( SEMAPHORE_RECORD );
 
 	External.status.record = false;
 	ProgressBar.Unset();
@@ -363,19 +363,19 @@ int RtAudioOut(	void *outputBuffer,
 			ncounter 	= (ncounter	+ 1 );
 		}
 
-		if (sds->AudioServer == EXITSERVER )
+		if ( DaTA.Appstate.IsExitserver( sds, AUDIOID ) )
 		{
 			exit_proc( 0 );
 			return 1;
 		}
 
-		if (sds->AudioServer == RECORDSTART )
+		if (sds->AudioServer == state_struct::RECORDSTART )
 			record_start();
 
-		if (sds->AudioServer == RECORDSTOP )
+		if (sds->AudioServer == state_struct::RECORDSTOP )
 			record_stop();
 
-		sds->AudioServer = RUNNING;
+		DaTA.Appstate.SetRunning(  );
 
 		return 0;
 } // callback function
@@ -384,22 +384,19 @@ int RtAudioOut(	void *outputBuffer,
 
 int main( int argc, char *argv[] )
 {
+
 	App.Start(argc, argv );
 
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
 
 
-	App.Shutdown_instance( );
-
-
-	DaTA.Appstate.Announce();
 
 	for ( int n = 0; n < 4; ++n)
 	{
-		DaTA.Sem.Reset( SEMAPHORE_SENDDATA0 + n );
+		DaTA.Sem_p->Reset( SEMAPHORE_SENDDATA0 + n );
 	}
-    DaTA.Sem.Reset( SEMAPHORE_STARTED );
+    DaTA.Sem_p->Reset( SEMAPHORE_STARTED );
 //    DaTA.Sem.Reset( SEMAPHORE_RECORD );
 	sds->RecCounter 	= 0;
 	sds->Record			= false;
@@ -419,10 +416,10 @@ int main( int argc, char *argv[] )
 	// Tell RtAudio to output all messages, even warnings.
 	rtapi.showWarnings( true );
 	//	frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
-	frame = (frame_t* ) calloc( Cfg->Config.channel, sizeof( frame_t ) );
-	oParams.nChannels 		= Cfg->Config.channel;
-	oParams.firstChannel 	= Cfg->Config.ch_offs;
-	get_device_description( Cfg->Config.device );
+	frame = (frame_t* ) calloc( DaTA.Cfg_p->Config.channel, sizeof( frame_t ) );
+	oParams.nChannels 		= DaTA.Cfg_p->Config.channel;
+	oParams.firstChannel 	= DaTA.Cfg_p->Config.ch_offs;
+	get_device_description( DaTA.Cfg_p->Config.device );
 	oParams.deviceId 		= DeviceDescription.Id;
 	#define USE_INTERLEAVED
 	#if !defined( USE_INTERLEAVED )
@@ -448,7 +445,7 @@ int main( int argc, char *argv[] )
 						&oParams,
 						NULL,
 						FORMAT,
-						Cfg->Config.rate,
+						DaTA.Cfg_p->Config.rate,
 						&bufferFrames,
 						&RtAudioOut,
 						( void* )frame,

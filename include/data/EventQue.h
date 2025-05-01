@@ -18,7 +18,9 @@ public:
 	bool			repeat		= false;
 	uint8_t			prev_event	= NULLKEY;
 
-	EventQue_class(  )  : eventptr()
+	EventQue_class(  )  :
+		Logfacility_class("EventQue_class"),
+		eventptr()
 	{}
 
 

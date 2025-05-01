@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bitset>
 #include <cstdlib>
 #include <complex>
 #include <filesystem>
@@ -19,6 +20,7 @@
 #include <iomanip> // setfill cout ...
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <list>
 #include <map>
 #include <memory> // unique_ptr
@@ -105,18 +107,33 @@ struct range_t
 		T min ;
 		T max ;
 };
-const range_t<int>		volume_range		{ 0, 100 };
+const range_t<int>		volidx_range		{ 0, 100 };
 const range_t<buffer_t>	frames_range		{ 0, max_frames };
 
 template< typename T>
 T check_range( range_t<T> r, T val )
 {
 	if( val < r.min )
+	{
+//		assert(false);
+		cout.flush() << "WARNING: " << val << " adjusted to min boundaries " << endl;
 		return r.min;
+	}
 	if (val > r.max )
+	{
+		cout.flush() << "WARNING: " << val << " adjusted to max boundaries " << endl;
 		return r.max;
+	}
 	return val;
 }
+template<typename T>
+string show_range( range_t<T> range )
+{
+	stringstream strs {};
+	strs << range.min << "..." << range.max ;
+	return strs.str();
+}
+
 enum APPID
 {
 	AUDIOID,
@@ -126,8 +143,7 @@ enum APPID
 	COMSTACKID,
 	RTSPID,
 	TESTID,
-	NOID,
-	APP_SIZE
+	NOID
 };
 
 typedef struct osc_struct
@@ -179,14 +195,6 @@ const string			OctChars		= "CcDdEFfGgAaB";
 	raise( SIGINT ); \
 	};
 
-template< typename T >
-constexpr bool isTTY ( const T io )
-{
-    if (isatty(fileno( io )))
-    	return true; // "stdout is tty"
-    else
-       return false; 	//"stdout is not tty");
-};
-const bool is_a_tty	= isTTY( stdout );
+
 
 #endif /* OCEAN_H */

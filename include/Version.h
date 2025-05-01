@@ -19,7 +19,7 @@
 
 #define MAYOR 3
 #define MINOR 7
-#define PATCH 1
+#define PATCH 2
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -31,10 +31,12 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
-
+version 3.7.2 Dataworld refactoring
+				Appstate inroduction
 
 version 3.7.1 Keyboard fixes
 				logmask bitset
+				cmomstack viewinterface
 version 3.7.0 connection feature rework
 				sem timeout during valgrind test
 				simplify dynamic

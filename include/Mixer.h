@@ -51,7 +51,7 @@ public:
 						Out				{ Stereo_Memory<Stereo_t>::stereobuffer_size };
 
 
-	Dynamic_class		DynVolume		{ volume_range };
+	Dynamic_class		DynVolume		{ volidx_range };
 
 	interface_t* 		sds				= nullptr;
 	interface_t*		sds_master		= nullptr;

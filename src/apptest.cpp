@@ -15,8 +15,10 @@ void SynthesizerTestCases()
 	Logfacility_class		Log( "SynthesizerTest" );
 	DirStructure_class		Dir;
 
-	Dataworld_class			DaTA( SYNTHID );
-	DaTA.Sds_p->Reset_ifd();
+	process_t				Process{  };
+	Config_class			Cfg				{ Process.name };
+	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
+	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };	DaTA.Sds_p->Reset_ifd();
 
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
@@ -36,7 +38,7 @@ void SynthesizerTestCases()
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };
 
-	Semaphore_class*		Sem	= DaTA.Sem_p;
+//	Semaphore_class*		Sem	= DaTA.Sem_p;
 //	uint8_t ch;
 //	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
@@ -59,7 +61,6 @@ void SynthesizerTestCases()
 	Spectrum_class Spectrum {};
 	Spectrum.Test_Spectrum();
 
-	Log.Set_Loglevel( TEST, true);
 	Log.Comment(TEST, "entering test classes ");
 
 	Dir.Test();
@@ -92,14 +93,14 @@ void SynthesizerTestCases()
 
 	Timer.Test();
 
-	Sem->Test();
+	DaTA.Sem_p->Test();
 
+	Frequency_class Frq {};
+	Frq.TestFrequency();
 	Instrument.Test_Instrument();
 	Instrument.Oscgroup.Run_OSCs( 0 );
 
 	Log.Test_Logging();
-	Frequency_class Frq {};
-	Frq.TestFrequency();
 
 	DaTA.Reg.Test_Register();
 	DaTA.Test_Dataworld();
@@ -125,37 +126,35 @@ void SynthesizerTestCases()
 void ComposerTestCases()
 {
 
-	Exit_class				Exit{};
-	string					Module = "Composer";
-	Logfacility_class 		Log( Module );
-	Dataworld_class			DaTA( SYNTHID );
+	process_t				Process{  };
+
+	Config_class			Cfg				{ Process.name };
+	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
+	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };
 	Application_class		App( &DaTA );
 	Interpreter_class 		Compiler( &DaTA );
 	Variation_class 		Variation {};
 	vector<int>				pos_stack {};
 	String 					Str{""};
 	vector<line_struct_t> 	Program{};
-	Statistic_class			Statistic{ Log.className };
-//	Config_class*			Cfg = DaTA.Cfg_p;
 
-	char* args = "-t";
+	string arg = "-t";
+	char* args = arg.data();
 	App.Start(1, &args );
 	Variation.Test();
-
-//	Note_class Testnote;
-//	Testnote.Test();
-
 	Charset_class A("abdefabdef");
 	A.test();
 
-//	String teststring{""};
-//	teststring.TestString();
-
-//	Log.Test_Logging();
-
 	Compiler.Test( );
 
+
+	Processor_class Processor{ DaTA.Sds_p, &DaTA.Appstate };
+	Processor.Test_Processor();
 }
 
-
-
+vector_str_t convert_to_arr(string str) {
+	String Str { "" };
+	Str.Str = str;
+	vector_str_t arr = Str.to_unique_array(' ');
+	return arr;
+}

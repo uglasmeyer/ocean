@@ -9,8 +9,10 @@
 
 Keyboard_class::Keyboard_class( Instrument_class* instr ) :
 	Logfacility_class("Keyboard"),
-	Keyboard_base()
+	Keyboard_base(),
+	state_struct()
 {
+	className = Logfacility_class::className;
 	this->instrument 	= instr;
 	Oscgroup.SetWd( instr->wd_p );
 
@@ -20,13 +22,10 @@ Keyboard_class::Keyboard_class() :
 	Logfacility_class("Keyboard"),
 	Keyboard_base()
 {
-
+	className = Logfacility_class::className;
 }
 
-Keyboard_class::~Keyboard_class()
-{
-};
-
+Keyboard_class::~Keyboard_class() = default;
 
 void Keyboard_class::set_instrument(  )
 {
@@ -37,8 +36,6 @@ void Keyboard_class::set_instrument(  )
 	Oscgroup.vco	= instrument->Oscgroup.vco;
 	Oscgroup.fmo 	= instrument->Oscgroup.fmo;
 
-//	Oscgroup.osc.vp.Mem = Oscgroup.vco.MemData();
-//	Oscgroup.osc.fp.Mem = Oscgroup.fmo.MemData();
 	Oscgroup.Set_Duration( max_milli_sec );
 	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 	Oscgroup.osc.Reset_beat_cursor();
@@ -46,13 +43,13 @@ void Keyboard_class::set_instrument(  )
 
 bool Keyboard_class::Decay(  )
 {
-	buffer_t cursor = attackCounter - decayCounter;
-	buffer_t frame_offset = min_frames * cursor;
-	Kbd_Data = osc->KbdData(frame_offset);
-	bool decay = ( decayCounter > releaseCounter );
+	bool 		decay 		= ( decayCounter > releaseCounter );
+	buffer_t	cursor 		= attackCounter - decayCounter;
+	buffer_t 	frame_offset= min_frames * cursor;
+				Kbd_Data 	= osc->KbdData( frame_offset );
 	if( decay )
 		decayCounter--;
-	cout <<  cursor ;
+//	cout <<  cursor ;
 
 	return decay;
 
@@ -62,19 +59,17 @@ bool Keyboard_class::Decay(  )
 bool Keyboard_class::Attack()
 {
 	auto set_kdb_note 	= [ this ]( )
-		{
-			Note_base::
-			pitch_t 	pitch 			= pitch_struct();
-						pitch.octave 	= instrument->sds->noteline_prefix.Octave;
-						pitch.step 		= note_key ;
-			int 		frqidx 			= GetFrqIndex( pitch );
-						Oscgroup.Set_Osc_Note( frqidx, kbd_duration, kbd_volume, FIXED );
-		};
+	{
+		uint 	octave = instrument->sds->noteline_prefix.Octave;
+		uint 	frqidx = FrqIndex( octave, note_key );
+				note_name = frqNamesArray[ frqidx ];
+				Oscgroup.Set_Osc_Note( frqidx, kbd_duration, kbd_volume, FIXED );
+				cout << note_name << " ";
+	};
 
 	if (( note_key == NOKEY ) )
 		return false;
 
-	cout << "ATTACK KEY: " << note_key << " ";
 	decayCounter = attackCounter;
 
 	set_instrument();
@@ -88,7 +83,7 @@ bool Keyboard_class::Attack()
 
 bool Keyboard_class::Release(  )
 {
-	cout << "RELEASE " ;
+//	cout << "RELEASE " ;
 	decayCounter = releaseCounter;
 
 	return true;
@@ -98,16 +93,16 @@ int Keyboard_class::Kbdnote()
 {
 	// transforms anykey into notevalue
 
-	keystruct = GetKey();
+		keystruct 	= GetKey();
 
-	int anykey = keystruct.key;
+	int anykey 		= keystruct.key;
 	if ( anykey == AppExit )
 	{
 		Comment( WARN, "Exit by user request");
 		instrument->sds->Synthesizer = EXITSERVER;
 	}
 	// check if key is in set KbdNote
-	size_t note = KbdNote.Str.find( anykey );
+	size_t note 	= KbdNote.Str.find( anykey );
 	if ( note == STRINGNOTFOUND )
 	{
 		return NOKEY; // not a note key
@@ -119,11 +114,11 @@ int Keyboard_class::Kbdnote()
 
 }
 
-void Keyboard_class::KbdEvent()
+void Keyboard_class::KbdEvent( uint key )
 {
+	note_key = key;
 	if ( not Decay() )
 		Release();
-	note_key = Kbdnote( );
 	if ( Attack( ) )
 	{
 		Decay();

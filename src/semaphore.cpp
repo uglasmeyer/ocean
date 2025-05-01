@@ -1,12 +1,11 @@
 
 #include <data/Semaphore.h>
 
-Semaphore_class::Semaphore_class( Config_class* Cfg) :
+Semaphore_class::Semaphore_class( key_t key) :
 Logfacility_class( "Semaphore"),
 Time_class()
 {
-	this->SEM_KEY = Cfg->Config.Sem_key;
-	Set_Loglevel( DEBUG, false);
+	this->SEM_KEY = key;//Cfg->Config.Sem_key;
 	init();
 }
 
@@ -16,18 +15,19 @@ Semaphore_class::~Semaphore_class()
 
 void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
 {
-	struct sembuf op =
+	sembuf op =
 	{
 		.sem_num 	= num,
 		.sem_op 	= sop,
 		.sem_flg 	= 0
 	};
-    int ret = semop(semid, &op, N_OPS );
-    string text = "";
-    if ( sop < 0 ) text = "Release ";
-    if ( sop ==0 ) text = "Lock    ";
-    if ( sop > 0 ) text = "Aquire  ";
-    Comment( DEBUG, text + State( num ));
+
+    int 		ret = semop(semid, &op, N_OPS );
+    string 		txt	= ( sop == 0 ) ? "lock" : "Release ";
+    if ( sop > 0 )
+    			txt = "Aquire  ";
+    Comment( DEBUG, txt + State( num ))
+    ;
     if ( ret < 0 )
     {
     	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
@@ -98,22 +98,26 @@ void Semaphore_class::Lock( uint8_t num )
 	Semop( num, OP_WAIT );
 }
 
-void ReleaseProxy_fnc( 	Semaphore_class* sem,
-				uint semaphore,
-				uint timeout )
+void ReleaseProxy_fnc( 	Semaphore_class* 	sem,
+						uint 				semaphore,
+						uint 				wait_timeout )
 {
 	sem->Comment( TEST, "proxyfnc started");
-	sem->lock_timer.Wait( timeout );
+	sem->Locktimer.Wait( wait_timeout );
 	sem->Comment( TEST, "proxyfnc released");
 	sem->Release( semaphore );
 }
-void Semaphore_class::Lock( uint8_t num, uint timeout )
+
+
+bool Semaphore_class::Lock( uint8_t num, uint timeout )
 {
 	;	// wait for release
-    thread ReleaseProxy_thread (	ReleaseProxy_fnc, this, num, timeout );
+	thread ReleaseProxy_thread (	ReleaseProxy_fnc, this, num, timeout );
+	ReleaseProxy_thread.detach();
 	Aquire( num );
 	Semop( num, OP_WAIT );
-    ReleaseProxy_thread.join();
+//    ReleaseProxy_thread.join();
+    return true;
 }
 
 int Semaphore_class::Getval( uint8_t num, int op )
@@ -123,24 +127,29 @@ int Semaphore_class::Getval( uint8_t num, int op )
 }
 string Semaphore_class::State(uint8_t num)
 {
+
+	if( not LogMask[ TEST ] ) return "";
 	Table_class Table { };
 	Table.AddColumn("num", 4);
+	Table.AddColumn("Name", 20);
 	Table.AddColumn("pid", 8);
 	Table.AddColumn("val", 4);
 	Table.AddColumn("ncn", 4);
 	Table.AddColumn("zcn", 4);
-	if (LogMask[TEST])
-		Table.PrintHeader();
 
-	auto cout_semstate = [ this, &Table](uint num)
+	auto cout_semstate = [ & ](uint num)
 	{
 		if ( LogMask[TEST] )
 			Table.AddRow(	num,
+							semnum_map[ num ],
 							Getval(num, GETPID),
 							Getval(num, GETVAL),
 							Getval(num, GETNCNT),
 							Getval(num, GETZCNT));
 	};
+
+	if ( LogMask[ TEST ] )
+		Table.PrintHeader();
 
 	if (num == SEMNUM_SIZE)
 	{
@@ -160,11 +169,13 @@ void Semaphore_class::Test()
 	TEST_START( className );
 
 	Comment( TEST, "Semaphore with timeout" );
+	Reset( SEMAPHORE_TEST );
 	Time_class t{};
+
 	t.Start();
 	this->Lock( SEMAPHORE_TEST, 2 );
 	long tel = t.Time_elapsed();
-	stringstream strs;
+
 	Info( "time elapsed ", to_string(tel), " [ms]" );
 	ASSERTION( tel - 2001 < 50, "timeout", (long)tel, "<2050" );
 

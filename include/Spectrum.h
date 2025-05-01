@@ -35,12 +35,11 @@ class Spectrum_class :
 public:
 	const array<int		,3> spectrumNum = {  SPEV,   SPEF,   SPEW  };
 	const array<string	,3> spectrumTag = { "SPEV", "SPEF", "SPEW" };
-
 	typedef struct spec_struct
 	{
 		spec_arr_ft				vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
 		spec_arr_ft				frqadj	= { 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
-		spec_arr_8t				frqidx 	= { C0, 0, 0, 0, 0 };				// frq slider value
+		spec_arr_8t				frqidx 	 { A3, 1, 1, 1, 1 };				// frq slider value
 		spec_arr_8t				volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
 		spec_dta_ft				sum 	= 1.0;								// sum over .vol
 		spec_arr_8t				wfid 	= {SINUS, SINUS, SINUS, SINUS, SINUS };// waveform wdid

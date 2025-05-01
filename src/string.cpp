@@ -375,6 +375,8 @@ void String::TestString()
 	assert( s.contains(5) ) ;
 	assert( not s.contains(6) ) ;
 
+	set<char> charset = { 'a','n','b','v' };
+	assert( charset.contains( 'b' ));
 	set<string> Ss {};
 	vector<string> V = {"ab", "cd", "ef", "gh" };
 	Ss = vector2set( V );

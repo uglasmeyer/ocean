@@ -10,10 +10,11 @@
 // https://en.cppreference.com/w/cpp/language/operators
 
 Variation_class::Variation_class() :
-Logfacility_class{ "Variation" }, Note_class{}
+Logfacility_class{ "Variation_class" },
+Note_class{}
 {
 	Note_class::Instrument_name = "Variation";
-
+	className = Logfacility_class::className;
 };
 
 
@@ -351,8 +352,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 
 void Variation_class::Test()
 {
-	Set_Loglevel( TEST, true );
-	Comment(TEST,"Test variation class ");
+	TEST_START( this->className );
 
 	define_random_note_vector("A'(AB)(A'B)(AB,)(B,)A'..");
 	int i = 0;
@@ -436,8 +436,7 @@ void Variation_class::Test()
 	I = Sentence[1][2].octave;	assert( I == 4 );
 
 
-//	assert( false );
-	Comment( BINFO, "Variation test OK");
+	TEST_END( this->className );
 
 }
 

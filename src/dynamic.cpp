@@ -157,7 +157,7 @@ void Dynamic_class::TestFrq()
 	// Test Frequency
 	//
 	TEST_START( className );
-	range = freqarr_range ;
+	range = frqarr_range ;
 	SetupFrq(C0, FIXED );
 	SetupFrq(71, SLIDE );
 	SetDelta( 1 );
@@ -200,7 +200,7 @@ void Dynamic_class::TestVol()
 	assert( check_range( range,    2 ) == 2 );
 	assert( check_range( range,  112 ) == 100 );
 
-	range = volume_range;
+	range = volidx_range;
 	SetupVol(50, FIXED );
 	SetupVol(26, SLIDE );
 	SetDelta( 1 );

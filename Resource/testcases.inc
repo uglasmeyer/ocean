@@ -83,10 +83,26 @@ pause key
 exit
 
 :sliding
+
 osc main reset 
-play 4 amp 75 5
+set fmo freq 40
+set fmo amp 40
+
+play _INSTRUMENT amp 75 5
 osc main set sinus A4 80 5
+osc main loop freq A5
+pause 2
 set main freq A2
-set fmo freq 1
+pause 2
+set main freq A3
+osc main amp loop 0
+pause 10
+play _INSTRUMENT amp 75 5
+instrument load Violin
+set fmo freq 10
+notes load drums
+rec mute _INSTRUMENT
+play 6 amp 75
+
 pause key
 exit

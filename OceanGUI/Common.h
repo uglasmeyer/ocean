@@ -31,7 +31,7 @@ template< typename T >
 void setButton( T* pb, int state, bool init=false  )
 {
 	QPalette color = QPalette();
-	QColor default_color = QColor(153, 193, 241);
+	QColor default_color = Qt::gray;//QColor(153, 193, 241);
 	if ( init )
 		color.setColor( QPalette::Button, default_color );
 	else
@@ -45,12 +45,12 @@ void setButton( T* pb, int state, bool init=false  )
 			}
 			case 1 :
 			{
-				color.setColor(QPalette::Button, Qt::green );
+				color.setColor(QPalette::Button, default_color);
 				break;
 			}
 			case 2 :
 			{
-				color.setColor(QPalette::Button, default_color );
+				color.setColor(QPalette::Button, Qt::green );
 				break;
 			}
 			default:
@@ -91,10 +91,10 @@ typedef EventStruct Event_t;
 
 static dir_struct_t fs = file_structure();
 
-static Event_t EventXML( XMLFILE_KEY, fs.Dir.xmldir, fs.xml_type );
-static Event_t EventNTE( UPDATENOTESKEY, fs.Dir.notesdir, fs.nte_type );
-static Event_t EventINS( SETINSTRUMENTKEY, fs.Dir.instrumentdir, fs.snd_type );
-static Event_t EventWAV( OTHERSTR_KEY, fs.Dir.musicdir, fs.wav_type );
+static Event_t EventXML( XMLFILE_KEY, fs.xmldir, fs.xml_type );
+static Event_t EventNTE( UPDATENOTESKEY, fs.notesdir, fs.nte_type );
+static Event_t EventINS( SETINSTRUMENTKEY, fs.instrumentdir, fs.snd_type );
+static Event_t EventWAV( OTHERSTR_KEY, fs.musicdir, fs.wav_type );
 static vector<Event_t > Event_vec { EventXML, EventNTE, EventINS, EventWAV };
 
 extern QStringList 		Qstringlist( const list<string>& str_lst );

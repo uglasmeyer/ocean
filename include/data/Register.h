@@ -14,37 +14,39 @@
 #include <data/SharedDataSegment.h>
 #include <data/Appstate.h>
 
-class Register_class :  virtual public  Logfacility_class
+class Register_class :
+		virtual public  Logfacility_class
 {
-	string 			className 	= "";
-	interface_t*	sds 		= nullptr;
+	string 			className 			= "";
+	interface_t*	sds 				= nullptr;
 public:
+	std::set<int> 	dataProc			{ AUDIOID, SYNTHID };
+	uint 			Sds_Id				= -1;
 
-	void	Setup( interface_t* sds );
-	int 	GetId();
-	bool 	Is_dataprocess();
-	void 	Clear_procregister();
-	void	Reset( uint idx );
-	void 	Show_proc_register( uint idx );
-	void 	Test_Register();
-	void 	Proc_deRegister();
-	int 	GetStartId( );
-	void	Update_register();
+	void			Setup				( interface_t* sds );
+	int 			GetId				();
+	bool 			Is_dataprocess		();
+	void 			Clear_procregister	();
+	void			Reset				( uint idx );
+	void 			Show_proc_register	( uint idx );
+	void 			Test_Register		();
+	void 			Proc_deRegister		();
+	int 			GetStartId			( );
+	void			Update_register		();
 
-	Register_class( uint id, string name ) ;
-	virtual ~Register_class();
+					Register_class		( char appid, interface_t* _sds ) ;
+	virtual 		~Register_class();
 
 
 private:
-	std::set<int> 	dataProc	{ AUDIOID, SYNTHID };
-	uint 			AppId 	= NOID;
-	string			AppName		= "";
-	uint 			Sds_Id		= -1;
-	process_t 		noprocess 	{};
+	uint 			AppId 				= NOID;
+	string			AppName				= "";
+	register_process_t
+					noprocess 			{};
 
-	void 	proc_Register();
-	int 	scan_proc_register(); // returns SDS_id
-	void 	show_proc_register();
+	void 			proc_Register		();
+	int 			scan_proc_register	(); // returns SDS_id
+	void 			show_proc_register	();
 };
 
 

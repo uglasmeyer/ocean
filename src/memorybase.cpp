@@ -62,9 +62,9 @@ void Memory_base::Info()
 Shm_base::Shm_base( buffer_t size ) :
 Logfacility_class( "Shm_base" )
 {
-	ds.size = size;
-	Comment( INFO, "pre-init shared memory size " + to_string( size ));
-
+	ds.size 		= size;
+	className		= Logfacility_class::className;
+	Info( "pre-init shared memory size: " , size );
 }
 
 Shm_base::~Shm_base()
@@ -113,7 +113,7 @@ void Shm_base::ShowDs( shm_ds_t ds )
 {
 //	if ( not Log[ TEST ] ) return;
 	stringstream strs;
-	strs << SETW << "Shared Memory data structure"  << endl;
+	strs << SETW << "Shared Memory data structure " + className << endl;
 	strs << SETW << "Id   : " << dec << ds.Id << endl;
 	strs << SETW << "Addr : " << hex << ds.addr << endl;
 	strs << SETW << "shmid: " << dec << ds.shmid   << endl;

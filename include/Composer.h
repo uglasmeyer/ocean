@@ -13,19 +13,14 @@
 #include <System.h>
 #include <Exit.h>
 
+#include <Appsymbols.h>
 
-Exit_class				Exit{};
-string					Module = "Composer";
-Logfacility_class 		Log( Module );
-Dataworld_class			DaTA( COMPID );
-Application_class		App( &DaTA );
 Interpreter_class 		Compiler( &DaTA );
 Variation_class 		Variation;
 vector<int>				pos_stack {};
 String 					Str{""};
 vector<line_struct_t> 	Program;
 Statistic_class			Statistic{ Log.className };
-Config_class*			Cfg = DaTA.Cfg_p;
 
 
 

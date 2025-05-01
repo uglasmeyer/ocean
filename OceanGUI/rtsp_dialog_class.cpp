@@ -6,15 +6,15 @@
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
 )
-    : Logfacility_class(Ui::ClassName),
+    : Logfacility_class( Ui::ClassName ),
 	  Config_class( Ui::ClassName ),
 	  QDialog(parent),
 	  ui( new Ui::Rtsp_Dialog_class {})
 {
     ui->setupUi(this);
     this->DaTA		= data;
-    this->Sds		= DaTA->GetSds( SDS_ID );
-    this->Sds_master= DaTA->GetSdsAddr( 0 );
+    this->Sds		= DaTA->SDS.GetSds( SDS_ID );
+    this->sds_master= DaTA->sds_master;
 
     UpdateLog( "Init RTSP log" );
     proc_table_update_all();
@@ -40,13 +40,13 @@ void Rtsp_Dialog_class::proc_table( uint row, uint col, string text)
 
 void Rtsp_Dialog_class::proc_table_update_row( uint row )
 {
-	process_t proc { Sds_master->process_arr.at( row ) };
+	register_process_t proc { sds_master->process_arr.at( row ) };
 	string text = AppIdName( proc.type );
 	proc_table( row, 0, text );
 
 	if ( row > 0 )
 	{
-		Interface_class* SDS = DaTA->GetSds( row -1 );
+		Interface_class* SDS = DaTA->SDS.GetSds( row -1 );
 
 		text = SDS->Read_str( INSTRUMENTSTR_KEY );
 		proc_table( row, 1, text );

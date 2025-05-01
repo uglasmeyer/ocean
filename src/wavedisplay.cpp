@@ -92,7 +92,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 	if ( data_ptr == nullptr )
 	{
-		Comment(ERROR, "wave display got nullptr at index " +
+		Comment(DEBUG, "wave display got nullptr at index " +
 						to_string(wd_status.roleId) + "," +
 						to_string(wd_status.oscId)) ;
 		return;
@@ -101,26 +101,26 @@ void Wavedisplay_class::gen_cxwave_data( )
 	param_t param;
 	switch ( WdMode )
 	{
-		case wavedisplay_struct::FULLID :
+		case FULLID :
 		{
 			param = param_full;
 			gen_full( param );
 			break;
 		}
-		case wavedisplay_struct::FLOWID :
+		case FLOWID :
 		{
 			param = param_flow;
 			param.max_offs = Sds_p->addr->audioframes - param.len*param.step;
 			gen_flow( param );
 			break;
 		}
-		case wavedisplay_struct::DEBUGID :
+		case DEBUGID :
 		{
 			param = param_split;
 			gen_debug( param );
 			break;
 		}
-		case wavedisplay_struct::FFTID :
+		case FFTID :
 		{
 			gen_fft( param_full );
 			break;
@@ -143,7 +143,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 void Wavedisplay_class::Write_wavedata()
 {
 	gen_cxwave_data(  );
-	if ( WdMode == wavedisplay_struct::DEBUGID )
+	if ( WdMode == DEBUGID )
 	{
 		if ( not debug_right )
 			Sds_p->Write_arr( display_buffer );
@@ -181,7 +181,7 @@ void Wavedisplay_class::set_wdmode		( const char& _mode )
 void Wavedisplay_class::setFFTmode( const bool& mode )
 {
 	if ( mode )
-		WdMode		= wavedisplay_struct::FFTID;
+		WdMode		= FFTID;
 //	fft_mode = mode;
 }
 void Wavedisplay_class::Add_role_ptr	( const char& wd_role, Data_t* ptr )

@@ -1,39 +1,30 @@
 
 #include <Synthesizer.h>
-extern void ComposerTestCases();
+
+#include<Appsymbols.h>
+
+extern void SynthesizerTestCases();
 
 
-LogVector_t LogVector{ "Synthesizer" };
 
-Exit_class				Exit{};
-Logfacility_class		Log( "Synthesizer" );
-
-DirStructure_class		Dir;
-Dataworld_class			DaTA( SYNTHID );
-interface_t*			sds 			= DaTA.GetSdsAddr();
-interface_t*			sds_master 		= DaTA.GetSdsAddr( 0 );
 EventQue_class*			EventQue 		= &DaTA.Sds_p->Eventque;
 Interface_class*		Sds_p = DaTA.GetSds();
 Wavedisplay_class 		Wavedisplay{ Sds_p };//DaTA.Master_Sds_p };
 Wavedisplay_class*		wd_p = &Wavedisplay;
 
-Application_class		App( &DaTA );
-
-Dataworld_class*		DaTA_p = &DaTA;
-Mixer_class				Mixer{ DaTA_p, wd_p } ;// DaTA.Sds_master );
+Appstate_class*			Appstate = &DaTA.Appstate;
+Mixer_class				Mixer{ &DaTA, wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument{ sds, wd_p };
 Note_class 				Notes{ wd_p };
 Keyboard_class			Keyboard( 	&Instrument );
 External_class 			External( 	&Mixer.StA[ MbIdExternal],
 									DaTA.Cfg_p);
 ProgressBar_class		ProgressBar( &sds->RecCounter );
-Statistic_class 		Statistic{ Log.className };
 Time_class				Timer		( &sds->time_elapsed );
 Musicxml_class			MusicXML{};
 
 
-Semaphore_class*		Sem	= DaTA.Sem_p;
-Config_class*			Cfg = DaTA.Cfg_p;
+
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 const int 				EXITTEST			= 15;;
 
@@ -47,17 +38,17 @@ Event_class				Event{
 							&ProgressBar,
 							&MusicXML};
 
+extern void ComposerTestCases();
 
 void show_AudioServer_Status()
 {
-	uint8_t state = sds_master->AudioServer;
-	if ( state  == RUNNING )
+	if ( Appstate->IsRunning( sds_master, AUDIOID ) )
 	{
 		Log.Comment(INFO, "Sound server is up" );
 	}
 	else
 		Log.Comment( WARN,"Sound server not running with status " +
-							DaTA.Sds_p->Decode( state ));
+							Appstate->GetStr( sds_master, AUDIOID ) );
 }
 
 void SetLogLevels()
@@ -104,6 +95,12 @@ void add_sound( )
 
 	Instrument.Set_msec( sds_master->audioframes  );
 
+	int key = Keyboard.Kbdnote();
+	if ( Mixer.status.kbd )
+	{
+		Keyboard.KbdEvent( key );
+	}
+
 	if ( Mixer.status.notes )
 	{
 		Notes.Set_instrument( &Instrument );
@@ -115,10 +112,7 @@ void add_sound( )
 		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
-	if ( Mixer.status.kbd )
-	{
-		Keyboard.KbdEvent();
-	}
+
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
 	Mixer.Add_Sound( 	Instrument.osc->MemData(),
@@ -144,21 +138,22 @@ void ApplicationLoop()
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
 
-	if( Sem->Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
-		Sem->Release( SEMAPHORE_STARTED );
-
-	sds->Synthesizer = RUNNING;
+	if( Sem.Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
+		Sem.Release( SEMAPHORE_STARTED );
 
 	App.Ready();
 
-	while ( sds->Synthesizer != EXITSERVER )
+	while ( not Appstate->IsExitserver( sds, SYNTHID ) )
 	{
+		Appstate->SetRunning(  );
+
 		Timer.Performance();
 
 		Event.Handler(  );
 
-		if ( sds->Synthesizer != EXITSERVER )
-			sds->Synthesizer = RUNNING;
+		if( not Appstate->IsRunning( sds_master, AUDIOID ))
+			Keyboard.Kbdnote();
+
 	} ;
 
 
@@ -182,7 +177,7 @@ void read_notes_fnc( )
 {
 	DaTA.Sds_p->Commit();
 	string name = DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-	string filename = file_structure().Dir.xmldir + name + file_structure().xml_type ;
+	string filename = file_structure().xmldir + name + file_structure().xml_type ;
 	Log.Comment( INFO, "from filename: " + filename );
 	Notes.musicxml = MusicXML.Xml2notelist( filename );
 	if ( Notes.musicxml.scoreduration != 0 )
@@ -206,10 +201,7 @@ thread* 		ReadNotes_thread_p = nullptr;
 void activate_logging()
 {
 	LogMask.set( DEBUG );
-//	Log.Set_Loglevel( INFO, false );
-//	Log.StartFileLogging( &LogVector );
-//	Instrument.StartFileLogging( &LogVector );
-//	Notes.StartFileLogging( &LogVector );
+
 }
 
 int main( int argc, char* argv[] )
@@ -219,10 +211,10 @@ int main( int argc, char* argv[] )
 	App.Start( argc, argv );
 	Dir.Create();
 
-	if ( Cfg->Config.test == 'y' )
+	if ( Cfg.Config.test == 'y' )
 	{
 		Log.Set_Loglevel( TEST, true );
-		Sem->Release( SEMAPHORE_STARTED );
+		Sem.Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
 		ComposerTestCases();
 		Log.Show_loglevel();
@@ -230,16 +222,16 @@ int main( int argc, char* argv[] )
 		exit_proc( 0 );
 		return 0;
 	}
-
+	DaTA.Appstate.SaveState();
 	DaTA.Sds_p->Restore_ifd();
+	DaTA.Appstate.RestoreState();
+
 	activate_sds();
 
 	SetLogLevels();
 
 	show_usage();
 	show_AudioServer_Status();
-
-    DaTA.Appstate.Announce( );
 
     thread
 	SyncNotes_thread( &Thread_class::Loop, &SyncNotes ); // run class method: Loop in a thread
@@ -261,7 +253,7 @@ int main( int argc, char* argv[] )
 
 void stop_threads()
 {
-	if ( Cfg->Config.test == 'y' ) return;
+	if ( Cfg.Config.test == 'y' ) return;
 
 	SyncAudio.StopLoop();
 	SyncAudio_thread_p->join();
@@ -290,9 +282,8 @@ void exit_proc( int signal )
 		Log.Comment( INFO, "received signal: " + to_string( signal ) );
 
 	stop_threads();
+    Sem.Release( SEMAPHORE_EXIT );
+
     Log.Comment( INFO, "Synthesizer reached target exit 0" );
-
-//    Log.WriteLogFile();
-
     exit( 0 );
 }

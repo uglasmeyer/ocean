@@ -45,19 +45,19 @@ typedef struct shm_data_struct
 class Shm_base :
 		virtual public Logfacility_class
 {
-	string className = "Shm_base";
 public:
-	shm_ds_t	ds	= shm_data_struct();
+	string 		className 	= "";
+	shm_ds_t	ds			= shm_data_struct();
 
-	shm_ds_t* 	Get( key_t key );
-	void 		ShowDs( shm_ds_t );
-	void* 		Attach( int id );
-	void 		Detach( void* );
+	shm_ds_t* 	Get			( key_t key );
+	void 		ShowDs		( shm_ds_t );
+	void* 		Attach		( int id );
+	void 		Detach		( void* );
 
-	void		Test_Memory();
+	void		Test_Memory	();
 
-	Shm_base( buffer_t size );
-	virtual ~Shm_base();
+				Shm_base	( buffer_t size );
+	virtual 	~Shm_base	();
 
 private:
 

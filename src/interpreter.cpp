@@ -10,38 +10,41 @@
 
 Interpreter_class::Interpreter_class( Dataworld_class* data ) :
 Logfacility_class( "Interpreter" ),
-Processor_class( data->Sds_p )
+Processor_class( data->Sds_master, &data->Appstate )
 {
-	this->ifd 			= data->GetSdsAddr();
-	this->GUI 			= data->GetSds();
+	this->sds 			= data->GetSdsAddr();
+	this->Sds 			= data->Sds_master;
 	this->Cfg 			= data->Cfg_p;
 
 	main_view.name		= "Main osc";
+	main_view.oscid		= osc_struct::OSCID;
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
 	main_view.ampkey 	= SETMBAMPPLAYKEY;//MASTERAMP_KEY;
 	main_view.freqkey 	= OSCFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
+	main_view.oscid		= osc_struct::VCOID;
 	vco_view.wfkey 		= SETWAVEFORMVCOKEY;
 	vco_view.ampkey 	= VCOAMPKEY;
 	vco_view.freqkey 	= VCOFREQUENCYKEY;
 
 	fmo_view.name		= "FMO";
+	main_view.oscid		= osc_struct::FMOID;
 	fmo_view.wfkey 		= SETWAVEFORMFMOKEY;
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 		= &ifd->OSC_spectrum.wfid[0];
-	main_view.amp 		= &ifd->StA_amp_arr[MbIdInstrument];
-	main_view.frqidx 	= &ifd->OSC_wp.frqidx;
+	main_view.wf 		= &sds->OSC_spectrum.wfid[0];
+	main_view.amp 		= &sds->StA_amp_arr[MbIdInstrument];
+	main_view.frqidx 	= &sds->OSC_wp.frqidx;
 
-	vco_view.wf 		= &ifd->VCO_spectrum.wfid[0];
-	vco_view.amp 		= &ifd->VCO_wp.volume;
-	vco_view.frqidx 	= &ifd->VCO_wp.frqidx;
+	vco_view.wf 		= &sds->VCO_spectrum.wfid[0];
+	vco_view.amp 		= &sds->VCO_wp.volume;
+	vco_view.frqidx 	= &sds->VCO_wp.frqidx;
 
-	fmo_view.wf 		= &ifd->FMO_spectrum.wfid[0];
-	fmo_view.amp 		= &ifd->FMO_wp.volume;
-	fmo_view.frqidx 	= &ifd->FMO_wp.frqidx;
+	fmo_view.wf 		= &sds->FMO_spectrum.wfid[0];
+	fmo_view.amp 		= &sds->FMO_wp.volume;
+	fmo_view.frqidx 	= &sds->FMO_wp.frqidx;
 
 }
 
@@ -89,7 +92,7 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 		}
 		Comment( INFO, "start " + keyword.Str );
 
-		cmd = Cfg->Server_cmd( Cfg->Config.Term, exe, opt );
+		cmd = Cfg->Server_cmd( Cfg->Config.Nohup, exe, opt );
 		Processor_class::Push_cmd( CMD_EXE, cmd );
 
 		return;
@@ -107,14 +110,14 @@ void Interpreter_class::Stop_bin( vector_str_t arr )
 	if ( strEqual( keyword.Str, "Synthesizer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::Push_ifd( &ifd->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
+		Processor_class::Push_ifd( &sds->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
 		Processor_class::Push_key( EXITKEY, "terminating key" + keyword.Str );
 		return;
 	}
 	if ( strEqual( keyword.Str, "AudioServer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::Push_ifd( &ifd->AudioServer, EXITSERVER, "terminating " + keyword.Str  );
+		Processor_class::Push_ifd( &sds->AudioServer, EXITSERVER, "terminating " + keyword.Str  );
 		return;
 	}
 
@@ -151,7 +154,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::Push_ifd( &ifd->Record, true, 			"record" );
+		Processor_class::Push_ifd( &sds->Record, true, 			"record" );
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"start record" );
 		Pause( {"pause", duration } );
 
@@ -161,8 +164,8 @@ void Interpreter_class::RecFile( vector_str_t arr )
 	{
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
-		Processor_class::Push_ifd( &ifd->Record, false,			"record" );
-		Processor_class::Push_ifd( &ifd->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
+		Processor_class::Push_ifd( &sds->Record, false,			"record" );
+		Processor_class::Push_ifd( &sds->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
 	}
@@ -229,13 +232,13 @@ void Interpreter_class::Set( vector_str_t arr )
 	intro( arr, 2 );
 	if ( cmpkeyword( "octave+" ))
 	{
-		Processor_class::Push_ifd( &ifd->FLAG, 1, "octave" );
+		Processor_class::Push_ifd( &sds->FLAG, 1, "octave" );
 		Processor_class::Push_key(SETBASEOCTAVE_KEY, "inc octave");
 		return;
 	}
 	if ( cmpkeyword( "octave-" ))
 	{
-		Processor_class::Push_ifd( &ifd->FLAG, 0, "octave" );
+		Processor_class::Push_ifd( &sds->FLAG, 0, "octave" );
 		Processor_class::Push_key(SETBASEOCTAVE_KEY, "dec octave");
 		return;
 	}
@@ -247,9 +250,8 @@ void Interpreter_class::Set( vector_str_t arr )
 
 		if( cmpkeyword( "freq") )
 		{
-			Value value{ pop_int(0, Variation.max_frequency) };
-			cout << osc << "freq"<<value.str <<endl;
-			Osc({ "osc", osc, "freq", value.str });
+			string value{ pop_stack( 1 ) };
+			Osc({ "osc", osc, "freq", value });
 			return;
 		}
 		if( cmpkeyword( "wf") )
@@ -280,8 +282,8 @@ void Interpreter_class::Notes( vector_str_t arr )
 		expect = { "Notes name" };
 		string notes_name = pop_stack( 1);
 		Comment( INFO, "loading notes " + notes_name );
-		check_file( { 	file_structure().Dir.autodir,
-						file_structure().Dir.notesdir }, notes_name + file_structure().nte_type );
+		check_file( { 	file_structure().autodir,
+						file_structure().notesdir }, notes_name + file_structure().nte_type );
 
 		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, notes_name );
 		return;
@@ -303,8 +305,8 @@ void Interpreter_class::Notes( vector_str_t arr )
 			expect 		= {"#flats", "#sharps" };
 			uint flats 	= pop_int(0,7);
 			uint sharps = pop_int(0,7);
-			Processor_class::Push_ifd( &ifd->noteline_prefix.flat ,flats, "update flats" );
-			Processor_class::Push_ifd( &ifd->noteline_prefix.sharp ,sharps, "update sharps" );
+			Processor_class::Push_ifd( &sds->noteline_prefix.flat ,flats, "update flats" );
+			Processor_class::Push_ifd( &sds->noteline_prefix.sharp ,sharps, "update sharps" );
 			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
 			Variation.Set_note_chars( flats, sharps );
 			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
@@ -315,7 +317,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 			expect = { "octave value" };
 			uint oct = pop_int( min_octave, max_octave ) ;
 			Variation.Set_prefix_octave( oct );
-			Processor_class::Push_ifd( &ifd->noteline_prefix.Octave ,oct, "update octave" );
+			Processor_class::Push_ifd( &sds->noteline_prefix.Octave ,oct, "update octave" );
 			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
 
 			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
@@ -354,7 +356,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		{
 			expect = { "volume [%]" };
 			int amp 	= pop_int(0,100);
-			Processor_class::Push_ifd( &ifd->StA_amp_arr[MbIdNotes] ,amp, "play notes" );
+			Processor_class::Push_ifd( &sds->StA_amp_arr[MbIdNotes] ,amp, "play notes" );
 			Processor_class::Push_key( NOTESONKEY, "commit");
 			if ( stack.size() > 0  )
 			{
@@ -378,7 +380,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		Value nps = pop_int(1,8);
 		if ( Variation.Set_notes_per_second( nps.val ) )
 		{
-			Processor_class::Push_ifd( &ifd->noteline_prefix.nps, nps.val, "notes per second"  );
+			Processor_class::Push_ifd( &sds->noteline_prefix.nps, nps.val, "notes per second"  );
 			Processor_class::Push_key( SETNOTESPERSEC_KEY, "set per_second" );
 		}
 		else
@@ -402,7 +404,7 @@ void Interpreter_class::Instrument( vector_str_t arr )
 		expect = { "instument name "};
 		string instr = pop_stack( 1);
 		Comment( INFO, "loading instrument " + instr );
-		check_file( { file_structure().Dir.instrumentdir } , instr + file_structure().snd_type );
+		check_file( { file_structure().instrumentdir } , instr + file_structure().snd_type );
 
 //		Push_text( command );
 		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
@@ -488,7 +490,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	{
 		Comment( INFO, "Master volume is muted " );
 
-		Push_ifd( &ifd->mixer_status.mute, false, "false" );
+		Push_ifd( &sds->mixer_status.mute, false, "false" );
 		Push_key( MASTERAMP_MUTE_KEY, "mute master volume" );
 		return;
 	}
@@ -497,24 +499,19 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	{
 		Comment( INFO, "Master volume is un-muted " );
 
-		Push_ifd( &ifd->mixer_status.mute, true, "true" );
+		Push_ifd( &sds->mixer_status.mute, true, "true" );
 		Push_key( MASTERAMP_MUTE_KEY, "un-mute master volume" );
 		return;
 	}
 	if ( cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
-		Processor_class::Push_ifd( &ifd->connect[osc_struct::OSCID].frq, false, "reset fmo connect" );
-		Processor_class::Push_ifd( &ifd->connect[osc_struct::OSCID].vol, false, "reset fmo connect" );
+		Processor_class::Push_ifd( &sds->connect[osc_struct::OSCID].frq, false, "reset fmo connect" );
+		Processor_class::Push_ifd( &sds->connect[osc_struct::OSCID].vol, false, "reset vco connect" );
 		Processor_class::Push_key( CONNECTOSC_KEY , "reset main"  );
 		return;
 	}
 
-	if ( cmpkeyword( "loop") )
-	{
-		keyword.Str = pop_stack( 1);
-		loop = true;
-	}
 
 	if ( cmpkeyword( "wf") )
 	{
@@ -538,12 +535,20 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		return;
 	}
 
+	if ( cmpkeyword( "loop") )
+	{
+		keyword.Str = pop_stack( 1);
+		loop = true;
+		// TODO
+	}
 
 	if ( cmpkeyword( "amp") )
 	{
 		expect = { "volume [%]" };
 		int amp = pop_int(0,100);
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
+		Processor_class::Push_ifd( &sds->connect[view.oscid].vol , true, "connect vol->osc" );
+
 		if ( loop ) // TODO-working
 		{
 			Loop( amp, MASTERAMP_LOOP_KEY );
@@ -560,42 +565,31 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		return;
 	}
 
-
 	if ( cmpkeyword( "freq") )
 	{
-		expect = { "frequency" };
-		int freq = 0; // pop_int(0, 0xFFFF );
-		String f { pop_stack(1) };
-		if ( f.is_number() )
-		{
-			freq = f.secure_stoi( f.Str );
-			cout << "frqindex: " << freq << endl;
-		}
-
-		else
-		{
-			if ( f.Str.length() == 2 )
-			{
-				freq = Frequency.Index( f.Str );
-			}
-		}
+		expect = { "frequency name or index" };
+		int freq = 1; // pop_int(0, 0xFFFF );
+		string f { pop_stack(1) };
+		freq = Frequency.Index( f );
 
 		Comment( INFO, "Set frequency " + to_string(freq) + " for " + view.name );
+		Processor_class::Push_ifd( &sds->connect[view.oscid].frq , true, "connect frq->osc" );
+
 		if ( loop )
 		{
-			expect = {"max frequency" };
-			freq = pop_int(0, Variation.max_frequency );
-			Loop( freq, 0 );
+			Processor_class::Push_ifd( &sds->frq_slidermode, SLIDE, "slide mode" );
+			Processor_class::Push_ifd( &sds->OSC_wp.glide_effect , 100, "long frq slide" );
+			Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
 		}
-		else
-		{
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
-			Processor_class::Push_ifd(  view.frqidx, freq, "frequency"  );
+			Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
+			Processor_class::Push_ifd( &sds->OSC_wp.glide_effect , 0, "frq slide off" );
+
 			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			Pause( { "pause", duration });
-		}
+
 		return;
 	}
 
@@ -623,10 +617,11 @@ void Interpreter_class::Play( vector_str_t arr )
 		{
 			expect = { " dest amp"};
 			int max = pop_int(0,100);
-			Processor_class::Push_ifd( &ifd->MIX_Id , staId, "mixer id" );
-			Processor_class::Push_ifd( &ifd->StA_amp_arr[staId] , max, "% slide duration " );
-			Processor_class::Push_ifd( &ifd->vol_slidemode , SLIDE, "slide mode" );
-			Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );			Loop( max, 0);
+			Processor_class::Push_ifd( &sds->MIX_Id , staId, "mixer id" );
+			Processor_class::Push_ifd( &sds->StA_amp_arr[staId] , max, "% slide duration " );
+			Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
+			Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
+			Loop( max, 0);
 			return;
 		}
 		else
@@ -653,9 +648,9 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		uint8_t end = pop_int(0, 100 );
 //		int step = pop_int(0, 100 );
 
-		Processor_class::Push_ifd( &ifd->MIX_Id , id, "mixer id" );
-		Processor_class::Push_ifd( &ifd->StA_amp_arr[id] , end, "% slide duration " );
-		Processor_class::Push_ifd( &ifd->vol_slidemode , SLIDE, "slide mode" );
+		Processor_class::Push_ifd( &sds->MIX_Id , id, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_amp_arr[id] , end, "% slide duration " );
+		Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
 		Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
 
 		return;
@@ -667,10 +662,11 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		int amp = pop_int(0,100);
 		Comment( INFO, "set amplitude of " + to_string(id) + " to " + to_string(amp) + "%" );
 
-		Processor_class::Push_ifd( &ifd->MIX_Id , id, "mixer id" );
-		Processor_class::Push_ifd( &ifd->StA_amp_arr[ id ], amp, "mixer volume" );
-		Processor_class::Push_ifd( &ifd->StA_state[id].play, true, "true" );
+		Processor_class::Push_ifd( &sds->MIX_Id , id, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_amp_arr[ id ], amp, "mixer volume" );
+		Processor_class::Push_ifd( &sds->StA_state[id].play, true, "true" );
 		Processor_class::Push_key( SETMBAMPPLAYKEY	, "set volume" );
+		Processor_class::Push_key( SETSTAPLAY_KEY	, "set play" );
 
 		return;
 	}
@@ -693,7 +689,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 		expect = {"mem id 0..5"};
 		int ma_id = pop_int(0, MbSize-1 );
-		Processor_class::Push_ifd( &ifd->MIX_Id, ma_id, "mixer id");
+		Processor_class::Push_ifd( &sds->MIX_Id, ma_id, "mixer id");
 		Processor_class::Push_key( PLAYNOTESREC_ON_KEY, "notes on");
 		return;
 	}
@@ -702,7 +698,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "mute memory array: " + to_string(id) );
-		Processor_class::Push_ifd( &ifd->MIX_Id, id, "sound" );
+		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
 		Processor_class::Push_key(MUTEREC_KEY,  "stop sound" );
 		return;
 	}
@@ -711,7 +707,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "store sound to: " + to_string(id) );
-		Processor_class::Push_ifd( &ifd->MIX_Id, id, "sound" );
+		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
 		Processor_class::Push_key( STORESOUNDKEY, "store sound" );
 		return;
 	}
@@ -720,7 +716,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "clear " + to_string(id) );
-		Processor_class::Push_ifd( &ifd->MIX_Id, id, "mixer id" );
+		Processor_class::Push_ifd( &sds->MIX_Id, id, "mixer id" );
 		Processor_class::Push_key( CLEAR_KEY,  "set clear" );
 		return;
 
@@ -730,7 +726,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		int id = pop_int(0, max_id);
 		Comment( INFO, "stop recording to: " + to_string(id) );
-		Processor_class::Push_ifd( &ifd->MIX_Id, id, "sound" );
+		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
 		Processor_class::Push_key( STOPRECORD_KEY, "stop sound" );
 		return;
 	}
@@ -763,7 +759,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		int freq = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->OSC_wp.glide_effect, freq, "soft freq"  );
+		Processor_class::Push_ifd( &sds->OSC_wp.glide_effect, freq, "soft freq"  );
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}
@@ -779,7 +775,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 			EXCEPTION( "wrong beat duration" );
 		}
 
-		Processor_class::Push_ifd( &ifd->OSC_adsr.bps, bps, "beat duration" );
+		Processor_class::Push_ifd( &sds->OSC_adsr.bps, bps, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
 		return;
 	}
@@ -787,7 +783,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		int attack = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->OSC_adsr.attack, attack, "adsr attack" );
+		Processor_class::Push_ifd( &sds->OSC_adsr.attack, attack, "adsr attack" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr attack" );
 		return;
 	}
@@ -795,7 +791,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
 		uint8_t decay = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->OSC_adsr.decay, decay, "adsr decay" );
+		Processor_class::Push_ifd( &sds->OSC_adsr.decay, decay, "adsr decay" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr decay" );
 		return;
 	}
@@ -803,7 +799,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		int hall = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->OSC_adsr.hall, hall, "hall"  );
+		Processor_class::Push_ifd( &sds->OSC_adsr.hall, hall, "hall"  );
 		Processor_class::Push_key( ADSR_KEY,  "set hall" );
 		return;
 	}
@@ -811,7 +807,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		int dial = pop_int(0,100);
-		Processor_class::Push_ifd( &ifd->VCO_wp.PMW_dial, dial, "pmw" );
+		Processor_class::Push_ifd( &sds->VCO_wp.PMW_dial, dial, "pmw" );
 		Processor_class::Push_key( PWMDIALKEY, "set pmw" );
 		return;
 	}
@@ -857,15 +853,15 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 
 	auto is_notesfile = [](string str )
 		{
-			string filename = file_structure().Dir.notesdir + str + file_structure().nte_type;
+			string filename = file_structure().notesdir + str + file_structure().nte_type;
 			return filesystem::exists(filename);
 		};
 
 	auto add_notesfile = []( string varname, string filea, string fileb )
 		{
-			string srca = file_structure().Dir.notesdir + filea + file_structure().nte_type;
-			string srcb = file_structure().Dir.notesdir + fileb + file_structure().nte_type;
-			string dest = file_structure().Dir.autodir + varname + file_structure().nte_type;
+			string srca = file_structure().notesdir + filea + file_structure().nte_type;
+			string srcb = file_structure().notesdir + fileb + file_structure().nte_type;
+			string dest = file_structure().autodir + varname + file_structure().nte_type;
 			string cmd = "cat " +  srca + " " + srcb + " > " +  dest;
 			system_execute( cmd );
 		};
@@ -961,14 +957,15 @@ void Interpreter_class::Loop( int max, int key )
 		Processor_class::Push_wait( CMD_WAIT, -1, "not yet implemented" );
 		return;
 	}
-	Processor_class::Push_ifd( &ifd->slide_duration , max	, "slide duration" );
-	Processor_class::Push_ifd( &ifd->vol_slidemode	, SLIDE	, "volume slide mode");
+	Processor_class::Push_ifd( &sds->slide_duration , max	, "slide duration" );
+	Processor_class::Push_ifd( &sds->vol_slidemode	, SLIDE	, "volume slide mode");
 	Processor_class::Push_key( key,"set sliding volume" );
 }
 
-void Interpreter_class::ExitInterpreter()
+bool Interpreter_class::Exit()
 {
 	Processor_class::Push_cmd( CMD_EXIT,"exit" );
+	return true;
 }
 
 int Interpreter_class::Find_position( vector<line_struct_t>* program, vector_str_t arr )
@@ -1157,7 +1154,7 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 
 void Interpreter_class::Test(  )
 {
-	Set_Loglevel( TEST, true);
+	TEST_START( className );
 	Comment( TEST, "Interpreter_class test");
 	testrun = true;
 
@@ -1200,7 +1197,7 @@ void Interpreter_class::Test(  )
 	Addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-	cout << show_type( List_directory( file_structure().Dir.instrumentdir, file_structure().snd_type ) ) << endl;
+	cout << show_type( List_directory( file_structure().instrumentdir, file_structure().snd_type ) ) << endl;
 //	assert ( false );
 	varlist.clear();
 	TEST_END( className );

@@ -16,7 +16,7 @@
 #include <System.h>
 
 namespace Ui {
-const string ClassName = "Rtsp";
+const string ClassName = "RtspDialog";
 class Rtsp_Dialog_class;
 }
 
@@ -31,7 +31,7 @@ public:
 
     Dataworld_class*		DaTA;
     Interface_class*		Sds;
-    interface_t*			Sds_master;
+    interface_t*			sds_master;
     uint					SDS_ID = 0;
 //    Ui::Rtsp_Dialog_class*	ui;
 	unique_ptr<Ui::Rtsp_Dialog_class>		ui;

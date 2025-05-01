@@ -11,13 +11,14 @@
 #include <System.h>
 
 
-Interface_class::Interface_class( Config_class* cfg, Semaphore_class* sem )
-: Logfacility_class("Shared Data" )
+Interface_class::Interface_class( uint8_t sdsid, Config_class* cfg, Semaphore_class* sem ):
+Logfacility_class("Shared Data" )
 {
 
-	initStateMap();
 	this->Sem_p	= sem;
 	this->Cfg_p = cfg;
+	Setup_SDS( sdsid, cfg->Config.sdskeys[ sdsid ] );
+//	this->AppId = appid;
 }
 
 Interface_class::~Interface_class()
@@ -30,10 +31,11 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 {
 	Comment(INFO, "allocating shared memory for IPC " + to_string( sdsid ));
 
-	ds 		= *SHM.Get( key );
-	ds.Id	= sdsid;
-	this->addr = ( interface_t* ) ds.addr;
+	ds 			= *SHM.Get( key );
+	ds.Id		= sdsid;
+	this->addr	= ( interface_t* ) ds.addr;
 	Eventque.setup( addr );
+
 	SHM.ShowDs(ds);
 	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
 
@@ -72,166 +74,24 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	addr->SDS_Id = sdsid;
 }
 
-void Interface_class::initStateMap()
-{
-	state_map[OFFLINE]		= "Offline";
-	state_map[RUNNING] 		= "Running";
-	state_map[FREERUN] 		= "free running";
-	state_map[UPDATEGUI]	= "Update GUI";
-	state_map[SYNC] 		= "sync mode";
-	state_map[DEFAULT] 		= "default mode";
-	state_map[EXITSERVER] 	= "Exit server";
-	state_map[KEYBOARD] 	= "Keyboard";
-	state_map[RECORDSTART] 	= "start recording";
-	state_map[RECORDSTOP] 	= "stop recording";
-
-	assert( state_map.size() == LASTNUM );
-}
 
 string Interface_class::Decode( uint8_t idx)
 {
 	return state_map[ idx ];
 }
 
-void Interface_class::Show_Que()
-{
-	cout << addr->deque.data() << endl;
-}
-void Interface_class::Show_interface()
-{
 
-	auto Lline = []( string s, auto v )
-		{ cout << setw(40) << dec  << setfill('.') 	<< left << s << setw(40) << v << endl;};
-	auto lline = []( string s, auto v )
-		{ cout << setw(20) << dec  << setfill('.') 	<< left << s << setw(20) << v ; };
-	auto rline = []( string s, auto v )
-		{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
-	auto conv_bool_s = []( bool b )
-		{ return ( b ) ? string("yes") : string("no "); };
-	auto frq_str = [ this ](uint8_t idx)
-		{ return ( to_string( Frequency.GetFrq( idx ) ) + ", " + frqNamesArray[idx] ); };
-	string status1 {};
-	status1 	= 	      conv_bool_s(addr->mixer_status.external) +
-					"," + conv_bool_s(addr->mixer_status.notes) +
-					"," + conv_bool_s(addr->mixer_status.sync) +
-					"," + conv_bool_s(addr->mixer_status.mute) +
-					"," + conv_bool_s(addr->mixer_status.kbd) +
-					"," + conv_bool_s(addr->mixer_status.instrument );
-
-	stringstream status2 {""};
-	uint arrno = 0;
-	for( StA_status_t status : addr->StA_state )
-	{
-		status2 << to_string(arrno) << ":" << to_string(status.play) << to_string(status.store) << "  ";
-		arrno++;
-	}
-
-	stringstream status3{""};
-	arrno = 0;
-	for( uint8_t amp : addr->StA_amp_arr )
-	{
-		status3 << to_string(arrno) << ":" << setw(4) << left << to_string( amp) ;
-		arrno++;
-	}
-
-
-	lline( "\nShared Data Str. ID ", to_string((int) ds.Id ));
-	rline( Version_str 			, addr->version);
-
-	lline( "(M)ain (F)requency:" , frq_str( addr->OSC_wp.frqidx ));
-	rline( "(A)DSR (G)lide freq:", (int)addr->OSC_wp.glide_effect);
-
-	lline( "(M)aster(A)mplitude:", (int)addr->Master_Amp );
-	rline( "(A)DSR (A)ttack:   " , (int)addr->OSC_adsr.attack );
-
-	lline( "                   " , 0 );
-	rline( "(A)DSR (B)eats Id  " , (int)addr->OSC_adsr.bps) ;
-
-	lline( "(M)ain (W)aveform: " , waveform_str_vec[ (int)addr->OSC_spectrum.wfid[0] ]);
-	rline( "(A)DSR (D)ecay:    " , (int)addr->OSC_adsr.decay );
-
-	lline( "(F)MO  (F)requency:" , frq_str( addr->FMO_wp.frqidx ) );
-	rline( "(V)CO  (F)requency:" , frq_str( addr->VCO_wp.frqidx ) );
-
-	lline( "(F)MO  (A)mplitude:" , (int)addr->FMO_wp.volume);
-	rline( "(V)CO  (A)mplitude:" , (int)addr->VCO_wp.volume);
-
-	lline( "(F)MO  (W)aveform: " , waveform_str_vec[ (int)addr->FMO_spectrum.wfid[0] ]);
-	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)addr->VCO_spectrum.wfid[0] ]);
-
-	lline( "Time elapsed", (int)addr->time_elapsed );
-	rline( "VCO  PMW dial      " , (int)addr->VCO_wp.PMW_dial) ;
-
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->OSC_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, addr->OSC_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, addr->OSC_spectrum ));
-
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->VCO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, addr->VCO_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, addr->VCO_spectrum ));
-
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, addr->FMO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, addr->FMO_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, addr->FMO_spectrum ));
-
-
-	lline( "Mixer Volume:      " , (int)addr->MIX_Amp );
-	rline( "Mixer Id           " , (int)addr->MIX_Id );
-
-	lline( "Sync data id       " , (int) addr->SHMID);
-	rline( "Event ID           " , Eventque.show());
-
-	lline( "Record Progress   :" , (int)addr->RecCounter);
-	rline( "File No.          :" , (int)addr->FileNo );
-
-	lline( "(A)udioServer stat:" , Decode(addr->AudioServer));
-	rline( "(C)omposer status :" , Decode(addr->Composer));
-
-	lline( "(S)ynthesizer stat:" , Decode(addr->Synthesizer));
-	rline( "(U)serinterface   :" , Decode(addr->UserInterface));
-
-	lline( "Rtsp status       :" , Decode(addr->Rtsp));
-	rline( "Data Mode         :" , Decode(addr->MODE));
-
-	lline( "Instrument        :" , addr->Instrument);
-	rline( "Wav filename      :" , addr->Other );
-
-	lline( "Notes             :" , addr->Notes + NotesExtension[ addr->NotestypeId ] );
-	rline( "Noteline duration :" , (int) addr->Noteline_sec);
-
-	Lline( "Status Extr,Note,Sync,Mute,Kbd,Inst:" , status1 );
-	rline( "StA #:Amp         :" , status3.str() );
-	rline( "Status StA #:ps,  :" , status2.str() );
-
-
-}
-
-bool Interface_class::reject(char status, int id )
-{
-	if (( status == RUNNING ) and ( id != COMPID ))
-	{
-		if( previous_status != status )
-			cout << "Observer mode ON" << endl;
-		previous_status = status;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-};
 
 void Interface_class::Write_arr( const wd_arr_t& arr )
 {
 	for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
 		addr->wavedata[n] = arr[n] ;
 }
-
 void Interface_class::Write_str(const char selector, const string str )
 {
 	if (reject( addr->Composer, AppId )) return;
 
-	if ( addr->Comstack != RUNNING )
+	if ( addr->Comstack == RUNNING )
 		addr->UpdateFlag = true;
 
 
@@ -265,6 +125,7 @@ void Interface_class::Write_str(const char selector, const string str )
 	}
 
 }
+
 
 string Interface_class::Read_str( char selector )
 {
@@ -318,7 +179,6 @@ bool Interface_class::Restore_ifd()
 
 	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
 	int sdsid 				= addr->config;
-//	int state				= addr->AudioServer; // TODO - test
 
 	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
@@ -328,7 +188,6 @@ bool Interface_class::Restore_ifd()
 
 	addr->process_arr 	= procarr;
 	addr->config		= sdsid;
-//	addr->AudioServer 	= state;
 	Eventque.reset();
 	return ( size == sizeof( ifd_data ));
 }

@@ -1,14 +1,15 @@
-#include <Config.h>
 #include <String.h>
+#include <Config.h>
 #include <System.h>
 #include <data/Memorybase.h>
 #include <Exit.h>
 
 Config_class::Config_class( string Module ) :
-	Logfacility_class( Module )
+	Logfacility_class( "Config_class" )
 {
 
-	prgname = program_invocation_name;
+	className = Module;
+//	prgname = program_invocation_name;
 	string shortname = program_invocation_short_name;
 	Comment( INFO, "Program name: " + shortname );
 	this->basedir = baseDir( );
@@ -24,9 +25,9 @@ void Config_class::Read_config(	string cfgfile )
 {
 	std::unordered_map<string, string> 	Get = {}; // @suppress("Invalid template argument")
 
-	String Str{""};
+//	String Str{""};
 	configfile = cfgfile;
-	Comment(INFO, "Reading config file " + configfile );
+//	Comment(INFO, "Reading config file " + configfile );
 
 	ifstream cFile( configfile  );
 	if ( not cFile.is_open() )
@@ -47,11 +48,18 @@ void Config_class::Read_config(	string cfgfile )
 		while (getline(iss, strr, ','))
 		{
 			size_t delimiterPos	= strr.find("=");
-			String Name        	= strr.substr(0, delimiterPos);
-			string value      	= strr.substr(delimiterPos + 1);
-			Name.normalize();
-			Name.to_lower();
-			Get[Name.Str]= value;
+			if ( delimiterPos == STRINGNOTFOUND )
+			{
+				;
+			}
+			else
+			{
+				string value      	= strr.substr(delimiterPos + 1);
+				Name.Str        	= strr.substr(0, delimiterPos) ;
+				Name.normalize();
+				Name.to_lower();
+				Get[Name.Str]		= value;
+			}
 		}
 	}
 	auto get_item = [ &Get ]( string old, string str )
@@ -225,7 +233,7 @@ string Config_class::Server_cmd( string term, string srv, string srvopt)
 		cmd = term + " " + srv + " " + srvopt + " &";
 
 	if ( strEqual( term, Config.Term ) )
-		cmd = term + " '" + srv + " " + srvopt + "' &";
+		cmd = term + " \"" + srv + " " + srvopt + "\" &";
 
 	Comment( BINFO, "command: " , cmd );
 
@@ -257,9 +265,7 @@ void DirStructure_class::setDir(  )
 void DirStructure_class::Test()
 {
 	TEST_START( className );
-	Set_Loglevel( TEST, true );
 	string t = notnull(getenv( "PATH" ));
-//	cout << t  << endl;
 	assert( t.length() > 0 );
 	Create();
 	TEST_END( className );

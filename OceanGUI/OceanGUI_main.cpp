@@ -14,11 +14,11 @@
 #include <Rtsp_dialog_class.h>
 
 
-const string		TitleModule = "Ocean Sound Lab";
 
 Exit_class			Exit		{};
-Statistic_class 	Statistic	{  TitleModule };
-Logfacility_class	Log			{ TitleModule };
+Logfacility_class	Log			{ "Ocean Sound Lab" };
+Statistic_class 	Statistic	{ Log.className };
+const string		TitleModule = Log.className;
 
 
 
@@ -43,6 +43,7 @@ void exit_proc( int signal )
 int main(int argc, char *argv[])
 {
     QApplication 		Windowapp(argc, argv);
+
     MainWindow 			Window{};
 
 //    QIcon icon("/home/sirius/Software/eclipse/eclipse32.png");

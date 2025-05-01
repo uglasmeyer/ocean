@@ -12,55 +12,98 @@
 #include <data/Interface.h>
 #include <data/Appstate.h>
 
+typedef struct SDS_struct
+{
+	vector<Interface_class> 	Vec			{};
+	vector<interface_t*>		vec			{};
+
+	interface_t*			master	= nullptr;
+	Interface_class*		Master	= nullptr;
+
+	SDS_struct( char appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
+	{
+		for ( uint8_t n = 0; n < MAXCONFIG; n++ )
+		{
+			Interface_class
+			Sds 		{ n, Cfg_p, Sem_p };
+			Sds.AppId 	= appid;
+			interface_t* sds = (interface_t*) Sds.ds.addr;
+			vec.push_back( sds );
+			Vec.push_back( Sds );
+		};
+		assert( Vec[0].ds.addr != Vec[1].ds.addr );
+		master 		= vec[0];
+		Master		= &Vec[0];
+	}
+	~SDS_struct() = default;
+
+	Interface_class* GetSds( int id )
+	{
+		return &Vec[ id ];
+	}
+	interface_t* GetSdsAddr( int id )
+	{
+		if (( id<0) or ( id > (int)MAXCONFIG ))
+		{
+			EXCEPTION( "no such Shared Data Segment ");
+		}
+		if( not Vec[id].ds.eexist )
+		{
+			EXCEPTION( "segment not available");
+		}
+
+		return vec[ id ];
+	}
+
+
+} SDS_t;
+
+
 class Dataworld_class :
 		virtual public Logfacility_class
 {
 	string className = "";
 public:
 
-	typedef vector<Interface_class> SDS_vec_t;
 
-	uint					AppId		= NOID;
+	char					AppId		= NOID;
 	int						SDS_Id		= -1;
 
-	Config_class			Cfg			{ "Config" };
-	Config_class*			Cfg_p		= &Cfg;
-	Semaphore_class			Sem			{ Cfg_p};
-	Semaphore_class*		Sem_p		= &Sem;
-	SDS_vec_t			 	SDS_vec 	{ };
 	Shared_Memory			SHM_0		{ Shared_Memory::sharedbuffer_size };
 	Shared_Memory			SHM_1		{ Shared_Memory::sharedbuffer_size };
+
+	SDS_t			 		SDS ;
+	Register_class			Reg	;
+	Appstate_class 			Appstate;
+
 
 	stereo_t* 				ShmAddr_0 	= nullptr;
 	stereo_t* 				ShmAddr_1 	= nullptr;
 	Interface_class*		Sds_p		= nullptr;
-	Interface_class*		Sds_master= nullptr;
+	Interface_class*		Sds_master	= nullptr;
 	interface_t*			sds_master	= nullptr;
+	Config_class*			Cfg_p		= nullptr;
+	Semaphore_class*		Sem_p		= nullptr;
 
-	Appstate_class 			Appstate;
-	Register_class			Reg			;
+	interface_t* 			GetSdsAddr();
+	Interface_class*		GetSds( );
 
-	interface_t* 		GetSdsAddr();
-	interface_t* 		GetSdsAddr( int id );
-	Interface_class*	GetSds(  );
-	Interface_class*	GetSds( int id );
+	stereo_t* 				SetShm_addr( ); 			// Audioserver
+	stereo_t* 				GetShm_addr( ); 			// Synthesizer
+	void 					ClearShm();
 
-	stereo_t* 			SetShm_addr( ); 			// Audioserver
-	stereo_t* 			GetShm_addr( ); 			// Synthesizer
-	void 				ClearShm();
+	void 					EmitEvent( const uint8_t flag, string comment = ""  );
 
-	void 				EmitEvent( const uint8_t flag, string comment = ""  );
+	void					Test_Dataworld();
 
-	void				Test_Dataworld();
-
-	Dataworld_class( uint id );
-	virtual ~Dataworld_class();
+							Dataworld_class( char id, Config_class* cfg, Semaphore_class* sem );
+	virtual 				~Dataworld_class();
 
 
 private:
 
-	void state_pMap();
-	void init_Shm( Shared_Memory& SHM, key_t key, uint idx );
+	void 					state_pMap();
+	void 					init_Shm( Shared_Memory& SHM, key_t key, uint idx );
 };
 
 

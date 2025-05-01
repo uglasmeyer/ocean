@@ -47,13 +47,13 @@ public:
 	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
 	uint8_t 		Octave			= noteline_prefix_default.Octave; // 55
 	const uint16_t	measure_duration= 1000;//max_milli_sec; // 1 sec.
-	const float 	max_frequency 	= freqfloat_range.max;
+	const float 	max_frequency 	= frequency_range.max;
 
 	uint16_t 		min_duration 	= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
 	note_t 			note_buffer 	= note_struct();
 	const note_t	pause_note		= {".",{pitch_struct()},min_duration,0,0,{glide_struct()},false };
-	Dynamic_class	DynFrequency	{ freqarr_range };
+	Dynamic_class	DynFrequency	{ frqarr_range };
 
 	Note_class( Wavedisplay_class* wd ); // used by Variation
 	Note_class( ); // used by Variation

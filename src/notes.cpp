@@ -232,7 +232,7 @@ bool Note_class::set_file_name( string str )
 
 	Notefile_name = str;
 	Notefile = "";
-	for ( string dir : { file_structure().Dir.notesdir , file_structure().Dir.autodir} )
+	for ( string dir : { file_structure().notesdir , file_structure().autodir} )
 	{
 		string filename = dir + str + file_structure().nte_type;
 		if ( filesystem::exists( filename) )
@@ -240,7 +240,7 @@ bool Note_class::set_file_name( string str )
 	};
 	if ( Notefile == "" )
 	{
-		Notefile = file_structure().Dir.notesdir + str  + file_structure().nte_type;
+		Notefile = file_structure().notesdir + str  + file_structure().nte_type;
 		Comment( ERROR, "note file " + Notefile + " not yet found");
 		return false;
 	}
@@ -346,7 +346,6 @@ void Note_class::Test()
 	ASSERTION( Notechar2Step( 'A' ) == 9, "Assert test value ","A", 9  )  ;
 
 	Instrument_name = "NotesTest";
-	Set_Loglevel(TEST, true );
 	Comment( TEST, "Note_class test start");
 
 	Comment( TEST, "long notes ");// long note

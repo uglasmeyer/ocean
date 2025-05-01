@@ -62,8 +62,9 @@ uint Time_class::Performance( )
 	Start();
 
 	// limit the CPU load by thread sleep
-	if ( tel < 100 )
-		std::this_thread::sleep_for( chrono::milliseconds( 100 - tel  ) );
+	uint min_wait = 10;
+	if ( tel < min_wait )
+		std::this_thread::sleep_for( chrono::milliseconds( min_wait - tel  ) );
 
 	*time_elapsed 	= (uint8_t) tel / 10;// time elapsed in percentage w.r.t. 1 second = 1000 msec
 	return (uint) tel;

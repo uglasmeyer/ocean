@@ -31,8 +31,8 @@ uint8_t Note_base::GetFrqIndex( const pitch_t& nvs)
 		oct 	-=  1;
 	}
 	int	octave	= abs( oct );// + octave_shift );
-	int key = octave*oct_steps + step + C0;
-	return check_range( freqarr_range, key );
+	int key = FrqIndex( octave, step );
+	return check_range( frqarr_range, key );
 }
 // https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
 float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )

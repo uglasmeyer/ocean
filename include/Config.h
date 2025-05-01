@@ -55,11 +55,12 @@ typedef dir_struct dir_t;
 
 class Config_class : virtual Logfacility_class
 {
+	string className = "";
 public:
 
 	string basedir 		{""};
 	string configfile 	{""};
-	string prgname		{""};
+	string prgname		{	program_invocation_short_name };
 	prgarg_struct		Config 	= prgarg_struct();
 
 
@@ -102,10 +103,13 @@ private:
 //	vector <string> dirs = dir_struct().dirs;
 };
 
-typedef struct file_structure
-{
-	dir_t Dir = dir_struct();
+typedef struct file_structure :
+		dir_struct
 
+{
+	file_structure() : dir_struct()
+	{};
+	~file_structure() = default;
 	const string 	filename 		= "synthesizer";
 	const string 	snd_type 		= ".snd";	// instruments file extension
 	const string	nte_type		= ".nte";	// notes file extension
@@ -117,27 +121,27 @@ typedef struct file_structure
 	const string	Ocean_bin		= "OceanGUI";
 	const string 	Rtsp_bin		= "rtsp";
 	const string 	Comstack_bin	= "Comstack";
-	const string 	audio_bin  		= Dir.bindir 		+ Audio_bin;
-	const string 	synth_bin  		= Dir.bindir 		+ Synth_bin;
-	const string 	composer_bin	= Dir.bindir		+ Composer_bin;
-	const string 	comstack_bin	= Dir.bindir		+ Comstack_bin;
-	const string 	ocean_bin		= Dir.bindir		+ Ocean_bin;
-	const string 	rtsp_bin		= Dir.bindir		+ Rtsp_bin;
-	const string 	ifd_file 		= Dir.libdir 		+ "ifd_data.bin";
-	const string 	wav_file 		= Dir.musicdir 		+ filename + wav_type;
-	const string 	mp3_file		= Dir.musicdir 		+ filename + ".mp3";
-	const string 	raw_file 		= Dir.tmpdir 		+ filename + ".raw";
-	const string 	config_file  	= Dir.etcdir		+ filename + ".cfg";
-	const string	version_txt		= Dir.etcdir		+ "version.txt";
-	const string	datacfg_file	= Dir.etcdir		+ "Data.cfg";
-	const string 	counter_file 	= Dir.libdir 		+ "counter.bin";
-	const string 	program_file	= Dir.includedir 	+ "main.synth";
-	const string	log_file		= Dir.logdir		+ "composer.log";
-	const string	nohup_file		= Dir.logdir		+ "nohup.log";
+	const string 	audio_bin  		= bindir 		+ Audio_bin;
+	const string 	synth_bin  		= bindir 		+ Synth_bin;
+	const string 	composer_bin	= bindir		+ Composer_bin;
+	const string 	comstack_bin	= bindir		+ Comstack_bin;
+	const string 	ocean_bin		= bindir		+ Ocean_bin;
+	const string 	rtsp_bin		= bindir		+ Rtsp_bin;
+	const string 	ifd_file 		= libdir 		+ "ifd_data.bin";
+	const string 	wav_file 		= musicdir 		+ filename + wav_type;
+	const string 	mp3_file		= musicdir 		+ filename + ".mp3";
+	const string 	raw_file 		= tmpdir 		+ filename + ".raw";
+	const string 	config_file  	= etcdir		+ filename + ".cfg";
+	const string	version_txt		= etcdir		+ "version.txt";
+	const string	datacfg_file	= etcdir		+ "Data.cfg";
+	const string 	counter_file 	= libdir 		+ "counter.bin";
+	const string 	program_file	= includedir 	+ "main.synth";
+	const string	log_file		= logdir		+ "composer.log";
+	const string	nohup_file		= logdir		+ "nohup.log";
 	const string 	doc_filename 	= "Ocean.odt";
-	const string 	doc_file 		= Dir.docdir 		+ doc_filename;
-	const string	reclog_file		= Dir.tmpdir		+ "session.log";
-	const string	session_dump_file=Dir.tmpdir		+ "session.lib";
+	const string 	doc_file 		= docdir 		+ doc_filename;
+	const string	reclog_file		= tmpdir		+ "session.log";
+	const string	session_dump_file=tmpdir		+ "session.lib";
 
     string get_rec_filename( uint no )
     {

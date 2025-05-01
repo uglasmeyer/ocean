@@ -1,22 +1,38 @@
-#include <Logfacility.h>
-#include <Exit.h>
-#include <notes/MusicXML.h>
-#include <notes/Notes.h>
+#include <Appsymbols.h>
+//#include <Exit.h>
+//#include <notes/MusicXML.h>
+//#include <notes/Notes.h>
+//#include <Mixer.h>
+//#include <data/SharedDataSegment.h>
+//#include <Time.h>
+//Time_class Timer {};
 
 
 
-Musicxml_class 	MusicXML{};
-Note_class		Notes{};
+//Musicxml_class 	MusicXML{};
+//Note_class		Notes{};
 
+typedef struct base_struct
+{
+	int 	p 	= 0;
+	string	str	= "empty";
+	base_struct( int a, string b ) :
+		p( a ), str( b ) {};
+	~base_struct() = default;
+} base_t;
+typedef struct derived_struct : base_struct
+{
+	int 	dp 	= 0;
+	string	dstr	= "empty";
+	derived_struct( base_t b ) :
+		base_struct(b.p, b.str) {};
+	~derived_struct() = default;
+} derived_t;
 
-void exit_proc( int signal )
+void exit_proc( int s )
 {
 	exit(0);
 }
-
-#include <Mixer.h>
-#include <data/SharedDataSegment.h>
-
 int main()
 {
 /*
@@ -29,11 +45,8 @@ int main()
 	cout << "beats          : " <<  Notes.musicxml.beats<<endl;
 
 */
-	Dataworld_class DaTA{ SYNTHID };
-	Wavedisplay_class WD{ DaTA.Sds_p };
-	Mixer_class Mixer{ &DaTA, &WD };
-	Mixer.status = DaTA.sds_master->mixer_status;
-	cout << "Instrument: " << boolalpha << Mixer.status.instrument << endl;
-
+	base_t 	base { 5, "five" };
+	derived_t derived{ base };
+	cout << derived.dp << derived.p << derived.str << derived.dstr << endl;
 	return 0;
 }

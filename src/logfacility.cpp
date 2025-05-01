@@ -10,17 +10,31 @@
 logmask_t 	LogMask 		= defaultLogMask;
 
 
-Logfacility_class::Logfacility_class( string module)
+Logfacility_class::Logfacility_class( string module )
 {
-	size_t 			pos 			= module.find('_' );
-					this->className = module.substr(0, pos ) ;
+					seterrText();
+	size_t 			pos 			= module.find("_" );
+					if ( pos > LOGINDENT )
+						this->className = module;
+					else
+						this->className = module.substr(0, pos ) ;
 	stringstream 	strs 			{};
 					strs << setw(15) << right << className << ":";
 					prefixClass 	= strs.str();
 	string 			_path 			= string( logDir );
 					filesystem::create_directories( _path );
-					seterrText();
 };
+Logfacility_class::Logfacility_class( )
+{
+					seterrText();
+					this->className = "Log";
+	stringstream 	strs 			{};
+					strs << setw(15) << right << className << ":";
+					prefixClass 	= strs.str();
+	string 			_path 			= string( logDir );
+	filesystem::create_directories( _path );
+
+}
 
 Logfacility_class::~Logfacility_class(  )
 {
@@ -28,6 +42,18 @@ Logfacility_class::~Logfacility_class(  )
 		cout.flush() << "visited ~Logfacility_class." << className  << endl;
 };
 
+string	Logfacility_class::GetColor( uint id )
+{
+	if ( is_a_tty )
+		return Prefix_vec[ id ].color;
+	return Prefix_vec[ PLAIN ].color;
+}
+string	Logfacility_class::GetendColor( )
+{
+	if ( is_a_tty )
+		return endcolor;
+	return nocolor;
+}
 
 string Logfacility_class::cout_log( uint id, string str )
 {
@@ -40,12 +66,10 @@ string Logfacility_class::cout_log( uint id, string str )
 	}
 	string 			prefix 	= prefixClass + Prefix_vec[ INFO].name;
 	stringstream 	strs 	{};
-	if ( not is_a_tty )
-	{
-		id = PLAIN;
-		endc = "";
-	}
-	strs << Prefix_vec[ id ].color << prefix << str << endc << endl;
+	string 			endc 	= ( is_a_tty ) ? endcolor 	: nocolor;
+	uint 			Id		= ( is_a_tty ) ? id 		: LOG::PLAIN;
+
+	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
 	cout.flush() << strs.str();
 	return str;
 }
@@ -82,7 +106,7 @@ void Logfacility_class::seterrText()
 	error_arr[EISDIR] 	=   {"EISDIR",	"Is a directory"};
 	error_arr[EINVAL] 	=   {"EINVAL",	"Invalid argument"};
 	error_arr[ENFILE] 	=   {"ENFILE",	"File table overflow"};
-	error_arr[ENOTTY] 	=   {"ENOTTY",	"Too many open files"};
+	error_arr[EMFILE] 	=   {"EMFILE",	"Too many open files"};
 	error_arr[ENOTTY] 	=   {"ENOTTY",	"Not a typewriter"};
 	error_arr[ETXTBSY] 	=   {"ETXTBSY",	"Text file busy"};
 	error_arr[EFBIG] 	=   {"EFBIG",	"File too large"};
@@ -101,30 +125,6 @@ void Logfacility_class::Init_log_file( )
 	string _path = string( logFile );
 	if (filesystem::exists( _path ))
 		filesystem::remove( _path );
-}
-void Logfacility_class::WriteLogFile()
-{
-	if( not LogVector_p )
-		return;
-	if( LogVector_p->size() == 0 )
-		return;
-
-	fstream	LogFILE ;
-	LogFILE.open( "/tmp/log/Synthesizer.log", fstream::out );
-	if( not LogFILE.is_open() )
-	{
-		cout << "cannot open logfile to write " << endl;
-		return;
-	}
-	for ( string str : *LogVector_p )
-	{
-		LogFILE.flush() << str << endl;
-	}
-}
-
-void Logfacility_class::StartFileLogging( LogVector_t* lvp )
-{
-	this->LogVector_p = lvp;
 }
 
 void Logfacility_class::Show_loglevel()
@@ -187,18 +187,20 @@ void Logfacility_class::TEST_END( const string& name )
 void Logfacility_class::Test_Logging( )
 {
 	LogMask = defaultLogMask;
-
+	seterrText();
 	TEST_START( className );
 	Show_loglevel();
 	ASSERTION( LogMask.count() == 5, "logmask count", LogMask.count(), 5  );
 	ASSERTION( LogMask[ TEST ], "logmask", LogMask[TEST], true );
 	string str = Error_text( EEXIST );
-	ASSERTION( strEqual( str, "[EEXIST] File exists" ), "error string", str, "[EEXIST] File exists" );
+	ASSERTION( 	strEqual(str, "[EEXIST] File exists") , "error string",
+				strEqual(str, "[EEXIST] File exists") , "[EEXIST] File exists" );
 	Set_Loglevel( TEST, true );
 	Comment( TEST, "Logfacility test start");
 	stringstream True;
 	True << boolalpha << LogMask[TEST];// no endl
-	ASSERTION( strEqual( True.str(), "true"), "true", True.str(), "=true" );
+	ASSERTION( 	strEqual( True.str(), "true"), "true",
+				strEqual( True.str(), "true"), "=true" );
 	int L = ( 4 | 8 );
 	ASSERTION( L == 12, "OR", L, 12 )
 	bitset<4> bs = 0b1100;

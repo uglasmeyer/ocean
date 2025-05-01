@@ -5,50 +5,17 @@
  *      Author: sirius
  */
 
-#include <data/Appstate.h>
-
-void Appstate_class::Setup( interface_t* _sds )
-{
-	sds = _sds;
-	ptr = State_pMap( _sds );
-}
-
-uint8_t* Appstate_class::State_pMap( interface_t* sds )
-{
-	switch ( AppId )
-	{
-		case APPID::AUDIOID		: return &sds->AudioServer;
-		case APPID::SYNTHID		: return &sds->Synthesizer;
-		case APPID::COMPID		: return &sds->Composer;
-		case APPID::GUI_ID		: return &sds->UserInterface;
-		case APPID::COMSTACKID	: return &sds->Comstack;
-		case APPID::RTSPID		: return &sds->Rtsp;
-		case APPID::TESTID		: return &sds->Rtsp;
-		case APPID::NOID		: return nullptr;
-		default 		: 	{
-							cout << "WARN: unknown application id: " << AppId << endl;
-							return nullptr;
-							};
-	}
-}
-
-void Appstate_class::Announce( )
-{
-	Comment(INFO, "announcing application " + Name );
-	*ptr = RUNNING;
-	sds->UpdateFlag = true;
-}
-
 
 
 #include  <data/Register.h>
 
-Register_class::Register_class( uint id, string name ) :
+Register_class::Register_class( char appid, interface_t* _sds ) :
 	Logfacility_class( "Process Reg")
 {
 	className 	= Logfacility_class::className;
-	AppName 	= name;
-	AppId 		= id;
+	AppName 	= AppIdName( appid);
+	AppId 		= appid;
+	Setup( _sds );
 };
 
 Register_class::~Register_class()
@@ -66,10 +33,13 @@ void Register_class::Setup( interface_t* sds )
 		{
 			if ( Is_running_process((int)this->sds->process_arr.at( APPID::AUDIOID ).pid ) )
 			{
-				Info( 	"Running Audioserver " +
-						to_string( this->sds->process_arr.at( APPID::AUDIOID ).pid ) + "detected");
+				Comment(ERROR,
+						"Running Audioserver " ,
+						this->sds->process_arr.at( APPID::AUDIOID ).pid ,
+						" detected");
 				if ( not LogMask[TEST] )
-					EXCEPTION( "Cannot start second Audioserver" );
+					exit(0);
+
 			}
 			else
 			{
@@ -180,7 +150,7 @@ void Register_class::show_proc_register()
 
 void Register_class::Show_proc_register( uint idx )
 {
-	process_t proc { sds->process_arr.at(idx) };
+	register_process_t proc { sds->process_arr.at(idx) };
 	stringstream strs;
 
 	if ( Is_running_process( (int) proc.pid ))

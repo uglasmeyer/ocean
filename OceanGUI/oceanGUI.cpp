@@ -53,7 +53,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	Sds->Set(Sds_master->UpdateFlag, true);
 	Sds->Set( Sds->addr->UpdateFlag, true);
 	Sds->Set( Sds_master->Record, false);
-	DaTA->Appstate.Announce( );
 
     initGuiVectors();
 
@@ -150,25 +149,24 @@ void MainWindow::Rtsp_Dialog()
     if ( this->Rtsp_Dialog_p->isVisible()   )
     {
         this->Rtsp_Dialog_p->hide();
-        setButton( ui->pB_Rtsp, 2 );
     }
     else
     {
-        setButton( ui->pB_Rtsp, 1 );
         Rtsp_Dialog_p->proc_table_update_all( );
         this->Rtsp_Dialog_p->show();
     }
 }
 void MainWindow::SDS_Dialog()
 {
-	if( Sds_master->Comstack == RUNNING )
+	if( Appstate->IsRunning( Sds_master, COMSTACKID ) )
 	{
-	    Sds->Set( Sds_master->Comstack , (uint8_t) EXITSERVER );
+		Appstate->SetExitserver( Sds_master, COMSTACKID );
+		Sem_p->Lock( SEMAPHORE_EXIT);
 	}
 	else
 	{
-		string Start_Comstack = Cfg->Server_cmd( Cfg->Config.Term, fs.comstack_bin, "" );
-		system_execute( Start_Comstack.data() );
+		string Start_Comstack = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.comstack_bin, "" );
+		system_execute( Start_Comstack );
 	}
 	return;
 
@@ -178,12 +176,10 @@ void MainWindow::File_Director()
 {
     if ( this->File_Dialog_p->isVisible()   )
     {
-        setButton( ui->pB_play_notes, 2 );
         this->File_Dialog_p->hide();
     }
     else
     {
-        setButton( ui->pB_play_notes, 1 );
     	File_Dialog_p->Setup_widgets();
 		this->File_Dialog_p->show();
     }
@@ -193,12 +189,10 @@ void MainWindow::Spectrum_Dialog()
 {
     if ( this->Spectrum_Dialog_p->isVisible()   )
     {
-        setButton( ui->pB_Specrum, 2 );
         this->Spectrum_Dialog_p->hide();
     }
     else
     {
-        setButton( ui->pB_Specrum, 1 );
         Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
         this->Spectrum_Dialog_p->show();
     }
@@ -233,11 +227,11 @@ void MainWindow::VCO_Waveform_slot( int _wfid )
 void MainWindow::select_Sds( uint8_t sdsid ) // TODO working
 {
 	Sds->Set( this->Sds_master->config, sdsid );
-	Sds->Set( this->Sds_master->UpdateFlag, true);
-	Sds->Set( this->Sds->addr->UpdateFlag, true); // update old sds
+	Sds->Set( this->Sds_master->UpdateFlag	, true);
+	Sds->Set( this->Sds->addr->UpdateFlag	, true); // update old sds
 
+	this->Sds = DaTA.SDS.GetSds( sdsid ); // set new sds
 	Sds->Set( this->SDS_ID, sdsid );
-	this->Sds = DaTA->GetSds( sdsid ); // set new sds
 
 	initGuiVectors();
 	initStateButtons();
@@ -250,38 +244,34 @@ void MainWindow::select_Sds( uint8_t sdsid ) // TODO working
 	Rtsp_Dialog_p->proc_table_update_row( sdsid + 1 );
 	Rtsp_Dialog_p->SDS_ID = sdsid;
 
-    rb_S_vec[sdsid]->setChecked( true );
+   	rb_S_vec[ Sds_master->config ]->setChecked( true );
 
-
+	setwidgetvalues();
 };
 
 void MainWindow::select_Sds0()
 {
 	select_Sds( 0);
-	setwidgetvalues();
 }
 void MainWindow::select_Sds1()
 {
 	select_Sds( 1);
-	setwidgetvalues();
 }
 void MainWindow::select_Sds2()
 {
 	select_Sds( 2);
-	setwidgetvalues();
 }
 void MainWindow::select_Sds3()
 {
 	select_Sds( 3);
-	setwidgetvalues();
 }
 
 void MainWindow::CombineFreq()
 {
 	if ( ui->cB_Combine->isChecked() )
-		Sds->Set( Sds->addr->slidermode, (uint8_t) COMBINE );
+		Sds->Set( Sds->addr->frq_slidermode, (uint8_t) COMBINE );
 	else
-		Sds->Set( Sds->addr->slidermode, (uint8_t) SLIDE );
+		Sds->Set( Sds->addr->frq_slidermode, (uint8_t) SLIDE );
 }
 
 auto setStaPlay( MainWindow* M, uint8_t id )
@@ -498,20 +488,23 @@ void MainWindow::setwidgetvalues()
 	if( Rtsp_Dialog_p->isVisible() )
 		Rtsp_Dialog_p->proc_table_update_all();
 
-    Sds->Set( Sds->addr->UserInterface 	, (uint8_t)RUNNING );
 
    	ui->cB_Capture->setCurrentText( QCapture_str_lst[ Eventlog.capture_state ] );
 
-   	bool combine = ( Sds->addr->slidermode == COMBINE );
+   	bool combine = ( Sds->addr->frq_slidermode == COMBINE );
    	ui->cB_Combine->setChecked( combine );
-    rb_S_vec[ Sds->addr->SDS_Id ]->setChecked( true );
+   	//    rb_S_vec[ Sds->addr->SDS_Id ]->setChecked( true );
 
     ui->cb_connect_fmo->setChecked ( Sds->addr->connect[FMOID].vol );
     ui->cb_connect_vco->setChecked ( Sds->addr->connect[VCOID].vol );
     ui->cb_connect_oscv->setChecked( Sds->addr->connect[OSCID].vol );
     ui->cb_connect_oscf->setChecked( Sds->addr->connect[OSCID].frq );
 
+    double frq_slide_duration = Sds->addr->OSC_wp.glide_effect * max_sec * 0.01;
+    ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
+	Appstate->SetRunning(  );
+
 }
 
 void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
@@ -531,7 +524,7 @@ void MainWindow::Slider_VCO_Freq( int value )
 	( (uint)value < C0 ) ? ui->lb_VCO_LFO->show() : ui->lb_VCO_LFO->hide();
 
 	sliderFreq( sl_frqidx_vec[VCOID], value );
-	Sds->Set( Sds->addr->connect[osc_struct::OSCID].vol, true );
+	Sds->Set( Sds->addr->connect[OSCID].vol, true );
 
 }
 void MainWindow::Slider_FMO_Freq( int value )
@@ -539,10 +532,9 @@ void MainWindow::Slider_FMO_Freq( int value )
 	( (uint)value < C0 ) ? ui->lb_FMO_LFO->show() : ui->lb_FMO_LFO->hide();
 
 	sliderFreq( sl_frqidx_vec[FMOID], value );
-	Sds->Set( Sds->addr->connect[osc_struct::OSCID].frq, true );
+	Sds->Set( Sds->addr->connect[OSCID].frq, true );
 
 }
-
 
 void MainWindow::sliderVolume( sl_lcd_t map )
 {
@@ -582,15 +574,19 @@ void MainWindow::Slider_FMO_Adjust( int value )
 
 void MainWindow::start_composer()
 {
-    string Start_Composer = Cfg->Server_cmd( Cfg->Config.Term, fs.composer_bin, "" );
-	system_execute( Start_Composer.data() );
+
+    string Start_Composer = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.composer_bin, "" );
+	system_execute( Start_Composer );
 }
 
 void MainWindow::start_audio_srv()
 {
-	if( Sds->addr->Rtsp == RUNNING )
+	if( Appstate->IsRunning( Sds_master, RTSPID ) )
 		return;
-    string Start_Audio_Srv = Cfg->Server_cmd( Cfg->Config.Nohup, fs.audio_bin,
+	if( Appstate->IsRunning( Sds_master, AUDIOID))
+		return;
+
+    string Start_Audio_Srv = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.audio_bin,
 			" > " + fs.nohup_file);
 
 	system_execute( Start_Audio_Srv.data() );
@@ -599,18 +595,18 @@ void MainWindow::start_audio_srv()
 
 void MainWindow::start_synthesizer()
 {
-	if( Sds->addr->Rtsp == RUNNING )
+	if( Appstate->IsRunning( Sds_master, RTSPID ) )
 	{
-	    if ( Sem->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
-	    	Sem->Release( SYNTHESIZER_START );
+	    if ( Sem_p->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
+	    	Sem_p->Release( SYNTHESIZER_START );
 	    return;
 	}
 
-	int sdsid = DaTA->Reg.GetStartId( );
+	int sdsid = DaTA.Reg.GetStartId( );
 	cout << (int) sdsid << endl;
 	if ( sdsid < 0 ) return;
 
-	string Start_Synthesizer = Cfg->Server_cmd( Cfg->Config.Nohup, fs.synth_bin,
+	string Start_Synthesizer = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.synth_bin,
 			" >> " + fs.nohup_file );
 
     system_execute( Start_Synthesizer.data() );
@@ -626,20 +622,20 @@ void MainWindow::read_polygon_data()
 
 void MainWindow::Controller_Exit()
 {
-	if ( Sds->addr->Rtsp == RUNNING )
+	if ( Appstate->IsRunning( Sds_master, RTSPID ) )
 	{
-		if ( Sem->Getval( SEMAPHORE_EXIT, GETVAL ) > 0 )
-			Sem->Release( SEMAPHORE_EXIT );
+		if ( Sem_p->Getval( SEMAPHORE_EXIT, GETVAL ) > 0 )
+			Sem_p->Release( SEMAPHORE_EXIT );
 		return;
 	}
-    Sds->Set( Sds->addr->Synthesizer , (uint8_t) EXITSERVER );
-    DaTA->Sem.Lock( SEMAPHORE_EXIT, 2 );
+	Appstate->SetExitserver( Sds->addr, SYNTHID );
+    DaTA.Sem_p->Lock( SEMAPHORE_EXIT, 2 );
 	setwidgetvalues();
 }
 
 void MainWindow::Audio_Exit()
 {
-    Sds->Set( Sds_master->AudioServer, (uint8_t) EXITSERVER);
+    Appstate->SetExitserver( Sds_master, AUDIOID) ;
 }
 
 void MainWindow::Save_Config()
@@ -671,7 +667,7 @@ void MainWindow::connect_vco( bool val )
 
 void MainWindow::get_record_status( )
 {
-    int pb_value = Sds->addr->RecCounter;
+    int pb_value = Sds_master->RecCounter;
     ui->progressBar_record->setValue( pb_value );
 }
 void MainWindow::SaveRecord()
@@ -679,10 +675,10 @@ void MainWindow::SaveRecord()
     Sds->Set( Sds_master->FileNo ,(uint8_t) 0); // 0=automatic numbering
 
     if ( Sds_master->Record )
-    	Sds_master->AudioServer = RECORDSTOP;
+    	Appstate->Set( Sds_master, AUDIOID, state_struct::RECORDSTOP );
     else
     {
-    	Sds_master->AudioServer = RECORDSTART;
+    	Appstate->Set( Sds_master, AUDIOID, state_struct::RECORDSTART );
     }
 
 }
@@ -739,18 +735,28 @@ void MainWindow::update_CB_external()
 void MainWindow::updateColorButtons()
 {
 
-    bool a_running = ( Sds_master->AudioServer == RUNNING );
-    setButton( ui->pBAudioServer, a_running );
-
-    bool s_running = ( Sds->addr->Synthesizer == RUNNING );
-    setButton( ui->pBSynthesizer, s_running );
+    setButton( ui->pBAudioServer, Appstate->IsRunning( Sds_master, AUDIOID ) +1);
+    setButton( ui->pb_SDSview	, Appstate->IsRunning( Sds_master, COMSTACKID )+1 );
+    setButton( ui->pBSynthesizer, Appstate->IsRunning( Sds->addr, SYNTHID )+1 );
+    setButton( ui->pBComposer	, Appstate->IsRunning( Sds_master, COMPID )+1 );
 
     bool record = ( Sds_master->Record);
     setButton( ui->pBtoggleRecord, not record );
     ( record ) ? 	ui->pBtoggleRecord->setText( "Stop Rec") :
     				ui->pBtoggleRecord->setText( "Record");
 
-    int c_running = ( Sds_master->Comstack == RUNNING ) ? 1 : 2;
-    setButton( ui->pb_SDSview, c_running );
+    if( Rtsp_Dialog_p->isVisible() )
+    	setButton( ui->pB_Rtsp, 2 );
+    else
+        setButton( ui->pB_Rtsp, 1 );
 
+    if( File_Dialog_p->isVisible() )
+        setButton( ui->pB_play_notes, 2 );
+    else
+        setButton( ui->pB_play_notes, 1 );
+
+    if( Spectrum_Dialog_p->isVisible() )
+        setButton( ui->pB_Specrum, 2 );
+    else
+        setButton( ui->pB_Specrum, 1 );
 }

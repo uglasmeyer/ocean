@@ -19,9 +19,7 @@
 	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;\
 	string str {err_str};\
 	printf("%s\n", str.data() ) ;\
-	string s;\
-	cin >> s;\
-	raise( SIGTERM );\
+	exit( 0 ); \
 	};
 
 

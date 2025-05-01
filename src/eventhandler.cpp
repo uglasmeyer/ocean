@@ -22,8 +22,11 @@ void Event_class::Handler()
 	auto EvInfo = [ this ]( uint key = 0, string str )
 	{
 		if( this->EventQue->repeat ) return;
-		string eventstr = this->Info( key, ':', str );
-		this->DaTA->EmitEvent( UPDATELOG_EVENT, eventstr );
+		if ( LogMask[ DEBUG ])
+		{
+			string eventstr = this->Info( key, ':', str );
+			this->DaTA->EmitEvent( UPDATELOG_EVENT, eventstr );
+		}
 	};
 
 	string 	str 	= EventQue->show();
@@ -54,10 +57,10 @@ void Event_class::Handler()
 	}
 	case OSCFREQUENCYKEY:
 	{
-		EvInfo( event, "Slider Mode: " + slidermodes[sds->slidermode] );
-		if ( sds->slidermode == COMBINE )
+		EvInfo( event, "Slider Mode: " + slidermodes[sds->frq_slidermode] );
+		if ( sds->frq_slidermode == COMBINE )
 		{
-			Instrument->Oscgroup.Set_Frequency( sds->OSC_wp.frqidx, sds->slidermode );
+			Instrument->Oscgroup.Set_Frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
 			sds->VCO_spectrum = Instrument->vco->spectrum;
 			sds->VCO_wp.frqidx= Instrument->vco->wp.frqidx;
 			sds->FMO_spectrum = Instrument->fmo->spectrum;
@@ -65,7 +68,7 @@ void Event_class::Handler()
 		}
 		else
 		{
-			Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->slidermode );
+			Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
 		}
 		sds->OSC_spectrum = Instrument->osc->spectrum;
 
@@ -76,7 +79,7 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "VCO frequency change");
 
-		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->slidermode );
+		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->frq_slidermode );
 		sds->VCO_spectrum.frqidx[0] = frqidx;
 		Instrument->Connect( Instrument->osc, Instrument->vco, 'V' );
 
@@ -87,7 +90,7 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "FMO frequency change");
 
-		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->slidermode );
+		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->frq_slidermode );
 		sds->FMO_spectrum.frqidx[0] = frqidx;
 		Instrument->Connect( Instrument->osc, Instrument->fmo, 'F' );
 
@@ -99,7 +102,7 @@ void Event_class::Handler()
 		EvInfo( event, "VCO amplitude change");
 
 		Value vol = sds->VCO_wp.volume;
-		Instrument->vco->Set_volume(vol.ch, sds->slidermode);
+		Instrument->vco->Set_volume(vol.ch, sds->frq_slidermode);
 
 		Instrument->Connect( Instrument->osc, Instrument->vco, 'V');
 		sds->VCO_spectrum.vol[0] = vol.val * 0.01;
@@ -113,7 +116,7 @@ void Event_class::Handler()
 		EvInfo( event, "FMO amplitude change");
 
 		Value vol = sds->FMO_wp.volume;
-		Instrument->fmo->Set_volume(vol.ch, sds->slidermode);
+		Instrument->fmo->Set_volume(vol.ch, sds->frq_slidermode);
 		Instrument->Connect( Instrument->osc, Instrument->fmo, 'F' );
 		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
 		sds->FMO_spectrum.volidx[0] = vol.val;
@@ -281,7 +284,9 @@ void Event_class::Handler()
 	{
 		Value mixid { sds->MIX_Id };
 		Value amp { sds->StA_amp_arr[mixid.val] };
+		sds->StA_state[mixid.val].play = true;
 		Value play { sds->StA_state[mixid.val].play };
+
 		Mixer->StA[mixid.val].DynVolume.SetupVol( amp.val, SLIDE);
 		Mixer->Set_mixer_state(mixid.val, (bool) (play.val));
 		EvInfo( event,	"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "

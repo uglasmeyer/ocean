@@ -7,7 +7,8 @@
 
 #include <Kbd.h>
 
-Keyboard_base::Keyboard_base() : Logfacility_class("Kbd")
+Keyboard_base::Keyboard_base() :
+	Logfacility_class("Kbd")
 {
 	Init();
 };
@@ -129,7 +130,6 @@ void Keyboard_base::pressKey()
 {
 	keystruct.key = getkey();
 //	keystruct.key = getch();
-
 	if ( keystruct.key == 27 )
 	{
 		c2 = getkey();

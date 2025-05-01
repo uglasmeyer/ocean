@@ -29,8 +29,8 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		StA.push_back(Sta);
 	}
 
-	StA_struct_t usr_conf = {"temp"		, frames_per_sec * data->Cfg.Config.temp_sec };
-	StA_struct_t ext_conf = {"External"	, frames_per_sec * data->Cfg.Config.record_sec };
+	StA_struct_t usr_conf = {"temp"		, frames_per_sec * data->Cfg_p->Config.temp_sec };
+	StA_struct_t ext_conf = {"External"	, frames_per_sec * data->Cfg_p->Config.record_sec };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
@@ -223,7 +223,6 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 void Mixer_class::Test()
 {
 
-	DaTA->Sds_p->Set_Loglevel( INFO, true );
 	DaTA->Sds_p->Reset_ifd();
 
 	DynVolume.TestVol( );
@@ -267,11 +266,6 @@ void Mixer_class::Test()
 			(int)DynVolume.current.past,(int)DynVolume.current.future);
 
 	TEST_START( className );
-	Mono.Set_Loglevel( TEST, true );
-	Mono_out.Set_Loglevel( TEST, true );
-	Out.Set_Loglevel( TEST, true );
-	for ( Memory& sta : StA )
-		sta.Set_Loglevel( TEST, true );
 	Mono.Memory_base::Info();
 
 	TEST_END( className );

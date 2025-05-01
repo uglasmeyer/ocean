@@ -88,15 +88,19 @@ bool is_string( T v )
 	return (typeid( v )  == typeid(string())) ? true : false ;
 }
 
-class String : virtual public Logfacility_class
+class String :
+		virtual public Logfacility_class
 {
+	string 			className 	= "";
 public:
-	string 			Str{""};
-	vector<string> 	Vec{};
-	set<char>		Set{};
+	string 			Str			{};
+	vector<string> 	Vec			{};
+	set<char>		Set			{};
 
-	String( const string& str ) : Logfacility_class("String")
+	String( const string& str="" ) :
+		Logfacility_class( "String_class" )
 	{
+		className = Logfacility_class::className;
 		this->Str = str;
         this->Set = to_set( );
         std::ranges::for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});

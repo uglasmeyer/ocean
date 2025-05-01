@@ -44,9 +44,9 @@ class Semaphore_class  :
 {
 	string className = "Semaphore_class";
 public:
-	Time_class	lock_timer{};
+	Time_class	Locktimer{};
 
-	Semaphore_class( Config_class* );
+	Semaphore_class( key_t key );
 	~Semaphore_class();
 	void 	Init	();
 	void 	Aquire	( uint8_t semnum ); // increase the semaphore ( OP_INC )
@@ -54,7 +54,7 @@ public:
 	void 	Reset	( uint8_t num );	// release val times
 
 	void 	Lock	( uint8_t semnum );	// wait for release
-	void 	Lock	( uint8_t semnum, uint timeout );	// wait for release
+	bool 	Lock	( uint8_t semnum, uint timeout );	// wait for release
 	int  	Getval	( uint8_t semnum , int op);
 	string 	State(uint8_t num);
 
@@ -75,8 +75,31 @@ private:
 
 	void 	init	();
 	void 	Semop( const unsigned short& num, const short int& sop );
-};
 
+	map< int, std::string > semnum_map
+	{
+		{SEMAPHORE_NULL,"SEMAPHORE_NULL"},
+		{PROCESSOR_WAIT,"PROCESSOR_WAIT"},
+		{SEMAPHORE_EXIT,"SEMAPHORE_EXIT"},
+		{SYNTHESIZER_START,"SYNTHESIZER_START"},
+		{SEMAPHORE_STARTED,"SEMAPHORE_STARTED"},
+		{SEMAPHORE_RECORD,"SEMAPHORE_RECORD"},
+		{RTSP_STARTED,"RTSP_STARTED"},
+		{SEMAPHORE_TEST,"SEMAPHORE_TEST"},
+		{SEMAPHORE_SYNCNOTES,"SEMAPHORE_SYNCNOTES"},
+		{SEMAPHORE_INITNOTES,"SEMAPHORE_INITNOTES"},
+		{AUDIOSERVER_SEM,"AUDIOSERVER_SEM"},
+		{SEMAPHORE_SENDDATA0,"SEMAPHORE_SENDDATA0"},
+		{SEMAPHORE_SENDDATA1,"SEMAPHORE_SENDDATA1"},
+		{SEMAPHORE_SENDDATA2,"SEMAPHORE_SENDDATA2"},
+		{SEMAPHORE_SENDDATA3,"SEMAPHORE_SENDDATA3"},
+		{SEMAPHORE_EVENT,"SEMAPHORE_EVENT"}
+	};
+
+
+
+
+};
 
 
 #endif /* SEMAPHORE_CLASS_H_ */

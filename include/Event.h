@@ -8,7 +8,6 @@
 #ifndef EVENT_H_
 #define EVENT_H_
 
-#include <Logfacility.h>
 #include <data/DataWorld.h>
 #include <Instrument.h>
 #include <notes/Notes.h>
@@ -16,7 +15,8 @@
 #include <Mixer.h>
 
 class Event_class :
-	virtual public Logfacility_class
+	virtual public Logfacility_class,
+	state_struct
 {
 	string 				className = "";
 
@@ -45,7 +45,8 @@ public:
 				External_class*		external,
 				ProgressBar_class*	progressbar,
 				Musicxml_class*		musicxml ) :
-		Logfacility_class("Event_class")
+		Logfacility_class("Event_class"),
+		state_struct()
 	{
 		className = Logfacility_class::className;
 		this->DaTA			= data;

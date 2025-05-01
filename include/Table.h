@@ -10,14 +10,22 @@
 
 #include <Logfacility.h>
 
+typedef struct tableOpt_struct
+{
+	uint 		Ident 		= 0;
+	string		Titel 		= "";
+	fstream* 	FILE 		= nullptr;
+	char 		Separator 	= ' ';
+	char		Crlf		= '\n';
+} tableopt_t;
+const tableopt_t	defaultopt	= tableOpt_struct();
+
+
 class Table_class :
 	virtual Logfacility_class
 {
-	string 		className 	= "";
-	char 		separator 	= ' ';
-	uint		Ident		= 0;
-	string 		Title		= "";
-	fstream* 	File 		= nullptr;
+	string		 		className 	= "";
+
 	struct header_struct
 	{
 		string 	txt;
@@ -27,8 +35,10 @@ class Table_class :
 	vector<header_t> header_v {};
 
 public:
-	Table_class( string title = "", uint ident = LOGIDENT );
-	Table_class( fstream* F, char s ) ;
+	tableopt_t 			opt 		= tableOpt_struct();
+
+	Table_class( string title = "", uint ident = LOGINDENT );
+	Table_class( tableopt_t _opt );
 	virtual ~Table_class();
 
 	void AddColumn( string name, uint width );
@@ -42,18 +52,33 @@ public:
 			Comment(ERROR, "Invalid number of columns: ", argc, " expected: ", header_v.size());
 			return "";
 		}
+		string color 	= GetColor( TABLE );
+		string endc		= GetendColor();
 		stringstream strs {};
 		uint n	= 0;
-		strs << setw( Ident ) << left << "";
-		((  strs << dec << left << setw(header_v[n++].width)  << args << separator), ...);
-		cout << strs.str() << endl;
 
-		if( File )
+		strs << setw( opt.Ident ) << dec << left << "" ;
+		(( strs << setw(header_v[n++].width)
+				<< args
+				<< opt.Separator
+				), ...);
+
+		string tableline =strs.str();
+		string colorline = color + tableline + endc;
+
+		cout << colorline << opt.Crlf;
+
+		if( opt.FILE )
 		{
-			*File << strs.str();
-			*File << '\n';
+			if( not opt.FILE->is_open() )
+			{
+				Comment(WARN, "file not open");
+				return strs.str();
+			}
+
+			*opt.FILE << tableline << "\n";
 		}
-		return strs.str();
+		return tableline;
 
 	};
 

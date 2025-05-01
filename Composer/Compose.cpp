@@ -27,24 +27,16 @@ bool check_input( string keyword )
 	return false;
 }
 
-vector_str_t convert_to_arr( string str )
-{
-	String Str{""};
-	Str.Str = str ;
-	vector_str_t arr = Str.to_unique_array( ' ' );
-	return arr;
-}
-
 bool interpreter( )
 {
-	string 		cmd{};
-	string 		line{};
-	string		name{};
-	vector_str_t arr	= {};
+	string 				cmd				{};
+	string 				line			{};
+	string				name			{};
+	vector_str_t 		arr				{};
 
-	uint 			pos 			= 0;
-	uint 			line_no 		= 0;
-	uint 			nr_of_filelines = Program.size();
+	uint 				pos 			= 0;
+	uint 				line_no 		= 0;
+	uint 				nr_of_filelines = Program.size();
 
 	while ( ( pos >= 0 ) and (pos < nr_of_filelines ) )
 	{
@@ -71,21 +63,23 @@ bool interpreter( )
 			if ( keyword.compare("return") 		== 0 )	pos = return_pos ( pos );
 			if ( keyword.compare("call") 		== 0 )	pos = call_pos( pos, arr );
 			Compiler.Set_prgline( pos );
-			if ( keyword.compare("start") 		== 0 )	Compiler.Start_bin( arr );
-			if ( keyword.compare("stop") 		== 0 )	Compiler.Stop_bin( arr );
+
+			if ( keyword.compare("add") 		== 0 )	Compiler.Add( arr );
+			if ( keyword.compare("adsr") 		== 0 )	Compiler.Adsr( arr );
+			if ( keyword.compare("exit") 		== 0 )	return Compiler.Exit();
 			if ( keyword.compare("instrument") 	== 0 ) 	Compiler.Instrument( arr );
 			if ( keyword.compare("notes") 		== 0 )	Compiler.Notes( arr );
 			if ( keyword.compare("osc") 		== 0 )	Compiler.Osc( arr );
+			if ( keyword.compare("pause") 		== 0 )	Compiler.Pause( arr );
 			if ( keyword.compare("play") 		== 0 )	Compiler.Play( arr );
-			if ( keyword.compare("adsr") 		== 0 )	Compiler.Adsr( arr );
 			if ( keyword.compare("rec") 		== 0 )	Compiler.RecStA( arr );
 			if ( keyword.compare("record") 		== 0 )	Compiler.RecFile( arr );
-			if ( keyword.compare("pause") 		== 0 )	Compiler.Pause( arr );
-			if ( keyword.compare("add") 		== 0 )	Compiler.Add( arr );
 			if ( keyword.compare("random") 		== 0 )	Compiler.Random( arr );
 			if ( keyword.compare("set") 		== 0 )	Compiler.Set( arr );
+			if ( keyword.compare("start") 		== 0 )	Compiler.Start_bin( arr );
+			if ( keyword.compare("stop") 		== 0 )	Compiler.Stop_bin( arr );
 			if ( keyword.compare("text")		== 0 )	Compiler.Text( arr );
-			if ( keyword.compare("exit") 		== 0 )	{ Compiler.ExitInterpreter(); return true; }
+
 			if ( Compiler.error > 0 )
 			{
 				if ( (Compiler.dialog_mode ) )
@@ -98,14 +92,12 @@ bool interpreter( )
 		{
 			if ( Compiler.error > 0 )
 				return false ;
-			if ( keyword[0] == ':' ) // is a function
-			{
-				;
-			}
-			else
+
+			if ( keyword[0] != ':' ) // is a function
 			{
 				Compiler.Addvariable( arr );
 			}
+
 			if ( Compiler.error > 0 )
 			{
 				Compiler.Wrong_keyword( Keywords, keyword );
@@ -158,7 +150,7 @@ bool preprocessor( string batch_file )
 			string filename = ( arr.size() > 1) ? arr[1] : "";
 			if ( filename.length() > 0 )
 			{
-				preprocessor( file_structure().Dir.includedir + filename + ".inc" );
+				preprocessor( file_structure().includedir + filename + ".inc" );
 			}
 			else
 			{
@@ -209,15 +201,25 @@ void composer_dialog()
 
 void exit_proc( int signal )
 {
+	DaTA.Sds_p->Restore_ifd();
+	DaTA.Appstate.RestoreState();
 	exit(0);
 }
 
 int main( int argc, char* argv[] )
 {
-
+	auto headline = [ ]( string comment  )
+	{
+	    Log.Comment( BINFO, Log.Line );
+	    Log.Comment( BINFO, comment );
+	    Log.Comment(  INFO, Log.Line );
+	};
 	App.Start( argc, argv );
 
-	if ( Cfg->Config.test == 'y' )
+	DaTA.Appstate.SaveState();
+	DaTA.Sds_p->Reset_ifd( );
+
+	if ( DaTA.Cfg_p->Config.test == 'y' )
 	{
 		ComposerTestCases();
 		Statistic.Show_Statistic(  );
@@ -225,19 +227,21 @@ int main( int argc, char* argv[] )
 		exit_proc( 0 );
 	}
 
-	DaTA.Appstate.Announce(  );
 
     App.Ready();
 
+    headline( "Starting Pre-processor section" );
 	if ( preprocessor( file_structure().program_file ) )
 	{
+	    headline( "Starting Interpreter section" );
 		if ( interpreter( ) )
 		{
+		    headline( "Starting Processor section" );
 			Compiler.Execute(  );
 		}
 	}
 
-	if ( Cfg->Config.dialog == 'y' )
+	if ( DaTA.Cfg_p->Config.dialog == 'y' )
 	{
 		composer_dialog();
 	}

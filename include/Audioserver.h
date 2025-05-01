@@ -14,17 +14,17 @@
 #define RTAUDIO
 
 #include <Ocean.h>
-#include <data/Memory.h>
-#include <data/Interface.h>
+//#include <data/Memory.h>
+//#include <data/Interface.h>
 #include <System.h>
-#include <App.h>
+//#include <App.h>
 #include <External.h>
 #include <Wavedisplay.h>
 #include <Keyboard.h>
-#include <Exit.h>
+//#include <Exit.h>
 #include <Mixer.h>
 #include <Thread.h>
-
+#include <Appsymbols.h>
 
 typedef struct device_struct
 {
@@ -37,37 +37,33 @@ device_struct_t DeviceDescription;
 
 // classes and structures
 
-Exit_class				Exit{};
-Logfacility_class 		Log{ "AudioServer" };
 
-Time_class				Timer{};
-Time_class				RecTimer{};
-Keyboard_class			Keyboard{};
 
-Dataworld_class			DaTA( AUDIOID );
-Application_class		App( &DaTA );
-Config_class*			Cfg = DaTA.Cfg_p;
-Interface_class*		Sds = DaTA.GetSds(0);
-interface_t*			sds	= DaTA.sds_master;
-Memory					mono_out	{ monobuffer_size };
-External_class			External { DaTA.Cfg_p, sds };
-ProgressBar_class		ProgressBar( &sds->RecCounter );
+Appstate_class*			Appstate 			= &DaTA.Appstate;
+Memory					mono_out			{ monobuffer_size };
+Time_class				Timer				{};
+Time_class				RecTimer			{};
+Keyboard_class			Keyboard			{};
+External_class			External 			{ DaTA.Cfg_p, sds };
+ProgressBar_class		ProgressBar			{ &sds->RecCounter };
+Wavedisplay_class		Wavedisplay			{ DaTA.Sds_p };
 
-Wavedisplay_class		Wavedisplay	{ DaTA.Sds_p };
-extern void save_record_fcn();
-Thread_class			SaveRecord{ DaTA.Sem_p, SEMAPHORE_RECORD, save_record_fcn, "save record" };
-//cz * 100 = sr, mf / 1.2 = sr , => mf = cz * 100 * 1.2
 
 // runtime parameter
-buffer_t 		ncounter 		= 0;
-uint			rcounter		= 0;
-char 			shm_id 			= 0; // out_data = Shm_a
-stereo_t*		shm_addr 		= nullptr;
-const buffer_t 	chunksize		= max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
-buffer_t 		audioframes 	= sds->audioframes;
+buffer_t 				ncounter 			= 0;
+uint					rcounter			= 0;
+char 					shm_id 				= 0; // out_data = Shm_a
+stereo_t*				shm_addr 			= nullptr;
+const buffer_t 			chunksize			= max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
+buffer_t 				audioframes 		= sds->audioframes;
+uint					bufferFrames 		= chunksize;
+bool 					done 				= false;
 
-uint			bufferFrames 	= chunksize;
-bool 			done 			= false;
+extern void save_record_fcn();
+Thread_class			SaveRecord			{ DaTA.Sem_p,
+											  SEMAPHORE_RECORD,
+											  save_record_fcn,
+											  "save record" };
 
 // ----------------------------------------------------------------
 // RT Audio constant declarations

@@ -17,7 +17,7 @@ void Spectrum_class::assign_frq( int channel, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.frqidx[channel] = check_range( freqarr_range, value );
+		spectrum.frqidx[channel] = check_range( frqarr_range, value );
 	}
 	else
 		spectrum.frqidx[channel] = 0;
@@ -31,7 +31,7 @@ void Spectrum_class::assign_vol( int i, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.volidx[i] = check_range( volume_range, value );
+		spectrum.volidx[i] = check_range( volidx_range, value );
 	}
 	else
 		spectrum.volidx[i] = 0;
@@ -103,6 +103,7 @@ int Spectrum_class::Get_waveform_id( string wstr )
 
 string Spectrum_class::Get_waveform_str( int id )
 {
+//	cout << "wf idx";
 	int wfid = check_range( waveform_range, (int) id );
 	return waveform_str_vec[ wfid ];
 };
@@ -122,7 +123,9 @@ string Spectrum_class::Show_this_spectrum( )
 
 void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 {
-	Table_class Table{ f, ','};
+	Table_class Table{ defaultopt };
+	Table.opt.FILE 		= f;
+	Table.opt.Separator = ',';
 	Table.AddColumn("Type", 6);
 	Table.AddColumn("Name", 6);
 	Table.AddColumn("Main",6);

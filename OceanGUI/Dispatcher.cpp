@@ -10,7 +10,7 @@ Dispatcher_class::Dispatcher_class( Dataworld_class* _data ) :
 	Logfacility_class( "Dispatcher_class")
 {
 	Sem_p = _data->Sem_p;
-	Sds_p = _data->GetSds( 0 );
+	Sds_p = _data->Sds_master;
 	Sds_master = _data->Sds_master;
 	assert( Sds_master == Sds_p );
 };
@@ -70,7 +70,7 @@ void Dispatcher_class::Loop(  )
 }
 
 Controller_class::Controller_class( MainWindow& window ) :
-	Dispatcher( window.DaTA )
+	Dispatcher( &window.DaTA )
 {
 	MainWindow*		window_p = &window;
 	Dispatcher_class* Dispatcher_p = &Dispatcher;

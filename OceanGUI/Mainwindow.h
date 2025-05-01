@@ -39,29 +39,32 @@ class MainWindow :
     Q_OBJECT
 
 public:
-    Dataworld_class			DaTA_class			{ GUI_ID };
-    Dataworld_class*
-    						DaTA  				= &DaTA_class;
-    EventLog_class			Eventlog			{ DaTA };
+	process_t				Process				{  };
+
+	Config_class			Cfg					{ Process.name };
+	Semaphore_class			Sem					{ Cfg.Config.Sem_key };
+	Dataworld_class 		DaTA				{ Process.AppId, &Cfg, &Sem };
+	Application_class		App					{ &DaTA };
+	interface_t*			sds 				= DaTA.GetSdsAddr();
+
+    EventLog_class			Eventlog			{ &DaTA };
     EventLog_class*			Eventlog_p			= &Eventlog;
-
-    Application_class		App					{ DaTA };
-
-    Config_class*			Cfg 				= DaTA->Cfg_p;
-    interface_t*			Sds_master			= DaTA->sds_master;
-    uint8_t					SDS_ID				= Sds_master->config;
-    Interface_class*		Sds					= DaTA->GetSds( SDS_ID );
+    Appstate_class*			Appstate			= &DaTA.Appstate;
+    Config_class*			Cfg_p 				= DaTA.Cfg_p;
+    interface_t*			Sds_master			= DaTA.sds_master;
+    uint8_t					SDS_ID				= Sds_master->config;// active SDS for event logging
+    Interface_class*		Sds					= DaTA.SDS.GetSds( SDS_ID );
 
     Spectrum_class          Spectrum			{};
-    Semaphore_class*		Sem					= DaTA->Sem_p;
+    Semaphore_class*		Sem_p				= DaTA.Sem_p;
 
-    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA};
+    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, &DaTA};
     Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
 
-    File_Dialog_class		File_Dialog_obj		{ this, DaTA, Eventlog_p  };
+    File_Dialog_class		File_Dialog_obj		{ this, &DaTA, Eventlog_p  };
     File_Dialog_class*		File_Dialog_p		= &File_Dialog_obj;
 
-    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA->Sds_p, Eventlog_p };
+    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA.Sds_p, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
 //not used

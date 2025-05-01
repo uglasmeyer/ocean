@@ -5,6 +5,7 @@
  *      Author: sirius
  */
 
+
 #ifndef FREQUENCY_H_
 #define FREQUENCY_H_
 
@@ -14,21 +15,26 @@
 #include <Exit.h>
 #include <Table.h>
 
-typedef float 	frq_t;
-const 	uint 	C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
-const 	size_t 	FRQARR_SIZE = ( max_octave  * oct_steps ) + C0 - 1;
-static_assert(  FRQARR_SIZE < 128 );// ensure limitation to uint8
+typedef float 						frq_t;
+const 	uint 						C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
 
-typedef array<string, FRQARR_SIZE> frqstrarr_t;
-typedef array<frq_t, FRQARR_SIZE> frqarray_t;
+constexpr uint FrqIndex( const uint& octave, const uint& note )
+{
+	return octave*oct_steps + note + C0 ;
+};
+const 	uint8_t						A3			= FrqIndex(3,2);
+const 	size_t 						FRQARR_SIZE = FrqIndex(max_octave, 0 );
 
-extern frqarray_t frqArray ;
-constexpr void initFrqArray();
+static_assert(  FRQARR_SIZE < numeric_limits<uint8_t>::max() );
 
-extern frqstrarr_t frqNamesArray ;
-constexpr void initFrqNamesArray();
+typedef array<string, FRQARR_SIZE> 	frqstrarr_t;
+typedef array<frq_t,  FRQARR_SIZE> 	frqarray_t;
 
-const range_t<int > freqarr_range {1, FRQARR_SIZE-1 }; // provide limitation to uint8
+extern frqarray_t 					frqArray;;
+extern frqstrarr_t 					frqNamesArray;
+
+
+const range_t<int > 				frqarr_range {1, FRQARR_SIZE-1 };
 
 class Frequency_class :
 		virtual Logfacility_class
@@ -36,19 +42,25 @@ class Frequency_class :
 	string className = "";
 
 public:
-	range_t<float> freqfloat_range { 0.0, 0.0 };
+	range_t<float> frequency_range;// { frqArray[1], frqArray[FRQARR_SIZE-1] };
 
 	frq_t Calc( const frq_t& _base_freq, const int& idx );
 	frq_t GetFrq( const int& idx );
 	frq_t Frqadj( const uint8_t& channel, const int8_t& value );
-	uint Index( const string& frqName );
-	void ShowFrqTable();
-	void TestFrequency();
 
 	Frequency_class();
 	virtual ~Frequency_class();
+	uint  Index( const string& frqName );
+	void ShowFrqTable();
+	void TestFrequency();
+
+
+//	const uint A3 = Index("A3");
 
 private:
+	void initFrqArray(  );
+	void initFrqNamesArray();
+
 
 };
 

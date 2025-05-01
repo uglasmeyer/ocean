@@ -61,7 +61,7 @@ public:
 	stereo* stereo_data = nullptr;
 	Logfacility_class Log{"Memory_base"};
 	Stereo_Memory(buffer_t size) :
-		//Logfacility_class( ),
+		Logfacility_class( "Stereo_Memory" ),
 		Memory_base( size )
 	{
 		className = Logfacility_class::className;
@@ -108,7 +108,7 @@ class Storage_class :
 		virtual public Logfacility_class,
 		virtual public Memory
 {
-	string className = "Storage_class";
+	string className = "";
 public:
 	// dynamic properties
 //	uint 			max_counter 	= 0;
@@ -116,7 +116,7 @@ public:
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
-	Dynamic_class	DynVolume		{ volume_range };
+	Dynamic_class	DynVolume		{ volidx_range };
 
 	StA_status_t state = StA_status_struct();
 
@@ -131,7 +131,7 @@ public:
 	uint*	Get_storeCounter_p();
 
 	Storage_class( ) :
-		Logfacility_class( "" ),
+		Logfacility_class( "Storage_class" ),
 		Memory()
 	{} ;
 	virtual ~Storage_class()

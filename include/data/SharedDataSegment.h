@@ -16,18 +16,38 @@
 #include <Wavedisplay_base.h>
 #include <notes/Notesbase.h>
 
-enum {
-	 OFFLINE,
-	 RUNNING	,
-	 FREERUN	,
-	 UPDATEGUI 	,
-	 SYNC 		,
-	 DEFAULT	,
-	 EXITSERVER	,
-	 KEYBOARD	,
-	 RECORDSTART,
-	 RECORDSTOP,
-	 LASTNUM
+struct state_struct
+{
+	enum {
+		 OFFLINE	,
+		 RUNNING	,
+		 FREERUN	,
+		 UPDATEGUI 	,
+		 SYNC 		,
+		 DEFAULT	,
+		 EXITSERVER	,
+		 KEYBOARD	,
+		 RECORDSTART,
+		 RECORDSTOP ,
+		 LASTNUM
+		};
+	typedef array< string, LASTNUM>		state_map_t ;
+	state_map_t		state_map 	{""};
+
+	state_struct()
+	{
+		state_map[OFFLINE]		= "Offline";
+		state_map[RUNNING] 		= "Running";
+		state_map[FREERUN] 		= "free running";
+		state_map[UPDATEGUI]	= "Update GUI";
+		state_map[SYNC] 		= "sync mode";
+		state_map[DEFAULT] 		= "default mode";
+		state_map[EXITSERVER] 	= "Exit server";
+		state_map[KEYBOARD] 	= "Keyboard";
+		state_map[RECORDSTART] 	= "start recording";
+		state_map[RECORDSTOP] 	= "stop recording";
+	}
+	~state_struct() = default;
 };
 
 typedef struct EventPtr_struct
@@ -37,32 +57,34 @@ typedef struct EventPtr_struct
 	uint8_t			length	= 0;
 } eventptr_t;
 
-typedef struct process_struct
+typedef struct register_process_struct
 {
 	int8_t			idx		= -1;
 	uint8_t			sdsId	= 0;
 	uint8_t			type	= NOID;
 	pid_t			pid		= -1;
-} process_t;
+} register_process_t;
 
 const uint	REGISTER_SIZE 	= MAXCONFIG+1;
 const uint 	str_buffer_len 	= 32;
 const uint  MAXQUESIZE		= 100;
-typedef 	array< uint8_t, MAXQUESIZE>		deque_t ;
-typedef		array<process_t, REGISTER_SIZE>	process_arr_t;
-typedef 	Note_base::noteline_prefix_t	noteline_prefix_t;
-typedef 	Spectrum_class::spectrum_t		spectrum_t;
-typedef		Mixer_base::mixer_status_t		mixer_status_t;
-typedef		Mixer_base::StA_amp_arr_t		StA_amp_arr_t;
-typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
-typedef		array<Oscillator_base::connect_t, 3>
-											osc_connect_t;
+typedef 	array< uint8_t, MAXQUESIZE>					deque_t ;
+typedef		array<register_process_t, REGISTER_SIZE>	process_arr_t;
+typedef 	Note_base::noteline_prefix_t				noteline_prefix_t;
+typedef 	Spectrum_class::spectrum_t					spectrum_t;
+typedef		Mixer_base::mixer_status_t					mixer_status_t;
+typedef		Mixer_base::StA_amp_arr_t					StA_amp_arr_t;
+typedef		Mixer_base::StA_state_arr_t					StA_state_arr_t;
+typedef		array<Oscillator_base::connect_t, 3>		osc_connect_t;
 
+// there are MAXCONFIG interface structures in dataworld
+// global values are managed in structure 0 only (master interface)
+// local  values are interface specific
 typedef struct interface_struct // with reasonable defaults
 {
+	// local (interface specific
 	uint8_t			version						= 1; 						// comstack
 	int8_t			SDS_Id						= 0;
-	buffer_t		audioframes					= max_frames;
 
 	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
@@ -74,7 +96,7 @@ typedef struct interface_struct // with reasonable defaults
 
 	uint8_t			Master_Amp 					= 75;// comstack
 	int8_t			mixer_balance				= 0; // nutral
-	uint8_t		 	vol_slidemode 				= FIXED;
+	uint8_t		 	vol_slidemode 				= SLIDE;
 	uint8_t			slide_duration 				= 100; // % of 4*max_seconds
 
 	/* instrument definition starts */
@@ -92,43 +114,46 @@ typedef struct interface_struct // with reasonable defaults
 	/* instrument definition ends	 */
 
 	uint8_t			Spectrum_type				= Spectrum_class::spec_struct().osc;
-	uint8_t			NotestypeId					= 0; // musicxml
+	uint8_t			NotestypeId					= XML_ID; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds // comstack
 
 	uint8_t			config						= 0; // reference to the Synthesizer sds
-	keys_arr_t		sds_keys					= { 0,0,0,0 };
 
 	uint8_t 		MIX_Amp 					= 0;// comstack
 	uint8_t 		MIX_Id						= 0;// comstack
 
 
-	uint8_t 		AudioServer	    			= OFFLINE;// comstack
-	uint8_t 		Synthesizer					= DEFAULT;// indicates that shm is new // comstack
-	uint8_t	 		UserInterface				= OFFLINE;// comstack
-	uint8_t	 		Composer 					= OFFLINE;// comstack
-	uint8_t			Comstack					= OFFLINE;// NA
-	uint8_t			Rtsp						= OFFLINE;//
+	uint8_t 		Synthesizer					= state_struct::DEFAULT;// indicates that shm is new // comstack
 
-	uint8_t	 		FLAG						= NULLKEY;
-	uint8_t 		slidermode					= FIXED;	// comstack
+	uint8_t	 		FLAG						= CLEAR_KEY;
+	uint8_t 		frq_slidermode				= SLIDE;	// comstack
 
-	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
-	bool			Record						= false; 	// Audioserver recording
-	uint8_t 		FileNo						= 0;		// comstack
-
-	uint8_t 		SHMID 						= 0;// comstack
-	uint8_t		 	MODE						= FREERUN;// comstack
+	uint8_t		 	MODE						= state_struct::FREERUN;// comstack
 	bool 			UpdateFlag 					= true;
 	uint8_t			time_elapsed 				= 0;
-	process_arr_t	process_arr					= { {process_struct()} };
 
 	deque_t			deque						{ NULLKEY };
 	eventptr_t		eventptr					= EventPtr_struct();
 	char			eventstr[512]				{0};
 	wd_status_t		WD_status					= WD_status_struct();
+
+	// common
+	buffer_t		audioframes					= max_frames;
 	wd_arr_t		wavedata 					= {0};
+	process_arr_t	process_arr					= { {register_process_struct()} };
+	uint8_t 		SHMID 						= 0;// comstack
+	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
+	bool			Record						= false; 	// Audioserver recording
+	uint8_t 		FileNo						= 0;		// comstack
+	uint8_t 		AudioServer	    			= state_struct::OFFLINE;// comstack
+	uint8_t	 		UserInterface				= state_struct::OFFLINE;// comstack
+	uint8_t	 		Composer 					= state_struct::OFFLINE;// comstack
+	uint8_t			Comstack					= state_struct::OFFLINE;// NA
+	uint8_t			Rtsp						= state_struct::OFFLINE;//
+
+
 
 } interface_t;
 

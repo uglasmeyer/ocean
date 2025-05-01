@@ -25,14 +25,18 @@
 
 Application_class::Application_class( Dataworld_class* _DaTA ) :
 		Logfacility_class( "Application_class" ),
-		Statistic( _DaTA->Cfg.prgname )
+		Statistic( _DaTA->Appstate.Name )
 {
-	this->ProgramName			= _DaTA->Cfg.prgname;
+	this->ProgramName			= _DaTA->Appstate.Name;
 	this->className				= Logfacility_class::className ;
 	this->DaTA					= _DaTA;
+	this->Cfg 					= DaTA->Cfg_p;
 	this->sds_master			= DaTA->sds_master;
+	this->AppId					= DaTA->AppId;
+	this->Appstate				= &DaTA->Appstate;
 	this->This_Application 		= Application + ProgramName + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
+	Init_Sds( );
 
 }
 
@@ -40,12 +44,17 @@ void Application_class::Init_Sds( )
 {
 	this->Sds		= DaTA->GetSds( );
 	assert( this->Sds != nullptr );
-	this->state_p	= DaTA->Appstate.ptr;
-
 	this->sds		= Sds->addr;
 }
 
-void Application_class::VersionTxt()
+Application_class::~Application_class()
+{
+	deRegister();
+
+    if (( AppId == SYNTHID ) and ( not LogMask[TEST] ))
+		Sds->Dump_ifd();
+}
+void Application_class::versionTxt()
 {
 	fstream File;
 	File.open( file_structure().version_txt, fstream::out );
@@ -53,10 +62,22 @@ void Application_class::VersionTxt()
 	File.close();
 }
 
+void Application_class::app_properties()
+{
+	process_t 	properties { };
+				properties.logowner			= logowner.contains( AppId );
+				properties.start_once		= Appstate->startonceIds.contains( AppId );
+				properties.data_process		= DaTA->Reg.dataProc.contains( AppId );
+
+				properties.Show();
+}
 void Application_class::Start( int argc, char* argv[] )
 {
-    std::set<int> logowner =  { GUI_ID, COMPID, RTSPID };
-	if ( logowner.contains( DaTA->AppId ) )
+	Appstate->StartOnce();
+	Appstate->Announce();
+	app_properties();
+
+	if ( logowner.contains( AppId ) )
 	{
 		Init_log_file();
 	}
@@ -64,22 +85,12 @@ void Application_class::Start( int argc, char* argv[] )
 	Info("Entering application init for ", This_Application );
 	Info(Line );
 
-	VersionTxt();
-
-	redirect_stderr = false;//(bool) std::freopen( errFile.data(), "w", stderr);
-	if ( redirect_stderr )
-	{
-		Info( "Redirecting stderr");
-		fprintf( stderr, "%s\n", "error file content:\n");
-	}
-
-	this->Cfg = DaTA->Cfg_p;
+	versionTxt();
 
 	Cfg->Parse_argv(argc, argv );
 	Cfg->Show_Config( );
-	Init_Sds( );
 
-	if ( DaTA->Cfg.Config.clear == 'y' )
+	if ( DaTA->Cfg_p->Config.clear == 'y' )
 	{
 		DaTA->Reg.Clear_procregister();
 		EXCEPTION( "Restart processes");
@@ -87,64 +98,24 @@ void Application_class::Start( int argc, char* argv[] )
 
 }
 
-Application_class::~Application_class()
-{
-	deRegister();
-
-    if (( DaTA->AppId == SYNTHID ) and ( not LogMask[TEST] ))
-	{
-		Sds->Dump_ifd();
-	}
-}
-
-
 
 void Application_class::deRegister( )
 {
-/*	auto closeStderr = [ this ]( string errFile )
-	{
-		Info2(1, "Closing stderr");
 
-		if ( redirect_stderr )
-			std::fclose(stderr);
+	DaTA->Appstate.SetOffline( );//this->sds, this->AppId );
 
-		std::ifstream cFile( errFile );
-	    string out = "";
-	    do
-	    {
-	    	cout.flush() << out << endl;
-
-	    } while( getline ( cFile, out ));
-	    cout << endl;
-
-	    cFile.close( );
-	};
-*/
-
-	auto setState = [ this ](  )
-	{
-		cout << endl;
-		Info( "De-register " , DaTA->Appstate.Name  );
-		assert ( state_p != nullptr );
-		*state_p 	= OFFLINE;
-
-	};
-
-	setState( );
-	if(( sds_master->UserInterface == RUNNING ) )
-	{
-		DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
-	}
-	sds->UpdateFlag = true;//	closeStderr( errFile ); TODO causes valgrind error
+	if ( this->AppId != GUI_ID )
+		if( DaTA->Appstate.IsRunning( sds_master, GUI_ID)  )
+		{
+			DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
+		}
+	DaTA->Sem_p->Release( SEMAPHORE_EXIT );
 }
 
 void Application_class::Ready(  )
 {
 	Statistic.Show_Statistic( );
-	if ( state_p )
-	{
-		*state_p	= RUNNING;
-	}
+
 	Comment(INFO, ProgramName + " is ready");
 	Info( "SDS ID: ", (int) DaTA->SDS_Id );
 	cout << Line << endl;
@@ -154,15 +125,17 @@ void Application_class::Ready(  )
 
 void Application_class::Shutdown_instance( )
 {
-
-	if ( *state_p == RUNNING )
+	bool is_running 	= DaTA->Appstate.IsRunning( this->sds, AppId );
+	bool is_offline		= DaTA->Appstate.IsOffline( this->sds, AppId );;
+	if ( is_running and not is_offline )
 	{
-		*state_p	= EXITSERVER;
+		DaTA->Appstate.Set( this->sds, AppId, EXITSERVER );
 	}
 	else
 	{
-		Info( "No other " , ProgramName , " is running"	);
+		Info( "Application " , ProgramName , " is alread in state exit"	);
 	}
 	Server_init = false;
+
 }
 

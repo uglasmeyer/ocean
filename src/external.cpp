@@ -18,7 +18,7 @@ string External_class::GetName()
 void External_class::setName( string  _name )
 {
 	Name 		= _name;
-	Filename 	= file_structure().Dir.musicdir + Name + file_structure().wav_type;
+	Filename 	= file_structure().musicdir + Name + file_structure().wav_type;
 }
 
 bool External_class::Read_file_header( string name )
@@ -331,7 +331,6 @@ void External_class::Test_External()
 	TEST_START( className );
 	ASSERTION( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 , "", StA->ds.max_records, Stereo_Memory::ds.max_records);
 
-	Log_system.Set_Loglevel( TEST, true);
 	if ( filesystem::exists( testcounter ))
 		filesystem::remove( testcounter );
 

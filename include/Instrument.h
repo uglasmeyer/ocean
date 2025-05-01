@@ -20,6 +20,7 @@
 
 class Instrument_class:
 		virtual public Logfacility_class
+
 {
 public:
 	string 					Name 		= "";
