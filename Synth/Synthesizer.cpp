@@ -268,7 +268,7 @@ void stop_threads()
 int sig_counter = 0;
 void exit_proc( int signal )
 {
-	Log.Comment(INFO, "Entering exit procedure for " + App.ProgramName );
+	Log.Comment(INFO, "Entering exit procedure for " + Appstate->Name );
 	if ( sig_counter > 0 )
 	{
 		Log.Comment( ERROR, "Exit procedure failed" );

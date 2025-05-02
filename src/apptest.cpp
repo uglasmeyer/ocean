@@ -50,7 +50,7 @@ void SynthesizerTestCases()
 	Log.Test_Logging();
 
 
-	App.Init_Sds( );
+//	App.Init_Sds( );
 
 
 	App.DaTA->Appstate.Announce();

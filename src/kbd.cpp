@@ -128,9 +128,15 @@ char Keyboard_base::getch()
 
 void Keyboard_base::pressKey()
 {
-	keystruct.key = getkey();
-//	keystruct.key = getch();
-	if ( keystruct.key == 27 )
+	char ch = getkey();
+	if ( ch  == 126 )
+	{
+		keystruct.val = keystruct.key;
+		keystruct.key = ch;
+		return;
+	}
+	keystruct.key = ch;
+	if (( keystruct.key == 27 )  )
 	{
 		c2 = getkey();
 		c3 = getkey();

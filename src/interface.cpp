@@ -11,14 +11,14 @@
 #include <System.h>
 
 
-Interface_class::Interface_class( uint8_t sdsid, Config_class* cfg, Semaphore_class* sem ):
+Interface_class::Interface_class( char appid, uint8_t sdsid, Config_class* cfg, Semaphore_class* sem ):
 Logfacility_class("Shared Data" )
 {
 
 	this->Sem_p	= sem;
 	this->Cfg_p = cfg;
 	Setup_SDS( sdsid, cfg->Config.sdskeys[ sdsid ] );
-//	this->AppId = appid;
+	this->AppId = appid;
 }
 
 Interface_class::~Interface_class()
@@ -37,8 +37,6 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	Eventque.setup( addr );
 
 	SHM.ShowDs(ds);
-	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
-
 
 	if ( not ds.eexist )
 	{
@@ -47,6 +45,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	}
 	Comment( INFO, "check shared memory version");
 
+	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
 	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{
@@ -71,14 +70,9 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 				" or lib/ifd_data.bin size ");
 	}
 	ds.eexist = true;
-	addr->SDS_Id = sdsid;
 }
 
 
-string Interface_class::Decode( uint8_t idx)
-{
-	return state_map[ idx ];
-}
 
 
 

@@ -16,7 +16,7 @@ Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class
 Logfacility_class( "Dataworld_class"),
 SDS( appId, cfg, sem ),
 Reg( appId, SDS.master ),
-Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.vec[0] )
+Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master )
 {
 
 	className = Logfacility_class::className;
@@ -27,11 +27,8 @@ Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.vec[0] )
 	Sds_master	= SDS.Master;
 	sds_master 	= SDS.master;//(interface_t*) SdsVec.vec[0].ds.addr;
 
-//	Reg.Setup( sds_master ); // sds of the process register
-	SDS_Id = Reg.GetId(  );
-	sds_master->SDS_Id = 0;
-
-	Sds_p = GetSds();
+	SDS_Id 		= Reg.GetId(  );
+	Sds_p 		= GetSds();
 
 	if ( Reg.Is_dataprocess() )
 	{

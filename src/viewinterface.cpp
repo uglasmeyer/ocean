@@ -16,6 +16,10 @@
 	auto conv_bool_s = []( bool b )
 		{ return ( b ) ? string("yes") : string("no "); };
 
+string ViewInterface_class::Decode( uint8_t idx)
+{
+	return state_map[ idx ];
+}
 
 void ViewInterface_class::show_Que()
 {
@@ -26,7 +30,7 @@ void ViewInterface_class::show_Que()
 	}
 	cout << endl;
 }
-void ViewInterface_class::showSdsPage2()
+void ViewInterface_class::showStates()
 {
 	Table_class Connect { "Connections", 20 };
 	Connect.AddColumn("OSC", 6);
@@ -65,20 +69,34 @@ void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 	printHeader();
 //	std::cout << "\x1B[2J\x1B[H";
 	switch ( nr ) {
-		case F1 : { showSdsPage0();	break;}
-		case F2 : { showSdsPage1();	break;}
-		case F3 : { showSdsPage2();	break;}
-		case F4 : { show_Que();		break;}
-		case F5 : { show_Adsr();	break;}
+		case F1 : { showKeys();			break;}
+		case F2 : { showOSCs();			break;}
+		case F3 : { showProcesses();	break;}
+		case F4 : { showStates();		break;}
+		case F5 : { show_Que();			break;}
+		case F6 : { show_Adsr();		break;}
 
 		default: break;
 	}
 	cout << endl;
 }
+void ViewInterface_class::showKeys()
+{
+	Table_class Keys{ "Navigation",20 };
+	Keys.AddColumn( "Key", 10);
+	Keys.AddColumn( "SDS Table", 15 );
+	Keys.AddColumn( "Key", 10);
+	Keys.AddColumn( "SDS Table", 15 );
+	Keys.PrintHeader();
+	Keys.AddRow( "F1" , "more Keys", "F2", "OSCs" );
+	Keys.AddRow( "F3" , "Processes", "F4", "States" );
+	Keys.AddRow( "F5" , "Event Que", "F6", "Features" );
+	Keys.AddRow( "" , "", "", "" );
 
+}
 void ViewInterface_class::show_Adsr()
 {
-	Table_class Adsr{ "OSC Features",0 };
+	Table_class Adsr{ "OSC Features",20 };
 	Adsr.AddColumn( "Feature", 20);
 	Adsr.AddColumn( "Value", 10 );
 	Adsr.PrintHeader();
@@ -90,7 +108,7 @@ void ViewInterface_class::show_Adsr()
 	Adsr.AddRow( "(h)all", (int)sds->OSC_adsr.hall );
 	Adsr.AddRow( "(B)alance", (int)sds->mixer_balance );
 }
-void ViewInterface_class::showSdsPage1()
+void ViewInterface_class::showProcesses()
 {
 
 
@@ -127,25 +145,15 @@ void ViewInterface_class::printHeader()
 	rline( Version_str 			, sds->version);
 
 }
-void ViewInterface_class::showSdsPage0()
+void ViewInterface_class::showOSCs()
 {
 	auto frq_str = [ this ](uint8_t idx)
-		{ return ( to_string( Frequency.GetFrq( idx ) ) + ", " + frqNamesArray[idx] ); };
-
-
-
+		{ return ( to_string( GetFrq( idx ) ) + ", " + frqNamesArray[idx] ); };
 
 	lline( "(M)ain (F)requency:" , frq_str( sds->OSC_wp.frqidx ));
-	rline( "(A)DSR (G)lide freq:", (int)sds->OSC_wp.glide_effect);
-
-	lline( "(M)aster(A)mplitude:", (int)sds->Master_Amp );
-	rline( "(A)DSR (A)ttack:   " , (int)sds->OSC_adsr.attack );
-
-	lline( "                   " , 0 );
-	rline( "(A)DSR (B)eats Id  " , (int)sds->OSC_adsr.bps) ;
-
-	lline( "(M)ain (W)aveform: " , waveform_str_vec[ (int)sds->OSC_spectrum.wfid[0] ]);
-	rline( "(A)DSR (D)ecay:    " , (int)sds->OSC_adsr.decay );
+	rline( "(M)aster(A)mplitude:", (int)sds->Master_Amp );
+	rline( "(M)ain (W)aveform: " , waveform_str_vec[ (int)sds->OSC_spectrum.wfid[0] ]);
+	rline( "                   " , 0 );
 
 	lline( "(F)MO  (F)requency:" , frq_str( sds->FMO_wp.frqidx ) );
 	rline( "(V)CO  (F)requency:" , frq_str( sds->VCO_wp.frqidx ) );
@@ -156,20 +164,20 @@ void ViewInterface_class::showSdsPage0()
 	lline( "(F)MO  (W)aveform: " , waveform_str_vec[ (int)sds->FMO_spectrum.wfid[0] ]);
 	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)sds->VCO_spectrum.wfid[0] ]);
 
-	lline( "Time elapsed", (int)sds->time_elapsed );
-	rline( "VCO  PMW dial      " , (int)sds->VCO_wp.PMW_dial) ;
+	rline( "                   " , 0 );
+	rline( "Time elapsed", (int)sds->time_elapsed );
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, sds->OSC_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, sds->OSC_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, sds->OSC_spectrum ));
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->OSC_spectrum ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->OSC_spectrum ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->OSC_spectrum ));
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, sds->VCO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, sds->VCO_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, sds->VCO_spectrum ));
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->VCO_spectrum ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->VCO_spectrum ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->VCO_spectrum ));
 
-	rline( "Spectrum volume    " , Spectrum.Show_spectrum_type( SPEV, sds->FMO_spectrum ));
-	rline( "Spectrum frequency " , Spectrum.Show_spectrum_type( SPEF, sds->FMO_spectrum ));
-	rline( "Spectrum wafeform  " , Spectrum.Show_spectrum_type( SPEW, sds->FMO_spectrum ));
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->FMO_spectrum ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->FMO_spectrum ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->FMO_spectrum ));
 
 
 

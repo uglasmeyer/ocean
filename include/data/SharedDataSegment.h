@@ -31,22 +31,22 @@ struct state_struct
 		 RECORDSTOP ,
 		 LASTNUM
 		};
-	typedef array< string, LASTNUM>		state_map_t ;
-	state_map_t		state_map 	{""};
 
-	state_struct()
+	vector<string> state_map
 	{
-		state_map[OFFLINE]		= "Offline";
-		state_map[RUNNING] 		= "Running";
-		state_map[FREERUN] 		= "free running";
-		state_map[UPDATEGUI]	= "Update GUI";
-		state_map[SYNC] 		= "sync mode";
-		state_map[DEFAULT] 		= "default mode";
-		state_map[EXITSERVER] 	= "Exit server";
-		state_map[KEYBOARD] 	= "Keyboard";
-		state_map[RECORDSTART] 	= "start recording";
-		state_map[RECORDSTOP] 	= "stop recording";
-	}
+		{"OFFLINE" },
+		{"RUNNING" },
+		{"FREERUN" },
+		{"UPDATEGUI" },
+		{"SYNC" },
+		{"DEFAULT" },
+		{"EXITSERVER" },
+		{"KEYBOARD" },
+		{"RECORDSTART" },
+		{"RECORDSTOP" },
+	};
+
+
 	~state_struct() = default;
 };
 

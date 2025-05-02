@@ -97,7 +97,7 @@ int main(  int argc, char* argv[] )
 
 	Sem_p->Release( RTSP_STARTED );
 
-	Log.Comment( INFO, "RTSP is " + DaTA.Sds_p->Decode( sds->Rtsp ) );
+	Log.Comment( INFO, "RTSP is " + state_struct().state_map[ sds->Rtsp ] );
 
 	if( Cfg_p->Config.oceangui == 'y' )
 	{

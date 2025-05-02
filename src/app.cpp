@@ -13,19 +13,12 @@
 
 
 #include <App.h>
-#include <Event.h>
-#include <Config.h>
-//#include <Mixer.h>
-#include <Keyboard.h>
-#include <Exit.h>
-#include <Oscgroup.h>
-#include <notes/MusicXML.h>
 
 
 
 Application_class::Application_class( Dataworld_class* _DaTA ) :
 		Logfacility_class( "Application_class" ),
-		Statistic( _DaTA->Appstate.Name )
+		Statistic_class( _DaTA->Appstate.Name )
 {
 	this->ProgramName			= _DaTA->Appstate.Name;
 	this->className				= Logfacility_class::className ;
@@ -36,11 +29,11 @@ Application_class::Application_class( Dataworld_class* _DaTA ) :
 	this->Appstate				= &DaTA->Appstate;
 	this->This_Application 		= Application + ProgramName + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
-	Init_Sds( );
+	init_Sds( );
 
 }
 
-void Application_class::Init_Sds( )
+void Application_class::init_Sds( )
 {
 	this->Sds		= DaTA->GetSds( );
 	assert( this->Sds != nullptr );
@@ -114,28 +107,12 @@ void Application_class::deRegister( )
 
 void Application_class::Ready(  )
 {
-	Statistic.Show_Statistic( );
+	Show_Statistic( );
 
 	Comment(INFO, ProgramName + " is ready");
 	Info( "SDS ID: ", (int) DaTA->SDS_Id );
 	cout << Line << endl;
 	DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
-
-}
-
-void Application_class::Shutdown_instance( )
-{
-	bool is_running 	= DaTA->Appstate.IsRunning( this->sds, AppId );
-	bool is_offline		= DaTA->Appstate.IsOffline( this->sds, AppId );;
-	if ( is_running and not is_offline )
-	{
-		DaTA->Appstate.Set( this->sds, AppId, EXITSERVER );
-	}
-	else
-	{
-		Info( "Application " , ProgramName , " is alread in state exit"	);
-	}
-	Server_init = false;
 
 }
 

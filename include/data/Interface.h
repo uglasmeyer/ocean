@@ -45,7 +45,7 @@ public:
 	bool					capture_flag= false;
 	string					dumpFile	= "";
 
-	Interface_class( uint8_t sdsid,  Config_class*, Semaphore_class* );
+	Interface_class( char appid, uint8_t sdsid,  Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
 
 	void	Setup_SDS( uint sdsid, key_t key );
@@ -56,7 +56,6 @@ public:
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd( );
-	string 	Decode( uint8_t idx );
 	bool reject(char status, int id )
 	{
 		if (( status == RUNNING ) and ( id != COMPID ))
@@ -98,18 +97,24 @@ private:
 
 
 
-enum  { ESC=27, F1=239, F2=241, F3=243, F4=245, F5=53 };
+enum  { ESC=27, ASC=126, F1=239, F2=241, F3=243, F4=245, F5=53, F6=55 };
 
 class ViewInterface_class :
-	Interface_class,
-	osc_struct
+	osc_struct,
+	interface_struct, //Interface_class,
+	virtual Frequency_class,
+	Spectrum_class,
+	state_struct
 {
 	string 				className 	= "";
 	Interface_class*	Sds_p 		= nullptr;
 	interface_t* 		sds 		= nullptr;
 public:
-	ViewInterface_class( char appid, Config_class* cfg, Semaphore_class* sem, Interface_class* sds_p ) :
-		Interface_class(appid, cfg, sem )
+	ViewInterface_class( char appid, Config_class* cfg, Semaphore_class* sem, Interface_class* sds_p )
+	:
+	  Frequency_class(),
+	  Spectrum_class(),
+	  state_struct()
 	{
 		className = Logfacility_class::className;
 		Sds_p			= sds_p;
@@ -121,15 +126,17 @@ public:
 
 private:
 
-	void 	showSdsPage0();
-	void 	showSdsPage1();
-	void 	showSdsPage2() ;
+	void 	showOSCs();
+	void 	showProcesses();
+	void 	showStates() ;
 
 	void 	show_Que();
 	void 	show_Adsr();
+	void 	showKeys();
+
 
 	void	printHeader();
-
+	string	Decode( uint8_t idx);
 };
 
 

@@ -33,7 +33,7 @@ void usage( )
 	Usage.AddColumn( "keyboard Key"	, 15 );
 	Usage.AddColumn( "Description"	, 20 );
 	Usage.PrintHeader();
-	Usage.AddRow( "Crtl-c, #", "exit Comstack", "","" );
+	Usage.AddRow( "Crtl-c, #", "exit Comstack", "F1","more keyboard keys" );
 }
 
 void setupdate_flag( bool flag )
@@ -114,10 +114,9 @@ void set_sdsid( int delta )
 key_struct_t Key_event( string charstr )
 {
 	String Str{ charstr };
-//	Str.Set.insert( ESC );
-//	Str.Set.insert( F5 );
 	set<char> charset = Str.Set;
 	key_struct_t key = key_struct();
+
 	while ( not charset.contains( (char)key.key ) )
 	{
 		this_thread::sleep_for(chrono::milliseconds(100));
@@ -128,6 +127,7 @@ key_struct_t Key_event( string charstr )
 		if (key.key > 0 )
 			cout << key.key <<":" << key.val << endl;
 	}
+
 	return key;
 }
 
@@ -147,10 +147,7 @@ int main( int argc, char* argv[] )
 	key_struct keyevent {};
 	while( true )
 	{
-//		set<char> charset {'a','f','m','v','r','#','+','-',ESC,F5};
-		string charset { "afmvr#+-" }  ;
-		charset += string(1, 27);
-		charset += string(1, 53);
+		string charset { "afmvr#+-\x1B\x7E" }  ;
 		keyevent = Key_event( charset );
 		switch ( keyevent.key )
 		{
@@ -170,11 +167,15 @@ int main( int argc, char* argv[] )
 				tainted = true;
 				break;
 			}
-			case 53 :
+			case ASC :
 			{
-//				string str{ char(53) };
-//				Key_event( str );
-				page = F5;
+				switch( keyevent.val )
+				{
+					case F5 : { page = F5 ;break ;}
+					case F6 : { page = F6 ;break ;}
+					default : break;
+				}
+				tainted = true;
 				break;
 			}
 			case 'r' :

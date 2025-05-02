@@ -22,12 +22,12 @@ typedef struct SDS_struct
 
 	SDS_struct( char appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
 	{
-		for ( uint8_t n = 0; n < MAXCONFIG; n++ )
+		for ( uint8_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
 		{
 			Interface_class
-			Sds 		{ n, Cfg_p, Sem_p };
-			Sds.AppId 	= appid;
+			Sds 		{ appid, sdsid, Cfg_p, Sem_p };
 			interface_t* sds = (interface_t*) Sds.ds.addr;
+			sds->SDS_Id = sdsid;
 			vec.push_back( sds );
 			Vec.push_back( Sds );
 		};
