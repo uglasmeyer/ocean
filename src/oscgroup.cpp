@@ -15,7 +15,7 @@ Oscgroup_class::Oscgroup_class( char role ) :
   osc( role, osc_struct::OSCID )
 {
 	member = { &vco, &fmo, &osc };
-
+	Data_Reset();
 	oscroleId = role;
 
 }
@@ -31,7 +31,7 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 {
 
 	std::ranges::for_each( member, [ this, wd ](Oscillator*  o)
-			{ wd->Add_data_ptr(o->oscId, oscroleId, o->MemData() ); });
+			{ wd->Add_data_ptr(o->oscId, oscroleId, o->MemData_p() ); });
 }
 
 void Oscgroup_class::Show_sound_stack() // show_status
@@ -59,7 +59,7 @@ void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
 void Oscgroup_class::Set_Duration( const uint& duration )
 {
 	std::ranges::for_each( member, [ &duration ](Oscillator*  o)
-			{ o->Set_duration( duration );});
+			{ o->Setwp_frames( duration );});
 }
 void Oscgroup_class::Set_Osc_Note( 	const uint8_t& key,
 									const uint& duration,

@@ -121,22 +121,21 @@ public:
     QComboBox *cb_external;
     QWidget *layoutWidget;
     QGridLayout *gridLayout;
-    QPushButton *pBComposer;
-    QPushButton *pBAudioServer;
-    QPushButton *pBGuiExit;
-    QPushButton *pB_Save;
+    QPushButton *pb_SDSview;
+    QPushButton *pb_Keyboard;
     QPushButton *pBAudioServerExit;
-    QPushButton *pBSynthesizerExit;
-    QPushButton *pBSynthesizer;
+    QPushButton *pBAudioServer;
+    QPushButton *pB_Rtsp;
     QComboBox *cB_Capture;
+    QPushButton *pBGuiExit;
+    QPushButton *pBComposer;
+    QPushButton *pB_Save;
     QComboBox *cb_bps;
     QProgressBar *Pbar_telapsed;
-    QPushButton *pB_Rtsp;
     QPushButton *pB_oscgroup;
     QPushButton *pb_fftmode;
     QLabel *lb_FMO_LFO;
     QLabel *lb_VCO_LFO;
-    QPushButton *pb_SDSview;
     QSlider *SliderVCOadjust;
     QSlider *SliderFMOadjust;
     QLabel *label_6;
@@ -155,6 +154,7 @@ public:
     QLabel *label_15;
     QLabel *label_16;
     QLabel *lbl_frqglide_sec;
+    QPushButton *pBSynthesizer;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -456,7 +456,7 @@ public:
         label_4->setGeometry(QRect(470, 80, 50, 17));
         frame_5 = new QFrame(centralwidget);
         frame_5->setObjectName("frame_5");
-        frame_5->setGeometry(QRect(1000, 320, 151, 121));
+        frame_5->setGeometry(QRect(1000, 330, 151, 121));
         frame_5->setFrameShape(QFrame::StyledPanel);
         frame_5->setFrameShadow(QFrame::Raised);
         rb_S0 = new QRadioButton(frame_5);
@@ -560,7 +560,7 @@ public:
         sB_FMO->setMaximum(9);
         pb_clear = new QPushButton(centralwidget);
         pb_clear->setObjectName("pb_clear");
-        pb_clear->setGeometry(QRect(1000, 260, 88, 25));
+        pb_clear->setGeometry(QRect(960, 260, 88, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName("label_3");
         label_3->setGeometry(QRect(620, 170, 81, 31));
@@ -575,53 +575,59 @@ public:
         pB_Mute->setGeometry(QRect(330, 80, 88, 25));
         cb_external = new QComboBox(centralwidget);
         cb_external->setObjectName("cb_external");
-        cb_external->setGeometry(QRect(480, 500, 131, 25));
+        cb_external->setGeometry(QRect(440, 500, 131, 25));
         cb_external->setEditable(false);
         layoutWidget = new QWidget(centralwidget);
         layoutWidget->setObjectName("layoutWidget");
-        layoutWidget->setGeometry(QRect(630, 500, 462, 60));
+        layoutWidget->setGeometry(QRect(580, 500, 555, 60));
         gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName("gridLayout");
+        gridLayout->setHorizontalSpacing(15);
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        pBComposer = new QPushButton(layoutWidget);
-        pBComposer->setObjectName("pBComposer");
+        pb_SDSview = new QPushButton(layoutWidget);
+        pb_SDSview->setObjectName("pb_SDSview");
 
-        gridLayout->addWidget(pBComposer, 0, 3, 1, 1);
+        gridLayout->addWidget(pb_SDSview, 1, 1, 1, 1);
 
-        pBAudioServer = new QPushButton(layoutWidget);
-        pBAudioServer->setObjectName("pBAudioServer");
+        pb_Keyboard = new QPushButton(layoutWidget);
+        pb_Keyboard->setObjectName("pb_Keyboard");
 
-        gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
-
-        pBGuiExit = new QPushButton(layoutWidget);
-        pBGuiExit->setObjectName("pBGuiExit");
-
-        gridLayout->addWidget(pBGuiExit, 1, 4, 1, 1);
-
-        pB_Save = new QPushButton(layoutWidget);
-        pB_Save->setObjectName("pB_Save");
-
-        gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
+        gridLayout->addWidget(pb_Keyboard, 1, 2, 1, 1);
 
         pBAudioServerExit = new QPushButton(layoutWidget);
         pBAudioServerExit->setObjectName("pBAudioServerExit");
 
         gridLayout->addWidget(pBAudioServerExit, 1, 0, 1, 1);
 
-        pBSynthesizerExit = new QPushButton(layoutWidget);
-        pBSynthesizerExit->setObjectName("pBSynthesizerExit");
+        pBAudioServer = new QPushButton(layoutWidget);
+        pBAudioServer->setObjectName("pBAudioServer");
 
-        gridLayout->addWidget(pBSynthesizerExit, 1, 1, 1, 1);
+        gridLayout->addWidget(pBAudioServer, 0, 0, 1, 1);
 
-        pBSynthesizer = new QPushButton(layoutWidget);
-        pBSynthesizer->setObjectName("pBSynthesizer");
+        pB_Rtsp = new QPushButton(layoutWidget);
+        pB_Rtsp->setObjectName("pB_Rtsp");
 
-        gridLayout->addWidget(pBSynthesizer, 0, 1, 1, 1);
+        gridLayout->addWidget(pB_Rtsp, 0, 1, 1, 1);
 
         cB_Capture = new QComboBox(layoutWidget);
         cB_Capture->setObjectName("cB_Capture");
 
         gridLayout->addWidget(cB_Capture, 1, 3, 1, 1);
+
+        pBGuiExit = new QPushButton(layoutWidget);
+        pBGuiExit->setObjectName("pBGuiExit");
+
+        gridLayout->addWidget(pBGuiExit, 1, 4, 1, 1);
+
+        pBComposer = new QPushButton(layoutWidget);
+        pBComposer->setObjectName("pBComposer");
+
+        gridLayout->addWidget(pBComposer, 0, 2, 1, 1);
+
+        pB_Save = new QPushButton(layoutWidget);
+        pB_Save->setObjectName("pB_Save");
+
+        gridLayout->addWidget(pB_Save, 0, 3, 1, 1);
 
         cb_bps = new QComboBox(centralwidget);
         cb_bps->setObjectName("cb_bps");
@@ -632,9 +638,6 @@ public:
         Pbar_telapsed->setValue(24);
         Pbar_telapsed->setTextVisible(true);
         Pbar_telapsed->setOrientation(Qt::Vertical);
-        pB_Rtsp = new QPushButton(centralwidget);
-        pB_Rtsp->setObjectName("pB_Rtsp");
-        pB_Rtsp->setGeometry(QRect(1000, 290, 91, 25));
         pB_oscgroup = new QPushButton(centralwidget);
         pB_oscgroup->setObjectName("pB_oscgroup");
         pB_oscgroup->setGeometry(QRect(570, 260, 81, 26));
@@ -647,9 +650,6 @@ public:
         lb_VCO_LFO = new QLabel(centralwidget);
         lb_VCO_LFO->setObjectName("lb_VCO_LFO");
         lb_VCO_LFO->setGeometry(QRect(220, 210, 31, 18));
-        pb_SDSview = new QPushButton(centralwidget);
-        pb_SDSview->setObjectName("pb_SDSview");
-        pb_SDSview->setGeometry(QRect(1000, 450, 88, 26));
         SliderVCOadjust = new QSlider(centralwidget);
         SliderVCOadjust->setObjectName("SliderVCOadjust");
         SliderVCOadjust->setGeometry(QRect(30, 190, 16, 160));
@@ -726,6 +726,9 @@ public:
         lbl_frqglide_sec = new QLabel(centralwidget);
         lbl_frqglide_sec->setObjectName("lbl_frqglide_sec");
         lbl_frqglide_sec->setGeometry(QRect(10, 70, 40, 41));
+        pBSynthesizer = new QPushButton(centralwidget);
+        pBSynthesizer->setObjectName("pBSynthesizer");
+        pBSynthesizer->setGeometry(QRect(1020, 290, 131, 26));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
@@ -795,19 +798,18 @@ public:
         label_3->setText(QCoreApplication::translate("MainWindow", "Beat per measure", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
-        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
-        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
-        pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
-        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
+        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
+        pb_Keyboard->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
         pBAudioServerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
-        pBSynthesizerExit->setText(QCoreApplication::translate("MainWindow", "EXIT", nullptr));
-        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Instrument", nullptr));
+        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
         pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
+        pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
+        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
+        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
         pB_oscgroup->setText(QString());
         pb_fftmode->setText(QString());
         lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
         lb_VCO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
-        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         label_13->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
         glidefrequency_2->setText(QCoreApplication::translate("MainWindow", "glide vol.", nullptr));
@@ -820,6 +822,7 @@ public:
         label_15->setText(QCoreApplication::translate("MainWindow", "Volume [%]", nullptr));
         label_16->setText(QCoreApplication::translate("MainWindow", "Volume [%]", nullptr));
         lbl_frqglide_sec->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
+        pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Instrument", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

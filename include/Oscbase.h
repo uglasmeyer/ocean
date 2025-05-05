@@ -53,11 +53,11 @@ typedef struct bps_struct
 
 typedef	struct wave_struct
 {
-	uint8_t		frqidx		= C0;
+	uint8_t		frqidx		= A3;
 	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
 	uint8_t		PMW_dial 	= 50;
 	uint8_t 	glide_effect= 0;
-	uint16_t	msec		= max_milli_sec; 	// min_milli_sec or max_milli_sec
+	uint16_t	msec		= max_msec; 	// min_milli_sec or max_milli_sec
 	uint8_t		adjust		= 0; // used by vco and fmo, osc = 0
 	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
@@ -92,7 +92,11 @@ typedef struct vco_struct
 	bool 			generated	= false;
 } vco_t;  // all wave parameter for vco
 
-static const buffer_t 	max_beatframes 	= max_frames + min_frames;
+constexpr buffer_t constbeatframes ()
+{
+	return max_frames + min_frames;
+}
+const buffer_t 		max_beatframes 		= constbeatframes();
 
 class Oscillator_base :
 	virtual public Logfacility_class,
@@ -150,7 +154,7 @@ public:
 	void		Set_pmw( uint8_t );
 	void		Set_glide( uint8_t );
 	void		Set_spectrum( spectrum_t );
-	void		Set_duration( uint16_t );
+	void		Setwp_frames( uint16_t );
 
 	void		Set_adsr( adsr_t );
 	void		Gen_adsrdata( buffer_t );

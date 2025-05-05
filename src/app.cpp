@@ -60,7 +60,7 @@ void Application_class::app_properties()
 	process_t 	properties { };
 				properties.logowner			= logowner.contains( AppId );
 				properties.start_once		= Appstate->startonceIds.contains( AppId );
-				properties.data_process		= DaTA->Reg.dataProc.contains( AppId );
+				properties.data_process		= DaTA->Reg.is_dataproc ;
 
 				properties.Show();
 }

@@ -20,7 +20,7 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 
 	Default_instrument_file = file_structure().instrumentdir + "default" + instr_ext;
 
-	assert ( Oscgroup.osc.MemData() != nullptr );
+	assert ( Oscgroup.osc.MemData_p() != nullptr );
 	Oscgroup.SetWd( wd );
 	wd_p = wd;
 }
@@ -57,7 +57,7 @@ void Instrument_class::reuse_GUI_Data()
 
 void Instrument_class::Set_msec( buffer_t frames )
 {
-	uint16_t msec = frames * 1000 / frames_per_sec;
+	uint16_t msec = frames / frames_per_msec;
 	Oscgroup.Set_Duration( msec );
 }
 
@@ -484,7 +484,7 @@ void Instrument_class::Test_Instrument()
 
 	showOscfeatures( &Oscgroup.osc, &Oscgroup.vco);
 
-	Oscgroup.osc.Set_duration( min_milli_sec );
+	Oscgroup.osc.Setwp_frames( min_msec );
 	float f = Oscgroup.osc.GetFrq( Oscgroup.osc.wp.frqidx );
 	ASSERTION( f == (float)220, "frequency", f, 220.000000 );
 	ASSERTION( fcomp( 	sds->OSC_spectrum.frqidx[0], 71), "frequency",
@@ -513,7 +513,6 @@ void Instrument_class::Test_Instrument()
 		ASSERTION( fcomp( amp0, amp1), com.data(),
 					abs ( amp1- amp0 ), "~0" );
 	}
-	TEST_START( className );
 	vco->Test();
 	assert( Set( ".test2" ) );
 	ASSERTION( file_version == 2, "version", file_version , 2);
@@ -539,7 +538,7 @@ void Instrument_class::Test_Instrument()
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
 
-	assert( Oscgroup.osc.fp.Mem->Data == Oscgroup.fmo.MemData() );
+	assert( Oscgroup.osc.fp.Mem->Data == Oscgroup.fmo.MemData_p() );
 //	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
 	Oscgroup.fmo.Set_frequency( C0, FIXED );
 	f = Oscgroup.fmo.GetFrq( Oscgroup.fmo.wp.frqidx);
@@ -554,10 +553,10 @@ void Instrument_class::Test_Instrument()
 	return;
 
 	Oscgroup.fmo.Set_volume( 0, FIXED );
-	Oscgroup.fmo.Set_duration( max_milli_sec );
-	Oscgroup.vco.Set_duration( max_milli_sec );
+	Oscgroup.fmo.Setwp_frames( max_msec );
+	Oscgroup.vco.Setwp_frames( max_msec );
 	Oscgroup.vco.Set_volume( 0, FIXED );
-	Oscgroup.osc.Set_duration( max_milli_sec );
+	Oscgroup.osc.Setwp_frames( max_msec );
 	Oscgroup.osc.Set_frequency( "A3", FIXED );
 	Oscgroup.osc.Set_waveform( {0,0,0,0,0} );
 	Oscgroup.osc.Set_volume( 100, FIXED );

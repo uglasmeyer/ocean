@@ -28,7 +28,6 @@ class Oscillator :
 
 public:
 
-
 	Oscillator( char role_id, char type_id );
 	virtual ~Oscillator();
 
@@ -39,7 +38,7 @@ public:
         this->spectrum	= osc.spectrum;
     }
 
-	void 	OSC ( const buffer_t& frame_offset, bool hall_flag = true );
+	void 	OSC ( const buffer_t& frame_offset );
 
 	void 	Connect_vol_data( Oscillator* ); // connect the vco data of itr to this osc
 	void 	Connect_frq_data( Oscillator* );
@@ -53,9 +52,10 @@ public:
 	void 	Set_long_note( bool );
 	void 	Reset_beat_cursor();
 
-	Data_t* MemData();
-	Data_t* KbdData( const buffer_t& frame_offset );
+	Data_t* MemData_p();
+	Data_t* GetData_p( const buffer_t& frame_offset );
 	Data_t 	MemData( buffer_t n);
+	void 	Shift_data( buffer_t n  );
 
 	void 	Test();
 

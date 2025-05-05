@@ -36,7 +36,7 @@ public:
 
 	string 				This_Application 	= "";
 	uint 				client_id			= NOID;
-    std::set<int> 		logowner 			=  { GUI_ID, COMPID, RTSPID };
+    const set<int> 		logowner 			=  { GUI_ID, COMPID, RTSPID };
 
 	Application_class( Dataworld_class* );
 	virtual ~Application_class();

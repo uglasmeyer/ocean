@@ -1192,7 +1192,7 @@
     <property name="geometry">
      <rect>
       <x>1000</x>
-      <y>320</y>
+      <y>330</y>
       <width>151</width>
       <height>121</height>
      </rect>
@@ -1567,7 +1567,7 @@
    <widget class="QPushButton" name="pb_clear">
     <property name="geometry">
      <rect>
-      <x>1000</x>
+      <x>960</x>
       <y>260</y>
       <width>88</width>
       <height>25</height>
@@ -1628,7 +1628,7 @@
    <widget class="QComboBox" name="cb_external">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>440</x>
       <y>500</y>
       <width>131</width>
       <height>25</height>
@@ -1641,38 +1641,27 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>630</x>
+      <x>580</x>
       <y>500</y>
-      <width>462</width>
+      <width>555</width>
       <height>60</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="3">
-      <widget class="QPushButton" name="pBComposer">
+     <property name="horizontalSpacing">
+      <number>15</number>
+     </property>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="pb_SDSview">
        <property name="text">
-        <string>Composer</string>
+        <string>view SDS</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="pBAudioServer">
+     <item row="1" column="2">
+      <widget class="QPushButton" name="pb_Keyboard">
        <property name="text">
-        <string>Audio Server</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QPushButton" name="pBGuiExit">
-       <property name="text">
-        <string>GUI EXIT</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pB_Save">
-       <property name="text">
-        <string>Save Default</string>
+        <string>Keyboard</string>
        </property>
       </widget>
      </item>
@@ -1683,22 +1672,43 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="pBSynthesizerExit">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pBAudioServer">
        <property name="text">
-        <string>EXIT</string>
+        <string>Audio Server</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="pBSynthesizer">
+      <widget class="QPushButton" name="pB_Rtsp">
        <property name="text">
-        <string>Instrument</string>
+        <string>RTSP</string>
        </property>
       </widget>
      </item>
      <item row="1" column="3">
       <widget class="QComboBox" name="cB_Capture"/>
+     </item>
+     <item row="1" column="4">
+      <widget class="QPushButton" name="pBGuiExit">
+       <property name="text">
+        <string>GUI EXIT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pBComposer">
+       <property name="text">
+        <string>Composer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pB_Save">
+       <property name="text">
+        <string>Save Default</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -1729,19 +1739,6 @@
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pB_Rtsp">
-    <property name="geometry">
-     <rect>
-      <x>1000</x>
-      <y>290</y>
-      <width>91</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>RTSP</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pB_oscgroup">
@@ -1794,19 +1791,6 @@
     </property>
     <property name="text">
      <string>LFO</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pb_SDSview">
-    <property name="geometry">
-     <rect>
-      <x>1000</x>
-      <y>450</y>
-      <width>88</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>view SDS</string>
     </property>
    </widget>
    <widget class="QSlider" name="SliderVCOadjust">
@@ -2089,6 +2073,19 @@
     </property>
     <property name="text">
      <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pBSynthesizer">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>290</y>
+      <width>131</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Instrument</string>
     </property>
    </widget>
   </widget>

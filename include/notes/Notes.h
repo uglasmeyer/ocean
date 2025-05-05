@@ -33,14 +33,14 @@ public:
 		uint		scoreduration 	= 0; // unit milli second
 		notelist_t 	notelist 		{};
 	} musicxml_t;
-	musicxml_t		musicxml	= musicxml_struct();
+	musicxml_t		musicxml		= musicxml_struct();
 
-	Oscgroup_class	Oscgroup	{ osc_struct::NOTESID };
-	Oscillator*		osc			= &Oscgroup.osc;
-	Oscillator*		vco			= &Oscgroup.vco;
-	Oscillator*		fmo			= &Oscgroup.fmo;
+	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID };
+	Oscillator*		osc				= &Oscgroup.osc;
+	Oscillator*		vco				= &Oscgroup.vco;
+	Oscillator*		fmo				= &Oscgroup.fmo;
 
-
+	uint 			framePart 		= 0; // frame cursor
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
 	bool			Restart			= false;
@@ -55,6 +55,7 @@ public:
 	const note_t	pause_note		= {".",{pitch_struct()},min_duration,0,0,{glide_struct()},false };
 	Dynamic_class	DynFrequency	{ frqarr_range };
 
+	Data_t*			NotesData		= osc->MemData_p( );
 	Note_class( Wavedisplay_class* wd ); // used by Variation
 	Note_class( ); // used by Variation
 	~Note_class();

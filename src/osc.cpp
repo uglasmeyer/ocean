@@ -102,12 +102,20 @@ void Oscillator::Connection_reset( )
 	Reset_vol_data();
 }
 
-Data_t* Oscillator::MemData()
-	{ return Mem.Data; };
-Data_t Oscillator::MemData( buffer_t n)
-	{ return Mem.Data[n]; };
-Data_t* Oscillator::KbdData( const buffer_t& frame_offset )
-	{ return Mem.Data + frame_offset; }
+Data_t* Oscillator::MemData_p()
+{
+	return Mem.Data;
+}
+Data_t Oscillator::MemData( buffer_t n )
+{
+	buffer_t offs = check_range( frames_range, n );
+	return Mem.Data[ offs ];
+};
+Data_t* Oscillator::GetData_p( const buffer_t& frame_offset )
+{
+	buffer_t offs = check_range( frames_range, frame_offset );
+	return &Mem.Data[ offs ];
+}
 
 auto check_phi = [ ]( string type, param_t param, phi_t dT, float freq )
 {
@@ -134,7 +142,7 @@ auto hallphi = [  ]( uint8_t adsr_hall, phi_t max )
 #define MODPHI( phi, maxphi )\
 	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
 
-void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
+void Oscillator::OSC (  const buffer_t& frame_offset )
 /*
  * Generator of sound waves
  */
@@ -208,6 +216,16 @@ void Oscillator::OSC (  const buffer_t& frame_offset, bool hall_flag )
 		apply_adsr( frames, oscData );
 }
 
+void Oscillator::Shift_data( buffer_t offs )
+{
+	for ( buffer_t n = 0; n < max_frames - offs ; n++ )
+		Mem.Data[ n ] = Mem.Data[ n + offs ];
+	for ( buffer_t n = max_frames - offs; n < max_frames; n++ )
+	{
+		Mem.Data[ n ] = 0;
+	}
+};
+
 void Oscillator::Set_long_note( bool l )
 {
 	longnote = l ;
@@ -256,7 +274,7 @@ void Oscillator::Test()
 	Line_interpreter( arr );
 	float f = GetFrq( wp.frqidx);
 	ASSERTION( fcomp( f, 8) , "Frequency", f, 8 );
-	Set_duration( max_milli_sec );
+	Setwp_frames( max_msec );
 
 	ASSERTION( fcomp( oct_base_freq, GetFrq( C0 )), "osc_base_freq" , oct_base_freq, GetFrq( C0 ));
 	spectrum 	= spec_struct();

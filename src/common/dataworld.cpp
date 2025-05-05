@@ -30,7 +30,7 @@ Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master )
 	SDS_Id 		= Reg.GetId(  );
 	Sds_p 		= GetSds();
 
-	if ( Reg.Is_dataprocess() )
+	if ( Reg.is_dataproc )
 	{
 		Comment(INFO,"Attaching stereo buffers");
 
@@ -55,7 +55,7 @@ interface_t* Dataworld_class::GetSdsAddr( )
 
 Dataworld_class::~Dataworld_class()
 {
-	if ( Reg.Is_dataprocess() )
+	if ( Reg.is_dataproc )
 	{
 		SHM_0.Detach( SHM_0.ds.addr );
 		SHM_1.Detach( SHM_1.ds.addr );
@@ -64,6 +64,7 @@ Dataworld_class::~Dataworld_class()
 
 	cout << "visited ~" <<  className << endl;
 }
+
 
 void Dataworld_class::init_Shm( Shared_Memory& SHM, key_t key, uint idx )
 {

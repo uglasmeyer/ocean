@@ -177,7 +177,7 @@ void Event_class::Handler()
 	}
 	case SETWAVEDISPLAYKEY:
 	{
-		if( sds->WD_status.roleId == osc_struct::AUDIOID )
+		if( sds->WD_status.roleId == AUDIOOUTID )
 			break; // audio data is handled by the Audio server
 		Wavedisplay->SetDataPtr(sds->WD_status );
 		Sds->Commit();
@@ -280,19 +280,34 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case SETMBAMPPLAYKEY:
+	case SETSTA_KEY:
 	{
-		Value mixid { sds->MIX_Id };
+		Mixer->SetStA();
+		Sds->Commit();
+		break;
+
+		/*
+		for ( uint n = 0; n < Mixer->StA.size() ; n++ )
+		{
+			bool play = (bool) sds->StA_state[n].play;
+			Mixer->StA[n].Play_mode( play );
+			Mixer->Set_mixer_state( n , play );
+
+			uint8_t amp = sds->StA_amp_arr[ n ];
+			Mixer->StA[ n ].DynVolume.SetupVol( amp , SLIDE);
+		}
+		*/
+/*		Value mixid { sds->MIX_Id };
 		Value amp { sds->StA_amp_arr[mixid.val] };
 		sds->StA_state[mixid.val].play = true;
 		Value play { sds->StA_state[mixid.val].play };
 
 		Mixer->StA[mixid.val].DynVolume.SetupVol( amp.val, SLIDE);
 		Mixer->Set_mixer_state(mixid.val, (bool) (play.val));
-		EvInfo( event,	"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
-						+ play.boolstr);
-		Sds->Commit();
-		break;
+//		EvInfo( event,	"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
+//						+ play.boolstr);
+ *
+ */
 	}
 	case MUTEREC_KEY:
 	{

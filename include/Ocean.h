@@ -83,13 +83,16 @@ const phi_t 		pi					= numbers::pi;//3.1415926536;//3.141592654;
 
 const uint			sample_rate			= 48000; //device dependent fix
 const buffer_t		frames_per_sec  	= sample_rate;
+const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 
 const uint8_t		max_sec 			= 2;
-const uint16_t		max_milli_sec 		= max_sec * 1000;
-const uint16_t		min_milli_sec		= 250;
+const uint16_t		max_msec	 		= max_sec * 1000;
+const uint16_t		min_msec			= 250;
+const uint16_t		frame_parts			= (uint16_t) (max_msec / min_msec);
 
-const buffer_t		max_frames			= max_sec * frames_per_sec;
-const buffer_t		min_frames			= frames_per_sec * min_milli_sec / 1000;
+const buffer_t		max_frames			= max_msec * frames_per_msec;
+const buffer_t		min_frames			= min_msec * frames_per_msec;
+
 const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
 
 const uint			recduration 		= 3*60; // seconds
@@ -101,6 +104,7 @@ const Data_t		max_data_amp		= 4096*4;
 const uint			osc_default_volume	= 75; // %
 const phi_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 
+
 template< typename T >
 struct range_t
 {
@@ -111,17 +115,18 @@ const range_t<int>		volidx_range		{ 0, 100 };
 const range_t<buffer_t>	frames_range		{ 0, max_frames };
 
 template< typename T>
-T check_range( range_t<T> r, T val )
+constexpr T check_range( range_t<T> r, T val )
 {
 	if( val < r.min )
 	{
-//		assert(false);
 		cout.flush() << "WARNING: " << val << " adjusted to min boundaries " << endl;
+//		static_assert(false);
 		return r.min;
 	}
 	if (val > r.max )
 	{
 		cout.flush() << "WARNING: " << val << " adjusted to max boundaries " << endl;
+//		static_assert(false);
 		return r.max;
 	}
 	return val;
@@ -146,6 +151,7 @@ enum APPID
 	NOID
 };
 
+
 typedef struct osc_struct
 {
 	const vector<string> roles =
@@ -156,7 +162,7 @@ typedef struct osc_struct
 		"External",
 		"Audio"
 	};
-	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOID };
+	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOOUTID };
 
 	const vector<string> types =
 	{

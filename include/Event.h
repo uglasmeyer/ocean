@@ -16,6 +16,7 @@
 
 class Event_class :
 	virtual public Logfacility_class,
+	osc_struct,
 	state_struct
 {
 	string 				className = "";

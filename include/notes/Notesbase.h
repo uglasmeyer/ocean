@@ -125,7 +125,6 @@ public:
 	noteline_prefix_t 	String_to_noteline_prefix( string str );
 
 	void				Set_base_octave( uint );
-	float	 			Octave_freq( uint8_t oct );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 	uint8_t 			GetFrqIndex( const pitch_t& nvs);
 	void 				TestNoteBase();

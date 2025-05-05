@@ -19,7 +19,7 @@
 
 #define MAYOR 3
 #define MINOR 7
-#define PATCH 2
+#define PATCH 3
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -31,6 +31,9 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
+version 3.7.3 Fast notes
+				Keyboard layout for 3 Octaves
+				min_milli_sec		= 200;
 version 3.7.2 Dataworld refactoring
 				Appstate inroduction
 

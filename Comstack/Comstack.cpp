@@ -10,11 +10,12 @@
 #include <EventKeys.h>
 #include <Frequency.h>
 #include <Keyboard.h>
+#include <Viewinterface.h>
 
 #include <Appsymbols.h>
 
 Keyboard_class			Keyboard		{};
-ViewInterface_class		ViewSds			{ COMSTACKID, DaTA.Cfg_p, DaTA.Sem_p, DaTA.Sds_p };
+ViewInterface_class		ViewSds			{ COMSTACKID, DaTA.Sds_p };
 int 					sdsid			= sds_master->config;
 
 Frequency_class 		Frequency 		{};
@@ -33,7 +34,7 @@ void usage( )
 	Usage.AddColumn( "keyboard Key"	, 15 );
 	Usage.AddColumn( "Description"	, 20 );
 	Usage.PrintHeader();
-	Usage.AddRow( "Crtl-c, #", "exit Comstack", "F1","more keyboard keys" );
+	Usage.AddRow( "<CrtlC>, <ESC>", "exit Comstack", "F1","more keyboard keys" );
 }
 
 void setupdate_flag( bool flag )
@@ -107,7 +108,7 @@ void set_sdsid( int delta )
 
 	Sds 	= DaTA.SDS.GetSds(sdsid);
 	sds 	= Sds->addr;
-
+	ViewSds.Appstate.Setup( sds, DaTA.sds_master );
 	setupdate_flag( true );
 }
 
@@ -143,26 +144,25 @@ int main( int argc, char* argv[] )
     DaTA.Appstate.Announce();
 
     ViewSds.ShowPage(Sds->addr, F1);
-	cout << "Exit with <#> or Ctrl c" << endl ;
 	key_struct keyevent {};
 	while( true )
 	{
-		string charset { "afmvr#+-\x1B\x7E" }  ;
+		string charset { "afmvr+-\x1B\x7E" }  ;
 		keyevent = Key_event( charset );
 		switch ( keyevent.key )
 		{
-			case '#' : { exit_proc(0); break ;}
 			case '+' : { set_sdsid(1); tainted = true; break; }
 			case '-' : { set_sdsid(-1); tainted = true; break;}
 			case ESC :
 			{
 				switch( keyevent.val )
 				{
+					case 0  : { exit_proc(0) ;break ;}
 					case F1 : { page = F1 ;break ;}
 					case F2 : { page = F2 ;break ;}
 					case F3 : { page = F3 ;break ;}
 					case F4 : { page = F4 ;break ;}
-					default : break;
+					default : { break; }
 				}
 				tainted = true;
 				break;
@@ -173,7 +173,8 @@ int main( int argc, char* argv[] )
 				{
 					case F5 : { page = F5 ;break ;}
 					case F6 : { page = F6 ;break ;}
-					default : break;
+					default : { break; }
+
 				}
 				tainted = true;
 				break;

@@ -79,10 +79,10 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 }
 
 
-void Oscillator_base::Set_duration( uint16_t msec )
+void Oscillator_base::Setwp_frames( uint16_t msec )
 {
 	wp.msec 	= msec;
-	wp.frames	= rint( wp.msec * frames_per_sec * 0.001 );
+	wp.frames	= rint( wp.msec * frames_per_msec );
 	wp.frames	= check_range( frames_range, wp.frames );
 }
 
@@ -139,7 +139,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	Set_frequency( frqidx, FIXED );
 
 	uint8_t msec 		= Str.secure_stoi(arr[4]);
-	Set_duration( msec );
+	Setwp_frames( msec );
 	wp.volume 		= Str.secure_stoi(arr[5]);
 //	wp.frames 		= wp.msec*audio_frames/1000;
 	wp.glide_effect = Str.secure_stoi( arr[13] );

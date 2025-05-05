@@ -48,14 +48,37 @@ extern 	logmask_t 	LogMask; // define as: logmask_t LogMask = defaultLogMask in 
 // end
 
 
+
+const string 		logDir 		{ "/tmp/log/" };
+const string 		logFileName	{ "Synthesizer" };
+const string 		logFile		= logDir + logFileName + string(".log") ;
+
+class Printer_class
+{
+	//https://stackoverflow.com/questions/9084099/re-opening-stdout-and-stdin-file-descriptors-after-closing-them	bool redirect 		= false;
+	bool	redirect		= false;
+	bool 	testFinished 	= false;
+	int 	save_out 		= dup( STDOUT_FILENO );
+
+public:
+			Printer_class	(bool redirect );
+	virtual ~Printer_class	();
+	void 	Close			();
+
+private:
+	void 	store			();
+	void 	restore			();
+};
+
+#define TEST_START( classname )\
+	test_start( classname ); Printer_class Printer( true );
+
+#define TEST_END( classname )\
+	Printer.Close(); test_end( classname );
+
+
 class Logfacility_class
 {
-
-
-	const string 		logDir 		{ "/tmp/log/" };
-	const string 		logFileName	{ "Synthesizer" };
-
-
 
 public:
 	const string	reset		= "\033[39m";
@@ -73,6 +96,7 @@ public:
 	const string 	bred		= boldon + red;
 	const string 	bblue		= boldon + blue;
 	const string 	byellow		= boldon + yellow;
+	const string 	bmagenta	= boldon + magenta;
 	const string	nocolor		= "";
 	const string 		Line 			{ "---------------------------------------------------------" };
 	const range_t<int>	loglevel_range 	{ 0, LOGMAX - 1 };
@@ -95,8 +119,8 @@ public:
 	void 	Init_log_file();
 	void 	Test_Logging();
 
-	void 	TEST_START(const string& name);
-	void 	TEST_END(const string& name);
+	void 	test_start(const string& name);
+	void 	test_end(const string& name);
 
 
 	template <class... ArgsT>
@@ -150,7 +174,7 @@ private:
 			{"Error", bred },
 			{"Debug", magenta },
 			{"Info ", bblue },
-			{"Warn ", byellow },
+			{"Warn ", bmagenta },
 			{"Dbg2 ", yellow },
 			{"bInfo", bgreen },
 			{"Test ", blue },

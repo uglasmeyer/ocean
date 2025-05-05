@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <data/Interface.h>
+#include <Viewinterface.h>
 
 	auto Lline = []( string s, auto v )
 		{ cout << setw(40) << dec  << setfill('.') 	<< left << s << setw(40) << v << endl;};
@@ -67,8 +67,9 @@ void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 
 	ClearScreen();
 	printHeader();
-//	std::cout << "\x1B[2J\x1B[H";
-	switch ( nr ) {
+
+	switch ( nr )
+	{
 		case F1 : { showKeys();			break;}
 		case F2 : { showOSCs();			break;}
 		case F3 : { showProcesses();	break;}
@@ -111,6 +112,14 @@ void ViewInterface_class::show_Adsr()
 void ViewInterface_class::showProcesses()
 {
 
+	Table_class Proc{ "Process States",20 };
+	Proc.AddColumn( "Process", 20);
+	Proc.AddColumn( "State", 10 );
+	Proc.PrintHeader();
+	for( uint appid = 0; appid < Appstate.appId_range.max; appid++ )
+	{
+		Proc.AddRow( AppIdName( appid ), Decode( Appstate.Get( sds, appid )) );
+	}
 
 	lline( "Mixer Volume:      " , (int)sds->MIX_Amp );
 	rline( "Mixer Id           " , (int)sds->MIX_Id );
@@ -121,13 +130,6 @@ void ViewInterface_class::showProcesses()
 	lline( "Record Progress   :" , (int)sds->RecCounter);
 	rline( "File No.          :" , (int)sds->FileNo );
 
-	lline( "(A)udioServer stat:" , Decode(sds->AudioServer));
-	rline( "(C)omposer status :" , Decode(sds->Composer));
-
-	lline( "(S)ynthesizer stat:" , Decode(sds->Synthesizer));
-	rline( "(U)serinterface   :" , Decode(sds->UserInterface));
-
-	lline( "Rtsp status       :" , Decode(sds->Rtsp));
 	rline( "Data Mode         :" , Decode(sds->MODE));
 
 	lline( "Instrument        :" , sds->Instrument);

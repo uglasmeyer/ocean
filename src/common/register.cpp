@@ -15,6 +15,7 @@ Register_class::Register_class( char appid, interface_t* _sds ) :
 	className 	= Logfacility_class::className;
 	AppName 	= AppIdName( appid);
 	AppId 		= appid;
+	is_dataproc = dataProc.contains( appid );
 	Setup( _sds );
 };
 
@@ -71,10 +72,7 @@ void Register_class::Setup( interface_t* sds )
 	}
 }
 
-bool Register_class::Is_dataprocess()
-{
-	return 	dataProc.contains( this->AppId );
-}
+
 
 void Register_class::Reset( uint idx )
 {
@@ -106,8 +104,8 @@ auto regComment = []( Register_class* C, string pref, string tstr, uint s, uint 
 };
 void Register_class::proc_Register()
 {
-	if( not Is_dataprocess() )
-		return;
+	if( not is_dataproc )   return;
+
 	uint idx = AppId + Sds_Id;
 	regComment( this, "", AppName, Sds_Id, idx );
 	if( idx > REGISTER_SIZE )

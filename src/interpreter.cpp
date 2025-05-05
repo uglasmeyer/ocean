@@ -19,7 +19,7 @@ Processor_class( data->Sds_master, &data->Appstate )
 	main_view.name		= "Main osc";
 	main_view.oscid		= osc_struct::OSCID;
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
-	main_view.ampkey 	= SETMBAMPPLAYKEY;//MASTERAMP_KEY;
+	main_view.ampkey 	= SETSTA_KEY;//MASTERAMP_KEY;
 	main_view.freqkey 	= OSCFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
@@ -665,7 +665,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		Processor_class::Push_ifd( &sds->MIX_Id , id, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[ id ], amp, "mixer volume" );
 		Processor_class::Push_ifd( &sds->StA_state[id].play, true, "true" );
-		Processor_class::Push_key( SETMBAMPPLAYKEY	, "set volume" );
+		Processor_class::Push_key( SETSTA_KEY	, "set volume" );
 		Processor_class::Push_key( SETSTAPLAY_KEY	, "set play" );
 
 		return;

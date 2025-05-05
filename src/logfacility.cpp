@@ -9,7 +9,6 @@
 
 logmask_t 	LogMask 		= defaultLogMask;
 
-
 Logfacility_class::Logfacility_class( string module )
 {
 					seterrText();
@@ -55,6 +54,7 @@ string	Logfacility_class::GetendColor( )
 	return nocolor;
 }
 
+
 string Logfacility_class::cout_log( uint id, string str )
 {
 	set<int> 	ignore { ENOENT };
@@ -63,6 +63,7 @@ string Logfacility_class::cout_log( uint id, string str )
 		string txt	= Error_text( errno );
 		if ( txt.length() > 0 )
 			cout.flush() << txt << endl;
+
 	}
 	string 			prefix 	= prefixClass + Prefix_vec[ INFO].name;
 	stringstream 	strs 	{};
@@ -70,7 +71,16 @@ string Logfacility_class::cout_log( uint id, string str )
 	uint 			Id		= ( is_a_tty ) ? id 		: LOG::PLAIN;
 
 	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
+/*	if ( LogMask[ TEST ] )
+	{
+		fstream fout_obj;
+		fout_obj.open( logFile, fstream::app );
+		fout_obj.flush() << strs.str();
+	}
+	else
+*/
 	cout.flush() << strs.str();
+
 	return str;
 }
 void Logfacility_class::ResetLogMask()
@@ -122,7 +132,7 @@ void Logfacility_class::seterrText()
 void Logfacility_class::Init_log_file( )
 {
 	Comment( INFO, "Initialize Log file ");
-	string _path = string( logFile );
+	string _path = string( "/tmp/fout.tst" );//( logFile );
 	if (filesystem::exists( _path ))
 		filesystem::remove( _path );
 }
@@ -167,19 +177,22 @@ void Logfacility_class::Set_Loglevel( int _level, bool _on )
 
 
 
-void Logfacility_class::TEST_START( const string& name)
+
+
+void Logfacility_class::test_start( const string& name)
 {
 	Set_Loglevel( TEST, true) ;
-
-	Comment( TEST, Line );
+//	Comment( TEST, Line );
 	Comment( TEST, "Test " + name + " start" ) ;
 }
 
-void Logfacility_class::TEST_END( const string& name )
+void Logfacility_class::test_end( const string& name )
 {
+
 	Set_Loglevel( TEST, true) ;
-	Comment( TEST, "Test " + name + " finished" );
-	Comment( TEST, Line );
+	cerr << GetColor( BINFO ) << "Test " + name + " finished" << endcolor << endl;
+//	Comment( TEST, "Test " + name + " finished" );
+//	Comment( TEST, Line );
 	Set_Loglevel( TEST, false) ;
 }
 
@@ -205,7 +218,52 @@ void Logfacility_class::Test_Logging( )
 	ASSERTION( L == 12, "OR", L, 12 )
 	bitset<4> bs = 0b1100;
 	ASSERTION( bs[WARN] | bs[ERROR], "bitset", bs.test(ERROR), true );
-	ASSERTION( isTTY( stdout ), "isTTY", isTTY( stdout ), true);
+	ASSERTION( not isTTY( stdout ), "isTTY", isTTY( stdout ), false);
 	TEST_END( className );
 
 }
+
+
+
+Printer_class::Printer_class(bool _redirect )
+{
+	redirect = _redirect;
+	fflush(stdout);
+	if (redirect)
+	{
+		store();
+		redirect = freopen(logFile.data(), "w+", stdout);
+		redirect = true;
+	}
+};
+
+Printer_class::~Printer_class()
+{
+	restore();
+	if ( not testFinished )
+		cerr.flush() <<  "cat " << logFile << endl;
+}
+void Printer_class::Close()
+{
+	restore();
+	testFinished = true;
+}
+
+void Printer_class::store()
+{
+	if( redirect )
+	{
+		save_out = dup( STDOUT_FILENO );
+	}
+}
+//#include <fcntl.h>
+void Printer_class::restore()
+{
+	if ( redirect )
+	{
+		dup2( save_out, STDOUT_FILENO );//, O_CLOEXEC );
+		redirect = false;
+	}
+}
+
+

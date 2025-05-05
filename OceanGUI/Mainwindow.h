@@ -34,7 +34,8 @@ QT_END_NAMESPACE
 
 class MainWindow :
 		public QMainWindow,
-		virtual Logfacility_class
+		virtual Logfacility_class,
+		osc_struct
 {
     Q_OBJECT
 
@@ -144,10 +145,6 @@ private:
     QGraphicsScene*     scene 				= &Scene ;
     OszilloscopeWidget* OscWidget_item;			//	created by "new";
 
-    const int
-	OSCID = osc_struct::OSCID,
-    VCOID = osc_struct::VCOID,
-	FMOID = osc_struct::FMOID;
 
     void setwidgetvalues();
     void initPanel();
@@ -202,12 +199,13 @@ private slots:
     void VCO_Waveform_slot( int );
     void FMO_Waveform_slot( int );
 
-    void Controller_Exit();
+    void exit_synthesizer();
     void GUI_Exit();
     void Audio_Exit();
     void start_synthesizer();
     void start_audio_srv();
     void start_composer();
+    void start_keyboard();
 
     void connect_oscf( bool );
     void connect_oscv( bool );

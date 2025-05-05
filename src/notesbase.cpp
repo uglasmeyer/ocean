@@ -23,59 +23,30 @@ Note_base::~Note_base()
 
 uint8_t Note_base::GetFrqIndex( const pitch_t& nvs)
 {
-	int step	= nvs.step + nvs.alter;
-	int oct 	= nvs.octave;
+	int 		step	= nvs.step + nvs.alter;
+	int 		oct 	= nvs.octave;
 	if ( step 	< 0 )
 	{
-		step 	+= oct_steps;
-		oct 	-=  1;
+				step 	+= oct_steps;
+				oct 	-=  1;
 	}
-	int	octave	= abs( oct );// + octave_shift );
-	int key = FrqIndex( octave, step );
-	return check_range( frqarr_range, key );
+	int			octave	= abs( oct );// + octave_shift );
+	uint8_t 	key 	= Index( octave, step );
+	return key ;
 }
 // https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
 float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 {
-/*	int step	= nvs.step + nvs.alter;
-	int oct 	= nvs.octave;
-	if ( step 	< 0 )
-	{
-		step 	+= oct_steps;
-		oct 	-=  1;
-	}
-	uint8_t	octave	= abs( oct );// + octave_shift );
-	int		key 	= octave*oct_steps + step + C0 ;
-*/
-	int key = GetFrqIndex( nvs );
-	return 	Frequency_class::Calc(base, key);//calc_frequency( base, key );
-};
 
-/*
-float Note_base::calc_frequency( const float& base, const int& key )
-{
-	ASSERTION( not( key < 0 ), "key: ", key, "< 0" );
-	if ( abs( key ) > root2_limit )
-	{
-		Comment( WARN, "Octave key " + to_string( key ) + " adjusted to limit " + to_string( root2_limit ) );
-		return root2[ root2_limit ] * base;
-	}
-	return root2[ key ] * base;
-}
-*/
+	int 		key 	= GetFrqIndex( nvs );
+	return 		Frequency_class::Calc(base, key);
+};
 
 void Note_base::Set_base_octave( uint diff )
 {
 	octave_shift = octave_shift + ( 2*diff - 1);
 	if ( octave_shift < 0 )
 		octave_shift = 0;
-}
-
-float Note_base::Octave_freq( uint8_t oct )
-{
-	if ( oct == 0 ) return oct_base_freq;
-	uint oct2 = (uint) oct_base_freq * 2;
-	return oct2 << ( oct - 1 );
 }
 
 void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )
@@ -112,14 +83,14 @@ string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
 Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 {
 	auto range_error = [ this ]( auto val, vector<size_t> range )
-		{
-			Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
-												to_string( range[1] ) + "}" );
-			if ( LogMask[ TEST ] ) return;
-			EXCEPTION( "Cannot assign noteline_prefix " +
-					 to_string( val ) +
-					" to noteline_structure" );//raise( SIGINT );
-		};
+	{
+		Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
+											to_string( range[1] ) + "}" );
+		if ( LogMask[ TEST ] ) return;
+		EXCEPTION( "Cannot assign noteline_prefix " +
+				 to_string( val ) +
+				" to noteline_structure" );//raise( SIGINT );
+	};
 
 	noteline_prefix_t nlp;
 	String S = str;

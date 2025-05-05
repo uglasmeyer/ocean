@@ -71,6 +71,10 @@ bool Appstate_class::IsRunning( interface_t* sds, uint appid )
 {
 	if(( appid == this->AppId ) and ( this->sds == sds ))
 		return true;
+/*	if ( dataProc.contains( appid ) )
+	{
+		return Is_running_process( (int) sds->process_arr.at( appid + sds->SDS_Id ).pid);
+	}*/
 	bool flag = ( RUNNING == Get( sds, appid ));
 	return flag;
 }
@@ -105,7 +109,7 @@ void Appstate_class::StartOnce()
 
 	if ( startonceIds.contains( this->AppId ) and ( is_running ))
 	{
-		Comment( INFO, "This Ocean process should only start once" );
+		Comment( ERROR, "This Ocean process should only start once" );
 		exit( 0 );
 	}
 }

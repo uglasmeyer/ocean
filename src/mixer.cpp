@@ -109,6 +109,22 @@ void Mixer_class::Update_sds_state( interface_t* sds )
 	}
 }
 
+void Mixer_class::SetStA()
+{
+	for ( uint n = 0; n < StA.size() ; n++ )
+	{
+		bool store = (bool) sds->StA_state[n].store;
+		StA[n].Record_mode( store );
+
+		uint8_t amp = sds->StA_amp_arr[ n ];
+		StA[ n ].DynVolume.SetupVol( amp , SLIDE);
+
+		bool play = (bool) sds->StA_state[n].play;
+		StA[n].Play_mode( play );
+
+		Set_mixer_state( n , play );
+	}
+}
 
 void Mixer_class::add_mono(Data_t* Data, const uint& id )
 // sample Data for different sound devices
@@ -136,9 +152,9 @@ void Mixer_class::add_stereo( stereo_t* data  )
 // sample Data for different Synthesizer into audio memory
 // by applying master volume per Synthesizer
 {
-	buffer_t	audioframes		= sds_master->audioframes;
-	float balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
-	float balanceR	= 1.0 - balanceL;
+	buffer_t	audioframes	= sds_master->audioframes;
+	float 		balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
+	float 		balanceR	= 1.0 - balanceL;
 
 	DynVolume.SetDelta( sds_master->slide_duration);
 	for( buffer_t n = 0; n < audioframes ; n++ )
@@ -159,7 +175,7 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 	{
 		cout << dec << composer << " " << arr_id << endl;
 		Notes->Generate_note_chunk( );
-		StA[ arr_id ].Store_block( Notes->Oscgroup.osc.MemData() );
+		StA[ arr_id ].Store_block( Notes->Oscgroup.osc.MemData_p() );
 		composer--;
 	}
 	StA[ arr_id ].Record_mode( false );
@@ -181,7 +197,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 			return -1;
 		};
 
-
+	if( not shm_addr ) return;
 	clear_memory();
 
 	if ( status.mute )
@@ -220,12 +236,11 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 	add_stereo( shm_addr );
 };
 
-void Mixer_class::Test()
+void Mixer_class::TestMixer()
 {
 
 	DaTA->Sds_p->Reset_ifd();
 
-	DynVolume.TestVol( );
 
 	TEST_START( className);
 
@@ -265,7 +280,6 @@ void Mixer_class::Test()
 	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
 			(int)DynVolume.current.past,(int)DynVolume.current.future);
 
-	TEST_START( className );
 	Mono.Memory_base::Info();
 
 	TEST_END( className );

@@ -7,10 +7,6 @@
 #include <notes/Notes.h>
 
 
-
-
-
-
 auto calc_noteline_msec = []( Note_class* C )
 	{
 		uint duration = 0;
@@ -107,9 +103,10 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 void Note_class::Start_note_itr()
 {
 	Info( "Start_note_itr");
-	note_itr = notelist.begin();
-	if ( note_itr == notelist.end() )
+	note_itr 		= notelist.begin();
+	if ( note_itr	== notelist.end() )
 		Comment( WARN, "Empty notelist" );
+	framePart 		= 0;
 }
 
 
@@ -155,7 +152,6 @@ Note_class::note_t Note_class::Char2note( char& ch )
 	pitch.step_char			= ch;
 	pitch.alter				= 0;
 	pitch.octave			= Octave;
-//	pitch.freq 				= CalcFreq( oct_base_freq, pitch );
 
 	note_buffer.chord.push_back( pitch );
 	note_buffer.str.push_back(ch);

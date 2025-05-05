@@ -15,18 +15,24 @@
 static const int	NoKey 	= 0;
 typedef struct key_struct
 {
-	int 	key	= NoKey;
-	uint 	val	= 0;
+	int 			key;
+	uint			val;
+
+    friend bool operator==(const key_struct& A, const key_struct& B )
+	{
+    	return (( A.key == B.key ) and ( A.val == B.val ));
+	}
 } key_struct_t;
 
 
-class Keyboard_base : virtual Logfacility_class
+class Keyboard_base :
+		virtual Logfacility_class
 {
 public:             // Access specifier
-	const char			AppExit = '#';
+	key_struct_t	AppExit 	{ 27, 0 };
 
-	Keyboard_base();
-	virtual ~Keyboard_base();
+					Keyboard_base();
+	virtual 		~Keyboard_base();
 
 	key_struct_t 	keystruct;
 	key_struct_t 	GetKey();
@@ -44,9 +50,9 @@ private:
 	char 			buf 		= 0;
 	char*			buf_p		= &buf;
 
-	char getch();
-	char getkey();
-	void pressKey();
+	char 			getch();
+	char 			getkey();
+	void 			pressKey();
 
 };
 

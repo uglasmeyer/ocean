@@ -17,25 +17,6 @@
 #include <Exit.h>
 
 
-/*
-Exit_class				Exit{};
-Logfacility_class 		Log( "Comstack" );
-const string			Module			= Log.className;
-Frequency_class 		Frequency 		{};
-
-Keyboard_class			Keyboard		{ };
-Config_class			Cfg				{ "Config" };
-Dataworld_class 		DaTA			( COMSTACKID, &Cfg. & );
-Application_class		App				( &DaTA );
-//ViewInterface_class		ViewSds			{ DaTA.Cfg_p, DaTA.Sem_p };
-interface_t*			sds_master		= DaTA.sds_master;
-
-string 					waveform_string = "0 ... 10";
-int 					update_counter 	= 1;
-int 					sdsid			= sds_master->config;
-Interface_class*		Sds				= DaTA.GetSds( sdsid );
-interface_t* 			sds 			= Sds->addr;
-*/
 
 
 

@@ -97,47 +97,5 @@ private:
 
 
 
-enum  { ESC=27, ASC=126, F1=239, F2=241, F3=243, F4=245, F5=53, F6=55 };
-
-class ViewInterface_class :
-	osc_struct,
-	interface_struct, //Interface_class,
-	virtual Frequency_class,
-	Spectrum_class,
-	state_struct
-{
-	string 				className 	= "";
-	Interface_class*	Sds_p 		= nullptr;
-	interface_t* 		sds 		= nullptr;
-public:
-	ViewInterface_class( char appid, Config_class* cfg, Semaphore_class* sem, Interface_class* sds_p )
-	:
-	  Frequency_class(),
-	  Spectrum_class(),
-	  state_struct()
-	{
-		className = Logfacility_class::className;
-		Sds_p			= sds_p;
-	};
-	~ViewInterface_class() = default;
-
-
-	void	ShowPage( interface_t* sds, int nr );
-
-private:
-
-	void 	showOSCs();
-	void 	showProcesses();
-	void 	showStates() ;
-
-	void 	show_Que();
-	void 	show_Adsr();
-	void 	showKeys();
-
-
-	void	printHeader();
-	string	Decode( uint8_t idx);
-};
-
 
 #endif /* GUIINTERFACE_H_ */

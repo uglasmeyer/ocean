@@ -46,6 +46,8 @@ int main()
 
 */
 	base_t 	base { 5, "five" };
+
+
 	derived_t derived{ base };
 	cout << derived.dp << derived.p << derived.str << derived.dstr << endl;
 	return 0;

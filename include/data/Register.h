@@ -19,13 +19,14 @@ class Register_class :
 {
 	string 			className 			= "";
 	interface_t*	sds 				= nullptr;
+	const set<int> 	dataProc			{ AUDIOID, SYNTHID };
+
 public:
-	std::set<int> 	dataProc			{ AUDIOID, SYNTHID };
+	bool			is_dataproc			= false;
 	uint 			Sds_Id				= -1;
 
 	void			Setup				( interface_t* sds );
 	int 			GetId				();
-	bool 			Is_dataprocess		();
 	void 			Clear_procregister	();
 	void			Reset				( uint idx );
 	void 			Show_proc_register	( uint idx );

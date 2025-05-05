@@ -7,8 +7,12 @@
 
 #include <Synthesizer.h>
 
+bool
+isopen = false;
 void SynthesizerTestCases()
 {
+
+
 	Shm_base Shm_test{0};
 	Shm_test.Test_Memory();
 
@@ -44,7 +48,7 @@ void SynthesizerTestCases()
 	String 					TestStr{""};
 	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID };
 
-	Log.TEST_START( "Application " );
+//	Log.TEST_START( "Application " );
 
 	Log.Init_log_file();
 	Log.Test_Logging();
@@ -67,13 +71,16 @@ void SynthesizerTestCases()
 
 //	Loop.Test();
 
+	Notes.TestNoteBase();
 
 	Notes.Test();
 
 	TestOsc.Test_wf();
 	TestOsc.DynFrequency.TestFrq();
 
-	Mixer.Test();
+	Mixer.DynVolume.TestVol( );
+
+	Mixer.TestMixer();
 
 	Timer.Start();
 
@@ -119,7 +126,10 @@ void SynthesizerTestCases()
 
 	Event.TestHandler();
 
-	Log.TEST_END( "Application " );
+
+
+
+//	Log.TEST_END( "Application " );
 }
 
 #include <Interpreter.h>

@@ -39,6 +39,7 @@ void Note_class::Set_instrument(Instrument_class *instrument) {
 	osc->Connect_frq_data(fmo);
 	osc->Connect_vol_data(vco);
 
+
 //	Oscgroup.Set_Duration( max_milli_sec );
 //	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 
@@ -101,7 +102,8 @@ void Note_class::note2memory( 	const note_t& note,
 		Oscgroup.SetSlide( 0 );
 
 	Oscgroup.osc.Set_long_note( note.longnote or longnote );
-	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_sec ) / 1000 );
+	osc->adsr.hall = 0;
+	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_msec ) );
 
 	for ( pitch_t pitch : note.chord )
 	{
@@ -140,21 +142,21 @@ bool Note_class::Generate_note_chunk( )
 
 	restart_note_itr();
 
-	buffer_t 	frame_offset = (frames_per_sec * timestamp)  / 1000 ;
+	buffer_t 	frame_offset = (frames_per_msec * timestamp)  ;
 	bool 		partnote = false;//( timestamp != 0);
 	int 		lastduration = 0;
 	bool		longnote = false;// ( timestamp != 0 );
 	while ( note_itr != notelist.end() )
 	{
 
-		if ( timestamp == max_milli_sec )
+		if ( timestamp == max_msec )
 		{
 			timestamp = 0;
 			return true; // good
 		}
 		if ( timestamp >  max_sec*1000 )
 		{	// considers the end pause to finish
-			timestamp = timestamp % max_milli_sec;
+			timestamp = timestamp % max_msec;
 
 			Comment( DBG2, "take over " + to_string( timestamp ) + "[msec]");
 			note_itr++;
@@ -163,10 +165,10 @@ bool Note_class::Generate_note_chunk( )
 
 		uint duration = rint( note_itr->duration );//* 2.0 ) ;// musicxml.tempo;
 		scoretime += duration;
-		if ( timestamp + duration > max_milli_sec )
+		if ( timestamp + duration > max_msec )
 		{
 			lastduration = duration;
-			duration = max_milli_sec - timestamp ;
+			duration = max_msec - timestamp ;
 			partnote = true;
 //			cout << "part start ";
 		}
@@ -340,7 +342,6 @@ void Note_class::Save( string str, noteline_prefix_t prefix, string nl_str )
 
 void Note_class::Test()
 {
-	Note_base::TestNoteBase();
 
 	TEST_START( className );
 	ASSERTION( Notechar2Step( 'A' ) == 9, "Assert test value ","A", 9  )  ;

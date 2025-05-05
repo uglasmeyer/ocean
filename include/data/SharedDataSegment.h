@@ -65,17 +65,18 @@ typedef struct register_process_struct
 	pid_t			pid		= -1;
 } register_process_t;
 
-const uint	REGISTER_SIZE 	= MAXCONFIG+1;
-const uint 	str_buffer_len 	= 32;
-const uint  MAXQUESIZE		= 100;
-typedef 	array< uint8_t, MAXQUESIZE>					deque_t ;
-typedef		array<register_process_t, REGISTER_SIZE>	process_arr_t;
-typedef 	Note_base::noteline_prefix_t				noteline_prefix_t;
-typedef 	Spectrum_class::spectrum_t					spectrum_t;
-typedef		Mixer_base::mixer_status_t					mixer_status_t;
-typedef		Mixer_base::StA_amp_arr_t					StA_amp_arr_t;
-typedef		Mixer_base::StA_state_arr_t					StA_state_arr_t;
-typedef		array<Oscillator_base::connect_t, 3>		osc_connect_t;
+
+const uint			REGISTER_SIZE 	= MAXCONFIG+1;
+const uint 			str_buffer_len 	= 32;
+const uint  		MAXQUESIZE		= 100;
+typedef 			array< uint8_t, MAXQUESIZE>					deque_t ;
+typedef				array<register_process_t, REGISTER_SIZE>	process_arr_t;
+typedef 			Note_base::noteline_prefix_t				noteline_prefix_t;
+typedef 			Spectrum_class::spectrum_t					spectrum_t;
+typedef				Mixer_base::mixer_status_t					mixer_status_t;
+typedef				Mixer_base::StA_amp_arr_t					StA_amp_arr_t;
+typedef				Mixer_base::StA_state_arr_t					StA_state_arr_t;
+typedef				array<Oscillator_base::connect_t, 3>		osc_connect_t;
 
 // there are MAXCONFIG interface structures in dataworld
 // global values are managed in structure 0 only (master interface)

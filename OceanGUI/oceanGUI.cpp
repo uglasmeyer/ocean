@@ -44,8 +44,9 @@ auto set_sl_sta_value = [ ]( MainWindow* M )
 
 
 MainWindow::MainWindow(	QWidget *parent ) :
-	Logfacility_class( Module ),
-	ui(new Ui::MainWindow{} )
+		Logfacility_class( Module ),
+		osc_struct(),
+		ui(new Ui::MainWindow{} )
 {
 	ui->setupUi(this);
 	initPanel();
@@ -279,7 +280,7 @@ auto setStaPlay( MainWindow* M, uint8_t id )
     M->Sds->Set( M->Sds->addr->MIX_Id , id );
     bool play = not M->Sds->addr->StA_state[id].play;
     M->Sds->Set( M->Sds->addr->StA_state[id].play, play);
-    M->Eventlog.add( M->SDS_ID, SETSTAPLAY_KEY );
+    M->Eventlog.add( M->SDS_ID, SETSTA_KEY );
     M->cb_sta_vec[ id ].cb->setChecked( play ) ;
 }
 
@@ -384,7 +385,7 @@ void MainWindow::mixer_slider( sl_value_t map )
 
     Sds->Set( Sds->addr->MIX_Id , map.id );
     Sds->Set( *map.value, (uint8_t)map.sl->value() );
-    Eventlog.add( SDS_ID, SETMBAMPPLAYKEY);
+    Eventlog.add( SDS_ID, SETSTA_KEY);
 };
 
 void MainWindow::Sl_mix0( int value )
@@ -478,7 +479,7 @@ void MainWindow::setwidgetvalues()
 
 	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 
-	if ( Sds->addr->WD_status.roleId == osc_struct::AUDIOID )
+	if ( Sds->addr->WD_status.roleId == osc_struct::AUDIOOUTID )
 		OscWidget_item->sds = Sds_master;
 	else
 		OscWidget_item->sds = this->Sds->addr;
@@ -579,6 +580,7 @@ void MainWindow::start_composer()
 	system_execute( Start_Composer );
 }
 
+
 void MainWindow::start_audio_srv()
 {
 	if( Appstate->IsRunning( Sds_master, RTSPID ) )
@@ -593,34 +595,54 @@ void MainWindow::start_audio_srv()
 
 }
 
-void MainWindow::start_synthesizer()
+auto start_synth = [  ]( MainWindow* M, string cmd )
 {
-	if( Appstate->IsRunning( Sds_master, RTSPID ) )
+	if( M->Appstate->IsRunning( M->Sds_master, RTSPID ) )
 	{
-	    if ( Sem_p->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
-	    	Sem_p->Release( SYNTHESIZER_START );
-	    return;
+	    if ( M->Sem_p->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
+	    	M->Sem_p->Release( SYNTHESIZER_START );
+	    return M->SDS_ID;
 	}
 
-	int sdsid = DaTA.Reg.GetStartId( );
-	cout << (int) sdsid << endl;
-	if ( sdsid < 0 ) return;
+	int sdsid = M->DaTA.Reg.GetStartId( );
+	if ( sdsid < 0 ) return M->SDS_ID;
 
-	string Start_Synthesizer = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.synth_bin,
+    system_execute( cmd.data() );
+    return (uint8_t) sdsid;
+
+};
+void MainWindow::start_synthesizer()
+{
+
+	if( Appstate->IsRunning( Sds->addr, SYNTHID ) )
+	{
+		exit_synthesizer();
+		return;
+	}
+	string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.synth_bin,
 			" >> " + fs.nohup_file );
 
-    system_execute( Start_Synthesizer.data() );
+    uint8_t sdsid = start_synth( this, cmd );
     select_Sds(sdsid);
+
+}
+void MainWindow::start_keyboard()
+{
+	string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.synth_bin, "" );
+	int sdsid = start_synth( this, cmd );
+	select_Sds(sdsid);
+	Sds->Set( Sds->addr->StA_state[ MbIdKeyboard ].play, true );
+	Sds->Set( Sds->addr->StA_amp_arr[ MbIdKeyboard], (uint8_t) 75 );
+    Eventlog.add( SDS_ID, SETSTAPLAY_KEY );
 
 
 }
-
 void MainWindow::read_polygon_data()
 {
     OscWidget_item->read_polygon_data();
 };
 
-void MainWindow::Controller_Exit()
+void MainWindow::exit_synthesizer()
 {
 	if ( Appstate->IsRunning( Sds_master, RTSPID ) )
 	{

@@ -17,13 +17,15 @@
 
 typedef float 						frq_t;
 const 	uint 						C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
+const 	size_t 						FRQARR_SIZE = max_octave*oct_steps + C0;
+const 	range_t<int > 				frqarr_range {1, FRQARR_SIZE - 1 };
 
-constexpr uint FrqIndex( const uint& octave, const uint& note )
+constexpr uint frqIndex( const int& octave, const int& note )
 {
-	return octave*oct_steps + note + C0 ;
+	int idx = octave*oct_steps + note + C0;
+	return  idx;
 };
-const 	uint8_t						A3			= FrqIndex(3,2);
-const 	size_t 						FRQARR_SIZE = FrqIndex(max_octave, 0 );
+const 	uint8_t						A3			= frqIndex(3,2);
 
 static_assert(  FRQARR_SIZE < numeric_limits<uint8_t>::max() );
 
@@ -34,7 +36,6 @@ extern frqarray_t 					frqArray;;
 extern frqstrarr_t 					frqNamesArray;
 
 
-const range_t<int > 				frqarr_range {1, FRQARR_SIZE-1 };
 
 class Frequency_class :
 		virtual Logfacility_class
@@ -51,6 +52,7 @@ public:
 	Frequency_class();
 	virtual ~Frequency_class();
 	uint  Index( const string& frqName );
+	uint  Index( const int& oct, const int& step );
 	void ShowFrqTable();
 	void TestFrequency();
 

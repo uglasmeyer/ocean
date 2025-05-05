@@ -87,11 +87,11 @@ public:
 	uint 			AppId				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
-	set<int> 		startonceIds 		= { AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID } ;
+	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID } ;
 	const range_t<uint>
 					appId_range 		{0, NOID };
-
-	array< uint, NOID> backup_state		{ };
+	array< uint, NOID>
+					backup_state		{ };
 					Appstate_class		( char appid, interface_t* _sds, interface_t* _sds_master );
 
 	virtual			~Appstate_class		() = default;

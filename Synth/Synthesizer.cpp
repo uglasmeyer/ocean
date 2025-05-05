@@ -87,6 +87,7 @@ void activate_sds()
 }
 
 
+//static_assert(frame_parts == 10 );
 
 void add_sound( )
 {
@@ -100,11 +101,18 @@ void add_sound( )
 	{
 		Keyboard.KbdEvent( key );
 	}
-
 	if ( Mixer.status.notes )
 	{
 		Notes.Set_instrument( &Instrument );
-		Notes.Generate_note_chunk( );
+
+		if ( Notes.framePart == 0 )
+		{
+			Notes.Generate_note_chunk( );
+		}
+		buffer_t offs = Notes.framePart * min_frames;
+		Notes.NotesData = Notes.osc->GetData_p( offs );
+
+		Notes.framePart = ( Notes.framePart + 1 ) % frame_parts ;
 	}
 
 	if (( Mixer.status.instrument ) )
@@ -115,15 +123,15 @@ void add_sound( )
 
 	stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
-	Mixer.Add_Sound( 	Instrument.osc->MemData(),
+	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
 						Keyboard.Kbd_Data,
-						Notes.osc->MemData(),
+						Notes.NotesData,
 						shm_addr );
 
 	ProgressBar.Update();
 
 	if (
-		( sds->WD_status.roleId != osc_struct::AUDIOID )
+		( sds->WD_status.roleId != osc_struct::AUDIOOUTID )
 //		and	( sds->Composer != RUNNING )
 		)
 		Wavedisplay.Write_wavedata();
@@ -155,7 +163,6 @@ void ApplicationLoop()
 			Keyboard.Kbdnote();
 
 	} ;
-
 
 	Log.Comment(INFO, "Exit Application loop");
 	Log.Comment( INFO, Log.Line);
@@ -200,7 +207,7 @@ thread* 		ReadNotes_thread_p = nullptr;
 
 void activate_logging()
 {
-	LogMask.set( DEBUG );
+	Log.Set_Loglevel( DEBUG, false );
 
 }
 

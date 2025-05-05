@@ -179,7 +179,7 @@ void MainWindow::initUiConnectors()
     connect(ui->pB_play_notes	, SIGNAL(clicked() )		,this, SLOT(File_Director() ));
 
     connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
-    connect(ui->pBSynthesizerExit,SIGNAL(clicked() )		,this, SLOT(Controller_Exit() ));
+    connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() ));
     connect(ui->pBAudioServer	, SIGNAL(clicked() )		,this, SLOT(start_audio_srv() ));
     connect(ui->pBAudioServerExit,SIGNAL(clicked() )		,this, SLOT(Audio_Exit() ));
     connect(ui->pBComposer		, SIGNAL(clicked() )		,this, SLOT(start_composer() ));

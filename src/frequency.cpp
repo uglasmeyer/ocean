@@ -130,12 +130,18 @@ void Frequency_class::initFrqNamesArray()
 			string 	frqName {""};
 			frqName.push_back(OctChars[step]);
 			frqName.push_back(octave);
-			frqNamesArray[ FrqIndex( oct, step ) ] = frqName;
+			frqNamesArray[ Index( oct, step ) ] = frqName;
 		}
 	}
 
 	cout << "Frequency Names initialized " << endl;
 	frqnamesarray_done = true;
+}
+
+uint  Frequency_class::Index( const int& oct, const int& step )
+{
+	int idx = frqIndex( oct, step );
+	return check_range( frqarr_range, idx );
 }
 
 void Frequency_class::TestFrequency()

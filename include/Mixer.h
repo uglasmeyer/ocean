@@ -34,7 +34,7 @@ public:
 	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
 	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
 	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5, 6 };
-	const vector<uint>	SycIds		= {0, 1, 2, 3, 6, 7 };
+	const vector<uint>	SycIds		= {0, 1, 2, 3, 7 };
 	const vector<uint>	HghIds		= {4, 5, 6, 7 };
 
 
@@ -65,9 +65,8 @@ public:
 	void Update_sds_state( interface_t* sds );
 	void Set_mixer_state( const uint& id, const bool& play );
 	bool GetSyncState();
-
-
-	void Test();
+	void SetStA();
+	void TestMixer();
 
 private:
 	void clear_memory();

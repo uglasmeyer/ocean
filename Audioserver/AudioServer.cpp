@@ -236,7 +236,7 @@ void Application_loop()
 
 void write_waveaudio()
 {
-	if ( sds->WD_status.roleId != osc_struct::AUDIOID )
+	if ( sds->WD_status.roleId != osc_struct::AUDIOOUTID )
 		return;
 
 	for( buffer_t n = 0; n < max_frames; n++ )
@@ -338,8 +338,6 @@ void set_ncounter( buffer_t n )
 	}
 }
 
-key_struct_t AppKey;
-
 int RtAudioOut(	void *outputBuffer,
 				void * /*inputBuffer*/,
 				uint nBufferFrames,
@@ -402,7 +400,7 @@ int main( int argc, char *argv[] )
 	sds->Record			= false;
 
 	wd_status_t wd_status 	= WD_status_struct();
-	wd_status.roleId 		= osc_struct::AUDIOID;
+	wd_status.roleId 		= osc_struct::AUDIOOUTID;
 	wd_status.oscId 		= osc_struct::OSCID;
 
 	Wavedisplay.Add_role_ptr( wd_status.roleId, mono_out.Data );
