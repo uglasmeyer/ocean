@@ -10,28 +10,11 @@
 
 #include <Logfacility.h>
 #include <data/Interface.h>
+#include <data/Register.h>
 #include <data/SharedDataSegment.h>
 
 
-template<typename T>
-constexpr string AppIdName( const T& app_id )
-{
-	switch ( app_id )
-	{
-		case APPID::AUDIOID		: return "Audioserver";
-		case APPID::SYNTHID		: return "Synthesizer";
-		case APPID::COMPID		: return "Composer";
-		case APPID::GUI_ID		: return "UserInterface";
-		case APPID::COMSTACKID	: return "Comstack";
-		case APPID::RTSPID		: return "Rtsp";
-		case APPID::TESTID		: return "Testprg";
-		case APPID::NOID		: return "No Process";
-		default 		: 	{
-							cout << "WARN: unknown application id: " << app_id << endl;
-							return "No Process";
-							};
-	}
-}
+
 
 template<typename T>
 constexpr char AppNameId( const T& name )
@@ -85,6 +68,7 @@ public:
 	string 			className 			= "";
 	string			Name 				= "";
 	uint 			AppId				;
+	Register_class* Reg_p				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
 	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID } ;
@@ -92,7 +76,10 @@ public:
 					appId_range 		{0, NOID };
 	array< uint, NOID>
 					backup_state		{ };
-					Appstate_class		( char appid, interface_t* _sds, interface_t* _sds_master );
+					Appstate_class		( 	char appid,
+											interface_t* _sds,
+											interface_t* _sds_master,
+											Register_class* reg );
 
 	virtual			~Appstate_class		() = default;
 
@@ -114,9 +101,7 @@ public:
 
 	void			SaveState			( );
 	void			RestoreState		( );
-
-
-
+	bool 			IsInconsistent		( interface_t* sds, char appid );
 
 private:
 	uint8_t* 		appAddr				( interface_t* sds, uint appid );

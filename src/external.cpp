@@ -329,7 +329,10 @@ int External_class::Save_record_data( int filenr)
 void External_class::Test_External()
 {
 	TEST_START( className );
-	ASSERTION( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 , "", StA->ds.max_records, Stereo_Memory::ds.max_records);
+	StA->Memory::Info( "External StA Info");
+	Stereo_Memory::Info( "Stereo_Memory Info ");
+	ASSERTION ( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 , "compare StA/Stereo_Memory-records",
+				StA->ds.max_records , Stereo_Memory::ds.max_records );
 
 	if ( filesystem::exists( testcounter ))
 		filesystem::remove( testcounter );

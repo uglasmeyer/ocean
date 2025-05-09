@@ -37,7 +37,12 @@ Oscillator::Oscillator( char role_id,  char type_id ) :
 
 }
 
-Oscillator::~Oscillator() = default;
+void Oscillator::operator= (const Oscillator& osc)
+{
+    this->wp 					= osc.wp;
+    this->adsr					= osc.adsr;
+    this->spectrum				= osc.spectrum;
+}
 
 
 void Oscillator::Phase_reset()

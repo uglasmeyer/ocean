@@ -7,12 +7,12 @@
 
 #include <data/Memorybase.h>
 
-Memory_base::Memory_base( buffer_t size ) :
+Memory_base::Memory_base( buffer_t bytes ) :
 	Logfacility_class( "Memory_base" )
 {
-	ds.size = size;
+	ds.mem_bytesize = bytes;
 	className = Logfacility_class::className;
-	Comment( INFO, "pre-init memory size " + to_string( size ));
+	Comment( INFO, "pre-init memory size " + to_string( bytes ));
 
 //	Log[ TEST ] = true;
 
@@ -31,23 +31,23 @@ Memory_base::~Memory_base()
 
 void* Memory_base::Init_void()
 {
-	assert( ds.size > 0 );
+	assert( ds.mem_bytesize > 0 );
 	ds.addr = mmap(	NULL,
-				ds.size  + 1  ,
+				ds.mem_bytesize ,// + 1  ,
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS,
 				0, 0);
 	ds.name			= Logfacility_class::className + " allocated";
-	ds.mem_bytes	= ds.size;
+	ds.mem_bytes	= ds.mem_bytesize;
+	ds.hex			= to_hex( (long) ds.addr );
 
 	return ds.addr;
 }
 void Memory_base::Info()
 {
-	String S{""};
 	Comment( INFO, "Name             : " + ds.name );
 	Comment( INFO, "Memory bytes     : " + to_string( ds.mem_bytes ));
-	Comment( TEST, "Addr             : " + S.to_hex(( long)ds.addr) );
+	Comment( TEST, "Addr             : " + to_hex(( long)ds.addr) );
 	Comment( TEST, "Structure bytes  : " + to_string( ds.sizeof_data ));
 	Comment( TEST, "Record size      : " + to_string( ds.block_size ));
 	Comment( TEST, "data blocks      : " + to_string( ds.data_blocks ));
@@ -93,6 +93,7 @@ shm_ds_t* Shm_base::Get( key_t key )
 	}
 	ds.addr = Attach( ds.shmid ); //shmat (ds.id, 0, 0);
 	statistic.shm += ds.size;
+	ds.hex = to_hex( (long) ds.addr );
 
 	return &ds;
 }

@@ -221,22 +221,22 @@ void Event_class::Handler()
 	case READ_EXTERNALWAVEFILE: {
 		Comment(INFO, "receive command <set external wave file>");
 		string wavefile = Sds->Read_str(WAVEFILESTR_KEY);
-		Sem->Lock(SEMAPHORE_TEST, 1); // assume record thread is working on that file
+//		Sem->Lock(SEMAPHORE_TEST, 1); // assume record thread is working on that file
 		if (External->Read_file_header(wavefile))
 		{
 			External->Read_file_data();
-			Mixer->StA[MbIdExternal].Play_mode(true);
-			Mixer->StA[MbIdExternal].DynVolume.SetupVol( 100, FIXED );
+			Mixer->StA[STA_EXTERNAL].Play_mode(true);
+			Mixer->StA[STA_EXTERNAL].DynVolume.SetupVol( 100, FIXED );
+			sds->StA_amp_arr[ STA_EXTERNAL ] = 100;
 			Mixer->status.external = true;
-			ProgressBar->SetValue(
-					100 * External->Filedata_size / External->ds.mem_bytes);
+			ProgressBar->SetValue( 100 * External->Filedata_size / External->ds.mem_bytes);
 		}
 		else
 		{
 			Comment(ERROR, "Failed to setup header");
 		}
 		Sds->Commit();
-		DaTA->EmitEvent( READ_EXTERNALWAVEFILE );
+//		DaTA->EmitEvent( READ_EXTERNALWAVEFILE );
 
 		break;
 	}
@@ -401,10 +401,10 @@ void Event_class::Handler()
 	}
 	case NOTESONKEY:
 	{
-		Value amp { (int) (sds->StA_amp_arr[MbIdNotes]) };
+		Value amp { (int) (sds->StA_amp_arr[STA_NOTES]) };
 		Comment(INFO, "receive command < notes on " + amp.str + "%>");
-		Mixer->StA[MbIdNotes].DynVolume.SetupVol( amp.val, FIXED );
-		Mixer->Set_mixer_state(MbIdNotes, true);
+		Mixer->StA[STA_NOTES].DynVolume.SetupVol( amp.val, FIXED );
+		Mixer->Set_mixer_state(STA_NOTES, true);
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		Sds->Commit();
 		break;
@@ -412,7 +412,7 @@ void Event_class::Handler()
 	case NOTESOFFKEY:
 	{
 		Comment(INFO, "receive command < notes off>");
-		Mixer->Set_mixer_state(MbIdNotes, false);
+		Mixer->Set_mixer_state(STA_NOTES, false);
 		Sds->Commit();
 		break;
 	}

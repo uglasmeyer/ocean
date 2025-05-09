@@ -10,6 +10,7 @@
 
 #include <data/Interface.h>
 #include <data/Semaphore.h>
+#include <data/Appstate.h>
 #include <Ocean.h>
 #include <System.h>
 #include <Time.h>

@@ -12,7 +12,7 @@
 #include <Logfacility.h>
 #include <Configbase.h>
 #include <data/SharedDataSegment.h>
-#include <data/Appstate.h>
+//#include <data/Appstate.h>
 
 class Register_class :
 		virtual public  Logfacility_class
@@ -34,6 +34,7 @@ public:
 	void 			Proc_deRegister		();
 	int 			GetStartId			( );
 	void			Update_register		();
+	int 			Get_regpid			( uint8_t sdsid, char appid );
 
 					Register_class		( char appid, interface_t* _sds ) ;
 	virtual 		~Register_class();
@@ -48,6 +49,9 @@ private:
 	void 			proc_Register		();
 	int 			scan_proc_register	(); // returns SDS_id
 	void 			show_proc_register	();
+	int 			regpid				( uint8_t sdsid, char appid );
+	bool 			Is_dataproc			( char appid );
+
 };
 
 

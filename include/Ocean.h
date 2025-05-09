@@ -57,23 +57,25 @@
 using namespace std;
 
 // https://en.cppreference.com/w/cpp/language/types
-typedef unsigned long int 	buffer_t;
-typedef float		 		Data_t; // range -32767 ... +32767
-typedef signed short 		data_t; // range -32767 ... +32767
-typedef vector<Data_t>		DataVec_t;
-typedef double				phi_t;
-struct Stereo_struct
+typedef 			unsigned long int 	buffer_t;
+typedef 			float		 		Data_t; // range -32767 ... +32767
+typedef 			signed short 		data_t; // range -32767 ... +32767
+typedef 			vector<Data_t>		DataVec_t;
+typedef 			double				phi_t;
+
+struct 			Stereo_struct
 {
 	Data_t left;
 	Data_t right;
 };
-typedef Stereo_struct 		Stereo_t;
-struct stereo_struct
+typedef 			Stereo_struct 		Stereo_t;
+
+struct 				stereo_struct
 {
 	data_t left;
 	data_t right;
 };
-typedef stereo_struct 		stereo_t;
+typedef 			stereo_struct 		stereo_t;
 
 const size_t		sizeof_stereo		= sizeof(stereo_t);
 const size_t		sizeof_Stereo		= sizeof(Stereo_t);
@@ -98,7 +100,7 @@ const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
 const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
 const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_Data; // 3 minutes 32Mb
-const buffer_t 		monobuffer_size   	= max_frames * sizeof_Data;
+const buffer_t 		monobuffer_bytes   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 75; // %
@@ -139,6 +141,7 @@ string show_range( range_t<T> range )
 	return strs.str();
 }
 
+
 enum APPID
 {
 	AUDIOID,
@@ -150,8 +153,31 @@ enum APPID
 	TESTID,
 	NOID
 };
-
-
+template<typename T>
+constexpr string AppIdName( const T& app_id )
+{
+	switch ( app_id )
+	{
+		case APPID::AUDIOID		: return "Audioserver";
+		case APPID::SYNTHID		: return "Synthesizer";
+		case APPID::COMPID		: return "Composer";
+		case APPID::GUI_ID		: return "UserInterface";
+		case APPID::COMSTACKID	: return "Comstack";
+		case APPID::RTSPID		: return "Rtsp";
+		case APPID::TESTID		: return "Testprg";
+		case APPID::NOID		: return "No Process";
+		default 		: 	{
+							cout << "WARN: unknown application id: " << app_id << endl;
+							return "No Process";
+							};
+	}
+}
+constexpr string to_hex( long addr )
+{
+	stringstream strs;
+	strs << "0x" << uppercase << hex << addr ;
+	return strs.str();
+}
 typedef struct osc_struct
 {
 	const vector<string> roles =
@@ -193,12 +219,11 @@ const string			OctChars		= "CcDdEFfGgAaB";
 #define ASSERTION(	 expr , message, input, expected )\
 	if ( not (expr) ) \
 	{\
-/*	printf( "test: %s\n", (message) );\ */\
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
 	cout 	<< message 							<< '\n'\
 			<< "input    value: " << (input) 		<< '\n'\
 			<< "expected value: " << dec << (expected) 	<< endl;\
-	raise( SIGINT ); \
+	exit (0); \
 	};
 
 

@@ -31,7 +31,7 @@ struct dir_struct
 	const string xmldir			= etcdir  + "musicxml/";
 	const string logdir			= tmpdir ;
 
-	vector<string> dirs =
+	vector<string> dirs = // list of directories to be created
 	{
 		basedir,
 		docdir,
@@ -51,38 +51,32 @@ struct dir_struct
 	};
 
 };
-typedef dir_struct dir_t;
+typedef 			dir_struct 			dir_t;
+
+
 
 class Config_class : virtual Logfacility_class
 {
-	string className = "";
+	string 			className 			= "";
+
 public:
 
-	string basedir 		{""};
-	string configfile 	{""};
-	string prgname		{	program_invocation_short_name };
-	prgarg_struct		Config 	= prgarg_struct();
+	string 			basedir 			{""};
+	string 			configfile 			{""};
+	string 			prgname				{	program_invocation_short_name };
+	prgarg_struct	Config 				= prgarg_struct();
 
+					Config_class		( string Module ) ;
+	virtual 		~Config_class		();
 
-	typedef struct Server_struct
-	{
-		string cmd( string term, string srv, string opt )
-		{
-			return term + " '(" + srv + " " + opt + ")' &";
-		};
-	} Server_struc_t;
-
-	Config_class( string Module ) ;
-	virtual ~Config_class();
-
-	void Read_config( string cfgfile );
-	void Parse_argv( int argc, char* argv[] );
-	string Show_Config(  );
-	string Server_cmd( string term, string srv, string opt );
-	void Test();
+	void 			Read_config			( string cfgfile );
+	void 			Parse_argv			( int argc, char* argv[] );
+	void 			Show_Config			(  );
+	string 			Server_cmd			( string term, string srv, string opt );
+	void 			Test				();
 
 private:
-	string baseDir();
+	string 			baseDir				();
 
 };
 

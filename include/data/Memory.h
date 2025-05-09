@@ -14,29 +14,71 @@
 #include <data/Memorybase.h>
 #include <Dynamic.h>
 
+struct scanner_struct
+{
+	// scanner_t scanner = scanner_struct( Mem.Data, min_frames, max_frames );
+	buffer_t 				pos;
+	Data_t*					Data;
+	buffer_t				inc;
+	buffer_t				Max;
+	buffer_t				max_pos;
+
+	scanner_struct( Data_t* _ptr, buffer_t _inc, buffer_t _max )
+	{
+		pos 	= 0;
+		Data 	= &_ptr[ 0 ];
+		inc		= _inc;
+		Max		= _max;
+		max_pos	= 0;
+	}
+	virtual ~scanner_struct() = default;
+
+	Data_t* next()
+	{
+		if( max_pos < inc )
+			return nullptr;
+		Data_t* data = &Data[ pos ];
+		pos = ( pos + inc ) % max_pos;
+		return data;
+	}
+	void Set_pos( buffer_t n )
+	{
+		if( n > max_pos )
+			pos = 0;
+		else
+			pos	= n;
+	}
+	void Set_max( buffer_t n )
+	{
+		if (pos > n )
+			pos = 0;
+		max_pos = n;
+	}
+};
+typedef scanner_struct scanner_t;
 
 class Memory :
-		virtual public Logfacility_class,
+		virtual Logfacility_class,
 		virtual public Memory_base
 {
-	string className = "Memory";
+	string className = "";
 public:
 	Data_t* 	Data = nullptr;;
-	Memory( buffer_t size ) :
+	Memory( buffer_t bytes ) :
 		Logfacility_class( "Memory" ),
-		Memory_base( size )
+		Memory_base( bytes )
 	{
+		className = Logfacility_class::className;
 		Init_data();
 	};
 
 	Memory( ) :
 		Logfacility_class( "Memory" )
 	{
-		Comment( INFO, "pre-init " + className );
+		className = Logfacility_class::className;
+		Comment( DEBUG, "pre-init " + className );
 	};
-	virtual ~Memory(  )
-	{
-	};
+	virtual ~Memory() = default;
 
 	void Init_data(  );
 	void Clear_data( Data_t );
@@ -56,9 +98,9 @@ class Stereo_Memory :
 	string className = "";
 public:
 
-	static const buffer_t	stereobuffer_size 	= recduration*frames_per_sec * sizeof( stereo );
+	static const buffer_t	stereobuffer_bytes 	= recduration*frames_per_sec * sizeof( stereo );
 
-	stereo* stereo_data = nullptr;
+	stereo* 				stereo_data = nullptr;
 	Logfacility_class Log{"Memory_base"};
 	Stereo_Memory(buffer_t size) :
 		Logfacility_class( "Stereo_Memory" ),
@@ -74,12 +116,12 @@ public:
 
 	virtual ~Stereo_Memory( ) = default;
 
-	void Init_data( buffer_t size )
+	void Init_data( buffer_t bytes, buffer_t bs = min_frames )
 	{
-		Memory_base::ds.size = size;
+		Memory_base::ds.mem_bytesize = bytes;
 		stereo_data = ( stereo* ) Init_void();
 
-		SetDs( sizeof( stereo ) );
+		SetDs( sizeof( stereo ), bs );
 		statistic.stereo += ds.mem_bytes;
 		ds.name	= Logfacility_class::className;
 	}
@@ -111,21 +153,21 @@ class Storage_class :
 	string className = "";
 public:
 	// dynamic properties
-//	uint 			max_counter 	= 0;
-	StA_struct_t 	StAparam		= StA_struct();
+	StA_param_t 	StAparam		= StA_param_struct();
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
 	Dynamic_class	DynVolume		{ volidx_range };
+	scanner_t 		scanner 		= scanner_struct( nullptr, min_frames, 0 );
 
-	StA_status_t state = StA_status_struct();
+	StA_status_t state = StA_state_struct();
 
 	void 	Store_block( Data_t* ) ;
-	Data_t* Get_next_block();
+//	Data_t* Get_next_block();
 	string 	Record_mode( bool );
 	string 	Play_mode( bool );
 	void	Playnotes( bool );
-	void 	Setup( StA_struct_t);
+	void 	Setup( StA_param_t);
 	void 	Set_store_counter( uint n);
 	void 	Reset_counter();
 	uint*	Get_storeCounter_p();

@@ -31,10 +31,10 @@ class Mixer_class :
 	// provides and manages memory array
 public:
 
-	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
-	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5, 6, MbIdExternal };
+	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5, 6, STA_EXTERNAL };
+	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5, 6, STA_EXTERNAL };
 	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5, 6 };
-	const vector<uint>	SycIds		= {0, 1, 2, 3, 7 };
+	const vector<uint>	SycIds		= { };
 	const vector<uint>	HghIds		= {4, 5, 6, 7 };
 
 
@@ -45,10 +45,10 @@ public:
 	mixer_status_t  	status 			= mixer_status_struct();
 	int					composer		= 0;		// note chunk counter
 
-	Memory 				Mono			{ monobuffer_size };
-	Memory 				Mono_out		{ monobuffer_size };
+	Memory 				Mono			{ monobuffer_bytes };
+	Memory 				Mono_out		{ monobuffer_bytes };
 	Stereo_Memory<Stereo_t>
-						Out				{ Stereo_Memory<Stereo_t>::stereobuffer_size };
+						Out				{ Stereo_Memory<Stereo_t>::stereobuffer_bytes };
 
 
 	Dynamic_class		DynVolume		{ volidx_range };

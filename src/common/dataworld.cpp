@@ -16,7 +16,7 @@ Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class
 Logfacility_class( "Dataworld_class"),
 SDS( appId, cfg, sem ),
 Reg( appId, SDS.master ),
-Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master )
+Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master, &Reg )
 {
 
 	className = Logfacility_class::className;

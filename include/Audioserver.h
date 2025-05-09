@@ -8,8 +8,6 @@
 #ifndef AUDIOSERVER_H_
 #define AUDIOSERVER_H_
 
-
-
 #include <RtAudio.h>
 #define RTAUDIO
 
@@ -17,6 +15,8 @@
 #include <Wavedisplay.h>
 #include <Keyboard.h>
 #include <Thread.h>
+#include <AudioVolume.h>
+
 #include <Appsymbols.h>
 
 typedef struct device_struct
@@ -33,13 +33,15 @@ device_struct_t DeviceDescription;
 
 
 Appstate_class*			Appstate 			= &DaTA.Appstate;
-Memory					mono_out			{ monobuffer_size };
+Memory					mono_out			{ monobuffer_bytes };
+Stereo_Memory<stereo_t>	stereo				{ max_frames*sizeof(stereo_t) };
+
 Time_class				Timer				{};
 Time_class				RecTimer			{};
-External_class			External 			{ DaTA.Cfg_p, sds };
+External_class			External 			{ &Cfg, sds };
 ProgressBar_class		ProgressBar			{ &sds->RecCounter };
-Wavedisplay_class		Wavedisplay			{ DaTA.Sds_p };
-
+Wavedisplay_class		Wavedisplay			{ Sds_master };
+AudioVolume_class		Volume				{ sds_master };
 
 // runtime parameter
 buffer_t 				ncounter 			= 0;
@@ -52,7 +54,7 @@ uint					bufferFrames 		= chunksize;
 bool 					done 				= false;
 
 extern void 			save_record_fcn		();
-Thread_class			SaveRecord			{ DaTA.Sem_p,
+Thread_class			SaveRecord			{ &Sem,
 											  SEMAPHORE_RECORD,
 											  save_record_fcn,
 											  "save record" };

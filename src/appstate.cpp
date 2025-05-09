@@ -9,11 +9,15 @@
 #include <data/Appstate.h>
 
 
-Appstate_class::Appstate_class(  char appid, interface_t* _sds, interface_t* _sds_master ) :
+Appstate_class::Appstate_class( char appid,
+								interface_t* _sds,
+								interface_t* _sds_master,
+								Register_class* reg ) :
 	Logfacility_class("Appstate_class"),
 	state_struct()
 {
 	className 	= Logfacility_class::className;
+	Reg_p		= reg;
 	AppId 		= appid;
 	Name 		= AppIdName( appid );
 	if ( AppId == SYNTHID )
@@ -99,9 +103,32 @@ void Appstate_class::SetOffline()
 }
 void Appstate_class::SetExitserver( interface_t* sds, uint appid )
 {
-	Set( sds, appid, EXITSERVER );
+	if ( IsInconsistent( sds, appid ))
+		return;
+	if ( IsExitserver( sds, appid ) )
+		Set( sds, appid, OFFLINE );
+	else
+		Set( sds, appid, EXITSERVER );
 }
 
+bool Appstate_class::IsInconsistent( interface_t* sds, char appid )
+{
+	int pid = Reg_p->Get_regpid( sds->SDS_Id, appid );
+	if ( ( pid < 0 ) and ( IsRunning( sds, appid ) ) )
+	{
+		Comment( ERROR, "Inconsistent process state detected" );
+		Set( sds, appid, OFFLINE );
+		return true;
+	}
+	if ( ( pid > 0 ) and ( IsExitserver( sds, appid ) ) )
+	{
+		Comment( WARN, "Application is already in exit state" );
+		system_execute( " kill " + to_string( pid ) );
+		Set( sds, appid, OFFLINE );
+		return true;
+	}
+	return false;
+}
 void Appstate_class::StartOnce()
 {
 	assert( this->sds != nullptr );

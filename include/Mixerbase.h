@@ -12,10 +12,38 @@
 #define MIXERBASE_H_
 
 static const uint 	MbSize 			= 8;
-static const uint 	MbIdExternal 	= MbSize - 1;
-static const uint 	MbIdNotes 		= MbSize - 2;
-static const uint 	MbIdKeyboard 	= MbSize - 3;
-static const uint   MbIdInstrument	= MbSize - 4;
+
+enum 				STAID
+{
+	STA_USER00,
+	STA_USER01,
+	STA_USER02,
+	STA_USER03,
+	STA_INSTRUMENT,
+	STA_KEYBOARD,
+	STA_NOTES,
+	STA_EXTERNAL
+};
+
+template<typename T>
+constexpr string 	StAIdName( const T& sta_id )
+{
+	switch ( sta_id )
+	{
+		case STA_USER00		: return "StA User 0";
+		case STA_USER01		: return "StA User 1";
+		case STA_USER02		: return "StA User 2";
+		case STA_USER03		: return "StA User 3";
+		case STA_INSTRUMENT	: return "StA_Instrument";
+		case STA_KEYBOARD	: return "StA Keyboard";
+		case STA_NOTES		: return "StA Notes";
+		case STA_EXTERNAL	: return "StA External";
+		default 		: 	{
+							cout << "WARN: unknown Storage Area id: " << ( int)sta_id << endl;
+							return "";
+							};
+	}
+}
 
 class Mixer_base
 {
@@ -36,7 +64,5 @@ public:
 	typedef array< uint8_t, MbSize> 	StA_amp_arr_t;
 	typedef	array<StA_status_t, MbSize>	StA_state_arr_t;
 };
-
-
 
 #endif /* MIXERBASE_H_ */

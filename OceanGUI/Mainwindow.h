@@ -83,21 +83,15 @@ public:
     QStringList				QCapture_str_lst	{};
 
     vector<QRadioButton*> 	rb_S_vec 			{};
-    typedef struct rb_state_map
-    {
-    	int				id; // Mixer id
-    	QRadioButton*	rb;
-    	bool*			state;
-    } rb_state_t;
-    vector<rb_state_t>		rb_sta_vec 			{};
-
     typedef struct cb_state_map
     {
     	int				id; // Mixer id
     	QCheckBox*		cb;
     	bool*			state;
     } cb_state_t;
-    vector<cb_state_t> 		cb_sta_vec 			{};
+    vector<cb_state_t> 		cb_play_sta_vec 	{};
+    vector<cb_state_t>		cb_store_sta_vec	{};
+    vector<cb_state_t>		cb_filld_sta_vec	{};
 
     typedef struct sl_value_map
     {
@@ -201,7 +195,6 @@ private slots:
 
     void exit_synthesizer();
     void GUI_Exit();
-    void Audio_Exit();
     void start_synthesizer();
     void start_audio_srv();
     void start_composer();

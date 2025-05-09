@@ -21,6 +21,7 @@ struct prgarg_struct
 		uint 		rate 		= audio_frames;	// -r
 		uint 		device 		= 0;		// -d
 		uint 		ch_offs 	= 0; 		// -o
+		uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically
 		char		clear		= 'n';		// -X clear process array
 		char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
 		char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'

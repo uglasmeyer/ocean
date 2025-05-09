@@ -70,6 +70,7 @@ public:
 	bool			Set_notes_per_second( int );
 	void			LoadMusicxml( const string& file );
 	bool			Generate_note_chunk( );//Storage::Storage_class* mb );
+	void			ScanData( Instrument_class* instrument );
 	void			Set_prefix_octave( int );
 	bool			Verify_noteline( noteline_prefix_t, string );
 	void 			Test();

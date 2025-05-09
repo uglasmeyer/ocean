@@ -35,7 +35,7 @@ Processor_class( data->Sds_master, &data->Appstate )
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
 	main_view.wf 		= &sds->OSC_spectrum.wfid[0];
-	main_view.amp 		= &sds->StA_amp_arr[MbIdInstrument];
+	main_view.amp 		= &sds->StA_amp_arr[STA_INSTRUMENT];
 	main_view.frqidx 	= &sds->OSC_wp.frqidx;
 
 	vco_view.wf 		= &sds->VCO_spectrum.wfid[0];
@@ -356,7 +356,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		{
 			expect = { "volume [%]" };
 			int amp 	= pop_int(0,100);
-			Processor_class::Push_ifd( &sds->StA_amp_arr[MbIdNotes] ,amp, "play notes" );
+			Processor_class::Push_ifd( &sds->StA_amp_arr[STA_NOTES] ,amp, "play notes" );
 			Processor_class::Push_key( NOTESONKEY, "commit");
 			if ( stack.size() > 0  )
 			{

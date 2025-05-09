@@ -86,8 +86,9 @@ typedef struct interface_struct // with reasonable defaults
 	// local (interface specific
 	uint8_t			version						= 1; 						// comstack
 	int8_t			SDS_Id						= 0;
+	uint8_t			config						= 0; // reference to the Synthesizer sds
 
-	StA_state_arr_t	StA_state 					{{ StA_status_struct() }};	// comstack
+	StA_state_arr_t	StA_state 					{{ StA_state_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
 
@@ -119,8 +120,6 @@ typedef struct interface_struct // with reasonable defaults
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds // comstack
-
-	uint8_t			config						= 0; // reference to the Synthesizer sds
 
 	uint8_t 		MIX_Amp 					= 0;// comstack
 	uint8_t 		MIX_Id						= 0;// comstack

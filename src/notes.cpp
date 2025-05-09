@@ -204,6 +204,15 @@ bool Note_class::Generate_note_chunk( )
 	return false;
 }
 
+void Note_class::ScanData( Instrument_class* instrument )
+{
+	Set_instrument( instrument );
+	if ( osc->scanner.pos == 0 )
+	{
+		Generate_note_chunk( );
+	}
+	NotesData = osc->scanner.next();
+}
 bool Note_class::Set_notes_per_second( int notes_per_second )
 {	// [ 1,2,4,5, 8 ] notes per second
 

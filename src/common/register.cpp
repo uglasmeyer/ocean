@@ -15,10 +15,14 @@ Register_class::Register_class( char appid, interface_t* _sds ) :
 	className 	= Logfacility_class::className;
 	AppName 	= AppIdName( appid);
 	AppId 		= appid;
-	is_dataproc = dataProc.contains( appid );
+	is_dataproc = Is_dataproc( appid );
 	Setup( _sds );
 };
 
+bool Register_class::Is_dataproc( char appid )
+{
+	return dataProc.contains( appid );
+}
 Register_class::~Register_class()
 {
 };
@@ -71,9 +75,20 @@ void Register_class::Setup( interface_t* sds )
 		}
 	}
 }
+int getindex( uint8_t sdsid, char appid )
+{
+	return sdsid + appid;
+}
 
 
+int Register_class::regpid( uint8_t sdsid, char appid )
+{
+	if ( not Is_dataproc( appid ) ) return 0; //no info
 
+	int index = getindex( sdsid, appid );
+	int pid = (int)sds->process_arr.at( index ).pid ;
+	return pid; // No pid is -1
+}
 void Register_class::Reset( uint idx )
 {
 	if ( (idx<0) or (idx>REGISTER_SIZE-1)) return;
@@ -102,6 +117,12 @@ auto regComment = []( Register_class* C, string pref, string tstr, uint s, uint 
 	C->Comment( INFO, strs.str() );
 ;
 };
+
+int Register_class::Get_regpid( uint8_t sdsid, char appid )
+{
+	int pid = regpid( sdsid, appid );
+	return pid;
+}
 void Register_class::proc_Register()
 {
 	if( not is_dataproc )   return;

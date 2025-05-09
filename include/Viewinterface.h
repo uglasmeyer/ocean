@@ -9,6 +9,7 @@
 #define VIEWINTERFACE_H_
 
 #include <data/Interface.h>
+#include <data/Appstate.h>
 
 enum  { ESC=27, ASC=126, F1=239, F2=241, F3=243, F4=245, F5=53, F6=55 };
 
@@ -26,12 +27,12 @@ class ViewInterface_class :
 public:
 	Appstate_class		Appstate	;
 
-	ViewInterface_class( char appid, Interface_class* Sds )
+	ViewInterface_class( char appid, Interface_class* Sds, Register_class* reg )
 	:
 		Frequency_class(),
 		Spectrum_class(),
 		state_struct(),
-		Appstate( appid, nullptr, Sds->addr )
+		Appstate( appid, nullptr, Sds->addr, reg )
 	{
 		className = Logfacility_class::className;
 		Sds_p			= Sds;

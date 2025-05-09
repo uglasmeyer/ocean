@@ -29,12 +29,12 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		StA.push_back(Sta);
 	}
 
-	StA_struct_t usr_conf = {"temp"		, frames_per_sec * data->Cfg_p->Config.temp_sec };
-	StA_struct_t ext_conf = {"External"	, frames_per_sec * data->Cfg_p->Config.record_sec };
+	StA_param_t usr_conf = {"temp"		, frames_per_sec * data->Cfg_p->Config.temp_sec, min_frames };
+	StA_param_t ext_conf = {"External"	, frames_per_sec * data->Cfg_p->Config.record_sec, min_frames };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
-	StA[MbIdExternal].Setup(ext_conf);
+	StA[STA_EXTERNAL].Setup(ext_conf);
 
 	DynVolume.SetupVol( sds_master->Master_Amp,	FIXED ); //set start and master_volume
 	if( LogMask[ TEST ] )
@@ -48,7 +48,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 //		Out_R.Info		( "Output Stereo Right");
 	}
 
-	wd->Add_role_ptr( osc_struct::EXTID, StA[ MbIdExternal].Data );
+	wd->Add_role_ptr( osc_struct::EXTID, StA[ STA_EXTERNAL].Data );
 };
 
 Mixer_class::~Mixer_class()
@@ -89,10 +89,10 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 {
 	switch ( id )
 	{
-		case MbIdInstrument :	{ status.instrument = play; break; }
-		case MbIdNotes 		:	{ status.notes 		= play; break; }
-		case MbIdKeyboard	: 	{ status.kbd 		= play; break; }
-		case MbIdExternal 	:	{ status.external 	= play; break; }
+		case STA_INSTRUMENT :	{ status.instrument = play; break; }
+		case STA_NOTES 		:	{ status.notes 		= play; break; }
+		case STA_KEYBOARD	: 	{ status.kbd 		= play; break; }
+		case STA_EXTERNAL 	:	{ status.external 	= play; break; }
 		default				:	break;
 	}
 
@@ -129,7 +129,7 @@ void Mixer_class::SetStA()
 void Mixer_class::add_mono(Data_t* Data, const uint& id )
 // sample Data for different sound devices
 // by applying mixer volume per device
-{								// 0   1   2   3  In  Kb  Nt  Ex
+{								//U0  U1  U2  U3  In  Kb  Nt  Ex
 	const array<int,8> phase_r = {10,  0,-10,  0,  5, -5,  5, -5 };
 	const array<int,8> phase_l = { 0,-10,  0, 10,  5, -5,  5, -5 };
 
@@ -143,7 +143,7 @@ void Mixer_class::add_mono(Data_t* Data, const uint& id )
 		volpermill 		= StA[id].DynVolume.Get() * 0.1;
 		Out.stereo_data[n].left 	+= rint( Data[n] * phase_l[id] * volpermill );
 		Out.stereo_data[n].right 	+= rint( Data[n] * phase_r[id] * volpermill );
-		Mono.Data[n]  	+= rint( Data[n] );//*volpercent );	// collect mono data for store
+		Mono.Data[n]  				+= rint( Data[n] );//*volpercent );	// collect mono data for store
 	}
 	StA[id].DynVolume.Update();
 }
@@ -153,18 +153,18 @@ void Mixer_class::add_stereo( stereo_t* data  )
 // by applying master volume per Synthesizer
 {
 	buffer_t	audioframes	= sds_master->audioframes;
-	float 		balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
-	float 		balanceR	= 1.0 - balanceL;
+//	float 		balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
+//	float 		balanceR	= 1.0 - balanceL;
 
-	DynVolume.SetDelta( sds_master->slide_duration);
+//	DynVolume.SetDelta( sds_master->slide_duration);
 	for( buffer_t n = 0; n < audioframes ; n++ )
 	{
-		float
-		vol_percent 	= DynVolume.Get();
-		data[n].left 	+= rint( Out.stereo_data[n].left	* vol_percent * balanceL );
-		data[n].right 	+= rint( Out.stereo_data[n].right 	* vol_percent * balanceR );
+//		float
+//		vol_percent 	= DynVolume.Get();
+		data[n].left 	+= Out.stereo_data[n].left ;//	* vol_percent * balanceL );
+		data[n].right 	+= rint( Out.stereo_data[n].right);// 	* vol_percent * balanceR );
 	}
-	DynVolume.Update();
+//	DynVolume.Update();
 
 }
 
@@ -189,13 +189,6 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 							 Data_t* 	notes_osc,
 							 stereo_t* 	shm_addr )
 {
-	auto get_store_id = [ this ]()
-		{
-			for ( int id : MemIds  )
-				if ( StA[id].state.store )
-					return id;
-			return -1;
-		};
 
 	if( not shm_addr ) return;
 	clear_memory();
@@ -207,33 +200,31 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 	}
 
 	// add osc sound
-	if ( StA[ MbIdInstrument].state.play )
-	{
-		add_mono( instrument_osc, MbIdInstrument );
-//		StA[MbIdInstrument].Volume.Show( true );
-	}
-	if ( StA[ MbIdNotes 	].state.play )
-		add_mono( notes_osc		, MbIdNotes );
-	if ( StA[ MbIdKeyboard	].state.play )
-		add_mono( keyboard_osc	, MbIdKeyboard );
+	if ( StA[ STA_INSTRUMENT].state.play )
+		add_mono( instrument_osc, STA_INSTRUMENT );
+	if ( StA[ STA_NOTES 	].state.play )
+		add_mono( notes_osc		, STA_NOTES );
+	if ( StA[ STA_KEYBOARD	].state.play )
+		add_mono( keyboard_osc	, STA_KEYBOARD );
 
-	// add StA sound
+	// read StA sound
 	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
-		Data_t* read_data = StA[ DAid ].Get_next_block();
-		if ( read_data )
+
+		if( StA[ DAid ].state.store )
+			StA[ DAid ].Store_block( Mono.Data );
+		sds->StA_state[DAid].store		= StA[DAid].state.store;
+		sds->StA_state[DAid].filled		= ( StA[DAid].scanner.max_pos > 0 );;
+
+		if ( StA[ DAid ].state.play )
 		{
-			add_mono( read_data, DAid );
+			Data_t* StAdata = StA[DAid].scanner.next();
+			if ( StAdata )
+				add_mono( StAdata, DAid );
 		}
 	}
 
-	// store sound to record StA
-	int store_id = get_store_id();
-	if( store_id >= 0 )
-		StA[ store_id ].Store_block( Mono.Data );
-
-	// push sound to audio server
-	add_stereo( shm_addr );
+	add_stereo( shm_addr ); 	// push sound to audio server
 };
 
 void Mixer_class::TestMixer()

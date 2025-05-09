@@ -31,7 +31,10 @@ class Keyboard_class :
 public:
 
 //	const String		KbdNote					{ "SDRFTGHUJIKOL" };
-	const String		KbdNote					{ "ASDFGHJKLÖÄ#QWERTZUIOPÜ+1234567890ẞ´" };
+	const String		KbdNote					{ 	string( "A%S%DF%J%K%L" ) +
+													string( "Q%W%ER%U%I%O" ) +
+													string( "1%2%34%7%8%9" )
+												};
 
 	Instrument_class* 	instrument				= nullptr;
 	key_struct_t		keystruct 				= key_struct( );

@@ -68,7 +68,7 @@ void System_Test()
 	Log_common.test_start( "System" );
 	Printer_class Printer( true );
 	uint8_t pid = getpid();
-	ASSERTION( Is_running_process( (int)  pid  ), "Process", Is_running_process(  pid ), true) ;
+	ASSERTION( Is_running_process( (int)  pid  ), "Process", Is_running_process( (int) pid ), true) ;
 	ASSERTION( Is_running_process(  to_string( pid ) ), "Process", Is_running_process(  pid ), true) ;
 	ASSERTION( not Is_running_process(  -1 ), "Process", Is_running_process(  -1 ), false ) ;
 	Printer.Close();

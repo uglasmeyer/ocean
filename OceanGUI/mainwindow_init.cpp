@@ -118,27 +118,39 @@ void MainWindow::initGuiVectors()
 		ui->rb_S3
     };
 
-    rb_sta_vec =
+    cb_store_sta_vec =
     {
-    	{ 0, ui->rb_sta0, &Sds->addr->StA_state[0].store },
-		{ 1, ui->rb_sta1, &Sds->addr->StA_state[1].store },
-		{ 2, ui->rb_sta2, &Sds->addr->StA_state[2].store },
-		{ 3, ui->rb_sta3, &Sds->addr->StA_state[3].store },
-		{ 4, ui->rb_sta4, &Sds->addr->StA_state[4].store },
-		{ 5, ui->rb_sta5, &Sds->addr->StA_state[5].store },
-		{ 6, ui->rb_sta6, &Sds->addr->StA_state[6].store },
-		{ 7, ui->rb_sta7, &Sds->addr->StA_state[7].store }
+    	{ 0, ui->cb_ssta0, &Sds->addr->StA_state[0].store },
+		{ 1, ui->cb_ssta1, &Sds->addr->StA_state[1].store },
+		{ 2, ui->cb_ssta2, &Sds->addr->StA_state[2].store },
+		{ 3, ui->cb_ssta3, &Sds->addr->StA_state[3].store },
+		{ 4, ui->cb_ssta4, &Sds->addr->StA_state[4].store },
+		{ 5, ui->cb_ssta5, &Sds->addr->StA_state[5].store },
+		{ 6, ui->cb_ssta6, &Sds->addr->StA_state[6].store },
+		{ 7, ui->cb_ssta7, &Sds->addr->StA_state[7].store }
     };
-    cb_sta_vec =
+    cb_filld_sta_vec =
     {
-		{ 0, ui->cb_sta0, &Sds->addr->StA_state[0].play  },
-		{ 1, ui->cb_sta1, &Sds->addr->StA_state[1].play  },
-		{ 2, ui->cb_sta2, &Sds->addr->StA_state[2].play  },
-		{ 3, ui->cb_sta3, &Sds->addr->StA_state[3].play  },
-		{ 4, ui->cb_sta4, &Sds->addr->StA_state[4].play  },
-		{ 5, ui->cb_sta5, &Sds->addr->StA_state[5].play  },
-		{ 6, ui->cb_sta6, &Sds->addr->StA_state[6].play  },
-		{ 7, ui->cb_sta7, &Sds->addr->StA_state[7].play  }
+    	{ 0, ui->cb_fsta0, &Sds->addr->StA_state[0].filled },
+		{ 1, ui->cb_fsta1, &Sds->addr->StA_state[1].filled },
+		{ 2, ui->cb_fsta2, &Sds->addr->StA_state[2].filled },
+		{ 3, ui->cb_fsta3, &Sds->addr->StA_state[3].filled },
+		{ 4, ui->cb_fsta4, &Sds->addr->StA_state[4].filled },
+		{ 5, ui->cb_fsta5, &Sds->addr->StA_state[5].filled },
+		{ 6, ui->cb_fsta6, &Sds->addr->StA_state[6].filled },
+		{ 7, ui->cb_fsta7, &Sds->addr->StA_state[7].filled }
+    };
+
+    cb_play_sta_vec =
+    {
+		{ 0, ui->cb_psta0, &Sds->addr->StA_state[0].play  },
+		{ 1, ui->cb_psta1, &Sds->addr->StA_state[1].play  },
+		{ 2, ui->cb_psta2, &Sds->addr->StA_state[2].play  },
+		{ 3, ui->cb_psta3, &Sds->addr->StA_state[3].play  },
+		{ 4, ui->cb_psta4, &Sds->addr->StA_state[4].play  },
+		{ 5, ui->cb_psta5, &Sds->addr->StA_state[5].play  },
+		{ 6, ui->cb_psta6, &Sds->addr->StA_state[6].play  },
+		{ 7, ui->cb_psta7, &Sds->addr->StA_state[7].play  }
 	};
     sl_sta_vec =
     {
@@ -151,6 +163,7 @@ void MainWindow::initGuiVectors()
 		{ 6, ui->Slider_mix_vol6, &Sds->addr->StA_amp_arr[6]  },
 		{ 7, ui->Slider_mix_vol7, &Sds->addr->StA_amp_arr[7]  }
 	};
+
     sl_frqidx_vec =
     {
    		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->VCO_wp.frqidx },
@@ -181,7 +194,6 @@ void MainWindow::initUiConnectors()
     connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
     connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() ));
     connect(ui->pBAudioServer	, SIGNAL(clicked() )		,this, SLOT(start_audio_srv() ));
-    connect(ui->pBAudioServerExit,SIGNAL(clicked() )		,this, SLOT(Audio_Exit() ));
     connect(ui->pBComposer		, SIGNAL(clicked() )		,this, SLOT(start_composer() ));
     connect(ui->pBGuiExit		, SIGNAL(clicked() )		,this, SLOT(GUI_Exit() ));
     connect(ui->pBtoggleRecord	, SIGNAL(clicked(bool) )	,this, SLOT(SaveRecord() ));
@@ -222,23 +234,23 @@ void MainWindow::initUiConnectors()
     connect(ui->Slider_mix_vol6	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix6(int) ));
     connect(ui->Slider_mix_vol7	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix7(int) ));
 
-    connect(ui->rb_sta0			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta0() ));
-    connect(ui->rb_sta1			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta1() ));
-    connect(ui->rb_sta2			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta2() ));
-    connect(ui->rb_sta3			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta3() ));
-    connect(ui->rb_sta4			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta4() ));
-    connect(ui->rb_sta5			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta5() ));
-    connect(ui->rb_sta6			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta6() ));
-    connect(ui->rb_sta7			, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta7() ));
+    connect(ui->cb_ssta0		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta0() ));
+    connect(ui->cb_ssta1		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta1() ));
+    connect(ui->cb_ssta2		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta2() ));
+    connect(ui->cb_ssta3		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta3() ));
+    connect(ui->cb_ssta4		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta4() ));
+    connect(ui->cb_ssta5		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta5() ));
+    connect(ui->cb_ssta6		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta6() ));
+    connect(ui->cb_ssta7		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta7() ));
 
-    connect(ui->cb_sta0			, SIGNAL(clicked() )		,this, SLOT(toggle_mute0() ));
-    connect(ui->cb_sta1			, SIGNAL(clicked() )		,this, SLOT(toggle_mute1() ));
-    connect(ui->cb_sta2			, SIGNAL(clicked() )		,this, SLOT(toggle_mute2() ));
-    connect(ui->cb_sta3			, SIGNAL(clicked() )		,this, SLOT(toggle_mute3() ));
-    connect(ui->cb_sta4			, SIGNAL(clicked() )		,this, SLOT(toggle_mute4() ));
-    connect(ui->cb_sta5			, SIGNAL(clicked() )		,this, SLOT(toggle_mute5() ));
-    connect(ui->cb_sta6			, SIGNAL(clicked() )		,this, SLOT(toggle_mute6() ));
-    connect(ui->cb_sta7			, SIGNAL(clicked() )		,this, SLOT(toggle_mute7() ));
+    connect(ui->cb_psta0			, SIGNAL(clicked() )		,this, SLOT(toggle_mute0() ));
+    connect(ui->cb_psta1			, SIGNAL(clicked() )		,this, SLOT(toggle_mute1() ));
+    connect(ui->cb_psta2			, SIGNAL(clicked() )		,this, SLOT(toggle_mute2() ));
+    connect(ui->cb_psta3			, SIGNAL(clicked() )		,this, SLOT(toggle_mute3() ));
+    connect(ui->cb_psta4			, SIGNAL(clicked() )		,this, SLOT(toggle_mute4() ));
+    connect(ui->cb_psta5			, SIGNAL(clicked() )		,this, SLOT(toggle_mute5() ));
+    connect(ui->cb_psta6			, SIGNAL(clicked() )		,this, SLOT(toggle_mute6() ));
+    connect(ui->cb_psta7			, SIGNAL(clicked() )		,this, SLOT(toggle_mute7() ));
 
     connect(ui->rb_S0			, SIGNAL(clicked() )		,this, SLOT(select_Sds0() ));
     connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));

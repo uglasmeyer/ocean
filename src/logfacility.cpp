@@ -5,33 +5,31 @@
  *      Author: sirius
  */
 
-#include <Logfacility.h>
+#include 			<Logfacility.h>
 
-logmask_t 	LogMask 		= defaultLogMask;
+logmask_t 			LogMask 			= defaultLogMask;
 
 Logfacility_class::Logfacility_class( string module )
 {
 					seterrText();
-	size_t 			pos 			= module.find("_" );
-					if ( pos > LOGINDENT )
-						this->className = module;
-					else
-						this->className = module.substr(0, pos ) ;
-	stringstream 	strs 			{};
+	size_t 			pos 				= module.find("_" );
+					( pos > LOGINDENT ) ? 	this->className = module :
+											this->className = module.substr(0, pos ) ;
+	stringstream 	strs 				{};
 					strs << setw(15) << right << className << ":";
-					prefixClass 	= strs.str();
-	string 			_path 			= string( logDir );
+					prefixClass 		= strs.str();
+	string 			_path 				= string( logDir );
 					filesystem::create_directories( _path );
 };
 Logfacility_class::Logfacility_class( )
 {
 					seterrText();
-					this->className = "Log";
-	stringstream 	strs 			{};
+					this->className 	= "Log";
+	stringstream 	strs 				{};
 					strs << setw(15) << right << className << ":";
-					prefixClass 	= strs.str();
-	string 			_path 			= string( logDir );
-	filesystem::create_directories( _path );
+					prefixClass 		= strs.str();
+	string 			_path 				= string( logDir );
+					filesystem::create_directories( _path );
 
 }
 
@@ -218,7 +216,7 @@ void Logfacility_class::Test_Logging( )
 	ASSERTION( L == 12, "OR", L, 12 )
 	bitset<4> bs = 0b1100;
 	ASSERTION( bs[WARN] | bs[ERROR], "bitset", bs.test(ERROR), true );
-	ASSERTION( not isTTY( stdout ), "isTTY", isTTY( stdout ), false);
+	ASSERTION( Printer.redirect != isTTY( stdout ), "isTTY", isTTY( stdout ), Printer.redirect );
 	TEST_END( className );
 
 }

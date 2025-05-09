@@ -25,20 +25,28 @@ const string 		Module 		= "OceanGUI";
 
 //Ui::MainWindow	Ui_Mainwindow_obj{};
 
-auto set_rb_sta_value = [ ]( MainWindow* M )
+auto set_cb_ssta_value = [ ]( MainWindow* M )
 {
-    for( MainWindow::rb_state_t map : M->rb_sta_vec )
-    	map.rb->setChecked( *map.state);
+
+	for( MainWindow::cb_state_t map : M->cb_store_sta_vec )
+    {
+    	map.cb->setChecked( (bool) *map.state );
+    }
 };
-auto set_cb_sta_value = [ ]( MainWindow* M )
+auto set_cb_psta_value = [ ]( MainWindow* M )
 {
-    for( MainWindow::cb_state_t map : M->cb_sta_vec )
+    for( MainWindow::cb_state_t map : M->cb_play_sta_vec )
     	map.cb->setChecked( *map.state );
 };
 auto set_sl_sta_value = [ ]( MainWindow* M )
 {
     for( MainWindow::sl_value_t map : M->sl_sta_vec )
     	map.sl->setValue( *map.value );
+};
+auto set_cb_filled_value = [  ]( MainWindow* M  )
+{
+	for( MainWindow::cb_state_t map : M->cb_filld_sta_vec )
+		map.cb->setChecked( *map.state );
 };
 
 
@@ -281,7 +289,7 @@ auto setStaPlay( MainWindow* M, uint8_t id )
     bool play = not M->Sds->addr->StA_state[id].play;
     M->Sds->Set( M->Sds->addr->StA_state[id].play, play);
     M->Eventlog.add( M->SDS_ID, SETSTA_KEY );
-    M->cb_sta_vec[ id ].cb->setChecked( play ) ;
+    M->cb_play_sta_vec[ id ].cb->setChecked( play ) ;
 }
 
 void MainWindow::toggle_mute0(  )
@@ -302,19 +310,19 @@ void MainWindow::toggle_mute3(  )
 }
 void MainWindow::toggle_mute4(  )
 {
-	setStaPlay( this, MbIdInstrument );
+	setStaPlay( this, STA_INSTRUMENT );
 }
 void MainWindow::toggle_mute5(  )
 {
-	setStaPlay( this, MbIdKeyboard );
+	setStaPlay( this, STA_KEYBOARD );
 }
 void MainWindow::toggle_mute6(  )
 {
-	setStaPlay( this, MbIdNotes );
+	setStaPlay( this, STA_NOTES );
 }
 void MainWindow::toggle_mute7(  )
 {
-	setStaPlay( this, MbIdExternal );
+	setStaPlay( this, STA_EXTERNAL );
 }
 
 auto toggle_store_sta( MainWindow* M, uint8_t ID )
@@ -328,52 +336,52 @@ auto toggle_store_sta( MainWindow* M, uint8_t ID )
     {
         M->Eventlog.add( M->SDS_ID, STORESOUNDKEY);
     }
-    M->rb_sta_vec[ ID ].rb->setChecked( false );
+    M->cb_store_sta_vec[ ID ].cb->setChecked( false );
 };
 
 void MainWindow::toggle_store_sta0()
 {
-	toggle_store_sta( this, 0 );
+	toggle_store_sta( this, STA_USER00 );
 }
 void MainWindow::toggle_store_sta1()
 {
-	toggle_store_sta( this, 1 );
+	toggle_store_sta( this, STA_USER01 );
 }
 void MainWindow::toggle_store_sta2()
 {
-	toggle_store_sta( this, 2 );
+	toggle_store_sta( this, STA_USER02 );
 }
 void MainWindow::toggle_store_sta3()
 {
-	toggle_store_sta( this, 3 );
+	toggle_store_sta( this, STA_USER03 );
 }
 void MainWindow::toggle_store_sta4()
 {
-	toggle_store_sta( this, 4 );
+	toggle_store_sta( this, STA_INSTRUMENT );
 }
 void MainWindow::toggle_store_sta5()
 {
-	toggle_store_sta( this, 5 );
+	toggle_store_sta( this, STA_KEYBOARD );
 }
 void MainWindow::toggle_store_sta6()
 {
-	toggle_store_sta( this, 6 );
+	toggle_store_sta( this, STA_NOTES );
 }
 void MainWindow::toggle_store_sta7()
 {
-	toggle_store_sta( this, MbIdExternal );
+	toggle_store_sta( this, STA_INSTRUMENT );
 }
 
 
 void MainWindow::memory_clear()
 {
 	uint8_t id = 0;
-    for ( rb_state_t map : rb_sta_vec )
+    for ( cb_state_t map : cb_store_sta_vec )
     {
-    	if ( map.rb->isChecked() )
+    	if ( map.cb->isChecked() )
     	{
     		Sds->Set( Sds->addr->MIX_Id, id);
-    		map.rb->setChecked( false );
+ //   		map.cb->setChecked( false );
     	}
     	id++;
     }
@@ -429,7 +437,7 @@ void MainWindow::slideVol( int value )
 
 void MainWindow::Clear_Banks()
 {
-	for( cb_state_t map : cb_sta_vec )
+	for( cb_state_t map : cb_play_sta_vec )
 		map.cb->setChecked(false);
     Eventlog.add( SDS_ID, MUTEMBKEY);
 }
@@ -455,13 +463,13 @@ void MainWindow::setwidgetvalues()
 		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
 	};
 
-    ui->hs_adsr_sustain->setValue(  (int)Sds->addr->OSC_adsr.decay );
-    ui->hs_adsr_attack->setValue(  (int) Sds->addr->OSC_adsr.attack);
-    ui->dial_PMW->setValue( (int)Sds->addr->VCO_wp.PMW_dial  );
-    ui->hs_hall_effect->setValue( (int)  Sds->addr->OSC_adsr.hall );
-    ui->Slider_slideFrq->setValue( (int)  Sds->addr->OSC_wp.glide_effect );
-    ui->Slider_slideVol->setValue( Sds_master->slide_duration);//Master_Amp);
-    ui->hs_balance->setValue( Sds->addr->mixer_balance );
+    ui->hs_adsr_sustain->setValue	( (int) Sds->addr->OSC_adsr.decay );
+    ui->hs_adsr_attack->setValue	( (int) Sds->addr->OSC_adsr.attack);
+    ui->dial_PMW->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
+    ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_adsr.hall );
+    ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_wp.glide_effect );
+    ui->Slider_slideVol->setValue	( Sds_master->slide_duration);//Master_Amp);
+    ui->hs_balance->setValue		( Sds->addr->mixer_balance );
 
     get_record_status();
 
@@ -473,9 +481,10 @@ void MainWindow::setwidgetvalues()
     Qstr	= int2char( Sds->addr->OSC_adsr.bps );
     ui->cb_bps->setCurrentText( Qstr );
 
-	set_cb_sta_value( this );
+	set_cb_psta_value( this );
+	set_cb_ssta_value( this );
 	set_sl_sta_value( this );
-	set_rb_sta_value( this );
+	set_cb_filled_value( this );
 
 	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 
@@ -586,7 +595,10 @@ void MainWindow::start_audio_srv()
 	if( Appstate->IsRunning( Sds_master, RTSPID ) )
 		return;
 	if( Appstate->IsRunning( Sds_master, AUDIOID))
+	{
+		Appstate->SetExitserver( Sds_master, AUDIOID) ;
 		return;
+	}
 
     string Start_Audio_Srv = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.audio_bin,
 			" > " + fs.nohup_file);
@@ -613,7 +625,8 @@ auto start_synth = [  ]( MainWindow* M, string cmd )
 };
 void MainWindow::start_synthesizer()
 {
-
+	if (Appstate->IsInconsistent( Sds->addr, SYNTHID ))
+		return;
 	if( Appstate->IsRunning( Sds->addr, SYNTHID ) )
 	{
 		exit_synthesizer();
@@ -631,8 +644,8 @@ void MainWindow::start_keyboard()
 	string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.synth_bin, "" );
 	int sdsid = start_synth( this, cmd );
 	select_Sds(sdsid);
-	Sds->Set( Sds->addr->StA_state[ MbIdKeyboard ].play, true );
-	Sds->Set( Sds->addr->StA_amp_arr[ MbIdKeyboard], (uint8_t) 75 );
+	Sds->Set( Sds->addr->StA_state[ STA_KEYBOARD ].play, true );
+	Sds->Set( Sds->addr->StA_amp_arr[ STA_KEYBOARD], (uint8_t) 75 );
     Eventlog.add( SDS_ID, SETSTAPLAY_KEY );
 
 
@@ -655,10 +668,7 @@ void MainWindow::exit_synthesizer()
 	setwidgetvalues();
 }
 
-void MainWindow::Audio_Exit()
-{
-    Appstate->SetExitserver( Sds_master, AUDIOID) ;
-}
+
 
 void MainWindow::Save_Config()
 {
@@ -697,15 +707,15 @@ void MainWindow::SaveRecord()
     Sds->Set( Sds_master->FileNo ,(uint8_t) 0); // 0=automatic numbering
 
     if ( Sds_master->Record )
+    {
     	Appstate->Set( Sds_master, AUDIOID, state_struct::RECORDSTOP );
+    }
     else
     {
     	Appstate->Set( Sds_master, AUDIOID, state_struct::RECORDSTART );
     }
 
 }
-
-
 
 
 void MainWindow::pB_Debug_clicked()

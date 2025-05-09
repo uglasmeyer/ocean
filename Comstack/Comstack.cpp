@@ -15,7 +15,7 @@
 #include <Appsymbols.h>
 
 Keyboard_class			Keyboard		{};
-ViewInterface_class		ViewSds			{ COMSTACKID, DaTA.Sds_p };
+ViewInterface_class		ViewSds			{ COMSTACKID, DaTA.Sds_p, &DaTA.Reg };
 int 					sdsid			= sds_master->config;
 
 Frequency_class 		Frequency 		{};
@@ -160,7 +160,7 @@ int main( int argc, char* argv[] )
 					case 0  : { exit_proc(0) ;break ;}
 					case F1 : { page = F1 ;break ;}
 					case F2 : { page = F2 ;break ;}
-					case F3 : { page = F3 ;break ;}
+					case F3 : { page = F3 ; DaTA.Reg.Update_register(); break ;}
 					case F4 : { page = F4 ;break ;}
 					default : { break; }
 				}

@@ -23,27 +23,29 @@ class External_class :
 	public virtual Stereo_Memory<stereo_t>
 
 {
-	string			className 	= "";
-	Storage_class* 	StA			= nullptr;;
-	interface_t*	sds			= nullptr;
-	FILE*			File		= nullptr;;
-	Config_class*	Cfg 		= nullptr;
+	string						className 			= "";
+	Storage_class* 				StA			= nullptr;
+	interface_t*				sds			= nullptr;
+	FILE*						File		= nullptr;
+	Config_class*				Cfg 		= nullptr;
 
 public:
-	long 			Filedata_size 	= 0;
+	long 						Filedata_size 	= 0;
 
 	// Synthesizer read only class
-	External_class( Storage_class* sta,
-					Config_class* cfg ) :
+								External_class		( Storage_class* sta,
+														Config_class* cfg ) :
 		Logfacility_class("External"),
-		Stereo_Memory( )
+	Stereo_Memory( )
 	{
+		className			= Logfacility_class::className;
 		this->StA 			= sta;
 		this->File 			= NULL;
 		this->Cfg			= cfg;
-		Stereo_Memory::Init_data( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) );
+		buffer_t
+		ds_size				= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
+		Stereo_Memory::Init_data( ds_size, min_frames );
 		Stereo_Memory::Info	( "External Stereo data") ;
-		className			= Logfacility_class::className;
 	};
 
 
@@ -58,7 +60,8 @@ public:
 		this->File 			= NULL;
 		this->Cfg			= cfg;
 		this->sds			= sds;
-		Stereo_Memory::Init_data( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) );
+		buffer_t	ds_size	= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
+		Stereo_Memory::Init_data( ds_size, min_frames );
 		Stereo_Memory::Info( "External Stereo data") ;
 		className			= Logfacility_class::className;
 	};

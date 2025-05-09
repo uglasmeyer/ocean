@@ -3,7 +3,6 @@
 
 #include<Appsymbols.h>
 
-extern void SynthesizerTestCases();
 
 
 
@@ -17,7 +16,7 @@ Mixer_class				Mixer{ &DaTA, wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument{ sds, wd_p };
 Note_class 				Notes{ wd_p };
 Keyboard_class			Keyboard( 	&Instrument );
-External_class 			External( 	&Mixer.StA[ MbIdExternal],
+External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
 									DaTA.Cfg_p);
 ProgressBar_class		ProgressBar( &sds->RecCounter );
 Time_class				Timer		( &sds->time_elapsed );
@@ -39,6 +38,7 @@ Event_class				Event{
 							&MusicXML};
 
 extern void ComposerTestCases();
+extern void SynthesizerTestCases();
 
 void show_AudioServer_Status()
 {
@@ -96,23 +96,14 @@ void add_sound( )
 
 	Instrument.Set_msec( sds_master->audioframes  );
 
-	int key = Keyboard.Kbdnote();
 	if ( Mixer.status.kbd )
 	{
+		int key = Keyboard.Kbdnote();
 		Keyboard.KbdEvent( key );
 	}
 	if ( Mixer.status.notes )
 	{
-		Notes.Set_instrument( &Instrument );
-
-		if ( Notes.framePart == 0 )
-		{
-			Notes.Generate_note_chunk( );
-		}
-		buffer_t offs = Notes.framePart * min_frames;
-		Notes.NotesData = Notes.osc->GetData_p( offs );
-
-		Notes.framePart = ( Notes.framePart + 1 ) % frame_parts ;
+		Notes.ScanData( &Instrument );
 	}
 
 	if (( Mixer.status.instrument ) )
@@ -263,18 +254,22 @@ void stop_threads()
 	if ( Cfg.Config.test == 'y' ) return;
 
 	SyncAudio.StopLoop();
-	SyncAudio_thread_p->join();
+	if ( SyncAudio_thread_p )
+		SyncAudio_thread_p->join();
 
 	SyncNotes.StopLoop();
-	SyncNotes_thread_p->join();
+	if ( SyncNotes_thread_p )
+		SyncNotes_thread_p->join();
 
 	ReadNotes.StopLoop();
-	ReadNotes_thread_p->join();
+	if ( ReadNotes_thread_p )
+		ReadNotes_thread_p->join();
 }
 
 int sig_counter = 0;
 void exit_proc( int signal )
 {
+	cout.flush();
 	Log.Comment(INFO, "Entering exit procedure for " + Appstate->Name );
 	if ( sig_counter > 0 )
 	{

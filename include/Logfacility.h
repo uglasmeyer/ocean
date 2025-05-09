@@ -56,11 +56,11 @@ const string 		logFile		= logDir + logFileName + string(".log") ;
 class Printer_class
 {
 	//https://stackoverflow.com/questions/9084099/re-opening-stdout-and-stdin-file-descriptors-after-closing-them	bool redirect 		= false;
-	bool	redirect		= false;
 	bool 	testFinished 	= false;
 	int 	save_out 		= dup( STDOUT_FILENO );
 
 public:
+	bool	redirect		= false;
 			Printer_class	(bool redirect );
 	virtual ~Printer_class	();
 	void 	Close			();

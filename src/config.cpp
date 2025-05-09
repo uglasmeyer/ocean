@@ -9,7 +9,6 @@ Config_class::Config_class( string Module ) :
 {
 
 	className = Module;
-//	prgname = program_invocation_name;
 	string shortname = program_invocation_short_name;
 	Comment( INFO, "Program name: " + shortname );
 	this->basedir = baseDir( );
@@ -97,7 +96,7 @@ void Config_class::Read_config(	string cfgfile )
 	Config.Sem_key		= get_value( Config.Sem_key, "semkey" );
 	Config.temp_sec		= get_value( Config.temp_sec, "temp_sec" );
 	Config.record_sec	= get_value( Config.record_sec, "record_sec" );
-
+	Config.MAXWAVFILES 	= get_value( Config.MAXWAVFILES, "maxwavfiles");
 	for( uint idx = 0; idx < MAXCONFIG; idx++  )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
@@ -109,6 +108,12 @@ void Config_class::Read_config(	string cfgfile )
 	Config.test		= get_char( Config.test, "test" );
 	std::set<char> yn = {'n', 'y', 0 };
 	ASSERTION( yn.contains( Config.test ), "synthesizer.cfg test: ",Config.test, "y or n" ) ;
+	if ( Config.test == 'y' )
+	{
+		Set_Loglevel( TEST, true );
+		Show_Config();
+	}
+
 }
 
 void Config_class::Test()
@@ -149,39 +154,35 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 
 }
 
-string Config_class::Show_Config( )
+#include <Table.h>
+void Config_class::Show_Config( )
 {
-	stringstream strs{""};
-
-	auto lline = [ &strs ]( string str, auto val )
-	{
-		strs << SETW << right << str << setw(40) << right <<	val <<endl;;
-	};
-	strs << endl;
-	lline( "sampline rate" 	, 	Config.rate		);  		// -c
-	lline( "device nr" 		, 	Config.device	);  		// -d
-	lline( "channel offs"	, 	Config.ch_offs	); 		// -o
-	lline( "test classes" 	, 	Config.test		);  		// -t
-	lline( "dialog mode"	,	Config.dialog	);  		// -D
-	lline( "composer"		,  	Config.composer	);  		// -D
-	lline( "oceangui"		, 	Config.oceangui	);  		// -D
-	lline( "Id3tool Title" , 	Config.title	); 		// -o
-	lline( "Id3tool Author", 	Config.author	);  		// -k
-	lline( "Id3tool Album" , 	Config.album	);  		//
-	lline( "Id3tool Genre" , 	Config.Genre	);  		// -t
-	lline( "Terminal" 		, 	Config.Term		);  		// -D
-	lline( "shm key"	 	, 	Config.SHM_key	);  		// -k
-	lline( "sds_key" 		, 	Config.SDS_key	);  		// -D
-	lline( "sem_key" 		, 	Config.Sem_key	);  		// -D
-	lline( "sds keys"		, show_type( Config.sdskeys ) );
-	lline( "SHM_key left"	,	Config.SHM_keyl );
-	lline( "SHM key right"	, 	Config.SHM_keyr );
-	lline( "ffmpeg" 		, 	Config.ffmpeg	);  		// -D
-	lline( "temp storage sec", Config.temp_sec	);
-	lline( "record storage sec", Config.record_sec	);
-
-	Comment( DEBUG, strs.str() );
-	return strs.str();
+	Table_class Table { "synthesizer.cfg", 20 };
+	Table.AddColumn( "Config Entry", 20 );
+	Table.AddColumn( "Value", 20  );
+	Table.PrintHeader();
+	Table.AddRow( "sampline rate" 	, 	Config.rate		);  		// -c
+	Table.AddRow( "device nr" 		, 	Config.device	);  		// -d
+	Table.AddRow( "channel offs"	, 	Config.ch_offs	); 		// -o
+	Table.AddRow( "test classes" 	, 	Config.test		);  		// -t
+	Table.AddRow( "dialog mode"	,	Config.dialog	);  		// -D
+	Table.AddRow( "composer"		,  	Config.composer	);  		// -D
+	Table.AddRow( "oceangui"		, 	Config.oceangui	);  		// -D
+	Table.AddRow( "Id3tool Title" , 	Config.title	); 		// -o
+	Table.AddRow( "Id3tool Author", 	Config.author	);  		// -k
+	Table.AddRow( "Id3tool Album" , 	Config.album	);  		//
+	Table.AddRow( "Id3tool Genre" , 	Config.Genre	);  		// -t
+	Table.AddRow( "MAXWAVFILES"	, 	Config.MAXWAVFILES	);  		// -t
+	Table.AddRow( "Terminal" 		, 	Config.Term		);  		// -D
+	Table.AddRow( "shm key"	 	, 	Config.SHM_key	);  		// -k
+	Table.AddRow( "sds_key" 		, 	Config.SDS_key	);  		// -D
+	Table.AddRow( "sem_key" 		, 	Config.Sem_key	);  		// -D
+	Table.AddRow( "sds keys"		, 	show_type( Config.sdskeys ) );
+	Table.AddRow( "SHM_key left"	,	Config.SHM_keyl );
+	Table.AddRow( "SHM key right"	, 	Config.SHM_keyr );
+	Table.AddRow( "ffmpeg" 		, 	Config.ffmpeg	);  		// -D
+	Table.AddRow( "temp storage sec", 	Config.temp_sec	);
+	Table.AddRow( "record storage sec",Config.record_sec	);
 }
 
 string Config_class::baseDir()

@@ -42,19 +42,20 @@ void ViewInterface_class::showStates()
 				(bool) (sds->connect[oscid].vol));
 
 	Table_class StA{ "Storage Area", 20 };
-	StA.AddColumn( "Id",  6);
+	StA.AddColumn( "StA Id",  6);
+	StA.AddColumn( "Id Name",  16);
 	StA.AddColumn( "Play",6);
 	StA.AddColumn( "Rec.",6);
 	StA.AddColumn( "Amp.",6);
 	StA.PrintHeader();
 	for( uint n = 0; n <8; n++ )
-		StA.AddRow( n, sds->StA_state[n].play, sds->StA_state[n].store, (int)sds->StA_amp_arr[n] );
+		StA.AddRow( n, StAIdName( n ), sds->StA_state[n].play, sds->StA_state[n].store, (int)sds->StA_amp_arr[n] );
 
-	Table_class State { "Mixer State ", 0 };
-	State.AddColumn( "Property",20 );
-	State.AddColumn( "Value", 10 );
-	State.AddColumn( "Property",20 );
-	State.AddColumn( "Value", 10 );
+	Table_class State { "Mixer State ", 20 };
+	State.AddColumn( "Property",18 );
+	State.AddColumn( "Value", 8 );
+	State.AddColumn( "Property",18 );
+	State.AddColumn( "Value", 8 );
 	State.PrintHeader();
 	State.AddRow( "External:"	, sds->mixer_status.external, "Mute:"	,sds->mixer_status.mute);
 	State.AddRow( "Note:"		, sds->mixer_status.notes, "Keyboard:"	,sds->mixer_status.kbd);
@@ -143,8 +144,18 @@ void ViewInterface_class::showProcesses()
 
 void ViewInterface_class::printHeader()
 {
-	lline( "\nShared Data Str. ID ", to_string((int) sds->SDS_Id ) + ", "+ to_string( sds->config));
-	rline( Version_str 			, sds->version);
+	Table_class Table { "Shared Data Structure", 23  };
+	Table.AddColumn("Sds Id", 10);
+	Table.AddColumn("Config", 8 );
+	Table.AddColumn("Addres", 14 );
+	Table.AddColumn("Version", 8);
+	Table.AddColumn("Sds Version", 12 );
+	Table.PrintHeader();
+	Table.AddRow(	(int) sds->SDS_Id,
+					(int) sds->config,
+					to_hex( (long) sds ),
+					Version_No,
+					(int) sds->version );
 
 }
 void ViewInterface_class::showOSCs()

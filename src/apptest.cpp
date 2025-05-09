@@ -17,6 +17,7 @@ void SynthesizerTestCases()
 	Shm_test.Test_Memory();
 
 	Logfacility_class		Log( "SynthesizerTest" );
+	Log.Set_Loglevel( TEST, true );
 	DirStructure_class		Dir;
 
 	process_t				Process{  };
@@ -36,15 +37,13 @@ void SynthesizerTestCases()
 	Musicxml_class			MusicXML{};
 
 	Keyboard_class			Keyboard( 	&Instrument );
-	External_class 			External( 	&Mixer.StA[ MbIdExternal],
+	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
 										DaTA.Cfg_p);
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };
 
 //	Semaphore_class*		Sem	= DaTA.Sem_p;
-//	uint8_t ch;
-//	Loop_class 				Loop{ &ch };
 	String 					TestStr{""};
 	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID };
 
@@ -109,9 +108,10 @@ void SynthesizerTestCases()
 
 	Log.Test_Logging();
 
+	System_Test();
+
 	DaTA.Reg.Test_Register();
 	DaTA.Test_Dataworld();
-	System_Test();
 	DaTA.Sds_p->Test_interface();
 
 	Event_class				Event{

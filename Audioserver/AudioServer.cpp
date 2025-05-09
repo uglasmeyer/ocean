@@ -56,7 +56,7 @@ void shutdown_stream()
 	{
 		Log.Comment(INFO,"stream will be stopped");
 
-/*		try
+		try
 		{
 			rtapi.stopStream();  // or could call dac.abortStream();
 		}
@@ -64,7 +64,7 @@ void shutdown_stream()
 		{
 			cout << "bad alloc" << endl;
 		}
-*/
+
 		// TODO  - causes valgrind error
 	}
 	else
@@ -99,7 +99,7 @@ void save_record_fcn()
 	sds->FileNo = Fileno.val;
 	string filename = file_structure().get_rec_filename( Fileno.val);
 	Sds->Write_str( OTHERSTR_KEY, filename );
-	Log.Info( "recording to file " + filename + "done");
+	Log.Info( "recording to file " + filename + " done.");
 	DaTA.EmitEvent( RECORDWAVFILEFLAG );
 	SaveRecordFlag = false;
 }
@@ -134,20 +134,19 @@ void exit_intro( int signal )
 
 void exit_proc( int signal )
 {
-	exit_intro( signal );
+//	exit_intro( signal );
 
 	shutdown_thread();
+	if ( rtapi.isStreamRunning() )
+		rtapi.stopStream();
+	if ( rtapi.isStreamOpen() )
+		rtapi.closeStream();
 
-	if ( signal )
-	{
-//		shutdown_stream();
-		if ( frame )
-			free( frame);
-		exit(0);
-	}
+//	shutdown_stream();
 	if ( frame )
 		free( frame);
 	done = true;
+	exit( 0);
 
 
 }
@@ -266,17 +265,27 @@ void SetAudioFrames()
 	sds->audioframes = audioframes;
 
 }
+
+void Request_data()
+{
+	for ( int n = 0; n < 4; ++n)
+	{
+		uint8_t id = SEMAPHORE_SENDDATA0 + n;
+		DaTA.Sem_p->Release( id );
+	}
+}
+
 void call_for_update()
 {
 	DaTA.ClearShm();
-	SetAudioFrames();
+	audioframes = min_frames;// SetAudioFrames();
 
 	shm_addr = DaTA.SetShm_addr( );
 
-	for ( int n = 0; n < 4; ++n)
-		DaTA.Sem_p->Release( SEMAPHORE_SENDDATA0 + n );
+	Volume.DynVolume.SetupVol( sds_master->Master_Amp, sds_master->vol_slidemode );
+	Volume.Transform( audio_frames, shm_addr, stereo.stereo_data );
 
-
+	Request_data();
 }
 
 void record_start( )
@@ -291,7 +300,7 @@ void record_start( )
 	rcounter = 0;
 	ProgressBar.Set( &rcounter, recduration );
 	RecTimer.Start();
-	sds->StA_state[ MbIdExternal ].store = true;
+	sds->StA_state[ STA_EXTERNAL ].store = true;
 
 	Log.Comment(INFO, "Audioserver starts recording" );
 }
@@ -303,7 +312,7 @@ void record_stop()
 	External.status.record = false;
 	ProgressBar.Unset();
 	uint t_el = RecTimer.Time_elapsed();
-	sds->StA_state[ MbIdExternal ].store = false;
+	sds->StA_state[ STA_EXTERNAL ].store = false;
 	Sds->addr->Record = false;
 
 	Log.Comment(INFO, "Record duration: " + to_string( t_el/1000 ) + " sec");
@@ -335,8 +344,10 @@ void set_ncounter( buffer_t n )
 		call_for_update();
 
 		write_waveaudio();
+
 	}
 }
+
 
 int RtAudioOut(	void *outputBuffer,
 				void * /*inputBuffer*/,
@@ -355,15 +366,16 @@ int RtAudioOut(	void *outputBuffer,
 
 		// the output loop is implicitly protect against status changes by the fact
 		// that the buffer boundaries are aligned to 44100 respectively one second
+
 		for ( uint i = 0; i < chunksize; i++ )
 		{
-			buffer[i]	= shm_addr[ncounter];
+			buffer[i]	= stereo.stereo_data[ncounter]; // shm_addr[ncounter];
 			ncounter 	= (ncounter	+ 1 );
 		}
 
 		if ( DaTA.Appstate.IsExitserver( sds, AUDIOID ) )
 		{
-			exit_proc( 0 );
+			done = true;
 			return 1;
 		}
 
@@ -388,11 +400,10 @@ int main( int argc, char *argv[] )
 	Log.Set_Loglevel(DEBUG, false);
 	Log.Show_loglevel();
 
-
-
-	for ( int n = 0; n < 4; ++n)
+	for ( uint n = 0; n < MAXCONFIG; ++n)
 	{
-		DaTA.Sem_p->Reset( SEMAPHORE_SENDDATA0 + n );
+		uint8_t id = SEMAPHORE_SENDDATA0 + n;
+		DaTA.Sem_p->Reset( id );
 	}
     DaTA.Sem_p->Reset( SEMAPHORE_STARTED );
 //    DaTA.Sem.Reset( SEMAPHORE_RECORD );
@@ -466,12 +477,15 @@ int main( int argc, char *argv[] )
 
 	while ( not done  && rtapi.isStreamRunning() )
 	{
-		Timer.Wait( 1 );// 1sec
+	    std::this_thread::sleep_for( chrono::milliseconds( 100 ) );
 	}
-	shutdown_stream();
-
 	Log.Comment( INFO, "AudioServer reached target exit main()" );
 
+	if ( rtapi.isStreamRunning() )
+		rtapi.stopStream();
+	if ( rtapi.isStreamOpen() )
+		rtapi.closeStream();
+	return 0;
 
 }
 
