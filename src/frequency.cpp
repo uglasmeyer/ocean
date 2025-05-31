@@ -58,6 +58,13 @@ uint Frequency_class::Index( const string& frqName )
 	cout << "WARNING: " << frqName << "-index set to default" << endl;
 	return C0; // = ""
 }
+
+uint  Frequency_class::Index( const int& oct, const int& step )
+{
+	int idx = frqIndex( oct, step );
+	return check_range( frqarr_range, idx );
+}
+
 frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
 {
 	return ( 1 + channel + (float)value * 0.01 );
@@ -138,11 +145,7 @@ void Frequency_class::initFrqNamesArray()
 	frqnamesarray_done = true;
 }
 
-uint  Frequency_class::Index( const int& oct, const int& step )
-{
-	int idx = frqIndex( oct, step );
-	return check_range( frqarr_range, idx );
-}
+
 
 void Frequency_class::TestFrequency()
 {

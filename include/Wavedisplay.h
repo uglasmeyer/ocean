@@ -11,6 +11,7 @@
 #include <Wavedisplay_base.h>
 #include <data/Interface.h>
 
+
 class Wavedisplay_class :
 		virtual Logfacility_class,
 		wavedisplay_struct
@@ -22,15 +23,19 @@ public:
 	Wavedisplay_class( Interface_class* sds );
 	virtual ~Wavedisplay_class(){};
 
-	void Add_role_ptr	( const char& wd_role, Data_t* ptr );
-	void Add_data_ptr	( const char& osctype, const char& wd_role, Data_t* ptr );
+	void Add_role_ptr	( 	const char& wd_role,
+							Data_t* 	ptr,
+							buffer_t* 	wd_frames );
+	void Add_data_ptr	( 	const char& wd_type,
+							const char& wd_role,
+							Data_t* 	ptr,
+							buffer_t* 	wd_frames );
 	void SetDataPtr		( const wd_status_t& status  );
 	void Write_wavedata ( );
 
 private:
 	void set_wdmode		( const char& mode );
 	void setFFTmode		( const bool& mode );
-
 	string 			className		= "";
 	int 			frame_counter	= 0;
 	int 			index_counter	= 0;
@@ -38,10 +43,17 @@ private:
 	size_t 			wdId 			= 0;
 	size_t			osId			= 0;
 	int 			WdMode			= wavedisplay_struct::FULLID;
-	array< array< Data_t* , WD_OSC_SIZE>,  WD_ROLES_SIZE >
-					data_ptr_arr ;
-	Data_t*			data_ptr 		= nullptr;
+	struct wd_data_struct
+	{
+		Data_t* 	ptr		= nullptr;
+		buffer_t* 	frames	= nullptr;
+	};
 
+	typedef 		wd_data_struct 	wd_data_t;
+	array< array< wd_data_t , WD_OSC_SIZE>,  WD_ROLES_SIZE >
+					data_ptr_mtx 	;
+	Data_t*			data_ptr 		= nullptr;
+	buffer_t		wd_frames		= 0;
 	wd_status_t		wd_status		= WD_status_struct();
 	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_right		= true;

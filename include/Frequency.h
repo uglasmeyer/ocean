@@ -40,28 +40,28 @@ extern frqstrarr_t 					frqNamesArray;
 class Frequency_class :
 		virtual Logfacility_class
 {
-	string className = "";
+	string 							className 		= "";
 
 public:
-	range_t<float> frequency_range;// { frqArray[1], frqArray[FRQARR_SIZE-1] };
+	range_t<float> 					frequency_range;// { frqArray[1], frqArray[FRQARR_SIZE-1] };
 
-	frq_t Calc( const frq_t& _base_freq, const int& idx );
-	frq_t GetFrq( const int& idx );
-	frq_t Frqadj( const uint8_t& channel, const int8_t& value );
+	frq_t 							Calc			( const frq_t& _base_freq, const int& idx );
+	frq_t 							GetFrq			( const int& idx );
+	frq_t 							Frqadj			( const uint8_t& channel, const int8_t& value );
+	uint  							Index			( const string& frqName );
+	uint  							Index			( const int& oct, const int& step );
+	void 							ShowFrqTable	();
+	void 							TestFrequency	();
 
-	Frequency_class();
-	virtual ~Frequency_class();
-	uint  Index( const string& frqName );
-	uint  Index( const int& oct, const int& step );
-	void ShowFrqTable();
-	void TestFrequency();
+									Frequency_class	();
+	virtual 						~Frequency_class();
 
 
 //	const uint A3 = Index("A3");
 
 private:
-	void initFrqArray(  );
-	void initFrqNamesArray();
+	void 							initFrqArray	();
+	void 							initFrqNamesArray();
 
 
 };

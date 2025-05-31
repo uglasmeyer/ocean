@@ -20,7 +20,7 @@ Note_class::Note_class( Wavedisplay_class* wd )
   Note_base()
 {
 	this->className = Logfacility_class::className;
-	Oscgroup.SetWd(wd);
+	Oscgroup.SetWd( wd, &Oscgroup.osc.mem_frames );
 }
 
 Note_class::~Note_class( )
@@ -207,7 +207,7 @@ bool Note_class::Generate_note_chunk( )
 void Note_class::ScanData( Instrument_class* instrument )
 {
 	Set_instrument( instrument );
-	if ( osc->scanner.pos == 0 )
+	if ( osc->scanner.trigger )
 	{
 		Generate_note_chunk( );
 	}

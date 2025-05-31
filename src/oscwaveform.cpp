@@ -5,9 +5,11 @@
  *      Author: sirius
  */
 
+#include <Ocean.h>
+#include <String.h>
 #include <Oscwaveform.h>
 
-vector<string> waveform_str_vec = gen_waveform_str_vec( waveFunction_vec );
+//vector<string> waveform_str_vec {};
 
 
 
@@ -28,6 +30,8 @@ float psgn( const float& x )
 {
 	return ( x > 0 ) ? x : 0 ;
 }
+
+
 
 float Rnd( param_t& p )
 { 	// provides values between -amp .. amp
@@ -102,6 +106,37 @@ Data_t Rnd_step( param_t& p )
 	return p.amp * step * rnd_step ;
 }
 
+const vector<waveFnc_t> waveFunction_vec
+{
+	{  Sinus	, "sinus"		, 2*pi 	},
+	{  Triangle	, "triangle"	, 2		},
+	{  SignSin	, "signsin"		, 2*pi 	},
+	{  Rectangle, "rectangle"	, 1 	},
+	{  SawTooth	, "sawtoothL"	, 1		},
+	{  Sawtooth	, "sawtoothR"	, 1		},
+	{  Pmw		, "PMW"			, 1		},
+	{  Delta	, "delta"		, 1		},
+	{  Rnd		, "noise"		, 1		},
+	{  Rnd_step	, "random"		, 1		}
+};
+
+constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_t> fnc_vec )
+{
+	vector<string> vec{};
+	for ( waveFnc_t wf : fnc_vec )
+		vec.push_back( wf.name  );
+	return vec;
+};
+
+const vector<string> waveform_str_vec = gen_waveform_str_vec( waveFunction_vec );
+const range_t<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
+
+Oscwaveform_class::Oscwaveform_class() :
+	Logfacility_class("Oscwaveform_class")
+{
+	className = Logfacility_class::className;
+	wf_v = gen_waveform_str_vec( waveFunction_vec );
+};
 
 void Oscwaveform_class::Test_wf()
 {

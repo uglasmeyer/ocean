@@ -44,7 +44,7 @@ void Dispatcher_class::Loop(  )
 				Sds_master->Write_str( UPDATELOG_EVENT, "" );
 				break;
 			}
-			case READ_EXTERNALWAVEFILE :
+			case READ_EXTERNAL_WAVFILE :
 			{
 				emit( UpdateFileList() );
 				break;

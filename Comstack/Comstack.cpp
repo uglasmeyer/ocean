@@ -15,7 +15,7 @@
 #include <Appsymbols.h>
 
 Keyboard_class			Keyboard		{};
-ViewInterface_class		ViewSds			{ COMSTACKID, DaTA.Sds_p, &DaTA.Reg };
+ViewInterface_class		ViewSds			{ COMSTACKID, &DaTA };
 int 					sdsid			= sds_master->config;
 
 Frequency_class 		Frequency 		{};
@@ -24,6 +24,7 @@ int 					update_counter 	= 1;
 uint					page			= F1;
 bool 					tainted			= false;
 const string			Module			= Log.className;
+
 
 void usage( )
 {
@@ -51,17 +52,14 @@ void setvalue( uint8_t* addr, string value )
 string getInput( string text )
 {
 	string s ;
-	cout << text << ": ";
-	Keyboard.Reset();
-	cin >> s;
-	Keyboard.Init();
+	s 		= Keyboard.GetString( text + ": ");
 	tainted = true;
 	return s;
 }
 void getvalue( uint8_t* addr, string text, uint event )
 {
 	string s;
-	s = getInput( text );
+	s 		= getInput( text );
 	setvalue( addr, s );
 	Sds->Event( event );
 
@@ -112,11 +110,11 @@ void set_sdsid( int delta )
 	setupdate_flag( true );
 }
 
-key_struct_t Key_event( string charstr )
+key3struct_t Key_event( string charstr )
 {
 	String Str{ charstr };
 	set<char> charset = Str.Set;
-	key_struct_t key = key_struct();
+	key3struct_t key = Keyboard_base::key3_struct( 0,0,0 );
 
 	while ( not charset.contains( (char)key.key ) )
 	{
@@ -124,9 +122,7 @@ key_struct_t Key_event( string charstr )
 		if ( DaTA.sds_master->Comstack == state_struct::EXITSERVER )
 			exit_proc( 0 );
 		show_ifd();
-		key = Keyboard.GetKey();
-		if (key.key > 0 )
-			cout << key.key <<":" << key.val << endl;
+		key = Keyboard.GetKeystruct( false );
 	}
 
 	return key;
@@ -136,6 +132,24 @@ void exit_proc( int signal )
 {
 	exit( signal );
 }
+void SpecialKey()
+{
+	key3struct_t special = Keyboard.GetKeystruct( false );
+	if ( special.val0 != ASC )
+	{
+		tainted = false;
+		return;
+	}
+	tainted = true;
+	switch( special.key )
+	{
+		case F5 : { page = F5 ;break ;}
+		case F6 : { page = F6 ;break ;}
+		case F7 : { page = F7 ;break ;}
+		default : { page = F1 ;break; }
+	}
+
+}
 int main( int argc, char* argv[] )
 {
 
@@ -144,45 +158,35 @@ int main( int argc, char* argv[] )
     DaTA.Appstate.Announce();
 
     ViewSds.ShowPage(Sds->addr, F1);
-	key_struct keyevent {};
+	key3struct_t keyevent { 0,0,0 };
 	while( true )
 	{
 		string charset { "afmvr+-\x1B\x7E" }  ;
 		keyevent = Key_event( charset );
 		switch ( keyevent.key )
 		{
-			case '+' : { set_sdsid(1); tainted = true; break; }
+			case '+' : { set_sdsid( 1); tainted = true; break; }
 			case '-' : { set_sdsid(-1); tainted = true; break;}
 			case ESC :
 			{
-				switch( keyevent.val )
+				tainted = true;
+				switch( keyevent.val1 )
 				{
 					case 0  : { exit_proc(0) ;break ;}
 					case F1 : { page = F1 ;break ;}
 					case F2 : { page = F2 ;break ;}
 					case F3 : { page = F3 ; DaTA.Reg.Update_register(); break ;}
 					case F4 : { page = F4 ;break ;}
-					default : { break; }
+					case F0 : { SpecialKey();break;}
+					default : { page = F1; break; }
 				}
-				tainted = true;
 				break;
 			}
-			case ASC :
-			{
-				switch( keyevent.val )
-				{
-					case F5 : { page = F5 ;break ;}
-					case F6 : { page = F6 ;break ;}
-					default : { break; }
 
-				}
-				tainted = true;
-				break;
-			}
 			case 'r' :
 			{
 				cout << "Reset run state: ";
-				key_struct_t key = Key_event( "#acsu" );
+				key3struct_t key = Key_event( "#acsu" );
 				switch ( key.key )
 				{
 				case 'a': { DaTA.Appstate.Set( sds, AUDIOID, state_struct::EXITSERVER);break; }
@@ -197,7 +201,7 @@ int main( int argc, char* argv[] )
 			case 'm' :
 			{
 				cout << "Main ";
-				key_struct_t keyevent = Key_event( "#faw" );
+				key3struct_t keyevent = Key_event( "#faw" );
 				switch ( keyevent.key )
 				{
 				case 'f' : { getfrq( &sds->OSC_wp.frqidx, "Frequency", OSCFREQUENCYKEY ); break; }
@@ -210,7 +214,7 @@ int main( int argc, char* argv[] )
 			case 'f' :
 			{
 				cout << "FMO ";
-				key_struct_t keyevent = Key_event("#faw");
+				key3struct_t keyevent = Key_event("#faw");
 				switch ( keyevent.key )
 				{
 				case 'f' : { getfrq( &sds->FMO_wp.frqidx, "Frequency", FMOFREQUENCYKEY ); break; }
@@ -223,7 +227,7 @@ int main( int argc, char* argv[] )
 			case 'v' :
 			{
 				cout << "VCO ";
-				key_struct_t keyevent = Key_event("#faw");
+				key3struct_t keyevent = Key_event("#faw");
 				switch ( keyevent.key )
 				{
 				case 'f' : { getfrq( &sds->VCO_wp.frqidx, "Frequency", VCOFREQUENCYKEY ); break; }
@@ -236,7 +240,7 @@ int main( int argc, char* argv[] )
 			case 'a' :
 			{
 				std::cout << "ADSR ";
-				key_struct_t keyevent = Key_event("#abgdh");
+				key3struct_t keyevent = Key_event("#abgdh");
 				switch ( keyevent.key )
 				{
 				case 'g' : { getvalue( &sds->OSC_wp.glide_effect, "Frequency", SOFTFREQUENCYKEY ); break; }

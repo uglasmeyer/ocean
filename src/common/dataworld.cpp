@@ -75,10 +75,10 @@ void Dataworld_class::init_Shm( Shared_Memory& SHM, key_t key, uint idx )
 }
 
 
-void Dataworld_class::ClearShm()
+void Dataworld_class::ClearShm( const buffer_t& frames )
 {
 	int 			shm_id 	= sds_master->SHMID;
-	( shm_id == 0 ) ? SHM_0.Clear() : SHM_1.Clear();
+	( shm_id == 0 ) ? SHM_0.Clear( frames ) : SHM_1.Clear( frames );
 }
 
 stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
@@ -123,11 +123,11 @@ void Dataworld_class::Test_Dataworld()
 		cout << "read/write on Sds " << sdsid << " ok: " << str << endl;
 	}
 	sds_master->SHMID = 0;
-	ClearShm();
+	ClearShm( max_frames );
 	cout << "read/write on SHM " << 0 << " ok: " << endl;
 
 	sds_master->SHMID = 1;
-	ClearShm();
+	ClearShm( max_frames );
 	cout << "read/write on SHM " << 1 << " ok: " << endl;
 	TEST_END( className );
 

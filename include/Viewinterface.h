@@ -7,11 +7,10 @@
 
 #ifndef VIEWINTERFACE_H_
 #define VIEWINTERFACE_H_
-
+#include <data/DataWorld.h>
 #include <data/Interface.h>
 #include <data/Appstate.h>
 
-enum  { ESC=27, ASC=126, F1=239, F2=241, F3=243, F4=245, F5=53, F6=55 };
 
 class ViewInterface_class :
 	osc_struct,
@@ -26,16 +25,18 @@ class ViewInterface_class :
 
 public:
 	Appstate_class		Appstate	;
+	Dataworld_class*	DaTA;
 
-	ViewInterface_class( char appid, Interface_class* Sds, Register_class* reg )
+	ViewInterface_class( char appid, Dataworld_class* DaTA )
 	:
 		Frequency_class(),
 		Spectrum_class(),
 		state_struct(),
-		Appstate( appid, nullptr, Sds->addr, reg )
+		Appstate( appid, nullptr, DaTA->Sds_p->addr, &DaTA->Reg )
 	{
-		className = Logfacility_class::className;
-		Sds_p			= Sds;
+		className 		= Logfacility_class::className;
+		this->DaTA		= DaTA;
+		Sds_p			= DaTA->Sds_p;
 	};
 	~ViewInterface_class() = default;
 
@@ -49,6 +50,8 @@ private:
 	void 	showStates() ;
 
 	void 	show_Que();
+	void 	show_Ipc();
+
 	void 	show_Adsr();
 	void 	showKeys();
 

@@ -18,13 +18,38 @@ constexpr bool isTTY ( const T io )
     else
        return false; 	//"stdout is not tty");
 };
-const bool is_a_tty	= isTTY( stdout );
+const bool is_atty	= isTTY( stdout );
 
-
+inline string line( const uint& col, char ch )
+{
+	string str{};
+	for( uint n = 0; n< col; n++ )
+		str.append(ch,1);
+	return str;
+}
 inline void	ClearScreen()
 {
-	if ( is_a_tty )
-		std::cout << "\x1B[2J\x1B[H";
+	if ( is_atty )
+		std::cout.flush() << "\x1B[2J\x1B[H";
+}
+inline void CursorHome()
+{
+	if ( is_atty )
+		std::cout.flush() << "\x1B[H" ;
+}
+inline void CursorHomeCol()
+{
+	if ( is_atty )
+	{
+		std::cout.flush() << "\x1B[0G" ;
+		std::cout.flush() << line(80, ' ' );
+		std::cout.flush() << "\x1B[0G" ;
+	}
+}
+inline void CursorPos( uint x, uint y )
+{
+	if ( is_atty )
+		std::cout.flush() << "\x1B[" << y << ";" << x << "H" ;
 }
 
 enum 		LOG { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST, PLAIN, TABLE } ;

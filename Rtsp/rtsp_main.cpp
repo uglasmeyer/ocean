@@ -72,7 +72,7 @@ void exit_proc( int signal )
 void Test_rtsp()
 {
 	Keyboard_base Kbd;
-	key_struct_t key = key_struct();
+	key3struct_t key = Keyboard_base::key3_struct( 0,0,0 );
 	while( key.key != '#')
 	{
 		cout << "." ;

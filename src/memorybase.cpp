@@ -10,7 +10,7 @@
 Memory_base::Memory_base( buffer_t bytes ) :
 	Logfacility_class( "Memory_base" )
 {
-	ds.mem_bytesize = bytes;
+	mem_ds.bytes = bytes;
 	className = Logfacility_class::className;
 	Comment( INFO, "pre-init memory size " + to_string( bytes ));
 
@@ -31,27 +31,26 @@ Memory_base::~Memory_base()
 
 void* Memory_base::Init_void()
 {
-	assert( ds.mem_bytesize > 0 );
-	ds.addr = mmap(	NULL,
-				ds.mem_bytesize ,// + 1  ,
+	assert( mem_ds.bytes > 0 );
+	mem_ds.addr = mmap(	NULL,
+				mem_ds.bytes ,// + 1  ,
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS,
 				0, 0);
-	ds.name			= Logfacility_class::className + " allocated";
-	ds.mem_bytes	= ds.mem_bytesize;
-	ds.hex			= to_hex( (long) ds.addr );
+	mem_ds.name			= Logfacility_class::className + " allocated";
+	mem_ds.hex			= to_hex( (long) mem_ds.addr );
 
-	return ds.addr;
+	return mem_ds.addr;
 }
 void Memory_base::Info()
 {
-	Comment( INFO, "Name             : " + ds.name );
-	Comment( INFO, "Memory bytes     : " + to_string( ds.mem_bytes ));
-	Comment( TEST, "Addr             : " + to_hex(( long)ds.addr) );
-	Comment( TEST, "Structure bytes  : " + to_string( ds.sizeof_data ));
-	Comment( TEST, "Record size      : " + to_string( ds.block_size ));
-	Comment( TEST, "data blocks      : " + to_string( ds.data_blocks ));
-	Comment( TEST, "max data records : " + to_string( ds.max_records ));
+	Comment( INFO, "Name             : " + mem_ds.name );
+	Comment( INFO, "Memory bytes     : " + to_string( mem_ds.bytes ));
+	Comment( TEST, "Addr             : " + to_hex(( long)mem_ds.addr) );
+	Comment( TEST, "Structure bytes  : " + to_string( mem_ds.sizeof_type ));
+	Comment( TEST, "Record size      : " + to_string( mem_ds.size ));
+	Comment( TEST, "data blocks      : " + to_string( mem_ds.data_blocks ));
+	Comment( TEST, "max data records : " + to_string( mem_ds.max_records ));
 
 	cout << endl;
 
@@ -62,7 +61,7 @@ void Memory_base::Info()
 Shm_base::Shm_base( buffer_t size ) :
 Logfacility_class( "Shm_base" )
 {
-	ds.size 		= size;
+	shm_ds.bytes 		= size;
 	className		= Logfacility_class::className;
 	Info( "pre-init shared memory size: " , size );
 }
@@ -73,29 +72,29 @@ Shm_base::~Shm_base()
 
 shm_ds_t* Shm_base::Get( key_t key )
 {
-	assert( ds.size > 0 );
-	ds.key 	= key;
-	shmget( ds.key, ds.size , S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL );
-	ds.eexist = ( EEXIST == errno );
+	assert( shm_ds.bytes > 0 );
+	shm_ds.key 	= key;
+	shmget( shm_ds.key, shm_ds.bytes , S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL );
+	shm_ds.eexist = ( EEXIST == errno );
 
 
-	ds.shmid = shmget ( ds.key, ds.size, S_IRUSR | S_IWUSR | IPC_CREAT );
+	shm_ds.shmid = shmget ( shm_ds.key, shm_ds.bytes, S_IRUSR | S_IWUSR | IPC_CREAT );
 
-	if ( ds.shmid < 0 )
+	if ( shm_ds.shmid < 0 )
 	{
 		Comment( ERROR, Error_text( errno ));
-		ShowDs( ds );
-		EXCEPTION("cannot get shared memory" + to_string( ds.shmid ) );
+		ShowDs( shm_ds );
+		EXCEPTION("cannot get shared memory" + to_string( shm_ds.shmid ) );
 	}
 	else
 	{
 		;//ds.eexist = true;
 	}
-	ds.addr = Attach( ds.shmid ); //shmat (ds.id, 0, 0);
-	statistic.shm += ds.size;
-	ds.hex = to_hex( (long) ds.addr );
+	shm_ds.addr = Attach( shm_ds.shmid ); //shmat (ds.id, 0, 0);
+	statistic.shm += shm_ds.bytes;
+	shm_ds.hex = to_hex( (long) shm_ds.addr );
 
-	return &ds;
+	return &shm_ds;
 }
 
 void* Shm_base::Attach( int id )
@@ -119,7 +118,7 @@ void Shm_base::ShowDs( shm_ds_t ds )
 	strs << SETW << "Addr : " << hex << ds.addr << endl;
 	strs << SETW << "shmid: " << dec << ds.shmid   << endl;
 	strs << SETW << "Key  : " << dec << ds.key << endl;	;
-	strs << SETW << "Size : " << dec << ds.size << endl;
+	strs << SETW << "Size : " << dec << ds.bytes << endl;
 	strs << SETW << "Exist: " << boolalpha <<  ds.eexist  << endl;
 	Comment( INFO, strs.str() );
 }
@@ -135,7 +134,7 @@ void Shm_base::Detach( void* addr )
 		return;
 	}
 */
-	Comment( INFO , "Detach shared memory id: " + to_string( ds.shmid ));
+	Comment( INFO , "Detach shared memory id: " + to_string( shm_ds.shmid ));
 
 	if ( addr )
 		shmdt( addr );
@@ -153,13 +152,13 @@ void Shm_base::Test_Memory()
 
 	Shm_base shm1{1000};
 	shm1.Get(100);
-	shm1.ShowDs( shm1.ds);
+	shm1.ShowDs( shm1.shm_ds);
 
 	Shm_base shm2{1000};
 	shm2.Get(200);
-	shm2.ShowDs( shm2.ds);
+	shm2.ShowDs( shm2.shm_ds);
 
-	assert( shm1.ds.addr != shm2.ds.addr );
+	assert( shm1.shm_ds.addr != shm2.shm_ds.addr );
 
 
 	TEST_END( className );

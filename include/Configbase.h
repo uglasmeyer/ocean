@@ -18,7 +18,7 @@ typedef	array<key_t, MAXCONFIG>	keys_arr_t;
 struct prgarg_struct
 {
 		uint 		channel 	= 2;  		// -c
-		uint 		rate 		= audio_frames;	// -r
+		uint 		rate 		= sample_rate;	// -r
 		uint 		device 		= 0;		// -d
 		uint 		ch_offs 	= 0; 		// -o
 		uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically

@@ -14,7 +14,10 @@ void Event_class::TestHandler()
 	TEST_END( className );
 }
 
-
+void Event_class::update_oscgroups()
+{
+	Keyboard->Set_instrument();
+}
 
 void Event_class::Handler()
 {
@@ -71,7 +74,7 @@ void Event_class::Handler()
 			Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
 		}
 		sds->OSC_spectrum = Instrument->osc->spectrum;
-
+		update_oscgroups();
 		Sds->Commit();
 		break;
 	}
@@ -82,7 +85,7 @@ void Event_class::Handler()
 		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->frq_slidermode );
 		sds->VCO_spectrum.frqidx[0] = frqidx;
 		Instrument->Connect( Instrument->osc, Instrument->vco, 'V' );
-
+		update_oscgroups();
 		Sds->Commit();
 		break;
 	}
@@ -93,7 +96,7 @@ void Event_class::Handler()
 		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->frq_slidermode );
 		sds->FMO_spectrum.frqidx[0] = frqidx;
 		Instrument->Connect( Instrument->osc, Instrument->fmo, 'F' );
-
+		update_oscgroups();
 		Sds->Commit();
 		break;
 	}
@@ -107,7 +110,7 @@ void Event_class::Handler()
 		Instrument->Connect( Instrument->osc, Instrument->vco, 'V');
 		sds->VCO_spectrum.vol[0] = vol.val * 0.01;
 		sds->VCO_spectrum.volidx[0] = vol.val;
-
+		update_oscgroups();
 		Sds->Commit();
 		break;
 	}
@@ -120,7 +123,7 @@ void Event_class::Handler()
 		Instrument->Connect( Instrument->osc, Instrument->fmo, 'F' );
 		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
 		sds->FMO_spectrum.volidx[0] = vol.val;
-
+		update_oscgroups();
 		Sds->Commit();
 		break;
 	}
@@ -200,6 +203,7 @@ void Event_class::Handler()
 		{
 			Comment(INFO, "sucessfully loaded instrument " + instrument);
 			Notes->Set_instrument(Instrument);
+			Keyboard->Set_instrument(  );
 		} else
 		{
 			Comment(ERROR, "cannot load instrument" + instrument);
@@ -218,18 +222,18 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case READ_EXTERNALWAVEFILE: {
+	case READ_EXTERNAL_WAVFILE: {
 		Comment(INFO, "receive command <set external wave file>");
-		string wavefile = Sds->Read_str(WAVEFILESTR_KEY);
+		string wav_file = Sds->Read_str(WAVFILESTR_KEY);
 //		Sem->Lock(SEMAPHORE_TEST, 1); // assume record thread is working on that file
-		if (External->Read_file_header(wavefile))
+		if (External->Read_file_header(wav_file))
 		{
 			External->Read_file_data();
 			Mixer->StA[STA_EXTERNAL].Play_mode(true);
 			Mixer->StA[STA_EXTERNAL].DynVolume.SetupVol( 100, FIXED );
 			sds->StA_amp_arr[ STA_EXTERNAL ] = 100;
 			Mixer->status.external = true;
-			ProgressBar->SetValue( 100 * External->Filedata_size / External->ds.mem_bytes);
+			ProgressBar->SetValue( 100 * External->Filedata_size / External->mem_ds.bytes);
 		}
 		else
 		{
@@ -263,7 +267,7 @@ void Event_class::Handler()
 			{
 				string status = 	Mixer->StA[StaId].Record_mode(true); // start record-stop play
 				ProgressBar->Set(	Mixer->StA[StaId].Get_storeCounter_p(),
-									Mixer->StA[StaId].ds.max_records);
+									Mixer->StA[StaId].mem_ds.max_records);
 			}
 			else // only one mb shall store data
 			{
@@ -323,7 +327,7 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (uint id : Mixer->RecIds) {
+		for (uint id : Mixer->MemIds) {
 			Mixer->Set_mixer_state(id, false);
 		}
 		Sds->Commit();
@@ -486,6 +490,8 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "FMO waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
 		Instrument->fmo->Set_waveform( sds->FMO_spectrum.wfid);
+		update_oscgroups();
+
 		Sds->Commit();
 		break;
 	}
@@ -493,6 +499,8 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "VCO waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
 		Instrument->vco->Set_waveform( sds->VCO_spectrum.wfid);
+		update_oscgroups();
+
 		Sds->Commit();
 		break;
 	}
@@ -500,6 +508,8 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "OSC waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
 		Instrument->osc->Set_waveform( sds->OSC_spectrum.wfid);
+		update_oscgroups();
+
 		Sds->Commit();
 		break;
 	}

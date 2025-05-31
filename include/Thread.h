@@ -43,7 +43,7 @@ public:
 	void Loop( )
 	{
 
-		Info( "Loop started on semaphore ", SemId  );
+		Info( "Loop started on semaphore ", Sem_p->SemName( SemId )  );
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 		while( true )
@@ -53,7 +53,7 @@ public:
 				break;
 			this->loop_fnc(  );
 		}
-		Info( "Loop terminated on semaphore ", SemId  );
+		Info( "Loop terminated on semaphore ", Sem_p->SemName( SemId ) );
 
 	}
 

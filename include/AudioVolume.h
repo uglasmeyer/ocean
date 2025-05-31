@@ -22,7 +22,7 @@ public:
 	Dynamic_class DynVolume { volidx_range };
 
 	AudioVolume_class( interface_t* _sds) :
-		Logfacility_class("MasterVolume_class")
+		Logfacility_class( "AudioVolume_class" )
 
 	{
 		className = Logfacility_class::className;

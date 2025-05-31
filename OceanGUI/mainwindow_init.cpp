@@ -100,7 +100,7 @@ void MainWindow::initFreqSlider()
 	for( sl_lcd_t map : sl_frqidx_vec )
 	{
 		map.sl->setMinimum( 1 );
-		map.sl->setMaximum( frqarr_range.max );
+		map.sl->setMaximum( map.max );
 		map.sl->setValue( Spectrum.GetFrq( *map.value));
 	}
 	if ( Sds->addr->frq_slidermode == COMBINE )
@@ -164,17 +164,18 @@ void MainWindow::initGuiVectors()
 		{ 7, ui->Slider_mix_vol7, &Sds->addr->StA_amp_arr[7]  }
 	};
 
+    int max = frqarr_range.max - 2*oct_steps;  // refers to keyboard octave
     sl_frqidx_vec =
     {
-   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->VCO_wp.frqidx },
-   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &Sds->addr->FMO_wp.frqidx },
-   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &Sds->addr->OSC_wp.frqidx }
+   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->VCO_wp.frqidx, max },
+   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &Sds->addr->FMO_wp.frqidx, max },
+   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &Sds->addr->OSC_wp.frqidx, frqarr_range.max   }
     };
     sl_volume_vec =
     {
-   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume },
-   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume },
-   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &Sds_master->Master_Amp }
+   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume, volidx_range.max },
+   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume, volidx_range.max },
+   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &Sds_master->Master_Amp	 , volidx_range.max }
     };
     sB_lbl_vec =
     {

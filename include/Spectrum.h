@@ -16,6 +16,8 @@
 #include <Oscwaveform.h>
 #include <Table.h>
 
+
+
 enum  { SPEV, SPEF, SPEW };
 
 const static size_t 		spec_arr_len = 5;
@@ -29,7 +31,7 @@ typedef array<uint8_t,		spec_arr_len> spec_arr_8t;
 class Spectrum_class :
 	public virtual Logfacility_class,
 	public virtual Frequency_class,
-	virtual public Oscwaveform_class
+	public virtual Oscwaveform_class
 
 {
 public:

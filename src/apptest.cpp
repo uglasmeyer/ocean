@@ -12,7 +12,6 @@ isopen = false;
 void SynthesizerTestCases()
 {
 
-
 	Shm_base Shm_test{0};
 	Shm_test.Test_Memory();
 
@@ -36,7 +35,7 @@ void SynthesizerTestCases()
 	Note_class 				Notes{ wd_p };
 	Musicxml_class			MusicXML{};
 
-	Keyboard_class			Keyboard( 	&Instrument );
+	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD] );
 	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
 										DaTA.Cfg_p);
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
@@ -45,9 +44,8 @@ void SynthesizerTestCases()
 
 //	Semaphore_class*		Sem	= DaTA.Sem_p;
 	String 					TestStr{""};
-	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID };
+	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID, monobuffer_bytes };
 
-//	Log.TEST_START( "Application " );
 
 	Log.Init_log_file();
 	Log.Test_Logging();
@@ -67,8 +65,6 @@ void SynthesizerTestCases()
 	Log.Comment(TEST, "entering test classes ");
 
 	Dir.Test();
-
-//	Loop.Test();
 
 	Notes.TestNoteBase();
 
@@ -91,7 +87,6 @@ void SynthesizerTestCases()
 	Keyboard.Test();
 
 	External.Test_External();
-
 
 	set<string> Ss { "ab", "cd", "ef", "gh" };
 	assert( Ss.contains("cd"));
@@ -117,6 +112,7 @@ void SynthesizerTestCases()
 	Event_class				Event{
 								&Instrument,
 								&Notes,
+								&Keyboard,
 								&Mixer,
 								&Wavedisplay,
 								&DaTA,
@@ -129,7 +125,6 @@ void SynthesizerTestCases()
 
 
 
-//	Log.TEST_END( "Application " );
 }
 
 #include <Interpreter.h>
@@ -162,9 +157,3 @@ void ComposerTestCases()
 	Processor.Test_Processor();
 }
 
-vector_str_t convert_to_arr(string str) {
-	String Str { "" };
-	Str.Str = str;
-	vector_str_t arr = Str.to_unique_array(' ');
-	return arr;
-}

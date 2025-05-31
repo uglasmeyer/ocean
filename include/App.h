@@ -14,6 +14,7 @@
 #include <Version.h>
 
 
+
 // https://en.cppreference.com/w/cpp/language/parameter_pack
 
 class Application_class :
@@ -26,6 +27,8 @@ class Application_class :
 public:
 
 //	Statistic_class 	Statistic			;
+	process_t 			properties 			{ };
+
 	Dataworld_class*	DaTA				= nullptr;
 	Appstate_class*		Appstate			= nullptr;
 	interface_t* 		sds					= nullptr;

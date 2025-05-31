@@ -9,6 +9,7 @@
 #define INCLUDE_NOTESBASE_H_
 
 #include <Ocean.h>
+#include <Frequency.h>
 #include <Oscbase.h>
 #include <String.h>
 #include <Config.h>

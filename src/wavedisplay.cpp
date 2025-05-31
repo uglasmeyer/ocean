@@ -18,6 +18,15 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* sds )
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
 void Wavedisplay_class::gen_cxwave_data( )
 {
+	wd_frames		= *data_ptr_mtx[wd_status.roleId][wd_status.oscId].frames;
+//	wd_frames 		= check_range( 	frames_range,
+//									*data_ptr_mtx[wd_status.roleId][wd_status.oscId].frames,
+//									"gen_cxwave_data " + to_string( wd_status.roleId ));
+	if ( wd_frames == 0 )
+	{
+		Comment( WARN, "Zero wavedisplay frames" );
+		return;
+	}
 
 	auto gen_debug = [ this ]( param_t param )
 	{
@@ -33,21 +42,20 @@ void Wavedisplay_class::gen_cxwave_data( )
 		else // n=0 ... param.len - right data range -> front buffer range
 		{	// fill this area first
 			debug_right = not debug_right;
-			buffer_t frames = Sds_p->addr->audioframes;
-			for ( buffer_t n = frames - param.len; n < frames; n++ )
+			for ( buffer_t n = wd_frames - param.len; n < wd_frames; n++ )
 			{
 				Data_t value = data_ptr[n];
-				display_buffer[ n + param.len - frames ] = value;
+				display_buffer[ n + param.len - wd_frames ] = value;
 			}
 		}
 	};
 
 	auto gen_full = [ this ]( param_t param )
 	{
-		buffer_t 	audioframes = Sds_p->addr->audioframes;
-		int 		ratio		= max_frames / audioframes ;
-		uint 		idx			= param.len / ratio * index_counter ;
-		for ( buffer_t n = 0; n < audioframes; n = n + param.step )
+
+		uint 		idx			= 0;
+		uint		step		= wd_frames / param.len;
+		for ( buffer_t n = 0; n < wd_frames; n = n + step )
 		{
 			if ( idx < param.len )
 			{
@@ -68,9 +76,8 @@ void Wavedisplay_class::gen_cxwave_data( )
 	auto gen_fft = [ this ]( param_t param )
 	{
 		cd_vec_t cdv {};
-		buffer_t 	audioframes = Sds_p->addr->audioframes;
-		param.step	= rint( audioframes / 512 );
-		for ( buffer_t n = 0; n < audioframes; n = n + param.step )
+		param.step	= rint( wd_frames / wavedisplay_len );
+		for ( buffer_t n = 0; n < wd_frames; n = n + param.step )
 		{
 			Data_t value = data_ptr[n];
 			cdv.push_back( cd_t( (double)value, 0.0 ));
@@ -110,7 +117,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 		case FLOWID :
 		{
 			param = param_flow;
-			param.max_offs = Sds_p->addr->audioframes - param.len*param.step;
+			param.max_offs = wd_frames - param.len*param.step;
 			gen_flow( param );
 			break;
 		}
@@ -156,15 +163,16 @@ void Wavedisplay_class::Write_wavedata()
 
 void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 {
-	wd_status = status;
-	Data_t* ptr = data_ptr_arr[status.roleId][status.oscId];
+	wd_status 		= status;
+	Data_t* ptr 	= data_ptr_mtx[status.roleId][status.oscId].ptr;
+
 	if ( ptr == nullptr )
 	{
 		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(status.roleId) + "]" +
 														  "[" + to_string(status.oscId) + "]");
 		return;
 	}
-	data_ptr = ptr;
+	data_ptr 		= ptr;
 	Comment( DEBUG, "wave display selected: "+
 						OscRole.roles[ status.roleId ] + " " +
 						OscRole.types[ status.oscId ] );
@@ -184,30 +192,39 @@ void Wavedisplay_class::setFFTmode( const bool& mode )
 		WdMode		= FFTID;
 //	fft_mode = mode;
 }
-void Wavedisplay_class::Add_role_ptr	( const char& wd_role, Data_t* ptr )
+void Wavedisplay_class::Add_role_ptr( 	const char& wd_role,
+										Data_t* ptr,
+										buffer_t* wd_frames )
 {
 	// special case for role external and audioserver. They do not have osc's
 	for( char osctype : { osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID } )
 	{
-		Add_data_ptr( osctype, wd_role, ptr );
+		Add_data_ptr( osctype, wd_role, ptr, wd_frames );
 	}
 }
-void Wavedisplay_class::Add_data_ptr	( const char& osctype, const char& wd_role, Data_t* ptr )
+void Wavedisplay_class::Add_data_ptr( 	const char& wd_type,
+										const char& wd_role,
+										Data_t* 	ptr,
+										buffer_t* 	frames )
 {
-	set<int> osctype_set = range_set(0, 2);
+	Comment( INFO, "adding wave display: " +
+					to_string( wd_role ) 	+ " " +
+					OscRole.roles[wd_role]	+  " - " +
+					OscRole.types[wd_type] + " " +
+					to_string( *frames));
 	if ( ptr == nullptr )
 	{
-		EXCEPTION("Undefined Wavedisplay with index " + to_string( wdId) );
-	}
-	if ( not osctype_set.contains( osctype ) )
-	{
-		EXCEPTION( "osctype out of bounds" );
-	}
-	data_ptr_arr[ wd_role ][osctype ] = ptr;
 
-	Comment( INFO, "adding wave display: " + to_string( wd_role ) 	+ " " +
-					OscRole.roles[wd_role]						+  " - " +
-					OscRole.types[osctype] );
+		EXCEPTION("Undefined Wavedisplay" );
+	}
+	set<int> osctype_set = range_set(0, 2);
+	if ( not osctype_set.contains( wd_type ) )
+	{
+		EXCEPTION( "wd_type out of bounds" );
+	}
+	data_ptr_mtx[ wd_role ][wd_type ] = { ptr, frames };;
+
+
 
 }
 

@@ -129,16 +129,19 @@ bool Appstate_class::IsInconsistent( interface_t* sds, char appid )
 	}
 	return false;
 }
-void Appstate_class::StartOnce()
+
+bool Appstate_class::StartOnceOk( interface_t* sds )
 {
-	assert( this->sds != nullptr );
-	bool is_running = ( Get( this->sds, this->AppId) == RUNNING );
+
+	assert( sds != nullptr );
+	bool is_running = ( Get( sds, this->AppId) == RUNNING );
 
 	if ( startonceIds.contains( this->AppId ) and ( is_running ))
 	{
 		Comment( ERROR, "This Ocean process should only start once" );
-		exit( 0 );
+		return false;
 	}
+	return true;
 }
 
 void Appstate_class::Announce( )

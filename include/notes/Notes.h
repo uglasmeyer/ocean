@@ -35,7 +35,7 @@ public:
 	} musicxml_t;
 	musicxml_t		musicxml		= musicxml_struct();
 
-	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID };
+	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID, monobuffer_bytes };
 	Oscillator*		osc				= &Oscgroup.osc;
 	Oscillator*		vco				= &Oscgroup.vco;
 	Oscillator*		fmo				= &Oscgroup.fmo;

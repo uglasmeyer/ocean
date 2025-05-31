@@ -20,13 +20,12 @@
 
 class Instrument_class:
 		virtual public Logfacility_class
-
 {
 public:
 	string 					Name 		= "";
 
 	interface_t*  			sds			= nullptr;
-	Oscgroup_class			Oscgroup	{ osc_struct::INSTRID };
+	Oscgroup_class			Oscgroup	{ osc_struct::INSTRID, monobuffer_bytes };
 	Oscillator*				osc			= &Oscgroup.osc;
 	Oscillator*				vco			= &Oscgroup.vco;
 	Oscillator*				fmo			= &Oscgroup.fmo;
@@ -35,7 +34,6 @@ public:
 	Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
 	virtual ~Instrument_class();
 ;
-
 	bool Set( string );
 	void Save_Instrument( string );
 	void Set_msec( buffer_t frames );
@@ -63,7 +61,6 @@ private:
 	bool 	connect_by_name(string, string, char );
 	void 	init_data_structure( Oscillator*, vector_str_t);
 	void 	Update_sds();
-	void 	reuse_GUI_Data();
 	int 	getVersion( fstream& File );
 	bool	read_version1( fstream* File );
 	bool	read_version2( fstream* File );

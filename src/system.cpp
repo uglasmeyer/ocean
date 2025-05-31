@@ -41,6 +41,14 @@ vector<string> List_directory( const string& path, const string& filter )
     return dir_entry_vec;
 }
 
+bool Is_running_process( const pid_t& pid )
+{
+	stringstream strs {};
+	strs << "/proc/" << dec  <<  pid ;
+
+	bool isdir = filesystem::is_directory( strs.str() ) ;
+	return isdir ;
+}
 
 string searchPath( string file )
 {
@@ -67,9 +75,8 @@ void System_Test()
 
 	Log_common.test_start( "System" );
 	Printer_class Printer( true );
-	uint8_t pid = getpid();
-	ASSERTION( Is_running_process( (int)  pid  ), "Process", Is_running_process( (int) pid ), true) ;
-	ASSERTION( Is_running_process(  to_string( pid ) ), "Process", Is_running_process(  pid ), true) ;
+	int pid = getpid();
+	ASSERTION( Is_running_process( (int)  pid  ), "Process", Is_running_process( (int) pid ), (int)pid) ;
 	ASSERTION( not Is_running_process(  -1 ), "Process", Is_running_process(  -1 ), false ) ;
 	Printer.Close();
 	Log_common.test_end( "System" );

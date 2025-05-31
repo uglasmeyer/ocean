@@ -89,13 +89,14 @@ const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
-const uint16_t		min_msec			= 250;
+const uint16_t		min_msec			= 125;
 const uint16_t		frame_parts			= (uint16_t) (max_msec / min_msec);
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
 
-const buffer_t		audio_frames 		= frames_per_sec; // chunksize * 100
+const buffer_t		audio_frames 		= min_frames;//frames_per_sec; // chunksize * 100
+const buffer_t 		chunksize			= min_frames / 2;//300;//min_frames/10;///5;//max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
 
 const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
@@ -112,27 +113,38 @@ struct range_t
 {
 		T min ;
 		T max ;
+		bool err = false;
 };
 const range_t<int>		volidx_range		{ 0, 100 };
 const range_t<buffer_t>	frames_range		{ 0, max_frames };
+const range_t<uint>		duration_range		{ min_msec, max_msec };
 
 template< typename T>
-constexpr T check_range( range_t<T> r, T val )
+constexpr T check_range( range_t<T> r, T val, string err = "" )
 {
 	if( val < r.min )
 	{
-		cout.flush() << "WARNING: " << val << " adjusted to min boundaries " << endl;
+		cout.flush() << "WARNING: " << err
+									<< ": "
+									<< val
+									<< " adjusted to min boundaries "
+									<< r.min << endl;
 //		static_assert(false);
 		return r.min;
 	}
 	if (val > r.max )
 	{
-		cout.flush() << "WARNING: " << val << " adjusted to max boundaries " << endl;
+		cout.flush() << "WARNING: " << err
+									<< ": "
+									<< val
+									<< " adjusted to max boundaries "
+									<< r.max << endl;
 //		static_assert(false);
 		return r.max;
 	}
 	return val;
 }
+
 template<typename T>
 string show_range( range_t<T> range )
 {

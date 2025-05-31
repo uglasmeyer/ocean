@@ -11,6 +11,7 @@
 #include <data/DataWorld.h>
 #include <Instrument.h>
 #include <notes/Notes.h>
+#include <Keyboard.h>
 #include <notes/MusicXML.h>
 #include <Mixer.h>
 
@@ -27,6 +28,7 @@ class Event_class :
 	interface_t*		sds_master;
 	Instrument_class*	Instrument;
 	Note_class*			Notes;
+	Keyboard_class*		Keyboard;
 	Mixer_class*		Mixer;
 	Wavedisplay_class*	Wavedisplay;
 	Dataworld_class*	DaTA;
@@ -40,6 +42,7 @@ public:
 
 	Event_class(Instrument_class* 	instrument,
 				Note_class*			notes,
+				Keyboard_class*		keyboard,
 				Mixer_class*		mixer,
 				Wavedisplay_class*	wavedisplay,
 				Dataworld_class*	data,
@@ -59,6 +62,7 @@ public:
 		this->EventQue		= &DaTA->Sds_p->Eventque;
 		this->Instrument 	= instrument;
 		this->Notes			= notes;
+		this->Keyboard		= keyboard;
 		this->Mixer			= mixer;
 		this->Wavedisplay	= wavedisplay;
 		this->External		= external;
@@ -71,6 +75,7 @@ public:
 	void TestHandler();
 
 private:
+	void update_oscgroups();
 
 };
 

@@ -90,7 +90,7 @@ public:
 
 	stereo_t* 				SetShm_addr( ); 			// Audioserver
 	stereo_t* 				GetShm_addr( ); 			// Synthesizer
-	void 					ClearShm();
+	void 					ClearShm( const buffer_t& frames );
 
 	void 					EmitEvent( const uint8_t flag, string comment = ""  );
 

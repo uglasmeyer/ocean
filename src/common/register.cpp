@@ -36,7 +36,7 @@ void Register_class::Setup( interface_t* sds )
 	{
 		case APPID::AUDIOID :
 		{
-			if ( Is_running_process((int)this->sds->process_arr.at( APPID::AUDIOID ).pid ) )
+			if ( Is_running_process( this->sds->process_arr.at( APPID::AUDIOID ).pid ) )
 			{
 				Comment(ERROR,
 						"Running Audioserver " ,
@@ -172,7 +172,7 @@ void Register_class::Show_proc_register( uint idx )
 	register_process_t proc { sds->process_arr.at(idx) };
 	stringstream strs;
 
-	if ( Is_running_process( (int) proc.pid ))
+	if ( Is_running_process(  proc.pid ))
 	{
 		strs << AppIdName( proc.type ) << endl;
 		strs << SETW << "Index   "	<< idx << endl;
@@ -205,7 +205,7 @@ void Register_class::Update_register()
 {
 	for( uint idx = 0; idx < REGISTER_SIZE; idx++ )
 	{
-		if ( not Is_running_process( (int) sds->process_arr.at(idx).pid)  )
+		if ( not Is_running_process( sds->process_arr.at(idx).pid)  )
 			Reset( idx );
 	}
 }

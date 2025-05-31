@@ -34,6 +34,7 @@ struct process_properties_struct
 	bool		start_once		= true;
 	bool		data_process 	= false;
 	bool		logowner 		= false;
+	bool		keyboard		= false;
 };
 typedef struct process_struct :
 		process_properties_struct
@@ -51,11 +52,12 @@ typedef struct process_struct :
 		Table.AddColumn("Property"		, 20);
 		Table.AddColumn("Value"			, 20);
 		Table.PrintHeader();
-		Table.AddRow("Application id"	, AppId );
+		Table.AddRow("Application id"	, (int)AppId );
 		Table.AddRow("Name"				, name );
 		Table.AddRow("Start once"		, start_once );
 		Table.AddRow("Data process"		, data_process );
 		Table.AddRow("Logfile owner"	, logowner );
+		Table.AddRow("Keyboard"			, keyboard );
 	}
 } process_t;
 
@@ -85,7 +87,7 @@ public:
 
 	void 			Setup				( interface_t* _sds, interface_t* _sds_master );
 	void 			Announce			( );
-	void 			StartOnce			( );
+	bool 			StartOnceOk			( interface_t* sds );
 
 	void			Set					( interface_t* sds, uint appid, int state );
 	int				Get					( interface_t* sds, uint appid );

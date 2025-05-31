@@ -164,6 +164,11 @@ string Semaphore_class::State(uint8_t num)
 	}
 }
 
+string Semaphore_class::SemName( uint num )
+{
+	return semnum_map[ num ];
+}
+
 void Semaphore_class::Test()
 {
 	TEST_START( className );

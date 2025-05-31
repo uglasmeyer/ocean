@@ -12,17 +12,17 @@
 
 
 /* maxima
-
+kill(all);
 attack  : 10;
 decay	: 95;
 beatframes : 24000;
-aframes : beatframes * attack / 100;
+aframes : beatframes * attack^2 / 100;
 d_delta	: ( (100 - decay )/3.0) / beatframes;
 y0		: exp( - (beatframes-aframes) * d_delta );
 d_alpha	: (1-y0)/aframes;
-fattack : y0 + n*d_alpha;
+fattack : y0 + n^2*d_alpha;
 fdecay	: exp( - ( n - aframes ) * d_delta );
-plot2d([fattack, fdecay], [n,0,beatframes]);
+plot2d([fattack, fdecay], [n,0,beatframes],[y,0,2]);
 
 */
 void Oscillator_base::Gen_adsrdata( buffer_t bframes )
@@ -51,18 +51,24 @@ void Oscillator_base::Gen_adsrdata( buffer_t bframes )
 	}
 }
 
-void Oscillator_base::set_beatcursorR()
+void Oscillator_base::set_hallcursor( buffer_t cursor )
 {
 	if ( beat_frames == 0 ) return;
-	buffer_t hframes = rint( adsr.hall * min_frames * 0.01 );
-	beat_cursorR = ( beat_cursorL + hframes ) % beat_frames;
+	hall_cursor 	= cursor % beat_frames;
+
+	if ( cursor == 0 )
+	{
+		buffer_t
+		hframes		= rint( adsr.hall * min_frames * 0.01 );
+		hall_cursor	= ( beat_cursor + hframes ) % beat_frames;
+	}
 }
 void Oscillator_base::Set_adsr( adsr_t _adsr )
 {
 	adsr = _adsr;
 
 	// overwrite instrument settings
-	if ( ( has_kbd_role ) or ( has_notes_role ) )
+	if ( ( has_notes_role ) )
 	{
 		adsr.bps = 1;
 		beat_frames = wp.frames;
@@ -74,7 +80,8 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 		else
 			beat_frames = 0;
 	}
-	set_beatcursorR();
+
+	set_hallcursor();
 	Gen_adsrdata( beat_frames );
 }
 
@@ -82,8 +89,7 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 void Oscillator_base::Setwp_frames( uint16_t msec )
 {
 	wp.msec 	= msec;
-	wp.frames	= rint( wp.msec * frames_per_msec );
-	wp.frames	= check_range( frames_range, wp.frames );
+	wp.frames	= check_range( frames_range,  wp.msec * frames_per_msec );
 }
 
 uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
@@ -132,16 +138,17 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
 	String 			Str{""};
 
-	vp.name			= osc_name;
-	fp.name			= osc_name;
+	vp.name			= osctype_name;
+	fp.name			= osctype_name;
 	spectrum.wfid[0]= Get_waveform_id( arr[2] );
-	int frqidx	 	= Str.secure_stoi( arr[3] );
-	Set_frequency( frqidx, FIXED );
+	int
+	frqidx	 		= Str.secure_stoi( arr[3] );
+	Set_frequency	( frqidx, FIXED );
 
-	uint8_t msec 		= Str.secure_stoi(arr[4]);
-	Setwp_frames( msec );
+	uint8_t
+	msec 			= Str.secure_stoi(arr[4]);
+	Setwp_frames	( msec );
 	wp.volume 		= Str.secure_stoi(arr[5]);
-//	wp.frames 		= wp.msec*audio_frames/1000;
 	wp.glide_effect = Str.secure_stoi( arr[13] );
 	wp.PMW_dial 	= Str.secure_stoi( arr[14] );
 
@@ -153,7 +160,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 void Oscillator_base::Get_sound_stack( Table_class* T )
 {
 
-	T->AddRow( 	osc_name,
+	T->AddRow( 	osctype_name,
 				Get_waveform_str( spectrum.wfid[0] ),
 				GetFrq( wp.frqidx),
 				(int) wp.volume,

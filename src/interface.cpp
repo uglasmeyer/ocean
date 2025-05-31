@@ -173,6 +173,7 @@ bool Interface_class::Restore_ifd()
 
 	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
 	int sdsid 				= addr->config;
+	bool keyboard			= addr->Keyboard;
 
 	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
@@ -182,6 +183,7 @@ bool Interface_class::Restore_ifd()
 
 	addr->process_arr 	= procarr;
 	addr->config		= sdsid;
+	addr->Keyboard		= keyboard;
 	Eventque.reset();
 	return ( size == sizeof( ifd_data ));
 }

@@ -9,6 +9,37 @@
 #include <External.h>
 #include <System.h>
 
+// Synthesizer read only class
+External_class::External_class	( Storage_class* sta, Config_class* cfg ) :
+	Logfacility_class("External"),
+	Stereo_Memory( )
+{
+	className			= Logfacility_class::className;
+	this->StA 			= sta;
+	this->File 			= NULL;
+	this->Cfg			= cfg;
+	buffer_t
+	ds_size				= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
+	Stereo_Memory::Init_data( ds_size, min_frames );
+	Stereo_Memory::Info	( "External Stereo data") ;
+};
+
+
+// Audioserver write only class
+External_class::External_class( Config_class* cfg,
+								interface_t* sds ) : //, Stereo_Memory* stereo ) :
+	Logfacility_class("External"),
+	Stereo_Memory()
+{
+	this->StA 			= nullptr;
+	this->File 			= NULL;
+	this->Cfg			= cfg;
+	this->sds			= sds;
+	buffer_t	ds_size	= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
+	Stereo_Memory::Init_data( ds_size, min_frames );
+	Stereo_Memory::Info( "External Stereo data") ;
+	className			= Logfacility_class::className;
+};
 
 
 string External_class::GetName()
@@ -55,18 +86,18 @@ bool External_class::Read_file_data(  )
 	}
 
 	buffer_t 	bytes 	= header_struct.dlength;
-	uint 		blocks 	= bytes/sizeof_stereo/StA->ds.block_size;
+	uint 		blocks 	= bytes/sizeof_stereo/StA->mem_ds.size;
 	uint 		structs	= bytes/sizeof_stereo;
 
 	if (LogMask[DBG2])
 		StA->Info("Memory Array External");
-	if ( structs > StA->ds.data_blocks )
+	if ( structs > StA->mem_ds.data_blocks )
 	{
 		Comment(WARN, "Partly read file data into memory.");
 		Comment(WARN, "Taking limits from memory info" );
-		structs 	= StA->ds.data_blocks;
-		blocks 		= StA->ds.max_records;
-		bytes 		= StA->ds.mem_bytes;
+		structs 	= StA->mem_ds.data_blocks;
+		blocks 		= StA->mem_ds.max_records;
+		bytes 		= StA->mem_ds.bytes;
 	}
 	if( read_stereo_data( bytes ) )
 	{
@@ -299,7 +330,7 @@ int External_class::Save_record_data( int filenr)
 	buffer_t count		= write_audio_data( file_structure().raw_file, record_size );
 	bool success = ( record_size == count );
 	if ( success )
-		Comment(INFO,"All " + to_string( record_size * ds.sizeof_data ) + " bytes written to file");
+		Comment(INFO,"All " + to_string( record_size * mem_ds.sizeof_type ) + " bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(record_size) + " written");
@@ -331,8 +362,8 @@ void External_class::Test_External()
 	TEST_START( className );
 	StA->Memory::Info( "External StA Info");
 	Stereo_Memory::Info( "Stereo_Memory Info ");
-	ASSERTION ( StA->ds.max_records - Stereo_Memory::ds.max_records == 0 , "compare StA/Stereo_Memory-records",
-				StA->ds.max_records , Stereo_Memory::ds.max_records );
+	ASSERTION ( StA->mem_ds.max_records - Stereo_Memory::mem_ds.max_records == 0 , "compare StA/Stereo_Memory-records",
+				StA->mem_ds.max_records , Stereo_Memory::mem_ds.max_records );
 
 	if ( filesystem::exists( testcounter ))
 		filesystem::remove( testcounter );

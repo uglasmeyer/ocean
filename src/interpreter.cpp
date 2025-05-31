@@ -174,7 +174,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect 			= { "file no", "replay duration in seconds" };
 		string wavfile 	= "synthesizer" + pop_stack( 2 );
 		string duration	= pop_stack(1);
-		Processor_class::Push_str( READ_EXTERNALWAVEFILE, OTHERSTR_KEY, wavfile );
+		Processor_class::Push_str( READ_EXTERNAL_WAVFILE, OTHERSTR_KEY, wavfile );
 		Pause( {"pause", duration } );
 		return;
 	}

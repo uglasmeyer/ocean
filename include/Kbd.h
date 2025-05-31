@@ -8,53 +8,78 @@
 #ifndef KBD_H
 #define KBD_H
 
-#include <Ocean.h>
 #include <Logfacility.h>
 
-
-static const int	NoKey 	= 0;
-typedef struct key_struct
-{
-	int 			key;
-	uint			val;
-
-    friend bool operator==(const key_struct& A, const key_struct& B )
-	{
-    	return (( A.key == B.key ) and ( A.val == B.val ));
-	}
-} key_struct_t;
-
+enum  KEYCODE {
+	ESC	=	27,
+	ASC	=	126,
+	F0	=	49,
+	F1	=	80,
+	F2	=	81,
+	F3	=	82,
+	F4	=	83,
+	F5	=	53,
+	F6	=	55,
+	F7  =	56,
+	F8  =	57
+};
 
 class Keyboard_base :
-		virtual Logfacility_class
+		virtual 	Logfacility_class
 {
 public:             // Access specifier
-	key_struct_t	AppExit 	{ 27, 0 };
+	typedef struct keybuf_struct
+	{
+		char			key		= 0;
+		char			val0	= 0;
+		char			val1	= 0;
+	} keybuf_t;
+	typedef struct key3_struct :
+		keybuf_struct
+	{
+		bool			hold	= false;
+		bool			nokey	= false;
+		friend bool operator==(const key3_struct& A, const key3_struct& B )
+		{
+		   	return (( A.key == B.key ) and ( A.val0 == B.val0 ));
+		}
+		key3_struct( char a, char b, char c ) :
+			keybuf_struct{a, b, c}
+		{};
+		virtual ~key3_struct() = default;
+		void set( keybuf_t buffer )
+		{
+			key 	= buffer.key;
+			val0 	= buffer.val0;
+			val1 	= buffer.val1;
+		}
+	} key3struct_t;
 
-					Keyboard_base();
-	virtual 		~Keyboard_base();
+					Keyboard_base	();
+	virtual 		~Keyboard_base	();
 
-	key_struct_t 	keystruct;
-	key_struct_t 	GetKey();
-	void 			Set_ch( char ch );
-	void 			Reset();
-	void			Test();
-	void 			Init();
+	void 			Reset			();
+	void			Test			();
+	void 			Init			();
+	string 			GetString		( string txt );
+	key3struct_t 	GetKeystruct	( bool debug = false );
+	string			ShowKey			( key3struct_t key );
+
+
 
 private:
 
-	uint8_t 		c2			= 0;
-	uint8_t 		c3 			= 0;
-	struct termios 	old_flags 	= {0};
-	struct termios 	new_flags 	= {0};
-	char 			buf 		= 0;
-	char*			buf_p		= &buf;
+	struct termios 	old_flags 		= {0};
+	struct termios 	new_flags 		= {0};
+	keybuf_t		buf3			= keybuf_struct();
+	keybuf_t*		buf3_p			= &buf3;
+	key3struct_t	key3			= key3_struct(0,0,0);
 
-	char 			getch();
-	char 			getkey();
-	void 			pressKey();
+//	char 			getch			(); //prototype
+
 
 };
+typedef Keyboard_base::key3_struct key3struct_t;
 
 
 

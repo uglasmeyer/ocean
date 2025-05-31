@@ -6,6 +6,7 @@
  */
 
 #include <Viewinterface.h>
+#include <Keyboard.h>
 
 	auto Lline = []( string s, auto v )
 		{ cout << setw(40) << dec  << setfill('.') 	<< left << s << setw(40) << v << endl;};
@@ -29,6 +30,13 @@ void ViewInterface_class::show_Que()
 		cout.flush() << dec << setw(3) << (int)ch << ":" ;
 	}
 	cout << endl;
+}
+void ViewInterface_class::show_Ipc()
+{
+	Set_Loglevel( TEST, true );
+	DaTA->Sem_p->State( SEMNUM_SIZE );
+	Set_Loglevel( TEST, false );
+//	system_execute( "ipcs" );
 }
 void ViewInterface_class::showStates()
 {
@@ -77,6 +85,7 @@ void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 		case F4 : { showStates();		break;}
 		case F5 : { show_Que();			break;}
 		case F6 : { show_Adsr();		break;}
+		case F7 : { show_Ipc();			break;}
 
 		default: break;
 	}
@@ -93,6 +102,7 @@ void ViewInterface_class::showKeys()
 	Keys.AddRow( "F1" , "more Keys", "F2", "OSCs" );
 	Keys.AddRow( "F3" , "Processes", "F4", "States" );
 	Keys.AddRow( "F5" , "Event Que", "F6", "Features" );
+	Keys.AddRow( "F7" , "IPC", "", "" );
 	Keys.AddRow( "" , "", "", "" );
 
 }
@@ -121,6 +131,7 @@ void ViewInterface_class::showProcesses()
 	{
 		Proc.AddRow( AppIdName( appid ), Decode( Appstate.Get( sds, appid )) );
 	}
+	Proc.AddRow( "Keyboard", conv_bool_s( sds->Keyboard ) );
 
 	lline( "Mixer Volume:      " , (int)sds->MIX_Amp );
 	rline( "Mixer Id           " , (int)sds->MIX_Id );
@@ -178,7 +189,7 @@ void ViewInterface_class::showOSCs()
 	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)sds->VCO_spectrum.wfid[0] ]);
 
 	rline( "                   " , 0 );
-	rline( "Time elapsed", (int)sds->time_elapsed );
+	rline( "Audio frames", (int)sds->audioframes );
 
 	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->OSC_spectrum ));
 	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->OSC_spectrum ));

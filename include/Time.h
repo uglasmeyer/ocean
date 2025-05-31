@@ -30,7 +30,7 @@ public:
 	Time_class();
 	virtual ~Time_class();
 
-	long int Time_elapsed();
+	long int Time_elapsed( );
 	void Start();
 	void Stop();
 	void Block();

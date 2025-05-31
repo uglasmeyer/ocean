@@ -25,7 +25,7 @@ Time_class::~Time_class( )
 	if ( this->time_elapsed )
 		*this->time_elapsed = 0;
 }
-long int Time_class::Time_elapsed()
+long int Time_class::Time_elapsed(  )
 {
 	Stop();
 	long long int start_count = duration_cast<milliseconds>( start_time.time_since_epoch()).count();
@@ -58,15 +58,17 @@ void Time_class::Block()
 uint Time_class::Performance( )
 {
 	Stop();
-	uint tel = Time_elapsed();
+	uint
+	tel 			= Time_elapsed();
 	Start();
 
 	// limit the CPU load by thread sleep
-	uint min_wait = 10;
+	uint
+	min_wait 		= 10;
 	if ( tel < min_wait )
 		std::this_thread::sleep_for( chrono::milliseconds( min_wait - tel  ) );
 
-	*time_elapsed 	= (uint8_t) tel / 10;// time elapsed in percentage w.r.t. 1 second = 1000 msec
+	*time_elapsed 	= (uint8_t) (( tel * 100 ) / min_msec );// time elapsed in percentage w.r.t. 1 second = 1000 msec
 	return (uint) tel;
 }
 

@@ -19,12 +19,12 @@ string className =  "Memory";
 
 void Memory::Clear_data( Data_t value )
 {
-	for ( buffer_t n = 0; ds.data_blocks > n; n++ )
+	for ( buffer_t n = 0; mem_ds.data_blocks > n; n++ )
 	{
 		Data[n] = value;
 	}
 }
-void Memory_base::SetDs( size_t type_bytes, buffer_t bs )
+void Memory_base::SetDs( size_t type_size, buffer_t bs )
 {
 	// terminology :
 	// sizeof_data	-> 	data_bytes	= sizeof(unit)
@@ -32,20 +32,18 @@ void Memory_base::SetDs( size_t type_bytes, buffer_t bs )
 	//					mem_bytes 	= block_bytes*blocks (blocks=sec)
 	//					mem_blocks	=
 
-				ds.sizeof_data 	= type_bytes;
-				ds.mem_bytes	= ds.mem_bytesize;
-				ds.data_blocks 	= ds.mem_bytesize / type_bytes;
-	//	ds.max_records	= ds.data_blocks / ds.block_size;
-				ds.block_size	= bs;
-				ds.max_records	= ds.data_blocks / ds.block_size ;
+				mem_ds.sizeof_type 	= type_size;
+				mem_ds.data_blocks 	= mem_ds.bytes / type_size;  //max_frames
+				mem_ds.size			= bs; //min_frames
+				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.size ;
 
-	buffer_t 	bytes 			= ds.sizeof_data * ds.max_records * ds.block_size;
-	ASSERTION( ds.mem_bytesize == bytes , "init memory", (int)ds.mem_bytesize , bytes );
+	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.size;
+	ASSERTION( mem_ds.bytes == bytes , "init memory", (int)mem_ds.bytes , bytes );
 }
 
 mem_ds_t* Memory_base::GetDs()
 {
-	return &ds;
+	return &mem_ds;
 }
 
 void Memory::Init_data( )
@@ -53,12 +51,13 @@ void Memory::Init_data( )
 	Data = ( Data_t* ) Init_void();
 
 	SetDs( sizeof( Data_t));
-	statistic.data += ds.mem_bytes;
+	statistic.data += mem_ds.bytes;
+
 }
 
 void Memory::Info( string name )
 {
-	ds.name = name;
+	mem_ds.name = name;
 	Memory_base::Info();
 }
 
@@ -77,8 +76,8 @@ void Memory::Info( string name )
 void Storage_class::Setup( StA_param_t param )
 {
 	StAparam 		= param;
-	ds.mem_bytesize 		= sizeof(Data_t) * param.size;
-	ds.block_size	= param.block_size;
+	mem_ds.bytes = sizeof(Data_t) * param.size;
+	mem_ds.size	= param.block_size;
 	Memory::Init_data( );
 	Memory::Info( param.name );
 	Memory::Clear_data(0);
@@ -90,40 +89,24 @@ void Storage_class::Setup( StA_param_t param )
 void Storage_class::Store_block( Data_t* src )
 {
 	if ( not state.store ) return;
-	buffer_t start = record_counter* ds.block_size;
-	for ( buffer_t n = 0; n < ds.block_size; n++ )
+	buffer_t start = record_counter* mem_ds.size;
+	for ( buffer_t n = 0; n < mem_ds.size; n++ )
 	{
 		Data[start + n] = src[n];
 	}
 	record_counter 	= ( record_counter + 1 );
-	record_data 	= record_counter * ds.block_size;
+	record_data 	= record_counter * mem_ds.size;
 	scanner.Set_max( record_data );
-	if ( record_counter == ds.max_records - 2 )
+	if ( record_counter == mem_ds.max_records - 2 )
 		state.store = false ;
 }
-/*
-Data_t* Storage_class::Get_next_block()
-{
 
-	if ( not state.play ) return nullptr;
-	if ( record_counter == 0 ) return nullptr;
-	Data_t* ptr = get_block( read_counter );
-	read_counter = ( read_counter + 1 ) % record_counter ;
-	assert( read_counter <= record_counter );
-
-	return ptr;
-}
-*/
-Data_t* Storage_class::get_block( uint id)
-{
-	return &Data[id * ds.block_size];
-}
 
 void 	Storage_class::Set_store_counter( uint  n )
 {
-	assert( n < ds.max_records );
+	assert( n < mem_ds.max_records );
 	record_counter 	= n;
-	record_data 	= record_counter * ds.block_size;
+	record_data 	= record_counter * mem_ds.size;
 	if ( read_counter > n )
 		read_counter  	= 0;
 	scanner.Set_pos	(0);
@@ -184,15 +167,15 @@ Shared_Memory::~Shared_Memory()
 {
 }
 
-void Shared_Memory::Clear()
+void Shared_Memory::Clear( const buffer_t& _frames )
 {
 	if ( not addr )
 	{
 		Comment( ERROR, "shm undefined");
 		return;
 	}
-
-	for ( buffer_t n = 0; n < max_frames ; n++ )
+	buffer_t frames = check_range( frames_range, _frames );
+	for ( buffer_t n = 0; n < frames ; n++ )
 	{
 		addr[n] = {0,0};
 	}

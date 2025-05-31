@@ -91,6 +91,8 @@ constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& sl_duration )
 				slideduration 	= check_range( slide_duration_range, sl_duration );
 	float		slide_percent 	= float( slideduration) * 0.01 ;
 	buffer_t 	frames 			= 4 * max_frames * slide_percent ;
+
+//	assert(LogMask[TEST] == false);
 	if (LogMask[TEST])
 		frames = test_frames;
 

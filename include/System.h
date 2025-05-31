@@ -12,19 +12,10 @@
 #include <String.h>
 #include <Exit.h>
 
-extern vector<string> 	List_directory( const string& path, const string& filter );
-extern string 			searchPath( string filename );
-extern void 			system_execute( const string& );
-extern void 			System_Test();
-
-template< typename T>
-bool Is_running_process( const T& pid )
-{
-	stringstream strs {};
-	strs << "/proc/" << dec  <<  pid ;
-
-	bool isdir = filesystem::is_directory( strs.str() ) ;
-	return isdir ;
-}
+extern vector<string> 	List_directory		( const string& path, const string& filter );
+extern string 			searchPath			( string filename );
+extern void 			system_execute		( const string& );
+extern void 			System_Test			();
+extern bool 			Is_running_process	( const pid_t& pid );
 
 #endif /* INCLUDE_COMMON_H_ */

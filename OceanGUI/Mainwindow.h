@@ -105,6 +105,7 @@ public:
     	QLCDNumber*		lcd;
     	QSlider*		sl;
     	uint8_t*		value;
+		int				max;
     };
     typedef sl_lcd_map 	sl_lcd_t;
     struct sB_lbl_map

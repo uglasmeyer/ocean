@@ -39,15 +39,15 @@ enum
 static const uint 	SEMNUM_SIZE = 16;
 
 class Semaphore_class  :
-		virtual public Logfacility_class,
-		virtual Time_class
+	virtual public 	Logfacility_class,
+	virtual 		Time_class
 {
-	string className = "Semaphore_class";
+	string 			className = "Semaphore_class";
 public:
-	Time_class	Locktimer{};
+	Time_class		Locktimer{};
 
-	Semaphore_class( key_t key );
-	~Semaphore_class();
+			Semaphore_class	( key_t key );
+	virtual	~Semaphore_class();
 	void 	Init	();
 	void 	Aquire	( uint8_t semnum ); // increase the semaphore ( OP_INC )
 	void 	Release	( uint8_t semnum );	// decrease the semaphore ( OP_DEC )
@@ -56,9 +56,11 @@ public:
 	void 	Lock	( uint8_t semnum );	// wait for release
 	bool 	Lock	( uint8_t semnum, uint timeout );	// wait for release
 	int  	Getval	( uint8_t semnum , int op);
-	string 	State(uint8_t num);
+	string 	State	( uint8_t num);
+	string 	SemName	( uint num );
 
-	void	Test( );
+
+	void	Test	();
 
 private:
 	key_t SEM_KEY 			= 0;
@@ -74,7 +76,8 @@ private:
 	const int8_t	UNUSED	=  0;
 
 	void 	init	();
-	void 	Semop( const unsigned short& num, const short int& sop );
+	void 	Semop	( const unsigned short& num, const short int& sop );
+
 
 	map< int, std::string > semnum_map
 	{
@@ -95,10 +98,6 @@ private:
 		{SEMAPHORE_SENDDATA3,"SEMAPHORE_SENDDATA3"},
 		{SEMAPHORE_EVENT,"SEMAPHORE_EVENT"}
 	};
-
-
-
-
 };
 
 

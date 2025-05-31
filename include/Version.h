@@ -18,8 +18,8 @@
 
 
 #define MAYOR 3
-#define MINOR 7
-#define PATCH 4
+#define MINOR 8
+#define PATCH 0
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -32,6 +32,8 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
+version 3.8.0 Keyboard features
+				SetDs fpr storage_class
 version 3.7.4 AudioVolume_class
 version 3.7.3 Fast notes
 				Keyboard layout for 3 Octaves

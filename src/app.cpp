@@ -42,6 +42,11 @@ void Application_class::init_Sds( )
 
 Application_class::~Application_class()
 {
+	cerr.flush() << "~" << className << endl;
+	if ( Cfg->Config.test 	== 'y' )
+	{
+		system_execute( " cat /tmp/log/Synthesizer.log 1>&2 " );
+	}
 	deRegister();
 
     if (( AppId == SYNTHID ) and ( not LogMask[TEST] ))
@@ -57,18 +62,44 @@ void Application_class::versionTxt()
 
 void Application_class::app_properties()
 {
-	process_t 	properties { };
-				properties.logowner			= logowner.contains( AppId );
-				properties.start_once		= Appstate->startonceIds.contains( AppId );
-				properties.data_process		= DaTA->Reg.is_dataproc ;
-
-				properties.Show();
+	properties.logowner			= logowner.contains( AppId );
+	properties.start_once		= Appstate->startonceIds.contains( AppId );
+	properties.data_process		= DaTA->Reg.is_dataproc ;
+	properties.keyboard			= ( is_atty and
+									( AppId 			== SYNTHID ) and
+									( Cfg->Config.test 	== 'n') );
+	properties.Show();
 }
 void Application_class::Start( int argc, char* argv[] )
 {
-	Appstate->StartOnce();
-	Appstate->Announce();
+	Cfg->Parse_argv(argc, argv );
+
 	app_properties();
+	if( properties.keyboard )
+	{
+		this->sds->Keyboard = true;
+		for( interface_t* sds : DaTA->SDS.vec)
+		{
+			if ( sds != this->sds )
+			{
+				if( sds->Keyboard )
+				{
+					if( Appstate->IsRunning( sds, SYNTHID ))
+					{
+						Comment( ERROR, "This Ocean process should only start once" );
+					    std::this_thread::sleep_for( chrono::seconds(2) );
+						exit( 1 );
+					}
+				}
+			}
+		}
+	}
+
+
+	if ( not Appstate->StartOnceOk( this->sds ))
+		exit( 1 );
+
+	Appstate->Announce();
 
 	if ( logowner.contains( AppId ) )
 	{
@@ -80,7 +111,6 @@ void Application_class::Start( int argc, char* argv[] )
 
 	versionTxt();
 
-	Cfg->Parse_argv(argc, argv );
 	Cfg->Show_Config( );
 
 	if ( DaTA->Cfg_p->Config.clear == 'y' )
@@ -94,7 +124,8 @@ void Application_class::Start( int argc, char* argv[] )
 
 void Application_class::deRegister( )
 {
-
+	if (properties.keyboard )
+		sds->Keyboard = false;
 	DaTA->Appstate.SetOffline( );//this->sds, this->AppId );
 
 	if ( this->AppId != GUI_ID )

@@ -32,7 +32,7 @@ class Mixer_class :
 public:
 
 	const vector<uint>  MemIds 		= {0, 1, 2, 3, 4, 5, 6, STA_EXTERNAL };
-	const vector<uint>  RecIds 		= {0, 1, 2, 3, 4, 5, 6, STA_EXTERNAL };
+	const vector<uint>  RecIds 		= {0, 1, 2, 3, 6, STA_EXTERNAL };
 	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5, 6 };
 	const vector<uint>	SycIds		= { };
 	const vector<uint>	HghIds		= {4, 5, 6, 7 };

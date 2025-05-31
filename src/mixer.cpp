@@ -31,10 +31,12 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 	StA_param_t usr_conf = {"temp"		, frames_per_sec * data->Cfg_p->Config.temp_sec, min_frames };
 	StA_param_t ext_conf = {"External"	, frames_per_sec * data->Cfg_p->Config.record_sec, min_frames };
+	StA_param_t kbd_conf = {"Keyboard"	, 2*max_frames, min_frames };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
 	StA[STA_EXTERNAL].Setup(ext_conf);
+	StA[STA_KEYBOARD].Setup(kbd_conf);
 
 	DynVolume.SetupVol( sds_master->Master_Amp,	FIXED ); //set start and master_volume
 	if( LogMask[ TEST ] )
@@ -45,10 +47,11 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		Mono.Info		( "Mono data");
 		Mono_out.Info	( "Wave display data");
 		Out.Info		( "Output Stereo Data");
-//		Out_R.Info		( "Output Stereo Right");
 	}
 
-	wd->Add_role_ptr( osc_struct::EXTID, StA[ STA_EXTERNAL].Data );
+	wd->Add_role_ptr( 	osc_struct::EXTID,
+						StA[ STA_EXTERNAL].Data,
+						&StA[ STA_EXTERNAL].StAparam.size );
 };
 
 Mixer_class::~Mixer_class()
@@ -126,13 +129,14 @@ void Mixer_class::SetStA()
 	}
 }
 
-void Mixer_class::add_mono(Data_t* Data, const uint& id )
+void Mixer_class::add_mono( Data_t* Data, const uint& id )
 // sample Data for different sound devices
 // by applying mixer volume per device
 {								//U0  U1  U2  U3  In  Kb  Nt  Ex
 	const array<int,8> phase_r = {10,  0,-10,  0,  5, -5,  5, -5 };
 	const array<int,8> phase_l = { 0,-10,  0, 10,  5, -5,  5, -5 };
 
+	if( Data == nullptr ) return;
 	assert( phase_r.size() == StA.size() );
 
 
@@ -161,7 +165,7 @@ void Mixer_class::add_stereo( stereo_t* data  )
 	{
 //		float
 //		vol_percent 	= DynVolume.Get();
-		data[n].left 	+= Out.stereo_data[n].left ;//	* vol_percent * balanceL );
+		data[n].left 	+= rint( Out.stereo_data[n].left );//	* vol_percent * balanceL );
 		data[n].right 	+= rint( Out.stereo_data[n].right);// 	* vol_percent * balanceR );
 	}
 //	DynVolume.Update();
@@ -184,9 +188,9 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 }
 
 
-void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
-							 Data_t* 	keyboard_osc,
-							 Data_t* 	notes_osc,
+void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
+							 Data_t* 	kbd_Data,
+							 Data_t* 	notes_Data,
 							 stereo_t* 	shm_addr )
 {
 
@@ -201,14 +205,14 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_osc,
 
 	// add osc sound
 	if ( StA[ STA_INSTRUMENT].state.play )
-		add_mono( instrument_osc, STA_INSTRUMENT );
+		add_mono( instrument_Data	, STA_INSTRUMENT );
 	if ( StA[ STA_NOTES 	].state.play )
-		add_mono( notes_osc		, STA_NOTES );
-	if ( StA[ STA_KEYBOARD	].state.play )
-		add_mono( keyboard_osc	, STA_KEYBOARD );
+		add_mono( notes_Data		, STA_NOTES );
+	if ( StA[ STA_KEYBOARD  ].state.play )
+		add_mono( kbd_Data			, STA_KEYBOARD );
 
-	// read StA sound
-	for ( uint DAid : MemIds )// scan rec_ids and exclude notes from being overwritten by store_block
+	// write/read StA sound
+	for ( uint DAid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
 
 		if( StA[ DAid ].state.store )
@@ -238,13 +242,14 @@ void Mixer_class::TestMixer()
 	sds_master->audioframes = min_frames;
 	sds_master->slide_duration = 1;
 
-	DynVolume.SetupVol( 100, FIXED );
-	DynVolume.SetupVol( 75 , SLIDE );
-	add_stereo( DaTA->ShmAddr_0 );
+	// TODO	moved to AudioServre
+//	DynVolume.SetupVol( 100, FIXED );
+//	DynVolume.SetupVol( 75 , SLIDE );
+//	add_stereo( DaTA->ShmAddr_0 );
 
-	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
-			(int)DynVolume.current.past,(int)DynVolume.current.future);
-
+//	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
+//			(int)DynVolume.current.past,(int)DynVolume.current.future);
+/*
 	DynVolume.SetupVol( 50, FIXED );
 	DynVolume.SetupVol( 75, SLIDE );
 	add_stereo( DaTA->ShmAddr_0 );
@@ -270,7 +275,7 @@ void Mixer_class::TestMixer()
 	}
 	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
 			(int)DynVolume.current.past,(int)DynVolume.current.future);
-
+*/
 	Mono.Memory_base::Info();
 
 	TEST_END( className );

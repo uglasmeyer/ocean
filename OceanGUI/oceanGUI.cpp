@@ -101,8 +101,8 @@ void MainWindow::wavfile_selected( const QString &arg)
     string str = QStr.toStdString();
     if ( str.length() > 0 )
     {
-        Sds->Write_str( WAVEFILESTR_KEY, str );
-        Eventlog.add( SDS_ID, READ_EXTERNALWAVEFILE);
+        Sds->Write_str( WAVFILESTR_KEY, str );
+        Eventlog.add( SDS_ID, READ_EXTERNAL_WAVFILE);
     }
 }
 
@@ -644,11 +644,6 @@ void MainWindow::start_keyboard()
 	string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.synth_bin, "" );
 	int sdsid = start_synth( this, cmd );
 	select_Sds(sdsid);
-	Sds->Set( Sds->addr->StA_state[ STA_KEYBOARD ].play, true );
-	Sds->Set( Sds->addr->StA_amp_arr[ STA_KEYBOARD], (uint8_t) 75 );
-    Eventlog.add( SDS_ID, SETSTAPLAY_KEY );
-
-
 }
 void MainWindow::read_polygon_data()
 {

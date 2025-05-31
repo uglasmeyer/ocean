@@ -7,19 +7,39 @@
 
 #include <Oscgroup.h>
 
-Oscgroup_class::Oscgroup_class( char role ) :
+Oscgroup_class::Oscgroup_class( char role, buffer_t size ) :
   Logfacility_class( "Oscgroup" ),
   Note_base(),
-  vco( role, osc_struct::VCOID ),
-  fmo( role, osc_struct::FMOID ),
-  osc( role, osc_struct::OSCID )
+  vco( role, osc_struct::VCOID, size ),
+  fmo( role, osc_struct::FMOID, size ),
+  osc( role, osc_struct::OSCID, size )
 {
-	member = { &vco, &fmo, &osc };
+	member 			= { &vco, &fmo, &osc };
+	oscroleId 		= role;
 	Data_Reset();
-	oscroleId = role;
 
 }
+void Oscgroup_class::operator=( const Oscgroup_class& oscg )
+{
+	this->vco = oscg.vco;
+	this->fmo = oscg.fmo;
+	this->osc = oscg.osc;
+}
+
 Oscgroup_class::~Oscgroup_class() = default;
+
+void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
+{
+	osc.adsr				= sds->OSC_adsr;
+	osc.wp					= sds->OSC_wp;
+	osc.spectrum			= sds->OSC_spectrum;
+
+	vco.wp					= sds->VCO_wp;
+	vco.spectrum			= sds->VCO_spectrum;
+
+	fmo.wp					= sds->FMO_wp;
+	fmo.spectrum			= sds->FMO_spectrum;
+}
 
 void Oscgroup_class::SetSlide( const uint8_t& value )
 {
@@ -27,11 +47,13 @@ void Oscgroup_class::SetSlide( const uint8_t& value )
 			{ o->Set_glide( value);	});
 }
 
-void Oscgroup_class::SetWd( Wavedisplay_class* wd )
+void Oscgroup_class::SetWd( Wavedisplay_class* wd, buffer_t* frames )
 {
-
-	std::ranges::for_each( member, [ this, wd ](Oscillator*  o)
-			{ wd->Add_data_ptr(o->oscId, oscroleId, o->MemData_p() ); });
+	std::ranges::for_each( member, [ this, wd, frames ](Oscillator*  osc )
+			{ wd->Add_data_ptr( osc->typeId,
+								osc->roleId,
+								osc->MemData_p(),
+								frames ); });
 }
 
 void Oscgroup_class::Show_sound_stack() // show_status
@@ -56,21 +78,31 @@ void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
 	fmo.Set_frequency( fmo.wp.frqidx + diff, mode );
 }
 
-void Oscgroup_class::Set_Duration( const uint& duration )
+void Oscgroup_class::Set_Duration( const uint& msec )
 {
+	uint duration = check_range( duration_range, msec);
 	std::ranges::for_each( member, [ &duration ](Oscillator*  o)
 			{ o->Setwp_frames( duration );});
 }
-void Oscgroup_class::Set_Osc_Note( 	const uint8_t& key,
-									const uint& duration,
-									const uint& volume,
-									const uint& mode)
+
+void Oscgroup_class::Set_Osc_Note( 	const uint8_t& 	key,
+									const uint& 	msec,
+									const uint& 	volume,
+									const uint& 	mode)
 {
-	Set_Frequency( key, mode );
-	Set_Duration( duration );
-	osc.Set_adsr( osc.adsr );
-	osc.wp.volume	= volume ;
+	Set_Duration	( msec );
+	osc.Set_adsr	( osc.adsr ); // generate new adsr data according to the adsr duration (frames)
+
+	Set_Frequency	( key, mode );
+	osc.Set_volume	( volume, FIXED);//wp.volume	= volume ;
 }
+
+void Oscgroup_class::Phase_Reset()
+{
+	std::ranges::for_each( member, [](Oscillator*  o)
+			{ o->Phase_reset() ;});
+}
+
 void Oscgroup_class::Data_Reset()
 {
 	std::ranges::for_each( member, [](Oscillator*  o)
@@ -80,6 +112,16 @@ void Oscgroup_class::Connection_Reset()
 {
 	std::ranges::for_each( member, [](Oscillator*  o)
 			{ o->Connection_reset() ;});
+}
+void Oscgroup_class::Set_Connections( interface_t* sds )
+{
+	std::ranges::for_each( member, [ this, sds](Oscillator*  o)
+	{
+		if ( sds->connect[ o->typeId ].frq )
+			o->Connect_frq_data( member[ osc_struct::FMOID ] );
+		if ( sds->connect[ o->typeId ].vol )
+			o->Connect_vol_data( member[ osc_struct::VCOID ] );
+	} );
 }
 
 void Oscgroup_class::Run_OSCs( const buffer_t& offs )
@@ -100,7 +142,7 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 	Oscillator* ret = nullptr;
 
 	std::ranges::for_each( member, [ name, &ret ](Oscillator* o)
-			{ if ( strEqual( o->osc_name, name ) )
+			{ if ( strEqual( o->osctype_name, name ) )
 				{
 					ret = o;
 				}

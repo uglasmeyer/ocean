@@ -20,33 +20,36 @@ struct scanner_struct
 	buffer_t 				pos;
 	Data_t*					Data;
 	buffer_t				inc;
-	buffer_t				Max;
 	buffer_t				max_pos;
+	bool					trigger = false;
 
 	scanner_struct( Data_t* _ptr, buffer_t _inc, buffer_t _max )
 	{
 		pos 	= 0;
 		Data 	= &_ptr[ 0 ];
 		inc		= _inc;
-		Max		= _max;
-		max_pos	= 0;
+		max_pos	= _max;//0;
 	}
 	virtual ~scanner_struct() = default;
 
 	Data_t* next()
 	{
-		if( max_pos < inc )
-			return nullptr;
-		Data_t* data = &Data[ pos ];
-		pos = ( pos + inc ) % max_pos;
+		if ( inc > max_pos )
+			return nullptr; // data is empty
+		Data_t*
+		data 			= &Data[ pos ];
+		pos 			= ( pos + inc ) % ( max_pos );
+		trigger 		= ( pos == 0 );
+//		cout.flush()<< pos << " " << endl;
 		return data;
 	}
-	void Set_pos( buffer_t n )
+	Data_t* Set_pos( buffer_t n )
 	{
 		if( n > max_pos )
 			pos = 0;
 		else
 			pos	= n;
+		return &Data[n];
 	}
 	void Set_max( buffer_t n )
 	{
@@ -63,7 +66,9 @@ class Memory :
 {
 	string className = "";
 public:
-	Data_t* 	Data = nullptr;;
+	Data_t* 	Data = nullptr;
+
+
 	Memory( buffer_t bytes ) :
 		Logfacility_class( "Memory" ),
 		Memory_base( bytes )
@@ -118,23 +123,23 @@ public:
 
 	void Init_data( buffer_t bytes, buffer_t bs = min_frames )
 	{
-		Memory_base::ds.mem_bytesize = bytes;
+		Memory_base::mem_ds.bytes = bytes;
 		stereo_data = ( stereo* ) Init_void();
 
 		SetDs( sizeof( stereo ), bs );
-		statistic.stereo += ds.mem_bytes;
-		ds.name	= Logfacility_class::className;
+		statistic.stereo += mem_ds.bytes;
+		mem_ds.name	= Logfacility_class::className;
 	}
 	void Clear_data()
 	{
 		stereo zero = { 0,0 };
-		for ( buffer_t n = 0 ; n < ds.data_blocks ; n++ )
+		for ( buffer_t n = 0 ; n < mem_ds.data_blocks ; n++ )
 			stereo_data[n] = zero;
 
 	}
 	void Info( string name )
 	{
-		ds.name = name;
+		mem_ds.name = name;
 		Memory_base::Info();
 	}
 
@@ -160,17 +165,16 @@ public:
 	Dynamic_class	DynVolume		{ volidx_range };
 	scanner_t 		scanner 		= scanner_struct( nullptr, min_frames, 0 );
 
-	StA_status_t state = StA_state_struct();
+	StA_status_t 	state 			= StA_state_struct();
 
-	void 	Store_block( Data_t* ) ;
-//	Data_t* Get_next_block();
-	string 	Record_mode( bool );
-	string 	Play_mode( bool );
-	void	Playnotes( bool );
-	void 	Setup( StA_param_t);
-	void 	Set_store_counter( uint n);
-	void 	Reset_counter();
-	uint*	Get_storeCounter_p();
+	void 			Store_block		( Data_t* ) ;
+	string 			Record_mode		( bool );
+	string 			Play_mode		( bool );
+	void			Playnotes		( bool );
+	void 			Setup			( StA_param_t);
+	void 			Set_store_counter( uint n);
+	void 			Reset_counter	();
+	uint*			Get_storeCounter_p();
 
 	Storage_class( ) :
 		Logfacility_class( "Storage_class" ),
@@ -181,11 +185,8 @@ public:
 
 private:
 
-	uint read_counter 	= 0;
-	uint record_counter	= 0;
-
-	Data_t* get_block( uint );
-
+	uint 			read_counter 	= 0;
+	uint 			record_counter	= 0;
 };
 
 
@@ -203,7 +204,7 @@ public:
 	virtual ~Shared_Memory();
 
 	void Stereo_buffer( key_t key );
-	void Clear();
+	void Clear( const buffer_t& frames );
 
 
 };

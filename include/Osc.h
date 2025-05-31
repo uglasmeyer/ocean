@@ -16,25 +16,26 @@
 #include <Oscwaveform.h>
 
 
-
 class Oscillator :
 		virtual public Logfacility_class,
 		virtual public Oscillator_base
 {
 	string className = "";
-	Memory 			Mem_vco	{ monobuffer_bytes };
-	Memory 			Mem_fmo	{ monobuffer_bytes };
-	Memory 			Mem		{ monobuffer_bytes };
+
 
 public:
+	Memory 		Mem_vco;
+	Memory 		Mem_fmo;
+	Memory 		Mem;
+	scanner_t	scanner;
+	buffer_t	mem_frames;
 
-				Oscillator			( char role_id, char type_id );
+				Oscillator			( char role_id, char type_id, buffer_t bytes );
 	virtual		~Oscillator() 		= default;
-	void 		operator=			(const Oscillator& osc);
+	void 		operator=			( const Oscillator& osc );
 
-	scanner_t 	scanner 			= scanner_struct( Mem.Data, min_frames, max_frames );
 
-	void 		OSC 				( const buffer_t& frame_offset );
+	void 		OSC 				( buffer_t frame_offset );
 
 	void 		Connect_vol_data	( Oscillator* ); // connect the vco data of itr to this osc
 	void 		Connect_frq_data	( Oscillator* );
@@ -51,22 +52,23 @@ public:
 
 	Data_t* 	MemData_p			();
 	Data_t*		GetData_p			( const buffer_t& frame_offset );
-	Data_t 		MemData				( buffer_t n);
-	void 		Shift_data			( buffer_t n  );
+	Data_t 		MemData				( const buffer_t& n);
 
 	void 		Test				();
-
 private:
 
 	spec_arr_dt	default_phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};
 	spec_arr_dt	phase 				= default_phase;
 
 	bool 		longnote			= false; // set trigger for long notes
-
 	osc_roles_t	OscRole				= osc_struct();
 
-	void 		apply_adsr			( buffer_t frames, Data_t* data );
+	void 		apply_adsr			( buffer_t frames, Data_t* data, buffer_t frame_offset );
 	void 		mem_init			();
+	void		self_Test			();
+
+
+
 };
 
 

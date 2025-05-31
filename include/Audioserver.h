@@ -10,6 +10,11 @@
 
 #include <RtAudio.h>
 #define RTAUDIO
+#include <string>
+extern void errorCallback( RtAudioErrorType /*type*/, const std::string& errorText );
+
+RtAudio rtapi( RtAudio::LINUX_PULSE, &errorCallback );
+
 
 #include <External.h>
 #include <Wavedisplay.h>
@@ -48,16 +53,10 @@ buffer_t 				ncounter 			= 0;
 uint					rcounter			= 0;
 char 					shm_id 				= 0; // out_data = Shm_a
 stereo_t*				shm_addr 			= nullptr;
-const buffer_t 			chunksize			= min_frames/20;//max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
-buffer_t 				audioframes 		= sds->audioframes;
+buffer_t 			audioframes 		= audio_frames;//sds->audioframes;
 uint					bufferFrames 		= chunksize;
 bool 					done 				= false;
 
-extern void 			save_record_fcn		();
-Thread_class			SaveRecord			{ &Sem,
-											  SEMAPHORE_RECORD,
-											  save_record_fcn,
-											  "save record" };
 
 // ----------------------------------------------------------------
 // RT Audio constant declarations

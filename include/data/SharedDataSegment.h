@@ -14,6 +14,7 @@
 #include <Mixerbase.h>
 #include <Oscbase.h>
 #include <Wavedisplay_base.h>
+#include <Configbase.h>
 #include <notes/Notesbase.h>
 
 struct state_struct
@@ -84,13 +85,14 @@ typedef				array<Oscillator_base::connect_t, 3>		osc_connect_t;
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 1; 						// comstack
+	uint8_t			version						= 3; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
 	StA_state_arr_t	StA_state 					{{ StA_state_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
+	bool			Keyboard					= false; // if tty and synthesizer process
 
 	char 			Instrument[str_buffer_len] 	{"default"}; //char array // comstack
 	char 			Notes	  [str_buffer_len]	{"default"}; //char array for the notes filename // comstack
@@ -140,7 +142,7 @@ typedef struct interface_struct // with reasonable defaults
 	wd_status_t		WD_status					= WD_status_struct();
 
 	// common
-	buffer_t		audioframes					= max_frames;
+	buffer_t		audioframes					= audio_frames;
 	wd_arr_t		wavedata 					= {0};
 	process_arr_t	process_arr					= { {register_process_struct()} };
 	uint8_t 		SHMID 						= 0;// comstack

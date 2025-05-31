@@ -56,7 +56,7 @@ typedef	struct wave_struct
 	uint8_t		frqidx		= A3;
 	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
 	uint8_t		PMW_dial 	= 50;
-	uint8_t 	glide_effect= 0;
+	uint8_t 	glide_effect= 50;
 	uint16_t	msec		= max_msec; 	// min_milli_sec or max_milli_sec
 	uint8_t		adjust		= 0; // used by vco and fmo, osc = 0
 	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
@@ -94,7 +94,7 @@ typedef struct vco_struct
 
 constexpr buffer_t constbeatframes ()
 {
-	return max_frames + min_frames;
+	return max_frames;
 }
 const buffer_t 		max_beatframes 		= constbeatframes();
 
@@ -105,10 +105,10 @@ class Oscillator_base :
 
 public:
 
-	char			oscId			= -1;//osc_struct::OSCID;
-	string 			osc_name 		= "";
+	char			typeId			= -1;//osc_struct::OSCID;
+	string 			osctype_name 		= "";
 
-	char			oscroleId		= -1;//osc_struct::INSTRID;
+	char			roleId		= -1;//osc_struct::INSTRID;
 	string 			oscrole_name 	= "";
 
 	bool			is_osc_type 	= false;
@@ -140,11 +140,13 @@ public:
 	Oscillator_base() :
 		Logfacility_class("Oscillator_base"),
 		Spectrum_class()
-	{};
+	{
+
+	};
 
 	virtual 	~Oscillator_base() = default;
-	buffer_t 	beat_cursorL = 0;
-	buffer_t 	beat_cursorR = 0;
+	buffer_t 	beat_cursor = 0;
+	buffer_t 	hall_cursor = 0;
 
 	uint8_t 	Set_frequency( string frqName, uint mode );
 	uint8_t		Set_frequency( int idx, uint mode );
@@ -158,7 +160,7 @@ public:
 
 	void		Set_adsr( adsr_t );
 	void		Gen_adsrdata( buffer_t );
-	void	 	set_beatcursorR();
+	void	 	set_hallcursor( buffer_t cursor = 0);
 	void 		Get_sound_stack( Table_class* T );
 
 private:

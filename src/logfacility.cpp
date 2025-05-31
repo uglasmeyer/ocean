@@ -41,13 +41,13 @@ Logfacility_class::~Logfacility_class(  )
 
 string	Logfacility_class::GetColor( uint id )
 {
-	if ( is_a_tty )
+	if ( is_atty )
 		return Prefix_vec[ id ].color;
 	return Prefix_vec[ PLAIN ].color;
 }
 string	Logfacility_class::GetendColor( )
 {
-	if ( is_a_tty )
+	if ( is_atty )
 		return endcolor;
 	return nocolor;
 }
@@ -65,8 +65,8 @@ string Logfacility_class::cout_log( uint id, string str )
 	}
 	string 			prefix 	= prefixClass + Prefix_vec[ INFO].name;
 	stringstream 	strs 	{};
-	string 			endc 	= ( is_a_tty ) ? endcolor 	: nocolor;
-	uint 			Id		= ( is_a_tty ) ? id 		: LOG::PLAIN;
+	string 			endc 	= ( is_atty ) ? endcolor 	: nocolor;
+	uint 			Id		= ( is_atty ) ? id 		: LOG::PLAIN;
 
 	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
 /*	if ( LogMask[ TEST ] )
@@ -139,7 +139,7 @@ void Logfacility_class::Show_loglevel()
 {
 	Info( Line );
 	string on = "";
-	string logmode = ( is_a_tty ) ? "console logging" : "file logging";
+	string logmode = ( is_atty ) ? "console logging" : "file logging";
 	Comment( INFO, "Log level activation state with " + logmode );
 	for ( int level = 0; level < LOGMAX; level++ )
 	{
@@ -254,7 +254,7 @@ void Printer_class::store()
 		save_out = dup( STDOUT_FILENO );
 	}
 }
-//#include <fcntl.h>
+
 void Printer_class::restore()
 {
 	if ( redirect )

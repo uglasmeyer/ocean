@@ -10,7 +10,7 @@
 #include <System.h>
 
 
-Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
+Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* _wd_p )
 : Logfacility_class("Instrument_class")
 {
 	this->sds 				= ifd;
@@ -21,45 +21,21 @@ Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* wd )
 	Default_instrument_file = file_structure().instrumentdir + "default" + instr_ext;
 
 	assert ( Oscgroup.osc.MemData_p() != nullptr );
-	Oscgroup.SetWd( wd );
-	wd_p = wd;
+
+	this->wd_p 				= _wd_p;
+	Oscgroup.SetWd( this->wd_p, &Oscgroup.osc.wp.frames );
 }
 
 
 Instrument_class::~Instrument_class() = default;
 
-void Instrument_class::reuse_GUI_Data()
-{
-	// use this function to update the Instrument with data from the ifd.
-	// the update shall take place if the ifd data shall be reused to reach the
-	// commit point of last GUI action.
-	// The data shall be ignored if the ifd is initially created. This is indicated
-	// by the MODE DEFAULT.
-
-	if ( sds->MODE == state_struct::DEFAULT )
-	{
-		Comment(INFO, "default Shared Data is not reused");
-		return;
-	}
-
-	Comment(INFO, "using Shared Data");
-
-	Oscgroup.osc.adsr				= sds->OSC_adsr;
-	Oscgroup.osc.wp					= sds->OSC_wp;
-	Oscgroup.osc.spectrum			= sds->OSC_spectrum;
-
-	Oscgroup.vco.wp					= sds->VCO_wp;
-	Oscgroup.vco.spectrum			= sds->VCO_spectrum;
-
-	Oscgroup.fmo.wp					= sds->FMO_wp;
-	Oscgroup.fmo.spectrum			= sds->FMO_spectrum;
-}
 
 void Instrument_class::Set_msec( buffer_t frames )
 {
 	uint16_t msec = frames / frames_per_msec;
 	Oscgroup.Set_Duration( msec );
 }
+
 
 void Instrument_class::Update_sds()
 {
@@ -93,7 +69,7 @@ void Instrument_class::Update_spectrum()
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 {
 	osc->spectrum = Spectrum_class::spec_struct();
-	osc->spectrum.osc = osc->oscId;
+	osc->spectrum.osc = osc->typeId;
 
 	osc->Line_interpreter( arr );
 
@@ -207,8 +183,8 @@ bool Instrument_class::read_version1( fstream* File )
 			{
 				if ( strEqual(keyword, Spectr.spectrumTag[num] ) )
 				{
-					osc->spectrum = osc->Parse_data( arr, osc->oscId, num );
-					*ifd_spectrum_vec[ osc->oscId ] = osc->spectrum;
+					osc->spectrum = osc->Parse_data( arr, osc->typeId, num );
+					*ifd_spectrum_vec[ osc->typeId ] = osc->spectrum;
 				}
 			}
 
@@ -247,17 +223,17 @@ bool Instrument_class::read_version2( fstream* File )
 		}
 		if ( strEqual( "SPEV", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEV );
+			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEV );
 			osc->Set_volume( 	osc->spectrum.volidx[0], FIXED );
 		}
 		if ( strEqual( "SPEF", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEF );
+			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEF );
 			osc->Set_frequency( osc->spectrum.frqidx[0], SLIDE );
 		}
 		if ( strEqual( "SPEW", keyword ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->oscId, SPEW );
+			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEW );
 			osc->Set_waveform( 	osc->spectrum.wfid );
 		}
 		if ( strEqual( "CONN", keyword ))
@@ -281,7 +257,7 @@ bool Instrument_class::read_version2( fstream* File )
 void Instrument_class::Update_sds_connect( )
 {
 	for( Oscillator* osc : Oscgroup.member )
-		sds->connect[osc->oscId] = osc->connect;
+		sds->connect[osc->typeId] = osc->connect;
 }
 
 bool Instrument_class::read_instrument( )
@@ -329,7 +305,7 @@ bool Instrument_class::read_instrument( )
 
 void Instrument_class::Connect( Oscillator* osc, Oscillator* sec, char mode )
 {
-	Oscillator_base::connect_t connect = sds->connect[osc->oscId];
+	Oscillator_base::connect_t connect = sds->connect[osc->typeId];
 	switch ( mode )
 	{
 		case 'F' 	: { ( connect.frq ) ? osc->Connect_frq_data( sec ):osc->Reset_frq_data(); break; }
@@ -422,11 +398,11 @@ void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
 
 	// Type Connection
 	Table.AddRow("CONN",
-			osc->osc_name,
+			osc->osctype_name,
 			osc->fp.name,
 			"F");
 	Table.AddRow("CONN",
-			osc->osc_name,
+			osc->osctype_name,
 			osc->vp.name,
 			"V");
 
@@ -475,7 +451,7 @@ bool Instrument_class::Set( string name )
 	return true;
 }
 
-
+#include <Osc.h>
 void Instrument_class::Test_Instrument()
 {
 
