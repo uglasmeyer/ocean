@@ -21,8 +21,8 @@ class Dynamic_class :
 	uint8_t			slideduration 		= 0;
 
 	const buffer_t	test_frames			= 1000;
-	range_t<int>	range				{ 0, 0 };
-	const range_t<uint8_t>
+	range_T<int>	range				{ 0, 0 };
+	const range_T<uint8_t>
 					slide_duration_range{ 0, 100 };
 
 	typedef struct state_struct
@@ -44,7 +44,7 @@ public:
 
 	Frequency_class	Frequency {};
 
-	Dynamic_class( range_t<int> r );
+	Dynamic_class( range_T<int> r );
 	virtual ~Dynamic_class();
 
 	uint8_t	SetupVol(int future_vol, int mode);

@@ -89,7 +89,7 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 void Oscillator_base::Setwp_frames( uint16_t msec )
 {
 	wp.msec 	= msec;
-	wp.frames	= check_range( frames_range,  wp.msec * frames_per_msec );
+	wp.frames	= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
 }
 
 uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
@@ -109,7 +109,7 @@ uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 
 void Oscillator_base::Set_volume( int vol, uint mode )
 {
-	wp.volume = check_range( volidx_range, vol );
+	wp.volume = check_range( volidx_range, vol, "Set_volume" );
 	spectrum.vol[0] 	= (float)vol * 0.01;
 	spectrum.volidx[0]	= vol;
 }
@@ -161,10 +161,12 @@ void Oscillator_base::Get_sound_stack( Table_class* T )
 {
 
 	T->AddRow( 	osctype_name,
-				Get_waveform_str( spectrum.wfid[0] ),
-				GetFrq( wp.frqidx),
-				(int) wp.volume,
 				vp.name,
-				fp.name
+				fp.name,
+				Get_waveform_str( spectrum.wfid[0] ),
+				(int) wp.volume,
+				"%",
+				GetFrq( wp.frqidx),
+				"Hz"
 			);
 }

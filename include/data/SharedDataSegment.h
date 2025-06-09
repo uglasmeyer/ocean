@@ -16,8 +16,9 @@
 #include <Wavedisplay_base.h>
 #include <Configbase.h>
 #include <notes/Notesbase.h>
+#include <Keyboard_base.h>
 
-struct state_struct
+struct sdsstate_struct
 {
 	enum {
 		 OFFLINE	,
@@ -48,7 +49,7 @@ struct state_struct
 	};
 
 
-	~state_struct() = default;
+	~sdsstate_struct() = default;
 };
 
 typedef struct EventPtr_struct
@@ -79,20 +80,31 @@ typedef				Mixer_base::StA_amp_arr_t					StA_amp_arr_t;
 typedef				Mixer_base::StA_state_arr_t					StA_state_arr_t;
 typedef				array<Oscillator_base::connect_t, 3>		osc_connect_t;
 
+constexpr process_arr_t init_process_arr()
+{
+	process_arr_t arr {};
+	for( uint n = 0; n < REGISTER_SIZE; n++ )
+	{
+		arr[n] = register_process_struct();
+	}
+	return arr;
+}
 // there are MAXCONFIG interface structures in dataworld
 // global values are managed in structure 0 only (master interface)
 // local  values are interface specific
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 3; 						// comstack
+	uint8_t			version						= 6; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
 	StA_state_arr_t	StA_state 					{{ StA_state_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
+
 	bool			Keyboard					= false; // if tty and synthesizer process
+	kbd_state_t		Kbd_state					= kbd_state_struct();
 
 	char 			Instrument[str_buffer_len] 	{"default"}; //char array // comstack
 	char 			Notes	  [str_buffer_len]	{"default"}; //char array for the notes filename // comstack
@@ -127,12 +139,12 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t 		MIX_Id						= 0;// comstack
 
 
-	uint8_t 		Synthesizer					= state_struct::DEFAULT;// indicates that shm is new // comstack
+	uint8_t 		Synthesizer					= sdsstate_struct::DEFAULT;// indicates that shm is new // comstack
 
 	uint8_t	 		FLAG						= CLEAR_KEY;
 	uint8_t 		frq_slidermode				= SLIDE;	// comstack
 
-	uint8_t		 	MODE						= state_struct::FREERUN;// comstack
+	uint8_t		 	MODE						= sdsstate_struct::FREERUN;// comstack
 	bool 			UpdateFlag 					= true;
 	uint8_t			time_elapsed 				= 0;
 
@@ -143,17 +155,17 @@ typedef struct interface_struct // with reasonable defaults
 
 	// common
 	buffer_t		audioframes					= audio_frames;
-	wd_arr_t		wavedata 					= {0};
-	process_arr_t	process_arr					= { {register_process_struct()} };
+	wd_arr_t		wavedata 					= {};
+	process_arr_t	process_arr					= init_process_arr(); //{ {register_process_struct()} };
 	uint8_t 		SHMID 						= 0;// comstack
 	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
 	bool			Record						= false; 	// Audioserver recording
 	uint8_t 		FileNo						= 0;		// comstack
-	uint8_t 		AudioServer	    			= state_struct::OFFLINE;// comstack
-	uint8_t	 		UserInterface				= state_struct::OFFLINE;// comstack
-	uint8_t	 		Composer 					= state_struct::OFFLINE;// comstack
-	uint8_t			Comstack					= state_struct::OFFLINE;// NA
-	uint8_t			Rtsp						= state_struct::OFFLINE;//
+	uint8_t 		AudioServer	    			= sdsstate_struct::OFFLINE;// comstack
+	uint8_t	 		UserInterface				= sdsstate_struct::OFFLINE;// comstack
+	uint8_t	 		Composer 					= sdsstate_struct::OFFLINE;// comstack
+	uint8_t			Comstack					= sdsstate_struct::OFFLINE;// NA
+	uint8_t			Rtsp						= sdsstate_struct::OFFLINE;//
 
 
 

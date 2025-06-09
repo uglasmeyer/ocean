@@ -169,7 +169,7 @@ string Logfacility_class::Error_text( uint err )
 void Logfacility_class::Set_Loglevel( int _level, bool _on )
 {
 
-	uint level = check_range(loglevel_range, _level );
+	uint level = check_range(loglevel_range, _level,"Set_Loglevel" );
 	LogMask.set( level, _on );
 }
 

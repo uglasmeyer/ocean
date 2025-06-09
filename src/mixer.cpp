@@ -22,41 +22,45 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	this->sds_master 	= data->sds_master;
 	this->DaTA			= data;
 
-	for( uint n : MemIds )
+	for( uint n : StAMemIds )
 	{
 		Storage_class Sta;
 		Sta.Id = n;
 		StA.push_back(Sta);
 	}
 
-	StA_param_t usr_conf = {"temp"		, frames_per_sec * data->Cfg_p->Config.temp_sec, min_frames };
-	StA_param_t ext_conf = {"External"	, frames_per_sec * data->Cfg_p->Config.record_sec, min_frames };
-	StA_param_t kbd_conf = {"Keyboard"	, 2*max_frames, min_frames };
+	prgarg_struct_t conf = data->Cfg_p->Config;
+	StA_param_t usr_conf = {"temp"		, frames_per_sec * conf.temp_sec	, min_frames };
+	StA_param_t ext_conf = {"External"	, frames_per_sec * conf.record_sec	, min_frames };
+	StA_param_t kbd_conf = {"Keyboard"	, frames_per_sec * conf.kbd_sec		, min_frames };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
 	StA[STA_EXTERNAL].Setup(ext_conf);
 	StA[STA_KEYBOARD].Setup(kbd_conf);
+	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
 
 	DynVolume.SetupVol( sds_master->Master_Amp,	FIXED ); //set start and master_volume
 	if( LogMask[ TEST ] )
 	{
-		for ( uint n : MemIds )
-			StA[n].Memory_base::Info();
+		for ( uint n : StAMemIds )
+			StA[n].Memory_base::DsInfo();
 
-		Mono.Info		( "Mono data");
-		Mono_out.Info	( "Wave display data");
-		Out.Info		( "Output Stereo Data");
+		Mono.DsInfo		( "Mono data");
+		Mono_out.DsInfo	( "Wave display data");
+		Out.DsInfo		( );
 	}
 
 	wd->Add_role_ptr( 	osc_struct::EXTID,
-						StA[ STA_EXTERNAL].Data,
+						StA [ STA_EXTERNAL].Data,
 						&StA[ STA_EXTERNAL].StAparam.size );
 };
 
 Mixer_class::~Mixer_class()
 {
-	if ( not sds ) return;
+	if ( not sds )
+		return;
+	cout << "~" << className << endl;
 	Clear_StA_status( sds->StA_state );
 	sds->mixer_status.external	= false;
 
@@ -66,7 +70,6 @@ void Mixer_class::clear_memory()
 {
 	// clear temporary memories
 	Out.Clear_data();
-//	Out_R.Clear_data(0);
 	Mono.Clear_data(0);
 }
 
@@ -76,20 +79,13 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 	std::ranges::for_each( state_arr, 	[ ]( auto& state )
 			{ state.store = false;});
 	for ( Storage_class sta : StA )
-		sta.Reset_counter();
-}
-
-bool Mixer_class::GetSyncState()
-{
-	status.sync = false;
-
-	std::ranges::for_each( SycIds, [ this ](auto id )
-			{ status.sync |= ( StA[id].state.play or StA[id].state.store )  ;} );
-	return status.sync;
+		sta.Reset();
 }
 
 void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 {
+	StA[id].Play_mode( play );
+
 	switch ( id )
 	{
 		case STA_INSTRUMENT :	{ status.instrument = play; break; }
@@ -98,15 +94,13 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 		case STA_EXTERNAL 	:	{ status.external 	= play; break; }
 		default				:	break;
 	}
-
-	StA[id].Play_mode( play );
-
 };
+
 void Mixer_class::Update_sds_state( interface_t* sds )
 {
 
 	sds->mixer_status =  status;
-	for ( uint id :  MemIds )
+	for ( uint id :  StAMemIds )
 	{
 		sds->StA_state[id] 	=  StA[id].state;
 	}
@@ -152,24 +146,18 @@ void Mixer_class::add_mono( Data_t* Data, const uint& id )
 	StA[id].DynVolume.Update();
 }
 
-void Mixer_class::add_stereo( stereo_t* data  )
+void Mixer_class::add_stereo( Stereo_t* Data  )
 // sample Data for different Synthesizer into audio memory
 // by applying master volume per Synthesizer
 {
 	buffer_t	audioframes	= sds_master->audioframes;
-//	float 		balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
-//	float 		balanceR	= 1.0 - balanceL;
 
-//	DynVolume.SetDelta( sds_master->slide_duration);
 	for( buffer_t n = 0; n < audioframes ; n++ )
 	{
-//		float
-//		vol_percent 	= DynVolume.Get();
-		data[n].left 	+= rint( Out.stereo_data[n].left );//	* vol_percent * balanceL );
-		data[n].right 	+= rint( Out.stereo_data[n].right);// 	* vol_percent * balanceR );
-	}
-//	DynVolume.Update();
 
+		Data[n].left 	+= Out.stereo_data[n].left ;//	* vol_percent * balanceL );
+		Data[n].right 	+= Out.stereo_data[n].right;// 	* vol_percent * balanceR );
+	}
 }
 
 
@@ -191,8 +179,16 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 							 Data_t* 	kbd_Data,
 							 Data_t* 	notes_Data,
-							 stereo_t* 	shm_addr )
+							 Stereo_t* 	shm_addr )
 {
+
+	auto delete_after_read = [ ]( Data_t* Data, buffer_t frames )
+	{
+		for( buffer_t n = 0; n < frames; n++ )
+		{
+			Data[n] =0;
+		}
+	};
 
 	if( not shm_addr ) return;
 	clear_memory();
@@ -209,7 +205,11 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	if ( StA[ STA_NOTES 	].state.play )
 		add_mono( notes_Data		, STA_NOTES );
 	if ( StA[ STA_KEYBOARD  ].state.play )
+	{
 		add_mono( kbd_Data			, STA_KEYBOARD );
+		if( StA[ STA_KEYBOARD ].state.forget )
+			delete_after_read( kbd_Data, sds->audioframes );
+	}
 
 	// write/read StA sound
 	for ( uint DAid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
@@ -218,11 +218,11 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		if( StA[ DAid ].state.store )
 			StA[ DAid ].Store_block( Mono.Data );
 		sds->StA_state[DAid].store		= StA[DAid].state.store;
-		sds->StA_state[DAid].filled		= ( StA[DAid].scanner.max_pos > 0 );;
+		sds->StA_state[DAid].filled		= ( StA[DAid].scanner.fillrange.max > 0 );
 
 		if ( StA[ DAid ].state.play )
 		{
-			Data_t* StAdata = StA[DAid].scanner.next();
+			Data_t* StAdata = StA[DAid].scanner.Next();
 			if ( StAdata )
 				add_mono( StAdata, DAid );
 		}
@@ -276,7 +276,7 @@ void Mixer_class::TestMixer()
 	ASSERTION(   DynVolume.current.past ==   DynVolume.current.future, "start_volume",
 			(int)DynVolume.current.past,(int)DynVolume.current.future);
 */
-	Mono.Memory_base::Info();
+	Mono.Memory_base::DsInfo();
 
 	TEST_END( className );
 

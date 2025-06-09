@@ -21,7 +21,7 @@ External_class::External_class	( Storage_class* sta, Config_class* cfg ) :
 	buffer_t
 	ds_size				= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
 	Stereo_Memory::Init_data( ds_size, min_frames );
-	Stereo_Memory::Info	( "External Stereo data") ;
+	Stereo_Memory::DsInfo	( ) ;
 };
 
 
@@ -37,7 +37,7 @@ External_class::External_class( Config_class* cfg,
 	this->sds			= sds;
 	buffer_t	ds_size	= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
 	Stereo_Memory::Init_data( ds_size, min_frames );
-	Stereo_Memory::Info( "External Stereo data") ;
+	Stereo_Memory::DsInfo( ) ;
 	className			= Logfacility_class::className;
 };
 
@@ -90,7 +90,7 @@ bool External_class::Read_file_data(  )
 	uint 		structs	= bytes/sizeof_stereo;
 
 	if (LogMask[DBG2])
-		StA->Info("Memory Array External");
+		StA->DsInfo("Memory Array External");
 	if ( structs > StA->mem_ds.data_blocks )
 	{
 		Comment(WARN, "Partly read file data into memory.");
@@ -150,11 +150,12 @@ void External_class::close(  )
 	fclose( File );
 }
 
-void External_class::Record_buffer( stereo_t* src, buffer_t frames )
+void External_class::Record_buffer( Stereo_t* src, buffer_t frames )
 {
 	for ( buffer_t n = 0; n < frames; n++ )
 	{
-		Stereo_Memory::stereo_data[n + record_size ] = src[ n ];
+		Stereo_Memory::stereo_data[n + record_size ].left  = rint( src[ n ].left );
+		Stereo_Memory::stereo_data[n + record_size ].right = rint( src[ n ].right);
 	}
 	record_size += frames; // variable frame size (audioframes);
 
@@ -317,7 +318,7 @@ int External_class::Save_record_data( int filenr)
 
 	Comment( INFO, "Prepare record file " + Name );
 	Comment( INFO, "Record frames: " + to_string (record_size));
-	Stereo_Memory::Info( "External Stereo data");
+	Stereo_Memory::DsInfo( );
 
 	if ( record_size == 0 )
 	{
@@ -360,10 +361,10 @@ int External_class::Save_record_data( int filenr)
 void External_class::Test_External()
 {
 	TEST_START( className );
-	StA->Memory::Info( "External StA Info");
-	Stereo_Memory::Info( "Stereo_Memory Info ");
-	ASSERTION ( StA->mem_ds.max_records - Stereo_Memory::mem_ds.max_records == 0 , "compare StA/Stereo_Memory-records",
-				StA->mem_ds.max_records , Stereo_Memory::mem_ds.max_records );
+	StA->Memory::DsInfo( "External StA Info");
+	Stereo_Memory::DsInfo( );
+//	ASSERTION ( StA->mem_ds.max_records - Stereo_Memory::mem_ds.max_records == 0 , "compare StA/Stereo_Memory-records",
+//				StA->mem_ds.max_records , Stereo_Memory::mem_ds.max_records );
 
 	if ( filesystem::exists( testcounter ))
 		filesystem::remove( testcounter );

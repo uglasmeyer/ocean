@@ -30,7 +30,7 @@ typedef struct derived_struct : base_struct
 	~derived_struct() = default;
 } derived_t;
 
-Keyboard_base Keyboard {};
+Kbd_base Keyboard {};
 void exit_proc( int s )
 {
 	exit(0);

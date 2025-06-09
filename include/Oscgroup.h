@@ -28,7 +28,7 @@ public:
 
 	char					oscroleId;
 
-							Oscgroup_class		( char role, buffer_t size );
+							Oscgroup_class		( char role, buffer_t bytes  );
 	void 					operator=			( const Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 
@@ -46,6 +46,7 @@ public:
 	void 					Connection_Reset	();
 	void 					Set_Connections		( interface_t* sds );
 	void 					SetWd				( Wavedisplay_class* wd, buffer_t* frames );
+	void 					SetScanner			( const buffer_t& maxlen );
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
 	void 					SetSlide			( const uint8_t& value );

@@ -70,16 +70,23 @@ void show_usage()
 
 void activate_sds()
 {
-	Event.Set_Loglevel( DEBUG, true );
+	// reset state of empty buffers
+	for ( uint id : Mixer.RecIds )
+		sds->StA_state[id].play = false;
+
+//	Event.Set_Loglevel( DEBUG, true );
 	std::ranges::for_each( init_keys, [  ]( char key )
 			{	DaTA.Sds_p->Event( key );	} );
+
 	Keyboard.Enable();
-	for ( uint id : Mixer.HghIds ) // after a restart low id buffers are empty
-		Mixer.Set_mixer_state(id, DaTA.Sds_p->addr->StA_state[id].play );
-	for ( uint id : Mixer.MemIds )
+
+	for ( uint id : Mixer.HghIds )
+		Mixer.Set_mixer_state(id, sds->StA_state[id].play );
+
+	for ( uint id : StAMemIds )
 	{
-		Mixer.StA[ id ].state 	= DaTA.Sds_p->addr->StA_state[id];
-		Mixer.StA[ id ].DynVolume.SetupVol( DaTA.Sds_p->addr->StA_amp_arr[id], FIXED );
+		Mixer.StA[ id ].state 	= sds->StA_state[id];
+		Mixer.StA[ id ].DynVolume.SetupVol( sds->StA_amp_arr[id], FIXED );
 	}
 	if( Mixer.status.notes )
 	{
@@ -88,7 +95,8 @@ void activate_sds()
 		else
 			DaTA.Sds_p->Event( NEWNOTESLINEKEY );
 	}
-	Event.Set_Loglevel( DEBUG, false );
+
+//	Event.Set_Loglevel( DEBUG, false );
 }
 
 
@@ -97,7 +105,6 @@ void activate_sds()
 void add_sound()
 {
 	Mixer.status = sds->mixer_status;
-	sds->mixer_status.sync = true;// no longer needed Mixer.GetSyncState();
 	Mixer.status.kbd &= ( App.properties.keyboard | sds->StA_state[ STA_KEYBOARD ].play );
 
 	if ( Mixer.status.kbd )
@@ -117,7 +124,7 @@ void add_sound()
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
 
-	stereo_t* shm_addr = DaTA.GetShm_addr(  );
+	Stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
 	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
 						Keyboard.Kbd_Data,
@@ -142,10 +149,12 @@ void ApplicationLoop()
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
 
-//	if( Sem.Getval( SEMAPHORE_STARTED, GETVAL ) > 0 )
-		Sem.Release( SEMAPHORE_STARTED );
+	Sem.Release( SEMAPHORE_STARTED );
 
+	Event.Handler();
 	App.Ready();
+	show_AudioServer_Status();
+	Keyboard.Show_keys( is_atty );
 
 	while ( not Appstate->IsExitserver( sds, SYNTHID ) )
 	{
@@ -231,7 +240,6 @@ int main( int argc, char* argv[] )
 	SetLogLevels();
 
 	show_usage();
-	show_AudioServer_Status();
 
     thread
 	SyncNotes_thread( &Thread_class::Loop, &SyncNotes ); // run class method: Loop in a thread
@@ -289,5 +297,7 @@ void exit_proc( int signal )
     Sem.Release( SEMAPHORE_EXIT );
 
     Log.Comment( INFO, "Synthesizer reached target exit 0" );
+	Log.Set_Loglevel( DEBUG, false );
+
     exit( 0 );
 }

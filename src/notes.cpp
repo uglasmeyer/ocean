@@ -21,6 +21,7 @@ Note_class::Note_class( Wavedisplay_class* wd )
 {
 	this->className = Logfacility_class::className;
 	Oscgroup.SetWd( wd, &Oscgroup.osc.mem_frames );
+	Oscgroup.SetScanner( max_frames );
 }
 
 Note_class::~Note_class( )
@@ -137,8 +138,6 @@ bool Note_class::Generate_note_chunk( )
 	};
 
 	Oscgroup.Data_Reset();
-//	for( Oscillator* osc : Oscgroup.member )
-//		osc->Data_reset()Mem.Clear_data( 0 );
 
 	restart_note_itr();
 
@@ -164,6 +163,7 @@ bool Note_class::Generate_note_chunk( )
 		}
 
 		uint duration = rint( note_itr->duration );//* 2.0 ) ;// musicxml.tempo;
+
 		scoretime += duration;
 		if ( timestamp + duration > max_msec )
 		{
@@ -211,7 +211,8 @@ void Note_class::ScanData( Instrument_class* instrument )
 	{
 		Generate_note_chunk( );
 	}
-	NotesData = osc->scanner.next();
+	assert( osc->scanner.inc == min_frames );
+	NotesData = osc->scanner.Next();
 }
 bool Note_class::Set_notes_per_second( int notes_per_second )
 {	// [ 1,2,4,5, 8 ] notes per second
@@ -353,7 +354,8 @@ void Note_class::Test()
 {
 
 	TEST_START( className );
-	ASSERTION( Notechar2Step( 'A' ) == 9, "Assert test value ","A", 9  )  ;
+	Set_Loglevel( DEBUG, true );
+	ASSERTION( Notechar2Step( 'A' ) == 9, "Assert test value ",(int)Notechar2Step( 'A' ), 9  )  ;
 
 	Instrument_name = "NotesTest";
 	Comment( TEST, "Note_class test start");
@@ -477,7 +479,7 @@ void Note_class::Test()
 	}
 
 	ASSERTION( Verify_noteline( Noteline_prefix, "|,A(A,a)(A'a)(Aa,)(a,)A'.."),
-			"Verify Noteline |'A(A,a)(A'a)(Aa,)(a,)A'..", false, true );
+			"Verify Noteline |,A(A,a)(A'a)(Aa,)(a,)A'..", false, true );
 	note_itr = notelist.begin();
 	for( float freq : { 220, 110, 440, 220, 117, 440, } )
 	{

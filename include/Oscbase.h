@@ -15,7 +15,7 @@
 #include <Frequency.h>
 
 template< typename T>
-T step( T src, T dst, range_t<int> range)
+T step( T src, T dst, range_T<int> range)
 {
 	int diff = dst - src;
 	if (diff == 0 )

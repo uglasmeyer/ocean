@@ -14,7 +14,7 @@ Appstate_class::Appstate_class( char appid,
 								interface_t* _sds_master,
 								Register_class* reg ) :
 	Logfacility_class("Appstate_class"),
-	state_struct()
+	sdsstate_struct()
 {
 	className 	= Logfacility_class::className;
 	Reg_p		= reg;

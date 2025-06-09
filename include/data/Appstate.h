@@ -63,7 +63,7 @@ typedef struct process_struct :
 
 class Appstate_class :
 	virtual public Logfacility_class,
-	public state_struct
+	public sdsstate_struct
 
 {
 public:
@@ -74,7 +74,7 @@ public:
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
 	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID } ;
-	const range_t<uint>
+	const range_T<uint>
 					appId_range 		{0, NOID };
 	array< uint, NOID>
 					backup_state		{ };

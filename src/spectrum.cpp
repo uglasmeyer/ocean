@@ -17,7 +17,7 @@ void Spectrum_class::assign_frq( int channel, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.frqidx[channel] = check_range( frqarr_range, value );
+		spectrum.frqidx[channel] = check_range( frqarr_range, value, "assign_frq" );
 	}
 	else
 		spectrum.frqidx[channel] = 0;
@@ -31,7 +31,7 @@ void Spectrum_class::assign_vol( int i, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.volidx[i] = check_range( volidx_range, value );
+		spectrum.volidx[i] = check_range( volidx_range, value, "assign_vol" );
 	}
 	else
 		spectrum.volidx[i] = 0;
@@ -43,7 +43,7 @@ void Spectrum_class::assign_waveform( int i, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.wfid[i] = check_range( waveform_range, value );
+		spectrum.wfid[i] = check_range( waveform_range, value, "assign_waveform" );
 	}
 	else
 		spectrum.wfid[i] = 0;
@@ -104,7 +104,7 @@ int Spectrum_class::Get_waveform_id( string wstr )
 string Spectrum_class::Get_waveform_str( int id )
 {
 //	cout << "wf idx";
-	int wfid = check_range( waveform_range, (int) id );
+	int wfid = check_range( waveform_range, (int) id, "Get_waveform_str" );
 	return waveform_str_vec[ wfid ];
 };
 

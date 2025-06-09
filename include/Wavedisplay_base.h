@@ -41,6 +41,7 @@ typedef wavedisplay_struct wavedisplay_t;
 
 struct WD_status_struct
 {
+	// SDS
 	uint8_t oscId 	= osc_struct::OSCID;
 	uint8_t roleId 	= osc_struct::INSTRID;
 	bool 	fftmode = false;

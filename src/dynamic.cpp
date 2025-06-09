@@ -12,7 +12,7 @@
 
 #include <Dynamic.h>
 
-Dynamic_class::Dynamic_class( range_t<int> _range )  :
+Dynamic_class::Dynamic_class( range_T<int> _range )  :
 Logfacility_class("Dynamic_class")
 {
 	className 	= Logfacility_class::className ;
@@ -28,7 +28,7 @@ uint8_t Dynamic_class::SetupVol(int future_vol,	int _mode)
 		current.mode = SLIDE;
 	else
 		current.mode 	= _mode;
-	current.future	= check_range( range, future_vol );
+	current.future	= check_range( range, future_vol, "SetupVol" );
 	current.future_f= current.future * 0.01;
 	setup();
 	return current.future;
@@ -40,7 +40,7 @@ uint8_t Dynamic_class::SetupFrq(int future_frq, int _mode)
 		current.mode = SLIDE;
 	else
 		current.mode 	= _mode;
-	current.future	= check_range( range, future_frq );
+	current.future	= check_range( range, future_frq, "SetupFrq" );
 	current.future_f= Frequency.GetFrq( current.future );
 	setup();
 	return current.future;
@@ -88,7 +88,7 @@ void Dynamic_class::SetDelta ( const uint8_t& sl_duration )
 
 constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& sl_duration )
 {
-				slideduration 	= check_range( slide_duration_range, sl_duration );
+				slideduration 	= check_range( slide_duration_range, sl_duration, "slideFrames" );
 	float		slide_percent 	= float( slideduration) * 0.01 ;
 	buffer_t 	frames 			= 4 * max_frames * slide_percent ;
 
@@ -199,8 +199,8 @@ void Dynamic_class::TestFrq()
 void Dynamic_class::TestVol()
 {
 	TEST_START( className );
-	assert( check_range( range,    2 ) == 2 );
-	assert( check_range( range,  112 ) == 100 );
+	assert( check_range( range,    2, "" ) == 2 );
+	assert( check_range( range,  112, "" ) == 100 );
 
 	range = volidx_range;
 	SetupVol(50, FIXED );

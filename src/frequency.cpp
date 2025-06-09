@@ -14,7 +14,8 @@ bool frqarray_done = false;
 
 
 Frequency_class::Frequency_class() :
-		Logfacility_class("Frequency_class")
+		Logfacility_class("Frequency_class"),
+		frequency_range{0, 0 }
 {
 	className 			= Logfacility_class::className;
 
@@ -22,8 +23,7 @@ Frequency_class::Frequency_class() :
 		initFrqArray();
 	frequency_range.min = frqArray[1];
 	frequency_range.max = frqArray[FRQARR_SIZE-1] ;
-
-	if ( not frqnamesarray_done )
+	if(not frqnamesarray_done )
 		initFrqNamesArray();
 
 }
@@ -32,7 +32,7 @@ Frequency_class::~Frequency_class(){};
 frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 {
 	frq_t frq = 0;
-	uint _idx = check_range( frqarr_range, idx );
+	uint _idx = check_range( frqarr_range, idx, "Calc" );
 
 	( _idx < C0 ) ? frq = frqArray[ _idx ] : frq = frqArray[ _idx ]* _base_freq / oct_base_freq;
 	return frq;
@@ -41,7 +41,7 @@ frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 frq_t Frequency_class::GetFrq( const int& idx )
 {
 //	cout << "index";
-	uint frqidx = check_range( frqarr_range, idx );
+	uint frqidx = check_range( frqarr_range, idx, "GetFrq" );
 	return frqArray[ frqidx];
 }
 
@@ -62,7 +62,7 @@ uint Frequency_class::Index( const string& frqName )
 uint  Frequency_class::Index( const int& oct, const int& step )
 {
 	int idx = frqIndex( oct, step );
-	return check_range( frqarr_range, idx );
+	return check_range( frqarr_range, idx, "Index" );
 }
 
 frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
@@ -82,8 +82,8 @@ void Frequency_class::ShowFrqTable()
 	Table.AddColumn( "Name", 4);
 
 	Table.PrintHeader();
-	const uint m = frqarr_range.max / 2;
-	for( int n = frqarr_range.min; n <= frqarr_range.max / 2; n++ )
+	const uint m = frqarr_range.max / 2 ;
+	for( int n = frqarr_range.min; n <= frqarr_range.max / 2 ; n++ )
 	{
 		Table.AddRow( n, frqArray[n], frqNamesArray[n], "|",
 				n+m, frqArray[n+m], frqNamesArray[n+m] );
@@ -116,6 +116,7 @@ void Frequency_class::initFrqArray(  )
 
 void Frequency_class::initFrqNamesArray()
 {
+	// https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
 
 	for ( uint n = 1; n<10;n++ )
 	{
@@ -129,18 +130,18 @@ void Frequency_class::initFrqNamesArray()
 		string frqName{ to_string( n-9 )};
 		frqNamesArray[n] = frqName;
 	}
+
 	for ( int oct = min_octave; oct < (int)max_octave; oct++)
 	{
 		char octave = int2char(oct);
 		for( uint step = 0; step < oct_steps; step++ )
 		{
 			string 	frqName {""};
-			frqName.push_back(OctChars[step]);
+			frqName.push_back(OctChars[ step ]);
 			frqName.push_back(octave);
 			frqNamesArray[ Index( oct, step ) ] = frqName;
 		}
 	}
-
 	cout << "Frequency Names initialized " << endl;
 	frqnamesarray_done = true;
 }

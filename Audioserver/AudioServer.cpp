@@ -11,7 +11,7 @@ void errorCallback( RtAudioErrorType /*type*/, const std::string& errorText )
 }
 RtAudio::StreamParameters 	oParams;
 RtAudio::StreamOptions 		options = {	.flags = RTAUDIO_HOG_DEVICE,
-										.numberOfBuffers = 8,
+										.numberOfBuffers = 2,
 										.streamName = Application };
 
 void 	show_parameter()
@@ -358,10 +358,10 @@ int RtAudioOut(	void *outputBuffer,
 			return 1;
 		}
 
-		if (sds->AudioServer == state_struct::RECORDSTART )
+		if (sds->AudioServer == sdsstate_struct::RECORDSTART )
 			record_start();
 
-		if (sds->AudioServer == state_struct::RECORDSTOP )
+		if (sds->AudioServer == sdsstate_struct::RECORDSTOP )
 			record_stop();
 
 		DaTA.Appstate.SetRunning(  );

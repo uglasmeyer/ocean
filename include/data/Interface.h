@@ -26,7 +26,7 @@
 
 class Interface_class :
 		virtual public Logfacility_class,
-		state_struct
+		sdsstate_struct
 {
 
 public:

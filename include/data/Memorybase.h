@@ -19,15 +19,17 @@
 typedef struct 		StA_param_struct
 {
 	string 			name 			= "";
-	buffer_t		size 			= 0;
-	buffer_t		block_size		= 0;
+	buffer_t		size 			= 0;	// number of buffer frames
+	buffer_t		block_size		= 0;  	// numer of read frames
 } 	StA_param_t;
 
 struct 				StA_state_struct // memory array status
 {
+	// SDS structure
 	bool 			play			= false; // play this memory array
 	bool 			store			= false; // record into this memory array
-	bool			filled			= false;
+	bool			filled			= false; // there record counter is > 0
+	bool			forget			= false; // delete after read
 };
 typedef				StA_state_struct StA_status_t;
 
@@ -87,9 +89,9 @@ class 				Memory_base :
 public:
 	mem_ds_t		mem_ds			= mem_data_struct();
 
-	void 			Info			();
+	void 			DsInfo			();
 	void* 			Init_void		();
-	void 			SetDs			( size_t type_bytes, buffer_t bs = min_frames );
+	void 			SetDs			( size_t type_bytes );
 	mem_ds_t* 		GetDs			();
 
 					Memory_base		( buffer_t size );

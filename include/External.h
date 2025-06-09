@@ -53,7 +53,7 @@ public:
 	bool 						Read_file_header	( string );
 	int 						Save_record_data	( int filenr );
 	void 						Mono2Stereo			( Data_t* mono, uint size );
-	void 						Record_buffer		( stereo_t* src, buffer_t frames );
+	void 						Record_buffer		( Stereo_t* src, buffer_t frames );
 	string 						GetName				();
 	void 						Test_External		();
 

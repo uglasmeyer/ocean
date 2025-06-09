@@ -17,7 +17,7 @@
 
 /*
  * References
- * https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
+ https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
  */
 
 const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
@@ -39,6 +39,18 @@ class Note_base :
 		}
 		return str;
 	};
+	constexpr vector<int> init_pitch( string ac )
+	{ 	// every char in ac will be translated into a note pos in OctChars
+		// ac char must be in OctChars
+		vector<int> vi {};
+		for( uint n = 0; n < ac.length(); n++)
+		{
+			uint pos = OctChars.find( ac[n] );
+			if( pos < STRINGNOTFOUND )
+				vi.push_back( pos );
+		}
+		return vi;
+	};
 
 
 public:
@@ -49,8 +61,8 @@ public:
 
 	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
-	const vector<int> 		flat_pitch 		{ 2,7,0,5,10,3,8 };
-	const vector<int> 		sharp_pitch		{ 8,3,10,5,0,7,2 };
+	const vector<int> 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
+	const vector<int> 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
 
 	const vector_str_t 		convention_notes{ 	OctChars,
 												"0123456789AB",

@@ -17,7 +17,7 @@ class ViewInterface_class :
 	interface_struct,
 	virtual Frequency_class,
 	Spectrum_class,
-	state_struct
+	sdsstate_struct
 {
 	string 				className 	= "";
 	Interface_class*	Sds_p 		= nullptr;
@@ -31,7 +31,7 @@ public:
 	:
 		Frequency_class(),
 		Spectrum_class(),
-		state_struct(),
+		sdsstate_struct(),
 		Appstate( appid, nullptr, DaTA->Sds_p->addr, &DaTA->Reg )
 	{
 		className 		= Logfacility_class::className;

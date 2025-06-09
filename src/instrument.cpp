@@ -492,7 +492,7 @@ void Instrument_class::Test_Instrument()
 	vco->Test();
 	assert( Set( ".test2" ) );
 	ASSERTION( file_version == 2, "version", file_version , 2);
-	sds->MODE = state_struct::FREERUN;
+	sds->MODE = sdsstate_struct::FREERUN;
 
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;

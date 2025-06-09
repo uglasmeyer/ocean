@@ -42,7 +42,7 @@ void* Memory_base::Init_void()
 
 	return mem_ds.addr;
 }
-void Memory_base::Info()
+void Memory_base::DsInfo()
 {
 	Comment( INFO, "Name             : " + mem_ds.name );
 	Comment( INFO, "Memory bytes     : " + to_string( mem_ds.bytes ));

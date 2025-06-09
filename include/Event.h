@@ -18,7 +18,7 @@
 class Event_class :
 	virtual public Logfacility_class,
 	osc_struct,
-	state_struct
+	sdsstate_struct
 {
 	string 				className = "";
 
@@ -50,7 +50,7 @@ public:
 				ProgressBar_class*	progressbar,
 				Musicxml_class*		musicxml ) :
 		Logfacility_class("Event_class"),
-		state_struct()
+		sdsstate_struct()
 	{
 		className = Logfacility_class::className;
 		this->DaTA			= data;

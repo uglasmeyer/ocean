@@ -261,7 +261,7 @@ void Event_class::Handler()
 		Comment(INFO,
 				"receiving command <store sound to memory bank " + MbNr.str
 						+ " >");
-		for (int StaId : Mixer->MemIds)
+		for (int StaId : StAMemIds)
 		{
 			if (MbNr.val == StaId)
 			{
@@ -327,7 +327,7 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (uint id : Mixer->MemIds) {
+		for (uint id : StAMemIds) {
 			Mixer->Set_mixer_state(id, false);
 		}
 		Sds->Commit();
@@ -335,9 +335,10 @@ void Event_class::Handler()
 	}
 	case CLEAR_KEY:
 	{
-		uint8_t id = sds->MIX_Id;
-		Comment(INFO, "Clear StA: " + to_string(id));
-		Mixer->StA[id].Reset_counter();
+		for( uint id : StAMemIds )
+		{
+			Mixer->StA[id].Reset();
+		}
 		ProgressBar->Reset(); // RecCounter
 		Sds->Commit();
 		break;

@@ -11,19 +11,19 @@
 #include <Logfacility.h>
 #include <Dynamic.h>
 #include <data/Interface.h>
+#include <limits>
 
 class AudioVolume_class :
 	Logfacility_class
 {
-	string className = "";
-	interface_t* sds;
+	string 			className 	= "";
+	interface_t* 	sds			;
 
 public:
 	Dynamic_class DynVolume { volidx_range };
 
 	AudioVolume_class( interface_t* _sds) :
 		Logfacility_class( "AudioVolume_class" )
-
 	{
 		className = Logfacility_class::className;
 		this->sds = _sds;
@@ -32,8 +32,28 @@ public:
 
 	~AudioVolume_class() = default;
 
-	void Transform( buffer_t frames, stereo_t* src, stereo_t* dst )
+
+	float dynamic_limit( buffer_t frames, Stereo_t* src )
 	{
+		data_t 	min = numeric_limits<data_t>::min();
+		float 	max = min;
+		for( buffer_t n = 0; n < frames; n++ )
+		{
+			if ( abs( src[n].left  ) > max ) max = abs( src[n].left  );
+			if ( abs( src[n].right ) > max ) max = abs( src[n].right );
+		}
+		float ratio = 0.0;
+		if ( max > 0 )
+			ratio = max / abs(min) ;
+//		cout << ratio << endl;
+		if ( ratio > 1.0 )
+			return 1.0 / ratio;
+		return 1.0;
+	}
+
+	void Transform( buffer_t frames, Stereo_t* src, stereo_t* dst )
+	{
+		float 		ratio 		= dynamic_limit( frames, src );
 		float 		balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
 		float 		balanceR	= 1.0 - balanceL;
 
@@ -42,8 +62,8 @@ public:
 		{
 			float
 			vol_percent 	= DynVolume.Get();
-			dst[n].left 	= src[n].left	* vol_percent * balanceL ;
-			dst[n].right 	= src[n].right	* vol_percent * balanceR ;
+			dst[n].left 	= rint( src[n].left		* vol_percent * balanceL * ratio ) ;
+			dst[n].right 	= rint( src[n].right	* vol_percent * balanceR * ratio ) ;
 		}
 		DynVolume.Update();
 

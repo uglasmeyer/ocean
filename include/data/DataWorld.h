@@ -77,8 +77,8 @@ public:
 	Appstate_class 			Appstate;
 
 
-	stereo_t* 				ShmAddr_0 	= nullptr;
-	stereo_t* 				ShmAddr_1 	= nullptr;
+	Stereo_t* 				ShmAddr_0 	= nullptr;
+	Stereo_t* 				ShmAddr_1 	= nullptr;
 	Interface_class*		Sds_p		= nullptr;
 	Interface_class*		Sds_master	= nullptr;
 	interface_t*			sds_master	= nullptr;
@@ -88,8 +88,8 @@ public:
 	interface_t* 			GetSdsAddr();
 	Interface_class*		GetSds( );
 
-	stereo_t* 				SetShm_addr( ); 			// Audioserver
-	stereo_t* 				GetShm_addr( ); 			// Synthesizer
+	Stereo_t* 				SetShm_addr( ); 			// Audioserver
+	Stereo_t* 				GetShm_addr( ); 			// Synthesizer
 	void 					ClearShm( const buffer_t& frames );
 
 	void 					EmitEvent( const uint8_t flag, string comment = ""  );

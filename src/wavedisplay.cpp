@@ -24,7 +24,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 //									"gen_cxwave_data " + to_string( wd_status.roleId ));
 	if ( wd_frames == 0 )
 	{
-		Comment( WARN, "Zero wavedisplay frames" );
+		Comment( WARN, "Zero wavedisplay frames", (int)wd_status.roleId, ",", (int)wd_status.oscId );
 		return;
 	}
 
@@ -197,7 +197,7 @@ void Wavedisplay_class::Add_role_ptr( 	const char& wd_role,
 										buffer_t* wd_frames )
 {
 	// special case for role external and audioserver. They do not have osc's
-	for( char osctype : { osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID } )
+	for( char osctype : osctypeIds )
 	{
 		Add_data_ptr( osctype, wd_role, ptr, wd_frames );
 	}

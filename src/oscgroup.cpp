@@ -7,12 +7,12 @@
 
 #include <Oscgroup.h>
 
-Oscgroup_class::Oscgroup_class( char role, buffer_t size ) :
+Oscgroup_class::Oscgroup_class( char role, buffer_t bytes ) :
   Logfacility_class( "Oscgroup" ),
   Note_base(),
-  vco( role, osc_struct::VCOID, size ),
-  fmo( role, osc_struct::FMOID, size ),
-  osc( role, osc_struct::OSCID, size )
+  vco( role, osc_struct::VCOID, bytes ),
+  fmo( role, osc_struct::FMOID, bytes ),
+  osc( role, osc_struct::OSCID, bytes )
 {
 	member 			= { &vco, &fmo, &osc };
 	oscroleId 		= role;
@@ -56,15 +56,27 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd, buffer_t* frames )
 								frames ); });
 }
 
+void Oscgroup_class::SetScanner( const buffer_t& maxlen )
+{
+	std::ranges::for_each( member, [ maxlen ](Oscillator*  o)
+	{
+		o->scanner.Set_wrt_len( max_frames );
+		o->scanner.Set_max_len( maxlen );
+	});
+
+}
 void Oscgroup_class::Show_sound_stack() // show_status
 {
 	Table_class 	Table{"Sound stack" };
 	Table.AddColumn( "Osc", 4 );
+	Table.AddColumn( "Vol", 4 );
+	Table.AddColumn( "Frq", 8 );
 	Table.AddColumn( "Waveform", 10 );
-	Table.AddColumn( "Frq", 8 );
-	Table.AddColumn( "Amp", 8 );
-	Table.AddColumn( "Vol", 8 );
-	Table.AddColumn( "Frq", 8 );
+	Table.AddColumn( "Vol", 4 );
+	Table.AddColumn( "U", 8);
+	Table.AddColumn( "Frq", 4 );
+	Table.AddColumn( "U", 3);
+
 	Table.PrintHeader();
 	std::ranges::for_each( member, [ this, &Table ](Oscillator*  o)
 			{ o->Get_sound_stack( &Table) ; });
@@ -80,7 +92,7 @@ void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
 
 void Oscgroup_class::Set_Duration( const uint& msec )
 {
-	uint duration = check_range( duration_range, msec);
+	uint duration = check_range( duration_range, msec, "Set_Duration");
 	std::ranges::for_each( member, [ &duration ](Oscillator*  o)
 			{ o->Setwp_frames( duration );});
 }

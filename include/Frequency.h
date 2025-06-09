@@ -17,8 +17,9 @@
 
 typedef float 						frq_t;
 const 	uint 						C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
-const 	size_t 						FRQARR_SIZE = max_octave*oct_steps + C0;
-const 	range_t<int > 				frqarr_range {1, FRQARR_SIZE - 1 };
+
+const 	int 						FRQARR_SIZE = max_octave*oct_steps + C0;
+const 	range_T<int > 				frqarr_range { 1, (int)FRQARR_SIZE - 1 };
 
 constexpr uint frqIndex( const int& octave, const int& note )
 {
@@ -43,7 +44,7 @@ class Frequency_class :
 	string 							className 		= "";
 
 public:
-	range_t<float> 					frequency_range;// { frqArray[1], frqArray[FRQARR_SIZE-1] };
+	range_T<float> 					frequency_range;// { frqArray[1], frqArray[FRQARR_SIZE-1] };
 
 	frq_t 							Calc			( const frq_t& _base_freq, const int& idx );
 	frq_t 							GetFrq			( const int& idx );

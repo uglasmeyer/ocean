@@ -9,7 +9,53 @@
 #include <String.h>
 #include <System.h>
 
-string className =  "Memory";
+
+	// 0             pos             <          max      <   Max
+	// |-------------|--------------------------|------------|
+	// |-----|-----|-----|-----|-----|-----|-----|-----|-----| inc
+	// |-----------------|-----------------|-----------------| wrt = x*inc
+
+Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _inc, buffer_t _max ) :
+	mem_range{ 0, _max},
+	fillrange{ 0, 0 }
+{
+	pos 			= 0;
+	Data 			= &_ptr[ 0 ];
+	inc				= min_frames;//_inc;
+	wrt				= _inc; // use set_wrt_len to change
+	max				= 0;
+}
+
+Data_t* Scanner_class::Next()
+{
+	if ( inc > wrt )
+	{
+		cout << "inc = " << inc  << " > wrt = " << wrt << endl;
+		return nullptr; // data is empty
+	}
+	Data_t*
+	data 			= &Data[ pos ];
+	pos 			= check_cycle( fillrange, pos + inc, "Next" );
+	trigger 		= ( pos < inc );
+//		cout.flush()<< pos << " " << endl;
+	return data;
+}
+Data_t* Scanner_class::Set_pos( buffer_t n )
+{
+	pos = check_cycle( fillrange, n, "Set_pos" );
+
+	return &Data[n];
+}
+void Scanner_class::Set_wrt_len( buffer_t n )
+{
+	wrt 		= check_range( mem_range, n, "Set_wrt_len");
+}
+void Scanner_class::Set_max_len( buffer_t n )
+{
+	fillrange.max 	= check_range( mem_range, n, "Set_max_len" );
+	Set_pos( pos );
+}
+
 //-----------------------------------------------------------------------------
 
 
@@ -24,7 +70,7 @@ void Memory::Clear_data( Data_t value )
 		Data[n] = value;
 	}
 }
-void Memory_base::SetDs( size_t type_size, buffer_t bs )
+void Memory_base::SetDs( size_t type_size )
 {
 	// terminology :
 	// sizeof_data	-> 	data_bytes	= sizeof(unit)
@@ -34,7 +80,7 @@ void Memory_base::SetDs( size_t type_size, buffer_t bs )
 
 				mem_ds.sizeof_type 	= type_size;
 				mem_ds.data_blocks 	= mem_ds.bytes / type_size;  //max_frames
-				mem_ds.size			= bs; //min_frames
+//				mem_ds.size			= bs; //min_frames
 				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.size ;
 
 	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.size;
@@ -55,10 +101,10 @@ void Memory::Init_data( )
 
 }
 
-void Memory::Info( string name )
+void Memory::DsInfo( string name )
 {
 	mem_ds.name = name;
-	Memory_base::Info();
+	Memory_base::DsInfo();
 }
 
 
@@ -76,14 +122,23 @@ void Memory::Info( string name )
 void Storage_class::Setup( StA_param_t param )
 {
 	StAparam 		= param;
-	mem_ds.bytes = sizeof(Data_t) * param.size;
-	mem_ds.size	= param.block_size;
+	mem_ds.bytes 	= sizeof(Data_t) * param.size;
+	mem_ds.size		= min_frames;//param.block_size;
+	mem_ds.block_size=param.block_size;
 	Memory::Init_data( );
-	Memory::Info( param.name );
-	Memory::Clear_data(0);
-	Set_store_counter(0);
-	scanner.Data = Data;
+	Memory::DsInfo( param.name );
+	Reset();
+	scanner 		= Scanner_class( Data, min_frames, param.size );
+}
 
+void Storage_class::Write_data( Data_t* src )//, const buffer_t& wrt )
+{
+	buffer_t offs = scanner.pos;
+	for ( buffer_t n = 0; n < scanner.wrt; n++ )
+	{
+		Data[ offs ] += src[n];
+		offs = ( offs + 1 ) % ( scanner.mem_range.max );
+	}
 }
 
 void Storage_class::Store_block( Data_t* src )
@@ -96,7 +151,7 @@ void Storage_class::Store_block( Data_t* src )
 	}
 	record_counter 	= ( record_counter + 1 );
 	record_data 	= record_counter * mem_ds.size;
-	scanner.Set_max( record_data );
+	scanner.Set_max_len( record_data );
 	if ( record_counter == mem_ds.max_records - 2 )
 		state.store = false ;
 }
@@ -105,29 +160,39 @@ void Storage_class::Store_block( Data_t* src )
 void 	Storage_class::Set_store_counter( uint  n )
 {
 	assert( n < mem_ds.max_records );
-	record_counter 	= n;
-	record_data 	= record_counter * mem_ds.size;
+
+	record_counter 		= n;
+	record_data 		= record_counter * mem_ds.size;
 	if ( read_counter > n )
 		read_counter  	= 0;
-	scanner.Set_pos	(0);
-	scanner.Set_max( record_data );
+	scanner.Set_pos		(0);
+	scanner.Set_max_len	( record_data );
 }
 
-void 	Storage_class::Reset_counter( )
+void 	Storage_class::Reset( )
 {
-	record_counter 	= 0;
-	record_data 	= 0;
-	read_counter  	= 0;
-	state.store		= false;
-	scanner.Set_pos	(0);
-	scanner.Set_max (0);
-	Clear_data		(0);
+	Info( "Reset counter ", (int)Id );
+	record_counter 		= 0;
+	record_data 		= 0;
+	read_counter  		= 0;
+	state.store			= false;
+	scanner.Set_pos		(0);
+	scanner.Set_max_len (0);
+	Clear_data			(0);
 }
+void Storage_class::Playnotes( bool flag )
+{
+	state.play 			= flag;
+	state.store			= false;
+	string onoff 		= flag ? " on" : " off";
+	cout << "play " + StAparam.name + onoff << endl;
+	Comment(INFO, "play " + StAparam.name + onoff );
 
+}
 string 	Storage_class::Play_mode( bool flag )
 {
 //	Comment(INFO, "mute " + StAparam.name );
-	state.play = flag;
+	state.play 			= flag;
 	return (state.play) ? "ON" : "OFF";
 }
 
@@ -144,14 +209,7 @@ uint*	Storage_class::Get_storeCounter_p()
 	return &record_counter;
 }
 
-void Storage_class::Playnotes( bool flag )
-{
-	string onoff = flag ? " on" : " off";
-	cout << "play " + StAparam.name + onoff << endl;
-	Comment(INFO, "play " + StAparam.name + onoff );
-	state.play = flag;
-	state.store= false;
-}
+
 
 
 
@@ -174,7 +232,7 @@ void Shared_Memory::Clear( const buffer_t& _frames )
 		Comment( ERROR, "shm undefined");
 		return;
 	}
-	buffer_t frames = check_range( frames_range, _frames );
+	buffer_t frames = check_range( frames_range, _frames, "Clear" );
 	for ( buffer_t n = 0; n < frames ; n++ )
 	{
 		addr[n] = {0,0};
@@ -184,6 +242,6 @@ void Shared_Memory::Clear( const buffer_t& _frames )
 void Shared_Memory::Stereo_buffer( key_t key )
 {
 	this->ds 		= *Get( key );
-	this->ds.addr 	= (stereo_t*) this->ds.addr;
-	this->addr 		= (stereo_t*) this->ds.addr;
+	this->ds.addr 	= (Stereo_t*) this->ds.addr;
+	this->addr 		= (Stereo_t*) this->ds.addr;
 }

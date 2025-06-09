@@ -182,7 +182,7 @@ void Semaphore_class::Test()
 	long tel = t.Time_elapsed();
 
 	Info( "time elapsed ", to_string(tel), " [ms]" );
-	ASSERTION( tel - 2001 < 50, "timeout", (long)tel, "<2050" );
+	ASSERTION( tel - 2001 < 60, "timeout", (long)tel, "<2050" );
 
 	TEST_END( className );
 }

@@ -32,7 +32,7 @@ typedef waveFnc_struct 	waveFnc_t;
 
 extern const vector<waveFnc_t>  waveFunction_vec;
 extern const vector<string> waveform_str_vec;
-extern const range_t<int> waveform_range;
+extern const range_T<int> waveform_range;
 extern  	int 	sgn(  		const float& x );
 
 

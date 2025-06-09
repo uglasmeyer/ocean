@@ -93,10 +93,11 @@ void Config_class::Read_config(	string cfgfile )
 	Config.ffmpeg 		= get_item ( Config.ffmpeg, "ffmpeg" );
 	Config.SHM_key		= get_value( Config.SHM_key, "shmkey" );
 	Config.SDS_key		= get_value( Config.SDS_key, "sdskey" );
-	Config.Sem_key		= get_value( Config.Sem_key, "semkey" );
-	Config.temp_sec		= get_value( Config.temp_sec, "temp_sec" );
-	Config.record_sec	= get_value( Config.record_sec, "record_sec" );
-	Config.MAXWAVFILES 	= get_value( Config.MAXWAVFILES, "maxwavfiles");
+	Config.Sem_key		= get_value( Config.Sem_key		, "semkey" );
+	Config.temp_sec		= get_value( Config.temp_sec	, "temp_sec" );
+	Config.record_sec	= get_value( Config.record_sec	, "record_sec" );
+	Config.kbd_sec		= get_value( Config.kbd_sec		, "kbd_sec" );
+	Config.MAXWAVFILES 	= get_value( Config.MAXWAVFILES	, "maxwavfiles");
 	for( uint idx = 0; idx < MAXCONFIG; idx++  )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
@@ -161,28 +162,29 @@ void Config_class::Show_Config( )
 	Table.AddColumn( "Config Entry", 20 );
 	Table.AddColumn( "Value", 20  );
 	Table.PrintHeader();
-	Table.AddRow( "sampline rate" 	, 	Config.rate		);  		// -c
-	Table.AddRow( "device nr" 		, 	Config.device	);  		// -d
-	Table.AddRow( "channel offs"	, 	Config.ch_offs	); 		// -o
-	Table.AddRow( "test classes" 	, 	Config.test		);  		// -t
-	Table.AddRow( "dialog mode"	,	Config.dialog	);  		// -D
-	Table.AddRow( "composer"		,  	Config.composer	);  		// -D
-	Table.AddRow( "oceangui"		, 	Config.oceangui	);  		// -D
-	Table.AddRow( "Id3tool Title" , 	Config.title	); 		// -o
-	Table.AddRow( "Id3tool Author", 	Config.author	);  		// -k
-	Table.AddRow( "Id3tool Album" , 	Config.album	);  		//
-	Table.AddRow( "Id3tool Genre" , 	Config.Genre	);  		// -t
-	Table.AddRow( "MAXWAVFILES"	, 	Config.MAXWAVFILES	);  		// -t
-	Table.AddRow( "Terminal" 		, 	Config.Term		);  		// -D
-	Table.AddRow( "shm key"	 	, 	Config.SHM_key	);  		// -k
-	Table.AddRow( "sds_key" 		, 	Config.SDS_key	);  		// -D
-	Table.AddRow( "sem_key" 		, 	Config.Sem_key	);  		// -D
-	Table.AddRow( "sds keys"		, 	show_type( Config.sdskeys ) );
-	Table.AddRow( "SHM_key left"	,	Config.SHM_keyl );
-	Table.AddRow( "SHM key right"	, 	Config.SHM_keyr );
-	Table.AddRow( "ffmpeg" 		, 	Config.ffmpeg	);  		// -D
-	Table.AddRow( "temp storage sec", 	Config.temp_sec	);
-	Table.AddRow( "record storage sec",Config.record_sec	);
+	Table.AddRow( "sampline rate" 		, Config.rate				);  		// -c
+	Table.AddRow( "device nr" 			, Config.device	);  		// -d
+	Table.AddRow( "channel offs"		, Config.ch_offs	); 		// -o
+	Table.AddRow( "test classes" 		, Config.test		);  		// -t
+	Table.AddRow( "dialog mode"			, Config.dialog	);  		// -D
+	Table.AddRow( "composer"			, Config.composer	);  		// -D
+	Table.AddRow( "oceangui"			, Config.oceangui	);  		// -D
+	Table.AddRow( "Id3tool Title" 		, Config.title	); 		// -o
+	Table.AddRow( "Id3tool Author"		, Config.author	);  		// -k
+	Table.AddRow( "Id3tool Album" 		, Config.album	);  		//
+	Table.AddRow( "Id3tool Genre" 		, Config.Genre	);  		// -t
+	Table.AddRow( "MAXWAVFILES"			, Config.MAXWAVFILES	);  		// -t
+	Table.AddRow( "Terminal"	 		, Config.Term		);  		// -D
+	Table.AddRow( "shm key"			 	, Config.SHM_key	);  		// -k
+	Table.AddRow( "sds_key" 			, Config.SDS_key	);  		// -D
+	Table.AddRow( "sem_key" 			, Config.Sem_key	);  		// -D
+	Table.AddRow( "sds keys"			, show_type( Config.sdskeys ) );
+	Table.AddRow( "SHM_key left"		, Config.SHM_keyl );
+	Table.AddRow( "SHM key right"		, Config.SHM_keyr );
+	Table.AddRow( "ffmpeg" 				, Config.ffmpeg	);  		// -D
+	Table.AddRow( "temp storage sec"	, Config.temp_sec	);
+	Table.AddRow( "keyboard storage sec", Config.kbd_sec	);
+	Table.AddRow( "record storage sec"	, Config.record_sec	);
 }
 
 string Config_class::baseDir()

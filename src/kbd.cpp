@@ -7,19 +7,19 @@
 
 #include <Kbd.h>
 
-Keyboard_base::Keyboard_base() :
+Kbd_base::Kbd_base() :
 	Logfacility_class("Kbd")
 {
 	Init();
 };
 
-Keyboard_base::~Keyboard_base()
+Kbd_base::~Kbd_base()
 {
 	cout << "Keyboard reset" << endl;
 	Reset();
 };
 
-string Keyboard_base::ShowKey( key3struct_t key )
+string Kbd_base::ShowKey( key3struct_t key )
 {
 	if ( key.key == 0 )
 		return "";
@@ -32,7 +32,7 @@ string Keyboard_base::ShowKey( key3struct_t key )
 	return strs.str();
 }
 
-Keyboard_base::key3struct_t Keyboard_base::GetKeystruct	( bool debug )
+Kbd_base::key3struct_t Kbd_base::GetKeystruct	( bool debug )
 {
 	fflush(stdout);
 	buf3 = { 0,0,0 };
@@ -53,7 +53,7 @@ Keyboard_base::key3struct_t Keyboard_base::GetKeystruct	( bool debug )
 	return key3;
 }
 
-void Keyboard_base::Init()
+void Kbd_base::Init()
 {
 	fflush(stdout);
 
@@ -78,14 +78,14 @@ void Keyboard_base::Init()
 
 }
 
-void Keyboard_base::Reset()
+void Kbd_base::Reset()
 {
 	if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
 		perror("tcsetattr ~ICANON");
 
 }
 
-string Keyboard_base::GetString( string txt )
+string Kbd_base::GetString( string txt )
 {
 	cout.flush() << txt;
 	Reset();
@@ -95,7 +95,7 @@ string Keyboard_base::GetString( string txt )
 	return s;
 }
 
-void Keyboard_base::Test()
+void Kbd_base::Test()
 {
 	TEST_START( className );
 	uint nr = 0;

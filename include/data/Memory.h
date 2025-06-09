@@ -14,57 +14,38 @@
 #include <data/Memorybase.h>
 #include <Dynamic.h>
 
-struct scanner_struct
+class Scanner_class
 {
+public:
 	// scanner_t scanner = scanner_struct( Mem.Data, min_frames, max_frames );
-	buffer_t 				pos;
+
+	buffer_t				inc; 			// read frame
+	buffer_t 				pos;			// currejt read pos
+	buffer_t				wrt; 			// write frames
+	buffer_t				max;			// content frames
 	Data_t*					Data;
-	buffer_t				inc;
-	buffer_t				max_pos;
-	bool					trigger = false;
 
-	scanner_struct( Data_t* _ptr, buffer_t _inc, buffer_t _max )
-	{
-		pos 	= 0;
-		Data 	= &_ptr[ 0 ];
-		inc		= _inc;
-		max_pos	= _max;//0;
-	}
-	virtual ~scanner_struct() = default;
+	range_T<buffer_t>		mem_range;		// 0<pos<max
+	range_T<buffer_t>		fillrange;
+	bool					trigger 		= false;
 
-	Data_t* next()
-	{
-		if ( inc > max_pos )
-			return nullptr; // data is empty
-		Data_t*
-		data 			= &Data[ pos ];
-		pos 			= ( pos + inc ) % ( max_pos );
-		trigger 		= ( pos == 0 );
-//		cout.flush()<< pos << " " << endl;
-		return data;
-	}
-	Data_t* Set_pos( buffer_t n )
-	{
-		if( n > max_pos )
-			pos = 0;
-		else
-			pos	= n;
-		return &Data[n];
-	}
-	void Set_max( buffer_t n )
-	{
-		if (pos > n )
-			pos = 0;
-		max_pos = n;
-	}
+							Scanner_class	( Data_t* _ptr, buffer_t _inc, buffer_t _max );
+	virtual 				~Scanner_class()= default;
+
+	Data_t* 				Next			();
+	Data_t* 				Set_pos			( buffer_t n );
+	void 					Set_wrt_len		( buffer_t n );
+	void 					Set_max_len		( buffer_t n );
+
 };
-typedef scanner_struct scanner_t;
+
 
 class Memory :
-		virtual Logfacility_class,
-		virtual public Memory_base
+	virtual 		Logfacility_class,
+	virtual public 	Memory_base
 {
-	string className = "";
+	string className =  "";
+
 public:
 	Data_t* 	Data = nullptr;
 
@@ -87,7 +68,7 @@ public:
 
 	void Init_data(  );
 	void Clear_data( Data_t );
-	void Info( string );
+	void DsInfo( string );
 };
 
 
@@ -126,7 +107,7 @@ public:
 		Memory_base::mem_ds.bytes = bytes;
 		stereo_data = ( stereo* ) Init_void();
 
-		SetDs( sizeof( stereo ), bs );
+		SetDs( sizeof( stereo ) );
 		statistic.stereo += mem_ds.bytes;
 		mem_ds.name	= Logfacility_class::className;
 	}
@@ -140,7 +121,7 @@ public:
 	void Info( string name )
 	{
 		mem_ds.name = name;
-		Memory_base::Info();
+		Memory_base::DsInfo();
 	}
 
 private:
@@ -163,25 +144,25 @@ public:
 	uint8_t 		Id				= 0xFF;
 	uint 			record_data		= 0;
 	Dynamic_class	DynVolume		{ volidx_range };
-	scanner_t 		scanner 		= scanner_struct( nullptr, min_frames, 0 );
+	Scanner_class	scanner 		= Scanner_class( nullptr, min_frames, 0 );
 
 	StA_status_t 	state 			= StA_state_struct();
 
 	void 			Store_block		( Data_t* ) ;
+	void 			Write_data		( Data_t* src );//, const buffer_t& pos );
 	string 			Record_mode		( bool );
 	string 			Play_mode		( bool );
 	void			Playnotes		( bool );
 	void 			Setup			( StA_param_t);
 	void 			Set_store_counter( uint n);
-	void 			Reset_counter	();
+	void 			Reset			();
 	uint*			Get_storeCounter_p();
 
 	Storage_class( ) :
 		Logfacility_class( "Storage_class" ),
 		Memory()
 	{} ;
-	virtual ~Storage_class()
-	{};
+	virtual ~Storage_class() = default;
 
 private:
 
@@ -196,8 +177,8 @@ class Shared_Memory :
 {
 
 public:
-	static const buffer_t 	sharedbuffer_size 	= max_frames * sizeof( stereo_t );
-	stereo_t* 	addr 		= nullptr;
+	static const buffer_t 	sharedbuffer_size 	= audio_frames * sizeof( Stereo_t );
+	Stereo_t* 	addr 		= nullptr;
 	shm_ds_t	ds 			= shm_data_struct();
 
 	Shared_Memory( buffer_t size );

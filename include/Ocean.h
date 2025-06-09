@@ -109,18 +109,17 @@ const phi_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 
 
 template< typename T >
-struct range_t
+struct range_T
 {
-		T min ;
-		T max ;
-		bool err = false;
+	T min ;
+	T max ;
 };
-const range_t<int>		volidx_range		{ 0, 100 };
-const range_t<buffer_t>	frames_range		{ 0, max_frames };
-const range_t<uint>		duration_range		{ min_msec, max_msec };
+const range_T<int>		volidx_range		{ 0, 100 };
+const range_T<buffer_t>	frames_range		{ 0, max_frames };
+const range_T<uint>		duration_range		{ min_msec, max_msec };
 
 template< typename T>
-constexpr T check_range( range_t<T> r, T val, string err = "" )
+constexpr T check_range( range_T<T> r, T val, string err )
 {
 	if( val < r.min )
 	{
@@ -129,7 +128,7 @@ constexpr T check_range( range_t<T> r, T val, string err = "" )
 									<< val
 									<< " adjusted to min boundaries "
 									<< r.min << endl;
-//		static_assert(false);
+//		assert(false);
 		return r.min;
 	}
 	if (val > r.max )
@@ -145,8 +144,24 @@ constexpr T check_range( range_t<T> r, T val, string err = "" )
 	return val;
 }
 
+template< typename T>
+constexpr T check_cycle( range_T<T> r, T val, string err  )
+{
+	if( r.max == 0 ) return 0;
+	if( val < r.min )
+	{
+		cout.flush() << "WARNING: " << err
+									<< ": "
+									<< val
+									<< " adjusted to min boundaries "
+									<< r.min << endl;
+		return val + r.max;
+	}
+	return val % r.max;
+}
+
 template<typename T>
-string show_range( range_t<T> range )
+string show_range( range_T<T> range )
 {
 	stringstream strs {};
 	strs << range.min << "..." << range.max ;
@@ -212,6 +227,7 @@ typedef struct osc_struct
 
 
 } osc_roles_t;
+constexpr const  array<uint,3> osctypeIds  = { osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID };
 
 const vector<string> slidermodes =
 {
@@ -224,7 +240,7 @@ enum DYNAMIC
 
 
 const uint				oct_steps		= 12;
-const uint				max_octave		= 6;
+const static uint		max_octave		= 6;
 const uint 				min_octave 		= 0;
 const string			OctChars		= "CcDdEFfGgAaB";
 

@@ -42,6 +42,7 @@ struct prgarg_struct
 		keys_arr_t 	sdskeys 	{};
 		uint		temp_sec	= 30; 	// seconds storage in StA
 		uint 		record_sec	= 180; 	// seconds storage
+		uint		kbd_sec		= 2;	// seconds of keyboard stoarage in StA
 } ;
 
 typedef prgarg_struct prgarg_struct_t;

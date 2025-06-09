@@ -9,12 +9,12 @@
 #include <App.h>
 #include <EventKeys.h>
 #include <Frequency.h>
-#include <Keyboard.h>
+#include <Kbd.h>
 #include <Viewinterface.h>
 
 #include <Appsymbols.h>
 
-Keyboard_class			Keyboard		{};
+Kbd_base				Keyboard		{};
 ViewInterface_class		ViewSds			{ COMSTACKID, &DaTA };
 int 					sdsid			= sds_master->config;
 
@@ -114,12 +114,12 @@ key3struct_t Key_event( string charstr )
 {
 	String Str{ charstr };
 	set<char> charset = Str.Set;
-	key3struct_t key = Keyboard_base::key3_struct( 0,0,0 );
+	key3struct_t key = Kbd_base::key3_struct( 0,0,0 );
 
 	while ( not charset.contains( (char)key.key ) )
 	{
 		this_thread::sleep_for(chrono::milliseconds(100));
-		if ( DaTA.sds_master->Comstack == state_struct::EXITSERVER )
+		if ( DaTA.sds_master->Comstack == sdsstate_struct::EXITSERVER )
 			exit_proc( 0 );
 		show_ifd();
 		key = Keyboard.GetKeystruct( false );
@@ -189,10 +189,10 @@ int main( int argc, char* argv[] )
 				key3struct_t key = Key_event( "#acsu" );
 				switch ( key.key )
 				{
-				case 'a': { DaTA.Appstate.Set( sds, AUDIOID, state_struct::EXITSERVER);break; }
-				case 'c': { DaTA.Appstate.Set( sds, COMPID , state_struct::EXITSERVER);break; }
-				case 's': { DaTA.Appstate.Set( sds, SYNTHID, state_struct::EXITSERVER);break; }
-				case 'u': { DaTA.Appstate.Set( sds, GUI_ID , state_struct::EXITSERVER);break; }
+				case 'a': { DaTA.Appstate.Set( sds, AUDIOID, sdsstate_struct::EXITSERVER);break; }
+				case 'c': { DaTA.Appstate.Set( sds, COMPID , sdsstate_struct::EXITSERVER);break; }
+				case 's': { DaTA.Appstate.Set( sds, SYNTHID, sdsstate_struct::EXITSERVER);break; }
+				case 'u': { DaTA.Appstate.Set( sds, GUI_ID , sdsstate_struct::EXITSERVER);break; }
 				default : { break; }
 				}
 				tainted = true;

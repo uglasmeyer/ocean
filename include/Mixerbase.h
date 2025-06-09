@@ -53,7 +53,8 @@ public:
 
 	typedef struct mixer_status_struct // mixer status
 	{
-		bool 	sync			= false; // explicite sync mode
+		// SDS structure
+		bool 	sync			= true; // explicite sync mode // no longer needed
 		bool 	notes			= false; // play notes
 		bool 	external		= false; // external play or record
 		bool	mute			= false; // mute master volume

@@ -35,10 +35,10 @@ Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master, &Reg )
 		Comment(INFO,"Attaching stereo buffers");
 
 		init_Shm( SHM_0, Cfg_p->Config.SHM_keyl, 0 );
-		ShmAddr_0 = (stereo_t*) SHM_0.ds.addr;
+		ShmAddr_0 = (Stereo_t*) SHM_0.ds.addr;
 
 		init_Shm( SHM_1, Cfg_p->Config.SHM_keyr, 1 );
-		ShmAddr_1 = (stereo_t*) SHM_1.ds.addr;
+		ShmAddr_1 = (Stereo_t*) SHM_1.ds.addr;
 	}
 }
 
@@ -81,17 +81,17 @@ void Dataworld_class::ClearShm( const buffer_t& frames )
 	( shm_id == 0 ) ? SHM_0.Clear( frames ) : SHM_1.Clear( frames );
 }
 
-stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
+Stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 {
 	uint8_t			shm_id 	= sds_master->SHMID;
-	stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_1 : ShmAddr_0;
+	Stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_1 : ShmAddr_0;
 	return addr;
 
 }
 
-stereo_t* Dataworld_class::SetShm_addr() // Audioserver
+Stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 {
-	stereo_t* 		addr;
+	Stereo_t* 		addr;
 	uint8_t			shm_id 	= sds_master->SHMID;
 
 	shm_id 	= ( shm_id + 1 ) % 2;

@@ -19,7 +19,7 @@
 
 class Application_class :
 	virtual Logfacility_class,
-	state_struct,
+	sdsstate_struct,
 	Statistic_class
 {
 	string 				className 			= "";

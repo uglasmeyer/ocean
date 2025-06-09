@@ -71,8 +71,8 @@ void exit_proc( int signal )
 
 void Test_rtsp()
 {
-	Keyboard_base Kbd;
-	key3struct_t key = Keyboard_base::key3_struct( 0,0,0 );
+	Kbd_base Kbd;
+	key3struct_t key = Kbd_base::key3_struct( 0,0,0 );
 	while( key.key != '#')
 	{
 		cout << "." ;
@@ -97,7 +97,7 @@ int main(  int argc, char* argv[] )
 
 	Sem_p->Release( RTSP_STARTED );
 
-	Log.Comment( INFO, "RTSP is " + state_struct().state_map[ sds->Rtsp ] );
+	Log.Comment( INFO, "RTSP is " + sdsstate_struct().state_map[ sds->Rtsp ] );
 
 	if( Cfg_p->Config.oceangui == 'y' )
 	{

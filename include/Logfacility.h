@@ -124,7 +124,7 @@ public:
 	const string 	bmagenta	= boldon + magenta;
 	const string	nocolor		= "";
 	const string 		Line 			{ "---------------------------------------------------------" };
-	const range_t<int>	loglevel_range 	{ 0, LOGMAX - 1 };
+	const range_T<int>	loglevel_range 	{ 0, LOGMAX - 1 };
 	string 				className 		{ "" };
 	string 				prefixClass 	{ "" };
 	const string 		logFile	 		= logDir + logFileName + string(".log") ;
@@ -152,6 +152,7 @@ public:
 	string Info( ArgsT... args )
 	{
 		stringstream strs{};
+		strs << dec;
 		( strs <<  ... << args  ) ;
 		return cout_log( INFO, strs.str() );
 	};
@@ -159,10 +160,11 @@ public:
 	template <class... ArgsT>
 	void Comment( const int& level, ArgsT... args )
 	{
-		int id = check_range( loglevel_range, level );
+		int id = check_range( loglevel_range, level, "Comment" );
 		if ( LogMask.test( id ) )
 		{
 			stringstream strs{};
+			strs << dec;
 			( strs <<  ... << args  ) ;
 			cout_log( id, strs.str() );
 		}

@@ -369,22 +369,16 @@ void MainWindow::toggle_store_sta6()
 }
 void MainWindow::toggle_store_sta7()
 {
-	toggle_store_sta( this, STA_INSTRUMENT );
+	toggle_store_sta( this, STA_EXTERNAL );
 }
 
 
 void MainWindow::memory_clear()
 {
-	uint8_t id = 0;
-    for ( cb_state_t map : cb_store_sta_vec )
-    {
-    	if ( map.cb->isChecked() )
-    	{
-    		Sds->Set( Sds->addr->MIX_Id, id);
- //   		map.cb->setChecked( false );
-    	}
-    	id++;
-    }
+	for( uint id : StAMemIds )
+	{
+		*cb_filld_sta_vec[id].state = false;
+	}
     Eventlog.add( SDS_ID, CLEAR_KEY );
 }
 
@@ -703,11 +697,11 @@ void MainWindow::SaveRecord()
 
     if ( Sds_master->Record )
     {
-    	Appstate->Set( Sds_master, AUDIOID, state_struct::RECORDSTOP );
+    	Appstate->Set( Sds_master, AUDIOID, sdsstate_struct::RECORDSTOP );
     }
     else
     {
-    	Appstate->Set( Sds_master, AUDIOID, state_struct::RECORDSTART );
+    	Appstate->Set( Sds_master, AUDIOID, sdsstate_struct::RECORDSTART );
     }
 
 }

@@ -30,7 +30,7 @@ enum  {
 
 class Processor_class :
 		virtual Logfacility_class,
-		public state_struct
+		public sdsstate_struct
 {
 	Interface_class* 	Sds ;
 	interface_t* 		sds ;
@@ -44,7 +44,7 @@ public:
 
 	Processor_class( Interface_class* gui, Appstate_class* appstate ) :
 		Logfacility_class("Processor"),
-		state_struct()
+		sdsstate_struct()
 	{
 		className	= Logfacility_class::className;
 		this->Sds 	= gui;

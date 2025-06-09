@@ -28,6 +28,8 @@ extern bool		fcomp( const float& a, const float& b, float precision = 1E-4 );
 
 extern string 	notnull( char* cstr );
 
+inline string bool_str( bool b, string t="yes", string f="no" )
+	{ return ( b ) ? t : f; };
 
 template< typename C > vector<C> set2vector( set<C> s )
 {

@@ -34,7 +34,6 @@ uint8_t Note_base::GetFrqIndex( const pitch_t& nvs)
 	uint8_t 	key 	= Index( octave, step );
 	return key ;
 }
-// https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
 float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 {
 

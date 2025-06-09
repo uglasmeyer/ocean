@@ -129,7 +129,7 @@ constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_t> fnc_vec )
 };
 
 const vector<string> waveform_str_vec = gen_waveform_str_vec( waveFunction_vec );
-const range_t<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
+const range_T<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
 
 Oscwaveform_class::Oscwaveform_class() :
 	Logfacility_class("Oscwaveform_class")

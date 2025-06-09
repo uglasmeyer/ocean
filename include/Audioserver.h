@@ -52,8 +52,8 @@ AudioVolume_class		Volume				{ sds_master };
 buffer_t 				ncounter 			= 0;
 uint					rcounter			= 0;
 char 					shm_id 				= 0; // out_data = Shm_a
-stereo_t*				shm_addr 			= nullptr;
-buffer_t 			audioframes 		= audio_frames;//sds->audioframes;
+Stereo_t*				shm_addr 			= nullptr;
+buffer_t 				audioframes 		= audio_frames;//sds->audioframes;
 uint					bufferFrames 		= chunksize;
 bool 					done 				= false;
 

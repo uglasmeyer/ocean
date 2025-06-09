@@ -24,7 +24,7 @@ enum  KEYCODE {
 	F8  =	57
 };
 
-class Keyboard_base :
+class Kbd_base :
 		virtual 	Logfacility_class
 {
 public:             // Access specifier
@@ -55,8 +55,8 @@ public:             // Access specifier
 		}
 	} key3struct_t;
 
-					Keyboard_base	();
-	virtual 		~Keyboard_base	();
+					Kbd_base	();
+	virtual 		~Kbd_base	();
 
 	void 			Reset			();
 	void			Test			();
@@ -79,7 +79,7 @@ private:
 
 
 };
-typedef Keyboard_base::key3_struct key3struct_t;
+typedef Kbd_base::key3_struct key3struct_t;
 
 
 

@@ -14,8 +14,6 @@
 		{ cout << setw(20) << dec  << setfill('.') 	<< left << s << setw(20) << v ; };
 	auto rline = []( string s, auto v )
 		{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
-	auto conv_bool_s = []( bool b )
-		{ return ( b ) ? string("yes") : string("no "); };
 
 string ViewInterface_class::Decode( uint8_t idx)
 {
@@ -53,11 +51,17 @@ void ViewInterface_class::showStates()
 	StA.AddColumn( "StA Id",  6);
 	StA.AddColumn( "Id Name",  16);
 	StA.AddColumn( "Play",6);
-	StA.AddColumn( "Rec.",6);
+	StA.AddColumn( "Store.",6);
+	StA.AddColumn( "Stored.",6);
 	StA.AddColumn( "Amp.",6);
 	StA.PrintHeader();
 	for( uint n = 0; n <8; n++ )
-		StA.AddRow( n, StAIdName( n ), sds->StA_state[n].play, sds->StA_state[n].store, (int)sds->StA_amp_arr[n] );
+		StA.AddRow( n,
+					StAIdName( n ),
+					sds->StA_state[n].play,
+					sds->StA_state[n].store,
+					sds->StA_state[n].filled,
+					(int)sds->StA_amp_arr[n] );
 
 	Table_class State { "Mixer State ", 20 };
 	State.AddColumn( "Property",18 );
@@ -131,7 +135,7 @@ void ViewInterface_class::showProcesses()
 	{
 		Proc.AddRow( AppIdName( appid ), Decode( Appstate.Get( sds, appid )) );
 	}
-	Proc.AddRow( "Keyboard", conv_bool_s( sds->Keyboard ) );
+	Proc.AddRow( "Keyboard", bool_str( sds->Keyboard, Decode(RUNNING), Decode(OFFLINE) ) );
 
 	lline( "Mixer Volume:      " , (int)sds->MIX_Amp );
 	rline( "Mixer Id           " , (int)sds->MIX_Id );

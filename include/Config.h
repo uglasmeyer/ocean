@@ -64,7 +64,7 @@ public:
 	string 			basedir 			{""};
 	string 			configfile 			{""};
 	string 			prgname				{	program_invocation_short_name };
-	prgarg_struct	Config 				= prgarg_struct();
+	prgarg_struct_t	Config 				= prgarg_struct();
 
 					Config_class		( string Module ) ;
 	virtual 		~Config_class		();
