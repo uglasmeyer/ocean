@@ -38,6 +38,7 @@ struct 				shm_data_struct
 	uint			Id				= 0;		// interface id in the set of shm_data_structures
 	bool			eexist			= false;	// becomes true if attached
 	buffer_t 		bytes			= 0;		// in bytes
+	int				sizeof_type		= sizeof( Stereo_t );
 	key_t			key				= 0;		// shm key
 	int 			shmid			= -1;		// sjmid
 	void* 			addr			= nullptr;
@@ -49,8 +50,8 @@ typedef				shm_data_struct shm_ds_t;
 class 				Shm_base :
 	virtual public 	Logfacility_class
 {
-public:
 	string 			className 		= "";
+public:
 	shm_ds_t		shm_ds			= shm_data_struct();
 
 	shm_ds_t* 		Get				( key_t key );

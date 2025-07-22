@@ -19,15 +19,27 @@
 template<typename T>
 constexpr char AppNameId( const T& name )
 {
-	if ( strEqual( name, "AudioServer"	) ) return AUDIOID;
-	if ( strEqual( name, "Synthesizer" 	) )	return SYNTHID;
-	if ( strEqual( name, "Composer" 	) )	return COMPID;
-	if ( strEqual( name, "OceanGUI" 	) ) return GUI_ID;
-	if ( strEqual( name, "Comstack" 	) )	return COMSTACKID;
-	if ( strEqual( name, "rtsp" 		) )	return RTSPID;
-	if ( strEqual( name, "Testprg" 		) )	return TESTID;
-	cout << "ERROR: unknown application name: " << name << endl;
-	exit( 0 );
+	char appid = APPID::NOID;
+
+	if ( strEqual( name, "AudioServer"	) ) appid = APPID::AUDIOID;
+	if ( strEqual( name, "Synthesizer" 	) )	appid = APPID::SYNTHID;
+	if ( strEqual( name, "Composer" 	) )	appid = APPID::COMPID;
+	if ( strEqual( name, "OceanGUI" 	) ) appid = APPID::GUI_ID;
+	if ( strEqual( name, "Comstack" 	) )	appid = APPID::COMSTACKID;
+	if ( strEqual( name, "Keyboard" 	) )	appid = APPID::KBDID;
+	if ( strEqual( name, "rtsp" 		) )	appid = APPID::RTSPID;
+	if ( strEqual( name, "Testprg" 		) )	appid = APPID::TESTID;
+
+	if ( appid == APPID::NOID )
+	{
+		cout << "ERROR: unknown application name: " << name << endl;
+		exit( 0 );
+	}
+	if ( ( not is_atty ) and ( appid == APPID::KBDID ) )
+	{
+		appid = APPID::SYNTHID;
+	}
+	return appid;
 }
 struct process_properties_struct
 {
@@ -73,7 +85,7 @@ public:
 	Register_class* Reg_p				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
-	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID } ;
+	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID, KBDID } ;
 	const range_T<uint>
 					appId_range 		{0, NOID };
 	array< uint, NOID>
@@ -96,6 +108,7 @@ public:
 	bool			IsRunning  			( interface_t* sds, uint appid );
 	bool			IsOffline  			( interface_t* sds, uint appid );
 	bool 			IsExitserver		( interface_t* sds, uint appid );
+	bool			IsKeyboard			( );
 
 	void 			SetRunning			( );
 	void 			SetOffline			( );

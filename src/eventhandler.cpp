@@ -47,6 +47,7 @@ void Event_class::Handler()
 			break;
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
 		EvInfo( event, "receive command <setup play xml notes>");
+		Mixer->Set_mixer_state( STA_NOTES, true );
 		Sds->Commit();
 		break;
 	}
@@ -63,7 +64,7 @@ void Event_class::Handler()
 		EvInfo( event, "Slider Mode: " + slidermodes[sds->frq_slidermode] );
 		if ( sds->frq_slidermode == COMBINE )
 		{
-			Instrument->Oscgroup.Set_Frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
+			Instrument->Oscgroup.Set_Combine_Frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
 			sds->VCO_spectrum = Instrument->vco->spectrum;
 			sds->VCO_wp.frqidx= Instrument->vco->wp.frqidx;
 			sds->FMO_spectrum = Instrument->fmo->spectrum;
@@ -261,7 +262,7 @@ void Event_class::Handler()
 		Comment(INFO,
 				"receiving command <store sound to memory bank " + MbNr.str
 						+ " >");
-		for (int StaId : StAMemIds)
+		for (int StaId : Mixer_base::StAMemIds)
 		{
 			if (MbNr.val == StaId)
 			{
@@ -289,29 +290,6 @@ void Event_class::Handler()
 		Mixer->SetStA();
 		Sds->Commit();
 		break;
-
-		/*
-		for ( uint n = 0; n < Mixer->StA.size() ; n++ )
-		{
-			bool play = (bool) sds->StA_state[n].play;
-			Mixer->StA[n].Play_mode( play );
-			Mixer->Set_mixer_state( n , play );
-
-			uint8_t amp = sds->StA_amp_arr[ n ];
-			Mixer->StA[ n ].DynVolume.SetupVol( amp , SLIDE);
-		}
-		*/
-/*		Value mixid { sds->MIX_Id };
-		Value amp { sds->StA_amp_arr[mixid.val] };
-		sds->StA_state[mixid.val].play = true;
-		Value play { sds->StA_state[mixid.val].play };
-
-		Mixer->StA[mixid.val].DynVolume.SetupVol( amp.val, SLIDE);
-		Mixer->Set_mixer_state(mixid.val, (bool) (play.val));
-//		EvInfo( event,	"Mixer ID " + mixid.str + " Amp: " + amp.str + " State: "
-//						+ play.boolstr);
- *
- */
 	}
 	case MUTEREC_KEY:
 	{
@@ -327,7 +305,7 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (uint id : StAMemIds) {
+		for (uint id : Mixer_base::StAMemIds) {
 			Mixer->Set_mixer_state(id, false);
 		}
 		Sds->Commit();
@@ -335,7 +313,7 @@ void Event_class::Handler()
 	}
 	case CLEAR_KEY:
 	{
-		for( uint id : StAMemIds )
+		for( uint id : Mixer_base::StAMemIds )
 		{
 			Mixer->StA[id].Reset();
 		}
@@ -364,6 +342,12 @@ void Event_class::Handler()
 		Notes->Read(notes_name);
 		sds->Noteline_sec = Notes->noteline_sec;
 		Sem->Release(SEMAPHORE_SYNCNOTES);
+		Mixer->Set_mixer_state( STA_NOTES, true );
+		if( Mixer->StA[ STA_NOTES ].DynVolume.Current() == 0 )
+		{
+			Mixer->StA[ STA_NOTES ].DynVolume.SetupVol( 75, SLIDE );
+			sds->StA_amp_arr[ STA_NOTES ] = 75;
+		}
 		Sds->Commit();
 		break;
 	}
@@ -372,10 +356,11 @@ void Event_class::Handler()
 		Comment(INFO, "receive command <setup play notes>");
 		string notes_file = Sds->Read_str(NOTESSTR_KEY);
 		Notes->Read(notes_file); // notes have been written to file by the GUI already
-		Mixer->status.notes = true;
+//		Mixer->status.notes = true;
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		sds->Noteline_sec = Notes->noteline_sec;
 		Sem->Release(SEMAPHORE_SYNCNOTES);
+
 		Sds->Commit();
 		break;
 	}
@@ -538,5 +523,5 @@ void Event_class::Handler()
 	}
 	} // switch event
 
-	Mixer->Update_sds_state(sds);
+	Mixer->Update_sds_state( ALLITEMS, sds);
 }

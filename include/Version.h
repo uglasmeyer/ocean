@@ -31,6 +31,10 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
+
+version 3.8.2
+				oscgroup.Set_Note_Frequency
+				keyboard as a process
 version 3.8.1 Keyboard F1 layout
 				reduced Shm size (audio_frame)
 				float Shm

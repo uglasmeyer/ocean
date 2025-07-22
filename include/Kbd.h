@@ -10,9 +10,12 @@
 
 #include <Logfacility.h>
 
+#define NOKEY 0
+
 enum  KEYCODE {
 	ESC	=	27,
 	ASC	=	126,
+	ALT =  -62,
 	F0	=	49,
 	F1	=	80,
 	F2	=	81,
@@ -21,7 +24,8 @@ enum  KEYCODE {
 	F5	=	53,
 	F6	=	55,
 	F7  =	56,
-	F8  =	57
+	F8  =	57,
+	F9 	= 	48
 };
 
 class Kbd_base :
@@ -30,7 +34,7 @@ class Kbd_base :
 public:             // Access specifier
 	typedef struct keybuf_struct
 	{
-		char			key		= 0;
+		char			key		= NOKEY;
 		char			val0	= 0;
 		char			val1	= 0;
 	} keybuf_t;

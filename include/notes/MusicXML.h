@@ -10,7 +10,6 @@
 
 #include <notes/Notesbase.h>
 #include <Ocean.h>
-#include <notes/Notes.h>
 #include <tinyxml2.h>
 
 class Musicxml_class :
@@ -21,10 +20,10 @@ class Musicxml_class :
 public:
 
 
-	Note_class::musicxml_t musicxml;
-	Note_class Notes{ };
+	Note_base::musicxml_t 	musicxml;
+	Note_base 				Notes{ };
 
-	tinyxml2::XMLDocument XMLdoc;
+	tinyxml2::XMLDocument 	XMLdoc;
 
 	Musicxml_class(  ) :
 		Logfacility_class( "Musicxml_class"),
@@ -35,7 +34,7 @@ public:
 	virtual ~Musicxml_class()
 	{};
 
-	Note_class::musicxml_t Xml2notelist( const string& filename );
+	Note_base::musicxml_t Xml2notelist( const string& filename );
 	tinyxml2::XMLElement* NewElement( string name )
 	{ return XMLdoc.NewElement( name.data() ) ; };
 

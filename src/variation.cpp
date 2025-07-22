@@ -11,7 +11,7 @@
 
 Variation_class::Variation_class() :
 Logfacility_class{ "Variation_class" },
-Note_class{}
+Note_class()
 {
 	Note_class::Instrument_name = "Variation";
 	className = Logfacility_class::className;

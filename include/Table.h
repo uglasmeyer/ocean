@@ -10,41 +10,42 @@
 
 #include <Logfacility.h>
 
-typedef struct tableOpt_struct
+typedef struct 			tableOpt_struct
 {
-	uint 		Ident 		= 0;
-	string		Titel 		= "";
-	fstream* 	FILE 		= nullptr;
-	char 		Separator 	= ' ';
-	char		Crlf		= '\n';
+	uint 				Ident 		= 0;
+	string				Titel 		= "";
+	fstream* 			FILE 		= nullptr;
+	char 				Separator 	= ' ';
+	char				Crlf		= '\n';
 } tableopt_t;
-const tableopt_t	defaultopt	= tableOpt_struct();
-
+const tableopt_t		defaultopt	= tableOpt_struct();
 
 class Table_class :
 	virtual Logfacility_class
 {
-	string		 		className 	= "";
+	string		 			className 	= "";
 
-	struct header_struct
+	typedef struct 			header_struct
 	{
-		string 	txt;
-		uint 	width;
-	};
-	typedef header_struct header_t;
-	vector<header_t> header_v {};
+		string 				txt;
+		uint 				width;
+	} header_t;
+	vector<header_t> 		header_v 	{};
 
 public:
-	tableopt_t 			opt 		= tableOpt_struct();
 
-	Table_class( string title = "", uint ident = LOGINDENT );
-	Table_class( tableopt_t _opt );
-	virtual ~Table_class();
+	tableopt_t 				opt 		= defaultopt;
 
-	void AddColumn( string name, uint width );
+							Table_class	( string title = "", uint ident = LOGINDENT );
+							Table_class	( tableopt_t _opt );
+	virtual 				~Table_class();
 
-	template< typename... Args>
-	string AddRow( Args... args)
+	void 					PrintHeader	();
+	void 					TestTable	();
+	void 					AddColumn	( string name, uint width );
+
+	template< typename... 	Args>
+	string AddRow( Args... 	args)
 	{
 		uint argc = sizeof...(args);
 		if ( argc > header_v.size() )
@@ -52,8 +53,7 @@ public:
 			Comment(ERROR, "Invalid number of columns: ", argc, " expected: ", header_v.size());
 			return "";
 		}
-		string color 	= GetColor( TABLE );
-		string endc		= GetendColor();
+
 		stringstream strs {};
 		uint n	= 0;
 
@@ -63,29 +63,17 @@ public:
 				<< opt.Separator
 				), ...);
 
-		string tableline =strs.str();
-		string colorline = color + tableline + endc;
+		string row = cout_row( strs.str() );
 
-		cout << colorline << opt.Crlf;
-
-		if( opt.FILE )
-		{
-			if( not opt.FILE->is_open() )
-			{
-				Comment(WARN, "file not open");
-				return strs.str();
-			}
-
-			*opt.FILE << tableline << "\n";
-		}
-		return tableline;
+		return row;
 
 	};
 
-	void PrintHeader();
-	void TestTable();
+
 
 private:
+
+	string 					cout_row	( string txt );
 };
 
 

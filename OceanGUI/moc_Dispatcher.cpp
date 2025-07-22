@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Dispatcher.h'
 **
-** Created by: The Qt Meta Object Compiler version 68 (Qt 6.6.2)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,19 +10,16 @@
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
 
-#if __has_include(<QtCore/qtmochelpers.h>)
 #include <QtCore/qtmochelpers.h>
-#else
-QT_BEGIN_MOC_NAMESPACE
-#endif
-
 
 #include <memory>
 
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Dispatcher.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 68
-#error "This file was generated using the moc from 6.6.2. It"
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -35,10 +32,12 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 QT_WARNING_DISABLE_GCC("-Wuseless-cast")
 namespace {
+struct qt_meta_tag_ZN16Dispatcher_classE_t {};
+} // unnamed namespace
+
 
 #ifdef QT_MOC_HAS_STRINGDATA
-struct qt_meta_stringdata_CLASSDispatcher_classENDCLASS_t {};
-constexpr auto qt_meta_stringdata_CLASSDispatcher_classENDCLASS = QtMocHelpers::stringData(
+static constexpr auto qt_meta_stringdata_ZN16Dispatcher_classE = QtMocHelpers::stringData(
     "Dispatcher_class",
     "UpdateRtspLog",
     "",
@@ -49,48 +48,11 @@ constexpr auto qt_meta_stringdata_CLASSDispatcher_classENDCLASS = QtMocHelpers::
     "finished",
     "Loop"
 );
-#else  // !QT_MOC_HAS_STRING_DATA
-struct qt_meta_stringdata_CLASSDispatcher_classENDCLASS_t {
-    uint offsetsAndSizes[18];
-    char stringdata0[17];
-    char stringdata1[14];
-    char stringdata2[1];
-    char stringdata3[9];
-    char stringdata4[15];
-    char stringdata5[17];
-    char stringdata6[19];
-    char stringdata7[9];
-    char stringdata8[5];
-};
-#define QT_MOC_LITERAL(ofs, len) \
-    uint(sizeof(qt_meta_stringdata_CLASSDispatcher_classENDCLASS_t::offsetsAndSizes) + ofs), len 
-Q_CONSTINIT static const qt_meta_stringdata_CLASSDispatcher_classENDCLASS_t qt_meta_stringdata_CLASSDispatcher_classENDCLASS = {
-    {
-        QT_MOC_LITERAL(0, 16),  // "Dispatcher_class"
-        QT_MOC_LITERAL(17, 13),  // "UpdateRtspLog"
-        QT_MOC_LITERAL(31, 0),  // ""
-        QT_MOC_LITERAL(32, 8),  // "Qlog_str"
-        QT_MOC_LITERAL(41, 14),  // "UpdateFileList"
-        QT_MOC_LITERAL(56, 16),  // "UpdateFileDialog"
-        QT_MOC_LITERAL(73, 18),  // "UpdateColorButtons"
-        QT_MOC_LITERAL(92, 8),  // "finished"
-        QT_MOC_LITERAL(101, 4)   // "Loop"
-    },
-    "Dispatcher_class",
-    "UpdateRtspLog",
-    "",
-    "Qlog_str",
-    "UpdateFileList",
-    "UpdateFileDialog",
-    "UpdateColorButtons",
-    "finished",
-    "Loop"
-};
-#undef QT_MOC_LITERAL
-#endif // !QT_MOC_HAS_STRING_DATA
-} // unnamed namespace
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-Q_CONSTINIT static const uint qt_meta_data_CLASSDispatcher_classENDCLASS[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN16Dispatcher_classE[] = {
 
  // content:
       12,       // revision
@@ -128,11 +90,11 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSDispatcher_classENDCLASS[] = {
 
 Q_CONSTINIT const QMetaObject Dispatcher_class::staticMetaObject = { {
     QMetaObject::SuperData::link<QObject::staticMetaObject>(),
-    qt_meta_stringdata_CLASSDispatcher_classENDCLASS.offsetsAndSizes,
-    qt_meta_data_CLASSDispatcher_classENDCLASS,
+    qt_meta_stringdata_ZN16Dispatcher_classE.offsetsAndSizes,
+    qt_meta_data_ZN16Dispatcher_classE,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSDispatcher_classENDCLASS_t,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN16Dispatcher_classE_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<Dispatcher_class, std::true_type>,
         // method 'UpdateRtspLog'
@@ -154,9 +116,8 @@ Q_CONSTINIT const QMetaObject Dispatcher_class::staticMetaObject = { {
 
 void Dispatcher_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<Dispatcher_class *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<Dispatcher_class *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->UpdateRtspLog((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 1: _t->UpdateFileList(); break;
@@ -166,39 +127,40 @@ void Dispatcher_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         case 5: _t->Loop(); break;
         default: ;
         }
-    } else if (_c == QMetaObject::IndexOfMethod) {
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (Dispatcher_class::*)(const QString & );
-            if (_t _q_method = &Dispatcher_class::UpdateRtspLog; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _q_method_type = void (Dispatcher_class::*)(const QString & );
+            if (_q_method_type _q_method = &Dispatcher_class::UpdateRtspLog; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
             }
         }
         {
-            using _t = void (Dispatcher_class::*)();
-            if (_t _q_method = &Dispatcher_class::UpdateFileList; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _q_method_type = void (Dispatcher_class::*)();
+            if (_q_method_type _q_method = &Dispatcher_class::UpdateFileList; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 1;
                 return;
             }
         }
         {
-            using _t = void (Dispatcher_class::*)();
-            if (_t _q_method = &Dispatcher_class::UpdateFileDialog; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _q_method_type = void (Dispatcher_class::*)();
+            if (_q_method_type _q_method = &Dispatcher_class::UpdateFileDialog; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 2;
                 return;
             }
         }
         {
-            using _t = void (Dispatcher_class::*)();
-            if (_t _q_method = &Dispatcher_class::UpdateColorButtons; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _q_method_type = void (Dispatcher_class::*)();
+            if (_q_method_type _q_method = &Dispatcher_class::UpdateColorButtons; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 3;
                 return;
             }
         }
         {
-            using _t = void (Dispatcher_class::*)();
-            if (_t _q_method = &Dispatcher_class::finished; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _q_method_type = void (Dispatcher_class::*)();
+            if (_q_method_type _q_method = &Dispatcher_class::finished; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 4;
                 return;
             }
@@ -214,7 +176,7 @@ const QMetaObject *Dispatcher_class::metaObject() const
 void *Dispatcher_class::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_CLASSDispatcher_classENDCLASS.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN16Dispatcher_classE.stringdata0))
         return static_cast<void*>(this);
     if (!strcmp(_clname, "Logfacility_class"))
         return static_cast< Logfacility_class*>(this);
@@ -230,7 +192,8 @@ int Dispatcher_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 6)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 6;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 6)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 6;
@@ -269,38 +232,21 @@ void Dispatcher_class::finished()
     QMetaObject::activate(this, &staticMetaObject, 4, nullptr);
 }
 namespace {
+struct qt_meta_tag_ZN16Controller_classE_t {};
+} // unnamed namespace
+
 
 #ifdef QT_MOC_HAS_STRINGDATA
-struct qt_meta_stringdata_CLASSController_classENDCLASS_t {};
-constexpr auto qt_meta_stringdata_CLASSController_classENDCLASS = QtMocHelpers::stringData(
+static constexpr auto qt_meta_stringdata_ZN16Controller_classE = QtMocHelpers::stringData(
     "Controller_class",
     "operate",
     ""
 );
-#else  // !QT_MOC_HAS_STRING_DATA
-struct qt_meta_stringdata_CLASSController_classENDCLASS_t {
-    uint offsetsAndSizes[6];
-    char stringdata0[17];
-    char stringdata1[8];
-    char stringdata2[1];
-};
-#define QT_MOC_LITERAL(ofs, len) \
-    uint(sizeof(qt_meta_stringdata_CLASSController_classENDCLASS_t::offsetsAndSizes) + ofs), len 
-Q_CONSTINIT static const qt_meta_stringdata_CLASSController_classENDCLASS_t qt_meta_stringdata_CLASSController_classENDCLASS = {
-    {
-        QT_MOC_LITERAL(0, 16),  // "Controller_class"
-        QT_MOC_LITERAL(17, 7),  // "operate"
-        QT_MOC_LITERAL(25, 0)   // ""
-    },
-    "Controller_class",
-    "operate",
-    ""
-};
-#undef QT_MOC_LITERAL
-#endif // !QT_MOC_HAS_STRING_DATA
-} // unnamed namespace
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-Q_CONSTINIT static const uint qt_meta_data_CLASSController_classENDCLASS[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN16Controller_classE[] = {
 
  // content:
       12,       // revision
@@ -324,11 +270,11 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSController_classENDCLASS[] = {
 
 Q_CONSTINIT const QMetaObject Controller_class::staticMetaObject = { {
     QMetaObject::SuperData::link<QObject::staticMetaObject>(),
-    qt_meta_stringdata_CLASSController_classENDCLASS.offsetsAndSizes,
-    qt_meta_data_CLASSController_classENDCLASS,
+    qt_meta_stringdata_ZN16Controller_classE.offsetsAndSizes,
+    qt_meta_data_ZN16Controller_classE,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSController_classENDCLASS_t,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN16Controller_classE_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<Controller_class, std::true_type>,
         // method 'operate'
@@ -340,18 +286,18 @@ Q_CONSTINIT const QMetaObject Controller_class::staticMetaObject = { {
 
 void Controller_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<Controller_class *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<Controller_class *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->operate((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         default: ;
         }
-    } else if (_c == QMetaObject::IndexOfMethod) {
+    }
+    if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (Controller_class::*)(const QString & );
-            if (_t _q_method = &Controller_class::operate; *reinterpret_cast<_t *>(_a[1]) == _q_method) {
+            using _q_method_type = void (Controller_class::*)(const QString & );
+            if (_q_method_type _q_method = &Controller_class::operate; *reinterpret_cast<_q_method_type *>(_a[1]) == _q_method) {
                 *result = 0;
                 return;
             }
@@ -367,7 +313,7 @@ const QMetaObject *Controller_class::metaObject() const
 void *Controller_class::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_CLASSController_classENDCLASS.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN16Controller_classE.stringdata0))
         return static_cast<void*>(this);
     return QObject::qt_metacast(_clname);
 }
@@ -381,7 +327,8 @@ int Controller_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 1)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 1;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 1)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 1;

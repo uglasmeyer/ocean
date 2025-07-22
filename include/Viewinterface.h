@@ -51,6 +51,7 @@ private:
 
 	void 	show_Que();
 	void 	show_Ipc();
+	void 	show_spectrum();
 
 	void 	show_Adsr();
 	void 	showKeys();

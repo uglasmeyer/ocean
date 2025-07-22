@@ -23,11 +23,23 @@ string ViewInterface_class::Decode( uint8_t idx)
 void ViewInterface_class::show_Que()
 {
 	cout << "Event que" << endl;
+	string color = black;
+	uint8_t pos = 0;
 	for ( uint8_t ch : sds->deque )
 	{
-		cout.flush() << dec << setw(3) << (int)ch << ":" ;
+		if( pos == sds->eventptr.last)
+			color = bblue;
+		if( pos == sds->eventptr.first )
+			color = bred;
+		if( pos > sds->eventptr.last )
+			color = black;
+		cout.flush() << color << dec << setw(3) << (int)ch << ":" ;
+		pos++;
 	}
-	cout << endl;
+	cout.flush() << endcolor << endl;
+	cout << "Event ptr first : " << (int)sds->eventptr.first << endl;
+	cout << "          last  : " << (int)sds->eventptr.last  << endl;
+	cout << "          length: " << (int)sds->eventptr.length << endl;
 }
 void ViewInterface_class::show_Ipc()
 {
@@ -35,6 +47,22 @@ void ViewInterface_class::show_Ipc()
 	DaTA->Sem_p->State( SEMNUM_SIZE );
 	Set_Loglevel( TEST, false );
 //	system_execute( "ipcs" );
+}
+void ViewInterface_class::show_spectrum()
+{
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->OSC_spectrum ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->OSC_spectrum ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->OSC_spectrum ));
+	cout << endl;
+
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->VCO_spectrum ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->VCO_spectrum ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->VCO_spectrum ));
+	cout << endl;
+
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->FMO_spectrum ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->FMO_spectrum ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->FMO_spectrum ));
 }
 void ViewInterface_class::showStates()
 {
@@ -90,6 +118,7 @@ void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 		case F5 : { show_Que();			break;}
 		case F6 : { show_Adsr();		break;}
 		case F7 : { show_Ipc();			break;}
+		case F8 : { show_spectrum();	break;}
 
 		default: break;
 	}
@@ -103,11 +132,11 @@ void ViewInterface_class::showKeys()
 	Keys.AddColumn( "Key", 10);
 	Keys.AddColumn( "SDS Table", 15 );
 	Keys.PrintHeader();
-	Keys.AddRow( "F1" , "more Keys", "F2", "OSCs" );
-	Keys.AddRow( "F3" , "Processes", "F4", "States" );
-	Keys.AddRow( "F5" , "Event Que", "F6", "Features" );
-	Keys.AddRow( "F7" , "IPC", "", "" );
-	Keys.AddRow( "" , "", "", "" );
+	Keys.AddRow( "F1" , "more Keys"	, "F2", "OSCs" );
+	Keys.AddRow( "F3" , "Processes"	, "F4", "States" );
+	Keys.AddRow( "F5" , "Event Que"	, "F6", "Features" );
+	Keys.AddRow( "F7" , "IPC"		, "F8", "Spectrum" );
+	Keys.AddRow( "" , ""			, "", "" );
 
 }
 void ViewInterface_class::show_Adsr()
@@ -123,6 +152,7 @@ void ViewInterface_class::show_Adsr()
 	Adsr.AddRow( "(p)mw", (int)sds->OSC_wp.PMW_dial );
 	Adsr.AddRow( "(h)all", (int)sds->OSC_adsr.hall );
 	Adsr.AddRow( "(B)alance", (int)sds->mixer_balance );
+	Adsr.AddRow( "chord delay", (int)sds->noteline_prefix.chord_delay );
 }
 void ViewInterface_class::showProcesses()
 {
@@ -135,7 +165,6 @@ void ViewInterface_class::showProcesses()
 	{
 		Proc.AddRow( AppIdName( appid ), Decode( Appstate.Get( sds, appid )) );
 	}
-	Proc.AddRow( "Keyboard", bool_str( sds->Keyboard, Decode(RUNNING), Decode(OFFLINE) ) );
 
 	lline( "Mixer Volume:      " , (int)sds->MIX_Amp );
 	rline( "Mixer Id           " , (int)sds->MIX_Id );
@@ -195,17 +224,7 @@ void ViewInterface_class::showOSCs()
 	rline( "                   " , 0 );
 	rline( "Audio frames", (int)sds->audioframes );
 
-	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->OSC_spectrum ));
-	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->OSC_spectrum ));
-	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->OSC_spectrum ));
 
-	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->VCO_spectrum ));
-	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->VCO_spectrum ));
-	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->VCO_spectrum ));
-
-	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->FMO_spectrum ));
-	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->FMO_spectrum ));
-	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->FMO_spectrum ));
 
 
 

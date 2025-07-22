@@ -9,6 +9,8 @@ Exit(  )
 cd ..
 OCEANDIR=`pwd`
 LIBDIR=$OCEANDIR/lib
+BINDIR=$OCEANDIR/bin
+
 ls $OCEANDIR/bin/oceansetup.sh 2>/dev/null || Exit "cannot find oceansetup in $OCEANDIR" 
 
 cd bin 2>/dev/null || Exit "$OCEANDIR has no bin/ directory" 
@@ -20,7 +22,7 @@ echo using architecture $ARCH
 
 BIN=`echo *`
 echo having binaries $BIN
-cd ..
+cd $BINDIR
 
 for bin in $BIN
 do
@@ -28,6 +30,14 @@ do
 	then
 		echo executing ln -s $ARCH/$bin $bin 
 		ln -s $ARCH/$bin $bin
+	fi
+	if [ $bin == Synthesizer ]
+	then
+		if [ ! -f Keyboard ]
+		then
+			echo executing ln -s $ARCH/$bin Keyboard 
+			ln -s $ARCH/$bin Keyboard
+		fi
 	fi
 done
 

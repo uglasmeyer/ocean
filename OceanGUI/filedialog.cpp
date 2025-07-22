@@ -23,7 +23,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 										Dataworld_class* 	_data,
 										EventLog_class*		_log) :
     Logfacility_class("FileDialog"),
-    Note_class( ),
+    Note_class( _data->Sds_p->addr ),
 	QDialog(parent),
 	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
@@ -231,7 +231,7 @@ void File_Dialog_class::Instrument_Save()
     string str			= QStr.toStdString();
     Sds->Write_str( INSTRUMENTSTR_KEY, str );
 
-	Eventlog_p->add( SDS_ID, SAVEINSTRUMENTKEY );
+	Eventlog_p->add( SDS_ID, NEWINSTRUMENTKEY );
 }
 void File_Dialog_class::pb_Notes_Done_clicked()
 {

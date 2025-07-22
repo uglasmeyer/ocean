@@ -77,7 +77,7 @@ void Musicxml_class::appendMeasure( XMLElement* part, XMLElement* measure )
 }
 
 // https://www.w3.org/2021/06/musicxml40/tutorial/midi-compatible-part/
-Note_class::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
+Note_base::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 {
 
     int err = XMLdoc.LoadFile( filename.data() );

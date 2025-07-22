@@ -39,10 +39,9 @@ enum
 static const uint 	SEMNUM_SIZE = 16;
 
 class Semaphore_class  :
-	virtual public 	Logfacility_class,
-	virtual 		Time_class
+	virtual public 	Logfacility_class
 {
-	string 			className = "Semaphore_class";
+	string 			className = "";
 public:
 	Time_class		Locktimer{};
 
@@ -78,8 +77,7 @@ private:
 	void 	init	();
 	void 	Semop	( const unsigned short& num, const short int& sop );
 
-
-	map< int, std::string > semnum_map
+	map< int, string > semnum_map // @suppress("Invalid arguments")
 	{
 		{SEMAPHORE_NULL,"SEMAPHORE_NULL"},
 		{PROCESSOR_WAIT,"PROCESSOR_WAIT"},

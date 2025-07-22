@@ -23,12 +23,11 @@ class Application_class :
 	Statistic_class
 {
 	string 				className 			= "";
-	char 				AppId				= NOID;
 public:
 
-//	Statistic_class 	Statistic			;
-	process_t 			properties 			{ };
-
+	char 				AppId				= NOID;
+	process_t 			properties 			{};
+	Time_class			Timer				{};
 	Dataworld_class*	DaTA				= nullptr;
 	Appstate_class*		Appstate			= nullptr;
 	interface_t* 		sds					= nullptr;
@@ -41,8 +40,8 @@ public:
 	uint 				client_id			= NOID;
     const set<int> 		logowner 			=  { GUI_ID, COMPID, RTSPID };
 
-	Application_class( Dataworld_class* );
-	virtual ~Application_class();
+    					Application_class	( Dataworld_class* );
+	virtual 			~Application_class();
 
 	void Start( int, char* [] );
 	void Ready();

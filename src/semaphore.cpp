@@ -2,15 +2,36 @@
 #include <data/Semaphore.h>
 
 Semaphore_class::Semaphore_class( key_t key) :
-Logfacility_class( "Semaphore"),
-Time_class()
+Logfacility_class( "Semaphore_class")
 {
-	this->SEM_KEY = key;//Cfg->Config.Sem_key;
+	className 		= Logfacility_class::className;
+	this->SEM_KEY 	= key;//Cfg->Config.Sem_key;
 	init();
 }
 
 Semaphore_class::~Semaphore_class()
 {
+}
+void Semaphore_class::init()
+{
+	Comment( INFO, "initializing the semaphore facility");
+	Comment( INFO, "using semaphore key " + to_string( SEM_KEY));
+    semid = semget( SEM_KEY, SEMNUM_SIZE, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+    if( errno == EEXIST )
+    {
+        semid = semget( SEM_KEY, SEMNUM_SIZE, SEM_INIT );
+    }
+    else
+    {
+    	Comment( INFO, "creating semaphore set " + to_string( semid ));
+    }
+    if (semid < 0)
+    {
+        perror("semget");
+        exit( 1 );
+    }
+    State( SEMNUM_SIZE );
+	Comment( INFO, "attached to semaphore set " + to_string( semid ));
 }
 
 void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
@@ -57,27 +78,6 @@ void Semaphore_class::Reset( uint8_t num )
 	assert( ret == 0 );
 }
 
-void Semaphore_class::init()
-{
-	Comment( INFO, "initializing the semaphore facility");
-	Comment( INFO, "using semaphore key " + to_string( SEM_KEY));
-    semid = semget( SEM_KEY, SEMNUM_SIZE, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
-    if( errno == EEXIST )
-    {
-        semid = semget( SEM_KEY, SEMNUM_SIZE, SEM_INIT );
-    }
-    else
-    {
-    	Comment( INFO, "creating semaphore set " + to_string( semid ));
-    }
-    if (semid < 0)
-    {
-        perror("semget");
-        exit( 1 );
-    }
-    State( SEMNUM_SIZE );
-	Comment( INFO, "attached to semaphore set " + to_string( semid ));
-}
 
 void Semaphore_class::Aquire( uint8_t num )
 {
@@ -113,10 +113,10 @@ bool Semaphore_class::Lock( uint8_t num, uint timeout )
 {
 	;	// wait for release
 	thread ReleaseProxy_thread (	ReleaseProxy_fnc, this, num, timeout );
+
 	ReleaseProxy_thread.detach();
 	Aquire( num );
 	Semop( num, OP_WAIT );
-//    ReleaseProxy_thread.join();
     return true;
 }
 
@@ -179,10 +179,19 @@ void Semaphore_class::Test()
 
 	t.Start();
 	this->Lock( SEMAPHORE_TEST, 2 );
-	long tel = t.Time_elapsed();
+	long
+	tel = t.Time_elapsed();
 
 	Info( "time elapsed ", to_string(tel), " [ms]" );
-	ASSERTION( tel - 2001 < 60, "timeout", (long)tel, "<2050" );
+	ASSERTION( abs(tel - 2001) < 60, "timeout", (long)tel, "<2050" );
+
+	t.Start();
+	this->Lock( SEMAPHORE_TEST, 2 );
+	this->Release( SEMAPHORE_TEST);
+	tel = t.Time_elapsed();
+
+	Info( "time elapsed ", to_string(tel), " [ms]" );
+//	ASSERTION( abs(tel - 30) < 10, "timeout", (long)tel, "<10" );
 
 	TEST_END( className );
 }

@@ -175,12 +175,12 @@ class Shared_Memory :
 		virtual public Logfacility_class,
 		virtual public Shm_base
 {
-
+	string 					className 			= "";
 public:
+	shm_ds_t				ds					= shm_data_struct();
 	static const buffer_t 	sharedbuffer_size 	= audio_frames * sizeof( Stereo_t );
-	Stereo_t* 	addr 		= nullptr;
-	shm_ds_t	ds 			= shm_data_struct();
-
+	Stereo_t* 				addr 				= nullptr;
+	range_T<buffer_t>		shm_range			;
 	Shared_Memory( buffer_t size );
 	virtual ~Shared_Memory();
 

@@ -20,7 +20,7 @@ Appstate_class::Appstate_class( char appid,
 	Reg_p		= reg;
 	AppId 		= appid;
 	Name 		= AppIdName( appid );
-	if ( AppId == SYNTHID )
+	if ( ( AppId == APPID::KBDID ) or ( AppId == APPID::SYNTHID ) )
 		Setup( _sds			, _sds_master ) ;
 	else
 		Setup( _sds_master	, _sds_master ) ;
@@ -43,6 +43,7 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 		case APPID::COMPID		: { ptr = &sds->Composer; break; }
 		case APPID::GUI_ID		: { ptr = &sds->UserInterface; break; }
 		case APPID::COMSTACKID	: { ptr = &sds->Comstack; break; }
+		case APPID::KBDID		: { ptr = &sds->Keyboard; break; }
 		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
 		case APPID::TESTID		: { ptr = &sds->Rtsp; break; }
 		case APPID::NOID		: { ptr = nullptr; break; }
@@ -73,8 +74,8 @@ string	Appstate_class::GetStr( interface_t* sds, uint appid )
 }
 bool Appstate_class::IsRunning( interface_t* sds, uint appid )
 {
-	if(( appid == this->AppId ) and ( this->sds == sds ))
-		return true;
+//	if(( appid == this->AppId ) and ( this->sds == sds ))
+//		return true;
 /*	if ( dataProc.contains( appid ) )
 	{
 		return Is_running_process( (int) sds->process_arr.at( appid + sds->SDS_Id ).pid);
@@ -92,6 +93,12 @@ bool Appstate_class::IsExitserver( interface_t* sds, uint appid )
 	bool flag = ( EXITSERVER == Get( sds, appid ));
 	return flag;
 }
+bool Appstate_class::IsKeyboard	()
+{
+	bool flag = ( is_atty and ( this->AppId	== APPID::KBDID ));
+	return flag;
+}
+
 void Appstate_class::SetRunning(  )
 {
 	Set( this->sds, this->AppId, RUNNING );

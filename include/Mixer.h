@@ -19,7 +19,7 @@
 #include <Dynamic.h>
 #include <notes/Notes.h>
 
-constexpr const array<uint,8>  StAMemIds 	=	 { 0, 1, 2, 3, 4, 5, 6, 7 };
+
 
 
 class Mixer_class :
@@ -62,7 +62,7 @@ public:
 	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
-	void Update_sds_state( interface_t* sds );
+	void Update_sds_state( int id, interface_t* sds );
 	void Set_mixer_state( const uint& id, const bool& play );
 	void SetStA();
 	void TestMixer();

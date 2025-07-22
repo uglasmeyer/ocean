@@ -30,10 +30,10 @@ void Table_class::AddColumn( string name, uint width )
 
 void Table_class::PrintHeader()
 {
-//	if ( opt.Titel.length() == 0 )
-//		cout << setw( opt.Ident ) << left << "";
-//	else
-	string color = Logfacility_class::bblack;
+
+	string color 		= GetColor( TABLE );
+	string endcolor 	= GetendColor();
+
 	cout << color << setw( opt.Ident ) << left << setfill('.') << opt.Titel << endcolor ;
 	if ( opt.Titel.length() > opt.Ident )
 		cout << endl;
@@ -49,7 +49,25 @@ void Table_class::PrintHeader()
 	else
 		*opt.FILE << '\n';
 }
+string Table_class::cout_row( string txt )
+{
+	string color 		= GetColor( TABLE );
+	string endc			= GetendColor();
+	string colorline 	= color + txt + endc + opt.Crlf;
 
+	cout << colorline;
+	if( opt.FILE )
+	{
+		if( not opt.FILE->is_open() )
+		{
+			Comment(WARN, "file not open");
+			return colorline;
+		}
+
+		*opt.FILE << txt << opt.Crlf;
+	}
+	return colorline;
+}
 void Table_class::TestTable()
 {
 	AddColumn( "Index", 8);

@@ -57,25 +57,29 @@
 using namespace std;
 
 // https://en.cppreference.com/w/cpp/language/types
-typedef 			unsigned long int 	buffer_t;
-typedef 			float		 		Data_t; // range -32767 ... +32767
-typedef 			signed short 		data_t; // range -32767 ... +32767
-typedef 			vector<Data_t>		DataVec_t;
-typedef 			double				phi_t;
+typedef unsigned long int 	buffer_t;
+typedef float		 		Data_t; // range -32767 ... +32767
+typedef signed short 		data_t; // range -32767 ... +32767
+typedef vector<Data_t>		DataVec_t;
+typedef double				phi_t;
+typedef float 				frq_t;
+
 
 struct 			Stereo_struct
 {
 	Data_t left;
 	Data_t right;
 };
-typedef 			Stereo_struct 		Stereo_t;
+typedef Stereo_struct
+					Stereo_t;
 
 struct 				stereo_struct
 {
 	data_t left;
 	data_t right;
 };
-typedef 			stereo_struct 		stereo_t;
+typedef stereo_struct
+					stereo_t;
 
 const size_t		sizeof_stereo		= sizeof(stereo_t);
 const size_t		sizeof_Stereo		= sizeof(Stereo_t);
@@ -105,7 +109,7 @@ const buffer_t 		monobuffer_bytes   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 75; // %
-const phi_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
+const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 
 
 template< typename T >
@@ -119,11 +123,11 @@ const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
 
 template< typename T>
-constexpr T check_range( range_T<T> r, T val, string err )
+constexpr T check_range( range_T<T> r, T val, string errmsg )
 {
 	if( val < r.min )
 	{
-		cout.flush() << "WARNING: " << err
+		cout.flush() << "WARNING: " << errmsg
 									<< ": "
 									<< val
 									<< " adjusted to min boundaries "
@@ -133,7 +137,7 @@ constexpr T check_range( range_T<T> r, T val, string err )
 	}
 	if (val > r.max )
 	{
-		cout.flush() << "WARNING: " << err
+		cout.flush() << "WARNING: " << errmsg
 									<< ": "
 									<< val
 									<< " adjusted to max boundaries "
@@ -168,6 +172,7 @@ string show_range( range_T<T> range )
 	return strs.str();
 }
 
+#define ALLITEMS  -1
 
 enum APPID
 {
@@ -177,6 +182,7 @@ enum APPID
 	GUI_ID,
 	COMSTACKID,
 	RTSPID,
+	KBDID,
 	TESTID,
 	NOID
 };
@@ -191,6 +197,7 @@ constexpr string AppIdName( const T& app_id )
 		case APPID::GUI_ID		: return "UserInterface";
 		case APPID::COMSTACKID	: return "Comstack";
 		case APPID::RTSPID		: return "Rtsp";
+		case APPID::KBDID		: return "Keyboard";
 		case APPID::TESTID		: return "Testprg";
 		case APPID::NOID		: return "No Process";
 		default 		: 	{
@@ -248,8 +255,8 @@ const string			OctChars		= "CcDdEFfGgAaB";
 	if ( not (expr) ) \
 	{\
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
-	cout 	<< message 							<< '\n'\
-			<< "input    value: " << (input) 		<< '\n'\
+	cout 	<< message 									<< endl\
+			<< "input    value: " << (input) 			<< endl\
 			<< "expected value: " << dec << (expected) 	<< endl;\
 	exit (0); \
 	};

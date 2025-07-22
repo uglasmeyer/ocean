@@ -18,6 +18,108 @@
 #include <Oscgroup.h>
 #include <Mixerbase.h>
 #include <Keyboard_base.h>
+#include <queue>
+
+
+
+class Kbd_note_class :
+	public kbd_state_struct,
+	public Note_base
+{
+public:
+	const array<string, kbd_octaves>
+					dflt_keyboard_keys	{  	string("A_S_DF_J_K_L") ,
+											string("Q_W_ER_U_I_O") ,
+											string("1_2_34_7_8_9")};
+	array<string, kbd_octaves>
+					keyboard_keys		{ dflt_keyboard_keys };
+
+	/*
+	 https://www.delamar.de/songwriting/akkorde-lernen-49754/#akkorde-bestimmen
+	 https://de.wikipedia.org/wiki/American_Standard_Code_for_Information_Interchange
+	 */
+	std::map<char, string>
+					Chords				{	{'y',string(""  )},// single// @suppress("Invalid arguments")
+											{'x',string("43")},// Dur
+											{'c',string("34")}, // Moll
+											{'v',string("343")}, // Dur
+											{'b',string("433")}, // Moll
+											{'n',string("<")} // Power
+
+										};
+	string 			chord				= Chords['y'];
+	set<char>		chord_keys			{ 'y', 'x', 'c', 'v', 'b', 'n' };
+
+	Kbd_note_class() 	{};
+	kbd_note_t		Note 				= kbd_note_struct( 0, NONOTE);
+	string			noteline			{};
+	vector<kbd_note_t>
+					note_vec			{};
+	virtual 		~Kbd_note_class() 	= default;
+	string 			setNote				( int key )
+	{
+
+		noteline = "";
+		if ( key == NOKEY )
+			return noteline;
+
+		int KEY = toupper( key );
+		Note 	= kbd_note_struct( 0, NONOTE);
+		for( uint oct = 0; oct < kbd_octaves; oct++ )
+		{
+			size_t pos 	= keyboard_keys[ oct ].find( KEY );
+			if ( pos < STRINGNOTFOUND )
+			{
+				Note = kbd_note_struct( oct + base_octave, pos);
+				note_vec.push_back( Note );
+				if( chord.length()  == 0 )
+					noteline.append( Note.show() );
+
+			}
+		}
+
+		if (( chord.length() > 0 ) and ( Note.step > NONOTE ))
+		{
+			uint8_t pos 	= Note.step;
+			uint8_t oct		= Note.octave;
+
+			noteline.append( "(" );
+			noteline.append( Note.show() );
+
+			for( char ch 	: chord )
+			{
+				pos			= char2int(ch) + pos;
+				if( pos > oct_steps - 1 )
+				{
+					pos = pos % oct_steps;
+					oct++;
+				}
+				Note 		= kbd_note_struct( oct, pos);
+				if ( Note.frqidx < frequency_range.max - 2 )
+				{
+					note_vec.push_back( Note );
+					noteline.append( Note.show() );
+				}
+			}
+			noteline.append( ")" );
+		}
+		return noteline;
+	}
+	string GetChord( char key )
+	{
+		string str = chord;
+		if( chord_keys.contains( key ))
+			str = Chords[key];
+//		cout << ":" << str;
+		return str;
+	}
+	void show( const kbd_note_t note )
+	{
+		string	note_name 		= frqNamesArray[ note.frqidx ];
+		cout.flush() << note_name ;
+	}
+
+} ;
 
 class keyboardState_class :
 	public virtual 		kbd_state_struct,
@@ -27,57 +129,13 @@ class keyboardState_class :
 
 	const range_T<uint>	sharps_range			{ 0, 3 }; // TODO reduced range
 	const range_T<uint>	flats_range				{ 0, 2 }; // TODO reduced range
-/*	const String		default_kbdNote			{ 	string( "A_S_DF_J_K_L" ) +
-													string( "Q_W_ER_U_I_O" ) +
-													string( "1_2_34_7_8_9" )};
-*/
 
 public:
-	static const int 	max_kbd_octave			= max_octave - 3 ;
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
 	string				NoteNames				= convention_notes[ENGLISH];
+	string				Noteline				{};
+	Kbd_note_class		kbd_note 				{};
 
-	typedef struct Kbd_note_struct :
-			kbd_state_struct,
-			Note_base
-	{
-		const array<string, max_kbd_octave>
-						dflt_keyboard			= {  string("A_S_DF_J_K_L") ,
-													 string("Q_W_ER_U_I_O") ,
-													 string("1_2_34_7_8_9")};
-		array<string, max_kbd_octave>
-						kbdNotes				{ dflt_keyboard };
-		int 			step 					= NONOTE;
-		int 			octave  				= base_octave;
-		int 			frqidx 					= C0;
-
-		Kbd_note_struct() {};
-		~Kbd_note_struct() = default;
-
-		void 			setNote					( int key )
-		{
-			int KEY = toupper( key );
-			step	= NONOTE;
-			for( uint oct = 0; oct < max_kbd_octave; oct++ )
-			{
-				size_t pos 	= kbdNotes[ oct ].find( KEY );
-				if ( pos < STRINGNOTFOUND )
-				{
-					step 	= pos;
-					octave 	= oct + base_octave;
-					frqidx 	= Frequency_class::Index( octave, pos );
-					break;
-				}
-			}
-		}
-		void show()
-		{
-			string	note_name 		= frqNamesArray[ frqidx ];
-			cout.flush() << note_name ;// << "(" << frqidx << ")";
-		}
-
-	} kbd_note_t;
-	kbd_note_t 			kbd_note 				{ };
 
 						keyboardState_class		( interface_t* _sds );
 	virtual 			~keyboardState_class() 	= default;
@@ -108,25 +166,27 @@ class Keyboard_class :
 	Instrument_class* 	instrument;
 	interface_t*		sds;
 	Storage_class*		StA;
+	Kbd_base			Kbd						{};
+	typedef std::queue<key3struct_t>
+						key3_stack_t;
+	key3_stack_t		key3_stack				{};
 
 public:
-	// keyhandler.cpp
 
 	Data_t*				Kbd_Data;
+	bool				enabled					= false;
 
 						Keyboard_class			( Instrument_class*, Storage_class* );
 						Keyboard_class			(); // see comstack
 	virtual 			~Keyboard_class			();
-	bool 				Set_Kbdnote				();
-	void 				NoteEvent				();
+	void 				Set_Kbdnote				( key3struct_t key );
 	void 				Set_instrument			();
-	void 				Enable					();
+	void 				Enable					( bool iskbd );
 	void 				ScanData				();
 	void 				Show_keys				( bool tty );
 
 
 private:
-
 
 	const int 			releaseCounter			= 0;
 	const int 			attackCounter 			= frame_parts;//rint( max_frames / min_frames );
@@ -144,7 +204,7 @@ private:
 	void 				attack					();
 	void 				release					();
 	bool 				decay					();
-	void 				set_kdb_note			();
+	void 				gen_chord_data			();
 
 	// keyhandler.cpp
 

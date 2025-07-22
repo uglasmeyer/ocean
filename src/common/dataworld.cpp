@@ -12,11 +12,11 @@
  ***************/
 
 
-Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class* sem ) :
-Logfacility_class( "Dataworld_class"),
-SDS( appId, cfg, sem ),
-Reg( appId, SDS.master ),
-Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master, &Reg )
+Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class* sem )
+	:Logfacility_class( "Dataworld_class")
+	,SDS( appId, cfg, sem )
+	,Reg( appId, SDS.master )
+	,Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master, &Reg )
 {
 
 	className = Logfacility_class::className;
@@ -123,11 +123,11 @@ void Dataworld_class::Test_Dataworld()
 		cout << "read/write on Sds " << sdsid << " ok: " << str << endl;
 	}
 	sds_master->SHMID = 0;
-	ClearShm( max_frames );
+	ClearShm( min_frames );
 	cout << "read/write on SHM " << 0 << " ok: " << endl;
 
 	sds_master->SHMID = 1;
-	ClearShm( max_frames );
+	ClearShm( min_frames );
 	cout << "read/write on SHM " << 1 << " ok: " << endl;
 	TEST_END( className );
 

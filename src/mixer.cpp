@@ -24,9 +24,9 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 	for( uint n : StAMemIds )
 	{
-		Storage_class Sta;
-		Sta.Id = n;
-		StA.push_back(Sta);
+		Storage_class sta;
+		sta.Id = n;
+		StA.push_back( sta );
 	}
 
 	prgarg_struct_t conf = data->Cfg_p->Config;
@@ -96,7 +96,7 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 	}
 };
 
-void Mixer_class::Update_sds_state( interface_t* sds )
+void Mixer_class::Update_sds_state( int Id, interface_t* sds )
 {
 
 	sds->mixer_status =  status;
@@ -114,12 +114,13 @@ void Mixer_class::SetStA()
 		StA[n].Record_mode( store );
 
 		uint8_t amp = sds->StA_amp_arr[ n ];
-		StA[ n ].DynVolume.SetupVol( amp , SLIDE);
 
 		bool play = (bool) sds->StA_state[n].play;
 		StA[n].Play_mode( play );
 
 		Set_mixer_state( n , play );
+
+		StA[ n ].DynVolume.SetupVol( amp , SLIDE );
 	}
 }
 

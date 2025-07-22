@@ -24,7 +24,7 @@ const vector<string>		NotesExtension { file_structure().xml_type, file_structure
 enum { XML_ID, NTE_ID };
 
 class Note_base :
-	virtual public Logfacility_class,
+	virtual  Logfacility_class,
 	virtual public Frequency_class
 {
 	string 					className		= "";
@@ -54,6 +54,7 @@ class Note_base :
 
 
 public:
+
 	const String			OctaveChars		{ octchar_T(min_octave, max_octave ) };
 
 	const string			notes_ext		= file_structure().nte_type;
@@ -87,23 +88,25 @@ public:
 
 
 	typedef struct noteline_prefix_struct
-	{
+	{	// SDS
 		uint8_t		Octave		= 3;
 		uint8_t	 	convention	= 0;
 		uint8_t		nps			= 4;	// notes per second 1,2,4,5,8
 		uint8_t		flat		= 0; 	// number of flats  in the key signature - BEADGCF
 		uint8_t		sharp		= 0;	// number of sharps in the key signature - FCGDAEB
 		uint8_t		variation	= 0;	// 0 no variation, 1 variable note
+		int			chord_delay = 0;	// msec delay between each note of a chord
 	} noteline_prefix_t;
 	const noteline_prefix_t
-				noteline_prefix_default = noteline_prefix_struct();
+					noteline_prefix_default = noteline_prefix_struct();
 	noteline_prefix_t
-					Noteline_prefix	= noteline_prefix_default; // D=default, N=numeric
+					Noteline_prefix			= noteline_prefix_default; // D=default, N=numeric
+	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
 
 
 	typedef struct pitch_struct
 	{
-		char				step_char	= ' ';
+		char				step_char	= '.';
 		int			 		alter 		= 0 ; 	// -1,0, +1
 		int 				step		= -12 ;	// -12, 0, 1...12
 		uint 				octave		= 2	;
@@ -120,7 +123,7 @@ public:
 	typedef struct 	note_struct
 	{
 		string 				str 		= ""; 	// humen readable
-		vector<pitch_t>		chord		{ };		// notes are generated at the same time
+		vector<pitch_t>		chord		{ };	// notes are generated at the same time
 		uint16_t 			duration 	= 0; 	// msec
 		uint16_t			volume 		= notes_default_volume;//0; 	// percentage of max_volume
 		uint8_t 			octave 		= 0; 	// 1...9 ( * 55 ) = base frequency ot the octave
@@ -130,7 +133,29 @@ public:
 	} note_t;
 	typedef list<note_t>	notelist_t;
 	notelist_t 				notelist	{};
+	note_t 					note_buffer = note_struct();
+	const uint16_t			measure_duration
+										= 1000;//max_milli_sec; // 1 sec.
 
+	uint16_t 		min_duration 		= measure_duration / noteline_prefix_default.nps;  //milli seconds
+
+	const note_t	pause_note			= { ".",
+											{pitch_struct()},
+											min_duration,
+											0,
+											0,
+											{glide_struct()},
+											false };
+	typedef struct 	musicxml_struct
+	{
+		string 		instrument_name = "";
+		int			divisions 		= -1;
+		int			beats			= -1;
+		uint		tempo			= max_sec;
+		uint		scoreduration 	= 0; // unit milli second
+		notelist_t 	notelist 		{};
+	} musicxml_t;
+	musicxml_t		musicxml		= musicxml_struct();
 
 	void 				Show_noteline_prefix( noteline_prefix_t nlp );
 	void				Set_noteline_prefix( noteline_prefix_t nlp );
@@ -139,19 +164,19 @@ public:
 
 	void				Set_base_octave( uint );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
+	int 				Notechar2Step( char note_char );
+
 	uint8_t 			GetFrqIndex( const pitch_t& nvs);
 	void 				TestNoteBase();
 
 
-	Note_base ();
-	virtual ~Note_base();
+						Note_base ();
+	virtual 			~Note_base();
 
 
 private:
 
 	int					octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
-//	Frequency_class		Frequency		{ };
-
 };
 
 

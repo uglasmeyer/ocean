@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Spectrum_dialog_class.h'
 **
-** Created by: The Qt Meta Object Compiler version 68 (Qt 6.6.2)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -9,19 +9,16 @@
 #include "Spectrum_dialog_class.h"
 #include <QtCore/qmetatype.h>
 
-#if __has_include(<QtCore/qtmochelpers.h>)
 #include <QtCore/qtmochelpers.h>
-#else
-QT_BEGIN_MOC_NAMESPACE
-#endif
-
 
 #include <memory>
 
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Spectrum_dialog_class.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 68
-#error "This file was generated using the moc from 6.6.2. It"
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -34,10 +31,12 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 QT_WARNING_DISABLE_GCC("-Wuseless-cast")
 namespace {
+struct qt_meta_tag_ZN21Spectrum_Dialog_classE_t {};
+} // unnamed namespace
+
 
 #ifdef QT_MOC_HAS_STRINGDATA
-struct qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS_t {};
-constexpr auto qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS = QtMocHelpers::stringData(
+static constexpr auto qt_meta_stringdata_ZN21Spectrum_Dialog_classE = QtMocHelpers::stringData(
     "Spectrum_Dialog_class",
     "fS1",
     "",
@@ -58,78 +57,11 @@ constexpr auto qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS = QtMocHelp
     "select_spec_main",
     "reset"
 );
-#else  // !QT_MOC_HAS_STRING_DATA
-struct qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS_t {
-    uint offsetsAndSizes[38];
-    char stringdata0[22];
-    char stringdata1[4];
-    char stringdata2[1];
-    char stringdata3[4];
-    char stringdata4[4];
-    char stringdata5[4];
-    char stringdata6[4];
-    char stringdata7[4];
-    char stringdata8[4];
-    char stringdata9[4];
-    char stringdata10[7];
-    char stringdata11[7];
-    char stringdata12[7];
-    char stringdata13[7];
-    char stringdata14[5];
-    char stringdata15[16];
-    char stringdata16[16];
-    char stringdata17[17];
-    char stringdata18[6];
-};
-#define QT_MOC_LITERAL(ofs, len) \
-    uint(sizeof(qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS_t::offsetsAndSizes) + ofs), len 
-Q_CONSTINIT static const qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS_t qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS = {
-    {
-        QT_MOC_LITERAL(0, 21),  // "Spectrum_Dialog_class"
-        QT_MOC_LITERAL(22, 3),  // "fS1"
-        QT_MOC_LITERAL(26, 0),  // ""
-        QT_MOC_LITERAL(27, 3),  // "vS2"
-        QT_MOC_LITERAL(31, 3),  // "fS3"
-        QT_MOC_LITERAL(35, 3),  // "vS4"
-        QT_MOC_LITERAL(39, 3),  // "fS5"
-        QT_MOC_LITERAL(43, 3),  // "vS6"
-        QT_MOC_LITERAL(47, 3),  // "fS7"
-        QT_MOC_LITERAL(51, 3),  // "vS8"
-        QT_MOC_LITERAL(55, 6),  // "sb_wf1"
-        QT_MOC_LITERAL(62, 6),  // "sb_wf2"
-        QT_MOC_LITERAL(69, 6),  // "sb_wf3"
-        QT_MOC_LITERAL(76, 6),  // "sb_wf4"
-        QT_MOC_LITERAL(83, 4),  // "save"
-        QT_MOC_LITERAL(88, 15),  // "select_spec_fmo"
-        QT_MOC_LITERAL(104, 15),  // "select_spec_vco"
-        QT_MOC_LITERAL(120, 16),  // "select_spec_main"
-        QT_MOC_LITERAL(137, 5)   // "reset"
-    },
-    "Spectrum_Dialog_class",
-    "fS1",
-    "",
-    "vS2",
-    "fS3",
-    "vS4",
-    "fS5",
-    "vS6",
-    "fS7",
-    "vS8",
-    "sb_wf1",
-    "sb_wf2",
-    "sb_wf3",
-    "sb_wf4",
-    "save",
-    "select_spec_fmo",
-    "select_spec_vco",
-    "select_spec_main",
-    "reset"
-};
-#undef QT_MOC_LITERAL
-#endif // !QT_MOC_HAS_STRING_DATA
-} // unnamed namespace
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-Q_CONSTINIT static const uint qt_meta_data_CLASSSpectrum_Dialog_classENDCLASS[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN21Spectrum_Dialog_classE[] = {
 
  // content:
       12,       // revision
@@ -185,11 +117,11 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSSpectrum_Dialog_classENDCLASS[] 
 
 Q_CONSTINIT const QMetaObject Spectrum_Dialog_class::staticMetaObject = { {
     QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS.offsetsAndSizes,
-    qt_meta_data_CLASSSpectrum_Dialog_classENDCLASS,
+    qt_meta_stringdata_ZN21Spectrum_Dialog_classE.offsetsAndSizes,
+    qt_meta_data_ZN21Spectrum_Dialog_classE,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS_t,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN21Spectrum_Dialog_classE_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<Spectrum_Dialog_class, std::true_type>,
         // method 'fS1'
@@ -244,9 +176,8 @@ Q_CONSTINIT const QMetaObject Spectrum_Dialog_class::staticMetaObject = { {
 
 void Spectrum_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<Spectrum_Dialog_class *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<Spectrum_Dialog_class *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->fS1((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 1: _t->vS2((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
@@ -278,7 +209,7 @@ const QMetaObject *Spectrum_Dialog_class::metaObject() const
 void *Spectrum_Dialog_class::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_CLASSSpectrum_Dialog_classENDCLASS.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN21Spectrum_Dialog_classE.stringdata0))
         return static_cast<void*>(this);
     if (!strcmp(_clname, "Spectrum_class"))
         return static_cast< Spectrum_class*>(this);
@@ -294,7 +225,8 @@ int Spectrum_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 17)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 17;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 17)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 17;

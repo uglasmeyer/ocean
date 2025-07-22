@@ -9,18 +9,43 @@
 #define KEYBOARD_BASE_H_
 
 const char			NONOTE 					= -1;
+const char			kbd_octaves				= 3;
+const int 			max_kbd_octave			= max_octave - kbd_octaves ;
 
 
 typedef struct kbd_state_struct
 {
-	// SDS
-	int 				base_octave 			= 3; 	// current min kbd octave changeble by +/-
-	uint				sharps					= 0; 	// range(0 .. 3 ) notebase::sharp_pitch
-	uint				flats					= 0; 	// range(0 .. 2 ) notebase::sharp_pitch
-	bool				ADSR_flag				= true;	// apply ADSR data
-	bool				sliding					= false;// use wp.glide on frequency
+	// part of SDS
+	int 			base_octave 			= 3; 	// current min kbd octave changeble by +/-
+	uint			sharps					= 0; 	// range(0 .. 3 ) notebase::sharp_pitch
+	uint			flats					= 0; 	// range(0 .. 2 ) notebase::sharp_pitch
+	bool			ADSR_flag				= true;	// apply ADSR data
+	bool			sliding					= false;// use wp.glide on frequency
 } kbd_state_t;
 
-
+typedef struct note_value_struct
+{
+	int8_t 			step;
+	int8_t			octave;
+} note_value_t;
+typedef struct kbd_note_struct
+:	note_value_struct
+{
+	int 			frqidx;
+	kbd_note_struct( int oct, int pos )
+	{
+		step 	= pos;
+		octave 	= oct;
+		frqidx 	= frqIndex( step, oct );
+	}
+	~kbd_note_struct() = default;
+	string show()
+	{
+		stringstream strs {};
+		strs << "|" << (int)octave << OctChars[step] ;
+//		coutf << strs.str();
+		return strs.str();
+	}
+} kbd_note_t;
 
 #endif /* KEYBOARD_BASE_H_ */

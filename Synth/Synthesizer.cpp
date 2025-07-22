@@ -1,10 +1,10 @@
 
 #include <Synthesizer.h>
-
 #include<Appsymbols.h>
 
 
-
+const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
+const int 				EXITTEST		= 15;
 
 EventQue_class*			EventQue 		= &Sds->Eventque;// &DaTA.Sds_p->Eventque;
 Wavedisplay_class 		Wavedisplay		{ Sds };
@@ -18,12 +18,6 @@ External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg);
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
 Musicxml_class			MusicXML		{};
-
-
-
-const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
-const int 				EXITTEST			= 15;;
-
 Event_class				Event{
 							&Instrument,
 							&Notes,
@@ -35,8 +29,9 @@ Event_class				Event{
 							&ProgressBar,
 							&MusicXML};
 
-extern void ComposerTestCases();
-extern void SynthesizerTestCases();
+extern void 			ComposerTestCases();
+extern void 			SynthesizerTestCases();
+
 
 void show_AudioServer_Status()
 {
@@ -78,12 +73,12 @@ void activate_sds()
 	std::ranges::for_each( init_keys, [  ]( char key )
 			{	DaTA.Sds_p->Event( key );	} );
 
-	Keyboard.Enable();
+	Keyboard.Enable( DaTA.Appstate.IsKeyboard( ));
 
 	for ( uint id : Mixer.HghIds )
 		Mixer.Set_mixer_state(id, sds->StA_state[id].play );
 
-	for ( uint id : StAMemIds )
+	for ( uint id : Mixer.StAMemIds )
 	{
 		Mixer.StA[ id ].state 	= sds->StA_state[id];
 		Mixer.StA[ id ].DynVolume.SetupVol( sds->StA_amp_arr[id], FIXED );
@@ -100,22 +95,12 @@ void activate_sds()
 }
 
 
-//static_assert(frame_parts == 10 );
+key3struct_t key 	= Kbd_base::key3_struct( 0,0,0 );
 
 void add_sound()
 {
-	Mixer.status = sds->mixer_status;
-	Mixer.status.kbd &= ( App.properties.keyboard | sds->StA_state[ STA_KEYBOARD ].play );
-
-	if ( Mixer.status.kbd )
-	{
-		sds->StA_state[ STA_KEYBOARD ].play = Keyboard.Set_Kbdnote();
-		Keyboard.ScanData();
-	}
-	if ( Mixer.status.notes )
-	{
-		Notes.ScanData( &Instrument );
-	}
+	Mixer.status 		= sds->mixer_status;
+	Mixer.status.kbd 	&= ( App.properties.keyboard | sds->StA_state[ STA_KEYBOARD ].play );
 
 	if (( Mixer.status.instrument ) )
 	{
@@ -123,6 +108,27 @@ void add_sound()
 		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
+	else
+		Instrument.osc->kbd_trigger = true;
+
+	key = Keyboard.GetKeystruct( false );
+	if ( ( key.key == ESC ) and ( key.val1 == 0 ))
+	{
+		Appstate->SetOffline();
+		Log.Info( "Exit Key <ESC>");
+	}
+
+	if ( Mixer.status.kbd )
+	{
+		Keyboard.Set_Kbdnote( key );
+		sds->StA_state[ STA_KEYBOARD ].play = true;
+		Keyboard.ScanData();
+	}
+	if ( Mixer.status.notes )
+	{
+		Notes.ScanData( &Instrument );
+	}
+
 
 	Stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
@@ -154,16 +160,13 @@ void ApplicationLoop()
 	Event.Handler();
 	App.Ready();
 	show_AudioServer_Status();
-	Keyboard.Show_keys( is_atty );
+	Keyboard.Show_keys( Keyboard.enabled );
 
-	while ( not Appstate->IsExitserver( sds, SYNTHID ) )
+	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
-		Appstate->SetRunning(  );
-
 		Timer.Performance();
 
 		Event.Handler(  );
-
 	} ;
 
 	Log.Comment(INFO, "Exit Application loop");

@@ -82,10 +82,21 @@ void Oscgroup_class::Show_sound_stack() // show_status
 			{ o->Get_sound_stack( &Table) ; });
 }
 
-void Oscgroup_class::Set_Frequency( const uint8_t& idx, const uint& mode )
+void Oscgroup_class::Set_Note_Frequency( 	const frq_t& base_freq,
+											const uint8_t& idx,
+											const uint& mode )
 {
-	int diff = idx - osc.wp.frqidx;
 	osc.Set_frequency( idx, mode );
+
+	frq_t ratio = osc.wp.freq / base_freq;
+	vco.Set_frequency( Index( ratio * vco.wp.freq ), mode );
+	fmo.Set_frequency( Index( ratio * fmo.wp.freq ), mode );
+}
+void Oscgroup_class::Set_Combine_Frequency( const uint8_t& idx, const uint& mode )
+{
+	uint8_t diff = idx - osc.wp.frqidx;
+	osc.Set_frequency( idx, mode );
+
 	vco.Set_frequency( vco.wp.frqidx + diff, mode );
 	fmo.Set_frequency( fmo.wp.frqidx + diff, mode );
 }
@@ -97,7 +108,8 @@ void Oscgroup_class::Set_Duration( const uint& msec )
 			{ o->Setwp_frames( duration );});
 }
 
-void Oscgroup_class::Set_Osc_Note( 	const uint8_t& 	key,
+void Oscgroup_class::Set_Osc_Note( 	const frq_t&	base_freq,
+									const uint8_t& 	key,
 									const uint& 	msec,
 									const uint& 	volume,
 									const uint& 	mode)
@@ -105,7 +117,7 @@ void Oscgroup_class::Set_Osc_Note( 	const uint8_t& 	key,
 	Set_Duration	( msec );
 	osc.Set_adsr	( osc.adsr ); // generate new adsr data according to the adsr duration (frames)
 
-	Set_Frequency	( key, mode );
+	Set_Note_Frequency	( base_freq, key, mode );
 	osc.Set_volume	( volume, FIXED);//wp.volume	= volume ;
 }
 

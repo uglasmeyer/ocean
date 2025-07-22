@@ -5,16 +5,18 @@
 using namespace std::chrono ;
 
 Time_class::Time_class( uint8_t* t )
-: Logfacility_class("Timer")
+: Logfacility_class("Time_class")
 {
+	className = Logfacility_class::className;
 	this->time_elapsed = t;
 	Start();
 	Stop(); // duration is zero
 }
 
 Time_class::Time_class(  )
-: Logfacility_class("Timer")
+: Logfacility_class("Time_class")
 {
+	className = Logfacility_class::className;
 	this->time_elapsed 	= 0;
 	this->duration 		= 0;
 	this->ms_wait		= 0;
@@ -66,15 +68,31 @@ uint Time_class::Performance( )
 	uint
 	min_wait 		= 10;
 	if ( tel < min_wait )
-		std::this_thread::sleep_for( chrono::milliseconds( min_wait - tel  ) );
+		std::this_thread::sleep_for( std::chrono::milliseconds( min_wait - tel  ) );
 
 	*time_elapsed 	= (uint8_t) (( tel * 100 ) / min_msec );// time elapsed in percentage w.r.t. 1 second = 1000 msec
 	return (uint) tel;
 }
-
+void Time_class::TimeStamp()
+{
+    const auto tp_utc	{std::chrono::system_clock::now()};
+    try
+    {
+        const std::chrono::zoned_time cur_time
+        {
+            std::chrono::current_zone(), // may throw
+            std::chrono::system_clock::now()
+        };
+        Info( cur_time );
+    }
+    catch(const std::runtime_error& ex)
+    {
+        Comment( ERROR, ex.what() );
+    }
+}
 void Time_class::Wait( const uint& d )
 {
-    std::this_thread::sleep_for( chrono::seconds(d) );
+    std::this_thread::sleep_for( std::chrono::seconds(d) );
 }
 
 void Time_class::Test()

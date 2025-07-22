@@ -6,28 +6,27 @@
  */
 #include <Frequency.h>
 
-frqstrarr_t frqNamesArray {""};
-frqarray_t frqArray {0};
+frqstrarr_t frqNamesArray 		{};
+frqarray_t 	frqArray 			{};
 
-bool frqnamesarray_done = false;
-bool frqarray_done = false;
+bool 		frqnamesarray_done 	= false;
+bool 		frqarray_done 		= false;
 
 
 Frequency_class::Frequency_class() :
-		Logfacility_class("Frequency_class"),
-		frequency_range{0, 0 }
+	Logfacility_class("Frequency_class"),
+	frequency_range{0, 0 }
 {
-	className 			= Logfacility_class::className;
+	className 					= Logfacility_class::className;
 
 	if ( not frqarray_done )
 		initFrqArray();
-	frequency_range.min = frqArray[1];
-	frequency_range.max = frqArray[FRQARR_SIZE-1] ;
+	frequency_range.min 		= frqArray[1];
+	frequency_range.max 		= frqArray[FRQARR_SIZE-1] ;
+
 	if(not frqnamesarray_done )
 		initFrqNamesArray();
-
 }
-Frequency_class::~Frequency_class(){};
 
 frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 {
@@ -59,9 +58,29 @@ uint Frequency_class::Index( const string& frqName )
 	return C0; // = ""
 }
 
+uint  Frequency_class::Index( const frq_t& freq )
+{
+	int idx = 1;
+	if( freq >= oct_base_freq )
+	{
+		idx = rint( log(freq / oct_base_freq) / log2 * oct_steps + C0 );
+	}
+	if( freq < oct_base_freq )
+	{
+		if( freq < 1 )
+		{
+			idx = rint( freq * 10 );
+		}
+		else
+			idx = rint( freq + 9 );
+	}
+	return check_range( frqarr_range, idx, "Index" );
+}
+
+
 uint  Frequency_class::Index( const int& oct, const int& step )
 {
-	int idx = frqIndex( oct, step );
+	int idx = frqIndex(step,  oct );
 	return check_range( frqarr_range, idx, "Index" );
 }
 
@@ -105,6 +124,7 @@ void Frequency_class::initFrqArray(  )
 			if (n < C0idx )		// range 1 ... 16
 				x = n - 8  ;
 			else
+				// log(x/oct_base_freq)/log2*oct_steps + C0idx = n
 				x = pow(2.0, (n-C0idx)/((float)oct_steps) ) * oct_base_freq ; // C0 = oct_base_freq
 		}
 		frqArray[n+1] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
@@ -151,19 +171,36 @@ void Frequency_class::initFrqNamesArray()
 void Frequency_class::TestFrequency()
 {
 	TEST_START( className );
+
 	ShowFrqTable();
 	frq_t f;
 	f = GetFrq( 10 );
 	ASSERTION( f == 1, "Frq calc 10", f, 1 );
-	uint i;
-	i = Index( "A3" );
-	f = GetFrq( i );
+	uint idx;
+	idx = Index( "A3" );
+	f = GetFrq( idx );
 	ASSERTION( fcomp(f,220), "Frq calc A3", f, 220 );
-	i = Index( "C2" );
-	f = Calc( 10, i);
+	idx = Index( "C2" );
+	f = Calc( 10, idx);
 	ASSERTION( fcomp(f,40), "Frq base 10", f, 40 );
 	f = Frqadj( 1, 45 );
 	ASSERTION( fcomp(f,2.45), "Frq adj ", f, 2.45 );
+
+
+	idx = Index( 220.0 );
+	ASSERTION( idx == A3, "Index ", idx, A3 );
+	idx = Index( 400.0 );
+	ASSERTION( idx == 81, "Index ", idx, 81 );
+	idx = Index( 410.0 );
+	ASSERTION( idx == 82, "Index ", idx, 82 );
+	idx = Index( 9.0 );
+	ASSERTION( idx == 18, "Index ", idx, 18 );
+	idx = Index( 0.9 );
+	ASSERTION( idx == 9, "Index ", idx, 9 );
+	idx = Index( 0.0 );
+	ASSERTION( idx == 1, "Index ", idx, 1 );
+	idx = Index( 4000.0 );
+	ASSERTION( idx == 97, "Index ", idx, 97 );
 	TEST_END( className );
 }
 

@@ -76,7 +76,7 @@ typedef				array<register_process_t, REGISTER_SIZE>	process_arr_t;
 typedef 			Note_base::noteline_prefix_t				noteline_prefix_t;
 typedef 			Spectrum_class::spectrum_t					spectrum_t;
 typedef				Mixer_base::mixer_status_t					mixer_status_t;
-typedef				Mixer_base::StA_amp_arr_t					StA_amp_arr_t;
+typedef				StAarray_t									StA_amp_arr_t;
 typedef				Mixer_base::StA_state_arr_t					StA_state_arr_t;
 typedef				array<Oscillator_base::connect_t, 3>		osc_connect_t;
 
@@ -95,7 +95,7 @@ constexpr process_arr_t init_process_arr()
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 6; 						// comstack
+	uint8_t			version						= 8; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
@@ -103,7 +103,6 @@ typedef struct interface_struct // with reasonable defaults
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
 
-	bool			Keyboard					= false; // if tty and synthesizer process
 	kbd_state_t		Kbd_state					= kbd_state_struct();
 
 	char 			Instrument[str_buffer_len] 	{"default"}; //char array // comstack
@@ -166,6 +165,7 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t	 		Composer 					= sdsstate_struct::OFFLINE;// comstack
 	uint8_t			Comstack					= sdsstate_struct::OFFLINE;// NA
 	uint8_t			Rtsp						= sdsstate_struct::OFFLINE;//
+	uint8_t			Keyboard					= sdsstate_struct::OFFLINE; // if tty and synthesizer process
 
 
 

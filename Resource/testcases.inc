@@ -85,9 +85,9 @@ exit
 :sliding
 
 osc main reset 
-set fmo freq 40
-set fmo amp 40
-
+set fmo freq A3
+set fmo amp 20
+adsr beat 0
 play _INSTRUMENT amp 75 5
 osc main set sinus A4 80 5
 osc main loop freq A5
@@ -98,7 +98,7 @@ set main freq A3
 osc main amp loop 0
 pause 10
 play _INSTRUMENT amp 75 5
-instrument load Violin
+instrument load Piano
 set fmo freq 10
 notes load drums
 rec mute _INSTRUMENT

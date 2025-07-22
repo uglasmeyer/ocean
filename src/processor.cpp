@@ -7,6 +7,25 @@
 
 #include <Processor.h>
 
+Processor_class::print_struct::print_struct( stack_struct_t _ps )
+{
+	ps = _ps;
+	assign_addr_str();
+	assign_val();
+}
+void Processor_class::print_struct::assign_val()
+{
+	value = ( ps.cmd == CMD_KEY ) ? ps.key : ps.value;
+
+}
+void Processor_class::print_struct::assign_addr_str()
+{
+	for( long addr : { (long)ps.boaddr, (long)ps.chaddr, (long)ps.uiaddr, (long)ps.staddr } )
+		if( addr > 0 )
+			addr_str= Str.to_hex( addr );
+}
+
+
 void Processor_class::printLn( stack_struct ps )
 {
 	if ( ps.cmd == CMD_TEXT )
@@ -129,8 +148,15 @@ void Processor_class::execute_str( stack_struct_t& ps )
 	this->Sds->Write_str( ps.value, ps.str );
 	if ( ps.value == NOTESSTR_KEY )
 		Sds->addr->NotestypeId = NTE_ID;
+	printLn(  ps );
 
+	ps.cmd		= CMD_KEY;
+	ps.cmdstr	= "exec";
+	ps.staddr	= nullptr;
+	ps.str 		= "set";
 	Sds->Event( ps.key );
+	commit_time = wait_for_commit() ;
+
 
 }
 int Processor_class::wait_for_commit()
@@ -153,31 +179,33 @@ void Processor_class::Set_prgline( int nr )
 	prgline = nr;
 }
 
-void Processor_class::Execute()
+auto intro = [ ]( Processor_class* P, int stack_count )
 {
-//	Set_Loglevel( TEST , false );
-	Set_Loglevel( DEBUG , false );
-	int stack_count = process_stack.size();
 	if ( stack_count == 0 )
 	{
-		Comment( ERROR, "Cannot proceed empty stack");
+		P->Comment( ERROR, "Cannot proceed empty stack");
 		return;
 	}
 	else
-		Comment( INFO, "Proceeding stack. Item count " + to_string( stack_count )) ;
+	{
+		P->Info( "Proceeding stack. Item count ", (int) stack_count ) ;
+		P->Info( "waiting for Synthesizer to start" );
+	}
+};
+auto log_init  = [ ]( Processor_class* P )
+{
+	//	P->Set_Loglevel( TEST , false );
+	P->Set_Loglevel( DEBUG , false );
+	P->LOG.open( file_structure().log_file, fstream::out );
+	P->Table.opt.FILE = &P->LOG;
+};
 
-	cout << "waiting for Synthesizer to start" << endl;
-
-
+void Processor_class::Execute()
+{
+	intro	( this, process_stack.size() );
+	log_init( this );
 
 	Sem->Init();
-//	Sds->Commit();
-
-	fstream LOG {};
-	LOG.open( file_structure().log_file, fstream::out );
-	Table.opt.FILE = &LOG;
-
-
 
 	for ( stack_struct_t ps : process_stack )
 	{
@@ -186,84 +214,82 @@ void Processor_class::Execute()
 
 		switch ( ps.cmd )
 		{
-		case CMD_CHADDR : // write char address
-		{
-			if ( not ps.chaddr == 0 )
-				*ps.chaddr = (char) ps.value ;
-			break;
-		}
-		case CMD_BOADDR : // write char address
-		{
-			if ( not ps.boaddr == 0 )
-				*ps.boaddr = (bool) ps.value ;
-			break;
-		}
-		case CMD_UIADDR : // write uint16_t address
-		{
-			if ( not ps.uiaddr == 0 )
-				*ps.uiaddr = (uint16_t) ps.value;
-			break;
-		}
-		case CMD_KEY : // write command key value
-		{
-			Sds->Event( ps.key );
-			commit_time = wait_for_commit();
-			break;
-		}
-		case CMD_EXE :
-		{
-			system_execute( ps.str );
-			Timer.Wait(1);
-			break;
-		}
-		case CMD_WAIT :
-		{
-			if  ( ps.value < 0 )
+			case CMD_CHADDR : // write char address
 			{
-				getc(stdin);
+				if ( not ps.chaddr == 0 )
+					*ps.chaddr = (char) ps.value ;
+				break;
 			}
-			else
+			case CMD_BOADDR : // write char address
 			{
-			    this_thread::sleep_for(chrono::seconds( ps.value));
+				if ( not ps.boaddr == 0 )
+					*ps.boaddr = (bool) ps.value ;
+				break;
 			}
-			break;
-		}
-		case CMD_COND_WAIT :
-		{
-			uint8_t sec = sds->Noteline_sec;
-		    this_thread::sleep_for(chrono::seconds(sec));
-			sds->Noteline_sec = 0;
-			break;
-		}
-		case CMD_STR : // write string
-		{
-			execute_str( ps );
-			commit_time = wait_for_commit() ;
-			break;
-		}
-		case CMD_TEXT :
-		{
-			printf("%s\n", ps.str.data());
-			LOG.flush() << ps.str  ;
-			break;
-		}
-		case CMD_EXIT :
-		{
-			printf("%d \n", ps.prgline);
-			LOG.flush() << ps.prgline << endl;;
-			Sem->Release( SEMAPHORE_EXIT );
-			return;
-			break;
-		}
-		default :
-		{
-			EXCEPTION( to_string( ps.prgline) + " default SIGINT");//raise( SIGINT);
-			break;
-		}
+			case CMD_UIADDR : // write uint16_t address
+			{
+				if ( not ps.uiaddr == 0 )
+					*ps.uiaddr = (uint16_t) ps.value;
+				break;
+			}
+			case CMD_KEY : // write command key value
+			{
+				Sds->Event( ps.key );
+				commit_time = wait_for_commit();
+				break;
+			}
+			case CMD_EXE :
+			{
+				system_execute( ps.str );
+				Timer.Wait(1);
+				break;
+			}
+			case CMD_WAIT :
+			{
+				if  ( ps.value < 0 )
+				{
+					getc(stdin);
+				}
+				else
+				{
+					this_thread::sleep_for( std::chrono::seconds( ps.value));
+				}
+				break;
+			}
+			case CMD_COND_WAIT :
+			{
+				uint8_t sec = sds->Noteline_sec;
+				this_thread::sleep_for( std::chrono::seconds(sec));
+				sds->Noteline_sec = 0;
+				break;
+			}
+			case CMD_STR : // write string
+			{
+				execute_str( ps );
+				break;
+			}
+			case CMD_TEXT :
+			{
+				printf("%s\n", ps.str.data());
+				LOG.flush() << ps.str << endl;  ;
+				break;
+			}
+			case CMD_EXIT :
+			{
+				printf("%d \n", ps.prgline);
+				LOG.flush() << ps.prgline << endl;;
+				Sem->Release( SEMAPHORE_EXIT );
+				return;
+				break;
+			}
+			default :
+			{
+				EXCEPTION( to_string( ps.prgline) + " default SIGINT");
+				break;
+			}
 		} // end switch
-		printLn( ps );
 
-		LOG.flush() << '\n';
+		printLn( ps );
 	}
 
 	Comment( INFO, "Execute() terminated without exit/release");

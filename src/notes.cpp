@@ -8,11 +8,18 @@
 #include <Config.h>
 #include <notes/Notes.h>
 
-Note_class::Note_class()
+Note_class::Note_class( )
+	: Note_class::Logfacility_class("Notes")
+	, Note_base()
+{
+	this->className = Logfacility_class::className;
+}
+Note_class::Note_class( interface_t* _sds)
 : Note_class::Logfacility_class("Notes"),
   Note_base()
 {
 	this->className = Logfacility_class::className;
+	this->sds		= _sds;
 }
 
 Note_class::Note_class( Wavedisplay_class* wd )
@@ -28,8 +35,10 @@ Note_class::~Note_class( )
 {
 }
 
-void Note_class::Set_instrument(Instrument_class *instrument) {
-	Instrument_name = instrument->Name;
+void Note_class::Set_instrument(Instrument_class *instr)
+{
+	Instrument_name = instr->Name;
+	instrument		= instr;
 	Comment(TEST, "Update notes instrument:  " + Instrument_name);
 	// copy class Oscillator
 
@@ -103,16 +112,18 @@ void Note_class::note2memory( 	const note_t& note,
 		Oscgroup.SetSlide( 0 );
 
 	Oscgroup.osc.Set_long_note( note.longnote or longnote );
-	osc->adsr.hall = 0;
+	osc->adsr.hall 		= 0;
 	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_msec ) );
 
+	uint frame_delay 	= instrument->sds->noteline_prefix.chord_delay * frames_per_msec;
+	uint n 				= 0;
 	for ( pitch_t pitch : note.chord )
 	{
 
 		uint8_t key = GetFrqIndex( pitch );
-		Oscgroup.Set_Osc_Note( key, duration, note.volume, SLIDE );
-		Oscgroup.Run_OSCs(offs);
-
+		Oscgroup.Set_Osc_Note( instrument->osc->wp.freq, key, duration, note.volume, SLIDE );
+		Oscgroup.Run_OSCs(offs + n*frame_delay );
+		n++;
 	}
 
 	Oscgroup.osc.Set_glide( wp_glide_effect );
@@ -204,6 +215,11 @@ bool Note_class::Generate_note_chunk( )
 	return false;
 }
 
+void Note_class::SetSDS( noteline_prefix_t nlp )
+{
+	if( instrument )
+		instrument->sds->noteline_prefix = nlp;
+}
 void Note_class::ScanData( Instrument_class* instrument )
 {
 	Set_instrument( instrument );
@@ -300,6 +316,7 @@ string Note_class::Read( string str )
 				}
 				case 'P' :
 					Noteline_prefix = String_to_noteline_prefix( arr[1] );
+					SetSDS( Noteline_prefix );
 					break;
 				case '+' :
 				{
@@ -314,6 +331,7 @@ string Note_class::Read( string str )
 	} while( getline( File, Line.Str));
 
 	File.close();
+
 
 	Noteline_prefix.variation = 0;
 	Set_rhythm_line( Volumeline );

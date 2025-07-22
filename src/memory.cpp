@@ -216,9 +216,11 @@ uint*	Storage_class::Get_storeCounter_p()
 //-----------------------------------------------------------------------------
 
 Shared_Memory::Shared_Memory( buffer_t size ) :
-		Logfacility_class("Shm"),
-		Shm_base( size )
+	Logfacility_class("Shm"),
+	Shm_base( size ),
+	shm_range{0,size/shm_ds.sizeof_type}
 {
+	className = Logfacility_class::className;
 };
 
 Shared_Memory::~Shared_Memory()
@@ -232,7 +234,7 @@ void Shared_Memory::Clear( const buffer_t& _frames )
 		Comment( ERROR, "shm undefined");
 		return;
 	}
-	buffer_t frames = check_range( frames_range, _frames, "Clear" );
+	buffer_t frames = check_range( shm_range, _frames, "Clear shm" );
 	for ( buffer_t n = 0; n < frames ; n++ )
 	{
 		addr[n] = {0,0};

@@ -54,6 +54,7 @@ typedef struct bps_struct
 typedef	struct wave_struct
 {
 	uint8_t		frqidx		= A3;
+	frq_t		freq		= 220;
 	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
 	uint8_t		PMW_dial 	= 50;
 	uint8_t 	glide_effect= 50;
@@ -141,12 +142,13 @@ public:
 		Logfacility_class("Oscillator_base"),
 		Spectrum_class()
 	{
-
 	};
 
 	virtual 	~Oscillator_base() = default;
-	buffer_t 	beat_cursor = 0;
+
 	buffer_t 	hall_cursor = 0;
+	buffer_t 	beat_cursor = 0;
+	bool		kbd_trigger = false;
 
 	uint8_t 	Set_frequency( string frqName, uint mode );
 	uint8_t		Set_frequency( int idx, uint mode );

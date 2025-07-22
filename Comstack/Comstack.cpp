@@ -82,7 +82,8 @@ void getfrq( uint8_t* addr, string text , uint event )
 
 void show_ifd()
 {
-	if (( sds->UpdateFlag ) or (sds_master->UpdateFlag ))
+	if ((sds->UpdateFlag ) 	or
+		(sds_master->UpdateFlag ))
 	{
 		ViewSds.ShowPage( sds , page );
 		Log.Info( "Commit counter " , update_counter );
@@ -118,11 +119,11 @@ key3struct_t Key_event( string charstr )
 
 	while ( not charset.contains( (char)key.key ) )
 	{
-		this_thread::sleep_for(chrono::milliseconds(100));
+		this_thread::sleep_for( std::chrono::milliseconds(100));
 		if ( DaTA.sds_master->Comstack == sdsstate_struct::EXITSERVER )
 			exit_proc( 0 );
 		show_ifd();
-		key = Keyboard.GetKeystruct( false );
+		key = Keyboard.GetKeystruct( true );
 	}
 
 	return key;
@@ -146,6 +147,7 @@ void SpecialKey()
 		case F5 : { page = F5 ;break ;}
 		case F6 : { page = F6 ;break ;}
 		case F7 : { page = F7 ;break ;}
+		case F8 : { page = F8 ;break ;}
 		default : { page = F1 ;break; }
 	}
 
@@ -165,8 +167,16 @@ int main( int argc, char* argv[] )
 		keyevent = Key_event( charset );
 		switch ( keyevent.key )
 		{
-			case '+' : { set_sdsid( 1); tainted = true; break; }
-			case '-' : { set_sdsid(-1); tainted = true; break;}
+			case '+' :
+			{ 	set_sdsid( 1);
+				tainted = true;
+				break;
+			}
+			case '-' :
+			{ 	set_sdsid(-1);
+				tainted = true;
+				break;
+			}
 			case ESC :
 			{
 				tainted = true;
@@ -182,88 +192,84 @@ int main( int argc, char* argv[] )
 				}
 				break;
 			}
-
 			case 'r' :
-			{
+			{	if( page != F3 ) break;
 				cout << "Reset run state: ";
-				key3struct_t key = Key_event( "#acsu" );
+				key3struct_t key = Key_event( "#acksu" );
 				switch ( key.key )
 				{
-				case 'a': { DaTA.Appstate.Set( sds, AUDIOID, sdsstate_struct::EXITSERVER);break; }
-				case 'c': { DaTA.Appstate.Set( sds, COMPID , sdsstate_struct::EXITSERVER);break; }
-				case 's': { DaTA.Appstate.Set( sds, SYNTHID, sdsstate_struct::EXITSERVER);break; }
-				case 'u': { DaTA.Appstate.Set( sds, GUI_ID , sdsstate_struct::EXITSERVER);break; }
-				default : { break; }
+					case 'a': { DaTA.Appstate.Set( sds, APPID::AUDIOID, sdsstate_struct::EXITSERVER);break; }
+					case 'c': { DaTA.Appstate.Set( sds, APPID::COMPID , sdsstate_struct::EXITSERVER);break; }
+					case 's': { DaTA.Appstate.Set( sds, APPID::SYNTHID, sdsstate_struct::EXITSERVER);break; }
+					case 'k': { DaTA.Appstate.Set( sds, APPID::KBDID  , sdsstate_struct::EXITSERVER);break; }
+					case 'u': { DaTA.Appstate.Set( sds, APPID::GUI_ID , sdsstate_struct::EXITSERVER);break; }
+					default : { break; }
 				}
 				tainted = true;
 				break;
 			}
 			case 'm' :
-			{
+			{	if( page != F2 ) break;
 				cout << "Main ";
 				key3struct_t keyevent = Key_event( "#faw" );
 				switch ( keyevent.key )
 				{
-				case 'f' : { getfrq( &sds->OSC_wp.frqidx, "Frequency", OSCFREQUENCYKEY ); break; }
-				case 'a' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
-				case 'w' : { getvalue( &sds->OSC_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMMAINKEY ); break; }
-				default  : break ;
+					case 'f' : { getfrq( &sds->OSC_wp.frqidx, "Frequency", OSCFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
+					case 'w' : { getvalue( &sds->OSC_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMMAINKEY ); break; }
+					default  : break ;
 				}
 				break;
 			}
 			case 'f' :
-			{
+			{	if( page != F2 ) break;
 				cout << "FMO ";
 				key3struct_t keyevent = Key_event("#faw");
 				switch ( keyevent.key )
 				{
-				case 'f' : { getfrq( &sds->FMO_wp.frqidx, "Frequency", FMOFREQUENCYKEY ); break; }
-				case 'a' : { getvalue( &sds->FMO_wp.volume, "Amplitude", FMOAMPKEY ); break; }
-				case 'w' : { getvalue( &sds->FMO_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMFMOKEY ); break; }
-				default  : break ;
+					case 'f' : { getfrq( &sds->FMO_wp.frqidx, "Frequency", FMOFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->FMO_wp.volume, "Amplitude", FMOAMPKEY ); break; }
+					case 'w' : { getvalue( &sds->FMO_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMFMOKEY ); break; }
+					default  : break ;
 				}
 				break;
 			}
 			case 'v' :
-			{
+			{	if( page != F2 ) break;
 				cout << "VCO ";
 				key3struct_t keyevent = Key_event("#faw");
 				switch ( keyevent.key )
 				{
-				case 'f' : { getfrq( &sds->VCO_wp.frqidx, "Frequency", VCOFREQUENCYKEY ); break; }
-				case 'a' : { getvalue( &sds->VCO_wp.volume, "Amplitude", VCOAMPKEY ); break; }
-				case 'w' : { getvalue( &sds->VCO_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMVCOKEY ); break; }
-				default  : break ;
+					case 'f' : { getfrq( &sds->VCO_wp.frqidx, "Frequency", VCOFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->VCO_wp.volume, "Amplitude", VCOAMPKEY ); break; }
+					case 'w' : { getvalue( &sds->VCO_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMVCOKEY ); break; }
+					default  : break ;
 				}
 				break;
 			}
 			case 'a' :
-			{
+			{	if( page != F6 ) break;
 				std::cout << "ADSR ";
 				key3struct_t keyevent = Key_event("#abgdh");
 				switch ( keyevent.key )
 				{
-				case 'g' : { getvalue( &sds->OSC_wp.glide_effect, "Frequency", SOFTFREQUENCYKEY ); break; }
-				case 'a' : { getvalue( &sds->OSC_adsr.attack	,"Atack", ADSR_KEY ); break; }
-				case 'b' : { getvalue( &sds->OSC_adsr.bps  	, "Beats p.sec", ADSR_KEY ); break; }
-				case 'd' : { getvalue( &sds->OSC_adsr.decay	,"Decay" , ADSR_KEY ); break; }
-				case 'h' : { getvalue( &sds->OSC_adsr.hall  ,"Hall", ADSR_KEY ); break; }
-				default  : break ;
+					case 'g' : { getvalue( &sds->OSC_wp.glide_effect, "Frequency", SOFTFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->OSC_adsr.attack	,"Atack", ADSR_KEY ); break; }
+					case 'b' : { getvalue( &sds->OSC_adsr.bps  	, "Beats p.sec", ADSR_KEY ); break; }
+					case 'd' : { getvalue( &sds->OSC_adsr.decay	,"Decay" , ADSR_KEY ); break; }
+					case 'h' : { getvalue( &sds->OSC_adsr.hall  ,"Hall", ADSR_KEY ); break; }
+					default  : break ;
 				}
 				break;
 			}
-
-			default:
-				break;
-		}
+			default : break;
+		} // switch keyevent.key
 		if ( tainted )
 		{
 			tainted = false;
 			setupdate_flag( true );
 			show_ifd();
 		}
-
-	} // while key
-
+	} // while true
 	return 0;
 }

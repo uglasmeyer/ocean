@@ -18,22 +18,14 @@
 #include <Oscgroup.h>
 
 
-class Note_class :  virtual public Logfacility_class,
-					virtual public Note_base
+class Note_class
+		: virtual public Logfacility_class
+		, virtual public Note_base
 {
 	string className = "";
+	Instrument_class*	instrument 	= nullptr;
 public:
 
-	typedef struct musicxml_struct
-	{
-		string 		instrument_name = "";
-		int			divisions 		= -1;
-		int			beats			= -1;
-		uint		tempo			= max_sec;
-		uint		scoreduration 	= 0; // unit milli second
-		notelist_t 	notelist 		{};
-	} musicxml_t;
-	musicxml_t		musicxml		= musicxml_struct();
 
 	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID, monobuffer_bytes };
 	Oscillator*		osc				= &Oscgroup.osc;
@@ -44,20 +36,18 @@ public:
 	string			Instrument_name { "" };
 	uint8_t			noteline_sec 	= 0;
 	bool			Restart			= false;
-	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
 	uint8_t 		Octave			= noteline_prefix_default.Octave; // 55
-	const uint16_t	measure_duration= 1000;//max_milli_sec; // 1 sec.
-	const float 	max_frequency 	= frequency_range.max;
 
-	uint16_t 		min_duration 	= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
-	note_t 			note_buffer 	= note_struct();
-	const note_t	pause_note		= {".",{pitch_struct()},min_duration,0,0,{glide_struct()},false };
+
 	Dynamic_class	DynFrequency	{ frqarr_range };
 
 	Data_t*			NotesData		= osc->MemData_p( );
+	interface_t*	sds				= nullptr;
+
 	Note_class( Wavedisplay_class* wd ); // used by Variation
 	Note_class( ); // used by Variation
+	Note_class( interface_t* sds ); // used by File_dialog
 	~Note_class();
 
 
@@ -71,6 +61,8 @@ public:
 	void			LoadMusicxml( const string& file );
 	bool			Generate_note_chunk( );//Storage::Storage_class* mb );
 	void			ScanData( Instrument_class* instrument );
+	void 			SetSDS( noteline_prefix_t nlp );
+
 	void			Set_prefix_octave( int );
 	bool			Verify_noteline( noteline_prefix_t, string );
 	void 			Test();
@@ -78,7 +70,7 @@ public:
 	void 			Start_note_itr();
 	note_t			Char2note( char& ch );
 
-	int 			Notechar2Step( char );
+//	int 			Notechar2Step( char );
 
 	void			Set_notelist( const notelist_t& notelist );
 

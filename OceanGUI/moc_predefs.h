@@ -8,7 +8,7 @@
 #define __ATOMIC_SEQ_CST 5
 #define __BIGGEST_ALIGNMENT__ 16
 #define __BITINT_MAXWIDTH__ 8388608
-#define __BOOL_WIDTH__ 8
+#define __BOOL_WIDTH__ 1
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 #define __CHAR16_TYPE__ unsigned short
 #define __CHAR32_TYPE__ unsigned int
@@ -117,26 +117,31 @@
 #define __GXX_EXPERIMENTAL_CXX0X__ 1
 #define __GXX_RTTI 1
 #define __GXX_WEAK__ 1
+#define __INT16_C(c) c
 #define __INT16_C_SUFFIX__ 
 #define __INT16_FMTd__ "hd"
 #define __INT16_FMTi__ "hi"
 #define __INT16_MAX__ 32767
 #define __INT16_TYPE__ short
+#define __INT32_C(c) c
 #define __INT32_C_SUFFIX__ 
 #define __INT32_FMTd__ "d"
 #define __INT32_FMTi__ "i"
 #define __INT32_MAX__ 2147483647
 #define __INT32_TYPE__ int
+#define __INT64_C(c) c##L
 #define __INT64_C_SUFFIX__ L
 #define __INT64_FMTd__ "ld"
 #define __INT64_FMTi__ "li"
 #define __INT64_MAX__ 9223372036854775807L
 #define __INT64_TYPE__ long int
+#define __INT8_C(c) c
 #define __INT8_C_SUFFIX__ 
 #define __INT8_FMTd__ "hhd"
 #define __INT8_FMTi__ "hhi"
 #define __INT8_MAX__ 127
 #define __INT8_TYPE__ signed char
+#define __INTMAX_C(c) c##L
 #define __INTMAX_C_SUFFIX__ L
 #define __INTMAX_FMTd__ "ld"
 #define __INTMAX_FMTi__ "li"
@@ -279,6 +284,7 @@
 #define __STDC_UTF_16__ 1
 #define __STDC_UTF_32__ 1
 #define __STDC__ 1
+#define __UINT16_C(c) c
 #define __UINT16_C_SUFFIX__ 
 #define __UINT16_FMTX__ "hX"
 #define __UINT16_FMTo__ "ho"
@@ -286,6 +292,7 @@
 #define __UINT16_FMTx__ "hx"
 #define __UINT16_MAX__ 65535
 #define __UINT16_TYPE__ unsigned short
+#define __UINT32_C(c) c##U
 #define __UINT32_C_SUFFIX__ U
 #define __UINT32_FMTX__ "X"
 #define __UINT32_FMTo__ "o"
@@ -293,6 +300,7 @@
 #define __UINT32_FMTx__ "x"
 #define __UINT32_MAX__ 4294967295U
 #define __UINT32_TYPE__ unsigned int
+#define __UINT64_C(c) c##UL
 #define __UINT64_C_SUFFIX__ UL
 #define __UINT64_FMTX__ "lX"
 #define __UINT64_FMTo__ "lo"
@@ -300,6 +308,7 @@
 #define __UINT64_FMTx__ "lx"
 #define __UINT64_MAX__ 18446744073709551615UL
 #define __UINT64_TYPE__ long unsigned int
+#define __UINT8_C(c) c
 #define __UINT8_C_SUFFIX__ 
 #define __UINT8_FMTX__ "hhX"
 #define __UINT8_FMTo__ "hho"
@@ -307,6 +316,7 @@
 #define __UINT8_FMTx__ "hhx"
 #define __UINT8_MAX__ 255
 #define __UINT8_TYPE__ unsigned char
+#define __UINTMAX_C(c) c##UL
 #define __UINTMAX_C_SUFFIX__ UL
 #define __UINTMAX_FMTX__ "lX"
 #define __UINTMAX_FMTo__ "lo"
@@ -371,7 +381,7 @@
 #define __UINT_LEAST8_MAX__ 255
 #define __UINT_LEAST8_TYPE__ unsigned char
 #define __USER_LABEL_PREFIX__ 
-#define __VERSION__ "Ubuntu Clang 19.1.1 (1ubuntu1)"
+#define __VERSION__ "Ubuntu Clang 20.1.2 (0ubuntu1)"
 #define __WCHAR_MAX__ 2147483647
 #define __WCHAR_TYPE__ int
 #define __WCHAR_WIDTH__ 32
@@ -383,10 +393,10 @@
 #define __amd64__ 1
 #define __clang__ 1
 #define __clang_literal_encoding__ "UTF-8"
-#define __clang_major__ 19
+#define __clang_major__ 20
 #define __clang_minor__ 1
-#define __clang_patchlevel__ 1
-#define __clang_version__ "19.1.1 (1ubuntu1)"
+#define __clang_patchlevel__ 2
+#define __clang_version__ "20.1.2 (0ubuntu1)"
 #define __clang_wide_literal_encoding__ "UTF-32"
 #define __code_model_small__ 1
 #define __cplusplus 201703L
@@ -434,7 +444,7 @@
 #define __cpp_rtti 199711L
 #define __cpp_rvalue_references 200610L
 #define __cpp_sized_deallocation 201309L
-#define __cpp_static_assert 201411L
+#define __cpp_static_assert 202306L
 #define __cpp_static_call_operator 202207L
 #define __cpp_structured_bindings 202403L
 #define __cpp_template_auto 201606L
@@ -444,6 +454,7 @@
 #define __cpp_unicode_literals 200710L
 #define __cpp_user_defined_literals 200809L
 #define __cpp_variable_templates 201304L
+#define __cpp_variadic_friend 202403L
 #define __cpp_variadic_templates 200704L
 #define __cpp_variadic_using 201611L
 #define __gnu_linux__ 1

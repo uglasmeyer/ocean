@@ -40,7 +40,13 @@ float Note_base::CalcFreq ( const float& base,  pitch_t& nvs )
 	int 		key 	= GetFrqIndex( nvs );
 	return 		Frequency_class::Calc(base, key);
 };
-
+int Note_base::Notechar2Step( char note_char )
+{
+	if ( Note_Chars.Set.contains( note_char ) )
+		return Note_Chars.Str.find( note_char );
+	else
+		return -12;
+}
 void Note_base::Set_base_octave( uint diff )
 {
 	octave_shift = octave_shift + ( 2*diff - 1);
@@ -66,6 +72,7 @@ void Note_base::Show_noteline_prefix( noteline_prefix_t nlp )
 	Table.AddRow( "Notes per sec",(int) nlp.nps );
 	Table.AddRow( "Flats"		, (int) nlp.flat );
 	Table.AddRow( "Sharps"		, (int) nlp.sharp );
+	Table.AddRow( "Chord delay"	, (int) nlp.chord_delay );
 }
 
 string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
@@ -75,7 +82,8 @@ string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
 			<< (int) nlp.convention		<<","
 			<< (int) nlp.nps 			<<","
 			<< (int) nlp.flat			<<","
-			<< (int) nlp.sharp ;
+			<< (int) nlp.sharp 			<<","
+			<< (int) nlp.chord_delay;
 	return strs.str();
 }
 
@@ -137,6 +145,15 @@ Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 	else
 		range_error( val, {0, 7} );
 
+	// chord_delay
+	if ( arr.size() > 6 )
+	{
+		nlp.chord_delay = S.to_int( arr[6] );
+	}
+	else
+	{
+		nlp.chord_delay = 0;
+	}
 	return nlp;
 
 }
@@ -148,13 +165,13 @@ void Note_base::TestNoteBase()
 
 	Show_noteline_prefix( noteline_prefix_default );
 	Comment( TEST, Noteline_prefix_to_string( noteline_prefix_default ));
-	string nlp_str = "2,1,4,0,0,";
+	string nlp_str = "2,1,4,0,0,0,0";
 	noteline_prefix_t nlp = String_to_noteline_prefix(nlp_str);
 	Show_noteline_prefix(nlp);
 
 	nlp_str = "1 ";
 	nlp = String_to_noteline_prefix(nlp_str);
-	nlp_str = "8, 8, 8, 7, 8";
+	nlp_str = "8, 8, 8, 7, 8, 0, 0";
 	nlp = String_to_noteline_prefix(nlp_str);
 
 	TEST_END("Notes_base");

@@ -9,6 +9,13 @@
 /*
  * Spectrum_base
  */
+Spectrum_class::Spectrum_class() :
+	Logfacility_class("Spectrum"),
+	Frequency_class(),
+	Oscwaveform_class()
+{
+	className = Logfacility_class::className;
+}
 
 void Spectrum_class::assign_frq( int channel, string str  )
 {

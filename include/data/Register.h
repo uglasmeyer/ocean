@@ -19,7 +19,7 @@ class Register_class :
 {
 	string 			className 			= "";
 	interface_t*	sds 				= nullptr;
-	const set<int> 	dataProc			{ AUDIOID, SYNTHID };
+	const set<int> 	dataProc			{ APPID::AUDIOID, APPID::SYNTHID, APPID::KBDID };
 
 public:
 	bool			is_dataproc			= false;

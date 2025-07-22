@@ -94,6 +94,11 @@ void MainWindow::mixer_balance()
 	int value = ui->hs_balance->value();
 	Sds->Set( Sds->addr->mixer_balance, (int8_t) value );
 }
+void MainWindow::chord_delay()
+{
+	int value = ui->hs_chord_delay->value();
+	Sds->Set( Sds->addr->noteline_prefix.chord_delay, value );
+}
 void MainWindow::wavfile_selected( const QString &arg)
 {
     qDebug() << "WAV file " << arg ;
@@ -127,8 +132,8 @@ void MainWindow::adsr_hall( )
 }
 void MainWindow::adsr_attack()
 {
-    uint8_t dial = ui->hs_adsr_attack->value();
-    Sds->Set(Sds->addr->OSC_adsr.attack , dial);
+    uint8_t value = ui->hs_adsr_attack->value();
+    Sds->Set(Sds->addr->OSC_adsr.attack , value );
     Eventlog.add( SDS_ID, ADSR_KEY);
 }
 void MainWindow::cB_Beat_per_sec( int bps_id )
@@ -148,8 +153,8 @@ void MainWindow::slideFrq( int value )
 
 void MainWindow::dial_PMW_value_changed()
 {
-    uint8_t dial = ui->dial_PMW->value();
-    Sds->Set(Sds->addr->VCO_wp.PMW_dial , dial);
+    uint8_t value = ui->hs_pmw->value();
+    Sds->Set(Sds->addr->VCO_wp.PMW_dial , value );
     Eventlog.add( SDS_ID,PWMDIALKEY);
 }
 
@@ -375,7 +380,7 @@ void MainWindow::toggle_store_sta7()
 
 void MainWindow::memory_clear()
 {
-	for( uint id : StAMemIds )
+	for( uint id : Mixer_base::StAMemIds )
 	{
 		*cb_filld_sta_vec[id].state = false;
 	}
@@ -459,7 +464,7 @@ void MainWindow::setwidgetvalues()
 
     ui->hs_adsr_sustain->setValue	( (int) Sds->addr->OSC_adsr.decay );
     ui->hs_adsr_attack->setValue	( (int) Sds->addr->OSC_adsr.attack);
-    ui->dial_PMW->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
+    ui->hs_pmw->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
     ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_adsr.hall );
     ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_wp.glide_effect );
     ui->Slider_slideVol->setValue	( Sds_master->slide_duration);//Master_Amp);
@@ -623,28 +628,35 @@ void MainWindow::start_synthesizer()
 		return;
 	if( Appstate->IsRunning( Sds->addr, SYNTHID ) )
 	{
-		exit_synthesizer();
-		return;
+		exit_synthesizer( APPID::SYNTHID );
 	}
-	string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.synth_bin,
-			" >> " + fs.nohup_file );
-
-    uint8_t sdsid = start_synth( this, cmd );
-    select_Sds(sdsid);
+	else
+	{
+		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.synth_bin," >> " + fs.nohup_file );
+		uint8_t sdsid = start_synth( this, cmd );
+		select_Sds(sdsid);
+	}
 
 }
 void MainWindow::start_keyboard()
 {
-	string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.synth_bin, "" );
-	int sdsid = start_synth( this, cmd );
-	select_Sds(sdsid);
+	if( Appstate->IsRunning( Sds->addr, APPID::KBDID ))
+	{
+		exit_synthesizer( APPID::KBDID );
+	}
+	else
+	{
+		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.Keyboard_bin, "" );
+		int sdsid = start_synth( this, cmd );
+		select_Sds(sdsid);
+	}
 }
 void MainWindow::read_polygon_data()
 {
     OscWidget_item->read_polygon_data();
 };
 
-void MainWindow::exit_synthesizer()
+void MainWindow::exit_synthesizer( const char& appid )
 {
 	if ( Appstate->IsRunning( Sds_master, RTSPID ) )
 	{
@@ -652,12 +664,10 @@ void MainWindow::exit_synthesizer()
 			Sem_p->Release( SEMAPHORE_EXIT );
 		return;
 	}
-	Appstate->SetExitserver( Sds->addr, SYNTHID );
+	Appstate->SetExitserver( Sds->addr, appid );
     DaTA.Sem_p->Lock( SEMAPHORE_EXIT, 2 );
 	setwidgetvalues();
 }
-
-
 
 void MainWindow::Save_Config()
 {
@@ -756,10 +766,11 @@ void MainWindow::update_CB_external()
 void MainWindow::updateColorButtons()
 {
 
-    setButton( ui->pBAudioServer, Appstate->IsRunning( Sds_master, AUDIOID ) +1);
-    setButton( ui->pb_SDSview	, Appstate->IsRunning( Sds_master, COMSTACKID )+1 );
-    setButton( ui->pBSynthesizer, Appstate->IsRunning( Sds->addr, SYNTHID )+1 );
-    setButton( ui->pBComposer	, Appstate->IsRunning( Sds_master, COMPID )+1 );
+    setButton( ui->pBAudioServer, Appstate->IsRunning( Sds_master, APPID::AUDIOID ) +1);
+    setButton( ui->pb_SDSview	, Appstate->IsRunning( Sds_master, APPID::COMSTACKID )+1 );
+    setButton( ui->pBSynthesizer, Appstate->IsRunning( Sds->addr , APPID::SYNTHID )+1 );
+    setButton( ui->pBComposer	, Appstate->IsRunning( Sds_master, APPID::COMPID )+1 );
+    setButton( ui->pb_Keyboard	, Appstate->IsRunning( Sds->addr , APPID::KBDID )+1 );
 
     bool record = ( Sds_master->Record);
     setButton( ui->pBtoggleRecord, not record );

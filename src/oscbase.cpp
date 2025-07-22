@@ -100,7 +100,8 @@ uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
 
 uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 {
-	wp.frqidx = DynFrequency.SetupFrq( arridx, mode );
+	wp.frqidx 			= DynFrequency.SetupFrq( arridx, mode );
+	wp.freq				= GetFrq( wp.frqidx );
 	spectrum.frqadj[0] 	= Frqadj(0, 0);
 	spectrum.frqidx[0]	= wp.frqidx;
 

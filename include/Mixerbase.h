@@ -11,9 +11,10 @@
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_
 
-static const uint 	MbSize 			= 8;
+//static const uint 					STA_SIZE 				= 8;
 
-enum 				STAID
+
+enum STAID
 {
 	STA_USER00,
 	STA_USER01,
@@ -22,7 +23,8 @@ enum 				STAID
 	STA_INSTRUMENT,
 	STA_KEYBOARD,
 	STA_NOTES,
-	STA_EXTERNAL
+	STA_EXTERNAL,
+	STA_SIZE
 };
 
 template<typename T>
@@ -45,16 +47,25 @@ constexpr string 	StAIdName( const T& sta_id )
 	}
 }
 
+typedef array<uint8_t, STA_SIZE> StAarray_t;
+
+constexpr StAarray_t f()
+{
+	StAarray_t a{};
+	std::iota(a.begin(), a.end(), 0 );
+	return a;
+};
+
 class Mixer_base
 {
 public:
 	Mixer_base(){};
 	~Mixer_base(){};
 
-	typedef struct mixer_status_struct // mixer status
+	typedef struct mixer_status_struct
 	{
 		// SDS structure
-		bool 	sync			= true; // explicite sync mode // no longer needed
+		bool 	sync			= true; // explicite sync mode
 		bool 	notes			= false; // play notes
 		bool 	external		= false; // external play or record
 		bool	mute			= false; // mute master volume
@@ -62,8 +73,11 @@ public:
 		bool	instrument		= false; // play instrument
 	} mixer_status_t;
 
-	typedef array< uint8_t, MbSize> 	StA_amp_arr_t;
-	typedef	array<StA_status_t, MbSize>	StA_state_arr_t;
+	static constexpr StAarray_t StAMemIds = f();
+//	StAMemconstexpr Stam  			= { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+
+	typedef	array< StA_status_t	, STA_SIZE>	StA_state_arr_t;
 };
 
 #endif /* MIXERBASE_H_ */

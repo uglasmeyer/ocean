@@ -52,6 +52,7 @@ void Register_class::Setup( interface_t* sds )
 			}
 			break;
 		}
+		case APPID::KBDID :
 		case APPID::SYNTHID :
 		{
 			int id = scan_proc_register();
@@ -77,6 +78,8 @@ void Register_class::Setup( interface_t* sds )
 }
 int getindex( uint8_t sdsid, char appid )
 {
+	if( appid == APPID::KBDID )
+		return sdsid + APPID::SYNTHID;
 	return sdsid + appid;
 }
 
@@ -127,7 +130,7 @@ void Register_class::proc_Register()
 {
 	if( not is_dataproc )   return;
 
-	uint idx = AppId + Sds_Id;
+	uint idx = getindex( Sds_Id, AppId );
 	regComment( this, "", AppName, Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
 	{
@@ -149,7 +152,7 @@ void Register_class::proc_Register()
 }
 void Register_class::Proc_deRegister(  )
 {
-	uint idx = AppId + Sds_Id ;
+	uint idx = getindex( Sds_Id, AppId );
 	regComment( this, "De-",AppName, Sds_Id, idx );
 	if( idx > REGISTER_SIZE )
 	{

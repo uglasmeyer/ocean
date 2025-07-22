@@ -8,7 +8,7 @@
 #include <Keyboard.h>
 
 Keyboard_class::Keyboard_class( Instrument_class* instr, Storage_class* StA ) :
-	Logfacility_class("Keyboard"),
+	Logfacility_class("Keyboard") ,
 	Kbd_base(),
 	keyboardState_class( instr->sds )
 {
@@ -17,8 +17,6 @@ Keyboard_class::Keyboard_class( Instrument_class* instr, Storage_class* StA ) :
 	this->sds					= instrument->sds;
 	this->StA					= StA;
 	this->Kbd_Data				= StA->Data;
-//	this->StA->scanner.Set_wrt_len( max_frames );
-//	this->StA->scanner.Set_max_len( this->StA->scanner.mem_range.max );
 
 	Oscgroup.SetWd				( instr->wd_p, &Osc->wp.frames );
 	Oscgroup.SetScanner			( max_frames );
@@ -35,19 +33,30 @@ Keyboard_class::~Keyboard_class() = default;
 
 
 
-void Keyboard_class::set_kdb_note()
+void Keyboard_class::gen_chord_data( )
 {
-	if ( Kbd_key.nokey )
+
+	if ( kbd_note.note_vec.size() == 0 )//Kbd_key.nokey )
 		return;
-	uint 	frqidx 	= kbd_note.frqidx;
-			Oscgroup.Set_Frequency( frqidx, frqMode );
-			Osc->Set_volume( kbd_volume, FIXED );
-			kbd_note.show(  );
+	Oscgroup.Data_Reset();
+	uint 	delay_frames 	= sds->noteline_prefix.chord_delay * frames_per_msec;
+	uint8_t n 				= 0;
+	Osc->Set_volume( kbd_volume, FIXED );
+	for ( kbd_note_t note : kbd_note.note_vec )
+	{
+		Oscgroup.Set_Note_Frequency( instrument->osc->wp.freq, note.frqidx, frqMode );
+		Oscgroup.Phase_Reset();
+		Oscgroup.Run_OSCs( n * delay_frames );
+		n++;
+	}
+	kbd_note.note_vec.clear();
 }
 
-void Keyboard_class::Enable()
+void Keyboard_class::Enable( bool is_kbd )
 {
-	if( is_atty )
+	enabled = is_kbd;
+
+	if( is_kbd )
 	{
 		sds->StA_state[ STA_KEYBOARD ].play 	= true;
 		sds->StA_amp_arr[ STA_KEYBOARD ] 		= 75;
@@ -79,7 +88,7 @@ void Keyboard_class::Set_instrument( )
 }
 void Keyboard_class::apply_Adsr()
 {
-	Osc->adsr.bps	= ADSR_flag * sds->OSC_adsr.bps;
+	Osc->adsr.bps	= ADSR_flag;// * sds->OSC_adsr.bps;
 	Osc->Set_adsr	( Osc->adsr );
 }
 bool Keyboard_class::decay(  )
@@ -97,11 +106,15 @@ bool Keyboard_class::decay(  )
 
 void Keyboard_class::attack()
 {
-	auto show_cnt = [  ]( uint& cnt )
+	auto show_cnt = [ this ]( uint& cnt )
 	{
 		if ( cnt > 0 )
 		{
-			cout.flush() << "," << cnt << "|";
+			for( uint i = 0; i<cnt; i++ )
+			{
+				Noteline.append( "-" );
+			}
+			coutf << Noteline << endl ;
 			cnt = 0;
 		}
 	};
@@ -115,12 +128,12 @@ void Keyboard_class::attack()
 		Osc->Reset_beat_cursor();
 
 	show_cnt( duration_counter );
-	Oscgroup.Data_Reset();
 
 	Set_instrument();
-	set_kdb_note();
-	Oscgroup.Phase_Reset();
-	Oscgroup.Run_OSCs( 0 );
+
+	gen_chord_data();
+
+
 	StA->Write_data( Osc->Mem.Data );//, max_frames );
 
 	decayCounter	= attackCounter ;
@@ -131,7 +144,7 @@ void Keyboard_class::attack()
 void Keyboard_class::release(  )
 {
 //	Oscgroup.Data_Reset();
-	cout << "r" ;
+//	cout << "r" ;
 
 	if ( Kbd_key.hold )
 	{
@@ -141,31 +154,24 @@ void Keyboard_class::release(  )
 	return ;
 }
 
-bool Keyboard_class::Set_Kbdnote()
+void Keyboard_class::Set_Kbdnote( key3struct_t key )
 {
-	if ( not is_atty )
-		return false;
-
-	Kbd_key		=  GetKeystruct( false );
-
-	kbd_note.setNote( Kbd_key.key );
-	if ( kbd_note.step == NONOTE )
+	Kbd_key		=  key;
+	string nl = kbd_note.setNote( Kbd_key.key );
+	if ( ( kbd_note.note_vec.size() == 0 ))// and //( kbd_note.Note.step == NONOTE ) and )
 	{
 		keyHandler( Kbd_key );
-		decay();
+		if ( not decay() )
+			release();
 	}
 	else
 	{
-		NoteEvent();
+		if( instrument->osc->kbd_trigger )
+		{
+			attack();
+			Noteline.append( nl );
+		}
 	}
-	return true; // is_atty
-}
-
-void Keyboard_class::NoteEvent( )
-{
-	attack( );
-	if ( not decay() )
-		release();
 }
 
 void Keyboard_class::ScanData()

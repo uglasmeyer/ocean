@@ -11,7 +11,6 @@ bool
 isopen = false;
 void SynthesizerTestCases()
 {
-
 	Shm_base Shm_test{0};
 	Shm_test.Test_Memory();
 
@@ -42,7 +41,9 @@ void SynthesizerTestCases()
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };
 
-//	Semaphore_class*		Sem	= DaTA.Sem_p;
+	Frequency_class Frq {};
+	Frq.TestFrequency();
+
 	String 					TestStr{""};
 	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID, monobuffer_bytes };
 
@@ -96,10 +97,9 @@ void SynthesizerTestCases()
 
 	DaTA.Sem_p->Test();
 
-	Frequency_class Frq {};
-	Frq.TestFrequency();
 	Instrument.Test_Instrument();
 	Instrument.Oscgroup.Run_OSCs( 0 );
+
 
 	Log.Test_Logging();
 
@@ -121,16 +121,12 @@ void SynthesizerTestCases()
 								&MusicXML};
 
 	Event.TestHandler();
-
-
-
-
+	Log.Set_Loglevel( TEST, true );
 }
 
 #include <Interpreter.h>
 void ComposerTestCases()
 {
-
 	process_t				Process{  };
 
 	Config_class			Cfg				{ Process.name };
@@ -155,5 +151,7 @@ void ComposerTestCases()
 
 	Processor_class Processor{ DaTA.Sds_p, &DaTA.Appstate };
 	Processor.Test_Processor();
+	Processor.Set_Loglevel( TEST, true );
+
 }
 

@@ -21,7 +21,7 @@
 enum  { SPEV, SPEF, SPEW };
 
 const static size_t 		spec_arr_len = 5;
-typedef float 				spec_dta_ft;
+typedef frq_t 				spec_dta_ft;
 typedef int					spec_dta_it;
 typedef array<spec_dta_ft,	spec_arr_len> spec_arr_ft;
 typedef array<phi_t		 ,	spec_arr_len> spec_arr_dt;
@@ -53,14 +53,6 @@ public:
 	string 				className = "";
 
 
-	Spectrum_class() :
-		Logfacility_class("Spectrum"),
-		Frequency_class(),
-		Oscwaveform_class()
-	{
-		className = Logfacility_class::className;
-	};
-	virtual ~Spectrum_class(){};
 
 	spectrum_t 		Parse_data( vector_str_t arr,
 								const char& oscid, const int& _type );
@@ -73,12 +65,14 @@ public:
 	void 			Sum( spectrum_t& );
 	void 			Test_Spectrum();
 
+					Spectrum_class();
+	virtual 		~Spectrum_class(){};
 private:
 	spectrum_t		spectrum	= spec_struct();
 	osc_roles_t		OscRole		= osc_struct();
-	void assign_frq( int channel, string str  );
-	void assign_vol( int channel, string str  );
-	void assign_waveform( int channel, string str );
+	void 			assign_frq( int channel, string str  );
+	void 			assign_vol( int channel, string str  );
+	void 			assign_waveform( int channel, string str );
 
 };
 

@@ -134,6 +134,10 @@ void Dynamic_class::end()
 	current.past_f	= current.future_f;
 	current.present	= current.future_f;
 }
+int	Dynamic_class::Current()
+{
+	return current.future;
+}
 
 void Dynamic_class::Show( bool on )
 {

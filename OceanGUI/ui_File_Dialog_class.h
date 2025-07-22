@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'File_Dialog_class.ui'
 **
-** Created by: Qt User Interface Compiler version 6.6.2
+** Created by: Qt User Interface Compiler version 6.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -187,8 +187,8 @@ public:
 
         line_2 = new QFrame(File_Dialog_class);
         line_2->setObjectName("line_2");
-        line_2->setFrameShape(QFrame::HLine);
-        line_2->setFrameShadow(QFrame::Sunken);
+        line_2->setFrameShape(QFrame::Shape::HLine);
+        line_2->setFrameShadow(QFrame::Shadow::Sunken);
 
         gridLayout->addWidget(line_2, 8, 0, 1, 3);
 
@@ -216,8 +216,8 @@ public:
 
         line = new QFrame(File_Dialog_class);
         line->setObjectName("line");
-        line->setFrameShape(QFrame::HLine);
-        line->setFrameShadow(QFrame::Sunken);
+        line->setFrameShape(QFrame::Shape::HLine);
+        line->setFrameShadow(QFrame::Shadow::Sunken);
 
         gridLayout->addWidget(line, 2, 0, 1, 3);
 

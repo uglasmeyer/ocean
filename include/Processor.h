@@ -29,18 +29,20 @@ enum  {
 };
 
 class Processor_class :
-		virtual Logfacility_class,
-		public sdsstate_struct
+	public virtual 		Logfacility_class,
+	public 				sdsstate_struct
 {
 	Interface_class* 	Sds ;
 	interface_t* 		sds ;
 	Semaphore_class*	Sem ;
 	Appstate_class*		Appstate;
 	Time_class			Timer{};
-	Table_class 		Table{ defaultopt };
+
 
 public:
 	string				className = "";
+	Table_class 		Table{ defaultopt };
+	fstream 			LOG ;
 
 	Processor_class( Interface_class* gui, Appstate_class* appstate ) :
 		Logfacility_class("Processor"),
@@ -103,24 +105,10 @@ private:
 		String 				Str 		{};
 		int					value		= 0;
 
-		print_struct( stack_struct_t _ps )
-		{
-			ps = _ps;
-			assign_str();
-			assign_val();
-		}
-		void assign_val()
-		{
-			value = ( ps.cmd == CMD_KEY ) ? ps.key : ps.value;
-
-		}
-		void assign_str()
-		{
-			for( long addr : { (long)ps.boaddr, (long)ps.chaddr, (long)ps.uiaddr, (long)ps.staddr } )
-				if( addr > 0 )
-					addr_str= Str.to_hex( addr );
-		}
-		~print_struct() {};
+							print_struct( stack_struct_t _ps );
+		virtual 			~print_struct() {};
+		void 				assign_val();
+		void 				assign_addr_str();
 
 	} print_struct_t;
 

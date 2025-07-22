@@ -176,6 +176,8 @@ private slots:
     void dial_PMW_value_changed();
     void adsr_attack();
     void mixer_balance();
+    void chord_delay();
+
 
     void get_record_status( );
 
@@ -194,7 +196,7 @@ private slots:
     void VCO_Waveform_slot( int );
     void FMO_Waveform_slot( int );
 
-    void exit_synthesizer();
+    void exit_synthesizer( const char& appid );
     void GUI_Exit();
     void start_synthesizer();
     void start_audio_srv();

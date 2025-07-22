@@ -55,7 +55,7 @@ public:
 	void 	Update();
 	float 	Reset_state();
 
-
+	int		Current();
 	void 	Show( bool on );
 	void 	TestVol();
 	void 	TestFrq();

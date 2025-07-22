@@ -59,10 +59,10 @@ void Memory_base::DsInfo()
 
 
 Shm_base::Shm_base( buffer_t size ) :
-Logfacility_class( "Shm_base" )
+	Logfacility_class( "Shm_base" )
 {
 	shm_ds.bytes 		= size;
-	className		= Logfacility_class::className;
+	className			= Logfacility_class::className;
 	Info( "pre-init shared memory size: " , size );
 }
 
@@ -114,11 +114,13 @@ void Shm_base::ShowDs( shm_ds_t ds )
 //	if ( not Log[ TEST ] ) return;
 	stringstream strs;
 	strs << SETW << "Shared Memory data structure " + className << endl;
-	strs << SETW << "Id   : " << dec << ds.Id << endl;
-	strs << SETW << "Addr : " << hex << ds.addr << endl;
-	strs << SETW << "shmid: " << dec << ds.shmid   << endl;
-	strs << SETW << "Key  : " << dec << ds.key << endl;	;
-	strs << SETW << "Size : " << dec << ds.bytes << endl;
+	strs << SETW << "Id    : " << dec << ds.Id << endl;
+	strs << SETW << "Addr  : " << hex << ds.addr << endl;
+	strs << SETW << "shmid : " << dec << ds.shmid   << endl;
+	strs << SETW << "Key   : " << dec << ds.key << endl;	;
+	strs << SETW << "Bytes : " << dec << ds.bytes << endl;
+	strs << SETW << "blocks: " << dec << ds.bytes/ds.sizeof_type << endl;
+
 	strs << SETW << "Exist: " << boolalpha <<  ds.eexist  << endl;
 	Comment( INFO, strs.str() );
 }

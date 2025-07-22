@@ -101,6 +101,7 @@ private:
 #define TEST_END( classname )\
 	Printer.Close(); test_end( classname );
 
+#define coutf cout.flush()
 
 class Logfacility_class
 {
@@ -206,9 +207,8 @@ private:
 			{"bInfo", bgreen },
 			{"Test ", blue },
 			{""		, nocolor },
-			{"Table", bblue }
+			{"Table", bblack }
 	};
-
 
 	string 	cout_log( uint logid, string str );
 

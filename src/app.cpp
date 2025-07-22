@@ -43,14 +43,18 @@ void Application_class::init_Sds( )
 Application_class::~Application_class()
 {
 	cerr.flush() << "~" << className << endl;
-	if ( Cfg->Config.test 	== 'y' )
+	if ( LogMask[ TEST ] )
 	{
 		system_execute( " cat /tmp/log/Synthesizer.log 1>&2 " );
 	}
+	else
+	{
+		if ( ( AppId == APPID::KBDID ) or ( AppId == APPID::SYNTHID ) )
+			Sds->Dump_ifd();
+	}
 	deRegister();
 
-    if (( AppId == SYNTHID ) and ( not LogMask[TEST] ))
-		Sds->Dump_ifd();
+
 }
 void Application_class::versionTxt()
 {
@@ -65,39 +69,24 @@ void Application_class::app_properties()
 	properties.logowner			= logowner.contains( AppId );
 	properties.start_once		= Appstate->startonceIds.contains( AppId );
 	properties.data_process		= DaTA->Reg.is_dataproc ;
-	properties.keyboard			= ( is_atty and
-									( AppId 			== SYNTHID ) and
-									( Cfg->Config.test 	== 'n') );
+	properties.keyboard			= Appstate->IsKeyboard();
 	properties.Show();
 }
 void Application_class::Start( int argc, char* argv[] )
 {
+	Timer.TimeStamp();
 	Cfg->Parse_argv(argc, argv );
 
 	app_properties();
-	if( properties.keyboard )
+
+	for( interface_struct* sds : DaTA->SDS.vec )
 	{
-		this->sds->Keyboard = true;
-		for( interface_t* sds : DaTA->SDS.vec)
+		if ( not Appstate->StartOnceOk( sds ))
 		{
-			if ( sds != this->sds )
-			{
-				if( sds->Keyboard )
-				{
-					if( Appstate->IsRunning( sds, SYNTHID ))
-					{
-						Comment( ERROR, "This Ocean process should only start once" );
-					    std::this_thread::sleep_for( chrono::seconds(2) );
-						exit( 1 );
-					}
-				}
-			}
+		    std::this_thread::sleep_for ( std::chrono::seconds(2) );
+			exit( 1 );
 		}
 	}
-
-
-	if ( not Appstate->StartOnceOk( this->sds ))
-		exit( 1 );
 
 	Appstate->Announce();
 
@@ -118,14 +107,11 @@ void Application_class::Start( int argc, char* argv[] )
 		DaTA->Reg.Clear_procregister();
 		EXCEPTION( "Restart processes");
 	}
-
 }
 
 
 void Application_class::deRegister( )
 {
-	if (properties.keyboard )
-		sds->Keyboard = false;
 	DaTA->Appstate.SetOffline( );//this->sds, this->AppId );
 
 	if ( this->AppId != GUI_ID )
@@ -134,6 +120,7 @@ void Application_class::deRegister( )
 			DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
 		}
 	DaTA->Sem_p->Release( SEMAPHORE_EXIT );
+	Timer.TimeStamp();
 }
 
 void Application_class::Ready(  )

@@ -504,7 +504,7 @@
      <number>12</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QSlider" name="Slider_OSC_Vol">
@@ -520,7 +520,7 @@
      <number>100</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QSlider" name="Slider_VCO_Hz">
@@ -545,7 +545,7 @@
      <number>12</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QSlider" name="Slider_VCO_vol">
@@ -561,7 +561,7 @@
      <number>100</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QLCDNumber" name="VCOLCD_Hz">
@@ -609,7 +609,7 @@
      <number>12</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QSlider" name="Slider_FMO_vol">
@@ -625,7 +625,7 @@
      <number>100</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QLCDNumber" name="VCOLCD_Amp">
@@ -726,10 +726,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QCheckBox" name="cb_ssta1">
      <property name="geometry">
@@ -846,10 +846,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QSlider" name="Slider_mix_vol1">
      <property name="geometry">
@@ -864,7 +864,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol2">
@@ -880,7 +880,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol3">
@@ -896,7 +896,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol4">
@@ -912,7 +912,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol5">
@@ -928,7 +928,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol7">
@@ -944,7 +944,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol6">
@@ -960,7 +960,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
     <widget class="QSlider" name="Slider_mix_vol0">
@@ -976,7 +976,7 @@
       <number>100</number>
      </property>
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </widget>
@@ -990,10 +990,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QCheckBox" name="cb_psta1">
      <property name="geometry">
@@ -1113,27 +1113,17 @@
      <string>Mute</string>
     </property>
    </widget>
-   <widget class="QDial" name="dial_PMW">
-    <property name="geometry">
-     <rect>
-      <x>520</x>
-      <y>150</y>
-      <width>50</width>
-      <height>64</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>170</y>
       <width>50</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>PMW</string>
+     <string>PWM</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pB_play_notes">
@@ -1165,7 +1155,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>80</y>
       <width>50</width>
       <height>17</height>
@@ -1185,10 +1175,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QRadioButton" name="rb_S0">
      <property name="geometry">
@@ -1275,7 +1265,7 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>50</y>
       <width>51</width>
       <height>17</height>
@@ -1304,7 +1294,7 @@
    <widget class="QPushButton" name="pB_Wavedisplay">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>580</x>
       <y>260</y>
       <width>81</width>
       <height>25</height>
@@ -1324,7 +1314,7 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Box</enum>
+     <enum>QFrame::Shape::Box</enum>
     </property>
     <property name="lineWidth">
      <number>2</number>
@@ -1333,7 +1323,7 @@
    <widget class="QPushButton" name="pB_wd_mode">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>580</x>
       <y>230</y>
       <width>81</width>
       <height>25</height>
@@ -1346,7 +1336,7 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>110</y>
       <width>50</width>
       <height>17</height>
@@ -1359,7 +1349,7 @@
    <widget class="QScrollBar" name="hs_adsr_sustain">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>540</x>
       <y>80</y>
       <width>160</width>
       <height>16</height>
@@ -1372,7 +1362,7 @@
      <number>1</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+     <enum>Qt::Orientation::Horizontal</enum>
     </property>
     <property name="invertedControls">
      <bool>false</bool>
@@ -1381,7 +1371,7 @@
    <widget class="QScrollBar" name="hs_adsr_attack">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>540</x>
       <y>50</y>
       <width>160</width>
       <height>16</height>
@@ -1397,7 +1387,7 @@
      <number>1</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+     <enum>Qt::Orientation::Horizontal</enum>
     </property>
     <property name="invertedControls">
      <bool>false</bool>
@@ -1426,10 +1416,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QLabel" name="wf_vco">
      <property name="geometry">
@@ -1471,10 +1461,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QSpinBox" name="sB_OSC">
      <property name="geometry">
@@ -1516,10 +1506,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QLabel" name="wf_fmo">
      <property name="geometry">
@@ -1567,8 +1557,8 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>170</y>
+      <x>480</x>
+      <y>230</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -1593,7 +1583,7 @@
      <string>M a s   t e r</string>
     </property>
     <property name="textFormat">
-     <enum>Qt::PlainText</enum>
+     <enum>Qt::TextFormat::PlainText</enum>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -1695,8 +1685,8 @@
    <widget class="QComboBox" name="cb_bps">
     <property name="geometry">
      <rect>
-      <x>650</x>
-      <y>180</y>
+      <x>480</x>
+      <y>260</y>
       <width>71</width>
       <height>25</height>
      </rect>
@@ -1718,13 +1708,13 @@
      <bool>true</bool>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QPushButton" name="pB_oscgroup">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>670</x>
       <y>260</y>
       <width>81</width>
       <height>26</height>
@@ -1737,7 +1727,7 @@
    <widget class="QPushButton" name="pb_fftmode">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>670</x>
       <y>230</y>
       <width>81</width>
       <height>26</height>
@@ -1786,7 +1776,7 @@
      <number>50</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QSlider" name="SliderFMOadjust">
@@ -1802,7 +1792,7 @@
      <number>50</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QLabel" name="label_6">
@@ -1857,7 +1847,7 @@
      </rect>
     </property>
     <property name="layoutDirection">
-     <enum>Qt::RightToLeft</enum>
+     <enum>Qt::LayoutDirection::RightToLeft</enum>
     </property>
     <property name="text">
      <string>Combine</string>
@@ -1885,7 +1875,7 @@
      <number>0</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QSlider" name="Slider_slideVol">
@@ -1901,13 +1891,13 @@
      <number>100</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Vertical</enum>
+     <enum>Qt::Orientation::Vertical</enum>
     </property>
    </widget>
    <widget class="QScrollBar" name="hs_hall_effect">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>540</x>
       <y>110</y>
       <width>160</width>
       <height>16</height>
@@ -1920,7 +1910,7 @@
      <number>1</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+     <enum>Qt::Orientation::Horizontal</enum>
     </property>
     <property name="invertedControls">
      <bool>false</bool>
@@ -1929,7 +1919,7 @@
    <widget class="QScrollBar" name="hs_balance">
     <property name="geometry">
      <rect>
-      <x>530</x>
+      <x>540</x>
       <y>140</y>
       <width>160</width>
       <height>16</height>
@@ -1945,7 +1935,7 @@
      <number>1</number>
     </property>
     <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+     <enum>Qt::Orientation::Horizontal</enum>
     </property>
     <property name="invertedControls">
      <bool>false</bool>
@@ -1954,7 +1944,7 @@
    <widget class="QLabel" name="label_14">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>140</y>
       <width>50</width>
       <height>17</height>
@@ -2091,10 +2081,10 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::StyledPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
+     <enum>QFrame::Shadow::Raised</enum>
     </property>
     <widget class="QCheckBox" name="cb_fsta0">
      <property name="geometry">
@@ -2224,6 +2214,69 @@
       <bool>true</bool>
      </property>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>200</y>
+      <width>50</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>delay</string>
+    </property>
+   </widget>
+   <widget class="QScrollBar" name="hs_chord_delay">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>200</y>
+      <width>160</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>200</number>
+    </property>
+    <property name="pageStep">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Orientation::Horizontal</enum>
+    </property>
+    <property name="invertedControls">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QScrollBar" name="hs_pmw">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>170</y>
+      <width>160</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="pageStep">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Orientation::Horizontal</enum>
+    </property>
+    <property name="invertedControls">
+     <bool>false</bool>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

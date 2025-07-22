@@ -408,6 +408,7 @@ void Interpreter_class::Instrument( vector_str_t arr )
 
 //		Push_text( command );
 		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
+//		Processor_class::Push_key( SETINSTRUMENTKEY, "set instrument" );
 		return;
 	}
 	Wrong_keyword(  expect , keyword.Str );
@@ -603,7 +604,7 @@ void Interpreter_class::Play( vector_str_t arr )
 
 	expect 			= { "storage id "};
 	if( not set_stack( arr, 3 ) ) return;
-	char staId 		= pop_int( 0, MbSize -1);
+	char staId 		= pop_int( 0, STA_SIZE -1);
 
 	expect 			= { "amp" };
 	string k1 		= pop_stack( 1); // amp always
@@ -640,7 +641,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 {
 	expect = { "store", "amp", "stop", "play", "mute" , "clear", "loop"};
 	intro( arr, 3 );
-	uint max_id = MbSize -1;
+	uint max_id = STA_SIZE -1;
 
 	if ( cmpkeyword( "loop" ))
 	{
@@ -688,7 +689,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 
 		expect = {"mem id 0..5"};
-		int ma_id = pop_int(0, MbSize-1 );
+		int ma_id = pop_int(0, STA_SIZE-1 );
 		Processor_class::Push_ifd( &sds->MIX_Id, ma_id, "mixer id");
 		Processor_class::Push_key( PLAYNOTESREC_ON_KEY, "notes on");
 		return;

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'File_Dialog_class.h'
 **
-** Created by: The Qt Meta Object Compiler version 68 (Qt 6.6.2)
+** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -10,19 +10,16 @@
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
 
-#if __has_include(<QtCore/qtmochelpers.h>)
 #include <QtCore/qtmochelpers.h>
-#else
-QT_BEGIN_MOC_NAMESPACE
-#endif
-
 
 #include <memory>
 
+
+#include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'File_Dialog_class.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 68
-#error "This file was generated using the moc from 6.6.2. It"
+#error "This file was generated using the moc from 6.8.3. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -35,10 +32,12 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 QT_WARNING_DISABLE_GCC("-Wuseless-cast")
 namespace {
+struct qt_meta_tag_ZN17File_Dialog_classE_t {};
+} // unnamed namespace
+
 
 #ifdef QT_MOC_HAS_STRINGDATA
-struct qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS_t {};
-constexpr auto qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS = QtMocHelpers::stringData(
+static constexpr auto qt_meta_stringdata_ZN17File_Dialog_classE = QtMocHelpers::stringData(
     "File_Dialog_class",
     "Setup_widgets",
     "",
@@ -52,57 +51,11 @@ constexpr auto qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS = QtMocHelpers:
     "sB_Octave",
     "cb_Notestype"
 );
-#else  // !QT_MOC_HAS_STRING_DATA
-struct qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS_t {
-    uint offsetsAndSizes[24];
-    char stringdata0[18];
-    char stringdata1[14];
-    char stringdata2[1];
-    char stringdata3[13];
-    char stringdata4[5];
-    char stringdata5[18];
-    char stringdata6[16];
-    char stringdata7[22];
-    char stringdata8[15];
-    char stringdata9[14];
-    char stringdata10[10];
-    char stringdata11[13];
-};
-#define QT_MOC_LITERAL(ofs, len) \
-    uint(sizeof(qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS_t::offsetsAndSizes) + ofs), len 
-Q_CONSTINIT static const qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS_t qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS = {
-    {
-        QT_MOC_LITERAL(0, 17),  // "File_Dialog_class"
-        QT_MOC_LITERAL(18, 13),  // "Setup_widgets"
-        QT_MOC_LITERAL(32, 0),  // ""
-        QT_MOC_LITERAL(33, 12),  // "Notes_Select"
-        QT_MOC_LITERAL(46, 4),  // "arg1"
-        QT_MOC_LITERAL(51, 17),  // "Instrument_Select"
-        QT_MOC_LITERAL(69, 15),  // "Instrument_Save"
-        QT_MOC_LITERAL(85, 21),  // "pb_Notes_Done_clicked"
-        QT_MOC_LITERAL(107, 14),  // "cB_NotesPerSec"
-        QT_MOC_LITERAL(122, 13),  // "cB_Convention"
-        QT_MOC_LITERAL(136, 9),  // "sB_Octave"
-        QT_MOC_LITERAL(146, 12)   // "cb_Notestype"
-    },
-    "File_Dialog_class",
-    "Setup_widgets",
-    "",
-    "Notes_Select",
-    "arg1",
-    "Instrument_Select",
-    "Instrument_Save",
-    "pb_Notes_Done_clicked",
-    "cB_NotesPerSec",
-    "cB_Convention",
-    "sB_Octave",
-    "cb_Notestype"
-};
-#undef QT_MOC_LITERAL
-#endif // !QT_MOC_HAS_STRING_DATA
-} // unnamed namespace
+#else  // !QT_MOC_HAS_STRINGDATA
+#error "qtmochelpers.h not found or too old."
+#endif // !QT_MOC_HAS_STRINGDATA
 
-Q_CONSTINIT static const uint qt_meta_data_CLASSFile_Dialog_classENDCLASS[] = {
+Q_CONSTINIT static const uint qt_meta_data_ZN17File_Dialog_classE[] = {
 
  // content:
       12,       // revision
@@ -142,11 +95,11 @@ Q_CONSTINIT static const uint qt_meta_data_CLASSFile_Dialog_classENDCLASS[] = {
 
 Q_CONSTINIT const QMetaObject File_Dialog_class::staticMetaObject = { {
     QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS.offsetsAndSizes,
-    qt_meta_data_CLASSFile_Dialog_classENDCLASS,
+    qt_meta_stringdata_ZN17File_Dialog_classE.offsetsAndSizes,
+    qt_meta_data_ZN17File_Dialog_classE,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS_t,
+    qt_incomplete_metaTypeArray<qt_meta_tag_ZN17File_Dialog_classE_t,
         // Q_OBJECT / Q_GADGET
         QtPrivate::TypeAndForceComplete<File_Dialog_class, std::true_type>,
         // method 'Setup_widgets'
@@ -179,9 +132,8 @@ Q_CONSTINIT const QMetaObject File_Dialog_class::staticMetaObject = { {
 
 void File_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
+    auto *_t = static_cast<File_Dialog_class *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<File_Dialog_class *>(_o);
-        (void)_t;
         switch (_id) {
         case 0: _t->Setup_widgets(); break;
         case 1: _t->Notes_Select((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
@@ -205,7 +157,7 @@ const QMetaObject *File_Dialog_class::metaObject() const
 void *File_Dialog_class::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_CLASSFile_Dialog_classENDCLASS.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_ZN17File_Dialog_classE.stringdata0))
         return static_cast<void*>(this);
     if (!strcmp(_clname, "Logfacility_class"))
         return static_cast< Logfacility_class*>(this);
@@ -223,7 +175,8 @@ int File_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
         _id -= 9;
-    } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
+    }
+    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         if (_id < 9)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
         _id -= 9;

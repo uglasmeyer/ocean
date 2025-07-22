@@ -35,14 +35,14 @@ string Kbd_base::ShowKey( key3struct_t key )
 Kbd_base::key3struct_t Kbd_base::GetKeystruct	( bool debug )
 {
 	fflush(stdout);
-	buf3 = { 0,0,0 };
+	buf3 			= { 0,0,0 };
 
 	if(read(0, buf3_p, 3) < 0)
 		perror("read()");
 
-	key3.nokey 	= ( buf3.key == 0 );
+	key3.nokey 		= ( buf3.key == 0 );
 	if ( key3.nokey )
-		key3.hold = false;
+		key3.hold	= false;
 	else
 		key3.hold 	= ( ( buf3.key == buf3.val0 ) or ( buf3.key == key3.val1 ));
 

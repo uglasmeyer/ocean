@@ -256,16 +256,21 @@ void Oscillator::apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 	float		dbB 		= 0.5;
 	float 		dbH			= 1.0 - dbB;
 	uint		pos			= frame_offset;
+				kbd_trigger = false;
 	for ( uint m = 0; m < frames; m++ )
 	{
 		Data[ pos ] = Data[ pos ] * ( 	adsrdata[ beat_cursor ]*dbB +
 										adsrdata[ hall_cursor ]*dbH );
-		beat_cursor = ( beat_cursor + 1 ) % beat_frames;;
-		hall_cursor = ( hall_cursor + 1 ) % beat_frames;;
+		hall_cursor = ( hall_cursor + 1 ) % beat_frames;
+		beat_cursor = ( beat_cursor + 1 ) % beat_frames;
+		kbd_trigger = (( beat_cursor == 0 ) or kbd_trigger );
 		pos			= ( pos + 1 ) % mem_frames;
 	}
 	if ( has_kbd_role )
 		Comment( DEBUG, "beat_cursor: " , (int) beat_cursor );
+//	if (( has_instr_role ) and kbd_trigger )
+//		cout << "kbd_trigger" ;
+
 }
 
 void Oscillator::Test()

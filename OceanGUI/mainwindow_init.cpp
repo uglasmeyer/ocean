@@ -212,13 +212,14 @@ void MainWindow::initUiConnectors()
     connect(ui->Slider_OSC_Vol	, SIGNAL(valueChanged(int) ),this, SLOT(Main_slot_volume() ));
 
     connect(ui->Slider_slideFrq	, SIGNAL(valueChanged(int) ),this, SLOT(slideFrq(int )) );
-    connect(ui->dial_PMW      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
+    connect(ui->hs_pmw      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
     connect(ui->Slider_slideVol	, SIGNAL(valueChanged(int) ),this, SLOT(slideVol(int)) );
 
     connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_attack() ));
     connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_decay() ));
     connect(ui->hs_hall_effect	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_hall() ));
     connect(ui->hs_balance		, SIGNAL(valueChanged(int) ),this, SLOT(mixer_balance() ));
+    connect(ui->hs_chord_delay	, SIGNAL(valueChanged(int) ),this, SLOT(chord_delay() ));
 
     connect(ui->cb_bps			, SIGNAL(activated(int) )	,this, SLOT(cB_Beat_per_sec(int) ));
     connect(ui->pB_Wavedisplay 	, SIGNAL(clicked() )		,this, SLOT(pB_Wavedisplay_clicked() ));

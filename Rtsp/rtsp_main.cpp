@@ -48,7 +48,7 @@ void Stop_audioserver()
 void Stop_synthesizer()
 {
 	Log.Comment( INFO, "Receiver signal to stop");
-	Appstate->SetExitserver( sds, SYNTHID ); // TODO wrong sds
+	Appstate->SetExitserver( sds, APPID::SYNTHID ); // TODO wrong sds
 }
 
 int sig_counter = 0;

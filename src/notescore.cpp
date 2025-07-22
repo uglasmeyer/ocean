@@ -137,13 +137,7 @@ void Note_class::Show_note( note_t note )
 
 }
 
-int Note_class::Notechar2Step( char note_char )
-{
-	if ( Note_Chars.Set.contains( note_char ) )
-		return Note_Chars.Str.find( note_char );
-	else
-		return -12;
-}
+
 
 Note_class::note_t Note_class::Char2note( char& ch )
 {
