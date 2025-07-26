@@ -1,4 +1,12 @@
 eclipse.preferences.version=1
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/CPATH/delimiter=\:
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/CPATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/CPLUS_INCLUDE_PATH/delimiter=\:
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/CPLUS_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/C_INCLUDE_PATH/delimiter=\:
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/C_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/append=true
+environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/appendContributed=true
 environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/CPATH/delimiter=\:
 environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/CPATH/operation=remove
 environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/CPLUS_INCLUDE_PATH/delimiter=\:
@@ -7,6 +15,10 @@ environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.73613838
 environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/C_INCLUDE_PATH/operation=remove
 environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/append=true
 environment/buildEnvironmentInclude/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/appendContributed=true
+environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/LIBRARY_PATH/delimiter=\:
+environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/LIBRARY_PATH/operation=remove
+environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/append=true
+environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075/appendContributed=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/LIBRARY_PATH/delimiter=\:
 environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/LIBRARY_PATH/operation=remove
 environment/buildEnvironmentLibrary/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428/append=true

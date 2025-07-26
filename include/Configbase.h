@@ -11,9 +11,9 @@
 #include <Ocean.h>
 #include <Version.h>
 
-
-static const uint MAXCONFIG 	= 4;
-typedef	array<key_t, MAXCONFIG>	keys_arr_t;
+static const uint 	MAXCONFIG 	= 4;
+static const string	oceandir_env= "OCEANDIR";
+typedef	array<key_t,MAXCONFIG>	keys_arr_t;
 
 struct prgarg_struct
 {
@@ -34,6 +34,8 @@ struct prgarg_struct
 		string		Term		= "xterm -e ";
 		string		Nohup		= "nohup";
 		string 		ffmpeg 		= "ffmpeg";
+		string		installdir	= "";		 // Setup -I ...
+		string		filename	= "";
 		key_t		Sem_key		= 0x9999;
 		key_t 		SHM_key 	= 0x100; 	// -k
 		key_t		SHM_keyl	= SHM_key;
@@ -43,9 +45,10 @@ struct prgarg_struct
 		uint		temp_sec	= 30; 	// seconds storage in StA
 		uint 		record_sec	= 180; 	// seconds storage
 		uint		kbd_sec		= 2;	// seconds of keyboard stoarage in StA
+
 } ;
 
-typedef prgarg_struct prgarg_struct_t;
+typedef prgarg_struct prgarg_t;
 
 
 

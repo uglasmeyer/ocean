@@ -34,6 +34,7 @@ void keyboardState_class::set_accidental( uint loc, int dir  )
 		kbd_note.keyboard_keys[oct][ loc     ]	= '_';
 	}
 };
+Note_base Nb {};
 void keyboardState_class::increase_sharps()
 {
 	sharps 						= check_range( sharps_range, sharps + 1, "increase_sharps" );
@@ -41,7 +42,7 @@ void keyboardState_class::increase_sharps()
 
 	if ( sharps > 0 )
 	{
-		uint location			= ( sharp_pitch[ sharps-1 ] ) ;
+		uint location			= ( Nb.sharp_pitch[ sharps-1 ] ) ;
 		set_accidental( location, 1 );
 	}
 
@@ -52,7 +53,7 @@ void keyboardState_class::increase_flats()
 	sds->Kbd_state.flats 		= flats;
 	if ( flats > 0 )
 	{
-		uint location			= ( flat_pitch[ flats-1 ] ) ;
+		uint location			= ( Nb.flat_pitch[ flats-1 ] ) ;
 		set_accidental( location, -1 );
 	}
 
@@ -112,7 +113,7 @@ string Keyboard_class::get_notenames( )
 
 
 
-void Keyboard_class::Show_keys( bool tty)
+void Keyboard_class::Show_help( bool tty )
 {
 	if ( not tty ) return;
 	get_notenames() ;
@@ -134,10 +135,26 @@ void Keyboard_class::Show_keys( bool tty)
 	Table.AddRow( "F8", "reset flats "			);
 	Table.AddRow( "+/-" , "inc/dec octave"		, (int) sds->Kbd_state.base_octave, "base"  );
 	Table.AddRow( "#" , "show Frequency Table" 	);
-//	Table.AddRow( "Note", keyboard_keys.Str		 	);
 	Table.AddRow( "ESC", "Exit keyboard"		);
 }
 
+void Keyboard_class::exit_keyboard()
+{
+	Comment( WARN, "Exit by user request");
+	sds->Keyboard = EXITSERVER;
+}
+void Keyboard_class::notekey( char key )
+{
+	kbd_note.Chord 	= kbd_note.SetChord( key );
+	string
+	noteline 		= kbd_note.setNote( key ) ;
+	Noteline.append( noteline );
+}
+void Keyboard_class::set_bufferMode()
+{
+	StA->state.forget 	= not StA->state.forget ;
+	Noteline 			= "";
+}
 void Keyboard_class::specialKey()
 {
 	key3struct_t special = GetKeystruct( false );
@@ -149,44 +166,45 @@ void Keyboard_class::specialKey()
 	switch( special.key )
 	{
 		case F5 : { set_slideMode(); 		break; }
-		case F6	: { StA->state.forget = not StA->state.forget ;	break; }
-		case F7 : { increase_flats();;break; }
-		case F8 : { reset_flats(); 	;break; }
-		default : { tainted = false;break; }
+		case F6	: { set_bufferMode();		break; }
+		case F7 : { increase_flats();		break; }
+		case F8 : { reset_flats(); 			break; }
+		default : { tainted = false;		break; }
 	}
 	if ( tainted )
-		Show_keys( is_atty );
+		Show_help( is_atty );
 }
+Frequency_class Frequency {};
 void Keyboard_class::keyHandler( key3struct_t kbd )
 {
-	bool tainted = true;
+	string 	noteline 	= "";
+	bool 	tainted 	= true;
 	switch (kbd.key )
 	{
-		case '+' :	{ change_octave(  1 ) 	; break; }
-		case '-' :	{ change_octave( -1 ) 	; break; }
-		case '#' :	{ ShowFrqTable()				; break;}
+		case '+' :	{ change_octave(  1 ) 		; break; }
+		case '-' :	{ change_octave( -1 ) 		; break; }
+		case '#' :	{ Frequency.ShowFrqTable()	; break; }
 		case ESC :
 		{
 			switch( kbd.val1 )
 			{
-				case 0 :	{ Comment( WARN, "Exit by user request");
-										sds->Keyboard = EXITSERVER; break; }
-				case F0	: { specialKey(); break; }
-				case F1	: { tainted = false; Show_keys( is_atty ); break; }
-				case F2 : { increase_sharps();;break; }
-				case F3 : { reset_sharps(); 	;break; }
-				case F4 : { toggle_applyADSR();break; }
-				default : { tainted = false; break; }
+				case 0  :	{ exit_keyboard()	; break; }
+				case F0	: 	{ specialKey()		; break; }
+				case F1	:	{ tainted = true	; break; }
+				case F2 : 	{ increase_sharps()	; break; }
+				case F3 : 	{ reset_sharps(); 	; break; }
+				case F4 :	{ toggle_applyADSR(); break; }
+				default :	{ tainted = false	; break; }
 			};
 			break;
 		}
-		default : { kbd_note.chord 	= kbd_note.GetChord(kbd.key);
-					tainted 		= false;
+		default : { notekey( kbd.key );
+					tainted	= false;
 					break; }
 	}
 	if ( tainted )
 	{
 		ClearScreen();
-		Show_keys( is_atty );
+		Show_help( is_atty );
 	}
 }

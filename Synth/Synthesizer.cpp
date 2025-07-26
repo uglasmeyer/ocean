@@ -160,7 +160,7 @@ void ApplicationLoop()
 	Event.Handler();
 	App.Ready();
 	show_AudioServer_Status();
-	Keyboard.Show_keys( Keyboard.enabled );
+	Keyboard.Show_help( Keyboard.enabled );
 
 	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
@@ -221,7 +221,6 @@ int main( int argc, char* argv[] )
 	activate_logging();
 
 	App.Start( argc, argv );
-	Dir.Create();
 
 	if ( Cfg.Config.test == 'y' )
 	{

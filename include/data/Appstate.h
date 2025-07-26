@@ -21,14 +21,15 @@ constexpr char AppNameId( const T& name )
 {
 	char appid = APPID::NOID;
 
-	if ( strEqual( name, "AudioServer"	) ) appid = APPID::AUDIOID;
-	if ( strEqual( name, "Synthesizer" 	) )	appid = APPID::SYNTHID;
-	if ( strEqual( name, "Composer" 	) )	appid = APPID::COMPID;
-	if ( strEqual( name, "OceanGUI" 	) ) appid = APPID::GUI_ID;
-	if ( strEqual( name, "Comstack" 	) )	appid = APPID::COMSTACKID;
-	if ( strEqual( name, "Keyboard" 	) )	appid = APPID::KBDID;
-	if ( strEqual( name, "rtsp" 		) )	appid = APPID::RTSPID;
-	if ( strEqual( name, "Testprg" 		) )	appid = APPID::TESTID;
+	if ( strEqual( name, AUDIOSERVER	) ) appid = APPID::AUDIOID;
+	if ( strEqual( name, SYNTHESIZER 	) )	appid = APPID::SYNTHID;
+	if ( strEqual( name, COMPOSER 		) )	appid = APPID::COMPID;
+	if ( strEqual( name, OCEANGUI	 	) ) appid = APPID::GUI_ID;
+	if ( strEqual( name, COMSTACK	 	) )	appid = APPID::COMSTACKID;
+	if ( strEqual( name, SYNTHKBD 		) )	appid = APPID::KBDID;
+	if ( strEqual( name, SETUP		 	) )	appid = APPID::SETUPID;
+	if ( strEqual( name, RTSP	 		) )	appid = APPID::RTSPID;
+	if ( strEqual( name, TESTPRG 		) )	appid = APPID::TESTID;
 
 	if ( appid == APPID::NOID )
 	{

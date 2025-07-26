@@ -121,7 +121,7 @@ public:
     vector<sl_lcd_t>		sl_volume_vec		{};
     vector<sB_lbl_t>		sB_lbl_vec			{};
 
-    const dir_struct_t 		fs					= file_structure();
+    const file_structure	fs					= file_structure();
 
 
     explicit MainWindow(	QWidget*			parent 	= nullptr);

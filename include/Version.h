@@ -19,7 +19,7 @@
 
 #define MAYOR 3
 #define MINOR 8
-#define PATCH 1
+#define PATCH 3
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -31,7 +31,7 @@ const string Application = "Ocean Sound ";
 
 // Git comment:
 /*
-
+version 3.8.3 Integration of Setup
 version 3.8.2
 				oscgroup.Set_Note_Frequency
 				keyboard as a process

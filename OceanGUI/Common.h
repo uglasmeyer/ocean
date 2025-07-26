@@ -89,7 +89,7 @@ struct EventStruct : PathStruct
 } ;
 typedef EventStruct Event_t;
 
-static dir_struct_t fs = file_structure();
+static file_structure fs = file_structure();
 
 static Event_t EventXML( XMLFILE_KEY, fs.xmldir, fs.xml_type );
 static Event_t EventNTE( UPDATENOTESKEY, fs.notesdir, fs.nte_type );

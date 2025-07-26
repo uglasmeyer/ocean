@@ -7,12 +7,13 @@
 //============================================================================
 
 #include <App.h>
+#include <Kbd.h>
 #include <EventKeys.h>
 #include <Frequency.h>
-#include <Kbd.h>
 #include <Viewinterface.h>
 
 #include <Appsymbols.h>
+
 
 Kbd_base				Keyboard		{};
 ViewInterface_class		ViewSds			{ COMSTACKID, &DaTA };

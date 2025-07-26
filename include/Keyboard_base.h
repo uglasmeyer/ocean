@@ -8,6 +8,9 @@
 #ifndef KEYBOARD_BASE_H_
 #define KEYBOARD_BASE_H_
 
+#include <Ocean.h>
+#include <Frequency.h>
+
 const char			NONOTE 					= -1;
 const char			kbd_octaves				= 3;
 const int 			max_kbd_octave			= max_octave - kbd_octaves ;
@@ -32,18 +35,28 @@ typedef struct kbd_note_struct
 :	note_value_struct
 {
 	int 			frqidx;
+	string			name;
 	kbd_note_struct( int oct, int pos )
 	{
 		step 	= pos;
 		octave 	= oct;
 		frqidx 	= frqIndex( step, oct );
+		name	= frqNamesArray[ frqidx ];
 	}
+	kbd_note_struct( int idx )
+	{
+		frqidx 	= check_range( frqarr_range, idx, "kbd_note_struct" );
+		step 	= ( idx - C0 ) % oct_steps;
+		octave	= ( idx - C0 - step ) / oct_steps;
+		name	= frqNamesArray[ frqidx ];
+	}
+
 	~kbd_note_struct() = default;
 	string show()
 	{
 		stringstream strs {};
-		strs << "|" << (int)octave << OctChars[step] ;
-//		coutf << strs.str();
+		strs << "|" << name ;
+		coutf << strs.str();
 		return strs.str();
 	}
 } kbd_note_t;

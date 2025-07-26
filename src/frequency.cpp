@@ -60,12 +60,12 @@ uint Frequency_class::Index( const string& frqName )
 
 uint  Frequency_class::Index( const frq_t& freq )
 {
-	int idx = 1;
+	int idx = frqarr_range.min;
 	if( freq >= oct_base_freq )
 	{
 		idx = rint( log(freq / oct_base_freq) / log2 * oct_steps + C0 );
 	}
-	if( freq < oct_base_freq )
+	else//if( freq < oct_base_freq )
 	{
 		if( freq < 1 )
 		{

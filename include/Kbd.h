@@ -28,8 +28,8 @@ enum  KEYCODE {
 	F9 	= 	48
 };
 
-class Kbd_base :
-		virtual 	Logfacility_class
+class Kbd_base
+	: virtual 	Logfacility_class
 {
 public:             // Access specifier
 	typedef struct keybuf_struct

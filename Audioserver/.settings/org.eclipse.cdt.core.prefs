@@ -9,6 +9,11 @@ environment/project/cdt.managedbuild.toolchain.gnu.base.1511919094/ARCH/operatio
 environment/project/cdt.managedbuild.toolchain.gnu.base.1511919094/ARCH/value=${ArchType}
 environment/project/cdt.managedbuild.toolchain.gnu.base.1511919094/append=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.1511919094/appendContributed=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328.362274510/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328.362274510/ARCH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328.362274510/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328.362274510/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328.362274510/appendContributed=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328/ARCH/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328/ARCH/operation=append
 environment/project/cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328/ARCH/value=${ArchType}

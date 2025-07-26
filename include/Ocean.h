@@ -25,6 +25,7 @@
 #include <map>
 #include <memory> // unique_ptr
 #include <numeric>
+#include <numbers>
 #include <random>
 #include <ranges>
 #include <set>
@@ -132,7 +133,6 @@ constexpr T check_range( range_T<T> r, T val, string errmsg )
 									<< val
 									<< " adjusted to min boundaries "
 									<< r.min << endl;
-//		assert(false);
 		return r.min;
 	}
 	if (val > r.max )
@@ -183,22 +183,35 @@ enum APPID
 	COMSTACKID,
 	RTSPID,
 	KBDID,
+	SETUPID,
 	TESTID,
 	NOID
 };
+#define AUDIOSERVER "AudioServer"
+#define SYNTHESIZER	"Synthesizer"
+#define COMPOSER	"Composer"
+#define OCEANGUI	"OceanGUI"
+#define COMSTACK	"Comstack"
+#define RTSP		"Rtsp"
+#define SYNTHKBD	"Keyboard"
+#define SETUP		"Setup"
+#define TESTPRG		"Testprg"
+
+
 template<typename T>
 constexpr string AppIdName( const T& app_id )
 {
 	switch ( app_id )
 	{
-		case APPID::AUDIOID		: return "Audioserver";
-		case APPID::SYNTHID		: return "Synthesizer";
-		case APPID::COMPID		: return "Composer";
-		case APPID::GUI_ID		: return "UserInterface";
-		case APPID::COMSTACKID	: return "Comstack";
-		case APPID::RTSPID		: return "Rtsp";
-		case APPID::KBDID		: return "Keyboard";
-		case APPID::TESTID		: return "Testprg";
+		case APPID::AUDIOID		: return AUDIOSERVER;
+		case APPID::SYNTHID		: return SYNTHESIZER;
+		case APPID::COMPID		: return COMPOSER;
+		case APPID::GUI_ID		: return OCEANGUI;
+		case APPID::COMSTACKID	: return COMSTACK;
+		case APPID::RTSPID		: return RTSP;
+		case APPID::KBDID		: return SYNTHKBD;
+		case APPID::SETUPID		: return SETUP;
+		case APPID::TESTID		: return TESTPRG;
 		case APPID::NOID		: return "No Process";
 		default 		: 	{
 							cout << "WARN: unknown application id: " << app_id << endl;
@@ -234,7 +247,8 @@ typedef struct osc_struct
 
 
 } osc_roles_t;
-constexpr const  array<uint,3> osctypeIds  = { osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID };
+constexpr const  array<uint,3> osctypeIds  =
+{ osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID };
 
 const vector<string> slidermodes =
 {
@@ -247,7 +261,7 @@ enum DYNAMIC
 
 
 const uint				oct_steps		= 12;
-const static uint		max_octave		= 6;
+const static uint		max_octave		= 7;
 const uint 				min_octave 		= 0;
 const string			OctChars		= "CcDdEFfGgAaB";
 

@@ -16,7 +16,7 @@ void SynthesizerTestCases()
 
 	Logfacility_class		Log( "SynthesizerTest" );
 	Log.Set_Loglevel( TEST, true );
-	DirStructure_class		Dir;
+
 
 	process_t				Process{  };
 	Config_class			Cfg				{ Process.name };
@@ -65,7 +65,6 @@ void SynthesizerTestCases()
 
 	Log.Comment(TEST, "entering test classes ");
 
-	Dir.Test();
 
 	Notes.TestNoteBase();
 

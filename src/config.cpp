@@ -4,15 +4,159 @@
 #include <data/Memorybase.h>
 #include <Exit.h>
 
+
+string install_struct::read_installfile()
+{
+	Comment( DEBUG, "reading install_file" );
+	if ( git_dir.length() == 0 )
+		return baseDir();
+	string install = homedir + "OceanBase/";
+
+	String S {};
+	fstream Install {};
+	const string		install_file	= git_dir + "install.txt";
+
+	Install.open( install_file, fstream::in );
+	if ( Install.is_open() )
+	{
+		Comment( DEBUG, "Reading ", install_file );
+		while ( getline( Install, S.Str ))
+		{
+			vector_str_t arr = S.to_array( '=' );
+			if( arr[0].compare( oceandir_env ) == 0 )
+				install = arr[1];
+		}
+	}
+	Comment( DEBUG, "installdir= ", install );
+
+	return install;
+
+}
+
+void install_struct::show_installdirs()
+{
+	for( string file : files)
+	{
+		Comment( BINFO, file );
+	}
+}
+string install_struct::gitDir()
+{
+	string _dir = "";
+	string _pwd = pwd.generic_string() + "/";
+	if ( _pwd.length() == 0 )
+		EXCEPTION( "PWD not set");
+	size_t pos = _pwd.find( "/Ocean/" );
+	if( pos < STRINGNOTFOUND )
+		_dir = _pwd.substr( 0, pos ) + string( "/Ocean/");
+
+
+	return _dir;
+}
+string install_struct::resourceDir()
+{
+	if( git_dir.length() == 0 ) return "";
+	string _dir = git_dir + "/Resource/";
+	if ( not filesystem::is_directory( _dir ) )
+		Info( "unknown resource directory ", resourcedir );
+	return _dir;
+}
+
+string install_struct::getArch()
+{
+	string arch { notnull( getenv("ARCH") ) };
+	return arch + string( "/" );
+};
+
+
+string install_struct::baseDir( )
+{
+
+	string basedir = "";
+
+	// oceandir
+	const string Envvar = "OCEANDIR";
+	string Env = notnull( std::getenv( Envvar.data()) );
+	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
+	{
+		basedir = Env;// + "/";
+		Comment( INFO, "using " + Envvar +" "+ basedir );
+		return basedir;
+	}
+	Comment( INFO, "not in " + Envvar );
+
+	// path
+	string prgname = program_invocation_short_name;
+	string file = searchPath( prgname );
+	filesystem::path filepath = file;
+	string parentpath = filepath.parent_path();
+	filesystem::path cfgname = parentpath + "/../etc/synthesizer.cfg";
+	if ( file.length() > 0 )
+		if( filesystem::is_regular_file( cfgname ) )
+		{
+			basedir = parentpath + "/../" ;
+			Comment( INFO, "using oceanbasedir " + basedir );
+			return basedir;
+		}
+	Comment( INFO, "not in searchPATH" );
+
+	// pwd
+	string pwd = notnull( getenv( "PWD" ));
+	string prgpwd = pwd + "/" + prgname ;
+	if ( filesystem::is_regular_file( prgpwd + "../etc/synthesizer.cfg" ))
+	{
+		basedir = pwd + "/../";
+		Comment( INFO, "using PWD basedir " + basedir );
+		return basedir;
+	}
+	Comment( ERROR, pwd + " is not an Ocean basedir, or " + prgname + " not in PATH");
+	Comment( ERROR, "or " + Envvar + " is incorrect");
+
+	exit(1);
+
+	return string("");
+}
+install_struct::install_struct()
+: 	Logfacility_class( "install_struct" )
+{};
+dir_struct::dir_struct( )
+	: install_struct()
+{};
+file_structure::file_structure()
+	: dir_struct()
+{};
+
+string file_structure::baseName ( string _dir )
+{
+
+	String Str { _dir };
+	vector_str_t arr = Str.to_array( '/' );
+	string name = "";
+	if( arr.size() > 1 )
+		name = arr[ arr.size() - 2 ];
+//	coutf << "basename: " << name << endl;
+	return name;
+};
+string file_structure::get_rec_filename( uint no )
+{
+	return filename + to_string( no ) ;
+}
+
 Config_class::Config_class( string Module ) :
 	Logfacility_class( "Config_class" )
 {
+	className 			= Logfacility_class::className;
+	Comment( INFO, "Program name: " + string( program_invocation_short_name ) );
+	file_structure		fs	= file_structure();
+	if( filesystem::is_regular_file( fs.config_file ) )
+	{
+		Read_config( fs.config_file );
+	}
+	if( filesystem::is_regular_file( fs.git_dir + fs.config_filename ) )
+	{
+		Read_config( fs.git_dir + fs.config_filename );
+	}
 
-	className = Module;
-	string shortname = program_invocation_short_name;
-	Comment( INFO, "Program name: " + shortname );
-	this->basedir = baseDir( );
-	Read_config( file_structure().config_file );
 };
 
 Config_class::~Config_class()
@@ -85,14 +229,14 @@ void Config_class::Read_config(	string cfgfile )
 		return ( tmp.length() == 0 ) ? old : tmp[0];
 	};
 
-	Config.title		= get_item ( Config.title, "title" );
-	Config.author		= get_item ( Config.author, "author" );
-	Config.album		= get_item ( Config.album, "album" );
-	Config.Genre 		= get_item ( Config.Genre, "genre" );
-	Config.Term 		= get_item ( Config.Term, "term" );
-	Config.ffmpeg 		= get_item ( Config.ffmpeg, "ffmpeg" );
-	Config.SHM_key		= get_value( Config.SHM_key, "shmkey" );
-	Config.SDS_key		= get_value( Config.SDS_key, "sdskey" );
+	Config.title		= get_item ( Config.title		, "title" );
+	Config.author		= get_item ( Config.author		, "author" );
+	Config.album		= get_item ( Config.album		, "album" );
+	Config.Genre 		= get_item ( Config.Genre		, "genre" );
+	Config.Term 		= get_item ( Config.Term		, "term" );
+	Config.ffmpeg 		= get_item ( Config.ffmpeg		, "ffmpeg" );
+	Config.SHM_key		= get_value( Config.SHM_key		, "shmkey" );
+	Config.SDS_key		= get_value( Config.SDS_key		, "sdskey" );
 	Config.Sem_key		= get_value( Config.Sem_key		, "semkey" );
 	Config.temp_sec		= get_value( Config.temp_sec	, "temp_sec" );
 	Config.record_sec	= get_value( Config.record_sec	, "record_sec" );
@@ -129,27 +273,31 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 	String 			Str{""};
 	string 			next{""};
 
-	Comment(INFO, "Evaluating startup arguments");
-
-	char 	ch;
+	Info("Evaluating ", (int)argc, " startup arguments");
 	for ( int ndx = 1; ndx < argc; ndx ++ )
 	{
+		char 	ch = 0;
 		string arg = argv[ ndx ];
-		( arg.length() > 1) ? ch = arg[1] : ch = 0;
-		( ndx + 1 == argc  ) ? next = "" : next = argv[ ndx + 1 ];
+		if ( arg.length() == 2 )
+		{
+			if ( arg[0] == '-' )
+				ch = arg[1];
+		}
+		( ndx + 1 == argc  ) ? next = "" 	: next 	= argv[ ndx + 1 ];
 		switch ( ch )
 		{
-			case 'r' : Config.rate 		= Str.to_int( next ); break;
-			case 'd' : Config.device 	= Str.to_int( next ); break;
-			case 'o' : Config.ch_offs	= Str.to_int( next ); break;
-			case 'k' : Config.SDS_key 	= Str.to_int( next ); break;
-			case 'c' : Config.channel	= Str.to_int( next ); break;
-			case 'C' : Config.composer	= 'y'; break;
-			case 'G' : Config.oceangui	= 'y'; break;
-			case 't' : Config.test 		= 'y'; break;
-			case 'D' : Config.dialog 	= 'y'; break;
-			case 'X' : Config.clear 	= 'y'; break;
-			default  : Comment( ERROR, "unrecognized option ", arg ); break;
+			case 'r' : Config.rate 			= Str.to_int( next ); break;
+			case 'd' : Config.device 		= Str.to_int( next ); break;
+			case 'o' : Config.ch_offs		= Str.to_int( next ); break;
+			case 'k' : Config.SDS_key 		= Str.to_int( next ); break;
+			case 'c' : Config.channel		= Str.to_int( next ); break;
+			case 'I' : Config.installdir	= next ; break;
+			case 'C' : Config.composer		= 'y'; break;
+			case 'G' : Config.oceangui		= 'y'; break;
+			case 't' : Config.test 			= 'y'; break;
+			case 'D' : Config.dialog 		= 'y'; break;
+			case 'X' : Config.clear 		= 'y'; break;
+			default  : Config.filename		= arg; break;
 		}
 	}
 
@@ -185,47 +333,10 @@ void Config_class::Show_Config( )
 	Table.AddRow( "temp storage sec"	, Config.temp_sec	);
 	Table.AddRow( "keyboard storage sec", Config.kbd_sec	);
 	Table.AddRow( "record storage sec"	, Config.record_sec	);
+	Table.AddRow( "Install directory"	, Config.installdir );
+	Table.AddRow( "File name"			, Config.filename );
 }
 
-string Config_class::baseDir()
-{
-	const char* envvar = "OCEANDIR";
-	string Envvar( envvar );
-	string Env = notnull( std::getenv( envvar) );
-	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
-	{
-		basedir = Env + "/";
-		Comment( INFO, "using " + Envvar +" "+ basedir );
-		return basedir;
-	}
-	Comment( INFO, "not in " + Envvar );
-
-	string file = searchPath( prgname );
-	filesystem::path filepath = file;
-	string parentpath = filepath.parent_path();
-	filesystem::path cfgname = parentpath + "/../etc/synthesizer.cfg";
-	if ( file.length() > 0 )
-		if( filesystem::is_regular_file( cfgname ) )
-		{
-			basedir = parentpath + "/../" ;
-			Comment( INFO, "using basedir " + basedir );
-			return basedir;
-		}
-	Comment( INFO, "not in searchPATH" );
-	string pwd = notnull( getenv( "PWD" ));
-	string prgpwd = pwd + "/" + prgname ;
-	if ( filesystem::is_regular_file( prgpwd + "../etc/synthesizer.cfg" ))
-	{
-		basedir = pwd + "/../";
-		Comment( INFO, "using PWD basedir " + basedir );
-		return basedir;
-	}
-	Comment( ERROR, pwd + " is not an Ocean basedir, or " + prgname + " not in PATH");
-	Comment( ERROR, "or " + Envvar + " is incorrect");
-	exit(1);
-
-	return string("");
-}
 
 string Config_class::Server_cmd( string term, string srv, string srvopt)
 {
@@ -245,40 +356,6 @@ string Config_class::Server_cmd( string term, string srv, string srvopt)
 
 
 
-void DirStructure_class::Create()
-{
-	Comment(INFO,"Checking directory structure");
-	ASSERTION( ( dir_struct().dirs.size() != 0 ),"DirStructure_class::Create",dir_struct().dirs.size(),"not=0");
-	for( string dir : dir_struct().dirs )
-	{
-		Comment( TEST, "Create: " + dir );
-		if( filesystem::create_directories( dir ) )
-			Comment( INFO, "Synthesizer directory " + dir + " created");
-	}
-}
-/*
-void DirStructure_class::setDir(  )
-{
 
-
-	dir_t dir = dir_struct();
-
-};
-*/
-void DirStructure_class::Test()
-{
-	TEST_START( className );
-	string t = notnull(getenv( "PATH" ));
-	assert( t.length() > 0 );
-	Create();
-	TEST_END( className );
-}
-
-DirStructure_class::DirStructure_class() :
-	Logfacility_class("DirStructure")
-{
-	className = Logfacility_class::className;
-//	setDir();
-};
 
 

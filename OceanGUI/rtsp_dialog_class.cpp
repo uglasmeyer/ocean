@@ -6,8 +6,7 @@
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
 )
-    : Logfacility_class( Ui::ClassName ),
-	  Config_class( Ui::ClassName ),
+	:  Config_class( Ui::ClassName ),
 	  QDialog(parent),
 	  ui( new Ui::Rtsp_Dialog_class {})
 {

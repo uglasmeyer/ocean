@@ -47,7 +47,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := /home/sirius/OceanBase/bin/x86_64/rtsp
+BUILD_ARTIFACT_NAME := Rtsp
 BUILD_ARTIFACT_EXTENSION :=
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -55,24 +55,29 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: main-build
+all:
+	+@$(MAKE) --no-print-directory main-build && $(MAKE) --no-print-directory post-build
 
 # Main-build Target
-main-build: /home/sirius/OceanBase/bin/x86_64/rtsp
+main-build: Rtsp
 
 # Tool invocations
-/home/sirius/OceanBase/bin/x86_64/rtsp: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) /home/sirius/git/Ocean/Release/libOcean.a
+Rtsp: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS) /home/sirius/git/Ocean/Release/libOcean.a
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "/home/sirius/OceanBase/bin/x86_64/rtsp" $(OBJS) $(USER_OBJS) $(LIBS) /home/sirius/git/Ocean/Release/libOcean.a
+	g++  -o "Rtsp" $(OBJS) $(USER_OBJS) $(LIBS) /home/sirius/git/Ocean/Release/libOcean.a
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) /home/sirius/OceanBase/bin/x86_64/rtsp
+	-$(RM) Rtsp
 	-@echo ' '
 
-.PHONY: all clean dependents main-build
+post-build:
+	-/home/sirius/git/Ocean/Rtsp/../Setup/xRelease/Setup Rtsp
+	-@echo ' '
+
+.PHONY: all clean dependents main-build post-build
 
 -include ../makefile.targets

@@ -5,17 +5,12 @@
  *      Author: sirius
  */
 
+
 #include <rtsp/Rtsp.h>
-
-
-#include <Time.h>
-#include <Logfacility.h>
-
-Time_class Timer{};
 
 void Start_audioserver()
 {
-    string Start_Audio_Srv = Cfg_p->Server_cmd( 	Cfg_p->Config.Nohup,
+    string Start_Audio_Srv = Cfg.Server_cmd( 	Cfg.Config.Nohup,
     											file_structure().audio_bin,
 												"-S 0 2>&1 >> " +
 												file_structure().nohup_file );
@@ -24,7 +19,7 @@ void Start_audioserver()
 
 void Start_synthesizer( uint cfgid )
 {
-    string Start_Synthesizer = Cfg_p->Server_cmd( Cfg_p->Config.Nohup,
+    string Start_Synthesizer = Cfg.Server_cmd( Cfg.Config.Nohup,
     											file_structure().synth_bin,
 												" -S " + to_string( cfgid ) +
 												" 2>&1 > "  + file_structure().nohup_file);
@@ -42,13 +37,13 @@ void Start_gui()
 void Stop_audioserver()
 {
 	Log.Comment( INFO, "Receiver signal to stop");
-	Appstate->SetExitserver( sds_master, AUDIOID );
+	DaTA.Appstate.SetExitserver( sds_master, AUDIOID );
 
 }
 void Stop_synthesizer()
 {
 	Log.Comment( INFO, "Receiver signal to stop");
-	Appstate->SetExitserver( sds, APPID::SYNTHID ); // TODO wrong sds
+	DaTA.Appstate.SetExitserver( sds, APPID::SYNTHID ); // TODO wrong sds
 }
 
 int sig_counter = 0;
@@ -86,37 +81,37 @@ int main(  int argc, char* argv[] )
 	App.Start( argc, argv );
 	sds = App.sds;
 
-	if ( Cfg_p->Config.test == 'y' )
+	if ( Cfg.Config.test == 'y' )
 	{
 		Test_rtsp();
 		exit_proc( 0 );
 	}
 
 
-	Sem_p->Release( SYNTHESIZER_START);
+	Sem.Release( SYNTHESIZER_START);
 
-	Sem_p->Release( RTSP_STARTED );
+	Sem.Release( RTSP_STARTED );
 
 	Log.Comment( INFO, "RTSP is " + sdsstate_struct().state_map[ sds->Rtsp ] );
 
-	if( Cfg_p->Config.oceangui == 'y' )
+	if( Cfg.Config.oceangui == 'y' )
 	{
 		Start_gui();
 		return 0;
 	}
 //	assert( sds->UserInterface == OFFLINE );
 	string cfg = "";
-	if( Cfg_p->Config.composer == 'y' )
+	if( Cfg.Config.composer == 'y' )
 	{
 		Start_synthesizer( 0 );
 
 		Log.Comment( INFO, "waiting for release of SEMAPHORE_STARTED");
-		Sem_p->Lock( SEMAPHORE_STARTED );
+		Sem.Lock( SEMAPHORE_STARTED );
 
 		Start_audioserver();
 
 		Log.Comment( INFO, "waiting for release of SEMAPHORE_EXIT");
-		Sem_p->Lock( SEMAPHORE_EXIT );
+		Sem.Lock( SEMAPHORE_EXIT );
 		Stop_synthesizer();
 		Stop_audioserver();
 		return 0;
@@ -127,15 +122,15 @@ int main(  int argc, char* argv[] )
 	{
 		Log.Comment( INFO, "waiting for release of SYNTHESIZER_START");
 		Log.Comment( INFO, "use OceanGUI to start additional synthesizer");
-		Sem_p->Lock( SYNTHESIZER_START );
-		if ( Appstate->IsExitserver( sds_master, RTSPID ) )
+		Sem.Lock( SYNTHESIZER_START );
+		if ( DaTA.Appstate.IsExitserver( sds_master, RTSPID ) )
 		{
 			exit_proc( 0 );
 		}
 
 		Start_synthesizer( cfgid );
 		Log.Comment( INFO, "waiting for release of SYNTHESIZER_STARTED");
-		Sem_p->Lock( SEMAPHORE_STARTED, 2 );
+		Sem.Lock( SEMAPHORE_STARTED, 2 );
 		cfgid = ( cfgid + 1 ) % MAXCONFIG;
 	}
 	exit_proc( 0 );

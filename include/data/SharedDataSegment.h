@@ -166,6 +166,7 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t			Comstack					= sdsstate_struct::OFFLINE;// NA
 	uint8_t			Rtsp						= sdsstate_struct::OFFLINE;//
 	uint8_t			Keyboard					= sdsstate_struct::OFFLINE; // if tty and synthesizer process
+	uint8_t			Setup						= sdsstate_struct::OFFLINE; // if tty and synthesizer process
 
 
 

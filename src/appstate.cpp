@@ -44,6 +44,7 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 		case APPID::GUI_ID		: { ptr = &sds->UserInterface; break; }
 		case APPID::COMSTACKID	: { ptr = &sds->Comstack; break; }
 		case APPID::KBDID		: { ptr = &sds->Keyboard; break; }
+		case APPID::SETUPID		: { ptr = &sds->Setup; break; }
 		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
 		case APPID::TESTID		: { ptr = &sds->Rtsp; break; }
 		case APPID::NOID		: { ptr = nullptr; break; }

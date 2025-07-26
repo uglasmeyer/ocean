@@ -135,6 +135,7 @@ bool preprocessor( string batch_file )
 		Log.Comment( INFO, "Processing input file: \n" + batch_file  );
 	}
 
+
 	string path = filesystem::path( batch_file );
 	vector_str_t arr	= {};
 

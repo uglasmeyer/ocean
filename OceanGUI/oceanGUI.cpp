@@ -21,7 +21,7 @@
 
 
 
-const string 		Module 		= "OceanGUI";
+const string 		Module 		= OCEANGUI;
 
 //Ui::MainWindow	Ui_Mainwindow_obj{};
 

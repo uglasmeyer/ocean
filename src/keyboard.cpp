@@ -119,7 +119,7 @@ void Keyboard_class::attack()
 		}
 	};
 
-	if ( ( Kbd_key.hold ) ) //and ( decayCounter >= releaseCounter) )
+	if ( ( Kbd_key.hold ) )
 	{
 		cout << "-" ;
 		return;
@@ -133,7 +133,6 @@ void Keyboard_class::attack()
 
 	gen_chord_data();
 
-
 	StA->Write_data( Osc->Mem.Data );//, max_frames );
 
 	decayCounter	= attackCounter ;
@@ -143,9 +142,6 @@ void Keyboard_class::attack()
 
 void Keyboard_class::release(  )
 {
-//	Oscgroup.Data_Reset();
-//	cout << "r" ;
-
 	if ( Kbd_key.hold )
 	{
 		StA->Write_data( Osc->Mem.Data );
@@ -157,10 +153,10 @@ void Keyboard_class::release(  )
 void Keyboard_class::Set_Kbdnote( key3struct_t key )
 {
 	Kbd_key		=  key;
-	string nl = kbd_note.setNote( Kbd_key.key );
-	if ( ( kbd_note.note_vec.size() == 0 ))// and //( kbd_note.Note.step == NONOTE ) and )
+	keyHandler( Kbd_key );
+
+	if ( ( kbd_note.note_vec.size() == 0 ) )
 	{
-		keyHandler( Kbd_key );
 		if ( not decay() )
 			release();
 	}
@@ -169,7 +165,6 @@ void Keyboard_class::Set_Kbdnote( key3struct_t key )
 		if( instrument->osc->kbd_trigger )
 		{
 			attack();
-			Noteline.append( nl );
 		}
 	}
 }
@@ -181,4 +176,73 @@ void Keyboard_class::ScanData()
 	assert( sds->audioframes == StA->scanner.inc );
 	Kbd_Data = StA->scanner.Next();
 }
+
+
+string Kbd_note_class::setNote( int key )
+{
+	auto base_note = [ this ]( int KEY  )
+	{
+		Note 	= kbd_note_struct( 0, NONOTE);
+		for( uint row = 0; row < kbd_octaves; row++ )
+		{
+			size_t pos 	= keyboard_keys[ row ].find( KEY );
+			if ( pos < STRINGNOTFOUND )
+			{
+				Note = kbd_note_struct( row + base_octave, pos);
+			}
+		}
+		return Note;
+	};
+	auto show_note_vec = [ this ](  )
+	{
+		if( LogMask[ DEBUG ] )
+		{
+			for( kbd_note_t note : note_vec )
+				note.show();
+		}
+	};
+
+
+	noteline = "";
+	if ( key == NOKEY )
+		return noteline;
+
+	int 		KEY 	= toupper( key );
+	kbd_note_t 	Note 	= base_note( KEY );
+	note_vec.push_back( Note );
+	if( Chord.length()  == 0 )
+		noteline.append( Note.name );
+
+	if (( Chord.length() > 0 ) and ( Note.step > NONOTE ))
+	{
+		uint8_t idx 	= Note.frqidx;
+		noteline.append( "(" );
+		noteline.append( Note.name );
+
+		for( char ch 	: Chord )
+		{
+			idx			= char2int(ch) + idx;
+			coutf << dec << (int)idx << endl;
+
+			Note 		= kbd_note_struct( idx);
+			note_vec.push_back( Note );
+			noteline.append( Note.name );
+
+		}
+		noteline.append( ")" );
+	}
+	show_note_vec();
+	return noteline;
+}
+string Kbd_note_class::SetChord( char key )
+{
+	string str = Chord;
+	if( chord_keys.contains( key ))
+		str = Chords[key];
+//		cout << ":" << str;
+	return str;
+}
+
+
+
 

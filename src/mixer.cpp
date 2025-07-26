@@ -29,7 +29,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		StA.push_back( sta );
 	}
 
-	prgarg_struct_t conf = data->Cfg_p->Config;
+	prgarg_struct  	conf = data->Cfg_p->Config;
 	StA_param_t usr_conf = {"temp"		, frames_per_sec * conf.temp_sec	, min_frames };
 	StA_param_t ext_conf = {"External"	, frames_per_sec * conf.record_sec	, min_frames };
 	StA_param_t kbd_conf = {"Keyboard"	, frames_per_sec * conf.kbd_sec		, min_frames };

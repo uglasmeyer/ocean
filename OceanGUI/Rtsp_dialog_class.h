@@ -22,7 +22,6 @@ class Rtsp_Dialog_class;
 
 class Rtsp_Dialog_class :
 	public QDialog,
-	virtual Logfacility_class,
 	virtual Config_class
 {
     Q_OBJECT
@@ -41,6 +40,7 @@ public:
 
     void proc_table_update_row( uint row);
     void proc_table_update_all( );
+
 
     explicit Rtsp_Dialog_class(
     		QWidget* 			parent 	= nullptr,

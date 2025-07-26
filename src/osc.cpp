@@ -233,7 +233,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		}
 	}
 
-	if (  is_osc_type )
+//	if ( (  is_osc_type ) or ( is_vco_type ) )
 		apply_adsr( frames, &oscData[0], offset );
 }
 

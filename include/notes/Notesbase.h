@@ -23,9 +23,27 @@
 const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
 enum { XML_ID, NTE_ID };
 
+constexpr vector<int> init_pitch( string ac )
+{ 	// every char in ac will be translated into a note pos in OctChars
+	// ac char must be in OctChars
+	vector<int> vi {};
+	for( uint n = 0; n < ac.length(); n++)
+	{
+		size_t pos = OctChars.find( ac[n] );
+		if( pos < STRINGNOTFOUND )
+			vi.push_back( pos );
+		else
+		{
+			coutf << "Error: " << ac[n] << " not in " << OctChars << endl;
+			exit(0);
+		}
+	}
+	return vi;
+};
+
 class Note_base :
-	virtual  Logfacility_class,
-	virtual public Frequency_class
+	virtual  		Logfacility_class,
+	virtual public 	Frequency_class
 {
 	string 					className		= "";
 
@@ -38,18 +56,6 @@ class Note_base :
 			str.push_back( char(i + 48) );
 		}
 		return str;
-	};
-	constexpr vector<int> init_pitch( string ac )
-	{ 	// every char in ac will be translated into a note pos in OctChars
-		// ac char must be in OctChars
-		vector<int> vi {};
-		for( uint n = 0; n < ac.length(); n++)
-		{
-			uint pos = OctChars.find( ac[n] );
-			if( pos < STRINGNOTFOUND )
-				vi.push_back( pos );
-		}
-		return vi;
 	};
 
 

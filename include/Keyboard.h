@@ -8,23 +8,20 @@
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
+#include <Keyboard_base.h>
 #include <data/Memory.h>
 #include <Logfacility.h>
 #include <Osc.h>
 #include <Instrument.h>
 #include <Kbd.h>
-#include <notes/Notesbase.h>
 #include <Ocean.h>
 #include <Oscgroup.h>
 #include <Mixerbase.h>
-#include <Keyboard_base.h>
 #include <queue>
 
-
-
-class Kbd_note_class :
-	public kbd_state_struct,
-	public Note_base
+class Kbd_note_class
+	: public kbd_state_struct
+//	, public Note_base
 {
 public:
 	const array<string, kbd_octaves>
@@ -39,91 +36,33 @@ public:
 	 https://de.wikipedia.org/wiki/American_Standard_Code_for_Information_Interchange
 	 */
 	std::map<char, string>
-					Chords				{	{'y',string(""  )},// single// @suppress("Invalid arguments")
+					Chords				{	{'y',string(""  )},// single // @suppress("Invalid arguments")
 											{'x',string("43")},// Dur
 											{'c',string("34")}, // Moll
-											{'v',string("343")}, // Dur
-											{'b',string("433")}, // Moll
+											{'v',string("343")}, // Dur+
+											{'b',string("433")}, // Moll+
 											{'n',string("<")} // Power
 
 										};
-	string 			chord				= Chords['y'];
 	set<char>		chord_keys			{ 'y', 'x', 'c', 'v', 'b', 'n' };
+	string 			Chord				{ Chords['y'] };
 
-	Kbd_note_class() 	{};
 	kbd_note_t		Note 				= kbd_note_struct( 0, NONOTE);
 	string			noteline			{};
 	vector<kbd_note_t>
 					note_vec			{};
+
+					Kbd_note_class() 	{};
 	virtual 		~Kbd_note_class() 	= default;
-	string 			setNote				( int key )
-	{
-
-		noteline = "";
-		if ( key == NOKEY )
-			return noteline;
-
-		int KEY = toupper( key );
-		Note 	= kbd_note_struct( 0, NONOTE);
-		for( uint oct = 0; oct < kbd_octaves; oct++ )
-		{
-			size_t pos 	= keyboard_keys[ oct ].find( KEY );
-			if ( pos < STRINGNOTFOUND )
-			{
-				Note = kbd_note_struct( oct + base_octave, pos);
-				note_vec.push_back( Note );
-				if( chord.length()  == 0 )
-					noteline.append( Note.show() );
-
-			}
-		}
-
-		if (( chord.length() > 0 ) and ( Note.step > NONOTE ))
-		{
-			uint8_t pos 	= Note.step;
-			uint8_t oct		= Note.octave;
-
-			noteline.append( "(" );
-			noteline.append( Note.show() );
-
-			for( char ch 	: chord )
-			{
-				pos			= char2int(ch) + pos;
-				if( pos > oct_steps - 1 )
-				{
-					pos = pos % oct_steps;
-					oct++;
-				}
-				Note 		= kbd_note_struct( oct, pos);
-				if ( Note.frqidx < frequency_range.max - 2 )
-				{
-					note_vec.push_back( Note );
-					noteline.append( Note.show() );
-				}
-			}
-			noteline.append( ")" );
-		}
-		return noteline;
-	}
-	string GetChord( char key )
-	{
-		string str = chord;
-		if( chord_keys.contains( key ))
-			str = Chords[key];
-//		cout << ":" << str;
-		return str;
-	}
-	void show( const kbd_note_t note )
-	{
-		string	note_name 		= frqNamesArray[ note.frqidx ];
-		cout.flush() << note_name ;
-	}
+	string 			setNote				( int key );
+	string 			SetChord			( char key );
+private:
 
 } ;
 
-class keyboardState_class :
-	public virtual 		kbd_state_struct,
-	public virtual 		Note_base
+class keyboardState_class
+	: public virtual 		kbd_state_struct
+//	, public virtual 		Note_base
 {
 	interface_t* 		sds;
 
@@ -132,7 +71,7 @@ class keyboardState_class :
 
 public:
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
-	string				NoteNames				= convention_notes[ENGLISH];
+	string				NoteNames				= OctChars;//convention_notes[ENGLISH];
 	string				Noteline				{};
 	Kbd_note_class		kbd_note 				{};
 
@@ -183,7 +122,7 @@ public:
 	void 				Set_instrument			();
 	void 				Enable					( bool iskbd );
 	void 				ScanData				();
-	void 				Show_keys				( bool tty );
+	void 				Show_help				( bool tty );
 
 
 private:
@@ -212,6 +151,10 @@ private:
 	string 				get_notenames			();
 	void 				specialKey				();
 	void 				apply_Adsr				();
+	void 				exit_keyboard			();
+	void 				notekey					( char key );
+	void				set_bufferMode			();
+
 
 };
 

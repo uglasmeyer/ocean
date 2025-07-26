@@ -8,8 +8,8 @@ exit
 
 :syntaxtest1
 call :sliding
-instrument load piano
-text load instrument file piano.kbd
+instrument load default
+text load instrument file default.snd
 
 notes set "(CEG)- A'BCD (CE)- A'BC(EG) C.(ACE)-GDA" 8
 notes set octave 2
@@ -98,7 +98,7 @@ set main freq A3
 osc main amp loop 0
 pause 10
 play _INSTRUMENT amp 75 5
-instrument load Piano
+instrument load default
 set fmo freq 10
 notes load drums
 rec mute _INSTRUMENT
