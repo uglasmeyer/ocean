@@ -34,9 +34,11 @@ void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
 	osc.wp					= sds->OSC_wp;
 	osc.spectrum			= sds->OSC_spectrum;
 
+	vco.adsr				= sds->VCO_adsr;
 	vco.wp					= sds->VCO_wp;
 	vco.spectrum			= sds->VCO_spectrum;
 
+	fmo.adsr				= sds->FMO_adsr;
 	fmo.wp					= sds->FMO_wp;
 	fmo.spectrum			= sds->FMO_spectrum;
 }

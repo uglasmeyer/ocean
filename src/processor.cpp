@@ -277,6 +277,8 @@ void Processor_class::Execute()
 			case CMD_EXIT :
 			{
 				printf("%d \n", ps.prgline);
+				printLn( ps );
+
 				LOG.flush() << ps.prgline << endl;;
 				Sem->Release( SEMAPHORE_EXIT );
 				return;
@@ -304,6 +306,7 @@ void Processor_class::Test_Processor()
 	Sem->Reset( PROCESSOR_WAIT );
 
 	Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, "default" );
+	Push_cmd( CMD_EXIT, "exit" );
 	Execute();
 	TEST_END( className );
 }

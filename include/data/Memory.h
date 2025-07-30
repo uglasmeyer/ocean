@@ -39,7 +39,9 @@ public:
 
 };
 
-
+/***************************
+ * Memory
+ **************************/
 class Memory :
 	virtual 		Logfacility_class,
 	virtual public 	Memory_base
@@ -48,8 +50,6 @@ class Memory :
 
 public:
 	Data_t* 	Data = nullptr;
-
-
 	Memory( buffer_t bytes ) :
 		Logfacility_class( "Memory" ),
 		Memory_base( bytes )
@@ -170,7 +170,9 @@ private:
 	uint 			record_counter	= 0;
 };
 
-
+/***************************
+ * Shared_Memory
+ **************************/
 class Shared_Memory :
 		virtual public Logfacility_class,
 		virtual public Shm_base

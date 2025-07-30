@@ -40,7 +40,7 @@ struct 				shm_data_struct
 	buffer_t 		bytes			= 0;		// in bytes
 	int				sizeof_type		= sizeof( Stereo_t );
 	key_t			key				= 0;		// shm key
-	int 			shmid			= -1;		// sjmid
+	int 			shmid			= -1;		// shmid
 	void* 			addr			= nullptr;
 	string			hex				= "0x0";
 };
@@ -58,6 +58,7 @@ public:
 	void 			ShowDs			( shm_ds_t );
 	void* 			Attach			( int id );
 	void 			Detach			( void* );
+	void 			Delete			( ); // SDSview only
 
 	void			Test_Memory		();
 
@@ -95,7 +96,7 @@ public:
 	void 			SetDs			( size_t type_bytes );
 	mem_ds_t* 		GetDs			();
 
-					Memory_base		( buffer_t size );
+					Memory_base		( buffer_t bytes );
 					Memory_base		();
 	virtual 		~Memory_base	();
 

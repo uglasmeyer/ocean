@@ -10,7 +10,7 @@
 #include <Exit.h>
 
 Note_base::Note_base () :
-	Logfacility_class("NotesBase"),
+	Logfacility_class("Note_base"),
 	Frequency_class()
 {
 	className = Logfacility_class::className;

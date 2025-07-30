@@ -1285,6 +1285,9 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
     </item>
     <item>
      <widget class="QSlider" name="hs_osc_decay">
+      <property name="maximum">
+       <number>100</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Orientation::Horizontal</enum>
       </property>
@@ -1312,6 +1315,9 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
     </item>
     <item>
      <widget class="QSlider" name="hs_vco_decay">
+      <property name="maximum">
+       <number>100</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Orientation::Horizontal</enum>
       </property>
@@ -1339,6 +1345,9 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
     </item>
     <item>
      <widget class="QSlider" name="hs_fmo_decay">
+      <property name="maximum">
+       <number>100</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Orientation::Horizontal</enum>
       </property>

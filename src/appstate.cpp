@@ -9,9 +9,9 @@
 #include <data/Appstate.h>
 
 
-Appstate_class::Appstate_class( char appid,
-								interface_t* _sds,
-								interface_t* _sds_master,
+Appstate_class::Appstate_class( char 			appid,
+								interface_t* 	_sds,
+								interface_t* 	_sds_master,
 								Register_class* reg ) :
 	Logfacility_class("Appstate_class"),
 	sdsstate_struct()
@@ -137,6 +137,26 @@ bool Appstate_class::IsInconsistent( interface_t* sds, char appid )
 	}
 	return false;
 }
+void  Appstate_class::shutdown( interface_t* sds, char appid )
+{
+	Info( "shutting down ", AppIdName( appid ) );
+	SetExitserver( sds, appid );
+}
+void Appstate_class::Shutdown_all( vector< interface_t* >  _sds_vec )
+{
+	Comment( DEBUG, "Shutting down all instances" );
+	for( interface_t* sds : _sds_vec )
+	{
+		for( char appid = 0; appid < APPID::NOID; appid++ )
+		{
+			if( IsRunning( sds, appid ) )
+			{
+				if( not ( appid == APPID::COMSTACKID ) ) //  exclude comstack
+					shutdown( sds, appid );
+			}
+		}
+	}
+}
 
 bool Appstate_class::StartOnceOk( interface_t* sds )
 {
@@ -154,7 +174,7 @@ bool Appstate_class::StartOnceOk( interface_t* sds )
 
 void Appstate_class::Announce( )
 {
-	Comment(INFO, "announcing application " + Name );
+	Info( "announcing application ", Name );
 	SetRunning( );
 	sds_master->UpdateFlag = true;
 }

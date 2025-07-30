@@ -61,8 +61,9 @@ Dataworld_class::~Dataworld_class()
 		SHM_1.Detach( SHM_1.ds.addr );
 		Reg.Proc_deRegister( );
 	}
+	{ if( LogMask[ DEBUG ] )
+		coutf << "~" << className << endl; }
 
-	cout << "visited ~" <<  className << endl;
 }
 
 

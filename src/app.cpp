@@ -42,7 +42,6 @@ void Application_class::init_Sds( )
 
 Application_class::~Application_class()
 {
-	cerr.flush() << "~" << className << endl;
 	if ( LogMask[ TEST ] )
 	{
 		system_execute( " cat /tmp/log/Synthesizer.log 1>&2 " );
@@ -52,7 +51,11 @@ Application_class::~Application_class()
 		if ( ( AppId == APPID::KBDID ) or ( AppId == APPID::SYNTHID ) )
 			Sds->Dump_ifd();
 	}
+
 	deRegister();
+
+	{ if( LogMask[ DEBUG ] )
+		cerr.flush() << "~" << className << endl; }
 
 
 }
@@ -79,7 +82,7 @@ void Application_class::Start( int argc, char* argv[] )
 
 	app_properties();
 
-	for( interface_struct* sds : DaTA->SDS.vec )
+	for( interface_t* sds : DaTA->SDS.vec )
 	{
 		if ( not Appstate->StartOnceOk( sds ))
 		{

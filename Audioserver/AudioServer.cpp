@@ -225,7 +225,7 @@ void Application_loop()
 
 	while ( not done and rtapi.isStreamRunning() )
 	{
-	    this_thread::sleep_for(chrono::seconds(1));
+	    this_thread::sleep_for( std::chrono::seconds(1));
 	}
 	Log.Comment(INFO, "Application loop exit");
 
@@ -467,7 +467,7 @@ int main( int argc, char *argv[] )
 	// audio server loop
 	while ( not done  && rtapi.isStreamRunning() )
 	{
-	    std::this_thread::sleep_for( chrono::milliseconds( 1000 ) );
+	    std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
 	}
 	Log.Comment( INFO, "AudioServer reached target exit main()" );
 	exit_proc(0);

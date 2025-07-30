@@ -1117,7 +1117,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>170</y>
+      <y>110</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -1150,19 +1150,6 @@
     </property>
     <property name="text">
      <string>Save</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>80</y>
-      <width>50</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Decay</string>
     </property>
    </widget>
    <widget class="QFrame" name="frame_5">
@@ -1262,19 +1249,6 @@
      <double>0.000000000000000</double>
     </property>
    </widget>
-   <widget class="QLabel" name="label_11">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>50</y>
-      <width>51</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Attack</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="glidefrequency">
     <property name="geometry">
      <rect>
@@ -1337,60 +1311,13 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>110</y>
+      <y>50</y>
       <width>50</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
      <string>Hall</string>
-    </property>
-   </widget>
-   <widget class="QScrollBar" name="hs_adsr_sustain">
-    <property name="geometry">
-     <rect>
-      <x>540</x>
-      <y>80</y>
-      <width>160</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-    <property name="pageStep">
-     <number>1</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Orientation::Horizontal</enum>
-    </property>
-    <property name="invertedControls">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QScrollBar" name="hs_adsr_attack">
-    <property name="geometry">
-     <rect>
-      <x>540</x>
-      <y>50</y>
-      <width>160</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <number>2</number>
-    </property>
-    <property name="maximum">
-     <number>100</number>
-    </property>
-    <property name="pageStep">
-     <number>1</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Orientation::Horizontal</enum>
-    </property>
-    <property name="invertedControls">
-     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pB_Specrum">
@@ -1558,7 +1485,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>230</y>
+      <y>170</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -1685,8 +1612,8 @@
    <widget class="QComboBox" name="cb_bps">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>260</y>
+      <x>540</x>
+      <y>170</y>
       <width>71</width>
       <height>25</height>
      </rect>
@@ -1898,7 +1825,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>110</y>
+      <y>50</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1920,7 +1847,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>140</y>
+      <y>80</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1945,7 +1872,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>140</y>
+      <y>80</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -2219,7 +2146,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>200</y>
+      <y>140</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -2232,7 +2159,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>200</y>
+      <y>140</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -2257,7 +2184,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>170</y>
+      <y>110</y>
       <width>160</width>
       <height>16</height>
      </rect>

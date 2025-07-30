@@ -49,7 +49,7 @@ struct sdsstate_struct
 	};
 
 
-	~sdsstate_struct() = default;
+	virtual ~sdsstate_struct() = default;
 };
 
 typedef struct EventPtr_struct
@@ -95,7 +95,7 @@ constexpr process_arr_t init_process_arr()
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 8; 						// comstack
+	uint8_t			version						= 9; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
@@ -116,6 +116,8 @@ typedef struct interface_struct // with reasonable defaults
 
 	/* instrument definition starts */
 	adsr_t 			OSC_adsr 					= adsr_struct();// comstack
+	adsr_t 			VCO_adsr 					= adsr_struct();// comstack
+	adsr_t 			FMO_adsr 					= adsr_struct();// comstack
 
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();

@@ -7,17 +7,18 @@
 
 #ifndef VIEWINTERFACE_H_
 #define VIEWINTERFACE_H_
+
 #include <data/DataWorld.h>
 #include <data/Interface.h>
 #include <data/Appstate.h>
 
 
 class ViewInterface_class :
-	osc_struct,
-	interface_struct,
-	virtual Frequency_class,
-	Spectrum_class,
-	sdsstate_struct
+	virtual 			osc_struct,
+	virtual 			interface_struct,
+	virtual public 		Frequency_class,
+	virtual 			Spectrum_class,
+	virtual 			sdsstate_struct
 {
 	string 				className 	= "";
 	Interface_class*	Sds_p 		= nullptr;
@@ -55,6 +56,7 @@ private:
 
 	void 	show_Adsr();
 	void 	showKeys();
+	void 	show_manage();
 
 
 	void	printHeader();

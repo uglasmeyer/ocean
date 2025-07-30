@@ -1,27 +1,20 @@
-//============================================================================
-// Name        : comstack.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
 
-#include <App.h>
-#include <Kbd.h>
-#include <EventKeys.h>
-#include <Frequency.h>
-#include <Viewinterface.h>
+
 
 #include <Appsymbols.h>
 
+#include <Frequency.h>
+#include <Kbd.h>
+#include <EventKeys.h>
+#include <Viewinterface.h>
 
 Kbd_base				Keyboard		{};
 ViewInterface_class		ViewSds			{ COMSTACKID, &DaTA };
-int 					sdsid			= sds_master->config;
 
 Frequency_class 		Frequency 		{};
 
 int 					update_counter 	= 1;
+int 					sdsid			= sds_master->config;
 uint					page			= F1;
 bool 					tainted			= false;
 const string			Module			= Log.className;

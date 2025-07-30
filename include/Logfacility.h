@@ -172,31 +172,30 @@ public:
 	}
 
 private:
-
-	typedef struct pair_struct
-	{
-		string 	key { };
-		string 	str { };
-	} pair_struct_t;
-	typedef array<pair_struct_t, 64> error_arr_t ;
-
-	error_arr_t error_arr { pair_struct() };
-	void seterrText();
-
-	// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-
-
 	struct log_struct
 	{
-		string name;
-		string color;
+		string name {""};
+		string color{""};
 		log_struct( string n, string c )
 		{
 			name 	= n + ">";
 			color 	= c;
 		}
-		~log_struct() = default;
+		virtual ~log_struct() = default;
 	};
+	typedef struct pair_struct
+	{
+		string 	key { "" };
+		string 	str { "" };
+	} pair_struct_t;
+	typedef array<pair_struct_t, 64> error_arr_t ;
+
+	error_arr_t error_arr { pair_struct() };
+
+	// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+
+
+
 	vector<log_struct> Prefix_vec =
 	{
 			{"Error", bred },
@@ -211,6 +210,7 @@ private:
 	};
 
 	string 	cout_log( uint logid, string str );
+	void 	seterrText();
 
 
 };

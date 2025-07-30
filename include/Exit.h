@@ -55,7 +55,7 @@ public:
 	};
 	virtual ~Exit_class()
 	{
-		cout << "visited ~Exit_class" << endl;
+		coutf << "visited ~Exit_class" << endl;
 	};
 
 private:

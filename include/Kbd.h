@@ -16,7 +16,8 @@ enum  KEYCODE {
 	ESC	=	27,
 	ASC	=	126,
 	ALT =  -62,
-	F0	=	49,
+	S0	=	49,
+	S1	=	50,
 	F1	=	80,
 	F2	=	81,
 	F3	=	82,
@@ -51,14 +52,26 @@ public:             // Access specifier
 			keybuf_struct{a, b, c}
 		{};
 		virtual ~key3_struct() = default;
+
 		void set( keybuf_t buffer )
 		{
 			key 	= buffer.key;
 			val0 	= buffer.val0;
 			val1 	= buffer.val1;
 		}
+		keybuf_t get( )
+		{
+			return keybuf_struct	{ key,val0, val1 };
+		}
+		friend bool operator==( keybuf_t lhs, keybuf_t rhs )
+		{
+			bool 	equal 	= ( ( lhs.key  == rhs.key ) and
+							( lhs.val0 == rhs.val0 ) and
+							( lhs.val1 == rhs.val1 ) );
+			return 	equal;
+		}
 	} key3struct_t;
-
+	key3struct_t 	Nullkey3 	= key3_struct( 0, 0, 0 );
 					Kbd_base	();
 	virtual 		~Kbd_base	();
 
@@ -83,6 +96,7 @@ private:
 
 
 };
+
 typedef Kbd_base::key3_struct key3struct_t;
 
 

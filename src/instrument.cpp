@@ -37,7 +37,7 @@ void Instrument_class::Set_msec( buffer_t frames )
 }
 
 
-void Instrument_class::Update_sds()
+void Instrument_class::update_sds()
 {
 	// use this function to update the ifd with the current set of shared information.
 	// that are generated during the Set procedure, with the purpose to
@@ -50,9 +50,11 @@ void Instrument_class::Update_sds()
 	sds->OSC_wp			= Oscgroup.osc.wp;
 	sds->OSC_spectrum	= Oscgroup.osc.spectrum;
 
+	sds->VCO_adsr 		= Oscgroup.vco.adsr;
 	sds->VCO_spectrum	= Oscgroup.vco.spectrum;
 	sds->VCO_wp			= Oscgroup.vco.wp;
 
+	sds->FMO_adsr 		= Oscgroup.fmo.adsr;
 	sds->FMO_wp			= Oscgroup.fmo.wp;
 	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
 
@@ -97,17 +99,19 @@ void Instrument_class::set_name( string name )
 
 bool Instrument_class::assign_adsr 	( vector_str_t arr )
 {
-	String 				Str{""};
-	adsr_t adsr{};
-	adsr.decay 	= Str.secure_stoi( arr[9 ]);
-	adsr.bps	= Str.secure_stoi( arr[10] );
-	adsr.attack	= Str.secure_stoi( arr[11] );
-	adsr.hall	= Str.secure_stoi( arr[12] );
+	String	Str	{""};
+	adsr_t 	adsr{};
+	adsr.decay 	= Str.secure_stoi( arr[9 ]	);
+	adsr.bps	= Str.secure_stoi( arr[10] 	);
+	adsr.attack	= Str.secure_stoi( arr[11] 	);
+	adsr.hall	= Str.secure_stoi( arr[12] 	);
 	Oscgroup.osc.Set_adsr( adsr );
+
+
 	return true;
 }
 
-auto showOscfeatures = [  ]( Oscillator* osc, Oscillator* vco )
+auto showOscfeatures2 = [  ]( Oscillator* osc, Oscillator* vco )
 {
 	Table_class Table { "Features" };
 	Table.AddColumn( "Attack"	, 6 );
@@ -117,9 +121,96 @@ auto showOscfeatures = [  ]( Oscillator* osc, Oscillator* vco )
 	Table.AddColumn( "SlideF"	, 6 );
 	Table.AddColumn( "Pmw"		, 6 );
 	Table.PrintHeader();
-	Table.AddRow(	(int)osc->adsr.attack, (int)osc->adsr.decay, (int)osc->adsr.hall,
-			(int)osc->adsr.bps, (int)osc->wp.glide_effect, (int)vco->wp.PMW_dial);
+	Table.AddRow(	(int)osc->adsr.attack,
+					(int)osc->adsr.decay,
+					(int)osc->adsr.hall,
+					(int)osc->adsr.bps,
+					(int)osc->wp.glide_effect,
+					(int)vco->wp.PMW_dial);
 };
+
+
+void Instrument_class::showOscfeatures( fstream* FILE )
+{
+	tableopt_t 	opt 			= defaultopt;
+				opt.FILE 		= FILE;
+				opt.Separator 	= ',';
+	Table_class Table			{ opt };
+	Table.AddColumn( "Type"		, 6 );
+	Table.AddColumn( "Name"		, 6 );
+	Table.AddColumn( "Hall"		, 6 );
+	Table.AddColumn( "Beats"	, 6 );
+	Table.AddColumn( "AttOSC"	, 6 );
+	Table.AddColumn( "DecOSC"	, 6 );
+	Table.AddColumn( "AttVCO"	, 6 );
+	Table.AddColumn( "DecVCO"	, 6 );
+	Table.AddColumn( "AttFMO"	, 6 );
+	Table.AddColumn( "DecFMO"	, 6 );
+	Table.AddColumn( "SlideF"	, 6 );
+	if ( file_version == 4 ) Table.AddColumn( "SlideV"	, 6 ) ;
+	Table.AddColumn( "Pmw"		, 6 );
+	Table.PrintHeader();
+
+	if (file_version == 3 )
+	Table.AddRow(	"ADSR", "OSC",
+					(int)osc->adsr.hall,
+					(int)osc->adsr.bps,
+					(int)osc->adsr.attack,
+					(int)osc->adsr.decay,
+					(int)vco->adsr.attack,
+					(int)vco->adsr.decay,
+					(int)fmo->adsr.attack,
+					(int)fmo->adsr.decay,
+					(int)osc->wp.glide_effect,
+					(int)vco->wp.PMW_dial);
+
+	if (file_version == 4 )
+	Table.AddRow(	"ADSR", "OSC",
+					(int)osc->adsr.hall,
+					(int)osc->adsr.bps,
+					(int)osc->adsr.attack,
+					(int)osc->adsr.decay,
+					(int)vco->adsr.attack,
+					(int)vco->adsr.decay,
+					(int)fmo->adsr.attack,
+					(int)fmo->adsr.decay,
+					(int)osc->wp.glide_effect,
+					(int)sds->slide_duration,
+					(int)vco->wp.PMW_dial);
+};
+
+bool Instrument_class::assign_adsr3( const vector_str_t& arr )
+{
+	String 	Str			{""};
+	adsr_t 	adsr		{};
+	adsr.bps	= Str.secure_stoi( arr[2] );
+	adsr.hall	= Str.secure_stoi( arr[3] );
+	adsr.decay 	= Str.secure_stoi( arr[4] );
+	adsr.attack	= Str.secure_stoi( arr[5] );
+	Oscgroup.osc.Set_adsr( adsr );
+	adsr.decay 	= Str.secure_stoi( arr[6]	);
+	adsr.attack	= Str.secure_stoi( arr[7] 	);
+	Oscgroup.vco.Set_adsr( adsr );
+	adsr.decay 	= Str.secure_stoi( arr[8]	);
+	adsr.attack	= Str.secure_stoi( arr[9] 	);
+	Oscgroup.fmo.Set_adsr( adsr );
+
+	Oscgroup.osc.wp.glide_effect= Str.secure_stoi( arr[10] );
+	if ( file_version == 4 )
+	{
+		sds->slide_duration			= Str.secure_stoi( arr[11] );
+		Oscgroup.vco.wp.PMW_dial	= Str.secure_stoi( arr[12] );
+	}
+	else
+	{
+		Oscgroup.vco.wp.PMW_dial	= Str.secure_stoi( arr[11] );
+	}
+
+	showOscfeatures( ); // stdout
+
+	return true;
+
+}
 bool Instrument_class::assign_adsr2( const vector_str_t& arr )
 {
 	String 	Str			{""};
@@ -130,9 +221,10 @@ bool Instrument_class::assign_adsr2( const vector_str_t& arr )
 			adsr.hall	= Str.secure_stoi( arr[5] );
 	Oscgroup.osc.Set_adsr( adsr );
 
+
 	Oscgroup.osc.wp.glide_effect= Str.secure_stoi( arr[6] );
 	Oscgroup.vco.wp.PMW_dial	= Str.secure_stoi( arr[7] );
-	showOscfeatures( &Oscgroup.osc, &Oscgroup.vco );
+	showOscfeatures2( &Oscgroup.osc, &Oscgroup.vco );
 
 	return true;
 }
@@ -199,44 +291,45 @@ bool Instrument_class::read_version1( fstream* File )
 bool Instrument_class::read_version2( fstream* File )
 {
 	String 			Str		{""};
-	string 			keyword	{""};
+	string 			Keyword	{""};
 	vector_str_t 	arr 	{};
 	Oscillator* 	osc 	= nullptr;
-//	Oscillator_base::connect_t connect = Oscillator_base::connect_struct();
 
 	getline( *File, Str.Str );
 	do
 	{
 		Str.normalize();
 		arr = Str.to_array( ',' );
-		keyword = arr[0];
+		Keyword = arr[0];
 
-		if( strEqual( "Type", keyword ))
+		if( strEqual( "Type", Keyword ))
 			{;} // ignore head line
 		else
 			osc 	= Oscgroup.Get_osc_by_name( arr[1] );
 
-
-		if ( ( strEqual("ADSR", keyword) ) )
+		if ( ( strEqual("ADSR", Keyword) ) )
 		{
-			assign_adsr2( arr );
+			if ( file_version == 2 )
+				assign_adsr2( arr );
+			if (( file_version == 3 ) or ( file_version == 4 ))
+				assign_adsr3( arr );
 		}
-		if ( strEqual( "SPEV", keyword ))
+		if ( strEqual( "SPEV", Keyword ))
 		{
 			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEV );
 			osc->Set_volume( 	osc->spectrum.volidx[0], FIXED );
 		}
-		if ( strEqual( "SPEF", keyword ))
+		if ( strEqual( "SPEF", Keyword ))
 		{
 			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEF );
 			osc->Set_frequency( osc->spectrum.frqidx[0], SLIDE );
 		}
-		if ( strEqual( "SPEW", keyword ))
+		if ( strEqual( "SPEW", Keyword ))
 		{
 			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEW );
 			osc->Set_waveform( 	osc->spectrum.wfid );
 		}
-		if ( strEqual( "CONN", keyword ))
+		if ( strEqual( "CONN", Keyword ))
 		{
 			Oscillator* sec 	= Oscgroup.Get_osc_by_name( arr[2]);
 			char 		mode 	= arr[3][0];
@@ -289,6 +382,8 @@ bool Instrument_class::read_instrument( )
 			code = read_version1( &File );
 			break;
 		case 2 :
+		case 3 :
+		case 4 :
 			code = read_version2( &File );
 			break;
 		default :
@@ -357,6 +452,7 @@ bool Instrument_class::init_connections( )
 	return true;
 }
 
+
 void Instrument_class::save_features( fstream& FILE )
 {
 	tableopt_t opt = defaultopt;
@@ -365,10 +461,10 @@ void Instrument_class::save_features( fstream& FILE )
 	Table_class Table{ opt };
 	Table.AddColumn("Type",	6 );
 	Table.AddColumn("Name",	6 );
-	Table.AddColumn("decay",6 );
 	Table.AddColumn("bps",	6 );
-	Table.AddColumn("atack",6 );
 	Table.AddColumn("hall",	6 );
+	Table.AddColumn("decay",6 );
+	Table.AddColumn("atack",6 );
 	Table.AddColumn("slide",6 );
 	Table.AddColumn("pmw",	6 );
 	Table.PrintHeader();
@@ -384,6 +480,7 @@ void Instrument_class::save_features( fstream& FILE )
 			);
 
 }
+
 void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
 {
 	tableopt_t opt = defaultopt;
@@ -417,10 +514,11 @@ void Instrument_class::Save_Instrument( string str )
 	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
 
 	// Instrument file version
-	FILE 	<< "VERSION=2" << endl;
+	FILE 	<< "VERSION=" << (int)actual_version << endl;
+	file_version = actual_version;
 
 	// Type ADSR
-	save_features( FILE );
+	showOscfeatures( &FILE );
 
 	for ( Oscillator* osc : Oscgroup.member )
 	{
@@ -444,10 +542,8 @@ bool Instrument_class::Set( string name )
 
 	if ( not read_instrument( ) ) 	return false;
 
-//	if ( not init_connections() ) 	return false;
-	Update_sds();
-//	reuse_GUI_Data();
-//	Oscgroup.Run_Oscgroup( 0 );
+	update_sds();
+
 	return true;
 }
 
@@ -458,7 +554,10 @@ void Instrument_class::Test_Instrument()
 	TEST_START( className );
 	assert( Set( ".test2" ) );
 
-	showOscfeatures( &Oscgroup.osc, &Oscgroup.vco);
+	showOscfeatures( );
+	Save_Instrument( ".test2" );
+	showOscfeatures( );
+	ASSERTION( file_version == actual_version, "version", file_version , actual_version );
 
 	Oscgroup.osc.Setwp_frames( min_msec );
 	float f = Oscgroup.osc.GetFrq( Oscgroup.osc.wp.frqidx );
@@ -491,7 +590,6 @@ void Instrument_class::Test_Instrument()
 	}
 	vco->Test();
 	assert( Set( ".test2" ) );
-	ASSERTION( file_version == 2, "version", file_version , 2);
 	sds->MODE = sdsstate_struct::FREERUN;
 
 	Oscgroup.vco.wp.PMW_dial = 98;

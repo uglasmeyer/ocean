@@ -49,10 +49,8 @@ auto set_cb_filled_value = [  ]( MainWindow* M  )
 		map.cb->setChecked( *map.state );
 };
 
-
-
 MainWindow::MainWindow(	QWidget *parent ) :
-		Logfacility_class( Module ),
+		Logfacility_class( "OceanGUI" ),
 		osc_struct(),
 		ui(new Ui::MainWindow{} )
 {
@@ -120,8 +118,8 @@ void MainWindow::cB_Capture( QString str )
 
 void MainWindow::adsr_decay()
 {
-	uint8_t value = ui->hs_adsr_sustain->value();
-    Sds->Set( Sds->addr->OSC_adsr.decay , value);
+//	uint8_t value = ui->hs_adsr_sustain->value();
+//    Sds->Set( Sds->addr->OSC_adsr.decay , value);
     Eventlog.add( SDS_ID,ADSR_KEY);
 }
 void MainWindow::adsr_hall( )
@@ -132,8 +130,8 @@ void MainWindow::adsr_hall( )
 }
 void MainWindow::adsr_attack()
 {
-    uint8_t value = ui->hs_adsr_attack->value();
-    Sds->Set(Sds->addr->OSC_adsr.attack , value );
+//    uint8_t value = ui->hs_adsr_attack->value();
+//    Sds->Set(Sds->addr->OSC_adsr.attack , value );
     Eventlog.add( SDS_ID, ADSR_KEY);
 }
 void MainWindow::cB_Beat_per_sec( int bps_id )
@@ -462,8 +460,8 @@ void MainWindow::setwidgetvalues()
 		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
 	};
 
-    ui->hs_adsr_sustain->setValue	( (int) Sds->addr->OSC_adsr.decay );
-    ui->hs_adsr_attack->setValue	( (int) Sds->addr->OSC_adsr.attack);
+//    ui->hs_adsr_sustain->setValue	( (int) Sds->addr->OSC_adsr.decay );
+//    ui->hs_adsr_attack->setValue	( (int) Sds->addr->OSC_adsr.attack);
     ui->hs_pmw->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
     ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_adsr.hall );
     ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_wp.glide_effect );
@@ -512,7 +510,10 @@ void MainWindow::setwidgetvalues()
     double frq_slide_duration = Sds->addr->OSC_wp.glide_effect * max_sec * 0.01;
     ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
-	Appstate->SetRunning(  );
+	if( Appstate->IsExitserver( App.sds, APPID::GUI_ID ) )
+		GUI_Exit();
+	else
+		App.Appstate->SetRunning(  );
 
 }
 

@@ -14,17 +14,17 @@ bool 		frqarray_done 		= false;
 
 
 Frequency_class::Frequency_class() :
-	Logfacility_class("Frequency_class"),
-	frequency_range{0, 0 }
+	Logfacility_class( "Frequency_class" )
 {
 	className 					= Logfacility_class::className;
 
 	if ( not frqarray_done )
+	{
 		initFrqArray();
-	frequency_range.min 		= frqArray[1];
-	frequency_range.max 		= frqArray[FRQARR_SIZE-1] ;
-
-	if(not frqnamesarray_done )
+		frequency_range.min 		= frqArray[1];
+		frequency_range.max 		= frqArray[FRQARR_SIZE-1] ;
+	}
+	if( not frqnamesarray_done )
 		initFrqNamesArray();
 }
 
@@ -200,7 +200,8 @@ void Frequency_class::TestFrequency()
 	idx = Index( 0.0 );
 	ASSERTION( idx == 1, "Index ", idx, 1 );
 	idx = Index( 4000.0 );
-	ASSERTION( idx == 97, "Index ", idx, 97 );
+	ASSERTION( idx == (FRQARR_SIZE - 1), "Index ", idx, FRQARR_SIZE - 1 );
+
 	TEST_END( className );
 }
 

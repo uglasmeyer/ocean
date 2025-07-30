@@ -1,6 +1,5 @@
 
 #include <Time.h>
-#include <Ocean.h>
 
 using namespace std::chrono ;
 
@@ -90,9 +89,14 @@ void Time_class::TimeStamp()
         Comment( ERROR, ex.what() );
     }
 }
-void Time_class::Wait( const uint& d )
+void Time_class::Wait( const uint& d, const string& dur )
 {
-    std::this_thread::sleep_for( std::chrono::seconds(d) );
+	switch ( dur[0] )
+	{
+		case 's' : { std::this_thread::sleep_for( std::chrono::seconds(d) ); break; }
+		case 'm' : { std::this_thread::sleep_for( std::chrono::milliseconds(d) ); break; }
+		default : { break; }
+	} // switch  dur[0]
 }
 
 void Time_class::Test()

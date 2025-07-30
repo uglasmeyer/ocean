@@ -18,9 +18,10 @@
 #include <EventKeys.h>
 #include <Progressbar.h>
 #include <System.h>
-//#include <Exit.h>
 #include <data/EventQue.h>
 #include <Thread.h>
 
+extern void ComposerTestCases();
+extern void SynthesizerTestCases();
 
 #endif /* SYNTHESIZER_H_ */

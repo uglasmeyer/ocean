@@ -51,17 +51,6 @@ void SetLogLevels()
 	Log.Show_loglevel();
 
 }
-void show_usage()
-{
-	printf("---------------------------------------------------------\n");
-
-	cout << Application << " " << Version_str ;
-	cout << endl;
-
-	printf("---------------------------------------------------------\n");
-
-	return;
-}
 
 void activate_sds()
 {
@@ -240,8 +229,6 @@ int main( int argc, char* argv[] )
 	activate_sds();
 
 	SetLogLevels();
-
-	show_usage();
 
     thread
 	SyncNotes_thread( &Thread_class::Loop, &SyncNotes ); // run class method: Loop in a thread

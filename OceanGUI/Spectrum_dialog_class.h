@@ -1,6 +1,9 @@
 #ifndef SPECTRUM_DIALOG_CLASS_H
 #define SPECTRUM_DIALOG_CLASS_H
 
+#include "ui_spectrum_dialog_class.h"
+
+
 #include <QDialog>
 #include <QTimer>
 
@@ -9,6 +12,7 @@
 #include <data/Interface.h>
 #include <EventKeys.h>
 #include <data/DataWorld.h>
+#include <Common.h>
 
 namespace Ui {
 class Spectrum_Dialog_class;
@@ -67,6 +71,13 @@ private slots:
     void sb_wf2(int);
     void sb_wf3(int);
     void sb_wf4(int);
+
+    void fmo_attack(int);
+    void fmo_decay (int);
+    void vco_attack(int);
+    void vco_decay (int);
+    void osc_attack(int);
+    void osc_decay (int);
 
     void save( );
     void select_spec_fmo();

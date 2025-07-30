@@ -12,7 +12,6 @@
 #include <Logfacility.h>
 #include <Configbase.h>
 #include <data/SharedDataSegment.h>
-//#include <data/Appstate.h>
 
 class Register_class :
 		virtual public  Logfacility_class

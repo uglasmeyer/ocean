@@ -48,6 +48,16 @@ void ViewInterface_class::show_Ipc()
 	Set_Loglevel( TEST, false );
 //	system_execute( "ipcs" );
 }
+void ViewInterface_class::show_manage()
+{
+	Table_class Manage { "Manage processes" };
+	Manage.AddColumn( "Function.",25);
+	Manage.AddColumn( "Key.",15);
+	Manage.PrintHeader();
+	Manage.AddRow( "Shutdown all", "s" );
+	Manage.AddRow( "Destroy Shared Memory", "d" );
+
+}
 void ViewInterface_class::show_spectrum()
 {
 	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->OSC_spectrum ));
@@ -119,6 +129,7 @@ void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 		case F6 : { show_Adsr();		break;}
 		case F7 : { show_Ipc();			break;}
 		case F8 : { show_spectrum();	break;}
+		case F9 : { show_manage();		break;}
 
 		default: break;
 	}
@@ -145,8 +156,12 @@ void ViewInterface_class::show_Adsr()
 	Adsr.AddColumn( "Feature", 20);
 	Adsr.AddColumn( "Value", 10 );
 	Adsr.PrintHeader();
-	Adsr.AddRow( "ADSR (a)ttack", (int)sds->OSC_adsr.attack );
-	Adsr.AddRow( "ADSR (d)ecay", (int)sds->OSC_adsr.decay );
+	Adsr.AddRow( "OSC (a)ttack", (int)sds->OSC_adsr.attack );
+	Adsr.AddRow( "OSC (d)ecay ", (int)sds->OSC_adsr.decay );
+	Adsr.AddRow( "VCO (a)ttack", (int)sds->VCO_adsr.attack );
+	Adsr.AddRow( "VCO (d)ecay ", (int)sds->VCO_adsr.decay );
+	Adsr.AddRow( "FMO (a)ttack", (int)sds->FMO_adsr.attack );
+	Adsr.AddRow( "FMO (d)ecay ", (int)sds->FMO_adsr.decay );
 	Adsr.AddRow( "(g)lide effect", (int)sds->OSC_wp.glide_effect );
 	Adsr.AddRow( "(b)eats per second", (int)sds->OSC_adsr.bps );
 	Adsr.AddRow( "(p)mw", (int)sds->OSC_wp.PMW_dial );

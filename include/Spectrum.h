@@ -32,7 +32,6 @@ class Spectrum_class :
 	public virtual Logfacility_class,
 	public virtual Frequency_class,
 	public virtual Oscwaveform_class
-
 {
 public:
 	const array<int		,3> spectrumNum = {  SPEV,   SPEF,   SPEW  };

@@ -45,6 +45,7 @@
 #include <math.h> // sin(), rint()
 #include <signal.h> // signal()
 #include <stdarg.h>
+#include <stdlib.h> // exit
 #include <sys/ipc.h>
 #include <sys/mman.h>
 #include <sys/sem.h>
@@ -52,8 +53,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
-
-
 
 using namespace std;
 
@@ -66,7 +65,7 @@ typedef double				phi_t;
 typedef float 				frq_t;
 
 
-struct 			Stereo_struct
+struct 				Stereo_struct
 {
 	Data_t left;
 	Data_t right;
@@ -191,11 +190,11 @@ enum APPID
 #define SYNTHESIZER	"Synthesizer"
 #define COMPOSER	"Composer"
 #define OCEANGUI	"OceanGUI"
-#define COMSTACK	"Comstack"
+#define COMSTACK	"SDSview"
 #define RTSP		"Rtsp"
 #define SYNTHKBD	"Keyboard"
 #define SETUP		"Setup"
-#define TESTPRG		"Testprg"
+#define TESTPRG		"Testprj"
 
 
 template<typename T>

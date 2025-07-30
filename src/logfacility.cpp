@@ -35,8 +35,8 @@ Logfacility_class::Logfacility_class( )
 
 Logfacility_class::~Logfacility_class(  )
 {
-	if( LogMask[ DEBUG ])
-		cout.flush() << "visited ~Logfacility_class." << className  << endl;
+	if( LogMask[ DEBUG ] )
+		coutf << "visited ~Logfacility_class." << className  << endl;
 };
 
 string	Logfacility_class::GetColor( uint id )
@@ -69,14 +69,6 @@ string Logfacility_class::cout_log( uint id, string str )
 	uint 			Id		= ( is_atty ) ? id 		: LOG::PLAIN;
 
 	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
-/*	if ( LogMask[ TEST ] )
-	{
-		fstream fout_obj;
-		fout_obj.open( logFile, fstream::app );
-		fout_obj.flush() << strs.str();
-	}
-	else
-*/
 	cout.flush() << strs.str();
 
 	return str;

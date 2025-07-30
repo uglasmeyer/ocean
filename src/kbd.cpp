@@ -8,7 +8,7 @@
 #include <Kbd.h>
 
 Kbd_base::Kbd_base() :
-	Logfacility_class("Kbd")
+	Logfacility_class("Kbd_base")
 {
 	Init();
 };

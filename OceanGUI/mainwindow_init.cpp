@@ -215,8 +215,8 @@ void MainWindow::initUiConnectors()
     connect(ui->hs_pmw      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
     connect(ui->Slider_slideVol	, SIGNAL(valueChanged(int) ),this, SLOT(slideVol(int)) );
 
-    connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_attack() ));
-    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_decay() ));
+//    connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_attack() ));
+//    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_decay() ));
     connect(ui->hs_hall_effect	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_hall() ));
     connect(ui->hs_balance		, SIGNAL(valueChanged(int) ),this, SLOT(mixer_balance() ));
     connect(ui->hs_chord_delay	, SIGNAL(valueChanged(int) ),this, SLOT(chord_delay() ));

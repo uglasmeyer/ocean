@@ -166,8 +166,11 @@ void Event_class::Handler()
 		EvInfo( event, "ADSR change");
 
 		Instrument->osc->Set_adsr(sds->OSC_adsr);
-		Instrument->vco->Set_adsr(sds->OSC_adsr);
-		Instrument->fmo->Set_adsr(sds->OSC_adsr);
+		sds->VCO_adsr.bps = sds->OSC_adsr.bps;
+		Instrument->vco->Set_adsr(sds->VCO_adsr);
+		sds->FMO_adsr.bps = sds->OSC_adsr.bps;
+		Instrument->fmo->Set_adsr(sds->FMO_adsr);
+
 		Sds->Commit();
 		break;
 	}

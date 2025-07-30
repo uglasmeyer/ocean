@@ -21,9 +21,6 @@
 #include <EventKeys.h>
 #include <data/EventQue.h>
 
-
-
-
 class Interface_class :
 		virtual public Logfacility_class,
 		sdsstate_struct
@@ -31,7 +28,7 @@ class Interface_class :
 
 public:
 
-	Frequency_class 		Frequency 		{};
+//	Frequency_class 		Frequency 		{};
 	Spectrum_class			Spectrum 		{};
 
 	interface_t 			ifd_data 	= interface_struct();
@@ -56,7 +53,7 @@ public:
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd( );
-	bool reject(char status, int id )
+	bool 	reject(char status, int id )
 	{
 		if (( status == RUNNING ) and ( id != COMPID ))
 		{
@@ -88,10 +85,6 @@ public:
 private:
 	size_t			sds_size		= sizeof( ifd_data );
 	char 			previous_status = OFFLINE;
-
-
-//	bool 	reject(char status, int id );
-
 
 };
 

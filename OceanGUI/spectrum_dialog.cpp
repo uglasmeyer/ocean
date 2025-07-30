@@ -1,8 +1,4 @@
-#include "Spectrum_dialog_class.h"
-#include "qtimer.h"
-#include "ui_spectrum_dialog_class.h"
-
-#include <Common.h>
+#include <Spectrum_dialog_class.h>
 
 //Ui::Spectrum_Dialog_class	UI_obj;
 
@@ -39,6 +35,13 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     connect( ui->pB_save_spectrum, 	SIGNAL(clicked()), this, SLOT(save( )));
     connect( ui->rb_reset, 			SIGNAL(clicked()), this, SLOT(reset( )));
+
+    connect( ui->hs_fmo_attack,	SIGNAL(valueChanged(int)), 	this, SLOT(fmo_attack(int) ));
+    connect( ui->hs_fmo_decay,	SIGNAL(valueChanged(int)), 	this, SLOT(fmo_decay(int) ));
+    connect( ui->hs_vco_attack,	SIGNAL(valueChanged(int)), 	this, SLOT(vco_attack(int) ));
+    connect( ui->hs_vco_decay,	SIGNAL(valueChanged(int)), 	this, SLOT(vco_decay(int) ));
+    connect( ui->hs_osc_attack,	SIGNAL(valueChanged(int)), 	this, SLOT(osc_attack(int) ));
+    connect( ui->hs_osc_decay,	SIGNAL(valueChanged(int)), 	this, SLOT(osc_decay(int) ));
 
     this->Sds   		    = gui;
     sds_p 					= Sds->addr;
@@ -90,6 +93,38 @@ void Spectrum_Dialog_class::reset()
 	Setup_widgets( spectrum );
 	ui->rb_reset->setChecked( false );
 }
+
+void Spectrum_Dialog_class::fmo_attack(int value )
+{
+	Sds->Set( sds_p->FMO_adsr.attack, (uint8_t) value );
+	Eventlog_p->add( SDS_ID, ADSR_KEY );
+}
+void Spectrum_Dialog_class::fmo_decay (int value )
+{
+	Sds->Set( sds_p->FMO_adsr.decay, (uint8_t) value );
+	Eventlog_p->add( SDS_ID, ADSR_KEY );
+}
+void Spectrum_Dialog_class::vco_attack(int value )
+{
+	Sds->Set( sds_p->VCO_adsr.attack, (uint8_t) value );
+	Eventlog_p->add( SDS_ID, ADSR_KEY );
+}
+void Spectrum_Dialog_class::vco_decay (int value )
+{
+	Sds->Set( sds_p->VCO_adsr.decay, (uint8_t) value );
+	Eventlog_p->add( SDS_ID, ADSR_KEY );
+}
+void Spectrum_Dialog_class::osc_attack(int value )
+{
+	Sds->Set( sds_p->OSC_adsr.attack, (uint8_t) value );
+	Eventlog_p->add( SDS_ID, ADSR_KEY );
+}
+void Spectrum_Dialog_class::osc_decay (int value )
+{
+	Sds->Set( sds_p->OSC_adsr.decay, (uint8_t) value );
+	Eventlog_p->add( SDS_ID, ADSR_KEY );
+}
+
 
 void Spectrum_Dialog_class::Update_spectrum()
 {
@@ -249,6 +284,15 @@ void Spectrum_Dialog_class::Setup_widgets(  Spectrum_class::spectrum_t spectrum)
     ui->sb_spwf2->setValue( spectrum.wfid[2] );
     ui->sb_spwf3->setValue( spectrum.wfid[3] );
     ui->sb_spwf4->setValue( spectrum.wfid[4] );
+
+    ui->hs_fmo_attack->setValue( sds_p->FMO_adsr.attack );
+    ui->hs_fmo_decay ->setValue( sds_p->FMO_adsr.decay  );
+    ui->hs_vco_attack->setValue( sds_p->VCO_adsr.attack );
+    ui->hs_vco_decay ->setValue( sds_p->VCO_adsr.decay  );
+    ui->hs_osc_attack->setValue( sds_p->OSC_adsr.attack );
+    ui->hs_osc_decay ->setValue( sds_p->OSC_adsr.decay  );
+
+
     QString Qinstrument = QString::fromStdString( instrument );
     ui->lbl_instrument->setText( Qinstrument );
 

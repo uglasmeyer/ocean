@@ -128,7 +128,7 @@ public:
 		bool	frq = false;
 	};
 	typedef connect_struct connect_t;
-	connect_t 		connect			= connect_struct();
+	connect_t 		connect		= connect_struct();
 
 	adsr_t 			adsr 		= adsr_struct();
 	wave_t 			wp 			= wave_struct();
@@ -166,9 +166,8 @@ public:
 	void 		Get_sound_stack( Table_class* T );
 
 private:
-	string 		comment 		= "";
-	string 		csv_comment 	= "";
-	string 		command 		= "";
+//	string 		comment 		= "";
+//	string 		command 		= "";
 
 }; // close class Track class
 

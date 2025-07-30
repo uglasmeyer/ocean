@@ -35,7 +35,7 @@ public:
 	void 					Start			();
 	void 					Stop			();
 	void 					Block			();
-	void 					Wait			( const uint&  );
+	void 					Wait			( const uint&, const string& dur = "sec"  );
 	uint 					Performance		();
 	void 					TimeStamp		();
 	void 					Test			();

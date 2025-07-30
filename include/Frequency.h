@@ -12,7 +12,6 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <String.h>
-#include <Exit.h>
 #include <Table.h>
 
 constexpr uint 						C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
@@ -41,7 +40,7 @@ class Frequency_class :
 	void 							initFrqNamesArray();
 public:
 	const float						log2 			= log(2.0);
-	range_T<frq_t> 					frequency_range;
+	range_T<frq_t> 					frequency_range	{ 0, 0 };
 
 	frq_t 							Calc			( const frq_t& _base_freq, const int& idx );
 	frq_t 							GetFrq			( const int& idx );
@@ -54,7 +53,9 @@ public:
 	void 							TestFrequency	();
 
 									Frequency_class	();
-	virtual 						~Frequency_class() = default;
+	virtual 						~Frequency_class() //= default;
+									{ if( LogMask[ DEBUG ] ) coutf << "~" << className << endl; }
+
 };
 
 

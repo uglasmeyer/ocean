@@ -189,7 +189,7 @@ void Keyboard_class::keyHandler( key3struct_t kbd )
 			switch( kbd.val1 )
 			{
 				case 0  :	{ exit_keyboard()	; break; }
-				case F0	: 	{ specialKey()		; break; }
+				case S0	: 	{ specialKey()		; break; }
 				case F1	:	{ tainted = true	; break; }
 				case F2 : 	{ increase_sharps()	; break; }
 				case F3 : 	{ reset_sharps(); 	; break; }

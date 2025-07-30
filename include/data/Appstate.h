@@ -8,10 +8,19 @@
 #ifndef DATA_APPSTATE_H_
 #define DATA_APPSTATE_H_
 
-#include <Logfacility.h>
-#include <data/Interface.h>
-#include <data/Register.h>
+#include <bits/stdint-uintn.h>
 #include <data/SharedDataSegment.h>
+#include <Logfacility.h>
+#include <Ocean.h>
+#include <sys/types.h>
+#include <Table.h>
+#include <array>
+#include <cerrno>
+#include <cstdlib>
+#include <iostream>
+#include <set>
+#include <string>
+#include <data/Register.h>
 
 
 
@@ -42,6 +51,7 @@ constexpr char AppNameId( const T& name )
 	}
 	return appid;
 }
+
 struct process_properties_struct
 {
 	bool		start_once		= true;
@@ -49,6 +59,7 @@ struct process_properties_struct
 	bool		logowner 		= false;
 	bool		keyboard		= false;
 };
+
 typedef struct process_struct :
 		process_properties_struct
 {
@@ -58,7 +69,7 @@ typedef struct process_struct :
 		process_properties_struct()
 	{	};
 
-	~process_struct() 	= default;
+	virtual ~process_struct() 	= default;
 	void Show()
 	{
 		Table_class Table { name +" properties", LOGINDENT };
@@ -76,7 +87,7 @@ typedef struct process_struct :
 
 class Appstate_class :
 	virtual public Logfacility_class,
-	public sdsstate_struct
+	virtual public sdsstate_struct
 
 {
 public:
@@ -94,7 +105,8 @@ public:
 					Appstate_class		( 	char appid,
 											interface_t* _sds,
 											interface_t* _sds_master,
-											Register_class* reg );
+											Register_class* reg
+										);
 
 	virtual			~Appstate_class		() = default;
 
@@ -119,9 +131,11 @@ public:
 	void			RestoreState		( );
 	bool 			IsInconsistent		( interface_t* sds, char appid );
 
-private:
-	uint8_t* 		appAddr				( interface_t* sds, uint appid );
+	void			Shutdown_all		(  vector<interface_t*> sds_vec );
 
+private:
+	void  			shutdown			( interface_t* sds, char appid );
+	uint8_t* 		appAddr				( interface_t* sds, uint appid );
 };
 
 

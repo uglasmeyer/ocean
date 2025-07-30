@@ -35,7 +35,8 @@ typedef struct SDS_struct
 		master 		= vec[0];
 		Master		= &Vec[0];
 	}
-	~SDS_struct() = default;
+	virtual ~SDS_struct() //= default;
+			{ if( LogMask[ DEBUG ] ) coutf << "~SDS_struct" << endl; }
 
 	Interface_class* GetSds( int id )
 	{
@@ -53,6 +54,13 @@ typedef struct SDS_struct
 		}
 
 		return vec[ id ];
+	}
+	void Delete()
+	{
+		for( Interface_class& Sds : Vec )
+		{
+			Sds.SHM.Delete();
+		}
 	}
 
 

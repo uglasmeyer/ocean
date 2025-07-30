@@ -12,7 +12,7 @@
 
 void exit_proc( int signal )
 {
-	return ;
+	exit(0);
 }
 
 void overwrite ( string _src, string _dst )
@@ -192,6 +192,7 @@ int main(int argc, char **argv)
 	overwrite ( fs.resourcedir + fs.config_filename		, fs.config_file );
 	overwrite ( fs.resourcedir + fs.doc_filename		, fs.doc_file );
 	overwrite ( fs.resourcedir + fs.deploy_filename		, fs.deploy_file );
+	init_file ( fs.instrumentdir + ".test2.snd"			, fs.resourcedir );
 	overwrite ( fs.rc_snd_file							, fs.instrumentdir + fs.default_snd );
 	overwrite ( fs.rc_nte_file							, fs.notesdir + fs.default_nte );
 	init_file ( fs.program_file							, fs.resourcedir );

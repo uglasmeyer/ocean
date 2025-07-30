@@ -388,6 +388,7 @@ public:
 
         hs_osc_decay = new QSlider(frame_2);
         hs_osc_decay->setObjectName("hs_osc_decay");
+        hs_osc_decay->setMaximum(100);
         hs_osc_decay->setOrientation(Qt::Orientation::Horizontal);
 
         verticalLayout->addWidget(hs_osc_decay);
@@ -404,6 +405,7 @@ public:
 
         hs_vco_decay = new QSlider(frame_2);
         hs_vco_decay->setObjectName("hs_vco_decay");
+        hs_vco_decay->setMaximum(100);
         hs_vco_decay->setOrientation(Qt::Orientation::Horizontal);
 
         verticalLayout->addWidget(hs_vco_decay);
@@ -420,6 +422,7 @@ public:
 
         hs_fmo_decay = new QSlider(frame_2);
         hs_fmo_decay->setObjectName("hs_fmo_decay");
+        hs_fmo_decay->setMaximum(100);
         hs_fmo_decay->setOrientation(Qt::Orientation::Horizontal);
 
         verticalLayout->addWidget(hs_fmo_decay);

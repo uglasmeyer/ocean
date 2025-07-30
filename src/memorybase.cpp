@@ -127,25 +127,26 @@ void Shm_base::ShowDs( shm_ds_t ds )
 
 void Shm_base::Detach( void* addr )
 {
-/*
 
-	Comment( INFO , "Detach shared memory id: " + to_string( ds.shmid ));
-	if ( addr == nullptr )
-	{
-		Comment( ERROR, "Cannot detach nullptr" );
-		return;
-	}
-*/
 	Comment( INFO , "Detach shared memory id: " + to_string( shm_ds.shmid ));
 
 	if ( addr )
 		shmdt( addr );
-/*	if( errno )
+
+}
+
+void Shm_base::Delete()
+{
+	shmid_ds dsbuf;
+	Comment( INFO , "Mark shared memory id: ", shm_ds.shmid, " to be destroyed" );
+
+	if ( shm_ds.addr )
 	{
-		Comment( ERROR, Error_text( errno ) );
-		ShowDs( ds );
+		shmctl( shm_ds.shmid, IPC_RMID, &dsbuf );
+		Info( "done, # attached: ", dsbuf.shm_nattch );
 	}
-*/
+	else
+		Comment( ERROR, "Null " );
 }
 
 void Shm_base::Test_Memory()
@@ -162,6 +163,8 @@ void Shm_base::Test_Memory()
 
 	assert( shm1.shm_ds.addr != shm2.shm_ds.addr );
 
+	shm1.Delete();
+	shm2.Delete();
 
 	TEST_END( className );
 }

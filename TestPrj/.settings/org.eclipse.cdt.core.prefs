@@ -14,3 +14,8 @@ environment/project/cdt.managedbuild.config.gnu.exe.release.1201775344/OCEANDIR/
 environment/project/cdt.managedbuild.config.gnu.exe.release.1201775344/OCEANDIR/value=/home/sirius/OceanBase
 environment/project/cdt.managedbuild.config.gnu.exe.release.1201775344/append=true
 environment/project/cdt.managedbuild.config.gnu.exe.release.1201775344/appendContributed=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1243134385/ARCH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1243134385/ARCH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1243134385/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1243134385/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1243134385/appendContributed=true
