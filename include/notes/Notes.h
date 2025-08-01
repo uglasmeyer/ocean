@@ -70,8 +70,6 @@ public:
 	void 			Start_note_itr();
 	note_t			Char2note( char& ch );
 
-//	int 			Notechar2Step( char );
-
 	void			Set_notelist( const notelist_t& notelist );
 
 

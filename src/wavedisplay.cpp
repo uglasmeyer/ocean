@@ -36,7 +36,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 			for ( buffer_t n = 0; n < param.len; n++ )
 			{
 				Data_t value = data_ptr[n];
-				display_buffer[ n + param.len  ] = value;   // right half
+				display_data[ n + param.len  ] = value;   // right half
 			}
 		}
 		else // n=0 ... param.len - right data range -> front buffer range
@@ -45,7 +45,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 			for ( buffer_t n = wd_frames - param.len; n < wd_frames; n++ )
 			{
 				Data_t value = data_ptr[n];
-				display_buffer[ n + param.len - wd_frames ] = value;
+				display_data[ n + param.len - wd_frames ] = value;
 			}
 		}
 	};
@@ -59,8 +59,8 @@ void Wavedisplay_class::gen_cxwave_data( )
 		{
 			if ( idx < param.len )
 			{
-				Data_t value = rint( data_ptr[n] );
-				display_buffer[ idx ] = value;
+				Data_t value = data_ptr[n] ;
+				display_data[ idx ] = value;
 			}
 			else
 				break;
@@ -82,7 +82,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 			Data_t value = data_ptr[n];
 			cdv.push_back( cd_t( (double)value, 0.0 ));
 		}
-		display_buffer = fft( cdv, false );
+		display_data = fft( cdv, false );
 	};
 
 	auto gen_flow = [ this ]( param_t param )
@@ -91,8 +91,8 @@ void Wavedisplay_class::gen_cxwave_data( )
 		uint step	= param.step;
 		for ( buffer_t n = offs; n < param.len*step + offs; n = n + step )
 		{
-			Data_t value = rint( data_ptr[n] );
-			display_buffer[ idx ] = value;
+			Data_t value = data_ptr[n] ;
+			display_data[ idx ] = value;
 			idx++;
 		}
 	};
@@ -149,15 +149,25 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 void Wavedisplay_class::Write_wavedata()
 {
+	auto _scale = [ this ](  )
+	{
+		if ( wd_status.roleId != osc_struct::ADSRID )
+			return;
+		for( uint n = 0; n < wavedisplay_len; n++ )
+		{
+			display_data[n] = display_data[n] * 1024 * 16;
+		}
+	};
 	gen_cxwave_data(  );
+	_scale();
 	if ( WdMode == DEBUGID )
 	{
 		if ( not debug_right )
-			Sds_p->Write_arr( display_buffer );
+			Sds_p->Write_arr( display_data );
 	}
 	else
 	{
-		Sds_p->Write_arr( display_buffer );
+		Sds_p->Write_arr( display_data );
 	}
 }
 

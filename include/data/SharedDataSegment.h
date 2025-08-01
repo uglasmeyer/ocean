@@ -95,7 +95,7 @@ constexpr process_arr_t init_process_arr()
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 9; 						// comstack
+	uint8_t			version						= 11; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
@@ -115,17 +115,17 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t			slide_duration 				= 100; // % of 4*max_seconds
 
 	/* instrument definition starts */
-	adsr_t 			OSC_adsr 					= adsr_struct();// comstack
-	adsr_t 			VCO_adsr 					= adsr_struct();// comstack
-	adsr_t 			FMO_adsr 					= adsr_struct();// comstack
+	feature_t 		OSC_features 				= feature_struct();
+	feature_t 		VCO_features				= feature_struct();
+	feature_t 		FMO_features				= feature_struct();
 
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();
 	wave_t			FMO_wp						= wave_struct();
 
-	spectrum_t 		OSC_spectrum				= Spectrum_class::spec_struct();// comstack
-	spectrum_t 		VCO_spectrum 				= Spectrum_class::spec_struct();// comstack
-	spectrum_t	 	FMO_spectrum 				= Spectrum_class::spec_struct();// comstack
+	spectrum_t 		OSC_spectrum				= Spectrum_class::spec_struct();
+	spectrum_t 		VCO_spectrum 				= Spectrum_class::spec_struct();
+	spectrum_t	 	FMO_spectrum 				= Spectrum_class::spec_struct();
 
 	osc_connect_t	connect						= { { Oscillator_base::connect_struct() } };
 	/* instrument definition ends	 */
@@ -139,9 +139,6 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t 		MIX_Amp 					= 0;// comstack
 	uint8_t 		MIX_Id						= 0;// comstack
 
-
-	uint8_t 		Synthesizer					= sdsstate_struct::DEFAULT;// indicates that shm is new // comstack
-
 	uint8_t	 		FLAG						= CLEAR_KEY;
 	uint8_t 		frq_slidermode				= SLIDE;	// comstack
 
@@ -154,7 +151,18 @@ typedef struct interface_struct // with reasonable defaults
 	char			eventstr[512]				{0};
 	wd_status_t		WD_status					= WD_status_struct();
 
-	// common
+	uint8_t 		Synthesizer					= sdsstate_struct::DEFAULT;// indicates that shm is new // comstack
+	uint8_t			Keyboard					= sdsstate_struct::OFFLINE; // if tty and synthesizer process
+
+	// global values of SDS 0
+
+	uint8_t 		AudioServer	    			= sdsstate_struct::OFFLINE;
+	uint8_t	 		UserInterface				= sdsstate_struct::OFFLINE;
+	uint8_t	 		Composer 					= sdsstate_struct::OFFLINE;
+	uint8_t			Comstack					= sdsstate_struct::OFFLINE;
+	uint8_t			Rtsp						= sdsstate_struct::OFFLINE;
+	uint8_t			Setup						= sdsstate_struct::OFFLINE; // if tty and synthesizer process
+
 	buffer_t		audioframes					= audio_frames;
 	wd_arr_t		wavedata 					= {};
 	process_arr_t	process_arr					= init_process_arr(); //{ {register_process_struct()} };
@@ -162,15 +170,6 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
 	bool			Record						= false; 	// Audioserver recording
 	uint8_t 		FileNo						= 0;		// comstack
-	uint8_t 		AudioServer	    			= sdsstate_struct::OFFLINE;// comstack
-	uint8_t	 		UserInterface				= sdsstate_struct::OFFLINE;// comstack
-	uint8_t	 		Composer 					= sdsstate_struct::OFFLINE;// comstack
-	uint8_t			Comstack					= sdsstate_struct::OFFLINE;// NA
-	uint8_t			Rtsp						= sdsstate_struct::OFFLINE;//
-	uint8_t			Keyboard					= sdsstate_struct::OFFLINE; // if tty and synthesizer process
-	uint8_t			Setup						= sdsstate_struct::OFFLINE; // if tty and synthesizer process
-
-
 
 } interface_t;
 

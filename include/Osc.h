@@ -18,22 +18,21 @@
 
 class Oscillator :
 	virtual public 	Logfacility_class,
-	virtual public 	Oscillator_base
+	virtual public 	ADSR_class
 {
 	string 			className = "";
-
 
 public:
 	Memory			Mem_vco;
 	Memory 			Mem_fmo;
 	Memory 			Mem;
-	Scanner_class	scanner;
 	buffer_t		mem_frames;
+
+	Scanner_class	scanner;
 
 					Oscillator			( char role_id, char type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;
 	void 			operator=			( const Oscillator& osc );
-
 
 	void 			OSC 				( buffer_t frame_offset );
 
@@ -64,7 +63,6 @@ private:
 	bool 			longnote			= false; // set trigger for long notes
 	osc_roles_t		OscRole				= osc_struct();
 
-	void 			apply_adsr			( buffer_t frames, Data_t* data, buffer_t frame_offset );
 	void 			mem_init			();
 	void			self_Test			();
 

@@ -165,14 +165,9 @@ void Logfacility_class::Set_Loglevel( int _level, bool _on )
 	LogMask.set( level, _on );
 }
 
-
-
-
-
 void Logfacility_class::test_start( const string& name)
 {
 	Set_Loglevel( TEST, true) ;
-//	Comment( TEST, Line );
 	Comment( TEST, "Test " + name + " start" ) ;
 }
 
@@ -181,8 +176,6 @@ void Logfacility_class::test_end( const string& name )
 
 	Set_Loglevel( TEST, true) ;
 	cerr << GetColor( BINFO ) << "Test " + name + " finished" << endcolor << endl;
-//	Comment( TEST, "Test " + name + " finished" );
-//	Comment( TEST, Line );
 	Set_Loglevel( TEST, false) ;
 }
 

@@ -62,6 +62,7 @@ public:
 
 	void			Test_Memory		();
 
+					Shm_base		();
 					Shm_base		( buffer_t size );
 	virtual 		~Shm_base		();
 

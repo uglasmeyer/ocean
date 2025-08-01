@@ -14,7 +14,6 @@ typedef complex<double>	cd_t;
 typedef vector<cd_t>	cd_vec_t;
 
 
-
 struct wavedisplay_struct
 {
 	const vector<string> types =
@@ -40,14 +39,16 @@ struct wavedisplay_struct
 typedef wavedisplay_struct wavedisplay_t;
 
 struct WD_status_struct
-{
-	// SDS
+{	// SDS related
+
 	uint8_t oscId 	= osc_struct::OSCID;
 	uint8_t roleId 	= osc_struct::INSTRID;
 	bool 	fftmode = false;
 	uint8_t wd_mode	= wavedisplay_struct::FULLID;
+
 } ;
 typedef WD_status_struct 		wd_status_t;
+
 const size_t WD_OSC_SIZE 	= osc_struct().types.size();
 const size_t WD_ROLES_SIZE 	= osc_struct().roles.size();
 const size_t WD_MODE_SIZE 	= wavedisplay_struct().types.size();

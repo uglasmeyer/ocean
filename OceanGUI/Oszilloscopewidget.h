@@ -30,7 +30,7 @@ public:
 
 private:
     QRectF          drawregion;
-    QPolygon        polygon;
+    QPolygonF       polygon;
     uint 			shiftY 		= 0;
     uint			height		= 0;
     float			data_scale	= 0;

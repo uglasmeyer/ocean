@@ -39,7 +39,12 @@ void ViewInterface_class::show_Que()
 	cout.flush() << endcolor << endl;
 	cout << "Event ptr first : " << (int)sds->eventptr.first << endl;
 	cout << "          last  : " << (int)sds->eventptr.last  << endl;
-	cout << "          length: " << (int)sds->eventptr.length << endl;
+	cout << "          length: " << (int)sds->eventptr.length << endl << endl;
+	cout << "Wavedata [ 0 ... 20 ]" << endl;
+	cout.precision(5);
+	for( uint n = 0; n< 20; n++ )
+		cout << sds->wavedata[n] << " " ;
+	cout << endl;
 }
 void ViewInterface_class::show_Ipc()
 {
@@ -156,18 +161,19 @@ void ViewInterface_class::show_Adsr()
 	Adsr.AddColumn( "Feature", 20);
 	Adsr.AddColumn( "Value", 10 );
 	Adsr.PrintHeader();
-	Adsr.AddRow( "OSC (a)ttack", (int)sds->OSC_adsr.attack );
-	Adsr.AddRow( "OSC (d)ecay ", (int)sds->OSC_adsr.decay );
-	Adsr.AddRow( "VCO (a)ttack", (int)sds->VCO_adsr.attack );
-	Adsr.AddRow( "VCO (d)ecay ", (int)sds->VCO_adsr.decay );
-	Adsr.AddRow( "FMO (a)ttack", (int)sds->FMO_adsr.attack );
-	Adsr.AddRow( "FMO (d)ecay ", (int)sds->FMO_adsr.decay );
+	Adsr.AddRow( "OSC (a)ttack", (int)sds->OSC_features.attack );
+	Adsr.AddRow( "OSC (d)ecay ", (int)sds->OSC_features.decay );
+	Adsr.AddRow( "VCO (a)ttack", (int)sds->VCO_features.attack );
+	Adsr.AddRow( "VCO (d)ecay ", (int)sds->VCO_features.decay );
+	Adsr.AddRow( "FMO (a)ttack", (int)sds->FMO_features.attack );
+	Adsr.AddRow( "FMO (d)ecay ", (int)sds->FMO_features.decay );
 	Adsr.AddRow( "(g)lide effect", (int)sds->OSC_wp.glide_effect );
-	Adsr.AddRow( "(b)eats per second", (int)sds->OSC_adsr.bps );
+	Adsr.AddRow( "(b)eats per second", (int)sds->OSC_features.bps );
 	Adsr.AddRow( "(p)mw", (int)sds->OSC_wp.PMW_dial );
-	Adsr.AddRow( "(h)all", (int)sds->OSC_adsr.hall );
+	Adsr.AddRow( "(h)all", (int)sds->OSC_features.hall );
 	Adsr.AddRow( "(B)alance", (int)sds->mixer_balance );
 	Adsr.AddRow( "chord delay", (int)sds->noteline_prefix.chord_delay );
+	Adsr.AddRow( "Frq Slider Mode", slidermodes[ sds->frq_slidermode ] ) ;
 }
 void ViewInterface_class::showProcesses()
 {
@@ -189,8 +195,6 @@ void ViewInterface_class::showProcesses()
 
 	lline( "Record Progress   :" , (int)sds->RecCounter);
 	rline( "File No.          :" , (int)sds->FileNo );
-
-	rline( "Data Mode         :" , Decode(sds->MODE));
 
 	lline( "Instrument        :" , sds->Instrument);
 	rline( "Wav filename      :" , sds->Other );

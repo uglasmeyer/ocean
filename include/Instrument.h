@@ -44,13 +44,14 @@ public:
 	void 					Test_Instrument();
 
 private:
-	vector<spectrum_t*>		ifd_spectrum_vec		{};
+	vector<spectrum_t*>		sds_spectrum_vec		{};
 	string 					Instrument_file			= "";
-	string 					Default_instrument_file = "";
+	file_structure			fs						{};
+	string 					Default_instrument_file = fs.instrumentdir + fs.default_snd;
+	const string 			instr_ext 				= fs.snd_type;
 	int 					file_version 			= -1;
 	set<int>				supported 				{ 0, 1, 2, 3, 4 };
 	int						actual_version			= 4;
-	const string 			instr_ext 				= file_structure().snd_type;
 
 	void 					set_name( string );
 	void 					set_new_name( string );

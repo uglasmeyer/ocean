@@ -28,6 +28,7 @@ constexpr uint frqIndex( const int& note, const int& octave )
 	return  check_range( frqarr_range, idx, "frqIndex" );
 };
 constexpr uint8_t					A3			= frqIndex(9,3);
+constexpr uint8_t					C4			= frqIndex(0,4);
 
 extern frqarray_t 					frqArray;
 extern frqstrarr_t 					frqNamesArray;

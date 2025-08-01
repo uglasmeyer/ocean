@@ -150,7 +150,8 @@ void while_MenuF9()
 		{
 			tainted = false;
 //			ViewSds.ShowPage( sds_master, F9 );
-			usage();
+			show_ifd();
+//			usage();
 		}
 	}
 	ViewSds.ShowPage( sds_master, F1 );
@@ -278,10 +279,10 @@ int main( int argc, char* argv[] )
 				switch ( keyevent.key )
 				{
 					case 'g' : { getvalue( &sds->OSC_wp.glide_effect, "Frequency", SOFTFREQUENCYKEY ); break; }
-					case 'a' : { getvalue( &sds->OSC_adsr.attack	,"Atack", ADSR_KEY ); break; }
-					case 'b' : { getvalue( &sds->OSC_adsr.bps  	, "Beats p.sec", ADSR_KEY ); break; }
-					case 'd' : { getvalue( &sds->OSC_adsr.decay	,"Decay" , ADSR_KEY ); break; }
-					case 'h' : { getvalue( &sds->OSC_adsr.hall  ,"Hall", ADSR_KEY ); break; }
+					case 'a' : { getvalue( &sds->OSC_features.attack	,"Atack", ADSR_KEY ); break; }
+					case 'b' : { getvalue( &sds->OSC_features.bps  	, "Beats p.sec", ADSR_KEY ); break; }
+					case 'd' : { getvalue( &sds->OSC_features.decay	,"Decay" , ADSR_KEY ); break; }
+					case 'h' : { getvalue( &sds->OSC_features.hall  ,"Hall", ADSR_KEY ); break; }
 					default  : break ;
 				}
 				break;

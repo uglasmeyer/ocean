@@ -39,7 +39,6 @@ void exit_proc( int signal )
     QApplication::exit(0);
 }
 
-
 int main(int argc, char *argv[])
 {
     QApplication 		Windowapp(argc, argv);

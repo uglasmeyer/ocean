@@ -125,7 +125,7 @@ void MainWindow::adsr_decay()
 void MainWindow::adsr_hall( )
 {
 	uint8_t value = ui->hs_hall_effect->value();
-    Sds->Set(Sds->addr->OSC_adsr.hall , value);
+    Sds->Set(Sds->addr->OSC_features.hall , value);
     Eventlog.add( SDS_ID, ADSR_KEY);
 }
 void MainWindow::adsr_attack()
@@ -137,7 +137,7 @@ void MainWindow::adsr_attack()
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
 	uint8_t bps_val = ui->cb_bps->currentText().toInt();
-    Sds->Set( Sds->addr->OSC_adsr.bps, bps_val  );
+    Sds->Set( Sds->addr->OSC_features.bps, bps_val  );
 	Eventlog.add( SDS_ID, ADSR_KEY );
 }
 
@@ -463,7 +463,7 @@ void MainWindow::setwidgetvalues()
 //    ui->hs_adsr_sustain->setValue	( (int) Sds->addr->OSC_adsr.decay );
 //    ui->hs_adsr_attack->setValue	( (int) Sds->addr->OSC_adsr.attack);
     ui->hs_pmw->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
-    ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_adsr.hall );
+    ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_features.hall );
     ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_wp.glide_effect );
     ui->Slider_slideVol->setValue	( Sds_master->slide_duration);//Master_Amp);
     ui->hs_balance->setValue		( Sds->addr->mixer_balance );
@@ -475,7 +475,7 @@ void MainWindow::setwidgetvalues()
 	Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
-    Qstr	= int2char( Sds->addr->OSC_adsr.bps );
+    Qstr	= int2char( Sds->addr->OSC_features.bps );
     ui->cb_bps->setCurrentText( Qstr );
 
 	set_cb_psta_value( this );

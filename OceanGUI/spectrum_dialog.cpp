@@ -96,32 +96,32 @@ void Spectrum_Dialog_class::reset()
 
 void Spectrum_Dialog_class::fmo_attack(int value )
 {
-	Sds->Set( sds_p->FMO_adsr.attack, (uint8_t) value );
+	Sds->Set( sds_p->FMO_features.attack, (uint8_t) value );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
 }
 void Spectrum_Dialog_class::fmo_decay (int value )
 {
-	Sds->Set( sds_p->FMO_adsr.decay, (uint8_t) value );
+	Sds->Set( sds_p->FMO_features.decay, (uint8_t) value );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
 }
 void Spectrum_Dialog_class::vco_attack(int value )
 {
-	Sds->Set( sds_p->VCO_adsr.attack, (uint8_t) value );
+	Sds->Set( sds_p->VCO_features.attack, (uint8_t) value );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
 }
 void Spectrum_Dialog_class::vco_decay (int value )
 {
-	Sds->Set( sds_p->VCO_adsr.decay, (uint8_t) value );
+	Sds->Set( sds_p->VCO_features.decay, (uint8_t) value );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
 }
 void Spectrum_Dialog_class::osc_attack(int value )
 {
-	Sds->Set( sds_p->OSC_adsr.attack, (uint8_t) value );
+	Sds->Set( sds_p->OSC_features.attack, (uint8_t) value );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
 }
 void Spectrum_Dialog_class::osc_decay (int value )
 {
-	Sds->Set( sds_p->OSC_adsr.decay, (uint8_t) value );
+	Sds->Set( sds_p->OSC_features.decay, (uint8_t) value );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
 }
 
@@ -285,12 +285,12 @@ void Spectrum_Dialog_class::Setup_widgets(  Spectrum_class::spectrum_t spectrum)
     ui->sb_spwf3->setValue( spectrum.wfid[3] );
     ui->sb_spwf4->setValue( spectrum.wfid[4] );
 
-    ui->hs_fmo_attack->setValue( sds_p->FMO_adsr.attack );
-    ui->hs_fmo_decay ->setValue( sds_p->FMO_adsr.decay  );
-    ui->hs_vco_attack->setValue( sds_p->VCO_adsr.attack );
-    ui->hs_vco_decay ->setValue( sds_p->VCO_adsr.decay  );
-    ui->hs_osc_attack->setValue( sds_p->OSC_adsr.attack );
-    ui->hs_osc_decay ->setValue( sds_p->OSC_adsr.decay  );
+    ui->hs_fmo_attack->setValue( sds_p->FMO_features.attack );
+    ui->hs_fmo_decay ->setValue( sds_p->FMO_features.decay  );
+    ui->hs_vco_attack->setValue( sds_p->VCO_features.attack );
+    ui->hs_vco_decay ->setValue( sds_p->VCO_features.decay  );
+    ui->hs_osc_attack->setValue( sds_p->OSC_features.attack );
+    ui->hs_osc_decay ->setValue( sds_p->OSC_features.decay  );
 
 
     QString Qinstrument = QString::fromStdString( instrument );

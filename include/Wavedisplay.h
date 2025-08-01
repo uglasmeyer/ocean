@@ -58,7 +58,7 @@ private:
 	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_right		= true;
 	bool			fft_mode		= false;
-	wd_arr_t 		display_buffer 	= { 0 };
+	wd_arr_t 		display_data 	= { 0 };
 
 	void	 		gen_cxwave_data( void  );
 

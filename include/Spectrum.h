@@ -49,7 +49,7 @@ public:
 
 
 	const spectrum_t	default_spec 	= spec_struct();
-	string 				className = "";
+	string 				className 		= "";
 
 
 

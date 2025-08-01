@@ -49,7 +49,7 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 		case APPID::TESTID		: { ptr = &sds->Rtsp; break; }
 		case APPID::NOID		: { ptr = nullptr; break; }
 		default : {
-					cout << "WARN: unknown application id: " << AppId << endl;
+					cout << "WARN: unknown application id: " << (int)AppId << endl;
 					ptr = nullptr;
 					};
 	}

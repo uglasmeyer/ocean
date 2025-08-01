@@ -27,7 +27,7 @@ Note_class::Note_class( Wavedisplay_class* wd )
   Note_base()
 {
 	this->className = Logfacility_class::className;
-	Oscgroup.SetWd( wd, &Oscgroup.osc.mem_frames );
+	Oscgroup.SetWd( wd, &osc->mem_frames );
 	Oscgroup.SetScanner( max_frames );
 }
 
@@ -40,18 +40,14 @@ void Note_class::Set_instrument(Instrument_class *instr)
 	Instrument_name = instr->Name;
 	instrument		= instr;
 	Comment(TEST, "Update notes instrument:  " + Instrument_name);
-	// copy class Oscillator
 
+	// copy class Oscillator
 	Oscgroup.osc 	= instrument->Oscgroup.osc;
 	Oscgroup.vco	= instrument->Oscgroup.vco;
 	Oscgroup.fmo 	= instrument->Oscgroup.fmo;
 
 	osc->Connect_frq_data(fmo);
 	osc->Connect_vol_data(vco);
-
-
-//	Oscgroup.Set_Duration( max_milli_sec );
-//	Oscgroup.osc.Set_adsr( Oscgroup.osc.adsr );
 
 	return;
 }
@@ -104,16 +100,16 @@ void Note_class::note2memory( 	const note_t& note,
 								)
 {
 
-	uint wp_glide_effect = Oscgroup.osc.wp.glide_effect;
+	uint wp_glide_effect = osc->wp.glide_effect;
 
 	if ( note.glide[0].glide )
 		Oscgroup.SetSlide( 100 );
 	else
 		Oscgroup.SetSlide( 0 );
 
-	Oscgroup.osc.Set_long_note( note.longnote or longnote );
+	osc->Set_long_note( note.longnote or longnote );
 	osc->adsr.hall 		= 0;
-	Oscgroup.osc.Gen_adsrdata( ( duration * frames_per_msec ) );
+//	osc->Gen_adsrdata( ( duration * frames_per_msec ) );
 
 	uint frame_delay 	= instrument->sds->noteline_prefix.chord_delay * frames_per_msec;
 	uint n 				= 0;
@@ -126,7 +122,7 @@ void Note_class::note2memory( 	const note_t& note,
 		n++;
 	}
 
-	Oscgroup.osc.Set_glide( wp_glide_effect );
+	osc->Set_glide( wp_glide_effect );
 
 	return ;
 }

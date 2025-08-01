@@ -11,7 +11,8 @@ bool
 isopen = false;
 void SynthesizerTestCases()
 {
-	Shm_base Shm_test{0};
+	coutf << "SynthesizerTestCases" << endl;
+	Shm_base Shm_test;
 	Shm_test.Test_Memory();
 
 	Logfacility_class		Log( "SynthesizerTest" );

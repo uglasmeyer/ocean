@@ -30,15 +30,15 @@ Oscgroup_class::~Oscgroup_class() = default;
 
 void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
 {
-	osc.adsr				= sds->OSC_adsr;
+	osc.adsr				= sds->OSC_features;
 	osc.wp					= sds->OSC_wp;
 	osc.spectrum			= sds->OSC_spectrum;
 
-	vco.adsr				= sds->VCO_adsr;
+	vco.adsr				= sds->VCO_features;
 	vco.wp					= sds->VCO_wp;
 	vco.spectrum			= sds->VCO_spectrum;
 
-	fmo.adsr				= sds->FMO_adsr;
+	fmo.adsr				= sds->FMO_features;
 	fmo.wp					= sds->FMO_wp;
 	fmo.spectrum			= sds->FMO_spectrum;
 }
@@ -96,11 +96,13 @@ void Oscgroup_class::Set_Note_Frequency( 	const frq_t& base_freq,
 }
 void Oscgroup_class::Set_Combine_Frequency( const uint8_t& idx, const uint& mode )
 {
-	uint8_t diff = idx - osc.wp.frqidx;
+	int diff = idx - osc.wp.frqidx;
 	osc.Set_frequency( idx, mode );
 
 	vco.Set_frequency( vco.wp.frqidx + diff, mode );
 	fmo.Set_frequency( fmo.wp.frqidx + diff, mode );
+
+	coutf << "Set_Combine_Frequency " << (int)diff << endl;
 }
 
 void Oscgroup_class::Set_Duration( const uint& msec )
@@ -116,11 +118,12 @@ void Oscgroup_class::Set_Osc_Note( 	const frq_t&	base_freq,
 									const uint& 	volume,
 									const uint& 	mode)
 {
-	Set_Duration	( msec );
-	osc.Set_adsr	( osc.adsr ); // generate new adsr data according to the adsr duration (frames)
-
+	Set_Duration		( msec );
+	osc.Set_adsr		( osc.adsr ); // generate new adsr data according to the adsr duration (frames)
+	vco.Set_adsr		( vco.adsr );
+	fmo.Set_adsr		( fmo.adsr );
 	Set_Note_Frequency	( base_freq, key, mode );
-	osc.Set_volume	( volume, FIXED);//wp.volume	= volume ;
+	osc.Set_volume		( volume, FIXED);//wp.volume	= volume ;
 }
 
 void Oscgroup_class::Phase_Reset()

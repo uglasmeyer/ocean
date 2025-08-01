@@ -2,7 +2,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += -std=c++2a
+CONFIG += -std=c++2b
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -35,7 +35,8 @@ CONFIG += lrelease
 
 INCLUDEPATH += /home/sirius/git/Ocean/include
 
-LIBS += /home/sirius/git/Ocean/Release/libOcean.a
+LIBS += -L"/home/sirius/OceanDev/lib" -lOcean
+#  LIBS += /home/sirius/git/Ocean/Release/libOcean.a
 #  http://doc.qt.io/qt-5/third-party-libraries.html
 
 OBJECTS +=

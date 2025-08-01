@@ -127,7 +127,7 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F1", "keyboard Keys"			);
 	Table.AddRow( "F2", "increase sharps "		, (int) sds->Kbd_state.sharps, "#" );
 	Table.AddRow( "F3", "reset sharps "			);
-	Table.AddRow( "F4", "toggle decay mode "	, (int) sds->Kbd_state.ADSR_flag * sds->OSC_adsr.bps ,"B psec");
+	Table.AddRow( "F4", "toggle decay mode "	, (int) sds->Kbd_state.ADSR_flag * sds->OSC_features.bps ,"B psec");
 	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds->Kbd_state.sliding *
 													Osc->wp.glide_effect), "[ % ]");
 	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( StA->state.forget, "forget", "persist" ));

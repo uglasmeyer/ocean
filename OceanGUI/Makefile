@@ -40,7 +40,7 @@ DISTNAME      = OceanGUI1.0.0
 DISTDIR = /home/sirius/git/Ocean/OceanGUI/.tmp/OceanGUI1.0.0
 LINK          = clang++
 LFLAGS        = -ccc-gcc-name g++ -Wl,-rpath-link,/usr/lib/x86_64-linux-gnu
-LIBS          = $(SUBLIBS) /home/sirius/git/Ocean/Release/libOcean.a /usr/lib/x86_64-linux-gnu/libQt6Widgets.so /usr/lib/x86_64-linux-gnu/libQt6Gui.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libQt6Core.so -lpthread -lGLX -lOpenGL   
+LIBS          = $(SUBLIBS) -L/home/sirius/OceanDev/lib -lOcean /usr/lib/x86_64-linux-gnu/libQt6Widgets.so /usr/lib/x86_64-linux-gnu/libQt6Gui.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libQt6Core.so -lpthread -lGLX -lOpenGL   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -369,7 +369,6 @@ moc_File_Dialog_class.cpp: File_Dialog_class.h \
 		../include/Dynamic.h \
 		../include/String.h \
 		../include/Frequency.h \
-		../include/Exit.h \
 		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/Instrument.h \
@@ -378,6 +377,7 @@ moc_File_Dialog_class.cpp: File_Dialog_class.h \
 		../include/Configbase.h \
 		../include/Version.h \
 		../include/System.h \
+		../include/Exit.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -452,6 +452,7 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		ui_mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
+		ui_spectrum_dialog_class.h \
 		Sds_dialog_class.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -491,13 +492,13 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Sds_dialog_class.h -o moc_Sds_dialog_class.cpp
 
 moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
+		ui_spectrum_dialog_class.h \
 		../include/Ocean.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
 		../include/Logfacility.h \
 		../include/String.h \
 		../include/Frequency.h \
-		../include/Exit.h \
 		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/data/Interface.h \
@@ -505,6 +506,7 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/Configbase.h \
 		../include/Version.h \
 		../include/System.h \
+		../include/Exit.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -521,6 +523,7 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/data/EventQue.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
+		Common.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Spectrum_dialog_class.h -o moc_Spectrum_dialog_class.cpp
@@ -611,6 +614,7 @@ moc_Dispatcher.cpp: Dispatcher.h \
 		ui_mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
+		ui_spectrum_dialog_class.h \
 		Sds_dialog_class.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -703,6 +707,7 @@ Dispatcher.o: Dispatcher.cpp Dispatcher.h \
 		ui_mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
+		ui_spectrum_dialog_class.h \
 		Sds_dialog_class.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Dispatcher.o Dispatcher.cpp
 
@@ -755,6 +760,7 @@ OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
 		ui_mainwindow.h \
 		Oszilloscopewidget.h \
 		Spectrum_dialog_class.h \
+		ui_spectrum_dialog_class.h \
 		Sds_dialog_class.h \
 		Dispatcher.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp

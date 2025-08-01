@@ -10,14 +10,14 @@
 
 Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes ) :
 	Logfacility_class	( "Oscillator" ),
-	Oscillator_base		(),
+	ADSR_class			(),
 	Mem_vco				( bytes ),
 	Mem_fmo				( bytes ),
 	Mem					( bytes ),
-	scanner				( Mem.Data, min_frames, Mem.mem_ds.data_blocks ),
-	mem_frames			( Mem.mem_ds.data_blocks )
+	scanner				( Mem.Data, min_frames, Mem.mem_ds.data_blocks )
 {
 	className 		= Logfacility_class::className;
+	mem_frames		= Mem.mem_ds.data_blocks ;
 
 	typeId			= type_id;
 	osctype_name	= OscRole.types[typeId];
@@ -32,13 +32,12 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes ) :
 	has_notes_role 	= ( roleId == OscRole.NOTESID );
 	has_instr_role 	= ( roleId == OscRole.INSTRID );
 
-//	mem_frames		= Mem.mem_ds.data_blocks ;
 	Connection_reset();
 	Data_reset();
 
-	Mem_vco.DsInfo( oscrole_name + ":" + osctype_name );
-	Mem_fmo.DsInfo( oscrole_name + ":" + osctype_name );
-	Mem.DsInfo	( oscrole_name + ":" + osctype_name );
+	Mem_vco.DsInfo	( oscrole_name + ":" + osctype_name );
+	Mem_fmo.DsInfo	( oscrole_name + ":" + osctype_name );
+	Mem.DsInfo		( oscrole_name + ":" + osctype_name );
 
 	Comment( INFO, oscrole_name + ":" + osctype_name + " initialized" );
 
@@ -233,8 +232,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		}
 	}
 
-//	if ( (  is_osc_type ) or ( is_vco_type ) )
-		apply_adsr( frames, &oscData[0], offset );
+	Apply_adsr( frames, &oscData[0], offset );
 }
 
 void Oscillator::Set_long_note( bool l )
@@ -244,34 +242,10 @@ void Oscillator::Set_long_note( bool l )
 
 void Oscillator::Reset_beat_cursor()
 {
-	beat_cursor = 0;
-	hall_cursor = 0;
+	Set_beatcursor( 0 );
+	Set_hallcursor( 0 );
 }
 
-void Oscillator::apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offset )
-{
-	if ( adsr.bps 		== 0 ) return;
-	if ( beat_frames 	== 0 ) return;
-
-	float		dbB 		= 0.5;
-	float 		dbH			= 1.0 - dbB;
-	uint		pos			= frame_offset;
-				kbd_trigger = false;
-	for ( uint m = 0; m < frames; m++ )
-	{
-		Data[ pos ] = Data[ pos ] * ( 	adsrdata[ beat_cursor ]*dbB +
-										adsrdata[ hall_cursor ]*dbH );
-		hall_cursor = ( hall_cursor + 1 ) % beat_frames;
-		beat_cursor = ( beat_cursor + 1 ) % beat_frames;
-		kbd_trigger = (( beat_cursor == 0 ) or kbd_trigger );
-		pos			= ( pos + 1 ) % mem_frames;
-	}
-	if ( has_kbd_role )
-		Comment( DEBUG, "beat_cursor: " , (int) beat_cursor );
-//	if (( has_instr_role ) and kbd_trigger )
-//		cout << "kbd_trigger" ;
-
-}
 
 void Oscillator::Test()
 {
@@ -296,8 +270,7 @@ void Oscillator::Test()
 
 	ASSERTION( fcomp( oct_base_freq, GetFrq( C0 )), "osc_base_freq" , oct_base_freq, GetFrq( C0 ));
 	spectrum 	= spec_struct();
-	adsr 		= adsr_struct();
-
+	adsr 		= feature_struct();
 
 	longnote = true;
 	adsr.attack = 50;
@@ -329,7 +302,7 @@ void Oscillator::Test()
 	float ftest = GetFrq( testosc.wp.frqidx);
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );
 
-
+	ADSR_class Adsr {};
 	TEST_END( className );
 
 }

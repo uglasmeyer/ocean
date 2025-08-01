@@ -58,12 +58,18 @@ void Memory_base::DsInfo()
 
 
 
-Shm_base::Shm_base( buffer_t size ) :
+Shm_base::Shm_base( buffer_t bytes ) :
 	Logfacility_class( "Shm_base" )
 {
-	shm_ds.bytes 		= size;
+	shm_ds.bytes 		= bytes;
 	className			= Logfacility_class::className;
-	Info( "pre-init shared memory size: " , size );
+	Info( "pre-init shared memory size: " , bytes );
+}
+Shm_base::Shm_base()
+	: Logfacility_class( "Shm_base" )
+{
+	className			= Logfacility_class::className;
+	Info( "Instanciate shared memory " );
 }
 
 Shm_base::~Shm_base()

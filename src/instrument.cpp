@@ -10,20 +10,21 @@
 #include <System.h>
 
 
-Instrument_class::Instrument_class(interface_t* ifd, Wavedisplay_class* _wd_p )
+Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
 : Logfacility_class("Instrument_class")
 {
-	this->sds 				= ifd;
-	ifd_spectrum_vec 		= { &sds->VCO_spectrum,
+	this->sds 				= _sds;
+	sds_spectrum_vec 		= { &sds->VCO_spectrum,
 								&sds->FMO_spectrum,
 								&sds->OSC_spectrum};
-
-	Default_instrument_file = file_structure().instrumentdir + "default" + instr_ext;
 
 	assert ( Oscgroup.osc.MemData_p() != nullptr );
 
 	this->wd_p 				= _wd_p;
 	Oscgroup.SetWd( this->wd_p, &Oscgroup.osc.wp.frames );
+	wd_p->Add_data_ptr( osc->typeId, osc_struct::ADSRID, osc->AdsrMemData_p(),&osc->adsr_frames );
+	wd_p->Add_data_ptr( vco->typeId, osc_struct::ADSRID, vco->AdsrMemData_p(),&vco->adsr_frames );
+	wd_p->Add_data_ptr( fmo->typeId, osc_struct::ADSRID, fmo->AdsrMemData_p(),&fmo->adsr_frames );
 }
 
 
@@ -46,15 +47,15 @@ void Instrument_class::update_sds()
 
 	Comment(INFO, "Update SDS data");
 
-	sds->OSC_adsr 		= Oscgroup.osc.adsr;
+	sds->OSC_features 		= Oscgroup.osc.adsr;
 	sds->OSC_wp			= Oscgroup.osc.wp;
 	sds->OSC_spectrum	= Oscgroup.osc.spectrum;
 
-	sds->VCO_adsr 		= Oscgroup.vco.adsr;
+	sds->VCO_features 		= Oscgroup.vco.adsr;
 	sds->VCO_spectrum	= Oscgroup.vco.spectrum;
 	sds->VCO_wp			= Oscgroup.vco.wp;
 
-	sds->FMO_adsr 		= Oscgroup.fmo.adsr;
+	sds->FMO_features 		= Oscgroup.fmo.adsr;
 	sds->FMO_wp			= Oscgroup.fmo.wp;
 	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
 
@@ -65,7 +66,7 @@ void Instrument_class::Update_spectrum()
 {
 	uint 		oscid 	= sds->Spectrum_type;
 	Oscillator* osc 	= Oscgroup.member[ oscid ];
-	osc->Set_spectrum( *ifd_spectrum_vec[ oscid ] ) ;
+	osc->Set_spectrum( *sds_spectrum_vec[ oscid ] ) ;
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -82,17 +83,17 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 void Instrument_class::set_new_name( string name )
 {
 	Name = name;
-	Instrument_file 		= file_structure().instrumentdir + Name + instr_ext;
+	Instrument_file 		= fs.instrumentdir + Name + instr_ext;
 }
 
 void Instrument_class::set_name( string name )
 {
-	Instrument_file 		= file_structure().instrumentdir + name + instr_ext;
+	Instrument_file 		= fs.instrumentdir + name + instr_ext;
 	if ( filesystem::exists( Instrument_file ) )
 		Name = name;
 	else
 		Name = "default";
-	Instrument_file 		= file_structure().instrumentdir + Name + instr_ext;
+	Instrument_file 		= fs.instrumentdir + Name + instr_ext;
 
 	Comment( INFO, "Instrument Name: " + Name);
 }
@@ -100,7 +101,7 @@ void Instrument_class::set_name( string name )
 bool Instrument_class::assign_adsr 	( vector_str_t arr )
 {
 	String	Str	{""};
-	adsr_t 	adsr{};
+	feature_t 	adsr{};
 	adsr.decay 	= Str.secure_stoi( arr[9 ]	);
 	adsr.bps	= Str.secure_stoi( arr[10] 	);
 	adsr.attack	= Str.secure_stoi( arr[11] 	);
@@ -182,17 +183,17 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 {
 	String 	Str			{""};
-	adsr_t 	adsr		{};
+	feature_t 	adsr		{};
 	adsr.bps	= Str.secure_stoi( arr[2] );
 	adsr.hall	= Str.secure_stoi( arr[3] );
-	adsr.decay 	= Str.secure_stoi( arr[4] );
-	adsr.attack	= Str.secure_stoi( arr[5] );
+	adsr.attack = Str.secure_stoi( arr[4] );
+	adsr.decay	= Str.secure_stoi( arr[5] );
 	Oscgroup.osc.Set_adsr( adsr );
-	adsr.decay 	= Str.secure_stoi( arr[6]	);
-	adsr.attack	= Str.secure_stoi( arr[7] 	);
+	adsr.attack = Str.secure_stoi( arr[6]	);
+	adsr.decay	= Str.secure_stoi( arr[7] 	);
 	Oscgroup.vco.Set_adsr( adsr );
-	adsr.decay 	= Str.secure_stoi( arr[8]	);
-	adsr.attack	= Str.secure_stoi( arr[9] 	);
+	adsr.attack = Str.secure_stoi( arr[8]	);
+	adsr.decay	= Str.secure_stoi( arr[9] 	);
 	Oscgroup.fmo.Set_adsr( adsr );
 
 	Oscgroup.osc.wp.glide_effect= Str.secure_stoi( arr[10] );
@@ -214,7 +215,7 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 bool Instrument_class::assign_adsr2( const vector_str_t& arr )
 {
 	String 	Str			{""};
-	adsr_t 	adsr		{};
+	feature_t 	adsr		{};
 			adsr.decay 	= Str.secure_stoi( arr[2] );
 			adsr.bps	= Str.secure_stoi( arr[3] );
 			adsr.attack	= Str.secure_stoi( arr[4] );
@@ -276,7 +277,7 @@ bool Instrument_class::read_version1( fstream* File )
 				if ( strEqual(keyword, Spectr.spectrumTag[num] ) )
 				{
 					osc->spectrum = osc->Parse_data( arr, osc->typeId, num );
-					*ifd_spectrum_vec[ osc->typeId ] = osc->spectrum;
+					*sds_spectrum_vec[ osc->typeId ] = osc->spectrum;
 				}
 			}
 
@@ -590,8 +591,6 @@ void Instrument_class::Test_Instrument()
 	}
 	vco->Test();
 	assert( Set( ".test2" ) );
-	sds->MODE = sdsstate_struct::FREERUN;
-
 	Oscgroup.vco.wp.PMW_dial = 98;
 	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;
 	Oscgroup.vco.Set_frequency( "A1", FIXED);

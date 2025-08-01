@@ -136,7 +136,7 @@ private:
 	const uint			kbd_volume				= 75;
 	key3struct_t		Kbd_key					= key3_struct( 0, 0, 0);
 
-	adsr_t				kbd_adsr				= adsr_struct();
+	feature_t			kbd_adsr				= feature_struct();
 	bool				frqMode					= SLIDE;
 
 

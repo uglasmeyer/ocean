@@ -9,7 +9,44 @@
 
 #include <Oscbase.h>
 
+ADSR_class::ADSR_class() :
+	Logfacility_class("ADSR_class")
+{
+	className = Logfacility_class::className;
 
+};
+ADSR_class::~ADSR_class()
+{
+	if( LogMask[ DEBUG ] )
+		coutf << "~" << className << endl;
+}
+
+Data_t* ADSR_class::AdsrMemData_p()
+{
+	return adsr_Mem.Data;
+}
+
+void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offset )
+{
+	if ( adsr.bps 		== 0 ) return;
+	if ( beat_frames 	== 0 ) return;
+
+	float		dbB 		= 0.5;
+	float 		dbH			= 1.0 - dbB;
+	uint		pos			= frame_offset;
+				kbd_trigger = false;
+	for ( uint m = 0; m < frames; m++ )
+	{
+		Data[ pos ] = Data[ pos ] * ( 	adsr_Mem.Data[ beat_cursor ]*dbB +
+										adsr_Mem.Data[ hall_cursor ]*dbH );
+		hall_cursor = ( hall_cursor + 1 ) % beat_frames;
+		beat_cursor = ( beat_cursor + 1 ) % beat_frames;
+		kbd_trigger = (( beat_cursor == 0 ) or kbd_trigger );
+		pos			= ( pos + 1 ) % adsr_frames;
+	}
+	if ( has_kbd_role )
+		Comment( DEBUG, "beat_cursor: " , (int) beat_cursor );
+}
 
 /* maxima
 kill(all);
@@ -25,13 +62,26 @@ fdecay	: exp( - ( n - aframes ) * d_delta );
 plot2d([fattack, fdecay], [n,0,beatframes],[y,0,2]);
 
 */
-void Oscillator_base::Gen_adsrdata( buffer_t bframes )
+auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_delta  )
+{
+	if ( n < aframes ) 	// attack
+	{
+		return ( y0 + n*dy );
+	}
+	else				// decay
+	{
+		float delta 	= ( n - aframes ) * d_delta;
+		return ( exp( -delta ) );
+	}
+};
+
+void ADSR_class::adsrOSC( buffer_t bframes )
 {
 	if ( bframes == 0 ) return;
 
 	buffer_t		aframes 	= 1;
 	if ( adsr.attack 	> 0 )
-				aframes = rint ( ( bframes * adsr.attack ) * 0.01 );;
+					aframes 	= rint ( ( bframes * adsr.attack ) * 0.01 );;
 	const float 	d_delta		= ( (100 - adsr.decay )/3.0) / bframes;
 	const float 	delta 		= (bframes - aframes) * d_delta;
 	const float		y0 			= expf( - delta );
@@ -39,19 +89,11 @@ void Oscillator_base::Gen_adsrdata( buffer_t bframes )
 
 	for ( buffer_t n = 0; n < bframes ; n++ )
 	{
-		if ( n < aframes ) 	// attack
-		{
-			adsrdata[n] 	= ( y0 + n*dy );
-		}
-		else				// decay
-		{
-			float delta 	= ( n - aframes ) * d_delta;
-			adsrdata[n] 	= ( exp( -delta ) );
-		}
+		adsr_Mem.Data[n] = adsr_fnc( aframes, n, y0, dy, d_delta );
 	}
 }
 
-void Oscillator_base::set_hallcursor( buffer_t cursor )
+void ADSR_class::Set_hallcursor( buffer_t cursor )
 {
 	if ( beat_frames == 0 ) return;
 	hall_cursor 	= cursor % beat_frames;
@@ -63,7 +105,13 @@ void Oscillator_base::set_hallcursor( buffer_t cursor )
 		hall_cursor	= ( beat_cursor + hframes ) % beat_frames;
 	}
 }
-void Oscillator_base::Set_adsr( adsr_t _adsr )
+void ADSR_class::Set_beatcursor( buffer_t cursor )
+{
+	beat_cursor = cursor;
+}
+
+
+void ADSR_class::Set_adsr( feature_t _adsr )
 {
 	adsr = _adsr;
 
@@ -81,11 +129,15 @@ void Oscillator_base::Set_adsr( adsr_t _adsr )
 			beat_frames = 0;
 	}
 
-	set_hallcursor();
-	Gen_adsrdata( beat_frames );
+	Set_hallcursor();
+	adsrOSC( beat_frames );
 }
 
-
+Oscillator_base::Oscillator_base() :
+	Logfacility_class( "Oscillator_base" ),
+	Spectrum_class()
+{
+};
 void Oscillator_base::Setwp_frames( uint16_t msec )
 {
 	wp.msec 	= msec;
@@ -171,3 +223,5 @@ void Oscillator_base::Get_sound_stack( Table_class* T )
 				"Hz"
 			);
 }
+
+

@@ -213,7 +213,7 @@ constexpr string AppIdName( const T& app_id )
 		case APPID::TESTID		: return TESTPRG;
 		case APPID::NOID		: return "No Process";
 		default 		: 	{
-							cout << "WARN: unknown application id: " << app_id << endl;
+							cout << "WARN: unknown application id: " << (int)app_id << endl;
 							return "No Process";
 							};
 	}
@@ -232,9 +232,10 @@ typedef struct osc_struct
 		"Notes",
 		"Keyboard",
 		"External",
-		"Audio"
+		"Audio",
+		"ADSR"
 	};
-	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOOUTID };
+	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOOUTID, ADSRID };
 
 	const vector<string> types =
 	{
