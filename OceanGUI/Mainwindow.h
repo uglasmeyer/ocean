@@ -24,6 +24,7 @@
 #include <Oszilloscopewidget.h>
 #include <Spectrum_dialog_class.h>
 #include <Sds_dialog_class.h>
+#include <Adsrdialog.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -68,6 +69,9 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA.Sds_p, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
+    ADSRDialog_class  		ADSR_Dialog_obj { this };
+    ADSRDialog_class*  		ADSR_Dialog_p 	= &ADSR_Dialog_obj;
+
 //not used
 //SDS_Dialog_class		SDS_Dialog_Obj		{ this, Sds };
 //SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
@@ -77,7 +81,7 @@ public:
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
-    vector<QString>			Qwd_display_names	{};
+    vector<QString>			Qwd_role_names	{};
     vector<QString> 		Qwd_wdmode_names	{};
     vector<QString>			Qwd_fftmodes		{};
     QStringList				QCapture_str_lst	{};
@@ -252,11 +256,13 @@ private slots:
 
     void File_Director();
     void Spectrum_Dialog();
+    void ADSR_Dialog();
 
     void Save_Config();
     void toggle_Mute();
 
     void adsr_decay();
+    void adsr_hall();
 
     void pB_Debug_clicked();
     void wavfile_selected( const QString &arg);
@@ -264,7 +270,7 @@ private slots:
     void pB_Wavedisplay_clicked();
     void pB_fftmode_clicked();
 
-    void adsr_hall(  );
+
 
 };
 

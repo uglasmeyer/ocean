@@ -52,7 +52,7 @@ double Oscillator::get_delta_freq( float freq )
 	buffer_t 			frames  	= ( this->wp.msec*audio_frames) / 1000;
 
 	if ( abs(wp.start_frq) < 1E-4 ) return freq;  			// do nothing
-	float dframes =  ( wp.glide_effect * frames / 100.0 ) ;
+	float dframes =  ( feature.glide_effect * frames / 100.0 ) ;
 
 	if ( abs(dframes) < 1E-4 ) return freq - wp.start_frq; 	// do nothing
 //	Assert( dframes > 0, "dframes: " + to_string(dframes));

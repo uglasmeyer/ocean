@@ -127,9 +127,9 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F1", "keyboard Keys"			);
 	Table.AddRow( "F2", "increase sharps "		, (int) sds->Kbd_state.sharps, "#" );
 	Table.AddRow( "F3", "reset sharps "			);
-	Table.AddRow( "F4", "toggle decay mode "	, (int) sds->Kbd_state.ADSR_flag * sds->OSC_features.bps ,"B psec");
+	Table.AddRow( "F4", "toggle decay mode "	, (int) sds->Kbd_state.ADSR_flag * sds->OSC_adsr.bps ,"B psec");
 	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds->Kbd_state.sliding *
-													Osc->wp.glide_effect), "[ % ]");
+													Osc->feature.glide_effect), "[ % ]");
 	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( StA->state.forget, "forget", "persist" ));
 	Table.AddRow( "F7", "increase flats "		, (int) sds->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
@@ -148,7 +148,8 @@ void Keyboard_class::notekey( char key )
 	kbd_note.Chord 	= kbd_note.SetChord( key );
 	string
 	noteline 		= kbd_note.setNote( key ) ;
-	Noteline.append( noteline );
+	if ( noteline.length() > 0 )
+		Noteline.append( noteline );
 }
 void Keyboard_class::set_bufferMode()
 {

@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
 //    QIcon icon("/home/sirius/Software/eclipse/eclipse32.png");
 //    Window.setWindowIcon( icon );
 
-    QString QVersion 	= QString::fromStdString( Version_str );
-    QString QModule		= QString::fromStdString( TitleModule);
+    QString QVersion 	= Qstring( Version_str );
+    QString QModule		= Qstring( TitleModule);
     Window.setWindowTitle( QModule + " " + QVersion  );
 
     Controller_class Controller{ Window };

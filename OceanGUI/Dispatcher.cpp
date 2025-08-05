@@ -34,7 +34,7 @@ void Dispatcher_class::Loop(  )
 		if ( loop_done ) break;
 
 		string ev_str = Sds_master->Read_str( UPDATELOG_EVENT );
-		Qlog_str = QString::fromStdString( ev_str );
+		Qlog_str = Qstring( ev_str );
 
 		switch ( Sds_p->addr->FLAG )
 		{

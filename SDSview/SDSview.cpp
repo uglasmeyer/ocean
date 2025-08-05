@@ -1,6 +1,5 @@
 
 
-
 #include <Appsymbols.h>
 #include <Kbd.h>
 #include <Viewinterface.h>
@@ -14,10 +13,8 @@ int 					sdsid			= sds_master->config;
 uint					page			= F1;
 bool 					tainted			= false;
 
-
 void usage( )
 {
-
 	Table_class Usage{ defaultopt };
 	Usage.AddColumn( "keyboard Key"	, 15 );
 	Usage.AddColumn( "Description"	, 20 );
@@ -276,13 +273,14 @@ int main( int argc, char* argv[] )
 			{	if( page != F6 ) break;
 				std::cout << "ADSR ";
 				key3struct_t keyevent = Key_event("#abgdh");
+
 				switch ( keyevent.key )
 				{
-					case 'g' : { getvalue( &sds->OSC_wp.glide_effect, "Frequency", SOFTFREQUENCYKEY ); break; }
-					case 'a' : { getvalue( &sds->OSC_features.attack	,"Atack", ADSR_KEY ); break; }
-					case 'b' : { getvalue( &sds->OSC_features.bps  	, "Beats p.sec", ADSR_KEY ); break; }
-					case 'd' : { getvalue( &sds->OSC_features.decay	,"Decay" , ADSR_KEY ); break; }
-					case 'h' : { getvalue( &sds->OSC_features.hall  ,"Hall", ADSR_KEY ); break; }
+					case 'g' : { getvalue( &sds->OSC_features.glide_effect	, "Frequency"	, SOFTFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->OSC_adsr.attack			,"Atack"		, ADSR_KEY ); break; }
+					case 'b' : { getvalue( &sds->OSC_adsr.bps  				, "Beats p.sec"	, ADSR_KEY ); break; }
+					case 'd' : { getvalue( &sds->OSC_adsr.decay				,"Decay" 		, ADSR_KEY ); break; }
+					case 'h' : { getvalue( &sds->OSC_adsr.hall  			,"Hall"			, ADSR_KEY ); break; }
 					default  : break ;
 				}
 				break;

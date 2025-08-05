@@ -120,30 +120,30 @@ void MainWindow::adsr_decay()
 {
 //	uint8_t value = ui->hs_adsr_sustain->value();
 //    Sds->Set( Sds->addr->OSC_adsr.decay , value);
-    Eventlog.add( SDS_ID,ADSR_KEY);
+//    Eventlog.add( SDS_ID,ADSR_KEY);
 }
 void MainWindow::adsr_hall( )
 {
 	uint8_t value = ui->hs_hall_effect->value();
-    Sds->Set(Sds->addr->OSC_features.hall , value);
+    Sds->Set(Sds->addr->OSC_adsr.hall , value);
     Eventlog.add( SDS_ID, ADSR_KEY);
 }
 void MainWindow::adsr_attack()
 {
 //    uint8_t value = ui->hs_adsr_attack->value();
 //    Sds->Set(Sds->addr->OSC_adsr.attack , value );
-    Eventlog.add( SDS_ID, ADSR_KEY);
+//    Eventlog.add( SDS_ID, ADSR_KEY);
 }
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
-	uint8_t bps_val = ui->cb_bps->currentText().toInt();
-    Sds->Set( Sds->addr->OSC_features.bps, bps_val  );
+//	uint8_t bps_val = ui->cb_bps->currentText().toInt();
+    Sds->Set( Sds->addr->OSC_adsr.bps, (uint8_t) bps_id  );
 	Eventlog.add( SDS_ID, ADSR_KEY );
 }
 
 void MainWindow::slideFrq( int value )
 {
-    Sds->Set(Sds->addr->OSC_wp.glide_effect , (uint8_t)value);
+    Sds->Set(Sds->addr->OSC_features.glide_effect , (uint8_t)value);
     Eventlog.add( SDS_ID, SOFTFREQUENCYKEY);
 
 };
@@ -184,6 +184,25 @@ void MainWindow::SDS_Dialog()
 
 }
 
+
+void MainWindow::ADSR_Dialog()
+{
+    if ( this->Spectrum_Dialog_p->isVisible()   )
+    {
+        this->Spectrum_Dialog_p->hide();
+    }
+    else
+    {
+        Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::ADSRID );
+    	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
+        ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ] );
+
+    	Spectrum_Dialog_p->Set_adsr_flag( true );
+        Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
+		this->Spectrum_Dialog_p->show();
+    }
+}
+
 void MainWindow::File_Director()
 {
     if ( this->File_Dialog_p->isVisible()   )
@@ -205,6 +224,7 @@ void MainWindow::Spectrum_Dialog()
     }
     else
     {
+    	Spectrum_Dialog_p->Set_adsr_flag( false );
         Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
         this->Spectrum_Dialog_p->show();
     }
@@ -459,12 +479,9 @@ void MainWindow::setwidgetvalues()
 		sB_lbl_vec[oscid].lbl->setText( QWaveform_vec[ *sB_lbl_vec[oscid].value] );
 		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
 	};
-
-//    ui->hs_adsr_sustain->setValue	( (int) Sds->addr->OSC_adsr.decay );
-//    ui->hs_adsr_attack->setValue	( (int) Sds->addr->OSC_adsr.attack);
     ui->hs_pmw->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
-    ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_features.hall );
-    ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_wp.glide_effect );
+    ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_adsr.hall );
+    ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_features.glide_effect );
     ui->Slider_slideVol->setValue	( Sds_master->slide_duration);//Master_Amp);
     ui->hs_balance->setValue		( Sds->addr->mixer_balance );
 
@@ -475,7 +492,7 @@ void MainWindow::setwidgetvalues()
 	Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
-    Qstr	= int2char( Sds->addr->OSC_features.bps );
+    Qstr	= int2char( Sds->addr->OSC_adsr.bps );
     ui->cb_bps->setCurrentText( Qstr );
 
 	set_cb_psta_value( this );
@@ -492,6 +509,8 @@ void MainWindow::setwidgetvalues()
 
 	if( Spectrum_Dialog_p->isVisible( ))
 		Spectrum_Dialog_p->Update_spectrum();
+    ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ] );
+    ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ] );
 	if( Rtsp_Dialog_p->isVisible() )
 		Rtsp_Dialog_p->proc_table_update_all();
 
@@ -507,7 +526,7 @@ void MainWindow::setwidgetvalues()
     ui->cb_connect_oscv->setChecked( Sds->addr->connect[OSCID].vol );
     ui->cb_connect_oscf->setChecked( Sds->addr->connect[OSCID].frq );
 
-    double frq_slide_duration = Sds->addr->OSC_wp.glide_effect * max_sec * 0.01;
+    double frq_slide_duration = Sds->addr->OSC_features.glide_effect * max_sec * 0.01;
     ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
 	if( Appstate->IsExitserver( App.sds, APPID::GUI_ID ) )
@@ -742,7 +761,7 @@ void MainWindow::pB_Wavedisplay_clicked()
     Sds->Set( Sds->addr->WD_status.roleId , counter);
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
-    ui->pB_Wavedisplay->setText( Qwd_display_names[ (int)counter ] );
+    ui->pB_Wavedisplay->setText( Qwd_role_names[ (int)counter ] );
 };
 
 void MainWindow::pB_fftmode_clicked()
@@ -792,4 +811,9 @@ void MainWindow::updateColorButtons()
         setButton( ui->pB_Specrum, 2 );
     else
         setButton( ui->pB_Specrum, 1 );
+
+    if( ADSR_Dialog_p->isVisible() )
+        setButton( ui->pB_ADSR, 2 );
+    else
+        setButton( ui->pB_ADSR, 1 );
 }

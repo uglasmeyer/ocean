@@ -14,7 +14,7 @@ QStringList Qstringlist ( const list<string>& str_lst )
 	QStringList Qlist{};
 	for ( string str : str_lst )
 	{
-		Qlist.push_back( ( QString::fromStdString( str ) ) );
+		Qlist.push_back( ( Qstring( str ) ) );
 	}
 	return Qlist;
 };
@@ -24,7 +24,7 @@ QStringList	Qstringvector( const vector<string>& str_vec )
 	QStringList Qlist{};
 	for ( string str : str_vec )
 	{
-        Qlist.push_back( ( QString::fromStdString( str ) ) );
+        Qlist.push_back( ( Qstring( str ) ) );
 	}
 	return Qlist;
 	;
@@ -36,7 +36,7 @@ vector<QString> Vstringvector( const vector<string>& str_vec )
 	vector<QString> Qvec{};
 	for ( string str : str_vec )
 	{
-		Qvec.push_back( ( QString::fromStdString( str ) ) );
+		Qvec.push_back( ( Qstring( str ) ) );
 	}
 	return Qvec;
 
@@ -49,7 +49,7 @@ QStringList Qread_filenames( const Path_t dir_ext )
     for ( string str :  dir_vec )
     {
     	std::filesystem::path path{ str };
-   		qlist.push_back( QString::fromStdString( path.stem() ) );
+   		qlist.push_back( Qstring( path.stem() ) );
     }
     return qlist;
 }

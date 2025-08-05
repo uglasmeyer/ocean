@@ -11,13 +11,12 @@
 #include <data/DataWorld.h>
 #include <data/Interface.h>
 #include <data/Appstate.h>
-
+#include <Adsr.h>
 
 class ViewInterface_class :
 	virtual 			osc_struct,
 	virtual 			interface_struct,
-	virtual public 		Frequency_class,
-	virtual 			Spectrum_class,
+	virtual public		ADSR_class,
 	virtual 			sdsstate_struct
 {
 	string 				className 	= "";
@@ -30,8 +29,7 @@ public:
 
 	ViewInterface_class( char appid, Dataworld_class* DaTA )
 	:
-		Frequency_class(),
-		Spectrum_class(),
+		ADSR_class(),
 		sdsstate_struct(),
 		Appstate( appid, nullptr, DaTA->Sds_p->addr, &DaTA->Reg )
 	{

@@ -5,11 +5,9 @@
  *      Author: sirius
  */
 
-#include <Ocean.h>
-#include <String.h>
 #include <Oscwaveform.h>
+#include <String.h>
 
-//vector<string> waveform_str_vec {};
 
 
 
@@ -57,9 +55,9 @@ float maximum( const float& x,  const float& y)
 	return ( x > y ) ? x : y;
 }
 
-Data_t Zero( const float& x)
+Data_t Const( param_t& p )
 {
-	return 0.0;
+	return p.maxphi;
 }
 Data_t Sinus( param_t& p )
 {
@@ -120,6 +118,7 @@ const vector<waveFnc_t> waveFunction_vec
 	{  Rnd_step	, "random"		, 1		}
 };
 
+
 constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_t> fnc_vec )
 {
 	vector<string> vec{};
@@ -128,41 +127,23 @@ constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_t> fnc_vec )
 	return vec;
 };
 
-const vector<string> waveform_str_vec = gen_waveform_str_vec( waveFunction_vec );
+const vector<string> waveform_str_vec { gen_waveform_str_vec( waveFunction_vec ) };
 const range_T<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
 
-Oscwaveform_class::Oscwaveform_class() :
-	Logfacility_class("Oscwaveform_class")
+const vector<waveFnc_t> adsrFunction_vec
 {
-	className = Logfacility_class::className;
-	wf_v = gen_waveform_str_vec( waveFunction_vec );
+	{  Const	, "constant"	, 1 	},
+	{  Sinus	, "sinus"		, 2*pi 	},
+	{  Triangle	, "triangle"	, 2		},
+	{  SignSin	, "signsin"		, 2*pi 	},
+	{  Rectangle, "rectangle"	, 1 	},
+	{  SawTooth	, "sawtoothL"	, 1		},
+	{  Sawtooth	, "sawtoothR"	, 1		},
+	{  Pmw		, "PMW"			, 1		},
+	{  Rnd_step	, "random"		, 1		}
 };
 
-void Oscwaveform_class::Test_wf()
-{
-	TEST_START( className );
-/*
-	param_t param = param_struct();
-	param.amp 		= 1.0;
-	param.dphi		= 0.1;
-	param.maxphi	= 1.0;
-	cout.precision(4);
-	for( param.phi = 0.0 ; param.phi < 4 * param.maxphi; param.phi += param.dphi )
-	{
-		cout << setw(8) <<
-				param.phi << ": " <<
-				round(param.phi - floor(param.phi) ) << " " <<
-				prev_step << " " <<
-				Rnd_step( param ) << " " <<
-				endl;
-	}
-	assert(false);
-*/
-	ASSERTION( fcomp( modulo(1,2), 1 ), "modulo", modulo(1,2), "1")
-	ASSERTION( fcomp( modulo(2,1.2), 0.8), "modulo", modulo(2,1.2), "0.8")
-	ASSERTION( fcomp( modulo(1,0.9), 0.1), "modulo", modulo(1,0.9), "0.1")
-	ASSERTION( fcomp( modulo(2,0.9), 0.2), "modulo", modulo(2,0.9), "0.2")
-	ASSERTION( fcomp( fmod(10.2,2.0), 0.2), "fmod", fmod(-1,2.9), 0.2)
 
-	TEST_END( className );
-}
+const vector<string>adsrwf_str_vec 	{ gen_waveform_str_vec( adsrFunction_vec ) };
+const range_T<int> 	adsrwf_range	{ 0, (int) adsrFunction_vec.size() -1 };
+

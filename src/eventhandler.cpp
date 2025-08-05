@@ -25,7 +25,7 @@ void Event_class::Handler()
 	auto EvInfo = [ this ]( uint key = 0, string str )
 	{
 		if( this->EventQue->repeat ) return;
-		if ( LogMask[ DEBUG ])
+		if ( LogMask[ DEBUG ] )
 		{
 			string eventstr = this->Info( key, ':', str );
 			this->DaTA->EmitEvent( UPDATELOG_EVENT, eventstr );
@@ -161,15 +161,23 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
+	case FEATURE_KEY	:
+	{
+		Set_Loglevel( DEBUG, true );
+
+		EvInfo( event, "Feature change");
+		Instrument->Oscgroup.SetFeatures( sds->OSC_features );
+		sds->VCO_features = sds->OSC_features;
+		sds->FMO_features = sds->OSC_features;
+		Set_Loglevel( DEBUG, false );
+
+		Sds->Commit();
+		break;
+	}
 	case ADSR_KEY:
 	{
 		EvInfo( event, "ADSR change");
-
-		Instrument->osc->Set_adsr(sds->OSC_features);
-		sds->VCO_features.bps = sds->OSC_features.bps;
-		Instrument->vco->Set_adsr(sds->VCO_features);
-		sds->FMO_features.bps = sds->OSC_features.bps;
-		Instrument->fmo->Set_adsr(sds->FMO_features);
+		Instrument->Oscgroup.SetAdsr( sds );
 
 		Sds->Commit();
 		break;
@@ -189,6 +197,8 @@ void Event_class::Handler()
 		if( sds->WD_status.roleId == AUDIOOUTID )
 			break; // audio data is handled by the Audio server
 		Wavedisplay->SetDataPtr(sds->WD_status );
+		Wavedisplay->Write_wavedata();
+
 		Sds->Commit();
 		break;
 	}
@@ -196,7 +206,7 @@ void Event_class::Handler()
 	case SOFTFREQUENCYKEY:
 	{
 		EvInfo( event, "Frequency slide effect update ");
-		Instrument->Oscgroup.SetSlide( sds->OSC_wp.glide_effect );
+		Instrument->Oscgroup.SetSlide( sds->OSC_features.glide_effect );
 		Sds->Commit();
 		break;
 	}

@@ -71,7 +71,6 @@ void SynthesizerTestCases()
 
 	Notes.Test();
 
-	TestOsc.Test_wf();
 	TestOsc.DynFrequency.TestFrq();
 
 	Mixer.DynVolume.TestVol( );

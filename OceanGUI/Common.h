@@ -19,12 +19,16 @@
 #include <Config.h>
 #include <EventKeys.h>
 
+constexpr QString Qstring( string str )
+{
+	return QString::fromStdString( str );
+}
+
 template< typename T >
 QString QReadStr ( T* Sds, uint key  )
 {
     string str 		= Sds->Read_str( key );
-    QString QStr 	= QString::fromStdString( str );
-	return QStr;
+	return Qstring( str );
 };
 //#76BAFA
 template< typename T >
@@ -70,7 +74,7 @@ struct PathStruct
 		dir(_dir),
 		ext(_ext)
 	{
-		Qext = QString::fromStdString( ext );
+		Qext = Qstring( ext );
 	}
 	~PathStruct(){};
 } ;
@@ -97,10 +101,9 @@ static Event_t EventINS( SETINSTRUMENTKEY, fs.instrumentdir, fs.snd_type );
 static Event_t EventWAV( OTHERSTR_KEY, fs.musicdir, fs.wav_type );
 static vector<Event_t > Event_vec { EventXML, EventNTE, EventINS, EventWAV };
 
-extern QStringList 		Qstringlist( const list<string>& str_lst );
-extern vector<QString> 	Vstringvector( const vector<string>& str_vec );
-extern QStringList	 	Qstringvector( const vector<string>& str_vec );
-
-extern QStringList		Qread_filenames( const Path_t _path );
+extern QStringList 		Qstringlist		( const list<string>& str_lst );
+extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );
+extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
+extern QStringList		Qread_filenames	( const Path_t _path );
 
 #endif

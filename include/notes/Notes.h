@@ -45,10 +45,10 @@ public:
 	Data_t*			NotesData		= osc->MemData_p( );
 	interface_t*	sds				= nullptr;
 
-	Note_class( Wavedisplay_class* wd ); // used by Variation
-	Note_class( ); // used by Variation
-	Note_class( interface_t* sds ); // used by File_dialog
-	~Note_class();
+					Note_class( Wavedisplay_class* wd ); 	// used by notes (Synthesizer)
+					Note_class( ); 							// used by Variation (Composer)
+					Note_class( interface_t* sds ); 		// used by File_dialog (OceanGUI)
+	virtual			~Note_class();
 
 
 	string 			Read( string );

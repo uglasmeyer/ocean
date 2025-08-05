@@ -46,16 +46,20 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes ) :
 void Oscillator::operator= (const Oscillator& osc)
 {
     this->wp 					= osc.wp;
-    this->adsr					= osc.adsr;
+    this->feature				= osc.feature;
+    this->adsr_data				= osc.adsr_data;
     this->spectrum				= osc.spectrum;
 }
 
 void Oscillator::self_Test()
 {
 	TEST_START( className );
-	cout << waveFunction_vec.size() << endl;
-	cout << waveform_str_vec.size() << endl;
-	cout << wf_v.size() << endl;
+	cout << "waveFunction_vec: " << waveFunction_vec.size() << endl;
+	cout << "waveform_str_vec: " << waveform_str_vec.size() << endl;
+	ASSERTION( 	waveform_str_vec.size() > 0, "waveform_str_vec.size()",
+				waveform_str_vec.size(), ">0" );
+
+
 	OSC(0);
 	TEST_END( className );
 }
@@ -152,16 +156,9 @@ auto check_phi = [ ]( string type, param_t param, phi_t dT, float freq )
 };
 auto hallphi = [  ]( uint8_t adsr_hall, phi_t max )
 {
-	//	const float 	d0 		= 10.0; // distance to the receiver of sound
-	//	const float 	distance= adsr.hall * 0.05  + d0 ; // distance to a wall in meter [m]
-	//	const float		c		= 330.0; // speed of sound  [m/s]
-	//	const float 	hT 		= distance / c; // time delay [seconds]
-	//	const buffer_t 	hframes	= rint( hT * frames_per_sec  ) ;// frame delay [# of frames]
-
 	return max * adsr_hall * 0.01;
 };
-#define MODPHI( phi, maxphi )\
-	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
+
 
 void Oscillator::OSC (  buffer_t frame_offset )
 /*
@@ -182,7 +179,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
 
 	if ( is_osc_type )
-		if ( not has_notes_role  )
+		if ( not has_notes_role )
 			vol_per_cent	= 1;// the volume of the osc is constant for the instr role
 								// because this volume is managed by the mixer
 								// If the osc has the notes role the osc volume is managed
@@ -193,10 +190,8 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Data_t 	vco_adjust 	= max_data_amp / 2;
 	Data_t	vol_adjust	= ( vco_adjust * wp.adjust ) * 0.01;
 
-
-
 	Sum( spectrum );
-	DynFrequency.SetDelta( wp.glide_effect );
+	DynFrequency.SetDelta( feature.glide_effect );
 	param_t 	param 		= param_struct();
 				param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
 
@@ -247,6 +242,7 @@ void Oscillator::Reset_beat_cursor()
 }
 
 
+
 void Oscillator::Test()
 {
 
@@ -270,11 +266,11 @@ void Oscillator::Test()
 
 	ASSERTION( fcomp( oct_base_freq, GetFrq( C0 )), "osc_base_freq" , oct_base_freq, GetFrq( C0 ));
 	spectrum 	= spec_struct();
-	adsr 		= feature_struct();
+	feature 		= feature_struct();
 
 	longnote = true;
-	adsr.attack = 50;
-	adsr.decay = 5;
+	adsr_data.attack = 50;
+	adsr_data.decay = 5;
 
 	Oscillator testosc {osc_struct::INSTRID,  osc_struct::OSCID, monobuffer_bytes };
 	uint A3 = testosc.Index("A3");
@@ -297,7 +293,7 @@ void Oscillator::Test()
 
 	testosc = *this; // test copy constructor
 
-	ASSERTION( adsr.attack == 50 , "", adsr.attack, 50 );
+	ASSERTION( adsr_data.attack == 50 , "", adsr_data.attack, 50 );
 	float fthis = GetFrq( this->wp.frqidx );
 	float ftest = GetFrq( testosc.wp.frqidx);
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );

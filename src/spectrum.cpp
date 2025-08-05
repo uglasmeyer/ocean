@@ -12,7 +12,7 @@
 Spectrum_class::Spectrum_class() :
 	Logfacility_class("Spectrum"),
 	Frequency_class(),
-	Oscwaveform_class()
+	oscwaveform_struct()
 {
 	className = Logfacility_class::className;
 }
@@ -57,7 +57,7 @@ void Spectrum_class::assign_waveform( int i, string str  )
 };
 
 
-Spectrum_class::spectrum_t Spectrum_class::Parse_data(  vector_str_t arr,
+spectrum_t Spectrum_class::Parse_data(  vector_str_t arr,
 														const char& oscid, const int& _type )
 {
 	auto assign_dta = [ this, _type  ]( vector<string> arr )

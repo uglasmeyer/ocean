@@ -224,7 +224,6 @@ void Wavedisplay_class::Add_data_ptr( 	const char& wd_type,
 					to_string( *frames));
 	if ( ptr == nullptr )
 	{
-
 		EXCEPTION("Undefined Wavedisplay" );
 	}
 	set<int> osctype_set = range_set(0, 2);

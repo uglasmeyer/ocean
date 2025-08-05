@@ -1117,7 +1117,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>110</y>
+      <y>140</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -1268,7 +1268,7 @@
    <widget class="QPushButton" name="pB_Wavedisplay">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>480</x>
       <y>260</y>
       <width>81</width>
       <height>25</height>
@@ -1297,8 +1297,8 @@
    <widget class="QPushButton" name="pB_wd_mode">
     <property name="geometry">
      <rect>
-      <x>580</x>
-      <y>230</y>
+      <x>570</x>
+      <y>260</y>
       <width>81</width>
       <height>25</height>
      </rect>
@@ -1311,7 +1311,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>50</y>
+      <y>80</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -1323,7 +1323,7 @@
    <widget class="QPushButton" name="pB_Specrum">
     <property name="geometry">
      <rect>
-      <x>610</x>
+      <x>570</x>
       <y>10</y>
       <width>88</width>
       <height>25</height>
@@ -1485,7 +1485,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>170</y>
+      <y>200</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -1613,7 +1613,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>170</y>
+      <y>200</y>
       <width>71</width>
       <height>25</height>
      </rect>
@@ -1641,7 +1641,7 @@
    <widget class="QPushButton" name="pB_oscgroup">
     <property name="geometry">
      <rect>
-      <x>670</x>
+      <x>660</x>
       <y>260</y>
       <width>81</width>
       <height>26</height>
@@ -1654,7 +1654,7 @@
    <widget class="QPushButton" name="pb_fftmode">
     <property name="geometry">
      <rect>
-      <x>670</x>
+      <x>660</x>
       <y>230</y>
       <width>81</width>
       <height>26</height>
@@ -1825,7 +1825,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>50</y>
+      <y>80</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1847,7 +1847,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>80</y>
+      <y>110</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1872,7 +1872,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>80</y>
+      <y>110</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -2146,7 +2146,7 @@
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>140</y>
+      <y>170</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -2159,7 +2159,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>140</y>
+      <y>170</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -2184,7 +2184,7 @@
     <property name="geometry">
      <rect>
       <x>540</x>
-      <y>110</y>
+      <y>140</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -2203,6 +2203,19 @@
     </property>
     <property name="invertedControls">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pB_ADSR">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>10</y>
+      <width>88</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ADSR</string>
     </property>
    </widget>
   </widget>

@@ -49,11 +49,15 @@ public:
 	void 					Phase_Reset			();
 	void 					Connection_Reset	();
 	void 					Set_Connections		( interface_t* sds );
-	void 					SetWd				( Wavedisplay_class* wd, buffer_t* frames );
+	void 					SetWd				( Wavedisplay_class* wd );
 	void 					SetScanner			( const buffer_t& maxlen );
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
 	void 					SetSlide			( const uint8_t& value );
+	void 					SetFeatures			( const feature_t& value );
+	void 					SetAdsr				( const interface_t* sds );
+	void 					SetAdsr				();
+
 	void 					Show_sound_stack	();
 	void 					Instrument_fromSDS			( interface_t* sds );
 

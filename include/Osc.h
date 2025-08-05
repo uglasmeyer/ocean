@@ -10,7 +10,7 @@
 
 #include <data/Memory.h>
 #include <Spectrum.h>
-#include <Oscbase.h>
+#include <Adsr.h>
 #include <Ocean.h>
 #include <System.h>
 #include <Oscwaveform.h>
@@ -47,7 +47,6 @@ public:
 	void 			Phase_reset			();
 	void 			Set_long_note		( bool );
 	void 			Reset_beat_cursor	();
-
 
 	Data_t* 		MemData_p			();
 	Data_t*			GetData_p			( const buffer_t& frame_offset );

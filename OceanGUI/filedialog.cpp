@@ -94,7 +94,7 @@ void File_Dialog_class::cb_Notestype( int cb_value )
 
 void File_Dialog_class::cB_Convention( int cb_value )
 {
-	QString notes = QString::fromStdString( convention_notes[ cb_value ] );
+	QString notes = Qstring( convention_notes[ cb_value ] );
 	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
 	Sds->Set( sds_p->noteline_prefix.convention , (uint8_t)cb_value );
 	Eventlog_p->add( SDS_ID,  UPDATE_NLP_KEY );
@@ -134,18 +134,18 @@ void File_Dialog_class::Setup_widgets()
     bool verifyed = Verify_noteline( Noteline_prefix, Notesline );
     setButton( ui->pbNotesDone, verifyed );
 
-    ui->lE_Notes->setText( QString::fromStdString( Notesline ) );
+    ui->lE_Notes->setText( Qstring( Notesline ) );
 
     string Rhythmline = Note_class::Get_rhythm_line();
     QString
-    QStr = QString::fromStdString( Rhythmline );
+    QStr = Qstring( Rhythmline );
     ui->lE_Rythm->setText( QStr );
 
     int convention_id = sds_p->noteline_prefix.convention;
-    QStr = QString::fromStdString( convention_names[ convention_id ] );
+    QStr = Qstring( convention_names[ convention_id ] );
     ui->cb_convention->setCurrentText( QStr );
 
-    QStr = QString::fromStdString( convention_notes[convention_id ] );
+    QStr = Qstring( convention_notes[convention_id ] );
     ui->lbl_selected_notes->setText("Notes ( " + QStr + " )" );
 
     QStr = QString::number( sds_p->noteline_prefix.nps );
@@ -204,13 +204,9 @@ void File_Dialog_class::Notes_Select(QString Note_name)
 
     if ( notestypeId == XML_ID ) return;
 
-	string  notes_line = Note_class::Read( note_name );
-	QString Notes_line = QString::fromStdString( notes_line );
-	ui->lE_Notes->setText( Notes_line );
+	ui->lE_Notes->setText( Qstring( Note_class::Read( note_name ) ));
 
-	string rhythmline = Note_class::Get_rhythm_line();
-	QString Rhythmline = QString::fromStdString( rhythmline );
-	ui->lE_Rythm->setText( Rhythmline );
+	ui->lE_Rythm->setText( Qstring( Note_class::Get_rhythm_line() ) );
 }
 
 

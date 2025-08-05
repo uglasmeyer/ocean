@@ -52,12 +52,9 @@ static constexpr auto qt_meta_stringdata_ZN21Spectrum_Dialog_classE = QtMocHelpe
     "sb_wf2",
     "sb_wf3",
     "sb_wf4",
-    "fmo_attack",
-    "fmo_decay",
-    "vco_attack",
-    "vco_decay",
-    "osc_attack",
-    "osc_decay",
+    "adsrwf",
+    "attack",
+    "decay",
     "save",
     "select_spec_fmo",
     "select_spec_vco",
@@ -74,7 +71,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN21Spectrum_Dialog_classE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-      23,   14, // methods
+      20,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -82,34 +79,28 @@ Q_CONSTINIT static const uint qt_meta_data_ZN21Spectrum_Dialog_classE[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,  152,    2, 0x08,    1 /* Private */,
-       3,    1,  155,    2, 0x08,    3 /* Private */,
-       4,    1,  158,    2, 0x08,    5 /* Private */,
-       5,    1,  161,    2, 0x08,    7 /* Private */,
-       6,    1,  164,    2, 0x08,    9 /* Private */,
-       7,    1,  167,    2, 0x08,   11 /* Private */,
-       8,    1,  170,    2, 0x08,   13 /* Private */,
-       9,    1,  173,    2, 0x08,   15 /* Private */,
-      10,    1,  176,    2, 0x08,   17 /* Private */,
-      11,    1,  179,    2, 0x08,   19 /* Private */,
-      12,    1,  182,    2, 0x08,   21 /* Private */,
-      13,    1,  185,    2, 0x08,   23 /* Private */,
-      14,    1,  188,    2, 0x08,   25 /* Private */,
-      15,    1,  191,    2, 0x08,   27 /* Private */,
-      16,    1,  194,    2, 0x08,   29 /* Private */,
-      17,    1,  197,    2, 0x08,   31 /* Private */,
-      18,    1,  200,    2, 0x08,   33 /* Private */,
-      19,    1,  203,    2, 0x08,   35 /* Private */,
-      20,    0,  206,    2, 0x08,   37 /* Private */,
-      21,    0,  207,    2, 0x08,   38 /* Private */,
-      22,    0,  208,    2, 0x08,   39 /* Private */,
-      23,    0,  209,    2, 0x08,   40 /* Private */,
-      24,    0,  210,    2, 0x08,   41 /* Private */,
+       1,    1,  134,    2, 0x08,    1 /* Private */,
+       3,    1,  137,    2, 0x08,    3 /* Private */,
+       4,    1,  140,    2, 0x08,    5 /* Private */,
+       5,    1,  143,    2, 0x08,    7 /* Private */,
+       6,    1,  146,    2, 0x08,    9 /* Private */,
+       7,    1,  149,    2, 0x08,   11 /* Private */,
+       8,    1,  152,    2, 0x08,   13 /* Private */,
+       9,    1,  155,    2, 0x08,   15 /* Private */,
+      10,    1,  158,    2, 0x08,   17 /* Private */,
+      11,    1,  161,    2, 0x08,   19 /* Private */,
+      12,    1,  164,    2, 0x08,   21 /* Private */,
+      13,    1,  167,    2, 0x08,   23 /* Private */,
+      14,    1,  170,    2, 0x08,   25 /* Private */,
+      15,    1,  173,    2, 0x08,   27 /* Private */,
+      16,    1,  176,    2, 0x08,   29 /* Private */,
+      17,    0,  179,    2, 0x08,   31 /* Private */,
+      18,    0,  180,    2, 0x08,   32 /* Private */,
+      19,    0,  181,    2, 0x08,   33 /* Private */,
+      20,    0,  182,    2, 0x08,   34 /* Private */,
+      21,    0,  183,    2, 0x08,   35 /* Private */,
 
  // slots: parameters
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
@@ -179,22 +170,13 @@ Q_CONSTINIT const QMetaObject Spectrum_Dialog_class::staticMetaObject = { {
         // method 'sb_wf4'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'fmo_attack'
+        // method 'adsrwf'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'fmo_decay'
+        // method 'attack'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'vco_attack'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'vco_decay'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'osc_attack'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'osc_decay'
+        // method 'decay'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
         // method 'save'
@@ -228,17 +210,14 @@ void Spectrum_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 9: _t->sb_wf2((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 10: _t->sb_wf3((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 11: _t->sb_wf4((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 12: _t->fmo_attack((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 13: _t->fmo_decay((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 14: _t->vco_attack((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 15: _t->vco_decay((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 16: _t->osc_attack((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 17: _t->osc_decay((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 18: _t->save(); break;
-        case 19: _t->select_spec_fmo(); break;
-        case 20: _t->select_spec_vco(); break;
-        case 21: _t->select_spec_main(); break;
-        case 22: _t->reset(); break;
+        case 12: _t->adsrwf((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 13: _t->attack((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 14: _t->decay((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 15: _t->save(); break;
+        case 16: _t->select_spec_fmo(); break;
+        case 17: _t->select_spec_vco(); break;
+        case 18: _t->select_spec_main(); break;
+        case 19: _t->reset(); break;
         default: ;
         }
     }
@@ -265,14 +244,14 @@ int Spectrum_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 23)
+        if (_id < 20)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 23;
+        _id -= 20;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 23)
+        if (_id < 20)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 23;
+        _id -= 20;
     }
     return _id;
 }

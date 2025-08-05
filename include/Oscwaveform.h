@@ -11,7 +11,22 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-
+struct oscwaveform_struct
+{
+	enum waveformId
+	{
+		SINUS,
+		TRIANGLE,
+		SGNSIN,
+		RECTANGLE,
+		SAWTOOTHL,
+		SAWTOOTHR,
+		PMW,
+		DELTA,
+		NOISE,
+		RANDOM
+	};
+};
 typedef struct param_struct
 {
 	float amp		= 0.0;
@@ -28,67 +43,22 @@ struct waveFnc_struct
 	string				name	= "sinus";
 	phi_t 				maxphi 	= 2*numbers::pi;
 };
-typedef waveFnc_struct 	waveFnc_t;
+typedef 		waveFnc_struct 		waveFnc_t;
 
-extern const vector<waveFnc_t>  waveFunction_vec;
-extern const vector<string> waveform_str_vec;
-extern const range_T<int> waveform_range;
-extern  	int 	sgn(  		const float& x );
+extern const 	vector<waveFnc_t>  	waveFunction_vec;
+extern const 	vector<string> 		waveform_str_vec;
+extern const 	range_T<int> 		waveform_range;
 
+extern const 	vector<waveFnc_t>  	adsrFunction_vec;
+extern const 	vector<string> 		adsrwf_str_vec;
+extern const 	range_T<int> 		adsrwf_range;
 
-class Oscwaveform_class :
-	public virtual Logfacility_class
-{
-	string className = "";
-public:
-
-	enum waveformId_t
-	{
-		SINUS,
-		TRIANGLE,
-		SGNSIN,
-		RECTANGLE,
-		SAWTOOTHL,
-		SAWTOOTHR,
-		PMW,
-		DELTA,
-		NOISE,
-		RANDOM
-	};
-
-	vector<string> wf_v;
-	Oscwaveform_class();
-	~Oscwaveform_class() {};
-
-	void 			Test_wf();
+extern  		int 				sgn( const float& x );
 
 
 
-private:
-
-
-};
-
+#define MODPHI( phi, maxphi )\
+	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
 
 
 #endif /* OSCWAVEFORM_H_ */
-//typedef param_struct param_t;
-
-/*
-extern  	int 	sgn(  		const float& x );
-extern  	float 	psgn( 		const float& x );
-extern  	float 	modulo( 	const float& x );
-extern  	float 	maximum(	const float& x,
-								const float& y );
-
-extern 		Data_t 	Rnd(  		param_t& param );
-extern 		Data_t 	Delta( 		param_t& param );
-extern 		Data_t	Rnd_step( 	param_t& param );
-extern 		Data_t 	Sinus( 		param_t& param );
-extern  	Data_t 	SignSin( 	param_t& param );
-extern  	Data_t 	Rectangle( 	param_t& param );
-extern  	Data_t 	Triangle( 	param_t& param );
-extern  	Data_t 	SawTooth( 	param_t& param );
-extern  	Data_t 	Sawtooth( 	param_t& param );
-extern  	Data_t 	Pmw( 		param_t& param );
-*/

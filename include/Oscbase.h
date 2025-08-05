@@ -43,24 +43,15 @@ typedef	struct wave_struct
 	frq_t		freq		= 220;
 	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
 	uint8_t		PMW_dial 	= 50;
-	uint8_t 	glide_effect= 50;
 	uint16_t	msec		= max_msec; 	// min_milli_sec or max_milli_sec
 	uint8_t		adjust		= 0; // used by vco and fmo, osc = 0
 	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
 
-typedef struct feature_struct
-{ // SDS related
-	uint8_t bps 	= 0; // { 0, 1/2, 1, 2, 3, 4 }  => 2, 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
-	uint8_t hall	= 0; // hall effect [0..100} data shift
-	uint8_t attack 	= 0; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
-	uint8_t decay  	= 100;
-} feature_t;
-
 typedef struct fmo_struct
 {
 	Memory*			Mem			= nullptr;
-	char 			osc_id		= -1;
+	char 			osc_id		= DEFAULT_ID;
 	uint16_t 		volume		= 0; // volume of the fm track
 	string			name		= "";
 } fmo_t;  // all wave parameter for the fmo
@@ -68,11 +59,15 @@ typedef struct fmo_struct
 typedef struct vco_struct
 {
 	Memory*			Mem			= nullptr;
-	char 			osc_id		= -1;
+	char 			osc_id		= DEFAULT_ID;
 	uint16_t 		volume		= 0; // volume of the vc track
 	string			name		= "";
 } vco_t;  // all wave parameter for vco
 
+typedef struct feature_struct
+{ // SDS related. Is the same for all OSCs
+	uint8_t glide_effect= 0;
+} feature_t;
 
 class Oscillator_base :
 	virtual public Logfacility_class,
@@ -103,7 +98,7 @@ public:
 	typedef connect_struct connect_t;
 	connect_t 		connect		= connect_struct();
 
-	feature_t 		adsr 		= feature_struct();
+	feature_t 		feature 	= feature_struct();
 	wave_t 			wp 			= wave_struct();
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
@@ -123,10 +118,10 @@ public:
 	void 			Line_interpreter( vector_str_t arr );
 	void 			Set_waveform( spec_arr_8t wf_vec   );
 	void			Set_pmw( uint8_t );
-	void			Set_glide( uint8_t );
 	void			Set_spectrum( spectrum_t );
+	void 			Set_glide( uint value );
 	void			Setwp_frames( uint16_t );
-
+	void			Setwp( wave_t wp );
 	void 			Get_sound_stack( Table_class* T );
 
 private:
@@ -134,34 +129,5 @@ private:
 
 }; // close class Oscillator_base
 
-class ADSR_class :
-	virtual public 	Logfacility_class,
-	virtual	public	Oscillator_base
-{
-	string 			className 		= "";
-	uint8_t 		bps_frqidx 		= 0;
-	uint8_t			volume			= 0;
-	buffer_t 		hall_cursor 	= 0;
-	buffer_t 		beat_cursor 	= 0;
-	buffer_t		beat_frames		= max_frames;
-	Memory			adsr_Mem		{ monobuffer_bytes };
-
-
-public:
-					ADSR_class		();
-	virtual 		~ADSR_class		();
-	void 			Apply_adsr		( buffer_t frames, Data_t* data, buffer_t frame_offset );
-	Data_t* 		AdsrMemData_p	();
-
-	buffer_t 		adsr_frames 	= adsr_Mem.mem_ds.data_blocks ;
-	void			Set_adsr		( feature_t );
-	void	 		Set_hallcursor	( buffer_t cursor = 0);
-	void			Set_beatcursor	( buffer_t cursor );
-
-private:
-	void			adsrOSC	( buffer_t );
-
-
-};
 
 #endif /* OSCBASE_H_ */

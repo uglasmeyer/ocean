@@ -11,9 +11,11 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
@@ -29,55 +31,55 @@ QT_BEGIN_NAMESPACE
 class Ui_Spectrum_Dialog_class
 {
 public:
-    QFrame *frame;
-    QGridLayout *gridLayout_2;
-    QSlider *vS_4;
-    QSpacerItem *horizontalSpacer;
-    QSlider *fS_1;
-    QSlider *fS_5;
-    QSlider *fS_7;
-    QSlider *vS_2;
-    QSlider *fS_3;
-    QSlider *vS_8;
-    QSlider *vS_6;
-    QSpacerItem *horizontalSpacer_2;
-    QSpacerItem *horizontalSpacer_3;
-    QPushButton *pB_save_spectrum;
-    QLabel *lbl_instrument;
-    QLabel *label;
-    QFrame *frame_rb_osc;
-    QWidget *layoutWidget;
+    QWidget *gridLayoutWidget;
+    QGridLayout *gridLayout;
+    QSpinBox *sb_spwf2;
+    QSpinBox *sb_spwf4;
     QGridLayout *gridLayout_3;
-    QSpacerItem *verticalSpacer;
     QRadioButton *rb_spec_fmo;
     QRadioButton *rb_spec_main;
     QRadioButton *rb_spec_vco;
-    QSpacerItem *verticalSpacer_2;
-    QLCDNumber *lcd_spectrumDisplay;
-    QLabel *lbl_spectrumDisplay;
+    QHBoxLayout *horizontalLayout_5;
+    QSlider *fS_7;
+    QSlider *vS_8;
     QRadioButton *rb_reset;
-    QLabel *lbl_waveform;
+    QHBoxLayout *horizontalLayout_3;
+    QSlider *fS_3;
+    QSlider *vS_4;
+    QHBoxLayout *horizontalLayout;
+    QHBoxLayout *horizontalLayout_2;
+    QSlider *fS_1;
+    QSlider *vS_2;
+    QHBoxLayout *horizontalLayout_4;
+    QSlider *fS_5;
+    QSlider *vS_6;
     QSpinBox *sb_spwf1;
-    QSpinBox *sb_spwf2;
     QSpinBox *sb_spwf3;
-    QSpinBox *sb_spwf4;
+    QWidget *gridLayoutWidget_2;
+    QGridLayout *gridLayout_2;
+    QLabel *lbl_instrument;
+    QPushButton *pB_save_spectrum;
+    QLabel *lbl_spectrumDisplay;
+    QLCDNumber *lcd_spectrumDisplay;
+    QLabel *lbl_waveform;
+    QLabel *label;
+    QSpacerItem *verticalSpacer;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout_2;
+    QCheckBox *cb_adsr;
+    QLabel *label_2;
     QFrame *frame_2;
     QVBoxLayout *verticalLayout;
-    QSlider *hs_osc_attack;
-    QSlider *hs_osc_decay;
-    QSpacerItem *verticalSpacer_3;
-    QSlider *hs_vco_attack;
-    QSlider *hs_vco_decay;
-    QSpacerItem *verticalSpacer_4;
-    QSlider *hs_fmo_attack;
-    QSlider *hs_fmo_decay;
-    QLabel *label_2;
+    QSlider *hs_attack;
+    QSlider *hs_decay;
+    QSpinBox *sb_adsrwf;
+    QLabel *lbl_adsrwf;
 
     void setupUi(QDialog *Spectrum_Dialog_class)
     {
         if (Spectrum_Dialog_class->objectName().isEmpty())
             Spectrum_Dialog_class->setObjectName("Spectrum_Dialog_class");
-        Spectrum_Dialog_class->resize(496, 272);
+        Spectrum_Dialog_class->resize(467, 281);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -166,143 +168,172 @@ public:
         palette.setBrush(QPalette::Disabled, QPalette::PlaceholderText, brush14);
 #endif
         Spectrum_Dialog_class->setPalette(palette);
-        frame = new QFrame(Spectrum_Dialog_class);
-        frame->setObjectName("frame");
-        frame->setGeometry(QRect(21, 11, 231, 131));
-        frame->setFrameShape(QFrame::Shape::StyledPanel);
-        frame->setFrameShadow(QFrame::Shadow::Raised);
-        gridLayout_2 = new QGridLayout(frame);
-        gridLayout_2->setObjectName("gridLayout_2");
-        vS_4 = new QSlider(frame);
-        vS_4->setObjectName("vS_4");
-        vS_4->setMaximum(100);
-        vS_4->setOrientation(Qt::Orientation::Vertical);
+        gridLayoutWidget = new QWidget(Spectrum_Dialog_class);
+        gridLayoutWidget->setObjectName("gridLayoutWidget");
+        gridLayoutWidget->setGeometry(QRect(20, 10, 293, 151));
+        gridLayout = new QGridLayout(gridLayoutWidget);
+        gridLayout->setObjectName("gridLayout");
+        gridLayout->setContentsMargins(0, 0, 0, 0);
+        sb_spwf2 = new QSpinBox(gridLayoutWidget);
+        sb_spwf2->setObjectName("sb_spwf2");
 
-        gridLayout_2->addWidget(vS_4, 0, 4, 1, 1);
+        gridLayout->addWidget(sb_spwf2, 1, 1, 1, 1);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        sb_spwf4 = new QSpinBox(gridLayoutWidget);
+        sb_spwf4->setObjectName("sb_spwf4");
 
-        gridLayout_2->addItem(horizontalSpacer, 0, 2, 1, 1);
+        gridLayout->addWidget(sb_spwf4, 1, 5, 1, 1);
 
-        fS_1 = new QSlider(frame);
-        fS_1->setObjectName("fS_1");
-        fS_1->setMinimum(-50);
-        fS_1->setMaximum(50);
-        fS_1->setOrientation(Qt::Orientation::Vertical);
+        gridLayout_3 = new QGridLayout();
+        gridLayout_3->setObjectName("gridLayout_3");
+        rb_spec_fmo = new QRadioButton(gridLayoutWidget);
+        rb_spec_fmo->setObjectName("rb_spec_fmo");
 
-        gridLayout_2->addWidget(fS_1, 0, 0, 1, 1);
+        gridLayout_3->addWidget(rb_spec_fmo, 2, 0, 1, 1);
 
-        fS_5 = new QSlider(frame);
-        fS_5->setObjectName("fS_5");
-        fS_5->setMinimum(-50);
-        fS_5->setMaximum(50);
-        fS_5->setOrientation(Qt::Orientation::Vertical);
+        rb_spec_main = new QRadioButton(gridLayoutWidget);
+        rb_spec_main->setObjectName("rb_spec_main");
 
-        gridLayout_2->addWidget(fS_5, 0, 6, 1, 1);
+        gridLayout_3->addWidget(rb_spec_main, 0, 0, 1, 1);
 
-        fS_7 = new QSlider(frame);
+        rb_spec_vco = new QRadioButton(gridLayoutWidget);
+        rb_spec_vco->setObjectName("rb_spec_vco");
+
+        gridLayout_3->addWidget(rb_spec_vco, 1, 0, 1, 1);
+
+
+        gridLayout->addLayout(gridLayout_3, 0, 6, 1, 1);
+
+        horizontalLayout_5 = new QHBoxLayout();
+        horizontalLayout_5->setObjectName("horizontalLayout_5");
+        fS_7 = new QSlider(gridLayoutWidget);
         fS_7->setObjectName("fS_7");
         fS_7->setMinimum(-50);
         fS_7->setMaximum(50);
         fS_7->setOrientation(Qt::Orientation::Vertical);
 
-        gridLayout_2->addWidget(fS_7, 0, 9, 1, 1);
+        horizontalLayout_5->addWidget(fS_7);
 
-        vS_2 = new QSlider(frame);
-        vS_2->setObjectName("vS_2");
-        vS_2->setMaximum(100);
-        vS_2->setOrientation(Qt::Orientation::Vertical);
+        vS_8 = new QSlider(gridLayoutWidget);
+        vS_8->setObjectName("vS_8");
+        vS_8->setMaximum(100);
+        vS_8->setOrientation(Qt::Orientation::Vertical);
 
-        gridLayout_2->addWidget(vS_2, 0, 1, 1, 1);
+        horizontalLayout_5->addWidget(vS_8);
 
-        fS_3 = new QSlider(frame);
+
+        gridLayout->addLayout(horizontalLayout_5, 0, 5, 1, 1);
+
+        rb_reset = new QRadioButton(gridLayoutWidget);
+        rb_reset->setObjectName("rb_reset");
+
+        gridLayout->addWidget(rb_reset, 1, 6, 1, 1);
+
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName("horizontalLayout_3");
+        fS_3 = new QSlider(gridLayoutWidget);
         fS_3->setObjectName("fS_3");
         fS_3->setMinimum(-50);
         fS_3->setMaximum(50);
         fS_3->setOrientation(Qt::Orientation::Vertical);
 
-        gridLayout_2->addWidget(fS_3, 0, 3, 1, 1);
+        horizontalLayout_3->addWidget(fS_3);
 
-        vS_8 = new QSlider(frame);
-        vS_8->setObjectName("vS_8");
-        vS_8->setMaximum(100);
-        vS_8->setOrientation(Qt::Orientation::Vertical);
+        vS_4 = new QSlider(gridLayoutWidget);
+        vS_4->setObjectName("vS_4");
+        vS_4->setMaximum(100);
+        vS_4->setOrientation(Qt::Orientation::Vertical);
 
-        gridLayout_2->addWidget(vS_8, 0, 10, 1, 1);
+        horizontalLayout_3->addWidget(vS_4);
 
-        vS_6 = new QSlider(frame);
+
+        gridLayout->addLayout(horizontalLayout_3, 0, 1, 1, 1);
+
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName("horizontalLayout");
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setObjectName("horizontalLayout_2");
+        fS_1 = new QSlider(gridLayoutWidget);
+        fS_1->setObjectName("fS_1");
+        fS_1->setMinimum(-50);
+        fS_1->setMaximum(50);
+        fS_1->setOrientation(Qt::Orientation::Vertical);
+
+        horizontalLayout_2->addWidget(fS_1);
+
+        vS_2 = new QSlider(gridLayoutWidget);
+        vS_2->setObjectName("vS_2");
+        vS_2->setMaximum(100);
+        vS_2->setOrientation(Qt::Orientation::Vertical);
+
+        horizontalLayout_2->addWidget(vS_2);
+
+
+        horizontalLayout->addLayout(horizontalLayout_2);
+
+
+        gridLayout->addLayout(horizontalLayout, 0, 0, 1, 1);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setObjectName("horizontalLayout_4");
+        fS_5 = new QSlider(gridLayoutWidget);
+        fS_5->setObjectName("fS_5");
+        fS_5->setMinimum(-50);
+        fS_5->setMaximum(50);
+        fS_5->setOrientation(Qt::Orientation::Vertical);
+
+        horizontalLayout_4->addWidget(fS_5);
+
+        vS_6 = new QSlider(gridLayoutWidget);
         vS_6->setObjectName("vS_6");
         vS_6->setMaximum(100);
         vS_6->setOrientation(Qt::Orientation::Vertical);
 
-        gridLayout_2->addWidget(vS_6, 0, 7, 1, 1);
+        horizontalLayout_4->addWidget(vS_6);
 
-        horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
-        gridLayout_2->addItem(horizontalSpacer_2, 0, 5, 1, 1);
+        gridLayout->addLayout(horizontalLayout_4, 0, 4, 1, 1);
 
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        sb_spwf1 = new QSpinBox(gridLayoutWidget);
+        sb_spwf1->setObjectName("sb_spwf1");
 
-        gridLayout_2->addItem(horizontalSpacer_3, 0, 8, 1, 1);
+        gridLayout->addWidget(sb_spwf1, 1, 0, 1, 1);
 
-        pB_save_spectrum = new QPushButton(Spectrum_Dialog_class);
-        pB_save_spectrum->setObjectName("pB_save_spectrum");
-        pB_save_spectrum->setGeometry(QRect(20, 220, 80, 25));
-        lbl_instrument = new QLabel(Spectrum_Dialog_class);
+        sb_spwf3 = new QSpinBox(gridLayoutWidget);
+        sb_spwf3->setObjectName("sb_spwf3");
+
+        gridLayout->addWidget(sb_spwf3, 1, 4, 1, 1);
+
+        gridLayoutWidget_2 = new QWidget(Spectrum_Dialog_class);
+        gridLayoutWidget_2->setObjectName("gridLayoutWidget_2");
+        gridLayoutWidget_2->setGeometry(QRect(20, 170, 291, 103));
+        gridLayout_2 = new QGridLayout(gridLayoutWidget_2);
+        gridLayout_2->setObjectName("gridLayout_2");
+        gridLayout_2->setContentsMargins(0, 0, 0, 0);
+        lbl_instrument = new QLabel(gridLayoutWidget_2);
         lbl_instrument->setObjectName("lbl_instrument");
-        lbl_instrument->setGeometry(QRect(110, 220, 91, 21));
         lbl_instrument->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
 "font: 700 11pt \"Ubuntu\";"));
-        label = new QLabel(Spectrum_Dialog_class);
-        label->setObjectName("label");
-        label->setGeometry(QRect(110, 200, 91, 20));
-        label->setStyleSheet(QString::fromUtf8("font: 700 11pt \"Ubuntu Sans\";"));
-        frame_rb_osc = new QFrame(Spectrum_Dialog_class);
-        frame_rb_osc->setObjectName("frame_rb_osc");
-        frame_rb_osc->setGeometry(QRect(270, 10, 80, 151));
-        frame_rb_osc->setFrameShape(QFrame::Shape::StyledPanel);
-        frame_rb_osc->setFrameShadow(QFrame::Shadow::Raised);
-        layoutWidget = new QWidget(frame_rb_osc);
-        layoutWidget->setObjectName("layoutWidget");
-        layoutWidget->setGeometry(QRect(10, 10, 66, 131));
-        gridLayout_3 = new QGridLayout(layoutWidget);
-        gridLayout_3->setObjectName("gridLayout_3");
-        gridLayout_3->setContentsMargins(0, 0, 0, 0);
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
-        gridLayout_3->addItem(verticalSpacer, 1, 0, 1, 1);
+        gridLayout_2->addWidget(lbl_instrument, 2, 1, 1, 1);
 
-        rb_spec_fmo = new QRadioButton(layoutWidget);
-        rb_spec_fmo->setObjectName("rb_spec_fmo");
+        pB_save_spectrum = new QPushButton(gridLayoutWidget_2);
+        pB_save_spectrum->setObjectName("pB_save_spectrum");
 
-        gridLayout_3->addWidget(rb_spec_fmo, 4, 0, 1, 1);
+        gridLayout_2->addWidget(pB_save_spectrum, 2, 2, 1, 1);
 
-        rb_spec_main = new QRadioButton(layoutWidget);
-        rb_spec_main->setObjectName("rb_spec_main");
-
-        gridLayout_3->addWidget(rb_spec_main, 0, 0, 1, 1);
-
-        rb_spec_vco = new QRadioButton(layoutWidget);
-        rb_spec_vco->setObjectName("rb_spec_vco");
-
-        gridLayout_3->addWidget(rb_spec_vco, 2, 0, 1, 1);
-
-        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
-
-        gridLayout_3->addItem(verticalSpacer_2, 3, 0, 1, 1);
-
-        lcd_spectrumDisplay = new QLCDNumber(Spectrum_Dialog_class);
-        lcd_spectrumDisplay->setObjectName("lcd_spectrumDisplay");
-        lcd_spectrumDisplay->setGeometry(QRect(270, 210, 81, 51));
-        lbl_spectrumDisplay = new QLabel(Spectrum_Dialog_class);
+        lbl_spectrumDisplay = new QLabel(gridLayoutWidget_2);
         lbl_spectrumDisplay->setObjectName("lbl_spectrumDisplay");
-        lbl_spectrumDisplay->setGeometry(QRect(200, 230, 66, 18));
-        rb_reset = new QRadioButton(Spectrum_Dialog_class);
-        rb_reset->setObjectName("rb_reset");
-        rb_reset->setGeometry(QRect(20, 170, 61, 24));
-        lbl_waveform = new QLabel(Spectrum_Dialog_class);
+
+        gridLayout_2->addWidget(lbl_spectrumDisplay, 1, 1, 1, 1);
+
+        lcd_spectrumDisplay = new QLCDNumber(gridLayoutWidget_2);
+        lcd_spectrumDisplay->setObjectName("lcd_spectrumDisplay");
+
+        gridLayout_2->addWidget(lcd_spectrumDisplay, 1, 2, 1, 1);
+
+        lbl_waveform = new QLabel(gridLayoutWidget_2);
         lbl_waveform->setObjectName("lbl_waveform");
-        lbl_waveform->setGeometry(QRect(270, 170, 81, 21));
         QPalette palette1;
         palette1.setBrush(QPalette::Active, QPalette::WindowText, brush);
         palette1.setBrush(QPalette::Active, QPalette::Button, brush2);
@@ -361,75 +392,127 @@ public:
         lbl_waveform->setPalette(palette1);
         lbl_waveform->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
 "font: 700 11pt \"Ubuntu\";"));
-        sb_spwf1 = new QSpinBox(Spectrum_Dialog_class);
-        sb_spwf1->setObjectName("sb_spwf1");
-        sb_spwf1->setGeometry(QRect(30, 140, 44, 27));
-        sb_spwf2 = new QSpinBox(Spectrum_Dialog_class);
-        sb_spwf2->setObjectName("sb_spwf2");
-        sb_spwf2->setGeometry(QRect(90, 140, 44, 27));
-        sb_spwf3 = new QSpinBox(Spectrum_Dialog_class);
-        sb_spwf3->setObjectName("sb_spwf3");
-        sb_spwf3->setGeometry(QRect(150, 140, 44, 27));
-        sb_spwf4 = new QSpinBox(Spectrum_Dialog_class);
-        sb_spwf4->setObjectName("sb_spwf4");
-        sb_spwf4->setGeometry(QRect(210, 140, 44, 27));
-        frame_2 = new QFrame(Spectrum_Dialog_class);
+
+        gridLayout_2->addWidget(lbl_waveform, 1, 0, 1, 1);
+
+        label = new QLabel(gridLayoutWidget_2);
+        label->setObjectName("label");
+        label->setStyleSheet(QString::fromUtf8("font: 700 11pt \"Ubuntu Sans\";"));
+
+        gridLayout_2->addWidget(label, 2, 0, 1, 1);
+
+        verticalSpacer = new QSpacerItem(40, 5, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Fixed);
+
+        gridLayout_2->addItem(verticalSpacer, 0, 1, 1, 1);
+
+        verticalLayoutWidget = new QWidget(Spectrum_Dialog_class);
+        verticalLayoutWidget->setObjectName("verticalLayoutWidget");
+        verticalLayoutWidget->setGeometry(QRect(330, 10, 131, 181));
+        verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout_2->setObjectName("verticalLayout_2");
+        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+        cb_adsr = new QCheckBox(verticalLayoutWidget);
+        cb_adsr->setObjectName("cb_adsr");
+
+        verticalLayout_2->addWidget(cb_adsr);
+
+        label_2 = new QLabel(verticalLayoutWidget);
+        label_2->setObjectName("label_2");
+
+        verticalLayout_2->addWidget(label_2);
+
+        frame_2 = new QFrame(verticalLayoutWidget);
         frame_2->setObjectName("frame_2");
-        frame_2->setGeometry(QRect(370, 10, 104, 151));
         frame_2->setFrameShape(QFrame::Shape::StyledPanel);
         frame_2->setFrameShadow(QFrame::Shadow::Raised);
         verticalLayout = new QVBoxLayout(frame_2);
         verticalLayout->setObjectName("verticalLayout");
-        hs_osc_attack = new QSlider(frame_2);
-        hs_osc_attack->setObjectName("hs_osc_attack");
-        hs_osc_attack->setOrientation(Qt::Orientation::Horizontal);
+        hs_attack = new QSlider(frame_2);
+        hs_attack->setObjectName("hs_attack");
+        hs_attack->setOrientation(Qt::Orientation::Horizontal);
 
-        verticalLayout->addWidget(hs_osc_attack);
+        verticalLayout->addWidget(hs_attack);
 
-        hs_osc_decay = new QSlider(frame_2);
-        hs_osc_decay->setObjectName("hs_osc_decay");
-        hs_osc_decay->setMaximum(100);
-        hs_osc_decay->setOrientation(Qt::Orientation::Horizontal);
+        hs_decay = new QSlider(frame_2);
+        hs_decay->setObjectName("hs_decay");
+        hs_decay->setMaximum(100);
+        hs_decay->setOrientation(Qt::Orientation::Horizontal);
 
-        verticalLayout->addWidget(hs_osc_decay);
+        verticalLayout->addWidget(hs_decay);
 
-        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        sb_adsrwf = new QSpinBox(frame_2);
+        sb_adsrwf->setObjectName("sb_adsrwf");
+        sb_adsrwf->setWrapping(true);
+        sb_adsrwf->setMaximum(8);
 
-        verticalLayout->addItem(verticalSpacer_3);
+        verticalLayout->addWidget(sb_adsrwf);
 
-        hs_vco_attack = new QSlider(frame_2);
-        hs_vco_attack->setObjectName("hs_vco_attack");
-        hs_vco_attack->setOrientation(Qt::Orientation::Horizontal);
+        lbl_adsrwf = new QLabel(frame_2);
+        lbl_adsrwf->setObjectName("lbl_adsrwf");
+        QPalette palette2;
+        palette2.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        palette2.setBrush(QPalette::Active, QPalette::Button, brush2);
+        palette2.setBrush(QPalette::Active, QPalette::Light, brush2);
+        palette2.setBrush(QPalette::Active, QPalette::Midlight, brush3);
+        palette2.setBrush(QPalette::Active, QPalette::Dark, brush4);
+        palette2.setBrush(QPalette::Active, QPalette::Mid, brush5);
+        palette2.setBrush(QPalette::Active, QPalette::Text, brush);
+        palette2.setBrush(QPalette::Active, QPalette::BrightText, brush2);
+        palette2.setBrush(QPalette::Active, QPalette::ButtonText, brush);
+        palette2.setBrush(QPalette::Active, QPalette::Base, brush2);
+        palette2.setBrush(QPalette::Active, QPalette::Window, brush2);
+        palette2.setBrush(QPalette::Active, QPalette::Shadow, brush);
+        palette2.setBrush(QPalette::Active, QPalette::AlternateBase, brush3);
+        palette2.setBrush(QPalette::Active, QPalette::ToolTipBase, brush6);
+        palette2.setBrush(QPalette::Active, QPalette::ToolTipText, brush);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette2.setBrush(QPalette::Active, QPalette::PlaceholderText, brush7);
+#endif
+        palette2.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        palette2.setBrush(QPalette::Inactive, QPalette::Button, brush2);
+        palette2.setBrush(QPalette::Inactive, QPalette::Light, brush2);
+        palette2.setBrush(QPalette::Inactive, QPalette::Midlight, brush9);
+        palette2.setBrush(QPalette::Inactive, QPalette::Dark, brush10);
+        palette2.setBrush(QPalette::Inactive, QPalette::Mid, brush11);
+        palette2.setBrush(QPalette::Inactive, QPalette::Text, brush);
+        palette2.setBrush(QPalette::Inactive, QPalette::BrightText, brush2);
+        palette2.setBrush(QPalette::Inactive, QPalette::ButtonText, brush);
+        palette2.setBrush(QPalette::Inactive, QPalette::Base, brush2);
+        palette2.setBrush(QPalette::Inactive, QPalette::Window, brush2);
+        palette2.setBrush(QPalette::Inactive, QPalette::Shadow, brush12);
+        palette2.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush13);
+        palette2.setBrush(QPalette::Inactive, QPalette::ToolTipBase, brush6);
+        palette2.setBrush(QPalette::Inactive, QPalette::ToolTipText, brush);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette2.setBrush(QPalette::Inactive, QPalette::PlaceholderText, brush14);
+#endif
+        palette2.setBrush(QPalette::Disabled, QPalette::WindowText, brush4);
+        palette2.setBrush(QPalette::Disabled, QPalette::Button, brush2);
+        palette2.setBrush(QPalette::Disabled, QPalette::Light, brush2);
+        palette2.setBrush(QPalette::Disabled, QPalette::Midlight, brush3);
+        palette2.setBrush(QPalette::Disabled, QPalette::Dark, brush4);
+        palette2.setBrush(QPalette::Disabled, QPalette::Mid, brush5);
+        palette2.setBrush(QPalette::Disabled, QPalette::Text, brush4);
+        palette2.setBrush(QPalette::Disabled, QPalette::BrightText, brush2);
+        palette2.setBrush(QPalette::Disabled, QPalette::ButtonText, brush4);
+        palette2.setBrush(QPalette::Disabled, QPalette::Base, brush2);
+        palette2.setBrush(QPalette::Disabled, QPalette::Window, brush2);
+        palette2.setBrush(QPalette::Disabled, QPalette::Shadow, brush15);
+        palette2.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush13);
+        palette2.setBrush(QPalette::Disabled, QPalette::ToolTipBase, brush6);
+        palette2.setBrush(QPalette::Disabled, QPalette::ToolTipText, brush);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette2.setBrush(QPalette::Disabled, QPalette::PlaceholderText, brush14);
+#endif
+        lbl_adsrwf->setPalette(palette2);
+        lbl_adsrwf->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
+"font: 700 11pt \"Ubuntu\";"));
 
-        verticalLayout->addWidget(hs_vco_attack);
+        verticalLayout->addWidget(lbl_adsrwf);
 
-        hs_vco_decay = new QSlider(frame_2);
-        hs_vco_decay->setObjectName("hs_vco_decay");
-        hs_vco_decay->setMaximum(100);
-        hs_vco_decay->setOrientation(Qt::Orientation::Horizontal);
 
-        verticalLayout->addWidget(hs_vco_decay);
+        verticalLayout_2->addWidget(frame_2);
 
-        verticalSpacer_4 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
-
-        verticalLayout->addItem(verticalSpacer_4);
-
-        hs_fmo_attack = new QSlider(frame_2);
-        hs_fmo_attack->setObjectName("hs_fmo_attack");
-        hs_fmo_attack->setOrientation(Qt::Orientation::Horizontal);
-
-        verticalLayout->addWidget(hs_fmo_attack);
-
-        hs_fmo_decay = new QSlider(frame_2);
-        hs_fmo_decay->setObjectName("hs_fmo_decay");
-        hs_fmo_decay->setMaximum(100);
-        hs_fmo_decay->setOrientation(Qt::Orientation::Horizontal);
-
-        verticalLayout->addWidget(hs_fmo_decay);
-
-        label_2 = new QLabel(Spectrum_Dialog_class);
-        label_2->setObjectName("label_2");
-        label_2->setGeometry(QRect(390, 170, 84, 12));
 
         retranslateUi(Spectrum_Dialog_class);
 
@@ -439,16 +522,18 @@ public:
     void retranslateUi(QDialog *Spectrum_Dialog_class)
     {
         Spectrum_Dialog_class->setWindowTitle(QCoreApplication::translate("Spectrum_Dialog_class", "Spectrum", nullptr));
-        pB_save_spectrum->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Save", nullptr));
-        lbl_instrument->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Instrument", nullptr));
-        label->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Instrument:", nullptr));
         rb_spec_fmo->setText(QCoreApplication::translate("Spectrum_Dialog_class", "FMO", nullptr));
         rb_spec_main->setText(QCoreApplication::translate("Spectrum_Dialog_class", "OSC", nullptr));
         rb_spec_vco->setText(QCoreApplication::translate("Spectrum_Dialog_class", "VCO", nullptr));
-        lbl_spectrumDisplay->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));
         rb_reset->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Reset", nullptr));
+        lbl_instrument->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Instrument", nullptr));
+        pB_save_spectrum->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Save", nullptr));
+        lbl_spectrumDisplay->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));
         lbl_waveform->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Wafeform", nullptr));
-        label_2->setText(QCoreApplication::translate("Spectrum_Dialog_class", "ADSR", nullptr));
+        label->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Instrument:", nullptr));
+        cb_adsr->setText(QCoreApplication::translate("Spectrum_Dialog_class", "ADSR", nullptr));
+        label_2->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Attack/Delay", nullptr));
+        lbl_adsrwf->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Wafeform", nullptr));
     } // retranslateUi
 
 };

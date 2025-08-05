@@ -30,17 +30,36 @@ Oscgroup_class::~Oscgroup_class() = default;
 
 void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
 {
-	osc.adsr				= sds->OSC_features;
-	osc.wp					= sds->OSC_wp;
-	osc.spectrum			= sds->OSC_spectrum;
+	osc.Setwp		( sds->OSC_wp );
+	osc.Set_spectrum( sds->OSC_spectrum );
 
-	vco.adsr				= sds->VCO_features;
-	vco.wp					= sds->VCO_wp;
-	vco.spectrum			= sds->VCO_spectrum;
+	vco.Setwp		( sds->VCO_wp );
+	vco.Set_spectrum( sds->VCO_spectrum );
 
-	fmo.adsr				= sds->FMO_features;
-	fmo.wp					= sds->FMO_wp;
-	fmo.spectrum			= sds->FMO_spectrum;
+	fmo.Setwp		( sds->FMO_wp );
+	fmo.Set_spectrum( sds->FMO_spectrum );
+
+	SetAdsr			( sds );
+	SetFeatures		( sds->OSC_features );
+	Set_Connections	( sds );
+
+}
+
+void Oscgroup_class::SetFeatures( const feature_t& value )
+{
+	std::ranges::for_each( member, [ value ](Oscillator*  o)
+			{ o->Set_feature( value);	});
+}
+void Oscgroup_class::SetAdsr( const interface_t* sds )
+{
+	osc.Set_adsr(  sds->OSC_adsr );
+	vco.Set_adsr(  sds->VCO_adsr );
+	fmo.Set_adsr(  sds->FMO_adsr );
+}
+void Oscgroup_class::SetAdsr( )
+{
+	std::ranges::for_each( member, [ ](Oscillator*  o)
+			{ o->Set_adsr( o->adsr_data);	});
 }
 
 void Oscgroup_class::SetSlide( const uint8_t& value )
@@ -49,14 +68,22 @@ void Oscgroup_class::SetSlide( const uint8_t& value )
 			{ o->Set_glide( value);	});
 }
 
-void Oscgroup_class::SetWd( Wavedisplay_class* wd, buffer_t* frames )
+void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 {
-	std::ranges::for_each( member, [ this, wd, frames ](Oscillator*  osc )
+	std::ranges::for_each( member, [ this, wd ](Oscillator*  osc )
 			{ wd->Add_data_ptr( osc->typeId,
 								osc->roleId,
 								osc->MemData_p(),
-								frames ); });
-}
+								&osc->wp.frames ); });
+	if( osc.roleId == osc_struct::INSTRID )
+	{
+		std::ranges::for_each( member, [ this, wd ](Oscillator*  osc )
+				{ wd->Add_data_ptr( osc->typeId,
+									osc_struct::ADSRID,
+									osc->AdsrMemData_p(),
+									&osc->adsr_frames ); });
+		}
+	}
 
 void Oscgroup_class::SetScanner( const buffer_t& maxlen )
 {
@@ -119,9 +146,7 @@ void Oscgroup_class::Set_Osc_Note( 	const frq_t&	base_freq,
 									const uint& 	mode)
 {
 	Set_Duration		( msec );
-	osc.Set_adsr		( osc.adsr ); // generate new adsr data according to the adsr duration (frames)
-	vco.Set_adsr		( vco.adsr );
-	fmo.Set_adsr		( fmo.adsr );
+	SetAdsr				();
 	Set_Note_Frequency	( base_freq, key, mode );
 	osc.Set_volume		( volume, FIXED);//wp.volume	= volume ;
 }

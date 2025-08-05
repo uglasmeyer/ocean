@@ -21,7 +21,7 @@ class Rtsp_Dialog_class;
 }
 
 class Rtsp_Dialog_class :
-	public QDialog,
+	public 	QDialog,
 	virtual Config_class
 {
     Q_OBJECT

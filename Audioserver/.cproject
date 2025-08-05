@@ -156,7 +156,7 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.806111328.362274510." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1085399372" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.909044615" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/Audioserver}/Release" enableCleanBuild="false" id="cdt.managedbuild.target.gnu.builder.base.1789302725" keepEnvironmentInBuildfile="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/Audioserver}/Release" enableCleanBuild="true" id="cdt.managedbuild.target.gnu.builder.base.1789302725" keepEnvironmentInBuildfile="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.871132065" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1038688892" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.other.pic.831207800" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -241,6 +241,7 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Shlib"/>
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/Audioserver"/>
 		</configuration>

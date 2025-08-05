@@ -18,6 +18,7 @@
 	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;\
 	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;\
 	string str {err_str};\
+	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
 	printf("%s\n", str.data() ) ;\
 	exit( 0 ); \
 	};

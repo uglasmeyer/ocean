@@ -10,7 +10,7 @@
 void MainWindow::initPanel()
 {
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
-    QString Ocean_png = QString::fromStdString( fs.libdir + "Ocean.png" );
+    QString Ocean_png = Qstring( fs.bkg_file );
     QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
 
@@ -22,7 +22,8 @@ void MainWindow::initPanel()
 
     Spectrum_Dialog_Rect = Spectrum_Dialog_p->geometry();  //get current geometry of help window
     QRect parentRect = this->geometry();      //get current geometry of this window
-    QPoint oscview_TopLeft = QPoint( ui->oscilloscope_view->geometry().topLeft() );
+//    QPoint oscview_TopLeft = QPoint( ui->oscilloscope_view->geometry().bottomLeft() );
+    QPoint oscview_TopLeft = QPoint (0 ,0 );
     Spectrum_Dialog_Rect= QRect( oscview_TopLeft, Spectrum_Dialog_p->geometry().size() );
     //get current geometry of this window
     //    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
@@ -74,8 +75,8 @@ void MainWindow::initStateButtons()
 	Qwd_wdmode_names= Vstringvector( wavedisplay_struct().types );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ Sds->addr->WD_status.wd_mode ]);
 
-	Qwd_display_names 	= Vstringvector( osc_struct().roles );
-	ui->pB_Wavedisplay->setText( Qwd_display_names[ Sds->addr->WD_status.roleId ]);
+	Qwd_role_names 	= Vstringvector( osc_struct().roles );
+	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ]);
 
     setButton( ui->pB_Rtsp, 2 );
     setButton( ui->pB_play_notes, 2 );
@@ -191,6 +192,7 @@ void MainWindow::initUiConnectors()
     connect(ui->pb_SDSview		, SIGNAL(clicked() )		,this, SLOT(SDS_Dialog() ));
     connect(ui->pB_Specrum		, SIGNAL(clicked() )		,this, SLOT(Spectrum_Dialog() ));
     connect(ui->pB_play_notes	, SIGNAL(clicked() )		,this, SLOT(File_Director() ));
+    connect(ui->pB_ADSR			, SIGNAL(clicked() )		,this, SLOT(ADSR_Dialog() ));
 
     connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
     connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() ));

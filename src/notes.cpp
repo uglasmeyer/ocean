@@ -9,25 +9,25 @@
 #include <notes/Notes.h>
 
 Note_class::Note_class( )
-	: Note_class::Logfacility_class("Notes")
+	: Note_class::Logfacility_class("Note_class")
 	, Note_base()
 {
 	this->className = Logfacility_class::className;
 }
 Note_class::Note_class( interface_t* _sds)
-: Note_class::Logfacility_class("Notes"),
-  Note_base()
+	: Note_class::Logfacility_class("Note_class")
+	,  Note_base()
 {
 	this->className = Logfacility_class::className;
 	this->sds		= _sds;
 }
 
 Note_class::Note_class( Wavedisplay_class* wd )
-: Note_class::Logfacility_class("Notes"),
-  Note_base()
+	: Note_class::Logfacility_class("Note_class")
+	, Note_base()
 {
 	this->className = Logfacility_class::className;
-	Oscgroup.SetWd( wd, &osc->mem_frames );
+	Oscgroup.SetWd( wd );
 	Oscgroup.SetScanner( max_frames );
 }
 
@@ -100,7 +100,7 @@ void Note_class::note2memory( 	const note_t& note,
 								)
 {
 
-	uint wp_glide_effect = osc->wp.glide_effect;
+	uint glide_effect = osc->feature.glide_effect;
 
 	if ( note.glide[0].glide )
 		Oscgroup.SetSlide( 100 );
@@ -108,8 +108,7 @@ void Note_class::note2memory( 	const note_t& note,
 		Oscgroup.SetSlide( 0 );
 
 	osc->Set_long_note( note.longnote or longnote );
-	osc->adsr.hall 		= 0;
-//	osc->Gen_adsrdata( ( duration * frames_per_msec ) );
+	osc->adsr_data.hall 		= 0;
 
 	uint frame_delay 	= instrument->sds->noteline_prefix.chord_delay * frames_per_msec;
 	uint n 				= 0;
@@ -122,7 +121,7 @@ void Note_class::note2memory( 	const note_t& note,
 		n++;
 	}
 
-	osc->Set_glide( wp_glide_effect );
+	osc->feature.glide_effect = glide_effect ;
 
 	return ;
 }

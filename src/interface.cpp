@@ -45,7 +45,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	}
 	Comment( INFO, "check shared memory version");
 
-	dumpFile = file_structure().ifd_file + to_string( sdsid) ;
+	dumpFile = file_structure().ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
 	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{

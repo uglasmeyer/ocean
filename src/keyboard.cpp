@@ -18,9 +18,9 @@ Keyboard_class::Keyboard_class( Instrument_class* instr, Storage_class* StA ) :
 	this->StA					= StA;
 	this->Kbd_Data				= StA->Data;
 
-	Oscgroup.SetWd				( instr->wd_p, &Osc->wp.frames );
+	Oscgroup.SetWd				( instr->wd_p );
 	Oscgroup.SetScanner			( max_frames );
-	instr->wd_p->Add_data_ptr	( Osc->typeId, Osc->roleId, StA->Data, &StA->StAparam.size );
+//	instr->wd_p->Add_data_ptr	( Osc->typeId, Osc->roleId, StA->Data, &StA->StAparam.size );
 
 	ASSERTION( 	StA->mem_ds.data_blocks == 4*max_frames, "StA->mem_ds.data_blocks",
 				StA->mem_ds.data_blocks  , 4*max_frames);
@@ -80,17 +80,12 @@ void Keyboard_class::Set_instrument( )
 	}
 	Comment(DEBUG, "Update Instrument ");
 	Oscgroup.Instrument_fromSDS( sds );
-	Oscgroup.Set_Connections( sds );
-	Oscgroup.SetSlide( sliding * sds->OSC_wp.glide_effect );
+	Oscgroup.SetSlide( sliding * sds->OSC_features.glide_effect );
 	Oscgroup.Set_Duration( max_msec );
 	osc_frames	= Osc->wp.frames;
-	apply_Adsr();
+
 }
-void Keyboard_class::apply_Adsr()
-{
-	Osc->adsr.bps	= ADSR_flag;// * sds->OSC_adsr.bps;
-	Osc->Set_adsr	( Osc->adsr );
-}
+
 bool Keyboard_class::decay(  )
 {
 	bool
@@ -209,6 +204,10 @@ string Kbd_note_class::setNote( int key )
 
 	int 		KEY 	= toupper( key );
 	kbd_note_t 	Note 	= base_note( KEY );
+
+	if ( Note.step == NONOTE )
+		return "";
+
 	note_vec.push_back( Note );
 	if( Chord.length()  == 0 )
 		noteline.append( Note.name );

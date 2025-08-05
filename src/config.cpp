@@ -159,6 +159,7 @@ Config_class::Config_class( string Module ) :
 
 };
 
+
 Config_class::~Config_class()
 {
 

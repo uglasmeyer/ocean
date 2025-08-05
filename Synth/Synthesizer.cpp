@@ -128,10 +128,7 @@ void add_sound()
 
 	ProgressBar.Update();
 
-	if (
-		( sds->WD_status.roleId != osc_struct::AUDIOOUTID )
-//		and	( sds->Composer != RUNNING )
-		)
+	if (( sds->WD_status.roleId != osc_struct::AUDIOOUTID )	)
 		Wavedisplay.Write_wavedata();
 }
 Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add_sound" );

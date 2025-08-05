@@ -579,14 +579,14 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		if ( loop )
 		{
 			Processor_class::Push_ifd( &sds->frq_slidermode, SLIDE, "slide mode" );
-			Processor_class::Push_ifd( &sds->OSC_wp.glide_effect , 100, "long frq slide" );
+			Processor_class::Push_ifd( &sds->OSC_features.glide_effect , 100, "long frq slide" );
 			Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
 		}
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
 			Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
-			Processor_class::Push_ifd( &sds->OSC_wp.glide_effect , 0, "frq slide off" );
+			Processor_class::Push_ifd( &sds->OSC_features.glide_effect , 0, "frq slide off" );
 
 			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			Pause( { "pause", duration });
@@ -760,7 +760,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		int freq = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_wp.glide_effect, freq, "soft freq"  );
+		Processor_class::Push_ifd( &sds->OSC_features.glide_effect, freq, "soft freq"  );
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}
@@ -776,7 +776,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 			EXCEPTION( "wrong beat duration" );
 		}
 
-		Processor_class::Push_ifd( &sds->OSC_features.bps, bps, "beat duration" );
+		Processor_class::Push_ifd( &sds->OSC_adsr.bps, bps, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
 		return;
 	}
@@ -784,7 +784,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		int attack = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_features.attack, attack, "adsr attack" );
+		Processor_class::Push_ifd( &sds->OSC_adsr.attack, attack, "adsr attack" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr attack" );
 		return;
 	}
@@ -792,7 +792,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
 		uint8_t decay = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_features.decay, decay, "adsr decay" );
+		Processor_class::Push_ifd( &sds->OSC_adsr.decay, decay, "adsr decay" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr decay" );
 		return;
 	}
@@ -800,7 +800,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		int hall = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_features.hall, hall, "hall"  );
+		Processor_class::Push_ifd( &sds->OSC_adsr.hall, hall, "hall"  );
 		Processor_class::Push_key( ADSR_KEY,  "set hall" );
 		return;
 	}

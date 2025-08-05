@@ -150,7 +150,6 @@ private:
 	void 				keyHandler				( key3struct_t kbd );
 	string 				get_notenames			();
 	void 				specialKey				();
-	void 				apply_Adsr				();
 	void 				exit_keyboard			();
 	void 				notekey					( char key );
 	void				set_bufferMode			();

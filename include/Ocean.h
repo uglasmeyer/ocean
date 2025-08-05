@@ -171,7 +171,8 @@ string show_range( range_T<T> range )
 	return strs.str();
 }
 
-#define ALLITEMS  -1
+#define ALLITEMS	-1
+#define DEFAULT_ID	-1
 
 enum APPID
 {

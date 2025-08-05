@@ -43,6 +43,7 @@ void Rtsp_Dialog_class::proc_table_update_row( uint row )
 	string text = AppIdName( proc.type );
 	proc_table( row, 0, text );
 
+
 	if ( row > 0 )
 	{
 		Interface_class* SDS = DaTA->SDS.GetSds( row -1 );

@@ -21,10 +21,7 @@ Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
 	assert ( Oscgroup.osc.MemData_p() != nullptr );
 
 	this->wd_p 				= _wd_p;
-	Oscgroup.SetWd( this->wd_p, &Oscgroup.osc.wp.frames );
-	wd_p->Add_data_ptr( osc->typeId, osc_struct::ADSRID, osc->AdsrMemData_p(),&osc->adsr_frames );
-	wd_p->Add_data_ptr( vco->typeId, osc_struct::ADSRID, vco->AdsrMemData_p(),&vco->adsr_frames );
-	wd_p->Add_data_ptr( fmo->typeId, osc_struct::ADSRID, fmo->AdsrMemData_p(),&fmo->adsr_frames );
+	Oscgroup.SetWd( this->wd_p );
 }
 
 
@@ -47,15 +44,15 @@ void Instrument_class::update_sds()
 
 	Comment(INFO, "Update SDS data");
 
-	sds->OSC_features 		= Oscgroup.osc.adsr;
+	sds->OSC_features 		= Oscgroup.osc.feature;
 	sds->OSC_wp			= Oscgroup.osc.wp;
 	sds->OSC_spectrum	= Oscgroup.osc.spectrum;
 
-	sds->VCO_features 		= Oscgroup.vco.adsr;
+	sds->VCO_features 		= Oscgroup.vco.feature;
 	sds->VCO_spectrum	= Oscgroup.vco.spectrum;
 	sds->VCO_wp			= Oscgroup.vco.wp;
 
-	sds->FMO_features 		= Oscgroup.fmo.adsr;
+	sds->FMO_features 		= Oscgroup.fmo.feature;
 	sds->FMO_wp			= Oscgroup.fmo.wp;
 	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
 
@@ -100,14 +97,13 @@ void Instrument_class::set_name( string name )
 
 bool Instrument_class::assign_adsr 	( vector_str_t arr )
 {
-	String	Str	{""};
-	feature_t 	adsr{};
-	adsr.decay 	= Str.secure_stoi( arr[9 ]	);
-	adsr.bps	= Str.secure_stoi( arr[10] 	);
-	adsr.attack	= Str.secure_stoi( arr[11] 	);
-	adsr.hall	= Str.secure_stoi( arr[12] 	);
+	String	Str			{""};
+	adsr_t 	adsr		= adsr_struct();
+	adsr.decay 			= Str.secure_stoi( arr[9 ]	);
+	adsr.bps			= Str.secure_stoi( arr[10] 	);
+	adsr.attack			= Str.secure_stoi( arr[11] 	);
+	adsr.hall		= Str.secure_stoi( arr[12] 	);
 	Oscgroup.osc.Set_adsr( adsr );
-
 
 	return true;
 }
@@ -122,11 +118,11 @@ auto showOscfeatures2 = [  ]( Oscillator* osc, Oscillator* vco )
 	Table.AddColumn( "SlideF"	, 6 );
 	Table.AddColumn( "Pmw"		, 6 );
 	Table.PrintHeader();
-	Table.AddRow(	(int)osc->adsr.attack,
-					(int)osc->adsr.decay,
-					(int)osc->adsr.hall,
-					(int)osc->adsr.bps,
-					(int)osc->wp.glide_effect,
+	Table.AddRow(	(int)osc->adsr_data.attack,
+					(int)osc->adsr_data.decay,
+					(int)osc->adsr_data.hall,
+					(int)osc->adsr_data.bps,
+					(int)osc->feature.glide_effect,
 					(int)vco->wp.PMW_dial);
 };
 
@@ -148,58 +144,56 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 	Table.AddColumn( "AttFMO"	, 6 );
 	Table.AddColumn( "DecFMO"	, 6 );
 	Table.AddColumn( "SlideF"	, 6 );
-	if ( file_version == 4 ) Table.AddColumn( "SlideV"	, 6 ) ;
+	if ( file_version == 4 )
+		Table.AddColumn( "SlideV"	, 6 ) ;
 	Table.AddColumn( "Pmw"		, 6 );
 	Table.PrintHeader();
 
 	if (file_version == 3 )
-	Table.AddRow(	"ADSR", "OSC",
-					(int)osc->adsr.hall,
-					(int)osc->adsr.bps,
-					(int)osc->adsr.attack,
-					(int)osc->adsr.decay,
-					(int)vco->adsr.attack,
-					(int)vco->adsr.decay,
-					(int)fmo->adsr.attack,
-					(int)fmo->adsr.decay,
-					(int)osc->wp.glide_effect,
-					(int)vco->wp.PMW_dial);
+		Table.AddRow(	"ADSR", "OSC",
+						(int)osc->adsr_data.hall,
+						(int)osc->adsr_data.bps,
+						(int)osc->adsr_data.attack,
+						(int)osc->adsr_data.decay,
+						(int)vco->adsr_data.attack,
+						(int)vco->adsr_data.decay,
+						(int)fmo->adsr_data.attack,
+						(int)fmo->adsr_data.decay,
+						(int)osc->feature.glide_effect,
+						(int)vco->wp.PMW_dial);
 
 	if (file_version == 4 )
-	Table.AddRow(	"ADSR", "OSC",
-					(int)osc->adsr.hall,
-					(int)osc->adsr.bps,
-					(int)osc->adsr.attack,
-					(int)osc->adsr.decay,
-					(int)vco->adsr.attack,
-					(int)vco->adsr.decay,
-					(int)fmo->adsr.attack,
-					(int)fmo->adsr.decay,
-					(int)osc->wp.glide_effect,
-					(int)sds->slide_duration,
-					(int)vco->wp.PMW_dial);
+		Table.AddRow(	"ADSR", "OSC",
+						(int)osc->adsr_data.hall,
+						(int)osc->adsr_data.bps,
+						(int)osc->adsr_data.attack,
+						(int)osc->adsr_data.decay,
+						(int)vco->adsr_data.attack,
+						(int)vco->adsr_data.decay,
+						(int)fmo->adsr_data.attack,
+						(int)fmo->adsr_data.decay,
+						(int)osc->feature.glide_effect,
+						(int)sds->slide_duration,
+						(int)vco->wp.PMW_dial);
 };
 
 bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 {
 	String 	Str			{""};
-	feature_t 	adsr		{};
-	adsr.bps	= Str.secure_stoi( arr[2] );
-	adsr.hall	= Str.secure_stoi( arr[3] );
-	adsr.attack = Str.secure_stoi( arr[4] );
-	adsr.decay	= Str.secure_stoi( arr[5] );
-	Oscgroup.osc.Set_adsr( adsr );
-	adsr.attack = Str.secure_stoi( arr[6]	);
-	adsr.decay	= Str.secure_stoi( arr[7] 	);
-	Oscgroup.vco.Set_adsr( adsr );
-	adsr.attack = Str.secure_stoi( arr[8]	);
-	adsr.decay	= Str.secure_stoi( arr[9] 	);
-	Oscgroup.fmo.Set_adsr( adsr );
+	sds->OSC_adsr.bps	= Str.secure_stoi( arr[2] );
+	sds->OSC_adsr.hall	= Str.secure_stoi( arr[3] );
+	sds->OSC_adsr.attack= Str.secure_stoi( arr[4] );
+	sds->OSC_adsr.decay	= Str.secure_stoi( arr[5] );
 
-	Oscgroup.osc.wp.glide_effect= Str.secure_stoi( arr[10] );
+	sds->VCO_adsr.attack = Str.secure_stoi( arr[6]	);
+	sds->VCO_adsr.decay	= Str.secure_stoi( arr[7] 	);
+	sds->FMO_adsr.attack = Str.secure_stoi( arr[8]	);
+	sds->FMO_adsr.decay	= Str.secure_stoi( arr[9] 	);
+
+	Oscgroup.osc.feature.glide_effect = Str.secure_stoi( arr[10] );
 	if ( file_version == 4 )
 	{
-		sds->slide_duration			= Str.secure_stoi( arr[11] );
+		sds->slide_duration			= Str.secure_stoi( arr[11] ); //Audioserver
 		Oscgroup.vco.wp.PMW_dial	= Str.secure_stoi( arr[12] );
 	}
 	else
@@ -207,6 +201,8 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 		Oscgroup.vco.wp.PMW_dial	= Str.secure_stoi( arr[11] );
 	}
 
+	Oscgroup.SetAdsr( sds );
+	Oscgroup.SetFeatures( sds->OSC_features );
 	showOscfeatures( ); // stdout
 
 	return true;
@@ -215,15 +211,15 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 bool Instrument_class::assign_adsr2( const vector_str_t& arr )
 {
 	String 	Str			{""};
-	feature_t 	adsr		{};
+	adsr_t 	adsr		= adsr_struct();
 			adsr.decay 	= Str.secure_stoi( arr[2] );
 			adsr.bps	= Str.secure_stoi( arr[3] );
 			adsr.attack	= Str.secure_stoi( arr[4] );
 			adsr.hall	= Str.secure_stoi( arr[5] );
-	Oscgroup.osc.Set_adsr( adsr );
+			Oscgroup.osc.Set_adsr( adsr );
 
 
-	Oscgroup.osc.wp.glide_effect= Str.secure_stoi( arr[6] );
+	Oscgroup.osc.feature.glide_effect= Str.secure_stoi( arr[6] );
 	Oscgroup.vco.wp.PMW_dial	= Str.secure_stoi( arr[7] );
 	showOscfeatures2( &Oscgroup.osc, &Oscgroup.vco );
 
@@ -472,11 +468,11 @@ void Instrument_class::save_features( fstream& FILE )
 
 	// Type Features
 	Table.AddRow( "ADSR", "OSC",
-			(int) osc->adsr.decay,
-			(int) osc->adsr.bps,
-			(int) osc->adsr.attack,
-			(int) osc->adsr.hall,
-			(int) osc->wp.glide_effect,
+			(int) osc->adsr_data.decay,
+			(int) osc->adsr_data.bps,
+			(int) osc->adsr_data.attack,
+			(int) osc->adsr_data.hall,
+			(int) osc->feature.glide_effect,
 			(int) vco->wp.PMW_dial
 			);
 
@@ -592,22 +588,22 @@ void Instrument_class::Test_Instrument()
 	vco->Test();
 	assert( Set( ".test2" ) );
 	Oscgroup.vco.wp.PMW_dial = 98;
-	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::SGNSIN;
+	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::SGNSIN;
 	Oscgroup.vco.Set_frequency( "A1", FIXED);
-	assert( strEqual( 	waveform_str_vec[ Oscwaveform_class::SGNSIN ],
+	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 	Save_Instrument( ".test2" );
 	Oscgroup.vco.wp.PMW_dial = 0;
-	Oscgroup.vco.spectrum.wfid[0] = Oscwaveform_class::RECTANGLE;
-	assert( strEqual( 	waveform_str_vec[ Oscwaveform_class::RECTANGLE ],
+	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::RECTANGLE;
+	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::RECTANGLE ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 
 	assert( Set( ".test2" ) );
 	ASSERTION( sds->VCO_wp.PMW_dial == 98,"Set PMW_dial", (int)sds->VCO_wp.PMW_dial , 98);
 	assert( Oscgroup.vco.wp.PMW_dial == 98 );
-	string a = waveform_str_vec[ Oscwaveform_class::SGNSIN ];
+	string a = waveform_str_vec[ oscwaveform_struct::SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
 
@@ -619,8 +615,8 @@ void Instrument_class::Test_Instrument()
 
 
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
-	assert( Oscgroup.osc.adsr.hall == 0 );
-	assert( Oscgroup.osc.adsr.bps == 0 );
+	assert( Oscgroup.osc.adsr_data.hall == 0 );
+	assert( Oscgroup.osc.adsr_data.bps == 0 );
 
 	TEST_END( className );
 	return;

@@ -160,6 +160,7 @@ public:
     QLabel *label_17;
     QScrollBar *hs_chord_delay;
     QScrollBar *hs_pmw;
+    QPushButton *pB_ADSR;
     QMenuBar *menubar;
     QMenu *menuSound_Lab_GUI;
     QMenu *menuIO;
@@ -443,7 +444,7 @@ public:
         pB_Mute_StA->setGeometry(QRect(1110, 290, 75, 25));
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName("label_2");
-        label_2->setGeometry(QRect(480, 110, 50, 17));
+        label_2->setGeometry(QRect(480, 140, 50, 17));
         pB_play_notes = new QPushButton(centralwidget);
         pB_play_notes->setObjectName("pB_play_notes");
         pB_play_notes->setGeometry(QRect(480, 10, 89, 25));
@@ -482,7 +483,7 @@ public:
         glidefrequency->setWordWrap(true);
         pB_Wavedisplay = new QPushButton(centralwidget);
         pB_Wavedisplay->setObjectName("pB_Wavedisplay");
-        pB_Wavedisplay->setGeometry(QRect(580, 260, 81, 25));
+        pB_Wavedisplay->setGeometry(QRect(480, 260, 81, 25));
         oscilloscope_view = new QGraphicsView(centralwidget);
         oscilloscope_view->setObjectName("oscilloscope_view");
         oscilloscope_view->setGeometry(QRect(480, 290, 512, 166));
@@ -490,13 +491,13 @@ public:
         oscilloscope_view->setLineWidth(2);
         pB_wd_mode = new QPushButton(centralwidget);
         pB_wd_mode->setObjectName("pB_wd_mode");
-        pB_wd_mode->setGeometry(QRect(580, 230, 81, 25));
+        pB_wd_mode->setGeometry(QRect(570, 260, 81, 25));
         label_5 = new QLabel(centralwidget);
         label_5->setObjectName("label_5");
-        label_5->setGeometry(QRect(480, 50, 50, 17));
+        label_5->setGeometry(QRect(480, 80, 50, 17));
         pB_Specrum = new QPushButton(centralwidget);
         pB_Specrum->setObjectName("pB_Specrum");
-        pB_Specrum->setGeometry(QRect(610, 10, 88, 25));
+        pB_Specrum->setGeometry(QRect(570, 10, 88, 25));
         frame_7 = new QFrame(centralwidget);
         frame_7->setObjectName("frame_7");
         frame_7->setGeometry(QRect(60, 270, 131, 41));
@@ -541,7 +542,7 @@ public:
         pb_clear->setGeometry(QRect(1030, 290, 75, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName("label_3");
-        label_3->setGeometry(QRect(480, 170, 81, 31));
+        label_3->setGeometry(QRect(480, 200, 81, 31));
         label_3->setWordWrap(true);
         label_10 = new QLabel(centralwidget);
         label_10->setObjectName("label_10");
@@ -604,7 +605,7 @@ public:
 
         cb_bps = new QComboBox(centralwidget);
         cb_bps->setObjectName("cb_bps");
-        cb_bps->setGeometry(QRect(540, 170, 71, 25));
+        cb_bps->setGeometry(QRect(540, 200, 71, 25));
         Pbar_telapsed = new QProgressBar(centralwidget);
         Pbar_telapsed->setObjectName("Pbar_telapsed");
         Pbar_telapsed->setGeometry(QRect(451, 290, 20, 161));
@@ -613,10 +614,10 @@ public:
         Pbar_telapsed->setOrientation(Qt::Orientation::Vertical);
         pB_oscgroup = new QPushButton(centralwidget);
         pB_oscgroup->setObjectName("pB_oscgroup");
-        pB_oscgroup->setGeometry(QRect(670, 260, 81, 26));
+        pB_oscgroup->setGeometry(QRect(660, 260, 81, 26));
         pb_fftmode = new QPushButton(centralwidget);
         pb_fftmode->setObjectName("pb_fftmode");
-        pb_fftmode->setGeometry(QRect(670, 230, 81, 26));
+        pb_fftmode->setGeometry(QRect(660, 230, 81, 26));
         lb_FMO_LFO = new QLabel(centralwidget);
         lb_FMO_LFO->setObjectName("lb_FMO_LFO");
         lb_FMO_LFO->setGeometry(QRect(220, 400, 31, 18));
@@ -662,14 +663,14 @@ public:
         Slider_slideVol->setOrientation(Qt::Orientation::Vertical);
         hs_hall_effect = new QScrollBar(centralwidget);
         hs_hall_effect->setObjectName("hs_hall_effect");
-        hs_hall_effect->setGeometry(QRect(540, 50, 160, 16));
+        hs_hall_effect->setGeometry(QRect(540, 80, 160, 16));
         hs_hall_effect->setMaximum(100);
         hs_hall_effect->setPageStep(1);
         hs_hall_effect->setOrientation(Qt::Orientation::Horizontal);
         hs_hall_effect->setInvertedControls(false);
         hs_balance = new QScrollBar(centralwidget);
         hs_balance->setObjectName("hs_balance");
-        hs_balance->setGeometry(QRect(540, 80, 160, 16));
+        hs_balance->setGeometry(QRect(540, 110, 160, 16));
         hs_balance->setMinimum(-100);
         hs_balance->setMaximum(100);
         hs_balance->setPageStep(1);
@@ -677,7 +678,7 @@ public:
         hs_balance->setInvertedControls(false);
         label_14 = new QLabel(centralwidget);
         label_14->setObjectName("label_14");
-        label_14->setGeometry(QRect(480, 80, 50, 17));
+        label_14->setGeometry(QRect(480, 110, 50, 17));
         cb_connect_vco = new QCheckBox(centralwidget);
         cb_connect_vco->setObjectName("cb_connect_vco");
         cb_connect_vco->setGeometry(QRect(330, 460, 111, 24));
@@ -744,10 +745,10 @@ public:
         cb_fsta6->setCheckable(true);
         label_17 = new QLabel(centralwidget);
         label_17->setObjectName("label_17");
-        label_17->setGeometry(QRect(480, 140, 50, 17));
+        label_17->setGeometry(QRect(480, 170, 50, 17));
         hs_chord_delay = new QScrollBar(centralwidget);
         hs_chord_delay->setObjectName("hs_chord_delay");
-        hs_chord_delay->setGeometry(QRect(540, 140, 160, 16));
+        hs_chord_delay->setGeometry(QRect(540, 170, 160, 16));
         hs_chord_delay->setMinimum(0);
         hs_chord_delay->setMaximum(200);
         hs_chord_delay->setPageStep(1);
@@ -755,12 +756,15 @@ public:
         hs_chord_delay->setInvertedControls(false);
         hs_pmw = new QScrollBar(centralwidget);
         hs_pmw->setObjectName("hs_pmw");
-        hs_pmw->setGeometry(QRect(540, 110, 160, 16));
+        hs_pmw->setGeometry(QRect(540, 140, 160, 16));
         hs_pmw->setMinimum(0);
         hs_pmw->setMaximum(100);
         hs_pmw->setPageStep(1);
         hs_pmw->setOrientation(Qt::Orientation::Horizontal);
         hs_pmw->setInvertedControls(false);
+        pB_ADSR = new QPushButton(centralwidget);
+        pB_ADSR->setObjectName("pB_ADSR");
+        pB_ADSR->setGeometry(QRect(660, 10, 88, 25));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
@@ -861,6 +865,7 @@ public:
         cb_fsta7->setText(QString());
         cb_fsta6->setText(QString());
         label_17->setText(QCoreApplication::translate("MainWindow", "delay", nullptr));
+        pB_ADSR->setText(QCoreApplication::translate("MainWindow", "ADSR", nullptr));
         menuSound_Lab_GUI->setTitle(QCoreApplication::translate("MainWindow", "Sound Lab GUI", nullptr));
         menuIO->setTitle(QCoreApplication::translate("MainWindow", "IO", nullptr));
     } // retranslateUi

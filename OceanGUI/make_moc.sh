@@ -5,7 +5,7 @@ cd /home/sirius/git/Ocean/OceanGUI/
 
 
 make clean
-NPROC=`proc`
+NPROC=`nproc`
 make -j$NPROC compiler_uic_make_all
 make mocables
 cd Shlib && make -j6 all

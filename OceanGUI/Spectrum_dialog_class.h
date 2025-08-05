@@ -40,7 +40,12 @@ public:
 
     EventLog_class*	Eventlog_p;
 
-    vector<Spectrum_class::spectrum_t*> ifd_spectrum_vec;
+    vector<spectrum_t*> 	sds_spectrum_vec;
+    spectrum_t*				sds_spectrum_p;
+    vector<adsr_t*> 		sds_adsr_vec;
+    adsr_t*					sds_adsr_p;
+    adsr_t					adsr_data;
+    uint8_t					OscId;
 
     Frequency_class	Frequency {};
 
@@ -51,11 +56,12 @@ public:
     uint8_t SDS_ID = 0;
 
 
-    void Setup_widgets( Spectrum_class::spectrum_t );
+    void Setup_widgets( spectrum_t );
     void Update_spectrum();
     void SetLabelWaveform( const QString& wf );
     void SetLabelInstrument( const QString& instr );
     void SetSds( Interface_class* Sds, int8_t id );
+    void Set_adsr_flag( bool flag );
 
 private slots:
     void fS1( int );
@@ -71,13 +77,10 @@ private slots:
     void sb_wf2(int);
     void sb_wf3(int);
     void sb_wf4(int);
+    void adsrwf(int);
 
-    void fmo_attack(int);
-    void fmo_decay (int);
-    void vco_attack(int);
-    void vco_decay (int);
-    void osc_attack(int);
-    void osc_decay (int);
+    void attack(int);
+    void decay (int);
 
     void save( );
     void select_spec_fmo();
@@ -86,6 +89,8 @@ private slots:
     void reset();
 
 private:
+    bool ADSR_flag = false;
+    void select_spec( char oscid );
 
 };
 

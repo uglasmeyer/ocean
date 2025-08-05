@@ -12,7 +12,7 @@
 #include <EventKeys.h>
 #include <Ocean.h>
 #include <Mixerbase.h>
-#include <Oscbase.h>
+#include <Adsr.h>
 #include <Wavedisplay_base.h>
 #include <Configbase.h>
 #include <notes/Notesbase.h>
@@ -49,7 +49,7 @@ struct sdsstate_struct
 	};
 
 
-	virtual ~sdsstate_struct() = default;
+//	virtual ~sdsstate_struct() = default;
 };
 
 typedef struct EventPtr_struct
@@ -74,7 +74,6 @@ const uint  		MAXQUESIZE		= 100;
 typedef 			array< uint8_t, MAXQUESIZE>					deque_t ;
 typedef				array<register_process_t, REGISTER_SIZE>	process_arr_t;
 typedef 			Note_base::noteline_prefix_t				noteline_prefix_t;
-typedef 			Spectrum_class::spectrum_t					spectrum_t;
 typedef				Mixer_base::mixer_status_t					mixer_status_t;
 typedef				StAarray_t									StA_amp_arr_t;
 typedef				Mixer_base::StA_state_arr_t					StA_state_arr_t;
@@ -95,7 +94,7 @@ constexpr process_arr_t init_process_arr()
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 11; 						// comstack
+	uint8_t			version						= 12; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
@@ -118,6 +117,10 @@ typedef struct interface_struct // with reasonable defaults
 	feature_t 		OSC_features 				= feature_struct();
 	feature_t 		VCO_features				= feature_struct();
 	feature_t 		FMO_features				= feature_struct();
+
+	adsr_t			OSC_adsr					= adsr_struct();
+	adsr_t			VCO_adsr					= adsr_struct();
+	adsr_t			FMO_adsr					= adsr_struct();
 
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();

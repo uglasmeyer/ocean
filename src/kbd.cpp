@@ -80,9 +80,11 @@ void Kbd_base::Init()
 
 void Kbd_base::Reset()
 {
-	if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
-		perror("tcsetattr ~ICANON");
-
+	if ( is_atty )
+	{
+		if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
+			perror("tcsetattr ~ICANON");
+	}
 }
 
 string Kbd_base::GetString( string txt )

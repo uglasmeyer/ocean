@@ -60,8 +60,6 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 
 void Appstate_class::Set( interface_t* sds, uint appid, int state )
 {
-	assert( sds != nullptr );
-
 	*appAddr( sds, appid ) 		= state;
 }
 int	Appstate_class::Get( interface_t* sds, uint appid )

@@ -19,7 +19,7 @@
 
 #define MAYOR 3
 #define MINOR 8
-#define PATCH 5
+#define PATCH 6
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -32,7 +32,8 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
-version 3.8.5 Separate frature from adsr
+version 3.8.6 Adsr waveform
+version 3.8.5 Separate feature from adsr
 				Show ADSR waveform
 version 3.8.4 ADSR for Fmo/Vco
 version 3.8.3 Integration of Setup
