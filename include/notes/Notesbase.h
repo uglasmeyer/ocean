@@ -43,7 +43,7 @@ constexpr vector<int> init_pitch( string ac )
 
 class Note_base :
 	virtual  		Logfacility_class,
-	virtual public 	Frequency_class
+	virtual 	 	Frequency_class
 {
 	string 					className		= "";
 

@@ -17,8 +17,7 @@ const int 			max_kbd_octave			= max_octave - kbd_octaves ;
 
 
 typedef struct kbd_state_struct
-{
-	// part of SDS
+{	// SDS related
 	int 			base_octave 			= 3; 	// current min kbd octave changeble by +/-
 	uint			sharps					= 0; 	// range(0 .. 3 ) notebase::sharp_pitch
 	uint			flats					= 0; 	// range(0 .. 2 ) notebase::sharp_pitch

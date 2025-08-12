@@ -27,17 +27,8 @@ public:
 	Appstate_class		Appstate	;
 	Dataworld_class*	DaTA;
 
-	ViewInterface_class( char appid, Dataworld_class* DaTA )
-	:
-		ADSR_class(),
-		sdsstate_struct(),
-		Appstate( appid, nullptr, DaTA->Sds_p->addr, &DaTA->Reg )
-	{
-		className 		= Logfacility_class::className;
-		this->DaTA		= DaTA;
-		Sds_p			= DaTA->Sds_p;
-	};
-	~ViewInterface_class() = default;
+			ViewInterface_class( char appid, Dataworld_class* DaTA );
+	virtual ~ViewInterface_class() = default;
 
 
 	void	ShowPage( interface_t* sds, int nr );

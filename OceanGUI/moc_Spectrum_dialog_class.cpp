@@ -59,7 +59,9 @@ static constexpr auto qt_meta_stringdata_ZN21Spectrum_Dialog_classE = QtMocHelpe
     "select_spec_fmo",
     "select_spec_vco",
     "select_spec_main",
-    "reset"
+    "reset",
+    "adsr_slot",
+    "flag"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -71,7 +73,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN21Spectrum_Dialog_classE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-      20,   14, // methods
+      21,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -79,26 +81,27 @@ Q_CONSTINIT static const uint qt_meta_data_ZN21Spectrum_Dialog_classE[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,  134,    2, 0x08,    1 /* Private */,
-       3,    1,  137,    2, 0x08,    3 /* Private */,
-       4,    1,  140,    2, 0x08,    5 /* Private */,
-       5,    1,  143,    2, 0x08,    7 /* Private */,
-       6,    1,  146,    2, 0x08,    9 /* Private */,
-       7,    1,  149,    2, 0x08,   11 /* Private */,
-       8,    1,  152,    2, 0x08,   13 /* Private */,
-       9,    1,  155,    2, 0x08,   15 /* Private */,
-      10,    1,  158,    2, 0x08,   17 /* Private */,
-      11,    1,  161,    2, 0x08,   19 /* Private */,
-      12,    1,  164,    2, 0x08,   21 /* Private */,
-      13,    1,  167,    2, 0x08,   23 /* Private */,
-      14,    1,  170,    2, 0x08,   25 /* Private */,
-      15,    1,  173,    2, 0x08,   27 /* Private */,
-      16,    1,  176,    2, 0x08,   29 /* Private */,
-      17,    0,  179,    2, 0x08,   31 /* Private */,
-      18,    0,  180,    2, 0x08,   32 /* Private */,
-      19,    0,  181,    2, 0x08,   33 /* Private */,
-      20,    0,  182,    2, 0x08,   34 /* Private */,
-      21,    0,  183,    2, 0x08,   35 /* Private */,
+       1,    1,  140,    2, 0x08,    1 /* Private */,
+       3,    1,  143,    2, 0x08,    3 /* Private */,
+       4,    1,  146,    2, 0x08,    5 /* Private */,
+       5,    1,  149,    2, 0x08,    7 /* Private */,
+       6,    1,  152,    2, 0x08,    9 /* Private */,
+       7,    1,  155,    2, 0x08,   11 /* Private */,
+       8,    1,  158,    2, 0x08,   13 /* Private */,
+       9,    1,  161,    2, 0x08,   15 /* Private */,
+      10,    1,  164,    2, 0x08,   17 /* Private */,
+      11,    1,  167,    2, 0x08,   19 /* Private */,
+      12,    1,  170,    2, 0x08,   21 /* Private */,
+      13,    1,  173,    2, 0x08,   23 /* Private */,
+      14,    1,  176,    2, 0x08,   25 /* Private */,
+      15,    1,  179,    2, 0x08,   27 /* Private */,
+      16,    1,  182,    2, 0x08,   29 /* Private */,
+      17,    0,  185,    2, 0x08,   31 /* Private */,
+      18,    0,  186,    2, 0x08,   32 /* Private */,
+      19,    0,  187,    2, 0x08,   33 /* Private */,
+      20,    0,  188,    2, 0x08,   34 /* Private */,
+      21,    0,  189,    2, 0x08,   35 /* Private */,
+      22,    1,  190,    2, 0x08,   36 /* Private */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::Int,    2,
@@ -121,6 +124,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN21Spectrum_Dialog_classE[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,   23,
 
        0        // eod
 };
@@ -188,7 +192,10 @@ Q_CONSTINIT const QMetaObject Spectrum_Dialog_class::staticMetaObject = { {
         // method 'select_spec_main'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'reset'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        // method 'adsr_slot'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>,
+        QtPrivate::TypeAndForceComplete<bool, std::false_type>
     >,
     nullptr
 } };
@@ -218,6 +225,7 @@ void Spectrum_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 17: _t->select_spec_vco(); break;
         case 18: _t->select_spec_main(); break;
         case 19: _t->reset(); break;
+        case 20: _t->adsr_slot((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
         default: ;
         }
     }
@@ -244,14 +252,14 @@ int Spectrum_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 20)
+        if (_id < 21)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 20;
+        _id -= 21;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 20)
+        if (_id < 21)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 20;
+        _id -= 21;
     }
     return _id;
 }

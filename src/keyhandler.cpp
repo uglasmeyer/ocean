@@ -18,13 +18,20 @@ keyboardState_class::keyboardState_class( interface_t* _sds )
 	sharps					= sds->Kbd_state.sharps;
 	ADSR_flag				= sds->Kbd_state.ADSR_flag;
 	sliding					= sds->Kbd_state.sliding;
+	change_octave			( 0 );
 };
 
+
+frq_t keyboardState_class::Get_basefrq()
+{
+	return basefrq;
+}
 
 void keyboardState_class::change_octave( int inc )
 {
 	kbd_note.base_octave		= check_range( Kbdoctave_range, kbd_note.base_octave  + inc, "change_octave" );
 	sds->Kbd_state.base_octave	= kbd_note.base_octave;
+	basefrq						= frqArray[ frqIndex( 0, kbd_note.base_octave ) ];
 }
 void keyboardState_class::set_accidental( uint loc, int dir  )
 {

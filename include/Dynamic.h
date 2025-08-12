@@ -14,8 +14,9 @@
 #include <Frequency.h>
 
 
-class Dynamic_class :
-	Logfacility_class
+class Dynamic_class
+	: virtual Logfacility_class
+	, virtual Frequency_class
 {
 	string 			className 			= "";
 	uint8_t			slideduration 		= 0;
@@ -42,9 +43,8 @@ public:
 
 	state_t			current;
 
-	Frequency_class	Frequency {};
 
-	Dynamic_class( range_T<int> r );
+			Dynamic_class( range_T<int> r );
 	virtual ~Dynamic_class();
 
 	uint8_t	SetupVol(int future_vol, int mode);

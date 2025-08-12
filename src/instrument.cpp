@@ -9,7 +9,6 @@
 #include <Config.h>
 #include <System.h>
 
-
 Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
 : Logfacility_class("Instrument_class")
 {
@@ -17,23 +16,23 @@ Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
 	sds_spectrum_vec 		= { &sds->VCO_spectrum,
 								&sds->FMO_spectrum,
 								&sds->OSC_spectrum};
-
-	assert ( Oscgroup.osc.MemData_p() != nullptr );
+    sds_adsr_vec			= { &sds->VCO_adsr,
+    							&sds->FMO_adsr,
+								&sds->OSC_adsr };
 
 	this->wd_p 				= _wd_p;
 	Oscgroup.SetWd( this->wd_p );
+	selfTest();
 }
 
-
-Instrument_class::~Instrument_class() = default;
-
-
-void Instrument_class::Set_msec( buffer_t frames )
+void Instrument_class::selfTest()
 {
-	uint16_t msec = frames / frames_per_msec;
-	Oscgroup.Set_Duration( msec );
+	assert ( Oscgroup.osc.MemData_p() != nullptr );
+	ASSERTION( fmo->spectrum.osc == osc_struct::FMOID, "fmo->spectrum.osc",
+				(int) fmo->spectrum.osc, (int) osc_struct::FMOID );
+	ASSERTION( fmo->adsr_data.spec.adsr == true, "fmo->adsr_data.spec.adsr",
+				(int) fmo->adsr_data.spec.adsr, 1 );
 }
-
 
 void Instrument_class::update_sds()
 {
@@ -44,26 +43,34 @@ void Instrument_class::update_sds()
 
 	Comment(INFO, "Update SDS data");
 
-	sds->OSC_features 		= Oscgroup.osc.feature;
+	sds->OSC_features 	= Oscgroup.osc.feature;
 	sds->OSC_wp			= Oscgroup.osc.wp;
 	sds->OSC_spectrum	= Oscgroup.osc.spectrum;
+	sds->OSC_adsr		= Oscgroup.osc.adsr_data;
 
-	sds->VCO_features 		= Oscgroup.vco.feature;
+	sds->VCO_features 	= Oscgroup.vco.feature;
 	sds->VCO_spectrum	= Oscgroup.vco.spectrum;
 	sds->VCO_wp			= Oscgroup.vco.wp;
+	sds->VCO_adsr		= Oscgroup.vco.adsr_data;
 
-	sds->FMO_features 		= Oscgroup.fmo.feature;
+	sds->FMO_features 	= Oscgroup.fmo.feature;
 	sds->FMO_wp			= Oscgroup.fmo.wp;
 	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
+	sds->FMO_adsr		= Oscgroup.fmo.adsr_data;
 
 	Update_sds_connect();
 }
 
-void Instrument_class::Update_spectrum()
+void Instrument_class::Update_osc_spectrum( char oscid )
 {
-	uint 		oscid 	= sds->Spectrum_type;
 	Oscillator* osc 	= Oscgroup.member[ oscid ];
-	osc->Set_spectrum( *sds_spectrum_vec[ oscid ] ) ;
+	osc->spectrum		= *sds_spectrum_vec[ oscid ] ;
+}
+
+void Instrument_class::Set_adsr( char oscid )
+{
+	Oscillator* osc 	= Oscgroup.member[ oscid ];
+	osc->Set_adsr		( *sds_adsr_vec[ oscid ] );
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -180,8 +187,8 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 {
 	String 	Str			{""};
-	sds->OSC_adsr.bps	= Str.secure_stoi( arr[2] );
-	sds->OSC_adsr.hall	= Str.secure_stoi( arr[3] );
+	sds->OSC_adsr.bps	= Str.secure_stoi( arr[3] );
+	sds->OSC_adsr.hall	= Str.secure_stoi( arr[2] );
 	sds->OSC_adsr.attack= Str.secure_stoi( arr[4] );
 	sds->OSC_adsr.decay	= Str.secure_stoi( arr[5] );
 
@@ -252,7 +259,7 @@ bool Instrument_class::read_version1( fstream* File )
 	string 			keyword;
 	vector_str_t 	arr 		{};
 	Oscillator* 	osc 		= nullptr;
-	Spectrum_class	Spectr;
+//	Spectrum_class	Spectr;
 
 	getline( *File, Str.Str );
 	do
@@ -268,9 +275,9 @@ bool Instrument_class::read_version1( fstream* File )
 		}
 		if ( osc != nullptr)
 		{
-			for( int num : Spectr.spectrumNum )
+			for( int num : osc->spectrumNum )
 			{
-				if ( strEqual(keyword, Spectr.spectrumTag[num] ) )
+				if ( strEqual(keyword, osc->spectrumTag[num] ) )
 				{
 					osc->spectrum = osc->Parse_data( arr, osc->typeId, num );
 					*sds_spectrum_vec[ osc->typeId ] = osc->spectrum;
@@ -285,10 +292,20 @@ bool Instrument_class::read_version1( fstream* File )
 	File->close();
 	return true;
 }
+
+void Instrument_class::assign_spectrum( const string& 	type,
+										const string& 	name,
+										const char& 	flag )
+{
+
+}
 bool Instrument_class::read_version2( fstream* File )
 {
 	String 			Str		{""};
-	string 			Keyword	{""};
+	string 			Type	{""};
+	char			TypeFlag=-1;
+	string			Name	{""};
+	char			NameFlag=-1;
 	vector_str_t 	arr 	{};
 	Oscillator* 	osc 	= nullptr;
 
@@ -297,36 +314,47 @@ bool Instrument_class::read_version2( fstream* File )
 	{
 		Str.normalize();
 		arr = Str.to_array( ',' );
-		Keyword = arr[0];
+		Type = arr[0];
 
-		if( strEqual( "Type", Keyword ))
+		if( strEqual( "Type", Type ))
 			{;} // ignore head line
 		else
-			osc 	= Oscgroup.Get_osc_by_name( arr[1] );
+		{
+			Name		= arr[1].substr(0,3);
+			NameFlag	= arr[1][arr[1].length()-1];
+			osc 		= Oscgroup.Get_osc_by_name( Name );
+			Type		= arr[0].substr(0,3);
+			if( strEqual( Type, "SPE" ))
+				TypeFlag	= osc->Type_flag( arr[0] );
+		}
 
-		if ( ( strEqual("ADSR", Keyword) ) )
+		if ( ( strEqual("ADS", Type) ) )
 		{
 			if ( file_version == 2 )
 				assign_adsr2( arr );
 			if (( file_version == 3 ) or ( file_version == 4 ))
 				assign_adsr3( arr );
 		}
-		if ( strEqual( "SPEV", Keyword ))
+		if ( strEqual( "SPE", Type ))
 		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEV );
-			osc->Set_volume( 	osc->spectrum.volidx[0], FIXED );
+			switch ( NameFlag )
+			{
+				case 'C' :
+				case 'O' : { osc->spectrum = osc->Parse_data( arr, osc->typeId, TypeFlag );
+							break; }
+				case 'A' : { osc->adsr_data.spec = osc->Parse_data( arr, osc->typeId, TypeFlag, true );
+							break; }
+				default  : { break; }
+			} // switch  Flag
+			switch ( TypeFlag )
+			{
+				case SPEF : { osc->Set_frequency(osc->spectrum.frqidx[0], SLIDE ); break; }
+				case SPEV : { osc->Set_volume( 	osc->spectrum.volidx[0], FIXED ); break; }
+				case SPEW : { osc->Set_waveform( osc->spectrum.wfid ); break; }
+				default : { break; }
+			} // switch  TypeFlag
 		}
-		if ( strEqual( "SPEF", Keyword ))
-		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEF );
-			osc->Set_frequency( osc->spectrum.frqidx[0], SLIDE );
-		}
-		if ( strEqual( "SPEW", Keyword ))
-		{
-			osc->spectrum 		= osc->Parse_data( arr, osc->typeId, SPEW );
-			osc->Set_waveform( 	osc->spectrum.wfid );
-		}
-		if ( strEqual( "CONN", Keyword ))
+		if ( strEqual( "CON", Type ))
 		{
 			Oscillator* sec 	= Oscgroup.Get_osc_by_name( arr[2]);
 			char 		mode 	= arr[3][0];
@@ -458,8 +486,8 @@ void Instrument_class::save_features( fstream& FILE )
 	Table_class Table{ opt };
 	Table.AddColumn("Type",	6 );
 	Table.AddColumn("Name",	6 );
-	Table.AddColumn("bps",	6 );
 	Table.AddColumn("hall",	6 );
+	Table.AddColumn("bps",	6 );
 	Table.AddColumn("decay",6 );
 	Table.AddColumn("atack",6 );
 	Table.AddColumn("slide",6 );
@@ -519,8 +547,9 @@ void Instrument_class::Save_Instrument( string str )
 
 	for ( Oscillator* osc : Oscgroup.member )
 	{
-		// Type SPEC
+		// Type SPE
 		osc->Save_spectrum_table( &FILE, osc->spectrum );
+		osc->Save_spectrum_table( &FILE, osc->adsr_data.spec );
 		// Type CONN
 		save_connections( FILE, osc );
 	}
@@ -544,14 +573,16 @@ bool Instrument_class::Set( string name )
 	return true;
 }
 
-#include <Osc.h>
 void Instrument_class::Test_Instrument()
 {
 
+
 	TEST_START( className );
+
 	assert( Set( ".test2" ) );
 
 	showOscfeatures( );
+
 	Save_Instrument( ".test2" );
 	showOscfeatures( );
 	ASSERTION( file_version == actual_version, "version", file_version , actual_version );
@@ -601,7 +632,8 @@ void Instrument_class::Test_Instrument()
 
 
 	assert( Set( ".test2" ) );
-	ASSERTION( sds->VCO_wp.PMW_dial == 98,"Set PMW_dial", (int)sds->VCO_wp.PMW_dial , 98);
+	ASSERTION( 	sds->VCO_wp.PMW_dial == 98,"Set PMW_dial",
+			(int)sds->VCO_wp.PMW_dial , 98);
 	assert( Oscgroup.vco.wp.PMW_dial == 98 );
 	string a = waveform_str_vec[ oscwaveform_struct::SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
@@ -615,8 +647,10 @@ void Instrument_class::Test_Instrument()
 
 
 	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
-	assert( Oscgroup.osc.adsr_data.hall == 0 );
-	assert( Oscgroup.osc.adsr_data.bps == 0 );
+	ASSERTION( 	 Oscgroup.osc.adsr_data.hall == 20, "Oscgroup.osc.adsr_data.hall",
+			(int)Oscgroup.osc.adsr_data.hall, 20 );
+	ASSERTION( 	 Oscgroup.osc.adsr_data.bps == 1, "Oscgroup.osc.adsr_data.bps",
+			(int)Oscgroup.osc.adsr_data.bps, 1);
 
 	TEST_END( className );
 	return;

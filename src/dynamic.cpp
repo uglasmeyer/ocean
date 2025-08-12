@@ -12,8 +12,9 @@
 
 #include <Dynamic.h>
 
-Dynamic_class::Dynamic_class( range_T<int> _range )  :
-Logfacility_class("Dynamic_class")
+Dynamic_class::Dynamic_class( range_T<int> _range )
+	: Logfacility_class("Dynamic_class")
+	, Frequency_class()
 {
 	className 	= Logfacility_class::className ;
 	range		= _range;
@@ -41,7 +42,7 @@ uint8_t Dynamic_class::SetupFrq(int future_frq, int _mode)
 	else
 		current.mode 	= _mode;
 	current.future	= check_range( range, future_frq, "SetupFrq" );
-	current.future_f= Frequency.GetFrq( current.future );
+	current.future_f= GetFrq( current.future );
 	setup();
 	return current.future;
 }

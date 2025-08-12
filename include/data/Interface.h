@@ -29,7 +29,7 @@ class Interface_class :
 public:
 
 //	Frequency_class 		Frequency 		{};
-	Spectrum_class			Spectrum 		{};
+//	Spectrum_class			Spectrum 		{};
 
 	interface_t 			ifd_data 	= interface_struct();
 	Shm_base				SHM			{ sizeof( ifd_data ) };

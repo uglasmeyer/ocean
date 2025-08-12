@@ -11,9 +11,7 @@ bool
 isopen = false;
 void SynthesizerTestCases()
 {
-	coutf << "SynthesizerTestCases" << endl;
-	Shm_base Shm_test;
-	Shm_test.Test_Memory();
+
 
 	Logfacility_class		Log( "SynthesizerTest" );
 	Log.Set_Loglevel( TEST, true );
@@ -26,12 +24,12 @@ void SynthesizerTestCases()
 
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
+	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
+
 	Application_class		App( &DaTA );
 	interface_t*			sds = DaTA.GetSdsAddr();
 	Mixer_class				Mixer{&DaTA, wd_p };
 
-
-	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
 	Note_class 				Notes{ wd_p };
 	Musicxml_class			MusicXML{};
 
@@ -41,7 +39,9 @@ void SynthesizerTestCases()
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };
-
+	coutf << "SynthesizerTestCases" << endl;
+	Shm_base Shm_test;
+	Shm_test.Test_Memory();
 	Frequency_class Frq {};
 	Frq.TestFrequency();
 

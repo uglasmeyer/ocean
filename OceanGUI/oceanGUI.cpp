@@ -57,7 +57,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	ui->setupUi(this);
 	initPanel();
 
-	Sds->Set(Sds_master->UpdateFlag, true);
+	Sds->Set( Sds_master->UpdateFlag, true);
 	Sds->Set( Sds->addr->UpdateFlag, true);
 	Sds->Set( Sds_master->Record, false);
 
@@ -80,7 +80,6 @@ MainWindow::~MainWindow()
 	if ( OscWidget_item ) delete ( OscWidget_item );
 }
 
-
 void MainWindow::GUI_Exit()
 {
     qDebug("%s", "Exit" );
@@ -92,6 +91,7 @@ void MainWindow::mixer_balance()
 	int value = ui->hs_balance->value();
 	Sds->Set( Sds->addr->mixer_balance, (int8_t) value );
 }
+
 void MainWindow::chord_delay()
 {
 	int value = ui->hs_chord_delay->value();
@@ -116,28 +116,18 @@ void MainWindow::cB_Capture( QString str )
     						ui->cB_Capture->setCurrentText( QCapture_str_lst[Eventlog.SPOOLING ] );
 }
 
-void MainWindow::adsr_decay()
-{
-//	uint8_t value = ui->hs_adsr_sustain->value();
-//    Sds->Set( Sds->addr->OSC_adsr.decay , value);
-//    Eventlog.add( SDS_ID,ADSR_KEY);
-}
 void MainWindow::adsr_hall( )
 {
 	uint8_t value = ui->hs_hall_effect->value();
     Sds->Set(Sds->addr->OSC_adsr.hall , value);
     Eventlog.add( SDS_ID, ADSR_KEY);
 }
-void MainWindow::adsr_attack()
-{
-//    uint8_t value = ui->hs_adsr_attack->value();
-//    Sds->Set(Sds->addr->OSC_adsr.attack , value );
-//    Eventlog.add( SDS_ID, ADSR_KEY);
-}
+
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
-//	uint8_t bps_val = ui->cb_bps->currentText().toInt();
     Sds->Set( Sds->addr->OSC_adsr.bps, (uint8_t) bps_id  );
+    Sds->Set( Sds->addr->VCO_adsr.bps, (uint8_t) bps_id  );
+    Sds->Set( Sds->addr->FMO_adsr.bps, (uint8_t) bps_id  );
 	Eventlog.add( SDS_ID, ADSR_KEY );
 }
 
@@ -195,11 +185,11 @@ void MainWindow::ADSR_Dialog()
     {
         Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::ADSRID );
     	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-        ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ] );
+        ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::ADSRID ] );
 
-    	Spectrum_Dialog_p->Set_adsr_flag( true );
         Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
 		this->Spectrum_Dialog_p->show();
+    	Spectrum_Dialog_p->Set_adsr_flag( true );
     }
 }
 
@@ -224,9 +214,13 @@ void MainWindow::Spectrum_Dialog()
     }
     else
     {
-    	Spectrum_Dialog_p->Set_adsr_flag( false );
+        Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::INSTRID );
+    	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
+        ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::INSTRID ] );
+
         Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
         this->Spectrum_Dialog_p->show();
+        this->Spectrum_Dialog_p->Set_adsr_flag( false );
     }
 }
 

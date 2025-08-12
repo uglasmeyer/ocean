@@ -68,6 +68,7 @@ class keyboardState_class
 
 	const range_T<uint>	sharps_range			{ 0, 3 }; // TODO reduced range
 	const range_T<uint>	flats_range				{ 0, 2 }; // TODO reduced range
+	frq_t				basefrq;
 
 public:
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
@@ -87,7 +88,7 @@ public:
 	void 				toggle_applyADSR		();
 	void 				set_slideMode			();
 	void 				set_accidental			( uint pitches, int dir  );
-
+	frq_t				Get_basefrq				( );
 
 } ;
 

@@ -54,8 +54,8 @@ void Event_class::Handler()
 	case UPDATESPECTRUM_KEY:
 	{
 		EvInfo( event, "Spectrum update");
-
-		Instrument->Update_spectrum();
+		char 		oscid 	= sds->Spectrum_type;
+		Instrument->Update_osc_spectrum( oscid );
 		Sds->Commit();
 		break;
 	}
@@ -106,7 +106,7 @@ void Event_class::Handler()
 		EvInfo( event, "VCO amplitude change");
 
 		Value vol = sds->VCO_wp.volume;
-		Instrument->vco->Set_volume(vol.ch, sds->frq_slidermode);
+		Instrument->vco->Set_volume(vol.ch, sds->vol_slidemode);
 
 		Instrument->Connect( Instrument->osc, Instrument->vco, 'V');
 		sds->VCO_spectrum.vol[0] = vol.val * 0.01;
@@ -120,7 +120,7 @@ void Event_class::Handler()
 		EvInfo( event, "FMO amplitude change");
 
 		Value vol = sds->FMO_wp.volume;
-		Instrument->fmo->Set_volume(vol.ch, sds->frq_slidermode);
+		Instrument->fmo->Set_volume(vol.ch, sds->vol_slidemode );
 		Instrument->Connect( Instrument->osc, Instrument->fmo, 'F' );
 		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
 		sds->FMO_spectrum.volidx[0] = vol.val;
@@ -177,7 +177,8 @@ void Event_class::Handler()
 	case ADSR_KEY:
 	{
 		EvInfo( event, "ADSR change");
-		Instrument->Oscgroup.SetAdsr( sds );
+		char oscid = sds->Spectrum_type;
+		Instrument->Set_adsr( oscid );
 
 		Sds->Commit();
 		break;
@@ -516,10 +517,11 @@ void Event_class::Handler()
 	}
 	case SAVEINSTRUMENTKEY:
 	{
+		string Name = Sds->Read_str( INSTRUMENTSTR_KEY );
 		Comment(INFO,
-				"saving current config to instrument " + Instrument->Name);
-		Instrument->Save_Instrument(Instrument->Name);
-		DaTA->EmitEvent( NEWINSTRUMENTFLAG, "Save " + Instrument->Name );
+				"saving current config to instrument " + Name);
+		Instrument->Save_Instrument( Name );
+		DaTA->EmitEvent( NEWINSTRUMENTFLAG, "Save " + Name );
 		Sds->Commit();
 		break;
 	}

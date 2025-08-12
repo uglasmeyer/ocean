@@ -44,7 +44,9 @@ void Keyboard_class::gen_chord_data( )
 	Osc->Set_volume( kbd_volume, FIXED );
 	for ( kbd_note_t note : kbd_note.note_vec )
 	{
-		Oscgroup.Set_Note_Frequency( instrument->osc->wp.freq, note.frqidx, frqMode );
+//		Oscgroup.Set_Note_Frequency( instrument->osc->wp.freq, note.frqidx, frqMode );
+
+		Oscgroup.Set_Combine_Frequency( note.frqidx, frqMode );
 		Oscgroup.Phase_Reset();
 		Oscgroup.Run_OSCs( n * delay_frames );
 		n++;

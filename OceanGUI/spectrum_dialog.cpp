@@ -38,8 +38,10 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     connect( ui->pB_save_spectrum, 	SIGNAL(clicked()), this, SLOT(save( )));
     connect( ui->rb_reset, 			SIGNAL(clicked()), this, SLOT(reset( )));
 
-    connect( ui->hs_attack,	SIGNAL(valueChanged(int)), 	this, SLOT(attack(int) ));
-    connect( ui->hs_decay,	SIGNAL(valueChanged(int)), 	this, SLOT(decay(int) ));
+    connect( ui->hs_attack	, SIGNAL(valueChanged(int)), 	this, SLOT(attack(int) ));
+    connect( ui->hs_decay	, SIGNAL(valueChanged(int)), 	this, SLOT(decay(int) ));
+
+    connect( ui->cb_adsr	, SIGNAL( clicked(bool)), 	this, SLOT( adsr_slot(bool) ));
 
     this->Sds   		    = gui;
     sds_p 					= Sds->addr;
@@ -51,6 +53,8 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     sds_adsr_vec			= { &sds_p->VCO_adsr,
     							&sds_p->FMO_adsr,
 								&sds_p->OSC_adsr };
+
+    ui->sb_adsrwf->setMaximum( adsrwf_range.max-1);
 
     this->instrument   		= this->Sds->Read_str( INSTRUMENTSTR_KEY );
 
@@ -65,25 +69,59 @@ Spectrum_Dialog_class::~Spectrum_Dialog_class()
 //   if( ui) delete(ui);
 }
 
+void Spectrum_Dialog_class::set_waveform_vec( vector<string> wf_vec )
+{
+	size_t max = wf_vec.size() - 1;
+    ui->sb_spwf1->setMaximum( max );
+    ui->sb_spwf2->setMaximum( max );
+    ui->sb_spwf3->setMaximum( max );
+    ui->sb_spwf4->setMaximum( max );
+    Waveform_vec= Vstringvector( wf_vec );
+}
+
+void Spectrum_Dialog_class::get_spectrum()
+{
+	if ( ADSR_flag )
+	{
+		spectrum			= sds_adsr_vec[ OscId ]->spec;
+		spectrum.adsr		= true;
+		set_waveform_vec( adsrwf_str_vec );
+		ui->lbl_waveform->setText( "" );
+	    ui->lbl_adsrwf->setText( Waveform_vec[ spectrum.wfid[1] ] );
+	}
+	else
+	{
+		spectrum			= *sds_spectrum_vec[ OscId ];
+		spectrum.adsr		= false;
+		set_waveform_vec( waveform_str_vec );
+	    ui->lbl_waveform->setText( Waveform_vec[ spectrum.wfid[1]] );
+	    ui->lbl_adsrwf->setText( "" );
+	}
+}
+void Spectrum_Dialog_class::set_spectrum()
+{
+	if ( ADSR_flag )
+	{
+	    Sds->Set( sds_p->WD_status.oscId, (uint8_t) OscId );
+	    Sds->Set( sds_p->WD_status.roleId, (uint8_t) osc_struct::ADSRID );
+		sds_adsr_vec[ OscId ]->spec = spectrum;
+		Eventlog_p->add( SDS_ID, ADSR_KEY );
+	}
+	else
+	{
+	    Sds->Set( sds_p->WD_status.oscId, (uint8_t) OscId );
+	    Sds->Set( sds_p->WD_status.roleId, (uint8_t) osc_struct::INSTRID );
+		*sds_spectrum_vec[ OscId ]	= spectrum;
+		Eventlog_p->add( SDS_ID, UPDATESPECTRUM_KEY );
+	}
+	Eventlog_p->add( SDS_ID, SETWAVEDISPLAYKEY );
+}
 void Spectrum_Dialog_class::select_spec( char oscid )
 {
 	sds_p->Spectrum_type 	= oscid;
 	OscId					= oscid;
-	if ( ADSR_flag )
-	{
-	    Sds->Set( sds_p->WD_status.oscId, (uint8_t) oscid );
-	    Sds->Set( sds_p->WD_status.roleId, (uint8_t) osc_struct::ADSRID );
-		spectrum				= sds_adsr_vec[ oscid ]->spec;
-	}
-	else
-	{
-	    Sds->Set( sds_p->WD_status.oscId, (uint8_t) oscid );
-	    Sds->Set( sds_p->WD_status.roleId, (uint8_t) osc_struct::INSTRID );
-		spectrum				= *sds_spectrum_vec[ oscid ];
-	}
-	Eventlog_p->add( SDS_ID, SETWAVEDISPLAYKEY );
-
-	Setup_widgets( spectrum );
+	get_spectrum			();
+	Setup_widgets			( spectrum );
 };
 
 void Spectrum_Dialog_class::select_spec_fmo()
@@ -100,12 +138,14 @@ void Spectrum_Dialog_class::select_spec_main()
 }
 void Spectrum_Dialog_class::Set_adsr_flag( bool flag )
 {
-	ADSR_flag 				= flag;
-//	ui->cb_adsr->setChecked( ADSR_flag );
-	select_spec( sds_p->Spectrum_type  );
-
+	ADSR_flag 	= flag;
+	select_spec	( OscId );
+	ui->cb_adsr->setChecked( flag );
 }
-
+void Spectrum_Dialog_class::adsr_slot( bool flag )
+{
+	Set_adsr_flag( flag );
+}
 void Spectrum_Dialog_class::attack(int value )
 {
 	Sds->Set( sds_adsr_vec[ OscId ]->attack, (uint8_t) value );
@@ -125,8 +165,6 @@ void Spectrum_Dialog_class::reset()
 	ui->rb_reset->setChecked( false );
 }
 
-
-
 void Spectrum_Dialog_class::Update_spectrum()
 {
     string  newinstrument      = this->Sds->Read_str( INSTRUMENTSTR_KEY );
@@ -134,79 +172,74 @@ void Spectrum_Dialog_class::Update_spectrum()
     if ( newinstrument.compare( instrument ) != 0 )
     {
         instrument 	= newinstrument;
-        spectrum 	= *sds_spectrum_vec[ sds_p->Spectrum_type ];
+        get_spectrum();
         Setup_widgets( spectrum );
         return;
     }
 }
 
-auto spec_frq_slider = []( Spectrum_Dialog_class& C, int channel, int value )
+void Spectrum_Dialog_class::spec_frq_slider( int channel, int value )
 {
-    char oscid = C.sds_p->Spectrum_type;
-	C.spectrum = *C.sds_spectrum_vec[ oscid ];
-	C.spectrum.frqidx[ channel ] = check_range(  frqarr_range, value, "spec_frq_slider");
-	float frqadj =  C.Spectrum.Frqadj(channel, value); // see osc.cpp
-	C.spectrum.frqadj[ channel ] = frqadj;
-    *C.sds_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
-    C.Eventlog_p->add( C.SDS_ID, UPDATESPECTRUM_KEY );	// the synthesizer is notified
-    C.ui->lcd_spectrumDisplay->display( frqadj );
-    C.ui->lbl_spectrumDisplay->setText( "[Hz]");
+	spectrum.frqidx[ channel ] = check_range(  frqarr_range, value, "spec_frq_slider");
+	float frqadj =  Spectrum.Frqadj(channel, value); // see osc.cpp
+	spectrum.frqadj[ channel ] = frqadj;
+	set_spectrum();
+    ui->lcd_spectrumDisplay->display( frqadj );
+    ui->lbl_spectrumDisplay->setText( "[Hz]");
 };
 
-auto spec_vol_slider = []( Spectrum_Dialog_class& C, int channel, int value )
+void Spectrum_Dialog_class::spec_vol_slider( int channel, int value )
 {
-    char oscid = C.sds_p->Spectrum_type;
-	C.spectrum = *C.sds_spectrum_vec[ oscid ];
-	C.spectrum.volidx[ channel ] = value;
-    C.Sum( C.spectrum ); // fill vol
-    *C.sds_spectrum_vec[ oscid ] = C.spectrum;  // the active GUI spectrum is updated
-    C.Eventlog_p->add( C.SDS_ID, UPDATESPECTRUM_KEY );	// the synthesizer is notified
-    C.ui->lcd_spectrumDisplay->display( C.spectrum.vol[ channel ] * 100 );
-    C.ui->lbl_spectrumDisplay->setText( "Amp [%]");
+	spectrum.volidx[ channel ] = value;
+    Sum( spectrum ); // fill vol
+    set_spectrum();
+    ui->lcd_spectrumDisplay->display( spectrum.vol[ channel ] * 100 );
+    ui->lbl_spectrumDisplay->setText( "Amp [%]");
 };
 
 void Spectrum_Dialog_class::fS1( int value )
 {
-	spec_frq_slider( *this, 1, value );
+	spec_frq_slider( 1, value );
 }
 void Spectrum_Dialog_class::vS2( int value )
 {
-	spec_vol_slider( *this, 1, value );
+	spec_vol_slider( 1, value );
 }
 void Spectrum_Dialog_class::fS3( int value )
 {
-	spec_frq_slider( *this, 2, value );
+	spec_frq_slider( 2, value );
 }
 void Spectrum_Dialog_class::vS4( int value )
 {
-	spec_vol_slider( *this, 2, value );
+	spec_vol_slider( 2, value );
 }
 void Spectrum_Dialog_class::fS5( int value )
 {
-	spec_frq_slider( *this, 3, value );
+	spec_frq_slider( 3, value );
 }
 void Spectrum_Dialog_class::vS6( int value )
 {
-	spec_vol_slider( *this, 3, value );
+	spec_vol_slider( 3, value );
 }
 void Spectrum_Dialog_class::fS7( int value )
 {
-	spec_frq_slider( *this, 4, value );
+	spec_frq_slider( 4, value );
 }
 void Spectrum_Dialog_class::vS8( int value )
 {
-	spec_vol_slider( *this, 4, value );
+	spec_vol_slider(  4, value );
 }
 
-auto ScrollBar_Wafeform = [  ]( Spectrum_Dialog_class* S, uint id, int value  )
+void Spectrum_Dialog_class::ScrollBar_Wafeform( uint id, int value  )
 {
-	S->spectrum = *S->sds_spectrum_vec[ S->OscId ];
-	S->spectrum.wfid[id] = value;
-	*S->sds_spectrum_vec[ S->OscId ] = S->spectrum;
-	S->Eventlog_p->add( S->SDS_ID, UPDATESPECTRUM_KEY );
+//	S->spectrum = *S->sds_spectrum_vec[ S->OscId ];
 
-	QString QStr = S->Waveform_vec[ value ];
-	S->ui->lbl_waveform->setText( QStr );
+	spectrum.wfid[id] = value;
+	set_spectrum();
+//	*S->sds_spectrum_vec[ S->OscId ] = S->spectrum;
+
+	QString QStr = Waveform_vec[ value ];
+	ui->lbl_waveform->setText( QStr );
 };
 
 void Spectrum_Dialog_class::adsrwf( int value )
@@ -216,31 +249,31 @@ void Spectrum_Dialog_class::adsrwf( int value )
 	ui->lbl_adsrwf->setText( Qstring( adsrwf_str_vec[wfid]) );
 	Sds->Set( sds_adsr_vec[ OscId ]->spec.wfid[0], wfid );
 	Eventlog_p->add( SDS_ID, ADSR_KEY );
-	coutf << "oscid " << OscId << " wfid " << wfid << endl;
+//	coutf << "oscid " << OscId << " wfid " << wfid << endl;
 }
 void Spectrum_Dialog_class::sb_wf1(int value )
 {
 	uint wfid = value % waveform_vec_len;
 	ui->sb_spwf1->setValue( wfid );
-	ScrollBar_Wafeform( this, 1, value );
+	ScrollBar_Wafeform( 1, value );
 }
 void Spectrum_Dialog_class::sb_wf2(int value )
 {
 	uint wfid = value % waveform_vec_len;
 	ui->sb_spwf2->setValue( wfid );
-	ScrollBar_Wafeform( this,2, value );
+	ScrollBar_Wafeform( 2, value );
 }
 void Spectrum_Dialog_class::sb_wf3(int value )
 {
 	uint wfid = value % waveform_vec_len;
 	ui->sb_spwf3->setValue( wfid );
-	ScrollBar_Wafeform( this,3, value );
+	ScrollBar_Wafeform( 3, value );
 }
 void Spectrum_Dialog_class::sb_wf4(int value )
 {
 	uint wfid = value % waveform_vec_len;
 	ui->sb_spwf4->setValue( wfid );
-	ScrollBar_Wafeform( this,4, value );
+	ScrollBar_Wafeform( 4, value );
 }
 
 void Spectrum_Dialog_class::save()
@@ -295,10 +328,8 @@ void Spectrum_Dialog_class::Setup_widgets(  spectrum_t spectrum)
     ui->sb_spwf3->setValue( spectrum.wfid[3] );
     ui->sb_spwf4->setValue( spectrum.wfid[4] );
 
-    ui->hs_attack->setValue( sds_p->FMO_adsr.attack );
-    ui->hs_decay ->setValue( sds_p->FMO_adsr.decay  );
+    ui->hs_attack->setValue( sds_adsr_vec[OscId]->attack );
+    ui->hs_decay ->setValue( sds_adsr_vec[OscId]->decay  );
 
     ui->lbl_instrument->setText( Qstring( instrument ) );
-
-    ui->lbl_waveform->setText( Waveform_vec[ spectrum.wfid[1]] );
 }

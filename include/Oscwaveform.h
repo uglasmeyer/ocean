@@ -11,31 +11,16 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-struct oscwaveform_struct
-{
-	enum waveformId
-	{
-		SINUS,
-		TRIANGLE,
-		SGNSIN,
-		RECTANGLE,
-		SAWTOOTHL,
-		SAWTOOTHR,
-		PMW,
-		DELTA,
-		NOISE,
-		RANDOM
-	};
-};
+
 typedef struct param_struct
 {
 	float amp		= 0.0;
 	phi_t phi		= 0.0;
 	phi_t dphi		= 0.0;
 	phi_t maxphi 	= 0.0;
-	phi_t hphi		= 0.0;
 	float pmw		= 0.0;
 } param_t;
+
 typedef function<Data_t( param_t& )>	wave_function_t;
 struct waveFnc_struct
 {

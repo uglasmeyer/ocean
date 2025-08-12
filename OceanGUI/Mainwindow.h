@@ -178,7 +178,6 @@ private slots:
     void slideFrq( int );
     void cB_Beat_per_sec( int );
     void dial_PMW_value_changed();
-    void adsr_attack();
     void mixer_balance();
     void chord_delay();
 
@@ -261,7 +260,6 @@ private slots:
     void Save_Config();
     void toggle_Mute();
 
-    void adsr_decay();
     void adsr_hall();
 
     void pB_Debug_clicked();
@@ -269,8 +267,6 @@ private slots:
     void pB_oscgroup_clicked();
     void pB_Wavedisplay_clicked();
     void pB_fftmode_clicked();
-
-
 
 };
 

@@ -155,7 +155,7 @@ void Wavedisplay_class::Write_wavedata()
 			return;
 		for( uint n = 0; n < wavedisplay_len; n++ )
 		{
-			display_data[n] = display_data[n] * 1024 * 16;
+			display_data[n] = display_data[n] * 1024 * 8;
 		}
 	};
 	gen_cxwave_data(  );

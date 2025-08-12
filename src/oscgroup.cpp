@@ -7,17 +7,18 @@
 
 #include <Oscgroup.h>
 
-Oscgroup_class::Oscgroup_class( char role, buffer_t bytes ) :
-  Logfacility_class( "Oscgroup" ),
-  Note_base(),
-  vco( role, osc_struct::VCOID, bytes ),
-  fmo( role, osc_struct::FMOID, bytes ),
-  osc( role, osc_struct::OSCID, bytes )
+Oscgroup_class::Oscgroup_class( char role, buffer_t bytes )
+	: Logfacility_class( "Oscgroup" )
+	, Frequency_class()
+	, Note_base()
+	, vco( role, osc_struct::VCOID, bytes )
+	, fmo( role, osc_struct::FMOID, bytes )
+	, osc( role, osc_struct::OSCID, bytes )
 {
 	member 			= { &vco, &fmo, &osc };
 	oscroleId 		= role;
 	Data_Reset();
-
+	selfTest();
 }
 void Oscgroup_class::operator=( const Oscgroup_class& oscg )
 {
@@ -42,7 +43,6 @@ void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
 	SetAdsr			( sds );
 	SetFeatures		( sds->OSC_features );
 	Set_Connections	( sds );
-
 }
 
 void Oscgroup_class::SetFeatures( const feature_t& value )
@@ -56,6 +56,7 @@ void Oscgroup_class::SetAdsr( const interface_t* sds )
 	vco.Set_adsr(  sds->VCO_adsr );
 	fmo.Set_adsr(  sds->FMO_adsr );
 }
+
 void Oscgroup_class::SetAdsr( )
 {
 	std::ranges::for_each( member, [ ](Oscillator*  o)
@@ -115,6 +116,8 @@ void Oscgroup_class::Set_Note_Frequency( 	const frq_t& base_freq,
 											const uint8_t& idx,
 											const uint& mode )
 {
+	Set_Combine_Frequency( idx, mode );
+	return;
 	osc.Set_frequency( idx, mode );
 
 	frq_t ratio = osc.wp.freq / base_freq;
@@ -129,7 +132,7 @@ void Oscgroup_class::Set_Combine_Frequency( const uint8_t& idx, const uint& mode
 	vco.Set_frequency( vco.wp.frqidx + diff, mode );
 	fmo.Set_frequency( fmo.wp.frqidx + diff, mode );
 
-	coutf << "Set_Combine_Frequency " << (int)diff << endl;
+	Comment( DEBUG, "Set_Combine_Frequency ", (int)diff);
 }
 
 void Oscgroup_class::Set_Duration( const uint& msec )
@@ -207,4 +210,12 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 		{ EXCEPTION( "unknown Oscillator name: " + name ); }
 
 	return ret;
+}
+
+void Oscgroup_class::selfTest()
+{
+	ASSERTION( fmo.spectrum.osc == osc_struct::FMOID, "fmo.spectrum.osc",
+				(int) fmo.spectrum.osc, (int) osc_struct::FMOID );
+	ASSERTION( fmo.adsr_data.spec.adsr == true, "fmo.adsr_data.spec.adsr",
+				(int) fmo.adsr_data.spec.adsr, 1 );
 }

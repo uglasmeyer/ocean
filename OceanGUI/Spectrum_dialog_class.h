@@ -88,9 +88,22 @@ private slots:
     void select_spec_main();
     void reset();
 
+    void adsr_slot( bool flag );
+
+
+
 private:
     bool ADSR_flag = false;
     void select_spec( char oscid );
+    void set_spectrum();
+    void get_spectrum();
+    void ScrollBar_Wafeform( uint id, int value  );
+    void spec_vol_slider( int channel, int value );
+    void spec_frq_slider( int channel, int value );
+    void set_waveform_vec( vector<string> waveform_vec );
+
+
+
 
 };
 

@@ -17,6 +17,7 @@
 
 class 						Oscgroup_class :
 	public virtual 			Logfacility_class,
+	virtual					Frequency_class,
 	public virtual 			Note_base
 {
 public:
@@ -60,6 +61,10 @@ public:
 
 	void 					Show_sound_stack	();
 	void 					Instrument_fromSDS			( interface_t* sds );
+
+private:
+	void 					selfTest			();
+
 
 };
 

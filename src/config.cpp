@@ -80,7 +80,7 @@ string install_struct::baseDir( )
 	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
 	{
 		basedir = Env;// + "/";
-		Comment( INFO, "using " + Envvar +" "+ basedir );
+		Comment( DEBUG, "using " + Envvar +" "+ basedir );
 		return basedir;
 	}
 	Comment( INFO, "not in " + Envvar );
@@ -95,7 +95,7 @@ string install_struct::baseDir( )
 		if( filesystem::is_regular_file( cfgname ) )
 		{
 			basedir = parentpath + "/../" ;
-			Comment( INFO, "using oceanbasedir " + basedir );
+			Comment( DEBUG, "using oceanbasedir " + basedir );
 			return basedir;
 		}
 	Comment( INFO, "not in searchPATH" );

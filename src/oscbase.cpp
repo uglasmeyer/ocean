@@ -7,11 +7,21 @@
 
 #include <Oscbase.h>
 
-Oscillator_base::Oscillator_base() :
-	Logfacility_class( "Oscillator_base" ),
-	Spectrum_class()
+Oscillator_base::Oscillator_base()
+	: Logfacility_class( "Oscillator_base" )
+	, Spectrum_class()
 {
+	this->spectrum = Spectrum_class::spec_struct();
 };
+
+Oscillator_base::Oscillator_base( char osc_type ) :
+	Logfacility_class( "Oscillator_base" ),
+	Spectrum_class( osc_type, false )
+{
+	this->spectrum 	= Get_spectrum();
+	typeId			= osc_type;
+};
+
 void Oscillator_base::Setwp_frames( uint16_t msec )
 {
 	wp.msec 	= msec;

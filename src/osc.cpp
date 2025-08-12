@@ -8,13 +8,15 @@
 #include <Osc.h>
 #include <Oscwaveform.h>
 
-Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes ) :
-	Logfacility_class	( "Oscillator" ),
-	ADSR_class			(),
-	Mem_vco				( bytes ),
-	Mem_fmo				( bytes ),
-	Mem					( bytes ),
-	scanner				( Mem.Data, min_frames, Mem.mem_ds.data_blocks )
+Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
+	: Logfacility_class	( "Oscillator" )
+	, Spectrum_class		( type_id, false )
+	, Oscillator_base		( type_id )
+	, ADSR_class			( type_id )
+	, Mem_vco				( bytes )
+	, Mem_fmo				( bytes )
+	, Mem					( bytes )
+	, scanner				( Mem.Data, min_frames, Mem.mem_ds.data_blocks )
 {
 	className 		= Logfacility_class::className;
 	mem_frames		= Mem.mem_ds.data_blocks ;
@@ -298,7 +300,6 @@ void Oscillator::Test()
 	float ftest = GetFrq( testosc.wp.frqidx);
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );
 
-	ADSR_class Adsr {};
 	TEST_END( className );
 
 }

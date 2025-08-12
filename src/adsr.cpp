@@ -8,12 +8,24 @@
 #include <Adsr.h>
 #include <Oscwaveform.h>
 
-ADSR_class::ADSR_class() :
-	Logfacility_class("ADSR_class")
+ADSR_class::ADSR_class( char _typeid )
+	: Logfacility_class("ADSR_class")
+	, Spectrum_class( _typeid, true )
+	, Oscillator_base( _typeid )
+{
+	className 			= Logfacility_class::className;
+	adsr_data.spec.adsr	= true;
+	adsr_data.spec.osc	= _typeid;
+};
+
+ADSR_class::ADSR_class()
+	: Logfacility_class("ADSR_class")
+	, Oscillator_base()
 {
 	className = Logfacility_class::className;
-
+	adsr_data.spec.adsr = true;
 };
+
 ADSR_class::~ADSR_class()
 {
 	if( LogMask[ DEBUG ] )
@@ -47,22 +59,23 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 		Comment( DEBUG, "beat_cursor: " , (int) beat_cursor );
 }
 
-/* maxima
-kill(all);
-attack  : 10;
-decay	: 95;
-beatframes : 24000;
-aframes : beatframes * attack^2 / 100;
-d_delta	: ( (100 - decay )/3.0) / beatframes;
-y0		: exp( - (beatframes-aframes) * d_delta );
-d_alpha	: (1-y0)/aframes;
-fattack : y0 + n^2*d_alpha;
-fdecay	: exp( - ( n - aframes ) * d_delta );
-plot2d([fattack, fdecay], [n,0,beatframes],[y,0,2]);
 
-*/
 auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_delta  )
 {
+	/* maxima
+	kill(all);
+	attack  : 10;
+	decay	: 95;
+	beatframes : 24000;
+	aframes : beatframes * attack^2 / 100;
+	d_delta	: ( (100 - decay )/3.0) / beatframes;
+	y0		: exp( - (beatframes-aframes) * d_delta );
+	d_alpha	: (1-y0)/aframes;
+	fattack : y0 + n^2*d_alpha;
+	fdecay	: exp( - ( n - aframes ) * d_delta );
+	plot2d([fattack, fdecay], [n,0,beatframes],[y,0,2]);
+	*/
+
 	if ( n < aframes ) 	// attack
 	{
 		return ( y0 + n*dy );
@@ -74,35 +87,60 @@ auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_
 	}
 };
 
-void ADSR_class::adsrOSC( buffer_t bframes )
+Memory			adsr_Fnc		{ monobuffer_bytes };
+void ADSR_class::adsrOSC( const buffer_t& bframes )
 {
 
 	if ( bframes == 0 ) return;
 
-
-	param_t			param 		= param_struct();
-	uint8_t			wfid		= adsr_data.spec.wfid[0];
-	wave_function_t	fnc			= adsrFunction_vec[ wfid ].fnc ;
-					param.maxphi= adsrFunction_vec[ wfid ].maxphi;
-	float 			dT 			= param.maxphi / bframes;
-	float 			freq 		= 1.0;
-					param.dphi	= dT *( freq );
-					param.amp	= 1.0;
-
 	buffer_t		aframes 	= 1;
 	if ( adsr_data.attack 	> 0 )
-					aframes 	= rint ( ( bframes * adsr_data.attack ) * 0.01 );;
-	const float 	d_delta		= ( (100 - adsr_data.decay )/3.0) / bframes;
-	const float 	delta 		= (bframes - aframes) * d_delta;
+					aframes 	= rint ( bframes * adsr_data.attack * 0.01 );
+	const float 	d_delta		= ( ( 100 - adsr_data.decay ) / 3.0 ) / bframes;
+	const float 	delta 		= ( bframes - aframes ) * d_delta;
 	const float		y0 			= expf( - delta );
 	const float 	dy			= (1.0 - y0) / aframes;
 
 	for ( buffer_t n = 0; n < bframes ; n++ )
 	{
-		param.phi	= param.phi + param.dphi;
-		param.phi 	= MODPHI( param.phi, param.maxphi );
+//		adsr_Fnc.Data[n] 		= adsr_fnc( aframes, n, y0, dy, d_delta );
+		adsr_Fnc.Data[n] 		= adsr_fnc( aframes, n, y0, dy, d_delta );
+		adsr_Mem.Data[n]		= adsr_Fnc.Data[n];
+	}
+	for ( buffer_t n = bframes; n < adsr_frames ; n++ )
+	{
+		adsr_Mem.Data[n] 		= 0.0;
+	}
 
-		adsr_Mem.Data[n] = adsr_fnc( aframes, n, y0, dy, d_delta ) * fnc( param );
+	adsr_data.spec.volidx[0]	= volidx_range.max;
+	adsr_data.spec.vol[0] 		= volidx_range.max * 0.01;
+
+	Spectrum_class::Sum( adsr_data.spec );
+
+	param_t			param 		= param_struct();
+					param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
+	spectrum_t		spec 		= adsr_data.spec;
+
+	for ( size_t channel = 1; channel < spec_arr_len; channel++ )
+	{
+		if ( spec.volidx[channel] > 0 )
+		{
+
+			uint8_t			wfid		= spec.wfid[ channel ];
+			wave_function_t	fnc			= adsrFunction_vec[ wfid ].fnc ;
+							param.maxphi= adsrFunction_vec[ wfid ].maxphi;
+			float 			dT 			= param.maxphi / bframes;
+							param.dphi	= dT * spec.frqadj[ channel ];// * adsr_data.bps;
+							param.phi	= 0.0;
+							param.amp	= spec.vol[ channel ]  ;
+			for ( buffer_t n = 0; n < bframes ; n++ )
+			{
+//				adsr_Mem.Data[n] 	+= adsr_Fnc.Data[n] * fnc( param );
+				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] + fnc( param );
+				param.phi			= param.phi + param.dphi;
+				param.phi 			= MODPHI( param.phi, param.maxphi );
+			}
+		}
 	}
 }
 

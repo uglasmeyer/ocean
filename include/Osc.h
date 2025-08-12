@@ -18,6 +18,8 @@
 
 class Oscillator :
 	virtual public 	Logfacility_class,
+	virtual public 	Spectrum_class,
+	virtual public 	Oscillator_base,
 	virtual public 	ADSR_class
 {
 	string 			className = "";
@@ -29,6 +31,7 @@ public:
 	buffer_t		mem_frames;
 
 	Scanner_class	scanner;
+
 
 					Oscillator			( char role_id, char type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;

@@ -39,7 +39,7 @@ typedef struct bps_struct
 typedef	struct wave_struct
 { // SDS related
 
-	uint8_t		frqidx		= C4;
+	uint8_t		frqidx		= A3;
 	frq_t		freq		= 220;
 	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
 	uint8_t		PMW_dial 	= 50;
@@ -102,12 +102,12 @@ public:
 	wave_t 			wp 			= wave_struct();
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
-	spectrum_t		spectrum	= spec_struct();
+	spectrum_t		spectrum	;//= Spectrum_class::spec_struct();
 
 	Dynamic_class	DynFrequency{ frqarr_range };
 
 					Oscillator_base() ;
-
+					Oscillator_base( char osc_type );
 	virtual 		~Oscillator_base() = default;
 
 	bool			kbd_trigger = false;

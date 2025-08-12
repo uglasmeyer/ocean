@@ -32,12 +32,12 @@ public:
 	Wavedisplay_class*		wd_p		= nullptr;
 
 							Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
-	virtual 				~Instrument_class();
+	virtual 				~Instrument_class() = default;
 ;
 	bool 					Set( string );
 	void 					Save_Instrument( string );
-	void 					Set_msec( buffer_t frames );
-	void 					Update_spectrum();
+	void					Set_adsr( char osdid );
+	void 					Update_osc_spectrum( char oscid );
 	void 					Update_sds_connect( );
 	void 					Connect( Oscillator* osc, Oscillator* sec, char mode );
 
@@ -45,6 +45,7 @@ public:
 
 private:
 	vector<spectrum_t*>		sds_spectrum_vec		{};
+	vector<adsr_t*>			sds_adsr_vec			{};
 	string 					Instrument_file			= "";
 	file_structure			fs						{};
 	string 					Default_instrument_file = fs.instrumentdir + fs.default_snd;
@@ -53,21 +54,25 @@ private:
 	set<int>				supported 				{ 0, 1, 2, 3, 4 };
 	int						actual_version			= 4;
 
+	void 					selfTest				();
 	void 					set_name( string );
-	void 					set_new_name( string );
-	bool 					assign_adsr ( vector_str_t );
-	bool					assign_adsr2( const vector_str_t& arr );
-	bool 					assign_adsr3( const vector_str_t& arr );
-	void 					showOscfeatures( fstream* FILE = nullptr );
-	bool 					read_instrument( );
-	bool 					init_connections(  );
+	void 					set_new_name( 	string );
+	bool 					assign_adsr ( 	vector_str_t );
+	bool					assign_adsr2( 	const vector_str_t& arr );
+	bool 					assign_adsr3( 	const vector_str_t& arr );
+	void 					assign_spectrum(const string& 	type,
+											const string& 	name,
+											const char& 	flag );
+	void 					showOscfeatures(fstream* FILE = nullptr );
+	bool 					read_instrument();
+	bool 					init_connections();
 	bool 					connect_by_name(string, string, char );
 	void 					init_data_structure( Oscillator*, vector_str_t);
 	void 					update_sds();
-	int 					getVersion( fstream& File );
-	bool					read_version1( fstream* File );
-	bool					read_version2( fstream* File );
-	void 					save_features( fstream& FILE );
+	int 					getVersion( 	fstream& File );
+	bool					read_version1( 	fstream* File );
+	bool					read_version2( 	fstream* File );
+	void 					save_features( 	fstream& FILE );
 	void 					save_connections( fstream& FILE, Oscillator* osc );
 };
 

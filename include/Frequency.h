@@ -27,8 +27,8 @@ constexpr uint frqIndex( const int& note, const int& octave )
 	int idx = octave*oct_steps + note + C0;
 	return  check_range( frqarr_range, idx, "frqIndex" );
 };
-constexpr uint8_t					A3			= frqIndex(9,3);
-constexpr uint8_t					C4			= frqIndex(0,4);
+constexpr uint8_t					A3			= frqIndex(9,3); // 220 Hz
+constexpr uint8_t					C4			= frqIndex(0,4); // 261 Hz
 
 extern frqarray_t 					frqArray;
 extern frqstrarr_t 					frqNamesArray;

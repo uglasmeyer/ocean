@@ -15,6 +15,16 @@
 	auto rline = []( string s, auto v )
 		{ cout << setw(20) << dec  << setfill('.') 	<< left <<s << setw(20) << v << endl;};
 
+ViewInterface_class::ViewInterface_class( char appid, Dataworld_class* DaTA )
+//	: ADSR_class()
+//	, sdsstate_struct()
+	: Appstate( appid, nullptr, DaTA->Sds_p->addr, &DaTA->Reg )
+{
+	className 		= Logfacility_class::className;
+	this->DaTA		= DaTA;
+	Sds_p			= DaTA->Sds_p;
+};
+
 string ViewInterface_class::Decode( uint8_t idx)
 {
 	return state_map[ idx ];
@@ -44,7 +54,15 @@ void ViewInterface_class::show_Que()
 	cout.precision(5);
 	for( uint n = 0; n< 20; n++ )
 		cout << sds->wavedata[n] << " " ;
-	cout << endl;
+	cout << " ..." << endl;
+	Table_class Table { "Wavedisplay Status" };
+	Table.AddColumn( "Feature", 20 );
+	Table.AddColumn( "Value", 10 );
+	Table.PrintHeader();
+	Table.AddRow( "Role", osc_struct().roles[ sds->WD_status.roleId ] );
+	Table.AddRow( "Osc"	, osc_struct().types[ sds->WD_status.oscId ] );
+	Table.AddRow( "Mode", wavedisplay_struct().types[ sds->WD_status.wd_mode ] );
+	Table.AddRow( "FFT"	, wavedisplay_struct().fftmodes[ sds->WD_status.fftmode ] );
 }
 void ViewInterface_class::show_Ipc()
 {
@@ -80,7 +98,19 @@ void ViewInterface_class::show_spectrum()
 	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->FMO_spectrum ));
 	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->FMO_spectrum ));
 
-	rline( "ADSR wafeform  " , Show_spectrum_type( SPEW, sds->OSC_adsr.spec ));
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->OSC_adsr.spec ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->OSC_adsr.spec ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->OSC_adsr.spec ));
+	cout << endl;
+
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->VCO_adsr.spec ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->VCO_adsr.spec ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->VCO_adsr.spec ));
+	cout << endl;
+
+	rline( "Spectrum volume    " , Show_spectrum_type( SPEV, sds->FMO_adsr.spec ));
+	rline( "Spectrum frequency " , Show_spectrum_type( SPEF, sds->FMO_adsr.spec ));
+	rline( "Spectrum wafeform  " , Show_spectrum_type( SPEW, sds->FMO_adsr.spec ));
 
 }
 void ViewInterface_class::showStates()

@@ -9,22 +9,37 @@
 /*
  * Spectrum_base
  */
+
+
 Spectrum_class::Spectrum_class() :
-	Logfacility_class("Spectrum"),
-	Frequency_class(),
-	oscwaveform_struct()
+	Logfacility_class("Spectrum")
 {
-	className = Logfacility_class::className;
+	className 		= Logfacility_class::className;
+	spectrum		= spec_struct();
+	coutf << Show_this_spectrum();
 }
 
+Spectrum_class::Spectrum_class( char osc_type, bool adsr_type ) :
+	Logfacility_class("Spectrum")
+{
+	className 			= Logfacility_class::className;
+	this->spectrum		= spec_struct();
+	this->spectrum.osc 	= osc_type;
+	this->spectrum.adsr	= adsr_type;
+	coutf << Show_this_spectrum();
+}
+spectrum_t Spectrum_class::Get_spectrum()
+{
+	return this->spectrum;
+}
 void Spectrum_class::assign_frq( int channel, string str  )
 {
 	int value = 0;
 	String Str{""};
 	if ( str.length() > 0 )
 	{
-		value = Str.secure_stoi( str );
-		spectrum.frqidx[channel] = check_range( frqarr_range, value, "assign_frq" );
+		value 					= Str.secure_stoi( str );
+		spectrum.frqidx[channel]= check_range( frqarr_range, value, "assign_frq" );
 	}
 	else
 		spectrum.frqidx[channel] = 0;
@@ -55,15 +70,29 @@ void Spectrum_class::assign_waveform( int i, string str  )
 	else
 		spectrum.wfid[i] = 0;
 };
+#include <Exit.h>
+char Spectrum_class::Type_flag( const string& type_str )
+{
+	char Flag	= type_str[type_str.length()-1];
 
+	switch ( Flag )
+	{
+		case 'F' : { return SPEF; break; }
+		case 'V' : { return SPEV; break; }
+		case 'W' : { return SPEW; break; }
+		default  : { EXCEPTION( "unknown spectrum type " + type_str ); break; }
+	} // switch  Flag
+}
 
 spectrum_t Spectrum_class::Parse_data(  vector_str_t arr,
-														const char& oscid, const int& _type )
+										const char& oscid,
+										const int& _type,
+										bool		adsr )
 {
 	auto assign_dta = [ this, _type  ]( vector<string> arr )
 	{
 		arr.erase( arr.begin()); 	// 0:SPEV, 1:SPEF
-		arr.erase( arr.begin());	// 1:MAIN,VCO,FMO
+		arr.erase( arr.begin());	// 1:OSC,VCO,FMO
 		String Str{ arr[0] };		// compatibility
 		if ( not Str.is_number() )
 			arr.erase( arr.begin());	// 2:waveform str
@@ -83,6 +112,8 @@ spectrum_t Spectrum_class::Parse_data(  vector_str_t arr,
 			i++;
 		}
 	};
+
+	spectrum.adsr= adsr;
 	spectrum.osc = oscid;
 	assign_dta( arr );
 	Sum( spectrum );
@@ -130,22 +161,26 @@ string Spectrum_class::Show_this_spectrum( )
 
 void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 {
+	string OscRoleTag = OscRole.types[ spec.osc ];
+	if( spec.adsr )
+		OscRoleTag += "A";
+
 	Table_class Table{ defaultopt };
 	Table.opt.FILE 		= f;
 	Table.opt.Separator = ',';
 	Table.AddColumn("Type", 6);
 	Table.AddColumn("Name", 6);
-	Table.AddColumn("Main",6);
+	Table.AddColumn("Main", 6);
 	Table.AddColumn("harm1",6 );
 	Table.AddColumn("harm2",6 );
 	Table.AddColumn("harm3",6 );
 	Table.AddColumn("harm4",6 );
 	Table.PrintHeader();
-	Table.AddRow( 	spectrumTag[SPEV], OscRole.types[ spec.osc ],
+	Table.AddRow( 	spectrumTag[SPEV], OscRoleTag,
 		(int)spec.volidx[0], (int)spec.volidx[1], (int)spec.volidx[2], (int)spec.volidx[3],	(int)spec.volidx[4]);
-	Table.AddRow( 	spectrumTag[SPEF], OscRole.types[ spec.osc ],
+	Table.AddRow( 	spectrumTag[SPEF], OscRoleTag,
 		(int)spec.frqidx[0], (int)spec.frqidx[1], (int)spec.frqidx[2], (int)spec.frqidx[3],	(int)spec.frqidx[4]);
-	Table.AddRow( 	spectrumTag[SPEW], OscRole.types[ spec.osc ],
+	Table.AddRow( 	spectrumTag[SPEW], OscRoleTag,
 		(int)spec.wfid[0], (int)spec.wfid[1], (int)spec.wfid[2], (int)spec.wfid[3], (int)spec.wfid[4]);
 
 }
@@ -153,13 +188,17 @@ void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
-	auto show_dta = [ &strs ]( auto val)
+	string OscRoleTag = OscRole.types[ spec.osc ];
+	if( spec.adsr )
+		OscRoleTag += "A";
+
+	auto show_dta = [ &strs,&OscRoleTag ]( auto val)
 	{
 		strs << setw(6) << dec << (int)val << ",";
 	};
 
 	strs 	<< right << spectrumTag[_type] << ","
-			<< setw(9) << OscRole.types[ spec.osc ] << ",";
+			<< setw(9) << OscRoleTag << ",";
 
 	switch ( _type )
 	{
@@ -188,7 +227,8 @@ void Spectrum_class::Test_Spectrum()
 	String str { "SPEF,VCO,1,2,3,4,5" };
 	vector_str_t arr = str.to_array( ',' );
 	Parse_data( arr, osc_struct::VCOID, SPEF );
-	ASSERTION( spectrum.osc == osc_struct::VCOID, "oscid", osc_struct::VCOID, osc_struct::VCOID );
+	ASSERTION( 		spectrum.frqidx[4] == 5, "spectrum.frqidx[4]",
+			(int)	spectrum.frqidx[4], 5 );
 	ASSERTION( ( abs(spectrum.frqadj[4]) - 5.05) < 1E-6, "frqadj4", ( abs(spectrum.frqadj[4])) , 5.05 );
 
 	str = "SPEV,FMO,1.0,1,3,2,3" ;
