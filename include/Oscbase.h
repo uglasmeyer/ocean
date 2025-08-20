@@ -73,13 +73,13 @@ class Oscillator_base :
 	virtual public Logfacility_class,
 	virtual public Spectrum_class
 {
-
+	string			className		= "";
 public:
 
 	char			typeId			= -1;//osc_struct::OSCID;
 	string 			osctype_name 		= "";
 
-	char			roleId		= -1;//osc_struct::INSTRID;
+	char			roleId			= -1;//osc_struct::INSTRID;
 	string 			oscrole_name 	= "";
 
 	bool			is_osc_type 	= false;
@@ -102,13 +102,14 @@ public:
 	wave_t 			wp 			= wave_struct();
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
-	spectrum_t		spectrum	;//= Spectrum_class::spec_struct();
+	spectrum_t		spectrum	= default_spectrum;//= Spectrum_class::spec_struct();
 
 	Dynamic_class	DynFrequency{ frqarr_range };
 
 					Oscillator_base() ;
 					Oscillator_base( char osc_type );
-	virtual 		~Oscillator_base() = default;
+	virtual 		~Oscillator_base()
+						{ DESTRUCTOR( className ); };
 
 	bool			kbd_trigger = false;
 
@@ -120,7 +121,6 @@ public:
 	void			Set_pmw( uint8_t );
 	void			Set_spectrum( spectrum_t );
 	void 			Set_glide( uint value );
-	void			Setwp_frames( uint16_t );
 	void			Setwp( wave_t wp );
 	void 			Get_sound_stack( Table_class* T );
 

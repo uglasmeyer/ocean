@@ -22,5 +22,13 @@ environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1698
 environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/ARCH/delimiter=\:
 environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/ARCH/operation=append
 environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/ARCH/value=${ArchType}
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/OCEANDIR/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/OCEANDIR/operation=replace
+environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/OCEANDIR/value=${HOME}/OceanDev/
 environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/append=true
 environment/project/cdt.managedbuild.toolchain.gnu.base.146748129.216265386.1980844289/appendContributed=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.620632546/OCEANDIR/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.base.620632546/OCEANDIR/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.base.620632546/OCEANDIR/value=${OCEANDIR}
+environment/project/cdt.managedbuild.toolchain.gnu.base.620632546/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.base.620632546/appendContributed=true

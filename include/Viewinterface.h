@@ -14,14 +14,16 @@
 #include <Adsr.h>
 
 class ViewInterface_class :
+	virtual public 		Logfacility_class,
 	virtual 			osc_struct,
+	virtual 			sdsstate_struct,
 	virtual 			interface_struct,
-	virtual public		ADSR_class,
-	virtual 			sdsstate_struct
+	virtual public		ADSR_class
+//	virtual				Spectrum_class,
 {
 	string 				className 	= "";
 	Interface_class*	Sds_p 		= nullptr;
-	interface_t* 		sds 		= nullptr;
+	interface_t* 		sds_p 		= nullptr;
 
 public:
 	Appstate_class		Appstate	;
@@ -49,7 +51,9 @@ private:
 
 
 	void	printHeader();
-	string	Decode( uint8_t idx);
+	string	Decode( Id_t idx);
+	void 	selfTest();
+
 };
 
 

@@ -34,7 +34,7 @@ constexpr char AppNameId( const T& name )
 	if ( strEqual( name, SYNTHESIZER 	) )	appid = APPID::SYNTHID;
 	if ( strEqual( name, COMPOSER 		) )	appid = APPID::COMPID;
 	if ( strEqual( name, OCEANGUI	 	) ) appid = APPID::GUI_ID;
-	if ( strEqual( name, COMSTACK	 	) )	appid = APPID::COMSTACKID;
+	if ( strEqual( name, SDSVIEW	 	) )	appid = APPID::SDSVIEWID;
 	if ( strEqual( name, SYNTHKBD 		) )	appid = APPID::KBDID;
 	if ( strEqual( name, SETUP		 	) )	appid = APPID::SETUPID;
 	if ( strEqual( name, RTSP	 		) )	appid = APPID::RTSPID;
@@ -97,7 +97,7 @@ public:
 	Register_class* Reg_p				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
-	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, COMSTACKID, KBDID } ;
+	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, KBDID } ;
 	const range_T<uint>
 					appId_range 		{0, NOID };
 	array< uint, NOID>
@@ -108,7 +108,8 @@ public:
 											Register_class* reg
 										);
 
-	virtual			~Appstate_class		() = default;
+	virtual			~Appstate_class		()
+						{ DESTRUCTOR( className );};
 
 	void 			Setup				( interface_t* _sds, interface_t* _sds_master );
 	void 			Announce			( );

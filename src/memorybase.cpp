@@ -14,8 +14,6 @@ Memory_base::Memory_base( buffer_t bytes ) :
 	className = Logfacility_class::className;
 	Comment( INFO, "pre-init memory size " + to_string( bytes ));
 
-//	Log[ TEST ] = true;
-
 };
 
 Memory_base::Memory_base() :
@@ -26,7 +24,10 @@ Memory_base::Memory_base() :
 };
 
 Memory_base::~Memory_base()
-{};
+{
+	if( LogMask[ DEBUG ] )
+		cerr.flush() << "~" << className << endl;
+};
 
 
 void* Memory_base::Init_void()
@@ -63,7 +64,7 @@ Shm_base::Shm_base( buffer_t bytes ) :
 {
 	shm_ds.bytes 		= bytes;
 	className			= Logfacility_class::className;
-	Info( "pre-init shared memory size: " , bytes );
+	Info( "pre-init shared memory bytes: " , bytes );
 }
 Shm_base::Shm_base()
 	: Logfacility_class( "Shm_base" )
@@ -143,7 +144,7 @@ void Shm_base::Detach( void* addr )
 
 void Shm_base::Delete()
 {
-	shmid_ds dsbuf;
+	shmid_ds dsbuf = shmid_ds();
 	Comment( INFO , "Mark shared memory id: ", shm_ds.shmid, " to be destroyed" );
 
 	if ( shm_ds.addr )

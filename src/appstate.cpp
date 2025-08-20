@@ -38,22 +38,23 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 	uint8_t*	ptr = nullptr;
 	switch ( appId )
 	{
-		case APPID::SYNTHID		: { ptr = &sds->Synthesizer; break; }
 		case APPID::AUDIOID		: { ptr = &sds->AudioServer; break; }
+		case APPID::SYNTHID		: { ptr = &sds->Synthesizer; break; }
 		case APPID::COMPID		: { ptr = &sds->Composer; break; }
 		case APPID::GUI_ID		: { ptr = &sds->UserInterface; break; }
-		case APPID::COMSTACKID	: { ptr = &sds->Comstack; break; }
+		case APPID::SDSVIEWID	: { ptr = &sds->Comstack; break; }
+		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
 		case APPID::KBDID		: { ptr = &sds->Keyboard; break; }
 		case APPID::SETUPID		: { ptr = &sds->Setup; break; }
-		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
 		case APPID::TESTID		: { ptr = &sds->Rtsp; break; }
-		case APPID::NOID		: { ptr = nullptr; break; }
+
 		default : {
-					cout << "WARN: unknown application id: " << (int)AppId << endl;
+					coutf << "WARN: unknown application id: " << (int)appId << endl;
 					ptr = nullptr;
+					break;
 					};
 	}
-	assert( ptr != nullptr);
+	ASSERTION( ( ptr != nullptr ) , "appAddr", to_hex( (long)ptr ), ">0x0" );
 	return ptr;
 }
 
@@ -149,7 +150,7 @@ void Appstate_class::Shutdown_all( vector< interface_t* >  _sds_vec )
 		{
 			if( IsRunning( sds, appid ) )
 			{
-				if( not ( appid == APPID::COMSTACKID ) ) //  exclude comstack
+				if( not ( appid == APPID::SDSVIEWID ) ) //  exclude comstack
 					shutdown( sds, appid );
 			}
 		}

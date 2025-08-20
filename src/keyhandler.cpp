@@ -156,11 +156,26 @@ void Keyboard_class::notekey( char key )
 	string
 	noteline 		= kbd_note.setNote( key ) ;
 	if ( noteline.length() > 0 )
+	{
 		Noteline.append( noteline );
+		if( sds->StA_amp_arr[STA_KEYBOARD] == 0 )
+		{
+			sds->StA_amp_arr[STA_KEYBOARD] = sta_volume;
+		}
+	}
 }
 void Keyboard_class::set_bufferMode()
 {
 	StA->state.forget 	= not StA->state.forget ;
+	if( StA->state.forget )
+	{
+		sta_volume = sds->StA_amp_arr[STA_KEYBOARD];
+		sds->StA_amp_arr[STA_KEYBOARD] = 0;
+	}
+	else
+	{
+		sds->StA_amp_arr[STA_KEYBOARD] = sta_volume;
+	}
 	Noteline 			= "";
 }
 void Keyboard_class::specialKey()

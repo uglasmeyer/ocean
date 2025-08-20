@@ -10,7 +10,6 @@
 
 Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
-	, Spectrum_class		( type_id, false )
 	, Oscillator_base		( type_id )
 	, ADSR_class			( type_id )
 	, Mem_vco				( bytes )
@@ -45,11 +44,12 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
 
 }
 
-void Oscillator::operator= (const Oscillator& osc)
+void Oscillator::operator= ( Oscillator& osc)
 {
+//	adsr_t adsr = osc.Get_adsr();
     this->wp 					= osc.wp;
     this->feature				= osc.feature;
-    this->adsr_data				= osc.adsr_data;
+    this->Set_adsr				( osc.Get_adsr() );
     this->spectrum				= osc.spectrum;
 }
 
@@ -231,7 +231,12 @@ void Oscillator::OSC (  buffer_t frame_offset )
 
 	Apply_adsr( frames, &oscData[0], offset );
 }
-
+void Oscillator::Setwp_frames( uint16_t msec )
+{
+	wp.msec 	= msec;
+	wp.frames	= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
+	Set_bps	( );
+}
 void Oscillator::Set_long_note( bool l )
 {
 	longnote = l ;
@@ -267,12 +272,16 @@ void Oscillator::Test()
 	Setwp_frames( max_msec );
 
 	ASSERTION( fcomp( oct_base_freq, GetFrq( C0 )), "osc_base_freq" , oct_base_freq, GetFrq( C0 ));
-	spectrum 	= spec_struct();
+	spectrum 	= default_spectrum;
 	feature 		= feature_struct();
 
 	longnote = true;
-	adsr_data.attack = 50;
-	adsr_data.decay = 5;
+	adsr_t adsr = default_adsr;
+	adsr.attack = 50;
+	Set_adsr( adsr );
+	adsr = Get_adsr();
+	ASSERTION( adsr.attack == 50 , "adsr.attack", adsr.attack, 50 );
+
 
 	Oscillator testosc {osc_struct::INSTRID,  osc_struct::OSCID, monobuffer_bytes };
 	uint A3 = testosc.Index("A3");
@@ -287,7 +296,6 @@ void Oscillator::Test()
 	float a2 = testosc.Mem.Data[0];
 	testosc.OSC( 0 );
 	float a0 = testosc.Mem.Data[0];
-	Comment( TEST, testosc.Show_this_spectrum (  ) );
 	cout << "A3: " << A3 << " a0: " << a0 << " a2: " << a2 << " a2-a0: "<<  a2-a0 << endl;
 //	for( uint n = 0; n<10;n++ )
 //		cout << dec << (int)testosc.Mem.Data[n] << endl;
@@ -295,7 +303,6 @@ void Oscillator::Test()
 
 	testosc = *this; // test copy constructor
 
-	ASSERTION( adsr_data.attack == 50 , "", adsr_data.attack, 50 );
 	float fthis = GetFrq( this->wp.frqidx );
 	float ftest = GetFrq( testosc.wp.frqidx);
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );

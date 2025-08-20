@@ -87,7 +87,7 @@ string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
 	return strs.str();
 }
 
-Note_base::noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
+noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 {
 	auto range_error = [ this ]( auto val, vector<size_t> range )
 	{

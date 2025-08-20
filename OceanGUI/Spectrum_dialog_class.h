@@ -46,18 +46,18 @@ public:
     adsr_t*					sds_adsr_p;
     adsr_t					adsr_data;
     uint8_t					OscId;
+    Id_t					WfSlot = 1; // active slot last selected Wafeform out of 4
+    Frequency_class			Frequency {};
 
-    Frequency_class	Frequency {};
-
-    string instrument{};
-    uint8_t waveform_id;
-    vector<QString> Waveform_vec {};
-    uint waveform_vec_len = 0;
-    uint8_t SDS_ID = 0;
+    string 					instrument{};
+    uint8_t 				waveform_id;
+    vector<QString> 		Waveform_vec {};
+    uint 					waveform_vec_len = 0;
+    uint8_t 				SDS_ID = 0;
 
 
     void Setup_widgets( spectrum_t );
-    void Update_spectrum();
+    void Update_instrument();
     void SetLabelWaveform( const QString& wf );
     void SetLabelInstrument( const QString& instr );
     void SetSds( Interface_class* Sds, int8_t id );
@@ -77,7 +77,8 @@ private slots:
     void sb_wf2(int);
     void sb_wf3(int);
     void sb_wf4(int);
-    void adsrwf(int);
+    void cb_bps_slot(int);
+
 
     void attack(int);
     void decay (int);
@@ -94,17 +95,15 @@ private slots:
 
 private:
     bool ADSR_flag = false;
+
     void select_spec( char oscid );
-    void set_spectrum();
-    void get_spectrum();
-    void ScrollBar_Wafeform( uint id, int value  );
+    void set_spectrum_data();
+    void set_spectrum_view();
+    void scrollBar_wafeform( uint id, int value  );
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
     void set_waveform_vec( vector<string> waveform_vec );
-
-
-
-
+    void set_spectrum_vec( interface_t* sds );
 };
 
 #endif // SPECTRUM_DIALOG_CLASS_H

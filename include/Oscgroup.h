@@ -30,7 +30,7 @@ public:
 	char					oscroleId;
 
 							Oscgroup_class		( char role, buffer_t bytes  );
-	void 					operator=			( const Oscgroup_class& oscg );
+	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 
 	void					Set_Note_Frequency	( const frq_t& base_freq,
@@ -57,7 +57,6 @@ public:
 	void 					SetSlide			( const uint8_t& value );
 	void 					SetFeatures			( const feature_t& value );
 	void 					SetAdsr				( const interface_t* sds );
-	void 					SetAdsr				();
 
 	void 					Show_sound_stack	();
 	void 					Instrument_fromSDS			( interface_t* sds );

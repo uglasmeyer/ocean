@@ -1,6 +1,6 @@
 
 #include <Synthesizer.h>
-#include<Appsymbols.h>
+#include <Appsymbols.h>
 
 
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
@@ -283,7 +283,7 @@ void exit_proc( int signal )
     Sem.Release( SEMAPHORE_EXIT );
 
     Log.Comment( INFO, "Synthesizer reached target exit 0" );
-	Log.Set_Loglevel( DEBUG, false );
+	Log.Set_Loglevel( DBG2, true );
 
     exit( 0 );
 }

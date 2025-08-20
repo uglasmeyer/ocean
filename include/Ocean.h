@@ -63,7 +63,7 @@ typedef signed short 		data_t; // range -32767 ... +32767
 typedef vector<Data_t>		DataVec_t;
 typedef double				phi_t;
 typedef float 				frq_t;
-
+typedef char				Id_t;
 
 struct 				Stereo_struct
 {
@@ -85,7 +85,7 @@ const size_t		sizeof_stereo		= sizeof(stereo_t);
 const size_t		sizeof_Stereo		= sizeof(Stereo_t);
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
-const phi_t 		pi					= numbers::pi;//3.1415926536;//3.141592654;
+const phi_t 		pi					= numbers::pi; //3.1415926536;//;
 
 const uint			sample_rate			= 48000; //device dependent fix
 const buffer_t		frames_per_sec  	= sample_rate;
@@ -110,7 +110,7 @@ const Data_t		max_data_amp		= 4096*4;
 
 const uint			osc_default_volume	= 75; // %
 const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
-
+const float			percent				= 0.01;
 
 template< typename T >
 struct range_T
@@ -180,7 +180,7 @@ enum APPID
 	SYNTHID,
 	COMPID,
 	GUI_ID,
-	COMSTACKID,
+	SDSVIEWID,
 	RTSPID,
 	KBDID,
 	SETUPID,
@@ -191,7 +191,7 @@ enum APPID
 #define SYNTHESIZER	"Synthesizer"
 #define COMPOSER	"Composer"
 #define OCEANGUI	"OceanGUI"
-#define COMSTACK	"SDSview"
+#define SDSVIEW		"SDSview"
 #define RTSP		"Rtsp"
 #define SYNTHKBD	"Keyboard"
 #define SETUP		"Setup"
@@ -207,7 +207,7 @@ constexpr string AppIdName( const T& app_id )
 		case APPID::SYNTHID		: return SYNTHESIZER;
 		case APPID::COMPID		: return COMPOSER;
 		case APPID::GUI_ID		: return OCEANGUI;
-		case APPID::COMSTACKID	: return COMSTACK;
+		case APPID::SDSVIEWID	: return SDSVIEW;
 		case APPID::RTSPID		: return RTSP;
 		case APPID::KBDID		: return SYNTHKBD;
 		case APPID::SETUPID		: return SETUP;
@@ -245,11 +245,13 @@ typedef struct osc_struct
 		"OSC"
 	};
 	enum { VCOID, FMOID, OSCID };
-
-
 } osc_roles_t;
-constexpr const  array<uint,3> osctypeIds  =
-{ osc_struct::VCOID, osc_struct::FMOID, osc_struct::OSCID };
+const  vector<char> osctypeIds  =
+	{
+			osc_struct::VCOID,
+			osc_struct::FMOID,
+			osc_struct::OSCID
+	};
 
 const vector<string> slidermodes =
 {

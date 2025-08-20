@@ -58,7 +58,7 @@ string install_struct::resourceDir()
 	if( git_dir.length() == 0 ) return "";
 	string _dir = git_dir + "/Resource/";
 	if ( not filesystem::is_directory( _dir ) )
-		Info( "unknown resource directory ", resourcedir );
+		Comment( ERROR,  "unknown resource directory ", resourcedir );
 	return _dir;
 }
 
@@ -134,7 +134,7 @@ string file_structure::baseName ( string _dir )
 	string name = "";
 	if( arr.size() > 1 )
 		name = arr[ arr.size() - 2 ];
-//	coutf << "basename: " << name << endl;
+	Comment( DEBUG, "baseName: ", name );
 	return name;
 };
 string file_structure::get_rec_filename( uint no )
@@ -146,7 +146,7 @@ Config_class::Config_class( string Module ) :
 	Logfacility_class( "Config_class" )
 {
 	className 			= Logfacility_class::className;
-	Comment( INFO, "Program name: " + string( program_invocation_short_name ) );
+	Comment( DEBUG, "Program name: " + string( program_invocation_short_name ) );
 	file_structure		fs	= file_structure();
 	if( filesystem::is_regular_file( fs.config_file ) )
 	{
@@ -161,24 +161,21 @@ Config_class::Config_class( string Module ) :
 
 
 Config_class::~Config_class()
-{
+{ DESTRUCTOR( className ); };
 
-};
 
 void Config_class::Read_config(	string cfgfile )
 {
 	std::unordered_map<string, string> 	Get = {}; // @suppress("Invalid template argument")
 
-//	String Str{""};
 	configfile = cfgfile;
-//	Comment(INFO, "Reading config file " + configfile );
+	Comment( DEBUG, "Reading config file " + configfile );
 
 	ifstream cFile( configfile  );
 	if ( not cFile.is_open() )
 	{
 		EXCEPTION("Couldn't open config file " + configfile);
 	}
-
 	String Line{""};
 	String Name{""};
 	string line;
@@ -274,7 +271,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 	String 			Str{""};
 	string 			next{""};
 
-	Info("Evaluating ", (int)argc, " startup arguments");
+	Comment( DEBUG,"Evaluating ", (int)argc, " startup arguments");
 	for ( int ndx = 1; ndx < argc; ndx ++ )
 	{
 		char 	ch = 0;
@@ -298,6 +295,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			case 't' : Config.test 			= 'y'; break;
 			case 'D' : Config.dialog 		= 'y'; break;
 			case 'X' : Config.clear 		= 'y'; break;
+			case 'v' : Set_Loglevel( DEBUG, true );break;
 			default  : Config.filename		= arg; break;
 		}
 	}

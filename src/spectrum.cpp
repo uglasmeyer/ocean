@@ -4,7 +4,12 @@
  *  Created on: Feb 11, 2024
  *      Author: sirius
  */
+
+
 #include <Spectrum.h>
+#include <String.h>
+#include <Table.h>
+#include <Ocean.h>
 
 /*
  * Spectrum_base
@@ -12,22 +17,16 @@
 
 
 Spectrum_class::Spectrum_class() :
-	Logfacility_class("Spectrum")
+	Logfacility_class("Spectrum"),
+	Frequency_class(),
+	oscwaveform_struct()
 {
 	className 		= Logfacility_class::className;
-	spectrum		= spec_struct();
-	coutf << Show_this_spectrum();
+	spectrum		= default_spectrum;
+	Comment( DEBUG, Show_spectrum( this->spectrum ) );
 }
 
-Spectrum_class::Spectrum_class( char osc_type, bool adsr_type ) :
-	Logfacility_class("Spectrum")
-{
-	className 			= Logfacility_class::className;
-	this->spectrum		= spec_struct();
-	this->spectrum.osc 	= osc_type;
-	this->spectrum.adsr	= adsr_type;
-	coutf << Show_this_spectrum();
-}
+
 spectrum_t Spectrum_class::Get_spectrum()
 {
 	return this->spectrum;
@@ -73,6 +72,7 @@ void Spectrum_class::assign_waveform( int i, string str  )
 #include <Exit.h>
 char Spectrum_class::Type_flag( const string& type_str )
 {
+	if ( type_str.length() == 0 ) return -1;
 	char Flag	= type_str[type_str.length()-1];
 
 	switch ( Flag )
@@ -80,16 +80,32 @@ char Spectrum_class::Type_flag( const string& type_str )
 		case 'F' : { return SPEF; break; }
 		case 'V' : { return SPEV; break; }
 		case 'W' : { return SPEW; break; }
-		default  : { EXCEPTION( "unknown spectrum type " + type_str ); break; }
+		default  : { return -1 	; break; }
 	} // switch  Flag
+	return -1;
+}
+bool Spectrum_class::adsr_type( const string& type_str )
+{
+	string sub = type_str.substr(3, 1);
+	return (  sub.length() > 0 );
+}
+char Spectrum_class::Osc_TypeId( const string& type_str )
+{
+	string str = type_str.substr(0, 3 );
+	for( char id : osctypeIds )
+	{
+		if ( str.compare( osc_struct().types[ id ] ) == 0 )
+		{
+			return id;
+		}
+	}
+	Comment( ERROR, "unknown OSC type ", str );
+	return -1;
 }
 
-spectrum_t Spectrum_class::Parse_data(  vector_str_t arr,
-										const char& oscid,
-										const int& _type,
-										bool		adsr )
+spectrum_t Spectrum_class::Parse_data(  vector_str_t arr )
 {
-	auto assign_dta = [ this, _type  ]( vector<string> arr )
+	auto assign_dta = [ this ]( vector<string> arr, char _type )
 	{
 		arr.erase( arr.begin()); 	// 0:SPEV, 1:SPEF
 		arr.erase( arr.begin());	// 1:OSC,VCO,FMO
@@ -113,9 +129,10 @@ spectrum_t Spectrum_class::Parse_data(  vector_str_t arr,
 		}
 	};
 
-	spectrum.adsr= adsr;
-	spectrum.osc = oscid;
-	assign_dta( arr );
+	char arrtype = Type_flag( arr[0] );
+	spectrum.adsr= adsr_type( arr[1] );//adsr;
+	spectrum.osc = Osc_TypeId( arr[1]);//oscid;
+	assign_dta( arr, arrtype );
 	Sum( spectrum );
 	return spectrum;
 }
@@ -146,14 +163,15 @@ string Spectrum_class::Get_waveform_str( int id )
 	return waveform_str_vec[ wfid ];
 };
 
-string Spectrum_class::Show_this_spectrum( )
+string Spectrum_class::Show_spectrum( const spectrum_t spec )
 {
 	stringstream strs{""};
 	strs << endl;
 
 	for ( int type : spectrumNum ) //spectrumTag )
 	{
-		strs << Show_spectrum_type( type, this->spectrum ) ;
+
+		strs << Show_spectrum_type( type, spec ) ;
 		strs << endl;
 	}
 	return strs.str();
@@ -161,7 +179,7 @@ string Spectrum_class::Show_this_spectrum( )
 
 void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 {
-	string OscRoleTag = OscRole.types[ spec.osc ];
+	string OscRoleTag = osc_struct().types[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
@@ -178,6 +196,7 @@ void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 	Table.PrintHeader();
 	Table.AddRow( 	spectrumTag[SPEV], OscRoleTag,
 		(int)spec.volidx[0], (int)spec.volidx[1], (int)spec.volidx[2], (int)spec.volidx[3],	(int)spec.volidx[4]);
+//		(float)spec.vol[0], (float)spec.vol[1], (float)spec.vol[2], (float)spec.vol[3],	(float)spec.vol[4]);
 	Table.AddRow( 	spectrumTag[SPEF], OscRoleTag,
 		(int)spec.frqidx[0], (int)spec.frqidx[1], (int)spec.frqidx[2], (int)spec.frqidx[3],	(int)spec.frqidx[4]);
 	Table.AddRow( 	spectrumTag[SPEW], OscRoleTag,
@@ -188,13 +207,14 @@ void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
-	string OscRoleTag = OscRole.types[ spec.osc ];
+	string OscRoleTag = osc_struct().types[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
 	auto show_dta = [ &strs,&OscRoleTag ]( auto val)
 	{
-		strs << setw(6) << dec << (int)val << ",";
+		//strs << setw(6) << dec << (int)val << ",";
+		strs << setw(6) << dec << (float)val << ",";
 	};
 
 	strs 	<< right << spectrumTag[_type] << ","
@@ -203,6 +223,7 @@ string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& s
 	switch ( _type )
 	{
 		case SPEV: { std::ranges::for_each( spec.volidx, show_dta); break; }
+//		case SPEV: { std::ranges::for_each( spec.vol, show_dta); break; }
 		case SPEF: { std::ranges::for_each( spec.frqidx, show_dta); break; }
 		case SPEW: { std::ranges::for_each( spec.wfid  , show_dta); break; }
 		default:
@@ -224,17 +245,22 @@ void Spectrum_class::Test_Spectrum()
 {
 	TEST_START( className );
 
-	String str { "SPEF,VCO,1,2,3,4,5" };
+	String str { "SPEF,FMOA,1,2,3,4,5" };
 	vector_str_t arr = str.to_array( ',' );
-	Parse_data( arr, osc_struct::VCOID, SPEF );
+	Parse_data( arr );
+
+	str = "SPEF,VCO,1,2,3,4,5";
+	arr = str.to_array( ',' );
+	Parse_data( arr );
 	ASSERTION( 		spectrum.frqidx[4] == 5, "spectrum.frqidx[4]",
 			(int)	spectrum.frqidx[4], 5 );
 	ASSERTION( ( abs(spectrum.frqadj[4]) - 5.05) < 1E-6, "frqadj4", ( abs(spectrum.frqadj[4])) , 5.05 );
 
 	str = "SPEV,FMO,1.0,1,3,2,3" ;
 	arr = str.to_array( ',' );
-	Parse_data( arr, osc_struct::FMOID, SPEV );
-	cout << show_items( spectrum.vol) << endl;
+	Parse_data( arr );
+	ASSERTION( spectrum.osc == osc_struct::FMOID, "spectrum.osc", (int)spectrum.osc, (int)osc_struct::FMOID)
+//	cout << show_items( spectrum.vol) << endl;
 	ASSERTION( ( abs( spectrum.vol[1] - 1.0/10.0) < 1E-6),"",abs( spectrum.vol[1] - 1.0/10.0), 0 );
 
 	ASSERTION( strEqual( waveform_str_vec[3], waveFunction_vec[3].name),

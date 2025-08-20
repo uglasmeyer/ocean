@@ -11,7 +11,6 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-
 typedef struct param_struct
 {
 	float amp		= 0.0;
@@ -27,6 +26,7 @@ struct waveFnc_struct
 	wave_function_t		fnc;
 	string				name	= "sinus";
 	phi_t 				maxphi 	= 2*numbers::pi;
+	float 				width	= 1.0;
 };
 typedef 		waveFnc_struct 		waveFnc_t;
 

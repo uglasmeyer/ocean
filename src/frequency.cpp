@@ -130,7 +130,8 @@ void Frequency_class::initFrqArray(  )
 		frqArray[n+1] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
 	}
 	frqArray[0] = C0;
-	cout << "Piano key frequencies initialized at " << hex << &frqArray << endl;
+	string addr = to_hex( (long)&frqArray );
+	Comment( DEBUG, "Piano key frequencies initialized at ", addr );
 	frqarray_done = true;
 }
 
@@ -162,7 +163,8 @@ void Frequency_class::initFrqNamesArray()
 			frqNamesArray[ Index( oct, step ) ] = frqName;
 		}
 	}
-	cout << "Frequency Names initialized " << endl;
+	string addr = to_hex( (long)&frqNamesArray );
+	Comment( DEBUG, "Frequency Names initialized at ", addr );
 	frqnamesarray_done = true;
 }
 

@@ -54,9 +54,7 @@ Application_class::~Application_class()
 
 	deRegister();
 
-	{ if( LogMask[ DEBUG ] )
-		cerr.flush() << "~" << className << endl; }
-
+	DESTRUCTOR( className );
 
 }
 void Application_class::versionTxt()

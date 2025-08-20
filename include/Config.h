@@ -32,8 +32,8 @@ struct install_struct
 	void 				show_installdirs();
 
 						install_struct	() ;
-	virtual				~install_struct	() = default;
-//	{	show_installdirs();};
+	virtual				~install_struct	()
+							{ DESTRUCTOR( className ); };
 
 };
 struct dir_struct
@@ -102,7 +102,7 @@ struct file_structure
 	const string 	Composer_bin	= COMPOSER;
 	const string	Ocean_bin		= OCEANGUI;
 	const string 	Rtsp_bin		= RTSP;
-	const string 	Comstack_bin	= COMSTACK;
+	const string 	Comstack_bin	= SDSVIEW;
 	const string 	audio_bin  		= bindir 		+ Audio_bin;
 	const string 	synth_bin  		= bindir 		+ Synth_bin;
 	const string 	composer_bin	= bindir		+ Composer_bin;

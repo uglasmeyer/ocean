@@ -11,22 +11,18 @@ Oscillator_base::Oscillator_base()
 	: Logfacility_class( "Oscillator_base" )
 	, Spectrum_class()
 {
-	this->spectrum = Spectrum_class::spec_struct();
+	this->spectrum = default_spectrum;
 };
 
 Oscillator_base::Oscillator_base( char osc_type ) :
-	Logfacility_class( "Oscillator_base" ),
-	Spectrum_class( osc_type, false )
+	Logfacility_class( "Oscillator_base" )
 {
-	this->spectrum 	= Get_spectrum();
-	typeId			= osc_type;
+	this->spectrum.osc 	= osc_type;
+	typeId				= osc_type;
+	this->className		= Logfacility_class::className;
 };
 
-void Oscillator_base::Setwp_frames( uint16_t msec )
-{
-	wp.msec 	= msec;
-	wp.frames	= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
-}
+
 
 void Oscillator_base::Setwp( wave_t _wp )
 {
@@ -52,7 +48,7 @@ uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 void Oscillator_base::Set_volume( int vol, uint mode )
 {
 	wp.volume = check_range( volidx_range, vol, "Set_volume" );
-	spectrum.vol[0] 	= (float)vol * 0.01;
+	spectrum.vol[0] 	= (float)vol * percent;
 	spectrum.volidx[0]	= vol;
 }
 void Oscillator_base::Set_pmw( uint8_t pmw )
@@ -88,7 +84,8 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 
 	uint8_t
 	msec 			= Str.secure_stoi(arr[4]);
-	Setwp_frames	( msec );
+	wp.msec 		= msec;
+	wp.frames		= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
 	wp.volume 		= Str.secure_stoi(arr[5]);
 	feature.glide_effect = Str.secure_stoi( arr[13] );
 	wp.PMW_dial 	= Str.secure_stoi( arr[14] );

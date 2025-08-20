@@ -15,6 +15,7 @@ process_t				Process			{};
 Exit_class				Exit			{};
 file_structure			fs				{};
 Config_class			Cfg				{ Process.name };
+Logfacility_class		Log				( Process.name );
 
 #ifndef WITHOUT_SHM
 	Semaphore_class		Sem				{ Cfg.Config.Sem_key };
@@ -26,7 +27,6 @@ Config_class			Cfg				{ Process.name };
 	Interface_class*	Sds_master		= DaTA.Sds_master;
 #endif
 
-Logfacility_class		Log				( Process.name );
 
 
 

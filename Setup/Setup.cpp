@@ -12,6 +12,7 @@
 
 void exit_proc( int signal )
 {
+	Log.Set_Loglevel( DBG2, true );
 	exit(0);
 }
 
@@ -32,7 +33,7 @@ void init_file( string _dst_file, string _rc_dir )
 	filesystem::path path { _dst_file };
 	string filename = path.filename();
 	string src_file = _rc_dir + filename;
-	Log.Comment( BINFO, "init demo file: ", _dst_file );
+	Log.Comment( DEBUG, "init demo file: ", _dst_file );
 
 	if( filesystem::is_directory( _rc_dir ) )
 	{
@@ -43,7 +44,7 @@ void init_file( string _dst_file, string _rc_dir )
 				filesystem::copy( src_file, _dst_file );
 			}
 			else
-				Log.Comment( BINFO, _dst_file, " already exists");
+				Log.Comment( DEBUG, _dst_file, " already exists");
 		}
 		else
 			Log.Comment( ERROR, src_file, " is not a regular file");
@@ -55,7 +56,7 @@ void init_file( string _dst_file, string _rc_dir )
 void copy_files( string dir, string filter, string destination )
 {
 	if ( destination.length() == 0 ) return;
-//	Log.Info( "copy files to ", destination );
+	Log.Comment( DEBUG, "copy files to ", destination );
 
 	vector<string> files = List_directory(dir, filter );
 	for(string file : files )
@@ -76,7 +77,7 @@ void create_tararchive()
 	string excl		= "--exclude-from=" + fs.tarexclude_file + " ";
 	string cmd2 	= "bash -c \"tar -cvf " + arch + excl + fs.oceanbasename + "\"";
 
-	cout << "executing: " << cmd1 + ";" + cmd2 << endl;
+	Log.Info(  "executing: ", cmd1, ";", cmd2 );
 	system_execute( cmd1 + ";" + cmd2 );
 }
 void bashrc_oceandir()
@@ -142,8 +143,7 @@ void install_binary( string _bin, string _ext )
 	{
 		dst_bin_file = fs.archlibdir + _bin;
 	}
-	cout << "dst_bin_file: " <<  dst_bin_file << endl;
-	Log.Comment( DEBUG, "installing ", dst_bin_file );
+	Log.Comment( INFO, "Installing binary: ", dst_bin_file );
 	overwrite( src_bin_file, dst_bin_file );
 	symboliclink( dst_bin_file, _bin, _ext );
 }
@@ -161,7 +161,7 @@ void CreateInstalldirs( )
 		return filesystem::create_directories( _p );
 	};
 
-	Log.Info( "Checking directory structure");
+	Log.Comment( DEBUG, "Checking directory structure");
 	ASSERTION( (fs.install_dirs.size() != 0 ),"DirStructure_class::Create",
 				fs.install_dirs.size(),"not=0");
 	for( string dir : fs.install_dirs )

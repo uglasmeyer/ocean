@@ -135,11 +135,11 @@ private:
 	uint 				duration_counter 		= 0;// count the beats of note kbd_key
 	uint				holdCounter				= 0;
 	const uint			kbd_volume				= 75;
+	uint8_t 			sta_volume				= kbd_volume;
 	key3struct_t		Kbd_key					= key3_struct( 0, 0, 0);
 
 	feature_t			kbd_adsr				= feature_struct();
 	bool				frqMode					= SLIDE;
-
 
 	void 				attack					();
 	void 				release					();

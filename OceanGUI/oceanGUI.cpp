@@ -125,10 +125,17 @@ void MainWindow::adsr_hall( )
 
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
-    Sds->Set( Sds->addr->OSC_adsr.bps, (uint8_t) bps_id  );
-    Sds->Set( Sds->addr->VCO_adsr.bps, (uint8_t) bps_id  );
-    Sds->Set( Sds->addr->FMO_adsr.bps, (uint8_t) bps_id  );
-	Eventlog.add( SDS_ID, ADSR_KEY );
+	uint8_t bps = bps_struct().Bps_vec[bps_id];
+    Sds->Set( Sds->addr->OSC_adsr.bps, bps  );
+    Sds->Set( Sds->addr->VCO_adsr.bps, bps  );
+    Sds->Set( Sds->addr->FMO_adsr.bps, bps  );
+	Eventlog.add( SDS_ID, ADSRALL_KEY );
+
+	if ( Spectrum_Dialog_p )
+	{
+	    QString Qstr{ int2char( Sds->addr->OSC_adsr.bps ) };
+	    Spectrum_Dialog_p->ui->cb_bps->setCurrentText( Qstr );
+	}
 }
 
 void MainWindow::slideFrq( int value )
@@ -160,9 +167,9 @@ void MainWindow::Rtsp_Dialog()
 }
 void MainWindow::SDS_Dialog()
 {
-	if( Appstate->IsRunning( Sds_master, COMSTACKID ) )
+	if( Appstate->IsRunning( Sds_master, SDSVIEWID ) )
 	{
-		Appstate->SetExitserver( Sds_master, COMSTACKID );
+		Appstate->SetExitserver( Sds_master, SDSVIEWID );
 		Sem_p->Lock( SEMAPHORE_EXIT);
 	}
 	else
@@ -502,7 +509,7 @@ void MainWindow::setwidgetvalues()
 		OscWidget_item->sds = this->Sds->addr;
 
 	if( Spectrum_Dialog_p->isVisible( ))
-		Spectrum_Dialog_p->Update_spectrum();
+		Spectrum_Dialog_p->Update_instrument();
     ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ] );
     ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ] );
 	if( Rtsp_Dialog_p->isVisible() )
@@ -781,7 +788,7 @@ void MainWindow::updateColorButtons()
 {
 
     setButton( ui->pBAudioServer, Appstate->IsRunning( Sds_master, APPID::AUDIOID ) +1);
-    setButton( ui->pb_SDSview	, Appstate->IsRunning( Sds_master, APPID::COMSTACKID )+1 );
+    setButton( ui->pb_SDSview	, Appstate->IsRunning( Sds_master, APPID::SDSVIEWID )+1 );
     setButton( ui->pBSynthesizer, Appstate->IsRunning( Sds->addr , APPID::SYNTHID )+1 );
     setButton( ui->pBComposer	, Appstate->IsRunning( Sds_master, APPID::COMPID )+1 );
     setButton( ui->pb_Keyboard	, Appstate->IsRunning( Sds->addr , APPID::KBDID )+1 );

@@ -12,6 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
@@ -56,13 +57,13 @@ public:
     QSpinBox *sb_spwf3;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *cb_adsr;
+    QLabel *label_3;
+    QComboBox *cb_bps;
     QLabel *label_2;
     QFrame *frame_2;
     QVBoxLayout *verticalLayout;
     QSlider *hs_attack;
     QSlider *hs_decay;
-    QSpinBox *sb_adsrwf;
-    QLabel *lbl_adsrwf;
     QGridLayout *gridLayout_2;
     QLabel *lbl_instrument;
     QPushButton *pB_save_spectrum;
@@ -76,7 +77,7 @@ public:
     {
         if (Spectrum_Dialog_class->objectName().isEmpty())
             Spectrum_Dialog_class->setObjectName("Spectrum_Dialog_class");
-        Spectrum_Dialog_class->resize(467, 213);
+        Spectrum_Dialog_class->resize(398, 213);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -313,8 +314,21 @@ public:
 
         verticalLayout_2->addWidget(cb_adsr);
 
+        label_3 = new QLabel(Spectrum_Dialog_class);
+        label_3->setObjectName("label_3");
+        label_3->setAlignment(Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft);
+        label_3->setWordWrap(true);
+
+        verticalLayout_2->addWidget(label_3);
+
+        cb_bps = new QComboBox(Spectrum_Dialog_class);
+        cb_bps->setObjectName("cb_bps");
+
+        verticalLayout_2->addWidget(cb_bps);
+
         label_2 = new QLabel(Spectrum_Dialog_class);
         label_2->setObjectName("label_2");
+        label_2->setAlignment(Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft);
 
         verticalLayout_2->addWidget(label_2);
 
@@ -337,15 +351,38 @@ public:
 
         verticalLayout->addWidget(hs_decay);
 
-        sb_adsrwf = new QSpinBox(frame_2);
-        sb_adsrwf->setObjectName("sb_adsrwf");
-        sb_adsrwf->setWrapping(true);
-        sb_adsrwf->setMaximum(8);
 
-        verticalLayout->addWidget(sb_adsrwf);
+        verticalLayout_2->addWidget(frame_2);
 
-        lbl_adsrwf = new QLabel(frame_2);
-        lbl_adsrwf->setObjectName("lbl_adsrwf");
+
+        gridLayout_4->addLayout(verticalLayout_2, 0, 1, 2, 1);
+
+        gridLayout_2 = new QGridLayout();
+        gridLayout_2->setObjectName("gridLayout_2");
+        lbl_instrument = new QLabel(Spectrum_Dialog_class);
+        lbl_instrument->setObjectName("lbl_instrument");
+        lbl_instrument->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
+"font: 700 11pt \"Ubuntu\";"));
+
+        gridLayout_2->addWidget(lbl_instrument, 2, 1, 1, 1);
+
+        pB_save_spectrum = new QPushButton(Spectrum_Dialog_class);
+        pB_save_spectrum->setObjectName("pB_save_spectrum");
+
+        gridLayout_2->addWidget(pB_save_spectrum, 2, 2, 1, 1);
+
+        lbl_spectrumDisplay = new QLabel(Spectrum_Dialog_class);
+        lbl_spectrumDisplay->setObjectName("lbl_spectrumDisplay");
+
+        gridLayout_2->addWidget(lbl_spectrumDisplay, 1, 1, 1, 1);
+
+        lcd_spectrumDisplay = new QLCDNumber(Spectrum_Dialog_class);
+        lcd_spectrumDisplay->setObjectName("lcd_spectrumDisplay");
+
+        gridLayout_2->addWidget(lcd_spectrumDisplay, 1, 2, 1, 1);
+
+        lbl_waveform = new QLabel(Spectrum_Dialog_class);
+        lbl_waveform->setObjectName("lbl_waveform");
         QPalette palette1;
         palette1.setBrush(QPalette::Active, QPalette::WindowText, brush);
         palette1.setBrush(QPalette::Active, QPalette::Button, brush2);
@@ -401,100 +438,7 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette1.setBrush(QPalette::Disabled, QPalette::PlaceholderText, brush14);
 #endif
-        lbl_adsrwf->setPalette(palette1);
-        lbl_adsrwf->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
-"font: 700 11pt \"Ubuntu\";"));
-
-        verticalLayout->addWidget(lbl_adsrwf);
-
-
-        verticalLayout_2->addWidget(frame_2);
-
-
-        gridLayout_4->addLayout(verticalLayout_2, 0, 1, 2, 1);
-
-        gridLayout_2 = new QGridLayout();
-        gridLayout_2->setObjectName("gridLayout_2");
-        lbl_instrument = new QLabel(Spectrum_Dialog_class);
-        lbl_instrument->setObjectName("lbl_instrument");
-        lbl_instrument->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
-"font: 700 11pt \"Ubuntu\";"));
-
-        gridLayout_2->addWidget(lbl_instrument, 2, 1, 1, 1);
-
-        pB_save_spectrum = new QPushButton(Spectrum_Dialog_class);
-        pB_save_spectrum->setObjectName("pB_save_spectrum");
-
-        gridLayout_2->addWidget(pB_save_spectrum, 2, 2, 1, 1);
-
-        lbl_spectrumDisplay = new QLabel(Spectrum_Dialog_class);
-        lbl_spectrumDisplay->setObjectName("lbl_spectrumDisplay");
-
-        gridLayout_2->addWidget(lbl_spectrumDisplay, 1, 1, 1, 1);
-
-        lcd_spectrumDisplay = new QLCDNumber(Spectrum_Dialog_class);
-        lcd_spectrumDisplay->setObjectName("lcd_spectrumDisplay");
-
-        gridLayout_2->addWidget(lcd_spectrumDisplay, 1, 2, 1, 1);
-
-        lbl_waveform = new QLabel(Spectrum_Dialog_class);
-        lbl_waveform->setObjectName("lbl_waveform");
-        QPalette palette2;
-        palette2.setBrush(QPalette::Active, QPalette::WindowText, brush);
-        palette2.setBrush(QPalette::Active, QPalette::Button, brush2);
-        palette2.setBrush(QPalette::Active, QPalette::Light, brush2);
-        palette2.setBrush(QPalette::Active, QPalette::Midlight, brush3);
-        palette2.setBrush(QPalette::Active, QPalette::Dark, brush4);
-        palette2.setBrush(QPalette::Active, QPalette::Mid, brush5);
-        palette2.setBrush(QPalette::Active, QPalette::Text, brush);
-        palette2.setBrush(QPalette::Active, QPalette::BrightText, brush2);
-        palette2.setBrush(QPalette::Active, QPalette::ButtonText, brush);
-        palette2.setBrush(QPalette::Active, QPalette::Base, brush2);
-        palette2.setBrush(QPalette::Active, QPalette::Window, brush2);
-        palette2.setBrush(QPalette::Active, QPalette::Shadow, brush);
-        palette2.setBrush(QPalette::Active, QPalette::AlternateBase, brush3);
-        palette2.setBrush(QPalette::Active, QPalette::ToolTipBase, brush6);
-        palette2.setBrush(QPalette::Active, QPalette::ToolTipText, brush);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette2.setBrush(QPalette::Active, QPalette::PlaceholderText, brush7);
-#endif
-        palette2.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
-        palette2.setBrush(QPalette::Inactive, QPalette::Button, brush2);
-        palette2.setBrush(QPalette::Inactive, QPalette::Light, brush2);
-        palette2.setBrush(QPalette::Inactive, QPalette::Midlight, brush9);
-        palette2.setBrush(QPalette::Inactive, QPalette::Dark, brush10);
-        palette2.setBrush(QPalette::Inactive, QPalette::Mid, brush11);
-        palette2.setBrush(QPalette::Inactive, QPalette::Text, brush);
-        palette2.setBrush(QPalette::Inactive, QPalette::BrightText, brush2);
-        palette2.setBrush(QPalette::Inactive, QPalette::ButtonText, brush);
-        palette2.setBrush(QPalette::Inactive, QPalette::Base, brush2);
-        palette2.setBrush(QPalette::Inactive, QPalette::Window, brush2);
-        palette2.setBrush(QPalette::Inactive, QPalette::Shadow, brush12);
-        palette2.setBrush(QPalette::Inactive, QPalette::AlternateBase, brush13);
-        palette2.setBrush(QPalette::Inactive, QPalette::ToolTipBase, brush6);
-        palette2.setBrush(QPalette::Inactive, QPalette::ToolTipText, brush);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette2.setBrush(QPalette::Inactive, QPalette::PlaceholderText, brush14);
-#endif
-        palette2.setBrush(QPalette::Disabled, QPalette::WindowText, brush4);
-        palette2.setBrush(QPalette::Disabled, QPalette::Button, brush2);
-        palette2.setBrush(QPalette::Disabled, QPalette::Light, brush2);
-        palette2.setBrush(QPalette::Disabled, QPalette::Midlight, brush3);
-        palette2.setBrush(QPalette::Disabled, QPalette::Dark, brush4);
-        palette2.setBrush(QPalette::Disabled, QPalette::Mid, brush5);
-        palette2.setBrush(QPalette::Disabled, QPalette::Text, brush4);
-        palette2.setBrush(QPalette::Disabled, QPalette::BrightText, brush2);
-        palette2.setBrush(QPalette::Disabled, QPalette::ButtonText, brush4);
-        palette2.setBrush(QPalette::Disabled, QPalette::Base, brush2);
-        palette2.setBrush(QPalette::Disabled, QPalette::Window, brush2);
-        palette2.setBrush(QPalette::Disabled, QPalette::Shadow, brush15);
-        palette2.setBrush(QPalette::Disabled, QPalette::AlternateBase, brush13);
-        palette2.setBrush(QPalette::Disabled, QPalette::ToolTipBase, brush6);
-        palette2.setBrush(QPalette::Disabled, QPalette::ToolTipText, brush);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette2.setBrush(QPalette::Disabled, QPalette::PlaceholderText, brush14);
-#endif
-        lbl_waveform->setPalette(palette2);
+        lbl_waveform->setPalette(palette1);
         lbl_waveform->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
 "font: 700 11pt \"Ubuntu\";"));
 
@@ -527,8 +471,8 @@ public:
         rb_spec_vco->setText(QCoreApplication::translate("Spectrum_Dialog_class", "VCO", nullptr));
         rb_reset->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Reset", nullptr));
         cb_adsr->setText(QCoreApplication::translate("Spectrum_Dialog_class", "ADSR", nullptr));
+        label_3->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Beats per measure:", nullptr));
         label_2->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Attack/Delay", nullptr));
-        lbl_adsrwf->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Wafeform", nullptr));
         lbl_instrument->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Instrument", nullptr));
         pB_save_spectrum->setText(QCoreApplication::translate("Spectrum_Dialog_class", "Save", nullptr));
         lbl_spectrumDisplay->setText(QCoreApplication::translate("Spectrum_Dialog_class", "TextLabel", nullptr));

@@ -93,7 +93,7 @@ public:
 	// describes the default of a noteline
 
 
-	typedef struct noteline_prefix_struct
+	struct noteline_prefix_struct
 	{	// SDS
 		uint8_t		Octave		= 3;
 		uint8_t	 	convention	= 0;
@@ -102,10 +102,10 @@ public:
 		uint8_t		sharp		= 0;	// number of sharps in the key signature - FCGDAEB
 		uint8_t		variation	= 0;	// 0 no variation, 1 variable note
 		int			chord_delay = 0;	// msec delay between each note of a chord
-	} noteline_prefix_t;
-	const noteline_prefix_t
+	} ;
+	const noteline_prefix_struct
 					noteline_prefix_default = noteline_prefix_struct();
-	noteline_prefix_t
+	noteline_prefix_struct
 					Noteline_prefix			= noteline_prefix_default; // D=default, N=numeric
 	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
 
@@ -163,10 +163,11 @@ public:
 	} musicxml_t;
 	musicxml_t		musicxml		= musicxml_struct();
 
-	void 				Show_noteline_prefix( noteline_prefix_t nlp );
-	void				Set_noteline_prefix( noteline_prefix_t nlp );
-	string 				Noteline_prefix_to_string( noteline_prefix_t nlp );
-	noteline_prefix_t 	String_to_noteline_prefix( string str );
+	void 				Show_noteline_prefix( noteline_prefix_struct nlp );
+	void				Set_noteline_prefix( noteline_prefix_struct nlp );
+	string 				Noteline_prefix_to_string( noteline_prefix_struct nlp );
+	noteline_prefix_struct
+						String_to_noteline_prefix( string str );
 
 	void				Set_base_octave( uint );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
@@ -185,6 +186,7 @@ private:
 	int					octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
 };
 
+typedef 			Note_base::noteline_prefix_struct	noteline_prefix_t;
 
 
 #endif /* INCLUDE_NOTESBASE_H_ */

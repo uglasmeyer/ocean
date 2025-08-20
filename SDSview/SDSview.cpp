@@ -4,7 +4,7 @@
 #include <Kbd.h>
 #include <Viewinterface.h>
 
-ViewInterface_class		ViewSds			{ (char)COMSTACKID, &DaTA };
+ViewInterface_class		ViewSds			{ (char)SDSVIEWID, &DaTA };
 Kbd_base				Keyboard		{};
 Time_class				Timer			{};
 
@@ -21,7 +21,7 @@ void usage( )
 	Usage.AddColumn( "keyboard Key"	, 15 );
 	Usage.AddColumn( "Description"	, 20 );
 	Usage.PrintHeader();
-	Usage.AddRow( "<CrtlC>, <ESC>", "exit Comstack", "F1","more keyboard keys" );
+	Usage.AddRow( "<CrtlC>, <ESC>", "exit", "F1","more keyboard keys" );
 }
 
 void setupdate_flag( bool flag )
@@ -75,6 +75,7 @@ void show_ifd()
 		Log.Info( "Commit counter " , update_counter );
 		usage();
 
+
 		setupdate_flag( false );
 		update_counter++;
 	}
@@ -99,6 +100,7 @@ void set_sdsid( int delta )
 
 void exit_proc( int signal )
 {
+	Log.Set_Loglevel( DBG2, true );
 	exit( signal );
 }
 

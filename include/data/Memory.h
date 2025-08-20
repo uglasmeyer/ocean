@@ -146,7 +146,7 @@ public:
 	Dynamic_class	DynVolume		{ volidx_range };
 	Scanner_class	scanner 		= Scanner_class( nullptr, min_frames, 0 );
 
-	StA_status_t 	state 			= StA_state_struct();
+	StA_state_t 	state 			= StA_state_struct();
 
 	void 			Store_block		( Data_t* ) ;
 	void 			Write_data		( Data_t* src );//, const buffer_t& pos );

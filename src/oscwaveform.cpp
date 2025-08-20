@@ -57,7 +57,7 @@ float maximum( const float& x,  const float& y)
 
 Data_t Const( param_t& p )
 {
-	return p.maxphi;
+	return p.maxphi * p.amp ;
 }
 Data_t Sinus( param_t& p )
 {
@@ -105,17 +105,17 @@ Data_t Rnd_step( param_t& p )
 }
 
 const vector<waveFnc_t> waveFunction_vec
-{
-	{  Sinus	, "sinus"		, 2*pi 	},
-	{  Triangle	, "triangle"	, 2		},
-	{  SignSin	, "signsin"		, 2*pi 	},
-	{  Rectangle, "rectangle"	, 1 	},
-	{  SawTooth	, "sawtoothL"	, 1		},
-	{  Sawtooth	, "sawtoothR"	, 1		},
-	{  Pmw		, "PMW"			, 1		},
-	{  Delta	, "delta"		, 1		},
-	{  Rnd		, "noise"		, 1		},
-	{  Rnd_step	, "random"		, 1		}
+{ //   fnc         visible name   maxphi  width
+	{  Sinus	, "sinus"		, 2*pi 	, 2.0 },
+	{  Triangle	, "triangle"	, 2		, 2.0 },
+	{  SignSin	, "signsin"		, 2*pi 	, 1.0 },
+	{  Rectangle, "rectangle"	, 1 	, 2.0 },
+	{  SawTooth	, "sawtoothL"	, 1		, 1.0 },
+	{  Sawtooth	, "sawtoothR"	, 1		, 1.0 },
+	{  Pmw		, "PMW"			, 1		, 1.0 },
+	{  Delta	, "delta"		, 1		, 1.0 },
+	{  Rnd		, "noise"		, 1		, 2.0 },
+	{  Rnd_step	, "random"		, 1		, 2.0 }
 };
 
 

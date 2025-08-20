@@ -174,6 +174,14 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
+	case ADSRALL_KEY :
+	{
+		EvInfo( event, "all ADSR change");
+		Instrument->Oscgroup.SetAdsr( sds );
+
+		Sds->Commit();
+		break;
+	}
 	case ADSR_KEY:
 	{
 		EvInfo( event, "ADSR change");
@@ -359,7 +367,7 @@ void Event_class::Handler()
 		sds->Noteline_sec = Notes->noteline_sec;
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		Mixer->Set_mixer_state( STA_NOTES, true );
-		if( Mixer->StA[ STA_NOTES ].DynVolume.Current() == 0 )
+		if( Mixer->StA[ STA_NOTES ].DynVolume.GetCurrent().future == 0 )
 		{
 			Mixer->StA[ STA_NOTES ].DynVolume.SetupVol( 75, SLIDE );
 			sds->StA_amp_arr[ STA_NOTES ] = 75;

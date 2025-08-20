@@ -11,6 +11,7 @@
 
 #include <Ocean.h>
 #include <Logfacility.h>
+#include <Exit.h>
 #include <String.h>
 #include <Table.h>
 
@@ -34,7 +35,7 @@ extern frqarray_t 					frqArray;
 extern frqstrarr_t 					frqNamesArray;
 
 class Frequency_class :
-		virtual Logfacility_class
+	virtual Logfacility_class
 {
 	string 							className 		= "";
 	void 							initFrqArray	();
@@ -54,8 +55,8 @@ public:
 	void 							TestFrequency	();
 
 									Frequency_class	();
-	virtual 						~Frequency_class() //= default;
-									{ if( LogMask[ DEBUG ] ) coutf << "~" << className << endl; }
+	virtual 						~Frequency_class()
+										{ DESTRUCTOR( className ); }
 
 };
 

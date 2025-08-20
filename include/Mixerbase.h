@@ -11,8 +11,6 @@
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_
 
-//static const uint 					STA_SIZE 				= 8;
-
 
 enum STAID
 {
@@ -49,7 +47,7 @@ constexpr string 	StAIdName( const T& sta_id )
 
 typedef array<uint8_t, STA_SIZE> StAarray_t;
 
-constexpr StAarray_t f()
+constexpr StAarray_t genMemIds()
 {
 	StAarray_t a{};
 	std::iota(a.begin(), a.end(), 0 );
@@ -62,7 +60,7 @@ public:
 	Mixer_base(){};
 	~Mixer_base(){};
 
-	typedef struct mixer_status_struct
+	struct mixer_state_struct
 	{
 		// SDS structure
 		bool 	sync			= true; // explicite sync mode
@@ -70,14 +68,28 @@ public:
 		bool 	external		= false; // external play or record
 		bool	mute			= false; // mute master volume
 		bool	kbd				= false; // play keyboard note
-		bool	instrument		= false; // play instrument
-	} mixer_status_t;
+		bool	instrument		= true; // play instrument
+	} ;
 
-	static constexpr StAarray_t StAMemIds = f();
-//	StAMemconstexpr Stam  			= { 0, 1, 2, 3, 4, 5, 6, 7 };
+	static constexpr StAarray_t StAMemIds = genMemIds();
+
+	typedef	array< StA_state_t	, STA_SIZE>	StA_state_arr_t;
+}; /*Mixer_base*/
 
 
-	typedef	array< StA_status_t	, STA_SIZE>	StA_state_arr_t;
-};
+typedef 	Mixer_base::mixer_state_struct 	mixer_status_t;
+constexpr 	mixer_status_t					default_mixer_state = Mixer_base::mixer_state_struct();
+typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
+
+template< typename Type>
+constexpr StA_state_arr_t init_Arr ( const Type T )
+{
+	StA_state_arr_t A {};
+	for( size_t n = 0; n < A.size(); n++ )
+		 A[n] = T;
+	return A;
+}
+const StA_state_t default_StA_state = StA_state_struct();
+const StA_state_arr_t default_sta_state_arr = init_Arr( default_StA_state );
 
 #endif /* MIXERBASE_H_ */

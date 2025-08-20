@@ -34,7 +34,7 @@ struct sdsstate_struct
 		 LASTNUM
 		};
 
-	vector<string> state_map
+	const vector<string> state_map
 	{
 		{"OFFLINE" },
 		{"RUNNING" },
@@ -46,10 +46,10 @@ struct sdsstate_struct
 		{"KEYBOARD" },
 		{"RECORDSTART" },
 		{"RECORDSTOP" },
+		{"unknown"}
 	};
-
-
-//	virtual ~sdsstate_struct() = default;
+	sdsstate_struct(){};
+	~sdsstate_struct() = default;
 };
 
 typedef struct EventPtr_struct
@@ -73,10 +73,7 @@ const uint 			str_buffer_len 	= 32;
 const uint  		MAXQUESIZE		= 100;
 typedef 			array< uint8_t, MAXQUESIZE>					deque_t ;
 typedef				array<register_process_t, REGISTER_SIZE>	process_arr_t;
-typedef 			Note_base::noteline_prefix_t				noteline_prefix_t;
-typedef				Mixer_base::mixer_status_t					mixer_status_t;
 typedef				StAarray_t									StA_amp_arr_t;
-typedef				Mixer_base::StA_state_arr_t					StA_state_arr_t;
 typedef				array<Oscillator_base::connect_t, 3>		osc_connect_t;
 
 constexpr process_arr_t init_process_arr()
@@ -98,9 +95,9 @@ typedef struct interface_struct // with reasonable defaults
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
-	StA_state_arr_t	StA_state 					{{ StA_state_struct() }};	// comstack
+	StA_state_arr_t	StA_state 					= default_sta_state_arr;//{{ StA_state_struct() }};	// comstack
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
-	mixer_status_t 	mixer_status 				= Mixer_base::mixer_status_struct(); // comstack
+	mixer_status_t 	mixer_status 				= Mixer_base::mixer_state_struct(); // comstack
 
 	kbd_state_t		Kbd_state					= kbd_state_struct();
 
@@ -118,22 +115,22 @@ typedef struct interface_struct // with reasonable defaults
 	feature_t 		VCO_features				= feature_struct();
 	feature_t 		FMO_features				= feature_struct();
 
-	adsr_t			OSC_adsr					= adsr_struct();
-	adsr_t			VCO_adsr					= adsr_struct();
-	adsr_t			FMO_adsr					= adsr_struct();
+	adsr_t			OSC_adsr					= default_adsr;
+	adsr_t			VCO_adsr					= default_adsr;
+	adsr_t			FMO_adsr					= default_adsr;
 
 	wave_t			OSC_wp						= wave_struct();
 	wave_t			VCO_wp						= wave_struct();
 	wave_t			FMO_wp						= wave_struct();
 
-	spectrum_t 		OSC_spectrum				= Spectrum_class::spec_struct();
-	spectrum_t 		VCO_spectrum 				= Spectrum_class::spec_struct();
-	spectrum_t	 	FMO_spectrum 				= Spectrum_class::spec_struct();
+	spectrum_t 		OSC_spectrum				= default_spectrum;
+	spectrum_t 		VCO_spectrum 				= default_spectrum;
+	spectrum_t	 	FMO_spectrum 				= default_spectrum;
 
 	osc_connect_t	connect						= { { Oscillator_base::connect_struct() } };
 	/* instrument definition ends	 */
 
-	uint8_t			Spectrum_type				= Spectrum_class::spec_struct().osc;
+	uint8_t			Spectrum_type				= default_spectrum.osc;
 	uint8_t			NotestypeId					= XML_ID; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };

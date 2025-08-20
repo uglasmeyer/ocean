@@ -52,7 +52,7 @@ static constexpr auto qt_meta_stringdata_ZN21Spectrum_Dialog_classE = QtMocHelpe
     "sb_wf2",
     "sb_wf3",
     "sb_wf4",
-    "adsrwf",
+    "cb_bps_slot",
     "attack",
     "decay",
     "save",
@@ -174,7 +174,7 @@ Q_CONSTINIT const QMetaObject Spectrum_Dialog_class::staticMetaObject = { {
         // method 'sb_wf4'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'adsrwf'
+        // method 'cb_bps_slot'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
         // method 'attack'
@@ -217,7 +217,7 @@ void Spectrum_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c
         case 9: _t->sb_wf2((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 10: _t->sb_wf3((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 11: _t->sb_wf4((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 12: _t->adsrwf((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 12: _t->cb_bps_slot((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 13: _t->attack((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 14: _t->decay((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 15: _t->save(); break;

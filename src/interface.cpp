@@ -12,7 +12,7 @@
 
 
 Interface_class::Interface_class( char appid, uint8_t sdsid, Config_class* cfg, Semaphore_class* sem ):
-Logfacility_class("Shared Data" )
+Logfacility_class("SharedData_class" )
 {
 
 	this->Sem_p	= sem;
@@ -23,7 +23,7 @@ Logfacility_class("Shared Data" )
 
 Interface_class::~Interface_class()
 {
-	//SHM.Detach( ds.addr );
+	DESTRUCTOR( className );
 }
 
 
@@ -87,23 +87,24 @@ void Interface_class::Write_str(const char selector, const string str )
 
 	if ( addr->Comstack == RUNNING )
 		addr->UpdateFlag = true;
+	string wrt = str.substr(0, str_buffer_len );
 
 
 	switch ( selector )
 	{
 		case INSTRUMENTSTR_KEY :
 		{
-			strcpy( addr->Instrument, str.data());
+			strcpy( addr->Instrument, wrt.data());
 			break;
 		}
 		case NOTESSTR_KEY :
 		{
-			strcpy( addr->Notes, str.data() );
+			strcpy( addr->Notes, wrt.data() );
 			break;
 		}
 		case OTHERSTR_KEY :
 		{
-			strcpy( addr->Other, str.data() );
+			strcpy( addr->Other, wrt.data() );
 			break;
 		}
 		case UPDATELOG_EVENT :
@@ -113,7 +114,7 @@ void Interface_class::Write_str(const char selector, const string str )
 		}
 		default:
 		{
-			strcpy( addr->Other, str.data() );
+			strcpy( addr->Other, wrt.data() );
 			break;
 		}
 	}

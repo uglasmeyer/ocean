@@ -20,7 +20,7 @@ Oscgroup_class::Oscgroup_class( char role, buffer_t bytes )
 	Data_Reset();
 	selfTest();
 }
-void Oscgroup_class::operator=( const Oscgroup_class& oscg )
+void Oscgroup_class::operator=( Oscgroup_class& oscg )
 {
 	this->vco = oscg.vco;
 	this->fmo = oscg.fmo;
@@ -52,15 +52,9 @@ void Oscgroup_class::SetFeatures( const feature_t& value )
 }
 void Oscgroup_class::SetAdsr( const interface_t* sds )
 {
-	osc.Set_adsr(  sds->OSC_adsr );
-	vco.Set_adsr(  sds->VCO_adsr );
-	fmo.Set_adsr(  sds->FMO_adsr );
-}
-
-void Oscgroup_class::SetAdsr( )
-{
-	std::ranges::for_each( member, [ ](Oscillator*  o)
-			{ o->Set_adsr( o->adsr_data);	});
+	osc.Set_adsr( sds->OSC_adsr );
+	vco.Set_adsr( sds->VCO_adsr );
+	fmo.Set_adsr( sds->FMO_adsr );
 }
 
 void Oscgroup_class::SetSlide( const uint8_t& value )
@@ -149,7 +143,7 @@ void Oscgroup_class::Set_Osc_Note( 	const frq_t&	base_freq,
 									const uint& 	mode)
 {
 	Set_Duration		( msec );
-	SetAdsr				();
+//	SetAdsr				();
 	Set_Note_Frequency	( base_freq, key, mode );
 	osc.Set_volume		( volume, FIXED);//wp.volume	= volume ;
 }
@@ -186,13 +180,7 @@ void Oscgroup_class::Run_OSCs( const buffer_t& offs )
 	std::ranges::for_each( member, [ &offs ](Oscillator* o)
 			{ o->OSC( offs ) ;} );
 }
-string Oscgroup_class::Show_Spectrum( )
-{
-	stringstream strs{};
-	std::ranges::for_each( member,[ &strs ](Oscillator* o)
-			{ strs << o->Show_this_spectrum() ;} );
-	return strs.str();
-}
+
 
 Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 {
@@ -216,6 +204,8 @@ void Oscgroup_class::selfTest()
 {
 	ASSERTION( fmo.spectrum.osc == osc_struct::FMOID, "fmo.spectrum.osc",
 				(int) fmo.spectrum.osc, (int) osc_struct::FMOID );
-	ASSERTION( fmo.adsr_data.spec.adsr == true, "fmo.adsr_data.spec.adsr",
-				(int) fmo.adsr_data.spec.adsr, 1 );
+
+	adsr_t adsr = fmo.Get_adsr();
+	ASSERTION( adsr.spec.adsr == true, "fmo.adsr_data.spec.adsr",
+				(int) adsr.spec.adsr, 1 );
 }

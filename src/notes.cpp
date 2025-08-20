@@ -108,7 +108,7 @@ void Note_class::note2memory( 	const note_t& note,
 		Oscgroup.SetSlide( 0 );
 
 	osc->Set_long_note( note.longnote or longnote );
-	osc->adsr_data.hall 		= 0;
+//	osc->adsr_data.hall 		= 0;
 
 	uint frame_delay 	= instrument->sds->noteline_prefix.chord_delay * frames_per_msec;
 	uint n 				= 0;

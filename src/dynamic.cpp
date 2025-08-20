@@ -87,13 +87,12 @@ void Dynamic_class::SetDelta ( const uint8_t& sl_duration )
 	return;
 };
 
-constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& sl_duration )
+constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& duration )
 {
-				slideduration 	= check_range( slide_duration_range, sl_duration, "slideFrames" );
-	float		slide_percent 	= float( slideduration) * 0.01 ;
+				slideduration 	= check_range( slide_duration_range, duration, "slideFrames" );
+	float		slide_percent 	= float( slideduration) * percent ;
 	buffer_t 	frames 			= 4 * max_frames * slide_percent ;
 
-//	assert(LogMask[TEST] == false);
 	if (LogMask[TEST])
 		frames = test_frames;
 
@@ -101,6 +100,10 @@ constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& sl_duration )
 }
 
 
+Dynamic_class::state_t Dynamic_class::GetCurrent()
+{
+	return current;
+}
 
 float Dynamic_class::Get( )
 {
@@ -134,10 +137,6 @@ void Dynamic_class::end()
 	current.past 	= current.future;
 	current.past_f	= current.future_f;
 	current.present	= current.future_f;
-}
-int	Dynamic_class::Current()
-{
-	return current.future;
 }
 
 void Dynamic_class::Show( bool on )

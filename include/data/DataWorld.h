@@ -14,12 +14,14 @@
 
 typedef struct SDS_struct
 {
+private:
+	string					className 		= "SDS_struct";
+public:
 	vector<Interface_class> 	Vec			{};
 	vector<interface_t*>		vec			{};
 
-	interface_t*			master	= nullptr;
-	Interface_class*		Master	= nullptr;
-
+	interface_t*			master			= nullptr;
+	Interface_class*		Master			= nullptr;
 	SDS_struct( char appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
 	{
 		for ( uint8_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
@@ -36,7 +38,7 @@ typedef struct SDS_struct
 		Master		= &Vec[0];
 	}
 	virtual ~SDS_struct() //= default;
-			{ if( LogMask[ DEBUG ] ) coutf << "~SDS_struct" << endl; }
+			{ DESTRUCTOR( className ); }
 
 	Interface_class* GetSds( int id )
 	{
@@ -70,9 +72,8 @@ typedef struct SDS_struct
 class Dataworld_class :
 		virtual public Logfacility_class
 {
-	string className = "";
+	string 					className 	= "";
 public:
-
 
 	char					AppId		= NOID;
 	int						SDS_Id		= -1;
@@ -84,7 +85,6 @@ public:
 	Register_class			Reg	;
 	Appstate_class 			Appstate;
 
-
 	Stereo_t* 				ShmAddr_0 	= nullptr;
 	Stereo_t* 				ShmAddr_1 	= nullptr;
 	Interface_class*		Sds_p		= nullptr;
@@ -95,13 +95,10 @@ public:
 
 	interface_t* 			GetSdsAddr();
 	Interface_class*		GetSds( );
-
 	Stereo_t* 				SetShm_addr( ); 			// Audioserver
 	Stereo_t* 				GetShm_addr( ); 			// Synthesizer
 	void 					ClearShm( const buffer_t& frames );
-
 	void 					EmitEvent( const uint8_t flag, string comment = ""  );
-
 	void					Test_Dataworld();
 
 							Dataworld_class( char id, Config_class* cfg, Semaphore_class* sem );
@@ -110,7 +107,6 @@ public:
 
 private:
 
-	void 					state_pMap();
 	void 					init_Shm( Shared_Memory& SHM, key_t key, uint idx );
 };
 

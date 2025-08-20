@@ -35,7 +35,7 @@ public:
 
 					Oscillator			( char role_id, char type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;
-	void 			operator=			( const Oscillator& osc );
+	void 			operator=			( Oscillator& osc );
 
 	void 			OSC 				( buffer_t frame_offset );
 
@@ -49,6 +49,8 @@ public:
 	void 			Data_reset			();
 	void 			Phase_reset			();
 	void 			Set_long_note		( bool );
+	void			Setwp_frames		( uint16_t );
+
 	void 			Reset_beat_cursor	();
 
 	Data_t* 		MemData_p			();

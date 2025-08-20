@@ -13,10 +13,12 @@ Logfacility_class::Logfacility_class( string module )
 {
 					seterrText();
 	size_t 			pos 				= module.find("_" );
-					( pos > LOGINDENT ) ? 	this->className = module :
-											this->className = module.substr(0, pos ) ;
+	this->className = module;
+	//( pos > LOGINDENT-5 ) ?
+		//					this->className = module.substr(0, LOGINDENT-5) :
+			//				this->className = module.substr(0, pos ) ;
 	stringstream 	strs 				{};
-					strs << setw(15) << right << className << ":";
+					strs << setw(LOGINDENT-5) << right << className << ":";
 					prefixClass 		= strs.str();
 	string 			_path 				= string( logDir );
 					filesystem::create_directories( _path );
@@ -24,13 +26,12 @@ Logfacility_class::Logfacility_class( string module )
 Logfacility_class::Logfacility_class( )
 {
 					seterrText();
-					this->className 	= "Log";
+					this->className 	= "Logfacility_class";
 	stringstream 	strs 				{};
-					strs << setw(15) << right << className << ":";
+					strs << setw(LOGINDENT-5) << right << className << ":";
 					prefixClass 		= strs.str();
 	string 			_path 				= string( logDir );
 					filesystem::create_directories( _path );
-
 }
 
 Logfacility_class::~Logfacility_class(  )

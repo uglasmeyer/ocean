@@ -13,7 +13,7 @@
  ***********************/
 
 Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
-	Logfacility_class("Mixer")
+	Logfacility_class("Mixer_class")
 {
 	this->className = Logfacility_class::className;
 
@@ -60,10 +60,9 @@ Mixer_class::~Mixer_class()
 {
 	if ( not sds )
 		return;
-	cout << "~" << className << endl;
 	Clear_StA_status( sds->StA_state );
 	sds->mixer_status.external	= false;
-
+	DESTRUCTOR( className );
 };
 
 void Mixer_class::clear_memory()

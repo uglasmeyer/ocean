@@ -10,20 +10,21 @@
 
 ADSR_class::ADSR_class( char _typeid )
 	: Logfacility_class("ADSR_class")
-	, Spectrum_class( _typeid, true )
+	, Spectrum_class()
 	, Oscillator_base( _typeid )
 {
 	className 			= Logfacility_class::className;
-	adsr_data.spec.adsr	= true;
+	Set_adsr			( default_adsr );
 	adsr_data.spec.osc	= _typeid;
 };
 
 ADSR_class::ADSR_class()
 	: Logfacility_class("ADSR_class")
+	, Spectrum_class()
 	, Oscillator_base()
 {
-	className = Logfacility_class::className;
-	adsr_data.spec.adsr = true;
+	className 	= Logfacility_class::className;
+	Set_adsr	( default_adsr );
 };
 
 ADSR_class::~ADSR_class()
@@ -39,13 +40,16 @@ Data_t* ADSR_class::AdsrMemData_p()
 
 void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offset )
 {
-	if ( adsr_data.bps	 	== 0 ) return;
+	if ( adsr_data.bps	== 0 ) return;
 	if ( beat_frames 	== 0 ) return;
+
+	if ( tainted ) adsrOSC( beat_frames );
 
 	float		dbB 		= 0.5;
 	float 		dbH			= 1.0 - dbB;
 	uint		pos			= frame_offset;
 				kbd_trigger = false;
+
 	for ( uint m = 0; m < frames; m++ )
 	{
 		Data[ pos ] = Data[ pos ] * ( 	adsr_Mem.Data[ beat_cursor ]*dbB +
@@ -87,11 +91,12 @@ auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_
 	}
 };
 
-Memory			adsr_Fnc		{ monobuffer_bytes };
 void ADSR_class::adsrOSC( const buffer_t& bframes )
 {
 
-	if ( bframes == 0 ) return;
+	if ( bframes == 0 ) 		return;
+	if ( not tainted ) 			return;
+	tainted 					= false;
 
 	buffer_t		aframes 	= 1;
 	if ( adsr_data.attack 	> 0 )
@@ -101,21 +106,21 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 	const float		y0 			= expf( - delta );
 	const float 	dy			= (1.0 - y0) / aframes;
 
+	adsr_data.spec.volidx[0]	= volidx_range.max;
+	adsr_data.spec.vol[0] 		= volidx_range.max * percent;
+
+	Spectrum_class::Sum( adsr_data.spec );
+
 	for ( buffer_t n = 0; n < bframes ; n++ )
 	{
-//		adsr_Fnc.Data[n] 		= adsr_fnc( aframes, n, y0, dy, d_delta );
-		adsr_Fnc.Data[n] 		= adsr_fnc( aframes, n, y0, dy, d_delta );
-		adsr_Mem.Data[n]		= adsr_Fnc.Data[n];
+		adsr_Mem.Data[n] 		= adsr_data.spec.vol[0] * adsr_fnc( aframes, n, y0, dy, d_delta );
 	}
 	for ( buffer_t n = bframes; n < adsr_frames ; n++ )
 	{
 		adsr_Mem.Data[n] 		= 0.0;
 	}
 
-	adsr_data.spec.volidx[0]	= volidx_range.max;
-	adsr_data.spec.vol[0] 		= volidx_range.max * 0.01;
 
-	Spectrum_class::Sum( adsr_data.spec );
 
 	param_t			param 		= param_struct();
 					param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
@@ -132,10 +137,9 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 			float 			dT 			= param.maxphi / bframes;
 							param.dphi	= dT * spec.frqadj[ channel ];// * adsr_data.bps;
 							param.phi	= 0.0;
-							param.amp	= spec.vol[ channel ]  ;
+							param.amp	= spec.vol[ channel ] / adsrFunction_vec[ wfid ].width  ;
 			for ( buffer_t n = 0; n < bframes ; n++ )
 			{
-//				adsr_Mem.Data[n] 	+= adsr_Fnc.Data[n] * fnc( param );
 				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] + fnc( param );
 				param.phi			= param.phi + param.dphi;
 				param.phi 			= MODPHI( param.phi, param.maxphi );
@@ -165,16 +169,13 @@ void ADSR_class::Set_feature( feature_t f )
 {
 	feature = f;
 }
-
-void ADSR_class::Set_adsr( adsr_t _adsr )
+void ADSR_class::Set_bps()
 {
-	adsr_data = _adsr;
-
-	// overwrite instrument settings
-	if ( ( has_notes_role ) )
+	tainted 	= true;
+	if ( ( has_notes_role ) )	// overwrite instrument settings
 	{
-		adsr_data.bps = 1;
-		beat_frames = wp.frames;
+		adsr_data.bps 	= 1;
+		beat_frames 	= wp.frames;
 	}
 	else
 	{
@@ -184,10 +185,27 @@ void ADSR_class::Set_adsr( adsr_t _adsr )
 			beat_frames = 0;
 	}
 
-	Set_hallcursor();
-	adsrOSC( beat_frames );
+}
+void ADSR_class::Set_adsr_spec	( spectrum_t spec )
+{
+	tainted 		= true;
+	adsr_data.spec	= spec;
 }
 
+adsr_t ADSR_class::Set_adsr( adsr_t _adsr )
+{
+	adsr_data 	= _adsr;
+	tainted 	= true;
+	Set_bps( );
+	Set_hallcursor();
+	return adsr_data;
+//	adsrOSC( beat_frames );
+}
+
+adsr_t ADSR_class::Get_adsr()
+{
+	return adsr_data;
+}
 
 string ADSR_class::Show_adsr	( adsr_t _adsr )
 {

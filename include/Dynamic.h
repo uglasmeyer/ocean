@@ -22,7 +22,7 @@ class Dynamic_class
 	uint8_t			slideduration 		= 0;
 
 	const buffer_t	test_frames			= 1000;
-	range_T<int>	range				{ 0, 0 };
+	range_T<int>	range				;//{ 0, 0 };
 	const range_T<uint8_t>
 					slide_duration_range{ 0, 100 };
 
@@ -37,12 +37,10 @@ class Dynamic_class
 		uint8_t		mode				= FIXED;
 	} state_t;
 
-	state_t 		restorestate;
+	state_t 		restorestate		= state_struct();
+	state_t			current				= state_struct();
 
 public:
-
-	state_t			current;
-
 
 			Dynamic_class( range_T<int> r );
 	virtual ~Dynamic_class();
@@ -52,10 +50,10 @@ public:
 
 	void 	SetDelta( const uint8_t& sl_duration  );
 	float 	Get( );
+	state_t GetCurrent();
 	void 	Update();
 	float 	Reset_state();
 
-	int		Current();
 	void 	Show( bool on );
 	void 	TestVol();
 	void 	TestFrq();

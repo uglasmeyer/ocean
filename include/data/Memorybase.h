@@ -16,12 +16,13 @@
  *
  */
 
-typedef struct 		StA_param_struct
+struct 				StA_param_struct
 {
 	string 			name 			= "";
 	buffer_t		size 			= 0;	// number of buffer frames
 	buffer_t		block_size		= 0;  	// numer of read frames
-} 	StA_param_t;
+} 	;
+typedef				StA_param_struct StA_param_t;
 
 struct 				StA_state_struct // memory array status
 {
@@ -31,7 +32,7 @@ struct 				StA_state_struct // memory array status
 	bool			filled			= false; // there record counter is > 0
 	bool			forget			= false; // delete after read
 };
-typedef				StA_state_struct StA_status_t;
+typedef				StA_state_struct StA_state_t;
 
 struct 				shm_data_struct
 {
@@ -82,6 +83,8 @@ struct 				mem_data_struct
 	buffer_t		block_bytes		= block_size * sizeof_type;
 	buffer_t 		data_blocks		= size / block_size;
 	uint 			max_records		= data_blocks; // data_block == max-records // TODO verify
+					mem_data_struct	() = default;
+					~mem_data_struct() = default;
 };
 typedef				mem_data_struct	mem_ds_t;
 

@@ -11,6 +11,12 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
+#define DESTRUCTOR( className )\
+{\
+		{ if( LogMask[ DBG2 ] )\
+		cerr.flush() << "~" << className << endl; }\
+};
+
 
 #define EXCEPTION( err_str )\
 	{\
@@ -56,7 +62,7 @@ public:
 	};
 	virtual ~Exit_class()
 	{
-		coutf << "visited ~Exit_class" << endl;
+		DESTRUCTOR( className );
 	};
 
 private:
@@ -64,7 +70,7 @@ private:
 	{
 		for ( signalmap_t sig : signalmap )
 		{
-			Comment(INFO, "Catching signal: " + sig.name );
+			Comment( DEBUG, "Catching signal: " + sig.name );
 			signal( sig.signal	, &exit_proc );
 		}
 	}
