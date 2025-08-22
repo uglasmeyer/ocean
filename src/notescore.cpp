@@ -6,11 +6,21 @@
  */
 #include <notes/Notes.h>
 
+void Note_class::Append_noteline( noteline_prefix_t prefix, string& noteline )
+{
+	notelist_t nl { Gen_notelist( prefix, noteline ) };
+	uint duration = Calc_noteline_msec( nl );
+	uint mod = ( duration % measure_duration ) / min_duration;
+	for ( uint n = 0; n < mod; n++ )
+	{
+		noteline.append( "." );
+	}
 
-auto calc_noteline_msec = []( Note_class* C )
+}
+uint Note_class::Calc_noteline_msec( notelist_t notelist )
 	{
 		uint duration = 0;
-		for( Note_class::note_t note : C->notelist )
+		for( Note_class::note_t note : notelist )
 		{
 			duration += note.duration;
 		}
@@ -30,12 +40,16 @@ void Note_class::Set_notelist( const notelist_t& nlst )
 	Show_note_list( nlst ); // @suppress("Invalid arguments")
 }
 
-
-
-bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used by GUI
+Note_base::notelist_t Note_class::Gen_notelist( noteline_prefix_t prefix, string str )
 {
-
-
+	notelist_t nl {};
+	if ( not compiler( prefix, str ) )
+		return nl ;
+	else
+		return notelist;
+}
+bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
+{
 	auto brackets_aligned = [str]()
 	{
 		int c=0;
@@ -66,14 +80,13 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 	}
 
 	min_duration 			= measure_duration / prefix.nps;
-
+	pause_note.duration		= min_duration;
 	if ( not compiler( prefix, str ) )
 		return false ;
-
+	fill_note_list();
 	// post check
-	uint noteline_msec = calc_noteline_msec( this );
+	uint noteline_msec = Calc_noteline_msec( notelist );
 	noteline_sec = 0;
-
 	int mod = noteline_msec % measure_duration ;
 	if ( mod == 0 )
 	{
@@ -83,13 +96,13 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str ) // used
 	}
 	else
 	{
-		Comment( ERROR, "notes are not aligned to " +
+		Comment( ERROR, "note line sec ", (int)noteline_msec, " is not aligned to " +
 				to_string(prefix.nps) + " * " +
 				to_string(min_duration) + " = " +
 				to_string(prefix.nps*min_duration) + " [msec]" );
-		noteline_sec = 0;
 		return false;
 	}
+
 	if ( noteline_sec > tmpduration )
 	{
 		Comment( ERROR, "The total duration of this sentence ");
@@ -170,6 +183,23 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 {
 	// parse a single noteline position and apply changes to the note_itr
 
+	// control characters
+	const char IGNORE 	= ' ';
+	const char PAUSE 	= '.';
+	const char INCDUR 	= '-';
+	const char SLIDE	= '>';
+	const char INCOCT	= '\'';
+	const char DECOCT	= ',';
+	const char NEWOCT	= '|';
+
+	auto get_note_char = [ this ]( size_t p )
+	{
+		if ( p < noteline_len )
+			return Noteline[ p ];
+		else
+			return ' ';
+	};
+
 	auto get_oct_value = [ this ]( char ch )
 		{
 			return ( OctaveChars.Set.contains( ch ) ) ? char2int( ch )  : -1 ;
@@ -196,21 +226,20 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			return false;
 		};
 
-
-	char note_char = Noteline[pos];
-	note_itr = notelist.end();
+	char note_char 	= Noteline[pos];
+	note_itr 		= notelist.end();
 	note_itr--;
 	switch (note_char )
 	{
-		case '>' : // allowed: >F or >|3F
+		case SLIDE : // allowed: >F or >|3F
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len; // test note_itr
 			note_itr->str.push_back( '>' );
 			note_itr->glide[0].glide = true;
 			pos++; //
-			if ( Noteline[pos] == '|' ) // oct change case >|3F
+			if ( Noteline[pos] == NEWOCT ) // oct change case >|3F
 			{
-				note_itr->str.push_back('|');
+				note_itr->str.push_back( NEWOCT );
 				pos++;
 				if ( out_of_bounds( pos ) ) return noteline_len; // test pos
 				int oct = get_oct_value( Noteline[pos] );
@@ -247,12 +276,12 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 					Char2note( Noteline[pos] ); // append note_buffer
 					nc_pos++;
 				}
-				if ( ch == '\'' )
+				if ( ch == INCOCT )
 				{
 					note_buffer.chord.back().octave += 1;
 					note_buffer.str.push_back(ch);
 				}
-				if ( ch == ',' )
+				if ( ch == DECOCT )
 				{
 					note_buffer.chord.back().octave -= 1;
 					note_buffer.str.push_back(ch);
@@ -269,55 +298,65 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			notelist.push_back( note_buffer );
 			break;
 		}
-		case '-' :
+		case INCDUR :
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len;
-			note_duration++; // increase tge duration of a note
-			note_itr->str.push_back( '-' );
+			note_duration++; // increase tHe duration of a note
+			note_itr->str.push_back( INCDUR );
 			break;
 		}
-		case '\'' :
+		case INCOCT :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
 			note_itr->chord.back().octave += 1;
-			note_itr->str.push_back( '\'' );
+			note_itr->str.push_back( INCOCT );
 			break;
 		}
-		case ',' :
+		case DECOCT :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
 			note_itr->chord.back().octave -= 1;
-			note_itr->str.push_back(',');
+			note_itr->str.push_back( DECOCT );
 			break;
 		}
-		case '|' : // nextchar may define a new octave
+		case NEWOCT : // nextchar may define a new octave
 		{
 			pos++;
 
-			if ( Noteline[pos] == '\'' ) { Octave += 1; break; }
-			if ( Noteline[pos] == ','  ) { Octave -= 1; break; }
+			if ( Noteline[pos] == INCOCT ) { Octave += 1; break; }
+			if ( Noteline[pos] == DECOCT ) { Octave -= 1; break; }
 
 			int oct = get_oct_value( Noteline[pos] );
 			if ( oct < 0 )
 				return parse_error;
 			Octave = oct;
-//			Set_prefix_octave( oct );
 			return pos;
 			break;
 		}
-		case ' ' :
+		case IGNORE :
 		{
-			//do nothing, just break
 			break;
 		}
-		default : 	// this note-char is not a special character (<>-|)
-					// => this note-char is a note that must be stored in the note-list
+		default : 	// this note-char is not a special character (<>-|.)
 		{
-			set_duration(); // duration of the previou note
-			note_buffer = note_struct(); // clear note_buffer;
-			Char2note( note_char );
-			notelist.push_back( note_buffer );
-			note_buffer = note_struct(); // clear note_buffer once more
+			if (	( Note_Chars.Set.contains( note_char ) ) or
+					( note_char == PAUSE ))
+			{	// this note-char is a note that must be stored in the note-list
+				set_duration(); // duration of the previou note
+				note_buffer = note_struct(); // clear note_buffer;
+				if ( OctaveChars.Set.contains( get_note_char( pos + 1 ) ) )
+				{	// the next notechar specifies the octave of the current note explicitely
+					Octave = char2int( Noteline[ pos + 1 ] );
+					pos++;
+				}
+				note_t note = Char2note( note_char );
+				notelist.push_back( note );
+				note_buffer = note_struct(); // prepare note_buffer for the next note
+			}
+			else
+			{
+				;
+			}
 			break;
 		}
 	} // switch
@@ -417,28 +456,28 @@ void Note_class::split_long_notes()
 
 void Note_class::fill_note_list()
 {
-	auto calc_noteline_msec = [this]()
-		{
-			uint duration = 0;
-			for( note_t note : notelist )
-			{
-				duration += note.duration;
-			}
-			return duration;
-		};
 
-	uint noteline_msec = calc_noteline_msec();
+	uint noteline_msec = Calc_noteline_msec( notelist );
 	noteline_sec = 0;
 
-	int mod = noteline_msec % measure_duration ;
+	int mod = ( noteline_msec % measure_duration ) / min_duration;
 	if ( mod > 0 )
 	{
-		uint16_t dur = 0;
+		cout << mod ;
+		for (int n = 0; n < mod; ++n)
+		{
+			coutf << "." << endl;
+			notelist.push_back( pause_note );
+		}
+/*
+
+ 		uint16_t dur = 0;
 		while ( dur < measure_duration - mod )
 		{
 			notelist.push_back( pause_note );
 			dur += min_duration;
 		}
+*/
 	}
 }
 

@@ -7,7 +7,9 @@
 
 #include <Keyboard.h>
 
-Keyboard_class::Keyboard_class( Instrument_class* instr, Storage_class* StA ) :
+Keyboard_class::Keyboard_class( Instrument_class* 	instr,
+								Storage_class* 		StA,
+								Note_class* notes ) :
 	Logfacility_class("Keyboard") ,
 	Kbd_base(),
 	keyboardState_class( instr->sds )
@@ -17,7 +19,9 @@ Keyboard_class::Keyboard_class( Instrument_class* instr, Storage_class* StA ) :
 	this->sds					= instrument->sds;
 	this->StA					= StA;
 	this->Kbd_Data				= StA->Data;
-
+	this->Notes_p				= notes;
+	this->Nlp					= notes->noteline_prefix_default;
+	this->Nlp.nps				= 8;
 	Oscgroup.SetWd				( instr->wd_p );
 	Oscgroup.SetScanner			( max_frames );
 //	instr->wd_p->Add_data_ptr	( Osc->typeId, Osc->roleId, StA->Data, &StA->StAparam.size );
@@ -109,7 +113,8 @@ void Keyboard_class::attack()
 		{
 			for( uint i = 0; i<cnt; i++ )
 			{
-				Noteline.append( "-" );
+				if( not StA->state.forget )
+					Noteline.append( "-" );
 			}
 			coutf << Noteline << endl ;
 			cnt = 0;

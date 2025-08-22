@@ -22,8 +22,10 @@ class Note_class
 		: virtual public Logfacility_class
 		, virtual public Note_base
 {
-	string className = "";
-	Instrument_class*	instrument 	= nullptr;
+	string 				className 	= "";
+	Instrument_class*	instrument 	;
+	Storage_class*		StA			;
+
 public:
 
 
@@ -45,7 +47,8 @@ public:
 	Data_t*			NotesData		= osc->MemData_p( );
 	interface_t*	sds				= nullptr;
 
-					Note_class( Wavedisplay_class* wd ); 	// used by notes (Synthesizer)
+					Note_class( Instrument_class* 	instr,
+								Storage_class*		sta); 	// used by notes (Synthesizer)
 					Note_class( ); 							// used by Variation (Composer)
 					Note_class( interface_t* sds ); 		// used by File_dialog (OceanGUI)
 	virtual			~Note_class();
@@ -64,7 +67,14 @@ public:
 	void 			SetSDS( noteline_prefix_t nlp );
 
 	void			Set_prefix_octave( int );
-	bool			Verify_noteline( noteline_prefix_t, string );
+	bool			Verify_noteline		( noteline_prefix_t nlp,
+										string noteline );
+	notelist_t 		Gen_notelist		( noteline_prefix_t prefix,
+										string str );
+	uint 			Calc_noteline_msec	( notelist_t notelist );
+	void 			Append_noteline		( noteline_prefix_t prefix,
+										string& noteline );
+
 	void 			Test();
 	void			Show_note(  note_t );
 	void 			Start_note_itr();

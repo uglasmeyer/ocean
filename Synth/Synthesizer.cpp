@@ -12,8 +12,8 @@ Wavedisplay_class*		wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
 Mixer_class				Mixer			{ &DaTA, wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument		{ sds, wd_p };
-Note_class 				Notes			{ wd_p };
-Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD] );
+Note_class 				Notes			{ &Instrument, &Mixer.StA[ STA_NOTES ] };
+Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg);
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
@@ -283,7 +283,7 @@ void exit_proc( int signal )
     Sem.Release( SEMAPHORE_EXIT );
 
     Log.Comment( INFO, "Synthesizer reached target exit 0" );
-	Log.Set_Loglevel( DBG2, true );
+	Log.Set_Loglevel( DBG2, false );
 
     exit( 0 );
 }

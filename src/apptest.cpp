@@ -30,10 +30,10 @@ void SynthesizerTestCases()
 	interface_t*			sds = DaTA.GetSdsAddr();
 	Mixer_class				Mixer{&DaTA, wd_p };
 
-	Note_class 				Notes{ wd_p };
+	Note_class 				Notes{ &Instrument, &Mixer.StA[ STA_NOTES ] };
 	Musicxml_class			MusicXML{};
 
-	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD] );
+	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
 										DaTA.Cfg_p);
 	ProgressBar_class		ProgressBar( &sds->RecCounter );

@@ -36,8 +36,7 @@ Logfacility_class::Logfacility_class( )
 
 Logfacility_class::~Logfacility_class(  )
 {
-	if( LogMask[ DEBUG ] )
-		coutf << "visited ~Logfacility_class." << className  << endl;
+	DESTRUCTOR( className )
 };
 
 string	Logfacility_class::GetColor( uint id )

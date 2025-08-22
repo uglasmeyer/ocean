@@ -106,8 +106,8 @@ public:
 	const noteline_prefix_struct
 					noteline_prefix_default = noteline_prefix_struct();
 	noteline_prefix_struct
-					Noteline_prefix			= noteline_prefix_default; // D=default, N=numeric
-	String 			Note_Chars		{ convention_notes[ noteline_prefix_default.convention ] };
+					Noteline_prefix		= noteline_prefix_default; // D=default, N=numeric
+	String 			Note_Chars			{ convention_notes[ noteline_prefix_default.convention ] };
 
 
 	typedef struct pitch_struct
@@ -133,7 +133,7 @@ public:
 		uint16_t 			duration 	= 0; 	// msec
 		uint16_t			volume 		= notes_default_volume;//0; 	// percentage of max_volume
 		uint8_t 			octave 		= 0; 	// 1...9 ( * 55 ) = base frequency ot the octave
-		vector<glide_t>		glide		{{ pitch_struct(), false }};//= glide_struct();
+		vector<glide_t>		glide		{{ pitch_struct(), false }};
 		bool				longnote	= false;// identify a note that jumps over the measure boundary
 
 	} note_t;
@@ -145,7 +145,7 @@ public:
 
 	uint16_t 		min_duration 		= measure_duration / noteline_prefix_default.nps;  //milli seconds
 
-	const note_t	pause_note			= { ".",
+	note_t			pause_note			= { ".",
 											{pitch_struct()},
 											min_duration,
 											0,

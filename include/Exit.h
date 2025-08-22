@@ -11,11 +11,7 @@
 #include <Ocean.h>
 #include <Logfacility.h>
 
-#define DESTRUCTOR( className )\
-{\
-		{ if( LogMask[ DBG2 ] )\
-		cerr.flush() << "~" << className << endl; }\
-};
+
 
 
 #define EXCEPTION( err_str )\

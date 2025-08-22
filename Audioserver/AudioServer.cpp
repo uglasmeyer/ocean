@@ -58,39 +58,10 @@ void shutdown_stream()
 {
 	if ( rtapi.isStreamRunning() )
 		rtapi.stopStream();
-	Log.Info( rtapi.getErrorText() );
+	Log.Info( "stop audio stream ", rtapi.getErrorText() );
 	if ( rtapi.isStreamOpen() )
 		rtapi.closeStream();
-	Log.Info( rtapi.getErrorText() );
-/*	if ( rtapi.isStreamRunning() )
-	{
-		Log.Comment(INFO,"stream will be stopped");
-
-		try
-		{
-			rtapi.stopStream();  // or could call dac.abortStream();
-		}
-		catch (bad_alloc const& ex)
-		{
-			cout << "bad alloc" << endl;
-		}
-
-		// TODO  - causes valgrind error
-	}
-	else
-		return;
-
-	if ( rtapi.isStreamOpen() )
-	{
-		Log.Comment(INFO, "stream will be closed");
-		rtapi.closeStream();
-		if ( rtapi.isStreamOpen() )
-			Log.Comment( ERROR, "stream is still open");
-	}
-	txt = rtapi.getErrorText();
-	if ( txt.length() == 0 )  txt = "None";
-	Log.Comment( ERROR, txt );
-*/
+	Log.Info( "close audio stream ", rtapi.getErrorText() );
 }
 
 
@@ -120,8 +91,6 @@ Thread_class			SaveRecord			{ &Sem,
 											  "save record" };
 thread* SaveRecord_thread_p = nullptr;
 
-thread Record_thread( save_record_fcn );
-
 void shutdown_thread( )
 {
 	SaveRecord.StopLoop();
@@ -132,23 +101,11 @@ void shutdown_thread( )
 	}
 }
 
-int sig_counter = 0;
 void exit_intro( int signal )
 {
-	if ( sig_counter > 0 )
-	{
-		Log.Comment( ERROR, "Exit procedure failed" );
-		Log.Comment( WARN, "Audioserver reached target exit " + to_string( signal ));
-		exit( signal );
-	}
-	sig_counter++;
-
 	Log.Comment( INFO,  Application + "received command exit signal " + to_string( signal ) );
 	Log.Comment( INFO, "Entering exit procedure for " + App.This_Application );
-	Log.Comment( INFO, "suspend server" );
 }
-
-
 
 void show_usage( void )
 {
@@ -393,7 +350,8 @@ int main( int argc, char *argv[] )
 	sds->Record			= false;
 
 	// init record thread
-	thread 	SaveRecord_thread( &Thread_class::Loop, &SaveRecord ); // run class method: Loop in a thread
+	thread
+	SaveRecord_thread( &Thread_class::Loop, &SaveRecord ); // run class method: Loop in a thread
 	SaveRecord_thread_p = &SaveRecord_thread;
 	//    DaTA.Sem.Reset( SEMAPHORE_RECORD );
 
@@ -465,31 +423,32 @@ int main( int argc, char *argv[] )
 	Log.Comment(INFO, "Entering Application loop\n");
 
 	// audio server loop
-	while ( not done  && rtapi.isStreamRunning() )
+	do
 	{
 	    std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
 	}
+	while ( ( not done ) && rtapi.isStreamRunning() );
 	Log.Comment( INFO, "AudioServer reached target exit main()" );
 	exit_proc(0);
 
-//	return 0;
+	return 0;
 
 }
 
 void exit_proc( int signal )
 {
-
+	exit_intro( signal );
 	done = true;
-	shutdown_stream();
-	cout.flush();
-	//	exit_intro( signal );
-
 	shutdown_thread();
+	shutdown_stream();
+
+	cout.flush();
+
 	if ( frame )
 	{
 		free( frame);
 		Log.Info( "frame buffer freed" );
 	}
-	if( signal > 0 )
-		exit( signal );
+	Log.Set_Loglevel( DBG2, true );
+	exit(0);
 }

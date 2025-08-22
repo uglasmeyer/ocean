@@ -46,7 +46,7 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
 		case APPID::KBDID		: { ptr = &sds->Keyboard; break; }
 		case APPID::SETUPID		: { ptr = &sds->Setup; break; }
-		case APPID::TESTID		: { ptr = &sds->Rtsp; break; }
+		case APPID::TESTPRGID		: { ptr = &sds->Rtsp; break; }
 
 		default : {
 					coutf << "WARN: unknown application id: " << (int)appId << endl;

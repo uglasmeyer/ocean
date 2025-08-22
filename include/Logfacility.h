@@ -73,7 +73,11 @@ extern 	logmask_t 	LogMask; // define as: logmask_t LogMask = defaultLogMask in 
 // end
 
 
-
+#define DESTRUCTOR( className )\
+{\
+		{ if( LogMask[ DBG2 ] )\
+		cerr.flush() << "~" << className << endl; }\
+};
 const string 		logDir 		{ "/tmp/log/" };
 const string 		logFileName	{ "Synthesizer" };
 const string 		logFile		= logDir + logFileName + string(".log") ;

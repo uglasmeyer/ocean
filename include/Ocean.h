@@ -184,7 +184,7 @@ enum APPID
 	RTSPID,
 	KBDID,
 	SETUPID,
-	TESTID,
+	TESTPRGID,
 	NOID
 };
 #define AUDIOSERVER "AudioServer"
@@ -211,7 +211,7 @@ constexpr string AppIdName( const T& app_id )
 		case APPID::RTSPID		: return RTSP;
 		case APPID::KBDID		: return SYNTHKBD;
 		case APPID::SETUPID		: return SETUP;
-		case APPID::TESTID		: return TESTPRG;
+		case APPID::TESTPRGID		: return TESTPRG;
 		case APPID::NOID		: return "No Process";
 		default 		: 	{
 							cout << "WARN: unknown application id: " << (int)app_id << endl;

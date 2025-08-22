@@ -77,12 +77,10 @@ Variation_class::noteword_t Variation_class::list2vector( notelist_t notes )
 void Variation_class::define_random_note_vector( string str )
 {
 	Note_class::Noteline_prefix.variation = 1;
-	String V { Note_class::Note_Chars.Str + "." };
 	Random_Notes.clear();
-	Verify_noteline( Note_class::Noteline_prefix, str);
-	Random_Notes = list2vector( Note_class::notelist );
+	notelist_t nl = Gen_notelist( Noteline_prefix, str );
+	Random_Notes = list2vector( nl );
 	Note_class::Show_note_list(Random_Notes); // @suppress("Invalid arguments")
-//	randomize_notes_octave( str );
 }
 
 

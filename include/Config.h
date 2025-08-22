@@ -83,7 +83,6 @@ struct dir_struct
 
 struct file_structure
 	: virtual dir_struct
-
 {
 	string 			get_rec_filename( uint no );
     string 			baseName 		( string _dir );
@@ -142,6 +141,8 @@ struct file_structure
 	const string	rc_nte_file		= resourcedir + "Notes/" + default_nte;
 	const string	default_snd		= "default" + snd_type;
 	const string	rc_snd_file		= resourcedir + "Instruments/" + default_snd;
+	const string	kbdnotes_name	= "keyboardNotes";
+	const string	kbdnotes_file	= autodir + kbdnotes_name + nte_type;
 };
 
 class Config_class

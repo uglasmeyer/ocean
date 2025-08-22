@@ -38,7 +38,7 @@ constexpr char AppNameId( const T& name )
 	if ( strEqual( name, SYNTHKBD 		) )	appid = APPID::KBDID;
 	if ( strEqual( name, SETUP		 	) )	appid = APPID::SETUPID;
 	if ( strEqual( name, RTSP	 		) )	appid = APPID::RTSPID;
-	if ( strEqual( name, TESTPRG 		) )	appid = APPID::TESTID;
+	if ( strEqual( name, TESTPRG 		) )	appid = APPID::TESTPRGID;
 
 	if ( appid == APPID::NOID )
 	{
@@ -97,7 +97,7 @@ public:
 	Register_class* Reg_p				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
-	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, KBDID } ;
+	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, KBDID, TESTPRGID } ;
 	const range_T<uint>
 					appId_range 		{0, NOID };
 	array< uint, NOID>

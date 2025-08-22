@@ -85,7 +85,7 @@ void Application_class::Start( int argc, char* argv[] )
 		if ( not Appstate->StartOnceOk( sds ))
 		{
 		    std::this_thread::sleep_for ( std::chrono::seconds(2) );
-			exit( 1 );
+			raise( SIGHUP );
 		}
 	}
 

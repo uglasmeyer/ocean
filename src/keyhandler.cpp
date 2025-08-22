@@ -95,7 +95,7 @@ void keyboardState_class::set_slideMode()
  */
 
 
-string Keyboard_class::get_notenames( )
+string Keyboard_class::show_kbd_notenames( )
 {
 	Table_class Table { "Notes", 11 };
 	Table.AddColumn( "Octave", 8);
@@ -118,12 +118,11 @@ string Keyboard_class::get_notenames( )
 	return strs.str();
 }
 
-
-
 void Keyboard_class::Show_help( bool tty )
 {
 	if ( not tty ) return;
-	get_notenames() ;
+
+	show_kbd_notenames() ;
 	Table_class Table { "Keyboard ", 11 };
 	Table.AddColumn( "Keys"		, 9 );
 	Table.AddColumn( "Function"	, 30 );
@@ -140,6 +139,7 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( StA->state.forget, "forget", "persist" ));
 	Table.AddRow( "F7", "increase flats "		, (int) sds->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
+	Table.AddRow( "F9", "save notes"			);
 	Table.AddRow( "+/-" , "inc/dec octave"		, (int) sds->Kbd_state.base_octave, "base"  );
 	Table.AddRow( "#" , "show Frequency Table" 	);
 	Table.AddRow( "ESC", "Exit keyboard"		);
@@ -157,7 +157,10 @@ void Keyboard_class::notekey( char key )
 	noteline 		= kbd_note.setNote( key ) ;
 	if ( noteline.length() > 0 )
 	{
-		Noteline.append( noteline );
+		if( StA->state.forget )
+			{;}
+		else
+			Noteline.append( noteline );
 		if( sds->StA_amp_arr[STA_KEYBOARD] == 0 )
 		{
 			sds->StA_amp_arr[STA_KEYBOARD] = sta_volume;
@@ -178,6 +181,24 @@ void Keyboard_class::set_bufferMode()
 	}
 	Noteline 			= "";
 }
+
+
+bool Keyboard_class::save_notes()
+{
+	Comment( INFO, "Saving notes to file", "<tbd>" );
+
+	Notes_p->Append_noteline( Nlp, Noteline );
+	if ( Notes_p->Verify_noteline( Nlp, Noteline ) )
+	{
+		Comment( INFO, Noteline );
+		Notes_p->Save( fs.kbdnotes_name, Nlp, Noteline );
+		return true;
+	}
+	else
+		return false;
+
+}
+
 void Keyboard_class::specialKey()
 {
 	key3struct_t special = GetKeystruct( false );
@@ -192,6 +213,8 @@ void Keyboard_class::specialKey()
 		case F6	: { set_bufferMode();		break; }
 		case F7 : { increase_flats();		break; }
 		case F8 : { reset_flats(); 			break; }
+		case F9 : { tainted = save_notes();	break; }
+
 		default : { tainted = false;		break; }
 	}
 	if ( tainted )
@@ -201,7 +224,7 @@ Frequency_class Frequency {};
 void Keyboard_class::keyHandler( key3struct_t kbd )
 {
 	string 	noteline 	= "";
-	bool 	tainted 	= true;
+	bool 	tainted 	= false;
 	switch (kbd.key )
 	{
 		case '+' :	{ change_octave(  1 ) 		; break; }
@@ -213,11 +236,12 @@ void Keyboard_class::keyHandler( key3struct_t kbd )
 			{
 				case 0  :	{ exit_keyboard()	; break; }
 				case S0	: 	{ specialKey()		; break; }
+				case S1	: 	{ specialKey()		; break; }
 				case F1	:	{ tainted = true	; break; }
 				case F2 : 	{ increase_sharps()	; break; }
 				case F3 : 	{ reset_sharps(); 	; break; }
 				case F4 :	{ toggle_applyADSR(); break; }
-				default :	{ tainted = false	; break; }
+				default :	{ tainted = true	; break; }
 			};
 			break;
 		}

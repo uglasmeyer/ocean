@@ -115,6 +115,8 @@
 									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
 									<listOptionValue builtIn="false" value="WITHOUT_SHM"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.optimization.level.1034025137" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.1865630295" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1627113198" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1313622410" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">

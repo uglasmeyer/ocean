@@ -12,6 +12,7 @@ Note_class::Note_class( )
 	: Note_class::Logfacility_class("Note_class")
 	, Note_base()
 {
+	this->sds 		= nullptr;
 	this->className = Logfacility_class::className;
 }
 Note_class::Note_class( interface_t* _sds)
@@ -22,17 +23,21 @@ Note_class::Note_class( interface_t* _sds)
 	this->sds		= _sds;
 }
 
-Note_class::Note_class( Wavedisplay_class* wd )
+Note_class::Note_class( Instrument_class* 	instr,
+						Storage_class* 		sta )
 	: Note_class::Logfacility_class("Note_class")
 	, Note_base()
 {
 	this->className = Logfacility_class::className;
-	Oscgroup.SetWd( wd );
+	this->instrument= instr;
+	this->StA		= sta;
+	this->sds		= instr->sds;
+	Oscgroup.SetWd( instr->wd_p );
 	Oscgroup.SetScanner( max_frames );
 }
 
 Note_class::~Note_class( )
-{
+{ DESTRUCTOR( className )
 }
 
 void Note_class::Set_instrument(Instrument_class *instr)
@@ -212,8 +217,8 @@ bool Note_class::Generate_note_chunk( )
 
 void Note_class::SetSDS( noteline_prefix_t nlp )
 {
-	if( instrument )
-		instrument->sds->noteline_prefix = nlp;
+	if( sds )
+		sds->noteline_prefix = nlp;
 }
 void Note_class::ScanData( Instrument_class* instrument )
 {
@@ -373,6 +378,10 @@ void Note_class::Test()
 	Instrument_name = "NotesTest";
 	Comment( TEST, "Note_class test start");
 
+	string nl = "D3----";
+	Append_noteline( noteline_prefix_default,  nl );
+	coutf << nl << endl;
+	ASSERTION( nl.length() == 8, "Append_noteline", nl.length(), 8L );
 	Comment( TEST, "long notes ");// long note
 	Set_rhythm_line("5");
 	Verify_noteline( Noteline_prefix, "A-D--B----d-");

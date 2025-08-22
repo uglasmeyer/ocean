@@ -39,7 +39,8 @@ public:
 		Name		= name;
 	};
 
-	~Thread_class() = default;
+	~Thread_class()
+		{ DESTRUCTOR( className )};
 	void Loop( )
 	{
 
