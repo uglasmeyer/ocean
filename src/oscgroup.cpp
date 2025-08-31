@@ -7,14 +7,16 @@
 
 #include <Oscgroup.h>
 
+
 Oscgroup_class::Oscgroup_class( char role, buffer_t bytes )
-	: Logfacility_class( "Oscgroup" )
+	: Logfacility_class( "Oscgroup_class" )
 	, Frequency_class()
 	, Note_base()
-	, vco( role, osc_struct::VCOID, bytes )
-	, fmo( role, osc_struct::FMOID, bytes )
-	, osc( role, osc_struct::OSCID, bytes )
+	, vco( role, VCOID, bytes )
+	, fmo( role, FMOID, bytes )
+	, osc( role, OSCID, bytes )
 {
+	className		= Logfacility_class::className;
 	member 			= { &vco, &fmo, &osc };
 	oscroleId 		= role;
 	Data_Reset();
@@ -27,9 +29,13 @@ void Oscgroup_class::operator=( Oscgroup_class& oscg )
 	this->osc = oscg.osc;
 }
 
-Oscgroup_class::~Oscgroup_class() = default;
+Oscgroup_class::~Oscgroup_class()
+{
+	DESTRUCTOR( className )
+}
 
-void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
+
+void Oscgroup_class::SetInstrument( interface_t* sds )
 {
 	osc.Setwp		( sds->OSC_wp );
 	osc.Set_spectrum( sds->OSC_spectrum );
@@ -43,6 +49,23 @@ void Oscgroup_class::Instrument_fromSDS( interface_t* sds )
 	SetAdsr			( sds );
 	SetFeatures		( sds->OSC_features );
 	Set_Connections	( sds );
+}
+#include <data/Device.h>
+
+void Oscgroup_class::Connection_Reset()
+{
+	std::ranges::for_each( member, [](Oscillator*  o)
+			{ o->Connection_reset() ;});
+}
+void Oscgroup_class::Set_Connections( interface_t* sds )
+{
+	Device_class device = Device_class(sds);
+	for( Oscillator* osc_p : member )
+	{
+		connectId_t Connect = device.Get_connect_state( osc_p->typeId );
+		osc_p->Connect_frq_data( member[ Connect.frq ] );
+		osc_p->Connect_vol_data( member[ Connect.vol ] );
+	}
 }
 
 void Oscgroup_class::SetFeatures( const feature_t& value )
@@ -70,11 +93,11 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 								osc->roleId,
 								osc->MemData_p(),
 								&osc->wp.frames ); });
-	if( osc.roleId == osc_struct::INSTRID )
+	if( osc.roleId == INSTRID )
 	{
 		std::ranges::for_each( member, [ this, wd ](Oscillator*  osc )
 				{ wd->Add_data_ptr( osc->typeId,
-									osc_struct::ADSRID,
+									ADSRID,
 									osc->AdsrMemData_p(),
 									&osc->adsr_frames ); });
 		}
@@ -159,21 +182,6 @@ void Oscgroup_class::Data_Reset()
 	std::ranges::for_each( member, [](Oscillator*  o)
 			{ o->Data_reset() ;});
 }
-void Oscgroup_class::Connection_Reset()
-{
-	std::ranges::for_each( member, [](Oscillator*  o)
-			{ o->Connection_reset() ;});
-}
-void Oscgroup_class::Set_Connections( interface_t* sds )
-{
-	std::ranges::for_each( member, [ this, sds](Oscillator*  o)
-	{
-		if ( sds->connect[ o->typeId ].frq )
-			o->Connect_frq_data( member[ osc_struct::FMOID ] );
-		if ( sds->connect[ o->typeId ].vol )
-			o->Connect_vol_data( member[ osc_struct::VCOID ] );
-	} );
-}
 
 void Oscgroup_class::Run_OSCs( const buffer_t& offs )
 {
@@ -193,7 +201,7 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 				}
 			} );
 	if ( strEqual( "MAIN", name  ) ) // compatibility
-		ret = member[ osc_struct::OSCID ];
+		ret = member[ OSCID ];
 	if ( ret == nullptr )
 		{ EXCEPTION( "unknown Oscillator name: " + name ); }
 
@@ -202,8 +210,8 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 
 void Oscgroup_class::selfTest()
 {
-	ASSERTION( fmo.spectrum.osc == osc_struct::FMOID, "fmo.spectrum.osc",
-				(int) fmo.spectrum.osc, (int) osc_struct::FMOID );
+	ASSERTION( fmo.spectrum.osc == FMOID, "fmo.spectrum.osc",
+				(int) fmo.spectrum.osc, (int) FMOID );
 
 	adsr_t adsr = fmo.Get_adsr();
 	ASSERTION( adsr.spec.adsr == true, "fmo.adsr_data.spec.adsr",

@@ -52,7 +52,7 @@ void Register_class::Setup( interface_t* sds )
 			}
 			break;
 		}
-		case APPID::KBDID :
+		case APPID::KEYBOARDID :
 		case APPID::SYNTHID :
 		{
 			int id = scan_proc_register();
@@ -78,7 +78,7 @@ void Register_class::Setup( interface_t* sds )
 }
 int getindex( uint8_t sdsid, char appid )
 {
-	if( appid == APPID::KBDID )
+	if( appid == APPID::KEYBOARDID )
 		return sdsid + APPID::SYNTHID;
 	return sdsid + appid;
 }

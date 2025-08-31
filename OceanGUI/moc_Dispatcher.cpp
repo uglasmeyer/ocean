@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "Dispatcher.h"
+#include "include/Dispatcher.h"
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
 

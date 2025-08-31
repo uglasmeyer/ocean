@@ -75,7 +75,7 @@ string install_struct::baseDir( )
 	string basedir = "";
 
 	// oceandir
-	const string Envvar = "OCEANDIR";
+	const string Envvar = OCEANDIR;
 	string Env = notnull( std::getenv( Envvar.data()) );
 	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
 	{
@@ -147,7 +147,6 @@ Config_class::Config_class( string Module ) :
 {
 	className 			= Logfacility_class::className;
 	Comment( DEBUG, "Program name: " + string( program_invocation_short_name ) );
-	file_structure		fs	= file_structure();
 	if( filesystem::is_regular_file( fs.config_file ) )
 	{
 		Read_config( fs.config_file );

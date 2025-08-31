@@ -185,7 +185,7 @@ void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 	data_ptr 		= ptr;
 	Comment( DEBUG, "wave display selected: "+
 						OscRole.roles[ status.roleId ] + " " +
-						OscRole.types[ status.oscId ] );
+						OscRole.oscNames[ status.oscId ] );
 	set_wdmode( status.wd_mode );
 	setFFTmode( status.fftmode );
 }
@@ -207,7 +207,7 @@ void Wavedisplay_class::Add_role_ptr( 	const char& wd_role,
 										buffer_t* wd_frames )
 {
 	// special case for role external and audioserver. They do not have osc's
-	for( char osctype : osctypeIds )
+	for( char osctype : oscIds )
 	{
 		Add_data_ptr( osctype, wd_role, ptr, wd_frames );
 	}
@@ -220,7 +220,7 @@ void Wavedisplay_class::Add_data_ptr( 	const char& wd_type,
 	Comment( INFO, "adding wave display: " +
 					to_string( wd_role ) 	+ " " +
 					OscRole.roles[wd_role]	+  " - " +
-					OscRole.types[wd_type] + " " +
+					OscRole.oscNames[wd_type] + " " +
 					to_string( *frames));
 	if ( ptr == nullptr )
 	{

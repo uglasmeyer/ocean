@@ -85,7 +85,6 @@ public:
 	void 						Sum( spec_struct& );
 	char 						Type_flag( const string& type_str );
 	char 						Osc_TypeId( const string& type_str );
-	bool 						adsr_type( const string& type_str );
 
 
 	void 						Test_Spectrum();
@@ -96,10 +95,11 @@ public:
 private:
 	const array<int		,3> 	spectrumNum = {  SPEV,   SPEF,   SPEW  };
 	const array<string	,3> 	spectrumTag = { "SPEV", "SPEF", "SPEW" };
-	spec_struct					spectrum	= spec_struct();
+	spec_struct					spectrumTmp	= spec_struct();
 	void 						assign_frq( int channel, string str  );
 	void 						assign_vol( int channel, string str  );
 	void 						assign_waveform( int channel, string str );
+	bool 						adsr_type( const string& type_str );
 
 };
 

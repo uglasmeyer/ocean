@@ -163,7 +163,7 @@ public:
 	};
 
 	template <class... ArgsT>
-	void Comment( const int& level, ArgsT... args )
+	string Comment( const int& level, ArgsT... args )
 	{
 		int id = check_range( loglevel_range, level, "Comment" );
 		if ( LogMask.test( id ) )
@@ -171,8 +171,9 @@ public:
 			stringstream strs{};
 			strs << dec;
 			( strs <<  ... << args  ) ;
-			cout_log( id, strs.str() );
+			return cout_log( id, strs.str() );
 		}
+		return "";
 	}
 
 private:

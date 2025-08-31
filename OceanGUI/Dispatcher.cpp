@@ -4,7 +4,7 @@
  *  Created on: Mar 28, 2025
  *      Author: sirius
  */
-#include <Dispatcher.h>
+#include <include/Dispatcher.h>
 
 Dispatcher_class::Dispatcher_class( Dataworld_class* _data ) :
 	Logfacility_class( "Dispatcher_class")

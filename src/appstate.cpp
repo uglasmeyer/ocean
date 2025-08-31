@@ -20,7 +20,7 @@ Appstate_class::Appstate_class( char 			appid,
 	Reg_p		= reg;
 	AppId 		= appid;
 	Name 		= AppIdName( appid );
-	if ( ( AppId == APPID::KBDID ) or ( AppId == APPID::SYNTHID ) )
+	if ( ( AppId == APPID::KEYBOARDID ) or ( AppId == APPID::SYNTHID ) )
 		Setup( _sds			, _sds_master ) ;
 	else
 		Setup( _sds_master	, _sds_master ) ;
@@ -44,7 +44,7 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 		case APPID::GUI_ID		: { ptr = &sds->UserInterface; break; }
 		case APPID::SDSVIEWID	: { ptr = &sds->Comstack; break; }
 		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
-		case APPID::KBDID		: { ptr = &sds->Keyboard; break; }
+		case APPID::KEYBOARDID		: { ptr = &sds->Keyboard; break; }
 		case APPID::SETUPID		: { ptr = &sds->Setup; break; }
 		case APPID::TESTPRGID		: { ptr = &sds->Rtsp; break; }
 
@@ -95,7 +95,7 @@ bool Appstate_class::IsExitserver( interface_t* sds, uint appid )
 }
 bool Appstate_class::IsKeyboard	()
 {
-	bool flag = ( is_atty and ( this->AppId	== APPID::KBDID ));
+	bool flag = ( is_atty and ( this->AppId	== APPID::KEYBOARDID ));
 	return flag;
 }
 
@@ -130,7 +130,7 @@ bool Appstate_class::IsInconsistent( interface_t* sds, char appid )
 	if ( ( pid > 0 ) and ( IsExitserver( sds, appid ) ) )
 	{
 		Comment( WARN, "Application is already in exit state" );
-		system_execute( " kill " + to_string( pid ) );
+		System_execute( " kill " + to_string( pid ), NOEXEPT );
 		Set( sds, appid, OFFLINE );
 		return true;
 	}

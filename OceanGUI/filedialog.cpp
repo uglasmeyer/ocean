@@ -12,11 +12,11 @@
 #include <notes/Notes.h>
 #include <Config.h>
 #include <EventKeys.h>
+#include <include/Common.h>
+#include <include/File_Dialog_class.h>
 
 // OceanGUI includes
 #include "ui_File_Dialog_class.h"
-#include <File_Dialog_class.h>
-#include <Common.h>
 
 
 File_Dialog_class::File_Dialog_class( 	QWidget *parent,

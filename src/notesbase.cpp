@@ -18,6 +18,7 @@ Note_base::Note_base () :
 
 Note_base::~Note_base()
 {
+	DESTRUCTOR( className )
 };
 
 

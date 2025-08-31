@@ -4,14 +4,17 @@
  *  Created on: Dec 30, 2023
  *      Author: sirius
  */
-#include <Logfacility.h>
 #include <System.h>
 
-void system_execute( const string& cmd )
+void System_execute( const string& cmd, bool _noexcept )
 {
-	std::cout.flush();
+	coutf;
 	int ret = system( cmd.data() );
-
+	if ( _noexcept )
+	{
+		coutf <<  "WARNING" << cmd << " ignored return value " << ret << endl;
+		return;
+	}
 	if ( ret != 0 )
 	{
 		EXCEPTION( cmd + "\ncheck out system error message " );
@@ -25,7 +28,7 @@ vector<string> List_directory( const string& path, const string& filter )
 	const std::filesystem::path dir{ path };
     if ( not filesystem::exists(dir) )
     {
-//    	Log_common.Comment( ERROR, "Directory does not exists:\n " + path );
+    	coutf << "ERROR" << "Directory does not exists:\n " << path << endl;
     	return dir_entry_vec;
     }
     for (auto const& dir_entry : std::filesystem::directory_iterator{ dir })
@@ -69,6 +72,22 @@ string searchPath( string file )
     return string("");
 }
 
+void Remove_file( string file )
+{
+	if ( filesystem::exists( file ) )
+		filesystem::remove( file);
+	if ( filesystem::exists( file ))
+		EXCEPTION( "cannot remove file: " + file );
+
+}
+void Rename_file( string old_name, string new_name )
+{
+	Remove_file( new_name );
+    filesystem::rename( old_name, new_name);
+
+	if ( filesystem::exists( old_name ))
+		EXCEPTION( "cannot remove file: " + old_name );
+}
 void System_Test()
 {
 	Logfacility_class Log_common{"System"};

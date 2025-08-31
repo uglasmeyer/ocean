@@ -94,30 +94,31 @@ public:
 } ;
 
 
-class Keyboard_class :
-	virtual public		Logfacility_class,
-	virtual public		Kbd_base,
-	virtual	public		sdsstate_struct,
-	virtual public		keyboardState_class
+class Keyboard_class
+	: virtual public		Logfacility_class
+	, virtual				osc_struct
+	, virtual public		Kbd_base
+	, virtual	public		sdsstate_struct
+	, virtual public		keyboardState_class
+	, virtual 				Device_class
 {
 	string 				className 				= "";
-	Oscgroup_class		Oscgroup				{ osc_struct::KBDID, 2*monobuffer_bytes };
+	Oscgroup_class		Oscgroup				{ KBDID, 2*monobuffer_bytes };
 	Oscillator*			Osc						= &Oscgroup.osc;
-	buffer_t			osc_frames				= 0;
 	file_structure		fs						= file_structure();
 	typedef std::queue<key3struct_t>
 						key3_stack_t;
 	key3_stack_t		key3_stack				{};
-	noteline_prefix_t	Nlp						;
-	Note_class*			Notes_p					;
-	Instrument_class* 	instrument				;
-	interface_t*		sds						;
-	Storage_class*		StA						;
+	noteline_prefix_t	nlp						;
+	Note_class*			notes_p					;
+	Instrument_class* 	instrument_p				;
+	interface_t*		sds_p						;
+	Storage_class*		sta_p						;
 
 public:
 
 	Data_t*				Kbd_Data;
-	bool				enabled					= false;
+	bool				Enabled					= false;
 
 						Keyboard_class			( 	Instrument_class*,
 													Storage_class*,
@@ -129,8 +130,6 @@ public:
 	void 				Enable					( bool iskbd );
 	void 				ScanData				();
 	void 				Show_help				( bool tty );
-
-
 private:
 
 	const int 			releaseCounter			= 0;

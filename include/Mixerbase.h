@@ -45,7 +45,7 @@ constexpr string 	StAIdName( const T& sta_id )
 	}
 }
 
-typedef array<uint8_t, STA_SIZE> StAarray_t;
+typedef array<uint8_t, STA_SIZE> StAarray_t; //SDS related
 
 constexpr StAarray_t genMemIds()
 {

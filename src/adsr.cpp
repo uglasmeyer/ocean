@@ -106,8 +106,8 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 	const float		y0 			= expf( - delta );
 	const float 	dy			= (1.0 - y0) / aframes;
 
-	adsr_data.spec.volidx[0]	= volidx_range.max;
-	adsr_data.spec.vol[0] 		= volidx_range.max * percent;
+//	adsr_data.spec.volidx[0]	= volidx_range.max;
+//	adsr_data.spec.vol[0] 		= volidx_range.max * percent;
 
 	Spectrum_class::Sum( adsr_data.spec );
 

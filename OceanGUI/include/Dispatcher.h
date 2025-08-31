@@ -5,20 +5,18 @@
  *      Author: sirius
  */
 
-#ifndef DISPATCHER_H_
-#define DISPATCHER_H_
+#ifndef INCLUDE_DISPATCHER_H_
+#define INCLUDE_DISPATCHER_H_
 
 // QT
 #include <QObject>
 #include <QThread>
-#include <Mainwindow.h>
-
-// Synthesizer
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <data/Semaphore.h>
 #include <data/DataWorld.h>
 #include <EventKeys.h>
+#include <include/Mainwindow.h>
 
 class Dispatcher_class :
 		public QObject,
@@ -64,4 +62,4 @@ signals:
     void operate(const QString &);
 };
 
-#endif /* DISPATCHER_H_ */
+#endif /* INCLUDE_DISPATCHER_H_ */

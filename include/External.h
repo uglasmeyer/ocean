@@ -58,6 +58,7 @@ public:
 	void 						Test_External		();
 
 private:
+	file_structure				fs					= file_structure();
 	const uint 					MAXWAVFILES 		= 5; // max numbers of file names generated automatically
 	long int 					read_position 		= 0;
 	buffer_t					record_size			= 0;
@@ -65,6 +66,7 @@ private:
 	wav_struct_t 				header_struct;
 	string 						Name 				= "";
 	string 						Filename 			= "";
+	string 						testcounter_file 	= "/tmp/counter";
 	string 						add_header 			= "cat " + file_structure().raw_file +
 								  	  	  	  	  	  " >> " + file_structure().wav_file;
 	void 						write_audio_data	( string );
@@ -76,6 +78,7 @@ private:
 	bool 						read_stereo_data	( long );
 	string 						ffmpeg_cmd			( string wav, string mp3 );
 	string 						id3tool_cmd			( string mp3 );
+	int 						generate_file_no	( uint maxfileno );
 
 	void 						close				();
 

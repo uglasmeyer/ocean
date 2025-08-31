@@ -18,6 +18,16 @@
 #include <notes/Notesbase.h>
 #include <Keyboard_base.h>
 
+enum CON
+{
+	OSCFMOF,
+	OSCVCOV,
+	FMOVCOV,
+	VCOFMOV,
+	CONV = 'V',
+	CONF = 'F'
+
+};
 struct sdsstate_struct
 {
 	enum {
@@ -74,7 +84,6 @@ const uint  		MAXQUESIZE		= 100;
 typedef 			array< uint8_t, MAXQUESIZE>					deque_t ;
 typedef				array<register_process_t, REGISTER_SIZE>	process_arr_t;
 typedef				StAarray_t									StA_amp_arr_t;
-typedef				array<Oscillator_base::connect_t, 3>		osc_connect_t;
 
 constexpr process_arr_t init_process_arr()
 {
@@ -91,11 +100,11 @@ constexpr process_arr_t init_process_arr()
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 13; 						// comstack
+	uint8_t			version						= 16; 						// comstack
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
-	StA_state_arr_t	StA_state 					= default_sta_state_arr;//{{ StA_state_struct() }};	// comstack
+	StA_state_arr_t	StA_state 					= default_sta_state_arr;	// comstack
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
 	mixer_status_t 	mixer_status 				= Mixer_base::mixer_state_struct(); // comstack
 
@@ -108,7 +117,7 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t			Master_Amp 					= 75;// comstack
 	int8_t			mixer_balance				= 0; // nutral
 	uint8_t		 	vol_slidemode 				= SLIDE;
-	uint8_t			slide_duration 				= 100; // % of 4*max_seconds
+	uint8_t			slide_duration 				= 50; // % of 4*max_seconds
 
 	/* instrument definition starts */
 	feature_t 		OSC_features 				= feature_struct();
@@ -127,8 +136,14 @@ typedef struct interface_struct // with reasonable defaults
 	spectrum_t 		VCO_spectrum 				= default_spectrum;
 	spectrum_t	 	FMO_spectrum 				= default_spectrum;
 
-	osc_connect_t	connect						= { { Oscillator_base::connect_struct() } };
+	connectId_t		OSC_connect					= default_connect( osc_struct::OSCID );
+	connectId_t		VCO_connect					= default_connect( osc_struct::VCOID );
+	connectId_t		FMO_connect					= default_connect( osc_struct::FMOID );
 	/* instrument definition ends	 */
+
+	/* SDS specific control elements */
+	//  											OSCF, OSCV, FMOV, VCOF
+	array<bool, 4>	ui_connect_status			= { 0	, 0	  , 0	, 0 	};
 
 	uint8_t			Spectrum_type				= default_spectrum.osc;
 	uint8_t			NotestypeId					= XML_ID; // musicxml
@@ -136,7 +151,6 @@ typedef struct interface_struct // with reasonable defaults
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds // comstack
 
-	uint8_t 		MIX_Amp 					= 0;// comstack
 	uint8_t 		MIX_Id						= 0;// comstack
 
 	uint8_t	 		FLAG						= CLEAR_KEY;
@@ -153,9 +167,10 @@ typedef struct interface_struct // with reasonable defaults
 
 	uint8_t 		Synthesizer					= sdsstate_struct::DEFAULT;// indicates that shm is new // comstack
 	uint8_t			Keyboard					= sdsstate_struct::OFFLINE; // if tty and synthesizer process
+	/* SDS specific control elements end
+	*/
 
 	// global values of SDS 0
-
 	uint8_t 		AudioServer	    			= sdsstate_struct::OFFLINE;
 	uint8_t	 		UserInterface				= sdsstate_struct::OFFLINE;
 	uint8_t	 		Composer 					= sdsstate_struct::OFFLINE;

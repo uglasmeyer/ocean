@@ -54,9 +54,15 @@ void setButton( T* pb, int state, bool init=false  )
 			}
 			case 2 :
 			{
+				color.setColor(QPalette::Button, Qt::yellow );
+				break;
+			}
+			case 3 :
+			{
 				color.setColor(QPalette::Button, Qt::green );
 				break;
 			}
+
 			default:
 				break;
 		}

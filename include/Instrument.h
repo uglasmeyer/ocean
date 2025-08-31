@@ -8,6 +8,7 @@
 #ifndef INSTRUMENT_H_
 #define INSTRUMENT_H_
 
+#include <data/Device.h>
 #include <Ocean.h>
 #include <data/Interface.h>
 #include <Spectrum.h>
@@ -19,8 +20,11 @@
 #include <Table.h>
 
 class Instrument_class:
-		virtual public Logfacility_class
+		virtual public 	Logfacility_class,
+		virtual public	Device_class,
+		virtual			osc_struct
 {
+	string 					className	= "";
 public:
 	string 					Name 		= "";
 
@@ -32,14 +36,13 @@ public:
 	Wavedisplay_class*		wd_p		= nullptr;
 
 							Instrument_class( interface_t* ifd , Wavedisplay_class* wd );
-	virtual 				~Instrument_class() = default;
+	virtual 				~Instrument_class();
 ;
 	bool 					Set( string );
 	void 					Save_Instrument( string );
 	void					Set_adsr( char osdid );
 	void 					Update_osc_spectrum( char oscid );
-	void 					Update_sds_connect( );
-	void 					Connect( Oscillator* osc, Oscillator* sec, char mode );
+	bool 					Connect( Oscillator* osc, Oscillator* sec, char mode );
 
 	void 					Test_Instrument();
 
@@ -65,8 +68,6 @@ private:
 											const char& 	flag );
 	void 					showOscfeatures(fstream* FILE = nullptr );
 	bool 					read_instrument();
-	bool 					init_connections();
-	bool 					connect_by_name(string, string, char );
 	void 					init_data_structure( Oscillator*, vector_str_t);
 	void 					update_sds();
 	int 					getVersion( 	fstream& File );

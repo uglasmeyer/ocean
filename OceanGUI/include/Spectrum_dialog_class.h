@@ -12,7 +12,7 @@
 #include <data/Interface.h>
 #include <EventKeys.h>
 #include <data/DataWorld.h>
-#include <Common.h>
+#include <include/Common.h>
 
 namespace Ui {
 class Spectrum_Dialog_class;

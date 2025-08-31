@@ -21,7 +21,7 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
 	mem_frames		= Mem.mem_ds.data_blocks ;
 
 	typeId			= type_id;
-	osctype_name	= OscRole.types[typeId];
+	osctype_name	= OscRole.oscNames[typeId];
 
 	roleId			= role_id;
 	oscrole_name	= OscRole.roles[roleId];
@@ -46,11 +46,10 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
 
 void Oscillator::operator= ( Oscillator& osc)
 {
-//	adsr_t adsr = osc.Get_adsr();
-    this->wp 					= osc.wp;
-    this->feature				= osc.feature;
-    this->Set_adsr				( osc.Get_adsr() );
-    this->spectrum				= osc.spectrum;
+    Setwp( osc.wp );
+    Set_feature( osc.feature );
+    Set_adsr( osc.Get_adsr() );
+    Set_spectrum( osc.spectrum );
 }
 
 void Oscillator::self_Test()
@@ -78,40 +77,38 @@ void Oscillator::Data_reset(  )
 	this->Mem.Clear_data( 0 );
 }
 
-void Oscillator::Connect_vol_data( Oscillator* osc)
+void Oscillator::Connect_vol_data( Oscillator* sec)
 {	// connect this volume with osc data
-	if ( this->typeId == osc->typeId )
+	if ( this->typeId == sec->typeId )
 	{
 		this->vp.Mem 		= &Mem_vco;
-		this->connect.vol	= false;
 		this->vp.volume		= 0;
 	}
 	else
 	{
-		this->vp.Mem		= &osc->Mem;
-		this->connect.vol 	= true;
-		this->vp.volume 	= osc->wp.volume;
+		this->vp.Mem		= &sec->Mem;
+		this->vp.volume 	= sec->wp.volume;
 	}
-	this->vp.osc_id = osc->typeId;
-	this->vp.name 	= osc->osctype_name;
+	this->Connect.vol 	= sec->typeId;
+	this->vp.osc_id = sec->typeId;
+	this->vp.name 	= sec->osctype_name;
 }
 
-void Oscillator::Connect_frq_data( Oscillator* osc )
+void Oscillator::Connect_frq_data( Oscillator* sec )
 {	// connect this frequency with osc data
-	if ( this->typeId == osc->typeId )
+	if ( this->typeId == sec->typeId ) // reset this
 	{
 		this->fp.Mem 		= &Mem_fmo;
-		this->connect.vol	= false;
 		this->fp.volume 	= 0;
 	}
 	else
 	{
-		this->fp.Mem		= &osc->Mem;
-		this->connect.vol 	= true;
-		this->fp.volume 	= osc->wp.volume;
+		this->fp.Mem		= &sec->Mem;
+		this->fp.volume 	= sec->wp.volume;
 	}
-	this->fp.osc_id = osc->typeId;
-	this->fp.name 	= osc->osctype_name;
+	this->Connect.frq 	= sec->typeId;
+	this->fp.osc_id = sec->typeId;
+	this->fp.name 	= sec->osctype_name;
 }
 
 void Oscillator::Reset_vol_data()
@@ -144,16 +141,20 @@ Data_t* Oscillator::GetData_p( const buffer_t& frame_offset )
 	return this->Mem.Data + offs;//&Mem.Data[ offs ];
 }
 
-auto check_phi = [ ]( string type, param_t param, phi_t dT, float freq )
+auto show_param = [ ]( string type, param_t param, phi_t dT, float freq, float frq )
 {
-	if ( param.maxphi < abs(param.phi) )
 	{
 		cout << "osctype    " << type	  		<< endl;
 		cout << "maxphi     " << param.maxphi 	<< endl;
+		cout << "dphi       " << param.dphi		<< endl;
 		cout << "phi        " << param.phi  	<< endl;
 		cout << "dT         " << dT   			<< endl;
-		cout << "freq       " << freq 			<< endl;
-		EXCEPTION( "maxphi exceeds limit: " + to_string(param.maxphi) + " < " + to_string( abs(param.dphi)) );
+		cout << "base freq  " << freq 			<< endl;
+		cout << "adj. freq  " << frq 			<< endl;
+		EXCEPTION( "phi exceeds maxphi limit: " +
+				to_string(param.maxphi) +
+				" < " +
+				to_string( abs(param.phi)) );
 	}
 };
 auto hallphi = [  ]( uint8_t adsr_hall, phi_t max )
@@ -169,7 +170,8 @@ void Oscillator::OSC (  buffer_t frame_offset )
 {
 
 	buffer_t 			frames 		= wp.frames;
-	if(has_kbd_role  )assert(frames==max_frames);
+	if( has_kbd_role  )
+		assert( frames == max_frames );
 //	cout << "run osc " << osc_name  << phase[0] << endl;
 	phi_t 				dt 			= 1.0 / ( frames_per_sec );	//seconds per frame
 	buffer_t			offset		= frame_offset;
@@ -196,7 +198,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	DynFrequency.SetDelta( feature.glide_effect );
 	param_t 	param 		= param_struct();
 				param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
-
+	frq_t		frq			= 0.0;
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
 		if ( spectrum.volidx[channel] > 0 )
@@ -205,31 +207,32 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			frq_t			frq_adjust		= spectrum.frqadj[channel];
 			uint8_t 		wfid			= spectrum.wfid[channel];
 			wave_function_t	fnc 			= waveFunction_vec[ wfid ].fnc;
-							param.maxphi	= waveFunction_vec[ wfid ].maxphi;
+							param.maxphi	= abs( waveFunction_vec[ wfid ].maxphi );
 							param.phi		= phase[channel];
 							param.amp		= spectrum.vol[channel];
 			phi_t 			dT				= param.maxphi * dt;
-			uint			pos				= offset;
+			buffer_t		pos				= offset;
 			for( buffer_t m = 0; m < frames; m++ )
 			{
-
-				float 	vco_vol 	= (vco_adjust 	+ vcoData[pos]) 	* vol_per_cent ;
+				float 	vco_vol 	= ( vco_adjust 	+ vcoData[pos] ) * vol_per_cent ;
 						oscData[pos]= oscData[pos]	+ vol_adjust 	+ vco_vol * fnc( param );
 
 						freq 		= DynFrequency.Get();
-						param.dphi	= dT *( freq + fmo_vol * fmoData[pos] ) * frq_adjust;
-
+						frq			= ( freq + fmo_vol * fmoData[pos] ) * frq_adjust;
+						param.dphi	= MODPHI( dT * frq, param.maxphi ); // max frq < 48000 / 2*pi
+																		// ~11000 Hz
 						param.phi	= param.phi + param.dphi;
 						param.phi 	= MODPHI( param.phi, param.maxphi );
 						pos 		= ( pos + 1 ) % mem_frames;
 			}
-			check_phi( osctype_name, param, dT, freq );
+			if ( param.maxphi < abs(param.phi) )
+				show_param	( osctype_name, param, dT, freq, frq );
 			phase[channel] = param.phi;
 			DynFrequency.Update();
 		}
 	}
 
-	Apply_adsr( frames, &oscData[0], offset );
+	Apply_adsr( frames, MemData_p(), offset );
 }
 void Oscillator::Setwp_frames( uint16_t msec )
 {

@@ -50,7 +50,7 @@ AudioVolume_class		Volume				{ sds_master };
 
 // runtime parameter
 buffer_t 				ncounter 			= 0;
-uint					rcounter			= 0;
+uint					rcounter			= 0; // # of recorded audioframes
 char 					shm_id 				= 0; // out_data = Shm_a
 Stereo_t*				shm_addr 			= nullptr;
 buffer_t 				audioframes 		= audio_frames;//sds->audioframes;

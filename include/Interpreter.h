@@ -51,10 +51,14 @@ const set<string> Keywords {
 
 /*
 */
-class Interpreter_class :
-		virtual Logfacility_class,
-		virtual public Processor_class
+
+class Interpreter_class
+	: virtual 			Logfacility_class
+	, virtual 			osc_struct
+	, virtual public 	Processor_class
+	, virtual 			Device_class
 {
+	string			className = "";
 	typedef struct view_struct
 	{
 		string 		name 	= "none";

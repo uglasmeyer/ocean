@@ -51,7 +51,7 @@ void start_audio_stream()
  */
 
 typedef stereo_t frame_t;
-frame_t* frame = nullptr;
+frame_t* scanner_pos = nullptr;
 
 string txt {""};
 void shutdown_stream()
@@ -72,23 +72,22 @@ Value Fileno {0};
 
 void save_record_fcn()
 {
-	SaveRecordFlag = true;
-	Fileno = 0;
-	sds->FileNo = Fileno.val;// 0=generate file no - (int) DaTA.sds_master->FileNo;
+	Fileno 				= External.Save_record_data( 0 );// 0=generate file no - (int) DaTA.sds_master->FileNo;
+	sds->FileNo 		= Fileno.val;
+
 	Log.Comment( INFO, "record thread received job " + Fileno.str);
 
-	Fileno = External.Save_record_data( Fileno.val );
-	sds->FileNo = Fileno.val;
-	string filename = file_structure().get_rec_filename( Fileno.val);
+	string filename = fs.get_rec_filename( Fileno.val);
 	Sds->Write_str( OTHERSTR_KEY, filename );
 	Log.Info( "recording to file " + filename + " done.");
+
 	DaTA.EmitEvent( RECORDWAVFILEFLAG );
 	SaveRecordFlag = false;
 }
 Thread_class			SaveRecord			{ &Sem,
 											  SEMAPHORE_RECORD,
 											  save_record_fcn,
-											  "save record" };
+											  "save record file" };
 thread* SaveRecord_thread_p = nullptr;
 
 void shutdown_thread( )
@@ -234,7 +233,7 @@ void record_start( )
 	Sds->addr->Record 					= true;
 	External.status.record 				= true;
 	rcounter 							= 0;
-	ProgressBar.Set						( &rcounter, recduration );
+	ProgressBar.Set						( &rcounter, recduration * 1000/min_msec );
 	RecTimer.Start						();
 	sds->StA_state[ STA_EXTERNAL].store = true;
 
@@ -245,20 +244,19 @@ void record_stop()
 {
 	DaTA.Sem_p->Release( SEMAPHORE_RECORD );
 
-	External.status.record = false;
 	ProgressBar.Unset();
-	uint t_el = RecTimer.Time_elapsed();
-	sds->StA_state[ STA_EXTERNAL ].store = false;
-	Sds->addr->Record = false;
+	External.status.record 				= false;
+	sds->Record 						= false;
+	sds->StA_state[ STA_EXTERNAL ].store= false;
+	uint time_elapsed 					= RecTimer.Time_elapsed();
 
-	Log.Comment(INFO, "Record duration: " + to_string( t_el/1000 ) + " sec");
-
+	Log.Comment(INFO, "Record duration: " + to_string( time_elapsed/1000 ) + " sec");
 }
 void set_rcounter( )
 {
-	rcounter++;
+	rcounter++;  // # of recorded audio_frames
 	ProgressBar.Update();
-	if( rcounter >= recduration )
+	if( rcounter * audio_frames >= recduration * frames_per_sec )
 		record_stop();
 }
 
@@ -372,7 +370,7 @@ int main( int argc, char *argv[] )
 	// Tell RtAudio to output all messages, even warnings.
 	rtapi.showWarnings( true );
 	//	frame = (double *) calloc( Cfg->Config.channel, sizeof( double ) );
-	frame = (frame_t* ) calloc( DaTA.Cfg_p->Config.channel, sizeof( frame_t ) );
+	scanner_pos = (frame_t* ) calloc( DaTA.Cfg_p->Config.channel, sizeof( frame_t ) );
 	oParams.nChannels 		= DaTA.Cfg_p->Config.channel;
 	oParams.firstChannel 	= DaTA.Cfg_p->Config.ch_offs;
 	get_device_description( DaTA.Cfg_p->Config.device );
@@ -405,7 +403,7 @@ int main( int argc, char *argv[] )
 						DaTA.Cfg_p->Config.rate,
 						&bufferFrames,
 						&RtAudioOut,
-						( void* )frame,
+						( void* )scanner_pos,
 						&options ) )
 	{
 		Log.Comment( ERROR, rtapi.getErrorText() );
@@ -444,9 +442,9 @@ void exit_proc( int signal )
 
 	cout.flush();
 
-	if ( frame )
+	if ( scanner_pos )
 	{
-		free( frame);
+		free( scanner_pos);
 		Log.Info( "frame buffer freed" );
 	}
 	Log.Set_Loglevel( DBG2, true );

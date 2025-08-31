@@ -47,7 +47,8 @@ void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
     string 		txt	= ( sop == 0 ) ? "lock" : "Release ";
     if ( sop > 0 )
     			txt = "Aquire  ";
-    Comment( DEBUG, txt + State( num ))
+    if( num < SEMAPHORE_SENDDATA0 )
+    	Comment( DEBUG, txt, "Sem ", (int)num, " ",  State( num ))
     ;
     if ( ret < 0 )
     {
@@ -73,9 +74,8 @@ void Semaphore_class::Init()
 void Semaphore_class::Reset( uint8_t num )
 {
 //	short int val = -abs(  Getval( num , GETVAL ) );
-	int ret = semctl(semid, num, SETVAL, 0 );
+	semctl(semid, num, SETVAL, 0 );
     Comment( DEBUG, "Reset   ", State( num ));
-	assert( ret == 0 );
 }
 
 
@@ -139,7 +139,7 @@ string Semaphore_class::State(uint8_t num)
 
 	auto cout_semstate = [ & ](uint num)
 	{
-		if ( LogMask[TEST] )
+		if ( (LogMask[TEST]) or (LogMask[DEBUG]) )
 			Table.AddRow(	num,
 							semnum_map[ num ],
 							Getval(num, GETPID),

@@ -88,6 +88,17 @@ void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
 	process_stack.push_back( move( stack_item ) );
 };
 
+void Processor_class::Push_ifd( char* chaddr, char value, string str )
+{
+	stack_struct_t stack_item = stack_struct();
+	stack_item.prgline	= prgline;
+	stack_item.cmd 		= CMD_CHADDR;
+	stack_item.cmdstr	= "ldc";
+	stack_item.staddr 	= chaddr;
+	stack_item.value 	= value;
+	stack_item.str 		= str;
+	process_stack.push_back( move( stack_item ) );
+};
 void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
 {
 	stack_struct_t 	stack_item 	= stack_struct();
@@ -195,7 +206,6 @@ auto intro = [ ]( Processor_class* P, int stack_count )
 auto log_init  = [ ]( Processor_class* P )
 {
 	//	P->Set_Loglevel( TEST , false );
-	P->Set_Loglevel( DEBUG , false );
 	P->LOG.open( file_structure().log_file, fstream::out );
 	P->Table.opt.FILE = &P->LOG;
 };
@@ -240,7 +250,7 @@ void Processor_class::Execute()
 			}
 			case CMD_EXE :
 			{
-				system_execute( ps.str );
+				System_execute( ps.str );
 				Timer.Wait(1);
 				break;
 			}

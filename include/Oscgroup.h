@@ -18,14 +18,18 @@
 class 						Oscgroup_class :
 	public virtual 			Logfacility_class,
 	virtual					Frequency_class,
-	public virtual 			Note_base
+	public virtual 			Note_base,
+	virtual					osc_struct
 {
+	string					className			= "";
 public:
 	Oscillator 				vco;
 	Oscillator 				fmo;
 	Oscillator 				osc;
 
 	vector<Oscillator*>		member				{};// = { &vco, &fmo, &osc };
+
+
 
 	char					oscroleId;
 
@@ -59,7 +63,7 @@ public:
 	void 					SetAdsr				( const interface_t* sds );
 
 	void 					Show_sound_stack	();
-	void 					Instrument_fromSDS			( interface_t* sds );
+	void 					SetInstrument		( interface_t* sds );
 
 private:
 	void 					selfTest			();

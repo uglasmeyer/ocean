@@ -20,14 +20,15 @@ void SynthesizerTestCases()
 	process_t				Process{  };
 	Config_class			Cfg				{ Process.name };
 	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
-	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };	DaTA.Sds_p->Reset_ifd();
+	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };
+	interface_t*			sds				= DaTA.GetSdsAddr();
+	DaTA.Sds_p->Reset_ifd();
 
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
-	Instrument_class 		Instrument( DaTA.sds_master, wd_p );
+	Instrument_class 		Instrument( sds, wd_p );
 
 	Application_class		App( &DaTA );
-	interface_t*			sds = DaTA.GetSdsAddr();
 	Mixer_class				Mixer{&DaTA, wd_p };
 
 	Note_class 				Notes{ &Instrument, &Mixer.StA[ STA_NOTES ] };
@@ -40,6 +41,10 @@ void SynthesizerTestCases()
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };
 	coutf << "SynthesizerTestCases" << endl;
+
+
+	DaTA.Sds_p->Reset_ifd();
+
 	Shm_base Shm_test;
 	Shm_test.Test_Memory();
 	Frequency_class Frq {};
@@ -96,6 +101,7 @@ void SynthesizerTestCases()
 
 	DaTA.Sem_p->Test();
 
+	DaTA.Sds_p->Reset_ifd();
 	Instrument.Test_Instrument();
 	Instrument.Oscgroup.Run_OSCs( 0 );
 
@@ -120,6 +126,8 @@ void SynthesizerTestCases()
 								&MusicXML};
 
 	Event.TestHandler();
+
+	DaTA.Sds_p->Restore_ifd();
 	Log.Set_Loglevel( TEST, true );
 }
 

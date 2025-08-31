@@ -471,7 +471,7 @@ public:
         progressBar_record = new QProgressBar(centralwidget);
         progressBar_record->setObjectName("progressBar_record");
         progressBar_record->setGeometry(QRect(580, 470, 411, 23));
-        progressBar_record->setValue(24);
+        progressBar_record->setValue(0);
         OSCLCD_Hz = new QLCDNumber(centralwidget);
         OSCLCD_Hz->setObjectName("OSCLCD_Hz");
         OSCLCD_Hz->setGeometry(QRect(60, 10, 141, 51));
@@ -705,7 +705,7 @@ public:
         pBSynthesizer->setGeometry(QRect(1010, 330, 131, 26));
         label_12 = new QLabel(centralwidget);
         label_12->setObjectName("label_12");
-        label_12->setGeometry(QRect(765, 10, 391, 20));
+        label_12->setGeometry(QRect(765, 10, 421, 20));
         frame_3 = new QFrame(centralwidget);
         frame_3->setObjectName("frame_3");
         frame_3->setGeometry(QRect(1050, 40, 40, 251));
@@ -855,7 +855,7 @@ public:
         label_16->setText(QCoreApplication::translate("MainWindow", "Volume [%]", nullptr));
         lbl_frqglide_sec->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Instrument", nullptr));
-        label_12->setText(QCoreApplication::translate("MainWindow", "0                                     100        storing              stored    playing", nullptr));
+        label_12->setText(QCoreApplication::translate("MainWindow", "0              Volume        100        |   storing             stored    playing", nullptr));
         cb_fsta0->setText(QString());
         cb_fsta1->setText(QString());
         cb_fsta2->setText(QString());

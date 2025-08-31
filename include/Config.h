@@ -137,9 +137,10 @@ struct file_structure
 	const string 	tarexclude_file	= "/tmp/tarexclude";
 	const string	oceanrc_filename= "ocean.rc";
 	const string	oceanrc_file 	= etcdir		+ oceanrc_filename;
-	const string	default_nte		= "default" + nte_type;
+	const string	default_name	= "default";
+	const string	default_nte		= default_name + nte_type;
 	const string	rc_nte_file		= resourcedir + "Notes/" + default_nte;
-	const string	default_snd		= "default" + snd_type;
+	const string	default_snd		= default_name + snd_type;
 	const string	rc_snd_file		= resourcedir + "Instruments/" + default_snd;
 	const string	kbdnotes_name	= "keyboardNotes";
 	const string	kbdnotes_file	= autodir + kbdnotes_name + nte_type;
@@ -155,6 +156,7 @@ public:
 	string 			configfile 			{ };
 	string 			prgname				{ program_invocation_short_name };
 	prgarg_t		Config 				= prgarg_struct();
+	file_structure	fs					= file_structure();
 
 	void 			Read_config			( string cfgfile );
 	void 			Parse_argv			( int argc, char* argv[] );

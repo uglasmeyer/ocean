@@ -36,7 +36,7 @@ Data_t* Scanner_class::Next()
 	Data_t*
 	data 			= &Data[ pos ];
 	pos 			= check_cycle( fillrange, pos + inc, "Next" );
-	trigger 		= ( pos < inc );
+	trigger 		= ( pos < inc ); // indicates a next cycle or start cycle
 //		cout.flush()<< pos << " " << endl;
 	return data;
 }

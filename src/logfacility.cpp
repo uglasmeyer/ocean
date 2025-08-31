@@ -63,7 +63,7 @@ string Logfacility_class::cout_log( uint id, string str )
 			cout.flush() << txt << endl;
 
 	}
-	string 			prefix 	= prefixClass + Prefix_vec[ INFO].name;
+	string 			prefix 	= prefixClass + Prefix_vec[ id ].name;
 	stringstream 	strs 	{};
 	string 			endc 	= ( is_atty ) ? endcolor 	: nocolor;
 	uint 			Id		= ( is_atty ) ? id 		: LOG::PLAIN;

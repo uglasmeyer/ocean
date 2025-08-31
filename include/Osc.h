@@ -61,8 +61,7 @@ public:
 
 private:
 
-	spec_arr_dt		default_phase 		= { 0.0, 0.0, 0.0, 0.0, 0.0};
-	spec_arr_dt		phase 				= default_phase;
+
 
 	bool 			longnote			= false; // set trigger for long notes
 	osc_roles_t		OscRole				= osc_struct();

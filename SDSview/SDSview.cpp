@@ -136,11 +136,17 @@ void while_MenuF9()
 			case 's' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
 							tainted = true;
 							break; }
-			case 'd' : { 	DaTA.SDS.Delete();
+			case 'd' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
+							for( Interface_class Sds : DaTA.SDS.Vec )
+							{
+								Remove_file( Sds.dumpFile );
+							}
+							DaTA.SDS.Delete();
 							DaTA.SHM_0.Stereo_buffer( Cfg.Config.SHM_keyl );
 							DaTA.SHM_0.Delete() ;
 							DaTA.SHM_1.Stereo_buffer( Cfg.Config.SHM_keyr );
 							DaTA.SHM_1.Delete();
+							System_execute( "ipcs -a", false );
 							tainted = true;
 							break; }
 			default  : { 	break; }
@@ -225,7 +231,7 @@ int main( int argc, char* argv[] )
 					case 'a': { App.Appstate->Set( sds, APPID::AUDIOID, sdsstate_struct::EXITSERVER);break; }
 					case 'c': { App.Appstate->Set( sds, APPID::COMPID , sdsstate_struct::EXITSERVER);break; }
 					case 's': { App.Appstate->Set( sds, APPID::SYNTHID, sdsstate_struct::EXITSERVER);break; }
-					case 'k': { App.Appstate->Set( sds, APPID::KBDID  , sdsstate_struct::EXITSERVER);break; }
+					case 'k': { App.Appstate->Set( sds, APPID::KEYBOARDID  , sdsstate_struct::EXITSERVER);break; }
 					case 'g': { App.Appstate->Set( sds, APPID::GUI_ID , sdsstate_struct::EXITSERVER);break; }
 					default : { break; }
 				}

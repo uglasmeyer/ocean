@@ -100,20 +100,23 @@ string Keyboard_class::show_kbd_notenames( )
 	Table_class Table { "Notes", 11 };
 	Table.AddColumn( "Octave", 8);
 	Table.AddColumn( " Note names", 3*7 );
+	Table.AddColumn( " Keyboard  ", 3*7 );
 	Table.PrintHeader();
 	stringstream 	strs 	{};
 	for ( uint n = 0; n < kbd_octaves; n++ )
 	{
 		string 		str 	{};
+		string		kbd		{};
 		uint oct 			= kbd_octaves - n - 1;
 		for ( uint step = 0 ; step < oct_steps  ; step++ )
 		{
 			if( kbd_note.keyboard_keys[oct][step] != '_' )
 			{
-				str 		= str + " " + NoteNames[step];//frqNamesArray[idx-step_shift];
+				str 		= str + " " + NoteNames[step];
+				kbd			= kbd + " " + kbd_note.keyboard_keys[oct][step];
 			}
 		}
-		Table.AddRow( oct, str );
+		Table.AddRow( oct, str, kbd );
 	}
 	return strs.str();
 }
@@ -123,6 +126,7 @@ void Keyboard_class::Show_help( bool tty )
 	if ( not tty ) return;
 
 	show_kbd_notenames() ;
+	Info( "Instrument: ", instrument_p->Name );
 	Table_class Table { "Keyboard ", 11 };
 	Table.AddColumn( "Keys"		, 9 );
 	Table.AddColumn( "Function"	, 30 );
@@ -131,16 +135,16 @@ void Keyboard_class::Show_help( bool tty )
 	Table.PrintHeader();
 
 	Table.AddRow( "F1", "keyboard Keys"			);
-	Table.AddRow( "F2", "increase sharps "		, (int) sds->Kbd_state.sharps, "#" );
+	Table.AddRow( "F2", "increase sharps "		, (int) sds_p->Kbd_state.sharps, "#" );
 	Table.AddRow( "F3", "reset sharps "			);
-	Table.AddRow( "F4", "toggle decay mode "	, (int) sds->Kbd_state.ADSR_flag * sds->OSC_adsr.bps ,"B psec");
-	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds->Kbd_state.sliding *
+	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.ADSR_flag * sds_p->OSC_adsr.bps ,"B psec");
+	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds_p->Kbd_state.sliding *
 													Osc->feature.glide_effect), "[ % ]");
-	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( StA->state.forget, "forget", "persist" ));
-	Table.AddRow( "F7", "increase flats "		, (int) sds->Kbd_state.flats, "b" );
+	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( sta_p->state.forget, "forget", "persist" ));
+	Table.AddRow( "F7", "increase flats "		, (int) sds_p->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
 	Table.AddRow( "F9", "save notes"			);
-	Table.AddRow( "+/-" , "inc/dec octave"		, (int) sds->Kbd_state.base_octave, "base"  );
+	Table.AddRow( "+/-" , "inc/dec octave"		, (int) sds_p->Kbd_state.base_octave, "base"  );
 	Table.AddRow( "#" , "show Frequency Table" 	);
 	Table.AddRow( "ESC", "Exit keyboard"		);
 }
@@ -148,7 +152,7 @@ void Keyboard_class::Show_help( bool tty )
 void Keyboard_class::exit_keyboard()
 {
 	Comment( WARN, "Exit by user request");
-	sds->Keyboard = EXITSERVER;
+	sds_p->Keyboard = EXITSERVER;
 }
 void Keyboard_class::notekey( char key )
 {
@@ -157,41 +161,41 @@ void Keyboard_class::notekey( char key )
 	noteline 		= kbd_note.setNote( key ) ;
 	if ( noteline.length() > 0 )
 	{
-		if( StA->state.forget )
+		Set_instrument();
+		if( sta_p->state.forget )
 			{;}
 		else
 			Noteline.append( noteline );
-		if( sds->StA_amp_arr[STA_KEYBOARD] == 0 )
+		if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
 		{
-			sds->StA_amp_arr[STA_KEYBOARD] = sta_volume;
+			sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 		}
 	}
 }
 void Keyboard_class::set_bufferMode()
 {
-	StA->state.forget 	= not StA->state.forget ;
-	if( StA->state.forget )
+	sta_p->state.forget 	= not sta_p->state.forget ;
+	if( sta_p->state.forget )
 	{
-		sta_volume = sds->StA_amp_arr[STA_KEYBOARD];
-		sds->StA_amp_arr[STA_KEYBOARD] = 0;
+		sta_volume = sds_p->StA_amp_arr[STA_KEYBOARD];
+		sds_p->StA_amp_arr[STA_KEYBOARD] = 0;
 	}
 	else
 	{
-		sds->StA_amp_arr[STA_KEYBOARD] = sta_volume;
+		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
 	Noteline 			= "";
 }
-
 
 bool Keyboard_class::save_notes()
 {
 	Comment( INFO, "Saving notes to file", "<tbd>" );
 
-	Notes_p->Append_noteline( Nlp, Noteline );
-	if ( Notes_p->Verify_noteline( Nlp, Noteline ) )
+	notes_p->Append_noteline( nlp, Noteline );
+	if ( notes_p->Verify_noteline( nlp, Noteline ) )
 	{
 		Comment( INFO, Noteline );
-		Notes_p->Save( fs.kbdnotes_name, Nlp, Noteline );
+		notes_p->Save( fs.kbdnotes_name, nlp, Noteline );
 		return true;
 	}
 	else

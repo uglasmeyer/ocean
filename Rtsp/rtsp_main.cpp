@@ -14,7 +14,7 @@ void Start_audioserver()
     											file_structure().audio_bin,
 												"-S 0 2>&1 >> " +
 												file_structure().nohup_file );
-	system_execute( Start_Audio_Srv );
+	System_execute( Start_Audio_Srv );
 }
 
 void Start_synthesizer( uint cfgid )
@@ -23,14 +23,14 @@ void Start_synthesizer( uint cfgid )
     											file_structure().synth_bin,
 												" -S " + to_string( cfgid ) +
 												" 2>&1 > "  + file_structure().nohup_file);
-    system_execute( Start_Synthesizer );
+    System_execute( Start_Synthesizer );
 
 }
 
 void Start_gui()
 {
     string Start_GUI = file_structure().ocean_bin + " &" ;
-    system_execute( Start_GUI );
+    System_execute( Start_GUI );
     Log.Comment( INFO, Start_GUI );
 }
 

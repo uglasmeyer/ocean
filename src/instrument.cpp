@@ -10,9 +10,11 @@
 #include <System.h>
 
 Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
-: Logfacility_class("Instrument_class")
+	: Logfacility_class("Instrument_class")
+	, Device_class( _sds )
 {
 	this->sds 				= _sds;
+	className				= Logfacility_class::className;
 	sds_spectrum_vec 		= { &sds->VCO_spectrum,
 								&sds->FMO_spectrum,
 								&sds->OSC_spectrum};
@@ -25,11 +27,17 @@ Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
 	selfTest();
 }
 
+Instrument_class::~Instrument_class()
+{
+	DESTRUCTOR( className )
+}
+
+
 void Instrument_class::selfTest()
 {
 	assert ( Oscgroup.osc.MemData_p() != nullptr );
-	ASSERTION( fmo->spectrum.osc == osc_struct::FMOID, "fmo->spectrum.osc",
-				(int) fmo->spectrum.osc, (int) osc_struct::FMOID );
+	ASSERTION( fmo->spectrum.osc == FMOID, "fmo->spectrum.osc",
+				(int) fmo->spectrum.osc, (int) FMOID );
 
 	adsr_t adsr = fmo->Get_adsr();
 	ASSERTION( adsr.spec.adsr == true, "fmo->adsr_data.spec.adsr",
@@ -44,6 +52,7 @@ void Instrument_class::update_sds()
 	// notify comstack about the new data.
 
 	Comment(INFO, "Update SDS data");
+
 
 	sds->OSC_features 	= Oscgroup.osc.feature;
 	sds->OSC_wp			= Oscgroup.osc.wp;
@@ -60,7 +69,6 @@ void Instrument_class::update_sds()
 	sds->FMO_spectrum	= Oscgroup.fmo.spectrum;
 	sds->FMO_adsr		= Oscgroup.fmo.Get_adsr();
 
-	Update_sds_connect();
 }
 
 void Instrument_class::Update_osc_spectrum( char oscid )
@@ -89,20 +97,22 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 }
 void Instrument_class::set_new_name( string name )
 {
-	Name = name;
-	Instrument_file 		= fs.instrumentdir + Name + instr_ext;
+	Name 				= name;
+	Instrument_file 	= fs.instrumentdir + Name + instr_ext;
+	Comment( INFO, "Instrument Name: " + Name );
 }
 
 void Instrument_class::set_name( string name )
 {
-	Instrument_file 		= fs.instrumentdir + name + instr_ext;
+	Instrument_file 	= fs.instrumentdir + name + instr_ext;
 	if ( filesystem::exists( Instrument_file ) )
-		Name = name;
+		Name 			= name;
 	else
-		Name = "default";
-	Instrument_file 		= fs.instrumentdir + Name + instr_ext;
-
-	Comment( INFO, "Instrument Name: " + Name);
+	{
+		Name 			= fs.default_name;
+		Instrument_file = Default_instrument_file;
+	}
+	Comment( INFO, "Instrument Name: " + Name );
 }
 
 bool Instrument_class::assign_adsr 	( vector_str_t arr )
@@ -250,7 +260,7 @@ int Instrument_class::getVersion( fstream& File )
 		version = Str.secure_stoi( arr[1]);
 	else
 		version = 0;
-
+	Comment( DEBUG, "File version: ", (int) version );
 	if( supported.contains( version ) )
 		return version;
 	Comment( ERROR, "unsupported instrument file version: ", version );
@@ -263,7 +273,6 @@ bool Instrument_class::read_version1( fstream* File )
 	string 			keyword;
 	vector_str_t 	arr 		{};
 	Oscillator* 	osc 		= nullptr;
-//	Spectrum_class	Spectr;
 
 	getline( *File, Str.Str );
 	do
@@ -305,6 +314,7 @@ bool Instrument_class::read_version2( fstream* File )
 	string 			Type	{""};
 	Oscillator* 	osc 	= nullptr;
 
+	Comment( DEBUG, "read_version2 ", Name );
 	getline( *File, Str.Str );
 	do
 	{
@@ -314,7 +324,7 @@ bool Instrument_class::read_version2( fstream* File )
 
 		if( strEqual( "Type", CfgType ))
 		{
-			Type = "";
+			Type = ""; //ignore
 		}
 		else
 		{
@@ -337,40 +347,21 @@ bool Instrument_class::read_version2( fstream* File )
 				osc->Set_adsr_spec( spec_tmp );
 			else
 			{
-				osc->spectrum = spec_tmp;
-/*				char TypeFlag	= osc->Type_flag( CfgType );
-				switch ( TypeFlag )
-				{
-					case SPEF : { osc->Set_frequency(osc->spectrum.frqidx[0], SLIDE ); break; }
-					case SPEV : { osc->Set_volume( 	osc->spectrum.volidx[0], FIXED ); break; }
-					case SPEW : { osc->Set_waveform( osc->spectrum.wfid ); break; }
-					default : { break; }
-				} // switch  TypeFlag
-*/
+				osc->Set_spectrum( spec_tmp )  ;
 			}
 		}
 		if ( strEqual( "CON", Type ))
 		{
 			Oscillator* sec 	= Oscgroup.Get_osc_by_name( arr[2]);
 			char 		mode 	= arr[3][0];
-			switch ( mode )
-			{
-				case 'F' : osc->Connect_frq_data( sec ); break;
-				case 'V' : osc->Connect_vol_data( sec ); break;
-				default  : Comment( ERROR, "unknown connection mode ", (char) mode ); break;
-			}
+			Connect( osc, sec, mode );
 		}
 
 	} while( getline( *File, Str.Str));
 
 
-	return true;
-}
 
-void Instrument_class::Update_sds_connect( )
-{
-	for( Oscillator* osc : Oscgroup.member )
-		sds->connect[osc->typeId] = osc->connect;
+	return true;
 }
 
 bool Instrument_class::read_instrument( )
@@ -418,60 +409,35 @@ bool Instrument_class::read_instrument( )
 	return code;
 }
 
-void Instrument_class::Connect( Oscillator* osc, Oscillator* sec, char mode )
+bool Instrument_class::Connect( Oscillator* osc, Oscillator* sec, char mode )
 {
-	Oscillator_base::connect_t connect = sds->connect[osc->typeId];
-	switch ( mode )
-	{
-		case 'F' 	: { ( connect.frq ) ? osc->Connect_frq_data( sec ):osc->Reset_frq_data(); break; }
-		case 'V' 	: { ( connect.vol ) ? osc->Connect_vol_data( sec ):osc->Reset_vol_data(); break; }
-		default 	: { ; break; }
-	}
-}
-bool Instrument_class::connect_by_name( string osc, string sec, char mode )
-{
-	if ( strEqual( sec, osc ) )
-		return true; // handled by initOSCs
-
 	bool ret = true;
-	Oscillator* OSC = Oscgroup.Get_osc_by_name( osc );
-	Oscillator* SEC = Oscgroup.Get_osc_by_name( sec );;
-
 	switch ( mode )
 	{
-		case 'F' 	: { OSC->Connect_frq_data( SEC ); break; }
-		case 'V' 	: { OSC->Connect_vol_data( SEC ); break; }
-		default 	: { ret = false; break; }
-	}
-	if ( ret )
-		Update_sds_connect();
+		case CONF 	:
+		{
+			osc->Connect_frq_data( sec );
+			break;
+		}
+		case CONV 	:
+		{
+			osc->Connect_vol_data( sec );
+			break;
+		}
+		default 	:
+		{
+			Comment( WARN, "unknown connect mode " + to_string( mode) );
+			ret = false;
+			break;
+		}
+	};
+	Set_connect_state(osc->typeId, osc->Connect );
+//	Show_Connection_names( osc->typeId );
+	assert( osc->Connect == Get_connect_state( osc->typeId ) );
+
 	return ret;
+
 }
-
-bool Instrument_class::init_connections( )
-{
-	String 			Str		{""};
-	vector_str_t 	arr		{};
-
-	fstream 		File	{};
-	File.open( Instrument_file, fstream::in );
-	Comment( INFO, "Reading oscillator connections");
-
-	getline( File, Str.Str );
-	do
-	{
-		Str.normalize();
-		arr 	= Str.to_array( ',');
-
-		if ( strEqual( "CONN", arr[0] ) )
-			if ( not connect_by_name(arr[1], arr[2], arr[3][0]) )
-				return false;
-
-	} while( getline( File, Str.Str));
-
-	return true;
-}
-
 
 void Instrument_class::save_features( fstream& FILE )
 {
@@ -562,10 +528,12 @@ bool Instrument_class::Set( string name )
 	Oscgroup.Data_Reset();
 	Oscgroup.Connection_Reset();
 
-	if ( not read_instrument( ) ) 	return false;
+	if ( not read_instrument( ) )
+		return false;
 
 	update_sds();
-	Oscgroup.Instrument_fromSDS( sds );
+//	Oscgroup.SetInstrument( sds );
+
 	return true;
 }
 
@@ -573,7 +541,23 @@ void Instrument_class::Test_Instrument()
 {
 	TEST_START( className );
 
+	connectId_t connect = Get_connect_state( OSCID );
+	assert( strEqual( osc->fp.name, oscNames[ OSCID ] ) );
+	assert( strEqual( osc->vp.name, oscNames[ OSCID ] ) );
+	ASSERTION( connect == default_connect( OSCID ), "connect_state",
+			(int)Get_connect_state( OSCID ).vol, (int)OSCID );
+
 	assert( Set( ".test2" ) );
+	assert( strEqual( osc->fp.name, oscNames[ FMOID ] ) );
+	assert( strEqual( osc->vp.name, oscNames[ VCOID ] ) );
+	ASSERTION( Get_connect_state( OSCID ).vol == sds->OSC_connect.vol , "connect_state",
+			(int)Get_connect_state( OSCID ).vol, (int)sds->OSC_connect.vol );
+	ASSERTION( Get_connect_state( OSCID ).frq == sds->OSC_connect.frq, "connect_state",
+			(int)Get_connect_state( OSCID ).frq, (int)sds->OSC_connect.frq );
+	Connect( fmo, fmo, CONF );
+	Connect( fmo, fmo, CONV );
+
+
 
 	showOscfeatures( );
 

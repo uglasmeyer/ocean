@@ -49,7 +49,7 @@ string External_class::GetName()
 void External_class::setName( string  _name )
 {
 	Name 		= _name;
-	Filename 	= file_structure().musicdir + Name + file_structure().wav_type;
+	Filename 	= fs.musicdir + Name + fs.wav_type;
 }
 
 bool External_class::Read_file_header( string name )
@@ -161,23 +161,18 @@ void External_class::Record_buffer( Stereo_t* src, buffer_t frames )
 
 }
 
-//------------------------------------------------------------------------------------------------
-// common
-Logfacility_class Log_system("System log");
-
-string testcounter = "/tmp/counter";
-int generate_file_no( uint maxfileno )
+int External_class::generate_file_no( uint maxfileno )
 {
 	fstream File;
 	string counterfile = file_structure().counter_file;
 	if ( LogMask[ TEST ])
 	{
-		counterfile = testcounter;
+		counterfile = testcounter_file;
 	}
 
 	if ( not filesystem::exists( counterfile ))
 	{
-		Log_system.Comment( INFO, "creating file number file");
+		Comment( INFO, "creating file number file");
 		File.open( counterfile, fstream::out );
 		File << "0" << endl;
 		File.close();
@@ -202,24 +197,7 @@ int generate_file_no( uint maxfileno )
 
 }
 
-void remove_file( string file )
-{
-	if ( filesystem::exists( file ) )
-		filesystem::remove( file);
-	if ( filesystem::exists( file ))
-		EXCEPTION( "cannot remove file: " + file );
 
-}
-void rename_file( string old_name, string new_name )
-{
-	remove_file( new_name );
-    filesystem::rename( old_name, new_name);
-
-	if ( filesystem::exists( old_name ))
-		EXCEPTION( "cannot remove file: " + old_name );
-}
-
-// --------------------------------------------------------------------------------------------
 
 long External_class::write_audio_data( string filename, buffer_t rcounter )
 {
@@ -270,7 +248,7 @@ void External_class::wav_define (  long raw_filesize ) // add filesize to wav st
 
 void External_class::write_music_file( string musicfile )
 {
-	uintmax_t raw_data_size = filesystem::file_size( file_structure().raw_file );
+	uintmax_t raw_data_size = filesystem::file_size( fs.raw_file );
 	if ( raw_data_size <= 0 )
 	{
 		Comment( ERROR, "empty raw file, nothing to do" );
@@ -283,7 +261,7 @@ void External_class::write_music_file( string musicfile )
 		Comment(ERROR, "error generating wav_header header ") ;
 		return ;
 	}
-	system_execute( add_header );
+	System_execute( add_header );
 }
 
 string External_class::id3tool_cmd( string mp3 )
@@ -314,7 +292,7 @@ int External_class::Save_record_data( int filenr)
 	if ( filenr == 0 ) // generate a file name
 		filenr = generate_file_no( MAXWAVFILES );
 
-	setName( file_structure().get_rec_filename( filenr) );
+	setName( fs.get_rec_filename( filenr) );
 
 	Comment( INFO, "Prepare record file " + Name );
 	Comment( INFO, "Record frames: " + to_string (record_size));
@@ -326,9 +304,9 @@ int External_class::Save_record_data( int filenr)
 		return 0;
 	}
 
-	remove_file( file_structure().raw_file );
+	Remove_file( fs.raw_file );
 
-	buffer_t count		= write_audio_data( file_structure().raw_file, record_size );
+	buffer_t count		= write_audio_data( fs.raw_file, record_size );
 	bool success = ( record_size == count );
 	if ( success )
 		Comment(INFO,"All " + to_string( record_size * mem_ds.sizeof_type ) + " bytes written to file");
@@ -338,19 +316,19 @@ int External_class::Save_record_data( int filenr)
 		return 0;
 	};
 
-	remove_file( file_structure().wav_file );
+	Remove_file( fs.wav_file );
 
-	write_music_file( file_structure().wav_file );
+	write_music_file( fs.wav_file );
 
-	remove_file( file_structure().mp3_file );
+	Remove_file( fs.mp3_file );
 
-	string convert_wav2mp3 = ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
-	system_execute( convert_wav2mp3 );
+	string convert_wav2mp3 = ffmpeg_cmd(fs.wav_file, fs.mp3_file ) ;
+	System_execute( convert_wav2mp3 );
 
-	string insert_mp3_tags = id3tool_cmd( file_structure().mp3_file );
-	system_execute( insert_mp3_tags );
+	string insert_mp3_tags = id3tool_cmd( fs.mp3_file );
+	System_execute( insert_mp3_tags );
 
-    rename_file( file_structure().wav_file, Filename);
+    Rename_file( fs.wav_file, Filename);
     Filename = "";
     record_size = 0; // reset size
 
@@ -366,8 +344,8 @@ void External_class::Test_External()
 //	ASSERTION ( StA->mem_ds.max_records - Stereo_Memory::mem_ds.max_records == 0 , "compare StA/Stereo_Memory-records",
 //				StA->mem_ds.max_records , Stereo_Memory::mem_ds.max_records );
 
-	if ( filesystem::exists( testcounter ))
-		filesystem::remove( testcounter );
+	if ( filesystem::exists( testcounter_file ))
+		filesystem::remove( testcounter_file );
 
 	int
 	fnr = generate_file_no( MAXWAVFILES );
@@ -380,8 +358,8 @@ void External_class::Test_External()
 	assert( fnr == 3 );
 
 
-	ffmpeg_cmd(file_structure().wav_file, file_structure().mp3_file ) ;
-	id3tool_cmd( file_structure().mp3_file );
+	ffmpeg_cmd(fs.wav_file, fs.mp3_file ) ;
+	id3tool_cmd( fs.mp3_file );
 
 	TEST_END( className );
 }

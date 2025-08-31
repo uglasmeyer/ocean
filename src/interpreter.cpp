@@ -5,31 +5,33 @@
  *      Author: sirius
  */
 
-#include "Interpreter.h"
+#include <Interpreter.h>
 
 
-Interpreter_class::Interpreter_class( Dataworld_class* data ) :
-Logfacility_class( "Interpreter" ),
-Processor_class( data->Sds_master, &data->Appstate )
+Interpreter_class::Interpreter_class( Dataworld_class* data )
+	: Logfacility_class( "Interpreter_class" )
+	, Processor_class( data->Sds_master, &data->Appstate )
+	, Device_class( data->sds_master )
 {
+	className			= Logfacility_class::className;
 	this->sds 			= data->GetSdsAddr();
 	this->Sds 			= data->Sds_master;
 	this->Cfg 			= data->Cfg_p;
 
 	main_view.name		= "Main osc";
-	main_view.oscid		= osc_struct::OSCID;
+	main_view.oscid		= OSCID;
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
 	main_view.ampkey 	= SETSTA_KEY;//MASTERAMP_KEY;
 	main_view.freqkey 	= OSCFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
-	main_view.oscid		= osc_struct::VCOID;
+	main_view.oscid		= VCOID;
 	vco_view.wfkey 		= SETWAVEFORMVCOKEY;
 	vco_view.ampkey 	= VCOAMPKEY;
 	vco_view.freqkey 	= VCOFREQUENCYKEY;
 
 	fmo_view.name		= "FMO";
-	main_view.oscid		= osc_struct::FMOID;
+	main_view.oscid		= FMOID;
 	fmo_view.wfkey 		= SETWAVEFORMFMOKEY;
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
@@ -48,7 +50,10 @@ Processor_class( data->Sds_master, &data->Appstate )
 
 }
 
-Interpreter_class::~Interpreter_class() {}
+Interpreter_class::~Interpreter_class()
+{
+	DESTRUCTOR( className )
+}
 
 bool Interpreter_class::cmpkeyword ( const string& word )
 {
@@ -507,8 +512,8 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
-		Processor_class::Push_ifd( &sds->connect[osc_struct::OSCID].frq, false, "reset fmo connect" );
-		Processor_class::Push_ifd( &sds->connect[osc_struct::OSCID].vol, false, "reset vco connect" );
+		Processor_class::Push_ifd( &sds->OSC_connect.frq, FMOID, "reset fmo connect" );
+		Processor_class::Push_ifd( &sds->OSC_connect.vol, VCOID, "reset vco connect" );
 		Processor_class::Push_key( CONNECTOSC_KEY , "reset main"  );
 		return;
 	}
@@ -548,7 +553,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		expect = { "volume [%]" };
 		int amp = pop_int(0,100);
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
-		Processor_class::Push_ifd( &sds->connect[view.oscid].vol , true, "connect vol->osc" );
+		Processor_class::Push_ifd( &sds->OSC_connect.vol , VCOID, "connect vol->osc" );
 
 		if ( loop ) // TODO-working
 		{
@@ -574,7 +579,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		freq = Frequency.Index( f );
 
 		Comment( INFO, "Set frequency " + to_string(freq) + " for " + view.name );
-		Processor_class::Push_ifd( &sds->connect[view.oscid].frq , true, "connect frq->osc" );
+		Processor_class::Push_ifd( &sds->OSC_connect.frq , FMOID, "connect frq->osc" );
 
 		if ( loop )
 		{
@@ -864,7 +869,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 			string srcb = file_structure().notesdir + fileb + file_structure().nte_type;
 			string dest = file_structure().autodir + varname + file_structure().nte_type;
 			string cmd = "cat " +  srca + " " + srcb + " > " +  dest;
-			system_execute( cmd );
+			System_execute( cmd );
 		};
 
 	error = 0;

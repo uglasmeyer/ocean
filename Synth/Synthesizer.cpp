@@ -8,10 +8,10 @@ const int 				EXITTEST		= 15;
 
 EventQue_class*			EventQue 		= &Sds->Eventque;// &DaTA.Sds_p->Eventque;
 Wavedisplay_class 		Wavedisplay		{ Sds };
-Wavedisplay_class*		wd_p 			= &Wavedisplay;
+Wavedisplay_class*		Wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
-Mixer_class				Mixer			{ &DaTA, wd_p } ;// DaTA.Sds_master );
-Instrument_class 		Instrument		{ sds, wd_p };
+Mixer_class				Mixer			{ &DaTA, Wd_p } ;// DaTA.Sds_master );
+Instrument_class 		Instrument		{ sds, Wd_p };
 Note_class 				Notes			{ &Instrument, &Mixer.StA[ STA_NOTES ] };
 Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg);
@@ -46,7 +46,6 @@ void show_AudioServer_Status()
 
 void SetLogLevels()
 {
-	Log.ResetLogMask();
 
 	Log.Show_loglevel();
 
@@ -146,7 +145,7 @@ void ApplicationLoop()
 	Event.Handler();
 	App.Ready();
 	show_AudioServer_Status();
-	Keyboard.Show_help( Keyboard.enabled );
+	Keyboard.Show_help( Keyboard.Enabled );
 
 	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
@@ -174,10 +173,10 @@ thread* 		SyncNotes_thread_p = nullptr;
 void read_notes_fnc( )
 {
 	DaTA.Sds_p->Commit();
-	string name = DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-	string filename = file_structure().xmldir + name + file_structure().xml_type ;
+	string name 	= DaTA.Sds_p->Read_str( NOTESSTR_KEY );
+	string filename = fs.xmldir + name + fs.xml_type ;
 	Log.Comment( INFO, "from filename: " + filename );
-	Notes.musicxml = MusicXML.Xml2notelist( filename );
+	Notes.musicxml 	= MusicXML.Xml2notelist( filename );
 	if ( Notes.musicxml.scoreduration != 0 )
 	{
 		Notes.Set_notelist( Notes.musicxml.notelist );
@@ -198,8 +197,6 @@ thread* 		ReadNotes_thread_p = nullptr;
 
 void activate_logging()
 {
-	Log.Set_Loglevel( DEBUG, false );
-
 }
 
 int main( int argc, char* argv[] )
@@ -219,9 +216,9 @@ int main( int argc, char* argv[] )
 		exit_proc( 0 );
 		return 0;
 	}
-	DaTA.Appstate.SaveState();
-	DaTA.Sds_p->Restore_ifd();
-	DaTA.Appstate.RestoreState();
+//	DaTA.Appstate.SaveState();
+//	DaTA.Sds_p->Restore_ifd();
+//	DaTA.Appstate.RestoreState();
 
 	activate_sds();
 
@@ -265,12 +262,12 @@ void stop_threads()
 int sig_counter = 0;
 void exit_proc( int signal )
 {
-	cout.flush();
+	coutf;
 	Log.Comment(INFO, "Entering exit procedure for " + Appstate->Name );
 	if ( sig_counter > 0 )
 	{
-		Log.Comment( ERROR, "Exit procedure failed" );
-		Log.Comment( WARN, "Synthesizer reached target exit " + to_string( signal ));
+		coutf << "ERROR:   Exit procedure failed " << endl;
+		coutf << "WARNING: Synthesizer reached target exit " << to_string( signal ) << endl;
 	}
 	sig_counter++;
 

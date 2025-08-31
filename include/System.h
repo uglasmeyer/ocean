@@ -14,8 +14,11 @@
 
 extern vector<string> 	List_directory		( const string& path, const string& filter );
 extern string 			searchPath			( string filename );
-extern void 			system_execute		( const string& );
+extern void 			System_execute		( const string& cmd, bool noexect = false );
 extern void 			System_Test			();
 extern bool 			Is_running_process	( const pid_t& pid );
+extern void 			Remove_file			( string file );
+extern void 			Rename_file			( string old_name, string new_name );
+
 
 #endif /* INCLUDE_COMMON_H_ */

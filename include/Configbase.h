@@ -11,6 +11,8 @@
 #include <Ocean.h>
 #include <Version.h>
 
+#define OCEANDIR "OCEANDIR"
+
 static const uint 	MAXCONFIG 	= 4;
 static const string	oceandir_env= "OCEANDIR";
 typedef	array<key_t,MAXCONFIG>	keys_arr_t;
@@ -42,9 +44,9 @@ struct prgarg_struct
 		key_t		SHM_keyr	= SHM_key+1;
 		key_t		SDS_key		= 0x6666;
 		keys_arr_t 	sdskeys 	{};
-		uint		temp_sec	= 30; 	// seconds storage in StA
-		uint 		record_sec	= 180; 	// seconds storage
-		uint		kbd_sec		= 2;	// seconds of keyboard stoarage in StA
+		uint		temp_sec	= tmpduration; 	// seconds storage in StA
+		uint 		record_sec	= recduration; 	// seconds storage
+		uint		kbd_sec		= kbdduration;	// seconds of keyboard stoarage in StA
 
 } ;
 

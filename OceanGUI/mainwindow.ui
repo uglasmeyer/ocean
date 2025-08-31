@@ -1230,7 +1230,7 @@
      </rect>
     </property>
     <property name="value">
-     <number>24</number>
+     <number>0</number>
     </property>
    </widget>
    <widget class="QLCDNumber" name="OSCLCD_Hz">
@@ -1990,12 +1990,12 @@
      <rect>
       <x>765</x>
       <y>10</y>
-      <width>391</width>
+      <width>421</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>0                                     100        storing              stored    playing</string>
+     <string>0              Volume        100        |   storing             stored    playing</string>
     </property>
    </widget>
    <widget class="QFrame" name="frame_3">

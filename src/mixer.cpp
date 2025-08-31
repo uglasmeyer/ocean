@@ -33,12 +33,19 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	StA_param_t usr_conf = {"temp"		, frames_per_sec * conf.temp_sec	, min_frames };
 	StA_param_t ext_conf = {"External"	, frames_per_sec * conf.record_sec	, min_frames };
 	StA_param_t kbd_conf = {"Keyboard"	, frames_per_sec * conf.kbd_sec		, min_frames };
+	StA_param_t nte_conf = {"Notes"		, frames_per_sec * conf.kbd_sec		, min_frames };
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
 	StA[STA_EXTERNAL].Setup(ext_conf);
+
 	StA[STA_KEYBOARD].Setup(kbd_conf);
 	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
+	StA[STA_KEYBOARD].scanner.Set_max_len( StA[STA_KEYBOARD].scanner.mem_range.max );
+
+	StA[STA_NOTES].Setup(nte_conf);
+	StA[STA_NOTES].scanner.Set_wrt_len( max_frames );
+	StA[STA_NOTES].scanner.Set_max_len( StA[STA_NOTES].scanner.mem_range.max );
 
 	DynVolume.SetupVol( sds_master->Master_Amp,	FIXED ); //set start and master_volume
 	if( LogMask[ TEST ] )
@@ -166,7 +173,7 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 	while ( composer > 0 )
 	{
 		cout << dec << composer << " " << arr_id << endl;
-		Notes->Generate_note_chunk( );
+		Notes->Generate_data( );
 		StA[ arr_id ].Store_block( Notes->Oscgroup.osc.MemData_p() );
 		composer--;
 	}
@@ -189,6 +196,12 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 			Data[n] =0;
 		}
 	};
+	auto set_sds_filled = [ this ]( uint8_t staid )
+	{
+//		bool filled = ( StA[staid].scanner.fillrange.max > 0 );
+		bool filled = ( StA[staid].scanner.pos > 0 );
+		sds->StA_state[staid].filled = filled;
+	};
 
 	if( not shm_addr ) return;
 	clear_memory();
@@ -203,28 +216,34 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	if ( StA[ STA_INSTRUMENT].state.play )
 		add_mono( instrument_Data	, STA_INSTRUMENT );
 	if ( StA[ STA_NOTES 	].state.play )
+	{
 		add_mono( notes_Data		, STA_NOTES );
+		if( false )//StA[ STA_NOTES ].state.forget )
+			delete_after_read( notes_Data, sds->audioframes );
+	}
 	if ( StA[ STA_KEYBOARD  ].state.play )
 	{
 		add_mono( kbd_Data			, STA_KEYBOARD );
 		if( StA[ STA_KEYBOARD ].state.forget )
 			delete_after_read( kbd_Data, sds->audioframes );
 	}
+	set_sds_filled( STA_INSTRUMENT );
+	set_sds_filled( STA_NOTES );
+	set_sds_filled( STA_KEYBOARD );
 
 	// write/read StA sound
-	for ( uint DAid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
+	for ( uint staid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
 
-		if( StA[ DAid ].state.store )
-			StA[ DAid ].Store_block( Mono.Data );
-		sds->StA_state[DAid].store		= StA[DAid].state.store;
-		sds->StA_state[DAid].filled		= ( StA[DAid].scanner.fillrange.max > 0 );
-
-		if ( StA[ DAid ].state.play )
+		if( StA[ staid ].state.store )
+			StA[ staid ].Store_block( Mono.Data );
+		sds->StA_state[staid].store		= StA[staid].state.store;
+		set_sds_filled( staid );
+		if ( StA[ staid ].state.play )
 		{
-			Data_t* StAdata = StA[DAid].scanner.Next();
+			Data_t* StAdata = StA[staid].scanner.Next();
 			if ( StAdata )
-				add_mono( StAdata, DAid );
+				add_mono( StAdata, staid );
 		}
 	}
 

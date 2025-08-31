@@ -12,14 +12,15 @@
 #include <data/Interface.h>
 #include <data/Appstate.h>
 #include <Adsr.h>
+#include <data/Device.h>
 
-class ViewInterface_class :
-	virtual public 		Logfacility_class,
-	virtual 			osc_struct,
-	virtual 			sdsstate_struct,
-	virtual 			interface_struct,
-	virtual public		ADSR_class
-//	virtual				Spectrum_class,
+class ViewInterface_class
+	: virtual public 	Logfacility_class
+	, virtual 			osc_struct
+	, virtual 			sdsstate_struct
+	, virtual 			interface_struct
+	, virtual			Device_class
+	, virtual public	ADSR_class
 {
 	string 				className 	= "";
 	Interface_class*	Sds_p 		= nullptr;

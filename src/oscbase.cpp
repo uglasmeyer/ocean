@@ -19,6 +19,7 @@ Oscillator_base::Oscillator_base( char osc_type ) :
 {
 	this->spectrum.osc 	= osc_type;
 	typeId				= osc_type;
+	Connect				= default_connect( osc_type );
 	this->className		= Logfacility_class::className;
 };
 
@@ -47,7 +48,7 @@ uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 
 void Oscillator_base::Set_volume( int vol, uint mode )
 {
-	wp.volume = check_range( volidx_range, vol, "Set_volume" );
+	wp.volume 			= check_range( volidx_range, vol, "Set_volume" );
 	spectrum.vol[0] 	= (float)vol * percent;
 	spectrum.volidx[0]	= vol;
 }
@@ -64,11 +65,15 @@ void Oscillator_base::Set_glide( uint value )
 void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
 {
 	spectrum.wfid	= wf_vec;
+	phase 			= default_phase; // because of maxphi changes
+
 }
 
 void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 {
 	this->spectrum 	= spectrum;
+	Set_frequency	( spectrum.frqidx[0], FIXED );
+	Set_volume		( spectrum.volidx[0], FIXED );
 }
 
 void Oscillator_base::Line_interpreter( vector_str_t arr )

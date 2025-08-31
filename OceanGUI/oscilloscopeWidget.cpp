@@ -1,8 +1,8 @@
 // C++ Project
 // https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene_QGraphicsItems.php
 
+#include <include/Oszilloscopewidget.h>
 #include <qpainter.h>
-#include <Oszilloscopewidget.h>
 
 
 QRectF OszilloscopeWidget::boundingRect() const

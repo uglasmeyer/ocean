@@ -20,7 +20,7 @@ ViewInterface_class::ViewInterface_class( char appid, Dataworld_class* DaTA_p )
 	, osc_struct()
 	, sdsstate_struct()
 	, interface_struct()
-//	, Spectrum_class()
+	, Device_class( DaTA_p->sds_master )
 	, ADSR_class()
 	, Appstate( appid, DaTA_p->sds_master, DaTA_p->sds_master, &DaTA_p->Reg )
 {
@@ -77,7 +77,7 @@ void ViewInterface_class::show_Que()
 	Table.AddColumn( "Value", 10 );
 	Table.PrintHeader();
 	Table.AddRow( "Role", osc_struct().roles[ sds_p->WD_status.roleId ] );
-	Table.AddRow( "Osc"	, osc_struct().types[ sds_p->WD_status.oscId ] );
+	Table.AddRow( "Osc"	, osc_struct().oscNames[ sds_p->WD_status.oscId ] );
 	Table.AddRow( "Mode", wavedisplay_struct().types[ sds_p->WD_status.wd_mode ] );
 	Table.AddRow( "FFT"	, wavedisplay_struct().fftmodes[ sds_p->WD_status.fftmode ] );
 }
@@ -95,6 +95,7 @@ void ViewInterface_class::show_manage()
 	Manage.AddColumn( "Function.",25);
 	Manage.AddColumn( "Key.",15);
 	Manage.PrintHeader();
+
 	Manage.AddRow( "Shutdown all", "s" );
 	Manage.AddRow( "Destroy Shared Memory", "d" );
 
@@ -113,14 +114,17 @@ void ViewInterface_class::show_spectrum()
 }
 void ViewInterface_class::showStates()
 {
-	Table_class Connect { "Connections", 20 };
-	Connect.AddColumn("OSC", 6);
-	Connect.AddColumn("Frq", 6);
-	Connect.AddColumn("Amp", 6);
-	Connect.PrintHeader();
-	for (uint oscid : { FMOID, VCOID, OSCID })
-		Connect.AddRow(types[oscid], (bool) (sds_p->connect[oscid].frq),
-				(bool) (sds_p->connect[oscid].vol));
+	Table_class Table { "Connections", 20 };
+	Table.AddColumn("OSC", 8 );
+	Table.AddColumn("Frq", 6 );
+	Table.AddColumn("Vol", 6 );
+	Table.PrintHeader();
+//	cout << to_hex( (long)Device_class::sds_p );
+	for (uint oscid : oscIds )
+	{
+		connectName_t oscnames = Get_connection_names( oscid );
+		Table.AddRow(oscNames[oscid], oscnames.frq, oscnames.vol );
+	}
 
 	Table_class StA{ "Storage Area", 20 };
 	StA.AddColumn( "StA Id",  6);
@@ -152,6 +156,7 @@ void ViewInterface_class::showStates()
 void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 {
 	this->sds_p = sds;
+	Device_class::Set_sds_vec( sds_p );
 
 	ClearScreen();
 	printHeader();
@@ -231,8 +236,7 @@ void ViewInterface_class::showProcesses()
 		Proc.AddRow( AppIdName( appid ), Decode( Appstate.Get( sds_p, appid )) );
 	}
 
-	lline( "Mixer Volume:      " , (int)sds_p->MIX_Amp );
-	rline( "Mixer Id           " , (int)sds_p->MIX_Id );
+	lline( "Mixer Id           " , (int)sds_p->MIX_Id );
 
 	lline( "Sync data id       " , (int) sds_p->SHMID);
 	rline( "Event ID           " , Sds_p->Eventque.show());

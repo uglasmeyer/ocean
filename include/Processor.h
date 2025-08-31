@@ -72,6 +72,8 @@ public:
 	void Push_ifd( uint8_t*, uint8_t, string );
 	void Push_ifd( bool*, bool, string );
 	void Push_ifd( int*, int, string );
+	void Push_ifd( char*, char, string  );
+
 	void Push_wait( uint8_t, int, string );
 	void Push_text( string );
 	void Execute();

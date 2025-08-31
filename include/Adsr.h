@@ -24,7 +24,7 @@ class ADSR_class :
 	buffer_t 		beat_cursor 	= 0;
 	bool			tainted			= true; // becomes true if adsr_data changes
 	buffer_t		beat_frames		= max_frames;
-	Memory			adsr_Mem		{ monobuffer_bytes };
+	Memory			adsr_Mem		{ monobuffer_bytes }; //max_frames*sizeof(Data)
 
 public:
 	spectrum_t default_adsr_spec =

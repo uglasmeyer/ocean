@@ -49,7 +49,7 @@ struct WD_status_struct
 } ;
 typedef WD_status_struct 		wd_status_t;
 
-const size_t WD_OSC_SIZE 	= osc_struct().types.size();
+const size_t WD_OSC_SIZE 	= osc_struct().oscNames.size();
 const size_t WD_ROLES_SIZE 	= osc_struct().roles.size();
 const size_t WD_MODE_SIZE 	= wavedisplay_struct().types.size();
 

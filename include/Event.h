@@ -15,10 +15,10 @@
 #include <notes/MusicXML.h>
 #include <Mixer.h>
 
-class Event_class :
-	virtual public Logfacility_class,
-	osc_struct,
-	sdsstate_struct
+class Event_class
+	: virtual public 	Logfacility_class
+	, virtual			osc_struct
+	, 					sdsstate_struct
 {
 	string 				className = "";
 
@@ -48,9 +48,9 @@ public:
 				Dataworld_class*	data,
 				External_class*		external,
 				ProgressBar_class*	progressbar,
-				Musicxml_class*		musicxml ) :
-		Logfacility_class("Event_class"),
-		sdsstate_struct()
+				Musicxml_class*		musicxml )
+		: Logfacility_class("Event_class")
+		, sdsstate_struct()
 	{
 		className = Logfacility_class::className;
 		this->DaTA			= data;
@@ -75,7 +75,6 @@ public:
 	void TestHandler();
 
 private:
-	void update_oscgroups();
 
 };
 

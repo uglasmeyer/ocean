@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <Mainwindow.h>
+#include <include/Mainwindow.h>
 
 void MainWindow::initPanel()
 {
@@ -66,7 +66,7 @@ void MainWindow::initOscillatorDisplay()
 
 void MainWindow::initStateButtons()
 {
-	Qwd_osc_names 	= Vstringvector( osc_struct().types );
+	Qwd_osc_names 	= Vstringvector( osc_struct().oscNames );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
 
 	Qwd_fftmodes	= Vstringvector( wavedisplay_struct().fftmodes );
@@ -176,7 +176,7 @@ void MainWindow::initGuiVectors()
     {
    		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume, volidx_range.max },
    		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume, volidx_range.max },
-   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &Sds_master->Master_Amp	 , volidx_range.max }
+   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &sds_master->Master_Amp	 , volidx_range.max }
     };
     sB_lbl_vec =
     {
@@ -260,7 +260,7 @@ void MainWindow::initUiConnectors()
     connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));
     connect(ui->rb_S2			, SIGNAL(clicked() )		,this, SLOT(select_Sds2() ));
     connect(ui->rb_S3			, SIGNAL(clicked() )		,this, SLOT(select_Sds3() ));
-   	rb_S_vec[ Sds_master->config ]->setChecked( true );
+   	rb_S_vec[ sds_master->config ]->setChecked( true );
 
     connect(ui->cB_Combine		, SIGNAL(clicked() )		,this, SLOT(CombineFreq() ));
 

@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "Rtsp_dialog_class.h"
+#include "include/Rtsp_dialog_class.h"
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
 

@@ -44,11 +44,11 @@ Application_class::~Application_class()
 {
 	if ( LogMask[ TEST ] )
 	{
-		system_execute( " cat /tmp/log/Synthesizer.log 1>&2 " );
+		System_execute( " cat /tmp/log/Synthesizer.log 1>&2 " );
 	}
 	else
 	{
-		if ( ( AppId == APPID::KBDID ) or ( AppId == APPID::SYNTHID ) )
+		if ( ( AppId == APPID::KEYBOARDID ) or ( AppId == APPID::SYNTHID ) )
 			Sds->Dump_ifd();
 	}
 
@@ -60,7 +60,7 @@ Application_class::~Application_class()
 void Application_class::versionTxt()
 {
 	fstream File;
-	File.open( file_structure().version_txt, fstream::out );
+	File.open( Cfg->fs.version_txt, fstream::out );
 	File << "Version: " << Version_No << endl;
 	File.close();
 }
@@ -75,6 +75,7 @@ void Application_class::app_properties()
 }
 void Application_class::Start( int argc, char* argv[] )
 {
+	Info( "Using OCEADIR=", Cfg->fs.installdir );
 	Timer.TimeStamp();
 	Cfg->Parse_argv(argc, argv );
 

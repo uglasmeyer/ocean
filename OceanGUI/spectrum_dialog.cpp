@@ -1,5 +1,5 @@
-#include <Spectrum_dialog_class.h>
-#include <Common.h>
+#include <include/Common.h>
+#include <include/Spectrum_dialog_class.h>
 //Ui::Spectrum_Dialog_class	UI_obj;
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,

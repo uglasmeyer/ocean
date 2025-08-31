@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "File_Dialog_class.h"
+#include "include/File_Dialog_class.h"
 #include <QtGui/qtextcursor.h>
 #include <QtCore/qmetatype.h>
 

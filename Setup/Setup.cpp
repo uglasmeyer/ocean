@@ -12,7 +12,7 @@
 
 void exit_proc( int signal )
 {
-	Log.Set_Loglevel( DBG2, true );
+	Log.Set_Loglevel( DBG2, false );
 	exit(0);
 }
 
@@ -78,18 +78,19 @@ void create_tararchive()
 	string cmd2 	= "bash -c \"tar -cvf " + arch + excl + fs.oceanbasename + "\"";
 
 	Log.Info(  "executing: ", cmd1, ";", cmd2 );
-	system_execute( cmd1 + ";" + cmd2 );
+	System_execute( cmd1 + ";" + cmd2 );
 }
 void bashrc_oceandir()
 {
-	string bashrc_file 	= fs.homedir + ".bashrc";
-	string tmp_file		= "/tmp/bashrc.tmp";
-	fstream Bashrc 		{};
-	Bashrc.open( bashrc_file, fstream::in);
-	fstream Bashtmp 	{};
-	Bashtmp.open( "/tmp/bashrc.tmp", fstream::out );
+	const string 	bashrc_file 	= fs.homedir + ".bashrc";
+	const string 	tmp_file		= "/tmp/bashrc.tmp";
+	fstream 		Bashrc 				{};
+					Bashrc.open		( bashrc_file, fstream::in);
+	fstream 		Bashtmp 		{};
+					Bashtmp.open	( tmp_file, fstream::out );
 
-	string line 		{};
+	// remove ocean.rc from bashrc file
+	string 			line 			{};
 	while ( getline( Bashrc, line ))
 	{
 		size_t pos 		= line.find( fs.oceanrc_filename );
@@ -98,14 +99,27 @@ void bashrc_oceandir()
 			Bashtmp << line << endl;
 		}
 	};
+
+	// add ocean.rc to bashrc file
 	Bashtmp << ". " << fs.oceanrc_file << endl;
 	overwrite( tmp_file, bashrc_file );
 }
 
+void compare_environment()
+{
+	const string env = OCEANDIR;
+	const string oceandir_env = notnull( std::getenv( env.data()) );
+	const string install_dir	= fs.installdir;
+	if ( not strEqual( install_dir, oceandir_env ) )
+	{
+		Log.Comment( WARN, "environment              OCEANDIR=", oceandir_env );
+		Log.Comment( WARN, "is not equal to install directory=", fs.installdir );
+	}
+}
 void create_oceanrc()
 {
-	fstream Oceanrc		{};
-	Oceanrc.open( fs.oceanrc_file, fstream::out );
+	fstream Oceanrc	{};
+	Oceanrc.open	( fs.oceanrc_file, fstream::out );
 	Oceanrc << "export ARCH=`uname -p`" << endl;
 	Oceanrc << "export " << oceandir_env << "=" << fs.installdir << endl;
 	Oceanrc << "export OCEANTESTCASE=oceantestcase" << endl;
@@ -136,6 +150,9 @@ void symboliclink( string _src, string _sym, string _ext )
 
 void install_binary( string _bin, string _ext )
 {
+
+	compare_environment();
+
 	filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
 	string 				src_bin_file	= pwd.generic_string() + "/" + _bin;
 	string				dst_bin_file	= fs.archbindir + _bin;

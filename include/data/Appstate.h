@@ -35,7 +35,7 @@ constexpr char AppNameId( const T& name )
 	if ( strEqual( name, COMPOSER 		) )	appid = APPID::COMPID;
 	if ( strEqual( name, OCEANGUI	 	) ) appid = APPID::GUI_ID;
 	if ( strEqual( name, SDSVIEW	 	) )	appid = APPID::SDSVIEWID;
-	if ( strEqual( name, SYNTHKBD 		) )	appid = APPID::KBDID;
+	if ( strEqual( name, SYNTHKBD 		) )	appid = APPID::KEYBOARDID;
 	if ( strEqual( name, SETUP		 	) )	appid = APPID::SETUPID;
 	if ( strEqual( name, RTSP	 		) )	appid = APPID::RTSPID;
 	if ( strEqual( name, TESTPRG 		) )	appid = APPID::TESTPRGID;
@@ -45,7 +45,7 @@ constexpr char AppNameId( const T& name )
 		cout << "ERROR: unknown application name: " << name << endl;
 		exit( 0 );
 	}
-	if ( ( not is_atty ) and ( appid == APPID::KBDID ) )
+	if ( ( not is_atty ) and ( appid == APPID::KEYBOARDID ) )
 	{
 		appid = APPID::SYNTHID;
 	}
@@ -97,7 +97,7 @@ public:
 	Register_class* Reg_p				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
-	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, KBDID, TESTPRGID } ;
+	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, KEYBOARDID, TESTPRGID } ;
 	const range_T<uint>
 					appId_range 		{0, NOID };
 	array< uint, NOID>

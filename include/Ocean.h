@@ -104,6 +104,7 @@ const buffer_t 		chunksize			= min_frames / 2;//300;//min_frames/10;///5;//max_f
 
 const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
+const uint			kbdduration			= 2;
 const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_Data; // 3 minutes 32Mb
 const buffer_t 		monobuffer_bytes   	= max_frames * sizeof_Data;
 const Data_t		max_data_amp		= 4096*4;
@@ -182,7 +183,7 @@ enum APPID
 	GUI_ID,
 	SDSVIEWID,
 	RTSPID,
-	KBDID,
+	KEYBOARDID,
 	SETUPID,
 	TESTPRGID,
 	NOID
@@ -209,9 +210,9 @@ constexpr string AppIdName( const T& app_id )
 		case APPID::GUI_ID		: return OCEANGUI;
 		case APPID::SDSVIEWID	: return SDSVIEW;
 		case APPID::RTSPID		: return RTSP;
-		case APPID::KBDID		: return SYNTHKBD;
+		case APPID::KEYBOARDID	: return SYNTHKBD;
 		case APPID::SETUPID		: return SETUP;
-		case APPID::TESTPRGID		: return TESTPRG;
+		case APPID::TESTPRGID	: return TESTPRG;
 		case APPID::NOID		: return "No Process";
 		default 		: 	{
 							cout << "WARN: unknown application id: " << (int)app_id << endl;
@@ -238,7 +239,7 @@ typedef struct osc_struct
 	};
 	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOOUTID, ADSRID };
 
-	const vector<string> types =
+	const vector<string> oscNames =
 	{
 		"VCO",
 		"FMO",
@@ -246,7 +247,7 @@ typedef struct osc_struct
 	};
 	enum { VCOID, FMOID, OSCID };
 } osc_roles_t;
-const  vector<char> osctypeIds  =
+const  vector<char> oscIds  =
 	{
 			osc_struct::VCOID,
 			osc_struct::FMOID,

@@ -17,8 +17,8 @@ environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.113089033
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANBASE/operation=append
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANBASE/value=${HOME}/OceanBase/
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANDIR/delimiter=\:
-environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANDIR/operation=append
-environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANDIR/value=${OCEANDIR}
+environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANDIR/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANDIR/value=${HOME}/OceanDev/
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANTESTCASE/delimiter=\:
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANTESTCASE/operation=append
 environment/project/cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336/OCEANTESTCASE/value=oceantestcase

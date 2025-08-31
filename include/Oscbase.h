@@ -90,20 +90,29 @@ public:
 	bool			has_instr_role 	= false;
 
 
-	struct connect_struct
+	struct Connect_struct
 	{ // SDS related
-		bool 	vol = false;
-		bool	frq = false;
+		char	vol = -1;
+		char	frq = -1;
 	};
-	typedef connect_struct connect_t;
-	connect_t 		connect		= connect_struct();
 
+	Connect_struct	Connect		= Connect_struct();
+
+	friend bool operator==( const Connect_struct& lhs, const Connect_struct& rhs )
+			{
+				if((lhs.frq == rhs.frq) and ( lhs.vol == rhs.vol ))
+					return true;
+				else
+					return false;
+			};
 	feature_t 		feature 	= feature_struct();
 	wave_t 			wp 			= wave_struct();
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
 	spectrum_t		spectrum	= default_spectrum;//= Spectrum_class::spec_struct();
-
+	spec_arr_dt		default_phase
+								= { 0.0, 0.0, 0.0, 0.0, 0.0};
+	spec_arr_dt		phase 		= default_phase;
 	Dynamic_class	DynFrequency{ frqarr_range };
 
 					Oscillator_base() ;
@@ -128,6 +137,13 @@ private:
 
 
 }; // close class Oscillator_base
+
+typedef Oscillator_base::Connect_struct	connectId_t;
+
+constexpr connectId_t default_connect( char oscid )
+{
+	return { oscid, oscid };
+}
 
 
 #endif /* OSCBASE_H_ */

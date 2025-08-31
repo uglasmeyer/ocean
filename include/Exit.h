@@ -12,7 +12,7 @@
 #include <Logfacility.h>
 
 
-
+#define NOEXEPT true
 
 #define EXCEPTION( err_str )\
 	{\
@@ -22,7 +22,8 @@
 	string str {err_str};\
 	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
 	printf("%s\n", str.data() ) ;\
-	exit( 0 ); \
+	/* jump to exit_proc( SIGHUP ) */ \
+	raise( SIGHUP ); \
 	};
 
 

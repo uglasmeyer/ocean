@@ -4,14 +4,12 @@
 #include <QThread>
 
 // OceanGUI
-#include <Mainwindow.h>
-#include <Dispatcher.h>
-
-// Synthesizer
 #include <App.h>
 #include <Exit.h>
+#include <include/Dispatcher.h>
+#include <include/Mainwindow.h>
+#include <include/Rtsp_dialog_class.h>
 #include <Logfacility.h>
-#include <Rtsp_dialog_class.h>
 
 
 
@@ -27,15 +25,20 @@ const string		TitleModule = Log.className;
 /*
  * https://doc.qt.io/qt-6/qthread.html
  */
+void set_title( MainWindow* window )
+{
+    QString QVersion 	= Qstring( Version_str );
+    QString QModule		= Qstring( TitleModule);
+    QString QDir		= Qstring( window->App.Cfg->fs.installdir );
+    window->setWindowTitle( QModule + " " + QVersion  + " (" + QDir + ")");
+;
+}
 
 void exit_proc( int signal )
 {
 	cout.flush() << endl;
 	cout.flush() << TitleModule << " exit on signal " + to_string( signal ) << endl;
 	Statistic.Show_Statistic( );
-
-
-
     QApplication::exit(0);
 }
 
@@ -48,13 +51,12 @@ int main(int argc, char *argv[])
 //    QIcon icon("/home/sirius/Software/eclipse/eclipse32.png");
 //    Window.setWindowIcon( icon );
 
-    QString QVersion 	= Qstring( Version_str );
-    QString QModule		= Qstring( TitleModule);
-    Window.setWindowTitle( QModule + " " + QVersion  );
 
     Controller_class Controller{ Window };
 
     Window.App.Start( argc, argv );
+
+    set_title( &Window);
 
     Window.show();
 

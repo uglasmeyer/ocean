@@ -27,20 +27,16 @@ class Note_class
 	Storage_class*		StA			;
 
 public:
-
-
-	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID, monobuffer_bytes };
+	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID, 2*monobuffer_bytes };
 	Oscillator*		osc				= &Oscgroup.osc;
 	Oscillator*		vco				= &Oscgroup.vco;
 	Oscillator*		fmo				= &Oscgroup.fmo;
+	Oscillator*		Osc				= &Oscgroup.osc;
 
 	uint 			framePart 		= 0; // frame cursor
 	string			Instrument_name { "" };
-	uint8_t			noteline_sec 	= 0;
 	bool			Restart			= false;
 	uint8_t 		Octave			= noteline_prefix_default.Octave; // 55
-
-
 
 	Dynamic_class	DynFrequency	{ frqarr_range };
 
@@ -62,7 +58,7 @@ public:
 	void 			Set_rhythm_line(string );
 	bool			Set_notes_per_second( int );
 	void			LoadMusicxml( const string& file );
-	bool			Generate_note_chunk( );//Storage::Storage_class* mb );
+	bool			Generate_data( );//Storage::Storage_class* mb );
 	void			ScanData( Instrument_class* instrument );
 	void 			SetSDS( noteline_prefix_t nlp );
 
@@ -81,7 +77,6 @@ public:
 	note_t			Char2note( char& ch );
 
 	void			Set_notelist( const notelist_t& notelist );
-
 
 	void Show_note_list( auto items ) // list or vector
 	{
@@ -111,18 +106,20 @@ public:
 
 
 private:
+
+	string 			notefile_name 	= "";
+	string 			notefile 		= "";
+	string 			noteline		= "";
+	uint8_t			noteline_sec 	= 0;
+	size_t	 		noteline_len 	= 0;
 	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
-	string 			Notefile_name 	= "";
-	string 			Notefile 		= "";
-	string 			Noteline		= "";
-	string 			Volumeline 		= "";
+
+	string 			volumeline 		= "";
 	size_t			volume_vec_len 	= 1;
 	size_t			vcounter		= 0;
-											// notevalue_struct.doct by one .
-	size_t	 		noteline_len 	= 0;
-	size_t			parse_error		= 0;
 	vector<uint>    volume_vec 		{};
-
+											// notevalue_struct.doct by one .
+	size_t			parse_error		= 0;
 
 	typedef notelist_t::iterator
 					note_itr_t;
@@ -132,7 +129,7 @@ private:
 	bool 			compiler ( noteline_prefix_t,  string );
 	bool			set_file_name( string );
 	size_t			noteline_position_parser( size_t );
-	void 			note2memory( 	const note_t&,
+	void 			gen_chord_data( 	const note_t&,
 									const buffer_t&,
 									const uint& duration,
 									const bool& partnote );

@@ -20,7 +20,6 @@ int main( int argc, char* argv[] )
 
 */
 //	base_t 	base { 5, "five" };
-	App.Start(argc, argv );
 
 return 0;
 }

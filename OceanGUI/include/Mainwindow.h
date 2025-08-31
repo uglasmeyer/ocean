@@ -18,13 +18,11 @@
 #include <Configbase.h>
 
 // OceanGUI
-#include <Rtsp_dialog_class.h>
-#include <File_Dialog_class.h>
 #include "ui_mainwindow.h"
-#include <Oszilloscopewidget.h>
-#include <Spectrum_dialog_class.h>
-#include <Sds_dialog_class.h>
-#include <Adsrdialog.h>
+#include <include/File_Dialog_class.h>
+#include <include/Oszilloscopewidget.h>
+#include <include/Rtsp_dialog_class.h>
+#include <include/Spectrum_dialog_class.h>
 
 
 QT_BEGIN_NAMESPACE
@@ -53,8 +51,8 @@ public:
     EventLog_class*			Eventlog_p			= &Eventlog;
     Appstate_class*			Appstate			= &DaTA.Appstate;
     Config_class*			Cfg_p 				= DaTA.Cfg_p;
-    interface_t*			Sds_master			= DaTA.sds_master;
-    uint8_t					SDS_ID				= Sds_master->config;// active SDS for event logging
+    interface_t*			sds_master			= DaTA.sds_master;
+    uint8_t					SDS_ID				= sds_master->config;// active SDS for event logging
     Interface_class*		Sds					= DaTA.SDS.GetSds( SDS_ID );
 
     Spectrum_class          Spectrum			{};
@@ -69,12 +67,6 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA.Sds_p, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
-    ADSRDialog_class  		ADSR_Dialog_obj { this };
-    ADSRDialog_class*  		ADSR_Dialog_p 	= &ADSR_Dialog_obj;
-
-//not used
-//SDS_Dialog_class		SDS_Dialog_Obj		{ this, Sds };
-//SDS_Dialog_class*		SDS_Dialog_p		= &SDS_Dialog_Obj;
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
     QRect 					Spectrum_Dialog_Rect= QRect( QPoint(0,0),QSize(0,0) );

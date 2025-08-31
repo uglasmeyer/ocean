@@ -22,14 +22,14 @@ Spectrum_class::Spectrum_class() :
 	oscwaveform_struct()
 {
 	className 		= Logfacility_class::className;
-	spectrum		= default_spectrum;
-	Comment( DEBUG, Show_spectrum( this->spectrum ) );
+	spectrumTmp		= default_spectrum;
+	Comment( DEBUG, Show_spectrum( this->spectrumTmp ) );
 }
 
 
 spectrum_t Spectrum_class::Get_spectrum()
 {
-	return this->spectrum;
+	return this->spectrumTmp;
 }
 void Spectrum_class::assign_frq( int channel, string str  )
 {
@@ -38,11 +38,11 @@ void Spectrum_class::assign_frq( int channel, string str  )
 	if ( str.length() > 0 )
 	{
 		value 					= Str.secure_stoi( str );
-		spectrum.frqidx[channel]= check_range( frqarr_range, value, "assign_frq" );
+		spectrumTmp.frqidx[channel]= check_range( frqarr_range, value, "assign_frq" );
 	}
 	else
-		spectrum.frqidx[channel] = 0;
-	spectrum.frqadj[channel] = Frqadj(channel, value );
+		spectrumTmp.frqidx[channel] = 0;
+	spectrumTmp.frqadj[channel] = Frqadj(channel, value );
 };
 
 void Spectrum_class::assign_vol( int i, string str  )
@@ -52,10 +52,10 @@ void Spectrum_class::assign_vol( int i, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.volidx[i] = check_range( volidx_range, value, "assign_vol" );
+		spectrumTmp.volidx[i] = check_range( volidx_range, value, "assign_vol" );
 	}
 	else
-		spectrum.volidx[i] = 0;
+		spectrumTmp.volidx[i] = 0;
 };
 void Spectrum_class::assign_waveform( int i, string str  )
 {
@@ -64,12 +64,12 @@ void Spectrum_class::assign_waveform( int i, string str  )
 	if ( str.length() > 0 )
 	{
 		value = Str.secure_stoi( str );
-		spectrum.wfid[i] = check_range( waveform_range, value, "assign_waveform" );
+		spectrumTmp.wfid[i] = check_range( waveform_range, value, "assign_waveform" );
 	}
 	else
-		spectrum.wfid[i] = 0;
+		spectrumTmp.wfid[i] = 0;
 };
-#include <Exit.h>
+
 char Spectrum_class::Type_flag( const string& type_str )
 {
 	if ( type_str.length() == 0 ) return -1;
@@ -92,9 +92,9 @@ bool Spectrum_class::adsr_type( const string& type_str )
 char Spectrum_class::Osc_TypeId( const string& type_str )
 {
 	string str = type_str.substr(0, 3 );
-	for( char id : osctypeIds )
+	for( char id : oscIds )
 	{
-		if ( str.compare( osc_struct().types[ id ] ) == 0 )
+		if ( str.compare( osc_struct().oscNames[ id ] ) == 0 )
 		{
 			return id;
 		}
@@ -129,12 +129,13 @@ spectrum_t Spectrum_class::Parse_data(  vector_str_t arr )
 		}
 	};
 
+
 	char arrtype = Type_flag( arr[0] );
-	spectrum.adsr= adsr_type( arr[1] );//adsr;
-	spectrum.osc = Osc_TypeId( arr[1]);//oscid;
+	spectrumTmp.adsr= adsr_type( arr[1] );//adsr;
+	spectrumTmp.osc = Osc_TypeId( arr[1]);//oscid;
 	assign_dta( arr, arrtype );
-	Sum( spectrum );
-	return spectrum;
+	Sum( spectrumTmp );
+	return spectrumTmp;
 }
 
 vector<string> Spectrum_class::Get_waveform_vec()
@@ -179,7 +180,7 @@ string Spectrum_class::Show_spectrum( const spectrum_t spec )
 
 void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 {
-	string OscRoleTag = osc_struct().types[ spec.osc ];
+	string OscRoleTag = osc_struct().oscNames[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
@@ -207,7 +208,7 @@ void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
-	string OscRoleTag = osc_struct().types[ spec.osc ];
+	string OscRoleTag = osc_struct().oscNames[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
@@ -252,16 +253,16 @@ void Spectrum_class::Test_Spectrum()
 	str = "SPEF,VCO,1,2,3,4,5";
 	arr = str.to_array( ',' );
 	Parse_data( arr );
-	ASSERTION( 		spectrum.frqidx[4] == 5, "spectrum.frqidx[4]",
-			(int)	spectrum.frqidx[4], 5 );
-	ASSERTION( ( abs(spectrum.frqadj[4]) - 5.05) < 1E-6, "frqadj4", ( abs(spectrum.frqadj[4])) , 5.05 );
+	ASSERTION( 		spectrumTmp.frqidx[4] == 5, "spectrum.frqidx[4]",
+			(int)	spectrumTmp.frqidx[4], 5 );
+	ASSERTION( ( abs(spectrumTmp.frqadj[4]) - 5.05) < 1E-6, "frqadj4", ( abs(spectrumTmp.frqadj[4])) , 5.05 );
 
 	str = "SPEV,FMO,1.0,1,3,2,3" ;
 	arr = str.to_array( ',' );
 	Parse_data( arr );
-	ASSERTION( spectrum.osc == osc_struct::FMOID, "spectrum.osc", (int)spectrum.osc, (int)osc_struct::FMOID)
+	ASSERTION( spectrumTmp.osc == osc_struct::FMOID, "spectrum.osc", (int)spectrumTmp.osc, (int)osc_struct::FMOID)
 //	cout << show_items( spectrum.vol) << endl;
-	ASSERTION( ( abs( spectrum.vol[1] - 1.0/10.0) < 1E-6),"",abs( spectrum.vol[1] - 1.0/10.0), 0 );
+	ASSERTION( ( abs( spectrumTmp.vol[1] - 1.0/10.0) < 1E-6),"",abs( spectrumTmp.vol[1] - 1.0/10.0), 0 );
 
 	ASSERTION( strEqual( waveform_str_vec[3], waveFunction_vec[3].name),
 			"waveform_str_vec",
@@ -270,7 +271,7 @@ void Spectrum_class::Test_Spectrum()
 
 	fstream f;
 	f.open( "/tmp/Save_spectrum_table.txt", fstream::out );
-	Save_spectrum_table( &f, this->spectrum );
+	Save_spectrum_table( &f, this->spectrumTmp );
 	f.close();
 
 //assert(false);

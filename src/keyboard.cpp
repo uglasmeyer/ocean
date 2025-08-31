@@ -9,22 +9,23 @@
 
 Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 								Storage_class* 		StA,
-								Note_class* notes ) :
-	Logfacility_class("Keyboard") ,
-	Kbd_base(),
-	keyboardState_class( instr->sds )
+								Note_class* notes )
+	: Logfacility_class("Keyboard")
+	, Kbd_base()
+	, keyboardState_class( instr->sds )
+	, Device_class( instr->sds )
+
 {
 	className 					= Logfacility_class::className;
-	this->instrument 			= instr;
-	this->sds					= instrument->sds;
-	this->StA					= StA;
+	this->instrument_p 			= instr;
+	this->sds_p					= instrument_p->sds;
+	this->sta_p					= StA;
 	this->Kbd_Data				= StA->Data;
-	this->Notes_p				= notes;
-	this->Nlp					= notes->noteline_prefix_default;
-	this->Nlp.nps				= 8;
+	this->notes_p				= notes;
+	this->nlp					= notes->noteline_prefix_default;
+	this->nlp.nps				= 8;
 	Oscgroup.SetWd				( instr->wd_p );
 	Oscgroup.SetScanner			( max_frames );
-//	instr->wd_p->Add_data_ptr	( Osc->typeId, Osc->roleId, StA->Data, &StA->StAparam.size );
 
 	ASSERTION( 	StA->mem_ds.data_blocks == 4*max_frames, "StA->mem_ds.data_blocks",
 				StA->mem_ds.data_blocks  , 4*max_frames);
@@ -32,10 +33,10 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 				StA->StAparam.size  , 4*max_frames);
 }
 
-
-Keyboard_class::~Keyboard_class() = default;
-
-
+Keyboard_class::~Keyboard_class()
+{
+	DESTRUCTOR( className )
+}
 
 void Keyboard_class::gen_chord_data( )
 {
@@ -43,13 +44,11 @@ void Keyboard_class::gen_chord_data( )
 	if ( kbd_note.note_vec.size() == 0 )//Kbd_key.nokey )
 		return;
 	Oscgroup.Data_Reset();
-	uint 	delay_frames 	= sds->noteline_prefix.chord_delay * frames_per_msec;
+	uint 	delay_frames 	= sds_p->noteline_prefix.chord_delay * frames_per_msec;
 	uint8_t n 				= 0;
 	Osc->Set_volume( kbd_volume, FIXED );
 	for ( kbd_note_t note : kbd_note.note_vec )
 	{
-//		Oscgroup.Set_Note_Frequency( instrument->osc->wp.freq, note.frqidx, frqMode );
-
 		Oscgroup.Set_Combine_Frequency( note.frqidx, frqMode );
 		Oscgroup.Phase_Reset();
 		Oscgroup.Run_OSCs( n * delay_frames );
@@ -60,36 +59,38 @@ void Keyboard_class::gen_chord_data( )
 
 void Keyboard_class::Enable( bool is_kbd )
 {
-	enabled = is_kbd;
+	Enabled = is_kbd;
 
 	if( is_kbd )
 	{
-		sds->StA_state[ STA_KEYBOARD ].play 	= true;
-		sds->StA_amp_arr[ STA_KEYBOARD ] 		= 75;
-		sds->mixer_status.kbd					= true;
-		Set_instrument();
+		sds_p->StA_state[ STA_KEYBOARD ].play 	= true;
+		sds_p->StA_amp_arr[ STA_KEYBOARD ] 		= 75;
+		sds_p->mixer_status.kbd					= true;
 		Info( "Keyboard is enabled");
 	}
 	else
 	{
-		sds->StA_state[ STA_KEYBOARD ].play 	= false;
-		sds->StA_amp_arr[ STA_KEYBOARD ] 		= 0;
-		sds->mixer_status.kbd					= false;
+		sds_p->StA_state[ STA_KEYBOARD ].play 	= false;
+		sds_p->StA_amp_arr[ STA_KEYBOARD ] 		= 0;
+		sds_p->mixer_status.kbd					= false;
 	}
 }
 void Keyboard_class::Set_instrument( )
 {
-	if ( not instrument )
-	{
-		Comment( ERROR, "Undefined keyboard instrument");
-		return;
-	}
-	Comment(DEBUG, "Update Instrument ");
-	Oscgroup.Instrument_fromSDS( sds );
-	Oscgroup.SetSlide( sliding * sds->OSC_features.glide_effect );
-	Oscgroup.Set_Duration( max_msec );
-	osc_frames	= Osc->wp.frames;
+	Comment( DEBUG, "Update Instrument ");
 
+	Oscgroup.SetInstrument( sds_p );
+
+	ASSERTION( 		Oscgroup.osc.wp.frqidx == 		instrument_p->Oscgroup.osc.wp.frqidx, "copy osc",
+			(int) 	Oscgroup.osc.wp.frqidx ,  (int) instrument_p->Oscgroup.osc.wp.frqidx);
+	ASSERTION( 		Oscgroup.osc.Connect.frq ==
+					Get_connect_state( OSCID ).frq, "sds_p->connect.frq",
+			(int) 	Oscgroup.osc.Connect.frq,
+			(int)	Get_connect_state( OSCID ).frq );
+
+	// kbd specific settings
+	Oscgroup.SetSlide( sliding * sds_p->OSC_features.glide_effect );
+	Oscgroup.Set_Duration( max_msec );
 }
 
 bool Keyboard_class::decay(  )
@@ -113,7 +114,7 @@ void Keyboard_class::attack()
 		{
 			for( uint i = 0; i<cnt; i++ )
 			{
-				if( not StA->state.forget )
+				if( not sta_p->state.forget )
 					Noteline.append( "-" );
 			}
 			coutf << Noteline << endl ;
@@ -131,11 +132,9 @@ void Keyboard_class::attack()
 
 	show_cnt( duration_counter );
 
-	Set_instrument();
-
 	gen_chord_data();
 
-	StA->Write_data( Osc->Mem.Data );//, max_frames );
+	sta_p->Write_data( Osc->Mem.Data );//, max_frames );
 
 	decayCounter	= attackCounter ;
 
@@ -146,7 +145,7 @@ void Keyboard_class::release(  )
 {
 	if ( Kbd_key.hold )
 	{
-		StA->Write_data( Osc->Mem.Data );
+		sta_p->Write_data( Osc->Mem.Data );
 		cout << "h" ;
 	}
 	return ;
@@ -164,7 +163,7 @@ void Keyboard_class::Set_Kbdnote( key3struct_t key )
 	}
 	else
 	{
-		if( instrument->osc->kbd_trigger )
+		if( instrument_p->osc->kbd_trigger )
 		{
 			attack();
 		}
@@ -173,12 +172,11 @@ void Keyboard_class::Set_Kbdnote( key3struct_t key )
 
 void Keyboard_class::ScanData()
 {
-	StA->scanner.Set_max_len( StA->scanner.mem_range.max );
-	assert( StA->scanner.inc == min_frames );
-	assert( sds->audioframes == StA->scanner.inc );
-	Kbd_Data = StA->scanner.Next();
+//	StA->scanner.Set_max_len( StA->scanner.mem_range.max );
+	assert( sta_p->scanner.inc == min_frames );
+	assert( sds_p->audioframes == sta_p->scanner.inc );
+	Kbd_Data = sta_p->scanner.Next();
 }
-
 
 string Kbd_note_class::setNote( int key )
 {
@@ -245,7 +243,6 @@ string Kbd_note_class::SetChord( char key )
 	string str = Chord;
 	if( chord_keys.contains( key ))
 		str = Chords[key];
-//		cout << ":" << str;
 	return str;
 }
 

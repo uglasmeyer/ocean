@@ -52,18 +52,13 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = OceanGUI_main.cpp moc_Adsrdialog.cpp \
-		moc_File_Dialog_class.cpp \
+SOURCES       =  moc_File_Dialog_class.cpp \
 		moc_Mainwindow.cpp \
-		moc_Sds_dialog_class.cpp \
 		moc_Spectrum_dialog_class.cpp \
 		moc_Rtsp_dialog_class.cpp \
 		moc_Dispatcher.cpp
-OBJECTS       = OceanGUI_main.o \
-		moc_Adsrdialog.o \
-		moc_File_Dialog_class.o \
+OBJECTS       = moc_File_Dialog_class.o \
 		moc_Mainwindow.o \
-		moc_Sds_dialog_class.o \
 		moc_Spectrum_dialog_class.o \
 		moc_Rtsp_dialog_class.o \
 		moc_Dispatcher.o
@@ -137,14 +132,12 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf \
-		OceanGUI.pro Adsrdialog.h \
-		File_Dialog_class.h \
-		Mainwindow.h \
-		Oszilloscopewidget.h \
-		Sds_dialog_class.h \
-		Spectrum_dialog_class.h \
-		Rtsp_dialog_class.h \
-		Dispatcher.h OceanGUI_main.cpp
+		OceanGUI.pro include/File_Dialog_class.h \
+		include/Mainwindow.h \
+		include/Oszilloscopewidget.h \
+		include/Spectrum_dialog_class.h \
+		include/Rtsp_dialog_class.h \
+		include/Dispatcher.h 
 QMAKE_TARGET  = OceanGUI
 DESTDIR       = 
 TARGET        = OceanGUI
@@ -153,7 +146,7 @@ TARGET        = OceanGUI
 first: all
 ####### Build rules
 
-OceanGUI: ui_Adsrdialog.h ui_File_Dialog_class.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_sds_dialog_class.h ui_spectrum_dialog_class.h $(OBJECTS)  
+OceanGUI: ui_File_Dialog_class.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET)  $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: OceanGUI.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang/qmake.conf /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
@@ -320,9 +313,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Adsrdialog.h File_Dialog_class.h Mainwindow.h Oszilloscopewidget.h Sds_dialog_class.h Spectrum_dialog_class.h Rtsp_dialog_class.h Dispatcher.h $(DISTDIR)/
-	$(COPY_FILE) --parents OceanGUI_main.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Adsrdialog.ui File_Dialog_class.ui mainwindow.ui Rtsp_dialog_class.ui sds_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
+	$(COPY_FILE) --parents include/File_Dialog_class.h include/Mainwindow.h include/Oszilloscopewidget.h include/Spectrum_dialog_class.h include/Rtsp_dialog_class.h include/Dispatcher.h $(DISTDIR)/
+	$(COPY_FILE) --parents File_Dialog_class.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -355,16 +347,10 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 	clang++ -pipe -g -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_Adsrdialog.cpp moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Sds_dialog_class.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
+compiler_moc_header_make_all: moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_Adsrdialog.cpp moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Sds_dialog_class.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
-moc_Adsrdialog.cpp: Adsrdialog.h \
-		../include/Ocean.h \
-		moc_predefs.h \
-		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Adsrdialog.h -o moc_Adsrdialog.cpp
-
-moc_File_Dialog_class.cpp: File_Dialog_class.h \
+	-$(DEL_FILE) moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
+moc_File_Dialog_class.cpp: include/File_Dialog_class.h \
 		../include/Logfacility.h \
 		../include/Ocean.h \
 		../include/notes/Notes.h \
@@ -372,15 +358,16 @@ moc_File_Dialog_class.cpp: File_Dialog_class.h \
 		../include/Dynamic.h \
 		../include/String.h \
 		../include/Frequency.h \
+		../include/Exit.h \
 		../include/Table.h \
 		../include/Oscwaveform.h \
 		../include/Instrument.h \
+		../include/data/Device.h \
 		../include/data/Interface.h \
 		../include/Config.h \
 		../include/Configbase.h \
 		../include/Version.h \
 		../include/System.h \
-		../include/Exit.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -389,6 +376,7 @@ moc_File_Dialog_class.cpp: File_Dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -400,13 +388,13 @@ moc_File_Dialog_class.cpp: File_Dialog_class.h \
 		../include/Wavedisplay.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
+		include/Common.h \
 		ui_File_Dialog_class.h \
-		Common.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include File_Dialog_class.h -o moc_File_Dialog_class.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/File_Dialog_class.h -o moc_File_Dialog_class.cpp
 
-moc_Mainwindow.cpp: Mainwindow.h \
+moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/data/Interface.h \
 		../include/Ocean.h \
 		../include/Config.h \
@@ -429,6 +417,7 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -445,38 +434,38 @@ moc_Mainwindow.cpp: Mainwindow.h \
 		../include/data/Appstate.h \
 		../include/notes/Notes.h \
 		../include/Instrument.h \
+		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/App.h \
-		Rtsp_dialog_class.h \
-		ui_Rtsp_dialog_class.h \
-		File_Dialog_class.h \
-		ui_File_Dialog_class.h \
-		Common.h \
 		ui_mainwindow.h \
-		Oszilloscopewidget.h \
-		Spectrum_dialog_class.h \
+		include/File_Dialog_class.h \
+		include/Common.h \
+		ui_File_Dialog_class.h \
+		include/Oszilloscopewidget.h \
+		include/Rtsp_dialog_class.h \
+		ui_Rtsp_dialog_class.h \
+		include/Spectrum_dialog_class.h \
 		ui_spectrum_dialog_class.h \
-		Sds_dialog_class.h \
-		Adsrdialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Mainwindow.h -o moc_Mainwindow.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Mainwindow.h -o moc_Mainwindow.cpp
 
-moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
-		../include/data/Interface.h \
+moc_Spectrum_dialog_class.cpp: include/Spectrum_dialog_class.h \
+		ui_spectrum_dialog_class.h \
 		../include/Ocean.h \
-		../include/Config.h \
+		../include/Spectrum.h \
+		../include/Dynamic.h \
 		../include/Logfacility.h \
+		../include/String.h \
+		../include/Frequency.h \
+		../include/Exit.h \
+		../include/Table.h \
+		../include/Oscwaveform.h \
+		../include/data/Interface.h \
+		../include/Config.h \
 		../include/Configbase.h \
 		../include/Version.h \
 		../include/System.h \
-		../include/String.h \
-		../include/Exit.h \
-		../include/Spectrum.h \
-		../include/Dynamic.h \
-		../include/Frequency.h \
-		../include/Table.h \
-		../include/Oscwaveform.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/SharedDataSegment.h \
@@ -485,40 +474,7 @@ moc_Sds_dialog_class.cpp: Sds_dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
-		../include/Oscbase.h \
-		../include/Wavedisplay_base.h \
-		../include/notes/Notesbase.h \
-		../include/Keyboard_base.h \
-		../include/data/Register.h \
-		../include/data/EventQue.h \
-		moc_predefs.h \
-		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Sds_dialog_class.h -o moc_Sds_dialog_class.cpp
-
-moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
-		ui_spectrum_dialog_class.h \
-		../include/Ocean.h \
-		../include/Spectrum.h \
-		../include/Dynamic.h \
-		../include/Logfacility.h \
-		../include/String.h \
-		../include/Frequency.h \
-		../include/Table.h \
-		../include/Oscwaveform.h \
-		../include/data/Interface.h \
-		../include/Config.h \
-		../include/Configbase.h \
-		../include/Version.h \
-		../include/System.h \
-		../include/Exit.h \
-		../include/data/Semaphore.h \
-		../include/Time.h \
-		../include/data/SharedDataSegment.h \
-		../include/EventKeys.h \
-		../include/Mixerbase.h \
-		../include/data/Memory.h \
-		../include/data/Memorybase.h \
-		../include/data/Statistic.h \
+		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -527,12 +483,12 @@ moc_Spectrum_dialog_class.cpp: Spectrum_dialog_class.h \
 		../include/data/EventQue.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
-		Common.h \
+		include/Common.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Spectrum_dialog_class.h -o moc_Spectrum_dialog_class.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Spectrum_dialog_class.h -o moc_Spectrum_dialog_class.cpp
 
-moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
+moc_Rtsp_dialog_class.cpp: include/Rtsp_dialog_class.h \
 		ui_Rtsp_dialog_class.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
@@ -557,6 +513,7 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -566,76 +523,72 @@ moc_Rtsp_dialog_class.cpp: Rtsp_dialog_class.h \
 		../include/data/Appstate.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Rtsp_dialog_class.h -o moc_Rtsp_dialog_class.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Rtsp_dialog_class.h -o moc_Rtsp_dialog_class.cpp
 
-moc_Dispatcher.cpp: Dispatcher.h \
-		Mainwindow.h \
-		../include/data/Interface.h \
+moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/Ocean.h \
-		../include/Config.h \
 		../include/Logfacility.h \
+		../include/data/Semaphore.h \
+		../include/Config.h \
 		../include/Configbase.h \
 		../include/Version.h \
 		../include/System.h \
 		../include/String.h \
 		../include/Exit.h \
+		../include/Time.h \
+		../include/Table.h \
+		../include/data/DataWorld.h \
+		../include/data/Interface.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Table.h \
 		../include/Oscwaveform.h \
-		../include/data/Semaphore.h \
-		../include/Time.h \
 		../include/data/SharedDataSegment.h \
 		../include/EventKeys.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
+		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
 		../include/Keyboard_base.h \
 		../include/data/Register.h \
 		../include/data/EventQue.h \
+		../include/data/Appstate.h \
+		include/Mainwindow.h \
 		../include/Mixer.h \
 		../include/Osc.h \
 		../include/External.h \
 		../include/Progressbar.h \
 		../include/Wav.h \
 		../include/Wavedisplay.h \
-		../include/data/DataWorld.h \
-		../include/data/Appstate.h \
 		../include/notes/Notes.h \
 		../include/Instrument.h \
+		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/App.h \
-		Rtsp_dialog_class.h \
-		ui_Rtsp_dialog_class.h \
-		File_Dialog_class.h \
-		ui_File_Dialog_class.h \
-		Common.h \
 		ui_mainwindow.h \
-		Oszilloscopewidget.h \
-		Spectrum_dialog_class.h \
+		include/File_Dialog_class.h \
+		include/Common.h \
+		ui_File_Dialog_class.h \
+		include/Oszilloscopewidget.h \
+		include/Rtsp_dialog_class.h \
+		ui_Rtsp_dialog_class.h \
+		include/Spectrum_dialog_class.h \
 		ui_spectrum_dialog_class.h \
-		Sds_dialog_class.h \
-		Adsrdialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Dispatcher.h -o moc_Dispatcher.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Dispatcher.h -o moc_Dispatcher.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_Adsrdialog.h ui_File_Dialog_class.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_sds_dialog_class.h ui_spectrum_dialog_class.h
+compiler_uic_make_all: ui_File_Dialog_class.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_Adsrdialog.h ui_File_Dialog_class.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_sds_dialog_class.h ui_spectrum_dialog_class.h
-ui_Adsrdialog.h: Adsrdialog.ui \
-		/usr/lib/qt6/libexec/uic
-	/usr/lib/qt6/libexec/uic Adsrdialog.ui -o ui_Adsrdialog.h
-
+	-$(DEL_FILE) ui_File_Dialog_class.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
 ui_File_Dialog_class.h: File_Dialog_class.ui \
 		/usr/lib/qt6/libexec/uic
 	/usr/lib/qt6/libexec/uic File_Dialog_class.ui -o ui_File_Dialog_class.h
@@ -647,10 +600,6 @@ ui_mainwindow.h: mainwindow.ui \
 ui_Rtsp_dialog_class.h: Rtsp_dialog_class.ui \
 		/usr/lib/qt6/libexec/uic
 	/usr/lib/qt6/libexec/uic Rtsp_dialog_class.ui -o ui_Rtsp_dialog_class.h
-
-ui_sds_dialog_class.h: sds_dialog_class.ui \
-		/usr/lib/qt6/libexec/uic
-	/usr/lib/qt6/libexec/uic sds_dialog_class.ui -o ui_sds_dialog_class.h
 
 ui_spectrum_dialog_class.h: spectrum_dialog_class.ui \
 		/usr/lib/qt6/libexec/uic
@@ -666,72 +615,11 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 
 ####### Compile
 
-OceanGUI_main.o: OceanGUI_main.cpp Mainwindow.h \
-		../include/data/Interface.h \
-		../include/Ocean.h \
-		../include/Config.h \
-		../include/Logfacility.h \
-		../include/Configbase.h \
-		../include/Version.h \
-		../include/System.h \
-		../include/String.h \
-		../include/Exit.h \
-		../include/Spectrum.h \
-		../include/Dynamic.h \
-		../include/Frequency.h \
-		../include/Table.h \
-		../include/Oscwaveform.h \
-		../include/data/Semaphore.h \
-		../include/Time.h \
-		../include/data/SharedDataSegment.h \
-		../include/EventKeys.h \
-		../include/Mixerbase.h \
-		../include/data/Memory.h \
-		../include/data/Memorybase.h \
-		../include/data/Statistic.h \
-		../include/Oscbase.h \
-		../include/Wavedisplay_base.h \
-		../include/notes/Notesbase.h \
-		../include/Keyboard_base.h \
-		../include/data/Register.h \
-		../include/data/EventQue.h \
-		../include/Mixer.h \
-		../include/Osc.h \
-		../include/External.h \
-		../include/Progressbar.h \
-		../include/Wav.h \
-		../include/Wavedisplay.h \
-		../include/data/DataWorld.h \
-		../include/data/Appstate.h \
-		../include/notes/Notes.h \
-		../include/Instrument.h \
-		../include/Oscgroup.h \
-		../include/App.h \
-		Rtsp_dialog_class.h \
-		ui_Rtsp_dialog_class.h \
-		File_Dialog_class.h \
-		ui_File_Dialog_class.h \
-		Common.h \
-		ui_mainwindow.h \
-		Oszilloscopewidget.h \
-		Spectrum_dialog_class.h \
-		ui_spectrum_dialog_class.h \
-		Sds_dialog_class.h \
-		Adsrdialog.h \
-		Dispatcher.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o OceanGUI_main.o OceanGUI_main.cpp
-
-moc_Adsrdialog.o: moc_Adsrdialog.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Adsrdialog.o moc_Adsrdialog.cpp
-
 moc_File_Dialog_class.o: moc_File_Dialog_class.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_File_Dialog_class.o moc_File_Dialog_class.cpp
 
 moc_Mainwindow.o: moc_Mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Mainwindow.o moc_Mainwindow.cpp
-
-moc_Sds_dialog_class.o: moc_Sds_dialog_class.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Sds_dialog_class.o moc_Sds_dialog_class.cpp
 
 moc_Spectrum_dialog_class.o: moc_Spectrum_dialog_class.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Spectrum_dialog_class.o moc_Spectrum_dialog_class.cpp
