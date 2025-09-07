@@ -10,26 +10,25 @@
 #define GUIINTERFACE_H_
 
 #include <Ocean.h>
+#include <Logfacility.h>
+#include <data/Sdsbase.h>
+#include <data/SharedDataSegment.h>
 #include <Config.h>
 #include <Spectrum.h>
 #include <Logfacility.h>
 #include <Version.h>
 #include <data/Semaphore.h>
-#include <data/SharedDataSegment.h>
 #include <data/Register.h>
 #include <data/Memory.h>
 #include <EventKeys.h>
 #include <data/EventQue.h>
 
-class Interface_class :
-		virtual public Logfacility_class,
-		sdsstate_struct
+class Interface_class
+	: virtual public 		Logfacility_class
+	, 						sdsstate_struct
 {
-
+	string					className		= "";
 public:
-
-//	Frequency_class 		Frequency 		{};
-//	Spectrum_class			Spectrum 		{};
 
 	interface_t 			ifd_data 	= interface_struct();
 	Shm_base				SHM			{ sizeof( ifd_data ) };
@@ -42,7 +41,7 @@ public:
 	bool					capture_flag= false;
 	string					dumpFile	= "";
 
-	Interface_class( char appid, uint8_t sdsid,  Config_class*, Semaphore_class* );
+			Interface_class( char appid, uint8_t sdsid,  Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
 
 	void	Setup_SDS( uint sdsid, key_t key );
@@ -53,21 +52,7 @@ public:
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd( );
-	bool 	reject(char status, int id )
-	{
-		if (( status == RUNNING ) and ( id != COMPID ))
-		{
-/*			if( previous_status != status )
-				cout << "Observer mode ON" << endl;
-			previous_status = status;
-*/
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	};
+	bool 					reject		(char status, int id );
 
 	template < typename V >
 	void Set( V& ref, V value )
@@ -75,16 +60,14 @@ public:
 		if ( reject( addr->Composer, AppId ) ) return;
 		ref = value;
 	};
-	void Event( uint8_t event )
-	{
-		Eventque.add( event );
-	}
+	void Event( uint8_t event );
 	void Test_interface();
 
 
 private:
 	size_t			sds_size		= sizeof( ifd_data );
 	char 			previous_status = OFFLINE;
+
 
 };
 

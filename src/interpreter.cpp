@@ -36,17 +36,17 @@ Interpreter_class::Interpreter_class( Dataworld_class* data )
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
 
-	main_view.wf 		= &sds->OSC_spectrum.wfid[0];
+	main_view.wf 		= &sds->spectrum_arr[OSCID].wfid[0];
 	main_view.amp 		= &sds->StA_amp_arr[STA_INSTRUMENT];
-	main_view.frqidx 	= &sds->OSC_wp.frqidx;
+	main_view.frqidx 	= &sds->spectrum_arr[OSCID].frqidx[0];
 
-	vco_view.wf 		= &sds->VCO_spectrum.wfid[0];
-	vco_view.amp 		= &sds->VCO_wp.volume;
-	vco_view.frqidx 	= &sds->VCO_wp.frqidx;
+	vco_view.wf 		= &sds->spectrum_arr[VCOID].wfid[0];
+	vco_view.amp 		= &sds->spectrum_arr[VCOID].volidx[0];
+	vco_view.frqidx 	= &sds->spectrum_arr[VCOID].frqidx[0];
 
-	fmo_view.wf 		= &sds->FMO_spectrum.wfid[0];
-	fmo_view.amp 		= &sds->FMO_wp.volume;
-	fmo_view.frqidx 	= &sds->FMO_wp.frqidx;
+	fmo_view.wf 		= &sds->spectrum_arr[FMOID].wfid[0];
+	fmo_view.amp 		= &sds->spectrum_arr[FMOID].volidx[0];
+	fmo_view.frqidx 	= &sds->spectrum_arr[FMOID].frqidx[0];
 
 }
 
@@ -437,8 +437,8 @@ void Interpreter_class::Add( vector_str_t arr )
 	Instrument( vec );
 	vec = {"notes" , "load" , note };			// UPDATENOTESKEY
 	Notes( vec );
-	vec = { "rec", "notes", ma_id };	//PLAYNOTESREC_ON_KEY
-	RecStA( vec );
+//	vec = { "rec", "notes", ma_id };	//PLAYNOTESREC_ON_KEY
+//	RecStA( vec );
 }
 
 void Interpreter_class::Osc( vector_str_t arr )
@@ -512,8 +512,8 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
-		Processor_class::Push_ifd( &sds->OSC_connect.frq, FMOID, "reset fmo connect" );
-		Processor_class::Push_ifd( &sds->OSC_connect.vol, VCOID, "reset vco connect" );
+		Processor_class::Push_ifd( &sds->connect_arr[OSCID].frq, OSCID, "reset fmo connect" );
+		Processor_class::Push_ifd( &sds->connect_arr[OSCID].vol, OSCID, "reset vco connect" );
 		Processor_class::Push_key( CONNECTOSC_KEY , "reset main"  );
 		return;
 	}
@@ -553,7 +553,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		expect = { "volume [%]" };
 		int amp = pop_int(0,100);
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
-		Processor_class::Push_ifd( &sds->OSC_connect.vol , VCOID, "connect vol->osc" );
+		Processor_class::Push_ifd( &sds->connect_arr[OSCID].vol , VCOID, "connect vol->osc" );
 
 		if ( loop ) // TODO-working
 		{
@@ -579,19 +579,19 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		freq = Frequency.Index( f );
 
 		Comment( INFO, "Set frequency " + to_string(freq) + " for " + view.name );
-		Processor_class::Push_ifd( &sds->OSC_connect.frq , FMOID, "connect frq->osc" );
+		Processor_class::Push_ifd( &sds->connect_arr[OSCID].frq , FMOID, "connect frq->osc" );
 
 		if ( loop )
 		{
 			Processor_class::Push_ifd( &sds->frq_slidermode, SLIDE, "slide mode" );
-			Processor_class::Push_ifd( &sds->OSC_features.glide_effect , 100, "long frq slide" );
+			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 100, "long frq slide" );
 			Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
 		}
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
 			Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
-			Processor_class::Push_ifd( &sds->OSC_features.glide_effect , 0, "frq slide off" );
+			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 0, "frq slide off" );
 
 			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			Pause( { "pause", duration });
@@ -765,7 +765,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		int freq = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_features.glide_effect, freq, "soft freq"  );
+		Processor_class::Push_ifd( &sds->features[OSCID].glide_effect, freq, "soft freq"  );
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}
@@ -781,7 +781,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 			EXCEPTION( "wrong beat duration" );
 		}
 
-		Processor_class::Push_ifd( &sds->OSC_adsr.bps, bps, "beat duration" );
+		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].bps, bps, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
 		return;
 	}
@@ -789,7 +789,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		int attack = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_adsr.attack, attack, "adsr attack" );
+		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].attack, attack, "adsr attack" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr attack" );
 		return;
 	}
@@ -797,7 +797,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
 		uint8_t decay = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_adsr.decay, decay, "adsr decay" );
+		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].decay, decay, "adsr decay" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr decay" );
 		return;
 	}
@@ -805,7 +805,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		int hall = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->OSC_adsr.hall, hall, "hall"  );
+		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].hall, hall, "hall"  );
 		Processor_class::Push_key( ADSR_KEY,  "set hall" );
 		return;
 	}
@@ -813,7 +813,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		int dial = pop_int(0,100);
-		Processor_class::Push_ifd( &sds->VCO_wp.PMW_dial, dial, "pmw" );
+		Processor_class::Push_ifd( &sds->features[VCOID].PMW_dial, dial, "pmw" );
 		Processor_class::Push_key( PWMDIALKEY, "set pmw" );
 		return;
 	}

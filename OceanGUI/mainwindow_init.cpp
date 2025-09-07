@@ -168,21 +168,21 @@ void MainWindow::initGuiVectors()
     int max = frqarr_range.max - 2*oct_steps;  // refers to keyboard octave
     sl_frqidx_vec =
     {
-   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->VCO_wp.frqidx, max },
-   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &Sds->addr->FMO_wp.frqidx, max },
-   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &Sds->addr->OSC_wp.frqidx, frqarr_range.max   }
+   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->spectrum_arr[VCOID].frqidx[0], max },
+   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &Sds->addr->spectrum_arr[FMOID].frqidx[0], max },
+   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &Sds->addr->spectrum_arr[OSCID].frqidx[0], frqarr_range.max   }
     };
     sl_volume_vec =
     {
-   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->VCO_wp.volume, volidx_range.max },
-   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->FMO_wp.volume, volidx_range.max },
+   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->spectrum_arr[VCOID].volidx[0], volidx_range.max },
+   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->spectrum_arr[FMOID].volidx[0], volidx_range.max },
    		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &sds_master->Master_Amp	 , volidx_range.max }
     };
     sB_lbl_vec =
     {
-        { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &Sds->addr->VCO_spectrum.wfid[0] },
-       	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->FMO_spectrum.wfid[0] },
-       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &Sds->addr->OSC_spectrum.wfid[0] }
+        { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &Sds->addr->spectrum_arr[VCOID].wfid[0] },
+       	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->spectrum_arr[FMOID].wfid[0] },
+       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &Sds->addr->spectrum_arr[OSCID].wfid[0] }
     };
 }
 

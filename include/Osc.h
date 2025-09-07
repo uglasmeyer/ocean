@@ -41,6 +41,7 @@ public:
 
 	void 			Connect_vol_data	( Oscillator* ); // connect the vco data of itr to this osc
 	void 			Connect_frq_data	( Oscillator* );
+	void 			Set_connection		( Oscillator* frq, Oscillator* vol );
 	void 			Reset_frq_data		();
 	void 			Reset_vol_data		();
 
@@ -65,7 +66,7 @@ private:
 
 	bool 			longnote			= false; // set trigger for long notes
 	osc_roles_t		OscRole				= osc_struct();
-
+	const float		fmo_scale			= 0.003;//0.001;
 	void 			mem_init			();
 	void			self_Test			();
 

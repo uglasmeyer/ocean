@@ -8,18 +8,19 @@
 #ifndef DATA_DEVICE_H_
 #define DATA_DEVICE_H_
 
-
-#include <data/Interface.h>
+#include <Logfacility.h>
+#include <Adsr.h>
+#include <data/SharedDataSegment.h>
 
 class Device_class
 	: virtual public 	Logfacility_class
 	, virtual			osc_struct
 {
 	string 				className 				= "";
-	vector<connectId_t*>sds_connect_vec			{ 0,0,0 } ;
+
+	interface_t* 		sds_p;
 
 public:
-	interface_t* 		sds_p;
 	typedef struct connectName_struct
 	{
 		string frq="";
@@ -29,13 +30,15 @@ public:
 						Device_class			( interface_t* sds );
 	virtual 			~Device_class			();
 	connectId_t 		Get_connect_state		( char oscid );
-	void 				Set_connect_state		( char oscid, connectId_t connect );
-	void 				Set_sds_vec				( interface_t* sds );
+	void 				Set_sds_connect_state	( char oscid, connectId_t connect );
+	void 				Set_sds_adsr			( char oscid, adsr_t adsr );
+
+	void 				Set_sds					( interface_t* sds );
 	connectName_t		Get_connection_names	( char oscid );
 	void 				Show_Connection_names	( char oscid );
+	void 				SelfTest				();
 
 private:
-	void 				selfTest				();
 };
 
 typedef Device_class::connectName_t		connectName_t;

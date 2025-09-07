@@ -46,10 +46,15 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
 
 void Oscillator::operator= ( Oscillator& osc)
 {
-    Setwp( osc.wp );
+/*    Setwp( osc.wp );
     Set_feature( osc.feature );
     Set_adsr( osc.Get_adsr() );
     Set_spectrum( osc.spectrum );
+*/
+	this->wp = osc.wp;
+	this->spectrum = osc.spectrum;
+	Set_adsr( osc.Get_adsr() );
+    Set_feature( osc.features );
 }
 
 void Oscillator::self_Test()
@@ -81,36 +86,41 @@ void Oscillator::Connect_vol_data( Oscillator* sec)
 {	// connect this volume with osc data
 	if ( this->typeId == sec->typeId )
 	{
-		this->vp.Mem 		= &Mem_vco;
-		this->vp.volume		= 0;
+		this->vp.Mem 	= &Mem_vco;
+		this->vp.volume	= 0;
 	}
 	else
 	{
-		this->vp.Mem		= &sec->Mem;
-		this->vp.volume 	= sec->wp.volume;
+		this->vp.Mem	= &sec->Mem;
+		this->vp.volume = sec->spectrum.volidx[0];
 	}
 	this->Connect.vol 	= sec->typeId;
-	this->vp.osc_id = sec->typeId;
-	this->vp.name 	= sec->osctype_name;
+	this->vp.osc_id 	= sec->typeId;
+	this->vp.name 		= sec->osctype_name;
 }
 
 void Oscillator::Connect_frq_data( Oscillator* sec )
 {	// connect this frequency with osc data
 	if ( this->typeId == sec->typeId ) // reset this
 	{
-		this->fp.Mem 		= &Mem_fmo;
-		this->fp.volume 	= 0;
+		this->fp.Mem 	= &Mem_fmo;
+		this->fp.volume = 0;
 	}
 	else
 	{
-		this->fp.Mem		= &sec->Mem;
-		this->fp.volume 	= sec->wp.volume;
+		this->fp.Mem	= &sec->Mem;
+		this->fp.volume = sec->spectrum.volidx[0];
 	}
 	this->Connect.frq 	= sec->typeId;
-	this->fp.osc_id = sec->typeId;
-	this->fp.name 	= sec->osctype_name;
+	this->fp.osc_id 	= sec->typeId;
+	this->fp.name 		= sec->osctype_name;
 }
 
+void Oscillator::Set_connection( Oscillator* oscfp, Oscillator* oscvp )
+{
+	Connect_frq_data( oscfp );
+	Connect_vol_data( oscvp );
+}
 void Oscillator::Reset_vol_data()
 {
 	Connect_vol_data( this );
@@ -179,8 +189,8 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Data_t*				fmoData		= this->fp.Mem->Data;//+ frame_offset;// * sizeof_data;
 	Data_t* 			vcoData		= this->vp.Mem->Data;//+ frame_offset;// * sizeof_data;
 
-	float 				fmo_vol 	= 0.001*(float)this->fp.volume;
-	float				vol_per_cent= this->wp.volume * 0.01; // the volume of the main osc is managed by the mixer!
+	float 				fmo_vol 	= fmo_scale* (float)this->fp.volume;
+	float				vol_per_cent= this->spectrum.volidx[0] * 0.01; // the volume of the main osc is managed by the mixer!
 
 	if ( is_osc_type )
 		if ( not has_notes_role )
@@ -192,12 +202,12 @@ void Oscillator::OSC (  buffer_t frame_offset )
 		phase = default_phase;
 
 	Data_t 	vco_adjust 	= max_data_amp / 2;
-	Data_t	vol_adjust	= ( vco_adjust * wp.adjust ) * 0.01;
+	Data_t	vol_adjust	= ( vco_adjust * features.adjust ) * percent;
 
 	Sum( spectrum );
-	DynFrequency.SetDelta( feature.glide_effect );
+	DynFrequency.SetDelta( features.glide_effect );
 	param_t 	param 		= param_struct();
-				param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
+				param.pmw	= 1.0 + (float)features.PMW_dial * percent;
 	frq_t		frq			= 0.0;
 	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
 	{
@@ -270,13 +280,13 @@ void Oscillator::Test()
 
 	vector_str_t arr = { "TYPE","VCO","Sinus","17","2000","100","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
-	float f = GetFrq( wp.frqidx);
+	float f = GetFrq( spectrum.frqidx[0] );
 	ASSERTION( fcomp( f, 8) , "Frequency", f, 8 );
 	Setwp_frames( max_msec );
 
 	ASSERTION( fcomp( oct_base_freq, GetFrq( C0 )), "osc_base_freq" , oct_base_freq, GetFrq( C0 ));
 	spectrum 	= default_spectrum;
-	feature 		= feature_struct();
+	features 	= feature_struct();
 
 	longnote = true;
 	adsr_t adsr = default_adsr;
@@ -306,8 +316,9 @@ void Oscillator::Test()
 
 	testosc = *this; // test copy constructor
 
-	float fthis = GetFrq( this->wp.frqidx );
-	float ftest = GetFrq( testosc.wp.frqidx);
+	float fthis = GetFrq( this->spectrum.frqidx[0] );
+	float ftest = GetFrq( testosc.spectrum.frqidx[0]);
+	ASSERTION( fcomp( 220, fthis) , "copy constructor", 220 , fthis );
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );
 
 	TEST_END( className );

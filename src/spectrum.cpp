@@ -197,7 +197,6 @@ void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
 	Table.PrintHeader();
 	Table.AddRow( 	spectrumTag[SPEV], OscRoleTag,
 		(int)spec.volidx[0], (int)spec.volidx[1], (int)spec.volidx[2], (int)spec.volidx[3],	(int)spec.volidx[4]);
-//		(float)spec.vol[0], (float)spec.vol[1], (float)spec.vol[2], (float)spec.vol[3],	(float)spec.vol[4]);
 	Table.AddRow( 	spectrumTag[SPEF], OscRoleTag,
 		(int)spec.frqidx[0], (int)spec.frqidx[1], (int)spec.frqidx[2], (int)spec.frqidx[3],	(int)spec.frqidx[4]);
 	Table.AddRow( 	spectrumTag[SPEW], OscRoleTag,

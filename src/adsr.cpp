@@ -123,7 +123,7 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 
 
 	param_t			param 		= param_struct();
-					param.pmw	= 1.0 + (float)wp.PMW_dial * 0.01;
+					param.pmw	= 1.0 + (float)features.PMW_dial * 0.01;
 	spectrum_t		spec 		= adsr_data.spec;
 
 	for ( size_t channel = 1; channel < spec_arr_len; channel++ )
@@ -137,10 +137,11 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 			float 			dT 			= param.maxphi / bframes;
 							param.dphi	= dT * spec.frqadj[ channel ];// * adsr_data.bps;
 							param.phi	= 0.0;
-							param.amp	= spec.vol[ channel ] / adsrFunction_vec[ wfid ].width  ;
+							param.amp	= spec.volidx[ channel ] * percent/adsrFunction_vec[ wfid ].width;
+							//spec.vol[ channel ] / adsrFunction_vec[ wfid ].width  ;
 			for ( buffer_t n = 0; n < bframes ; n++ )
 			{
-				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] + fnc( param );
+				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] * fnc( param );
 				param.phi			= param.phi + param.dphi;
 				param.phi 			= MODPHI( param.phi, param.maxphi );
 			}
@@ -167,7 +168,7 @@ void ADSR_class::Set_beatcursor( buffer_t cursor )
 
 void ADSR_class::Set_feature( feature_t f )
 {
-	feature = f;
+	features = f;
 }
 void ADSR_class::Set_bps()
 {
@@ -184,6 +185,7 @@ void ADSR_class::Set_bps()
 		else
 			beat_frames = 0;
 	}
+	adsrOSC( beat_frames );
 
 }
 void ADSR_class::Set_adsr_spec	( spectrum_t spec )

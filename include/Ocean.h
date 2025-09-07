@@ -153,15 +153,10 @@ constexpr T check_cycle( range_T<T> r, T val, string err  )
 {
 	if( r.max == 0 ) return 0;
 	if( val < r.min )
-	{
-		cout.flush() << "WARNING: " << err
-									<< ": "
-									<< val
-									<< " adjusted to min boundaries "
-									<< r.min << endl;
-		return val + r.max;
-	}
-	return val % r.max;
+		return r.max;
+	if ( val > r.max)
+		return val % r.max;//r.min;//val - r.max;
+	return val;
 }
 
 template<typename T>
@@ -248,11 +243,12 @@ typedef struct osc_struct
 	enum { VCOID, FMOID, OSCID };
 } osc_roles_t;
 const  vector<char> oscIds  =
-	{
-			osc_struct::VCOID,
-			osc_struct::FMOID,
-			osc_struct::OSCID
-	};
+{
+	osc_struct::VCOID,
+	osc_struct::FMOID,
+	osc_struct::OSCID
+};
+#define OSCIDSIZE 3
 
 const vector<string> slidermodes =
 {

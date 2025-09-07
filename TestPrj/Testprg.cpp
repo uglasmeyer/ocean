@@ -1,6 +1,7 @@
 //#include <Synthesizer.h>
 #include <Appsymbols.h>
-#include <App.h>
+#include <data/Sdsbase.h>
+
 void exit_proc( int s )
 {
 	Log.Set_Loglevel( DBG2, true );
@@ -20,6 +21,6 @@ int main( int argc, char* argv[] )
 
 */
 //	base_t 	base { 5, "five" };
-
+sdsstate_struct b;
 return 0;
 }

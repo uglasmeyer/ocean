@@ -39,12 +39,8 @@ typedef struct bps_struct
 typedef	struct wave_struct
 { // SDS related
 
-	uint8_t		frqidx		= A3;
-	frq_t		freq		= 220;
-	uint8_t 	volume		= osc_default_volume; 	// range [0..100];
-	uint8_t		PMW_dial 	= 50;
+	frq_t		freq		= frqArray[A3];
 	uint16_t	msec		= max_msec; 	// min_milli_sec or max_milli_sec
-	uint8_t		adjust		= 0; // used by vco and fmo, osc = 0
 	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
 
@@ -67,7 +63,26 @@ typedef struct vco_struct
 typedef struct feature_struct
 { // SDS related. Is the same for all OSCs
 	uint8_t glide_effect= 0;
+	uint8_t	adjust		= 0; // used by vco and fmo, osc = 0
+	uint8_t	PMW_dial 	= 50;
 } feature_t;
+
+typedef struct Connect_struct
+{ // SDS related
+	char	vol = -1;
+	char	frq = -1;
+} connectId_t;
+constexpr connectId_t default_connect( char oscid )
+{
+	return { oscid, oscid };
+};
+constexpr bool operator==( const connectId_t& lhs, const connectId_t& rhs )
+{
+	if((lhs.frq == rhs.frq) and ( lhs.vol == rhs.vol ))
+		return true;
+	else
+		return false;
+};
 
 class Oscillator_base :
 	virtual public Logfacility_class,
@@ -90,22 +105,10 @@ public:
 	bool			has_instr_role 	= false;
 
 
-	struct Connect_struct
-	{ // SDS related
-		char	vol = -1;
-		char	frq = -1;
-	};
 
-	Connect_struct	Connect		= Connect_struct();
+	connectId_t	Connect		= Connect_struct();
 
-	friend bool operator==( const Connect_struct& lhs, const Connect_struct& rhs )
-			{
-				if((lhs.frq == rhs.frq) and ( lhs.vol == rhs.vol ))
-					return true;
-				else
-					return false;
-			};
-	feature_t 		feature 	= feature_struct();
+	feature_t 		features 	= feature_struct();
 	wave_t 			wp 			= wave_struct();
 	fmo_t 			fp 			= fmo_struct();
 	vco_t 			vp 			= vco_struct();
@@ -138,12 +141,10 @@ private:
 
 }; // close class Oscillator_base
 
-typedef Oscillator_base::Connect_struct	connectId_t;
 
-constexpr connectId_t default_connect( char oscid )
-{
-	return { oscid, oscid };
-}
+
+
+
 
 
 #endif /* OSCBASE_H_ */

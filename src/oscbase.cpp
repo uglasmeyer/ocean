@@ -19,7 +19,7 @@ Oscillator_base::Oscillator_base( char osc_type ) :
 {
 	this->spectrum.osc 	= osc_type;
 	typeId				= osc_type;
-	Connect				= default_connect( osc_type );
+	Connect				= { osc_type, osc_type };
 	this->className		= Logfacility_class::className;
 };
 
@@ -38,28 +38,26 @@ uint8_t Oscillator_base::Set_frequency( string frqName, uint mode )
 
 uint8_t Oscillator_base::Set_frequency( int arridx, uint mode )
 {
-	wp.frqidx 			= DynFrequency.SetupFrq( arridx, mode );
-	wp.freq				= GetFrq( wp.frqidx );
+	uint8_t frqidx		= DynFrequency.SetupFrq( arridx, mode );
+	wp.freq				= GetFrq( frqidx );
 	spectrum.frqadj[0] 	= Frqadj(0, 0);
-	spectrum.frqidx[0]	= wp.frqidx;
-
-	return wp.frqidx;
+	spectrum.frqidx[0]  = frqidx;
+	return frqidx;
 }
 
 void Oscillator_base::Set_volume( int vol, uint mode )
 {
-	wp.volume 			= check_range( volidx_range, vol, "Set_volume" );
+	spectrum.volidx[0] 	= check_range( volidx_range, vol, "Set_volume" );
 	spectrum.vol[0] 	= (float)vol * percent;
-	spectrum.volidx[0]	= vol;
 }
 void Oscillator_base::Set_pmw( uint8_t pmw )
 {
-	wp.PMW_dial = pmw;
+	features.PMW_dial = pmw;
 }
 
 void Oscillator_base::Set_glide( uint value )
 {
-	feature.glide_effect = value;
+	features.glide_effect = value;
 }
 
 void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
@@ -71,10 +69,12 @@ void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
 
 void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 {
-	this->spectrum 	= spectrum;
 	Set_frequency	( spectrum.frqidx[0], FIXED );
 	Set_volume		( spectrum.volidx[0], FIXED );
+	this->spectrum 	= spectrum;
+//	Set_waveform	( spectrum.wfid );
 }
+
 
 void Oscillator_base::Line_interpreter( vector_str_t arr )
 {
@@ -91,9 +91,9 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	msec 			= Str.secure_stoi(arr[4]);
 	wp.msec 		= msec;
 	wp.frames		= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
-	wp.volume 		= Str.secure_stoi(arr[5]);
-	feature.glide_effect = Str.secure_stoi( arr[13] );
-	wp.PMW_dial 	= Str.secure_stoi( arr[14] );
+	spectrum.volidx[0] 		= Str.secure_stoi(arr[5]);
+	features.glide_effect = Str.secure_stoi( arr[13] );
+	features.PMW_dial 	= Str.secure_stoi( arr[14] );
 
 	return ;
 };
@@ -107,9 +107,9 @@ void Oscillator_base::Get_sound_stack( Table_class* T )
 				vp.name,
 				fp.name,
 				Get_waveform_str( spectrum.wfid[0] ),
-				(int) wp.volume,
+				(int) spectrum.volidx[0],
 				"%",
-				GetFrq( wp.frqidx),
+				GetFrq( spectrum.frqidx[0]),
 				"Hz"
 			);
 }

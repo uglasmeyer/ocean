@@ -23,6 +23,10 @@ typedef struct kbd_state_struct
 	uint			flats					= 0; 	// range(0 .. 2 ) notebase::sharp_pitch
 	bool			ADSR_flag				= true;	// apply ADSR data
 	bool			sliding					= false;// use wp.glide on frequency
+	char			trigger					= 0;	// record trigger is inactive
+													// 1 Wait for event
+													// 2 scan pos reached the begin of the sta buffer
+
 } kbd_state_t;
 
 typedef struct note_value_struct
@@ -35,6 +39,7 @@ typedef struct kbd_note_struct
 {
 	int 			frqidx;
 	string			name;
+
 	kbd_note_struct( int oct, int pos )
 	{
 		step 	= pos;
@@ -53,11 +58,10 @@ typedef struct kbd_note_struct
 	~kbd_note_struct() = default;
 	string show()
 	{
-		stringstream strs {};
-		strs << "|" << name ;
-		coutf << strs.str();
-		return strs.str();
+		coutf << name;
+		return name;
 	}
+
 } kbd_note_t;
 
 #endif /* KEYBOARD_BASE_H_ */

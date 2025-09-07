@@ -13,7 +13,6 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 	: Logfacility_class("Keyboard")
 	, Kbd_base()
 	, keyboardState_class( instr->sds )
-	, Device_class( instr->sds )
 
 {
 	className 					= Logfacility_class::className;
@@ -24,6 +23,7 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 	this->notes_p				= notes;
 	this->nlp					= notes->noteline_prefix_default;
 	this->nlp.nps				= 8;
+	max_noteline_cnt					= nlp.nps * max_sec * 4;
 	Oscgroup.SetWd				( instr->wd_p );
 	Oscgroup.SetScanner			( max_frames );
 
@@ -81,22 +81,14 @@ void Keyboard_class::Set_instrument( )
 
 	Oscgroup.SetInstrument( sds_p );
 
-	ASSERTION( 		Oscgroup.osc.wp.frqidx == 		instrument_p->Oscgroup.osc.wp.frqidx, "copy osc",
-			(int) 	Oscgroup.osc.wp.frqidx ,  (int) instrument_p->Oscgroup.osc.wp.frqidx);
-	ASSERTION( 		Oscgroup.osc.Connect.frq ==
-					Get_connect_state( OSCID ).frq, "sds_p->connect.frq",
-			(int) 	Oscgroup.osc.Connect.frq,
-			(int)	Get_connect_state( OSCID ).frq );
-
 	// kbd specific settings
-	Oscgroup.SetSlide( sliding * sds_p->OSC_features.glide_effect );
+	Oscgroup.SetSlide( sliding * sds_p->features[OSCID].glide_effect );
 	Oscgroup.Set_Duration( max_msec );
 }
 
 bool Keyboard_class::decay(  )
 {
-	bool
-	decay 	= ( decayCounter > releaseCounter  );
+	bool 	decay	= ( decayCounter > releaseCounter  );
 	if( decay )
 	{
 		duration_counter++;
@@ -112,14 +104,25 @@ void Keyboard_class::attack()
 	{
 		if ( cnt > 0 )
 		{
-			for( uint i = 0; i<cnt; i++ )
+			noteline_cnt += ( cnt + 1 ); // + note
+			if ( noteline_cnt > max_noteline_cnt )
 			{
-				if( not sta_p->state.forget )
+				cnt = noteline_cnt - max_noteline_cnt;
+				for( uint i = 0; i<cnt; i++ )
+				{
 					Noteline.append( "-" );
+				}
+				Noteline.append(1,'\n' );
+				noteline_cnt = 0;
 			}
-			coutf << Noteline << endl ;
+			else
+				for( uint i = 0; i<cnt; i++ )
+				{
+					Noteline.append( "-" );
+				}
 			cnt = 0;
 		}
+
 	};
 
 	if ( ( Kbd_key.hold ) )
@@ -131,9 +134,16 @@ void Keyboard_class::attack()
 		Osc->Reset_beat_cursor();
 
 	show_cnt( duration_counter );
-
+	string note_str = kbd_note.Get_note_str();
+	if( sta_p->state.forget )
+		coutf  << note_str;
+	else
+	{
+		Noteline.append( note_str );
+		coutf << Noteline << endl;
+	}
 	gen_chord_data();
-
+	sta_p->scanner.Set_wpos( sta_p->scanner.rpos );
 	sta_p->Write_data( Osc->Mem.Data );//, max_frames );
 
 	decayCounter	= attackCounter ;
@@ -169,16 +179,49 @@ void Keyboard_class::Set_Kbdnote( key3struct_t key )
 		}
 	}
 }
+void Keyboard_class::set_kbd_trigger( bool trigger )
+{
+	if( trigger )
+	{
+		if( sta_p->state.play )
+			sds_p->Kbd_state.trigger = true;
+		else
+			sds_p->Kbd_state.trigger = false;
+	}
+}
 
 void Keyboard_class::ScanData()
 {
 //	StA->scanner.Set_max_len( StA->scanner.mem_range.max );
 	assert( sta_p->scanner.inc == min_frames );
 	assert( sds_p->audioframes == sta_p->scanner.inc );
-	Kbd_Data = sta_p->scanner.Next();
+	Kbd_Data = sta_p->scanner.Next_read();
+//	set_kbd_trigger( sta_p->scanner.trigger );
 }
 
-string Kbd_note_class::setNote( int key )
+
+
+/*
+ * Kbd_note_class
+ */
+
+string Kbd_note_class::Get_note_str(  )
+{
+	string str = "";
+	if( note_vec.size() == 1 )
+		str = note_vec[0].name ;
+	else
+	{
+		str = "(";
+		for( kbd_note_t note : note_vec )
+			str += note.name ;
+		str += ")"  ;
+	}
+	str += " ";
+	return str;
+};
+
+void Kbd_note_class::SetNote( int key )
 {
 	auto base_note = [ this ]( int KEY  )
 	{
@@ -193,51 +236,33 @@ string Kbd_note_class::setNote( int key )
 		}
 		return Note;
 	};
-	auto show_note_vec = [ this ](  )
-	{
-		if( LogMask[ DEBUG ] )
-		{
-			for( kbd_note_t note : note_vec )
-				note.show();
-		}
-	};
 
-
-	noteline = "";
 	if ( key == NOKEY )
-		return noteline;
+		return ;
 
 	int 		KEY 	= toupper( key );
 	kbd_note_t 	Note 	= base_note( KEY );
 
 	if ( Note.step == NONOTE )
-		return "";
+		return ;
 
 	note_vec.push_back( Note );
-	if( Chord.length()  == 0 )
-		noteline.append( Note.name );
 
-	if (( Chord.length() > 0 ) and ( Note.step > NONOTE ))
+	if (( Chord.length() > 0 ) )
 	{
 		uint8_t idx 	= Note.frqidx;
-		noteline.append( "(" );
-		noteline.append( Note.name );
 
 		for( char ch 	: Chord )
 		{
 			idx			= char2int(ch) + idx;
-			coutf << dec << (int)idx << endl;
 
 			Note 		= kbd_note_struct( idx);
 			note_vec.push_back( Note );
-			noteline.append( Note.name );
-
 		}
-		noteline.append( ")" );
 	}
-	show_note_vec();
-	return noteline;
+	return;
 }
+
 string Kbd_note_class::SetChord( char key )
 {
 	string str = Chord;

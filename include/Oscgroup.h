@@ -12,6 +12,7 @@
 #include <notes/Notesbase.h>
 #include <Osc.h>
 #include <Wavedisplay.h>
+#include <data/SharedDataSegment.h>
 
 
 
@@ -58,9 +59,12 @@ public:
 	void 					SetScanner			( const buffer_t& maxlen );
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
+	char 					Get_oscid_by_name	( const string& name );
+
 	void 					SetSlide			( const uint8_t& value );
-	void 					SetFeatures			( const feature_t& value );
-	void 					SetAdsr				( const interface_t* sds );
+	void 					SetFeatures			( interface_t* sds );
+	void 					SetAdsr				( interface_t* sds );
+	void 					SetSpectrum			( interface_t* sds );
 
 	void 					Show_sound_stack	();
 	void 					SetInstrument		( interface_t* sds );

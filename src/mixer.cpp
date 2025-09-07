@@ -22,6 +22,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	this->sds_master 	= data->sds_master;
 	this->DaTA			= data;
 
+
 	for( uint n : StAMemIds )
 	{
 		Storage_class sta;
@@ -38,16 +39,24 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
 	StA[STA_EXTERNAL].Setup(ext_conf);
-
 	StA[STA_KEYBOARD].Setup(kbd_conf);
-	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
-	StA[STA_KEYBOARD].scanner.Set_max_len( StA[STA_KEYBOARD].scanner.mem_range.max );
-
 	StA[STA_NOTES].Setup(nte_conf);
+
+	for( uint n : StAMemIds )
+	{
+		StA[n].scanner.Data 		= StA[n].Data;
+		StA[n].scanner.mem_range.max= StA[n].StAparam.size;
+		StA[n].scanner.wrt 			= StA[n].StAparam.block_size;
+	}
+
+	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
+	StA[STA_KEYBOARD].scanner.Set_fillrange( StA[STA_KEYBOARD].scanner.mem_range.max );
+
 	StA[STA_NOTES].scanner.Set_wrt_len( max_frames );
-	StA[STA_NOTES].scanner.Set_max_len( StA[STA_NOTES].scanner.mem_range.max );
+	StA[STA_NOTES].Reset();//Set_fillrange( StA[STA_NOTES].scanner.mem_range.max );
 
 	DynVolume.SetupVol( sds_master->Master_Amp,	FIXED ); //set start and master_volume
+
 	if( LogMask[ TEST ] )
 	{
 		for ( uint n : StAMemIds )
@@ -119,10 +128,12 @@ void Mixer_class::SetStA()
 		bool store = (bool) sds->StA_state[n].store;
 		StA[n].Record_mode( store );
 
-		uint8_t amp = sds->StA_amp_arr[ n ];
-
 		bool play = (bool) sds->StA_state[n].play;
 		StA[n].Play_mode( play );
+
+		sds->StA_state[n] = StA[n].state;
+
+		uint8_t amp = sds->StA_amp_arr[ n ];
 
 		Set_mixer_state( n , play );
 
@@ -167,7 +178,7 @@ void Mixer_class::add_stereo( Stereo_t* Data  )
 	}
 }
 
-
+/*
 void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 {
 	while ( composer > 0 )
@@ -181,7 +192,7 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 	StA[ arr_id ].Play_mode( true );
 
 }
-
+*/
 
 void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 							 Data_t* 	kbd_Data,
@@ -191,6 +202,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 
 	auto delete_after_read = [ ]( Data_t* Data, buffer_t frames )
 	{
+		if( not Data ) return;
 		for( buffer_t n = 0; n < frames; n++ )
 		{
 			Data[n] =0;
@@ -198,8 +210,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	};
 	auto set_sds_filled = [ this ]( uint8_t staid )
 	{
-//		bool filled = ( StA[staid].scanner.fillrange.max > 0 );
-		bool filled = ( StA[staid].scanner.pos > 0 );
+		bool filled = ( StA[staid].scanner.fillrange.max > 0 );
 		sds->StA_state[staid].filled = filled;
 	};
 
@@ -241,7 +252,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		set_sds_filled( staid );
 		if ( StA[ staid ].state.play )
 		{
-			Data_t* StAdata = StA[staid].scanner.Next();
+			Data_t* StAdata = StA[staid].scanner.Next_read();
 			if ( StAdata )
 				add_mono( StAdata, staid );
 		}

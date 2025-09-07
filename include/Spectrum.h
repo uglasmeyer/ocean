@@ -42,6 +42,18 @@ typedef array<phi_t		 ,		spec_arr_len> spec_arr_dt;
 typedef array<spec_dta_it,		spec_arr_len> spec_arr_it;
 typedef array<uint8_t,			spec_arr_len> spec_arr_8t;
 
+struct spec_struct
+{	// SDS  related
+	spec_arr_ft				vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
+	spec_arr_ft				frqadj	= { 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
+	spec_arr_8t				frqidx 	= { A3, 1, 1, 1, 1 };				// frq slider value
+	spec_arr_8t				volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
+	spec_dta_ft				sum 	= 1.0;								// sum over .vol
+	spec_arr_8t				wfid 	= { 0,0,0,0,0 };// waveform wdid
+	uint8_t					osc 	= osc_struct::OSCID;
+	bool					adsr	= false;
+} ;
+
 class Spectrum_class :
 	public 	virtual 			Logfacility_class,
 	public 	virtual 			Frequency_class,
@@ -50,17 +62,6 @@ class Spectrum_class :
 	string 						className 		= "";
 
 public:
-	struct spec_struct
-	{	// SDS  related
-		spec_arr_ft				vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
-		spec_arr_ft				frqadj	= { 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
-		spec_arr_8t				frqidx 	= { 220, 1, 1, 1, 1 };				// frq slider value
-		spec_arr_8t				volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
-		spec_dta_ft				sum 	= 1.0;								// sum over .vol
-		spec_arr_8t				wfid 	= {SINUS, SINUS, SINUS, SINUS, SINUS };// waveform wdid
-		uint8_t					osc 	= osc_struct::OSCID;
-		bool					adsr	= false;
-	} ;
 
 	spec_struct					test_spectrum		=
 	{
@@ -96,6 +97,7 @@ private:
 	const array<int		,3> 	spectrumNum = {  SPEV,   SPEF,   SPEW  };
 	const array<string	,3> 	spectrumTag = { "SPEV", "SPEF", "SPEW" };
 	spec_struct					spectrumTmp	= spec_struct();
+
 	void 						assign_frq( int channel, string str  );
 	void 						assign_vol( int channel, string str  );
 	void 						assign_waveform( int channel, string str );
@@ -103,8 +105,7 @@ private:
 
 };
 
-typedef Spectrum_class::spec_struct
-								spectrum_t;
-const spectrum_t default_spectrum	= Spectrum_class::spec_struct();
+typedef spec_struct				spectrum_t;
+const spectrum_t default_spectrum	= spec_struct();
 
 #endif /* INCLUDE_SPECTRUM_H_ */

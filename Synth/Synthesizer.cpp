@@ -100,7 +100,7 @@ void add_sound()
 		Instrument.osc->kbd_trigger = true;
 
 	key = Keyboard.GetKeystruct( false );
-	if ( ( key.key == ESC ) and ( key.val1 == 0 ))
+	if ( ( key == Keyboard.ESCkey ))
 	{
 		Appstate->SetOffline();
 		Log.Info( "Exit Key <ESC>");
@@ -114,7 +114,10 @@ void add_sound()
 	}
 	if ( Mixer.status.notes )
 	{
-		Notes.ScanData( &Instrument );
+		if( sds->NotestypeId == XML_ID )
+			Notes.Generate_musicxml_data();
+		else
+			Notes.ScanData();
 	}
 
 
@@ -150,7 +153,12 @@ void ApplicationLoop()
 	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
 		Timer.Performance();
-
+		if( not Appstate->IsRunning( sds_master, APPID::AUDIOID ))
+		{
+			key3struct_t key = Keyboard.GetKeystruct( false );
+			if( key == Keyboard.ESCkey )
+				Appstate->SetOffline( );
+		}
 		Event.Handler(  );
 	} ;
 
@@ -175,7 +183,6 @@ void read_notes_fnc( )
 	DaTA.Sds_p->Commit();
 	string name 	= DaTA.Sds_p->Read_str( NOTESSTR_KEY );
 	string filename = fs.xmldir + name + fs.xml_type ;
-	Log.Comment( INFO, "from filename: " + filename );
 	Notes.musicxml 	= MusicXML.Xml2notelist( filename );
 	if ( Notes.musicxml.scoreduration != 0 )
 	{
@@ -188,7 +195,7 @@ void read_notes_fnc( )
 		DaTA.Sds_p->Event( SETINSTRUMENTKEY );
 
 		Notes.Restart = true;//Notes.Start_note_itr();
-		Log.Comment(INFO, "xml notes loaded");
+		Log.Comment(INFO, "xml notes ", name, " loaded");
 	}
 
 }

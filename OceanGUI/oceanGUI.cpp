@@ -117,28 +117,28 @@ void MainWindow::cB_Capture( QString str )
 void MainWindow::adsr_hall( )
 {
 	uint8_t value = ui->hs_hall_effect->value();
-    Sds->Set(Sds->addr->OSC_adsr.hall , value);
+    Sds->Set(Sds->addr->adsr_arr[OSCID].hall , value);
     Eventlog.add( SDS_ID, ADSR_KEY);
 }
 
 void MainWindow::cB_Beat_per_sec( int bps_id )
 {
 	uint8_t bps = bps_struct().Bps_vec[bps_id];
-    Sds->Set( Sds->addr->OSC_adsr.bps, bps  );
-    Sds->Set( Sds->addr->VCO_adsr.bps, bps  );
-    Sds->Set( Sds->addr->FMO_adsr.bps, bps  );
+    Sds->Set( Sds->addr->adsr_arr[OSCID].bps, bps  );
+    Sds->Set( Sds->addr->adsr_arr[VCOID].bps, bps  );
+    Sds->Set( Sds->addr->adsr_arr[FMOID].bps, bps  );
 	Eventlog.add( SDS_ID, ADSRALL_KEY );
 
 	if ( Spectrum_Dialog_p )
 	{
-	    QString Qstr{ int2char( Sds->addr->OSC_adsr.bps ) };
+	    QString Qstr{ int2char( Sds->addr->adsr_arr[OSCID].bps ) };
 	    Spectrum_Dialog_p->ui->cb_bps->setCurrentText( Qstr );
 	}
 }
 
 void MainWindow::slideFrq( int value )
 {
-    Sds->Set(Sds->addr->OSC_features.glide_effect , (uint8_t)value);
+    Sds->Set(Sds->addr->features[OSCID].glide_effect , (uint8_t)value);
     Eventlog.add( SDS_ID, SOFTFREQUENCYKEY);
 
 };
@@ -147,7 +147,7 @@ void MainWindow::slideFrq( int value )
 void MainWindow::dial_PMW_value_changed()
 {
     uint8_t value = ui->hs_pmw->value();
-    Sds->Set(Sds->addr->VCO_wp.PMW_dial , value );
+    Sds->Set(Sds->addr->features[VCOID].PMW_dial , value );
     Eventlog.add( SDS_ID,PWMDIALKEY);
 }
 
@@ -239,19 +239,19 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 	Sds->Set( *wf_addr, wfid );
 	Eventlog.add( SDS_ID, wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
-	this->Spectrum_Dialog_p->SetLabelWaveform( QWaveform_vec[ wfid ] );
+//	this->Spectrum_Dialog_p->SetLabelWaveform(  );
 }
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
-	waveform_slot( &Sds->addr->OSC_spectrum.wfid[0], _wfid, OSCID, SETWAVEFORMMAINKEY, ui->wf_OSC );
+	waveform_slot( &Sds->addr->spectrum_arr[OSCID].wfid[0], _wfid, OSCID, SETWAVEFORMMAINKEY, ui->wf_OSC );
 }
 void MainWindow::FMO_Waveform_slot(int _wfid)
 {
-	waveform_slot( &Sds->addr->FMO_spectrum.wfid[0], _wfid, FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
+	waveform_slot( &Sds->addr->spectrum_arr[FMOID].wfid[0], _wfid, FMOID, SETWAVEFORMFMOKEY, ui->wf_fmo );
 }
 void MainWindow::VCO_Waveform_slot( int _wfid )
 {
-	waveform_slot( &Sds->addr->VCO_spectrum.wfid[0], _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
+	waveform_slot( &Sds->addr->spectrum_arr[VCOID].wfid[0], _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
 }
 
 
@@ -523,12 +523,12 @@ void MainWindow::FMO_slot_volume()
 
 void MainWindow::Slider_VCO_Adjust( int value )
 {
-	Sds->Set( Sds->addr->VCO_wp.adjust, (uint8_t) value);
+	Sds->Set( Sds->addr->features[VCOID].adjust, (uint8_t) value);
 	Eventlog.add( SDS_ID, ADJUST_KEY);
 }
 void MainWindow::Slider_FMO_Adjust( int value )
 {
-	Sds->Set( Sds->addr->FMO_wp.adjust, (uint8_t) value);
+	Sds->Set( Sds->addr->features[FMOID].adjust, (uint8_t) value);
 	Eventlog.add( SDS_ID, ADJUST_KEY );
 }
 
@@ -727,9 +727,9 @@ void MainWindow::setwidgetvalues()
 		sB_lbl_vec[oscid].lbl->setText( QWaveform_vec[ *sB_lbl_vec[oscid].value] );
 		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
 	};
-    ui->hs_pmw->setValue			( (int) Sds->addr->VCO_wp.PMW_dial  );
-    ui->hs_hall_effect->setValue	( (int) Sds->addr->OSC_adsr.hall );
-    ui->Slider_slideFrq->setValue	( (int) Sds->addr->OSC_features.glide_effect );
+    ui->hs_pmw->setValue			( (int) Sds->addr->features[VCOID].PMW_dial  );
+    ui->hs_hall_effect->setValue	( (int) Sds->addr->adsr_arr[OSCID].hall );
+    ui->Slider_slideFrq->setValue	( (int) Sds->addr->features[OSCID].glide_effect );
     ui->Slider_slideVol->setValue	( sds_master->slide_duration);//Master_Amp);
     ui->hs_balance->setValue		( Sds->addr->mixer_balance );
 
@@ -740,7 +740,7 @@ void MainWindow::setwidgetvalues()
 	Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
-    Qstr	= int2char( Sds->addr->OSC_adsr.bps );
+    Qstr	= int2char( Sds->addr->adsr_arr[OSCID].bps );
     ui->cb_bps->setCurrentText( Qstr );
 
 	set_cb_psta_value( this );
@@ -769,12 +769,12 @@ void MainWindow::setwidgetvalues()
    	ui->cB_Combine->setChecked( combine );
    	//    rb_S_vec[ Sds->addr->SDS_Id ]->setChecked( true );
 
-	ui->cb_connect_fmo->setChecked ( (bool)(Sds->addr->FMO_connect.vol != FMOID));
-	ui->cb_connect_vco->setChecked ( (bool)(Sds->addr->VCO_connect.vol != VCOID) );
-	ui->cb_connect_oscv->setChecked( (bool)(Sds->addr->OSC_connect.vol != OSCID) );
-	ui->cb_connect_oscf->setChecked( (bool)(Sds->addr->OSC_connect.frq != OSCID) );
+	ui->cb_connect_fmo->setChecked ( (bool)(Sds->addr->connect_arr[FMOID].vol != FMOID));
+	ui->cb_connect_vco->setChecked ( (bool)(Sds->addr->connect_arr[VCOID].vol != VCOID) );
+	ui->cb_connect_oscv->setChecked( (bool)(Sds->addr->connect_arr[OSCID].vol != OSCID) );
+	ui->cb_connect_oscf->setChecked( (bool)(Sds->addr->connect_arr[OSCID].frq != OSCID) );
 
-    double frq_slide_duration = Sds->addr->OSC_features.glide_effect * max_sec * 0.01;
+    double frq_slide_duration = Sds->addr->features[OSCID].glide_effect * max_sec * 0.01;
     ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
 	if( Appstate->IsExitserver( App.sds, GUI_ID ) )

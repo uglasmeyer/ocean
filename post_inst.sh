@@ -3,7 +3,14 @@ GITDIR=$HOME/git/Ocean/
 RESOURCEDIR=$GITDIR/Resource/
 INSTBASE=$HOME/OceanBase/
 
+echo "lines of code: " 
+cat `find $GITDIR -name "*.h" ; find $GITDIR -name "*.cpp"` | wc -l
+echo "header file"
+find $GITDIR -name "*.h" | wc -l
+echo "cpp files:"
+find $GITDIR -name "*.cpp" | wc -l
 
+exit
 
 echo installing resources
 cd $RESOURCEDIR
@@ -49,10 +56,5 @@ cd $RESOURCEDIR
 cp *odt  $INSTBASE/doc
 cp oceandeploy.sh $HOME
 
-echo "lines of code: " 
-cat `find $GITDIR -name "*.h" ; find $GITDIR -name "*.cpp"` | wc -l
-echo "header file"
-find $GITDIR -name "*.h" | wc -l
-echo "cpp files:"
-find $GITDIR -name "*.cpp" | wc -l
+
 

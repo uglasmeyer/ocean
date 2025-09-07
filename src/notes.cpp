@@ -46,17 +46,6 @@ Note_class::~Note_class( )
 	DESTRUCTOR( className )
 }
 
-void Note_class::Set_instrument( Instrument_class* instr)
-{
-	Instrument_name = instr->Name;
-	instrument		= instr;
-	Comment(TEST, "Update notes instrument:  " + Instrument_name);
-
-	// set oscgroup Oscillator from related sds structures
-	Oscgroup.SetInstrument( sds );
-
-	return;
-}
 
 string Note_class::Get_rhythm_line()
 {
@@ -98,14 +87,20 @@ void Note_class::set_volume_vector( string volline )
 	}
 	assert( volume_vec.size() > 0 );
 }
-void Note_class::ScanData( Instrument_class* instrument )
+void Note_class::ScanData( )
 {
-//	if ( StA->scanner.trigger )
-//	{
-//		Generate_data( );
-//	}
-	assert( StA->scanner.inc == min_frames );
-	NotesData = StA->scanner.Next();
+
+	NotesData = StA->scanner.Next_read();
+//	Info( "rpos", StA->scanner.rpos );
+	if(StA->scanner.trigger )
+	{
+		Comment( INFO, "note_class scanner trigger" );
+		if( sds->NotestypeId == XML_ID )
+			Generate_musicxml_data();
+//		Info( "fillrange max:", StA->scanner.fillrange.max );
+//		Info( "rpos", StA->scanner.rpos );
+//		Info("wpos", StA->scanner.wpos );
+	}
 }
 void Note_class::gen_chord_data(const note_t& note,
 								const buffer_t& offs,
@@ -113,10 +108,10 @@ void Note_class::gen_chord_data(const note_t& note,
 								const bool& longnote
 								)
 {
-	Set_instrument( instrument );
+
 	Oscgroup.Data_Reset();
 
-	uint glide_effect = osc->feature.glide_effect;
+	uint glide_effect = osc->features.glide_effect;
 
 	if ( note.glide[0].glide )
 		Oscgroup.SetSlide( 100 );
@@ -133,21 +128,19 @@ void Note_class::gen_chord_data(const note_t& note,
 		Oscgroup.Set_Osc_Note( instrument->osc->wp.freq, key, duration, note.volume, SLIDE );
 		Oscgroup.Phase_Reset();
 		Oscgroup.Run_OSCs( offs + n*frame_delay );
-//		Oscgroup.Run_OSCs( n*frame_delay );
 		n++;
 	}
 
-	osc->feature.glide_effect = glide_effect ;
+	osc->features.glide_effect = glide_effect ;
 
 	return ;
 }
 
-int timestamp = 0;
-uint scoretime = 0;
-buffer_t 	scanner_pos = 0;
 
-bool Note_class::Generate_data( )
-{ 	// generate the memory track for positon n = note_pointer tp
+
+bool Note_class::Generate_musicxml_data(  )
+{
+ 	// generate the memory track for positon n = note_pointer tp
 	// n = note_pointer + chunk_len
 
 	auto restart_note_itr = [ this ]()
@@ -161,23 +154,11 @@ bool Note_class::Generate_data( )
 		Restart = false;
 	};
 
-
+	Oscgroup.SetInstrument( sds );
+	NotesData = osc->GetData_p( 0 );
+	Comment( INFO, "Generate_musicxml_data");
 	restart_note_itr();
-
-	buffer_t 	frame_offset = 0;//(frames_per_msec * timestamp)  ;
-	StA->Clear_data( 0 );
-	while ( note_itr != notelist.end() )
-	{
-		gen_chord_data( *note_itr, frame_offset, note_itr->duration, false );
-		StA->Write_data( Osc->Mem.Data );//, max_frames );
-		scanner_pos += note_itr->duration * frames_per_msec;
-		StA->scanner.Set_pos( scanner_pos );
-//		cout << StA->scanner.pos << endl;
-		note_itr++;
-	}
-
-	return true;
-
+	buffer_t 	frame_offset = (frames_per_msec * timestamp)  ;
 	bool 		partnote = false;//( timestamp != 0);
 	int 		lastduration = 0;
 	bool		longnote = false;// ( timestamp != 0 );
@@ -208,6 +189,7 @@ bool Note_class::Generate_data( )
 			partnote = true;
 //			cout << "part start ";
 		}
+
 		gen_chord_data( *note_itr, frame_offset, duration, longnote );
 
 		longnote = false;
@@ -238,6 +220,38 @@ bool Note_class::Generate_data( )
 		timestamp = 0;
 	}
 	return false;
+}
+
+bool Note_class::Generate_buffer_data(  )
+{
+	buffer_t	wrt_pos = 0;
+
+	auto sta_write_data = [ this, &wrt_pos ]( uint duration )
+	{
+		StA->Write_data( Osc->Mem.Data );//, max_frames );
+		StA->scanner.Next_write( duration * frames_per_msec );
+
+//		wrt_pos += duration * frames_per_msec ;
+//		wrt_pos = wrt_pos % StA->scanner.mem_range.max;
+//		StA->scanner.Set_wpos( wrt_pos );
+	};
+
+	Oscgroup.SetInstrument( sds );
+	Start_note_itr();
+	StA->Reset();
+
+	while ( note_itr != notelist.end() )
+	{
+		gen_chord_data( *note_itr, 0, note_itr->duration, false );
+//		StA->Write_data( Osc->Mem.Data );//, max_frames );
+		sta_write_data( note_itr->duration );
+
+
+		note_itr++;
+	}
+	StA->scanner.Set_rpos( 0 );
+	StA->scanner.Show( true );
+	return true;
 }
 
 void Note_class::SetSDS( noteline_prefix_t nlp )
@@ -394,7 +408,7 @@ void Note_class::Test()
 	Comment( TEST, "Note_class test start");
 
 	string nl = "D3----";
-	Append_noteline( noteline_prefix_default,  nl );
+	Align_measure( noteline_prefix_default,  nl );
 	coutf << nl << endl;
 	ASSERTION( nl.length() == 8, "Append_noteline", nl.length(), 8L );
 	Comment( TEST, "long notes ");// long note
@@ -527,7 +541,7 @@ void Note_class::Test()
 
 
 	Gen_notelist( noteline_prefix_default, "A2A3-A4--A5---");
-	Generate_data();
+	Generate_buffer_data();
 
 //	assert (false);
 	TEST_END( className );

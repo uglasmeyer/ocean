@@ -244,9 +244,9 @@ int main( int argc, char* argv[] )
 				key3struct_t keyevent = Key_event( "#faw" );
 				switch ( keyevent.key )
 				{
-					case 'f' : { getfrq( &sds->OSC_wp.frqidx, "Frequency", OSCFREQUENCYKEY ); break; }
+					case 'f' : { getfrq( &sds->spectrum_arr[osc_struct::OSCID].frqidx[0], "Frequency", OSCFREQUENCYKEY ); break; }
 					case 'a' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
-					case 'w' : { getvalue( &sds->OSC_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMMAINKEY ); break; }
+					case 'w' : { getvalue( &sds->spectrum_arr[osc_struct::OSCID].wfid[0], show_range(waveform_range), SETWAVEFORMMAINKEY ); break; }
 					default  : break ;
 				}
 				break;
@@ -257,9 +257,9 @@ int main( int argc, char* argv[] )
 				key3struct_t keyevent = Key_event("#faw");
 				switch ( keyevent.key )
 				{
-					case 'f' : { getfrq( &sds->FMO_wp.frqidx, "Frequency", FMOFREQUENCYKEY ); break; }
-					case 'a' : { getvalue( &sds->FMO_wp.volume, "Amplitude", FMOAMPKEY ); break; }
-					case 'w' : { getvalue( &sds->FMO_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMFMOKEY ); break; }
+					case 'f' : { getfrq( &sds->spectrum_arr[osc_struct::FMOID].frqidx[0], "Frequency", FMOFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->spectrum_arr[osc_struct::FMOID].volidx[0], "Amplitude", FMOAMPKEY ); break; }
+					case 'w' : { getvalue( &sds->spectrum_arr[osc_struct::FMOID].wfid[0], show_range(waveform_range), SETWAVEFORMFMOKEY ); break; }
 					default  : break ;
 				}
 				break;
@@ -270,9 +270,9 @@ int main( int argc, char* argv[] )
 				key3struct_t keyevent = Key_event("#faw");
 				switch ( keyevent.key )
 				{
-					case 'f' : { getfrq( &sds->VCO_wp.frqidx, "Frequency", VCOFREQUENCYKEY ); break; }
-					case 'a' : { getvalue( &sds->VCO_wp.volume, "Amplitude", VCOAMPKEY ); break; }
-					case 'w' : { getvalue( &sds->VCO_spectrum.wfid[0], show_range(waveform_range), SETWAVEFORMVCOKEY ); break; }
+					case 'f' : { getfrq( &sds->spectrum_arr[osc_struct::VCOID].frqidx[0], "Frequency", VCOFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->spectrum_arr[osc_struct::VCOID].volidx[0], "Amplitude", VCOAMPKEY ); break; }
+					case 'w' : { getvalue( &sds->spectrum_arr[osc_struct::VCOID].wfid[0], show_range(waveform_range), SETWAVEFORMVCOKEY ); break; }
 					default  : break ;
 				}
 				break;
@@ -284,11 +284,11 @@ int main( int argc, char* argv[] )
 
 				switch ( keyevent.key )
 				{
-					case 'g' : { getvalue( &sds->OSC_features.glide_effect	, "Frequency"	, SOFTFREQUENCYKEY ); break; }
-					case 'a' : { getvalue( &sds->OSC_adsr.attack			,"Atack"		, ADSR_KEY ); break; }
-					case 'b' : { getvalue( &sds->OSC_adsr.bps  				, "Beats p.sec"	, ADSR_KEY ); break; }
-					case 'd' : { getvalue( &sds->OSC_adsr.decay				,"Decay" 		, ADSR_KEY ); break; }
-					case 'h' : { getvalue( &sds->OSC_adsr.hall  			,"Hall"			, ADSR_KEY ); break; }
+					case 'g' : { getvalue( &sds->features[osc_struct::OSCID].glide_effect	, "Frequency"	, SOFTFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->adsr_arr[osc_struct::OSCID].attack			,"Atack"		, ADSR_KEY ); break; }
+					case 'b' : { getvalue( &sds->adsr_arr[osc_struct::OSCID].bps  				, "Beats p.sec"	, ADSR_KEY ); break; }
+					case 'd' : { getvalue( &sds->adsr_arr[osc_struct::OSCID].decay				,"Decay" 		, ADSR_KEY ); break; }
+					case 'h' : { getvalue( &sds->adsr_arr[osc_struct::OSCID].hall  			,"Hall"			, ADSR_KEY ); break; }
 					default  : break ;
 				}
 				break;

@@ -140,7 +140,6 @@ public:
 	virtual ~Logfacility_class(  );
 
 	void 	Set_Loglevel( int level, bool on );
-
 	string	GetColor( uint id );
 	string	GetendColor( );
 	void 	ResetLogMask();

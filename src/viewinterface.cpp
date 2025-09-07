@@ -38,8 +38,8 @@ void ViewInterface_class::selfTest()
 		uint8_t state = Appstate.Get( sds_p, appid );
 		coutf << Decode( state ) << endl;
 	}
-	coutf << (int)sds_p->OSC_spectrum.sum << endl;
-	coutf << Show_spectrum_type( SPEV, sds_p->OSC_spectrum );
+	coutf << (int)sds_p->spectrum_arr[OSCID].sum << endl;
+	coutf << Show_spectrum_type( SPEV, sds_p->spectrum_arr[OSCID] );
 }
 string ViewInterface_class::Decode( Id_t idx)
 {
@@ -103,9 +103,9 @@ void ViewInterface_class::show_manage()
 void ViewInterface_class::show_spectrum()
 {
     vector<spectrum_t> 	sds_spectrum_vec 	= {
-    							sds_p->VCO_spectrum,
-								sds_p->FMO_spectrum,
-								sds_p->OSC_spectrum};
+    							sds_p->spectrum_arr[VCOID],
+								sds_p->spectrum_arr[FMOID],
+								sds_p->spectrum_arr[OSCID]};
 
 	for ( spectrum_t& spec : sds_spectrum_vec )
 	{
@@ -156,7 +156,7 @@ void ViewInterface_class::showStates()
 void ViewInterface_class::ShowPage( interface_t* sds, int nr )
 {
 	this->sds_p = sds;
-	Device_class::Set_sds_vec( sds_p );
+	Device_class::Set_sds( sds_p );
 
 	ClearScreen();
 	printHeader();
@@ -200,24 +200,24 @@ void ViewInterface_class::show_Adsr()
 	Adsr.AddColumn( "Feature", 20);
 	Adsr.AddColumn( "Value", 6 );
 	Adsr.PrintHeader();
-	Adsr.AddRow( 	"OSC (a)ttack", (int)sds_p->OSC_adsr.attack,
-					"OSC (d)ecay ", (int)sds_p->OSC_adsr.decay );
-	Adsr.AddRow( 	"VCO (a)ttack", (int)sds_p->VCO_adsr.attack ,
-					"VCO (d)ecay ", (int)sds_p->VCO_adsr.decay );
-	Adsr.AddRow( 	"FMO (a)ttack", (int)sds_p->FMO_adsr.attack,
-					"FMO (d)ecay ", (int)sds_p->FMO_adsr.decay );
-	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->OSC_features.glide_effect,
-					"(b)eats per second", (int)sds_p->OSC_adsr.bps );
-	Adsr.AddRow( 	"(p)mw", (int)sds_p->OSC_wp.PMW_dial,
-					"(h)all", (int)sds_p->OSC_adsr.hall );
+	Adsr.AddRow( 	"OSC (a)ttack", (int)sds_p->adsr_arr[OSCID].attack,
+					"OSC (d)ecay ", (int)sds_p->adsr_arr[OSCID].decay );
+	Adsr.AddRow( 	"VCO (a)ttack", (int)sds_p->adsr_arr[VCOID].attack ,
+					"VCO (d)ecay ", (int)sds_p->adsr_arr[VCOID].decay );
+	Adsr.AddRow( 	"FMO (a)ttack", (int)sds_p->adsr_arr[FMOID].attack,
+					"FMO (d)ecay ", (int)sds_p->adsr_arr[FMOID].decay );
+	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->features[OSCID].glide_effect,
+					"(b)eats per second", (int)sds_p->adsr_arr[OSCID].bps );
+	Adsr.AddRow( 	"(p)mw", (int)sds_p->features[OSCID].PMW_dial,
+					"(h)all", (int)sds_p->adsr_arr[OSCID].hall );
 	Adsr.AddRow( 	"(B)alance", (int)sds_p->mixer_balance,
 					"chord delay", (int)sds_p->noteline_prefix.chord_delay );
 	Adsr.AddRow( 	"Frq Slider Mode", slidermodes[ sds_p->frq_slidermode ] ) ;
 
     vector<adsr_t>	sds_adsrspec_vec	= {
-    							sds_p->VCO_adsr,
-    							sds_p->FMO_adsr,
-								sds_p->OSC_adsr };
+    							sds_p->adsr_arr[VCOID],
+    							sds_p->adsr_arr[FMOID],
+								sds_p->adsr_arr[OSCID] };
 	for ( adsr_t& adsr : sds_adsrspec_vec )
 	{
 		cout << Show_spectrum( adsr.spec );
@@ -274,19 +274,19 @@ void ViewInterface_class::showOSCs()
 	auto frq_str = [ this ](uint8_t idx)
 		{ return ( to_string( GetFrq( idx ) ) + ", " + frqNamesArray[idx] ); };
 
-	lline( "(M)ain (F)requency:" , frq_str( sds_p->OSC_wp.frqidx ));
+	lline( "(M)ain (F)requency:" , frq_str( sds_p->spectrum_arr[OSCID].frqidx[0] ));
 	rline( "(M)aster(A)mplitude:", (int)sds_p->Master_Amp );
-	rline( "(M)ain (W)aveform: " , waveform_str_vec[ (int)sds_p->OSC_spectrum.wfid[0] ]);
+	rline( "(M)ain (W)aveform: " , waveform_str_vec[ (int)sds_p->spectrum_arr[OSCID].wfid[0] ]);
 	rline( "                   " , 0 );
 
-	lline( "(F)MO  (F)requency:" , frq_str( sds_p->FMO_wp.frqidx ) );
-	rline( "(V)CO  (F)requency:" , frq_str( sds_p->VCO_wp.frqidx ) );
+	lline( "(F)MO  (F)requency:" , frq_str( sds_p->spectrum_arr[FMOID].frqidx[0] ) );
+	rline( "(V)CO  (F)requency:" , frq_str( sds_p->spectrum_arr[VCOID].frqidx[0] ) );
 
-	lline( "(F)MO  (A)mplitude:" , (int)sds_p->FMO_wp.volume);
-	rline( "(V)CO  (A)mplitude:" , (int)sds_p->VCO_wp.volume);
+	lline( "(F)MO  (A)mplitude:" , (int)sds_p->spectrum_arr[FMOID].volidx[0] );
+	rline( "(V)CO  (A)mplitude:" , (int)sds_p->spectrum_arr[VCOID].volidx[0]);
 
-	lline( "(F)MO  (W)aveform: " , waveform_str_vec[ (int)sds_p->FMO_spectrum.wfid[0] ]);
-	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)sds_p->VCO_spectrum.wfid[0] ]);
+	lline( "(F)MO  (W)aveform: " , waveform_str_vec[ (int)sds_p->spectrum_arr[FMOID].wfid[0] ]);
+	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)sds_p->spectrum_arr[VCOID].wfid[0] ]);
 
 	rline( "                   " , 0 );
 	rline( "Audio frames", (int)sds_p->audioframes );

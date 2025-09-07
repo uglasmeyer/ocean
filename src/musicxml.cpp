@@ -88,6 +88,7 @@ Note_base::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
     	return musicxml;
 
    	}; // Load XML file
+	Comment( INFO, "Loading musicxml from filename: " + filename );
 
     musicxml.notelist.clear();
 
@@ -184,6 +185,7 @@ Note_base::musicxml_t Musicxml_class::Xml2notelist( const string& filename )
 	pause.duration = max_msec; // duration takes one measure;
 	musicxml.scoreduration += pause.duration;
 	musicxml.notelist.push_back( pause ); // add a pause at the end of the score
+	cout << "Xml2notelist length " <<  musicxml.notelist.size() << " chords"  << endl;
 	return musicxml;
 }
 

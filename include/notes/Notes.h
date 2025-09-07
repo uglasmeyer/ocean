@@ -52,14 +52,14 @@ public:
 
 	string 			Read( string );
 	void			Save( string, noteline_prefix_t , string  );
-	void 			Set_instrument(Instrument_class *instrument);
 	string 			Get_note_line ();
 	string 			Get_rhythm_line (  );
 	void 			Set_rhythm_line(string );
 	bool			Set_notes_per_second( int );
 	void			LoadMusicxml( const string& file );
-	bool			Generate_data( );//Storage::Storage_class* mb );
-	void			ScanData( Instrument_class* instrument );
+	bool			Generate_buffer_data( );
+	bool 			Generate_musicxml_data(  );
+	void			ScanData();
 	void 			SetSDS( noteline_prefix_t nlp );
 
 	void			Set_prefix_octave( int );
@@ -68,7 +68,7 @@ public:
 	notelist_t 		Gen_notelist		( noteline_prefix_t prefix,
 										string str );
 	uint 			Calc_noteline_msec	( notelist_t notelist );
-	void 			Append_noteline		( noteline_prefix_t prefix,
+	void 			Align_measure		( noteline_prefix_t prefix,
 										string& noteline );
 
 	void 			Test();
@@ -80,6 +80,7 @@ public:
 
 	void Show_note_list( auto items ) // list or vector
 	{
+		Set_Loglevel( DEBUG, true );
 		stringstream strs;
 		uint lineduration = 0;
 		strs << "Chord         Vol  msec  Oct alt Freq| Oct alt Freq| Oct alt Freq|";
@@ -101,6 +102,7 @@ public:
 		strs << setw(17) << left  << "sentence length" <<
 				setw(6) << right << dec << lineduration << " [msec]" ;
 		Comment( DEBUG, strs.str() );
+		Set_Loglevel( DEBUG, false );
 	}
 
 
@@ -120,6 +122,8 @@ private:
 	vector<uint>    volume_vec 		{};
 											// notevalue_struct.doct by one .
 	size_t			parse_error		= 0;
+	int 			timestamp 		= 0;
+	uint 			scoretime 		= 0;
 
 	typedef notelist_t::iterator
 					note_itr_t;

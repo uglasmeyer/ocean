@@ -10,6 +10,34 @@
 
 #include <Oscbase.h>
 
+const spectrum_t default_adsr_spec =
+{
+							.vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
+							.frqadj		= { 1.0, 2.0, 3.0, 4.0, 5.0 },
+							.frqidx 	= { 1, 1, 1, 1, 1 }, // see bps
+							.volidx 	= { 100, 0, 0, 0, 0 },
+							.sum 		= 1.0,
+							.wfid 		= {1, 1, 1, 1, 1 },
+							.osc 		= osc_struct::OSCID,
+							.adsr		= true
+};
+
+struct adsr_struct
+{ //SDS related. Is specific for each OSC
+	uint8_t 	bps 	= 1; //adsr related// { 0, 1, 2, 3, 4 }  => 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
+	uint8_t 	hall	= 0; //adsr related// hall effect [0..100} data shift
+	uint8_t 	attack 	= 10; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
+	uint8_t 	decay  	= 90;
+	spectrum_t 	spec 	= spec_struct();
+} ;
+const adsr_struct		default_adsr	=
+{
+		.bps 	= 1,
+		.hall 	= 0,
+		.attack = 10,
+		.decay 	= 90,
+		.spec 	= default_adsr_spec
+};
 
 
 
@@ -27,34 +55,6 @@ class ADSR_class :
 	Memory			adsr_Mem		{ monobuffer_bytes }; //max_frames*sizeof(Data)
 
 public:
-	spectrum_t default_adsr_spec =
-	{
-								.vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
-								.frqadj		= { 1.0, 2.0, 3.0, 4.0, 5.0 },
-								.frqidx 	= { 1, 1, 1, 1, 1 }, // see bps
-								.volidx 	= { 100, 0, 0, 0, 0 },
-								.sum 		= 1.0,
-								.wfid 		= {1, 1, 1, 1, 1 },
-								.osc 		= osc_struct::OSCID,
-								.adsr		= true
-	};
-
-	struct adsr_struct
-	{ //SDS related. Is specific for each OSC
-		uint8_t 	bps 	= 1; //adsr related// { 0, 1, 2, 3, 4 }  => 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
-		uint8_t 	hall	= 0; //adsr related// hall effect [0..100} data shift
-		uint8_t 	attack 	= 10; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
-		uint8_t 	decay  	= 90;
-		spectrum_t 	spec 	= spec_struct();
-	} ;
-	const adsr_struct		default_adsr	=
-	{
-			.bps 	= 1,
-			.hall 	= 0,
-			.attack = 10,
-			.decay 	= 90,
-			.spec 	= default_adsr_spec
-	};
 
 	buffer_t 		adsr_frames 	= adsr_Mem.mem_ds.data_blocks ;
 
@@ -78,9 +78,7 @@ private:
 
 	void			adsrOSC			( const buffer_t& );
 };
-typedef ADSR_class::adsr_struct
-								adsr_t;
-constexpr adsr_t			default_adsr	;//= ADSR_class::adsr_struct();
+typedef adsr_struct			adsr_t;
 
 
 

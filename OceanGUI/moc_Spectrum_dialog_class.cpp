@@ -243,6 +243,8 @@ void *Spectrum_Dialog_class::qt_metacast(const char *_clname)
         return static_cast<void*>(this);
     if (!strcmp(_clname, "Spectrum_class"))
         return static_cast< Spectrum_class*>(this);
+    if (!strcmp(_clname, "osc_struct"))
+        return static_cast< osc_struct*>(this);
     return QDialog::qt_metacast(_clname);
 }
 

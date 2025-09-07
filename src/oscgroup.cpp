@@ -6,7 +6,7 @@
  */
 
 #include <Oscgroup.h>
-
+#include <data/Device.h>
 
 Oscgroup_class::Oscgroup_class( char role, buffer_t bytes )
 	: Logfacility_class( "Oscgroup_class" )
@@ -34,23 +34,22 @@ Oscgroup_class::~Oscgroup_class()
 	DESTRUCTOR( className )
 }
 
+void Oscgroup_class::SetSpectrum( interface_t* sds )
+{
+	for( char oscid : oscIds )
+	{
+		member[oscid]->Set_spectrum	( sds->spectrum_arr[ oscid ]);
+	}
+}
 
 void Oscgroup_class::SetInstrument( interface_t* sds )
 {
-	osc.Setwp		( sds->OSC_wp );
-	osc.Set_spectrum( sds->OSC_spectrum );
-
-	vco.Setwp		( sds->VCO_wp );
-	vco.Set_spectrum( sds->VCO_spectrum );
-
-	fmo.Setwp		( sds->FMO_wp );
-	fmo.Set_spectrum( sds->FMO_spectrum );
 
 	SetAdsr			( sds );
-	SetFeatures		( sds->OSC_features );
+	SetFeatures		( sds );
 	Set_Connections	( sds );
+	SetSpectrum		( sds );
 }
-#include <data/Device.h>
 
 void Oscgroup_class::Connection_Reset()
 {
@@ -59,25 +58,27 @@ void Oscgroup_class::Connection_Reset()
 }
 void Oscgroup_class::Set_Connections( interface_t* sds )
 {
-	Device_class device = Device_class(sds);
+	// OSC <- SEC
 	for( Oscillator* osc_p : member )
 	{
-		connectId_t Connect = device.Get_connect_state( osc_p->typeId );
-		osc_p->Connect_frq_data( member[ Connect.frq ] );
-		osc_p->Connect_vol_data( member[ Connect.vol ] );
+		connectId_t Connect = sds->connect_arr[osc_p->typeId];
+		osc_p->Set_connection( member[ Connect.frq ], member[ Connect.vol] );
 	}
 }
 
-void Oscgroup_class::SetFeatures( const feature_t& value )
+void Oscgroup_class::SetFeatures( interface_t* sds )
 {
-	std::ranges::for_each( member, [ value ](Oscillator*  o)
-			{ o->Set_feature( value);	});
+	for( char oscid : oscIds )
+	{
+		member[ oscid ]->features = sds->features[ oscid ];
+	}
 }
-void Oscgroup_class::SetAdsr( const interface_t* sds )
+void Oscgroup_class::SetAdsr( interface_t* sds )
 {
-	osc.Set_adsr( sds->OSC_adsr );
-	vco.Set_adsr( sds->VCO_adsr );
-	fmo.Set_adsr( sds->FMO_adsr );
+	for( char oscid : oscIds )
+	{
+		member[oscid]->Set_adsr	( sds->adsr_arr[oscid] );
+	}
 }
 
 void Oscgroup_class::SetSlide( const uint8_t& value )
@@ -108,7 +109,7 @@ void Oscgroup_class::SetScanner( const buffer_t& maxlen )
 	std::ranges::for_each( member, [ maxlen ](Oscillator*  o)
 	{
 		o->scanner.Set_wrt_len( max_frames );
-		o->scanner.Set_max_len( maxlen );
+		o->scanner.Set_fillrange( maxlen );
 	});
 
 }
@@ -143,11 +144,11 @@ void Oscgroup_class::Set_Note_Frequency( 	const frq_t& base_freq,
 }
 void Oscgroup_class::Set_Combine_Frequency( const uint8_t& idx, const uint& mode )
 {
-	int diff = idx - osc.wp.frqidx;
+	int diff = idx - osc.spectrum.frqidx[0];
 	osc.Set_frequency( idx, mode );
 
-	vco.Set_frequency( vco.wp.frqidx + diff, mode );
-	fmo.Set_frequency( fmo.wp.frqidx + diff, mode );
+	vco.Set_frequency( vco.spectrum.frqidx[0] + diff, mode );
+	fmo.Set_frequency( fmo.spectrum.frqidx[0] + diff, mode );
 
 	Comment( DEBUG, "Set_Combine_Frequency ", (int)diff);
 }
@@ -166,7 +167,6 @@ void Oscgroup_class::Set_Osc_Note( 	const frq_t&	base_freq,
 									const uint& 	mode)
 {
 	Set_Duration		( msec );
-//	SetAdsr				();
 	Set_Note_Frequency	( base_freq, key, mode );
 	osc.Set_volume		( volume, FIXED);//wp.volume	= volume ;
 }
@@ -189,6 +189,16 @@ void Oscgroup_class::Run_OSCs( const buffer_t& offs )
 			{ o->OSC( offs ) ;} );
 }
 
+char Oscgroup_class::Get_oscid_by_name( const string& name )
+{
+	for( char id = 0; id < OSCIDSIZE; id++ )
+	{
+		if ( strEqual( oscNames[id], name ) )
+			return id;
+	}
+	EXCEPTION( "unknown Oscillator name: " + name );
+	return -1;
+}
 
 Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 {

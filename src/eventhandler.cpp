@@ -61,17 +61,15 @@ void Event_class::Handler()
 		EvInfo( event, "Slider Mode: " + slidermodes[sds->frq_slidermode] );
 		if ( sds->frq_slidermode == COMBINE )
 		{
-			Instrument->Oscgroup.Set_Combine_Frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
-			sds->VCO_spectrum = Instrument->vco->spectrum;
-			sds->VCO_wp.frqidx= Instrument->vco->wp.frqidx;
-			sds->FMO_spectrum = Instrument->fmo->spectrum;
-			sds->FMO_wp.frqidx= Instrument->fmo->wp.frqidx;
+			Instrument->Oscgroup.Set_Combine_Frequency( sds->spectrum_arr[OSCID].frqidx[0], sds->frq_slidermode );
+			sds->spectrum_arr[VCOID] = Instrument->vco->spectrum;
+			sds->spectrum_arr[FMOID] = Instrument->fmo->spectrum;
 		}
 		else
 		{
-			Instrument->osc->Set_frequency( sds->OSC_wp.frqidx, sds->frq_slidermode );
+			Instrument->osc->Set_frequency( sds->spectrum_arr[OSCID].frqidx[0], sds->frq_slidermode );
 		}
-		sds->OSC_spectrum = Instrument->osc->spectrum;
+		sds->spectrum_arr[OSCID] = Instrument->osc->spectrum;
 		Sds->Commit();
 		break;
 	}
@@ -79,8 +77,7 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "VCO frequency change");
 
-		uint8_t frqidx = Instrument->vco->Set_frequency( sds->VCO_wp.frqidx, sds->frq_slidermode );
-		sds->VCO_spectrum.frqidx[0] = frqidx;
+		Instrument->vco->Set_frequency( sds->spectrum_arr[VCOID].frqidx[0], sds->frq_slidermode );
 		Instrument->Connect( Instrument->osc, Instrument->vco, CONV );
 		Sds->Commit();
 		break;
@@ -89,8 +86,7 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "FMO frequency change");
 
-		uint8_t frqidx = Instrument->fmo->Set_frequency( sds->FMO_wp.frqidx, sds->frq_slidermode );
-		sds->FMO_spectrum.frqidx[0] = frqidx;
+		Instrument->fmo->Set_frequency( sds->spectrum_arr[FMOID].frqidx[0], sds->frq_slidermode );
 		Instrument->Connect( Instrument->osc, Instrument->fmo, CONF );
 		Sds->Commit();
 		break;
@@ -99,12 +95,12 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "VCO amplitude change");
 
-		Value vol = sds->VCO_wp.volume;
+		Value vol = sds->spectrum_arr[VCOID].volidx[0];
 		Instrument->vco->Set_volume(vol.ch, sds->vol_slidemode);
 
 		Instrument->Connect( Instrument->osc, Instrument->vco, CONV);
-		sds->VCO_spectrum.vol[0] = vol.val * 0.01;
-		sds->VCO_spectrum.volidx[0] = vol.val;
+		sds->spectrum_arr[VCOID].vol[0] = vol.val * 0.01;
+//		sds->VCO_spectrum.volidx[0] = vol.val;
 		Sds->Commit();
 		break;
 	}
@@ -112,11 +108,11 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "FMO amplitude change");
 
-		Value vol = sds->FMO_wp.volume;
+		Value vol = sds->spectrum_arr[FMOID].volidx[0];
 		Instrument->fmo->Set_volume(vol.ch, sds->vol_slidemode );
 		Instrument->Connect( Instrument->osc, Instrument->fmo, CONF );
-		sds->FMO_spectrum.vol[0] = vol.val * 0.01;
-		sds->FMO_spectrum.volidx[0] = vol.val;
+		sds->spectrum_arr[FMOID].vol[0] = vol.val * 0.01;
+//		sds->FMO_spectrum.volidx[0] = vol.val;
 		Sds->Commit();
 		break;
 	}
@@ -133,8 +129,8 @@ void Event_class::Handler()
 
 	case ADJUST_KEY :
 	{
-		Instrument->vco->wp.adjust = sds->VCO_wp.adjust;
-		Instrument->fmo->wp.adjust = sds->FMO_wp.adjust;
+		Instrument->vco->features.adjust = sds->features[VCOID].adjust;
+		Instrument->fmo->features.adjust = sds->features[FMOID].adjust;
 		Sds->Commit();
 		break;
 	}
@@ -157,9 +153,7 @@ void Event_class::Handler()
 	{
 
 		EvInfo( event, "Feature change");
-		Instrument->Oscgroup.SetFeatures( sds->OSC_features );
-		sds->VCO_features = sds->OSC_features;
-		sds->FMO_features = sds->OSC_features;
+		Instrument->Oscgroup.SetFeatures( sds );
 
 		Sds->Commit();
 		break;
@@ -185,9 +179,9 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "PWM change");
 
-		Instrument->osc->Set_pmw(sds->VCO_wp.PMW_dial);
-		Instrument->vco->Set_pmw(sds->VCO_wp.PMW_dial);
-		Instrument->fmo->Set_pmw(sds->VCO_wp.PMW_dial);
+		Instrument->osc->Set_pmw(sds->features[VCOID].PMW_dial);
+		Instrument->vco->Set_pmw(sds->features[VCOID].PMW_dial);
+		Instrument->fmo->Set_pmw(sds->features[VCOID].PMW_dial);
 		Sds->Commit();
 		break;
 	}
@@ -205,24 +199,18 @@ void Event_class::Handler()
 	case SOFTFREQUENCYKEY:
 	{
 		EvInfo( event, "Frequency slide effect update ");
-		Instrument->Oscgroup.SetSlide( sds->OSC_features.glide_effect );
+		Instrument->Oscgroup.SetSlide( sds->features[OSCID].glide_effect );
 		Sds->Commit();
 		break;
 	}
 	case SETINSTRUMENTKEY: // Set instrument
 	{
 		Comment(INFO, "receive command <set instrument>");
-		string instrument = Sds->Read_str(INSTRUMENTSTR_KEY); // other
+		string instrument = Sds->Read_str(INSTRUMENTSTR_KEY);
 
-		if (Instrument->Set(instrument))
-		{
-			Comment(INFO, "sucessfully loaded instrument " + instrument);
-			Notes->Set_instrument(Instrument);
-		} else
-		{
-			Comment(ERROR, "cannot load instrument" + instrument);
-		}
-		Sds->Commit(); // reset flags on GUI side
+		Instrument->Set(instrument);
+
+		Sds->Commit();
 		break;
 	}
 	case SAVE_EXTERNALWAVFILEKEY: // record and save wav file
@@ -298,6 +286,16 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
+	case RESET_STA_SCANNER_KEY : // Audioserver start record
+	{
+		Info( "Reset StA scanner");
+		for( char staid = 0; staid < STA_SIZE; staid++ )
+		{
+			Mixer->StA[staid].scanner.Set_rpos(0);
+		}
+		Sds->Commit();
+		break;
+	}
 	case SETSTA_KEY:
 	{
 		Mixer->SetStA();
@@ -351,7 +349,6 @@ void Event_class::Handler()
 		Comment(INFO, "receive command <update notes>");
 		if ( sds->NotestypeId == XML_ID ) break;
 		string notes_name = Sds->Read_str(NOTESSTR_KEY);
-		Notes->Set_instrument(Instrument);
 		Notes->Read(notes_name);
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		Mixer->Set_mixer_state( STA_NOTES, true );
@@ -360,7 +357,8 @@ void Event_class::Handler()
 			Mixer->StA[ STA_NOTES ].DynVolume.SetupVol( 75, SLIDE );
 			sds->StA_amp_arr[ STA_NOTES ] = 75;
 		}
-		Notes->Generate_data();
+		DaTA->EmitEvent( NEWNOTESLINEFLAG );
+		Notes->Generate_buffer_data();
 		Sds->Commit();
 		break;
 	}
@@ -371,7 +369,7 @@ void Event_class::Handler()
 		Notes->Read(notes_file); // notes have been written to file by the GUI already
 //		Mixer->status.notes = true;
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
-		Notes->Generate_data();
+		Notes->Generate_buffer_data();
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 
 		Sds->Commit();
@@ -385,10 +383,11 @@ void Event_class::Handler()
 			Comment(INFO, "generate composer notes");
 			Comment(INFO, "duration: " + sec.str + " sec.");
 			Comment(INFO, "store to StA id: " + id.str);
-			Mixer->composer = sec.val;
-			Mixer->StA[id.val].Record_mode(true);
-			Notes->Set_instrument(Instrument);
-			Mixer->Store_noteline(id.val, Notes);
+//			Mixer->composer = sec.val;
+//			Mixer->StA[id.val].Record_mode(true);
+//			Notes->Set_instrument(Instrument);
+			Notes->Generate_buffer_data();
+//			Mixer->Store_noteline(id.val, Notes);
 		} else {
 			Comment(WARN, "nothing to do for " + sec.str + " Notes!");
 		}
@@ -419,14 +418,7 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case UPDATENOTELINEKEY: // update Noteline during play
-	{
-		Comment(INFO, "receive command <update Noteline during play>");
-		string notes_file = Sds->Read_str(NOTESSTR_KEY);
-		Notes->Read(notes_file);
-		Sds->Commit();
-		break;
-	}
+
 	case SETBASEOCTAVE_KEY:
 	{
 		Value diff_oct { (int) (sds->FLAG) };
@@ -452,7 +444,6 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	// TODO connections
 	case CONNECTOSC_KEY : // reset main
 	{
 		EvInfo( event, "update modulation connections for the OSC");
@@ -500,24 +491,24 @@ void Event_class::Handler()
 	}
 	case SETWAVEFORMFMOKEY:
 	{
-		EvInfo( event, "FMO waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
-		Instrument->fmo->Set_waveform( sds->FMO_spectrum.wfid);
+		EvInfo( event, "FMO waveform " + to_string((int) sds->spectrum_arr[OSCID].wfid[0] ) );
+		Instrument->fmo->Set_waveform( sds->spectrum_arr[FMOID].wfid);
 
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMVCOKEY:
 	{
-		EvInfo( event, "VCO waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
-		Instrument->vco->Set_waveform( sds->VCO_spectrum.wfid);
+		EvInfo( event, "VCO waveform " + to_string((int) sds->spectrum_arr[OSCID].wfid[0] ) );
+		Instrument->vco->Set_waveform( sds->spectrum_arr[VCOID].wfid);
 
 		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMMAINKEY:
 	{
-		EvInfo( event, "OSC waveform " + to_string((int) sds->OSC_spectrum.wfid[0] ) );
-		Instrument->osc->Set_waveform( sds->OSC_spectrum.wfid);
+		EvInfo( event, "OSC waveform " + to_string((int) sds->spectrum_arr[OSCID].wfid[0] ) );
+		Instrument->osc->Set_waveform( sds->spectrum_arr[OSCID].wfid);
 
 		Sds->Commit();
 		break;

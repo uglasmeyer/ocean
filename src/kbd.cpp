@@ -15,7 +15,6 @@ Kbd_base::Kbd_base() :
 
 Kbd_base::~Kbd_base()
 {
-	cout << "Keyboard reset" << endl;
 	Reset();
 };
 
@@ -35,7 +34,7 @@ string Kbd_base::ShowKey( key3struct_t key )
 Kbd_base::key3struct_t Kbd_base::GetKeystruct	( bool debug )
 {
 	fflush(stdout);
-	buf3 			= { 0,0,0 };
+	buf3 			= Nullkey3;//{ 0,0,0 };
 
 	if(read(0, buf3_p, 3) < 0)
 		perror("read()");
@@ -82,6 +81,7 @@ void Kbd_base::Reset()
 {
 	if ( is_atty )
 	{
+		cout << "Keyboard reset" << endl;
 		if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
 			perror("tcsetattr ~ICANON");
 	}

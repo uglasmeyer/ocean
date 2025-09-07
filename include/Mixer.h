@@ -59,7 +59,7 @@ public:
 					Wavedisplay_class* 	wd );
 	virtual ~Mixer_class();
 
-	void Store_noteline( uint8_t, Note_class* );
+//	void Store_noteline( uint8_t, Note_class* );
 	void Add_Sound(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
 	void Clear_StA_status( StA_state_arr_t& );
 	void Update_sds_state( int id, interface_t* sds );

@@ -463,12 +463,24 @@
        <property name="wrapping">
         <bool>true</bool>
        </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
       </widget>
      </item>
      <item row="1" column="5">
       <widget class="QSpinBox" name="sb_spwf4">
        <property name="wrapping">
         <bool>true</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
        </property>
       </widget>
      </item>
@@ -621,12 +633,30 @@
        <property name="wrapping">
         <bool>true</bool>
        </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+       <property name="stepType">
+        <enum>QAbstractSpinBox::StepType::DefaultStepType</enum>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
       </widget>
      </item>
      <item row="1" column="4">
       <widget class="QSpinBox" name="sb_spwf3">
        <property name="wrapping">
         <bool>true</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
        </property>
       </widget>
      </item>

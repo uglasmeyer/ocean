@@ -18,7 +18,7 @@
 
 
 #define MAYOR 3
-#define MINOR 10
+#define MINOR 11
 #define PATCH 0
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -32,7 +32,7 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
-
+version	3.11.0 scanner reorganized
 version 3.10.0 Introduction of Device_class
 version 3.9.0 Save Keyboard Notes
 version 3.8.8 ADSR Waveform fixes

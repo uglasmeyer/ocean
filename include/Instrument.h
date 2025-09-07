@@ -47,8 +47,6 @@ public:
 	void 					Test_Instrument();
 
 private:
-	vector<spectrum_t*>		sds_spectrum_vec		{};
-	vector<adsr_t*>			sds_adsr_vec			{};
 	string 					Instrument_file			= "";
 	file_structure			fs						{};
 	string 					Default_instrument_file = fs.instrumentdir + fs.default_snd;

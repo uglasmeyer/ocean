@@ -22,7 +22,6 @@
 
 class Kbd_note_class
 	: public kbd_state_struct
-//	, public Note_base
 {
 	std::map<char, string>
 					Chords				{	{'y',string(""  )},// single // @suppress("Invalid arguments")
@@ -58,13 +57,15 @@ public:
 
 					Kbd_note_class() 	{};
 	virtual 		~Kbd_note_class() 	= default;
-	string 			setNote				( int key );
+	void 			SetNote				( int key );
 	string 			SetChord			( char key );
+	string 			Get_note_str		();
+
 private:
 } ;
 
 class keyboardState_class
-	: public virtual 		kbd_state_struct
+	: public virtual 	kbd_state_struct
 {
 	interface_t* 		sds;
 
@@ -100,7 +101,6 @@ class Keyboard_class
 	, virtual public		Kbd_base
 	, virtual	public		sdsstate_struct
 	, virtual public		keyboardState_class
-	, virtual 				Device_class
 {
 	string 				className 				= "";
 	Oscgroup_class		Oscgroup				{ KBDID, 2*monobuffer_bytes };
@@ -135,7 +135,6 @@ private:
 	const int 			releaseCounter			= 0;
 	const int 			attackCounter 			= frame_parts;//rint( max_frames / min_frames );
 	int 				decayCounter 			= 0;
-	const uint			kbd_duration			= max_msec;//	= ADSR_flag ? max_msec : min_msec; // [millisec]
 	uint 				duration_counter 		= 0;// count the beats of note kbd_key
 	uint				holdCounter				= 0;
 	const uint			kbd_volume				= 75;
@@ -144,12 +143,14 @@ private:
 	feature_t			kbd_adsr				= feature_struct();
 	bool				frqMode					= SLIDE;
 	string				Noteline				{};
+	uint				noteline_cnt			= 0;
+	uint				max_noteline_cnt		= 8*4*max_sec;
 
 	void 				attack					();
 	void 				release					();
 	bool 				decay					();
 	void 				gen_chord_data			();
-
+	void				set_kbd_trigger			( bool trigger );
 	// keyhandler.cpp
 
 	void 				keyHandler				( key3struct_t kbd );

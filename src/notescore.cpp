@@ -6,7 +6,19 @@
  */
 #include <notes/Notes.h>
 
-void Note_class::Append_noteline( noteline_prefix_t prefix, string& noteline )
+	// control characters
+	const char IGNORE 	= ' ';
+	const char PAUSE 	= '.';
+	const char INCDUR 	= '-';
+	const char SLIDE_CH	= '>';
+	const char INCOCT	= '\'';
+	const char DECOCT	= ',';
+	const char NEWOCT	= '|';
+	const char BREAK	= '\n';
+	const char OPEN		= '(';
+	const char CLOSE	= ')';
+
+void Note_class::Align_measure( noteline_prefix_t prefix, string& noteline )
 {
 	notelist_t nl { Gen_notelist( prefix, noteline ) };
 	uint duration = Calc_noteline_msec( nl );
@@ -42,12 +54,11 @@ void Note_class::Set_notelist( const notelist_t& nlst )
 
 Note_base::notelist_t Note_class::Gen_notelist( noteline_prefix_t prefix, string str )
 {
-	notelist_t nl {};
-	if ( not compiler( prefix, str ) )
-		return nl ;
-	else
-		return notelist;
+	notelist.clear(	);
+	compiler( prefix, str );
+	return notelist;
 }
+
 bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 {
 	auto brackets_aligned = [str]()
@@ -57,11 +68,11 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		{
 			switch (ch )
 			{
-			case '(' : {c++; break;}
-			case ')' : {c--; break;}
-			default  : break;
+				case OPEN 	: {c++; break;}
+				case CLOSE	: {c--; break;}
+				default		: break;
 			} // switch
-			if ( c < 0 ) return false;
+			if( c < 0 )return false; // more CLOSE than OPEN
 		} //for
 		return ( c == 0 );
 	}; // lambda
@@ -89,6 +100,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		return false ;
 	}
 	fill_note_list();
+	Show_note_list( notelist ); // @suppress("Invalid arguments")
 	// post check
 	uint noteline_msec 	= Calc_noteline_msec( notelist );
 	int mod 			= noteline_msec % measure_duration ;
@@ -120,7 +132,7 @@ void Note_class::Start_note_itr()
 		Comment( WARN, "Empty notelist" );
 	framePart 		= 0;
 	if ( StA )
-		StA->scanner.Set_pos( 0 );
+		StA->scanner.Set_rpos( 0 );
 
 }
 
@@ -185,14 +197,6 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 {
 	// parse a single noteline position and apply changes to the note_itr
 
-	// control characters
-	const char IGNORE 	= ' ';
-	const char PAUSE 	= '.';
-	const char INCDUR 	= '-';
-	const char SLIDE	= '>';
-	const char INCOCT	= '\'';
-	const char DECOCT	= ',';
-	const char NEWOCT	= '|';
 
 	auto get_note_char = [ this ]( size_t p )
 	{
@@ -233,7 +237,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 	note_itr--;
 	switch (note_char )
 	{
-		case SLIDE : // allowed: >F or >|3F
+		case SLIDE_CH : // allowed: >F or >|3F
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len; // test note_itr
 			note_itr->str.push_back( '>' );
@@ -241,7 +245,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			pos++; //
 			if ( noteline[pos] == NEWOCT ) // oct change case >|3F
 			{
-				note_itr->str.push_back( NEWOCT );
+				note_itr->str.push_back( noteline[pos] );
 				pos++;
 				if ( out_of_bounds( pos ) ) return noteline_len; // test pos
 				int oct = get_oct_value( noteline[pos] );
@@ -263,7 +267,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			}
 			break;
 		}
-		case '(' :
+		case OPEN :
 		{
 			set_duration();
 			note_buffer = note_struct(); // clear note_buffer;
@@ -294,7 +298,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			pos--; // close bracket pos
 			break;
 		}
-		case ')' :
+		case CLOSE :
 		{
 			note_buffer.str.append( ")" );
 			notelist.push_back( note_buffer );
@@ -339,15 +343,20 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 		{
 			break;
 		}
+		case BREAK :
+		{
+			break;
+		}
 		default : 	// this note-char is not a special character (<>-|.)
 		{
-			if (	( Note_Chars.Set.contains( note_char ) ) or
-					( note_char == PAUSE ))
+			if (( Note_Chars.Set.contains( note_char ) ) or
+				( note_char == PAUSE ))
 			{	// this note-char is a note that must be stored in the note-list
 				set_duration(); // duration of the previou note
 				note_buffer = note_struct(); // clear note_buffer;
 				if ( OctaveChars.Set.contains( get_note_char( pos + 1 ) ) )
 				{	// the next notechar specifies the octave of the current note explicitely
+					// e.g. A4
 					Octave = char2int( noteline[ pos + 1 ] );
 					pos++;
 				}
@@ -463,23 +472,23 @@ void Note_class::fill_note_list()
 	noteline_sec = 0;
 
 	int mod = ( noteline_msec % measure_duration ) / min_duration;
+	note_itr_t itr = notelist.end();
+	if( itr != notelist.begin() )
+	{
+		itr--;
+		itr->duration += ( mod*min_duration) ;
+	}
+	return;
+
 	if ( mod > 0 )
 	{
-		cout << mod ;
+//		cout << mod ;
 		for (int n = 0; n < mod; ++n)
 		{
-			coutf << "." << endl;
+//			coutf << "." << endl;
 			notelist.push_back( pause_note );
+			noteline.append(".");
 		}
-/*
-
- 		uint16_t dur = 0;
-		while ( dur < measure_duration - mod )
-		{
-			notelist.push_back( pause_note );
-			dur += min_duration;
-		}
-*/
 	}
 }
 
@@ -547,7 +556,6 @@ bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 		fill_note_list();
 	}
 
-	Show_note_list( notelist ); // @suppress("Invalid arguments")
 	return true;
 }
 

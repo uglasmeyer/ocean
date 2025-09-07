@@ -12,44 +12,44 @@ Device_class::Device_class( interface_t* sds ) :
 {
 	className = Logfacility_class::className;
 	this->sds_p = sds;
-	Set_sds_vec( sds_p );
-	selfTest();
+	Set_sds( sds_p );
+	SelfTest();
 };
+
 Device_class::~Device_class()
 {
 	DESTRUCTOR( className );
 };
-void Device_class::Set_sds_vec( interface_t* sds )
+void Device_class::Set_sds( interface_t* sds )
 {
 	this->sds_p = sds;
-	sds_connect_vec	=
-	{
-		&sds->VCO_connect,
-		&sds->FMO_connect,
-		&sds->OSC_connect
-	};
+
 }
-void Device_class::selfTest()
+void Device_class::SelfTest()
 {
 	connectId_t Connect;
 	Connect.frq = VCOID;
 	Connect.vol = VCOID;
-	Set_connect_state( FMOID, Connect );
+	Set_sds_connect_state( FMOID, Connect );
 
-	assert( sds_p->FMO_connect == Connect );
-	Set_connect_state( FMOID, default_connect( FMOID ) );
+	assert( sds_p->connect_arr[FMOID] == Connect );
+	Set_sds_connect_state( FMOID, default_connect( FMOID ) );
 
 }
-
 
 connectId_t Device_class::Get_connect_state( char oscid )
 {
-	connectId_t Connect = *sds_connect_vec[oscid];
+	connectId_t Connect = sds_p->connect_arr[oscid];
 	return Connect;
 }
-void Device_class::Set_connect_state( char oscid, connectId_t connect )
+void Device_class::Set_sds_adsr( char oscid, adsr_t adsr )
 {
-	*sds_connect_vec[ oscid ] = connect;
+	sds_p->adsr_arr[oscid] = adsr;
+}
+
+void Device_class::Set_sds_connect_state( char oscid, connectId_t connect )
+{
+	sds_p->connect_arr[ oscid ] = connect;
 }
 
 connectName_t Device_class::Get_connection_names( char oscid )

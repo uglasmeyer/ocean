@@ -60,6 +60,13 @@ void SynthesizerTestCases()
 
 //	App.Init_Sds( );
 
+	range_T<int> range_test { 1,4 };
+	int value = check_cycle( range_test, 1, "range_test" );
+	ASSERTION( value == 1, "range test ", (int)value, 1L );
+	value = check_cycle( range_test, 4, "range_test" );
+	assert( value == 4 );
+	value = check_cycle( range_test, 5, "range_test" );
+	assert( value == 1 );
 
 	App.DaTA->Appstate.Announce();
     std::set<string> abc{"a","b","c"};

@@ -72,6 +72,8 @@ public:             // Access specifier
 		}
 	} key3struct_t;
 	key3struct_t 	Nullkey3 	= key3_struct( 0, 0, 0 );
+	key3struct_t	ESCkey		= key3_struct( ESC, 0, 0 );
+
 					Kbd_base	();
 	virtual 		~Kbd_base	();
 

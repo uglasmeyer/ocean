@@ -63,6 +63,11 @@ void Dispatcher_class::Loop(  )
 				emit( UpdateColorButtons() );
 				break;
 			}
+			case RECORDWAVFILEFLAG :
+			{
+				emit( UpdateFileList() );
+				break;
+			}
 			default:
 				break;
 		} // switch FLAG

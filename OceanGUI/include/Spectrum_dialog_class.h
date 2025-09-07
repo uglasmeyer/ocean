@@ -20,7 +20,8 @@ class Spectrum_Dialog_class;
 
 class Spectrum_Dialog_class :
 		public QDialog,
-		public virtual Spectrum_class
+		public virtual Spectrum_class,
+		virtual osc_struct
 {
     Q_OBJECT
 
@@ -40,15 +41,14 @@ public:
 
     EventLog_class*	Eventlog_p;
 
-    vector<spectrum_t*> 	sds_spectrum_vec;
     spectrum_t*				sds_spectrum_p;
-    vector<adsr_t*> 		sds_adsr_vec;
+
     adsr_t*					sds_adsr_p;
     adsr_t					adsr_data;
     uint8_t					OscId;
     Id_t					WfSlot = 1; // active slot last selected Wafeform out of 4
+    vector<QSpinBox*>		sb_vec {};
     Frequency_class			Frequency {};
-
     string 					instrument{};
     uint8_t 				waveform_id;
     vector<QString> 		Waveform_vec {};
@@ -58,7 +58,7 @@ public:
 
     void Setup_widgets( spectrum_t );
     void Update_instrument();
-    void SetLabelWaveform( const QString& wf );
+    void SetLabelWaveform();
     void SetLabelInstrument( const QString& instr );
     void SetSds( Interface_class* Sds, int8_t id );
     void Set_adsr_flag( bool flag );
@@ -103,7 +103,6 @@ private:
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
     void set_waveform_vec( vector<string> waveform_vec );
-    void set_spectrum_vec( interface_t* sds );
 };
 
 #endif // SPECTRUM_DIALOG_CLASS_H

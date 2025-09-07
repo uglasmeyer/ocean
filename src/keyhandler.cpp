@@ -137,9 +137,9 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F1", "keyboard Keys"			);
 	Table.AddRow( "F2", "increase sharps "		, (int) sds_p->Kbd_state.sharps, "#" );
 	Table.AddRow( "F3", "reset sharps "			);
-	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.ADSR_flag * sds_p->OSC_adsr.bps ,"B psec");
+	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.ADSR_flag * sds_p->adsr_arr[OSCID].bps ,"B psec");
 	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds_p->Kbd_state.sliding *
-													Osc->feature.glide_effect), "[ % ]");
+													Osc->features.glide_effect), "[ % ]");
 	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( sta_p->state.forget, "forget", "persist" ));
 	Table.AddRow( "F7", "increase flats "		, (int) sds_p->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
@@ -157,15 +157,12 @@ void Keyboard_class::exit_keyboard()
 void Keyboard_class::notekey( char key )
 {
 	kbd_note.Chord 	= kbd_note.SetChord( key );
-	string
-	noteline 		= kbd_note.setNote( key ) ;
-	if ( noteline.length() > 0 )
+	kbd_note.SetNote( key ) ;
+
+	if ( kbd_note.note_vec.size() > 0 )
 	{
 		Set_instrument();
-		if( sta_p->state.forget )
-			{;}
-		else
-			Noteline.append( noteline );
+
 		if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
 		{
 			sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
@@ -191,7 +188,7 @@ bool Keyboard_class::save_notes()
 {
 	Comment( INFO, "Saving notes to file", "<tbd>" );
 
-	notes_p->Append_noteline( nlp, Noteline );
+	notes_p->Align_measure( nlp, Noteline );
 	if ( notes_p->Verify_noteline( nlp, Noteline ) )
 	{
 		Comment( INFO, Noteline );

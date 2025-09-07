@@ -173,12 +173,16 @@ public:
         sb_spwf2 = new QSpinBox(Spectrum_Dialog_class);
         sb_spwf2->setObjectName("sb_spwf2");
         sb_spwf2->setWrapping(true);
+        sb_spwf2->setMinimum(0);
+        sb_spwf2->setMaximum(9);
 
         gridLayout->addWidget(sb_spwf2, 1, 1, 1, 1);
 
         sb_spwf4 = new QSpinBox(Spectrum_Dialog_class);
         sb_spwf4->setObjectName("sb_spwf4");
         sb_spwf4->setWrapping(true);
+        sb_spwf4->setMinimum(0);
+        sb_spwf4->setMaximum(9);
 
         gridLayout->addWidget(sb_spwf4, 1, 5, 1, 1);
 
@@ -295,12 +299,18 @@ public:
         sb_spwf1 = new QSpinBox(Spectrum_Dialog_class);
         sb_spwf1->setObjectName("sb_spwf1");
         sb_spwf1->setWrapping(true);
+        sb_spwf1->setMinimum(0);
+        sb_spwf1->setMaximum(9);
+        sb_spwf1->setStepType(QAbstractSpinBox::StepType::DefaultStepType);
+        sb_spwf1->setDisplayIntegerBase(10);
 
         gridLayout->addWidget(sb_spwf1, 1, 0, 1, 1);
 
         sb_spwf3 = new QSpinBox(Spectrum_Dialog_class);
         sb_spwf3->setObjectName("sb_spwf3");
         sb_spwf3->setWrapping(true);
+        sb_spwf3->setMinimum(0);
+        sb_spwf3->setMaximum(9);
 
         gridLayout->addWidget(sb_spwf3, 1, 4, 1, 1);
 

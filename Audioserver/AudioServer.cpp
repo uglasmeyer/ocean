@@ -230,6 +230,13 @@ void record_start( )
 		Log.Comment( WARN, "Audioserver is still saving data. ... Wait ");
 		return;
 	}
+	for( Interface_class Sds : DaTA.SDS.Vec )
+	{
+		if( Appstate->IsRunning( Sds.addr, SYNTHID    ) or
+			Appstate->IsRunning( Sds.addr, KEYBOARDID ) )
+			Eventlog.add( Sds.ds.Id, RESET_STA_SCANNER_KEY );
+	}
+
 	Sds->addr->Record 					= true;
 	External.status.record 				= true;
 	rcounter 							= 0;
@@ -319,7 +326,8 @@ int RtAudioOut(	void *outputBuffer,
 		if (sds->AudioServer == sdsstate_struct::RECORDSTOP )
 			record_stop();
 
-		DaTA.Appstate.SetRunning(  );
+//		if (sds->Kbd_state.trigger < 1 ) // trigger is inactive
+			DaTA.Appstate.SetRunning(  );
 
 		return 0;
 } // callback function

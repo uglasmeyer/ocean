@@ -11,14 +11,19 @@
 #include <System.h>
 
 
-Interface_class::Interface_class( char appid, uint8_t sdsid, Config_class* cfg, Semaphore_class* sem ):
+Interface_class::Interface_class( 	char appid,
+									uint8_t sdsid,
+									Config_class* cfg,
+									Semaphore_class* sem ):
 Logfacility_class("SharedData_class" )
 {
-
+	this->AppId = appid;
+	this->className = Logfacility_class::className;
 	this->Sem_p	= sem;
 	this->Cfg_p = cfg;
 	Setup_SDS( sdsid, cfg->Config.sdskeys[ sdsid ] );
-	this->AppId = appid;
+
+
 }
 
 Interface_class::~Interface_class()
@@ -45,7 +50,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	}
 	Comment( INFO, "check shared memory version");
 
-	dumpFile = file_structure().ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
+	dumpFile = Cfg_p->fs.ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
 	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{
@@ -215,7 +220,22 @@ void Interface_class::Commit()
 		Sem_p->Release( PROCESSOR_WAIT );
 }
 
+bool Interface_class::reject(char status, int id )
+{
+	if (( status == RUNNING ) and ( id != COMPID ))
+	{
 
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+};
+void Interface_class::Event( uint8_t event )
+{
+	Eventque.add( event );
+}
 
 
 

@@ -101,10 +101,10 @@ typedef EventStruct Event_t;
 
 static file_structure fs = file_structure();
 
-static Event_t EventXML( XMLFILE_KEY, fs.xmldir, fs.xml_type );
-static Event_t EventNTE( UPDATENOTESKEY, fs.notesdir, fs.nte_type );
-static Event_t EventINS( SETINSTRUMENTKEY, fs.instrumentdir, fs.snd_type );
-static Event_t EventWAV( OTHERSTR_KEY, fs.musicdir, fs.wav_type );
+static Event_t EventXML( XMLFILE_KEY		, fs.xmldir, fs.xml_type );
+static Event_t EventNTE( UPDATENOTESKEY		, fs.notesdir, fs.nte_type );
+static Event_t EventINS( SETINSTRUMENTKEY	, fs.instrumentdir, fs.snd_type );
+static Event_t EventWAV( OTHERSTR_KEY		, fs.musicdir, fs.wav_type );
 static vector<Event_t > Event_vec { EventXML, EventNTE, EventINS, EventWAV };
 
 extern QStringList 		Qstringlist		( const list<string>& str_lst );

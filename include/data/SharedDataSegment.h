@@ -8,82 +8,11 @@
 #ifndef DATA_SHAREDDATASEGMENT_H_
 #define DATA_SHAREDDATASEGMENT_H_
 
-
+#include <data/Sdsbase.h>
 #include <EventKeys.h>
-#include <Ocean.h>
-#include <Mixerbase.h>
-#include <Adsr.h>
 #include <Wavedisplay_base.h>
-#include <Configbase.h>
 #include <notes/Notesbase.h>
 #include <Keyboard_base.h>
-
-enum CON
-{
-	OSCFMOF,
-	OSCVCOV,
-	FMOVCOV,
-	VCOFMOV,
-	CONV = 'V',
-	CONF = 'F'
-
-};
-struct sdsstate_struct
-{
-	enum {
-		 OFFLINE	,
-		 RUNNING	,
-		 FREERUN	,
-		 UPDATEGUI 	,
-		 SYNC 		,
-		 DEFAULT	,
-		 EXITSERVER	,
-		 KEYBOARD	,
-		 RECORDSTART,
-		 RECORDSTOP ,
-		 LASTNUM
-		};
-
-	const vector<string> state_map
-	{
-		{"OFFLINE" },
-		{"RUNNING" },
-		{"FREERUN" },
-		{"UPDATEGUI" },
-		{"SYNC" },
-		{"DEFAULT" },
-		{"EXITSERVER" },
-		{"KEYBOARD" },
-		{"RECORDSTART" },
-		{"RECORDSTOP" },
-		{"unknown"}
-	};
-	sdsstate_struct(){};
-	~sdsstate_struct() = default;
-};
-
-typedef struct EventPtr_struct
-{
-	uint8_t 		first 	= 0;
-	uint8_t 		last 	= 0;
-	uint8_t			length	= 0;
-} eventptr_t;
-
-typedef struct register_process_struct
-{
-	int8_t			idx		= -1;
-	uint8_t			sdsId	= 0;
-	uint8_t			type	= NOID;
-	pid_t			pid		= -1;
-} register_process_t;
-
-
-const uint			REGISTER_SIZE 	= MAXCONFIG+1;
-const uint 			str_buffer_len 	= 32;
-const uint  		MAXQUESIZE		= 100;
-typedef 			array< uint8_t, MAXQUESIZE>					deque_t ;
-typedef				array<register_process_t, REGISTER_SIZE>	process_arr_t;
-typedef				StAarray_t									StA_amp_arr_t;
 
 constexpr process_arr_t init_process_arr()
 {
@@ -94,13 +23,46 @@ constexpr process_arr_t init_process_arr()
 	}
 	return arr;
 }
+constexpr connect_arr_t default_connect_expr(  )
+{
+	connect_arr_t arr{};
+	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
+	{
+		arr[oscid] = default_connect( oscid );
+	}
+	return arr;
+};
+const connect_arr_t default_connect_arr = default_connect_expr(  );
+
+constexpr adsr_arr_t default_adsr_expr(  )
+{
+	adsr_arr_t arr{};
+	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
+	{
+		arr[oscid] = default_adsr;
+	}
+	return arr;
+};
+const adsr_arr_t default_adsr_arr = default_adsr_expr(  );
+
+constexpr spectrum_arr_t default_spectrum_expr(  )
+{
+	spectrum_arr_t arr{};
+	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
+	{
+		arr[oscid] = default_spectrum;
+	}
+	return arr;
+};
+const spectrum_arr_t default_spectrum_arr = default_spectrum_expr(  );
+
 // there are MAXCONFIG interface structures in dataworld
 // global values are managed in structure 0 only (master interface)
 // local  values are interface specific
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 16; 						// comstack
+	uint8_t			version						= 23;
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
@@ -120,25 +82,15 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t			slide_duration 				= 50; // % of 4*max_seconds
 
 	/* instrument definition starts */
-	feature_t 		OSC_features 				= feature_struct();
-	feature_t 		VCO_features				= feature_struct();
-	feature_t 		FMO_features				= feature_struct();
+	feature_arr_t	features					{ feature_struct(),
+													feature_struct(),
+													feature_struct() };
 
-	adsr_t			OSC_adsr					= default_adsr;
-	adsr_t			VCO_adsr					= default_adsr;
-	adsr_t			FMO_adsr					= default_adsr;
+	adsr_arr_t		adsr_arr					= default_adsr_arr;
 
-	wave_t			OSC_wp						= wave_struct();
-	wave_t			VCO_wp						= wave_struct();
-	wave_t			FMO_wp						= wave_struct();
+	spectrum_arr_t	spectrum_arr				= default_spectrum_arr;
 
-	spectrum_t 		OSC_spectrum				= default_spectrum;
-	spectrum_t 		VCO_spectrum 				= default_spectrum;
-	spectrum_t	 	FMO_spectrum 				= default_spectrum;
-
-	connectId_t		OSC_connect					= default_connect( osc_struct::OSCID );
-	connectId_t		VCO_connect					= default_connect( osc_struct::VCOID );
-	connectId_t		FMO_connect					= default_connect( osc_struct::FMOID );
+	connect_arr_t	connect_arr					= default_connect_arr;
 	/* instrument definition ends	 */
 
 	/* SDS specific control elements */

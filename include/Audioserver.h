@@ -47,6 +47,7 @@ External_class			External 			{ &Cfg, sds };
 ProgressBar_class		ProgressBar			{ &sds->RecCounter };
 Wavedisplay_class		Wavedisplay			{ Sds_master };
 AudioVolume_class		Volume				{ sds_master };
+EventLog_class			Eventlog			{ &DaTA };
 
 // runtime parameter
 buffer_t 				ncounter 			= 0;

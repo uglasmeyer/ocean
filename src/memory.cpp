@@ -15,45 +15,70 @@
 	// |-----|-----|-----|-----|-----|-----|-----|-----|-----| inc
 	// |-----------------|-----------------|-----------------| wrt = x*inc
 
-Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _inc, buffer_t _max ) :
-	mem_range{ 0, _max},
-	fillrange{ 0, 0 }
+Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _inc, buffer_t _max )
+	: Logfacility_class( "Scanner_class" )
+	, mem_range{ 0, _max}
+	, fillrange{ 0, 0 }
 {
-	pos 			= 0;
+	className		= Logfacility_class::className;
+	rpos 			= 0;
+	wpos			= 0;
 	Data 			= &_ptr[ 0 ];
-	inc				= min_frames;//_inc;
-	wrt				= _inc; // use set_wrt_len to change
-	max				= 0;
+	inc				= audio_frames;	// min_frames;//_inc;
+	wrt				= _inc; 		// use set_wrt_len to change
 }
 
-Data_t* Scanner_class::Next()
+void Scanner_class::Show( bool debug )
 {
-	if ( inc > wrt )
+	if ( not debug ) return;
+	Info( "Read position    : ", rpos );
+	Info( "Write position   : ", wpos );
+	Info( "Memory max       : ", mem_range.max );
+	Info( "fillrange max    : ", fillrange.max );
+	Info( "Read frames      : ", inc );
+	Info( "Write frames     : ", wrt );
+
+}
+Data_t* Scanner_class::Next_read()
+{
+	if ( fillrange.max == 0 )
 	{
-		cout << "inc = " << inc  << " > wrt = " << wrt << endl;
 		return nullptr; // data is empty
 	}
 	Data_t*
-	data 			= &Data[ pos ];
-	pos 			= check_cycle( fillrange, pos + inc, "Next" );
-	trigger 		= ( pos < inc ); // indicates a next cycle or start cycle
-//		cout.flush()<< pos << " " << endl;
+	data 			= &Data[ rpos ];
+//	Set_rpos( rpos + inc );
+	rpos 			= ( rpos + inc ) % fillrange.max;//check_cycle( fillrange, rpos + inc, "Next" );
+	trigger 		= ( rpos < inc ); // indicates a next cycle or start cycle
 	return data;
 }
-Data_t* Scanner_class::Set_pos( buffer_t n )
+
+void Scanner_class::Next_write( buffer_t n )
 {
-	pos = check_cycle( fillrange, n, "Set_pos" );
+	Set_wpos( wpos + n );;
+}
+Data_t* Scanner_class::Set_rpos( buffer_t n )
+{
+
+	rpos = check_cycle( fillrange, n, "Set_pos" );
 
 	return &Data[n];
+}
+buffer_t Scanner_class::Set_wpos( buffer_t n )
+{
+	wpos = check_cycle( mem_range, n, "Set_wpos" );
+
+	return wpos;
 }
 void Scanner_class::Set_wrt_len( buffer_t n )
 {
 	wrt 		= check_range( mem_range, n, "Set_wrt_len");
 }
-void Scanner_class::Set_max_len( buffer_t n )
+void Scanner_class::Set_fillrange( buffer_t n )
 {
+	if( fillrange.max == mem_range.max )
+		return;
 	fillrange.max 	= check_range( mem_range, n, "Set_max_len" );
-	Set_pos( pos );
 }
 
 //-----------------------------------------------------------------------------
@@ -128,17 +153,17 @@ void Storage_class::Setup( StA_param_t param )
 	Memory::Init_data( );
 	Memory::DsInfo( param.name );
 	Reset();
-	scanner 		= Scanner_class( Data, min_frames, param.size );
 }
 
 void Storage_class::Write_data( Data_t* src )//, const buffer_t& wrt )
 {
-	buffer_t offs = scanner.pos;
+	buffer_t offs = scanner.wpos;
 	for ( buffer_t n = 0; n < scanner.wrt; n++ )
 	{
 		Data[ offs ] += src[n];
 		offs = ( offs + 1 ) % ( scanner.mem_range.max );
 	}
+	scanner.Set_fillrange( scanner.wpos + scanner.wrt );
 }
 
 void Storage_class::Store_block( Data_t* src )
@@ -151,7 +176,7 @@ void Storage_class::Store_block( Data_t* src )
 	}
 	record_counter 	= ( record_counter + 1 );
 	record_data 	= record_counter * mem_ds.size;
-	scanner.Set_max_len( record_data );
+	scanner.Set_fillrange( record_data );
 	if ( record_counter == mem_ds.max_records - 2 )
 		state.store = false ;
 }
@@ -165,19 +190,21 @@ void 	Storage_class::Set_store_counter( uint  n )
 	record_data 		= record_counter * mem_ds.size;
 	if ( read_counter > n )
 		read_counter  	= 0;
-	scanner.Set_pos		(0);
-	scanner.Set_max_len	( record_data );
+	scanner.Set_rpos		(0);
+	scanner.Set_fillrange	( record_data );
 }
 
 void 	Storage_class::Reset( )
 {
-	Info( "Reset counter ", (int)Id );
+	Comment( DEBUG, "Reset counter ", (int)Id );
 	record_counter 		= 0;
 	record_data 		= 0;
 	read_counter  		= 0;
 	state.store			= false;
-	scanner.Set_pos		(0);
-	scanner.Set_max_len (0);
+	scanner.Set_rpos	(0);
+	scanner.Set_wpos	(0);
+	scanner.Set_fillrange ( 0 );
+//	scanner.Set_fillrange ( 0 );
 	Clear_data			(0);
 }
 void Storage_class::Playnotes( bool flag )
@@ -193,6 +220,8 @@ string 	Storage_class::Play_mode( bool flag )
 {
 //	Comment(INFO, "mute " + StAparam.name );
 	state.play 			= flag;
+//	if( scanner.fillrange.max == 0 )
+//		state.play = false;
 	return (state.play) ? "ON" : "OFF";
 }
 

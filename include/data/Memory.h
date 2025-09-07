@@ -15,14 +15,16 @@
 #include <Dynamic.h>
 
 class Scanner_class
+	: public virtual Logfacility_class
 {
+	string					className		= "";
 public:
 	// scanner_t scanner = scanner_struct( Mem.Data, min_frames, max_frames );
 
 	buffer_t				inc; 			// read frame
-	buffer_t 				pos;			// currejt read pos
+	buffer_t 				rpos;			// currejt read  cursor
+	buffer_t				wpos;			// current write cursor
 	buffer_t				wrt; 			// write frames
-	buffer_t				max;			// content frames
 	Data_t*					Data;
 
 	range_T<buffer_t>		mem_range;		// 0<pos<max
@@ -31,11 +33,14 @@ public:
 
 							Scanner_class	( Data_t* _ptr, buffer_t _inc, buffer_t _max );
 	virtual 				~Scanner_class()= default;
+	void 					Show			( bool debug );
 
-	Data_t* 				Next			();
-	Data_t* 				Set_pos			( buffer_t n );
-	void 					Set_wrt_len		( buffer_t n );
-	void 					Set_max_len		( buffer_t n );
+	Data_t* 				Next_read			();
+	void 					Next_write			( buffer_t n );
+	Data_t* 				Set_rpos			( buffer_t n );
+	buffer_t 				Set_wpos			( buffer_t n );
+	void 					Set_wrt_len			( buffer_t n );
+	void 					Set_fillrange		( buffer_t n );
 
 };
 
@@ -142,9 +147,10 @@ public:
 	StA_param_t 	StAparam		= StA_param_struct();
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
+	bool			is_RecId		= false;
 	uint 			record_data		= 0;
 	Dynamic_class	DynVolume		{ volidx_range };
-	Scanner_class	scanner 		= Scanner_class( nullptr, min_frames, 0 );
+	Scanner_class	scanner 		{ nullptr, min_frames, 0 };
 
 	StA_state_t 	state 			= StA_state_struct();
 
