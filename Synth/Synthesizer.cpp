@@ -115,9 +115,8 @@ void add_sound()
 	if ( Mixer.status.notes )
 	{
 		if( sds->NotestypeId == XML_ID )
-			Notes.Generate_musicxml_data();
-		else
-			Notes.ScanData();
+			Notes.Generate_volatile_data( false ); // no init
+		Notes.ScanData();
 	}
 
 
@@ -184,17 +183,16 @@ void read_notes_fnc( )
 	string name 	= DaTA.Sds_p->Read_str( NOTESSTR_KEY );
 	string filename = fs.xmldir + name + fs.xml_type ;
 	Notes.musicxml 	= MusicXML.Xml2notelist( filename );
-	if ( Notes.musicxml.scoreduration != 0 )
+	if ( Notes.musicxml.scoreduration > 0 )
 	{
 		Notes.Set_notelist( Notes.musicxml.notelist );
 		sds->Noteline_sec = Notes.musicxml.scoreduration / 1000;
 
 		Mixer.status.notes = true;
 		DaTA.EmitEvent( NEWNOTESLINEFLAG, Notes.musicxml.instrument_name );
-		DaTA.Sds_p->Write_str(INSTRUMENTSTR_KEY, Notes.musicxml.instrument_name ); // other
-		DaTA.Sds_p->Event( SETINSTRUMENTKEY );
 
-		Notes.Restart = true;//Notes.Start_note_itr();
+		Notes.Start_note_itr();
+		Notes.Generate_volatile_data( true ); // initialize
 		Log.Comment(INFO, "xml notes ", name, " loaded");
 	}
 

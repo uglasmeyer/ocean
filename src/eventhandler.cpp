@@ -358,7 +358,7 @@ void Event_class::Handler()
 			sds->StA_amp_arr[ STA_NOTES ] = 75;
 		}
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
-		Notes->Generate_buffer_data();
+		Notes->Generate_cyclic_data();
 		Sds->Commit();
 		break;
 	}
@@ -369,7 +369,7 @@ void Event_class::Handler()
 		Notes->Read(notes_file); // notes have been written to file by the GUI already
 //		Mixer->status.notes = true;
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
-		Notes->Generate_buffer_data();
+		Notes->Generate_cyclic_data();
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 
 		Sds->Commit();
@@ -386,7 +386,7 @@ void Event_class::Handler()
 //			Mixer->composer = sec.val;
 //			Mixer->StA[id.val].Record_mode(true);
 //			Notes->Set_instrument(Instrument);
-			Notes->Generate_buffer_data();
+			Notes->Generate_cyclic_data();
 //			Mixer->Store_noteline(id.val, Notes);
 		} else {
 			Comment(WARN, "nothing to do for " + sec.str + " Notes!");

@@ -130,7 +130,6 @@ void Note_class::Start_note_itr()
 	note_itr 		= notelist.begin();
 	if ( note_itr	== notelist.end() )
 		Comment( WARN, "Empty notelist" );
-	framePart 		= 0;
 	if ( StA )
 		StA->scanner.Set_rpos( 0 );
 

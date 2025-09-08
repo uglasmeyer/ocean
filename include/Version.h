@@ -19,7 +19,7 @@
 
 #define MAYOR 3
 #define MINOR 11
-#define PATCH 0
+#define PATCH 1
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -32,6 +32,7 @@ const string Application = "Ocean Sound ";
 // Git comment:
 /*
 
+version 3.11.1 Generate_volatile_data
 version	3.11.0 scanner reorganized
 version 3.10.0 Introduction of Device_class
 version 3.9.0 Save Keyboard Notes

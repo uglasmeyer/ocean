@@ -89,19 +89,9 @@ void Note_class::set_volume_vector( string volline )
 }
 void Note_class::ScanData( )
 {
-
 	NotesData = StA->scanner.Next_read();
-//	Info( "rpos", StA->scanner.rpos );
-	if(StA->scanner.trigger )
-	{
-		Comment( INFO, "note_class scanner trigger" );
-		if( sds->NotestypeId == XML_ID )
-			Generate_musicxml_data();
-//		Info( "fillrange max:", StA->scanner.fillrange.max );
-//		Info( "rpos", StA->scanner.rpos );
-//		Info("wpos", StA->scanner.wpos );
-	}
 }
+
 void Note_class::gen_chord_data(const note_t& note,
 								const buffer_t& offs,
 								const uint& duration,
@@ -137,105 +127,47 @@ void Note_class::gen_chord_data(const note_t& note,
 }
 
 
-
-bool Note_class::Generate_musicxml_data(  )
+void Note_class::sta_write_data( uint duration )
 {
- 	// generate the memory track for positon n = note_pointer tp
-	// n = note_pointer + chunk_len
+	StA->Write_data( Osc->Mem.Data );//, max_frames );
+	StA->scanner.Next_write( duration * frames_per_msec );
+};
 
+bool Note_class::Generate_volatile_data( bool init )
+{
 	auto restart_note_itr = [ this ]()
 	{
 		if (( note_itr == notelist.end() ) or ( Restart )) // the global note iter shall be restarted.
 		{
 			Start_note_itr();
-			timestamp = 0 ;
-			scoretime = 0;
 		}
 		Restart = false;
 	};
 
+	if( StA->scanner.rpos < max_frames )
+		if ( not init )
+			return false;
+
 	Oscgroup.SetInstrument( sds );
-	NotesData = osc->GetData_p( 0 );
-	Comment( INFO, "Generate_musicxml_data");
+	StA->Reset();
 	restart_note_itr();
-	buffer_t 	frame_offset = (frames_per_msec * timestamp)  ;
-	bool 		partnote = false;//( timestamp != 0);
-	int 		lastduration = 0;
-	bool		longnote = false;// ( timestamp != 0 );
-	while ( note_itr != notelist.end() )
+	int duration = 0;
+	while( ( duration < 2000 ) and (note_itr != notelist.end() ) )
 	{
+		gen_chord_data( *note_itr, 0, note_itr->duration, false );
+		sta_write_data( note_itr->duration );
 
-		if ( timestamp == max_msec )
-		{
-			timestamp = 0;
-			return true; // good
-		}
-		if ( timestamp >  max_sec*1000 )
-		{	// considers the end pause to finish
-			timestamp = timestamp % max_msec;
-
-			Comment( DBG2, "take over " + to_string( timestamp ) + "[msec]");
-			note_itr++;
-			return false;
-		}
-
-		uint duration = rint( note_itr->duration );//* 2.0 ) ;// musicxml.tempo;
-
-		scoretime += duration;
-		if ( timestamp + duration > max_msec )
-		{
-			lastduration = duration;
-			duration = max_msec - timestamp ;
-			partnote = true;
-//			cout << "part start ";
-		}
-
-		gen_chord_data( *note_itr, frame_offset, duration, longnote );
-
-		longnote = false;
-		timestamp = timestamp + duration;
-		frame_offset = (frames_per_sec * timestamp)  / 1000 ;
-
-		if ( partnote )
-		{ 	//unaligned end of the measure
-
-			timestamp = lastduration - duration;
-//			cout << "T: " << timestamp << endl;
-			if ( scoretime >= noteline_sec * 1000 )
-				note_itr++;
-			return false;
-		}
-		else
-			note_itr++;
+		duration += note_itr->duration;
+		note_itr++;
 	}
-	note_itr = notelist.begin(); // track done , time is over
+	if( init )
+		Comment( INFO, "volatile data initialized" );
 
-	if ( timestamp == 0 )
-	{
-		return true;
-	}
-	else
-	{ 	// there was an uncomplete measure at the end of the notelist
-		Comment(DBG2, "Notes are not aligned by " + to_string( timestamp ) + "[msec]");
-		timestamp = 0;
-	}
-	return false;
+	return true;
 }
 
-bool Note_class::Generate_buffer_data(  )
+bool Note_class::Generate_cyclic_data(  )
 {
-	buffer_t	wrt_pos = 0;
-
-	auto sta_write_data = [ this, &wrt_pos ]( uint duration )
-	{
-		StA->Write_data( Osc->Mem.Data );//, max_frames );
-		StA->scanner.Next_write( duration * frames_per_msec );
-
-//		wrt_pos += duration * frames_per_msec ;
-//		wrt_pos = wrt_pos % StA->scanner.mem_range.max;
-//		StA->scanner.Set_wpos( wrt_pos );
-	};
-
 	Oscgroup.SetInstrument( sds );
 	Start_note_itr();
 	StA->Reset();
@@ -243,14 +175,11 @@ bool Note_class::Generate_buffer_data(  )
 	while ( note_itr != notelist.end() )
 	{
 		gen_chord_data( *note_itr, 0, note_itr->duration, false );
-//		StA->Write_data( Osc->Mem.Data );//, max_frames );
 		sta_write_data( note_itr->duration );
-
-
 		note_itr++;
 	}
 	StA->scanner.Set_rpos( 0 );
-	StA->scanner.Show( true );
+	StA->scanner.Show( false );
 	return true;
 }
 
@@ -541,7 +470,7 @@ void Note_class::Test()
 
 
 	Gen_notelist( noteline_prefix_default, "A2A3-A4--A5---");
-	Generate_buffer_data();
+	Generate_cyclic_data();
 
 //	assert (false);
 	TEST_END( className );
