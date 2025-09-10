@@ -178,7 +178,7 @@ string Spectrum_class::Show_spectrum( const spectrum_t spec )
 	return strs.str();
 }
 
-void Spectrum_class::Save_spectrum_table(fstream* f, const spectrum_t& spec )
+void Spectrum_class::Show_spectrum_table(fstream* f, const spectrum_t& spec )
 {
 	string OscRoleTag = osc_struct().oscNames[ spec.osc ];
 	if( spec.adsr )
@@ -270,7 +270,7 @@ void Spectrum_class::Test_Spectrum()
 
 	fstream f;
 	f.open( "/tmp/Save_spectrum_table.txt", fstream::out );
-	Save_spectrum_table( &f, this->spectrumTmp );
+	Show_spectrum_table( &f, this->spectrumTmp );
 	f.close();
 
 //assert(false);

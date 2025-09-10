@@ -217,8 +217,6 @@ void MainWindow::initUiConnectors()
     connect(ui->hs_pmw      	, SIGNAL(valueChanged(int) ),this, SLOT(dial_PMW_value_changed() ));
     connect(ui->Slider_slideVol	, SIGNAL(valueChanged(int) ),this, SLOT(slideVol(int)) );
 
-//    connect(ui->hs_adsr_attack	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_attack() ));
-//    connect(ui->hs_adsr_sustain	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_decay() ));
     connect(ui->hs_hall_effect	, SIGNAL(valueChanged(int) ),this, SLOT(adsr_hall() ));
     connect(ui->hs_balance		, SIGNAL(valueChanged(int) ),this, SLOT(mixer_balance() ));
     connect(ui->hs_chord_delay	, SIGNAL(valueChanged(int) ),this, SLOT(chord_delay() ));
@@ -274,8 +272,8 @@ void MainWindow::initUiConnectors()
     connect(ui->cB_Capture		, SIGNAL(textActivated(QString) ),this, SLOT(cB_Capture(QString) ));
     connect(ui->cb_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
 
-    connect(ui->cb_connect_fmo	, SIGNAL(clicked( bool ))	,this, SLOT( connect_fmo( bool ) ));
-    connect(ui->cb_connect_vco	, SIGNAL(clicked( bool ))	,this, SLOT( connect_vco( bool ) ));
+    connect(ui->cb_connect_fmov	, SIGNAL(clicked( bool ))	,this, SLOT( connect_fmov( bool ) ));
+    connect(ui->cb_connect_vcov	, SIGNAL(clicked( bool ))	,this, SLOT( connect_vcov( bool ) ));
     connect(ui->cb_connect_oscf	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscf( bool ) ));
     connect(ui->cb_connect_oscv	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscv( bool ) ));
 

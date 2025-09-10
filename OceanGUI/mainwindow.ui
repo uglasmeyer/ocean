@@ -1881,7 +1881,7 @@
      <string>Balance</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="cb_connect_vco">
+   <widget class="QCheckBox" name="cb_connect_vcov">
     <property name="geometry">
      <rect>
       <x>330</x>
@@ -1894,7 +1894,7 @@
      <string>connect VCO</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="cb_connect_fmo">
+   <widget class="QCheckBox" name="cb_connect_fmov">
     <property name="geometry">
      <rect>
       <x>330</x>

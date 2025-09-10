@@ -18,10 +18,12 @@ void usage( )
 	Table_class Usage{ defaultopt };
 	Usage.AddColumn( "keyboard Key"	, 15 );
 	Usage.AddColumn( "Description"	, 20 );
+	Usage.AddColumn( "|"	, 1 );
+
 	Usage.AddColumn( "keyboard Key"	, 15 );
 	Usage.AddColumn( "Description"	, 20 );
 	Usage.PrintHeader();
-	Usage.AddRow( "<CrtlC>, <ESC>", "exit", "F1","more keyboard keys" );
+	Usage.AddRow( "<CrtlC>, <ESC>", "exit", "|", "F1","more keyboard keys" );
 }
 
 void setupdate_flag( bool flag )
@@ -149,15 +151,19 @@ void while_MenuF9()
 							System_execute( "ipcs -a", false );
 							tainted = true;
 							break; }
+			case 'r' : {	App.Appstate->Shutdown( sds, SYNTHID );
+							App.Appstate->Shutdown( sds, KEYBOARDID );
+							App.Appstate->Shutdown( sds_master, AUDIOID );
+							Sds->Reset_ifd();
+							tainted = true;
+							break; }
 			default  : { 	break; }
 		} // switch  key3.key
 		if( tainted )
 		{
 			tainted = false;
-//			ViewSds.ShowPage( sds_master, F9 );
 			show_ifd();
-//			usage();
-		}
+			}
 	}
 	ViewSds.ShowPage( sds_master, F1 );
 }

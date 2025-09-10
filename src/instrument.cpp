@@ -110,6 +110,7 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 	return true;
 }
 
+/*
 auto showOscfeatures2 = [  ]( Oscillator* osc, Oscillator* vco )
 {
 	Table_class Table { "Features" };
@@ -128,7 +129,7 @@ auto showOscfeatures2 = [  ]( Oscillator* osc, Oscillator* vco )
 					(int)osc->features.glide_effect,
 					(int)vco->features.PMW_dial);
 };
-
+*/
 
 void Instrument_class::showOscfeatures( fstream* FILE )
 {
@@ -206,7 +207,6 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 
 	Oscgroup.SetAdsr( sds );
 	Oscgroup.SetFeatures( sds );
-	showOscfeatures( ); // stdout
 
 	return true;
 
@@ -385,8 +385,7 @@ bool Instrument_class::read_instrument( )
 	}
 
 
-	if ( code )
-		Oscgroup.Show_sound_stack();
+
 
 	return code;
 }
@@ -492,8 +491,8 @@ void Instrument_class::Save_Instrument( string str )
 	for ( Oscillator* osc : Oscgroup.member )
 	{
 		// Type SPE
-		osc->Save_spectrum_table( &FILE, osc->spectrum );
-		osc->Save_spectrum_table( &FILE, osc->Get_adsr().spec );
+		osc->Show_spectrum_table( &FILE, osc->spectrum );
+		osc->Show_spectrum_table( &FILE, osc->Get_adsr().spec );
 		// Type CONN
 		save_connections( FILE, osc );
 	}
@@ -507,12 +506,13 @@ bool Instrument_class::Set( string name )
 {
 	set_name( name );
 
-	Oscgroup.Data_Reset();
 	Oscgroup.Connection_Reset();
 
 	if ( read_instrument( ) )
 	{
 		Comment(INFO, "sucessfully loaded instrument " + name );
+		showOscfeatures( ); // stdout
+		Oscgroup.Show_sound_stack();
 	}
 	else
 	{
@@ -520,6 +520,7 @@ bool Instrument_class::Set( string name )
 		return false;
 	}
 
+	Oscgroup.Data_Reset();
 	Oscgroup.SetInstrument( sds );
 
 	return true;

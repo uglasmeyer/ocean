@@ -136,7 +136,7 @@ bool Appstate_class::IsInconsistent( interface_t* sds, char appid )
 	}
 	return false;
 }
-void  Appstate_class::shutdown( interface_t* sds, char appid )
+void  Appstate_class::Shutdown( interface_t* sds, char appid )
 {
 	Info( "shutting down ", AppIdName( appid ) );
 	SetExitserver( sds, appid );
@@ -151,7 +151,7 @@ void Appstate_class::Shutdown_all( vector< interface_t* >  _sds_vec )
 			if( IsRunning( sds, appid ) )
 			{
 				if( not ( appid == APPID::SDSVIEWID ) ) //  exclude comstack
-					shutdown( sds, appid );
+					Shutdown( sds, appid );
 			}
 		}
 	}

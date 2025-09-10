@@ -38,12 +38,13 @@ public:
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 
-	void					Set_Note_Frequency	( const frq_t& base_freq,
+	void					Set_Note_Frequency	( interface_t* sds,
 												  const uint8_t& idx,
 												  const uint& mode );
-	void 					Set_Combine_Frequency(const uint8_t& idx,
+	void 					Set_Combine_Frequency(const uint8_t& base_idx,
+												  const uint8_t& idx,
 												  const uint& mode );
-	void 					Set_Osc_Note		( const frq_t&	base_freq,
+	void 					Set_Osc_Note		( interface_t* sds,
 												  const uint8_t& key,
 												  const uint& duration,
 												  const uint& volume,

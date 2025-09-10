@@ -26,7 +26,7 @@ typedef				StA_param_struct StA_param_t;
 
 struct 				StA_state_struct // memory array status
 {
-	// SDS structure
+	// SDS related structure
 	bool 			play			= false; // play this memory array
 	bool 			store			= false; // record into this memory array
 	bool			filled			= false; // there record counter is > 0

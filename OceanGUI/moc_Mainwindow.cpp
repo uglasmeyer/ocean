@@ -72,8 +72,8 @@ static constexpr auto qt_meta_stringdata_ZN10MainWindowE = QtMocHelpers::stringD
     "start_keyboard",
     "connect_oscf",
     "connect_oscv",
-    "connect_fmo",
-    "connect_vco",
+    "connect_fmov",
+    "connect_vcov",
     "Sl_mix0",
     "Sl_mix1",
     "Sl_mix2",
@@ -382,10 +382,10 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         // method 'connect_oscv'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'connect_fmo'
+        // method 'connect_fmov'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'connect_vco'
+        // method 'connect_vcov'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<bool, std::false_type>,
         // method 'Sl_mix0'
@@ -527,8 +527,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 27: _t->start_keyboard(); break;
         case 28: _t->connect_oscf((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
         case 29: _t->connect_oscv((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
-        case 30: _t->connect_fmo((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
-        case 31: _t->connect_vco((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 30: _t->connect_fmov((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 31: _t->connect_vcov((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
         case 32: _t->Sl_mix0((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 33: _t->Sl_mix1((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 34: _t->Sl_mix2((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;

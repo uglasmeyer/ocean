@@ -61,15 +61,17 @@ void Event_class::Handler()
 		EvInfo( event, "Slider Mode: " + slidermodes[sds->frq_slidermode] );
 		if ( sds->frq_slidermode == COMBINE )
 		{
-			Instrument->Oscgroup.Set_Combine_Frequency( sds->spectrum_arr[OSCID].frqidx[0], sds->frq_slidermode );
-			sds->spectrum_arr[VCOID] = Instrument->vco->spectrum;
-			sds->spectrum_arr[FMOID] = Instrument->fmo->spectrum;
+			Instrument->Oscgroup.Set_Combine_Frequency( Instrument->Oscgroup.osc.spectrum.frqidx[0],
+														sds->spectrum_arr[OSCID].frqidx[0],
+														COMBINE );
+			sds->spectrum_arr[VCOID].frqidx[0] = Instrument->vco->spectrum.frqidx[0];
+			sds->spectrum_arr[FMOID].frqidx[0] = Instrument->fmo->spectrum.frqidx[0];
 		}
 		else
 		{
 			Instrument->osc->Set_frequency( sds->spectrum_arr[OSCID].frqidx[0], sds->frq_slidermode );
 		}
-		sds->spectrum_arr[OSCID] = Instrument->osc->spectrum;
+		sds->spectrum_arr[OSCID].frqidx[0] = Instrument->osc->spectrum.frqidx[0];
 		Sds->Commit();
 		break;
 	}
@@ -99,8 +101,6 @@ void Event_class::Handler()
 		Instrument->vco->Set_volume(vol.ch, sds->vol_slidemode);
 
 		Instrument->Connect( Instrument->osc, Instrument->vco, CONV);
-		sds->spectrum_arr[VCOID].vol[0] = vol.val * 0.01;
-//		sds->VCO_spectrum.volidx[0] = vol.val;
 		Sds->Commit();
 		break;
 	}
@@ -111,8 +111,6 @@ void Event_class::Handler()
 		Value vol = sds->spectrum_arr[FMOID].volidx[0];
 		Instrument->fmo->Set_volume(vol.ch, sds->vol_slidemode );
 		Instrument->Connect( Instrument->osc, Instrument->fmo, CONF );
-		sds->spectrum_arr[FMOID].vol[0] = vol.val * 0.01;
-//		sds->FMO_spectrum.volidx[0] = vol.val;
 		Sds->Commit();
 		break;
 	}
@@ -151,7 +149,6 @@ void Event_class::Handler()
 	}
 	case FEATURE_KEY	:
 	{
-
 		EvInfo( event, "Feature change");
 		Instrument->Oscgroup.SetFeatures( sds );
 
@@ -444,9 +441,12 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case CONNECTOSC_KEY : // reset main
+	case CONNECTOSC_KEY : // TODO not yet ready
 	{
 		EvInfo( event, "update modulation connections for the OSC");
+		Instrument->Oscgroup.Set_Connections( sds );
+		Sds->Commit();
+		break;
 		if( sds->ui_connect_status[CON::OSCFMOF] )
 			Instrument->Connect( Instrument->osc, Instrument->fmo, CONF );
 		else

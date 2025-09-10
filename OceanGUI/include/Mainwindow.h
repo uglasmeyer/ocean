@@ -200,8 +200,8 @@ private slots:
 
     void connect_oscf( bool );
     void connect_oscv( bool );
-    void connect_fmo( bool );
-    void connect_vco( bool );
+    void connect_fmov( bool );
+    void connect_vcov( bool );
 
     void Sl_mix0( int );
     void Sl_mix1( int );

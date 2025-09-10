@@ -176,7 +176,7 @@ void ADSR_class::Set_bps()
 	if ( ( has_notes_role ) )	// overwrite instrument settings
 	{
 		adsr_data.bps 	= 1;
-		beat_frames 	= wp.frames;
+		beat_frames 	= wp.frames;//rint( adsr_frames / adsr_data.bps );//
 	}
 	else
 	{

@@ -104,7 +104,7 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 	switch ( id )
 	{
 		case STA_INSTRUMENT :	{ status.instrument = play; break; }
-		case STA_NOTES 		:	{ status.notes 		= play; break; }
+		case STA_NOTES 		:	{ status.notes 		= play;	break; }
 		case STA_KEYBOARD	: 	{ status.kbd 		= play; break; }
 		case STA_EXTERNAL 	:	{ status.external 	= play; break; }
 		default				:	break;
@@ -133,10 +133,9 @@ void Mixer_class::SetStA()
 
 		sds->StA_state[n] = StA[n].state;
 
-		uint8_t amp = sds->StA_amp_arr[ n ];
-
 		Set_mixer_state( n , play );
 
+		uint8_t amp = sds->StA_amp_arr[ n ];
 		StA[ n ].DynVolume.SetupVol( amp , SLIDE );
 	}
 }

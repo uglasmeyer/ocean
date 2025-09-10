@@ -19,12 +19,12 @@ class Spectrum_Dialog_class;
 }
 
 class Spectrum_Dialog_class :
-		public QDialog,
-		public virtual Spectrum_class,
-		virtual osc_struct
+		public 			QDialog,
+		public virtual 	Spectrum_class,
+		virtual 		osc_struct
 {
     Q_OBJECT
-
+	string className			= "";
 public:
     unique_ptr<Ui::Spectrum_Dialog_class> 		ui;
 
@@ -33,21 +33,18 @@ public:
 								   EventLog_class* _log = nullptr);
     virtual ~Spectrum_Dialog_class();
 
-    Spectrum_class Spectrum{};
-    spectrum_t spectrum;
+    spectrum_t 				spectrum;
 
-    Interface_class* Sds;
-    interface_t* sds_p;
+    Interface_class* 		Sds;
+    interface_t* 			sds_p;
 
-    EventLog_class*	Eventlog_p;
+    EventLog_class*			Eventlog_p;
 
-    spectrum_t*				sds_spectrum_p;
-
-    adsr_t*					sds_adsr_p;
     adsr_t					adsr_data;
     uint8_t					OscId;
-    Id_t					WfSlot = 1; // active slot last selected Wafeform out of 4
+    Id_t					Channel = 1; // active slot last selected Wafeform out of 4
     vector<QSpinBox*>		sb_vec {};
+    vector<QRadioButton*> 	rb_vec {};
     Frequency_class			Frequency {};
     string 					instrument{};
     uint8_t 				waveform_id;
@@ -99,7 +96,7 @@ private:
     void select_spec( char oscid );
     void set_spectrum_data();
     void set_spectrum_view();
-    void scrollBar_wafeform( uint id, int value  );
+    void waveform_spinbox( uint id, int value  );
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
     void set_waveform_vec( vector<string> waveform_vec );

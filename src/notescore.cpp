@@ -17,6 +17,7 @@
 	const char BREAK	= '\n';
 	const char OPEN		= '(';
 	const char CLOSE	= ')';
+	const char LONG_CH	= '!';
 
 void Note_class::Align_measure( noteline_prefix_t prefix, string& noteline )
 {
@@ -56,6 +57,7 @@ Note_base::notelist_t Note_class::Gen_notelist( noteline_prefix_t prefix, string
 {
 	notelist.clear(	);
 	compiler( prefix, str );
+
 	return notelist;
 }
 
@@ -134,7 +136,15 @@ void Note_class::Start_note_itr()
 		StA->scanner.Set_rpos( 0 );
 
 }
+void Note_class::set_note_itr()
+{
+	if (( note_itr == notelist.end() ) or ( Restart )) // the global note iter shall be restarted.
+	{
+		Start_note_itr();
 
+	}
+	Restart = false;
+};
 
 void Note_class::Show_note( note_t note )
 {
@@ -236,10 +246,16 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 	note_itr--;
 	switch (note_char )
 	{
+		case LONG_CH :
+		{
+			note_itr->longplay = true;
+			note_itr->str.append(1, LONG_CH );
+			break;
+		}
 		case SLIDE_CH : // allowed: >F or >|3F
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len; // test note_itr
-			note_itr->str.push_back( '>' );
+			note_itr->str.push_back( SLIDE_CH );
 			note_itr->glide[0].glide = true;
 			pos++; //
 			if ( noteline[pos] == NEWOCT ) // oct change case >|3F
@@ -266,7 +282,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			}
 			break;
 		}
-		case OPEN :
+		case OPEN : //(
 		{
 			set_duration();
 			note_buffer = note_struct(); // clear note_buffer;
@@ -274,7 +290,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			pos++;
 			int nc_pos = 0;
 			char ch = noteline[pos];
-			while( ch != ')')
+			while( ch != CLOSE )
 			{
 				if ( Note_Chars.Set.contains( ch ) )
 				{
@@ -470,7 +486,10 @@ void Note_class::fill_note_list()
 	uint noteline_msec = Calc_noteline_msec( notelist );
 	noteline_sec = 0;
 
-	int mod = ( noteline_msec % measure_duration ) / min_duration;
+	int a = ( noteline_msec % measure_duration );
+	int b = ( measure_duration - a ) % measure_duration;
+	int mod = ( b ) / min_duration;
+
 	note_itr_t itr = notelist.end();
 	if( itr != notelist.begin() )
 	{
@@ -513,10 +532,17 @@ void Note_class::add_volume( note_itr_t itr )
 
 bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 {
+	noteline_len = str.length();
+
+	if ( noteline_len  == 0 )
+		return false;
+
+	noteline 	  		= str;
+
 	string prefix_str 	= convention_names[ prefix.convention ];
 	String Note_Chars 	{ convention_notes[ prefix.convention ] };
 	Octave 				= prefix.Octave;
-	noteline 	  		= str;
+	min_duration 		= measure_duration / prefix.nps;
 
 	Comment(INFO, "Instrument : " + Instrument_name );
 	Comment(INFO, "Notes name : " + notefile_name );
@@ -524,10 +550,7 @@ bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 	Comment(INFO, "Note line  : " + noteline );
 	Comment(INFO, "Rhythm line: " + volumeline );
 
-	noteline_len = noteline.length();
 
-	if ( noteline_len  == 0 )
-		return false;
 	parse_error = noteline_len + 1;
 	notelist.clear();
 	set_volume_vector( volumeline );
@@ -539,6 +562,7 @@ bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 	while( char_pos < noteline_len )
 	{
 		char_pos = noteline_position_parser( char_pos );
+
 		char_pos++;
 	};
 

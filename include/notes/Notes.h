@@ -33,7 +33,6 @@ public:
 	Oscillator*		fmo				= &Oscgroup.fmo;
 	Oscillator*		Osc				= &Oscgroup.osc;
 
-	uint 			framePart 		= 0; // frame cursor
 	string			Instrument_name { "" };
 	bool			Restart			= false;
 	uint8_t 		Octave			= noteline_prefix_default.Octave; // 55
@@ -78,7 +77,8 @@ public:
 
 	void			Set_notelist			( const notelist_t& notelist );
 
-	void 			Show_note_list			( auto items ) // list or vector
+	template< class C>
+	void 			Show_note_list			( C& items ) // list or vector
 	{
 		Set_Loglevel( DEBUG, true );
 		stringstream strs;
@@ -129,13 +129,13 @@ private:
 					note_itr_t;
 	note_itr_t  	note_itr 		= notelist.begin();
 
+	void 			set_note_itr			();
 	void 			sta_write_data			( uint duration );
 	string 			get_name				();
 	bool 			compiler 				( noteline_prefix_t,  string );
 	bool			set_file_name			( string );
 	size_t			noteline_position_parser( size_t );
 	void 			gen_chord_data			( const note_t&,
-											const buffer_t&,
 											const uint& duration,
 											const bool& partnote );
 	void 			change_alphabet_notes	( noteline_prefix_t );

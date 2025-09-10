@@ -96,9 +96,9 @@ void Application_class::Start( int argc, char* argv[] )
 	{
 		Init_log_file();
 	}
-	Info(Line );
+	Info(Line() );
 	Info("Entering application init for ", This_Application );
-	Info(Line );
+	Info(Line() );
 
 	versionTxt();
 
@@ -131,7 +131,7 @@ void Application_class::Ready(  )
 
 	Comment(INFO, ProgramName + " is ready");
 	Info( "SDS ID: ", (int) DaTA->SDS_Id );
-	cout << Line << endl;
+	cout << Line() << endl;
 	DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
 
 }

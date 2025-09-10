@@ -97,21 +97,23 @@ void ViewInterface_class::show_manage()
 	Manage.PrintHeader();
 
 	Manage.AddRow( "Shutdown all", "s" );
+	Manage.AddRow( "Reset SDS", "r" );
 	Manage.AddRow( "Destroy Shared Memory", "d" );
 
 }
 void ViewInterface_class::show_spectrum()
 {
-    vector<spectrum_t> 	sds_spectrum_vec 	= {
-    							sds_p->spectrum_arr[VCOID],
-								sds_p->spectrum_arr[FMOID],
-								sds_p->spectrum_arr[OSCID]};
 
-	for ( spectrum_t& spec : sds_spectrum_vec )
+    string instrument {};
+    instrument.assign( sds_p->Instrument );
+    Info( "Instrument name: ", instrument );
+
+	for ( Id_t oscid : oscIds )
 	{
-		coutf << Show_spectrum( spec );
+		Show_spectrum_table( nullptr, sds_p->spectrum_arr[oscid] );
 	}
 }
+
 void ViewInterface_class::showStates()
 {
 	Table_class Table { "Connections", 20 };
@@ -153,43 +155,22 @@ void ViewInterface_class::showStates()
 	State.AddRow( "Syncronize:" , sds_p->mixer_status.sync,"Instrumemt:"	,sds_p->mixer_status.instrument);
 
 }
-void ViewInterface_class::ShowPage( interface_t* sds, int nr )
-{
-	this->sds_p = sds;
-	Device_class::Set_sds( sds_p );
 
-	ClearScreen();
-	printHeader();
-
-	switch ( nr )
-	{
-		case F1 : { showKeys();			break;}
-		case F2 : { showOSCs();			break;}
-		case F3 : { showProcesses();	break;}
-		case F4 : { showStates();		break;}
-		case F5 : { show_Que();			break;}
-		case F6 : { show_Adsr();		break;}
-		case F7 : { show_Ipc();			break;}
-		case F8 : { show_spectrum();	break;}
-		case F9 : { show_manage();		break;}
-
-		default: break;
-	}
-	cout << endl;
-}
 void ViewInterface_class::showKeys()
 {
 	Table_class Keys{ "Navigation",20 };
 	Keys.AddColumn( "Key", 10);
 	Keys.AddColumn( "SDS Table", 15 );
+	Keys.AddColumn( "|", 1 );
+
 	Keys.AddColumn( "Key", 10);
 	Keys.AddColumn( "SDS Table", 15 );
 	Keys.PrintHeader();
-	Keys.AddRow( "F1" , "more Keys"	, "F2", "OSCs" );
-	Keys.AddRow( "F3" , "Processes"	, "F4", "States" );
-	Keys.AddRow( "F5" , "Event Que"	, "F6", "Features" );
-	Keys.AddRow( "F7" , "IPC"		, "F8", "Spectrum" );
-	Keys.AddRow( "" , ""			, "", "" );
+	Keys.AddRow( "F1" , "more Keys"	, "|","F2", "OSCs" );
+	Keys.AddRow( "F3" , "Processes"	, "|","F4", "States" );
+	Keys.AddRow( "F5" , "Event Que"	, "|","F6", "Features" );
+	Keys.AddRow( "F7" , "IPC"		, "|","F8", "Spectrum" );
+	Keys.AddRow( "" , ""			, "|","", "" );
 
 }
 void ViewInterface_class::show_Adsr()
@@ -214,14 +195,11 @@ void ViewInterface_class::show_Adsr()
 					"chord delay", (int)sds_p->noteline_prefix.chord_delay );
 	Adsr.AddRow( 	"Frq Slider Mode", slidermodes[ sds_p->frq_slidermode ] ) ;
 
-    vector<adsr_t>	sds_adsrspec_vec	= {
-    							sds_p->adsr_arr[VCOID],
-    							sds_p->adsr_arr[FMOID],
-								sds_p->adsr_arr[OSCID] };
-	for ( adsr_t& adsr : sds_adsrspec_vec )
+
+	for ( Id_t oscid : oscIds )
 	{
-		cout << Show_spectrum( adsr.spec );
-		cout << "Bps: " << (int) adsr.bps << endl;
+		Show_spectrum_table( nullptr, adsr_arr[oscid].spec );
+		coutf << oscNames[oscid] <<" Bps: " << (int) adsr_arr[oscid].bps << endl;
 	}
 }
 void ViewInterface_class::showProcesses()
@@ -267,7 +245,7 @@ void ViewInterface_class::printHeader()
 					to_hex( (long) sds_p ),
 					Version_No,
 					(int) sds_p->version );
-
+	coutf<< Line() << endl;
 }
 void ViewInterface_class::showOSCs()
 {
@@ -291,9 +269,29 @@ void ViewInterface_class::showOSCs()
 	rline( "                   " , 0 );
 	rline( "Audio frames", (int)sds_p->audioframes );
 
+}
 
+void ViewInterface_class::ShowPage( interface_t* sds, int nr )
+{
+	this->sds_p = sds;
+	Device_class::Set_sds( sds_p );
 
+	ClearScreen();
+	printHeader();
 
+	switch ( nr )
+	{
+		case F1 : { showKeys();			break;}
+		case F2 : { showOSCs();			break;}
+		case F3 : { showProcesses();	break;}
+		case F4 : { showStates();		break;}
+		case F5 : { show_Que();			break;}
+		case F6 : { show_Adsr();		break;}
+		case F7 : { show_Ipc();			break;}
+		case F8 : { show_spectrum();	break;}
+		case F9 : { show_manage();		break;}
 
-
+		default: break;
+	}
+	cout << endl;
 }

@@ -61,6 +61,15 @@ const uint					LOGINDENT	= 20;
 // global Log facility structure
 typedef 	bitset<LOGMAX>		logmask_t;
 
+constexpr string Line( int len = 80 )
+{
+	string str {};
+	for (int n = 0; n < len; n++)
+	{
+		str.append( 1, '-' );
+	}
+	return str;
+}
 constexpr logmask_t setdefaultLogMask()
 {
 	logmask_t lm;
@@ -128,7 +137,7 @@ public:
 	const string 	byellow		= boldon + yellow;
 	const string 	bmagenta	= boldon + magenta;
 	const string	nocolor		= "";
-	const string 		Line 			{ "---------------------------------------------------------" };
+//	const string 		Line 			{ "---------------------------------------------------------" };
 	const range_T<int>	loglevel_range 	{ 0, LOGMAX - 1 };
 	string 				className 		{ "" };
 	string 				prefixClass 	{ "" };

@@ -152,17 +152,18 @@ void ApplicationLoop()
 	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
 		Timer.Performance();
+		Event.Handler();
+
 		if( not Appstate->IsRunning( sds_master, APPID::AUDIOID ))
 		{
 			key3struct_t key = Keyboard.GetKeystruct( false );
 			if( key == Keyboard.ESCkey )
 				Appstate->SetOffline( );
 		}
-		Event.Handler(  );
 	} ;
 
 	Log.Comment(INFO, "Exit Application loop");
-	Log.Comment( INFO, Log.Line);
+	Log.Comment( INFO, Line() );
 
 	return;
 

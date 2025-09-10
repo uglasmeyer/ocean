@@ -43,7 +43,7 @@ constexpr vector<int> init_pitch( string ac )
 
 class Note_base :
 	virtual  		Logfacility_class,
-	virtual 	 	Frequency_class
+	virtual public 	Frequency_class
 {
 	string 					className		= "";
 
@@ -135,7 +135,7 @@ public:
 		uint8_t 			octave 		= 0; 	// 1...9 ( * 55 ) = base frequency ot the octave
 		vector<glide_t>		glide		{{ pitch_struct(), false }};
 		bool				longnote	= false;// identify a note that jumps over the measure boundary
-
+		bool				longplay	= false;// generate sound max_msec or duration
 	} note_t;
 	typedef list<note_t>	notelist_t;
 	notelist_t 				notelist	{};

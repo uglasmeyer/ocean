@@ -186,8 +186,20 @@ void Keyboard_class::set_bufferMode()
 
 bool Keyboard_class::save_notes()
 {
+	auto delete_leading_nulls = [ this ](  )
+	{
+		set<char> nullset { '-', '.' };
+		int pos = 0;
+		char ch = Noteline[pos];
+		while ( nullset.contains( ch ) )
+		{
+			Noteline[pos] = ' ';
+			pos++;
+		}
+	};
 	Comment( INFO, "Saving notes to file", "<tbd>" );
 
+	delete_leading_nulls();
 	notes_p->Align_measure( nlp, Noteline );
 	if ( notes_p->Verify_noteline( nlp, Noteline ) )
 	{

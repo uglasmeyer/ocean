@@ -82,7 +82,7 @@ public:
 	spec_struct					Get_spectrum();
 	string 						Show_spectrum( const spec_struct spec );
 	string 						Show_spectrum_type( const int& _type, const spec_struct& spec );
-	void						Save_spectrum_table(fstream* f, const spec_struct& spec );
+	void						Show_spectrum_table(fstream* f, const spec_struct& spec );
 	void 						Sum( spec_struct& );
 	char 						Type_flag( const string& type_str );
 	char 						Osc_TypeId( const string& type_str );

@@ -133,9 +133,9 @@ public:
 	bool 			IsInconsistent		( interface_t* sds, char appid );
 
 	void			Shutdown_all		(  vector<interface_t*> sds_vec );
+	void  			Shutdown			( interface_t* sds, char appid );
 
 private:
-	void  			shutdown			( interface_t* sds, char appid );
 	uint8_t* 		appAddr				( interface_t* sds, uint appid );
 };
 

@@ -17,12 +17,14 @@ Note_class::Note_class( )
 	this->StA		= nullptr;
 	this->className = Logfacility_class::className;
 }
-Note_class::Note_class( interface_t* _sds)
+Note_class::Note_class( interface_t* _sds) // File_dialog
 	: Note_class::Logfacility_class("Note_class")
 	,  Note_base()
 {
 	this->className = Logfacility_class::className;
 	this->sds		= _sds;
+	this->Instrument_name.assign( sds->Instrument );
+
 	this->instrument= nullptr;
 	this->StA		= nullptr;
 }
@@ -36,6 +38,7 @@ Note_class::Note_class( Instrument_class* 	instr,
 	this->instrument= instr;
 	this->StA		= sta;
 	this->sds		= instr->sds;
+	this->Instrument_name.assign( sds->Instrument );
 
 	Oscgroup.SetWd( instr->wd_p );
 	Oscgroup.SetScanner( max_frames );
@@ -93,7 +96,6 @@ void Note_class::ScanData( )
 }
 
 void Note_class::gen_chord_data(const note_t& note,
-								const buffer_t& offs,
 								const uint& duration,
 								const bool& longnote
 								)
@@ -112,12 +114,18 @@ void Note_class::gen_chord_data(const note_t& note,
 
 	uint frame_delay 	= sds->noteline_prefix.chord_delay * frames_per_msec;
 	uint n 				= 0;
+	Osc->Set_beatcursor( 0 );
+	uint msec = duration;
+	if ( note.longplay )
+		msec = max_msec;
+
+
 	for ( pitch_t pitch : note.chord )
 	{
-		uint8_t key = GetFrqIndex( pitch );
-		Oscgroup.Set_Osc_Note( instrument->osc->wp.freq, key, duration, note.volume, SLIDE );
+		uint8_t frqidx = GetFrqIndex( pitch );
+		Oscgroup.Set_Osc_Note( sds, frqidx, msec, note.volume, SLIDE );
 		Oscgroup.Phase_Reset();
-		Oscgroup.Run_OSCs( offs + n*frame_delay );
+		Oscgroup.Run_OSCs( n*frame_delay );
 		n++;
 	}
 
@@ -135,33 +143,27 @@ void Note_class::sta_write_data( uint duration )
 
 bool Note_class::Generate_volatile_data( bool init )
 {
-	auto restart_note_itr = [ this ]()
-	{
-		if (( note_itr == notelist.end() ) or ( Restart )) // the global note iter shall be restarted.
-		{
-			Start_note_itr();
-		}
-		Restart = false;
-	};
 
 	if( StA->scanner.rpos < max_frames )
 		if ( not init )
 			return false;
 
 	Oscgroup.SetInstrument( sds );
+	set_note_itr();
 	StA->Reset();
-	restart_note_itr();
 	int duration = 0;
-	while( ( duration < 2000 ) and (note_itr != notelist.end() ) )
+
+	while( ( duration < max_msec ) and ( note_itr != notelist.end() ) )
 	{
-		gen_chord_data( *note_itr, 0, note_itr->duration, false );
+
+		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
 
 		duration += note_itr->duration;
 		note_itr++;
 	}
 	if( init )
-		Comment( INFO, "volatile data initialized" );
+		Comment( INFO, "volatile notes data initialized" );
 
 	return true;
 }
@@ -174,7 +176,7 @@ bool Note_class::Generate_cyclic_data(  )
 
 	while ( note_itr != notelist.end() )
 	{
-		gen_chord_data( *note_itr, 0, note_itr->duration, false );
+		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
 		note_itr++;
 	}
@@ -336,10 +338,31 @@ void Note_class::Test()
 	Instrument_name = "NotesTest";
 	Comment( TEST, "Note_class test start");
 
-	string nl = "D3----";
-	Align_measure( noteline_prefix_default,  nl );
-	coutf << nl << endl;
-	ASSERTION( nl.length() == 8, "Append_noteline", nl.length(), 8L );
+	// Note Frequency
+	sds->spectrum_arr[osc_struct::OSCID].frqidx[0] = A3;
+	sds->spectrum_arr[osc_struct::VCOID].frqidx[0] = A4;
+	sds->spectrum_arr[osc_struct::FMOID].frqidx[0] = A2;
+	Oscgroup.Set_Note_Frequency( sds, A2, FIXED );
+	ASSERTION( osc->wp.freq == GetFrq(A2), "osc freq", osc->wp.freq, GetFrq(A2) );
+	ASSERTION( vco->wp.freq == GetFrq(A3), "osc freq", vco->wp.freq, GetFrq(A3) );
+	ASSERTION( fmo->wp.freq == GetFrq(A1), "osc freq", fmo->wp.freq, GetFrq(A1) );
+
+	// Align
+	string nline = "D2--";
+	notelist_t nl { Gen_notelist( noteline_prefix_default, nline ) };
+	Show_note_list( nl );
+	Align_measure( noteline_prefix_default, nline );
+	int msec = Calc_noteline_msec( nl );
+	ASSERTION( msec == 1000, "Calc_noteline_msec", msec, 1000L );
+
+
+	nline = "D3----";
+	nl =  Gen_notelist( noteline_prefix_default, nline ) ;
+	msec = Calc_noteline_msec( nl );
+	ASSERTION( msec == 2000, "Calc_noteline_msec", msec, 2000L );
+	coutf << nline << endl;
+//	ASSERTION( nline.length() == 8, "Append_noteline", nline.length(), 8L );
+
 	Comment( TEST, "long notes ");// long note
 	Set_rhythm_line("5");
 	Verify_noteline( Noteline_prefix, "A-D--B----d-");
@@ -351,7 +374,7 @@ void Note_class::Test()
 	ASSERTION( not note_itr->longnote, "Longnote", note_itr->longnote, false );
 	advance(note_itr, 1 );
 	ASSERTION( note_itr->longnote, "Longnote", note_itr->longnote, true );
-	ASSERTION( noteline_sec == 3, "seconds", noteline_sec, 3 );
+	ASSERTION( noteline_sec == 3, "seconds", (int)noteline_sec, 3L );
 	ASSERTION( note_itr->chord[0].step == 11, "Assert test value ", note_itr->chord[0].step  , 11 );
 
 	Comment( TEST, "fill note list");

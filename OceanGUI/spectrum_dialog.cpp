@@ -11,10 +11,14 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 	ui(new Ui::Spectrum_Dialog_class)
 {
 //	ui = &UI_obj;
+	className 			= Logfacility_class::className;
+    Waveform_vec 		= Vstringvector( Get_waveform_vec() );
+    waveform_vec_len 	= Waveform_vec.size();
 
     ui->setupUi(this);
-    Waveform_vec = Vstringvector( Get_waveform_vec() );
-    waveform_vec_len = Waveform_vec.size();
+    ui->rb_spec_main->setChecked(true);
+    QStringList				Qbps_str_lst		= Qstringlist( bps_struct().Bps_lst );
+    ui->cb_bps->addItems	( Qbps_str_lst );
 
     connect( ui->fS_1, SIGNAL(valueChanged(int)), this, SLOT(fS1( int )));
     connect( ui->vS_2, SIGNAL(valueChanged(int)), this, SLOT(vS2( int )));
@@ -36,32 +40,29 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     connect( ui->rb_spec_fmo,  SIGNAL( clicked()), this, SLOT( select_spec_fmo() ) );
     connect( ui->rb_spec_vco,  SIGNAL( clicked()), this, SLOT( select_spec_vco() ) );
     connect( ui->rb_spec_main, SIGNAL( clicked()), this, SLOT( select_spec_main() ));
+    connect( ui->rb_reset, 		SIGNAL(clicked()), this, SLOT(reset( )));
+    rb_vec = { ui->rb_spec_vco, ui->rb_spec_fmo, ui->rb_spec_main };
 
     connect( ui->pB_save_spectrum, 	SIGNAL(clicked()), this, SLOT(save( )));
-    connect( ui->rb_reset, 			SIGNAL(clicked()), this, SLOT(reset( )));
 
     connect( ui->hs_attack	, SIGNAL(valueChanged(int)), 	this, SLOT(attack(int) ));
     connect( ui->hs_decay	, SIGNAL(valueChanged(int)), 	this, SLOT(decay(int) ));
 
     connect( ui->cb_adsr	, SIGNAL( clicked(bool)), 	this, SLOT( adsr_slot(bool) ));
 
-    this->Sds   		    = gui;
-    sds_p 					= Sds->addr;
-    Eventlog_p				= _log;
 
-    QStringList				Qbps_str_lst		= Qstringlist( bps_struct().Bps_lst );
-    ui->cb_bps->addItems	( Qbps_str_lst );
+    Eventlog_p				= _log;
+    this->SetSds( gui, gui->addr->SDS_Id );
 
     this->instrument   		= this->Sds->Read_str( INSTRUMENTSTR_KEY );
 
-    this->SetSds( Sds, 0 );
 
-    select_spec( sds_p->Spectrum_type );
+//    select_spec( sds_p->Spectrum_type );
 }
 
 Spectrum_Dialog_class::~Spectrum_Dialog_class()
 {
-//   if( ui) delete(ui);
+	DESTRUCTOR( className );
 }
 void Spectrum_Dialog_class::cb_bps_slot( int bps_id )
 {
@@ -114,21 +115,21 @@ void Spectrum_Dialog_class::set_spectrum_data()
 {
 	if ( ADSR_flag )
 	{
-		sds_p->adsr_arr[ OscId ].spec = spectrum;
+		sds_p->adsr_arr[ OscId ].spec 	= spectrum;
 		Eventlog_p->add( SDS_ID, ADSR_KEY );
 	}
 	else
 	{
+		spectrum.frqidx[0] 				= sds_p->spectrum_arr[OscId].frqidx[0];
 		sds_p->spectrum_arr[ OscId ]	= spectrum;
 		Eventlog_p->add( SDS_ID, UPDATESPECTRUM_KEY );
 	}
 	SetLabelWaveform();
-
 }
 void Spectrum_Dialog_class::select_spec( char oscid )
 {
 	OscId				= oscid;
-	WfSlot				= 1;
+    Channel 			= 1;
 	set_spectrum_view	();
 
 	Setup_widgets		( spectrum );
@@ -136,15 +137,15 @@ void Spectrum_Dialog_class::select_spec( char oscid )
 
 void Spectrum_Dialog_class::select_spec_fmo()
 {
-	select_spec( osc_struct::FMOID );
+	select_spec( FMOID );
 }
 void Spectrum_Dialog_class::select_spec_vco()
 {
-	select_spec( osc_struct::VCOID );
+	select_spec( VCOID );
 }
 void Spectrum_Dialog_class::select_spec_main()
 {
-	select_spec( osc_struct::OSCID );
+	select_spec( OSCID );
 }
 void Spectrum_Dialog_class::Set_adsr_flag( bool flag )
 {
@@ -169,10 +170,15 @@ void Spectrum_Dialog_class::decay (int value )
 
 void Spectrum_Dialog_class::reset()
 {
-	spectrum.volidx	= default_spectrum.volidx;
-	spectrum.frqidx = default_spectrum.frqidx;
-	Setup_widgets( spectrum );
-	ui->rb_reset->setChecked( false );
+	spectrum.volidx		= default_spectrum.volidx;
+	spectrum.volidx[0] 	= sds_p->spectrum_arr[OscId].volidx[0];
+	spectrum.frqidx 	= default_spectrum.frqidx;
+	spectrum.frqidx[0] 	= sds_p->spectrum_arr[OscId].frqidx[0];
+	spectrum.wfid 		= default_spectrum.wfid;
+	spectrum.wfid[0] 	= sds_p->spectrum_arr[OscId].wfid[0];
+	set_spectrum_data	();
+	Setup_widgets		( spectrum );
+	rb_vec[OscId]->setChecked( true );
 }
 
 void Spectrum_Dialog_class::Update_instrument()
@@ -189,23 +195,23 @@ void Spectrum_Dialog_class::Update_instrument()
 
 void Spectrum_Dialog_class::spec_frq_slider( int channel, int value )
 {
-	spectrum.frqidx[ channel ] = check_range(  frqarr_range, value, "spec_frq_slider");
-	float frqadj =  Spectrum.Frqadj(channel, value); // see osc.cpp
-	spectrum.frqadj[ channel ] = frqadj;
+    Channel 					= channel;
+	spectrum.frqidx[ channel ] 	= check_range(  frqarr_range, value, "spec_frq_slider");
+	float frqadj 				= Frqadj(channel, value); // see osc.cpp
+	spectrum.frqadj[ channel ] 	= frqadj;
 	set_spectrum_data();
     ui->lcd_spectrumDisplay->display( frqadj );
     ui->lbl_spectrumDisplay->setText( "[Hz]");
-    WfSlot = channel;
 };
 
 void Spectrum_Dialog_class::spec_vol_slider( int channel, int value )
 {
-	spectrum.volidx[ channel ] = value;
+    Channel 					= channel;
+	spectrum.volidx[ channel ] 	= value;
     Sum( spectrum ); // fill vol
     set_spectrum_data();
-    ui->lcd_spectrumDisplay->display( spectrum.vol[ channel ] * 100 );
+    ui->lcd_spectrumDisplay->display( spectrum.volidx[ channel ] );
     ui->lbl_spectrumDisplay->setText( "Amp [%]");
-    WfSlot = channel;
 };
 
 void Spectrum_Dialog_class::fS1( int value )
@@ -241,33 +247,33 @@ void Spectrum_Dialog_class::vS8( int value )
 	spec_vol_slider(  4, value );
 }
 
-void Spectrum_Dialog_class::scrollBar_wafeform( uint id, int value  )
+void Spectrum_Dialog_class::waveform_spinbox( uint id, int value  )
 {
-	spectrum.wfid[id] = value;
-	WfSlot = id;
+	Channel 			= id;
+	spectrum.wfid[id] 	= value;
 	set_spectrum_data();
 };
 
 
 void Spectrum_Dialog_class::sb_wf1(int value )
 {
-	ui->sb_spwf1->setValue( value );
-	scrollBar_wafeform( 1, value );
+//	ui->sb_spwf1->setValue( value );
+	waveform_spinbox( 1, value );
 }
 void Spectrum_Dialog_class::sb_wf2(int value )
 {
-	ui->sb_spwf2->setValue( value );
-	scrollBar_wafeform( 2, value );
+//	ui->sb_spwf2->setValue( value );
+	waveform_spinbox( 2, value );
 }
 void Spectrum_Dialog_class::sb_wf3(int value )
 {
-	ui->sb_spwf3->setValue( value );
-	scrollBar_wafeform( 3, value );
+//	ui->sb_spwf3->setValue( value );
+	waveform_spinbox( 3, value );
 }
 void Spectrum_Dialog_class::sb_wf4(int value )
 {
-	ui->sb_spwf4->setValue( value );
-	scrollBar_wafeform( 4, value );
+//	ui->sb_spwf4->setValue( value );
+	waveform_spinbox( 4, value );
 }
 
 void Spectrum_Dialog_class::save()
@@ -277,7 +283,7 @@ void Spectrum_Dialog_class::save()
 
 void Spectrum_Dialog_class::SetLabelWaveform( )
 {
-	int wfid = sb_vec[ WfSlot ]->value();
+	int wfid = sb_vec[ Channel ]->value();
 	ui->lbl_waveform->setText( Waveform_vec[ wfid ] );
 }
 void Spectrum_Dialog_class::SetLabelInstrument( const QString& instr )
@@ -289,7 +295,7 @@ void Spectrum_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
 	this->SDS_ID	= sdsid;
-    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) sdsid ));
+    Comment( INFO," Spectrum_Dialog set to SDS Id: " + to_string( (int) sdsid ));
 
     select_spec( sds_p->Spectrum_type );
 

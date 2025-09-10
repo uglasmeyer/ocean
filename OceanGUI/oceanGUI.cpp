@@ -312,6 +312,7 @@ auto setStaPlay( MainWindow* M, uint8_t id )
     bool play = not M->Sds->addr->StA_state[id].play;
     M->Sds->Set( M->Sds->addr->StA_state[id].play, play);
     M->Eventlog.add( M->SDS_ID, SETSTA_KEY );
+    M->Eventlog.add( M->SDS_ID, RESET_STA_SCANNER_KEY );
     M->cb_play_sta_vec[ id ].cb->setChecked( play ) ;
 }
 
@@ -628,23 +629,35 @@ void MainWindow::Save_Config()
 
 void MainWindow::connect_oscf( bool val ) // TODO no yet ready
 {
-	Sds->Set( sds->ui_connect_status[OSCFMOF], val );
+	if( val )
+		Sds->Set( sds->connect_arr[OSCID].frq, (char)FMOID );
+	else
+		Sds->Set( sds->connect_arr[OSCID].frq, (char)OSCID );
 	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
 }
 void MainWindow::connect_oscv( bool val )
 {
-	Sds->Set( sds->ui_connect_status[OSCVCOV], val );
+	if( val )
+		Sds->Set( sds->connect_arr[OSCID].vol, (char)VCOID );
+	else
+		Sds->Set( sds->connect_arr[OSCID].vol, (char)OSCID );
 	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
 }
-void MainWindow::connect_fmo( bool val )
+void MainWindow::connect_fmov( bool val )
 {
-	Sds->Set( sds->ui_connect_status[FMOVCOV], val );
-	Eventlog.add( SDS_ID, CONNECTFMO_KEY );
+	if( val )
+		Sds->Set( sds->connect_arr[FMOID].vol, (char)VCOID );
+	else
+		Sds->Set( sds->connect_arr[FMOID].vol, (char)FMOID );
+	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
 }
-void MainWindow::connect_vco( bool val )
+void MainWindow::connect_vcov( bool val )
 {	//connect VCO volume with FMO data
-	Sds->Set( sds->ui_connect_status[VCOFMOV], val );
-	Eventlog.add( SDS_ID, CONNECTVCO_KEY );
+	if( val )
+		Sds->Set( sds->connect_arr[VCOID].vol, (char)FMOID );
+	else
+		Sds->Set( sds->connect_arr[VCOID].vol, (char)VCOID );
+	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
 }
 
 void MainWindow::get_record_status( )
@@ -769,8 +782,8 @@ void MainWindow::setwidgetvalues()
    	ui->cB_Combine->setChecked( combine );
    	//    rb_S_vec[ Sds->addr->SDS_Id ]->setChecked( true );
 
-	ui->cb_connect_fmo->setChecked ( (bool)(Sds->addr->connect_arr[FMOID].vol != FMOID));
-	ui->cb_connect_vco->setChecked ( (bool)(Sds->addr->connect_arr[VCOID].vol != VCOID) );
+	ui->cb_connect_fmov->setChecked ( (bool)(Sds->addr->connect_arr[FMOID].vol != FMOID));
+	ui->cb_connect_vcov->setChecked ( (bool)(Sds->addr->connect_arr[VCOID].vol != VCOID) );
 	ui->cb_connect_oscv->setChecked( (bool)(Sds->addr->connect_arr[OSCID].vol != OSCID) );
 	ui->cb_connect_oscf->setChecked( (bool)(Sds->addr->connect_arr[OSCID].frq != OSCID) );
 
