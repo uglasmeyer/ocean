@@ -67,6 +67,8 @@ typedef struct feature_struct
 	uint8_t	PMW_dial 	= 50;
 } feature_t;
 
+const feature_t default_feature = feature_struct();
+
 typedef struct Connect_struct
 { // SDS related
 	char	vol = -1;

@@ -72,8 +72,8 @@ Value Fileno {0};
 
 void save_record_fcn()
 {
-	Fileno 				= External.Save_record_data( 0 );// 0=generate file no - (int) DaTA.sds_master->FileNo;
-	sds->FileNo 		= Fileno.val;
+	Fileno 				= External.Save_record_data( sds_master->FileNo );// 0=generate file no - (int) DaTA.sds_master->FileNo;
+	sds->FileNo 		= 0;
 
 	Log.Comment( INFO, "record thread received job " + Fileno.str);
 
@@ -230,34 +230,37 @@ void record_start( )
 		Log.Comment( WARN, "Audioserver is still saving data. ... Wait ");
 		return;
 	}
-	for( Interface_class Sds : DaTA.SDS.Vec )
+/*	for( Interface_class& Sds : DaTA.SDS.Vec )
 	{
 		if( Appstate->IsRunning( Sds.addr, SYNTHID    ) or
 			Appstate->IsRunning( Sds.addr, KEYBOARDID ) )
 			Eventlog.add( Sds.ds.Id, RESET_STA_SCANNER_KEY );
 	}
-
-	Sds->addr->Record 					= true;
+*/
+	Sds->addr->Record 					= sdsstate_struct::RECORDING;
 	External.status.record 				= true;
+	sds->StA_state[ STA_EXTERNAL].store = true;
 	rcounter 							= 0;
 	ProgressBar.Set						( &rcounter, recduration * 1000/min_msec );
-	RecTimer.Start						();
-	sds->StA_state[ STA_EXTERNAL].store = true;
+	Sem.Release(SEMAPHORE_SYNCNOTES);
 
+//	External.Record_buffer				( shm_addr, audioframes );
+
+	RecTimer.Start						();
 	Log.Comment(INFO, "Audioserver starts recording" );
 }
 
 void record_stop()
 {
-	DaTA.Sem_p->Release( SEMAPHORE_RECORD );
+	DaTA.Sem_p->Release( SEMAPHORE_RECORD ); // save recording to file
 
 	ProgressBar.Unset();
-	External.status.record 				= false;
-	sds->Record 						= false;
+	External.status.record 				= false; // Audioser internal recording state
+	sds->Record 						= sdsstate_struct::INACTIVE; //public record state
 	sds->StA_state[ STA_EXTERNAL ].store= false;
-	uint time_elapsed 					= RecTimer.Time_elapsed();
 
-	Log.Comment(INFO, "Record duration: " + to_string( time_elapsed/1000 ) + " sec");
+	uint sec_elapsed 					= RecTimer.Time_elapsed() /1000;
+	Log.Info( "Record duration: ", sec_elapsed, " sec");
 }
 void set_rcounter( )
 {
@@ -353,7 +356,7 @@ int main( int argc, char *argv[] )
 	// init SDS
 	sds->audioframes	= audioframes;
 	sds->RecCounter 	= 0;
-	sds->Record			= false;
+	sds->Record			= sdsstate_struct::INACTIVE;
 
 	// init record thread
 	thread

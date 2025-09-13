@@ -10,7 +10,7 @@
 void Event_class::TestHandler()
 {
 	TEST_START( className );
-	Sds->Event( CONNECTFMO_KEY );
+	Sds->Event( CONNECTOSC_KEY );
 	TEST_END( className );
 }
 
@@ -210,9 +210,28 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
+	case STARTRECORD_KEY :
+	{
+		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTART );
+		Sds->Commit();
+		break;
+	}
+	case STOPRECORD_KEY :
+	{
+    	if( sds->StA_state[STA_NOTES].play )
+    	{
+    		sds_master->Record = sdsstate_struct::STOPPING;
+    	}
+    	else
+    	{
+    		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTOP );
+    	}
+		Sds->Commit();
+		break;
+	}
 	case SAVE_EXTERNALWAVFILEKEY: // record and save wav file
 	{
-		if ( sds_master->Record )
+		if ( sds_master->Record == sdsstate_struct::RECORDING )
 			// Composer - Interpreter
 			sds_master->AudioServer = RECORDSTART; // start and  wait
 		else
@@ -243,7 +262,7 @@ void Event_class::Handler()
 
 		break;
 	}
-	case STOPRECORD_KEY: // stop record on data array id
+	case STOP_STARECORD_KEY: // stop record on data array id
 	{
 		Value id { (int) (sds->MIX_Id) };
 		Comment(INFO,
@@ -347,8 +366,6 @@ void Event_class::Handler()
 		if ( sds->NotestypeId == XML_ID ) break;
 		string notes_name = Sds->Read_str(NOTESSTR_KEY);
 		Notes->Read(notes_name);
-		Sem->Release(SEMAPHORE_SYNCNOTES);
-		Mixer->Set_mixer_state( STA_NOTES, true );
 		if( Mixer->StA[ STA_NOTES ].DynVolume.GetCurrent().future == 0 )
 		{
 			Mixer->StA[ STA_NOTES ].DynVolume.SetupVol( 75, SLIDE );
@@ -356,6 +373,8 @@ void Event_class::Handler()
 		}
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		Notes->Generate_cyclic_data();
+		Mixer->Set_mixer_state( STA_NOTES, true );
+
 		Sds->Commit();
 		break;
 	}
@@ -364,10 +383,9 @@ void Event_class::Handler()
 		Comment(INFO, "receive command <setup play notes>");
 		string notes_file = Sds->Read_str(NOTESSTR_KEY);
 		Notes->Read(notes_file); // notes have been written to file by the GUI already
-//		Mixer->status.notes = true;
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		Notes->Generate_cyclic_data();
-		Sem->Release(SEMAPHORE_SYNCNOTES);
+		Mixer->Set_mixer_state( STA_NOTES, true );
 
 		Sds->Commit();
 		break;
@@ -380,11 +398,7 @@ void Event_class::Handler()
 			Comment(INFO, "generate composer notes");
 			Comment(INFO, "duration: " + sec.str + " sec.");
 			Comment(INFO, "store to StA id: " + id.str);
-//			Mixer->composer = sec.val;
-//			Mixer->StA[id.val].Record_mode(true);
-//			Notes->Set_instrument(Instrument);
 			Notes->Generate_cyclic_data();
-//			Mixer->Store_noteline(id.val, Notes);
 		} else {
 			Comment(WARN, "nothing to do for " + sec.str + " Notes!");
 		}
@@ -428,7 +442,7 @@ void Event_class::Handler()
 		noteline_prefix_t nlp = sds->noteline_prefix;
 		Comment(INFO, "receive command <update notesline prefix");
 		Notes->Set_noteline_prefix(nlp);
-		Notes->Restart = true;
+		Notes->Note_itr_start = true;
 		Sds->Commit();
 		break;
 	}
@@ -447,46 +461,13 @@ void Event_class::Handler()
 		Instrument->Oscgroup.Set_Connections( sds );
 		Sds->Commit();
 		break;
-		if( sds->ui_connect_status[CON::OSCFMOF] )
-			Instrument->Connect( Instrument->osc, Instrument->fmo, CONF );
-		else
-			Instrument->Connect( Instrument->osc, Instrument->osc, CONF );
-
-		if( sds->ui_connect_status[CON::OSCVCOV] )
-			Instrument->Connect( Instrument->osc, Instrument->vco, CONV );
-		else
-			Instrument->Connect( Instrument->osc, Instrument->osc, CONV );
-//		Instrument->Oscgroup.Show_sound_stack();
-
-
-		Sds->Commit();
-		break;
 	}
 	case CONNECTVCO_KEY: //connect VCO volume with FMO data
 	{
-		EvInfo( event, "modulate VCO volume by FMO output" );
-
-		if( sds->ui_connect_status[CON::VCOFMOV] )
-			Instrument->Connect( Instrument->vco, Instrument->fmo, CONV );
-		else
-			Instrument->Connect( Instrument->vco, Instrument->vco, CONV );
-//		Instrument->Oscgroup.Show_sound_stack();
-
-
-		Sds->Commit();
 		break;
 	}
 	case CONNECTFMO_KEY: // connect FMO volume with vco data
 	{
-		EvInfo( event, "modulate FMO volume by VCO output" );
-
-		if( sds->ui_connect_status[CON::FMOVCOV] )
-			Instrument->Connect( Instrument->fmo, Instrument->vco, CONV );
-		else
-			Instrument->Connect( Instrument->fmo, Instrument->fmo, CONV );
-//		Instrument->Oscgroup.Show_sound_stack();
-
-		Sds->Commit();
 		break;
 	}
 	case SETWAVEFORMFMOKEY:

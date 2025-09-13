@@ -81,6 +81,8 @@ void MainWindow::initStateButtons()
     setButton( ui->pB_Rtsp, 2 );
     setButton( ui->pB_play_notes, 2 );
     setButton( ui->pB_Specrum, 2 );
+    setButton( ui->pBGuiExit, 3 );
+
 
 
 

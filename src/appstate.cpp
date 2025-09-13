@@ -58,7 +58,6 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 	return ptr;
 }
 
-
 void Appstate_class::Set( interface_t* sds, uint appid, int state )
 {
 	*appAddr( sds, appid ) 		= state;
@@ -74,12 +73,6 @@ string	Appstate_class::GetStr( interface_t* sds, uint appid )
 }
 bool Appstate_class::IsRunning( interface_t* sds, uint appid )
 {
-//	if(( appid == this->AppId ) and ( this->sds == sds ))
-//		return true;
-/*	if ( dataProc.contains( appid ) )
-	{
-		return Is_running_process( (int) sds->process_arr.at( appid + sds->SDS_Id ).pid);
-	}*/
 	bool flag = ( RUNNING == Get( sds, appid ));
 	return flag;
 }

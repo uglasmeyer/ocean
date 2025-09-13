@@ -57,7 +57,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 	Sds->Set( sds_master->UpdateFlag, true);
 	Sds->Set( Sds->addr->UpdateFlag, true);
-	Sds->Set( sds_master->Record, false);
+//	Sds->Set( sds_master->Record, (uint8_t)sdsstate_struct::INACTIVE );
 
     initGuiVectors();
 
@@ -354,7 +354,7 @@ auto toggle_store_sta( MainWindow* M, uint8_t ID )
     M->Sds->Set( M->Sds->addr->MIX_Id , ID );
     if ( M->Sds->addr->StA_state[ID].store )
     {
-    	M->Eventlog.add( M->SDS_ID, STOPRECORD_KEY);
+    	M->Eventlog.add( M->SDS_ID, STOP_STARECORD_KEY);
     }
     else
     {
@@ -627,37 +627,40 @@ void MainWindow::Save_Config()
 	Eventlog.add( SDS_ID, SAVEINSTRUMENTKEY);
 }
 
+auto connect_secundary = [  ]( MainWindow* M, char oscid, char secid, char mode, bool val )
+{
+	if ( mode == CONF )
+	{
+		if( val )
+			M->Sds->Set( M->sds->connect_arr[oscid].frq, (char)secid );
+		else
+			M->Sds->Set( M->sds->connect_arr[oscid].frq, (char)oscid );
+	}
+	if ( mode == CONV )
+	{
+		if( val )
+			M->Sds->Set( M->sds->connect_arr[oscid].vol, (char)secid );
+		else
+			M->Sds->Set( M->sds->connect_arr[oscid].vol, (char)oscid );
+	}
+	M->Eventlog.add( M->SDS_ID, CONNECTOSC_KEY );
+};
+
 void MainWindow::connect_oscf( bool val ) // TODO no yet ready
 {
-	if( val )
-		Sds->Set( sds->connect_arr[OSCID].frq, (char)FMOID );
-	else
-		Sds->Set( sds->connect_arr[OSCID].frq, (char)OSCID );
-	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
+	connect_secundary( this, OSCID, FMOID, CONF, val );
 }
 void MainWindow::connect_oscv( bool val )
 {
-	if( val )
-		Sds->Set( sds->connect_arr[OSCID].vol, (char)VCOID );
-	else
-		Sds->Set( sds->connect_arr[OSCID].vol, (char)OSCID );
-	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
+	connect_secundary( this, OSCID, VCOID, CONV, val );
 }
 void MainWindow::connect_fmov( bool val )
 {
-	if( val )
-		Sds->Set( sds->connect_arr[FMOID].vol, (char)VCOID );
-	else
-		Sds->Set( sds->connect_arr[FMOID].vol, (char)FMOID );
-	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
+	connect_secundary( this, FMOID, VCOID, CONV, val );
 }
 void MainWindow::connect_vcov( bool val )
-{	//connect VCO volume with FMO data
-	if( val )
-		Sds->Set( sds->connect_arr[VCOID].vol, (char)FMOID );
-	else
-		Sds->Set( sds->connect_arr[VCOID].vol, (char)VCOID );
-	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
+{
+	connect_secundary( this, VCOID, FMOID, CONV, val );
 }
 
 void MainWindow::get_record_status( )
@@ -665,17 +668,22 @@ void MainWindow::get_record_status( )
     int pb_value = sds_master->RecCounter;
     ui->progressBar_record->setValue( pb_value );
 }
+
 void MainWindow::SaveRecord()
 {
-    Sds->Set( sds_master->FileNo ,(uint8_t) 0); // 0=automatic numbering
+	if( ui->cb_overwrite->isChecked() )
+		Sds->Set( sds_master->FileNo ,(uint8_t) 1 ); // take filename from Other-cstring
+	else
+		Sds->Set( sds_master->FileNo ,(uint8_t) 0 ); // 0=automatic numbering
 
-    if ( sds_master->Record )
+
+    if ( sds_master->Record == sdsstate_struct::RECORDING )
     {
-    	Appstate->Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTOP );
+        Eventlog.add( SDS_ID, STOPRECORD_KEY );
     }
-    else
+    if ( sds_master->Record == sdsstate_struct::INACTIVE )
     {
-    	Appstate->Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTART );
+        Eventlog.add( SDS_ID, STARTRECORD_KEY );
     }
 
 }
@@ -815,8 +823,12 @@ void MainWindow::updateColorButtons()
     setButton( ui->pb_SDSview	, isRunning( SDSVIEWID, sds_master )*2+1 );
     setButton( ui->pBComposer	, isRunning( COMPID, sds_master )*2+1 );
 
-    bool record = ( sds_master->Record);
-    setButton( ui->pBtoggleRecord, not record );
+    bool record 	= ( sds_master->Record == sdsstate_struct::RECORDING );
+    bool stopping	= ( sds_master->Record == sdsstate_struct::STOPPING );
+    if( stopping )
+        setButton( ui->pBtoggleRecord, 2 ); // yellow
+    else
+    	setButton( ui->pBtoggleRecord, not record );
     ( record ) ? 	ui->pBtoggleRecord->setText( "Stop Rec") :
     				ui->pBtoggleRecord->setText( "Record");
 
@@ -834,5 +846,6 @@ void MainWindow::updateColorButtons()
         setButton( ui->pB_Specrum, 3 );
     else
         setButton( ui->pB_Specrum, 1 );
+
 
 }

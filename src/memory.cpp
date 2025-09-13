@@ -28,15 +28,17 @@ Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _inc, buffer_t _max )
 	wrt				= _inc; 		// use set_wrt_len to change
 }
 
-void Scanner_class::Show( bool debug )
+void Scanner_class::Show( bool debug, void* p )
 {
 	if ( not debug ) return;
-	Info( "Read position    : ", rpos );
-	Info( "Write position   : ", wpos );
-	Info( "Memory max       : ", mem_range.max );
-	Info( "fillrange max    : ", fillrange.max );
-	Info( "Read frames      : ", inc );
-	Info( "Write frames     : ", wrt );
+
+	if ((not p) or ( p == &rpos )) Info( "Read position    : ", rpos );
+	if ((not p) or ( p == &wpos )) Info( "Write position   : ", wpos );
+	if ((not p) or ( p == &mem_range.max )) Info( "Memory max       : ", mem_range.max );
+	if ((not p) or ( p == &fillrange.max )) Info( "fillrange max    : ", fillrange.max );
+	if ((not p) or ( p == &inc )) Info( "Read frames      : ", inc );
+	if ((not p) or ( p == &wrt )) Info( "Write frames     : ", wrt );
+	if ((not p) or ( p == &trigger )) Info( "Read trigger		: ", trigger );
 
 }
 Data_t* Scanner_class::Next_read()
@@ -59,15 +61,12 @@ void Scanner_class::Next_write( buffer_t n )
 }
 Data_t* Scanner_class::Set_rpos( buffer_t n )
 {
-
 	rpos = check_cycle( fillrange, n, "Set_pos" );
-
 	return &Data[n];
 }
 buffer_t Scanner_class::Set_wpos( buffer_t n )
 {
 	wpos = check_cycle( mem_range, n, "Set_wpos" );
-
 	return wpos;
 }
 void Scanner_class::Set_wrt_len( buffer_t n )
@@ -201,6 +200,7 @@ void 	Storage_class::Reset( )
 	record_data 		= 0;
 	read_counter  		= 0;
 	state.store			= false;
+	state.filled		= false;
 	scanner.Set_rpos	(0);
 	scanner.Set_wpos	(0);
 	scanner.Set_fillrange ( 0 );

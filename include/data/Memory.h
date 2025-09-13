@@ -33,7 +33,7 @@ public:
 
 							Scanner_class	( Data_t* _ptr, buffer_t _inc, buffer_t _max );
 	virtual 				~Scanner_class()= default;
-	void 					Show			( bool debug );
+	void 					Show			( bool debug, void* p = nullptr );
 
 	Data_t* 				Next_read			();
 	void 					Next_write			( buffer_t n );

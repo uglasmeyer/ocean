@@ -44,13 +44,11 @@ uint Note_class::Calc_noteline_msec( notelist_t notelist )
 void Note_class::Set_notelist( const notelist_t& nlst )
 {
 	notelist = nlst;
-	Start_note_itr();
-//	noteline_sec = calc_noteline_msec( this ) / measure_duration;
 
 	Noteline_prefix = noteline_prefix_default;
 	Noteline_prefix.Octave = 0;
 //	add_volume( note_itr );
-	Show_note_list( nlst ); // @suppress("Invalid arguments")
+	Show_note_list( nlst );
 }
 
 Note_base::notelist_t Note_class::Gen_notelist( noteline_prefix_t prefix, string str )
@@ -102,7 +100,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		return false ;
 	}
 	fill_note_list();
-	Show_note_list( notelist ); // @suppress("Invalid arguments")
+	Show_note_list( notelist );
 	// post check
 	uint noteline_msec 	= Calc_noteline_msec( notelist );
 	int mod 			= noteline_msec % measure_duration ;
@@ -126,26 +124,23 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 	return true;
 }
 
-void Note_class::Start_note_itr()
+void Note_class::Show_note( Table_class& Table, note_t note )
 {
-	Info( "Start_note_itr");
-	note_itr 		= notelist.begin();
-	if ( note_itr	== notelist.end() )
-		Comment( WARN, "Empty notelist" );
-	if ( StA )
-		StA->scanner.Set_rpos( 0 );
-
-}
-void Note_class::set_note_itr()
-{
-	if (( note_itr == notelist.end() ) or ( Restart )) // the global note iter shall be restarted.
+	string longnote = note.longnote ? "L" : "|";
+	stringstream strs{};
+	for ( pitch_t pitch : note.chord )
 	{
-		Start_note_itr();
-
+				strs <<
+				setw(4) << right << dec << (int)pitch.octave <<
+				setw(4) << right << pitch.alter <<
+				setw(5) << right << dec << rint( pitch.freq ) <<"|";
 	}
-	Restart = false;
-};
-
+	Table.AddRow( 	note.str,
+					(int)note.volume,
+					(int)note.duration,
+					longnote,
+					strs.str());
+}
 void Note_class::Show_note( note_t note )
 {
 	stringstream strs;

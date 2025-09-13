@@ -290,9 +290,15 @@ string External_class::ffmpeg_cmd( string wav, string mp3 )
 int External_class::Save_record_data( int filenr)
 {
 	if ( filenr == 0 ) // generate a file name
+	{
 		filenr = generate_file_no( MAXWAVFILES );
-
-	setName( fs.get_rec_filename( filenr) );
+		setName( fs.get_rec_filename( filenr) );
+	}
+	else
+	{
+		string filename { sds->Other };
+		setName( filename );
+	}
 
 	Comment( INFO, "Prepare record file " + Name );
 	Comment( INFO, "Record frames: " + to_string (record_size));

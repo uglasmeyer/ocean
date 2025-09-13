@@ -211,9 +211,9 @@ int main( int argc, char* argv[] )
 {
 	auto headline = [ ]( string comment  )
 	{
-	    Log.Comment( BINFO, Line() );
+	    Log.Comment( BINFO, Line( 80 - 26 ) );
 	    Log.Comment( BINFO, comment );
-	    Log.Comment(  INFO, Line() );
+	    Log.Comment(  INFO, Line( 80 - 26) );
 	};
 	App.Start( argc, argv );
 

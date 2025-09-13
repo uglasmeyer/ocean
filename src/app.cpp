@@ -96,9 +96,9 @@ void Application_class::Start( int argc, char* argv[] )
 	{
 		Init_log_file();
 	}
-	Info(Line() );
+	Info(Line( 80 - 26 ) );
 	Info("Entering application init for ", This_Application );
-	Info(Line() );
+	Info(Line( 80 - 26 ) );
 
 	versionTxt();
 

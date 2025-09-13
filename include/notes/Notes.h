@@ -27,26 +27,28 @@ class Note_class
 	Storage_class*		StA			;
 
 public:
-	Oscgroup_class	Oscgroup		{ osc_struct::NOTESID, 2*monobuffer_bytes };
-	Oscillator*		osc				= &Oscgroup.osc;
-	Oscillator*		vco				= &Oscgroup.vco;
-	Oscillator*		fmo				= &Oscgroup.fmo;
-	Oscillator*		Osc				= &Oscgroup.osc;
+	Oscgroup_class	Oscgroup				{ osc_struct::NOTESID, 2*monobuffer_bytes };
+	Oscillator*		osc						= &Oscgroup.osc;
+	Oscillator*		vco						= &Oscgroup.vco;
+	Oscillator*		fmo						= &Oscgroup.fmo;
+	Oscillator*		Osc						= &Oscgroup.osc;
 
-	string			Instrument_name { "" };
-	bool			Restart			= false;
-	uint8_t 		Octave			= noteline_prefix_default.Octave; // 55
+	string			Instrument_name 		{ "" };
+	bool			Note_itr_start			= false;
+	bool			Note_itr_end			= false;
+	uint8_t 		Octave					= noteline_prefix_default.Octave; // 55
+	bool*			Trigger					;
 
-	Dynamic_class	DynFrequency	{ frqarr_range };
+	Dynamic_class	DynFrequency			{ frqarr_range };
 
-	Data_t*			NotesData		= osc->MemData_p( );
-	interface_t*	sds				= nullptr;
+	Data_t*			NotesData				= osc->MemData_p( );
+	interface_t*	sds						= nullptr;
 
-					Note_class		( Instrument_class* instr,
-										Storage_class*	sta); 	// used by notes (Synthesizer)
-					Note_class		( ); 							// used by Variation (Composer)
-					Note_class		( interface_t* sds ); 		// used by File_dialog (OceanGUI)
-	virtual			~Note_class		();
+					Note_class				( Instrument_class* instr,
+											Storage_class*	sta); 	// used by notes (Synthesizer)
+					Note_class				( ); 							// used by Variation (Composer)
+					Note_class				( interface_t* sds ); 		// used by File_dialog (OceanGUI)
+	virtual			~Note_class				();
 
 
 	string 			Read					( string );
@@ -72,36 +74,31 @@ public:
 
 	void 			Test					();
 	void			Show_note				(  note_t );
-	void 			Start_note_itr			();
+	void			Show_note				(  Table_class&, note_t );
+
+	bool 			Start_note_itr			();
+	void 			Set_note_itr			();
+
 	note_t			Char2note				( char& ch );
 
 	void			Set_notelist			( const notelist_t& notelist );
+	Table_class 	Note_table 				{ };
 
-	template< class C>
-	void 			Show_note_list			( C& items ) // list or vector
+	template< class Class>
+	void 			Show_note_list			( Class& items ) // list or vector
 	{
 		Set_Loglevel( DEBUG, true );
-		stringstream strs;
-		uint lineduration = 0;
-		strs << "Chord         Vol  msec  Oct alt Freq| Oct alt Freq| Oct alt Freq|";
-		Comment( DEBUG, strs.str() );
 
+		Note_table.PrintHeader();
+		uint duration = 0;
 		uint count = 1;
 		for( note_t note : items )
 		{
-			Show_note( note );
-			lineduration += note.duration;
-			uint mod = lineduration % measure_duration;
-			if ( mod == 0 )
-			{
-				Comment( DEBUG, " Measure count: " + to_string(count));
-				count++;
-			}
+			Show_note( Note_table, note );
+			show_noteline_duration	( note.duration, duration, count );
+
 		}
-		strs.str("");
-		strs << setw(17) << left  << "sentence length" <<
-				setw(6) << right << dec << lineduration << " [msec]" ;
-		Comment( DEBUG, strs.str() );
+		Note_table.AddRow( "sentence length", duration, "[msec]" );
 		Set_Loglevel( DEBUG, false );
 	}
 
@@ -109,27 +106,29 @@ public:
 
 private:
 
-	string 			notefile_name 	= "";
-	string 			notefile 		= "";
-	string 			noteline		= "";
-	uint8_t			noteline_sec 	= 0;
-	size_t	 		noteline_len 	= 0;
-	uint16_t		note_duration 	= 0; 	// consider the length of one note by counting "-"-chars
+	string 			notefile_name 			= "";
+	string 			notefile 				= "";
+	string 			noteline				= "";
+	uint8_t			noteline_sec 			= 0;
+	size_t	 		noteline_len 			= 0;
+	uint16_t		note_duration 			= 0; 	// consider the length of one note by counting "-"-chars
+	uint16_t		noteline_duration		= 0;
 
-	string 			volumeline 		= "";
-	size_t			volume_vec_len 	= 1;
-	size_t			vcounter		= 0;
-	vector<uint>    volume_vec 		{};
+	string 			volumeline 				= "";
+	size_t			volume_vec_len 			= 1;
+	size_t			vcounter				= 0;
+	vector<uint>    volume_vec 				{};
 											// notevalue_struct.doct by one .
-	size_t			parse_error		= 0;
-	int 			timestamp 		= 0;
-	uint 			scoretime 		= 0;
+	size_t			parse_error				= 0;
+	int 			timestamp 				= 0;
+	uint 			scoretime 				= 0;
 
 	typedef notelist_t::iterator
 					note_itr_t;
-	note_itr_t  	note_itr 		= notelist.begin();
+	note_itr_t  	note_itr 				= notelist.begin();
+	void			note_itr_next			();
+	bool 			note_itr_end			();
 
-	void 			set_note_itr			();
 	void 			sta_write_data			( uint duration );
 	string 			get_name				();
 	bool 			compiler 				( noteline_prefix_t,  string );
@@ -145,6 +144,10 @@ private:
 	void			assign_freq				();
 	void			split_long_notes		();
 
+	void			init_note_table			();
+	void			show_noteline_duration	( const uint16_t& msec,
+											uint& duration,
+											uint& count );
 };
 
 #endif /* INCLUDE_PLAYNOTES_H_ */

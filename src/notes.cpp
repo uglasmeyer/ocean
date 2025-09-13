@@ -15,7 +15,9 @@ Note_class::Note_class( )
 	this->sds 		= nullptr;
 	this->instrument= nullptr;
 	this->StA		= nullptr;
+	this->Trigger 	= nullptr;
 	this->className = Logfacility_class::className;
+	init_note_table();
 }
 Note_class::Note_class( interface_t* _sds) // File_dialog
 	: Note_class::Logfacility_class("Note_class")
@@ -27,6 +29,8 @@ Note_class::Note_class( interface_t* _sds) // File_dialog
 
 	this->instrument= nullptr;
 	this->StA		= nullptr;
+	this->Trigger 	= nullptr;
+	init_note_table();
 }
 
 Note_class::Note_class( Instrument_class* 	instr,
@@ -39,9 +43,11 @@ Note_class::Note_class( Instrument_class* 	instr,
 	this->StA		= sta;
 	this->sds		= instr->sds;
 	this->Instrument_name.assign( sds->Instrument );
+	this->Trigger 	= &StA->scanner.trigger;
 
 	Oscgroup.SetWd( instr->wd_p );
 	Oscgroup.SetScanner( max_frames );
+	init_note_table();
 }
 
 Note_class::~Note_class( )
@@ -49,6 +55,33 @@ Note_class::~Note_class( )
 	DESTRUCTOR( className )
 }
 
+void Note_class::init_note_table()
+{
+	Note_table.opt.Ident = 0;
+	Note_table.AddColumn( "Chord", 20 );
+	Note_table.AddColumn( "Vol", 3 );
+	Note_table.AddColumn( "msec",5 );
+	Note_table.AddColumn( "|", 1);
+	Note_table.AddColumn( "Oct", 4 );
+	Note_table.AddColumn( "alt", 4 );
+	Note_table.AddColumn( "Frq", 5 );
+	Note_table.AddColumn( "Oct", 4 );
+	Note_table.AddColumn( "alt", 4 );
+	Note_table.AddColumn( "Frq", 5 );
+	Note_table.AddColumn( "Oct", 4 );
+	Note_table.AddColumn( "alt", 4 );
+	Note_table.AddColumn( "Frq", 5 );
+}
+void Note_class::show_noteline_duration( const uint16_t& msec, uint& duration, uint& count )
+{
+	duration += msec;
+	uint mod = duration % measure_duration;
+	if ( mod == 0 )
+	{
+		Comment( DEBUG, " Measure count: ", (int)count );
+		count++;
+	};
+}
 
 string Note_class::Get_rhythm_line()
 {
@@ -141,29 +174,34 @@ void Note_class::sta_write_data( uint duration )
 	StA->scanner.Next_write( duration * frames_per_msec );
 };
 
+
 bool Note_class::Generate_volatile_data( bool init )
 {
 
+	// generate maxframes of new data if init or rpos exceeds maxdata
 	if( StA->scanner.rpos < max_frames )
 		if ( not init )
 			return false;
 
 	Oscgroup.SetInstrument( sds );
-	set_note_itr();
+	Set_note_itr();
 	StA->Reset();
 	int duration = 0;
 
-	while( ( duration < max_msec ) and ( note_itr != notelist.end() ) )
-	{
 
+	while( ( duration < max_msec ) and ( not note_itr_end() ) )
+	{
 		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
 
 		duration += note_itr->duration;
-		note_itr++;
+		note_itr_next();
 	}
 	if( init )
 		Comment( INFO, "volatile notes data initialized" );
+	if ( note_itr_end() )
+		Note_itr_end = true;
+	coutf << "Generate_volatile_data::Note_itr_end " << boolalpha << Note_itr_end << endl;
 
 	return true;
 }
@@ -174,11 +212,11 @@ bool Note_class::Generate_cyclic_data(  )
 	Start_note_itr();
 	StA->Reset();
 
-	while ( note_itr != notelist.end() )
+	while ( not note_itr_end() )
 	{
 		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
-		note_itr++;
+		note_itr_next();
 	}
 	StA->scanner.Set_rpos( 0 );
 	StA->scanner.Show( false );
@@ -241,6 +279,52 @@ void Note_class::LoadMusicxml( const string& file )
 
 }
 
+//-------------------------------------------------------------
+bool Note_class::Start_note_itr()
+{
+	Info( "Start_note_itr");
+	note_itr 		= notelist.begin();
+	Note_itr_end	= true;
+	if ( note_itr_end() )
+	{
+		Comment( WARN, "Empty notelist" );
+		if( StA) StA->Reset();
+		return false;
+	}
+	if( StA) StA->scanner.Set_rpos( 0 );
+	return true;
+}
+
+void Note_class::Set_note_itr()
+{
+	if (( note_itr_end() ) or ( Note_itr_start )) // the global note iter shall be restarted.
+	{
+		Start_note_itr();
+	}
+	Note_itr_start = false;
+};
+
+bool Note_class::note_itr_end()
+{
+/*	if( note_itr == notelist.end() )
+	{
+		Note_itr_end = true;
+	}
+	else
+	{
+		Note_itr_end = false;
+	}
+	*/
+	return ( note_itr == notelist.end() );
+}
+void Note_class::note_itr_next()
+{
+	Note_itr_end = false;
+	note_itr++;
+}
+//-------------------------------------------------------------
+
+
 string Note_class::Read( string str )
 {
 	String 			Line{""};
@@ -298,7 +382,6 @@ string Note_class::Read( string str )
 	Set_rhythm_line( volumeline );
 	if ( Verify_noteline( Noteline_prefix, noteline ) )
 	{
-		Start_note_itr();
 		return noteline;
 	}
 	else
@@ -478,7 +561,7 @@ void Note_class::Test()
 		Show_note( *note_itr );
 		cout << freq << " = " << note_itr->chord[0].freq  << endl;
 		assert( abs( note_itr->chord[0].freq  - freq ) < 1);
-		note_itr++;
+		note_itr_next();
 	}
 
 	ASSERTION( Verify_noteline( Noteline_prefix, "|,A(A,a)(A'a)(Aa,)(a,)A'.."),
@@ -488,7 +571,7 @@ void Note_class::Test()
 	{
 		ASSERTION( abs( note_itr->chord[0].freq - freq) < 1, "", note_itr->chord[0].freq, freq );
 		cout << note_itr->chord[0].freq << " :ok" << endl;
-		note_itr++;
+		note_itr_next();
 	}
 
 

@@ -8,6 +8,7 @@
 #ifndef DATA_SHAREDDATASEGMENT_H_
 #define DATA_SHAREDDATASEGMENT_H_
 
+#include <Oscbase.h>
 #include <data/Sdsbase.h>
 #include <EventKeys.h>
 #include <Wavedisplay_base.h>
@@ -56,13 +57,25 @@ constexpr spectrum_arr_t default_spectrum_expr(  )
 };
 const spectrum_arr_t default_spectrum_arr = default_spectrum_expr(  );
 
+constexpr feature_arr_t default_feature_expr(  )
+{
+	feature_arr_t arr{};
+	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
+	{
+		arr[oscid] = default_feature;
+	}
+	return arr;
+};
+const feature_arr_t default_feature_arr = default_feature_expr(  );
+
+
 // there are MAXCONFIG interface structures in dataworld
 // global values are managed in structure 0 only (master interface)
 // local  values are interface specific
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 23;
+	uint8_t			version						= 24;
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
@@ -82,20 +95,14 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t			slide_duration 				= 50; // % of 4*max_seconds
 
 	/* instrument definition starts */
-	feature_arr_t	features					{ feature_struct(),
-													feature_struct(),
-													feature_struct() };
-
+	feature_arr_t	features					= default_feature_expr();
 	adsr_arr_t		adsr_arr					= default_adsr_arr;
-
 	spectrum_arr_t	spectrum_arr				= default_spectrum_arr;
-
 	connect_arr_t	connect_arr					= default_connect_arr;
+
 	/* instrument definition ends	 */
 
 	/* SDS specific control elements */
-	//  											OSCF, OSCV, FMOV, VCOF
-	array<bool, 4>	ui_connect_status			= { 0	, 0	  , 0	, 0 	};
 
 	uint8_t			Spectrum_type				= default_spectrum.osc;
 	uint8_t			NotestypeId					= XML_ID; // musicxml
@@ -108,7 +115,6 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t	 		FLAG						= CLEAR_KEY;
 	uint8_t 		frq_slidermode				= SLIDE;	// comstack
 
-	uint8_t		 	MODE						= sdsstate_struct::FREERUN;// comstack
 	bool 			UpdateFlag 					= true;
 	uint8_t			time_elapsed 				= 0;
 
@@ -135,7 +141,7 @@ typedef struct interface_struct // with reasonable defaults
 	process_arr_t	process_arr					= init_process_arr(); //{ {register_process_struct()} };
 	uint8_t 		SHMID 						= 0;// comstack
 	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
-	bool			Record						= false; 	// Audioserver recording
+	uint8_t			Record						= sdsstate_struct::RECORDSTOP; 	// Audioserver recording
 	uint8_t 		FileNo						= 0;		// comstack
 
 } interface_t;

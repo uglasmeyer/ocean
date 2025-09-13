@@ -20,13 +20,16 @@ constexpr bool isTTY ( const T io )
 };
 const bool is_atty	= isTTY( stdout );
 
-inline string line( const uint& col, char ch )
+constexpr string Line( int len = 80, char ch = '-' )
 {
-	string str{};
-	for( uint n = 0; n< col; n++ )
-		str.append(ch,1);
+	string str {};
+	for (int n = 0; n < len; n++)
+	{
+		str.append( 1, ch );
+	}
 	return str;
 }
+
 inline void	ClearScreen()
 {
 	if ( is_atty )
@@ -42,7 +45,7 @@ inline void CursorHomeCol()
 	if ( is_atty )
 	{
 		std::cout.flush() << "\x1B[0G" ;
-		std::cout.flush() << line(80, ' ' );
+		std::cout.flush() << Line(80, ' ' );
 		std::cout.flush() << "\x1B[0G" ;
 	}
 }
@@ -61,15 +64,6 @@ const uint					LOGINDENT	= 20;
 // global Log facility structure
 typedef 	bitset<LOGMAX>		logmask_t;
 
-constexpr string Line( int len = 80 )
-{
-	string str {};
-	for (int n = 0; n < len; n++)
-	{
-		str.append( 1, '-' );
-	}
-	return str;
-}
 constexpr logmask_t setdefaultLogMask()
 {
 	logmask_t lm;

@@ -80,7 +80,7 @@ void Variation_class::define_random_note_vector( string str )
 	Random_Notes.clear();
 	notelist_t nl = Gen_notelist( Noteline_prefix, str );
 	Random_Notes = list2vector( nl );
-	Note_class::Show_note_list(Random_Notes); // @suppress("Invalid arguments")
+	Note_class::Show_note_list(Random_Notes);
 }
 
 
@@ -223,7 +223,7 @@ void Variation_class::reverse_word( int i )
 	noteword_t Nm { Sentence[m]};
     std::reverse( Nm.begin(), Nm.end() );
     noteword_t nw {Nm};
-    Show_note_list( nw ); // @suppress("Invalid arguments")
+    Show_note_list( nw );
     Sentence[m] = nw;
 }
 

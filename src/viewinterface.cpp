@@ -153,6 +153,7 @@ void ViewInterface_class::showStates()
 	State.AddRow( "External:"	, sds_p->mixer_status.external, "Mute:"	,sds_p->mixer_status.mute);
 	State.AddRow( "Note:"		, sds_p->mixer_status.notes, "Keyboard:"	,sds_p->mixer_status.kbd);
 	State.AddRow( "Syncronize:" , sds_p->mixer_status.sync,"Instrumemt:"	,sds_p->mixer_status.instrument);
+	State.AddRow( "Record:" , state_map[sds_p->Record],""	,"");
 
 }
 
@@ -266,7 +267,7 @@ void ViewInterface_class::showOSCs()
 	lline( "(F)MO  (W)aveform: " , waveform_str_vec[ (int)sds_p->spectrum_arr[FMOID].wfid[0] ]);
 	rline( "(V)CO  (W)aveform: " , waveform_str_vec[ (int)sds_p->spectrum_arr[VCOID].wfid[0] ]);
 
-	rline( "                   " , 0 );
+	lline( "                   " , 0 );
 	rline( "Audio frames", (int)sds_p->audioframes );
 
 }

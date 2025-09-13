@@ -159,7 +159,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::Push_ifd( &sds->Record, true, 			"record" );
+		Processor_class::Push_ifd( &sds->Record, (uint8_t)sdsstate_struct::RECORDING, "recording" );
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"start record" );
 		Pause( {"pause", duration } );
 
@@ -169,7 +169,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 	{
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
-		Processor_class::Push_ifd( &sds->Record, false,			"record" );
+		Processor_class::Push_ifd( &sds->Record, (uint8_t)sdsstate_struct::RECORDSTOP,"record stop" );
 		Processor_class::Push_ifd( &sds->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
@@ -733,7 +733,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		int id = pop_int(0, max_id);
 		Comment( INFO, "stop recording to: " + to_string(id) );
 		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
-		Processor_class::Push_key( STOPRECORD_KEY, "stop sound" );
+		Processor_class::Push_key( STOP_STARECORD_KEY, "stop sound" );
 		return;
 	}
 

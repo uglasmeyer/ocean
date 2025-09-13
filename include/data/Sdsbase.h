@@ -16,7 +16,7 @@
 
 struct sdsstate_struct
 {
-	enum {
+	enum StateId {
 		 OFFLINE	,
 		 RUNNING	,
 		 FREERUN	,
@@ -26,6 +26,9 @@ struct sdsstate_struct
 		 EXITSERVER	,
  		 RECORDSTART,
 		 RECORDSTOP ,
+		 RECORDING	,
+		 STOPPING	,
+		 INACTIVE,
 		 LASTNUM
 		};
 
@@ -40,9 +43,15 @@ struct sdsstate_struct
 		{"EXITSERVER" },
 		{"RECORDSTART" },
 		{"RECORDSTOP" },
+		{"RECORDING"},
+		{"STOPPING"},
+		{"Inactive"},
 		{"unknown"}
 	};
-	sdsstate_struct(){};
+	sdsstate_struct()
+	{
+		assert( state_map.size() >= StateId::LASTNUM );
+	};
 	~sdsstate_struct() = default;
 };
 enum CON

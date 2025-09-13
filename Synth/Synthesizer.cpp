@@ -115,8 +115,25 @@ void add_sound()
 	if ( Mixer.status.notes )
 	{
 		if( sds->NotestypeId == XML_ID )
+		{
 			Notes.Generate_volatile_data( false ); // no init
+		}
 		Notes.ScanData();
+		coutf << "Note_itr_end " << boolalpha << Notes.Note_itr_end << endl;
+
+		if( sds_master->Record == sdsstate_struct::STOPPING )
+		{
+			if( *Notes.Trigger )
+			{
+				sds_master->AudioServer = sdsstate_struct::RECORDSTOP;
+				coutf << "Trigger " << boolalpha << *Notes.Trigger << endl;
+			}
+			if( Notes.Note_itr_end )
+			{
+				sds_master->AudioServer = sdsstate_struct::RECORDSTOP;
+				coutf << "Note_itr_end " << boolalpha << Notes.Note_itr_end << endl;
+			}
+		}
 	}
 
 
@@ -126,6 +143,10 @@ void add_sound()
 						Keyboard.Kbd_Data,
 						Notes.NotesData,
 						shm_addr );
+
+	if ( Mixer.status.notes )
+	{
+	}
 
 	ProgressBar.Update();
 
@@ -163,7 +184,7 @@ void ApplicationLoop()
 	} ;
 
 	Log.Comment(INFO, "Exit Application loop");
-	Log.Comment( INFO, Line() );
+	Log.Comment( INFO, Line( 80 - 26 ) );
 
 	return;
 
@@ -172,8 +193,7 @@ void ApplicationLoop()
 
 void sync_notes_fnc( )
 {
-//	DaTA.Sem.Release( SEMAPHORE_SYNCNOTES ); //other
-	Notes.Restart = true;//Notes.Start_note_itr();
+	Notes.Start_note_itr();//Notes.Start_note_itr();
 }
 Thread_class 	SyncNotes( DaTA.Sem_p, SEMAPHORE_SYNCNOTES, sync_notes_fnc, "sync_notes_fnc" );
 thread* 		SyncNotes_thread_p = nullptr;
