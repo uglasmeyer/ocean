@@ -1,14 +1,17 @@
 
 // qtcreator
-#include <EventKeys.h>
 #include <include/Mainwindow.h>
 #include <include/Oszilloscopewidget.h>
 #include <include/Spectrum_dialog_class.h>
 #include <ui_mainwindow.h>
+
+// Ocean
+#include <EventKeys.h>
 #include <Wavedisplay_base.h>
 #include <Logfacility.h>
 #include <Mixer.h>
 #include <Ocean.h>
+#include <Kbd.h>
 
 // Qt
 #include <QLabel>
@@ -52,6 +55,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 		osc_struct(),
 		ui(new Ui::MainWindow{} )
 {
+	className		= Logfacility_class::className;
 	ui->setupUi(this);
 	initPanel();
 
@@ -73,10 +77,36 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 MainWindow::~MainWindow()
 {
-	cout << "visited ~MainWindow" << endl;
+	DESTRUCTOR( className );
 	printf( "%p\n\n", OscWidget_item );
 	if ( OscWidget_item ) delete ( OscWidget_item );
 }
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+	Kbd_base::key_union_t key {};
+	key.Int = map_qt_key( event->key() ) ;
+	switch ( key.Int )
+	{
+		case Qt::Key_Escape :
+		{
+			GUI_Exit();
+			break;
+		}
+		default :
+		{
+			sds->Kbd_state.key = key.Int;
+			QMainWindow::keyPressEvent( event );
+			break;
+		}
+	} // switch  key
+	QString QStr{};
+	QStr.assign(1, (QChar)key.Arr[0] );
+	Keyboard_Dialog_p->keyboard_key = QStr;
+
+
+}
+
 
 void MainWindow::GUI_Exit()
 {
@@ -461,7 +491,7 @@ void MainWindow::Clear_Banks()
 }
 void MainWindow::toggle_Mute()
 {
-    bool mute_flag 	= not Sds->addr->mixer_status.mute ;
+    bool mute_flag 	= not Sds->addr->mixer_state.mute ;
     Eventlog.add( SDS_ID, MASTERAMP_MUTE_KEY);
     QString Qstr = mute_flag ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
@@ -592,6 +622,15 @@ void MainWindow::start_synthesizer()
 }
 void MainWindow::start_keyboard()
 {
+    if ( this->Keyboard_Dialog_p->isVisible()   )
+    {
+        this->Keyboard_Dialog_p->hide();
+    }
+    else
+    {
+//    	Keyboard_Dialog_p->Setup_widgets();
+		this->Keyboard_Dialog_p->show();
+    }
 	if( Appstate->IsRunning( Sds->addr, APPID::KEYBOARDID ))
 	{
 		exit_synthesizer( APPID::KEYBOARDID );
@@ -646,7 +685,7 @@ auto connect_secundary = [  ]( MainWindow* M, char oscid, char secid, char mode,
 	M->Eventlog.add( M->SDS_ID, CONNECTOSC_KEY );
 };
 
-void MainWindow::connect_oscf( bool val ) // TODO no yet ready
+void MainWindow::connect_oscf( bool val )
 {
 	connect_secundary( this, OSCID, FMOID, CONF, val );
 }
@@ -669,23 +708,22 @@ void MainWindow::get_record_status( )
     ui->progressBar_record->setValue( pb_value );
 }
 
-void MainWindow::SaveRecord()
+void MainWindow::SaveRecord() // TODO no yet ready
 {
 	if( ui->cb_overwrite->isChecked() )
-		Sds->Set( sds_master->FileNo ,(uint8_t) 1 ); // take filename from Other-cstring
+		Sds->Set( sds_master->FileNo ,(uint8_t) 1 ); // take filename from the Other-cstring
 	else
 		Sds->Set( sds_master->FileNo ,(uint8_t) 0 ); // 0=automatic numbering
 
 
-    if ( sds_master->Record == sdsstate_struct::RECORDING )
+    if ( sds_master->Record_state == sdsstate_struct::RECORDING )
     {
         Eventlog.add( SDS_ID, STOPRECORD_KEY );
     }
-    if ( sds_master->Record == sdsstate_struct::INACTIVE )
+    if ( sds_master->Record_state == sdsstate_struct::INACTIVE )
     {
         Eventlog.add( SDS_ID, STARTRECORD_KEY );
     }
-
 }
 
 
@@ -758,7 +796,7 @@ void MainWindow::setwidgetvalues()
 
 
     QString
-	Qstr = Sds->addr->mixer_status.mute ? "UnMute" : "Mute";
+	Qstr = Sds->addr->mixer_state.mute ? "UnMute" : "Mute";
     ui->pB_Mute->setText( Qstr );
 
     Qstr	= int2char( Sds->addr->adsr_arr[OSCID].bps );
@@ -798,6 +836,9 @@ void MainWindow::setwidgetvalues()
     double frq_slide_duration = Sds->addr->features[OSCID].glide_effect * max_sec * 0.01;
     ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
+	if( Keyboard_Dialog_p->isVisible( ) )
+		Keyboard_Dialog_p->Setup_Widget();
+
 	if( Appstate->IsExitserver( App.sds, GUI_ID ) )
 		GUI_Exit();
 	else
@@ -823,9 +864,11 @@ void MainWindow::updateColorButtons()
     setButton( ui->pb_SDSview	, isRunning( SDSVIEWID, sds_master )*2+1 );
     setButton( ui->pBComposer	, isRunning( COMPID, sds_master )*2+1 );
 
-    bool record 	= ( sds_master->Record == sdsstate_struct::RECORDING );
-    bool stopping	= ( sds_master->Record == sdsstate_struct::STOPPING );
-    if( stopping )
+    // TODO complete
+    bool record 	= ( sds_master->Record_state == sdsstate_struct::RECORDING );
+    bool stopping	= ( sds_master->Record_state == sdsstate_struct::STOPPING );
+    bool starting	= ( sds_master->Record_state == sdsstate_struct::STARTING );
+    if( stopping or starting )
         setButton( ui->pBtoggleRecord, 2 ); // yellow
     else
     	setButton( ui->pBtoggleRecord, not record );

@@ -17,7 +17,7 @@
 #include <Ocean.h>
 #include <Oscgroup.h>
 #include <Mixerbase.h>
-#include <queue>
+//#include <queue>
 #include <notes/Notes.h>
 
 class Kbd_note_class
@@ -34,15 +34,14 @@ class Kbd_note_class
 										};
 	set<char>		chord_keys			{ 'y', 'x', 'c', 'v', 'b', 'n' };
 	string			noteline			{};
-	kbd_note_t		Note 				= kbd_note_struct( 0, NONOTE);
 
 
 public:
-	const array<string, kbd_octaves>
+	const array<string, kbd_rows>
 					dflt_keyboard_keys	{  	string("A_S_DF_J_K_L") ,
 											string("Q_W_ER_U_I_O") ,
 											string("1_2_34_7_8_9")};
-	array<string, kbd_octaves>
+	array<string, kbd_rows>
 					keyboard_keys		{ dflt_keyboard_keys };
 
 	/*
@@ -50,6 +49,7 @@ public:
 	 https://de.wikipedia.org/wiki/American_Standard_Code_for_Information_Interchange
 	 */
 
+	kbd_note_t		Note 				= kbd_note_struct( 0, NONOTE);
 	string 			Chord				{ Chords['y'] };
 
 	vector<kbd_note_t>
@@ -65,7 +65,7 @@ private:
 } ;
 
 class keyboardState_class
-	: public virtual 	kbd_state_struct
+	:  	kbd_state_struct
 {
 	interface_t* 		sds;
 
@@ -73,16 +73,16 @@ class keyboardState_class
 	const range_T<uint>	flats_range				{ 0, 2 }; // TODO reduced range
 	frq_t				basefrq;
 
-public:
+protected:
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
 	string				NoteNames				= OctChars;//convention_notes[ENGLISH];
 	Kbd_note_class		kbd_note 				{};
 
-
 						keyboardState_class		( interface_t* _sds );
-	virtual 			~keyboardState_class() 	= default;
+						~keyboardState_class() 	= default;
 
-	void 				change_octave			( int oct );
+	void 				change_octave			( int inc );
+	void 				set_octave				( int oct );
 	void 				increase_sharps			();
 	void 				increase_flats			();
 	void 				reset_sharps			();
@@ -90,7 +90,7 @@ public:
 	void 				toggle_applyADSR		();
 	void 				set_slideMode			();
 	void 				set_accidental			( uint pitches, int dir  );
-	frq_t				Get_basefrq				( );
+	void 				set_accidental			( pitch_vec_t vec  );
 
 } ;
 
@@ -99,16 +99,14 @@ class Keyboard_class
 	: virtual public		Logfacility_class
 	, virtual				osc_struct
 	, virtual public		Kbd_base
-	, virtual	public		sdsstate_struct
+	, virtual public		sdsstate_struct
 	, virtual public		keyboardState_class
 {
 	string 				className 				= "";
 	Oscgroup_class		Oscgroup				{ KBDID, 2*monobuffer_bytes };
 	Oscillator*			Osc						= &Oscgroup.osc;
 	file_structure		fs						= file_structure();
-	typedef std::queue<key3struct_t>
-						key3_stack_t;
-	key3_stack_t		key3_stack				{};
+
 	noteline_prefix_t	nlp						;
 	Note_class*			notes_p					;
 	Instrument_class* 	instrument_p				;
@@ -125,11 +123,13 @@ public:
 													Note_class* );
 						Keyboard_class			(); // see comstack
 	virtual 			~Keyboard_class			();
-	void 				Set_Kbdnote				( key3struct_t key );
+	void 				Set_Kbdnote				( kbdInt_t key );
 	void 				Set_instrument			();
 	void 				Enable					( bool iskbd );
 	void 				ScanData				();
 	void 				Show_help				( bool tty );
+	void				Set_key					();
+
 private:
 
 	const int 			releaseCounter			= 0;
@@ -139,7 +139,7 @@ private:
 	uint				holdCounter				= 0;
 	const uint			kbd_volume				= 75;
 	uint8_t 			sta_volume				= kbd_volume;
-	key3struct_t		Kbd_key					= key3_struct( 0, 0, 0);
+	kbdkey_t		Kbd_key					{0,0,0};//key3_struct( 0, 0, 0);
 	feature_t			kbd_adsr				= feature_struct();
 	bool				frqMode					= SLIDE;
 	string				Noteline				{};
@@ -153,12 +153,11 @@ private:
 	void				set_kbd_trigger			( bool trigger );
 	// keyhandler.cpp
 
-	void 				keyHandler				( key3struct_t kbd );
-	string 				show_kbd_notenames			();
-	void 				specialKey				();
+	void 				keyHandler				( kbdkey_t kbd );
+	string 				show_kbd_notenames		();
 	void 				exit_keyboard			();
 	void 				notekey					( char key );
-	void				set_bufferMode			();
+	void				set_bufferMode			( bool forget);
 	bool 				save_notes				();
 
 

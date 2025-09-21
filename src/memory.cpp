@@ -38,7 +38,7 @@ void Scanner_class::Show( bool debug, void* p )
 	if ((not p) or ( p == &fillrange.max )) Info( "fillrange max    : ", fillrange.max );
 	if ((not p) or ( p == &inc )) Info( "Read frames      : ", inc );
 	if ((not p) or ( p == &wrt )) Info( "Write frames     : ", wrt );
-	if ((not p) or ( p == &trigger )) Info( "Read trigger		: ", trigger );
+	if ((not p) or ( p == &trigger )) Info( "Read trigger.state		: ", trigger );
 
 }
 Data_t* Scanner_class::Next_read()
@@ -51,7 +51,7 @@ Data_t* Scanner_class::Next_read()
 	data 			= &Data[ rpos ];
 //	Set_rpos( rpos + inc );
 	rpos 			= ( rpos + inc ) % fillrange.max;//check_cycle( fillrange, rpos + inc, "Next" );
-	trigger 		= ( rpos < inc ); // indicates a next cycle or start cycle
+	trigger			= ( rpos < inc ); // indicates a next cycle or start cycle
 	return data;
 }
 
@@ -133,11 +133,6 @@ void Memory::DsInfo( string name )
 
 
 //-----------------------------------------------------------------------------
-
-
-
-
-
 
 
 //-----------------------------------------------------------------------------

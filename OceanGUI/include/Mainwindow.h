@@ -23,7 +23,7 @@
 #include <include/Oszilloscopewidget.h>
 #include <include/Rtsp_dialog_class.h>
 #include <include/Spectrum_dialog_class.h>
-
+#include <Keyboad_dialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -37,7 +37,7 @@ class MainWindow :
 		osc_struct
 {
     Q_OBJECT
-
+	string					className			= "";
 public:
 	process_t				Process				{  };
 
@@ -66,6 +66,9 @@ public:
 
     Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA.Sds_p, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
+
+    Keyboad_Dialog_class			Keyboard_Dialog_obj	{ this, &DaTA, Eventlog_p };
+    Keyboad_Dialog_class*			Keyboard_Dialog_p	= &Keyboard_Dialog_obj;
 
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
@@ -260,6 +263,8 @@ private slots:
     void pB_Wavedisplay_clicked();
     void pB_fftmode_clicked();
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

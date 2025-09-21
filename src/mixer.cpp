@@ -77,7 +77,7 @@ Mixer_class::~Mixer_class()
 	if ( not sds )
 		return;
 	Clear_StA_status( sds->StA_state );
-	sds->mixer_status.external	= false;
+	sds->mixer_state.external	= false;
 	DESTRUCTOR( className );
 };
 
@@ -103,10 +103,10 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 
 	switch ( id )
 	{
-		case STA_INSTRUMENT :	{ status.instrument = play; break; }
-		case STA_NOTES 		:	{ status.notes 		= play;	break; }
-		case STA_KEYBOARD	: 	{ status.kbd 		= play; break; }
-		case STA_EXTERNAL 	:	{ status.external 	= play; break; }
+		case STA_INSTRUMENT :	{ state.instrument = play; break; }
+		case STA_NOTES 		:	{ state.notes 		= play;	break; }
+		case STA_KEYBOARD	: 	{ state.kbd 		= play; break; }
+		case STA_EXTERNAL 	:	{ state.external 	= play; break; }
 		default				:	break;
 	}
 };
@@ -114,7 +114,7 @@ void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
 void Mixer_class::Update_sds_state( int Id, interface_t* sds )
 {
 
-	sds->mixer_status =  status;
+	sds->mixer_state =  state;
 	for ( uint id :  StAMemIds )
 	{
 		sds->StA_state[id] 	=  StA[id].state;
@@ -175,6 +175,7 @@ void Mixer_class::add_stereo( Stereo_t* Data  )
 		Data[n].left 	+= Out.stereo_data[n].left ;//	* vol_percent * balanceL );
 		Data[n].right 	+= Out.stereo_data[n].right;// 	* vol_percent * balanceR );
 	}
+
 }
 
 /*
@@ -216,7 +217,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	if( not shm_addr ) return;
 	clear_memory();
 
-	if ( status.mute )
+	if ( state.mute )
 	{
 		add_stereo( shm_addr );
 		return;
@@ -258,6 +259,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	}
 
 	add_stereo( shm_addr ); 	// push sound to audio server
+
 };
 
 void Mixer_class::TestMixer()

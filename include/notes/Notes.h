@@ -34,10 +34,9 @@ public:
 	Oscillator*		Osc						= &Oscgroup.osc;
 
 	string			Instrument_name 		{ "" };
-	bool			Note_itr_start			= false;
-	bool			Note_itr_end			= false;
+	trigger_t		Note_itr_start			;
+	trigger_t		Note_itr_end			;
 	uint8_t 		Octave					= noteline_prefix_default.Octave; // 55
-	bool*			Trigger					;
 
 	Dynamic_class	DynFrequency			{ frqarr_range };
 

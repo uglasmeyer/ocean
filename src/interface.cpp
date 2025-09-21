@@ -9,6 +9,7 @@
 #include <Config.h>
 #include <data/Interface.h>
 #include <System.h>
+#include <cstring>
 
 
 Interface_class::Interface_class( 	char appid,

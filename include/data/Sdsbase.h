@@ -28,7 +28,8 @@ struct sdsstate_struct
 		 RECORDSTOP ,
 		 RECORDING	,
 		 STOPPING	,
-		 INACTIVE,
+		 STARTING	,
+		 INACTIVE	,
 		 LASTNUM
 		};
 
@@ -45,6 +46,7 @@ struct sdsstate_struct
 		{"RECORDSTOP" },
 		{"RECORDING"},
 		{"STOPPING"},
+		{"STARTING"},
 		{"Inactive"},
 		{"unknown"}
 	};
@@ -64,6 +66,7 @@ enum CON
 	CONF = 'F'
 
 };
+
 
 typedef struct EventPtr_struct
 {

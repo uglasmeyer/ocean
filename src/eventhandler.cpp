@@ -118,7 +118,7 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "Audio volume change");
 
-		Mixer->status.mute = false;
+		Mixer->state.mute = false;
 		Mixer->DynVolume.SetupVol( sds_master->Master_Amp,
 								sds_master->vol_slidemode);
 		Sds->Commit();
@@ -141,8 +141,8 @@ void Event_class::Handler()
 	}
 	case MASTERAMP_MUTE_KEY: // Mute Main Volume
 	{
-		Mixer->status.mute = not sds->mixer_status.mute;
-		string str = (Mixer->status.mute) ? "Mute" : "UnMute";
+		Mixer->state.mute = not sds->mixer_state.mute;
+		string str = (Mixer->state.mute) ? "Mute" : "UnMute";
 		EvInfo( event, "receiving command <" + str + "> master volume>");
 		Sds->Commit();
 		break;
@@ -210,9 +210,20 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case STARTRECORD_KEY :
+	case STARTRECORD_KEY : // TODO complete functionality
 	{
-		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTART );
+    	if( sds->StA_state[STA_NOTES].play )
+    	{
+    		sds->Record_state = sdsstate_struct::STARTING;
+    		Notes->Note_itr_start.set_active( true );
+    		Notes->Note_itr_end.set_active( false );
+    	}
+    	else // no synchronization
+    	{
+    		Notes->Note_itr_start.set_active( false );
+    		Notes->Note_itr_end.set_active( false );
+    		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTART );
+    	}
 		Sds->Commit();
 		break;
 	}
@@ -220,18 +231,30 @@ void Event_class::Handler()
 	{
     	if( sds->StA_state[STA_NOTES].play )
     	{
-    		sds_master->Record = sdsstate_struct::STOPPING;
+    		sds->Record_state = sdsstate_struct::STOPPING;
+    		Notes->Note_itr_start.set_active( false );
+    		Notes->Note_itr_end.set_active( true );
     	}
-    	else
+    	else // no synchronization
     	{
+    		Notes->Note_itr_start.set_active( false );
+    		Notes->Note_itr_end.set_active( false );
     		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTOP );
     	}
 		Sds->Commit();
 		break;
 	}
+	case KBD_EVENT_KEY :
+	{
+		Keyboard->Set_key( );
+		sds->StA_state[ STA_KEYBOARD ].play = true;
+
+		Sds->Commit();
+		break;
+	}
 	case SAVE_EXTERNALWAVFILEKEY: // record and save wav file
 	{
-		if ( sds_master->Record == sdsstate_struct::RECORDING )
+		if ( sds_master->Record_state == sdsstate_struct::RECORDING )
 			// Composer - Interpreter
 			sds_master->AudioServer = RECORDSTART; // start and  wait
 		else
@@ -250,7 +273,7 @@ void Event_class::Handler()
 			Mixer->StA[STA_EXTERNAL].Play_mode(true);
 			Mixer->StA[STA_EXTERNAL].DynVolume.SetupVol( 100, FIXED );
 			sds->StA_amp_arr[ STA_EXTERNAL ] = 100;
-			Mixer->status.external = true;
+			Mixer->state.external = true;
 			ProgressBar->SetValue( 100 * External->Filedata_size / External->mem_ds.bytes);
 		}
 		else
@@ -442,7 +465,6 @@ void Event_class::Handler()
 		noteline_prefix_t nlp = sds->noteline_prefix;
 		Comment(INFO, "receive command <update notesline prefix");
 		Notes->Set_noteline_prefix(nlp);
-		Notes->Note_itr_start = true;
 		Sds->Commit();
 		break;
 	}
@@ -455,7 +477,7 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case CONNECTOSC_KEY : // TODO not yet ready
+	case CONNECTOSC_KEY :
 	{
 		EvInfo( event, "update modulation connections for the OSC");
 		Instrument->Oscgroup.Set_Connections( sds );

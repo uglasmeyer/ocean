@@ -16,12 +16,12 @@ typedef function< void( void )> loop_function_t;
 class Thread_class :
 	virtual Logfacility_class
 {
-	string className = "";
-	uint SemId;
-	Semaphore_class* Sem_p;
-	bool thread_done = false;
-	loop_function_t loop_fnc;
-	string Name = "";
+	string 				className 		= "";
+	uint 				SemId;
+	Semaphore_class* 	Sem_p;
+	bool 				thread_done 	= false;
+	loop_function_t 	loop_fnc;
+	string 				Name 			= "";
 
 public:
 
@@ -52,7 +52,8 @@ public:
 			Sem_p->Lock( SemId );
 			if( thread_done )
 				break;
-			this->loop_fnc(  );
+			else
+				this->loop_fnc(  );
 		}
 		Info( "Loop terminated on semaphore ", Sem_p->SemName( SemId ) );
 
@@ -62,7 +63,6 @@ public:
 	{
 		thread_done = true;
 		Sem_p->Reset( SemId );
-		Logfacility_class::ResetLogMask();
 	}
 
 private:

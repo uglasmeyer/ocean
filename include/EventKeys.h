@@ -76,6 +76,9 @@ enum {
 	UPDATE_NLP_KEY,
 	XMLFILE_KEY,
 
+	// Keyboard
+	KBD_EVENT_KEY,
+
 	// Wavedisplay
 	SETWAVEDISPLAYKEY,
 

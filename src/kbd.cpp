@@ -18,38 +18,50 @@ Kbd_base::~Kbd_base()
 	Reset();
 };
 
-string Kbd_base::ShowKey( key3struct_t key )
+string Kbd_base::ShowKey( kbdInt_t Int )
 {
-	if ( key.key == 0 )
+	kbdkey_t key{0,0,0};
+	key.Int = Int;
+	return ShowKey( key );
+}
+
+string Kbd_base::ShowKey( kbdkey_t key )
+{
+	if ( key.Int == 0 )
 		return "";
 	stringstream strs {};
-	strs << dec <<
-			(int) key.key <<":" <<
-			(int) key.val0 << ":" <<
-			(int) key.val1 << " ";
+
+	strs << hex << "0x0" <<
+			key.Int << " : " <<
+			map_key_name( key.Int ) << " ";
+	for( uint n = 0; n < key.Arr.size(); n++ )
+	{
+		strs << (int)key.Arr[n] << " ";
+	}
+
 	cout << strs.str() << endl;
 	return strs.str();
 }
 
-Kbd_base::key3struct_t Kbd_base::GetKeystruct	( bool debug )
+kbdInt_t Kbd_base::GetKeyInt	( bool debug )
 {
 	fflush(stdout);
-	buf3 			= Nullkey3;//{ 0,0,0 };
+	buf8.Int 			= 0x0;//Nullkey3;//{ 0,0,0 };
 
-	if(read(0, buf3_p, 3) < 0)
-		perror("read()");
+	if(read(0, buf8_p, 8) < 0)
+		perror("GetKeystruct()");
 
-	key3.nokey 		= ( buf3.key == 0 );
+	key3.nokey 		= ( buf8.Int == 0 );
 	if ( key3.nokey )
 		key3.hold	= false;
 	else
-		key3.hold 	= ( ( buf3.key == buf3.val0 ) or ( buf3.key == key3.val1 ));
+		key3.hold 	= ( buf8.Int == key3.Int );
 
-	key3.set( buf3);
+	key3.Int = buf8.Int;
 
 	if ( debug )
 		ShowKey( key3 );
-	return key3;
+	return key3.Int;
 }
 
 void Kbd_base::Init()
@@ -73,7 +85,7 @@ void Kbd_base::Init()
 	// If an interrupt occurs before the timer expires and no bytes are read
 	// the read returns -1 with errno set to EINTR.
 	if(tcsetattr(0, TCSANOW, &new_flags) < 0)
-		perror("tcsetattr ICANON");
+		perror("Kbd_base::Init() ICANON");
 
 }
 
@@ -101,17 +113,16 @@ void Kbd_base::Test()
 {
 	TEST_START( className );
 	uint nr = 0;
-	key3struct_t pressed = key3_struct( 0,0,0 );
+	kbdkey_t pressed = key_struct( ESC,0,0 );
 	do
 	{
-		pressed = GetKeystruct( true ) ;
 		Comment( TEST, " > Press <ESC> to finish keyboard test");
 		nr++;
 	}
-	while( not ( pressed.key == ESC ) and ( nr < 10 ));
+	while( not ( pressed.Arr[0] == ESC ) and ( nr < 10 ));
 
 	Comment( TEST, "Keyboard test finished");
-//	assert( false );
+	ASSERTION( pressed.Int == 27L, "Keyboard test ", (long int) pressed.Int, ESC );
 	TEST_END( className );
 
 }

@@ -12,21 +12,19 @@ Memory_base::Memory_base( buffer_t bytes ) :
 {
 	mem_ds.bytes = bytes;
 	className = Logfacility_class::className;
-	Comment( INFO, "pre-init memory size " + to_string( bytes ));
-
+	Info( "pre-init memory size ", bytes );
 };
 
 Memory_base::Memory_base() :
 	Logfacility_class( "Memory_base" )
 {
 	className = Logfacility_class::className;
-	Comment( INFO, "pre-init memory size " + to_string( 0 ));
+//	Comment( INFO, "pre-init memory size " + to_string( 0 ));
 };
 
 Memory_base::~Memory_base()
 {
-	if( LogMask[ DEBUG ] )
-		cerr.flush() << "~" << className << endl;
+	DESTRUCTOR( className )
 };
 
 

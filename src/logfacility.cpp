@@ -117,6 +117,7 @@ void Logfacility_class::seterrText()
 	error_arr[EPIPE] 	=   {"EPIPE",	"Broken pipe"};
 	error_arr[EDOM] 	=   {"EDOM",	"Math argument out of domain of func"};
 	error_arr[ERANGE] 	=   {"ERANGE",	"Math result not representable"};
+	error_arr[LUNDEF] 	=   {"undefined",	"unknown"};
 }
 
 void Logfacility_class::Init_log_file( )
@@ -144,18 +145,13 @@ void Logfacility_class::Show_loglevel()
 string Logfacility_class::Error_text( uint err )
 {
 	string str = "";
-	if ( ( err < error_arr.size() - 1 ) )
+	if ( ( err > LUNDEF ) )
 	{
-		str = "[" + error_arr[err].key + "] " + error_arr[err].str;
-		errno = 0;
-		return str;
+		err = LUNDEF;
 	}
-	else
-	{
-		str = "error no " + to_string(err) + " to be defined";
-		Comment( DEBUG , str);
-		return "";
-	}
+	str = "[" + error_arr[err].key + "] " + error_arr[err].str;
+	errno = 0;
+	return str;
 }
 
 void Logfacility_class::Set_Loglevel( int _level, bool _on )

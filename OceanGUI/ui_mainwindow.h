@@ -277,6 +277,8 @@ public:
         Slider_OSC_Hz->setMaximum(72);
         Slider_OSC_Hz->setPageStep(12);
         Slider_OSC_Hz->setOrientation(Qt::Orientation::Vertical);
+        Slider_OSC_Hz->setTickPosition(QSlider::TickPosition::TicksAbove);
+        Slider_OSC_Hz->setTickInterval(12);
         Slider_OSC_Vol = new QSlider(centralwidget);
         Slider_OSC_Vol->setObjectName("Slider_OSC_Vol");
         Slider_OSC_Vol->setGeometry(QRect(290, 10, 16, 160));
@@ -845,7 +847,7 @@ public:
         pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
         pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
         pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
-        pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT", nullptr));
+        pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT (ESC)", nullptr));
         pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
         pb_Keyboard->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
         cb_overwrite->setText(QCoreApplication::translate("MainWindow", "Overwrite", nullptr));

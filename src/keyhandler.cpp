@@ -22,10 +22,7 @@ keyboardState_class::keyboardState_class( interface_t* _sds )
 };
 
 
-frq_t keyboardState_class::Get_basefrq()
-{
-	return basefrq;
-}
+
 
 void keyboardState_class::change_octave( int inc )
 {
@@ -33,12 +30,47 @@ void keyboardState_class::change_octave( int inc )
 	sds->Kbd_state.base_octave	= kbd_note.base_octave;
 	basefrq						= frqArray[ frqIndex( 0, kbd_note.base_octave ) ];
 }
+void keyboardState_class::set_octave( int oct )
+{
+	kbd_note.base_octave		= check_range( Kbdoctave_range, oct, "change_octave" );
+//	sds->Kbd_state.base_octave	= kbd_note.base_octave;
+	basefrq						= frqArray[ frqIndex( 0, kbd_note.base_octave ) ];
+}
 void keyboardState_class::set_accidental( uint loc, int dir  )
 {
-	for( uint oct = 0; oct < kbd_octaves; oct++)
+	for( uint oct = 0; oct < kbd_rows; oct++)
 	{
 		kbd_note.keyboard_keys[oct][ (loc + dir)%oct_steps ] = kbd_note.keyboard_keys[oct][ loc ];
 		kbd_note.keyboard_keys[oct][ loc     ]	= '_';
+	}
+};
+void keyboardState_class::set_accidental( pitch_vec_t vec  )
+{
+	kbd_note.keyboard_keys		= kbd_note.dflt_keyboard_keys;
+
+	for( uint n = 0; n < sharps; n++ )
+	{
+		int8_t dir = 1;
+		for( uint row = 0; row < kbd_rows; row++)
+		{
+			uint8_t keyloc = vec[n];
+			uint8_t newloc= (keyloc+dir) % oct_steps;
+			kbd_note.keyboard_keys[row][newloc] = kbd_note.keyboard_keys[row][ keyloc ];
+			kbd_note.keyboard_keys[row][ keyloc ]	= '_';
+		}
+	}
+	for( uint n = 0; n < flats; n++ )
+	{
+		int8_t dir = -1;
+		for( uint row = 0; row < kbd_rows; row++)
+		{
+			uint8_t keyloc = vec[n] ;
+			int8_t newloc	= keyloc + dir;
+			if( ( newloc ) < 0 )
+				newloc = oct_steps - 1;
+			kbd_note.keyboard_keys[row][newloc] = kbd_note.keyboard_keys[row][ keyloc ];
+			kbd_note.keyboard_keys[row][ keyloc     ]	= '_';
+		}
 	}
 };
 Note_base Nb {};
@@ -54,6 +86,7 @@ void keyboardState_class::increase_sharps()
 	}
 
 }
+
 void keyboardState_class::increase_flats()
 {
 	flats 						= check_range( flats_range, flats + 1, "increase_flats" );
@@ -73,7 +106,7 @@ void keyboardState_class::reset_sharps()
 }
 void keyboardState_class::reset_flats()
 {
-	kbd_note.keyboard_keys			= kbd_note.dflt_keyboard_keys;
+	kbd_note.keyboard_keys		= kbd_note.dflt_keyboard_keys;
 	flats 						= 0;
 	sds->Kbd_state.flats 		= 0;
 }
@@ -103,11 +136,11 @@ string Keyboard_class::show_kbd_notenames( )
 	Table.AddColumn( " Keyboard  ", 3*7 );
 	Table.PrintHeader();
 	stringstream 	strs 	{};
-	for ( uint n = 0; n < kbd_octaves; n++ )
+	for ( uint n = 0; n < kbd_rows; n++ )
 	{
 		string 		str 	{};
 		string		kbd		{};
-		uint oct 			= kbd_octaves - n - 1;
+		uint oct 			= kbd_rows - n - 1;
 		for ( uint step = 0 ; step < oct_steps  ; step++ )
 		{
 			if( kbd_note.keyboard_keys[oct][step] != '_' )
@@ -154,13 +187,17 @@ void Keyboard_class::exit_keyboard()
 	Comment( WARN, "Exit by user request");
 	sds_p->Keyboard = EXITSERVER;
 }
-void Keyboard_class::notekey( char key )
+#include <cstring>
+void Keyboard_class::notekey( char ch )
 {
-	kbd_note.Chord 	= kbd_note.SetChord( key );
-	kbd_note.SetNote( key ) ;
+	kbd_note.Chord 	= kbd_note.SetChord( ch );
+	kbd_note.SetNote( ch ) ;
 
 	if ( kbd_note.note_vec.size() > 0 )
 	{
+		strcpy( sds_p->Kbd_state.note, kbd_note.Note.name.data() );
+		sds_p->Kbd_state.frq = kbd_note.Note.freq;
+
 		Set_instrument();
 
 		if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
@@ -169,10 +206,10 @@ void Keyboard_class::notekey( char key )
 		}
 	}
 }
-void Keyboard_class::set_bufferMode()
+void Keyboard_class::set_bufferMode( bool forget )
 {
-	sta_p->state.forget 	= not sta_p->state.forget ;
-	if( sta_p->state.forget )
+	sta_p->state.forget 	= forget ;
+	if( forget )
 	{
 		sta_volume = sds_p->StA_amp_arr[STA_KEYBOARD];
 		sds_p->StA_amp_arr[STA_KEYBOARD] = 0;
@@ -182,6 +219,31 @@ void Keyboard_class::set_bufferMode()
 		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
 	Noteline 			= "";
+}
+
+void Keyboard_class::Set_key( ) // TODO
+{
+
+	bool forget			= sds_p->StA_state[STA_KEYBOARD].forget;
+	kbd_note.base_octave 		= sds_p->Kbd_state.base_octave;
+	kbd_note.sliding 			= sds_p->Kbd_state.sliding;
+	kbd_note.sharps 				= sds_p->Kbd_state.sharps;
+	kbd_note.flats 				= sds_p->Kbd_state.flats;
+	kbd_note.ADSR_flag 			= sds_p->Kbd_state.ADSR_flag;
+
+	set_octave			( kbd_note.base_octave );
+	set_accidental		( Nb.sharp_pitch );
+	set_accidental		( Nb.flat_pitch );
+	set_bufferMode		( not forget );
+	sds_p->StA_state[ STA_KEYBOARD ].forget = forget;
+	if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
+	{
+		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
+	}
+
+	int key 	= sds_p->Kbd_state.key;
+	sds_p->Kbd_state.key= 0;
+	Set_Kbdnote( key );
 }
 
 bool Keyboard_class::save_notes()
@@ -212,55 +274,32 @@ bool Keyboard_class::save_notes()
 
 }
 
-void Keyboard_class::specialKey()
-{
-	key3struct_t special = GetKeystruct( false );
-	if ( special.val0 != ASC )
-	{
-		return;
-	}
-	bool tainted = true;
-	switch( special.key )
-	{
-		case F5 : { set_slideMode(); 		break; }
-		case F6	: { set_bufferMode();		break; }
-		case F7 : { increase_flats();		break; }
-		case F8 : { reset_flats(); 			break; }
-		case F9 : { tainted = save_notes();	break; }
 
-		default : { tainted = false;		break; }
-	}
-	if ( tainted )
-		Show_help( is_atty );
-}
 Frequency_class Frequency {};
-void Keyboard_class::keyHandler( key3struct_t kbd )
+void Keyboard_class::keyHandler( kbdkey_t kbd )
 {
 	string 	noteline 	= "";
-	bool 	tainted 	= false;
-	switch (kbd.key )
+	bool 	tainted 	= true;
+	sds_p->Kbd_state.key = 0;
+	switch (kbd.Int )
 	{
 		case '+' :	{ change_octave(  1 ) 		; break; }
 		case '-' :	{ change_octave( -1 ) 		; break; }
-		case '#' :	{ Frequency.ShowFrqTable()	; break; }
-		case ESC :
-		{
-			switch( kbd.val1 )
-			{
-				case 0  :	{ exit_keyboard()	; break; }
-				case S0	: 	{ specialKey()		; break; }
-				case S1	: 	{ specialKey()		; break; }
-				case F1	:	{ tainted = true	; break; }
-				case F2 : 	{ increase_sharps()	; break; }
-				case F3 : 	{ reset_sharps(); 	; break; }
-				case F4 :	{ toggle_applyADSR(); break; }
-				default :	{ tainted = true	; break; }
-			};
-			break;
-		}
-		default : { notekey( kbd.key );
-					tainted	= false;
-					break; }
+		case '#' :	{ tainted = false;Frequency.ShowFrqTable()	; break; }
+		case ESC  :	{ exit_keyboard()	; break; }
+		case F1	:	{ 					; break; }
+		case F2 : 	{ increase_sharps()	; break; }
+		case F3 : 	{ reset_sharps(); 	; break; }
+		case F4 :	{ toggle_applyADSR(); break; }
+		case F5 : 	{ set_slideMode(); 		break; }
+		case F6	: 	{ set_bufferMode( not sta_p->state.forget );		break; }
+		case F7 : 	{ increase_flats();		break; }
+		case F8 : 	{ reset_flats(); 			break; }
+		case F9 : 	{ tainted = save_notes();	break; }
+																															//				default :	{ tainted = true	; break; }
+		default : 	{ notekey( kbd.Int );
+						tainted	= false;
+						break; }
 	}
 	if ( tainted )
 	{

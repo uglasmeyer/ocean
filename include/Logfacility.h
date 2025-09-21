@@ -109,7 +109,7 @@ private:
 	Printer.Close(); test_end( classname );
 
 #define coutf cout.flush()
-
+#define LUNDEF 35
 class Logfacility_class
 {
 

@@ -15,7 +15,6 @@ Note_class::Note_class( )
 	this->sds 		= nullptr;
 	this->instrument= nullptr;
 	this->StA		= nullptr;
-	this->Trigger 	= nullptr;
 	this->className = Logfacility_class::className;
 	init_note_table();
 }
@@ -29,7 +28,6 @@ Note_class::Note_class( interface_t* _sds) // File_dialog
 
 	this->instrument= nullptr;
 	this->StA		= nullptr;
-	this->Trigger 	= nullptr;
 	init_note_table();
 }
 
@@ -37,13 +35,14 @@ Note_class::Note_class( Instrument_class* 	instr,
 						Storage_class* 		sta )
 	: Note_class::Logfacility_class("Note_class")
 	, Note_base()
+	, Note_itr_start( &instr->sds->Note_start )
+	, Note_itr_end( &instr->sds->Note_end )
 {
 	this->className = Logfacility_class::className;
 	this->instrument= instr;
 	this->StA		= sta;
 	this->sds		= instr->sds;
 	this->Instrument_name.assign( sds->Instrument );
-	this->Trigger 	= &StA->scanner.trigger;
 
 	Oscgroup.SetWd( instr->wd_p );
 	Oscgroup.SetScanner( max_frames );
@@ -125,7 +124,8 @@ void Note_class::set_volume_vector( string volline )
 }
 void Note_class::ScanData( )
 {
-	NotesData = StA->scanner.Next_read();
+	NotesData 	= StA->scanner.Next_read();
+//	Trigger		= StA->scanner.trigger.get();
 }
 
 void Note_class::gen_chord_data(const note_t& note,
@@ -179,29 +179,26 @@ bool Note_class::Generate_volatile_data( bool init )
 {
 
 	// generate maxframes of new data if init or rpos exceeds maxdata
-	if( StA->scanner.rpos < max_frames )
-		if ( not init )
-			return false;
+//	if ( ( not StA->scanner.trigger ) and ( note_itr != notelist.begin() ) )
+	if ( ( StA->scanner.rpos < max_frames ) and ( note_itr != notelist.begin() ) )
+		return false;
+//	coutf << "Generate_volatile_data " << boolalpha << init << ":" << StA->scanner.rpos << endl;
 
 	Oscgroup.SetInstrument( sds );
-	Set_note_itr();
 	StA->Reset();
-	int duration = 0;
+	int msec_elapsed = 0;
 
-
-	while( ( duration < max_msec ) and ( not note_itr_end() ) )
+	while( ( msec_elapsed < max_msec ) and ( note_itr != notelist.end() ) )
 	{
 		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
 
-		duration += note_itr->duration;
+		msec_elapsed += note_itr->duration;
 		note_itr_next();
 	}
 	if( init )
 		Comment( INFO, "volatile notes data initialized" );
-	if ( note_itr_end() )
-		Note_itr_end = true;
-	coutf << "Generate_volatile_data::Note_itr_end " << boolalpha << Note_itr_end << endl;
+	Set_note_itr();
 
 	return true;
 }
@@ -284,42 +281,41 @@ bool Note_class::Start_note_itr()
 {
 	Info( "Start_note_itr");
 	note_itr 		= notelist.begin();
-	Note_itr_end	= true;
-	if ( note_itr_end() )
+	if ( note_itr == notelist.end() )
 	{
 		Comment( WARN, "Empty notelist" );
-		if( StA) StA->Reset();
+		if( StA )
+			StA->Reset();
+		Note_itr_start.set_state( false );
+		Note_itr_end.set_state( false );
 		return false;
 	}
-	if( StA) StA->scanner.Set_rpos( 0 );
+	if( StA )
+		StA->scanner.Set_rpos( 0 );
+	Note_itr_start.set_state( true );
+//	Note_itr_end.set_state( false );
 	return true;
 }
 
 void Note_class::Set_note_itr()
 {
-	if (( note_itr_end() ) or ( Note_itr_start )) // the global note iter shall be restarted.
+	if (( note_itr == notelist.end()  )) // the global note iter shall be restarted.
 	{
+		Note_itr_end.set_state( true );
 		Start_note_itr();
 	}
-	Note_itr_start = false;
 };
 
 bool Note_class::note_itr_end()
 {
-/*	if( note_itr == notelist.end() )
-	{
-		Note_itr_end = true;
-	}
-	else
-	{
-		Note_itr_end = false;
-	}
-	*/
-	return ( note_itr == notelist.end() );
+	bool state = ( note_itr == notelist.end() );
+//	Note_itr_start.set_state( false );
+//	coutf << "Generate_volatile_data::Note_itr_end " << boolalpha << Note_itr_end.get() << endl;
+
+	return state;
 }
 void Note_class::note_itr_next()
 {
-	Note_itr_end = false;
 	note_itr++;
 }
 //-------------------------------------------------------------

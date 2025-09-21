@@ -23,7 +23,8 @@
 const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
 enum { XML_ID, NTE_ID };
 
-constexpr vector<int> init_pitch( string ac )
+typedef vector<int> pitch_vec_t ;
+constexpr pitch_vec_t init_pitch( string ac )
 { 	// every char in ac will be translated into a note pos in OctChars
 	// ac char must be in OctChars
 	vector<int> vi {};
@@ -68,8 +69,8 @@ public:
 
 	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
-	const vector<int> 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
-	const vector<int> 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
+	const pitch_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
+	const pitch_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
 
 	const vector_str_t 		convention_notes{ 	OctChars,
 												"0123456789AB",

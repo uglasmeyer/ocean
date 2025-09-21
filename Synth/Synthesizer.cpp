@@ -32,16 +32,15 @@ Event_class				Event{
 extern void 			ComposerTestCases();
 extern void 			SynthesizerTestCases();
 
-
-void show_AudioServer_Status()
+sdsstate_struct 		sdsstate{};
+Id_t 					Audioserver_state = sdsstate.DEFAULT;
+void show_AudioServer_statechange()
 {
-	if ( Appstate->IsRunning( sds_master, AUDIOID ) )
-	{
-		Log.Comment(INFO, "Sound server is up" );
-	}
-	else
-		Log.Comment( WARN," Sound server not running with status " +
-							Appstate->GetStr( sds_master, AUDIOID ) );
+	Id_t state =  Appstate->Get( sds_master, AUDIOID );
+	if ( state == Audioserver_state)
+		return;
+	Audioserver_state = state;
+	Log.Info( "Audioserver state is: ", sdsstate.state_map[ Audioserver_state ] );
 }
 
 void SetLogLevels()
@@ -71,7 +70,7 @@ void activate_sds()
 		Mixer.StA[ id ].state 	= sds->StA_state[id];
 		Mixer.StA[ id ].DynVolume.SetupVol( sds->StA_amp_arr[id], FIXED );
 	}
-	if( Mixer.status.notes )
+	if( Mixer.state.notes )
 	{
 		if( sds->NotestypeId == XML_ID )
 			DaTA.Sds_p->Event( XMLFILE_KEY );
@@ -83,57 +82,54 @@ void activate_sds()
 }
 
 
-key3struct_t key 	= Kbd_base::key3_struct( 0,0,0 );
 
 void add_sound()
 {
-	Mixer.status 		= sds->mixer_status;
-	Mixer.status.kbd 	&= ( App.properties.keyboard | sds->StA_state[ STA_KEYBOARD ].play );
+	Mixer.state 		= sds->mixer_state;
+	Mixer.state.kbd 	&= ( App.properties.keyboard | sds->StA_state[ STA_KEYBOARD ].play );
 
-	if (( Mixer.status.instrument ) )
+	if (( Mixer.state.instrument ) )
 	{
 		Instrument.Oscgroup.Set_Duration( min_msec );
 		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
 	else
-		Instrument.osc->kbd_trigger = true;
+		Instrument.osc->kbd_trigger = true; // any time
 
-	key = Keyboard.GetKeystruct( false );
-	if ( ( key == Keyboard.ESCkey ))
+	kbdInt_t key = Keyboard.GetKeyInt( false );
+	if ( ( key == ESC ))
 	{
 		Appstate->SetOffline();
 		Log.Info( "Exit Key <ESC>");
 	}
 
-	if ( Mixer.status.kbd )
+	if ( Mixer.state.kbd )
 	{
-		Keyboard.Set_Kbdnote( key );
+		if( sds->Kbd_state.key == 0 )
+			Keyboard.Set_Kbdnote( key );
+		else
+			Keyboard.Set_Kbdnote( sds->Kbd_state.key );
 		sds->StA_state[ STA_KEYBOARD ].play = true;
 		Keyboard.ScanData();
 	}
-	if ( Mixer.status.notes )
+	if ( Mixer.state.notes )
 	{
 		if( sds->NotestypeId == XML_ID )
 		{
 			Notes.Generate_volatile_data( false ); // no init
 		}
-		Notes.ScanData();
-		coutf << "Note_itr_end " << boolalpha << Notes.Note_itr_end << endl;
-
-		if( sds_master->Record == sdsstate_struct::STOPPING )
+		else
 		{
-			if( *Notes.Trigger )
-			{
-				sds_master->AudioServer = sdsstate_struct::RECORDSTOP;
-				coutf << "Trigger " << boolalpha << *Notes.Trigger << endl;
-			}
-			if( Notes.Note_itr_end )
-			{
-				sds_master->AudioServer = sdsstate_struct::RECORDSTOP;
-				coutf << "Note_itr_end " << boolalpha << Notes.Note_itr_end << endl;
-			}
+			Notes.Note_itr_start.set_active( false );
+			Notes.Note_itr_end.set_active( false );
 		}
+		Notes.ScanData();
+		if( sds->Note_start.state )
+			coutf << "start" << endl;
+		if( sds->Note_end.state )
+			coutf << "end.." << endl;
+
 	}
 
 
@@ -142,11 +138,9 @@ void add_sound()
 	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
 						Keyboard.Kbd_Data,
 						Notes.NotesData,
-						shm_addr );
+						shm_addr
+						);
 
-	if ( Mixer.status.notes )
-	{
-	}
 
 	ProgressBar.Update();
 
@@ -167,18 +161,18 @@ void ApplicationLoop()
 
 	Event.Handler();
 	App.Ready();
-	show_AudioServer_Status();
+
 	Keyboard.Show_help( Keyboard.Enabled );
 
 	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
 		Timer.Performance();
 		Event.Handler();
-
+		show_AudioServer_statechange();
 		if( not Appstate->IsRunning( sds_master, APPID::AUDIOID ))
 		{
-			key3struct_t key = Keyboard.GetKeystruct( false );
-			if( key == Keyboard.ESCkey )
+			int key = Keyboard.GetKeyInt( false );
+			if( key == ESC )
 				Appstate->SetOffline( );
 		}
 	} ;
@@ -209,11 +203,10 @@ void read_notes_fnc( )
 		Notes.Set_notelist( Notes.musicxml.notelist );
 		sds->Noteline_sec = Notes.musicxml.scoreduration / 1000;
 
-		Mixer.status.notes = true;
+		Mixer.state.notes = true;
 		DaTA.EmitEvent( NEWNOTESLINEFLAG, Notes.musicxml.instrument_name );
 
 		Notes.Start_note_itr();
-		Notes.Generate_volatile_data( true ); // initialize
 		Log.Comment(INFO, "xml notes ", name, " loaded");
 	}
 

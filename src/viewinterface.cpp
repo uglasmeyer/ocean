@@ -134,6 +134,7 @@ void ViewInterface_class::showStates()
 	StA.AddColumn( "Play",6);
 	StA.AddColumn( "Store.",6);
 	StA.AddColumn( "Stored.",6);
+	StA.AddColumn( "Forget", 6 );
 	StA.AddColumn( "Amp.",6);
 	StA.PrintHeader();
 	for( uint n = 0; n <8; n++ )
@@ -142,6 +143,7 @@ void ViewInterface_class::showStates()
 					sds_p->StA_state[n].play,
 					sds_p->StA_state[n].store,
 					sds_p->StA_state[n].filled,
+					sds_p->StA_state[n].forget,
 					(int)sds_p->StA_amp_arr[n] );
 
 	Table_class State { "Mixer State ", 20 };
@@ -150,10 +152,10 @@ void ViewInterface_class::showStates()
 	State.AddColumn( "Property",18 );
 	State.AddColumn( "Value", 8 );
 	State.PrintHeader();
-	State.AddRow( "External:"	, sds_p->mixer_status.external, "Mute:"	,sds_p->mixer_status.mute);
-	State.AddRow( "Note:"		, sds_p->mixer_status.notes, "Keyboard:"	,sds_p->mixer_status.kbd);
-	State.AddRow( "Syncronize:" , sds_p->mixer_status.sync,"Instrumemt:"	,sds_p->mixer_status.instrument);
-	State.AddRow( "Record:" , state_map[sds_p->Record],""	,"");
+	State.AddRow( "External:"	, sds_p->mixer_state.external, "Mute:"	,sds_p->mixer_state.mute);
+	State.AddRow( "Note:"		, sds_p->mixer_state.notes, "Keyboard:"	,sds_p->mixer_state.kbd);
+	State.AddRow( "Syncronize:" , sds_p->mixer_state.sync,"Instrumemt:"	,sds_p->mixer_state.instrument);
+	State.AddRow( "Record:" , state_map[sds_p->Record_state],""	,"");
 
 }
 
@@ -272,7 +274,7 @@ void ViewInterface_class::showOSCs()
 
 }
 
-void ViewInterface_class::ShowPage( interface_t* sds, int nr )
+void ViewInterface_class::ShowPage( interface_t* sds, kbdInt_t nr )
 {
 	this->sds_p = sds;
 	Device_class::Set_sds( sds_p );

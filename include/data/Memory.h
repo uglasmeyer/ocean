@@ -91,9 +91,9 @@ public:
 
 	static const buffer_t	stereobuffer_bytes 	= recduration*frames_per_sec * sizeof( stereo );
 
-	stereo* 				stereo_data = nullptr;
-	Logfacility_class Log{"Memory_base"};
-	Stereo_Memory(buffer_t size) :
+	stereo* 				stereo_data 		= nullptr;
+
+	Stereo_Memory		(buffer_t size) :
 		Logfacility_class( "Stereo_Memory" ),
 		Memory_base( size )
 	{
@@ -101,11 +101,16 @@ public:
 		Init_data( size );
 	}
 	Stereo_Memory() :
-		Logfacility_class( "Memory_base"),
-		Memory_base( )
-	{};
+		Logfacility_class( "Memory_base")
+//	,	Memory_base( )
+	{
+		className = Logfacility_class::className;
+	};
 
-	virtual ~Stereo_Memory( ) = default;
+	virtual ~Stereo_Memory( )
+	{
+		DESTRUCTOR( className )
+	}
 
 	void Init_data( buffer_t bytes, buffer_t bs = min_frames )
 	{
@@ -122,11 +127,6 @@ public:
 		for ( buffer_t n = 0 ; n < mem_ds.data_blocks ; n++ )
 			stereo_data[n] = zero;
 
-	}
-	void Info( string name )
-	{
-		mem_ds.name = name;
-		Memory_base::DsInfo();
 	}
 
 private:
@@ -186,7 +186,8 @@ class Shared_Memory :
 	string 					className 			= "";
 public:
 	shm_ds_t				ds					= shm_data_struct();
-	static const buffer_t 	sharedbuffer_size 	= audio_frames * sizeof( Stereo_t );
+
+	static const buffer_t 	sharedbuffer_size 	= (audio_frames) * sizeof( Stereo_t );
 	Stereo_t* 				addr 				= nullptr;
 	range_T<buffer_t>		shm_range			;
 	Shared_Memory( buffer_t size );

@@ -75,21 +75,21 @@ const feature_arr_t default_feature_arr = default_feature_expr(  );
 typedef struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	uint8_t			version						= 24;
+	uint8_t			version						= DATA_VERSION;
 	int8_t			SDS_Id						= 0;
 	uint8_t			config						= 0; // reference to the Synthesizer sds
 
-	StA_state_arr_t	StA_state 					= default_sta_state_arr;	// comstack
+	StA_state_arr_t	StA_state 					= default_sta_state_arr;	//
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
-	mixer_status_t 	mixer_status 				= Mixer_base::mixer_state_struct(); // comstack
+	mixer_status_t 	mixer_state 				= Mixer_base::mixer_state_struct(); //
 
 	kbd_state_t		Kbd_state					= kbd_state_struct();
 
-	char 			Instrument[str_buffer_len] 	{"default"}; //char array // comstack
-	char 			Notes	  [str_buffer_len]	{"default"}; //char array for the notes filename // comstack
-	char 			Other	  [str_buffer_len]	{"default"}; // e.g. external wave file name // comstack
+	char 			Instrument[str_buffer_len] 	{"default"}; //char array //
+	char 			Notes	  [str_buffer_len]	{"default"}; //char array for the notes filename //
+	char 			Other	  [str_buffer_len]	{"default"}; // e.g. external wave file name //
 
-	uint8_t			Master_Amp 					= 75;// comstack
+	uint8_t			Master_Amp 					= 75;//
 	int8_t			mixer_balance				= 0; // nutral
 	uint8_t		 	vol_slidemode 				= SLIDE;
 	uint8_t			slide_duration 				= 50; // % of 4*max_seconds
@@ -108,12 +108,12 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t			NotestypeId					= XML_ID; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
-	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds // comstack
+	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds //
 
-	uint8_t 		MIX_Id						= 0;// comstack
+	uint8_t 		MIX_Id						= 0;//
 
 	uint8_t	 		FLAG						= CLEAR_KEY;
-	uint8_t 		frq_slidermode				= SLIDE;	// comstack
+	uint8_t 		frq_slidermode				= SLIDE;	//
 
 	bool 			UpdateFlag 					= true;
 	uint8_t			time_elapsed 				= 0;
@@ -123,7 +123,7 @@ typedef struct interface_struct // with reasonable defaults
 	char			eventstr[512]				{0};
 	wd_status_t		WD_status					= WD_status_struct();
 
-	uint8_t 		Synthesizer					= sdsstate_struct::DEFAULT;// indicates that shm is new // comstack
+	uint8_t 		Synthesizer					= sdsstate_struct::DEFAULT;// indicates that shm is new //
 	uint8_t			Keyboard					= sdsstate_struct::OFFLINE; // if tty and synthesizer process
 	/* SDS specific control elements end
 	*/
@@ -139,10 +139,18 @@ typedef struct interface_struct // with reasonable defaults
 	buffer_t		audioframes					= audio_frames;
 	wd_arr_t		wavedata 					= {};
 	process_arr_t	process_arr					= init_process_arr(); //{ {register_process_struct()} };
-	uint8_t 		SHMID 						= 0;// comstack
-	uint8_t 		RecCounter					= 0;		// handshake data exchange// comstack
-	uint8_t			Record						= sdsstate_struct::RECORDSTOP; 	// Audioserver recording
-	uint8_t 		FileNo						= 0;		// comstack
+	uint8_t 		SHMID 						= 0;//
+	uint8_t 		RecCounter					= 0;		// handshake data exchange//
+	trigger_data_t	Note_start					= trigger_data_struct();
+	trigger_data_t	Note_end					= trigger_data_struct();
+
+	uint8_t			Record_state				= sdsstate_struct::INACTIVE;
+	// current recording activity managed by the Audioserver
+	// Audioserver recording state
+	// RECORDING, STARTING, STOPPING, INACTIVE
+
+												// sta-scanner, note_itr_end
+	uint8_t 		FileNo						= 0;		//
 
 } interface_t;
 

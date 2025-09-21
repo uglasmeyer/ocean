@@ -159,7 +159,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::Push_ifd( &sds->Record, (uint8_t)sdsstate_struct::RECORDING, "recording" );
+		Processor_class::Push_ifd( &sds->AudioServer, (uint8_t)sdsstate_struct::RECORDING, "recording" );
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"start record" );
 		Pause( {"pause", duration } );
 
@@ -169,7 +169,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 	{
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
-		Processor_class::Push_ifd( &sds->Record, (uint8_t)sdsstate_struct::RECORDSTOP,"record stop" );
+		Processor_class::Push_ifd( &sds->AudioServer, (uint8_t)sdsstate_struct::RECORDSTOP,"record stop" );
 		Processor_class::Push_ifd( &sds->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
@@ -496,7 +496,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	{
 		Comment( INFO, "Master volume is muted " );
 
-		Push_ifd( &sds->mixer_status.mute, false, "false" );
+		Push_ifd( &sds->mixer_state.mute, false, "false" );
 		Push_key( MASTERAMP_MUTE_KEY, "mute master volume" );
 		return;
 	}
@@ -505,7 +505,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	{
 		Comment( INFO, "Master volume is un-muted " );
 
-		Push_ifd( &sds->mixer_status.mute, true, "true" );
+		Push_ifd( &sds->mixer_state.mute, true, "true" );
 		Push_key( MASTERAMP_MUTE_KEY, "un-mute master volume" );
 		return;
 	}

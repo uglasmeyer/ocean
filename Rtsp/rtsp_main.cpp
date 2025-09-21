@@ -67,8 +67,8 @@ void exit_proc( int signal )
 void Test_rtsp()
 {
 	Kbd_base Kbd;
-	key3struct_t key = Kbd_base::key3_struct( 0,0,0 );
-	while( key.key != '#')
+	int key = 0;
+	while( key != '#')
 	{
 		cout << "." ;
 		Timer.Wait(1);

@@ -28,7 +28,7 @@ void Semaphore_class::init()
     if (semid < 0)
     {
         perror("semget");
-        exit( 1 );
+        exit( SIGHUP );
     }
     State( SEMNUM_SIZE );
 	Comment( INFO, "attached to semaphore set " + to_string( semid ));
@@ -36,13 +36,13 @@ void Semaphore_class::init()
 
 void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
 {
+	assert(  num < SEMNUM_SIZE );
 	sembuf op =
 	{
 		.sem_num 	= num,
 		.sem_op 	= sop,
 		.sem_flg 	= 0
 	};
-
     int 		ret = semop(semid, &op, N_OPS );
     string 		txt	= ( sop == 0 ) ? "lock" : "Release ";
     if ( sop > 0 )
@@ -75,7 +75,7 @@ void Semaphore_class::Reset( uint8_t num )
 {
 //	short int val = -abs(  Getval( num , GETVAL ) );
 	semctl(semid, num, SETVAL, 0 );
-    Comment( DEBUG, "Reset   ", State( num ));
+    Comment( DEBUG, "Reset ", (int) num,  State( num ));
 }
 
 
@@ -128,7 +128,7 @@ int Semaphore_class::Getval( uint8_t num, int op )
 string Semaphore_class::State(uint8_t num)
 {
 
-	if( not LogMask[ TEST ] ) return "";
+	if( not LogMask[ TEST ] ) return ".";
 	Table_class Table { };
 	Table.AddColumn("num", 4);
 	Table.AddColumn("Name", 20);

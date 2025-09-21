@@ -10,7 +10,7 @@ Time_class				Timer			{};
 
 int 					update_counter 	= 1;
 int 					sdsid			= sds_master->config;
-uint					page			= F1;
+kbdInt_t				page			= F1;
 bool 					tainted			= false;
 
 void usage( )
@@ -106,34 +106,32 @@ void exit_proc( int signal )
 	exit( signal );
 }
 
-key3struct_t Key_event( string charstr )
+kbdInt_t Key_event( string charstr )
 {
 	String Str{ charstr };
 	set<char> charset = Str.Set;
-	key3struct_t key = Kbd_base::key3_struct( 0,0,0 );
+	key3struct_t key { 0,0,0 };
 
-	while ( not charset.contains( (char)key.key ) )
+	while ( not charset.contains( (char)key.Arr[0] ) )
 	{
 		this_thread::sleep_for( std::chrono::milliseconds(100));
 		if ( DaTA.sds_master->Comstack == sdsstate_struct::EXITSERVER )
 			exit_proc( 0 );
 		show_ifd();
-		key = Keyboard.GetKeystruct( true );
+		key.Int = Keyboard.GetKeyInt( true );
 	}
-
-	return key;
+	return key.Int;
 }
 
 void while_MenuF9()
 {
-	key3struct_t key3 = Keyboard.Nullkey3;
-//	Log.Set_Loglevel( DEBUG, true );
-	while ( key3.key != ESC )
+	kbdInt_t key3 = 0;
+	while ( key3 != ESC )
 	{
 
-		key3 = Keyboard.GetKeystruct( true );
+		key3 = Keyboard.GetKeyInt( true );
 		Timer.Wait( 100, "ms" );
-		switch ( key3.key )
+		switch ( key3 )
 		{
 			case 's' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
 							tainted = true;
@@ -158,7 +156,7 @@ void while_MenuF9()
 							tainted = true;
 							break; }
 			default  : { 	break; }
-		} // switch  key3.key
+		} // switch  key3.Arr[0]
 		if( tainted )
 		{
 			tainted = false;
@@ -167,26 +165,7 @@ void while_MenuF9()
 	}
 	ViewSds.ShowPage( sds_master, F1 );
 }
-void SpecialKey()
-{
-	key3struct_t special = Keyboard.GetKeystruct( true );
-	if ( special.val0 != ASC )
-	{
-		tainted = false;
-		return;
-	}
-	tainted = true;
-	switch( special.key )
-	{
-		case F5 : { page = F5 ;break ;}
-		case F6 : { page = F6 ;break ;}
-		case F7 : { page = F7 ;break ;}
-		case F8 : { page = F8 ;break ;}
-		case F9 : { page = F9 ;break ;}
-		default : { page = F1 ;break; }
-	}
 
-}
 int main( int argc, char* argv[] )
 {
 
@@ -195,12 +174,13 @@ int main( int argc, char* argv[] )
     App.Appstate->Announce();
 
     ViewSds.ShowPage(Sds->addr, F1);
-	key3struct_t keyevent { 0,0,0 };
+	kbdInt_t keyevent = 0;
 	while( true )
 	{
-		string charset { "afmvr+-\x1B\x7E" }  ;
+		string charset { "afmvr+-\x1b\x7e" }  ;
 		keyevent = Key_event( charset );
-		switch ( keyevent.key )
+		cout  << keyevent << endl;
+		switch ( keyevent )
 		{
 			case '+' :
 			{ 	set_sdsid( 1);
@@ -212,27 +192,22 @@ int main( int argc, char* argv[] )
 				tainted = true;
 				break;
 			}
-			case ESC :
-			{
-				tainted = true;
-				switch( keyevent.val1 )
-				{
-					case 0  : { exit_proc(0) ;break ;}
-					case F1 : { page = F1 ;break ;}
-					case F2 : { page = F2 ;break ;}
-					case F3 : { page = F3 ; DaTA.Reg.Update_register(); break ;}
-					case F4 : { page = F4 ;break ;}
-					case S0 : { SpecialKey();break;}
-					case S1 : { SpecialKey(); break; }
-					default : { page = F1; break; }
-				}
-				break;
-			}
+			case ESC  : { exit_proc(0) ;break ;}
+			case F1 : { page = F1 ;tainted = true;break ;}
+			case F2 : { page = F2 ;tainted = true;break ;}
+			case F3 : { page = F3 ; DaTA.Reg.Update_register(); tainted = true;break ;}
+			case F4 : { page = F4 ;tainted = true;break ;}
+			case F5 : { page = F5 ;tainted = true;break ;}
+			case F6 : { page = F6 ;tainted = true;break ;}
+			case F7 : { page = F7 ;tainted = true;break ;}
+			case F8 : { page = F8 ;tainted = true;break ;}
+			case F9 : { page = F9 ;tainted = true;break ;}
+			default : { page = F1 ;tainted = true; break; }
 			case 'r' :
 			{	if( page != F3 ) break;
 				cout << "Reset run state: ";
-				key3struct_t key = Key_event( "#acksu" );
-				switch ( key.key )
+				kbdInt_t key = Key_event( "#acksu" );
+				switch ( key )
 				{
 					case 'a': { App.Appstate->Set( sds, APPID::AUDIOID, sdsstate_struct::EXITSERVER);break; }
 					case 'c': { App.Appstate->Set( sds, APPID::COMPID , sdsstate_struct::EXITSERVER);break; }
@@ -247,8 +222,8 @@ int main( int argc, char* argv[] )
 			case 'm' :
 			{	if( page != F2 ) break;
 				cout << "Main ";
-				key3struct_t keyevent = Key_event( "#faw" );
-				switch ( keyevent.key )
+				kbdInt_t keyevent = Key_event( "#faw" );
+				switch ( keyevent )
 				{
 					case 'f' : { getfrq( &sds->spectrum_arr[osc_struct::OSCID].frqidx[0], "Frequency", OSCFREQUENCYKEY ); break; }
 					case 'a' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
@@ -260,8 +235,8 @@ int main( int argc, char* argv[] )
 			case 'f' :
 			{	if( page != F2 ) break;
 				cout << "FMO ";
-				key3struct_t keyevent = Key_event("#faw");
-				switch ( keyevent.key )
+				kbdInt_t keyevent = Key_event("#faw");
+				switch ( keyevent )
 				{
 					case 'f' : { getfrq( &sds->spectrum_arr[osc_struct::FMOID].frqidx[0], "Frequency", FMOFREQUENCYKEY ); break; }
 					case 'a' : { getvalue( &sds->spectrum_arr[osc_struct::FMOID].volidx[0], "Amplitude", FMOAMPKEY ); break; }
@@ -273,8 +248,8 @@ int main( int argc, char* argv[] )
 			case 'v' :
 			{	if( page != F2 ) break;
 				cout << "VCO ";
-				key3struct_t keyevent = Key_event("#faw");
-				switch ( keyevent.key )
+				kbdInt_t keyevent = Key_event("#faw");
+				switch ( keyevent )
 				{
 					case 'f' : { getfrq( &sds->spectrum_arr[osc_struct::VCOID].frqidx[0], "Frequency", VCOFREQUENCYKEY ); break; }
 					case 'a' : { getvalue( &sds->spectrum_arr[osc_struct::VCOID].volidx[0], "Amplitude", VCOAMPKEY ); break; }
@@ -286,9 +261,9 @@ int main( int argc, char* argv[] )
 			case 'a' :
 			{	if( page != F6 ) break;
 				std::cout << "ADSR ";
-				key3struct_t keyevent = Key_event("#abgdh");
+				kbdInt_t keyevent = Key_event("#abgdh");
 
-				switch ( keyevent.key )
+				switch ( keyevent )
 				{
 					case 'g' : { getvalue( &sds->features[osc_struct::OSCID].glide_effect	, "Frequency"	, SOFTFREQUENCYKEY ); break; }
 					case 'a' : { getvalue( &sds->adsr_arr[osc_struct::OSCID].attack			,"Atack"		, ADSR_KEY ); break; }
@@ -299,8 +274,7 @@ int main( int argc, char* argv[] )
 				}
 				break;
 			}
-			default : break;
-		} // switch keyevent.key
+		} // switch keyevent.Arr[0]
 		if ( tainted )
 		{
 			tainted = false;

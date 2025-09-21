@@ -7,6 +7,35 @@
 
 #include <Synthesizer.h>
 
+
+auto test_cycle2_range = [  ]( range_T<int> range  )
+{
+	string
+	range_str = to_string( range.min) + "..." + to_string(range.max) ;
+	int value = range.min + range.len/2;
+	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
+				check_cycle2(range, value, "" ), value );
+	 value = range.max;
+	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
+				check_cycle2(range, value, "" ), value );
+	 value = range.min;
+	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
+				check_cycle2(range, value, "" ), value );
+	 value = range.min-1;
+	ASSERTION( 	check_cycle2(range, value , "" ) == range.max -1, range_str,
+				check_cycle2(range, value, "" ), range.max - 1 );
+	 value = range.max + 1;
+	ASSERTION( 	check_cycle2(range, value , "" ) == range.min +1, range_str,
+				check_cycle2(range, value, "" ), range.min+1 );
+	 value = range.max + 2*range.len +1;
+	ASSERTION( 	check_cycle2(range, value , "" ) == range.min + 1, range_str,
+				check_cycle2(range, value, "" ), range.min+1 );
+	 value = range.min - 2*range.len - 1;
+	ASSERTION( 	check_cycle2(range, value , "" ) == range.max - 1, range_str,
+				check_cycle2(range, value, "" ), range.max-1 );
+	ASSERTION( range.len == abs(range.max-range.min), "", range.len, range.max-range.min);
+};
+
 bool
 isopen = false;
 void SynthesizerTestCases()
@@ -61,12 +90,13 @@ void SynthesizerTestCases()
 //	App.Init_Sds( );
 
 	range_T<int> range_test { 1,4 };
+	test_cycle2_range( range_test );
 	int value = check_cycle( range_test, 1, "range_test" );
 	ASSERTION( value == 1, "range test ", (int)value, 1L );
 	value = check_cycle( range_test, 4, "range_test" );
 	assert( value == 4 );
 	value = check_cycle( range_test, 5, "range_test" );
-	assert( value == 1 );
+	ASSERTION( value == 1, "range test ", (int)value, 1L );
 
 	App.DaTA->Appstate.Announce();
     std::set<string> abc{"a","b","c"};

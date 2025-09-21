@@ -65,14 +65,14 @@ void Keyboard_class::Enable( bool is_kbd )
 	{
 		sds_p->StA_state[ STA_KEYBOARD ].play 	= true;
 		sds_p->StA_amp_arr[ STA_KEYBOARD ] 		= 75;
-		sds_p->mixer_status.kbd					= true;
+		sds_p->mixer_state.kbd					= true;
 		Info( "Keyboard is enabled");
 	}
 	else
 	{
 		sds_p->StA_state[ STA_KEYBOARD ].play 	= false;
 		sds_p->StA_amp_arr[ STA_KEYBOARD ] 		= 0;
-		sds_p->mixer_status.kbd					= false;
+		sds_p->mixer_state.kbd					= false;
 	}
 }
 void Keyboard_class::Set_instrument( )
@@ -82,7 +82,7 @@ void Keyboard_class::Set_instrument( )
 	Oscgroup.SetInstrument( sds_p );
 
 	// kbd specific settings
-	Oscgroup.SetSlide( sliding * sds_p->features[OSCID].glide_effect );
+	Oscgroup.SetSlide( kbd_note.sliding * sds_p->features[OSCID].glide_effect );
 	Oscgroup.Set_Duration( max_msec );
 }
 
@@ -130,7 +130,7 @@ void Keyboard_class::attack()
 		cout << "-" ;
 		return;
 	}
-	if( ADSR_flag )
+	if( kbd_note.ADSR_flag )
 		Osc->Reset_beat_cursor();
 
 	show_cnt( duration_counter );
@@ -161,9 +161,9 @@ void Keyboard_class::release(  )
 	return ;
 }
 
-void Keyboard_class::Set_Kbdnote( key3struct_t key )
+void Keyboard_class::Set_Kbdnote( kbdInt_t key )
 {
-	Kbd_key		=  key;
+	Kbd_key.Int		=  key;
 	keyHandler( Kbd_key );
 
 	if ( ( kbd_note.note_vec.size() == 0 ) )
@@ -226,7 +226,7 @@ void Kbd_note_class::SetNote( int key )
 	auto base_note = [ this ]( int KEY  )
 	{
 		Note 	= kbd_note_struct( 0, NONOTE);
-		for( uint row = 0; row < kbd_octaves; row++ )
+		for( uint row = 0; row < kbd_rows; row++ )
 		{
 			size_t pos 	= keyboard_keys[ row ].find( KEY );
 			if ( pos < STRINGNOTFOUND )

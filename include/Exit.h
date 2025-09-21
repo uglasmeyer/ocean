@@ -43,7 +43,7 @@ class Exit_class :
 	{
 			{ SIGINT, "SIGINT" },
 			{ SIGHUP, "SIGHUP" },
-			{ SIGABRT,"SIGABRT" },
+//			{ SIGABRT,"SIGABRT" },
 			{ SIGTERM,"SIGTERM"}
 	};
 

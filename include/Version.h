@@ -10,27 +10,26 @@
 
 #include <string>
 
-#ifdef RTAUDIO
-#include <string>
-#else
-#include <string.h>
-#endif
-
-
 #define MAYOR 3
-#define MINOR 11
-#define PATCH 3
+#define MINOR 12
+#define PATCH 0
+#define DATA_VERSION 29
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
-							to_string(PATCH);
+							to_string(PATCH) + "-" +
+							to_string(DATA_VERSION);
 
 const string Version_str = "Version: " + Version_No;
 
-const string Application = "Ocean Sound ";
+const string Application = "Ocean Sound Lab.";
 
 // Git comment:
 /*
+
+version 3.12.0 Keyboard dialog class
+				trigger definition
+				DATA_VERSION
 version 3.11.3 record stopping by note_itr
 				file number handling
 version 3.11.2 connect fixes

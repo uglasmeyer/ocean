@@ -34,7 +34,7 @@ public:
 	virtual ~ViewInterface_class() = default;
 
 
-	void	ShowPage( interface_t* sds, int nr );
+	void	ShowPage( interface_t* sds, kbdInt_t nr );
 
 private:
 

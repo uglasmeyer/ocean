@@ -64,6 +64,7 @@ typedef vector<Data_t>		DataVec_t;
 typedef double				phi_t;
 typedef float 				frq_t;
 typedef char				Id_t;
+typedef long int 			kbdInt_t;
 
 struct 				Stereo_struct
 {
@@ -80,6 +81,43 @@ struct 				stereo_struct
 };
 typedef stereo_struct
 					stereo_t;
+
+typedef struct trigger_data_struct
+{
+	bool state 	= false ;
+	bool active = false;
+} trigger_data_t;
+
+typedef struct trigger_struct
+{
+	trigger_data_t* trigger_data;
+	trigger_data_t	local_data;
+
+	trigger_struct( trigger_data_t* _data )
+	{
+		trigger_data 	= _data;
+	}
+	trigger_struct()
+	{
+		trigger_data	= &local_data;
+	}
+	~trigger_struct() = default;
+
+	void set_state( bool _state ) // producer
+	{
+		trigger_data->state 	= _state;
+	}
+	void set_active( bool _active ) // controller
+	{
+		trigger_data->active 	= _active;
+	}
+	bool get() // action
+	{
+		bool state = ( trigger_data->active and trigger_data->state);
+		trigger_data->state		= false;
+		return state;
+	}
+} trigger_t;
 
 const size_t		sizeof_stereo		= sizeof(stereo_t);
 const size_t		sizeof_Stereo		= sizeof(Stereo_t);
@@ -116,9 +154,18 @@ const float			percent				= 0.01;
 template< typename T >
 struct range_T
 {
+	T 		min ;
+	T 		max ;
+	size_t 	len = max - min;
+};
+/*
+template< typename T >
+struct range_T
+{
 	T min ;
 	T max ;
 };
+*/
 const range_T<int>		volidx_range		{ 0, 100 };
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
@@ -156,6 +203,16 @@ constexpr T check_cycle( range_T<T> r, T val, string err  )
 		return r.max;
 	if ( val > r.max)
 		return val % r.max;//r.min;//val - r.max;
+	return val;
+}
+
+template< typename T>
+constexpr T check_cycle2( range_T<T> r, T val, string err  )
+{
+	if( val < r.min )
+		return r.max - ((r.min - val ) % r.len);
+	if ( val > r.max )
+		return r.min + ((val - r.max ) % r.len);
 	return val;
 }
 
