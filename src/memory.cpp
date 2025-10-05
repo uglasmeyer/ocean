@@ -49,7 +49,6 @@ Data_t* Scanner_class::Next_read()
 	}
 	Data_t*
 	data 			= &Data[ rpos ];
-//	Set_rpos( rpos + inc );
 	rpos 			= ( rpos + inc ) % fillrange.max;//check_cycle( fillrange, rpos + inc, "Next" );
 	trigger			= ( rpos < inc ); // indicates a next cycle or start cycle
 	return data;
@@ -78,6 +77,7 @@ void Scanner_class::Set_fillrange( buffer_t n )
 	if( fillrange.max == mem_range.max )
 		return;
 	fillrange.max 	= check_range( mem_range, n, "Set_max_len" );
+	fillrange.len	= fillrange.max;
 }
 
 //-----------------------------------------------------------------------------
@@ -137,10 +137,16 @@ void Memory::DsInfo( string name )
 
 //-----------------------------------------------------------------------------
 
-
-void Storage_class::Setup( StA_param_t param )
+Storage_class::Storage_class( ) :
+	Logfacility_class( "Storage_class" ),
+	Memory()
 {
-	StAparam 		= param;
+	className = Logfacility_class::className;
+} ;
+
+void Storage_class::Setup( StA_param_t _param )
+{
+	param 			= _param;
 	mem_ds.bytes 	= sizeof(Data_t) * param.size;
 	mem_ds.size		= min_frames;//param.block_size;
 	mem_ds.block_size=param.block_size;
@@ -199,7 +205,6 @@ void 	Storage_class::Reset( )
 	scanner.Set_rpos	(0);
 	scanner.Set_wpos	(0);
 	scanner.Set_fillrange ( 0 );
-//	scanner.Set_fillrange ( 0 );
 	Clear_data			(0);
 }
 void Storage_class::Playnotes( bool flag )
@@ -207,8 +212,7 @@ void Storage_class::Playnotes( bool flag )
 	state.play 			= flag;
 	state.store			= false;
 	string onoff 		= flag ? " on" : " off";
-	cout << "play " + StAparam.name + onoff << endl;
-	Comment(INFO, "play " + StAparam.name + onoff );
+	Comment(INFO, "play " + param.name + onoff );
 
 }
 string 	Storage_class::Play_mode( bool flag )

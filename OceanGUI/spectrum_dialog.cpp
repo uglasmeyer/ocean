@@ -1,6 +1,5 @@
 #include <include/Common.h>
 #include <include/Spectrum_dialog_class.h>
-//Ui::Spectrum_Dialog_class	UI_obj;
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
                                              Interface_class* 	gui,
@@ -10,7 +9,6 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 	QDialog(parent),
 	ui(new Ui::Spectrum_Dialog_class)
 {
-//	ui = &UI_obj;
 	className 			= Logfacility_class::className;
     Waveform_vec 		= Vstringvector( Get_waveform_vec() );
     waveform_vec_len 	= Waveform_vec.size();
@@ -28,7 +26,13 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     connect( ui->vS_6, SIGNAL(valueChanged(int)), this, SLOT(vS6( int )));
     connect( ui->fS_7, SIGNAL(valueChanged(int)), this, SLOT(fS7( int )));
     connect( ui->vS_8, SIGNAL(valueChanged(int)), this, SLOT(vS8( int )));
-
+    fS_vec = { nullptr, ui->fS_1, ui->fS_3, ui->fS_5, ui->fS_7 };
+    for( QSlider* slider : fS_vec )
+    	if( slider != 0 )
+    	{
+    		slider->setMaximum(  HARMON_SIZE-1 );
+    		slider->setMinimum( -HARMON_SIZE-1 );
+    	}
     connect( ui->sb_spwf1, SIGNAL(valueChanged(int)), this, SLOT( sb_wf1(int) ));
     connect( ui->sb_spwf2, SIGNAL(valueChanged(int)), this, SLOT( sb_wf2(int) ));
     connect( ui->sb_spwf3, SIGNAL(valueChanged(int)), this, SLOT( sb_wf3(int) ));
@@ -196,7 +200,7 @@ void Spectrum_Dialog_class::Update_instrument()
 void Spectrum_Dialog_class::spec_frq_slider( int channel, int value )
 {
     Channel 					= channel;
-	spectrum.frqidx[ channel ] 	= check_range(  frqarr_range, value, "spec_frq_slider");
+	spectrum.frqidx[ channel ] 	= check_range(  harmonic_range, (int8_t)value, "spec_frq_slider");
 	float frqadj 				= Frqadj(channel, value); // see osc.cpp
 	spectrum.frqadj[ channel ] 	= frqadj;
 	set_spectrum_data();

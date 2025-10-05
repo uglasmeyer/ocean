@@ -6,15 +6,18 @@
  */
 
 #include <Keyboard.h>
+#include <cstring> // strcpy
 
 /*
  * keyboardState_class
  */
 
-keyboardState_class::keyboardState_class( interface_t* _sds )
+keyboardState_class::keyboardState_class( interface_t* _sds) :
+	Kbd_pitch_class( _sds )
+
 {
 	sds 	 				= _sds;
-	kbd_note.base_octave	= sds->Kbd_state.base_octave;
+	base_octave				= sds->Kbd_state.base_octave;
 	sharps					= sds->Kbd_state.sharps;
 	ADSR_flag				= sds->Kbd_state.ADSR_flag;
 	sliding					= sds->Kbd_state.sliding;
@@ -22,31 +25,30 @@ keyboardState_class::keyboardState_class( interface_t* _sds )
 };
 
 
-
-
 void keyboardState_class::change_octave( int inc )
 {
-	kbd_note.base_octave		= check_range( Kbdoctave_range, kbd_note.base_octave  + inc, "change_octave" );
-	sds->Kbd_state.base_octave	= kbd_note.base_octave;
-	basefrq						= frqArray[ frqIndex( 0, kbd_note.base_octave ) ];
+	base_octave					= check_range( 	Kbdoctave_range,
+												base_octave  + inc,
+												"change_octave" );
+	sds->Kbd_state.base_octave	= base_octave;
+	basefrq						= frqArray[ frqIndex( 0, base_octave ) ];
 }
 void keyboardState_class::set_octave( int oct )
 {
-	kbd_note.base_octave		= check_range( Kbdoctave_range, oct, "change_octave" );
-//	sds->Kbd_state.base_octave	= kbd_note.base_octave;
-	basefrq						= frqArray[ frqIndex( 0, kbd_note.base_octave ) ];
+	base_octave					= check_range( 	Kbdoctave_range, oct, "change_octave" );
+	basefrq						= frqArray[ frqIndex( 0, base_octave ) ];
 }
 void keyboardState_class::set_accidental( uint loc, int dir  )
 {
 	for( uint oct = 0; oct < kbd_rows; oct++)
 	{
-		kbd_note.keyboard_keys[oct][ (loc + dir)%oct_steps ] = kbd_note.keyboard_keys[oct][ loc ];
-		kbd_note.keyboard_keys[oct][ loc     ]	= '_';
+		keyboard_keys[oct][ (loc + dir)%oct_steps ] = keyboard_keys[oct][ loc ];
+		keyboard_keys[oct][ loc     ]	= '_';
 	}
 };
-void keyboardState_class::set_accidental( pitch_vec_t vec  )
+void keyboardState_class::set_accidental( step_vec_t vec  )
 {
-	kbd_note.keyboard_keys		= kbd_note.dflt_keyboard_keys;
+	keyboard_keys		= dflt_keyboard_keys;
 
 	for( uint n = 0; n < sharps; n++ )
 	{
@@ -55,8 +57,8 @@ void keyboardState_class::set_accidental( pitch_vec_t vec  )
 		{
 			uint8_t keyloc = vec[n];
 			uint8_t newloc= (keyloc+dir) % oct_steps;
-			kbd_note.keyboard_keys[row][newloc] = kbd_note.keyboard_keys[row][ keyloc ];
-			kbd_note.keyboard_keys[row][ keyloc ]	= '_';
+			keyboard_keys[row][newloc] = keyboard_keys[row][ keyloc ];
+			keyboard_keys[row][ keyloc ]	= '_';
 		}
 	}
 	for( uint n = 0; n < flats; n++ )
@@ -68,8 +70,8 @@ void keyboardState_class::set_accidental( pitch_vec_t vec  )
 			int8_t newloc	= keyloc + dir;
 			if( ( newloc ) < 0 )
 				newloc = oct_steps - 1;
-			kbd_note.keyboard_keys[row][newloc] = kbd_note.keyboard_keys[row][ keyloc ];
-			kbd_note.keyboard_keys[row][ keyloc     ]	= '_';
+			keyboard_keys[row][newloc] = keyboard_keys[row][ keyloc ];
+			keyboard_keys[row][ keyloc     ]	= '_';
 		}
 	}
 };
@@ -100,13 +102,13 @@ void keyboardState_class::increase_flats()
 }
 void keyboardState_class::reset_sharps()
 {
-	kbd_note.keyboard_keys		= kbd_note.dflt_keyboard_keys;
+	keyboard_keys				= dflt_keyboard_keys;
 	sharps 						= 0;
 	sds->Kbd_state.sharps 		= 0;
 }
 void keyboardState_class::reset_flats()
 {
-	kbd_note.keyboard_keys		= kbd_note.dflt_keyboard_keys;
+	keyboard_keys				= dflt_keyboard_keys;
 	flats 						= 0;
 	sds->Kbd_state.flats 		= 0;
 }
@@ -128,37 +130,13 @@ void keyboardState_class::set_slideMode()
  */
 
 
-string Keyboard_class::show_kbd_notenames( )
-{
-	Table_class Table { "Notes", 11 };
-	Table.AddColumn( "Octave", 8);
-	Table.AddColumn( " Note names", 3*7 );
-	Table.AddColumn( " Keyboard  ", 3*7 );
-	Table.PrintHeader();
-	stringstream 	strs 	{};
-	for ( uint n = 0; n < kbd_rows; n++ )
-	{
-		string 		str 	{};
-		string		kbd		{};
-		uint oct 			= kbd_rows - n - 1;
-		for ( uint step = 0 ; step < oct_steps  ; step++ )
-		{
-			if( kbd_note.keyboard_keys[oct][step] != '_' )
-			{
-				str 		= str + " " + NoteNames[step];
-				kbd			= kbd + " " + kbd_note.keyboard_keys[oct][step];
-			}
-		}
-		Table.AddRow( oct, str, kbd );
-	}
-	return strs.str();
-}
 
 void Keyboard_class::Show_help( bool tty )
 {
 	if ( not tty ) return;
+	int base_oct = (int) sds_p->Kbd_state.base_octave;
 
-	show_kbd_notenames() ;
+	Show_kbd_layout( base_oct ) ;
 	Info( "Instrument: ", instrument_p->Name );
 	Table_class Table { "Keyboard ", 11 };
 	Table.AddColumn( "Keys"		, 9 );
@@ -177,27 +155,19 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F7", "increase flats "		, (int) sds_p->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
 	Table.AddRow( "F9", "save notes"			);
-	Table.AddRow( "+/-" , "inc/dec octave"		, (int) sds_p->Kbd_state.base_octave, "base"  );
+	Table.AddRow( "+/-" , "inc/dec octave"		, base_oct, "base"  );
 	Table.AddRow( "#" , "show Frequency Table" 	);
 	Table.AddRow( "ESC", "Exit keyboard"		);
 }
 
-void Keyboard_class::exit_keyboard()
-{
-	Comment( WARN, "Exit by user request");
-	sds_p->Keyboard = EXITSERVER;
-}
-#include <cstring>
+
 void Keyboard_class::notekey( char ch )
 {
-	kbd_note.Chord 	= kbd_note.SetChord( ch );
-	kbd_note.SetNote( ch ) ;
+	SetChord( ch );
+	SetPitch( ch ) ;
 
-	if ( kbd_note.note_vec.size() > 0 )
+	if ( Pitch_vec.size() > 0 )
 	{
-		strcpy( sds_p->Kbd_state.note, kbd_note.Note.name.data() );
-		sds_p->Kbd_state.frq = kbd_note.Note.freq;
-
 		Set_instrument();
 
 		if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
@@ -218,6 +188,7 @@ void Keyboard_class::set_bufferMode( bool forget )
 	{
 		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
+	Note_vec.clear();
 	Noteline 			= "";
 }
 
@@ -225,13 +196,13 @@ void Keyboard_class::Set_key( ) // TODO
 {
 
 	bool forget			= sds_p->StA_state[STA_KEYBOARD].forget;
-	kbd_note.base_octave 		= sds_p->Kbd_state.base_octave;
-	kbd_note.sliding 			= sds_p->Kbd_state.sliding;
-	kbd_note.sharps 				= sds_p->Kbd_state.sharps;
-	kbd_note.flats 				= sds_p->Kbd_state.flats;
-	kbd_note.ADSR_flag 			= sds_p->Kbd_state.ADSR_flag;
+	base_octave 		= sds_p->Kbd_state.base_octave;
+	sliding 			= sds_p->Kbd_state.sliding;
+	sharps	 			= sds_p->Kbd_state.sharps;
+	flats 				= sds_p->Kbd_state.flats;
+	ADSR_flag 			= sds_p->Kbd_state.ADSR_flag;
 
-	set_octave			( kbd_note.base_octave );
+	set_octave			( base_octave );
 	set_accidental		( Nb.sharp_pitch );
 	set_accidental		( Nb.flat_pitch );
 	set_bufferMode		( not forget );
@@ -241,37 +212,9 @@ void Keyboard_class::Set_key( ) // TODO
 		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
 
-	int key 	= sds_p->Kbd_state.key;
+	kbdInt_t key 		= sds_p->Kbd_state.key;
 	sds_p->Kbd_state.key= 0;
-	Set_Kbdnote( key );
-}
-
-bool Keyboard_class::save_notes()
-{
-	auto delete_leading_nulls = [ this ](  )
-	{
-		set<char> nullset { '-', '.' };
-		int pos = 0;
-		char ch = Noteline[pos];
-		while ( nullset.contains( ch ) )
-		{
-			Noteline[pos] = ' ';
-			pos++;
-		}
-	};
-	Comment( INFO, "Saving notes to file", "<tbd>" );
-
-	delete_leading_nulls();
-	notes_p->Align_measure( nlp, Noteline );
-	if ( notes_p->Verify_noteline( nlp, Noteline ) )
-	{
-		Comment( INFO, Noteline );
-		notes_p->Save( fs.kbdnotes_name, nlp, Noteline );
-		return true;
-	}
-	else
-		return false;
-
+	Dispatcher			( key );
 }
 
 
@@ -286,7 +229,6 @@ void Keyboard_class::keyHandler( kbdkey_t kbd )
 		case '+' :	{ change_octave(  1 ) 		; break; }
 		case '-' :	{ change_octave( -1 ) 		; break; }
 		case '#' :	{ tainted = false;Frequency.ShowFrqTable()	; break; }
-		case ESC  :	{ exit_keyboard()	; break; }
 		case F1	:	{ 					; break; }
 		case F2 : 	{ increase_sharps()	; break; }
 		case F3 : 	{ reset_sharps(); 	; break; }
@@ -295,7 +237,7 @@ void Keyboard_class::keyHandler( kbdkey_t kbd )
 		case F6	: 	{ set_bufferMode( not sta_p->state.forget );		break; }
 		case F7 : 	{ increase_flats();		break; }
 		case F8 : 	{ reset_flats(); 			break; }
-		case F9 : 	{ tainted = save_notes();	break; }
+		case F9 : 	{ tainted = not Save_notes();	break; }
 																															//				default :	{ tainted = true	; break; }
 		default : 	{ notekey( kbd.Int );
 						tainted	= false;

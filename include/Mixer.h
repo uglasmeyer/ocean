@@ -42,7 +42,7 @@ public:
 						StorageArray_t;
 	StorageArray_t 		StA;
 
-	mixer_status_t  	state 			= mixer_state_struct();
+	mixer_state_t  	state 			= mixer_state_struct();
 	int					composer		= 0;		// note chunk counter
 
 	Memory 				Mono			{ monobuffer_bytes };

@@ -69,6 +69,7 @@ private slots:
     void cB_Convention( int );
     void sB_Octave( int);
     void cb_Notestype( int );
+    void Longnote(bool);
 };
 
 //namespace Ui { class File_Dialog_class{ }; }

@@ -60,7 +60,7 @@ bool External_class::Read_file_header( string name )
 	if ( File )
 	{
 		buffer_t nrecords = fread( &header_struct, sizeof(header_struct), 1, File );
-		this->StA->StAparam.name = Filename;
+		this->StA->param.name = Filename;
 
 		Comment(INFO, "Using external wav-file: " + Filename);
 		Comment(INFO, "Sample rate:             " + to_string( header_struct.srate ));

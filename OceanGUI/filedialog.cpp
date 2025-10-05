@@ -62,11 +62,17 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     connect(ui->cb_convention, SIGNAL(activated( int )), this, SLOT(cB_Convention( int ) ));
     connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
 
+    connect(ui->cb_longnote, SIGNAL(clicked(bool)), this, SLOT( Longnote(bool) ));
     Comment( INFO," File_Dialog initialized");
     Setup_widgets();
 }
 
 File_Dialog_class::~File_Dialog_class() = default;
+
+void File_Dialog_class::Longnote( bool value )
+{
+	Sds->Set( sds_p->features[0].longplay , value );
+}
 
 void File_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 {
@@ -79,9 +85,11 @@ void File_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 
 }
 
-void File_Dialog_class::sB_Octave( int sb_value )
+void File_Dialog_class::sB_Octave( int value )
 {
-	Sds->Set( sds_p->noteline_prefix.Octave , (uint8_t)sb_value );
+    int8_t octave_shift = value - sds_p->noteline_prefix.Octave;
+
+	Sds->Set( sds_p->noteline_prefix.octave_shift , octave_shift );
 	Eventlog_p->add( SDS_ID, UPDATE_NLP_KEY );
 }
 
@@ -124,6 +132,7 @@ void File_Dialog_class::Setup_widgets()
     ui->cb_notefilenames->clear();
     ui->cb_notefilenames->addItems( Qread_filenames( Event_vec[ notestypeId ].path ));
     ui->cb_notefilenames->setCurrentText( Notes_name );
+    ui->cb_longnote->setChecked( sds_p->features[0].longplay );
 
     if ( sds_p->NotestypeId == XML_ID )
     	return;
@@ -151,7 +160,8 @@ void File_Dialog_class::Setup_widgets()
     QStr = QString::number( sds_p->noteline_prefix.nps );
     ui->cb_nps->setCurrentText( QStr );
 
-	ui->sB_Octave->setValue( sds_p->noteline_prefix.Octave );
+    int Octave = sds_p->noteline_prefix.Octave + sds_p->noteline_prefix.octave_shift;
+	ui->sB_Octave->setValue( Octave );
 }
 
 

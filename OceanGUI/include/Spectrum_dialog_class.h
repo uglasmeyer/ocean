@@ -43,6 +43,8 @@ public:
     adsr_t					adsr_data;
     uint8_t					OscId;
     Id_t					Channel = 1; // active slot last selected Wafeform out of 4
+
+    vector<QSlider*>		fS_vec {};
     vector<QSpinBox*>		sb_vec {};
     vector<QRadioButton*> 	rb_vec {};
     Frequency_class			Frequency {};

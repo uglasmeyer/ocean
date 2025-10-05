@@ -31,6 +31,16 @@ extern string 	notnull( char* cstr );
 inline string bool_str( bool b, string t="yes", string f="no" )
 	{ return ( b ) ? t : f; };
 
+template<typename Key, typename Value>
+auto imap( map<Key,Value> m )
+{
+	map<Value, Key> M {};
+	for( auto [k,v] : m )
+	{
+		M[v] = k;
+	}
+	return M;
+}
 template< typename C > vector<C> set2vector( set<C> s )
 {
 	vector<C> v {};

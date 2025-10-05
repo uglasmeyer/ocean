@@ -169,7 +169,7 @@ auto show_param = [ ]( string type, param_t param, phi_t dT, float freq, float f
 };
 auto hallphi = [  ]( uint8_t adsr_hall, phi_t max )
 {
-	return max * adsr_hall * 0.01;
+	return max * adsr_hall * percent;
 };
 
 
@@ -178,7 +178,6 @@ void Oscillator::OSC (  buffer_t frame_offset )
  * Generator of sound waves data in a ring buffer
  */
 {
-
 	buffer_t 			frames 		= wp.frames;
 	if( has_kbd_role  )
 		assert( frames == max_frames );
@@ -190,7 +189,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Data_t* 			vcoData		= this->vp.Mem->Data;//+ frame_offset;// * sizeof_data;
 
 	float 				fmo_vol 	= fmo_scale* (float)this->fp.volume;
-	float				vol_per_cent= this->spectrum.volidx[0] * 0.01; // the volume of the main osc is managed by the mixer!
+	float				vol_per_cent= this->spectrum.volidx[0] * percent; // the volume of the main osc is managed by the mixer!
 
 	if ( is_osc_type )
 		if ( not has_notes_role )

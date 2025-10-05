@@ -14,7 +14,7 @@ SOURCES += \
     keyboad_dialog.cpp
 
 HEADERS += \
-    Keyboad_dialog.h \
+    include/Keyboad_dialog.h \
     include/File_Dialog_class.h \
     include/Mainwindow.h \
     include/Oszilloscopewidget.h \

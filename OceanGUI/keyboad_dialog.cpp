@@ -1,11 +1,12 @@
-#include "Keyboad_dialog.h"
 #include "ui_keyboad_dialog.h"
 #include <include/Common.h>
+#include <include/Keyboad_dialog.h>
 
 Keyboad_Dialog_class::Keyboad_Dialog_class(
 		QWidget* 			parent,
 		Dataworld_class* 	_data,
-		EventLog_class*		_log)
+		EventLog_class*		_log
+		)
     : QDialog(parent)
     , ui(new Ui::Keyboad_Dialog_class)
 {
@@ -23,7 +24,7 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
     connect( ui->sb_sharps, SIGNAL(valueChanged(int)), this, SLOT( sharps(int) ));
     connect( ui->cb_decay_mode	, SIGNAL( clicked(bool)), 	this, SLOT( decay_mode(bool) ));
     connect( ui->cb_sliding_mode	, SIGNAL( clicked(bool)), 	this, SLOT( sliding_mode(bool) ));
-
+    connect( ui->pB_Save, SIGNAL(clicked()), this, SLOT( save()));
 	Setup_Widget();
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
@@ -68,6 +69,10 @@ void Keyboad_Dialog_class::sliding_mode(bool value )
 	Sds->Set( sds_p->Kbd_state.sliding, value );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
+void Keyboad_Dialog_class::save()
+{
+	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+}
 void Keyboad_Dialog_class::Setup_Widget()
 {
 	stringstream strs{};
@@ -82,4 +87,8 @@ void Keyboad_Dialog_class::Setup_Widget()
 	ui->lbl_key->setText( keyboard_key );
 	ui->lbl_frq->setText( Qstring( strs.str() ));
 	ui->lbl_note->setText( Qstring( sds_p->Kbd_state.note ));
+
+	char chord_type = sds_p->Kbd_state.chord_type;
+	QString Qstr = Qstring( get<1>( Kbd_pitch.Chords_map[chord_type] ) );
+	ui->lbl_chord->setText( Qstr );
 }

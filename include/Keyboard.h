@@ -17,66 +17,79 @@
 #include <Ocean.h>
 #include <Oscgroup.h>
 #include <Mixerbase.h>
-//#include <queue>
 #include <notes/Notes.h>
 
-class Kbd_note_class
-	: public kbd_state_struct
+class Kbd_pitch_class
+	: virtual Logfacility_class
+	, public kbd_state_struct
 {
-	std::map<char, string>
-					Chords				{	{'y',string(""  )},// single // @suppress("Invalid arguments")
-											{'x',string("43")},// Dur
-											{'c',string("34")}, // Moll
-											{'v',string("343")}, // Dur+
-											{'b',string("433")}, // Moll+
-											{'n',string("<")} // Power
+	typedef map<char, tuple<string, string>> chords_map_t;
 
-										};
-	set<char>		chord_keys			{ 'y', 'x', 'c', 'v', 'b', 'n' };
-	string			noteline			{};
-
+	constexpr set<char> init_chord_keys( chords_map_t chords )
+	{
+		set<char> chars {};
+		for( auto [ch, str] : chords )
+		{
+			chars.insert( ch );// @suppress("Invalid arguments")
+		}
+		assert( chars.size() > 0);
+		return chars;
+	}
+	string				className			= "";
+	interface_t*		sds_p				;
 
 public:
+	chords_map_t Chords_map		// @suppress("Invalid arguments")
+	{
+		{'Y',{ string(""  )	, string("single") }},
+		{'X',{ string("43")	, string("Dur   ") }},
+		{'C',{ string("34")	, string("Moll  ") }},
+		{'V',{ string("343"), string("Dur+  ") }},
+		{'B',{ string("433"), string("Moll+ ") }},
+		{'N',{ string("<")	, string("Power ") }}
+	};
+	set<char>			chord_keys			= init_chord_keys( Chords_map );
+											//{ 'y', 'x', 'c', 'v', 'b', 'n' };
 	const array<string, kbd_rows>
-					dflt_keyboard_keys	{  	string("A_S_DF_J_K_L") ,
-											string("Q_W_ER_U_I_O") ,
-											string("1_2_34_7_8_9")};
+						dflt_keyboard_keys	{  	string("A_S_DF_J_K_L") ,
+												string("Q_W_ER_U_I_O") ,
+												string("1_2_34_7_8_9")};
 	array<string, kbd_rows>
-					keyboard_keys		{ dflt_keyboard_keys };
+						keyboard_keys		{ dflt_keyboard_keys };
 
 	/*
 	 https://www.delamar.de/songwriting/akkorde-lernen-49754/#akkorde-bestimmen
 	 https://de.wikipedia.org/wiki/American_Standard_Code_for_Information_Interchange
 	 */
 
-	kbd_note_t		Note 				= kbd_note_struct( 0, NONOTE);
-	string 			Chord				{ Chords['y'] };
+	pitch_t				pitch 				= pitch_struct();
+	string 				Chord				= get<0>(Chords_map['y']);
 
-	vector<kbd_note_t>
-					note_vec			{};
+	pitch_vec_t			Pitch_vec			{};
 
-					Kbd_note_class() 	{};
-	virtual 		~Kbd_note_class() 	= default;
-	void 			SetNote				( int key );
-	string 			SetChord			( char key );
-	string 			Get_note_str		();
+
+						Kbd_pitch_class		( interface_t* sds);
+						Kbd_pitch_class		(); // keyboard_dialog
+	virtual 			~Kbd_pitch_class	() 	= default;
+	void 				SetPitch			( int key );
+	void 				SetChord			( char key );
+	string 				Get_note_str		();
+	void 				Show_kbd_layout		( int8_t base_oct );
+	void 				Kbd_pitch_Test		();
 
 private:
 } ;
 
-class keyboardState_class
-	:  	kbd_state_struct
+class keyboardState_class :
+	public Kbd_pitch_class
 {
 	interface_t* 		sds;
-
 	const range_T<uint>	sharps_range			{ 0, 3 }; // TODO reduced range
 	const range_T<uint>	flats_range				{ 0, 2 }; // TODO reduced range
 	frq_t				basefrq;
 
 protected:
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
-	string				NoteNames				= OctChars;//convention_notes[ENGLISH];
-	Kbd_note_class		kbd_note 				{};
 
 						keyboardState_class		( interface_t* _sds );
 						~keyboardState_class() 	= default;
@@ -90,28 +103,30 @@ protected:
 	void 				toggle_applyADSR		();
 	void 				set_slideMode			();
 	void 				set_accidental			( uint pitches, int dir  );
-	void 				set_accidental			( pitch_vec_t vec  );
+	void 				set_accidental			( step_vec_t vec  );
 
 } ;
 
 
 class Keyboard_class
-	: virtual public		Logfacility_class
-	, virtual				osc_struct
-	, virtual public		Kbd_base
-	, virtual public		sdsstate_struct
-	, virtual public		keyboardState_class
+	: virtual public	Logfacility_class
+	, virtual			osc_struct
+	, virtual public	Kbd_base
+	, virtual public	sdsstate_struct
+	, virtual public	keyboardState_class
 {
 	string 				className 				= "";
 	Oscgroup_class		Oscgroup				{ KBDID, 2*monobuffer_bytes };
 	Oscillator*			Osc						= &Oscgroup.osc;
-	file_structure		fs						= file_structure();
+//	Kbd_pitch_class		kbd_pitch 				;
 
-	noteline_prefix_t	nlp						;
-	Note_class*			notes_p					;
-	Instrument_class* 	instrument_p				;
-	interface_t*		sds_p						;
-	Storage_class*		sta_p						;
+	Instrument_class* 	instrument_p			;
+	interface_t*		sds_p					;
+	Storage_class*		sta_p					;
+	vector<note_t>		Note_vec				{};
+	uint8_t				Note_pos				= 0;
+	file_structure		fs						= file_structure();
+	Note_class*			Notes					;
 
 public:
 
@@ -123,15 +138,17 @@ public:
 													Note_class* );
 						Keyboard_class			(); // see comstack
 	virtual 			~Keyboard_class			();
-	void 				Set_Kbdnote				( kbdInt_t key );
+	void 				Dispatcher				( kbdInt_t key );
 	void 				Set_instrument			();
 	void 				Enable					( bool iskbd );
 	void 				ScanData				();
 	void 				Show_help				( bool tty );
 	void				Set_key					();
+	bool 				Save_notes				();
 
 private:
 
+	uint				max_notes				= 0;//notes_per_sec * 4*max_sec;
 	const int 			releaseCounter			= 0;
 	const int 			attackCounter 			= frame_parts;//rint( max_frames / min_frames );
 	int 				decayCounter 			= 0;
@@ -139,26 +156,25 @@ private:
 	uint				holdCounter				= 0;
 	const uint			kbd_volume				= 75;
 	uint8_t 			sta_volume				= kbd_volume;
-	kbdkey_t		Kbd_key					{0,0,0};//key3_struct( 0, 0, 0);
+	kbdkey_t			Kbd_key					{0,0,0};//key3_struct( 0, 0, 0);
 	feature_t			kbd_adsr				= feature_struct();
 	bool				frqMode					= SLIDE;
+	bool				kbd_trigger				= false;
 	string				Noteline				{};
-	uint				noteline_cnt			= 0;
-	uint				max_noteline_cnt		= 8*4*max_sec;
+	uint				noteline_cnt		= 0;
+	uint8_t				notes_per_sec		= 8;
 
+	void				selfTest				();
 	void 				attack					();
 	void 				release					();
 	bool 				decay					();
 	void 				gen_chord_data			();
-	void				set_kbd_trigger			( bool trigger );
 	// keyhandler.cpp
 
 	void 				keyHandler				( kbdkey_t kbd );
-	string 				show_kbd_notenames		();
-	void 				exit_keyboard			();
 	void 				notekey					( char key );
 	void				set_bufferMode			( bool forget);
-	bool 				save_notes				();
+	void 				initNoteVector			();
 
 
 };

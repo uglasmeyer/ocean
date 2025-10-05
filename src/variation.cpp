@@ -15,6 +15,8 @@ Note_class()
 {
 	Note_class::Instrument_name = "Variation";
 	className = Logfacility_class::className;
+	Nlp_variation.variation = 1;
+	Nlp_variation.nps		= 2;
 };
 
 
@@ -76,7 +78,7 @@ Variation_class::noteword_t Variation_class::list2vector( notelist_t notes )
 
 void Variation_class::define_random_note_vector( string str )
 {
-	Note_class::Noteline_prefix.variation = 1;
+	Note_class::Noteline_prefix = Nlp_variation;
 	Random_Notes.clear();
 	notelist_t nl = Gen_notelist( Noteline_prefix, str );
 	Random_Notes = list2vector( nl );
@@ -136,14 +138,14 @@ Variation_class::noteword_t Variation_class::gen_random_note_word()
 
 	buffer_t duration 	= 0;
 
-	while ( duration < Note_class::measure_duration )
+	while ( duration < measure_duration )
 	{
 		note = gen_random_note( Random_Notes );
 
 		duration += Note_class::min_duration;
 		note.duration = Note_class::min_duration;
 		char ch = gen_random_note( Random_Notes ).str[0];
-		while ( ( ch == '-' ) and ( duration < Note_class::measure_duration ))
+		while ( ( ch == '-' ) and ( duration < measure_duration ))
 		{
 			duration += Note_class::min_duration;
 			note.duration += Note_class::min_duration;
@@ -384,7 +386,8 @@ void Variation_class::Test()
 	Gen_noteline("crcrc", "auto");
 
 
-	Define_fix( "|2CrF-" );
+//	Define_fix( "|2CrF-" );
+	Define_fix( "|2CrF-CrF-" );
 	Define_variable ( "C" );
 
 	string test_str = Gen_noteline( "c", "auto") ;
@@ -397,7 +400,7 @@ void Variation_class::Test()
 	cout << test_str << "=" << "(AC)C(DC)C" << endl;
 	assert( strEqual( test_str, "(AC)C(DC)C ") );
 	cout << test_str << endl;
-	assert( Note_class::Verify_noteline( Noteline_prefix, test_str ) );
+	ASSERTION( Note_class::Verify_noteline( Noteline_prefix, test_str ),"test_str", test_str, "");
 
 	Define_fix ( "|2(AC).(DC)r");
 	Define_variable ( "C" );
@@ -416,8 +419,7 @@ void Variation_class::Test()
 	assert( noteline[11] == 'A' );
 	int I;
 	string T = Sentence[1][0].str;
-	cout << T << endl;
-	assert( T.compare("A") == 0 );
+	ASSERTION( strEqual( T, "A" ), "sentence.str", T, "A" );
 
 	Define_fix("|2AGBA");
 	Gen_noteline("c4c", "auto" );

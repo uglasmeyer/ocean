@@ -144,7 +144,7 @@ class Storage_class :
 	string className = "";
 public:
 	// dynamic properties
-	StA_param_t 	StAparam		= StA_param_struct();
+	StA_param_t 	param			= StA_param_struct("",0 );
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	bool			is_RecId		= false;
@@ -164,11 +164,8 @@ public:
 	void 			Reset			();
 	uint*			Get_storeCounter_p();
 
-	Storage_class( ) :
-		Logfacility_class( "Storage_class" ),
-		Memory()
-	{} ;
-	virtual ~Storage_class() = default;
+					Storage_class( );
+	virtual 		~Storage_class() = default;
 
 private:
 

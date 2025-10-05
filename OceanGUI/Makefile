@@ -135,7 +135,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/exceptions.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf \
-		OceanGUI.pro Keyboad_dialog.h \
+		OceanGUI.pro include/Keyboad_dialog.h \
 		include/File_Dialog_class.h \
 		include/Mainwindow.h \
 		include/Oszilloscopewidget.h \
@@ -317,7 +317,7 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Keyboad_dialog.h include/File_Dialog_class.h include/Mainwindow.h include/Oszilloscopewidget.h include/Spectrum_dialog_class.h include/Rtsp_dialog_class.h include/Dispatcher.h $(DISTDIR)/
+	$(COPY_FILE) --parents include/Keyboad_dialog.h include/File_Dialog_class.h include/Mainwindow.h include/Oszilloscopewidget.h include/Spectrum_dialog_class.h include/Rtsp_dialog_class.h include/Dispatcher.h $(DISTDIR)/
 	$(COPY_FILE) --parents keyboad_dialog.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents File_Dialog_class.ui keyboad_dialog.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
 
@@ -355,7 +355,7 @@ moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp
 compiler_moc_header_make_all: moc_Keyboad_dialog.cpp moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_Keyboad_dialog.cpp moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
-moc_Keyboad_dialog.cpp: Keyboad_dialog.h \
+moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
 		../include/Ocean.h \
@@ -388,9 +388,17 @@ moc_Keyboad_dialog.cpp: Keyboad_dialog.h \
 		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/data/Appstate.h \
+		../include/Keyboard.h \
+		../include/Osc.h \
+		../include/Instrument.h \
+		../include/data/Device.h \
+		../include/Oscgroup.h \
+		../include/Wavedisplay.h \
+		../include/Kbd.h \
+		../include/notes/Notes.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
-	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Keyboad_dialog.h -o moc_Keyboad_dialog.cpp
+	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Keyboad_dialog.h -o moc_Keyboad_dialog.cpp
 
 moc_File_Dialog_class.cpp: include/File_Dialog_class.h \
 		../include/Logfacility.h \
@@ -481,16 +489,18 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/App.h \
+		../include/Kbd.h \
 		ui_mainwindow.h \
 		include/File_Dialog_class.h \
 		include/Common.h \
 		ui_File_Dialog_class.h \
+		include/Keyboad_dialog.h \
+		../include/Keyboard.h \
 		include/Oszilloscopewidget.h \
 		include/Rtsp_dialog_class.h \
 		ui_Rtsp_dialog_class.h \
 		include/Spectrum_dialog_class.h \
 		ui_spectrum_dialog_class.h \
-		Keyboad_dialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Mainwindow.h -o moc_Mainwindow.cpp
@@ -617,16 +627,18 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/App.h \
+		../include/Kbd.h \
 		ui_mainwindow.h \
 		include/File_Dialog_class.h \
 		include/Common.h \
 		ui_File_Dialog_class.h \
+		include/Keyboad_dialog.h \
+		../include/Keyboard.h \
 		include/Oszilloscopewidget.h \
 		include/Rtsp_dialog_class.h \
 		ui_Rtsp_dialog_class.h \
 		include/Spectrum_dialog_class.h \
 		ui_spectrum_dialog_class.h \
-		Keyboad_dialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Dispatcher.h -o moc_Dispatcher.cpp
@@ -668,18 +680,24 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 
 ####### Compile
 
-keyboad_dialog.o: keyboad_dialog.cpp Keyboad_dialog.h \
+keyboad_dialog.o: keyboad_dialog.cpp ui_keyboad_dialog.h \
+		include/Common.h \
+		../include/Ocean.h \
+		../include/System.h \
+		../include/String.h \
+		../include/Logfacility.h \
+		../include/Exit.h \
+		../include/Config.h \
+		../include/Configbase.h \
+		../include/Version.h \
+		../include/EventKeys.h \
+		include/Keyboad_dialog.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
-		../include/Ocean.h \
-		../include/Logfacility.h \
 		../include/data/Sdsbase.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/Exit.h \
 		../include/data/Statistic.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
@@ -688,21 +706,23 @@ keyboad_dialog.o: keyboad_dialog.cpp Keyboad_dialog.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Oscwaveform.h \
-		../include/Configbase.h \
-		../include/Version.h \
 		../include/data/SharedDataSegment.h \
-		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
-		../include/Config.h \
 		../include/Keyboard_base.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
 		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/data/Appstate.h \
-		ui_keyboad_dialog.h \
-		include/Common.h
+		../include/Keyboard.h \
+		../include/Osc.h \
+		../include/Instrument.h \
+		../include/data/Device.h \
+		../include/Oscgroup.h \
+		../include/Wavedisplay.h \
+		../include/Kbd.h \
+		../include/notes/Notes.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o keyboad_dialog.o keyboad_dialog.cpp
 
 moc_Keyboad_dialog.o: moc_Keyboad_dialog.cpp 

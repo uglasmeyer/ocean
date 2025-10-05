@@ -103,7 +103,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 	QString QStr{};
 	QStr.assign(1, (QChar)key.Arr[0] );
 	Keyboard_Dialog_p->keyboard_key = QStr;
-
+	coutf << key.Int << endl;
+	Keyboard_Dialog_p->Setup_Widget();
 
 }
 
@@ -164,6 +165,7 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
 	    QString Qstr{ int2char( Sds->addr->adsr_arr[OSCID].bps ) };
 	    Spectrum_Dialog_p->ui->cb_bps->setCurrentText( Qstr );
 	}
+	MainWindow::setFocus();
 }
 
 void MainWindow::slideFrq( int value )
@@ -181,17 +183,18 @@ void MainWindow::dial_PMW_value_changed()
     Eventlog.add( SDS_ID,PWMDIALKEY);
 }
 
+template< class Dialog>
+auto switch_dialog( Dialog* p )
+{
+	if( p->isVisible() )
+		p->hide();
+	else
+		p->show();
+}
 void MainWindow::Rtsp_Dialog()
 {
-    if ( this->Rtsp_Dialog_p->isVisible()   )
-    {
-        this->Rtsp_Dialog_p->hide();
-    }
-    else
-    {
-        Rtsp_Dialog_p->proc_table_update_all( );
-        this->Rtsp_Dialog_p->show();
-    }
+	switch_dialog( this->Rtsp_Dialog_p );
+    Rtsp_Dialog_p->proc_table_update_all( );
 }
 void MainWindow::SDS_Dialog()
 {
@@ -212,51 +215,30 @@ void MainWindow::SDS_Dialog()
 
 void MainWindow::ADSR_Dialog()
 {
-    if ( this->Spectrum_Dialog_p->isVisible()   )
-    {
-        this->Spectrum_Dialog_p->hide();
-    }
-    else
-    {
-        Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::ADSRID );
-    	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-        ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::ADSRID ] );
+    switch_dialog( this->Spectrum_Dialog_p );
+	Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::ADSRID );
+	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
+	ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::ADSRID ] );
 
-        Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
-		this->Spectrum_Dialog_p->show();
-    	Spectrum_Dialog_p->Set_adsr_flag( true );
-    }
+	Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
+	Spectrum_Dialog_p->Set_adsr_flag( true );
 }
 
 void MainWindow::File_Director()
 {
-    if ( this->File_Dialog_p->isVisible()   )
-    {
-        this->File_Dialog_p->hide();
-    }
-    else
-    {
-    	File_Dialog_p->Setup_widgets();
-		this->File_Dialog_p->show();
-    }
+	switch_dialog( this->File_Dialog_p );
+    File_Dialog_p->Setup_widgets();
 }
 
 void MainWindow::Spectrum_Dialog()
 {
-    if ( this->Spectrum_Dialog_p->isVisible()   )
-    {
-        this->Spectrum_Dialog_p->hide();
-    }
-    else
-    {
-        Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::INSTRID );
-    	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-        ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::INSTRID ] );
+    switch_dialog( this->Spectrum_Dialog_p );
+    Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::INSTRID );
+    Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
+    ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::INSTRID ] );
 
-        Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
-        this->Spectrum_Dialog_p->show();
-        this->Spectrum_Dialog_p->Set_adsr_flag( false );
-    }
+    Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
+    this->Spectrum_Dialog_p->Set_adsr_flag( false );
 }
 
 
@@ -269,7 +251,8 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 	Sds->Set( *wf_addr, wfid );
 	Eventlog.add( SDS_ID, wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
-//	this->Spectrum_Dialog_p->SetLabelWaveform(  );
+	MainWindow::setFocus();
+
 }
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
@@ -622,15 +605,9 @@ void MainWindow::start_synthesizer()
 }
 void MainWindow::start_keyboard()
 {
-    if ( this->Keyboard_Dialog_p->isVisible()   )
-    {
-        this->Keyboard_Dialog_p->hide();
-    }
-    else
-    {
-//    	Keyboard_Dialog_p->Setup_widgets();
-		this->Keyboard_Dialog_p->show();
-    }
+
+//	this->Keyboard_Dialog_p->show();
+
 	if( Appstate->IsRunning( Sds->addr, APPID::KEYBOARDID ))
 	{
 		exit_synthesizer( APPID::KEYBOARDID );
@@ -775,6 +752,11 @@ void MainWindow::update_CB_external()
 
 void MainWindow::setwidgetvalues()
 {
+	if( Appstate->IsExitserver( App.sds, GUI_ID ) )
+		GUI_Exit();
+	else
+		App.Appstate->SetRunning(  );
+
 	for ( int oscid : oscIds )
 	{
 		sl_volume_vec[oscid].sl->setValue( *sl_volume_vec[oscid].value );
@@ -833,16 +815,24 @@ void MainWindow::setwidgetvalues()
 	ui->cb_connect_oscv->setChecked( (bool)(Sds->addr->connect_arr[OSCID].vol != OSCID) );
 	ui->cb_connect_oscf->setChecked( (bool)(Sds->addr->connect_arr[OSCID].frq != OSCID) );
 
-    double frq_slide_duration = Sds->addr->features[OSCID].glide_effect * max_sec * 0.01;
+    double frq_slide_duration = Sds->addr->features[OSCID].glide_effect * max_sec * percent;
     ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
-	if( Keyboard_Dialog_p->isVisible( ) )
+
+    bool kbd_up=Appstate->IsRunning( sds, APPID::KEYBOARDID );
+	if( kbd_up  )
+	{
+		if( not Keyboard_Dialog_p->isVisible() )
+			Keyboard_Dialog_p->show();
 		Keyboard_Dialog_p->Setup_Widget();
 
-	if( Appstate->IsExitserver( App.sds, GUI_ID ) )
-		GUI_Exit();
+	}
 	else
-		App.Appstate->SetRunning(  );
+	{
+		if( Keyboard_Dialog_p->isVisible() )
+			Keyboard_Dialog_p->hide();
+	}
+
 
 }
 
@@ -856,13 +846,14 @@ void MainWindow::updateColorButtons()
 	uint audio_state		=	isRunning( AUDIOID, sds_master ) ;
 	uint synthesizer_state	= 	isRunning( SYNTHID,sds )*2 + // red or yellow
 								audio_state;   // red or yellow or green
-	uint keyboard_state 	= 	isRunning( APPID::KEYBOARDID, sds )*2 +
-								audio_state;
+	bool keyboard_up		= 	isRunning( APPID::KEYBOARDID, sds );
+	uint keyboard_state 	= 	keyboard_up*2 + audio_state;
     setButton( ui->pBSynthesizer, synthesizer_state );
     setButton( ui->pb_Keyboard	, keyboard_state );
     setButton( ui->pBAudioServer, audio_state*3 ); // red or green
     setButton( ui->pb_SDSview	, isRunning( SDSVIEWID, sds_master )*2+1 );
     setButton( ui->pBComposer	, isRunning( COMPID, sds_master )*2+1 );
+
 
     // TODO complete
     bool record 	= ( sds_master->Record_state == sdsstate_struct::RECORDING );

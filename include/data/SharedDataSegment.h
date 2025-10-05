@@ -81,7 +81,7 @@ typedef struct interface_struct // with reasonable defaults
 
 	StA_state_arr_t	StA_state 					= default_sta_state_arr;	//
 	StA_amp_arr_t	StA_amp_arr					{0,0,0,0,75,0,0,0};			// Instrument=75%
-	mixer_status_t 	mixer_state 				= Mixer_base::mixer_state_struct(); //
+	mixer_state_t 	mixer_state 				= Mixer_base::mixer_state_struct(); //
 
 	kbd_state_t		Kbd_state					= kbd_state_struct();
 
@@ -132,7 +132,7 @@ typedef struct interface_struct // with reasonable defaults
 	uint8_t 		AudioServer	    			= sdsstate_struct::OFFLINE;
 	uint8_t	 		UserInterface				= sdsstate_struct::OFFLINE;
 	uint8_t	 		Composer 					= sdsstate_struct::OFFLINE;
-	uint8_t			Comstack					= sdsstate_struct::OFFLINE;
+	uint8_t			SDSview						= sdsstate_struct::OFFLINE;
 	uint8_t			Rtsp						= sdsstate_struct::OFFLINE;
 	uint8_t			Setup						= sdsstate_struct::OFFLINE; // if tty and synthesizer process
 

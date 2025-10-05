@@ -1142,7 +1142,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Notes</string>
+     <string>Notes and I.</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pBtoggleRecord">

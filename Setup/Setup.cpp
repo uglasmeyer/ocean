@@ -134,7 +134,6 @@ void symboliclink( string _src, string _sym, string _ext )
 		if( filesystem::exists( _link ))
 			filesystem::remove( _link );
 		filesystem::create_symlink( _src, _link );
-
 	};
 	if ( strEqual(_sym, "Synthesizer") )
 	{
@@ -215,6 +214,7 @@ int main(int argc, char **argv)
 	init_file ( fs.program_file							, fs.resourcedir );
 	init_file ( fs.prog_libfile							, fs.resourcedir );
 	init_file ( fs.prog_testfile						, fs.resourcedir );
+	overwrite ( fs.resourcedir + fs.template_xmlname	, fs.template_xmlfile );
 	Cfg.Parse_argv(argc, argv );
 	if ( Cfg.Config.test == 'y' )
 	{

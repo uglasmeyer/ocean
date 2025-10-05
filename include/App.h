@@ -13,6 +13,7 @@
 #include <data/Semaphore.h>
 #include <data/Statistic.h>
 #include <data/DataWorld.h>
+#include <Kbd.h>
 
 
 
@@ -29,6 +30,7 @@ public:
 	char 				AppId				= NOID;
 	process_t 			properties 			{};
 	Time_class			Timer				{};
+	Kbd_base			Kbd					{};
 	Dataworld_class*	DaTA				= nullptr;
 	Appstate_class*		Appstate			= nullptr;
 	interface_t* 		sds					= nullptr;
@@ -36,16 +38,15 @@ public:
 	Config_class*		Cfg 				= nullptr;
 	Interface_class*	Sds					= nullptr;
 
-
 	string 				This_Application 	= "";
-	uint 				client_id			= NOID;
     const set<int> 		logowner 			=  { GUI_ID, COMPID, RTSPID };
 
     					Application_class	( Dataworld_class* );
-	virtual 			~Application_class();
+	virtual 			~Application_class	();
 
-	void Start( int, char* [] );
-	void Ready();
+	void 				Start				( int, char* [] );
+	void 				Ready				();
+	kbdInt_t			KeyboardKey			( bool debug);
 
 
 private:

@@ -8,6 +8,7 @@
 #include <Config.h>
 #include <notes/Notes.h>
 
+// musicsml, variation
 Note_class::Note_class( )
 	: Note_class::Logfacility_class("Note_class")
 	, Note_base()
@@ -18,7 +19,9 @@ Note_class::Note_class( )
 	this->className = Logfacility_class::className;
 	init_note_table();
 }
-Note_class::Note_class( interface_t* _sds) // File_dialog
+
+// File_dialog
+Note_class::Note_class( interface_t* _sds)
 	: Note_class::Logfacility_class("Note_class")
 	,  Note_base()
 {
@@ -31,6 +34,7 @@ Note_class::Note_class( interface_t* _sds) // File_dialog
 	init_note_table();
 }
 
+// Synthesizer
 Note_class::Note_class( Instrument_class* 	instr,
 						Storage_class* 		sta )
 	: Note_class::Logfacility_class("Note_class")
@@ -57,6 +61,7 @@ Note_class::~Note_class( )
 void Note_class::init_note_table()
 {
 	Note_table.opt.Ident = 0;
+	Note_table.AddColumn( "No.", 4 );
 	Note_table.AddColumn( "Chord", 20 );
 	Note_table.AddColumn( "Vol", 3 );
 	Note_table.AddColumn( "msec",5 );
@@ -71,14 +76,19 @@ void Note_class::init_note_table()
 	Note_table.AddColumn( "alt", 4 );
 	Note_table.AddColumn( "Frq", 5 );
 }
-void Note_class::show_noteline_duration( const uint16_t& msec, uint& duration, uint& count )
+void Note_class::show_noteline_duration( const uint16_t& msec,
+										uint& total_duration,
+										uint& count,
+										uint& m_duration )
 {
-	duration += msec;
-	uint mod = duration % measure_duration;
-	if ( mod == 0 )
+	total_duration 	+= msec;
+	m_duration 		+= msec;
+	uint mod 		= total_duration % (measure_duration);
+	if ( mod < msec )
 	{
-		Comment( DEBUG, " Measure count: ", (int)count );
+		Comment( DEBUG, " Measure number: ", (int)count, ", Measure duration:", m_duration );
 		count++;
+		m_duration 	= 0;
 	};
 }
 
@@ -125,7 +135,6 @@ void Note_class::set_volume_vector( string volline )
 void Note_class::ScanData( )
 {
 	NotesData 	= StA->scanner.Next_read();
-//	Trigger		= StA->scanner.trigger.get();
 }
 
 void Note_class::gen_chord_data(const note_t& note,
@@ -137,7 +146,6 @@ void Note_class::gen_chord_data(const note_t& note,
 	Oscgroup.Data_Reset();
 
 	uint glide_effect = osc->features.glide_effect;
-
 	if ( note.glide[0].glide )
 		Oscgroup.SetSlide( 100 );
 	else
@@ -145,17 +153,18 @@ void Note_class::gen_chord_data(const note_t& note,
 
 	osc->Set_long_note( note.longnote or longnote );
 
-	uint frame_delay 	= sds->noteline_prefix.chord_delay * frames_per_msec;
-	uint n 				= 0;
 	Osc->Set_beatcursor( 0 );
+
 	uint msec = duration;
-	if ( note.longplay )
-		msec = max_msec;
+	if ( note.longplay or sds->features[0].longplay )
+		msec = 1000;//max_msec;
 
-
+	const int8_t frqidx_shift = oct_steps * sds->noteline_prefix.octave_shift;
+	const uint frame_delay 	= sds->noteline_prefix.chord_delay * frames_per_msec;
+	uint n 				= 0;
 	for ( pitch_t pitch : note.chord )
 	{
-		uint8_t frqidx = GetFrqIndex( pitch );
+		uint8_t frqidx = GetFrqIndex( pitch ) + frqidx_shift;
 		Oscgroup.Set_Osc_Note( sds, frqidx, msec, note.volume, SLIDE );
 		Oscgroup.Phase_Reset();
 		Oscgroup.Run_OSCs( n*frame_delay );
@@ -174,31 +183,36 @@ void Note_class::sta_write_data( uint duration )
 	StA->scanner.Next_write( duration * frames_per_msec );
 };
 
-
-bool Note_class::Generate_volatile_data( bool init )
+int read_cnt = 0;
+bool Note_class::Generate_volatile_data()
 {
+	// generate maxframes of new data if begin or rpos exceeds maxdata
 
-	// generate maxframes of new data if init or rpos exceeds maxdata
-//	if ( ( not StA->scanner.trigger ) and ( note_itr != notelist.begin() ) )
-	if ( ( StA->scanner.rpos < max_frames ) and ( note_itr != notelist.begin() ) )
+	if ( ( read_cnt < 15 ) and ( note_itr != notelist.begin() ) )
+	{
+		read_cnt++;
 		return false;
-//	coutf << "Generate_volatile_data " << boolalpha << init << ":" << StA->scanner.rpos << endl;
-
+	}
+	read_cnt = 0;
 	Oscgroup.SetInstrument( sds );
-	StA->Reset();
+//	StA->Reset();
+
 	int msec_elapsed = 0;
 
-	while( ( msec_elapsed < max_msec ) and ( note_itr != notelist.end() ) )
+	while( ( msec_elapsed < max_msec ) and ( not note_itr_end() ) )
 	{
 		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
-
+		Show_note( Note_table, *note_itr );
 		msec_elapsed += note_itr->duration;
 		note_itr_next();
 	}
-	if( init )
-		Comment( INFO, "volatile notes data initialized" );
-	Set_note_itr();
+	if( note_itr_end() )
+	{
+		note_itr = notelist.begin();
+	}
+	StA->state.forget = true;
+//	coutf << read_cnt << ", " << StA->scanner.fillrange.max << ", " << StA->scanner.mem_range.max << endl;
 
 	return true;
 }
@@ -215,8 +229,9 @@ bool Note_class::Generate_cyclic_data(  )
 		sta_write_data( note_itr->duration );
 		note_itr_next();
 	}
+	StA->state.forget = false;
 	StA->scanner.Set_rpos( 0 );
-	StA->scanner.Show( false );
+	StA->scanner.Show( LogMask[ DEBUG], &StA->scanner.fillrange );
 	return true;
 }
 
@@ -291,20 +306,11 @@ bool Note_class::Start_note_itr()
 		return false;
 	}
 	if( StA )
-		StA->scanner.Set_rpos( 0 );
+		StA->Reset();//scanner.Set_rpos( 0 );
+	read_cnt = 0;
 	Note_itr_start.set_state( true );
-//	Note_itr_end.set_state( false );
 	return true;
 }
-
-void Note_class::Set_note_itr()
-{
-	if (( note_itr == notelist.end()  )) // the global note iter shall be restarted.
-	{
-		Note_itr_end.set_state( true );
-		Start_note_itr();
-	}
-};
 
 bool Note_class::note_itr_end()
 {
@@ -412,7 +418,20 @@ void Note_class::Test()
 {
 
 	TEST_START( className );
-	ASSERTION( Notechar2Step( 'A' ) == 9, "Assert test value ",(int)Notechar2Step( 'A' ), 9  )  ;
+	int oct = 4;
+	pitch_t pitch = pitch_struct( oct, 'a', alter_value('a') );
+	ShowFrqTable();
+	ASSERTION( pitch.step == 9, "Assert test value ",(int)pitch.step, 9  )  ;
+	ASSERTION( pitch.alter == 1, "Assert test value ",(int)pitch.alter, 1  )  ;
+	ASSERTION( pitch.frqidx == 84, "Assert test value ",(int)pitch.frqidx, 84  )  ;
+
+
+	pitch = pitch_struct( 84 );
+	ASSERTION( pitch.step == 9, "Assert test value ",(int)pitch.step, 9  )  ;
+	ASSERTION( pitch.alter == 1, "Assert test value ",(int)pitch.alter, 1  )  ;
+	ASSERTION( pitch.frqidx == 84, "Assert test value ",(int)pitch.frqidx, 84  )  ;
+	ASSERTION( pitch.octave == 4, "Assert test value ",(int)pitch.octave, 4  )  ;
+	ASSERTION( pitch.step_char == 'A', "Assert test value ",  pitch.step_char, 'A'  )  ;
 
 	Instrument_name = "NotesTest";
 	Comment( TEST, "Note_class test start");
@@ -431,30 +450,31 @@ void Note_class::Test()
 	notelist_t nl { Gen_notelist( noteline_prefix_default, nline ) };
 	Show_note_list( nl );
 	Align_measure( noteline_prefix_default, nline );
-	int msec = Calc_noteline_msec( nl );
-	ASSERTION( msec == 1000, "Calc_noteline_msec", msec, 1000L );
+	int msec = Calc_notelist_msec( nl );
+	ASSERTION( msec == measure_duration, "Calc_noteline_msec", msec, measure_duration );
 
 
 	nline = "D3----";
 	nl =  Gen_notelist( noteline_prefix_default, nline ) ;
-	msec = Calc_noteline_msec( nl );
+	msec = Calc_notelist_msec( nl );
 	ASSERTION( msec == 2000, "Calc_noteline_msec", msec, 2000L );
 	coutf << nline << endl;
 //	ASSERTION( nline.length() == 8, "Append_noteline", nline.length(), 8L );
 
 	Comment( TEST, "long notes ");// long note
 	Set_rhythm_line("5");
-	Verify_noteline( Noteline_prefix, "A-D--B----d-");
+	Verify_noteline( noteline_prefix_default, "A-D--B----d-");
+	ASSERTION( noteline_sec == 4, "seconds", (int)noteline_sec, 4L );
+	ASSERTION( min_duration == 250, "min_duration ", min_duration, 250L );
 	Start_note_itr();
 	ASSERTION( fcomp(note_itr->chord[0].freq, 220 ), "", note_itr->chord[0].freq , 220 );
-	advance(note_itr, 2 );
+	advance(note_itr, 3 );
 	ASSERTION( note_itr->longnote, "Longnote", note_itr->longnote, true  );
 	advance(note_itr, 1 );
 	ASSERTION( not note_itr->longnote, "Longnote", note_itr->longnote, false );
-	advance(note_itr, 1 );
-	ASSERTION( note_itr->longnote, "Longnote", note_itr->longnote, true );
-	ASSERTION( noteline_sec == 3, "seconds", (int)noteline_sec, 3L );
-	ASSERTION( note_itr->chord[0].step == 11, "Assert test value ", note_itr->chord[0].step  , 11 );
+
+	ASSERTION( note_itr->chord[0].step == 2, "Assert test value ",
+			(int)note_itr->chord[0].step  ,2 );
 
 	Comment( TEST, "fill note list");
 	Set_rhythm_line("5");
@@ -466,10 +486,10 @@ void Note_class::Test()
 	Set_rhythm_line("844448");
 	Verify_noteline(Noteline_prefix, "|2(ACE)--|3G-EC-A--.B");
 	int i = 0;
-	volume_vec={80,40,40,40,40,40,0,80,0,0,0};
+	volume_vec={80,40,40,40,40,0,80,0,0,0};
 	for( note_t note : notelist )
 	{
-		ASSERTION( note.volume == volume_vec[i],"", note.volume, volume_vec[i]);
+		ASSERTION( note.volume == volume_vec[i],"i="+to_string(i), note.volume, volume_vec[i]);
 		i++;
 	}
 
@@ -521,7 +541,8 @@ void Note_class::Test()
 	Verify_noteline( Noteline_prefix, noteline );
 	Start_note_itr();
 	assert( note_itr->volume == 0 );
-	assert( note_itr->duration == 4*min_duration );
+	ASSERTION( 	note_itr->duration == measure_duration, "duration",
+				note_itr->duration, measure_duration );
 
 	Comment( TEST, "garbage test" );
 	noteline="-xyz";
@@ -570,6 +591,9 @@ void Note_class::Test()
 		note_itr_next();
 	}
 
+	pitch_struct A(A3);
+	pitch_struct B = A;
+	ASSERTION( A.frqidx == B.frqidx, "pitch_struct=", (int)B.frqidx, (int)A3);
 
 	Gen_notelist( noteline_prefix_default, "A2A3-A4--A5---");
 	Generate_cyclic_data();

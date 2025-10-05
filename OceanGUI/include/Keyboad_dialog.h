@@ -6,6 +6,7 @@
 
 // Ocean
 #include <data/DataWorld.h>
+#include <Keyboard.h>
 
 namespace Ui {
 class Keyboad_Dialog_class;
@@ -16,10 +17,13 @@ class Keyboad_Dialog_class : public QDialog
     Q_OBJECT
 
 public:
+    Ui::Keyboad_Dialog_class*		ui;
     Dataworld_class* DaTA			= nullptr;
     Interface_class* Sds			= nullptr;
     interface_t*	sds_p			= nullptr;
     EventLog_class*	Eventlog_p		= nullptr;
+    Kbd_pitch_class Kbd_pitch 		{};
+
     Id_t			SDS_ID			= 0;
     QString			keyboard_key	= "Key";
 
@@ -36,9 +40,9 @@ private slots:
 	void sharps(int);
 	void decay_mode(bool);
 	void sliding_mode(bool);
+	void save();
 
 private:
-    Ui::Keyboad_Dialog_class*		ui;
 };
 
 #endif // KEYBOAD_DIALOG_H

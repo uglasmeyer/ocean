@@ -11,7 +11,6 @@
 
 #include <External.h>
 #include <Wavedisplay.h>
-#include <Keyboard.h>
 #include <Thread.h>
 #include <AudioVolume.h>
 #include <Audio.h>

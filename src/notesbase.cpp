@@ -13,8 +13,12 @@ Note_base::Note_base () :
 	Logfacility_class("Note_base"),
 	Frequency_class()
 {
-	className = Logfacility_class::className;
-};
+	className 					= Logfacility_class::className;
+	rest_note.str 				= PAUSE_CH;
+	rest_note.chord.push_back	( pitch_struct() );
+	rest_note.duration			= min_duration;
+	rest_note.volume			= 0;
+}
 
 Note_base::~Note_base()
 {
@@ -46,13 +50,18 @@ int Note_base::Notechar2Step( char note_char )
 	if ( Note_Chars.Set.contains( note_char ) )
 		return Note_Chars.Str.find( note_char );
 	else
-		return -12;
+		return NONOTE;
 }
-void Note_base::Set_base_octave( uint diff )
+noteline_prefix_t Note_base::Set_base_octave( uint diff )
 {
-	octave_shift = octave_shift + ( 2*diff - 1);
-	if ( octave_shift < 0 )
-		octave_shift = 0;
+	int8_t 				change	= 2 * diff -1; // diff=0 or 1
+	noteline_prefix_t 	nlp 	= Noteline_prefix;
+	int 				oct = check_range( 	octave_range,
+								Noteline_prefix.Octave + change,
+								"Set_base_octave" );
+	nlp.octave_shift 		= oct - nlp.Octave;
+	Set_noteline_prefix( nlp );
+	return nlp;
 }
 
 void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )

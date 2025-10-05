@@ -280,6 +280,17 @@ void String::Show( const string& comment )
 void String::TestString()
 {
 	TEST_START( "String" );
+
+	map<int, string> testmap = // @suppress("Invalid arguments")
+	{
+			{ 0, string("zero") },
+			{ 1, string("one") }
+	};
+	ASSERTION( strEqual( testmap[1], "one" ), "testmap", testmap[1], "one" );
+
+	map<string, int> testimap = imap( testmap );
+	ASSERTION( testimap["zero"] == 0 , "testimap", testimap["zero"], 0L );
+
 	String A{""};
 	String B{""};
 	A = "1234";

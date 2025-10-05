@@ -78,6 +78,7 @@ enum {
 
 	// Keyboard
 	KBD_EVENT_KEY,
+	KBD_SAVE_KEY,
 
 	// Wavedisplay
 	SETWAVEDISPLAYKEY,

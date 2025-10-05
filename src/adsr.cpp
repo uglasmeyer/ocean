@@ -98,16 +98,13 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 	if ( not tainted ) 			return;
 	tainted 					= false;
 
-	buffer_t		aframes 	= 1;
+	buffer_t		aframes 	= rint( bframes * 0.002 );
 	if ( adsr_data.attack 	> 0 )
-					aframes 	= rint ( bframes * adsr_data.attack * 0.01 );
+					aframes 	= rint ( bframes * adsr_data.attack * percent );
 	const float 	d_delta		= ( ( 100 - adsr_data.decay ) / 3.0 ) / bframes;
 	const float 	delta 		= ( bframes - aframes ) * d_delta;
 	const float		y0 			= expf( - delta );
 	const float 	dy			= (1.0 - y0) / aframes;
-
-//	adsr_data.spec.volidx[0]	= volidx_range.max;
-//	adsr_data.spec.vol[0] 		= volidx_range.max * percent;
 
 	Spectrum_class::Sum( adsr_data.spec );
 
@@ -123,7 +120,7 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 
 
 	param_t			param 		= param_struct();
-					param.pmw	= 1.0 + (float)features.PMW_dial * 0.01;
+					param.pmw	= 1.0 + (float)features.PMW_dial * percent;
 	spectrum_t		spec 		= adsr_data.spec;
 
 	for ( size_t channel = 1; channel < spec_arr_len; channel++ )
@@ -157,7 +154,7 @@ void ADSR_class::Set_hallcursor( buffer_t cursor )
 	if ( cursor == 0 )
 	{
 		buffer_t
-		hframes		= rint( adsr_data.hall * min_frames * 0.01 );
+		hframes		= rint( adsr_data.hall * min_frames * percent );
 		hall_cursor	= ( beat_cursor + hframes ) % beat_frames;
 	}
 }
@@ -180,12 +177,14 @@ void ADSR_class::Set_bps()
 	}
 	else
 	{
+		if( has_kbd_role )
+			adsr_data.bps = 1;
 		if ( adsr_data.bps > 0 )
 			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else
 			beat_frames = 0;
 	}
-	adsrOSC( beat_frames );
+//	adsrOSC( beat_frames );
 
 }
 void ADSR_class::Set_adsr_spec	( spectrum_t spec )

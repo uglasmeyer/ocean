@@ -98,9 +98,10 @@ set main freq A3
 osc main amp loop 0
 pause 10
 play _INSTRUMENT amp 75 5
-instrument load default
+
 set fmo freq 10
-notes load drums
+instrument load experimental
+notes load beat
 rec mute _INSTRUMENT
 play 6 amp 75
 

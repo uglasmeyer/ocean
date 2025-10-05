@@ -254,7 +254,8 @@ void Spectrum_class::Test_Spectrum()
 	Parse_data( arr );
 	ASSERTION( 		spectrumTmp.frqidx[4] == 5, "spectrum.frqidx[4]",
 			(int)	spectrumTmp.frqidx[4], 5 );
-	ASSERTION( ( abs(spectrumTmp.frqadj[4]) - 5.05) < 1E-6, "frqadj4", ( abs(spectrumTmp.frqadj[4])) , 5.05 );
+	ASSERTION(  ( abs(spectrumTmp.frqadj[4]) - 5.14286 ) < 1E-6, "frqadj4",
+				( abs(spectrumTmp.frqadj[4])), 5.14286 );
 
 	str = "SPEV,FMO,1.0,1,3,2,3" ;
 	arr = str.to_array( ',' );

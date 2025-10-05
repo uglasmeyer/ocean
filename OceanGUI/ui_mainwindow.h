@@ -825,7 +825,7 @@ public:
         cb_psta0->setText(QString());
         pB_Mute_StA->setText(QCoreApplication::translate("MainWindow", "Mute", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PWM", nullptr));
-        pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
+        pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes and I.", nullptr));
         pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
         rb_S0->setText(QCoreApplication::translate("MainWindow", "Instrument 0", nullptr));
         rb_S1->setText(QCoreApplication::translate("MainWindow", "Instrument 1", nullptr));

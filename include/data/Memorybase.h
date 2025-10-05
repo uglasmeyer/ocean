@@ -18,9 +18,17 @@
 
 struct 				StA_param_struct
 {
-	string 			name 			= "";
-	buffer_t		size 			= 0;	// number of buffer frames
-	buffer_t		block_size		= 0;  	// numer of read frames
+	string 			name 			;
+	buffer_t		size 			;	// number of buffer frames
+	uint8_t			storage_time	;	// storage time in seconds
+	buffer_t		block_size		= min_frames;  	// numer of read frames
+	StA_param_struct( string _name, int _sec )
+	{
+		name 			= _name;
+		storage_time	= _sec;
+		size 			= frames_per_sec * _sec;
+	};
+	~StA_param_struct(){};
 } 	;
 typedef				StA_param_struct StA_param_t;
 

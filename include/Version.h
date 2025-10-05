@@ -12,8 +12,8 @@
 
 #define MAYOR 3
 #define MINOR 12
-#define PATCH 0
-#define DATA_VERSION 29
+#define PATCH 1
+#define DATA_VERSION 32
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -26,7 +26,11 @@ const string Application = "Ocean Sound Lab.";
 
 // Git comment:
 /*
-
+version 3.12.1 Synchronization issue
+				kbd_stat.chord_type DATA_VERSION 32
+				octaveshift DATA_VERSION 31
+				XmlFile2notelist
+				Longnote
 version 3.12.0 Keyboard dialog class
 				trigger definition
 				DATA_VERSION

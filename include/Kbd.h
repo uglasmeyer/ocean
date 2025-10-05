@@ -92,10 +92,10 @@ public:             // Access specifier
 		key_struct( uint8_t a, uint8_t b, uint8_t c )
 		{
 			Int		= 0;
-			Arr[0] = a;
-			Arr[1] = b;
-			Arr[2] = c;
-			Arr[3] = 0;
+			Arr[0] 	= a;
+			Arr[1] 	= b;
+			Arr[2] 	= c;
+			Arr[3] 	= 0;
 		};
 		virtual ~key_struct() = default;
 

@@ -91,7 +91,7 @@ void Interface_class::Write_str(const char selector, const string str )
 {
 	if (reject( addr->Composer, AppId )) return;
 
-	if ( addr->Comstack == RUNNING )
+	if ( addr->SDSview == RUNNING )
 		addr->UpdateFlag = true;
 	string wrt = str.substr(0, str_buffer_len );
 

@@ -1,6 +1,6 @@
 VERSION=4
 Type  ,Name  ,Hall  ,Beats ,AttOSC,DecOSC,AttVCO,DecVCO,AttFMO,DecFMO,SlideF,SlideV,Pmw   ,
-ADSR  ,OSC   ,20    ,1     ,0     ,100   ,0     ,100   ,0     ,100   ,0     ,1     ,98    ,
+ADSR  ,OSC   ,20    ,1     ,10    ,90    ,10    ,90    ,10    ,90    ,0     ,1     ,98    ,
 Type  ,Name  ,Main  ,harm1 ,harm2 ,harm3 ,harm4 ,
 SPEV  ,VCO   ,1     ,0     ,0     ,0     ,0     ,
 SPEF  ,VCO   ,47    ,1     ,1     ,1     ,1     ,

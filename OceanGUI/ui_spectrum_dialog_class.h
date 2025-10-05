@@ -369,6 +369,8 @@ public:
 
         gridLayout_2 = new QGridLayout();
         gridLayout_2->setObjectName("gridLayout_2");
+        gridLayout_2->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
+        gridLayout_2->setContentsMargins(0, -1, -1, -1);
         lbl_instrument = new QLabel(Spectrum_Dialog_class);
         lbl_instrument->setObjectName("lbl_instrument");
         lbl_instrument->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
@@ -388,6 +390,13 @@ public:
 
         lcd_spectrumDisplay = new QLCDNumber(Spectrum_Dialog_class);
         lcd_spectrumDisplay->setObjectName("lcd_spectrumDisplay");
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Maximum);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(lcd_spectrumDisplay->sizePolicy().hasHeightForWidth());
+        lcd_spectrumDisplay->setSizePolicy(sizePolicy);
+        lcd_spectrumDisplay->setMinimumSize(QSize(0, 50));
+        lcd_spectrumDisplay->setSizeIncrement(QSize(0, 0));
 
         gridLayout_2->addWidget(lcd_spectrumDisplay, 1, 2, 1, 1);
 

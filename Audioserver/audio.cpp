@@ -73,12 +73,12 @@ void Audio_class::Shutdown_stream()
 	if ( not isStreamRunning() )
 	{
 		stopStream();
-		Info( "audio stream was running", getErrorText() );
+		Info( getErrorText() );
 	}
 	if ( not isStreamOpen() )
 	{
 		closeStream();
-		Info( "audio stream was open ", getErrorText() );
+		Info( getErrorText() );
 	}
 }
 

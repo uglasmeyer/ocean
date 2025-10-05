@@ -30,6 +30,8 @@ struct adsr_struct
 	uint8_t 	decay  	= 90;
 	spectrum_t 	spec 	= spec_struct();
 } ;
+typedef adsr_struct			adsr_t;
+
 const adsr_struct		default_adsr	=
 {
 		.bps 	= 1,
@@ -64,11 +66,11 @@ public:
 	void	 		Set_hallcursor	( buffer_t cursor = 0);
 	void			Set_beatcursor	( buffer_t cursor );
 	void 			Set_feature		( feature_t f );
-	adsr_struct		Set_adsr		( adsr_struct );
+	adsr_t			Set_adsr		( adsr_t );
 	void			Set_adsr_spec	( spectrum_t );
-	adsr_struct		Get_adsr		();
+	adsr_t			Get_adsr		();
 	void			Set_bps			();
-	string			Show_adsr		( adsr_struct );
+	string			Show_adsr		( adsr_t );
 					ADSR_class		( char _typeid );
 					ADSR_class		(); // viewSDS
 	virtual 		~ADSR_class		();
@@ -78,7 +80,6 @@ private:
 
 	void			adsrOSC			( const buffer_t& );
 };
-typedef adsr_struct			adsr_t;
 
 
 

@@ -136,3 +136,15 @@ void Application_class::Ready(  )
 
 }
 
+kbdInt_t Application_class::KeyboardKey( bool debug )
+{
+	kbdInt_t key = Kbd.GetKeyInt( debug );
+	if( key == ESC )
+	{
+	    Info( "Exit by user requst <ESC>" );
+		Appstate->SetExitserver( sds, AppId );
+	}
+	return key;
+
+}
+

@@ -58,7 +58,7 @@ public:
 	bool			Set_notes_per_second	( int );
 	void			LoadMusicxml			( const string& file );
 	bool			Generate_cyclic_data	();
-	bool 			Generate_volatile_data	( bool init );
+	bool 			Generate_volatile_data	();
 	void			ScanData				();
 	void 			SetSDS					( noteline_prefix_t nlp );
 
@@ -67,17 +67,15 @@ public:
 											string noteline );
 	notelist_t 		Gen_notelist			( noteline_prefix_t prefix,
 											string str );
-	uint 			Calc_noteline_msec		( notelist_t notelist );
+	uint 			Calc_notelist_msec		( notelist_t notelist );
 	void 			Align_measure			( noteline_prefix_t prefix,
 											string& noteline );
 
 	void 			Test					();
-	void			Show_note				(  note_t );
+	void			Show_note				(  note_t, bool debug = false );
 	void			Show_note				(  Table_class&, note_t );
 
 	bool 			Start_note_itr			();
-	void 			Set_note_itr			();
-
 	note_t			Char2note				( char& ch );
 
 	void			Set_notelist			( const notelist_t& notelist );
@@ -89,12 +87,13 @@ public:
 		Set_Loglevel( DEBUG, true );
 
 		Note_table.PrintHeader();
-		uint duration = 0;
-		uint count = 1;
+		uint duration 	= 0;
+		uint m_duration	= 0;
+		uint count 		= 1;
 		for( note_t note : items )
 		{
 			Show_note( Note_table, note );
-			show_noteline_duration	( note.duration, duration, count );
+			show_noteline_duration	( note.duration, duration, count, m_duration );
 
 		}
 		Note_table.AddRow( "sentence length", duration, "[msec]" );
@@ -110,6 +109,7 @@ private:
 	string 			noteline				= "";
 	uint8_t			noteline_sec 			= 0;
 	size_t	 		noteline_len 			= 0;
+	uint16_t		notenumber				= 0;
 	uint16_t		note_duration 			= 0; 	// consider the length of one note by counting "-"-chars
 	uint16_t		noteline_duration		= 0;
 
@@ -122,9 +122,7 @@ private:
 	int 			timestamp 				= 0;
 	uint 			scoretime 				= 0;
 
-	typedef notelist_t::iterator
-					note_itr_t;
-	note_itr_t  	note_itr 				= notelist.begin();
+
 	void			note_itr_next			();
 	bool 			note_itr_end			();
 
@@ -132,7 +130,7 @@ private:
 	string 			get_name				();
 	bool 			compiler 				( noteline_prefix_t,  string );
 	bool			set_file_name			( string );
-	size_t			noteline_position_parser( size_t );
+	size_t			position_parser( size_t );
 	void 			gen_chord_data			( const note_t&,
 											const uint& duration,
 											const bool& partnote );
@@ -146,7 +144,9 @@ private:
 	void			init_note_table			();
 	void			show_noteline_duration	( const uint16_t& msec,
 											uint& duration,
-											uint& count );
+											uint& count,
+											uint& m_duration );
 };
+
 
 #endif /* INCLUDE_PLAYNOTES_H_ */

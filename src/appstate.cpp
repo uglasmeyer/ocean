@@ -42,7 +42,7 @@ uint8_t* Appstate_class::appAddr( interface_t* sds, uint appId  )
 		case APPID::SYNTHID		: { ptr = &sds->Synthesizer; break; }
 		case APPID::COMPID		: { ptr = &sds->Composer; break; }
 		case APPID::GUI_ID		: { ptr = &sds->UserInterface; break; }
-		case APPID::SDSVIEWID	: { ptr = &sds->Comstack; break; }
+		case APPID::SDSVIEWID	: { ptr = &sds->SDSview; break; }
 		case APPID::RTSPID		: { ptr = &sds->Rtsp; break; }
 		case APPID::KEYBOARDID		: { ptr = &sds->Keyboard; break; }
 		case APPID::SETUPID		: { ptr = &sds->Setup; break; }

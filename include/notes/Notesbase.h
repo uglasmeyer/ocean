@@ -20,27 +20,141 @@
  https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
  */
 
-const vector<string>		NotesExtension { file_structure().xml_type, file_structure().nte_type };
+const vector<string> NotesExtension { file_structure().xml_type, file_structure().nte_type };
 enum { XML_ID, NTE_ID };
 
-typedef vector<int> pitch_vec_t ;
-constexpr pitch_vec_t init_pitch( string ac )
+typedef vector<int> step_vec_t ;
+constexpr step_vec_t init_pitch( string ac )
 { 	// every char in ac will be translated into a note pos in OctChars
 	// ac char must be in OctChars
-	vector<int> vi {};
+	step_vec_t pitch_vec {};
 	for( uint n = 0; n < ac.length(); n++)
 	{
-		size_t pos = OctChars.find( ac[n] );
+		size_t pos = OctChars_EN.find( ac[n] );
 		if( pos < STRINGNOTFOUND )
-			vi.push_back( pos );
+			pitch_vec.push_back( pos );
 		else
 		{
-			coutf << "Error: " << ac[n] << " not in " << OctChars << endl;
+			coutf << "Error: " << ac[n] << " not in " << OctChars_EN << endl;
 			exit(0);
 		}
 	}
-	return vi;
+	return pitch_vec;
 };
+#define NONOTE 		-12
+#define PAUSE_CH 	'.'
+
+constexpr char alter_value( char ch )
+{
+	if ( ch == toupper(ch) )
+	{
+		return 0;
+	}
+	else
+		return 1;
+}
+constexpr int8_t step_value( char ch )
+{
+	char CH = toupper(ch);
+	size_t pos = OctChars_EN.find( CH );
+	if ( pos == STRINGNOTFOUND )
+	{
+		pos = OctChars_DE.find( CH );
+		if( pos == STRINGNOTFOUND )
+			return NONOTE;
+	}
+	return pos;
+}
+
+typedef struct note_value_struct
+{
+	int8_t 	step 		= NONOTE;
+	int8_t	octave		= 0;
+	int		alter 		= 0 ; 	// -1,0, +1
+	char	step_char	= PAUSE_CH;
+	uint8_t	frqidx		= 1 ;
+
+	note_value_struct(){};
+	note_value_struct( int oct, char ch, char alt )
+	{
+		octave 			= check_range( octave_range, oct, "note_value_struct" );
+		step_char 		= toupper(ch);
+		step			= step_value( ch );
+		alter			= alt;
+		frqidx 			= frqIndex( step + alter, octave );
+	}
+	note_value_struct( int idx )
+	{
+		frqidx 		= check_range( frqarr_range, idx, "kbd_note_struct" );
+		int pos 	= ( idx - C0 ) % oct_steps;
+		octave		= ( idx - C0 - pos ) / oct_steps;
+		char ch 	= OctChars_EN[ pos ];
+		alter		= alter_value( ch );
+		step 		= pos - alter;
+		step_char 	= toupper(ch);
+	}
+	~note_value_struct() = default;
+} note_value_t;
+
+typedef struct pitch_struct :
+		note_value_struct
+{
+	string				name		= "";
+	float				freq		= 0.0;
+	pitch_struct() :
+		note_value_struct()
+	{
+		name	= "Pause";//frqNamesArray[ frqidx ];
+		freq	= 1.0;//frqArray[ frqidx ];
+	}
+	pitch_struct( int oct, char ch, int alt ) : // notes, musicxml
+		note_value_struct( oct, ch, alt )
+	{
+		name	= frqNamesArray[ frqidx ];
+		freq	= frqArray[ frqidx ];
+
+	}
+	pitch_struct( int idx ) : // keyboard, notes
+		note_value_struct( idx )
+	{
+		name	= frqNamesArray[ frqidx ];
+		freq	= frqArray[ frqidx ];
+	}
+	~pitch_struct() = default;
+//	void operator= ( pitch_struct rhs )
+//	{
+//		pitch_struct( rhs.frqidx );
+//	}
+} pitch_t;
+
+typedef struct glide_struct
+{
+	pitch_t				chord		= pitch_struct( A3 ) ;		// eg. B-->F (glide = F)
+	bool				glide		= false;
+} glide_t ;
+
+const uint8_t	notes_default_volume = 80;
+typedef vector<pitch_t>	pitch_vec_t;
+typedef struct 	note_struct
+{
+	int16_t				number		= -1;
+	note_struct(){};
+	note_struct( int16_t nr )
+	{
+		number = nr;
+	}
+	~note_struct() = default;
+	string 				str 		= ""; 	// humen readable
+	pitch_vec_t			chord		{ };	// notes are generated at the same time
+	uint16_t 			duration 	= 125; 	// msec
+	uint16_t			volume 		= notes_default_volume;//0; 	// percentage of max_volume
+	uint8_t 			octave 		= 0; 	// variation only
+	vector<glide_t>		glide		{{ pitch_struct( A3 ), false }};
+	bool				longnote	= false;// identify a note that jumps over the measure boundary
+	bool				longplay	= false;// generate sound max_msec or duration
+} note_t;
+
+const uint16_t	measure_duration	= 2000; // 2 sec.
 
 class Note_base :
 	virtual  		Logfacility_class,
@@ -69,10 +183,10 @@ public:
 
 	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
-	const pitch_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
-	const pitch_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
+	const step_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
+	const step_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
 
-	const vector_str_t 		convention_notes{ 	OctChars,
+	const vector_str_t 		convention_notes{ 	OctChars_EN,
 												"0123456789AB",
 												"C%D%EF%G%A%B",
 												"CcDdEFfGgAaH"};
@@ -89,88 +203,58 @@ public:
 												ALPHABET,
 												GERMAN};
 
-	static const uint8_t	notes_default_volume = 80;
 
 	// describes the default of a noteline
 
 
-	struct noteline_prefix_struct
+	typedef struct noteline_prefix_struct
 	{	// SDS
 		uint8_t		Octave		= 3;
+		int8_t		octave_shift= 0; 	// interpreter : set octave+ | set orctave-
 		uint8_t	 	convention	= 0;
 		uint8_t		nps			= 4;	// notes per second 1,2,4,5,8
 		uint8_t		flat		= 0; 	// number of flats  in the key signature - BEADGCF
 		uint8_t		sharp		= 0;	// number of sharps in the key signature - FCGDAEB
 		uint8_t		variation	= 0;	// 0 no variation, 1 variable note
 		int			chord_delay = 0;	// msec delay between each note of a chord
-	} ;
-	const noteline_prefix_struct
-					noteline_prefix_default = noteline_prefix_struct();
-	noteline_prefix_struct
-					Noteline_prefix		= noteline_prefix_default; // D=default, N=numeric
-	String 			Note_Chars			{ convention_notes[ noteline_prefix_default.convention ] };
+	} noteline_prefix_t;
+	const noteline_prefix_t noteline_prefix_default = noteline_prefix_struct();
+	noteline_prefix_t		Noteline_prefix		= noteline_prefix_default; // D=default, N=numeric
+	String 					Note_Chars			{ convention_notes[ noteline_prefix_default.convention ] };
 
 
-	typedef struct pitch_struct
-	{
-		char				step_char	= '.';
-		int			 		alter 		= 0 ; 	// -1,0, +1
-		int 				step		= -12 ;	// -12, 0, 1...12
-		uint 				octave		= 2	;
-		uint8_t				frqidx		= 1 ;
-		float				freq		= 0.0;
-	} pitch_t;
-
-	typedef struct glide_struct
-	{
-		pitch_t				chord		= pitch_struct() ;		// eg. B-->F (glide = F)
-		bool				glide		= false;
-	} glide_t ;
-
-	typedef struct 	note_struct
-	{
-		string 				str 		= ""; 	// humen readable
-		vector<pitch_t>		chord		{ };	// notes are generated at the same time
-		uint16_t 			duration 	= 0; 	// msec
-		uint16_t			volume 		= notes_default_volume;//0; 	// percentage of max_volume
-		uint8_t 			octave 		= 0; 	// 1...9 ( * 55 ) = base frequency ot the octave
-		vector<glide_t>		glide		{{ pitch_struct(), false }};
-		bool				longnote	= false;// identify a note that jumps over the measure boundary
-		bool				longplay	= false;// generate sound max_msec or duration
-	} note_t;
 	typedef list<note_t>	notelist_t;
 	notelist_t 				notelist	{};
+	typedef notelist_t::iterator
+							note_itr_t;
+	note_itr_t  			note_itr 	= notelist.begin();
 	note_t 					note_buffer = note_struct();
-	const uint16_t			measure_duration
-										= 1000;//max_milli_sec; // 1 sec.
 
-	uint16_t 		min_duration 		= measure_duration / noteline_prefix_default.nps;  //milli seconds
+	uint16_t 				min_duration= 1000 / noteline_prefix_default.nps;  //milli seconds
 
-	note_t			pause_note			= { ".",
-											{pitch_struct()},
-											min_duration,
-											0,
-											0,
-											{glide_struct()},
-											false };
-	typedef struct 	musicxml_struct
+	note_t					rest_note			= note_struct();
+
+
+	struct 	musicxml_struct
 	{
-		string 		instrument_name = "";
-		int			divisions 		= -1;
-		int			beats			= -1;
-		uint		tempo			= max_sec;
-		uint		scoreduration 	= 0; // unit milli second
-		notelist_t 	notelist 		{};
-	} musicxml_t;
-	musicxml_t		musicxml		= musicxml_struct();
+		string 			instrument_name = "Piano";
+		int				divisions 		= 4;
+		int				beats			= 16;
+		int				beat_type		= 16;
+		uint			tempo			= max_sec;
+		uint			scoreduration 	= 0; // unit milli second
+		notelist_t 		notelist 		{};
+	};
+	musicxml_struct		musicxml		= musicxml_struct();
+
 
 	void 				Show_noteline_prefix( noteline_prefix_struct nlp );
 	void				Set_noteline_prefix( noteline_prefix_struct nlp );
 	string 				Noteline_prefix_to_string( noteline_prefix_struct nlp );
-	noteline_prefix_struct
+	noteline_prefix_t
 						String_to_noteline_prefix( string str );
 
-	void				Set_base_octave( uint );
+	noteline_prefix_t	Set_base_octave( uint );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 	int 				Notechar2Step( char note_char );
 
@@ -184,10 +268,12 @@ public:
 
 private:
 
-	int					octave_shift  	= 0; 	// interpreter : set octave+ | set orctave-
 };
 
-typedef 			Note_base::noteline_prefix_struct	noteline_prefix_t;
+typedef Note_base::noteline_prefix_struct	noteline_prefix_t;
+typedef Note_base::notelist_t				notelist_t;
+typedef Note_base::musicxml_struct			musicxml_t;
+typedef Note_base::note_itr_t				note_itr_t;
 
 
 #endif /* INCLUDE_NOTESBASE_H_ */

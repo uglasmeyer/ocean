@@ -63,6 +63,7 @@ void Application_loop()
 	while ( not audio_out_done )//and Audio.isStreamRunning() )
 	{
 	    this_thread::sleep_for( std::chrono::milliseconds(100));
+		App.KeyboardKey( false );
 	}
 
 	Log.Comment(INFO, "Application loop exit");
@@ -270,16 +271,10 @@ int main( int argc, char *argv[] )
 	App.Ready();
 
 	Log.Comment(INFO, "Application initialized");
-//	Log.Comment(INFO, "Entering Application loop\n");
 
 	// audio server loop
 	Application_loop();
 
-//	do
-//	{
-//	    std::this_thread::sleep_for( std::chrono::milliseconds( 1000 ) );
-//	}
-//	while ( ( not done ) && Audio.isStreamRunning() );
 
 	Log.Comment( INFO, "AudioServer reached target exit main()" );
 	exit_proc( 0 );

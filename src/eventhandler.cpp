@@ -244,6 +244,12 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
+	case KBD_SAVE_KEY :
+	{
+		Keyboard->Save_notes();
+		Sds->Commit();
+		break;
+	}
 	case KBD_EVENT_KEY :
 	{
 		Keyboard->Set_key( );
@@ -455,8 +461,10 @@ void Event_class::Handler()
 
 	case SETBASEOCTAVE_KEY:
 	{
-		Value diff_oct { (int) (sds->FLAG) };
-		Notes->Set_base_octave(diff_oct.val); // is positive, therefore identify 0 -> -1, 1 -> 1
+		noteline_prefix_t nlp 	= Notes->Set_base_octave((uint) (sds->FLAG));
+		// sds->FLAG is positive, therefore identify 0 -> -1, 1 -> 1
+		sds->noteline_prefix	= nlp;
+
 		Sds->Commit();
 		break;
 	}

@@ -97,39 +97,37 @@ void add_sound()
 	else
 		Instrument.osc->kbd_trigger = true; // any time
 
-	kbdInt_t key = Keyboard.GetKeyInt( false );
-	if ( ( key == ESC ))
-	{
-		Appstate->SetOffline();
-		Log.Info( "Exit Key <ESC>");
-	}
-
+	kbdInt_t key = App.KeyboardKey( false );
 	if ( Mixer.state.kbd )
 	{
 		if( sds->Kbd_state.key == 0 )
-			Keyboard.Set_Kbdnote( key );
+			Keyboard.Dispatcher( key );
 		else
-			Keyboard.Set_Kbdnote( sds->Kbd_state.key );
+			Keyboard.Dispatcher( sds->Kbd_state.key );
 		sds->StA_state[ STA_KEYBOARD ].play = true;
 		Keyboard.ScanData();
 	}
 	if ( Mixer.state.notes )
 	{
+
 		if( sds->NotestypeId == XML_ID )
 		{
-			Notes.Generate_volatile_data( false ); // no init
+			Notes.Generate_volatile_data();
 		}
 		else
 		{
 			Notes.Note_itr_start.set_active( false );
 			Notes.Note_itr_end.set_active( false );
 		}
+
+//		Notes.Generate_volatile_data();
 		Notes.ScanData();
 		if( sds->Note_start.state )
 			coutf << "start" << endl;
 		if( sds->Note_end.state )
 			coutf << "end.." << endl;
-
+		if( sds->StA_amp_arr[STA_NOTES] == 0 )
+			sds->StA_amp_arr[STA_NOTES] = osc_default_volume;
 	}
 
 
@@ -171,9 +169,7 @@ void ApplicationLoop()
 		show_AudioServer_statechange();
 		if( not Appstate->IsRunning( sds_master, APPID::AUDIOID ))
 		{
-			int key = Keyboard.GetKeyInt( false );
-			if( key == ESC )
-				Appstate->SetOffline( );
+			App.KeyboardKey( false );
 		}
 	} ;
 
@@ -196,8 +192,7 @@ void read_notes_fnc( )
 {
 	DaTA.Sds_p->Commit();
 	string name 	= DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-	string filename = fs.xmldir + name + fs.xml_type ;
-	Notes.musicxml 	= MusicXML.Xml2notelist( filename );
+	Notes.musicxml 	= MusicXML.XmlFile2notelist( name );
 	if ( Notes.musicxml.scoreduration > 0 )
 	{
 		Notes.Set_notelist( Notes.musicxml.notelist );

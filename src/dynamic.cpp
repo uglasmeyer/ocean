@@ -30,7 +30,7 @@ uint8_t Dynamic_class::SetupVol(int future_vol,	int _mode)
 	else
 		current.mode 	= _mode;
 	current.future	= check_range( range, future_vol, "SetupVol" );
-	current.future_f= current.future * 0.01;
+	current.future_f= current.future * percent;
 	setup();
 	return current.future;
 }

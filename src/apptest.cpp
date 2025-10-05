@@ -10,6 +10,7 @@
 
 auto test_cycle2_range = [  ]( range_T<int> range  )
 {
+	ASSERTION( range.len > 0, "range.len", range.len, ">0" );
 	string
 	range_str = to_string( range.min) + "..." + to_string(range.max) ;
 	int value = range.min + range.len/2;
@@ -112,6 +113,7 @@ void SynthesizerTestCases()
 	Notes.TestNoteBase();
 
 	Notes.Test();
+	MusicXML.Test();
 
 	TestOsc.DynFrequency.TestFrq();
 
@@ -126,6 +128,7 @@ void SynthesizerTestCases()
 
 	Mixer.Test_Logging();
 
+	Keyboard.Kbd_pitch_Test();
 	Keyboard.Test();
 
 	External.Test_External();

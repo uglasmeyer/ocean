@@ -8,10 +8,11 @@
 
 frqstrarr_t frqNamesArray 		{};
 frqarray_t 	frqArray 			{};
+harmonic_t  harmonicArray		{};
 
 bool 		frqnamesarray_done 	= false;
 bool 		frqarray_done 		= false;
-
+bool		harmonics_done		= false;
 
 Frequency_class::Frequency_class() :
 	Logfacility_class( "Frequency_class" )
@@ -26,8 +27,13 @@ Frequency_class::Frequency_class() :
 	}
 	if( not frqnamesarray_done )
 		initFrqNamesArray();
+	if( not harmonics_done )
+		initHarmonics();
 }
-
+Frequency_class::~Frequency_class()
+{
+	DESTRUCTOR( className );
+}
 frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 {
 	frq_t frq = 0;
@@ -86,7 +92,11 @@ uint  Frequency_class::Index( const int& oct, const int& step )
 
 frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
 {
-	return ( 1 + channel + (float)value * 0.01 );
+	char dir = 1;
+	if( value < 0 )
+		dir = -1;
+	int n = check_range( harmonic_range, value, "Frqadj" );
+	return ( 1 + dir*harmonicArray[ abs(n)] + channel ) ;
 };
 
 void Frequency_class::ShowFrqTable()
@@ -109,6 +119,28 @@ void Frequency_class::ShowFrqTable()
 	}
 }
 
+void Frequency_class::initHarmonics()
+{
+	harmonics_done = true;
+	vector<int> 				harmonic_prims = { 1,2,3,5,7,11,13,17 };
+	assert( harmonic_prims.size() == HARMON_PRIMS );
+	vector<frq_t> harmonic_vec {0.0};
+	for( uint i = 0 ; i < HARMON_PRIMS; i++ )
+		for( uint j = i+1; j < HARMON_PRIMS; j++ )
+		{
+			int pi = harmonic_prims[i];
+			int pj = harmonic_prims[j];
+			float fraction = float(pi) / pj;
+			harmonic_vec.push_back( fraction );
+//			coutf << pi << "/" << pj << "=" << fraction <<  endl;
+		}
+	std::ranges::sort( harmonic_vec );
+
+	for( uint n = 0; n < harmonic_vec.size(); n++ )
+		harmonicArray[n] = harmonic_vec[n];
+//	coutf << "size: " << harmonic_vec.size() << endl;
+
+}
 void Frequency_class::initFrqArray(  )
 {
 
@@ -158,7 +190,7 @@ void Frequency_class::initFrqNamesArray()
 		for( uint step = 0; step < oct_steps; step++ )
 		{
 			string 	frqName {""};
-			frqName.push_back(OctChars[ step ]);
+			frqName.push_back(OctChars_EN[ step ]);
 			frqName.push_back(octave);
 			frqNamesArray[ Index( oct, step ) ] = frqName;
 		}
@@ -185,9 +217,16 @@ void Frequency_class::TestFrequency()
 	idx = Index( "C2" );
 	f = Calc( 10, idx);
 	ASSERTION( fcomp(f,40), "Frq base 10", f, 40 );
-	f = Frqadj( 1, 45 );
-	ASSERTION( fcomp(f,2.45), "Frq adj ", f, 2.45 );
 
+	int idxh=HARMON_SIZE-1;
+	f = Frqadj( 0, idxh );
+	float g = 1+harmonicArray[idxh];
+	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
+
+	idxh = -idxh;
+	f = Frqadj( 0, idxh );
+	g = 1-harmonicArray[abs(idxh)];
+	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
 	idx = Index( 220.0 );
 	ASSERTION( idx == A3, "Index ", idx, A3 );

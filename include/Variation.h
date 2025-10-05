@@ -145,7 +145,7 @@ public:
 	Variation_class() ;
 	~Variation_class(){};
 
-	typedef vector<Note_class::note_t>
+	typedef vector<note_t>
 				noteword_t;
 	typedef vector<noteword_t>
 				notesentence_t;
@@ -159,6 +159,8 @@ public:
 	void 		Test();
 
 private:
+	noteline_prefix_struct
+				Nlp_variation	= noteline_prefix_default;
 
 	string Constant_chars{""};
 	string Rhythm_chars{""};

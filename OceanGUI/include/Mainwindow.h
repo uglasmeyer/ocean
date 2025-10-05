@@ -20,10 +20,10 @@
 // OceanGUI
 #include "ui_mainwindow.h"
 #include <include/File_Dialog_class.h>
+#include <include/Keyboad_dialog.h>
 #include <include/Oszilloscopewidget.h>
 #include <include/Rtsp_dialog_class.h>
 #include <include/Spectrum_dialog_class.h>
-#include <Keyboad_dialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -67,8 +67,8 @@ public:
     Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA.Sds_p, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
-    Keyboad_Dialog_class			Keyboard_Dialog_obj	{ this, &DaTA, Eventlog_p };
-    Keyboad_Dialog_class*			Keyboard_Dialog_p	= &Keyboard_Dialog_obj;
+    Keyboad_Dialog_class	Keyboard_Dialog_obj	{ this, &DaTA, Eventlog_p };
+    Keyboad_Dialog_class*	Keyboard_Dialog_p	= &Keyboard_Dialog_obj;
 
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;

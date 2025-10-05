@@ -65,6 +65,7 @@ typedef struct feature_struct
 	uint8_t glide_effect= 0;
 	uint8_t	adjust		= 0; // used by vco and fmo, osc = 0
 	uint8_t	PMW_dial 	= 50;
+	bool	longplay	= false;
 } feature_t;
 
 const feature_t default_feature = feature_struct();

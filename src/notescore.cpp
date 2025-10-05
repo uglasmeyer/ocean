@@ -7,33 +7,33 @@
 #include <notes/Notes.h>
 
 	// control characters
-	const char IGNORE 	= ' ';
-	const char PAUSE 	= '.';
-	const char INCDUR 	= '-';
-	const char SLIDE_CH	= '>';
-	const char INCOCT	= '\'';
-	const char DECOCT	= ',';
-	const char NEWOCT	= '|';
-	const char BREAK	= '\n';
-	const char OPEN		= '(';
-	const char CLOSE	= ')';
-	const char LONG_CH	= '!';
+	const char IGNORE 		= ' ';
+	const char PAUSE 		= PAUSE_CH;
+	const char INCDUR 		= '-';
+	const char SLIDE_CH		= '>';
+	const char INCOCT		= '\'';
+	const char DECOCT		= ',';
+	const char NEWOCT		= '|';
+	const char LINEBREAK	= '\n';
+	const char BRACKETOPEN	= '(';
+	const char BRACKETCLOSE	= ')';
+	const char LONGPLAY		= '!';
 
 void Note_class::Align_measure( noteline_prefix_t prefix, string& noteline )
 {
 	notelist_t nl { Gen_notelist( prefix, noteline ) };
-	uint duration = Calc_noteline_msec( nl );
-	uint mod = ( duration % measure_duration ) / min_duration;
+	uint nl_duration_msec = Calc_notelist_msec( nl );
+	uint mod = ( nl_duration_msec % measure_duration ) / min_duration;
 	for ( uint n = 0; n < mod; n++ )
 	{
 		noteline.append( "." );
 	}
 
 }
-uint Note_class::Calc_noteline_msec( notelist_t notelist )
+uint Note_class::Calc_notelist_msec( notelist_t notelist )
 	{
 		uint duration = 0;
-		for( Note_class::note_t note : notelist )
+		for( note_t note : notelist )
 		{
 			duration += note.duration;
 		}
@@ -51,7 +51,7 @@ void Note_class::Set_notelist( const notelist_t& nlst )
 	Show_note_list( nlst );
 }
 
-Note_base::notelist_t Note_class::Gen_notelist( noteline_prefix_t prefix, string str )
+notelist_t Note_class::Gen_notelist( noteline_prefix_t prefix, string str )
 {
 	notelist.clear(	);
 	compiler( prefix, str );
@@ -68,8 +68,8 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		{
 			switch (ch )
 			{
-				case OPEN 	: {c++; break;}
-				case CLOSE	: {c--; break;}
+				case BRACKETOPEN 	: {c++; break;}
+				case BRACKETCLOSE	: {c--; break;}
 				default		: break;
 			} // switch
 			if( c < 0 )return false; // more CLOSE than OPEN
@@ -93,20 +93,21 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		return false;
 	}
 
-	min_duration 			= measure_duration / prefix.nps;
-	pause_note.duration		= min_duration;
+	min_duration 			= 1000 / prefix.nps;
+	rest_note.duration		= min_duration;
 	if ( not compiler( prefix, str ) )
 	{
 		return false ;
 	}
-	fill_note_list();
+	if ( not prefix.variation )
+		fill_note_list();
 	Show_note_list( notelist );
 	// post check
-	uint noteline_msec 	= Calc_noteline_msec( notelist );
+	uint noteline_msec 	= Calc_notelist_msec( notelist );
 	int mod 			= noteline_msec % measure_duration ;
 	if ( mod == 0 )
 	{
-		noteline_sec = noteline_msec / measure_duration;
+		noteline_sec = noteline_msec / 1000;
 		if ( sds )
 			sds->Noteline_sec = noteline_sec;
 		Comment(INFO, "Note line duration: " + to_string( noteline_sec ) + " [sec]");
@@ -117,7 +118,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		Comment( ERROR, "note line sec ", (int)noteline_msec, " is not aligned to " +
 				to_string(prefix.nps) + " * " +
 				to_string(min_duration) + " = " +
-				to_string(prefix.nps*min_duration) + " [msec]" );
+				to_string(measure_duration) + " [msec]" );
 		return false;
 	}
 
@@ -135,13 +136,14 @@ void Note_class::Show_note( Table_class& Table, note_t note )
 				setw(4) << right << pitch.alter <<
 				setw(5) << right << dec << rint( pitch.freq ) <<"|";
 	}
-	Table.AddRow( 	note.str,
+	Table.AddRow( 	note.number,
+					note.str,
 					(int)note.volume,
 					(int)note.duration,
 					longnote,
 					strs.str());
 }
-void Note_class::Show_note( note_t note )
+void Note_class::Show_note( note_t note, bool debug )
 {
 	stringstream strs;
 	strs << dec  << setfill(' ') 	<< left ;
@@ -164,25 +166,20 @@ void Note_class::Show_note( note_t note )
 	{
 		strs 	<< ">" << setw(12) << right << dec << rint(note.glide[0].chord.freq);
 	}
-	Comment( DEBUG, strs.str()  );
+	if ( debug )
+		Comment( INFO, strs.str()  );
 
 }
 
-
-
-Note_class::note_t Note_class::Char2note( char& ch )
+note_t Note_class::Char2note( char& ch )
 {
-	pitch_t pitch 			= pitch_struct();
-	pitch.step 				= Notechar2Step( ch );
-	pitch.step_char			= ch;
-	pitch.alter				= 0;
-	pitch.octave			= Octave;
+	pitch_t pitch 			= pitch_struct( Octave, ch, alter_value(ch) );
 
 	note_buffer.chord.push_back( pitch );
 	note_buffer.str.push_back(ch);
 	note_buffer.duration    		= min_duration; // will be updated later
 	note_buffer.glide[0].chord.step	= note_buffer.chord[0].step;
-	if ( note_buffer.chord[0].step 	< 0 ) // pause is silence
+	if ( note_buffer.chord[0].step 	== NONOTE )
 		note_buffer.volume 			= 0;
 	else
 		note_buffer.volume 			= notes_default_volume;//note volume is changed by mixer anf Volumeline
@@ -197,7 +194,7 @@ void Note_class::Set_prefix_octave( int oct )
 	Octave = oct;
 }
 
-size_t Note_class::noteline_position_parser(  size_t pos )
+size_t Note_class::position_parser(  size_t pos )
 {
 	// parse a single noteline position and apply changes to the note_itr
 
@@ -241,10 +238,10 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 	note_itr--;
 	switch (note_char )
 	{
-		case LONG_CH :
+		case LONGPLAY :
 		{
 			note_itr->longplay = true;
-			note_itr->str.append(1, LONG_CH );
+			note_itr->str.append(1, LONGPLAY );
 			break;
 		}
 		case SLIDE_CH : // allowed: >F or >|3F
@@ -261,23 +258,23 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 				int oct = get_oct_value( noteline[pos] );
 				if ( oct > 0 )
 				{
-					note_itr->glide[0].chord.octave	= oct;// - note_itr->chord[0].octave ;
 					note_itr->str.push_back( noteline[pos] );
 					pos++;
 					if ( out_of_bounds( pos ) ) return noteline_len; // test pos
-					note_itr->str.push_back( noteline[pos] );
-					note_itr->glide[0].chord.step 	= Notechar2Step( noteline[pos] );
+					char ch = noteline[pos];
+					note_itr->str.push_back( ch );
+					note_itr->glide[0].chord = pitch_struct( oct, ch, alter_value(ch) );
 				}
 			}
 			else // simple case >F
 			{
-				note_itr->glide[0].chord.alter 	= 0;
-				note_itr->glide[0].chord.step = Notechar2Step( noteline[pos] );
-				note_itr->str.push_back( noteline[pos] );
+				char ch = noteline[pos];
+				note_itr->glide[0].chord = pitch_struct( Octave, ch, alter_value(ch) );
+				note_itr->str.push_back( ch );
 			}
 			break;
 		}
-		case OPEN : //(
+		case BRACKETOPEN : //(
 		{
 			set_duration();
 			note_buffer = note_struct(); // clear note_buffer;
@@ -285,7 +282,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			pos++;
 			int nc_pos = 0;
 			char ch = noteline[pos];
-			while( ch != CLOSE )
+			while( ch != BRACKETCLOSE )
 			{
 				if ( Note_Chars.Set.contains( ch ) )
 				{
@@ -308,7 +305,7 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 			pos--; // close bracket pos
 			break;
 		}
-		case CLOSE :
+		case BRACKETCLOSE :
 		{
 			note_buffer.str.append( ")" );
 			notelist.push_back( note_buffer );
@@ -353,8 +350,9 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 		{
 			break;
 		}
-		case BREAK :
+		case LINEBREAK :
 		{
+			note_itr = notelist.begin();
 			break;
 		}
 		default : 	// this note-char is not a special character (<>-|.)
@@ -363,7 +361,8 @@ size_t Note_class::noteline_position_parser(  size_t pos )
 				( note_char == PAUSE ))
 			{	// this note-char is a note that must be stored in the note-list
 				set_duration(); // duration of the previou note
-				note_buffer = note_struct(); // clear note_buffer;
+				note_buffer = note_struct( notenumber ); // clear note_buffer;
+				notenumber++;
 				if ( OctaveChars.Set.contains( get_note_char( pos + 1 ) ) )
 				{	// the next notechar specifies the octave of the current note explicitely
 					// e.g. A4
@@ -478,18 +477,22 @@ void Note_class::split_long_notes()
 void Note_class::fill_note_list()
 {
 
-	uint noteline_msec = Calc_noteline_msec( notelist );
+	uint noteline_msec = Calc_notelist_msec( notelist );
 	noteline_sec = 0;
 
 	int a = ( noteline_msec % measure_duration );
 	int b = ( measure_duration - a ) % measure_duration;
 	int mod = ( b ) / min_duration;
+	Info( "filling up notelist by ", mod*min_duration, " msec" );
 
 	note_itr_t itr = notelist.end();
 	if( itr != notelist.begin() )
 	{
+		Info( "filling up notelist by ", mod*min_duration, " msec" );
 		itr--;
 		itr->duration += ( mod*min_duration) ;
+		for (int n = 0; n < mod; ++n)
+			itr->str.push_back('-');
 	}
 	return;
 
@@ -499,7 +502,7 @@ void Note_class::fill_note_list()
 		for (int n = 0; n < mod; ++n)
 		{
 //			coutf << "." << endl;
-			notelist.push_back( pause_note );
+			notelist.push_back( rest_note );
 			noteline.append(".");
 		}
 	}
@@ -533,11 +536,12 @@ bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 		return false;
 
 	noteline 	  		= str;
+	notenumber			= 0;
 
 	string prefix_str 	= convention_names[ prefix.convention ];
 	String Note_Chars 	{ convention_notes[ prefix.convention ] };
 	Octave 				= prefix.Octave;
-	min_duration 		= measure_duration / prefix.nps;
+	min_duration 		= 1000 / prefix.nps;
 
 	Comment(INFO, "Instrument : " + Instrument_name );
 	Comment(INFO, "Notes name : " + notefile_name );
@@ -556,8 +560,7 @@ bool Note_class::compiler ( noteline_prefix_t prefix, string str )
 	size_t char_pos 	= 0;
 	while( char_pos < noteline_len )
 	{
-		char_pos = noteline_position_parser( char_pos );
-
+		char_pos = position_parser( char_pos );
 		char_pos++;
 	};
 

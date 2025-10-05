@@ -124,8 +124,7 @@ const size_t		sizeof_Stereo		= sizeof(Stereo_t);
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
 const phi_t 		pi					= numbers::pi; //3.1415926536;//;
-
-const uint			sample_rate			= 48000; //device dependent fix
+const uint			sample_rate			= 48000; //device default
 const buffer_t		frames_per_sec  	= sample_rate;
 const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 
@@ -151,6 +150,11 @@ const uint			osc_default_volume	= 75; // %
 const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
 const float			percent				= 0.01;
 
+const int				oct_steps		= 12;
+const static uint		max_octave		= 7;
+const uint 				min_octave 		= 0;
+const string			OctChars_EN		= "CcDdEFfGgAaB";
+const string			OctChars_DE		= "CcDdEFfGgAaH";
 template< typename T >
 struct range_T
 {
@@ -169,6 +173,7 @@ struct range_T
 const range_T<int>		volidx_range		{ 0, 100 };
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
+const range_T<int>		octave_range		{ min_octave, max_octave };
 
 template< typename T>
 constexpr T check_range( range_T<T> r, T val, string errmsg )
@@ -202,13 +207,15 @@ constexpr T check_cycle( range_T<T> r, T val, string err  )
 	if( val < r.min )
 		return r.max;
 	if ( val > r.max)
-		return val % r.max;//r.min;//val - r.max;
+		return val % r.max;//r.max % val;////r.min;//val - r.max;
 	return val;
 }
 
 template< typename T>
 constexpr T check_cycle2( range_T<T> r, T val, string err  )
 {
+	if( r.len == 0 )
+		return 0;
 	if( val < r.min )
 		return r.max - ((r.min - val ) % r.len);
 	if ( val > r.max )
@@ -317,10 +324,7 @@ enum DYNAMIC
 { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
 
 
-const uint				oct_steps		= 12;
-const static uint		max_octave		= 7;
-const uint 				min_octave 		= 0;
-const string			OctChars		= "CcDdEFfGgAaB";
+
 
 #define ASSERTION(	 expr , message, input, expected )\
 	if ( not (expr) ) \

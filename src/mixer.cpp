@@ -30,11 +30,10 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		StA.push_back( sta );
 	}
 
-	prgarg_struct  	conf = data->Cfg_p->Config;
-	StA_param_t usr_conf = {"temp"		, frames_per_sec * conf.temp_sec	, min_frames };
-	StA_param_t ext_conf = {"External"	, frames_per_sec * conf.record_sec	, min_frames };
-	StA_param_t kbd_conf = {"Keyboard"	, frames_per_sec * conf.kbd_sec		, min_frames };
-	StA_param_t nte_conf = {"Notes"		, frames_per_sec * conf.kbd_sec		, min_frames };
+	StA_param_t usr_conf = StA_param_struct( "temp"		, data->Cfg_p->Config.temp_sec );
+	StA_param_t ext_conf = StA_param_struct( "External"	, data->Cfg_p->Config.record_sec );
+	StA_param_t kbd_conf = StA_param_struct( "Keyboard"	, data->Cfg_p->Config.kbd_sec );
+	StA_param_t nte_conf = StA_param_struct( "Notes"	, data->Cfg_p->Config.kbd_sec );
 
 	for( uint n : UsrIds )
 		StA[n].Setup(usr_conf);
@@ -45,8 +44,8 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	for( uint n : StAMemIds )
 	{
 		StA[n].scanner.Data 		= StA[n].Data;
-		StA[n].scanner.mem_range.max= StA[n].StAparam.size;
-		StA[n].scanner.wrt 			= StA[n].StAparam.block_size;
+		StA[n].scanner.mem_range.max= StA[n].param.size;
+		StA[n].scanner.wrt 			= StA[n].param.block_size;
 	}
 
 	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
@@ -69,7 +68,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 	wd->Add_role_ptr( 	osc_struct::EXTID,
 						StA [ STA_EXTERNAL].Data,
-						&StA[ STA_EXTERNAL].StAparam.size );
+						&StA[ STA_EXTERNAL].param.size );
 };
 
 Mixer_class::~Mixer_class()
@@ -229,7 +228,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	if ( StA[ STA_NOTES 	].state.play )
 	{
 		add_mono( notes_Data		, STA_NOTES );
-		if( false )//StA[ STA_NOTES ].state.forget )
+		if( StA[ STA_NOTES ].state.forget )//StA[ STA_NOTES ].state.forget )
 			delete_after_read( notes_Data, sds->audioframes );
 	}
 	if ( StA[ STA_KEYBOARD  ].state.play )
