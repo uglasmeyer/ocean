@@ -11,25 +11,25 @@
 void Start_audioserver()
 {
     string Start_Audio_Srv = Cfg.Server_cmd( 	Cfg.Config.Nohup,
-    											file_structure().audio_bin,
+    											fs.audio_bin,
 												"-S 0 2>&1 >> " +
-												file_structure().nohup_file );
+												fs.nohup_file );
 	System_execute( Start_Audio_Srv );
 }
 
 void Start_synthesizer( uint cfgid )
 {
     string Start_Synthesizer = Cfg.Server_cmd( Cfg.Config.Nohup,
-    											file_structure().synth_bin,
+    											fs.synth_bin,
 												" -S " + to_string( cfgid ) +
-												" 2>&1 > "  + file_structure().nohup_file);
+												" 2>&1 > "  + fs.nohup_file);
     System_execute( Start_Synthesizer );
 
 }
 
 void Start_gui()
 {
-    string Start_GUI = file_structure().ocean_bin + " &" ;
+    string Start_GUI = fs.ocean_bin + " &" ;
     System_execute( Start_GUI );
     Log.Comment( INFO, Start_GUI );
 }
@@ -92,14 +92,14 @@ int main(  int argc, char* argv[] )
 
 	Sem.Release( RTSP_STARTED );
 
-	Log.Comment( INFO, "RTSP is " + sdsstate_struct().state_map[ sds->Rtsp ] );
+	StateId_t rtsp_state = Appstate->GetState( sds, App.AppId );
+	Log.Comment( INFO, "RTSP is ", Sdsstate.sdsstateName( rtsp_state ));
 
 	if( Cfg.Config.oceangui == 'y' )
 	{
 		Start_gui();
 		return 0;
 	}
-//	assert( sds->UserInterface == OFFLINE );
 	string cfg = "";
 	if( Cfg.Config.composer == 'y' )
 	{
@@ -110,6 +110,7 @@ int main(  int argc, char* argv[] )
 
 		Start_audioserver();
 
+		// Synthesizer will send SEMAPHORE_EXIT on exit
 		Log.Comment( INFO, "waiting for release of SEMAPHORE_EXIT");
 		Sem.Lock( SEMAPHORE_EXIT );
 		Stop_synthesizer();

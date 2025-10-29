@@ -54,14 +54,10 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
 
     connect( ui->cb_adsr	, SIGNAL( clicked(bool)), 	this, SLOT( adsr_slot(bool) ));
 
-
     Eventlog_p				= _log;
     this->SetSds( gui, gui->addr->SDS_Id );
 
     this->instrument   		= this->Sds->Read_str( INSTRUMENTSTR_KEY );
-
-
-//    select_spec( sds_p->Spectrum_type );
 }
 
 Spectrum_Dialog_class::~Spectrum_Dialog_class()
@@ -89,29 +85,29 @@ void Spectrum_Dialog_class::set_waveform_vec( vector<string> wf_vec )
 
 void Spectrum_Dialog_class::set_spectrum_view()
 {
-	auto set_wavedisplay = [ this ]( Id_t roleid  )
+	auto set_wavedisplay = [ this ]( OscroleId_t roleid  )
 	{
-	    Sds->Set( sds_p->WD_status.oscId	, (uint8_t) OscId );
-	    Sds->Set( sds_p->WD_status.roleId	, (uint8_t) roleid );
+	    Sds->Set( sds_p->WD_status.oscId	, OscId );
+	    Sds->Set( sds_p->WD_status.roleId	, roleid );
 		Eventlog_p->add( SDS_ID, SETWAVEDISPLAYKEY );
 
 	};
 
 	if ( ADSR_flag )
 	{
-		set_wavedisplay( osc_struct::ADSRID );
+		set_wavedisplay( ADSRROLE );
 		spectrum			= sds_p->adsr_arr[ OscId ].spec;
 		spectrum.adsr		= true;
 		set_waveform_vec( adsrwf_str_vec );
 	}
 	else
 	{
-		set_wavedisplay( osc_struct::INSTRID );
+		set_wavedisplay( INSTRROLE );
 		spectrum			= sds_p->spectrum_arr[ OscId ];
 		spectrum.adsr		= false;
 		set_waveform_vec( waveform_str_vec );
 	}
-	Sds->Set( sds_p->Spectrum_type, (uint8_t) OscId );
+	Sds->Set( sds_p->Spectrum_type, OscId );
 
 
 }
@@ -130,7 +126,7 @@ void Spectrum_Dialog_class::set_spectrum_data()
 	}
 	SetLabelWaveform();
 }
-void Spectrum_Dialog_class::select_spec( char oscid )
+void Spectrum_Dialog_class::select_spec( OscId_t oscid )
 {
 	OscId				= oscid;
     Channel 			= 1;
@@ -299,7 +295,6 @@ void Spectrum_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
 	this->SDS_ID	= sdsid;
-    Comment( INFO," Spectrum_Dialog set to SDS Id: " + to_string( (int) sdsid ));
 
     select_spec( sds_p->Spectrum_type );
 

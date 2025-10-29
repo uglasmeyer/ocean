@@ -5,18 +5,18 @@
  *      Author: sirius
  */
 
-#include <Synthesizer.h>
-
+#include <Utilities.h>
+#include "../Synth/Synthesizer.h"
 
 auto test_cycle2_range = [  ]( range_T<int> range  )
 {
 	ASSERTION( range.len > 0, "range.len", range.len, ">0" );
 	string
 	range_str = to_string( range.min) + "..." + to_string(range.max) ;
-	int value = range.min + range.len/2;
-	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
-				check_cycle2(range, value, "" ), value );
-	 value = range.max;
+	int value0 = range.min + range.len/2;
+	int value1 = check_cycle2(range, value0 , "" );
+	Assert_equal( value0 , value1, range_str );
+	int value = range.max;
 	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
 				check_cycle2(range, value, "" ), value );
 	 value = range.min;
@@ -47,8 +47,9 @@ void SynthesizerTestCases()
 	Log.Set_Loglevel( TEST, true );
 
 
-	process_t				Process{  };
-	Config_class			Cfg				{ Process.name };
+	process_t				Process			{};
+	file_structure			fs				{};
+	Config_class			Cfg				{ Process.name, &fs };
 	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
 	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };
 	interface_t*			sds				= DaTA.GetSdsAddr();
@@ -72,7 +73,7 @@ void SynthesizerTestCases()
 	Statistic_class 		Statistic{ Log.className };
 	coutf << "SynthesizerTestCases" << endl;
 
-
+	Cfg.Test();
 	DaTA.Sds_p->Reset_ifd();
 
 	Shm_base Shm_test;
@@ -81,7 +82,7 @@ void SynthesizerTestCases()
 	Frq.TestFrequency();
 
 	String 					TestStr{""};
-	Oscillator 				TestOsc{ osc_struct::INSTRID, osc_struct::OSCID, monobuffer_bytes };
+	Oscillator 				TestOsc{ INSTRROLE, OSCID, monobuffer_bytes };
 
 
 	Log.Init_log_file();
@@ -93,11 +94,11 @@ void SynthesizerTestCases()
 	range_T<int> range_test { 1,4 };
 	test_cycle2_range( range_test );
 	int value = check_cycle( range_test, 1, "range_test" );
-	ASSERTION( value == 1, "range test ", (int)value, 1L );
+	Assert_equal( value, 1, "range test " );
 	value = check_cycle( range_test, 4, "range_test" );
 	assert( value == 4 );
 	value = check_cycle( range_test, 5, "range_test" );
-	ASSERTION( value == 1, "range test ", (int)value, 1L );
+	Assert_equal( value, 1, "range test " );
 
 	App.DaTA->Appstate.Announce();
     std::set<string> abc{"a","b","c"};
@@ -150,7 +151,6 @@ void SynthesizerTestCases()
 
 	System_Test();
 
-	DaTA.Reg.Test_Register();
 	DaTA.Test_Dataworld();
 	DaTA.Sds_p->Test_interface();
 
@@ -168,37 +168,8 @@ void SynthesizerTestCases()
 	Event.TestHandler();
 
 	DaTA.Sds_p->Restore_ifd();
-	Log.Set_Loglevel( TEST, true );
-}
+//	Log.Set_Loglevel( TEST, true );
 
-#include <Interpreter.h>
-void ComposerTestCases()
-{
-	process_t				Process{  };
-
-	Config_class			Cfg				{ Process.name };
-	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
-	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };
-	Application_class		App( &DaTA );
-	Interpreter_class 		Compiler( &DaTA );
-	Variation_class 		Variation {};
-	vector<int>				pos_stack {};
-	String 					Str{""};
-	vector<line_struct_t> 	Program{};
-
-	string arg = "-t";
-	char* args = arg.data();
-	App.Start(1, &args );
-	Variation.Test();
-	Charset_class A("abdefabdef");
-	A.test();
-
-	Compiler.Test( );
-
-
-	Processor_class Processor{ DaTA.Sds_p, &DaTA.Appstate };
-	Processor.Test_Processor();
-	Processor.Set_Loglevel( TEST, true );
 
 }
 

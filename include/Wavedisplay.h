@@ -13,8 +13,9 @@
 
 
 class Wavedisplay_class :
-		virtual Logfacility_class,
-		wavedisplay_struct
+	virtual			Logfacility_class,
+					wavedisplay_struct,
+	virtual public 	osc_struct
 {
 	Interface_class* Sds_p = nullptr;
 
@@ -55,7 +56,7 @@ private:
 	Data_t*			data_ptr 		= nullptr;
 	buffer_t		wd_frames		= 0;
 	wd_status_t		wd_status		= WD_status_struct();
-	osc_roles_t		OscRole			= osc_struct();
+//	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_right		= true;
 	bool			fft_mode		= false;
 	wd_arr_t 		display_data 	= { 0 };

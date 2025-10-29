@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <Config.h>
+#include <data/Config.h>
 #include <notes/Notes.h>
 
 // musicsml, variation
@@ -39,8 +39,8 @@ Note_class::Note_class( Instrument_class* 	instr,
 						Storage_class* 		sta )
 	: Note_class::Logfacility_class("Note_class")
 	, Note_base()
-	, Note_itr_start( &instr->sds->Note_start )
-	, Note_itr_end( &instr->sds->Note_end )
+	, Note_itr_start( "Note_itr start", &instr->sds->Note_start )
+	, Note_itr_end	( "Note_itr end  ", &instr->sds->Note_end )
 {
 	this->className = Logfacility_class::className;
 	this->instrument= instr;
@@ -86,7 +86,7 @@ void Note_class::show_noteline_duration( const uint16_t& msec,
 	uint mod 		= total_duration % (measure_duration);
 	if ( mod < msec )
 	{
-		Comment( DEBUG, " Measure number: ", (int)count, ", Measure duration:", m_duration );
+		Comment( INFO, " Measure number: ", (int)count, ", Measure duration:", m_duration );
 		count++;
 		m_duration 	= 0;
 	};
@@ -142,7 +142,6 @@ void Note_class::gen_chord_data(const note_t& note,
 								const bool& longnote
 								)
 {
-
 	Oscgroup.Data_Reset();
 
 	uint glide_effect = osc->features.glide_effect;
@@ -184,26 +183,32 @@ void Note_class::sta_write_data( uint duration )
 };
 
 int read_cnt = 0;
-bool Note_class::Generate_volatile_data()
+bool Note_class::Generate_volatile_data( bool init )
 {
 	// generate maxframes of new data if begin or rpos exceeds maxdata
-
-	if ( ( read_cnt < 15 ) and ( note_itr != notelist.begin() ) )
+	read_cnt++;
+	coutf << "read_cnt/scanner.rpos " << read_cnt << "/" << StA->scanner.rpos << endl;
+	if ( read_cnt < measure_parts )
 	{
-		read_cnt++;
-		return false;
+		if ( not init )
+			return false;
+//		else
+//		{
+//			StA->Reset();
+//		}
 	}
 	read_cnt = 0;
+	coutf << StA->scanner.rpos % min_frames << endl;
+	Assert_equal( (int)(StA->scanner.rpos % min_frames), 0, "Notes scanner.rpos" );
 	Oscgroup.SetInstrument( sds );
-//	StA->Reset();
 
 	int msec_elapsed = 0;
 
-	while( ( msec_elapsed < max_msec ) and ( not note_itr_end() ) )
+	while( ( msec_elapsed < measure_duration ) and ( not note_itr_end() ) )
 	{
 		gen_chord_data( *note_itr, note_itr->duration, false );
 		sta_write_data( note_itr->duration );
-		Show_note( Note_table, *note_itr );
+		Show_note( *note_itr, true );
 		msec_elapsed += note_itr->duration;
 		note_itr_next();
 	}
@@ -212,7 +217,6 @@ bool Note_class::Generate_volatile_data()
 		note_itr = notelist.begin();
 	}
 	StA->state.forget = true;
-//	coutf << read_cnt << ", " << StA->scanner.fillrange.max << ", " << StA->scanner.mem_range.max << endl;
 
 	return true;
 }
@@ -302,7 +306,7 @@ bool Note_class::Start_note_itr()
 		if( StA )
 			StA->Reset();
 		Note_itr_start.set_state( false );
-		Note_itr_end.set_state( false );
+		Note_itr_end.set_state	( false );
 		return false;
 	}
 	if( StA )
@@ -315,9 +319,6 @@ bool Note_class::Start_note_itr()
 bool Note_class::note_itr_end()
 {
 	bool state = ( note_itr == notelist.end() );
-//	Note_itr_start.set_state( false );
-//	coutf << "Generate_volatile_data::Note_itr_end " << boolalpha << Note_itr_end.get() << endl;
-
 	return state;
 }
 void Note_class::note_itr_next()
@@ -437,9 +438,9 @@ void Note_class::Test()
 	Comment( TEST, "Note_class test start");
 
 	// Note Frequency
-	sds->spectrum_arr[osc_struct::OSCID].frqidx[0] = A3;
-	sds->spectrum_arr[osc_struct::VCOID].frqidx[0] = A4;
-	sds->spectrum_arr[osc_struct::FMOID].frqidx[0] = A2;
+	sds->spectrum_arr[OSCID].frqidx[0] = A3;
+	sds->spectrum_arr[VCOID].frqidx[0] = A4;
+	sds->spectrum_arr[FMOID].frqidx[0] = A2;
 	Oscgroup.Set_Note_Frequency( sds, A2, FIXED );
 	ASSERTION( osc->wp.freq == GetFrq(A2), "osc freq", osc->wp.freq, GetFrq(A2) );
 	ASSERTION( vco->wp.freq == GetFrq(A3), "osc freq", vco->wp.freq, GetFrq(A3) );
@@ -596,7 +597,6 @@ void Note_class::Test()
 	ASSERTION( A.frqidx == B.frqidx, "pitch_struct=", (int)B.frqidx, (int)A3);
 
 	Gen_notelist( noteline_prefix_default, "A2A3-A4--A5---");
-	Generate_cyclic_data();
 
 //	assert (false);
 	TEST_END( className );

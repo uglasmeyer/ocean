@@ -1,0 +1,294 @@
+
+
+#include <Appsymbols.h>
+#include <Kbd.h>
+#include <Viewinterface.h>
+
+ViewInterface_class		ViewSds			{ SDSVIEWID, &DaTA };
+Kbd_base				Keyboard		{};
+Time_class				Timer			{};
+
+Id_t 					sdsid			= sds_master->config;
+KEYCODE					page			= (KEYCODE)sds_master->sdsview_page;
+bool 					tainted			= false;
+
+
+void setpage( KEYCODE _p )
+{
+	page 						= _p;
+	sds_master->sdsview_page 	= page;
+	tainted						= true;
+}
+void setupdate_flag( bool flag )
+{
+	sds->UpdateFlag 		= flag;
+	sds_master->UpdateFlag 	= flag;
+}
+void setvalue( uint8_t* addr, string value )
+{
+	String Str { };
+	*addr = (uint8_t)Str.to_int( value );
+
+}
+string getInput( string text )
+{
+	string s ;
+	s 		= Keyboard.GetString( text + ": ");
+	tainted = true;
+	return s;
+}
+void getvalue( uint8_t* addr, string text, EVENTKEY_t event )
+{
+	string s;
+	s 		= getInput( text );
+	setvalue( addr, s );
+	Sds->Event( event );
+
+}
+void getfrq( uint8_t* addr, string text , EVENTKEY_t event )
+{
+	string input = getInput( text );
+	String Str{ input };
+	if ( Str.is_number() )
+	{
+		setvalue( addr, input );
+	}
+	else
+	{
+		uint idx = ViewSds.Index( input );
+		setvalue( addr, to_string(idx) );
+	}
+	Sds->Event( event );
+}
+
+void show_ifd()
+{
+	if ((sds->UpdateFlag ) 	or
+		(sds_master->UpdateFlag ))
+	{
+		ViewSds.IncCommitcounter();
+		ViewSds.ShowPage( sds , page );
+
+		setupdate_flag( false );
+	}
+}
+
+void set_sdsid( int delta )
+{
+	int
+	max 	= (MAXCONFIG - 1);
+	sdsid 	= ( sdsid + delta );
+
+	if ( sdsid < 0 ) sdsid = max;
+	if ( sdsid > max ) sdsid = 0;
+	if( delta == 0 )
+		sdsid = DaTA.sds_master->config;
+
+	Sds 	= DaTA.SDS.GetSds(sdsid);
+	sds 	= Sds->addr;
+	App.Appstate->Setup( sds, DaTA.sds_master );
+	setupdate_flag( true );
+}
+
+void exit_proc( int signal )
+{
+//	Log.Set_Loglevel( DBG2, true );
+	exit( signal );
+}
+
+kbdInt_t Key_event( string charstr )
+{
+	String Str{ charstr };
+	set<char> charset = Str.Set;
+	key3struct_t key { 0,0,0 };
+
+	while ( not charset.contains( (char)key.Arr[0] ) )
+	{
+		Timer.Wait( 100, "ms" );
+		show_ifd();
+		key.Int = App.KeyboardKey( false );//Keyboard.GetKeyInt( true );
+	}
+	return key.Int;
+}
+
+void while_MenuF2()
+{
+	kbdInt_t key3 			= 0;
+	const string charset 	= "acksu\x1b";
+	while ( key3 != ESC )
+	{
+		coutf << "Reset: (A)udioserver, (C)omposer, (S)ynthesizer, (K)eyboard, (G)ui" << endl;
+		tainted 	= true;
+		key3 		= Key_event( charset );
+		switch ( key3 )
+		{
+			case 'a': { App.Appstate->SetState( sds, AUDIOID	, sdsstate_struct::EXITSERVER);break; }
+			case 'c': { App.Appstate->SetState( sds, COMPID 	, sdsstate_struct::EXITSERVER);break; }
+			case 's': { App.Appstate->SetState( sds, SYNTHID	, sdsstate_struct::EXITSERVER);break; }
+			case 'k': { App.Appstate->SetState( sds, KEYBOARDID , sdsstate_struct::EXITSERVER);break; }
+			case 'g': { App.Appstate->SetState( sds, GUI_ID 	, sdsstate_struct::EXITSERVER);break; }
+			default : { tainted = false; break; }
+		} // switch  key3
+		if( tainted )
+		{
+			ViewSds.ShowPage( sds_master, F2 );
+			tainted = false;
+		}
+	}
+	ViewSds.ShowPage( sds_master, F1 );
+
+}
+void while_MenuF9()
+{
+	kbdInt_t key3 = 0;
+	while ( key3 != ESC )
+	{
+
+		key3 = Keyboard.GetKeyInt( true );
+		Timer.Wait( 100, "ms" );
+		switch ( key3 )
+		{
+			case 's' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
+							tainted = true;
+							break; }
+			case 'd' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
+							for( Interface_class Sds : DaTA.SDS.Vec )
+							{
+								Remove_file( Sds.dumpFile );
+							}
+							DaTA.SDS.Delete();
+							DaTA.SHM_0.Stereo_buffer( Cfg.Config.SHM_keyl );
+							DaTA.SHM_0.Delete() ;
+							DaTA.SHM_1.Stereo_buffer( Cfg.Config.SHM_keyr );
+							DaTA.SHM_1.Delete();
+							System_execute( "ipcs -a", false );
+							tainted = true;
+							break; }
+			case 'r' : {	App.Appstate->Shutdown( sds, SYNTHID );
+							App.Appstate->Shutdown( sds, KEYBOARDID );
+							App.Appstate->SaveStateArr( sds );
+							Sds->Reset_ifd();
+							App.Appstate->RestoreStateArr( sds );
+							tainted = true;
+							break; }
+			case 'l' : {	System_execute_bg( "xterm -e tail -f " + Log.logFile );
+							break; }
+			default  : { 	break; }
+		} // switch  key3.Arr[0]
+		if( tainted )
+		{
+			tainted = false;
+			show_ifd();
+			}
+	}
+	ViewSds.ShowPage( sds_master, F1 );
+}
+
+int main( int argc, char* argv[] )
+{
+
+	App.Start( argc, argv );
+
+    App.Appstate->Announce();
+
+    ViewSds.ShowPage(Sds->addr, F1);
+	kbdInt_t keyevent = 0;
+	while( true )
+	{
+		string charset { "afmvr+-\x1b\x7e" }  ;
+		keyevent = Key_event( charset );
+		cout  << keyevent << endl;
+		switch ( keyevent )
+		{
+			case '+' :
+			{ 	set_sdsid( 1);
+				tainted = true;
+				break;
+			}
+			case '-' :
+			{ 	set_sdsid(-1);
+				tainted = true;
+				break;
+			}
+			case ESC: { exit_proc(0) ;break ;}
+			case F1 : { setpage( F1 );break ;}
+			case F2 : { setpage( F2 );break ;}
+			case F3 : { setpage( F3 );break ;}
+			case F4 : { setpage( F4 );break ;}
+			case F5 : { setpage( F5 );break ;}
+			case F6 : { setpage( F6 );break ;}
+			case F7 : { setpage( F7 );break ;}
+			case F8 : { setpage( F8 );break ;}
+			case F9 : { setpage( F9 );break ;}
+			default : { setpage( F1 ); break; }
+			case 'm' :
+			{	if( page != F2 ) break;
+				cout << "Main ";
+				kbdInt_t keyevent = Key_event( "#faw" );
+				switch ( keyevent )
+				{
+					case 'f' : { getfrq( &sds->spectrum_arr[OSCID].frqidx[0], "Frequency", OSCFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
+					case 'w' : { getvalue( &sds->spectrum_arr[OSCID].wfid[0], show_range(waveform_range), SETWAVEFORMMAINKEY ); break; }
+					default  : break ;
+				}
+				break;
+			}
+			case 'f' :
+			{	if( page != F2 ) break;
+				cout << "FMO ";
+				kbdInt_t keyevent = Key_event("#faw");
+				switch ( keyevent )
+				{
+					case 'f' : { getfrq( &sds->spectrum_arr[FMOID].frqidx[0], "Frequency", FMOFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->spectrum_arr[FMOID].volidx[0], "Amplitude", FMOAMPKEY ); break; }
+					case 'w' : { getvalue( &sds->spectrum_arr[FMOID].wfid[0], show_range(waveform_range), SETWAVEFORMFMOKEY ); break; }
+					default  : break ;
+				}
+				break;
+			}
+			case 'v' :
+			{	if( page != F2 ) break;
+				cout << "VCO ";
+				kbdInt_t keyevent = Key_event("#faw");
+				switch ( keyevent )
+				{
+					case 'f' : { getfrq( &sds->spectrum_arr[VCOID].frqidx[0], "Frequency", VCOFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->spectrum_arr[VCOID].volidx[0], "Amplitude", VCOAMPKEY ); break; }
+					case 'w' : { getvalue( &sds->spectrum_arr[VCOID].wfid[0], show_range(waveform_range), SETWAVEFORMVCOKEY ); break; }
+					default  : break ;
+				}
+				break;
+			}
+			case 'a' :
+			{	if( page != F6 ) break;
+				std::cout << "ADSR ";
+				kbdInt_t keyevent = Key_event("#abgdh");
+
+				switch ( keyevent )
+				{
+					case 'g' : { getvalue( &sds->features[OSCID].glide_effect	, "Frequency"	, SOFTFREQUENCYKEY ); break; }
+					case 'a' : { getvalue( &sds->adsr_arr[OSCID].attack			,"Atack"		, ADSR_KEY ); break; }
+					case 'b' : { getvalue( &sds->adsr_arr[OSCID].bps  			, "Beats p.sec"	, ADSR_KEY ); break; }
+					case 'd' : { getvalue( &sds->adsr_arr[OSCID].decay			,"Decay" 		, ADSR_KEY ); break; }
+					case 'h' : { getvalue( &sds->adsr_arr[OSCID].hall  			,"Hall"			, ADSR_KEY ); break; }
+					default  : break ;
+				}
+				break;
+			}
+		} // switch keyevent.Arr[0]
+		if ( tainted )
+		{
+			tainted = false;
+			setupdate_flag( true );
+			show_ifd();
+			switch ( page )
+			{
+				case F2 : { while_MenuF2(); break; }
+				case F9 : { while_MenuF9(); break; }
+				default : { break; }
+			}
+		}
+	} // while true
+	return 0;
+}

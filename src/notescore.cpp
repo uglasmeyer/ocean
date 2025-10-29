@@ -125,7 +125,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 	return true;
 }
 
-void Note_class::Show_note( Table_class& Table, note_t note )
+void Note_class::Show_note( note_t note, bool debug )
 {
 	string longnote = note.longnote ? "L" : "|";
 	stringstream strs{};
@@ -136,40 +136,15 @@ void Note_class::Show_note( Table_class& Table, note_t note )
 				setw(4) << right << pitch.alter <<
 				setw(5) << right << dec << rint( pitch.freq ) <<"|";
 	}
-	Table.AddRow( 	note.number,
-					note.str,
-					(int)note.volume,
-					(int)note.duration,
-					longnote,
-					strs.str());
+	if( debug or LogMask[DEBUG])
+		Note_table.AddRow( 	note.number,
+							note.str,
+							(int)note.volume,
+							(int)note.duration,
+							longnote,
+							strs.str());
 }
-void Note_class::Show_note( note_t note, bool debug )
-{
-	stringstream strs;
-	strs << dec  << setfill(' ') 	<< left ;
-	strs << setw(12) << left  << note.str 	;
-	strs << setw(5)  << right << dec << (int)note.volume ;
-	strs << setw(6)  << right << dec << (int)note.duration;
-	if ( note.longnote )
-		strs << "L";
-	else
-		strs << "|";
-	for ( pitch_t pitch : note.chord )
-	{
-				strs <<
-				setw(4) << right << dec << (int)pitch.octave <<
-				setw(4) << right << pitch.alter <<
-				setw(5) << right << dec << rint( pitch.freq ) <<"|";
-	}
 
-	if ( note.glide[0].glide )
-	{
-		strs 	<< ">" << setw(12) << right << dec << rint(note.glide[0].chord.freq);
-	}
-	if ( debug )
-		Comment( INFO, strs.str()  );
-
-}
 
 note_t Note_class::Char2note( char& ch )
 {

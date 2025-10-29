@@ -8,10 +8,10 @@
 #include <Osc.h>
 #include <Oscwaveform.h>
 
-Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
+Oscillator::Oscillator( OscroleId_t role_id,  OscId_t _type_id, buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
-	, Oscillator_base		( type_id )
-	, ADSR_class			( type_id )
+	, Oscillator_base		( _type_id )
+	, ADSR_class			( _type_id )
 	, Mem_vco				( bytes )
 	, Mem_fmo				( bytes )
 	, Mem					( bytes )
@@ -20,18 +20,18 @@ Oscillator::Oscillator( char role_id,  char type_id, buffer_t bytes )
 	className 		= Logfacility_class::className;
 	mem_frames		= Mem.mem_ds.data_blocks ;
 
-	typeId			= type_id;
-	osctype_name	= OscRole.oscNames[typeId];
+	typeId			= _type_id;
+	osctype_name	= typeNames[typeId];
 
 	roleId			= role_id;
-	oscrole_name	= OscRole.roles[roleId];
+	oscrole_name	= roleNames[roleId];
 
-	is_osc_type 	= ( typeId == OscRole.OSCID );
-	is_fmo_type		= ( typeId == OscRole.FMOID );
-	is_vco_type		= ( typeId == OscRole.VCOID );
-	has_kbd_role 	= ( roleId == OscRole.KBDID );
-	has_notes_role 	= ( roleId == OscRole.NOTESID );
-	has_instr_role 	= ( roleId == OscRole.INSTRID );
+	is_osc_type 	= ( typeId == OSCID );
+	is_fmo_type		= ( typeId == FMOID );
+	is_vco_type		= ( typeId == VCOID );
+	has_kbd_role 	= ( roleId == KBDROLE );
+	has_notes_role 	= ( roleId == NOTESROLE );
+	has_instr_role 	= ( roleId == INSTRROLE );
 
 	Connection_reset();
 	Data_reset();
@@ -208,7 +208,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	param_t 	param 		= param_struct();
 				param.pmw	= 1.0 + (float)features.PMW_dial * percent;
 	frq_t		frq			= 0.0;
-	for ( size_t channel = 0; channel < spec_arr_len; channel++ )
+	for ( size_t channel = 0; channel < SPECARR_SIZE; channel++ )
 	{
 		if ( spectrum.volidx[channel] > 0 )
 		{
@@ -295,7 +295,7 @@ void Oscillator::Test()
 	ASSERTION( adsr.attack == 50 , "adsr.attack", adsr.attack, 50 );
 
 
-	Oscillator testosc {osc_struct::INSTRID,  osc_struct::OSCID, monobuffer_bytes };
+	Oscillator testosc { INSTRROLE,  OSCID, monobuffer_bytes };
 	uint A3 = testosc.Index("A3");
 	ASSERTION( fcomp( frqArray[ A3 ], 220), "frq index", frqArray[ A3 ], 220 );
 

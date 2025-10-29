@@ -188,6 +188,7 @@ void Keyboard_class::set_bufferMode( bool forget )
 	{
 		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
+	sds_p->StA_state[ STA_KEYBOARD ].forget = forget;
 	Note_vec.clear();
 	Noteline 			= "";
 }
@@ -205,12 +206,7 @@ void Keyboard_class::Set_key( ) // TODO
 	set_octave			( base_octave );
 	set_accidental		( Nb.sharp_pitch );
 	set_accidental		( Nb.flat_pitch );
-	set_bufferMode		( not forget );
-	sds_p->StA_state[ STA_KEYBOARD ].forget = forget;
-	if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
-	{
-		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
-	}
+	set_bufferMode		( forget );
 
 	kbdInt_t key 		= sds_p->Kbd_state.key;
 	sds_p->Kbd_state.key= 0;

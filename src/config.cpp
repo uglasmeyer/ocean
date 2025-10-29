@@ -1,8 +1,7 @@
+#include <data/Config.h>
 #include <String.h>
-#include <Config.h>
 #include <System.h>
-#include <data/Memorybase.h>
-#include <Exit.h>
+#include <Table.h>
 
 
 string install_struct::read_installfile()
@@ -142,18 +141,27 @@ string file_structure::get_rec_filename( uint no )
 	return filename + to_string( no ) ;
 }
 
-Config_class::Config_class( string Module ) :
+
+/***************************
+ * Config_class
+************************** */
+
+Config_class::Config_class( string Module, file_structure* _fs ) :
 	Logfacility_class( "Config_class" )
 {
 	className 			= Logfacility_class::className;
-	Comment( DEBUG, "Program name: " + string( program_invocation_short_name ) );
-	if( filesystem::is_regular_file( fs.config_file ) )
+	fs					= _fs;
+	prgName				= Module;
+
+	Comment( DEBUG, "Program name: ", prgName );
+	parse_cmdline();
+	if( filesystem::is_regular_file( fs->config_file ) )
 	{
-		Read_config( fs.config_file );
+		Read_config( fs->config_file );
 	}
-	if( filesystem::is_regular_file( fs.git_dir + fs.config_filename ) )
+	if( filesystem::is_regular_file( fs->git_dir + fs->config_filename ) )
 	{
-		Read_config( fs.git_dir + fs.config_filename );
+		Read_config( fs->git_dir + fs->config_filename );
 	}
 
 };
@@ -165,7 +173,7 @@ Config_class::~Config_class()
 
 void Config_class::Read_config(	string cfgfile )
 {
-	std::unordered_map<string, string> 	Get = {}; // @suppress("Invalid template argument")
+	map<string, string> 	Get = {}; // @suppress("Invalid template argument")
 
 	configfile = cfgfile;
 	Comment( DEBUG, "Reading config file " + configfile );
@@ -239,6 +247,7 @@ void Config_class::Read_config(	string cfgfile )
 	Config.record_sec	= get_value( Config.record_sec	, "record_sec" );
 	Config.kbd_sec		= get_value( Config.kbd_sec		, "kbd_sec" );
 	Config.MAXWAVFILES 	= get_value( Config.MAXWAVFILES	, "maxwavfiles");
+	Config.debug		= get_char ( Config.debug		, "debug" );
 	for( uint idx = 0; idx < MAXCONFIG; idx++  )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
@@ -253,57 +262,85 @@ void Config_class::Read_config(	string cfgfile )
 	if ( Config.test == 'y' )
 	{
 		Set_Loglevel( TEST, true );
-		Show_Config();
+	}
+	if ( Config.debug == 'y' )
+	{
+		Set_Loglevel( DEBUG, true );
 	}
 
 }
 
 void Config_class::Test()
 {
-	cout << "getenv $0" << notnull( getenv( "$0" ) );
+	vector_str_t args = parse_cmdline();
+	cout << show_str_items( args ) << endl;
+	ASSERTION( args[1][0] == 't', "cmdline contains -t", args[1], "t" );
+//	exit_proc( 0 );
+}
+
+vector_str_t Config_class::parse_cmdline()
+{
+	const 	string	pid 			= to_string( getpid() );
+	const 	string	cmdfilename 	= "/proc/" + pid + "/cmdline";
+			string	filename		{""};
+			String	cmdline 		{""};
+
+	getline( ifstream( cmdfilename ), cmdline.Str ) ;
+	cmdline.to_array( '-' );
+	for( string str : cmdline.Vec )
+		if( str[0] == 'v' )
+			if( str.length() == 2 ) // str is null-terminated
+				Set_Loglevel( DEBUG, true );
+	return cmdline.Vec;
 }
 
 void Config_class::Parse_argv( int argc, char* argv[] )
 {
+
 	// https://en.cppreference.com/w/c/language/main_function
 
-	String 			Str{""};
+	String 			Str	{""};
 	string 			next{""};
+	char 			ch 	= 0;
 
-	Comment( DEBUG,"Evaluating ", (int)argc, " startup arguments");
 	for ( int ndx = 1; ndx < argc; ndx ++ )
 	{
-		char 	ch = 0;
 		string arg = argv[ ndx ];
-		if ( arg.length() == 2 )
-		{
-			if ( arg[0] == '-' )
-				ch = arg[1];
-		}
-		( ndx + 1 == argc  ) ? next = "" 	: next 	= argv[ ndx + 1 ];
+		if( arg[0] ==  '-' )
+			( arg.length() > 1) ? ch = arg[1] : ch = 0;
+		if ( (ndx + 1) == argc  )
+			next = "" ;
+		else
+			next.assign( argv[ ndx + 1 ] );
+
+
 		switch ( ch )
 		{
-			case 'r' : Config.rate 			= Str.to_int( next ); break;
-			case 'd' : Config.device 		= Str.to_int( next ); break;
-			case 'o' : Config.ch_offs		= Str.to_int( next ); break;
-			case 'k' : Config.SDS_key 		= Str.to_int( next ); break;
-			case 'c' : Config.channel		= Str.to_int( next ); break;
-			case 'I' : Config.installdir	= next ; break;
-			case 'C' : Config.composer		= 'y'; break;
-			case 'G' : Config.oceangui		= 'y'; break;
-			case 't' : Config.test 			= 'y'; break;
-			case 'D' : Config.dialog 		= 'y'; break;
-			case 'X' : Config.clear 		= 'y'; break;
-			case 'v' : Set_Loglevel( DEBUG, true );break;
-			default  : Config.filename		= arg; break;
+			case 'c' : 	Config.channel		= Str.to_int( next ); break;
+			case 'd' : 	Config.device 		= Str.to_int( next ); break;
+			case 'k' : 	Config.SDS_key 		= Str.to_int( next ); break;
+			case 'o' : 	Config.ch_offs		= Str.to_int( next ); break;
+			case 'r' : 	Config.rate 		= Str.to_int( next ); break;
+			case 't' : 	Config.test 		= 'y'				; break;
+			case 'v' : 	Set_Loglevel( DEBUG, true )				; break;
+			case 'C' : 	Config.composer		= 'y'				; break;
+			case 'D' : 	Config.dialog 		= 'y'				; break;
+			case 'G' : 	Config.oceangui		= 'y'				; break;
+			case 'I' : 	Config.installdir	= next 				; break;
+			case 'V' :	Set_Loglevel( DEBUG, true );
+						Set_Loglevel( DBG2, true )				; break;
+			case 'X' : 	Config.clear 		= 'y'				; break;
+			default  : 	Config.filename		= arg				; break;
 		}
 	}
+	cout << "Config.filename " << Config.filename << endl;
 
 }
 
-#include <Table.h>
-void Config_class::Show_Config( )
+void Config_class::Show_Config( bool debug )
 {
+	if ( not debug )
+		return;
 	Table_class Table { "synthesizer.cfg", 20 };
 	Table.AddColumn( "Config Entry", 20 );
 	Table.AddColumn( "Value", 20  );

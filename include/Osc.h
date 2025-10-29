@@ -33,7 +33,7 @@ public:
 	Scanner_class	scanner;
 
 
-					Oscillator			( char role_id, char type_id, buffer_t bytes );
+					Oscillator			( OscroleId_t role_id, OscId_t type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;
 	void 			operator=			( Oscillator& osc );
 
@@ -65,7 +65,6 @@ private:
 
 
 	bool 			longnote			= false; // set trigger for long notes
-	osc_roles_t		OscRole				= osc_struct();
 	const float		fmo_scale			= 0.003;//0.001;
 	void 			mem_init			();
 	void			self_Test			();

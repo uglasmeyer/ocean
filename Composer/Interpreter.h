@@ -9,16 +9,16 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
-#include <Config.h>
+#include <data/Config.h>
 #include <data/DataWorld.h>
 #include <data/Interface.h>
 #include <EventKeys.h>
-#include <Processor.h>
 #include <Spectrum.h>
 #include <Ocean.h>
 #include <Variation.h>
 #include <String.h>
 #include <Frequency.h>
+#include "../Composer/Processor.h"
 
 typedef struct line_struct
 {
@@ -57,17 +57,18 @@ class Interpreter_class
 	, virtual 			osc_struct
 	, virtual public 	Processor_class
 	, virtual 			Device_class
+//	,					sdsstate_struct
 {
 	string			className = "";
 	typedef struct view_struct
 	{
 		string 		name 	= "none";
 		uint8_t		oscid	= 0;
-		uint8_t 	wfkey	= 0;
+		EVENTKEY_t 	wfkey	= NULLKEY;
 		uint8_t*	wf		= nullptr;
-		uint8_t		ampkey	= 0;
+		EVENTKEY_t	ampkey	= NULLKEY;
 		uint8_t* 	amp		= nullptr;
-		uint8_t		freqkey	= 0;
+		EVENTKEY_t	freqkey	= NULLKEY;
 		uint8_t*	frqidx	= nullptr;
 
 	} view_struct_t;
@@ -82,6 +83,7 @@ class Interpreter_class
 public:
 	Interface_class* 	Sds;
 	Config_class*		Cfg;
+	file_structure*		fs;
 	interface_t* 		sds;
 	Variation_class Variation{};
 	view_struct_t main_view, fmo_view, vco_view;
@@ -97,7 +99,7 @@ public:
 	String keyword {""};
 	set<string> expect {};
 
-	Interpreter_class( Dataworld_class* data ) ;
+	Interpreter_class( Application_class* app ) ;
 	virtual ~Interpreter_class();
 
 	void Start_bin( vector_str_t );
@@ -132,7 +134,7 @@ private:
 	bool 	testrun 	= false;
 	bool	testreturn 	= false;
 
-	void 	Loop( int , int   );
+	void 	Loop( int , EVENTKEY_t   );
 	bool 	check_count( vector_str_t, size_t );
 	string 	pop_stack( int );
 	bool	set_stack( vector_str_t, uint );

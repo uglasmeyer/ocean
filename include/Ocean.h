@@ -64,6 +64,7 @@ typedef vector<Data_t>		DataVec_t;
 typedef double				phi_t;
 typedef float 				frq_t;
 typedef char				Id_t;
+typedef vector<Id_t>		SdsId_vec_t;
 typedef long int 			kbdInt_t;
 
 struct 				Stereo_struct
@@ -82,42 +83,6 @@ struct 				stereo_struct
 typedef stereo_struct
 					stereo_t;
 
-typedef struct trigger_data_struct
-{
-	bool state 	= false ;
-	bool active = false;
-} trigger_data_t;
-
-typedef struct trigger_struct
-{
-	trigger_data_t* trigger_data;
-	trigger_data_t	local_data;
-
-	trigger_struct( trigger_data_t* _data )
-	{
-		trigger_data 	= _data;
-	}
-	trigger_struct()
-	{
-		trigger_data	= &local_data;
-	}
-	~trigger_struct() = default;
-
-	void set_state( bool _state ) // producer
-	{
-		trigger_data->state 	= _state;
-	}
-	void set_active( bool _active ) // controller
-	{
-		trigger_data->active 	= _active;
-	}
-	bool get() // action
-	{
-		bool state = ( trigger_data->active and trigger_data->state);
-		trigger_data->state		= false;
-		return state;
-	}
-} trigger_t;
 
 const size_t		sizeof_stereo		= sizeof(stereo_t);
 const size_t		sizeof_Stereo		= sizeof(Stereo_t);
@@ -131,7 +96,7 @@ const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
 const uint16_t		min_msec			= 125;
-const uint16_t		frame_parts			= (uint16_t) (max_msec / min_msec);
+const uint16_t		measure_parts		= (uint16_t) (max_msec / min_msec);
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
@@ -155,6 +120,7 @@ const static uint		max_octave		= 7;
 const uint 				min_octave 		= 0;
 const string			OctChars_EN		= "CcDdEFfGgAaB";
 const string			OctChars_DE		= "CcDdEFfGgAaH";
+
 template< typename T >
 struct range_T
 {
@@ -162,14 +128,7 @@ struct range_T
 	T 		max ;
 	size_t 	len = max - min;
 };
-/*
-template< typename T >
-struct range_T
-{
-	T min ;
-	T max ;
-};
-*/
+
 const range_T<int>		volidx_range		{ 0, 100 };
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
@@ -194,11 +153,10 @@ constexpr T check_range( range_T<T> r, T val, string errmsg )
 									<< val
 									<< " adjusted to max boundaries "
 									<< r.max << endl;
-//		static_assert(false);
 		return r.max;
 	}
 	return val;
-}
+};
 
 template< typename T>
 constexpr T check_cycle( range_T<T> r, T val, string err  )
@@ -209,7 +167,7 @@ constexpr T check_cycle( range_T<T> r, T val, string err  )
 	if ( val > r.max)
 		return val % r.max;//r.max % val;////r.min;//val - r.max;
 	return val;
-}
+};
 
 template< typename T>
 constexpr T check_cycle2( range_T<T> r, T val, string err  )
@@ -221,7 +179,7 @@ constexpr T check_cycle2( range_T<T> r, T val, string err  )
 	if ( val > r.max )
 		return r.min + ((val - r.max ) % r.len);
 	return val;
-}
+};
 
 template<typename T>
 string show_range( range_T<T> range )
@@ -229,65 +187,66 @@ string show_range( range_T<T> range )
 	stringstream strs {};
 	strs << range.min << "..." << range.max ;
 	return strs.str();
-}
+};
 
 #define ALLITEMS	-1
 #define DEFAULT_ID	-1
+#define NoPID 		-1
 
-enum APPID
+
+
+template< typename Enum>
+Enum& operator++(Enum& _enum)
 {
-	AUDIOID,
-	SYNTHID,
-	COMPID,
-	GUI_ID,
-	SDSVIEWID,
-	RTSPID,
-	KEYBOARDID,
-	SETUPID,
-	TESTPRGID,
-	NOID
+	_enum = static_cast<Enum>(static_cast<int>(_enum) + 1);
+	return _enum;
 };
-#define AUDIOSERVER "AudioServer"
-#define SYNTHESIZER	"Synthesizer"
-#define COMPOSER	"Composer"
-#define OCEANGUI	"OceanGUI"
-#define SDSVIEW		"SDSview"
-#define RTSP		"Rtsp"
-#define SYNTHKBD	"Keyboard"
-#define SETUP		"Setup"
-#define TESTPRG		"Testprj"
 
-
-template<typename T>
-constexpr string AppIdName( const T& app_id )
+// Postfix increment operator (x++)
+template< typename Enum>
+Enum operator++( Enum& _enum, int)
 {
-	switch ( app_id )
-	{
-		case APPID::AUDIOID		: return AUDIOSERVER;
-		case APPID::SYNTHID		: return SYNTHESIZER;
-		case APPID::COMPID		: return COMPOSER;
-		case APPID::GUI_ID		: return OCEANGUI;
-		case APPID::SDSVIEWID	: return SDSVIEW;
-		case APPID::RTSPID		: return RTSP;
-		case APPID::KEYBOARDID	: return SYNTHKBD;
-		case APPID::SETUPID		: return SETUP;
-		case APPID::TESTPRGID	: return TESTPRG;
-		case APPID::NOID		: return "No Process";
-		default 		: 	{
-							cout << "WARN: unknown application id: " << (int)app_id << endl;
-							return "No Process";
-							};
-	}
-}
+	Enum temp = _enum;
+	++_enum; // Use the prefix increment logic
+	return temp;
+};
+
 constexpr string to_hex( long addr )
 {
 	stringstream strs;
 	strs << "0x" << uppercase << hex << addr ;
 	return strs.str();
-}
+};
+
+enum OscId_t
+{
+	VCOID,
+	FMOID,
+	OSCID,
+	NOOSCID
+};
+const  vector<OscId_t> oscIds  =
+{
+	VCOID,
+	FMOID,
+	OSCID
+};
+#define OSCIDSIZE 3
+
+enum OscroleId_t
+{
+	INSTRROLE,
+	NOTESROLE,
+	KBDROLE,
+	EXTERNALROLE,
+	AUDIOROLE,
+	ADSRROLE,
+	NOROLE
+};
+
 typedef struct osc_struct
 {
-	const vector<string> roles =
+	const vector<string> roleNames =
 	{
 		"Instrument",
 		"Notes",
@@ -296,23 +255,16 @@ typedef struct osc_struct
 		"Audio",
 		"ADSR"
 	};
-	enum { INSTRID, NOTESID, KBDID, EXTID, AUDIOOUTID, ADSRID };
 
-	const vector<string> oscNames =
+	const vector<string> typeNames =
 	{
 		"VCO",
 		"FMO",
-		"OSC"
+		"OSC",
+		""
 	};
-	enum { VCOID, FMOID, OSCID };
 } osc_roles_t;
-const  vector<char> oscIds  =
-{
-	osc_struct::VCOID,
-	osc_struct::FMOID,
-	osc_struct::OSCID
-};
-#define OSCIDSIZE 3
+
 
 const vector<string> slidermodes =
 {
@@ -325,16 +277,6 @@ enum DYNAMIC
 
 
 
-
-#define ASSERTION(	 expr , message, input, expected )\
-	if ( not (expr) ) \
-	{\
-	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
-	cout 	<< message 									<< endl\
-			<< "input    value: " << (input) 			<< endl\
-			<< "expected value: " << dec << (expected) 	<< endl;\
-	exit (0); \
-	};
 
 
 

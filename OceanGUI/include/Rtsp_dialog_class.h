@@ -22,17 +22,13 @@ class Rtsp_Dialog_class;
 
 class Rtsp_Dialog_class :
 	public 	QDialog,
-	virtual Config_class
+	AppMap_struct
 {
     Q_OBJECT
 
 public:
 
     Dataworld_class*		DaTA;
-    Interface_class*		Sds;
-    interface_t*			sds_master;
-    uint					SDS_ID = 0;
-//    Ui::Rtsp_Dialog_class*	ui;
 	unique_ptr<Ui::Rtsp_Dialog_class>		ui;
 
 	QTableWidgetItem	twItem {};

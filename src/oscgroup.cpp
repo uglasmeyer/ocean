@@ -8,7 +8,7 @@
 #include <Oscgroup.h>
 #include <data/Device.h>
 
-Oscgroup_class::Oscgroup_class( char role, buffer_t bytes )
+Oscgroup_class::Oscgroup_class( OscroleId_t role, buffer_t bytes )
 	: Logfacility_class( "Oscgroup_class" )
 	, Frequency_class()
 	, Note_base()
@@ -94,11 +94,11 @@ void Oscgroup_class::SetWd( Wavedisplay_class* wd )
 								osc->roleId,
 								osc->MemData_p(),
 								&osc->wp.frames ); });
-	if( osc.roleId == INSTRID )
+	if( osc.roleId == INSTRROLE )
 	{
 		std::ranges::for_each( member, [ this, wd ](Oscillator*  osc )
 				{ wd->Add_data_ptr( osc->typeId,
-									ADSRID,
+									ADSRROLE,
 									osc->AdsrMemData_p(),
 									&osc->adsr_frames ); });
 		}
@@ -190,15 +190,15 @@ void Oscgroup_class::Run_OSCs( const buffer_t& offs )
 			{ o->OSC( offs ) ;} );
 }
 
-char Oscgroup_class::Get_oscid_by_name( const string& name )
+OscId_t Oscgroup_class::Get_oscid_by_name( const string& name )
 {
-	for( char id = 0; id < OSCIDSIZE; id++ )
+	for( OscId_t id : oscIds )
 	{
-		if ( strEqual( oscNames[id], name ) )
+		if ( strEqual( typeNames[id], name ) )
 			return id;
 	}
 	EXCEPTION( "unknown Oscillator name: " + name );
-	return -1;
+	return NOOSCID;
 }
 
 Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )

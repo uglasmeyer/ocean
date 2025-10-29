@@ -9,16 +9,33 @@
 #define OSCWAVEFORM_H_
 
 #include <Ocean.h>
-#include <Logfacility.h>
 
-typedef struct param_struct
+struct oscwaveform_struct
+{
+	enum WFID_t
+	{
+		SINUS,
+		TRIANGLE,
+		SGNSIN,
+		RECTANGLE,
+		SAWTOOTHL,
+		SAWTOOTHR,
+		PMW,
+		DELTA,
+		NOISE,
+		RANDOM
+	};
+};
+
+struct param_struct
 {
 	float amp		= 0.0;
 	phi_t phi		= 0.0;
 	phi_t dphi		= 0.0;
 	phi_t maxphi 	= 0.0;
 	float pmw		= 0.0;
-} param_t;
+};
+typedef param_struct param_t;
 
 typedef function<Data_t( param_t& )>	wave_function_t;
 struct waveFnc_struct

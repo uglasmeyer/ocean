@@ -9,14 +9,16 @@
 #define GUICOMMON_H
 
 
+#include <data/Config.h>
 #include <QDialog>
 #include <QComboBox>
 #include <QString>
 #include <QStringList>
 
+// Ocean
+#include <data/Interface.h>
 #include <Ocean.h>
 #include <System.h>
-#include <Config.h>
 #include <EventKeys.h>
 
 constexpr QString Qstring( string str )
@@ -24,8 +26,7 @@ constexpr QString Qstring( string str )
 	return QString::fromStdString( str );
 }
 
-template< typename T >
-QString QReadStr ( T* Sds, uint key  )
+constexpr QString QReadStr ( Interface_class* Sds, EVENTKEY_t key  )
 {
     string str 		= Sds->Read_str( key );
 	return Qstring( str );
@@ -88,10 +89,10 @@ typedef PathStruct Path_t;
 
 struct EventStruct : PathStruct
 {
-	int			event;
+	EVENTKEY_t	event;
 	Path_t	 	path ;
-	EventStruct( ) : event(0) {} ;
-	EventStruct( const int& _event, const string& _dir, const string& _ext ) :
+	EventStruct( ) : event( NULLKEY ) {} ;
+	EventStruct( const EVENTKEY_t& _event, const string& _dir, const string& _ext ) :
 		event( _event ), path( _dir, _ext )
 	{
 	}

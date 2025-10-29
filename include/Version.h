@@ -8,12 +8,14 @@
 #ifndef INCLUDE_VERSION_H_
 #define INCLUDE_VERSION_H_
 
+
 #include <string>
+using namespace std;
 
 #define MAYOR 3
 #define MINOR 12
-#define PATCH 1
-#define DATA_VERSION 32
+#define PATCH 2
+#define DATA_VERSION 35
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -26,6 +28,11 @@ const string Application = "Ocean Sound Lab.";
 
 // Git comment:
 /*
+version 3.12.2	SDSMenu_class
+				sdsview_page DATA_VERSIOM 35
+				process_arr_t replaced by appstate_arr_t DATA_VERSION 34
+				xmleditorid
+				process_pid_t DATA_VERSION 33
 version 3.12.1 Synchronization issue
 				kbd_stat.chord_type DATA_VERSION 32
 				octaveshift DATA_VERSION 31

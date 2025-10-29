@@ -14,10 +14,10 @@
 process_t				Process			{};
 Exit_class				Exit			{};
 file_structure			fs				{};
-Config_class			Cfg				{ Process.name };
+Config_class			Cfg				{ Process.name, &fs };
 Logfacility_class		Log				( Process.name );
 
-#ifndef WITHOUT_SHM
+#ifndef WITHOUT_SHM // Setup
 	Semaphore_class		Sem				{ Cfg.Config.Sem_key };
 	Dataworld_class 	DaTA			{ Process.AppId, &Cfg, &Sem };
 	Application_class	App				{ &DaTA };

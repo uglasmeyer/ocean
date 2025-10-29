@@ -12,26 +12,20 @@ logmask_t 			LogMask 			= defaultLogMask;
 Logfacility_class::Logfacility_class( string module )
 {
 					seterrText();
-	size_t 			pos 				= module.find("_" );
-	this->className = module;
-	//( pos > LOGINDENT-5 ) ?
-		//					this->className = module.substr(0, LOGINDENT-5) :
-			//				this->className = module.substr(0, pos ) ;
+	int 			pos 				= module.find("_" );
+	int				max_len				= LOGINDENT - 5;
+					this->className 	= module;
+	( pos > max_len ) ?	this->className = module.substr(0, pos) :
+						this->className = module.substr(0, max_len );
 	stringstream 	strs 				{};
-					strs << setw(LOGINDENT-5) << right << className << ":";
+					strs << setw( max_len ) << right << this->className << ":" ;
 					prefixClass 		= strs.str();
 	string 			_path 				= string( logDir );
 					filesystem::create_directories( _path );
 };
 Logfacility_class::Logfacility_class( )
 {
-					seterrText();
-					this->className 	= "Logfacility_class";
-	stringstream 	strs 				{};
-					strs << setw(LOGINDENT-5) << right << className << ":";
-					prefixClass 		= strs.str();
-	string 			_path 				= string( logDir );
-					filesystem::create_directories( _path );
+	Logfacility_class( "Log" );
 }
 
 Logfacility_class::~Logfacility_class(  )
@@ -67,7 +61,15 @@ string Logfacility_class::cout_log( uint id, string str )
 	stringstream 	strs 	{};
 	string 			endc 	= ( is_atty ) ? endcolor 	: nocolor;
 	uint 			Id		= ( is_atty ) ? id 		: LOG::PLAIN;
-
+	size_t			pos		= str.find( '\n' );
+	if ( pos < string::npos )
+	{
+		string s0 = str.substr(0, pos +1);
+		string s1 = str.substr( pos +1 );
+		stringstream s {};
+		s << s0 << NEWLOGLINE << s1;
+		str =  s.str();
+	}
 	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
 	cout.flush() << strs.str();
 
@@ -130,7 +132,7 @@ void Logfacility_class::Init_log_file( )
 
 void Logfacility_class::Show_loglevel()
 {
-	Info( Line );
+//	Info( Line() );
 	string on = "";
 	string logmode = ( is_atty ) ? "console logging" : "file logging";
 	Comment( INFO, "Log level activation state with " + logmode );
@@ -139,7 +141,7 @@ void Logfacility_class::Show_loglevel()
 		on =  LogMask[ level ] ? "On" : "Off";
 		Comment( level, "Log level " + Prefix_vec[ level ].name + " is " + on );
 	}
-	Info( Line );
+	Info( Line() );
 }
 
 string Logfacility_class::Error_text( uint err )
@@ -230,6 +232,7 @@ void Printer_class::Close()
 
 void Printer_class::store()
 {
+	if ( save_out >= 0 ) return;
 	if( redirect )
 	{
 		save_out = dup( STDOUT_FILENO );
@@ -238,6 +241,7 @@ void Printer_class::store()
 
 void Printer_class::restore()
 {
+	if ( save_out < 0 ) return;
 	if ( redirect )
 	{
 		dup2( save_out, STDOUT_FILENO );//, O_CLOEXEC );

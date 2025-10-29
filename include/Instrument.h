@@ -29,7 +29,7 @@ public:
 	string 					Name 		= "";
 
 	interface_t*  			sds			= nullptr;
-	Oscgroup_class			Oscgroup	{ osc_struct::INSTRID, monobuffer_bytes };
+	Oscgroup_class			Oscgroup	{ INSTRROLE, monobuffer_bytes };
 	Oscillator*				osc			= &Oscgroup.osc;
 	Oscillator*				vco			= &Oscgroup.vco;
 	Oscillator*				fmo			= &Oscgroup.fmo;

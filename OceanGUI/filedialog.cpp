@@ -1,4 +1,5 @@
 // System includes
+#include <data/Config.h>
 #include <dirent.h>
 
 // QT
@@ -10,7 +11,6 @@
 #include <data/Interface.h>
 #include <Logfacility.h>
 #include <notes/Notes.h>
-#include <Config.h>
 #include <EventKeys.h>
 #include <include/Common.h>
 #include <include/File_Dialog_class.h>
@@ -60,7 +60,10 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
     connect(ui->sB_Octave, SIGNAL(valueChanged(int)), this, SLOT( sB_Octave( int)));
     connect(ui->cb_nps, SIGNAL(activated(int)), this, SLOT( cB_NotesPerSec( int )));
     connect(ui->cb_convention, SIGNAL(activated( int )), this, SLOT(cB_Convention( int ) ));
-    connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(pb_Notes_Done_clicked()) );
+    connect(ui->pbNotesDone, SIGNAL(clicked()), this, SLOT(Notes_Done_clicked()) );
+    connect(ui->pB_EditMusicxml, SIGNAL(clicked()), this, SLOT(EditMusicXML()) );
+
+
 
     connect(ui->cb_longnote, SIGNAL(clicked(bool)), this, SLOT( Longnote(bool) ));
     Comment( INFO," File_Dialog initialized");
@@ -69,6 +72,23 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
 File_Dialog_class::~File_Dialog_class() = default;
 
+void File_Dialog_class::EditMusicXML()
+{
+	const 	string 	musicxml_editor 	= XMLEDITOR;
+	const 	QString qfilename 			= ui->lE_NotesFile->text();
+	const 	string 	filename 			= fs.xmldir + qfilename.toStdString()+ fs.xml_type;
+	const 	string 	cmd 				= musicxml_editor + " " + filename;
+			int		process_id 			= -1;
+
+	if( filesystem::exists( filename ) )
+	{
+		process_id = System_execute_bg( cmd );
+		DaTA->Appstate.SetState( sds_p, XMLEDITORID, RUNNING );
+		DaTA->Appstate.SetPid( sds_p, XMLEDITORID, process_id );
+	}
+	else
+		Comment( ERROR, "cannot execute", cmd );
+}
 void File_Dialog_class::Longnote( bool value )
 {
 	Sds->Set( sds_p->features[0].longplay , value );
@@ -79,7 +99,6 @@ void File_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
 	this->SDS_ID	= sdsid;
-    Comment( INFO," File_Dialog set to SDS Id: " + to_string( (int) sdsid ));
 
 	Setup_widgets();
 
@@ -239,7 +258,7 @@ void File_Dialog_class::Instrument_Save()
 
 	Eventlog_p->add( SDS_ID, NEWINSTRUMENTKEY );
 }
-void File_Dialog_class::pb_Notes_Done_clicked()
+void File_Dialog_class::Notes_Done_clicked()
 {
     New_Notes();
 }

@@ -27,15 +27,15 @@ class Note_class
 	Storage_class*		StA			;
 
 public:
-	Oscgroup_class	Oscgroup				{ osc_struct::NOTESID, 2*monobuffer_bytes };
+	Oscgroup_class	Oscgroup				{ NOTESROLE, 2*monobuffer_bytes };
 	Oscillator*		osc						= &Oscgroup.osc;
 	Oscillator*		vco						= &Oscgroup.vco;
 	Oscillator*		fmo						= &Oscgroup.fmo;
 	Oscillator*		Osc						= &Oscgroup.osc;
 
 	string			Instrument_name 		{ "" };
-	trigger_t		Note_itr_start			;
-	trigger_t		Note_itr_end			;
+	Trigger_class	Note_itr_start			;
+	Trigger_class	Note_itr_end			;
 	uint8_t 		Octave					= noteline_prefix_default.Octave; // 55
 
 	Dynamic_class	DynFrequency			{ frqarr_range };
@@ -58,7 +58,7 @@ public:
 	bool			Set_notes_per_second	( int );
 	void			LoadMusicxml			( const string& file );
 	bool			Generate_cyclic_data	();
-	bool 			Generate_volatile_data	();
+	bool 			Generate_volatile_data	( bool init = false );
 	void			ScanData				();
 	void 			SetSDS					( noteline_prefix_t nlp );
 
@@ -72,8 +72,7 @@ public:
 											string& noteline );
 
 	void 			Test					();
-	void			Show_note				(  note_t, bool debug = false );
-	void			Show_note				(  Table_class&, note_t );
+	void			Show_note				( note_t, bool debug=false );
 
 	bool 			Start_note_itr			();
 	note_t			Char2note				( char& ch );
@@ -84,7 +83,6 @@ public:
 	template< class Class>
 	void 			Show_note_list			( Class& items ) // list or vector
 	{
-		Set_Loglevel( DEBUG, true );
 
 		Note_table.PrintHeader();
 		uint duration 	= 0;
@@ -92,12 +90,11 @@ public:
 		uint count 		= 1;
 		for( note_t note : items )
 		{
-			Show_note( Note_table, note );
+			Show_note( note, true );
 			show_noteline_duration	( note.duration, duration, count, m_duration );
 
 		}
 		Note_table.AddRow( "sentence length", duration, "[msec]" );
-		Set_Loglevel( DEBUG, false );
 	}
 
 

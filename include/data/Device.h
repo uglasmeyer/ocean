@@ -12,9 +12,14 @@
 #include <Adsr.h>
 #include <data/SharedDataSegment.h>
 
+constexpr connectId_t default_connect( OscId_t oscid )
+{
+	return { oscid, oscid };
+};
+
 class Device_class
 	: virtual public 	Logfacility_class
-	, virtual			osc_struct
+	, virtual public	osc_struct
 {
 	string 				className 				= "";
 

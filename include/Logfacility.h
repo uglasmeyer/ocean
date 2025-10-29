@@ -9,6 +9,9 @@
 #define LOGFACILITY_H_
 
 #include <Ocean.h>
+#include <Utilities.h>
+
+#define coutf cout.flush()
 
 template< typename T >
 constexpr bool isTTY ( const T io )
@@ -20,7 +23,7 @@ constexpr bool isTTY ( const T io )
 };
 const bool is_atty	= isTTY( stdout );
 
-constexpr string Line( int len = 80, char ch = '-' )
+constexpr string Line( int len = 58, char ch = '-' )
 {
 	string str {};
 	for (int n = 0; n < len; n++)
@@ -60,6 +63,7 @@ enum 		LOG { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST, PLAIN, TABLE } ;
 const uint8_t 				LOGMAX 		= 9;
 const uint					LOGINDENT	= 20;
 #define SETW 				setw( LOGINDENT )
+#define NEWLOGLINE				setw( LOGINDENT + 10 )
 
 // global Log facility structure
 typedef 	bitset<LOGMAX>		logmask_t;
@@ -89,7 +93,7 @@ class Printer_class
 {
 	//https://stackoverflow.com/questions/9084099/re-opening-stdout-and-stdin-file-descriptors-after-closing-them	bool redirect 		= false;
 	bool 	testFinished 	= false;
-	int 	save_out 		= dup( STDOUT_FILENO );
+	int 	save_out 		= -1;//dup( STDOUT_FILENO );
 
 public:
 	bool	redirect		= false;
@@ -108,7 +112,6 @@ private:
 #define TEST_END( classname )\
 	Printer.Close(); test_end( classname );
 
-#define coutf cout.flush()
 #define LUNDEF 35
 class Logfacility_class
 {
@@ -131,37 +134,33 @@ public:
 	const string 	byellow		= boldon + yellow;
 	const string 	bmagenta	= boldon + magenta;
 	const string	nocolor		= "";
-//	const string 		Line 			{ "---------------------------------------------------------" };
 	const range_T<int>	loglevel_range 	{ 0, LOGMAX - 1 };
-	string 				className 		{ "" };
-	string 				prefixClass 	{ "" };
-	const string 		logFile	 		= logDir + logFileName + string(".log") ;
-	const string 		endcolor		= boldoff + reset;
+	string 			className 		{ "" };
+	string 			prefixClass 	{ "" };
+	const string 	logFile	 		= logDir + logFileName + string(".log") ;
+	const string 	endcolor		= boldoff + reset;
 
-	Logfacility_class( string module  );
-	Logfacility_class( );
-	virtual ~Logfacility_class(  );
+					Logfacility_class( string module  );
+					Logfacility_class( );
+	virtual			~Logfacility_class(  );
 
-	void 	Set_Loglevel( int level, bool on );
-	string	GetColor( uint id );
-	string	GetendColor( );
-	void 	ResetLogMask();
-	void 	Show_loglevel();
-	string 	Error_text( uint );
-	void 	Init_log_file();
-	void 	Test_Logging();
+	void 			Set_Loglevel	( int level, bool on );
+	string			GetColor		( uint id );
+	string			GetendColor		( );
+	void 			ResetLogMask	();
+	void 			Show_loglevel	();
+	string 			Error_text		( uint );
+	void 			Init_log_file	();
+	void 			Test_Logging	();
 
-	void 	test_start(const string& name);
-	void 	test_end(const string& name);
+	void 			test_start		(const string& name);
+	void 			test_end		(const string& name);
 
 
 	template <class... ArgsT>
 	string Info( ArgsT... args )
 	{
-		stringstream strs{};
-		strs << dec;
-		( strs <<  ... << args  ) ;
-		return cout_log( INFO, strs.str() );
+		return Comment( INFO, args... );
 	};
 
 	template <class... ArgsT>
@@ -206,7 +205,7 @@ private:
 	vector<log_struct> Prefix_vec =
 	{
 			{"Error", bred },
-			{"Debug", magenta },
+			{"Debug", black },
 			{"Info ", bblue },
 			{"Warn ", bmagenta },
 			{"Dbg2 ", yellow },

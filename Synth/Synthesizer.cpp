@@ -1,6 +1,6 @@
 
-#include <Synthesizer.h>
 #include <Appsymbols.h>
+#include <Synth/Synthesizer.h>
 
 
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
@@ -29,18 +29,21 @@ Event_class				Event{
 							&ProgressBar,
 							&MusicXML};
 
-extern void 			ComposerTestCases();
 extern void 			SynthesizerTestCases();
 
-sdsstate_struct 		sdsstate{};
-Id_t 					Audioserver_state = sdsstate.DEFAULT;
-void show_AudioServer_statechange()
+char	 				Audioserver_state = -1;
+void AudioServer_state()
 {
-	Id_t state =  Appstate->Get( sds_master, AUDIOID );
+	char state =  (char)Appstate->IsRunning( sds_master, AUDIOID );
 	if ( state == Audioserver_state)
-		return;
+		return ;
 	Audioserver_state = state;
-	Log.Info( "Audioserver state is: ", sdsstate.state_map[ Audioserver_state ] );
+	if ( state )
+		Log.Info( "Audioserver state is: ", Appstate->GetStateStr(sds_master, AUDIOID ) );
+	else
+		Log.Comment( WARN, "Audioserver state is: ", Appstate->GetStateStr(sds_master, AUDIOID ) );
+
+	return ;
 }
 
 void SetLogLevels()
@@ -56,8 +59,7 @@ void activate_sds()
 	for ( uint id : Mixer.RecIds )
 		sds->StA_state[id].play = false;
 
-//	Event.Set_Loglevel( DEBUG, true );
-	std::ranges::for_each( init_keys, [  ]( char key )
+	std::ranges::for_each( init_keys, [  ]( EVENTKEY_t key )
 			{	DaTA.Sds_p->Event( key );	} );
 
 	Keyboard.Enable( DaTA.Appstate.IsKeyboard( ));
@@ -78,7 +80,6 @@ void activate_sds()
 			DaTA.Sds_p->Event( NEWNOTESLINEKEY );
 	}
 
-//	Event.Set_Loglevel( DEBUG, false );
 }
 
 
@@ -120,12 +121,7 @@ void add_sound()
 			Notes.Note_itr_end.set_active( false );
 		}
 
-//		Notes.Generate_volatile_data();
 		Notes.ScanData();
-		if( sds->Note_start.state )
-			coutf << "start" << endl;
-		if( sds->Note_end.state )
-			coutf << "end.." << endl;
 		if( sds->StA_amp_arr[STA_NOTES] == 0 )
 			sds->StA_amp_arr[STA_NOTES] = osc_default_volume;
 	}
@@ -142,7 +138,7 @@ void add_sound()
 
 	ProgressBar.Update();
 
-	if (( sds->WD_status.roleId != osc_struct::AUDIOOUTID )	)
+	if (( sds->WD_status.roleId != AUDIOROLE )	)
 		Wavedisplay.Write_wavedata();
 }
 Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add_sound" );
@@ -159,14 +155,14 @@ void ApplicationLoop()
 
 	Event.Handler();
 	App.Ready();
-
+	Appstate->SetRunning();
 	Keyboard.Show_help( Keyboard.Enabled );
 
 	while ( Appstate->IsRunning( sds, App.AppId ) )
 	{
 		Timer.Performance();
 		Event.Handler();
-		show_AudioServer_statechange();
+		AudioServer_state();
 		if( not Appstate->IsRunning( sds_master, APPID::AUDIOID ))
 		{
 			App.KeyboardKey( false );
@@ -183,7 +179,8 @@ void ApplicationLoop()
 
 void sync_notes_fnc( )
 {
-	Notes.Start_note_itr();//Notes.Start_note_itr();
+	Notes.Start_note_itr();
+	Notes.Generate_volatile_data( true );
 }
 Thread_class 	SyncNotes( DaTA.Sem_p, SEMAPHORE_SYNCNOTES, sync_notes_fnc, "sync_notes_fnc" );
 thread* 		SyncNotes_thread_p = nullptr;
@@ -215,24 +212,19 @@ void activate_logging()
 
 int main( int argc, char* argv[] )
 {
-	activate_logging();
-
 	App.Start( argc, argv );
+	activate_logging();
 
 	if ( Cfg.Config.test == 'y' )
 	{
 		Log.Set_Loglevel( TEST, true );
 		Sem.Release( SEMAPHORE_STARTED );
 		SynthesizerTestCases();
-		ComposerTestCases();
 		Log.Show_loglevel();
 
 		exit_proc( 0 );
 		return 0;
 	}
-//	DaTA.Appstate.SaveState();
-//	DaTA.Sds_p->Restore_ifd();
-//	DaTA.Appstate.RestoreState();
 
 	activate_sds();
 

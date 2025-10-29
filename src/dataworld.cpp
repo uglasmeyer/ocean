@@ -11,12 +11,12 @@
  * Dataworld_class
  ***************/
 
-
-Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class* sem )
+Dataworld_class::Dataworld_class( 	APPID appId,
+									Config_class* cfg,
+									Semaphore_class* sem )
 	:Logfacility_class( "Dataworld_class")
 	,SDS( appId, cfg, sem )
-	,Reg( appId, SDS.master )
-	,Appstate( appId, SDS.vec[Reg.Sds_Id], SDS.master, &Reg )
+	,Appstate( appId, SDS.vec )
 {
 
 	className = Logfacility_class::className;
@@ -24,13 +24,20 @@ Dataworld_class::Dataworld_class( char appId, Config_class* cfg, Semaphore_class
 	this->Cfg_p = cfg;
 	this->Sem_p = sem;
 
+	SDS_Id 		= Appstate.SDSid;
+	if( SDS_Id < 0 )
+	{
+		SDS.master= nullptr;
+		SDS.Master=nullptr;
+		SDS.Vec.clear();
+		SDS.vec.clear();
+		raise( SIGHUP );
+	}
 	Sds_master	= SDS.Master;
 	sds_master 	= SDS.master;//(interface_t*) SdsVec.vec[0].ds.addr;
+	Sds_p 		= SDS.GetSds( SDS_Id );
 
-	SDS_Id 		= Reg.GetId(  );
-	Sds_p 		= GetSds();
-
-	if ( Reg.is_dataproc )
+	if ( Appstate.Is_dataproc( AppId ) )
 	{
 		Comment(INFO,"Attaching stereo buffers");
 
@@ -55,11 +62,10 @@ interface_t* Dataworld_class::GetSdsAddr( )
 
 Dataworld_class::~Dataworld_class()
 {
-	if ( Reg.is_dataproc )
+	if ( Appstate.Is_dataproc( AppId) )
 	{
 		SHM_0.Detach( SHM_0.ds.addr );
 		SHM_1.Detach( SHM_1.ds.addr );
-		Reg.Proc_deRegister( );
 	}
 	DESTRUCTOR( className );
 }
@@ -132,6 +138,53 @@ void Dataworld_class::Test_Dataworld()
 
 }
 
+/***********************
+ * SDS_struct
+ **********************/
+
+SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
+{
+	for ( Id_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
+	{
+		Interface_class
+		Sds 		{ appid, sdsid, Cfg_p, Sem_p };
+		interface_t* sds = (interface_t*) Sds.ds.addr;
+		sds->SDS_Id = sdsid;
+		vec.push_back( move(sds) );
+		Vec.push_back( move(Sds) );
+	};
+	assert( Vec[0].ds.addr != Vec[1].ds.addr );
+	master 		= vec[0];
+	Master		= &Vec[0];
+}
+SDS_struct::~SDS_struct()
+{ DESTRUCTOR( className ); }
+
+Interface_class* SDS_struct::GetSds( int id )
+{
+	return &Vec[ id ];
+}
+interface_t* SDS_struct::GetSdsAddr( int id )
+{
+	if (( id<0) or ( id > (int)MAXCONFIG ))
+	{
+		EXCEPTION( "no such Shared Data Segment ");
+	}
+	if( not Vec[id].ds.eexist )
+	{
+		EXCEPTION( "segment not available");
+	}
+
+	return vec[ id ];
+}
+void SDS_struct::Delete()
+{
+	for( Interface_class& Sds : Vec )
+	{
+		Sds.SHM.Delete();
+	}
+}
+
 /****************
  * EventLog_class
  ***************/
@@ -147,7 +200,7 @@ EventLog_class::~EventLog_class()
 	write_log();
 };
 
-void EventLog_class::add( uint8_t sdsid, uint8_t event )
+void EventLog_class::add( uint8_t sdsid, EVENTKEY_t event )
 {
 	add( { sdsid, event } );
 }
@@ -179,7 +232,7 @@ void EventLog_class::spool()
 		{
 			arr = Str.to_array(':');
 			ev.sdsid = (uint8_t)Str.secure_stoi( arr[0]);
-			ev.event = (uint8_t)Str.secure_stoi( arr[1]);
+			ev.event = (EVENTKEY_t)Str.secure_stoi( arr[1]);
 			add( ev );
 		}
 	}

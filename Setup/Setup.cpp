@@ -197,11 +197,10 @@ void Setup_Test()
 
 int main(int argc, char **argv)
 {
+
 	bool full_setup = not filesystem::is_directory( fs.installdir );
-//	if( full_setup )
-	{
-		CreateInstalldirs( );
-	}
+	CreateInstalldirs( );
+
 	overwrite ( fs.resourcedir + fs.bkground_filename	, fs.bkg_file );
 	overwrite ( fs.resourcedir + fs.setup_filename		, fs.setup_file );
 	overwrite ( fs.resourcedir + fs.ipctool_filename	, fs.ipctool_file );

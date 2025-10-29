@@ -5,7 +5,28 @@
  *      Author: sirius
  */
 
-#include <Processor.h>
+#include <Composer/Processor.h>
+
+Processor_class::Processor_class( Application_class* app ) :
+	Logfacility_class("Processor"),
+	sdsstate_struct()
+{
+	className		= Logfacility_class::className;
+	this->Sds 		= app->Sds;
+	this->sds		= app->sds;
+	this->Sem 		= app->DaTA->Sem_p;
+	this->Appstate 	= app->Appstate;
+
+	process_stack.clear();
+
+	Table.opt.Ident = 0;
+	Table.opt.Crlf 	= '\n';
+	Table.AddColumn( "line nr"	, 4);
+	Table.AddColumn( "cmd"		, 4);
+	Table.AddColumn( "addr"		, 16);
+	Table.AddColumn( "value"	, 6);
+	Table.AddColumn( "comment"	, 40 );
+};
 
 Processor_class::print_struct::print_struct( stack_struct_t _ps )
 {
@@ -20,9 +41,7 @@ void Processor_class::print_struct::assign_val()
 }
 void Processor_class::print_struct::assign_addr_str()
 {
-	for( long addr : { (long)ps.boaddr, (long)ps.chaddr, (long)ps.uiaddr, (long)ps.staddr } )
-		if( addr > 0 )
-			addr_str= Str.to_hex( addr );
+	addr_str= Str.to_hex( (long)ps.chaddr );
 }
 
 
@@ -53,7 +72,7 @@ void Processor_class::Push_cmd( uint8_t cmd, string str )
 
 }
 
-void Processor_class::Push_str( uint8_t key, uint8_t value, string str )
+void Processor_class::Push_str( EVENTKEY_t key, uint8_t value, string str )
 {
 	stack_struct_t stack_item = stack_struct();
 	stack_item.prgline	= prgline;
@@ -65,7 +84,7 @@ void Processor_class::Push_str( uint8_t key, uint8_t value, string str )
 	process_stack.push_back( move( stack_item ) );
 }
 
-void Processor_class::Push_key( uint8_t key, string str )
+void Processor_class::Push_key( EVENTKEY_t key, string str )
 {
 	stack_struct_t stack_item = stack_struct();
 	stack_item.prgline	= prgline;
@@ -76,51 +95,37 @@ void Processor_class::Push_key( uint8_t key, string str )
 	process_stack.push_back( move( stack_item ) );
 };
 
-void Processor_class::Push_ifd( uint8_t* chaddr, uint8_t value, string str )
+void Processor_class::push_ifd( stack_struct_t stack )
 {
-	stack_struct_t stack_item = stack_struct();
-	stack_item.prgline	= prgline;
-	stack_item.cmd 		= CMD_CHADDR;
-	stack_item.cmdstr	= "ldc";
-	stack_item.chaddr 	= chaddr;
-	stack_item.value 	= (char) value;
-	stack_item.str 		= str;
-	process_stack.push_back( move( stack_item ) );
+	stack.prgline	= prgline;
+	stack.cmd 		= CMD_CHADDR;
+	stack.cmdstr	= "ldc";
+	process_stack.push_back( move( stack ) );
 };
-
-void Processor_class::Push_ifd( char* chaddr, char value, string str )
+void Processor_class::Push_ifd( OscId_t* addr, OscId_t value, string str )
 {
-	stack_struct_t stack_item = stack_struct();
-	stack_item.prgline	= prgline;
-	stack_item.cmd 		= CMD_CHADDR;
-	stack_item.cmdstr	= "ldc";
-	stack_item.staddr 	= chaddr;
-	stack_item.value 	= value;
-	stack_item.str 		= str;
-	process_stack.push_back( move( stack_item ) );
+	stack_struct_t stack_item = stack_struct( addr, value, str );
+	push_ifd( stack_item );
+}
+void Processor_class::Push_ifd( StateId_t* addr, StateId_t value, string str )
+{
+	stack_struct_t stack_item = stack_struct( addr, value, str );
+	push_ifd( stack_item );
 };
-void Processor_class::Push_ifd( bool* boaddr, bool value, string str )
+void Processor_class::Push_ifd( uint8_t* addr, uint8_t value, string str )
 {
-	stack_struct_t 	stack_item 	= stack_struct();
-	stack_item.prgline 	= prgline;
-	stack_item.cmd 		= CMD_BOADDR;
-	stack_item.cmdstr	= "ldb";
-	stack_item.boaddr 	= boaddr;
-	stack_item.value 	= (bool) value;
-	stack_item.str 		= str;
-	process_stack.push_back( move( stack_item ) );
+	stack_struct_t stack_item = stack_struct( addr, value, str );
+	push_ifd( stack_item );
 };
-
-void Processor_class::Push_ifd( int* uiaddr, int value, string str )
+void Processor_class::Push_ifd( char* addr, char value, string str )
 {
-	stack_struct_t stack_item = stack_struct();
-	stack_item.prgline	= prgline;
-	stack_item.cmd 		= CMD_UIADDR;
-	stack_item.cmdstr	= "ldu";
-	stack_item.uiaddr 	= uiaddr;
-	stack_item.value 	= value;
-	stack_item.str 		= str;
-	process_stack.push_back( move( stack_item ) );
+	stack_struct_t stack_item = stack_struct( addr, value, str );
+	push_ifd( stack_item );
+};
+void Processor_class::Push_ifd( bool* addr, bool value, string str )
+{
+	stack_struct_t stack_item = stack_struct( addr, value, str );
+	push_ifd( stack_item );
 };
 
 void Processor_class::Push_wait( uint8_t cmd, int value, string str )
@@ -155,7 +160,7 @@ void Processor_class::execute_str( stack_struct_t& ps )
 		default 				: { addr = nullptr; break; }
 	}
 	assert( addr != nullptr );
-	ps.staddr = addr;
+	ps.chaddr = addr;
 	this->Sds->Write_str( ps.value, ps.str );
 	if ( ps.value == NOTESSTR_KEY )
 		Sds->addr->NotestypeId = NTE_ID;
@@ -163,7 +168,7 @@ void Processor_class::execute_str( stack_struct_t& ps )
 
 	ps.cmd		= CMD_KEY;
 	ps.cmdstr	= "exec";
-	ps.staddr	= nullptr;
+	ps.chaddr	= nullptr;
 	ps.str 		= "set";
 	Sds->Event( ps.key );
 	commit_time = wait_for_commit() ;
@@ -176,7 +181,6 @@ int Processor_class::wait_for_commit()
 	if ( not LogMask[TEST] )
 		Sem->Lock( PROCESSOR_WAIT );
 	Value t_elapsed = Timer.Time_elapsed();
-//	printf(" > commit in %d [msec]\n",t_elapsed.val );
 	return t_elapsed.val;
 }
 
@@ -190,32 +194,41 @@ void Processor_class::Set_prgline( int nr )
 	prgline = nr;
 }
 
-auto intro = [ ]( Processor_class* P, int stack_count )
+
+auto wait_loop = []( int sec )
 {
-	if ( stack_count == 0 )
+	for( int n = 0 ; n < sec; n++ )
 	{
-		P->Comment( ERROR, "Cannot proceed empty stack");
-		return;
+		coutf << "." ;
+		this_thread::sleep_for( std::chrono::seconds( 1 ));
 	}
-	else
-	{
-		P->Info( "Proceeding stack. Item count ", (int) stack_count ) ;
-		P->Info( "waiting for Synthesizer to start" );
-	}
-};
-auto log_init  = [ ]( Processor_class* P )
-{
-	//	P->Set_Loglevel( TEST , false );
-	P->LOG.open( file_structure().log_file, fstream::out );
-	P->Table.opt.FILE = &P->LOG;
+	coutf << endl;
 };
 
 void Processor_class::Execute()
 {
-	intro	( this, process_stack.size() );
-	log_init( this );
+	auto intro = [this  ]( int stack_count )
+	{
+		if ( stack_count == 0 )
+		{
+			Comment( ERROR, "Cannot proceed empty stack");
+			return;
+		}
+		else
+		{
+			Info( "Proceeding stack. Item count ", (int) stack_count ) ;
+			Info( "waiting for Synthesizer to start" );
+		}
+	};
+	auto log_init  = [ this ]( )
+	{
+		LOG.open( file_structure().log_file, fstream::out );
+		Table.opt.FILE = &LOG;
+	};
 
-	Sem->Init();
+	intro		( process_stack.size() );
+	log_init 	();
+	Sem->Init	();
 
 	for ( stack_struct_t ps : process_stack )
 	{
@@ -226,20 +239,8 @@ void Processor_class::Execute()
 		{
 			case CMD_CHADDR : // write char address
 			{
-				if ( not ps.chaddr == 0 )
+				if ( ps.chaddr )
 					*ps.chaddr = (char) ps.value ;
-				break;
-			}
-			case CMD_BOADDR : // write char address
-			{
-				if ( not ps.boaddr == 0 )
-					*ps.boaddr = (bool) ps.value ;
-				break;
-			}
-			case CMD_UIADDR : // write uint16_t address
-			{
-				if ( not ps.uiaddr == 0 )
-					*ps.uiaddr = (uint16_t) ps.value;
 				break;
 			}
 			case CMD_KEY : // write command key value
@@ -258,11 +259,11 @@ void Processor_class::Execute()
 			{
 				if  ( ps.value < 0 )
 				{
-					getc(stdin);
+					getc( stdin );
 				}
 				else
 				{
-					this_thread::sleep_for( std::chrono::seconds( ps.value));
+					wait_loop( ps.value );
 				}
 				break;
 			}
@@ -280,13 +281,13 @@ void Processor_class::Execute()
 			}
 			case CMD_TEXT :
 			{
-				printf("%s\n", ps.str.data());
-				LOG.flush() << ps.str << endl;  ;
+				coutf << ps.str << endl;
+				LOG.flush() << ps.str << endl;
 				break;
 			}
 			case CMD_EXIT :
 			{
-				printf("%d \n", ps.prgline);
+				coutf << ps.prgline << endl;
 				printLn( ps );
 
 				LOG.flush() << ps.prgline << endl;;
@@ -313,10 +314,19 @@ void Processor_class::Test_Processor()
 {
 	TEST_START( className );
 	Comment( TEST, "Wait for commit timeout" );
+	Sds->Dump_ifd();
+
 	Sem->Reset( PROCESSOR_WAIT );
 
 	Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, "default" );
+	Push_ifd( &sds->SHMID, 0, "char" );
+	Push_ifd( &sds->StA_state[0].forget, true, "bool" );
+	Push_ifd( &sds->adsr_arr[OSCID].bps, 0, "beat duration" );
+	Push_key( ADSR_KEY, "set beat duration" );
+
 	Push_cmd( CMD_EXIT, "exit" );
 	Execute();
+	Sds->Restore_ifd();
+
 	TEST_END( className );
 }

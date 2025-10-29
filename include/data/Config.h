@@ -5,11 +5,11 @@
  *      Author: sirius
  */
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef DATA_CONFIG_H_
+#define DATA_CONFIG_H_
 
+#include <data/Configbase.h>
 #include <Logfacility.h>
-#include <Configbase.h>
 #include <System.h>
 
 struct install_struct
@@ -155,23 +155,27 @@ class Config_class
 
 public:
 
-	string 			configfile 			{ };
-	string 			prgname				{ program_invocation_short_name };
+	file_structure*	fs					;
+	string 			configfile 			{};
+	string 			prgName				{};
 	prgarg_t		Config 				= prgarg_struct();
-	file_structure	fs					= file_structure();
 
 	void 			Read_config			( string cfgfile );
 	void 			Parse_argv			( int argc, char* argv[] );
-	void 			Show_Config			(  );
+	void 			Show_Config			( bool debug = true );
 	string 			Server_cmd			( string term, string srv, string opt );
 	void 			Test				();
 
-					Config_class		( string Module ) ;
+					Config_class		( string Module, file_structure* _fs ) ;
 	virtual 		~Config_class		();
+	vector_str_t	parse_cmdline		();
+
+private:
+
 };
 
 
 
 
 
-#endif /* CONFIG_H_ */
+#endif /* DATA_CONFIG_H_ */

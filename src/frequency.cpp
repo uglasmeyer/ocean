@@ -5,6 +5,7 @@
  *      Author: sirius
  */
 #include <Frequency.h>
+#include <Table.h>
 
 frqstrarr_t frqNamesArray 		{};
 frqarray_t 	frqArray 			{};
@@ -20,11 +21,7 @@ Frequency_class::Frequency_class() :
 	className 					= Logfacility_class::className;
 
 	if ( not frqarray_done )
-	{
 		initFrqArray();
-		frequency_range.min 		= frqArray[1];
-		frequency_range.max 		= frqArray[FRQARR_SIZE-1] ;
-	}
 	if( not frqnamesarray_done )
 		initFrqNamesArray();
 	if( not harmonics_done )
@@ -37,7 +34,7 @@ Frequency_class::~Frequency_class()
 frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 {
 	frq_t frq = 0;
-	uint _idx = check_range( frqarr_range, idx, "Calc" );
+	uint _idx = check_range( frqext_range, idx, "Calc" );
 
 	( _idx < C0 ) ? frq = frqArray[ _idx ] : frq = frqArray[ _idx ]* _base_freq / oct_base_freq;
 	return frq;
@@ -45,15 +42,14 @@ frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 
 frq_t Frequency_class::GetFrq( const int& idx )
 {
-//	cout << "index";
-	uint frqidx = check_range( frqarr_range, idx, "GetFrq" );
+	uint frqidx = check_range( frqext_range, idx, "GetFrq" );
 	return frqArray[ frqidx];
 }
 
 
 uint Frequency_class::Index( const string& frqName )
 {
-	for( int n = frqarr_range.min; n <= frqarr_range.max; n++ )
+	for( int n = frqext_range.min; n <= frqext_range.max; n++ )
 		if ( strEqual( frqNamesArray[n], frqName ) )
 			return n;
 	// if frqName is a string of an index, needed by the interpreter
@@ -66,7 +62,7 @@ uint Frequency_class::Index( const string& frqName )
 
 uint  Frequency_class::Index( const frq_t& freq )
 {
-	int idx = frqarr_range.min;
+	int idx = frqext_range.min;
 	if( freq >= oct_base_freq )
 	{
 		idx = rint( log(freq / oct_base_freq) / log2 * oct_steps + C0 );
@@ -80,14 +76,14 @@ uint  Frequency_class::Index( const frq_t& freq )
 		else
 			idx = rint( freq + 9 );
 	}
-	return check_range( frqarr_range, idx, "Index" );
+	return check_range( frqext_range, idx, "Index" );
 }
 
 
 uint  Frequency_class::Index( const int& oct, const int& step )
 {
 	int idx = frqIndex(step,  oct );
-	return check_range( frqarr_range, idx, "Index" );
+	return check_range( frqext_range, idx, "Index" );
 }
 
 frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
@@ -146,7 +142,7 @@ void Frequency_class::initFrqArray(  )
 
 	uint C0idx = C0-1;
 
-	for ( uint n = 0; n < FRQARR_SIZE-1; n++)
+	for ( uint n = 0; n < FRQEXT_SIZE-1; n++)
 	{
 		float x = 0;
 		if ( n < 9 ) 			// range 0.1 ... 0.9
@@ -184,7 +180,7 @@ void Frequency_class::initFrqNamesArray()
 		frqNamesArray[n] = frqName;
 	}
 
-	for ( int oct = min_octave; oct < (int)max_octave; oct++)
+	for ( int oct = min_octave; oct < (int)(max_octave+3); oct++)
 	{
 		char octave = int2char(oct);
 		for( uint step = 0; step < oct_steps; step++ )
@@ -210,7 +206,7 @@ void Frequency_class::TestFrequency()
 	frq_t f;
 	f = GetFrq( 10 );
 	ASSERTION( f == 1, "Frq calc 10", f, 1 );
-	uint idx;
+	int idx;
 	idx = Index( "A3" );
 	f = GetFrq( idx );
 	ASSERTION( fcomp(f,220), "Frq calc A3", f, 220 );
@@ -228,20 +224,27 @@ void Frequency_class::TestFrequency()
 	g = 1-harmonicArray[abs(idxh)];
 	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
-	idx = Index( 220.0 );
-	ASSERTION( idx == A3, "Index ", idx, A3 );
-	idx = Index( 400.0 );
-	ASSERTION( idx == 81, "Index ", idx, 81 );
-	idx = Index( 410.0 );
-	ASSERTION( idx == 82, "Index ", idx, 82 );
-	idx = Index( 9.0 );
-	ASSERTION( idx == 18, "Index ", idx, 18 );
-	idx = Index( 0.9 );
-	ASSERTION( idx == 9, "Index ", idx, 9 );
-	idx = Index( 0.0 );
-	ASSERTION( idx == 1, "Index ", idx, 1 );
-	idx = Index( 4000.0 );
-	ASSERTION( idx == (FRQARR_SIZE - 1), "Index ", idx, FRQARR_SIZE - 1 );
+	typedef struct test_struct
+	{
+		float frq;
+		int idx;
+	} test_t;
+	vector<test_t> testvec =
+	{
+			{16000,FRQEXT_SIZE-1},
+			{220,A3},
+			{400,81},
+			{410,82},
+			{9,18},
+			{0.9,9},
+			{1,10}
+	} ;
+
+	for( test_t test : testvec )
+	{
+		idx = Index( test.frq );
+		ASSERTION( idx == test.idx, "Index ", idx, test.idx );
+	}
 
 	TEST_END( className );
 }

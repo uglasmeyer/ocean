@@ -29,8 +29,10 @@ ProgressBar_class		ProgressBar			{ &sds->RecCounter };
 Wavedisplay_class		Wavedisplay			{ Sds_master };
 AudioVolume_class		Volume				{ sds_master };
 EventLog_class			Eventlog			{ &DaTA };
-trigger_t				Note_start			{ &sds_master->Note_start };
-trigger_t				Note_end			{ &sds_master->Note_end };
+Trigger_class			Note_start			{ "Notes start", &sds_master->Note_start };
+Trigger_class			Note_end			{ "Notes end  ", &sds_master->Note_end };
+
+
 // runtime parameter
 buffer_t 				ncounter 			= 0;
 uint					rcounter			= 0; // # of recorded audioframes

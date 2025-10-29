@@ -147,6 +147,8 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 	auto 	notelist_append = [ this, &note_number ]( note_t note )
 	{
 		musicxml.notelist.push_back( ( note ) );
+		musicxml.scoreduration += note.duration;
+
 		note_number++;
 	};
 
@@ -217,26 +219,21 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 				note.str.push_back(pitch.step_char);
 				note.glide[0] = { pitch, false };
 				notelist_append( note );
-				musicxml.scoreduration += note.duration;
 			}
 			note_p = note_p->NextSiblingElement("note");
 
 
 		}
+		xmlstatistic.Measures++;
 		measure_p = measure_p->NextSiblingElement("measure");
 
 	}
 
-	note_t 	whole_rest_note 	= Notes.rest_note;
-	whole_rest_note.number		= note_number;
-	whole_rest_note.duration 	= measure_duration - ( musicxml.scoreduration % measure_duration );
-	notelist_append( whole_rest_note ); // add a pause at the end of the score
-
-	musicxml.scoreduration 		+= whole_rest_note.duration;
+	xmlstatistic.Measures--;
+	xmlstatistic.xmlNotes		= musicxml.notelist.size()-1;
 	xmlstatistic.Duration 		= musicxml.scoreduration;
 	xmlstatistic.Show( true );
 
-	cout << "Xml2notelist length " <<  musicxml.notelist.size() << " chords"  << endl;
 	return musicxml;
 }
 
@@ -252,7 +249,6 @@ typedef struct xmlnote_value_struct
 	{
 		set<int> dot_set {3,6,12};
 		int min_duration	= gcd( measure_duration, ( note.duration ));
-//		duration		 	= note.duration / min_duration;
 		duration			= note.duration * divisions / 500;
 		int type_id			= measure_duration / ( min_duration ) ;
 		if ( dot_set.contains( duration ) )
@@ -410,17 +406,24 @@ void Musicxml_class::Notelist2xmlFile( 	const string& name,
     	}
     	for( uint chord_id = 0; chord_id < note.chord.size(); chord_id++ )
     		xmlnote = appendNote( xmlmeasure, xmlnote, note, chord_id );
-        xmlstatistic.xmlNotes += note.chord.size();
         if( note.chord.size() > 1 )
         	xmlstatistic.Chords++;
-
     }
 
     save_document( File( name ) );
 
-    xmlstatistic.Measures = measure_number-1;
-	xmlstatistic.Duration += score_duration;
-    xmlstatistic.Show( true );
+    if ( musicxml.notelist.size() == 0 )
+    {
+    	Info( "empty note list ");
+    }
+    else
+    {
+
+		xmlstatistic.xmlNotes += musicxml.notelist.back().number;
+		xmlstatistic.Measures = measure_number-1;
+		xmlstatistic.Duration += score_duration;
+		xmlstatistic.Show( true );
+    }
 return;
 }
 
@@ -486,7 +489,7 @@ void Musicxml_class::Test()
 	int divisions = Notes.musicxml.divisions;
 	ASSERTION(	divisions == testxml.divisions, "Music xml divisions",divisions, testxml.divisions );
 	int duration = Notes.musicxml.scoreduration;
-	ASSERTION(	duration == 8000, "Music xml scoreduration",	duration, 8000L );
+	ASSERTION(	duration == 6000, "Music xml scoreduration",	duration, 6000L );
 
 	TEST_END( className );
 }

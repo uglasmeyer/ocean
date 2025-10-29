@@ -14,6 +14,35 @@
 #include <data/Memorybase.h>
 #include <Dynamic.h>
 
+/***************************
+ * trigger_struct
+ **************************/
+
+typedef struct trigger_data_struct
+{
+	bool state 		= false ;
+	bool active 	= false;
+} trigger_data_t;
+
+class Trigger_class
+{
+	trigger_data_t* trigger_data; 	// watch dog point
+	trigger_data_t	local_data;		// dummy
+	string			name 			= "";
+
+public:
+					Trigger_class	( string _name, trigger_data_t* _data );
+					Trigger_class	();
+	virtual			~Trigger_class	() = default;
+
+	void 			set_state		( bool _state ); // producer
+	void 			set_active		( bool _active ); // controller
+	bool 			get				(); // action
+};
+
+/***************************
+ * Scanner_class
+ **************************/
 class Scanner_class
 	: public virtual Logfacility_class
 {
@@ -55,20 +84,8 @@ class Memory :
 
 public:
 	Data_t* 	Data = nullptr;
-	Memory( buffer_t bytes ) :
-		Logfacility_class( "Memory" ),
-		Memory_base( bytes )
-	{
-		className = Logfacility_class::className;
-		Init_data();
-	};
-
-	Memory( ) :
-		Logfacility_class( "Memory" )
-	{
-		className = Logfacility_class::className;
-		Comment( DEBUG, "pre-init " + className );
-	};
+	Memory( buffer_t bytes );
+	Memory( );
 	virtual ~Memory() = default;
 
 	void Init_data(  );
@@ -102,7 +119,6 @@ public:
 	}
 	Stereo_Memory() :
 		Logfacility_class( "Memory_base")
-//	,	Memory_base( )
 	{
 		className = Logfacility_class::className;
 	};
@@ -177,8 +193,8 @@ private:
  * Shared_Memory
  **************************/
 class Shared_Memory :
-		virtual public Logfacility_class,
-		virtual public Shm_base
+		virtual public 		Logfacility_class,
+		virtual public 		Shm_base
 {
 	string 					className 			= "";
 public:
@@ -187,11 +203,11 @@ public:
 	static const buffer_t 	sharedbuffer_size 	= (audio_frames) * sizeof( Stereo_t );
 	Stereo_t* 				addr 				= nullptr;
 	range_T<buffer_t>		shm_range			;
-	Shared_Memory( buffer_t size );
-	virtual ~Shared_Memory();
+							Shared_Memory( buffer_t size );
+	virtual 				~Shared_Memory();
 
-	void Stereo_buffer( key_t key );
-	void Clear( const buffer_t& frames );
+	void 					Stereo_buffer( key_t key );
+	void 					Clear( const buffer_t& frames );
 
 
 };

@@ -9,15 +9,16 @@
 Dispatcher_class::Dispatcher_class( Dataworld_class* _data ) :
 	Logfacility_class( "Dispatcher_class")
 {
+	this->className = Logfacility_class::className;
 	Sem_p = _data->Sem_p;
 	Sds_p = _data->Sds_master;
 	Sds_master = _data->Sds_master;
-	assert( Sds_master == Sds_p );
 };
 Dispatcher_class::~Dispatcher_class()
 {
 	cout.flush() << "reset SEMAPHORE_EVENT" << endl;
 	Sem_p->Reset( SEMAPHORE_EVENT );
+	DESTRUCTOR( className );
 };
 void Dispatcher_class::done()
 {

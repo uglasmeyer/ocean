@@ -80,15 +80,7 @@ public:
 typedef 	Mixer_base::mixer_state_struct 	mixer_state_t;
 const 		mixer_state_t					default_mixer_state = Mixer_base::mixer_state_struct();
 typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
-const 		StA_state_t 					default_StA_state 	= StA_state_struct();
+constexpr	StA_state_t 					default_StA_state 	= StA_state_struct();
 
-constexpr 	StA_state_arr_t init_StA_state_arr ()
-{
-	StA_state_arr_t A {};
-	for( size_t n = 0; n < A.size(); n++ )
-		 A[n] = default_StA_state;
-	return A;
-}
-const 		StA_state_arr_t 				default_sta_state_arr= init_StA_state_arr();
 
 #endif /* MIXERBASE_H_ */

@@ -42,7 +42,7 @@ static constexpr auto qt_meta_stringdata_ZN10MainWindowE = QtMocHelpers::stringD
     "update_CB_external",
     "",
     "updateColorButtons",
-    "cB_Capture",
+    "Capture",
     "str",
     "Rtsp_Dialog",
     "SDS_Dialog",
@@ -64,7 +64,7 @@ static constexpr auto qt_meta_stringdata_ZN10MainWindowE = QtMocHelpers::stringD
     "VCO_Waveform_slot",
     "FMO_Waveform_slot",
     "exit_synthesizer",
-    "appid",
+    "APPID",
     "GUI_Exit",
     "start_synthesizer",
     "start_audio_srv",
@@ -240,7 +240,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN10MainWindowE[] = {
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Char,   26,
+    QMetaType::Void, 0x80000000 | 26,    2,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -312,7 +312,7 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'updateColorButtons'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'cB_Capture'
+        // method 'Capture'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         QtPrivate::TypeAndForceComplete<QString, std::false_type>,
         // method 'Rtsp_Dialog'
@@ -365,7 +365,7 @@ Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
         // method 'exit_synthesizer'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const char &, std::false_type>,
+        QtPrivate::TypeAndForceComplete<APPID, std::false_type>,
         // method 'GUI_Exit'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'start_synthesizer'
@@ -499,7 +499,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         switch (_id) {
         case 0: _t->update_CB_external(); break;
         case 1: _t->updateColorButtons(); break;
-        case 2: _t->cB_Capture((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 2: _t->Capture((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 3: _t->Rtsp_Dialog(); break;
         case 4: _t->SDS_Dialog(); break;
         case 5: _t->slideFrq((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
@@ -519,7 +519,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 19: _t->Main_Waveform_slot((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 20: _t->VCO_Waveform_slot((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 21: _t->FMO_Waveform_slot((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
-        case 22: _t->exit_synthesizer((*reinterpret_cast< std::add_pointer_t<char>>(_a[1]))); break;
+        case 22: _t->exit_synthesizer((*reinterpret_cast< std::add_pointer_t<APPID>>(_a[1]))); break;
         case 23: _t->GUI_Exit(); break;
         case 24: _t->start_synthesizer(); break;
         case 25: _t->start_audio_srv(); break;

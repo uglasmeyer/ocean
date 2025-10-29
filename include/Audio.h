@@ -12,7 +12,7 @@
 
 #include <RtAudio.h>
 #include <Logfacility.h>
-#include <Config.h>
+#include <data/Config.h>
 
 
 class Audio_class

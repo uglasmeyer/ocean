@@ -103,7 +103,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 	QString QStr{};
 	QStr.assign(1, (QChar)key.Arr[0] );
 	Keyboard_Dialog_p->keyboard_key = QStr;
-	coutf << key.Int << endl;
 	Keyboard_Dialog_p->Setup_Widget();
 
 }
@@ -118,7 +117,7 @@ void MainWindow::GUI_Exit()
 void MainWindow::mixer_balance()
 {
 	int value = ui->hs_balance->value();
-	Sds->Set( Sds->addr->mixer_balance, (int8_t) value );
+	Sds->Set( sds_master->mixer_balance, (int8_t) value );
 }
 
 void MainWindow::chord_delay()
@@ -138,7 +137,7 @@ void MainWindow::wavfile_selected( const QString &arg)
     }
 }
 
-void MainWindow::cB_Capture( QString str )
+void MainWindow::Capture( QString str )
 {
 	Sds->capture_flag = Eventlog.capture( SDS_ID, not Sds->capture_flag );
     (Sds->capture_flag) ? 	ui->cB_Capture->setCurrentText( QCapture_str_lst[Eventlog.CAPTURING] ):
@@ -216,9 +215,9 @@ void MainWindow::SDS_Dialog()
 void MainWindow::ADSR_Dialog()
 {
     switch_dialog( this->Spectrum_Dialog_p );
-	Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::ADSRID );
+	Sds->Set(Sds->addr->WD_status.roleId, ADSRROLE );
 	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-	ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::ADSRID ] );
+	ui->pB_Wavedisplay->setText( Qwd_role_names[ ADSRROLE ] );
 
 	Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
 	Spectrum_Dialog_p->Set_adsr_flag( true );
@@ -233,9 +232,9 @@ void MainWindow::File_Director()
 void MainWindow::Spectrum_Dialog()
 {
     switch_dialog( this->Spectrum_Dialog_p );
-    Sds->Set(Sds->addr->WD_status.roleId, ( uint8_t)osc_struct::INSTRID );
+    Sds->Set(Sds->addr->WD_status.roleId, INSTRROLE );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-    ui->pB_Wavedisplay->setText( Qwd_role_names[ osc_struct::INSTRID ] );
+    ui->pB_Wavedisplay->setText( Qwd_role_names[ INSTRROLE ] );
 
     Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
     this->Spectrum_Dialog_p->Set_adsr_flag( false );
@@ -245,7 +244,7 @@ void MainWindow::Spectrum_Dialog()
 void MainWindow::waveform_slot(	uint8_t* wf_addr,
 								uint8_t wfid,
 								int ID,
-								int wf_key,
+								EVENTKEY_t wf_key,
 								QLabel* label  )
 {
 	Sds->Set( *wf_addr, wfid );
@@ -268,7 +267,7 @@ void MainWindow::VCO_Waveform_slot( int _wfid )
 }
 
 
-void MainWindow::select_Sds( uint8_t sdsid )
+void MainWindow::select_Sds( Id_t sdsid )
 {
 	Sds->Set( this->sds_master->config, sdsid );
 	Sds->Set( this->sds_master->UpdateFlag	, true);
@@ -281,13 +280,12 @@ void MainWindow::select_Sds( uint8_t sdsid )
 	initGuiVectors();
 	initStateButtons();
 
-    Info( AppIdName( GUI_ID) + " set to SDS Id: " + to_string( (int) Sds->addr->SDS_Id ));
+    Info( "Activate SDS ", to_string( (int) Sds->addr->SDS_Id ));
 
 	File_Dialog_p->SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_p->SetSds( this->Sds, sdsid );
 
 	Rtsp_Dialog_p->proc_table_update_row( sdsid + 1 );
-	Rtsp_Dialog_p->SDS_ID = sdsid;
 
    	rb_S_vec[ sds_master->config ]->setChecked( true );
 
@@ -580,17 +578,15 @@ auto start_synth = [  ]( MainWindow* M, string cmd )
 	    return M->SDS_ID;
 	}
 
-	int sdsid = M->DaTA.Reg.GetStartId( );
+	Id_t sdsid = M->DaTA.Appstate.GetNextSdsId( );
 	if ( sdsid < 0 ) return M->SDS_ID;
 
     System_execute( cmd.data() );
-    return (uint8_t) sdsid;
+    return sdsid;
 
 };
 void MainWindow::start_synthesizer()
 {
-	if (Appstate->IsInconsistent( Sds->addr, SYNTHID ))
-		return;
 	if( Appstate->IsRunning( Sds->addr, SYNTHID ) )
 	{
 		exit_synthesizer( SYNTHID );
@@ -605,12 +601,9 @@ void MainWindow::start_synthesizer()
 }
 void MainWindow::start_keyboard()
 {
-
-//	this->Keyboard_Dialog_p->show();
-
-	if( Appstate->IsRunning( Sds->addr, APPID::KEYBOARDID ))
+	if( Appstate->IsRunning( Sds->addr, KEYBOARDID ))
 	{
-		exit_synthesizer( APPID::KEYBOARDID );
+		exit_synthesizer( KEYBOARDID );
 	}
 	else
 	{
@@ -624,7 +617,7 @@ void MainWindow::read_polygon_data()
     OscWidget_item->read_polygon_data();
 };
 
-void MainWindow::exit_synthesizer( const char& appid )
+void MainWindow::exit_synthesizer( APPID appid )
 {
 	if ( Appstate->IsRunning( sds_master, RTSPID ) )
 	{
@@ -643,21 +636,21 @@ void MainWindow::Save_Config()
 	Eventlog.add( SDS_ID, SAVEINSTRUMENTKEY);
 }
 
-auto connect_secundary = [  ]( MainWindow* M, char oscid, char secid, char mode, bool val )
+auto connect_secundary = [  ]( MainWindow* M, OscId_t oscid, OscId_t secid, char mode, bool val )
 {
 	if ( mode == CONF )
 	{
 		if( val )
-			M->Sds->Set( M->sds->connect_arr[oscid].frq, (char)secid );
+			M->Sds->Set( M->sds->connect_arr[oscid].frq, secid );
 		else
-			M->Sds->Set( M->sds->connect_arr[oscid].frq, (char)oscid );
+			M->Sds->Set( M->sds->connect_arr[oscid].frq, oscid );
 	}
 	if ( mode == CONV )
 	{
 		if( val )
-			M->Sds->Set( M->sds->connect_arr[oscid].vol, (char)secid );
+			M->Sds->Set( M->sds->connect_arr[oscid].vol, secid );
 		else
-			M->Sds->Set( M->sds->connect_arr[oscid].vol, (char)oscid );
+			M->Sds->Set( M->sds->connect_arr[oscid].vol, oscid );
 	}
 	M->Eventlog.add( M->SDS_ID, CONNECTOSC_KEY );
 };
@@ -715,20 +708,21 @@ void MainWindow::pB_Debug_clicked()
 
 void MainWindow::pB_oscgroup_clicked()
 {
-    uint8_t counter = ( Sds->addr->WD_status.oscId + 1 ) % WD_OSC_SIZE;
-    Sds->Set( Sds->addr->WD_status.oscId, counter );
+    OscId_t counter = Sds->addr->WD_status.oscId++ ;
+    Sds->Set( Sds->addr->WD_status.oscId, (OscId_t) (counter % WD_OSC_SIZE ) );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
     ui->pB_oscgroup->setText( Qwd_osc_names[ (int)counter ] );
 }
 
+
 void MainWindow::pB_Wavedisplay_clicked()
 {
-    uint8_t counter = (Sds->addr->WD_status.roleId + 1) % WD_ROLES_SIZE;
-    Sds->Set( Sds->addr->WD_status.roleId , counter);
+	OscroleId_t counter = Sds->addr->WD_status.roleId++ ;// ) % WD_ROLES_SIZE;
+    Sds->Set( Sds->addr->WD_status.roleId , (OscroleId_t) (counter % WD_ROLES_SIZE ));
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
-    ui->pB_Wavedisplay->setText( Qwd_role_names[ (int)counter ] );
+    ui->pB_Wavedisplay->setText( Qwd_role_names[ counter ] );
 };
 
 void MainWindow::pB_fftmode_clicked()
@@ -736,7 +730,6 @@ void MainWindow::pB_fftmode_clicked()
 	bool fft_mode = not (Sds->addr->WD_status.fftmode );
 	Sds->Set( Sds->addr->WD_status.fftmode, fft_mode );
 	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
-	cout << "pB_fftmode_clicked" << boolalpha << Sds->addr->WD_status.fftmode << endl;
 
 	ui->pb_fftmode->setText( Qwd_fftmodes[ (int)fft_mode ] );
 }
@@ -772,7 +765,7 @@ void MainWindow::setwidgetvalues()
     ui->hs_hall_effect->setValue	( (int) Sds->addr->adsr_arr[OSCID].hall );
     ui->Slider_slideFrq->setValue	( (int) Sds->addr->features[OSCID].glide_effect );
     ui->Slider_slideVol->setValue	( sds_master->slide_duration);//Master_Amp);
-    ui->hs_balance->setValue		( Sds->addr->mixer_balance );
+    ui->hs_balance->setValue		( sds_master->mixer_balance );
 
     get_record_status();
 
@@ -791,7 +784,7 @@ void MainWindow::setwidgetvalues()
 
 	ui->Pbar_telapsed->setValue( Sds->addr->time_elapsed );
 
-	if ( Sds->addr->WD_status.roleId == osc_struct::AUDIOOUTID )
+	if ( Sds->addr->WD_status.roleId == AUDIOROLE )
 		OscWidget_item->sds = sds_master;
 	else
 		OscWidget_item->sds = this->Sds->addr;
@@ -839,12 +832,13 @@ void MainWindow::setwidgetvalues()
 void MainWindow::updateColorButtons()
 {
 
-	auto isRunning = [ this ]( char appid, interface_t* sds )
+	auto isRunning = [ this ]( APPID appid, interface_t* sds )
 	{
 		return Appstate->IsRunning( sds , appid );
 	};
+
 	uint audio_state		=	isRunning( AUDIOID, sds_master ) ;
-	uint synthesizer_state	= 	isRunning( SYNTHID,sds )*2 + // red or yellow
+	uint synthesizer_state	= 	isRunning( SYNTHID, sds )*2 + // red or yellow
 								audio_state;   // red or yellow or green
 	bool keyboard_up		= 	isRunning( APPID::KEYBOARDID, sds );
 	uint keyboard_state 	= 	keyboard_up*2 + audio_state;

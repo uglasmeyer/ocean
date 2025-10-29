@@ -1,0 +1,168 @@
+/*
+ * Configbase.h
+ *
+ *  Created on: Oct 17, 2024
+ *      Author: sirius
+ */
+
+#ifndef DATA_CONFIGBASE_H_
+#define DATA_CONFIGBASE_H_
+
+#include <Version.h>
+#include <Ocean.h>
+#include <String.h>
+#include <Table.h>
+
+#define OCEANDIR "OCEANDIR"
+
+static const Id_t 	MAXCONFIG 	= 4;
+static const string	oceandir_env= OCEANDIR;
+typedef	array<key_t,MAXCONFIG>	keys_arr_t;
+
+struct prgarg_struct
+{
+		uint 		channel 	= 2;  		// -c
+		uint 		rate 		= sample_rate;	// -r
+		uint 		device 		= 0;		// -d
+		uint 		ch_offs 	= 0; 		// -o
+		uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically
+		char		clear		= 'n';		// -X clear process array
+		char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
+		char		debug		= 'n';
+		char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
+		char 		composer	= 'n';		// start rtsp with option -C
+		char 		oceangui	= 'n';		// start rtsp with option -G
+		string 		Genre		= "Alternative";
+		string 		author		= "U.G.";
+		string		title		= "Experimental";
+		string		album		= Application;
+		string		Term		= "xterm -e ";
+		string		Nohup		= "nohup";
+		string 		ffmpeg 		= "ffmpeg";
+		string		installdir	= "";		 // Setup -I ...
+		string		filename	= "";
+		key_t		Sem_key		= 0x9999;
+		key_t 		SHM_key 	= 0x100; 	// -k
+		key_t		SHM_keyl	= SHM_key;
+		key_t		SHM_keyr	= SHM_key+1;
+		key_t		SDS_key		= 0x6666;
+		keys_arr_t 	sdskeys 	{};
+		uint		temp_sec	= tmpduration; 	// seconds storage in StA
+		uint 		record_sec	= recduration; 	// seconds storage
+		uint		kbd_sec		= kbdduration;	// seconds of keyboard stoarage in StA
+
+} ;
+typedef prgarg_struct prgarg_t;
+
+
+enum APPID
+{
+	AUDIOID = 0,
+	SYNTHID,
+	COMPID,
+	GUI_ID,
+	SDSVIEWID,
+	RTSPID,
+	KEYBOARDID,
+	SETUPID,
+	TESTPRGID,
+	XMLEDITORID,
+	NoAPPID
+};
+
+#define AUDIOSERVER "AudioServer"
+#define SYNTHESIZER	"Synthesizer"
+#define COMPOSER	"Composer"
+#define OCEANGUI	"OceanGUI"
+#define SDSVIEW		"SDSview"
+#define RTSP		"Rtsp"
+#define SYNTHKBD	"Keyboard"
+#define SETUP		"Setup"
+#define TESTPRG		"Testprj"
+#define XMLEDITOR	"musescore3"
+
+template< typename Type >
+vector<Type> Iota( Type beg, Type size )
+{
+	vector<Type> v{};
+	for( Type n = beg; n < (beg+size); n++ )
+		v.push_back( n );
+	return v;
+};
+
+struct AppMap_struct
+{
+
+	map<APPID, string> AppIdName_map // @suppress("Invalid arguments")
+	{
+			{ AUDIOID		, AUDIOSERVER },
+			{ SYNTHID		, SYNTHESIZER},
+			{ COMPID		, COMPOSER},
+			{ GUI_ID		, OCEANGUI},
+			{ SDSVIEWID		, SDSVIEW},
+			{ RTSPID		, RTSP},
+			{ KEYBOARDID	, SYNTHKBD},
+			{ SETUPID		, SETUP},
+			{ TESTPRGID		, TESTPRG},
+			{ XMLEDITORID	, XMLEDITOR},
+			{ NoAPPID			, "unknown id"},
+	};
+	map< string, APPID >AppNameId_map = // @suppress("Invalid arguments")
+			imap<APPID, string>( AppIdName_map ); // @suppress("Invalid arguments")
+	vector<APPID> AppIds{};
+	AppMap_struct()
+	{
+		AppIds = Iota( AUDIOID, NoAPPID );
+	}
+	~AppMap_struct() = default;
+	string AppIdName( APPID appid )
+	{
+		return AppIdName_map[ appid ];
+	}
+	APPID AppNameId( string name )
+	{
+		return AppNameId_map[ name ];
+	}
+
+};
+const vector<APPID> AppIds = AppMap_struct().AppIds;
+
+struct process_properties_struct
+{
+	int			pid				= NoPID;
+	bool		start_once		= true;
+	bool		data_process 	= false;
+	bool		logowner 		= false;
+	bool		keyboard		= false;
+};
+
+typedef struct process_struct :
+	process_properties_struct,
+	AppMap_struct
+{
+	const string 	name 		= program_invocation_short_name;
+	const APPID		AppId 		= AppNameId( name );
+	process_struct( ) :
+		process_properties_struct()
+	{	};
+
+	virtual ~process_struct() 	= default;
+	void Show()
+	{
+		Table_class Table { name +" properties", LOGINDENT };
+		Table.AddColumn("Property"		, 20);
+		Table.AddColumn("Value"			, 20);
+		Table.PrintHeader();
+		Table.AddRow("Application id"	, (int)AppId );
+		Table.AddRow("Name"				, name );
+		Table.AddRow("Process id"		, pid );
+		Table.AddRow("Start once"		, start_once );
+		Table.AddRow("Data process"		, data_process );
+		Table.AddRow("Logfile owner"	, logowner );
+		Table.AddRow("Keyboard"			, keyboard );
+	}
+} process_t;
+
+
+
+#endif /* DATA_CONFIGBASE_H_ */

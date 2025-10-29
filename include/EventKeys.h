@@ -14,7 +14,8 @@ https://en.wikipedia.org/wiki/ASCII#Character_set
 #define INCLUDE_KEYS_H_
 
 
-enum {
+enum EVENTKEY_t
+{
 	NULLKEY = 0,
 
 	// OSC frequency
@@ -111,7 +112,7 @@ enum {
 
 #include <vector>
 
-const std::vector<char> init_keys =
+const std::vector<EVENTKEY_t> init_keys =
 {
 		// avoid toggle commands here
 		SETINSTRUMENTKEY,

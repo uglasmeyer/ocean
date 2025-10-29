@@ -13,6 +13,7 @@
 
 
 #include <App.h>
+#include <Version.h>
 
 
 
@@ -25,20 +26,14 @@ Application_class::Application_class( Dataworld_class* _DaTA ) :
 	this->DaTA					= _DaTA;
 	this->Cfg 					= DaTA->Cfg_p;
 	this->sds_master			= DaTA->sds_master;
+	this->Sds					= DaTA->GetSds( );
+	this->sds					= Sds->addr;
 	this->AppId					= DaTA->AppId;
 	this->Appstate				= &DaTA->Appstate;
 	this->This_Application 		= Application + ProgramName + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
-	init_Sds( );
-
 }
 
-void Application_class::init_Sds( )
-{
-	this->Sds		= DaTA->GetSds( );
-	assert( this->Sds != nullptr );
-	this->sds		= Sds->addr;
-}
 
 Application_class::~Application_class()
 {
@@ -48,7 +43,7 @@ Application_class::~Application_class()
 	}
 	else
 	{
-		if ( ( AppId == APPID::KEYBOARDID ) or ( AppId == APPID::SYNTHID ) )
+		if ( ( AppId == KEYBOARDID ) or ( AppId == SYNTHID ) )
 			Sds->Dump_ifd();
 	}
 
@@ -60,61 +55,55 @@ Application_class::~Application_class()
 void Application_class::versionTxt()
 {
 	fstream File;
-	File.open( Cfg->fs.version_txt, fstream::out );
+	File.open( Cfg->fs->version_txt, fstream::out );
 	File << "Version: " << Version_No << endl;
 	File.close();
 }
 
 void Application_class::app_properties()
 {
-	properties.logowner			= logowner.contains( AppId );
-	properties.start_once		= Appstate->startonceIds.contains( AppId );
-	properties.data_process		= DaTA->Reg.is_dataproc ;
-	properties.keyboard			= Appstate->IsKeyboard();
+	properties.logowner		= logowner.contains( AppId );
+	properties.start_once	= Appstate->assignMasterSds.contains( AppId );
+	properties.data_process	= Appstate->Is_dataproc( AppId ) ;
+	properties.keyboard		= Appstate->IsKeyboard();
+	properties.pid			= Appstate->getPid( sds, AppId );
 	properties.Show();
 }
+
 void Application_class::Start( int argc, char* argv[] )
 {
-	Info( "Using OCEADIR=", Cfg->fs.installdir );
+
+	Info( "Using OCEADIR=", Cfg->fs->installdir );
 	Timer.TimeStamp();
 	Cfg->Parse_argv(argc, argv );
 
-	app_properties();
-
-	for( interface_t* sds : DaTA->SDS.vec )
-	{
-		if ( not Appstate->StartOnceOk( sds ))
-		{
-		    std::this_thread::sleep_for ( std::chrono::seconds(2) );
-			raise( SIGHUP );
-		}
-	}
-
 	Appstate->Announce();
+	app_properties();
 
 	if ( logowner.contains( AppId ) )
 	{
 		Init_log_file();
 	}
-	Info(Line( 80 - 26 ) );
-	Info("Entering application init for ", This_Application );
-	Info(Line( 80 - 26 ) );
+	Info(Line() );
+	Info("Entering application init for \n", This_Application );
+	Info(Line() );
 
 	versionTxt();
 
-	Cfg->Show_Config( );
-
-	if ( DaTA->Cfg_p->Config.clear == 'y' )
-	{
-		DaTA->Reg.Clear_procregister();
-		EXCEPTION( "Restart processes");
-	}
+	Cfg->Show_Config( false );
 }
 
 
 void Application_class::deRegister( )
 {
+	Timer.TimeStamp();
+
+	pid_t thispid 	= getpid();
+	pid_t sdspid 	= DaTA->Appstate.getPid( sds, AppId );
+	if ( thispid != sdspid ) return;
+
 	DaTA->Appstate.SetOffline( );//this->sds, this->AppId );
+
 
 	if ( this->AppId != GUI_ID )
 		if( DaTA->Appstate.IsRunning( sds_master, GUI_ID)  )
@@ -122,7 +111,6 @@ void Application_class::deRegister( )
 			DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
 		}
 	DaTA->Sem_p->Release( SEMAPHORE_EXIT );
-	Timer.TimeStamp();
 }
 
 void Application_class::Ready(  )

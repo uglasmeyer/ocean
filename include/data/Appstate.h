@@ -8,137 +8,78 @@
 #ifndef DATA_APPSTATE_H_
 #define DATA_APPSTATE_H_
 
-#include <bits/stdint-uintn.h>
+
+#include <data/Configbase.h>
 #include <data/SharedDataSegment.h>
 #include <Logfacility.h>
-#include <Ocean.h>
-#include <sys/types.h>
-#include <Table.h>
-#include <array>
-#include <cerrno>
-#include <cstdlib>
-#include <iostream>
-#include <set>
-#include <string>
-#include <data/Register.h>
-
-
-
-
-template<typename T>
-constexpr char AppNameId( const T& name )
-{
-	char appid = APPID::NOID;
-
-	if ( strEqual( name, AUDIOSERVER	) ) appid = APPID::AUDIOID;
-	if ( strEqual( name, SYNTHESIZER 	) )	appid = APPID::SYNTHID;
-	if ( strEqual( name, COMPOSER 		) )	appid = APPID::COMPID;
-	if ( strEqual( name, OCEANGUI	 	) ) appid = APPID::GUI_ID;
-	if ( strEqual( name, SDSVIEW	 	) )	appid = APPID::SDSVIEWID;
-	if ( strEqual( name, SYNTHKBD 		) )	appid = APPID::KEYBOARDID;
-	if ( strEqual( name, SETUP		 	) )	appid = APPID::SETUPID;
-	if ( strEqual( name, RTSP	 		) )	appid = APPID::RTSPID;
-	if ( strEqual( name, TESTPRG 		) )	appid = APPID::TESTPRGID;
-
-	if ( appid == APPID::NOID )
-	{
-		cout << "ERROR: unknown application name: " << name << endl;
-		exit( 0 );
-	}
-	if ( ( not is_atty ) and ( appid == APPID::KEYBOARDID ) )
-	{
-		appid = APPID::SYNTHID;
-	}
-	return appid;
-}
-
-struct process_properties_struct
-{
-	bool		start_once		= true;
-	bool		data_process 	= false;
-	bool		logowner 		= false;
-	bool		keyboard		= false;
-};
-
-typedef struct process_struct :
-		process_properties_struct
-{
-	const string 	name 		= program_invocation_short_name;
-	const char		AppId 		= AppNameId( program_invocation_short_name );
-	process_struct( ) :
-		process_properties_struct()
-	{	};
-
-	virtual ~process_struct() 	= default;
-	void Show()
-	{
-		Table_class Table { name +" properties", LOGINDENT };
-		Table.AddColumn("Property"		, 20);
-		Table.AddColumn("Value"			, 20);
-		Table.PrintHeader();
-		Table.AddRow("Application id"	, (int)AppId );
-		Table.AddRow("Name"				, name );
-		Table.AddRow("Start once"		, start_once );
-		Table.AddRow("Data process"		, data_process );
-		Table.AddRow("Logfile owner"	, logowner );
-		Table.AddRow("Keyboard"			, keyboard );
-	}
-} process_t;
+#include <data/Sdsbase.h>
 
 class Appstate_class :
 	virtual public Logfacility_class,
-	virtual public sdsstate_struct
+	virtual public sdsstate_struct,
+			public AppMap_struct
 
 {
 public:
 	string 			className 			= "";
 	string			Name 				= "";
-	uint 			AppId				;
-	Register_class* Reg_p				;
+	APPID 			AppId				;
+	APPID 			AppType				;
+	int8_t			SDSid				;
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
-	const set<int> 	startonceIds 		{ AUDIOID, GUI_ID, RTSPID, COMPID, KEYBOARDID, TESTPRGID } ;
-	const range_T<uint>
-					appId_range 		{0, NOID };
-	array< uint, NOID>
-					backup_state		{ };
-					Appstate_class		( 	char appid,
-											interface_t* _sds,
-											interface_t* _sds_master,
-											Register_class* reg
+	sds_vec_t		sds_vec				{};
+	const set<APPID>dataProc			{ AUDIOID, SYNTHID, KEYBOARDID };
+
+	const set<APPID>assignMasterSds 	{ AUDIOID, GUI_ID, RTSPID, COMPID, KEYBOARDID, TESTPRGID } ;
+	SdsId_vec_t		all_sdsids			= Iota<Id_t>( 0, MAXCONFIG );
+
+	appstate_arr_t	backup_state		{ };
+
+					Appstate_class		( 	APPID appid,
+											sds_vec_t sds_vec
 										);
 
 	virtual			~Appstate_class		()
 						{ DESTRUCTOR( className );};
 
 	void 			Setup				( interface_t* _sds, interface_t* _sds_master );
+	APPID 			Type				( interface_t* sds, APPID appid );
 	void 			Announce			( );
 	bool 			StartOnceOk			( interface_t* sds );
 
-	void			Set					( interface_t* sds, uint appid, int state );
-	int				Get					( interface_t* sds, uint appid );
-	string			GetStr				( interface_t* sds, uint appid );
+	void			SetState			( interface_t* sds, APPID appid, StateId_t state );
+	void			SetPid				( interface_t* sds, APPID appid, int pid );
+	string			GetStateStr				( interface_t* sds, APPID appid );
+	string			GetPidStr			( interface_t* sds, APPID appid );
+	int				getPid				( interface_t* sds, APPID appid );
 
-	bool			IsRunning  			( interface_t* sds, uint appid );
-	bool			IsOffline  			( interface_t* sds, uint appid );
-	bool 			IsExitserver		( interface_t* sds, uint appid );
+	bool			IsRunning  			( interface_t* sds, APPID appid );
+	bool			IsOffline  			( interface_t* sds, APPID appid );
+	bool 			IsExitserver		( interface_t* sds, APPID appid );
 	bool			IsKeyboard			( );
+	bool 			Is_dataproc			( APPID appid );
 
 	void 			SetRunning			( );
 	void 			SetOffline			( );
-	void 			SetExitserver		( interface_t* sds, uint appid );
+	void 			SetOffline			( interface_t* sds, APPID appid );
+	void 			SetExitserver		( interface_t* sds, APPID appid );
 
-	void			SaveState			( );
-	void			RestoreState		( );
-	bool 			IsInconsistent		( interface_t* sds, char appid );
+	void			SaveStateArr			( interface_t* sds );
+	void			RestoreStateArr		( interface_t* sds );
+	void 			CheckAppstates		( interface_t* sds );
+	bool 			CheckAppstate		( interface_t* sds, APPID appid );
 
-	void			Shutdown_all		(  vector<interface_t*> sds_vec );
-	void  			Shutdown			( interface_t* sds, char appid );
+	void			Shutdown_all		( sds_vec_t sds_vec );
+	void  			Shutdown			( interface_t* sds, APPID appid );
+	StateId_t		GetState			( interface_t* sds, APPID appid );
+
+	int 			GetNextSdsId		(  ); //find next synthesizer SDS
 
 private:
-	uint8_t* 		appAddr				( interface_t* sds, uint appid );
+	Id_t 			assign_sdsid		( APPID appid ); // returns Sds_Id
+	SdsId_vec_t	 	allowed_sdsid		( APPID appid );
+
 };
-
-
 
 #endif /* DATA_APPSTATE_H_ */

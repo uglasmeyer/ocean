@@ -29,7 +29,7 @@ void set_title( MainWindow* window )
 {
     QString QVersion 	= Qstring( Version_str );
     QString QModule		= Qstring( TitleModule);
-    QString QDir		= Qstring( window->App.Cfg->fs.installdir );
+    QString QDir		= Qstring( window->App.Cfg->fs->installdir );
     window->setWindowTitle( QModule + " " + QVersion  + " (" + QDir + ")");
 ;
 }

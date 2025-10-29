@@ -5,8 +5,8 @@
  *      Author: sirius
  */
 
+#include <data/Config.h>
 #include <Instrument.h>
-#include <Config.h>
 #include <System.h>
 
 Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
@@ -30,12 +30,14 @@ Instrument_class::~Instrument_class()
 void Instrument_class::selfTest()
 {
 	assert ( Oscgroup.osc.MemData_p() != nullptr );
+	Assert_equal( Oscgroup.osc.typeId, OSCID, "type" );
 	ASSERTION( fmo->spectrum.osc == FMOID, "fmo->spectrum.osc",
 				(int) fmo->spectrum.osc, (int) FMOID );
 
 	adsr_t adsr = fmo->Get_adsr();
 	ASSERTION( adsr.spec.adsr == true, "fmo->adsr_data.spec.adsr",
 				(int) adsr.spec.adsr, 1 );
+
 }
 
 void Instrument_class::update_sds()
@@ -281,7 +283,7 @@ bool Instrument_class::read_version1( fstream* File )
 
 bool Instrument_class::read_version2( fstream* File )
 {
-	auto get_con = [ this ]( connectId_t con, char secid, char mode )
+	auto get_con = [ this ]( connectId_t con, OscId_t secid, char mode )
 	{
 		switch (mode)
 		{
@@ -335,7 +337,7 @@ bool Instrument_class::read_version2( fstream* File )
 		}
 		if ( strEqual( "CON", Type ))
 		{
-			char	secid 	= Oscgroup.Get_oscid_by_name( arr[2] );
+			OscId_t	secid 	= Oscgroup.Get_oscid_by_name( arr[2] );
 			char 	mode 	= arr[3][0];
 			connectId_t con_tmp = sds->connect_arr[oscid];
 			sds->connect_arr[oscid] = get_con( con_tmp, secid, mode );
@@ -531,14 +533,13 @@ void Instrument_class::Test_Instrument()
 	TEST_START( className );
 
 	connectId_t connect = Get_connect_state( OSCID );
-	assert( strEqual( osc->fp.name, oscNames[ OSCID ] ) );
-	assert( strEqual( osc->vp.name, oscNames[ OSCID ] ) );
-	ASSERTION( connect == default_connect( OSCID ), "connect_state",
-			(int)Get_connect_state( OSCID ).vol, (int)OSCID );
+	assert( strEqual( osc->fp.name, typeNames[ OSCID ] ) );
+	assert( strEqual( osc->vp.name, typeNames[ OSCID ] ) );
+	Assert_equal( connect, default_connect( OSCID ), "connect_state" );
 
 	assert( Set( ".test2" ) );
-	assert( strEqual( osc->fp.name, oscNames[ FMOID ] ) );
-	assert( strEqual( osc->vp.name, oscNames[ VCOID ] ) );
+	assert( strEqual( osc->fp.name, typeNames[ FMOID ] ) );
+	assert( strEqual( osc->vp.name, typeNames[ VCOID ] ) );
 	ASSERTION( Get_connect_state( OSCID ).vol == sds->connect_arr[OSCID].vol , "connect_state",
 			(int)Get_connect_state( OSCID ).vol, (int)sds->connect_arr[OSCID].vol );
 	ASSERTION( Get_connect_state( OSCID ).frq == sds->connect_arr[OSCID].frq, "connect_state",

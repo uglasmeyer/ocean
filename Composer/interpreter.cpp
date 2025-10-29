@@ -5,18 +5,19 @@
  *      Author: sirius
  */
 
-#include <Interpreter.h>
+#include <Composer/Interpreter.h>
 
 
-Interpreter_class::Interpreter_class( Dataworld_class* data )
+Interpreter_class::Interpreter_class( Application_class* app )
 	: Logfacility_class( "Interpreter_class" )
-	, Processor_class( data->Sds_master, &data->Appstate )
-	, Device_class( data->sds_master )
+	, Processor_class( app )
+	, Device_class( app->DaTA->sds_master )
 {
 	className			= Logfacility_class::className;
-	this->sds 			= data->GetSdsAddr();
-	this->Sds 			= data->Sds_master;
-	this->Cfg 			= data->Cfg_p;
+	this->sds 			= app->DaTA->GetSdsAddr();
+	this->Sds 			= app->DaTA->Sds_master;
+	this->Cfg 			= app->DaTA->Cfg_p;
+	this->fs			= app->DaTA->Cfg_p->fs;
 
 	main_view.name		= "Main osc";
 	main_view.oscid		= OSCID;
@@ -73,16 +74,16 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 
 	if ( cmpkeyword( "rtsp" ) )
 	{
-		exe = file_structure().rtsp_bin;
+		exe = fs->rtsp_bin;
 		opt = "-C";
 	}
 	if ( cmpkeyword( "synthesizer") )
 	{
-		exe = file_structure().Synth_bin;
+		exe = fs->Synth_bin;
 	}
 	if ( cmpkeyword( "audioserver") )
 	{
-		exe = file_structure().Audio_bin;
+		exe = fs->Audio_bin;
 	}
 	if( exe.length() > 0 )
 	{
@@ -115,14 +116,14 @@ void Interpreter_class::Stop_bin( vector_str_t arr )
 	if ( strEqual( keyword.Str, "Synthesizer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::Push_ifd( &sds->Synthesizer, EXITSERVER, "terminating " + keyword.Str );
+		Processor_class::Push_ifd( &sds->appstate_arr[SYNTHID].state, EXITSERVER, "terminating " + keyword.Str );
 		Processor_class::Push_key( EXITKEY, "terminating key" + keyword.Str );
 		return;
 	}
 	if ( strEqual( keyword.Str, "AudioServer" ) )
 	{
 		Comment( INFO, "terminating " + keyword.Str );
-		Processor_class::Push_ifd( &sds->AudioServer, EXITSERVER, "terminating " + keyword.Str  );
+		Processor_class::Push_ifd( &sds->appstate_arr[AUDIOID].state, EXITSERVER, "terminating " + keyword.Str  );
 		return;
 	}
 
@@ -133,18 +134,16 @@ void Interpreter_class::Stop_bin( vector_str_t arr )
 void Interpreter_class::intro( vector_str_t arr, uint min )
 {
 	auto arr_to_str = [ arr ]()
-		{
-			string ret = " > ";
-			for( string str : arr )
-				ret.append( str + " " );
-			return ret;
-		};
+	{
+		string ret = "   > ";
+		return ret + show_type( arr );
+	};
 
-	error = 0;
-	duration = 0;
+	error 			= 0;
+	duration 		= 0;
 	set_stack( arr, min );
-	keyword.Str = pop_stack( 1 );
-	command = arr_to_str();
+	keyword.Str 	= pop_stack( 1 );
+	command 		= arr_to_str();
 	Processor_class::Push_text( command );
 
 }
@@ -159,7 +158,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		expect = { "Record duration in seconds" };
 		option_default = "0";
 		string duration = pop_stack( 0 );
-		Processor_class::Push_ifd( &sds->AudioServer, (uint8_t)sdsstate_struct::RECORDING, "recording" );
+		Processor_class::Push_ifd( &sds->appstate_arr[AUDIOID].state, RECORDING, "recording" );
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"start record" );
 		Pause( {"pause", duration } );
 
@@ -169,7 +168,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 	{
 		expect = { "File number" };
 		int FileNo = pop_int(0, 255 ) ;
-		Processor_class::Push_ifd( &sds->AudioServer, (uint8_t)sdsstate_struct::RECORDSTOP,"record stop" );
+		Processor_class::Push_ifd( &sds->appstate_arr[AUDIOID].state, RECORDSTOP,"record stop" );
 		Processor_class::Push_ifd( &sds->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
@@ -287,8 +286,8 @@ void Interpreter_class::Notes( vector_str_t arr )
 		expect = { "Notes name" };
 		string notes_name = pop_stack( 1);
 		Comment( INFO, "loading notes " + notes_name );
-		check_file( { 	file_structure().autodir,
-						file_structure().notesdir }, notes_name + file_structure().nte_type );
+		check_file( { 	fs->autodir,
+						fs->notesdir }, notes_name + fs->nte_type );
 
 		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, notes_name );
 		return;
@@ -409,7 +408,7 @@ void Interpreter_class::Instrument( vector_str_t arr )
 		expect = { "instument name "};
 		string instr = pop_stack( 1);
 		Comment( INFO, "loading instrument " + instr );
-		check_file( { file_structure().instrumentdir } , instr + file_structure().snd_type );
+		check_file( { fs->instrumentdir } , instr + fs->snd_type );
 
 //		Push_text( command );
 		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
@@ -627,7 +626,7 @@ void Interpreter_class::Play( vector_str_t arr )
 			Processor_class::Push_ifd( &sds->StA_amp_arr[staId] , max, "% slide duration " );
 			Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
 			Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
-			Loop( max, 0);
+			Loop( max, NULLKEY);
 			return;
 		}
 		else
@@ -671,8 +670,9 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		Processor_class::Push_ifd( &sds->MIX_Id , id, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[ id ], amp, "mixer volume" );
 		Processor_class::Push_ifd( &sds->StA_state[id].play, true, "true" );
-		Processor_class::Push_key( SETSTA_KEY	, "set volume" );
-		Processor_class::Push_key( SETSTAPLAY_KEY	, "set play" );
+		Processor_class::Push_key( SETSTA_KEY	, "set StAs" );
+
+		Processor_class::Push_key( RESET_STA_SCANNER_KEY	, "reset StAscanner" );
 
 		return;
 	}
@@ -857,17 +857,17 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 			return ( a.size() > 0 ) ? a[0] : "";
 		};
 
-	auto is_notesfile = [](string str )
+	auto is_notesfile = [ this ](string str )
 		{
-			string filename = file_structure().notesdir + str + file_structure().nte_type;
+			string filename = fs->notesdir + str + fs->nte_type;
 			return filesystem::exists(filename);
 		};
 
-	auto add_notesfile = []( string varname, string filea, string fileb )
+	auto add_notesfile = [ this ]( string varname, string filea, string fileb )
 		{
-			string srca = file_structure().notesdir + filea + file_structure().nte_type;
-			string srcb = file_structure().notesdir + fileb + file_structure().nte_type;
-			string dest = file_structure().autodir + varname + file_structure().nte_type;
+			string srca = fs->notesdir + filea + fs->nte_type;
+			string srcb = fs->notesdir + fileb + fs->nte_type;
+			string dest = fs->autodir + varname + fs->nte_type;
 			string cmd = "cat " +  srca + " " + srcb + " > " +  dest;
 			System_execute( cmd );
 		};
@@ -956,7 +956,7 @@ vector_str_t Interpreter_class::InsertVariable( vector_str_t arr )
 	return result;
 }
 
-void Interpreter_class::Loop( int max, int key )
+void Interpreter_class::Loop( int max, EVENTKEY_t key )
 {
 	if ( key == 0 )
 	{
@@ -1148,10 +1148,10 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 		Comment( WARN, "list directory " + dir );
 
 		vector<string>
-		DirList = List_directory( dir, file_structure().nte_type );
+		DirList = List_directory( dir, fs->nte_type );
 		cout << show_type( DirList ) << endl;
 
-		DirList = List_directory( dir, file_structure().snd_type );
+		DirList = List_directory( dir, fs->snd_type );
 		cout << show_type( DirList ) << endl;
 	}
 	EXCEPTION( "no such file " + name );//raise( SIGINT );
@@ -1203,7 +1203,7 @@ void Interpreter_class::Test(  )
 	Addvariable( t_arr ); //check no keyword
 	assert( testreturn );
 
-	cout << show_type( List_directory( file_structure().instrumentdir, file_structure().snd_type ) ) << endl;
+	cout << show_type( List_directory( fs->instrumentdir, fs->snd_type ) ) << endl;
 //	assert ( false );
 	varlist.clear();
 	TEST_END( className );

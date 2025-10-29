@@ -1,5 +1,5 @@
 #See the documentation file Ocean.odt
 #about the specification of Prefix, Notes and Volume 
-P=4,0,4,0,0
-N=(ABG)-(AC)-(DE)-(DC)-....abcd
-V=7575
+P=2,0,4,0,0,0
+N=C3---------D3--D3--(B3A3)-A3---(B3D4)--C3!-----C3--D3------A3!----(D4A4)------
+V=8

@@ -14,6 +14,7 @@
 #include <Keyboard.h>
 #include <notes/MusicXML.h>
 #include <Mixer.h>
+#include <data/Sdsbase.h>
 
 class Event_class
 	: virtual public 	Logfacility_class
@@ -37,6 +38,7 @@ class Event_class
 	ProgressBar_class*	ProgressBar;
 	Musicxml_class*		MusicXML;
 	EventQue_class*		EventQue;
+	Appstate_class*		Appstate;
 
 public:
 
@@ -68,6 +70,7 @@ public:
 		this->External		= external;
 		this->ProgressBar	= progressbar;
 		this->MusicXML		= musicxml;
+		this->Appstate		= &DaTA->Appstate;
 	};
 	virtual ~Event_class() = default;
 

@@ -5,7 +5,7 @@
  *      Author: sirius
  */
 
-#include <Synthesizer.h>
+#include <Synth/Synthesizer.h>
 
 void Event_class::TestHandler()
 {
@@ -19,7 +19,7 @@ void Event_class::TestHandler()
 void Event_class::Handler()
 {
 
-	auto EvInfo = [ this ]( uint key = 0, string str )
+	auto EvInfo = [ this ]( EVENTKEY_t key = NULLKEY, string str )
 	{
 		if( this->EventQue->repeat ) return;
 		if ( LogMask[ DEBUG ] )
@@ -29,8 +29,8 @@ void Event_class::Handler()
 		}
 	};
 
-	string 	str 	= EventQue->show();
-	uint8_t event 	= EventQue->get();
+	string		str 	= EventQue->show();
+	EVENTKEY_t 	event 	= EventQue->get();
 
 	if ( event == NULLKEY ) return;
 
@@ -184,7 +184,7 @@ void Event_class::Handler()
 	}
 	case SETWAVEDISPLAYKEY:
 	{
-		if( sds->WD_status.roleId == AUDIOOUTID )
+		if( sds->WD_status.roleId == AUDIOROLE )
 			break; // audio data is handled by the Audio server
 		Wavedisplay->SetDataPtr(sds->WD_status );
 		Wavedisplay->Write_wavedata();
@@ -222,7 +222,7 @@ void Event_class::Handler()
     	{
     		Notes->Note_itr_start.set_active( false );
     		Notes->Note_itr_end.set_active( false );
-    		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTART );
+    		Appstate->SetState( sds_master, AUDIOID, RECORDSTART );
     	}
 		Sds->Commit();
 		break;
@@ -239,7 +239,7 @@ void Event_class::Handler()
     	{
     		Notes->Note_itr_start.set_active( false );
     		Notes->Note_itr_end.set_active( false );
-    		DaTA->Appstate.Set( sds_master, AUDIOID, sdsstate_struct::RECORDSTOP );
+    		Appstate->SetState( sds_master, AUDIOID, RECORDSTOP );
     	}
 		Sds->Commit();
 		break;
@@ -262,9 +262,9 @@ void Event_class::Handler()
 	{
 		if ( sds_master->Record_state == sdsstate_struct::RECORDING )
 			// Composer - Interpreter
-			sds_master->AudioServer = RECORDSTART; // start and  wait
+			Appstate->SetState( sds_master, AUDIOID, RECORDSTART ); // start and  wait
 		else
-			sds_master->AudioServer = RECORDSTOP; // stop and save
+			Appstate->SetState( sds_master, AUDIOID, RECORDSTOP );
 
 		Sds->Commit();
 		break;
@@ -343,7 +343,7 @@ void Event_class::Handler()
 	}
 	case SETSTA_KEY:
 	{
-		Mixer->SetStA();
+		Mixer->SetStA( sds->MIX_Id );
 		Sds->Commit();
 		break;
 	}

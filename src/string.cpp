@@ -63,7 +63,7 @@ vector_str_t String::to_array( char ch )
     Vec.clear();
 	while( ss.good() )
 	{
-	    getline( ss, substr, ch );
+	    getline( ss, substr, ch ); // provides null-terminate substr.data()
 	    Vec.push_back(substr);
 	}
 	if ( Vec.size() == 0 )

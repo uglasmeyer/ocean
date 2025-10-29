@@ -9,7 +9,7 @@
 /**********************
  * Volume_class
  *********************/
-
+#include <Table.h>
 #include <Dynamic.h>
 
 Dynamic_class::Dynamic_class( range_T<int> _range )

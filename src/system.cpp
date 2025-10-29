@@ -6,6 +6,12 @@
  */
 #include <System.h>
 
+bool has_cmd_processor() // e.g. /bin/sh or cmd.exe
+{
+	bool ret = system( 0x0 );
+	return ret;
+}
+
 void System_execute( const string& cmd, bool _noexcept )
 {
 	coutf;
@@ -19,6 +25,26 @@ void System_execute( const string& cmd, bool _noexcept )
 	{
 		EXCEPTION( cmd + "\ncheck out system error message " );
 	}
+}
+
+int System_execute_bg( const string& _cmd)
+// starts process _cmd in background and
+// returns the process id if sucessful
+// otherwise -1
+{
+	const 	string 	pid_file 	= "/tmp/test.pid";
+	const 	string 	cmd 		= "nohup " + _cmd + " &\n jobs -p > " + pid_file;
+			string 	retstr		= "";
+			int		ret			= -1;
+
+	coutf << "Executing: " << cmd << endl;
+	ret = system( cmd.data() );
+	ret = -1;
+	getline( ifstream( pid_file ), retstr );
+	if( retstr.length() > 0 )
+		ret		= stoi( retstr );
+	filesystem::remove( pid_file );
+	return ret;
 }
 
 vector<string> List_directory( const string& path, const string& filter )
@@ -44,15 +70,18 @@ vector<string> List_directory( const string& path, const string& filter )
     return dir_entry_vec;
 }
 
-bool Is_running_process( const pid_t& pid )
+bool Is_running_process( const int& pid )
 {
 	stringstream strs {};
 	strs << "/proc/" << dec  <<  pid ;
-
 	bool isdir = filesystem::is_directory( strs.str() ) ;
 	return isdir ;
 }
-
+bool Is_running_process( const string& pidstr )
+{
+	int pid = stoi( pidstr );
+	return Is_running_process( pid );
+}
 string searchPath( string file )
 {
 	string filename = std::filesystem::path( file ).filename( );

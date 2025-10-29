@@ -9,9 +9,6 @@
 #include <String.h>
 
 
-
-
-
 random_device 	rd;
 mt19937 		engine(rd());
 uniform_real_distribution<> distrib( -1, 1 );
@@ -28,6 +25,7 @@ float psgn( const float& x )
 {
 	return ( x > 0 ) ? x : 0 ;
 }
+
 
 
 
@@ -104,25 +102,27 @@ Data_t Rnd_step( param_t& p )
 	return p.amp * step * rnd_step ;
 }
 
-const vector<waveFnc_t> waveFunction_vec
-{ //   fnc         visible name   maxphi  width
+const vector<waveFnc_struct> waveFunction_vec
+{
+//     fnc         visible name   maxphi  width
+
 	{  Sinus	, "sinus"		, 2*pi 	, 2.0 },
 	{  Triangle	, "triangle"	, 2		, 2.0 },
 	{  SignSin	, "signsin"		, 2*pi 	, 1.0 },
 	{  Rectangle, "rectangle"	, 1 	, 2.0 },
 	{  SawTooth	, "sawtoothL"	, 1		, 1.0 },
 	{  Sawtooth	, "sawtoothR"	, 1		, 1.0 },
-	{  Pmw		, "PMW"			, 1		, 1.0 },
+	{  Pmw		, "PWM"			, 1		, 1.0 },
 	{  Delta	, "delta"		, 1		, 1.0 },
 	{  Rnd		, "noise"		, 1		, 2.0 },
 	{  Rnd_step	, "random"		, 1		, 2.0 }
 };
 
 
-constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_t> fnc_vec )
+constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_struct> fnc_vec )
 {
 	vector<string> vec{};
-	for ( waveFnc_t wf : fnc_vec )
+	for ( waveFnc_struct wf : fnc_vec )
 		vec.push_back( wf.name  );
 	return vec;
 };
@@ -130,7 +130,7 @@ constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_t> fnc_vec )
 const vector<string> waveform_str_vec { gen_waveform_str_vec( waveFunction_vec ) };
 const range_T<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
 
-const vector<waveFnc_t> adsrFunction_vec
+const vector<waveFnc_struct> adsrFunction_vec
 {
 	{  Const	, "constant"	, 1 	},
 	{  Sinus	, "sinus"		, 2*pi 	},

@@ -20,7 +20,7 @@ Kbd_base::~Kbd_base()
 
 string Kbd_base::ShowKey( kbdInt_t Int )
 {
-	kbdkey_t key{0,0,0};
+	kbdkey_t key{};
 	key.Int = Int;
 	return ShowKey( key );
 }
@@ -51,19 +51,30 @@ kbdInt_t Kbd_base::GetKeyInt	( bool debug )
 	if(read(0, buf8_p, 8) < 0)
 		perror("GetKeystruct()");
 
-	key3.nokey 		= ( buf8.Int == 0 );
-	if ( key3.nokey )
-		key3.hold	= false;
+	key8.nokey 		= ( buf8.Int == 0 );
+	if ( key8.nokey )
+		key8.hold	= false;
 	else
-		key3.hold 	= ( buf8.Int == key3.Int );
+		key8.hold 	= ( buf8.Int == key8.Int );
 
-	key3.Int = buf8.Int;
+	key8.Int = buf8.Int;
 
 	if ( debug )
-		ShowKey( key3 );
-	return key3.Int;
+		ShowKey( key8 );
+	return key8.Int;
 }
 
+kbdInt_t Kbd_base::GetKeyInt( int waitms )
+{
+	key3struct_t key { };
+	while( key.Int == 0 )
+	{
+		key.Int = GetKeyInt( false );
+		this_thread::sleep_for( std::chrono::milliseconds( waitms ) );
+	}
+	return key.Int;
+
+}
 void Kbd_base::Init()
 {
 	fflush(stdout);
@@ -93,7 +104,8 @@ void Kbd_base::Reset()
 {
 	if ( is_atty )
 	{
-		cout << "Keyboard reset" << endl;
+		if( LogMask[DEBUG] )
+			cout << "Keyboard reset" << endl;
 		if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
 			perror("tcsetattr ~ICANON");
 	}

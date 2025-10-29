@@ -16,31 +16,36 @@
 
 class ViewInterface_class
 	: virtual public 	Logfacility_class
-	, virtual 			osc_struct
 	, virtual 			sdsstate_struct
 	, virtual 			interface_struct
 	, virtual			Device_class
 	, virtual public	ADSR_class
+	, AppMap_struct
+	, wavedisplay_struct
 {
 	string 				className 	= "";
+	int					counter		= 0;
+	string				footer		= "";
 	Interface_class*	Sds_p 		= nullptr;
 	interface_t* 		sds_p 		= nullptr;
+	interface_t*		sds_master	= nullptr;
 
 public:
 	Appstate_class		Appstate	;
 	Dataworld_class*	DaTA;
 
-			ViewInterface_class( char appid, Dataworld_class* DaTA );
+			ViewInterface_class( APPID appid, Dataworld_class* DaTA );
 	virtual ~ViewInterface_class() = default;
 
-
-	void	ShowPage( interface_t* sds, kbdInt_t nr );
+	KEYCODE	ShowPage( interface_t* sds );
+	void 	IncCommitcounter();
+	void	SetFooter( const string& _footer );
 
 private:
 
 	void 	showOSCs();
-	void 	showProcesses();
-	void 	showStates() ;
+	void 	F2_showProcesses();
+	void 	F3_showStates() ;
 
 	void 	show_Que();
 	void 	show_Ipc();
@@ -48,11 +53,12 @@ private:
 
 	void 	show_Adsr();
 	void 	showKeys();
-	void 	show_manage();
+	void 	show_system();
 
 
 	void	printHeader();
-	string	Decode( Id_t idx);
+	void 	printFooter();
+
 	void 	selfTest();
 
 };

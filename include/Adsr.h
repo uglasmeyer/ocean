@@ -18,7 +18,7 @@ const spectrum_t default_adsr_spec =
 							.volidx 	= { 100, 0, 0, 0, 0 },
 							.sum 		= 1.0,
 							.wfid 		= {1, 1, 1, 1, 1 },
-							.osc 		= osc_struct::OSCID,
+							.osc 		= OSCID,
 							.adsr		= true
 };
 
@@ -46,7 +46,7 @@ const adsr_struct		default_adsr	=
 class ADSR_class :
 	virtual  		Logfacility_class,
 	virtual public 	Spectrum_class,
-	virtual	public	Oscillator_base
+	virtual			Oscillator_base
 
 {
 	string 			className 		= "";
@@ -71,7 +71,7 @@ public:
 	adsr_t			Get_adsr		();
 	void			Set_bps			();
 	string			Show_adsr		( adsr_t );
-					ADSR_class		( char _typeid );
+					ADSR_class		( OscId_t _typeid );
 					ADSR_class		(); // viewSDS
 	virtual 		~ADSR_class		();
 

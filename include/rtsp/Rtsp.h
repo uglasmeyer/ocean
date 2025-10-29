@@ -10,7 +10,9 @@
 
 #include <Time.h>
 #include <Appsymbols.h>
-Time_class Timer{};
 
+Time_class Timer{};
+sdsstate_struct Sdsstate {};
+Appstate_class* Appstate = &DaTA.Appstate;
 
 #endif /* RTSP_RTSP_H_ */

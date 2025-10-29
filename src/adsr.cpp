@@ -8,7 +8,7 @@
 #include <Adsr.h>
 #include <Oscwaveform.h>
 
-ADSR_class::ADSR_class( char _typeid )
+ADSR_class::ADSR_class( OscId_t _typeid )
 	: Logfacility_class("ADSR_class")
 	, Spectrum_class()
 	, Oscillator_base( _typeid )
@@ -123,7 +123,7 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 					param.pmw	= 1.0 + (float)features.PMW_dial * percent;
 	spectrum_t		spec 		= adsr_data.spec;
 
-	for ( size_t channel = 1; channel < spec_arr_len; channel++ )
+	for ( size_t channel = 1; channel < SPECARR_SIZE; channel++ )
 	{
 		if ( spec.volidx[channel] > 0 )
 		{

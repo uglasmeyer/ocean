@@ -56,8 +56,8 @@ connectName_t Device_class::Get_connection_names( char oscid )
 {
 	connectName_t 	ConnectName;
 	connectId_t 	ConnectId 		= Get_connect_state( oscid );
-					ConnectName.frq = oscNames[ ConnectId.frq ];
-					ConnectName.vol = oscNames[ ConnectId.vol ];
+					ConnectName.frq = typeNames[ ConnectId.frq ];
+					ConnectName.vol = typeNames[ ConnectId.vol ];
 
 	return ConnectName;
 
@@ -65,7 +65,7 @@ connectName_t Device_class::Get_connection_names( char oscid )
 void Device_class::Show_Connection_names( char oscid )
 {
 	connectName_t 	names = Get_connection_names( oscid );
-	coutf << oscNames[ oscid] << ": ";
+	coutf << typeNames[ oscid] << ": ";
 	coutf << names.frq << " " << names.vol << endl;
 }
 

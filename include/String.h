@@ -9,12 +9,8 @@
 #define STRING_H_
 
 
-
 #include <Ocean.h>
 #include <Logfacility.h>
-
-
-
 
 
 typedef vector<string>	vector_str_t;
@@ -71,15 +67,23 @@ template< class C > list< C > vector2list( vector< C > v )
 	return l;
 }
 
+template<class C> string show_str_items( C all_items )
+{
+	stringstream strs{ "" };
+    for ( auto item : all_items )
+    {
+   		strs << item << " ";
+    }
+    return strs.str();
+}
+
 template<class C> string show_items( C all_items )
 {
 	stringstream strs{ "" };
     for ( auto item : all_items )
     {
-    	if ( typeid( item ) == typeid( uint8_t ) )
-    		strs << dec << (int)item << " ";
-    	else
-    		strs << dec << item << " ";
+		int number = (int)item;
+   		strs << dec << number << " ";
     }
     return strs.str();
 }

@@ -1,25 +1,55 @@
-#include <Appsymbols.h>
-#include <notes/MusicXML.h>
-#include <notes/Notes.h>
+#include <menu.h>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
 
-void exit_proc( int s )
-{
-//	Log.Set_Loglevel( DBG2, true );
-	Log.Info( "Exit Process");
-	exit(0);
-}
+int main() {
 
-Musicxml_class Music {};
 
-int main( int argc, char* argv[] )
-{
-	App.Start( argc, argv );
-	Note_class Notes{};
-	Notes.musicxml = Music.XmlFile2notelist( "test" );
-	Notes.Show_note_list( Notes.musicxml.notelist );
-	Music.Notelist2xmlFile( "test", Notes.musicxml.notelist );
+    // Initialize curses
+    initscr();
+    cbreak();
+    noecho();
+    keypad(stdscr, TRUE);
 
-	exit_proc(0);
-return 0;
+    // Create the menu
+    // Initialize menu items
+    ITEM *items[4];
+    items[0] = new_item("Option 1", "Description for Option 1");
+    items[1] = new_item("Option 2", "Description for Option 2");
+    items[2] = new_item("Option 3", "Description for Option 3");
+    items[3] = nullptr; // Null-terminate the item list
 
+    MENU *menu = new_menu(items);
+
+
+    // Display the menu
+    post_menu(menu);
+    refresh();
+
+    int ch;
+    while ((ch = getch()) != 'q') { // Press 'q' to quit
+        switch (ch) {
+            case KEY_DOWN:
+                menu_driver(menu, REQ_DOWN_ITEM);
+                break;
+            case KEY_UP:
+                menu_driver(menu, REQ_UP_ITEM);
+                break;
+            case 10: // Enter key
+                mvprintw(LINES - 2, 0, "You selected: %s", item_name(current_item(menu)));
+                refresh();
+                break;
+        }
+    }
+
+    // Cleanup
+    unpost_menu(menu);
+    free_menu(menu);
+    for (int i = 0; i < 3; ++i) {
+        free_item(items[i]);
+    }
+    endwin();
+
+    return 0;
 }

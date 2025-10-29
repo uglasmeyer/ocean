@@ -1,6 +1,5 @@
 
-#include <Composer.h>
-extern void ComposerTestCases();
+#include <Composer/Composer.h>
 
 int return_pos( int pos )
 {
@@ -199,11 +198,40 @@ void composer_dialog()
 
 }
 
+void ComposerTestCases()
+{
+	process_t				Process			{};
+	file_structure			fs				{};
+	Config_class			Cfg				{ Process.name, &fs };
+	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
+	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };
+	Application_class		App( &DaTA );
+	Interpreter_class 		Compiler( &App );
+	Variation_class 		Variation {};
+	vector<int>				pos_stack {};
+	String 					Str{""};
+	vector<line_struct_t> 	Program{};
+
+	Processor_class Processor{ &App };
+	Processor.Test_Processor();
+	Processor.Set_Loglevel( TEST, true );
+	return;
+
+	string arg = "-t";
+	char* args = arg.data();
+	App.Start(1, &args );
+//	Variation.Test();
+	Charset_class A("abdefabdef");
+	A.test();
+
+//	Compiler.Test( );
+
+
+}
+
 
 void exit_proc( int signal )
 {
-	DaTA.Sds_p->Restore_ifd();
-	DaTA.Appstate.RestoreState();
 	exit(0);
 }
 
@@ -216,9 +244,6 @@ int main( int argc, char* argv[] )
 	    Log.Comment(  INFO, Line( 80 - 26) );
 	};
 	App.Start( argc, argv );
-
-	DaTA.Appstate.SaveState();
-	DaTA.Sds_p->Reset_ifd( );
 
 	if ( DaTA.Cfg_p->Config.test == 'y' )
 	{
@@ -238,6 +263,7 @@ int main( int argc, char* argv[] )
 		if ( interpreter( ) )
 		{
 		    headline( "Starting Processor section" );
+		    App.Kbd.Reset(); // to make getc work
 			Compiler.Execute(  );
 		}
 	}
@@ -249,3 +275,6 @@ int main( int argc, char* argv[] )
 
 	exit_proc( 0);
 }
+
+
+

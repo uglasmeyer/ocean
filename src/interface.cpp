@@ -5,27 +5,60 @@
  *      Author: sirius
  */
 
-#include <Oscbase.h>
-#include <Config.h>
+#include <bits/stdint-uintn.h>
+#include <Logfacility.h>
 #include <data/Interface.h>
-#include <System.h>
-#include <cstring>
+#include <utility>
+#include <Utilities.h>
 
+appstate_arr_t initAppstate_arr()
+{
+	appstate_arr_t arr {};
+	for( APPID appid : AppIds )
+	{
+		arr[appid] = appstate_struct();
+		arr[appid].type = appid; // Indexer complains
+	}
+	arr[SYNTHID].state = StateId_t::DEFAULT;
+	return arr;
+};
 
-Interface_class::Interface_class( 	char appid,
-									uint8_t sdsid,
+connect_arr_t initConnect_arr(  )
+{
+	connect_arr_t arr{};
+	for ( OscId_t oscid : oscIds ) // Indexer complains
+	{
+		arr[oscid].frq = oscid;
+		arr[oscid].vol = oscid;
+	}
+	return arr;
+};
+
+void Interface_class::selfTest( )
+{
+	OscId_t oscid = OSCID;
+	Assert_lt( addr->connect_arr[oscid].frq, NOOSCID, "connect_arr" );
+	APPID appid = AUDIOID;
+	APPID value = Interface_class::addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
+//	for( int i=0;i<10;i++) coutf<<(int)addr->appstate_arr[i].type<<endl;
+	Assert_equal( value ,  appid );
+}
+Interface_class::Interface_class( 	APPID appid,
+									Id_t sdsid,
 									Config_class* cfg,
 									Semaphore_class* sem ):
 Logfacility_class("SharedData_class" )
 {
+
 	this->AppId = appid;
 	this->className = Logfacility_class::className;
 	this->Sem_p	= sem;
 	this->Cfg_p = cfg;
+	this->fs	= cfg->fs;
 	Setup_SDS( sdsid, cfg->Config.sdskeys[ sdsid ] );
-
-
 }
+
+
 
 Interface_class::~Interface_class()
 {
@@ -33,25 +66,26 @@ Interface_class::~Interface_class()
 }
 
 
-void Interface_class::Setup_SDS( uint sdsid, key_t key)
+void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 {
 	Comment(INFO, "allocating shared memory for IPC " + to_string( sdsid ));
 
-	ds 			= *SHM.Get( key );
-	ds.Id		= sdsid;
-	this->addr	= ( interface_t* ) ds.addr;
+	ds 					= *SHM.Get( key );
+	ds.Id				= sdsid;
+	this->addr			= ( interface_t* ) ds.addr;
+	this->addr->SDS_Id	= sdsid;
 	Eventque.setup( addr );
 
 	SHM.ShowDs(ds);
 
+	dumpFile = fs->ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
 	if ( not ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
 		Reset_ifd(  );
 	}
-	Comment( INFO, "check shared memory version");
+	Comment( DEBUG, "check shared memory version");
 
-	dumpFile = Cfg_p->fs.ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
 	filesystem::path sds_dump = dumpFile;
 	if (( filesystem::exists( sds_dump )))
 	{
@@ -66,7 +100,7 @@ void Interface_class::Setup_SDS( uint sdsid, key_t key)
 	}
 	if (( ifd_data.version == addr->version ))
 	{
-		Comment( INFO, "OK");
+		Comment( DEBUG, "OK");
 	}
 	else
 	{
@@ -87,13 +121,14 @@ void Interface_class::Write_arr( const wd_arr_t& arr )
 	for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
 		addr->wavedata[n] = arr[n] ;
 }
+#include <cstring>
 void Interface_class::Write_str(const char selector, const string str )
 {
-	if (reject( addr->Composer, AppId )) return;
+	if (reject( AppId )) return;
 
-	if ( addr->SDSview == RUNNING )
+	if ( addr->appstate_arr[ SDSVIEWID ].state == RUNNING )
 		addr->UpdateFlag = true;
-	string wrt = str.substr(0, str_buffer_len );
+	const string wrt = str.substr(0, str_buffer_len );
 
 
 	switch ( selector )
@@ -128,7 +163,7 @@ void Interface_class::Write_str(const char selector, const string str )
 }
 
 
-string Interface_class::Read_str( char selector )
+string Interface_class::Read_str( EVENTKEY_t selector )
 {
 	string str;
 	switch ( selector )
@@ -168,7 +203,11 @@ void Interface_class::Reset_ifd(  )
 
 	Comment(INFO, "Reset shared data");
 	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
-//	Dump_ifd();
+	addr->appstate_arr	= initAppstate_arr();
+	addr->connect_arr	= initConnect_arr();
+	Interface_class::selfTest();
+
+	Dump_ifd();
 }
 
 bool Interface_class::Restore_ifd()
@@ -178,19 +217,18 @@ bool Interface_class::Restore_ifd()
 	Comment(INFO,"Restore shared data from file");
 	assert( dumpFile.size() > 0 );
 
-	process_arr_t procarr 	= addr->process_arr; 	// let proc register untouched
-	int sdsid 				= addr->config;
-	bool keyboard			= addr->Keyboard;
+	int 			sdsid 		= addr->config;
+	appstate_arr_t 	appstate_arr= addr->appstate_arr;
+	Assert_lt( appstate_arr[0].state, NOSTATE );
+	FILE* 			fd 			= fopen( dumpFile.data() , "r");
 
-	FILE* fd = fopen( dumpFile.data() , "r");
 	if ( not fd )
 		return false;
-	uint size = fread( addr, sizeof( ifd_data ), 1, fd);
+	uint 			size 		= fread( addr, sizeof( ifd_data ), 1, fd);
 	fclose( fd );
 
-	addr->process_arr 	= procarr;
-	addr->config		= sdsid;
-	addr->Keyboard		= keyboard;
+	addr->config				= sdsid;
+	addr->appstate_arr			= appstate_arr;
 	Eventque.reset();
 	return ( size == sizeof( ifd_data ));
 }
@@ -200,7 +238,7 @@ void Interface_class::Dump_ifd()
 	// copy shared memory data to dumpfile
 
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
-	assert( dumpFile.size() > 0 );
+	assert( dumpFile.length() > 0 );
 	Eventque.reset();
 	size_t count = 0;
 	FILE* fd = fopen( dumpFile.data() , "w");
@@ -221,11 +259,11 @@ void Interface_class::Commit()
 		Sem_p->Release( PROCESSOR_WAIT );
 }
 
-bool Interface_class::reject(char status, int id )
+bool Interface_class::reject( APPID appid )
 {
-	if (( status == RUNNING ) and ( id != COMPID ))
+	StateId_t composer_state = addr->appstate_arr[COMPID].state;
+	if (( composer_state == RUNNING ) and ( appid != COMPID ))
 	{
-
 		return true;
 	}
 	else
@@ -233,7 +271,7 @@ bool Interface_class::reject(char status, int id )
 		return false;
 	}
 };
-void Interface_class::Event( uint8_t event )
+void Interface_class::Event( EVENTKEY_t event )
 {
 	Eventque.add( event );
 }
@@ -245,9 +283,9 @@ void Interface_class::Test_interface()
 {
 	TEST_START( className );
 	Eventque.reset();
-	for( uint n = 0; n<10; n++ )
+	for( uint n = 0; n<5; n++ )
 	{
-		Eventque.add( n*n );
+		Eventque.add( (EVENTKEY_t)n );
 	}
 	cout << Eventque.show() << endl;
 	uint8_t value = Eventque.get();
@@ -275,9 +313,9 @@ void EventQue_class::reset()
 {
 	eventptr 		= EventPtr_struct();
 	addr->eventptr 	= eventptr;
-	std::ranges::for_each( addr->deque, [](uint8_t& element ){ element = NULLKEY  ;});
+	std::ranges::for_each( addr->deque, []( uint8_t& element ){ element = 0  ;});
 }
-void EventQue_class::add( uint8_t event )
+void EventQue_class::add( EVENTKEY_t event )
 {
 	if ( event == NULLKEY )
 		return;
@@ -289,18 +327,18 @@ void EventQue_class::add( uint8_t event )
 		return;
 	}
 
-	addr->deque[eventptr.last] 	= event;
+	addr->deque[eventptr.last] 	= (uint8_t) event;
 	eventptr.last 				= ( eventptr.last + 1 ) % MAXQUESIZE;
 	eventptr.length 			+= 1;
 	addr->eventptr 				= eventptr;
 }
 
-uint8_t EventQue_class::get()
+EVENTKEY_t EventQue_class::get()
 {
 	eventptr 					= addr->eventptr;
 	if ( eventptr.length == 0 )
 		return NULLKEY;
-	uint8_t value 				= addr->deque[eventptr.first];
+	EVENTKEY_t value 			= (EVENTKEY_t) addr->deque[eventptr.first];
 	repeat 						= ( value == prev_event );
 	prev_event 					= value;
 	eventptr.first 				= ( eventptr.first + 1 ) % MAXQUESIZE;

@@ -116,7 +116,7 @@ class Keyboard_class
 	, virtual public	keyboardState_class
 {
 	string 				className 				= "";
-	Oscgroup_class		Oscgroup				{ KBDID, 2*monobuffer_bytes };
+	Oscgroup_class		Oscgroup				{ KBDROLE, 2*monobuffer_bytes };
 	Oscillator*			Osc						= &Oscgroup.osc;
 //	Kbd_pitch_class		kbd_pitch 				;
 
@@ -150,13 +150,13 @@ private:
 
 	uint				max_notes				= 0;//notes_per_sec * 4*max_sec;
 	const int 			releaseCounter			= 0;
-	const int 			attackCounter 			= frame_parts;//rint( max_frames / min_frames );
+	const int 			attackCounter 			= measure_parts;//rint( max_frames / min_frames );
 	int 				decayCounter 			= 0;
 	uint 				duration_counter 		= 0;// count the beats of note kbd_key
 	uint				holdCounter				= 0;
 	const uint			kbd_volume				= 75;
 	uint8_t 			sta_volume				= kbd_volume;
-	kbdkey_t			Kbd_key					{0,0,0};//key3_struct( 0, 0, 0);
+	kbdkey_t			Kbd_key					{};
 	feature_t			kbd_adsr				= feature_struct();
 	bool				frqMode					= SLIDE;
 	bool				kbd_trigger				= false;

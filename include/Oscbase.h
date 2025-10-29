@@ -10,7 +10,6 @@
 
 #include <data/Memory.h>
 #include <Spectrum.h>
-#include <Ocean.h>
 #include <String.h>
 #include <Frequency.h>
 
@@ -68,17 +67,14 @@ typedef struct feature_struct
 	bool	longplay	= false;
 } feature_t;
 
-const feature_t default_feature = feature_struct();
+constexpr feature_t default_feature = feature_struct();
 
 typedef struct Connect_struct
 { // SDS related
-	char	vol = -1;
-	char	frq = -1;
+	OscId_t		vol 	= NOOSCID;
+	OscId_t		frq 	= NOOSCID;
 } connectId_t;
-constexpr connectId_t default_connect( char oscid )
-{
-	return { oscid, oscid };
-};
+
 constexpr bool operator==( const connectId_t& lhs, const connectId_t& rhs )
 {
 	if((lhs.frq == rhs.frq) and ( lhs.vol == rhs.vol ))
@@ -86,18 +82,24 @@ constexpr bool operator==( const connectId_t& lhs, const connectId_t& rhs )
 	else
 		return false;
 };
+constexpr ostream& operator<<( ostream& os, const connectId_t& connect )
+{
+	os << "frq=" << connect.frq << ", vol=" << connect.vol;
+	return os;
+}
+
 
 class Oscillator_base :
-	virtual public Logfacility_class,
-	virtual public Spectrum_class
+	virtual public	Logfacility_class,
+	virtual public 	Spectrum_class
 {
 	string			className		= "";
+
 public:
+	OscId_t			typeId			= NOOSCID;//osc_struct::OSCID;
+	OscroleId_t		roleId			= NOROLE;//osc_struct::INSTRID;
+	string 			osctype_name 	= "";
 
-	char			typeId			= -1;//osc_struct::OSCID;
-	string 			osctype_name 		= "";
-
-	char			roleId			= -1;//osc_struct::INSTRID;
 	string 			oscrole_name 	= "";
 
 	bool			is_osc_type 	= false;
@@ -109,7 +111,8 @@ public:
 
 
 
-	connectId_t	Connect		= Connect_struct();
+
+	connectId_t		Connect		= Connect_struct();
 
 	feature_t 		features 	= feature_struct();
 	wave_t 			wp 			= wave_struct();
@@ -122,7 +125,7 @@ public:
 	Dynamic_class	DynFrequency{ frqarr_range };
 
 					Oscillator_base() ;
-					Oscillator_base( char osc_type );
+					Oscillator_base( OscId_t osc_type );
 	virtual 		~Oscillator_base()
 						{ DESTRUCTOR( className ); };
 
@@ -143,11 +146,6 @@ private:
 
 
 }; // close class Oscillator_base
-
-
-
-
-
 
 
 #endif /* OSCBASE_H_ */

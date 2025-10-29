@@ -357,35 +357,36 @@ compiler_moc_header_clean:
 	-$(DEL_FILE) moc_Keyboad_dialog.cpp moc_File_Dialog_class.cpp moc_Mainwindow.cpp moc_Spectrum_dialog_class.cpp moc_Rtsp_dialog_class.cpp moc_Dispatcher.cpp
 moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/data/DataWorld.h \
-		../include/data/Interface.h \
 		../include/Ocean.h \
+		../include/data/Interface.h \
 		../include/Logfacility.h \
+		../include/Utilities.h \
+		../include/data/Config.h \
+		../include/data/Configbase.h \
+		../include/Version.h \
+		../include/String.h \
+		../include/Table.h \
+		../include/System.h \
+		../include/Exit.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/Exit.h \
 		../include/data/Statistic.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Table.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Oscwaveform.h \
-		../include/Configbase.h \
-		../include/Version.h \
 		../include/data/SharedDataSegment.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
-		../include/Config.h \
 		../include/Keyboard_base.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/data/Appstate.h \
 		../include/Keyboard.h \
@@ -394,7 +395,6 @@ moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
-		../include/Kbd.h \
 		../include/notes/Notes.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -403,14 +403,14 @@ moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 moc_File_Dialog_class.cpp: include/File_Dialog_class.h \
 		../include/Logfacility.h \
 		../include/Ocean.h \
+		../include/Utilities.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
 		../include/String.h \
 		../include/Frequency.h \
-		../include/Exit.h \
-		../include/Table.h \
 		../include/Oscwaveform.h \
+		../include/Table.h \
 		../include/Instrument.h \
 		../include/data/Device.h \
 		../include/Adsr.h \
@@ -418,21 +418,22 @@ moc_File_Dialog_class.cpp: include/File_Dialog_class.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/System.h \
+		../include/Exit.h \
 		../include/data/Statistic.h \
 		../include/data/SharedDataSegment.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
-		../include/Configbase.h \
+		../include/data/Configbase.h \
 		../include/Version.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
-		../include/Config.h \
+		../include/data/Config.h \
 		../include/Keyboard_base.h \
 		../include/data/Interface.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/Osc.h \
 		../include/Oscgroup.h \
@@ -447,34 +448,35 @@ moc_File_Dialog_class.cpp: include/File_Dialog_class.h \
 
 moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/data/Interface.h \
-		../include/Ocean.h \
 		../include/Logfacility.h \
+		../include/Ocean.h \
+		../include/Utilities.h \
+		../include/data/Config.h \
+		../include/data/Configbase.h \
+		../include/Version.h \
+		../include/String.h \
+		../include/Table.h \
+		../include/System.h \
+		../include/Exit.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/Exit.h \
 		../include/data/Statistic.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Table.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Oscwaveform.h \
-		../include/Configbase.h \
-		../include/Version.h \
 		../include/data/SharedDataSegment.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
-		../include/Config.h \
 		../include/Keyboard_base.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/Mixer.h \
 		../include/Osc.h \
@@ -489,7 +491,6 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/App.h \
-		../include/Kbd.h \
 		ui_mainwindow.h \
 		include/File_Dialog_class.h \
 		include/Common.h \
@@ -511,31 +512,32 @@ moc_Spectrum_dialog_class.cpp: include/Spectrum_dialog_class.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
 		../include/Logfacility.h \
+		../include/Utilities.h \
 		../include/String.h \
 		../include/Frequency.h \
-		../include/Exit.h \
-		../include/Table.h \
 		../include/Oscwaveform.h \
+		../include/Table.h \
 		../include/data/Interface.h \
+		../include/data/Config.h \
+		../include/data/Configbase.h \
+		../include/Version.h \
+		../include/System.h \
+		../include/Exit.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
-		../include/System.h \
 		../include/data/Statistic.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
-		../include/Configbase.h \
-		../include/Version.h \
 		../include/data/SharedDataSegment.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
-		../include/Config.h \
 		../include/Keyboard_base.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
@@ -547,35 +549,36 @@ moc_Spectrum_dialog_class.cpp: include/Spectrum_dialog_class.h \
 moc_Rtsp_dialog_class.cpp: include/Rtsp_dialog_class.h \
 		ui_Rtsp_dialog_class.h \
 		../include/data/DataWorld.h \
-		../include/data/Interface.h \
 		../include/Ocean.h \
+		../include/data/Interface.h \
 		../include/Logfacility.h \
+		../include/Utilities.h \
+		../include/data/Config.h \
+		../include/data/Configbase.h \
+		../include/Version.h \
+		../include/String.h \
+		../include/Table.h \
+		../include/System.h \
+		../include/Exit.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
-		../include/System.h \
-		../include/String.h \
-		../include/Exit.h \
 		../include/data/Statistic.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Table.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Oscwaveform.h \
-		../include/Configbase.h \
-		../include/Version.h \
 		../include/data/SharedDataSegment.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
-		../include/Config.h \
 		../include/Keyboard_base.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/data/Appstate.h \
 		moc_predefs.h \
@@ -585,18 +588,20 @@ moc_Rtsp_dialog_class.cpp: include/Rtsp_dialog_class.h \
 moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/Ocean.h \
 		../include/Logfacility.h \
+		../include/Utilities.h \
 		../include/data/Semaphore.h \
-		../include/Config.h \
-		../include/Configbase.h \
+		../include/data/Config.h \
+		../include/data/Configbase.h \
 		../include/Version.h \
-		../include/System.h \
 		../include/String.h \
+		../include/Table.h \
+		../include/System.h \
 		../include/Exit.h \
 		../include/Time.h \
-		../include/Table.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
@@ -612,7 +617,6 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
 		../include/Keyboard_base.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
 		../include/data/Appstate.h \
 		include/Mainwindow.h \
@@ -627,7 +631,6 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/App.h \
-		../include/Kbd.h \
 		ui_mainwindow.h \
 		include/File_Dialog_class.h \
 		include/Common.h \
@@ -682,38 +685,39 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 
 keyboad_dialog.o: keyboad_dialog.cpp ui_keyboad_dialog.h \
 		include/Common.h \
+		../include/data/Config.h \
+		../include/data/Configbase.h \
+		../include/Version.h \
 		../include/Ocean.h \
-		../include/System.h \
 		../include/String.h \
 		../include/Logfacility.h \
+		../include/Utilities.h \
+		../include/Table.h \
+		../include/System.h \
 		../include/Exit.h \
-		../include/Config.h \
-		../include/Configbase.h \
-		../include/Version.h \
-		../include/EventKeys.h \
-		include/Keyboad_dialog.h \
-		../include/data/DataWorld.h \
 		../include/data/Interface.h \
 		../include/data/Sdsbase.h \
+		../include/Kbd.h \
 		../include/Mixerbase.h \
 		../include/data/Memory.h \
 		../include/data/Memorybase.h \
 		../include/data/Statistic.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Table.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
 		../include/Spectrum.h \
 		../include/Oscwaveform.h \
 		../include/data/SharedDataSegment.h \
+		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
 		../include/Keyboard_base.h \
 		../include/data/Semaphore.h \
 		../include/Time.h \
-		../include/data/Register.h \
 		../include/data/EventQue.h \
+		include/Keyboad_dialog.h \
+		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
 		../include/Keyboard.h \
 		../include/Osc.h \
@@ -721,7 +725,6 @@ keyboad_dialog.o: keyboad_dialog.cpp ui_keyboad_dialog.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
-		../include/Kbd.h \
 		../include/notes/Notes.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o keyboad_dialog.o keyboad_dialog.cpp
 

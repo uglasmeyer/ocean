@@ -23,26 +23,26 @@
 
 
 class Mixer_class :
-	virtual public Logfacility_class,
-	virtual public Mixer_base
+	virtual public 		Logfacility_class,
+	virtual public 		Mixer_base
 {
-	string className = "";
+	string 				className		= "";
 	Dataworld_class* 	DaTA;
 
 	// provides and manages memory array
 public:
 
-	const vector<uint>  RecIds 		= {0, 1, 2, 3, STA_EXTERNAL };
-	const vector<uint>  UsrIds		= {0, 1, 2, 3, 4, 5, 6 };
-	const vector<uint>	HghIds		= {4, 5, 6, 7 };
-	const vector<uint>	LowIds		= {0, 1, 2, 3 };
+	const vector<Id_t>	AllIds			= Iota<Id_t>(0, 8 );
+	const vector<uint>  RecIds 			= {0, 1, 2, 3, STA_EXTERNAL };
+	const vector<uint>  UsrIds			= {0, 1, 2, 3, 4, 5, 6 };
+	const vector<uint>	HghIds			= {4, 5, 6, 7 };
+	const vector<uint>	LowIds			= {0, 1, 2, 3 };
 
 
-	typedef vector<Storage_class>
-						StorageArray_t;
+	typedef vector<Storage_class>		StorageArray_t;
 	StorageArray_t 		StA;
 
-	mixer_state_t  	state 			= mixer_state_struct();
+	mixer_state_t  		state 			= mixer_state_struct();
 	int					composer		= 0;		// note chunk counter
 
 	Memory 				Mono			{ monobuffer_bytes };
@@ -55,22 +55,24 @@ public:
 
 	interface_t* 		sds				= nullptr;
 	interface_t*		sds_master		= nullptr;
-	Mixer_class ( 	Dataworld_class* 	data,
-					Wavedisplay_class* 	wd );
-	virtual ~Mixer_class();
+						Mixer_class 	( Dataworld_class* 	data,
+										Wavedisplay_class* 	wd );
+	virtual 			~Mixer_class	();
 
 //	void Store_noteline( uint8_t, Note_class* );
-	void Add_Sound(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
-	void Clear_StA_status( StA_state_arr_t& );
-	void Update_sds_state( int id, interface_t* sds );
-	void Set_mixer_state( const uint& id, const bool& play );
-	void SetStA();
-	void TestMixer();
+	void 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
+	void 				Clear_StA_status( StA_state_arr_t& );
+	void 				Update_sds_state( int id, interface_t* sds );
+	void 				Set_mixer_state	( const uint& id, const bool& play );
+	void 				SetStA			();
+	void 				SetStA			( Id_t mixerId );
+
+	void 				TestMixer		();
 
 private:
-	void clear_memory();
-	void add_mono( Data_t*, const uint& staId );
-	void add_stereo( Stereo_t* Data  );
+	void 				clear_memory	();
+	void 				add_mono		( Data_t*, const uint& staId );
+	void 				add_stereo		( Stereo_t* Data  );
 };
 
 

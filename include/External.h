@@ -8,8 +8,8 @@
 #ifndef EXTERNAL_H_
 #define EXTERNAL_H_
 
+#include <data/Config.h>
 #include <Ocean.h>
-#include <Config.h>
 #include <data/Interface.h>
 #include <data/Memory.h>
 #include <Progressbar.h>

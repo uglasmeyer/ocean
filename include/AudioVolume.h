@@ -57,7 +57,7 @@ public:
 		float 		balanceL 	= ( 100.0 - sds->mixer_balance ) / 200.0;
 		float 		balanceR	= 1.0 - balanceL;
 
-		DynVolume.SetDelta( sds->slide_duration);
+		DynVolume.SetDelta( sds->slide_duration );
 		for( buffer_t n = 0; n < frames ; n++ )
 		{
 			float

@@ -51,7 +51,7 @@ constexpr string map_key_name( kbdInt_t key )
 		if ( map.id == key )
 			return map.name;
 	}
-	if (key < 0xF0 ) //127
+	if (key < 0xF0 ) //(<128), 127
 	{
 		string str {};
 		str.assign(1, (char)key );
@@ -89,10 +89,14 @@ public:             // Access specifier
 	{
 		bool			hold	= false;
 		bool			nokey	= false;
+		key_struct()
+		{
+			Int = 0;
+		}
 		key_struct( uint8_t a, uint8_t b, uint8_t c )
 		{
-			Int		= 0;
-			Arr[0] 	= a;
+			Int		= 0; // init long
+			Arr[0] 	= a; // init short
 			Arr[1] 	= b;
 			Arr[2] 	= c;
 			Arr[3] 	= 0;
@@ -109,18 +113,21 @@ public:             // Access specifier
 	void 			Init		();
 	string 			GetString	( string txt );
 	kbdInt_t	 	GetKeyInt	( bool debug = false );
+	kbdInt_t 		GetKeyInt	( int waitms );
+
 	string			ShowKey		( kbdkey_t key );
 	string 			ShowKey		( kbdInt_t Int );
 
 private:
-	struct 			termios 	old_flags 		= {0};
-	struct 			termios 	new_flags 		= {0};
-	key_union_struct	buf8		;
-	long int*		buf8_p			= &buf8.Int;
-	kbdkey_t	key3			= key_struct(0,0,0);
+	struct termios 	old_flags 	= {0};
+	struct termios 	new_flags 	= {0};
+	key_union_struct buf8		{};
+	long int*		buf8_p		= &buf8.Int;
+	kbdkey_t		key8		= key_struct();
 };
 
-typedef Kbd_base::key_struct key3struct_t;
+typedef Kbd_base::key_struct
+					key3struct_t;
 
 
 

@@ -3,28 +3,27 @@
 
 using namespace std::chrono ;
 
-Time_class::Time_class( uint8_t* t )
-: Logfacility_class("Time_class")
+Time_class::Time_class( uint8_t* tel )
+	: Logfacility_class("Time_class")
 {
 	className = Logfacility_class::className;
-	this->time_elapsed = t;
+	this->time_elapsed = tel; // external time_elapsed
 	Start();
 	Stop(); // duration is zero
 }
 
-Time_class::Time_class(  )
-: Logfacility_class("Time_class")
+Time_class::Time_class()// @suppress("Class members should be properly initialized")
+	: Logfacility_class("Time_class")
 {
-	className = Logfacility_class::className;
-	this->time_elapsed 	= 0;
-	this->duration 		= 0;
-	this->ms_wait		= 0;
+	Time_class { time_elapsed }; //local time_elapsed pointer
 }
+
 
 Time_class::~Time_class( )
 {
 	if ( this->time_elapsed )
 		*this->time_elapsed = 0;
+	DESTRUCTOR( className )
 }
 long int Time_class::Time_elapsed(  )
 {
@@ -45,7 +44,9 @@ void Time_class::Stop()
 
 void Time_class::Block()
 {
-	duration = Time_elapsed();
+	long int duration	= Time_elapsed();
+	long int ms_wait	= 0;
+
 	latency = duration*100/wait;
 	if ( latency > 100 )
 		Comment( WARN, "runtime latency exceeds 100% " + to_string( latency ));
@@ -74,7 +75,7 @@ uint Time_class::Performance( )
 }
 void Time_class::TimeStamp()
 {
-    const auto tp_utc	{std::chrono::system_clock::now()};
+ //   const auto tp_utc	{std::chrono::system_clock::now()};
     try
     {
         const std::chrono::zoned_time cur_time
@@ -95,7 +96,7 @@ void Time_class::Wait( const uint& d, const string& dur )
 	{
 		case 's' : { std::this_thread::sleep_for( std::chrono::seconds(d) ); break; }
 		case 'm' : { std::this_thread::sleep_for( std::chrono::milliseconds(d) ); break; }
-		default : { break; }
+		default : { Comment( WARN, "unrecognized unit ", dur );break; }
 	} // switch  dur[0]
 }
 
@@ -104,7 +105,7 @@ void Time_class::Test()
 	TEST_START( "Time_class" );
   	Comment( TEST, "wait for 2 seconds ");
 	Start();
-  	Wait( 2 );
+  	Wait( 1000, "msec" );
 	Comment( TEST, "elapsed time " + to_string( Time_elapsed()) + "ms");
 	TEST_END( "Time_class" );
 }

@@ -41,16 +41,16 @@ typedef wavedisplay_struct wavedisplay_t;
 struct WD_status_struct
 {	// SDS related
 
-	uint8_t oscId 	= osc_struct::OSCID;
-	uint8_t roleId 	= osc_struct::INSTRID;
-	bool 	fftmode = false;
-	uint8_t wd_mode	= wavedisplay_struct::FULLID;
+	OscId_t 	oscId 	= OSCID;
+	OscroleId_t	roleId 	= INSTRROLE;
+	bool 		fftmode = false;
+	uint8_t 	wd_mode	= wavedisplay_struct::FULLID;
 
 } ;
 typedef WD_status_struct 		wd_status_t;
 
-const size_t WD_OSC_SIZE 	= osc_struct().oscNames.size();
-const size_t WD_ROLES_SIZE 	= osc_struct().roles.size();
+const size_t WD_OSC_SIZE 	= NOOSCID;//osc_struct().oscNames.size()-1;
+const size_t WD_ROLES_SIZE 	= NOROLE;//osc_struct().roles.size();
 const size_t WD_MODE_SIZE 	= wavedisplay_struct().types.size();
 
 const size_t wavedisplay_len		= 512;

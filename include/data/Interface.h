@@ -9,68 +9,64 @@
 #ifndef GUIINTERFACE_H_
 #define GUIINTERFACE_H_
 
-#include <Ocean.h>
 #include <Logfacility.h>
+#include <data/Config.h>
 #include <data/Sdsbase.h>
 #include <data/SharedDataSegment.h>
-#include <Config.h>
-#include <Spectrum.h>
-#include <Logfacility.h>
-#include <Version.h>
-#include <data/Semaphore.h>
-#include <data/Register.h>
-#include <data/Memory.h>
+#include <data/Memorybase.h>
 #include <EventKeys.h>
+
+#include <Wavedisplay_base.h>
+#include <data/Semaphore.h>
 #include <data/EventQue.h>
 
 class Interface_class
 	: virtual public 		Logfacility_class
 	, 						sdsstate_struct
 {
-	string					className		= "";
+	string					className	= "";
 public:
-
 	interface_t 			ifd_data 	= interface_struct();
+	EventQue_class			Eventque	{};
 	Shm_base				SHM			{ sizeof( ifd_data ) };
 	interface_t* 			addr		= nullptr;
 	shm_ds_t				ds			= shm_data_struct();
 	Semaphore_class*		Sem_p		= nullptr;
 	Config_class*			Cfg_p		= nullptr;
-	EventQue_class			Eventque	{};
-	char					AppId		= NOID;
+	file_structure*			fs			= nullptr;
+	APPID					AppId		= NoAPPID;
 	bool					capture_flag= false;
 	string					dumpFile	= "";
 
-			Interface_class( char appid, uint8_t sdsid,  Config_class*, Semaphore_class* );
+			Interface_class( APPID appid, Id_t sdsid,  Config_class*, Semaphore_class* );
 	virtual ~Interface_class();
 
-	void	Setup_SDS( uint sdsid, key_t key );
+	void	Setup_SDS( Id_t sdsid, key_t key );
+	bool 	reject		( APPID id );
 	void 	Write_arr( const wd_arr_t& arr );
 	void 	Write_str( char, string );
-	string 	Read_str( char );
+	string 	Read_str( EVENTKEY_t );
 	void 	Commit();
 	void	Dump_ifd();
 	bool 	Restore_ifd();
 	void 	Reset_ifd( );
-	bool 					reject		(char status, int id );
 
 	template < typename V >
 	void Set( V& ref, V value )
 	{
-		if ( reject( addr->Composer, AppId ) ) return;
+		if ( reject( AppId ) )
+			return;
 		ref = value;
 	};
-	void Event( uint8_t event );
+	void Event( EVENTKEY_t event );
 	void Test_interface();
+	void					selfTest		( );
 
 
 private:
-	size_t			sds_size		= sizeof( ifd_data );
-	char 			previous_status = OFFLINE;
-
+	size_t					sds_size		= sizeof( ifd_data );
 
 };
-
 
 
 

@@ -8,14 +8,10 @@
 #ifndef COMPOSER_H_
 #define COMPOSER_H_
 
-#include <Interpreter.h>
-#include <App.h>
-#include <System.h>
-#include <Exit.h>
-
 #include <Appsymbols.h>
+#include <Composer/Interpreter.h>
 
-Interpreter_class 		Compiler( &DaTA );
+Interpreter_class 		Compiler( &App );
 Variation_class 		Variation;
 vector<int>				pos_stack {};
 String 					Str{""};

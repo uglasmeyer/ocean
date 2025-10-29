@@ -16,18 +16,18 @@ class Time_class :
 {
 	// https://en.cppreference.com/w/cpp/chrono
 	string					className		{};
-public:
-
 	std::chrono::time_point<std::chrono::steady_clock>
 							start_time;
 	std::chrono::time_point<std::chrono::steady_clock>
 							stop_time;
 	const long int 			wait 			= max_sec * 1000 ;
-	long int 				duration, ms_wait;
 	long int 				latency 		= 0;
-	uint8_t*				time_elapsed	= nullptr;
+	uint8_t					tel				= 0;
+	uint8_t*				time_elapsed	= &tel;
 
-							Time_class		( uint8_t* t );
+public:
+
+							Time_class		( uint8_t* tel );
 							Time_class		();
 	virtual 				~Time_class		();
 

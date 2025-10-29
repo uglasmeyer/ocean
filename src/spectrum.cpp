@@ -24,6 +24,15 @@ Spectrum_class::Spectrum_class() :
 	className 		= Logfacility_class::className;
 	spectrumTmp		= default_spectrum;
 	Comment( DEBUG, Show_spectrum( this->spectrumTmp ) );
+
+	Table.opt.Separator = ',';
+	Table.AddColumn("Type", 6);
+	Table.AddColumn("Name", 6);
+	Table.AddColumn("Main", 6);
+	Table.AddColumn("harm1",6 );
+	Table.AddColumn("harm2",6 );
+	Table.AddColumn("harm3",6 );
+	Table.AddColumn("harm4",6 );
 }
 
 
@@ -89,18 +98,18 @@ bool Spectrum_class::adsr_type( const string& type_str )
 	string sub = type_str.substr(3, 1);
 	return (  sub.length() > 0 );
 }
-char Spectrum_class::Osc_TypeId( const string& type_str )
+OscId_t Spectrum_class::Osc_TypeId( const string& type_str )
 {
 	string str = type_str.substr(0, 3 );
-	for( char id : oscIds )
+	for( OscId_t id : oscIds )
 	{
-		if ( str.compare( osc_struct().oscNames[ id ] ) == 0 )
+		if ( str.compare( typeNames[ id ] ) == 0 )
 		{
 			return id;
 		}
 	}
 	Comment( ERROR, "unknown OSC type ", str );
-	return -1;
+	return NOOSCID;
 }
 
 spectrum_t Spectrum_class::Parse_data(  vector_str_t arr )
@@ -116,7 +125,7 @@ spectrum_t Spectrum_class::Parse_data(  vector_str_t arr )
 		size_t i = 0;
 		for ( string str : arr )
 		{
-			if ( i < spec_arr_len ) // ignore further entries
+			if ( i < SPECARR_SIZE ) // ignore further entries
 			{
 				switch (_type)
 				{
@@ -178,23 +187,22 @@ string Spectrum_class::Show_spectrum( const spectrum_t spec )
 	return strs.str();
 }
 
-void Spectrum_class::Show_spectrum_table(fstream* f, const spectrum_t& spec )
+Table_class* Spectrum_class::Get_spectrum_table	()
 {
-	string OscRoleTag = osc_struct().oscNames[ spec.osc ];
+	return &this->Table;
+}
+
+void Spectrum_class::Show_spectrum_table(	fstream* f,
+											const spectrum_t& spec,
+											bool header )
+{
+	Table.opt.FILE 		= f;
+	string OscRoleTag = typeNames[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
-	Table_class Table{ defaultopt };
-	Table.opt.FILE 		= f;
-	Table.opt.Separator = ',';
-	Table.AddColumn("Type", 6);
-	Table.AddColumn("Name", 6);
-	Table.AddColumn("Main", 6);
-	Table.AddColumn("harm1",6 );
-	Table.AddColumn("harm2",6 );
-	Table.AddColumn("harm3",6 );
-	Table.AddColumn("harm4",6 );
-	Table.PrintHeader();
+	if ( header ) Table.PrintHeader();
+
 	Table.AddRow( 	spectrumTag[SPEV], OscRoleTag,
 		(int)spec.volidx[0], (int)spec.volidx[1], (int)spec.volidx[2], (int)spec.volidx[3],	(int)spec.volidx[4]);
 	Table.AddRow( 	spectrumTag[SPEF], OscRoleTag,
@@ -207,11 +215,11 @@ void Spectrum_class::Show_spectrum_table(fstream* f, const spectrum_t& spec )
 string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
-	string OscRoleTag = osc_struct().oscNames[ spec.osc ];
+	string OscRoleTag = typeNames[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
-	auto show_dta = [ &strs,&OscRoleTag ]( auto val)
+	auto show_dta = [ &strs, &OscRoleTag ]( auto val)
 	{
 		//strs << setw(6) << dec << (int)val << ",";
 		strs << setw(6) << dec << (float)val << ",";
@@ -223,7 +231,6 @@ string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& s
 	switch ( _type )
 	{
 		case SPEV: { std::ranges::for_each( spec.volidx, show_dta); break; }
-//		case SPEV: { std::ranges::for_each( spec.vol, show_dta); break; }
 		case SPEF: { std::ranges::for_each( spec.frqidx, show_dta); break; }
 		case SPEW: { std::ranges::for_each( spec.wfid  , show_dta); break; }
 		default:
@@ -260,7 +267,7 @@ void Spectrum_class::Test_Spectrum()
 	str = "SPEV,FMO,1.0,1,3,2,3" ;
 	arr = str.to_array( ',' );
 	Parse_data( arr );
-	ASSERTION( spectrumTmp.osc == osc_struct::FMOID, "spectrum.osc", (int)spectrumTmp.osc, (int)osc_struct::FMOID)
+	ASSERTION( spectrumTmp.osc == FMOID, "spectrum.osc", (int)spectrumTmp.osc, (int)FMOID)
 //	cout << show_items( spectrum.vol) << endl;
 	ASSERTION( ( abs( spectrumTmp.vol[1] - 1.0/10.0) < 1E-6),"",abs( spectrumTmp.vol[1] - 1.0/10.0), 0 );
 

@@ -8,9 +8,9 @@
 #ifndef SEMAPHORE_CLASS_H_
 #define SEMAPHORE_CLASS_H_
 
+#include <data/Config.h>
 #include <Ocean.h>
 #include <Logfacility.h>
-#include <Config.h>
 #include <Time.h>
 #include <Table.h>
 

@@ -48,14 +48,13 @@ void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
     if ( sop > 0 )
     			txt = "Aquire  ";
     if( num < SEMAPHORE_SENDDATA0 )
-    	Comment( DEBUG, txt, "Sem ", (int)num, " ",  State( num ))
+    	Comment( DBG2, txt, "Sem ", (int)num, " ",  State( num ))
     ;
     if ( ret < 0 )
     {
     	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
         Comment( ERROR, State( num ));
     }
-//    assert( ret == 0 );
 }
 
 void Semaphore_class::Init()
@@ -73,7 +72,6 @@ void Semaphore_class::Init()
 
 void Semaphore_class::Reset( uint8_t num )
 {
-//	short int val = -abs(  Getval( num , GETVAL ) );
 	semctl(semid, num, SETVAL, 0 );
     Comment( DEBUG, "Reset ", (int) num,  State( num ));
 }
@@ -93,7 +91,7 @@ void Semaphore_class::Release( uint8_t num)
 
 void Semaphore_class::Lock( uint8_t num )
 {
-	;	// wait for release
+	// wait for release
 	Aquire( num );
 	Semop( num, OP_WAIT );
 }
@@ -147,9 +145,6 @@ string Semaphore_class::State(uint8_t num)
 							Getval(num, GETNCNT),
 							Getval(num, GETZCNT));
 	};
-
-	if ( LogMask[ TEST ] )
-		Table.PrintHeader();
 
 	if (num == SEMNUM_SIZE)
 	{

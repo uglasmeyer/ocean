@@ -12,14 +12,13 @@ Memory_base::Memory_base( buffer_t bytes ) :
 {
 	mem_ds.bytes = bytes;
 	className = Logfacility_class::className;
-	Info( "pre-init memory size ", bytes );
+	Comment( DEBUG, "pre-init memory size ", bytes );
 };
 
 Memory_base::Memory_base() :
 	Logfacility_class( "Memory_base" )
 {
-	className = Logfacility_class::className;
-//	Comment( INFO, "pre-init memory size " + to_string( 0 ));
+	Memory_base(0);
 };
 
 Memory_base::~Memory_base()
@@ -43,15 +42,13 @@ void* Memory_base::Init_void()
 }
 void Memory_base::DsInfo()
 {
-	Comment( INFO, "Name             : " + mem_ds.name );
-	Comment( INFO, "Memory bytes     : " + to_string( mem_ds.bytes ));
-	Comment( TEST, "Addr             : " + to_hex(( long)mem_ds.addr) );
+	Comment( DEBUG, "Name             : " + mem_ds.name );
+	Comment( DEBUG, "Memory bytes     : " + to_string( mem_ds.bytes ));
+	Comment( DEBUG, "Addr             : " + to_hex(( long)mem_ds.addr) );
 	Comment( TEST, "Structure bytes  : " + to_string( mem_ds.sizeof_type ));
 	Comment( TEST, "Record size      : " + to_string( mem_ds.size ));
 	Comment( TEST, "data blocks      : " + to_string( mem_ds.data_blocks ));
 	Comment( TEST, "max data records : " + to_string( mem_ds.max_records ));
-
-	cout << endl;
 
 }
 
@@ -62,13 +59,12 @@ Shm_base::Shm_base( buffer_t bytes ) :
 {
 	shm_ds.bytes 		= bytes;
 	className			= Logfacility_class::className;
-	Info( "pre-init shared memory bytes: " , bytes );
+	Comment( DEBUG, "pre-init shared memory bytes: " , bytes );
 }
 Shm_base::Shm_base()
 	: Logfacility_class( "Shm_base" )
 {
-	className			= Logfacility_class::className;
-	Info( "Instanciate shared memory " );
+	Shm_base(0);
 }
 
 Shm_base::~Shm_base()
@@ -116,7 +112,6 @@ void* Shm_base::Attach( int id )
 
 void Shm_base::ShowDs( shm_ds_t ds )
 {
-//	if ( not Log[ TEST ] ) return;
 	stringstream strs;
 	strs << SETW << "Shared Memory data structure " + className << endl;
 	strs << SETW << "Id    : " << dec << ds.Id << endl;
@@ -125,9 +120,8 @@ void Shm_base::ShowDs( shm_ds_t ds )
 	strs << SETW << "Key   : " << dec << ds.key << endl;	;
 	strs << SETW << "Bytes : " << dec << ds.bytes << endl;
 	strs << SETW << "blocks: " << dec << ds.bytes/ds.sizeof_type << endl;
-
 	strs << SETW << "Exist: " << boolalpha <<  ds.eexist  << endl;
-	Comment( INFO, strs.str() );
+	Comment( DEBUG, strs.str() );
 }
 
 void Shm_base::Detach( void* addr )

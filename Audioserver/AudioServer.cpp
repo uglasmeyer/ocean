@@ -46,7 +46,7 @@ void exit_intro( int signal )
 void show_usage( void )
 {
 	string str;
-	str = "Usage: " + DaTA.Cfg_p->prgname + " -c #1 -r #2 -d #3 -o #4 \n";
+	str = "Usage: " + DaTA.Cfg_p->prgName + " -c #1 -r #2 -d #3 -o #4 \n";
 	str.append("       where \n");
 	str.append("       #1 = number of channels (default=2),\n");
 	str.append("       #2 = the sample rate (default = 44100),\n");
@@ -58,7 +58,7 @@ void show_usage( void )
 void Application_loop()
 {
 	Log.Comment(INFO, "Entering Application loop \n");
-	Log.Comment(INFO, DaTA.Cfg_p->prgname + " is ready");
+	Log.Comment(INFO, DaTA.Cfg_p->prgName + " is ready");
 
 	while ( not audio_out_done )//and Audio.isStreamRunning() )
 	{
@@ -71,7 +71,7 @@ void Application_loop()
 
 void write_waveaudio()
 {
-	if ( sds->WD_status.roleId != osc_struct::AUDIOOUTID )
+	if ( sds->WD_status.roleId != AUDIOROLE )
 		return;
 
 
@@ -186,10 +186,14 @@ int RtAudioOut(	void* outputBuffer,
 		audio_out_done = true;
 	if ( audio_out_done ) 								// called by exit_proc
 		return 1;										// terminate and drain
-//		return 2;										// abort
-	if( (sds->AudioServer == sdsstate_struct::RECORDSTART ) or	( Note_start.get() ))
+//		return 2;// abort
+
+	StateId_t recordstate = Appstate->GetState( sds, App.AppId );
+	bool recordstart = ( recordstate == sdsstate_struct::RECORDSTART );
+	if ( recordstart or Note_start.get() )
 		record_start();
-	if( (sds->AudioServer == sdsstate_struct::RECORDSTOP ) or	( Note_end.get() ))
+	bool recordstop  = ( recordstate == sdsstate_struct::RECORDSTOP );
+	if ( recordstop or Note_end.get())
 		record_stop( false );
 
 	DaTA.Appstate.SetRunning(  );
@@ -227,8 +231,8 @@ int main( int argc, char *argv[] )
 
 	// init wavedisplay
 	wd_status_t wd_status 	= WD_status_struct();
-	wd_status.roleId 		= osc_struct::AUDIOOUTID;
-	wd_status.oscId 		= osc_struct::OSCID;
+	wd_status.roleId 		= AUDIOROLE;
+	wd_status.oscId 		= OSCID;
 	Wavedisplay.Add_role_ptr( wd_status.roleId, mono_out.Data, &audioframes);
 	Wavedisplay.SetDataPtr( wd_status );
 

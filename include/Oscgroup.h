@@ -32,9 +32,9 @@ public:
 
 
 
-	char					oscroleId;
+	OscroleId_t				oscroleId;
 
-							Oscgroup_class		( char role, buffer_t bytes  );
+							Oscgroup_class		( OscroleId_t role, buffer_t bytes  );
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 
@@ -60,7 +60,7 @@ public:
 	void 					SetScanner			( const buffer_t& maxlen );
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
-	char 					Get_oscid_by_name	( const string& name );
+	OscId_t 				Get_oscid_by_name	( const string& name );
 
 	void 					SetSlide			( const uint8_t& value );
 	void 					SetFeatures			( interface_t* sds );

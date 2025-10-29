@@ -6,14 +6,11 @@
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
 )
-	:  Config_class( Ui::ClassName ),
-	  QDialog(parent),
+	: QDialog(parent),
 	  ui( new Ui::Rtsp_Dialog_class {})
 {
     ui->setupUi(this);
     this->DaTA		= data;
-    this->Sds		= DaTA->SDS.GetSds( SDS_ID );
-    this->sds_master= DaTA->sds_master;
 
     UpdateLog( "Init RTSP log" );
     proc_table_update_all();
@@ -39,27 +36,25 @@ void Rtsp_Dialog_class::proc_table( uint row, uint col, string text)
 
 void Rtsp_Dialog_class::proc_table_update_row( uint row )
 {
-	register_process_t proc { sds_master->process_arr.at( row ) };
-	string text = AppIdName( proc.type );
-	proc_table( row, 0, text );
-
-
-	if ( row > 0 )
+	uint8_t				sdsid	= ( row == 0 ) ? 0 : row-1;
+	Interface_class* 	SDS 	= DaTA->SDS.GetSds( sdsid );
+	APPID 				appid 	= ( row == 0 ) ? AUDIOID : SYNTHID;
+	bool 				state	= DaTA->Appstate.IsRunning( SDS->addr, appid);
+	string 				appname = state ? AppIdName( appid ) : "no process";
+	proc_table( row, 0, appname );
+	if ( row > 0 ) // no additional comment for the audio server row 0
 	{
-		Interface_class* SDS = DaTA->SDS.GetSds( row -1 );
+		string instrname = SDS->Read_str( INSTRUMENTSTR_KEY );
+		proc_table( row, 1, instrname );
 
-		text = SDS->Read_str( INSTRUMENTSTR_KEY );
-		proc_table( row, 1, text );
-
-		text = SDS->Read_str( NOTESSTR_KEY );
-		proc_table( row, 2, text );
+		string notesname = SDS->Read_str( NOTESSTR_KEY );
+		proc_table( row, 2, notesname );
 	}
 }
 
 void Rtsp_Dialog_class::proc_table_update_all( )
 {
-	DaTA->Reg.Update_register();
-	for( uint row = 0 ; row < REGISTER_SIZE; row++ )
+	for( uint row = 0 ; row < ( MAXCONFIG+1 ); row++ )
 	{
 		proc_table_update_row(row);
 	}

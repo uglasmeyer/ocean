@@ -66,7 +66,7 @@ void MainWindow::initOscillatorDisplay()
 
 void MainWindow::initStateButtons()
 {
-	Qwd_osc_names 	= Vstringvector( osc_struct().oscNames );
+	Qwd_osc_names 	= Vstringvector( typeNames );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
 
 	Qwd_fftmodes	= Vstringvector( wavedisplay_struct().fftmodes );
@@ -75,7 +75,7 @@ void MainWindow::initStateButtons()
 	Qwd_wdmode_names= Vstringvector( wavedisplay_struct().types );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ Sds->addr->WD_status.wd_mode ]);
 
-	Qwd_role_names 	= Vstringvector( osc_struct().roles );
+	Qwd_role_names 	= Vstringvector( roleNames );
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ]);
 
     setButton( ui->pB_Rtsp, 2 );
@@ -271,7 +271,7 @@ void MainWindow::initUiConnectors()
     connect(ui->SliderFMOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Adjust(int) ));
     connect(ui->SliderVCOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Adjust(int) ));
 
-    connect(ui->cB_Capture		, SIGNAL(textActivated(QString) ),this, SLOT(cB_Capture(QString) ));
+    connect(ui->cB_Capture		, SIGNAL(textActivated(QString) ),this, SLOT(Capture(QString) ));
     connect(ui->cb_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
 
     connect(ui->cb_connect_fmov	, SIGNAL(clicked( bool ))	,this, SLOT( connect_fmov( bool ) ));

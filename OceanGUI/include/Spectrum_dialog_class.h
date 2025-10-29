@@ -20,8 +20,8 @@ class Spectrum_Dialog_class;
 
 class Spectrum_Dialog_class :
 		public 			QDialog,
-		public virtual 	Spectrum_class,
-		virtual 		osc_struct
+		public virtual 	Spectrum_class
+
 {
     Q_OBJECT
 	string className			= "";
@@ -41,7 +41,7 @@ public:
     EventLog_class*			Eventlog_p;
 
     adsr_t					adsr_data;
-    uint8_t					OscId;
+    OscId_t					OscId;
     Id_t					Channel = 1; // active slot last selected Wafeform out of 4
 
     vector<QSlider*>		fS_vec {};
@@ -95,7 +95,7 @@ private slots:
 private:
     bool ADSR_flag = false;
 
-    void select_spec( char oscid );
+    void select_spec( OscId_t oscid );
     void set_spectrum_data();
     void set_spectrum_view();
     void waveform_spinbox( uint id, int value  );

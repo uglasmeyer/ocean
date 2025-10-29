@@ -45,12 +45,13 @@ static constexpr auto qt_meta_stringdata_ZN17File_Dialog_classE = QtMocHelpers::
     "arg1",
     "Instrument_Select",
     "Instrument_Save",
-    "pb_Notes_Done_clicked",
+    "Notes_Done_clicked",
     "cB_NotesPerSec",
     "cB_Convention",
     "sB_Octave",
     "cb_Notestype",
-    "Longnote"
+    "Longnote",
+    "EditMusicXML"
 );
 #else  // !QT_MOC_HAS_STRINGDATA
 #error "qtmochelpers.h not found or too old."
@@ -62,7 +63,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN17File_Dialog_classE[] = {
       12,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+      11,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -70,16 +71,17 @@ Q_CONSTINIT static const uint qt_meta_data_ZN17File_Dialog_classE[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,   74,    2, 0x0a,    1 /* Public */,
-       3,    1,   75,    2, 0x08,    2 /* Private */,
-       5,    1,   78,    2, 0x08,    4 /* Private */,
-       6,    0,   81,    2, 0x08,    6 /* Private */,
-       7,    0,   82,    2, 0x08,    7 /* Private */,
-       8,    1,   83,    2, 0x08,    8 /* Private */,
-       9,    1,   86,    2, 0x08,   10 /* Private */,
-      10,    1,   89,    2, 0x08,   12 /* Private */,
-      11,    1,   92,    2, 0x08,   14 /* Private */,
-      12,    1,   95,    2, 0x08,   16 /* Private */,
+       1,    0,   80,    2, 0x0a,    1 /* Public */,
+       3,    1,   81,    2, 0x08,    2 /* Private */,
+       5,    1,   84,    2, 0x08,    4 /* Private */,
+       6,    0,   87,    2, 0x08,    6 /* Private */,
+       7,    0,   88,    2, 0x08,    7 /* Private */,
+       8,    1,   89,    2, 0x08,    8 /* Private */,
+       9,    1,   92,    2, 0x08,   10 /* Private */,
+      10,    1,   95,    2, 0x08,   12 /* Private */,
+      11,    1,   98,    2, 0x08,   14 /* Private */,
+      12,    1,  101,    2, 0x08,   16 /* Private */,
+      13,    0,  104,    2, 0x08,   18 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -92,6 +94,7 @@ Q_CONSTINIT static const uint qt_meta_data_ZN17File_Dialog_classE[] = {
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Int,    2,
     QMetaType::Void, QMetaType::Bool,    2,
+    QMetaType::Void,
 
        0        // eod
 };
@@ -115,7 +118,7 @@ Q_CONSTINIT const QMetaObject File_Dialog_class::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<QString, std::false_type>,
         // method 'Instrument_Save'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'pb_Notes_Done_clicked'
+        // method 'Notes_Done_clicked'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
         // method 'cB_NotesPerSec'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
@@ -131,7 +134,9 @@ Q_CONSTINIT const QMetaObject File_Dialog_class::staticMetaObject = { {
         QtPrivate::TypeAndForceComplete<int, std::false_type>,
         // method 'Longnote'
         QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>
+        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
+        // method 'EditMusicXML'
+        QtPrivate::TypeAndForceComplete<void, std::false_type>
     >,
     nullptr
 } };
@@ -145,12 +150,13 @@ void File_Dialog_class::qt_static_metacall(QObject *_o, QMetaObject::Call _c, in
         case 1: _t->Notes_Select((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 2: _t->Instrument_Select((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
         case 3: _t->Instrument_Save(); break;
-        case 4: _t->pb_Notes_Done_clicked(); break;
+        case 4: _t->Notes_Done_clicked(); break;
         case 5: _t->cB_NotesPerSec((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 6: _t->cB_Convention((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 7: _t->sB_Octave((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 8: _t->cb_Notestype((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
         case 9: _t->Longnote((*reinterpret_cast< std::add_pointer_t<bool>>(_a[1]))); break;
+        case 10: _t->EditMusicXML(); break;
         default: ;
         }
     }
@@ -170,6 +176,8 @@ void *File_Dialog_class::qt_metacast(const char *_clname)
         return static_cast< Logfacility_class*>(this);
     if (!strcmp(_clname, "Note_class"))
         return static_cast< Note_class*>(this);
+    if (!strcmp(_clname, "sdsstate_struct"))
+        return static_cast< sdsstate_struct*>(this);
     return QDialog::qt_metacast(_clname);
 }
 
@@ -179,14 +187,14 @@ int File_Dialog_class::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 11;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 11)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 10;
+        _id -= 11;
     }
     return _id;
 }

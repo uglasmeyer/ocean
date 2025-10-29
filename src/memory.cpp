@@ -10,6 +10,36 @@
 #include <System.h>
 
 
+//-----------------------------------------------------------------------------
+
+Trigger_class::Trigger_class( string _name, trigger_data_t* _data )
+{
+	trigger_data 	= _data;
+	name 			= _name;
+}
+Trigger_class::Trigger_class()
+{
+	trigger_data	= &local_data;
+	name			= "local";
+}
+
+void Trigger_class::set_state( bool _state ) // producer
+{
+	trigger_data->state 	= _state;
+}
+void Trigger_class::set_active( bool _active ) // controller
+{
+	trigger_data->active 	= _active;
+}
+bool Trigger_class::get() // action
+{
+	bool state = ( trigger_data->active and trigger_data->state);
+	if( state ) cout << "trigger " << name << endl;
+	trigger_data->state		= false;
+	return state;
+}
+
+
 	// 0             pos             <          max      <   Max
 	// |-------------|--------------------------|------------|
 	// |-----|-----|-----|-----|-----|-----|-----|-----|-----| inc
@@ -86,6 +116,20 @@ void Scanner_class::Set_fillrange( buffer_t n )
 
 //-----------------------------------------------------------------------------
 
+Memory::Memory( buffer_t bytes ) :
+	Logfacility_class( "Memory" ),
+	Memory_base( bytes )
+{
+	className = Logfacility_class::className;
+	Init_data();
+};
+
+Memory::Memory( ) :
+	Logfacility_class( "Memory" )
+{
+	className = Logfacility_class::className;
+	Comment( DEBUG, "pre-init " + className );
+};
 
 void Memory::Clear_data( Data_t value )
 {
@@ -104,7 +148,7 @@ void Memory_base::SetDs( size_t type_size )
 
 				mem_ds.sizeof_type 	= type_size;
 				mem_ds.data_blocks 	= mem_ds.bytes / type_size;  //max_frames
-//				mem_ds.size			= bs; //min_frames
+				mem_ds.size			= min_frames;
 				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.size ;
 
 	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.size;
@@ -149,6 +193,7 @@ void Storage_class::Setup( StA_param_t _param )
 	param 			= _param;
 	mem_ds.bytes 	= sizeof(Data_t) * param.size;
 	mem_ds.size		= min_frames;//param.block_size;
+//	mem_ds.size		= param.size;//min_frames;//param.block_size;
 	mem_ds.block_size=param.block_size;
 	Memory::Init_data( );
 	Memory::DsInfo( param.name );
@@ -184,7 +229,7 @@ void Storage_class::Store_block( Data_t* src )
 
 void 	Storage_class::Set_store_counter( uint  n )
 {
-	assert( n < mem_ds.max_records );
+	Assert_lt(  n , mem_ds.max_records, "mem_ds.max_records" );
 
 	record_counter 		= n;
 	record_data 		= record_counter * mem_ds.size;
@@ -206,6 +251,7 @@ void 	Storage_class::Reset( )
 	scanner.Set_wpos	(0);
 	scanner.Set_fillrange ( 0 );
 	Clear_data			(0);
+//	coutf << "clear sta" << (int)Id << " " << mem_ds.data_blocks << endl;
 }
 void Storage_class::Playnotes( bool flag )
 {

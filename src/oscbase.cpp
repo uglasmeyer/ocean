@@ -7,14 +7,7 @@
 
 #include <Oscbase.h>
 
-Oscillator_base::Oscillator_base()
-	: Logfacility_class( "Oscillator_base" )
-	, Spectrum_class()
-{
-	this->spectrum = default_spectrum;
-};
-
-Oscillator_base::Oscillator_base( char osc_type ) :
+Oscillator_base::Oscillator_base( OscId_t osc_type ) :
 	Logfacility_class( "Oscillator_base" )
 {
 	this->spectrum.osc 	= osc_type;
@@ -22,6 +15,16 @@ Oscillator_base::Oscillator_base( char osc_type ) :
 	Connect				= { osc_type, osc_type };
 	this->className		= Logfacility_class::className;
 };
+
+Oscillator_base::Oscillator_base() // adsr, viewinterface
+	: Logfacility_class( "Oscillator_base" )
+
+{
+	Oscillator_base{ NOOSCID };
+
+//	this->spectrum = default_spectrum;
+};
+
 
 
 

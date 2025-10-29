@@ -8,11 +8,11 @@
 #ifndef INCLUDE_NOTESBASE_H_
 #define INCLUDE_NOTESBASE_H_
 
+#include <data/Config.h>
 #include <Ocean.h>
 #include <Frequency.h>
 #include <Oscbase.h>
 #include <String.h>
-#include <Config.h>
 #include <Table.h>
 
 /*
@@ -121,10 +121,7 @@ typedef struct pitch_struct :
 		freq	= frqArray[ frqidx ];
 	}
 	~pitch_struct() = default;
-//	void operator= ( pitch_struct rhs )
-//	{
-//		pitch_struct( rhs.frqidx );
-//	}
+
 } pitch_t;
 
 typedef struct glide_struct

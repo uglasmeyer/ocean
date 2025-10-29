@@ -8,101 +8,79 @@
 #ifndef DATA_DATAWORLD_H_
 #define DATA_DATAWORLD_H_
 
-
+#include <Ocean.h>
 #include <data/Interface.h>
+#include <data/SharedDataSegment.h>
 #include <data/Appstate.h>
+#include <data/Config.h>
+#include <data/Semaphore.h>
+#include <data/Memory.h>
+#include <data/Sdsbase.h>
 
+typedef vector<Interface_class> SDS_vec_t;
+
+/*********************
+ * SDS_struct
+ *********************/
 typedef struct SDS_struct
 {
 private:
 	string					className 		= "SDS_struct";
 public:
-	vector<Interface_class> 	Vec			{};
-	vector<interface_t*>		vec			{};
-
+	SDS_vec_t 				Vec				{};
+	sds_vec_t				vec				{};
 	interface_t*			master			= nullptr;
 	Interface_class*		Master			= nullptr;
-	SDS_struct( char appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
-	{
-		for ( uint8_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
-		{
-			Interface_class
-			Sds 		{ appid, sdsid, Cfg_p, Sem_p };
-			interface_t* sds = (interface_t*) Sds.ds.addr;
-			sds->SDS_Id = sdsid;
-			vec.push_back( sds );
-			Vec.push_back( Sds );
-		};
-		assert( Vec[0].ds.addr != Vec[1].ds.addr );
-		master 		= vec[0];
-		Master		= &Vec[0];
-	}
-	virtual ~SDS_struct() //= default;
-			{ DESTRUCTOR( className ); }
 
-	Interface_class* GetSds( int id )
-	{
-		return &Vec[ id ];
-	}
-	interface_t* GetSdsAddr( int id )
-	{
-		if (( id<0) or ( id > (int)MAXCONFIG ))
-		{
-			EXCEPTION( "no such Shared Data Segment ");
-		}
-		if( not Vec[id].ds.eexist )
-		{
-			EXCEPTION( "segment not available");
-		}
-
-		return vec[ id ];
-	}
-	void Delete()
-	{
-		for( Interface_class& Sds : Vec )
-		{
-			Sds.SHM.Delete();
-		}
-	}
-
+							SDS_struct		( APPID appid,
+											Config_class* Cfg_p,
+											Semaphore_class* Sem_p );
+	virtual 				~SDS_struct		();
+	Interface_class* 		GetSds			( int id );
+	interface_t* 			GetSdsAddr		( int id );
+	void 					Delete			();
 
 } SDS_t;
 
+/*********************
+ * Dataworld_class
+ *********************/
 
-class Dataworld_class :
+class 	Dataworld_class :
 		virtual public Logfacility_class
 {
 	string 					className 	= "";
 public:
 
-	char					AppId		= NOID;
-	int						SDS_Id		= -1;
+	APPID					AppId				= NoAPPID;
+	Id_t					SDS_Id				= -1;
 
-	Shared_Memory			SHM_0		{ Shared_Memory::sharedbuffer_size };
-	Shared_Memory			SHM_1		{ Shared_Memory::sharedbuffer_size };
+	Shared_Memory			SHM_0				{ Shared_Memory::sharedbuffer_size };
+	Shared_Memory			SHM_1				{ Shared_Memory::sharedbuffer_size };
 
 	SDS_t			 		SDS ;
-	Register_class			Reg	;
 	Appstate_class 			Appstate;
 
-	Stereo_t* 				ShmAddr_0 	= nullptr;
-	Stereo_t* 				ShmAddr_1 	= nullptr;
-	Interface_class*		Sds_p		= nullptr;
-	Interface_class*		Sds_master	= nullptr;
-	interface_t*			sds_master	= nullptr;
-	Config_class*			Cfg_p		= nullptr;
-	Semaphore_class*		Sem_p		= nullptr;
+	Stereo_t* 				ShmAddr_0 			= nullptr;
+	Stereo_t* 				ShmAddr_1 			= nullptr;
+	Interface_class*		Sds_p				= nullptr;
+	Interface_class*		Sds_master			= nullptr;
+	interface_t*			sds_master			= nullptr;
+	Config_class*			Cfg_p				= nullptr;
+	Semaphore_class*		Sem_p				= nullptr;
 
-	interface_t* 			GetSdsAddr();
-	Interface_class*		GetSds( );
-	Stereo_t* 				SetShm_addr( ); 			// Audioserver
-	Stereo_t* 				GetShm_addr( ); 			// Synthesizer
-	void 					ClearShm( const buffer_t& frames );
-	void 					EmitEvent( const uint8_t flag, string comment = ""  );
-	void					Test_Dataworld();
+	interface_t* 			GetSdsAddr			();
+	Interface_class*		GetSds				( );
+	Stereo_t* 				SetShm_addr			( ); 			// Audioserver
+	Stereo_t* 				GetShm_addr			( ); 			// Synthesizer
+	void 					ClearShm			( const buffer_t& frames );
+	void 					EmitEvent			( const uint8_t flag, string comment = ""  );
+	void					Test_Dataworld		();
 
-							Dataworld_class( char id, Config_class* cfg, Semaphore_class* sem );
-	virtual 				~Dataworld_class();
+							Dataworld_class		( APPID appid,
+												Config_class* cfg,
+												Semaphore_class* sem );
+	virtual 				~Dataworld_class	();
 
 
 private:
@@ -111,9 +89,9 @@ private:
 };
 
 
-/*
+/*******************
  * EventLog_class
- */
+ *******************/
 
 class EventLog_class :
 	virtual Logfacility_class
@@ -125,8 +103,8 @@ class EventLog_class :
 	string logfile_name = file_structure().reclog_file;
 	struct event_struct
 	{
-		uint8_t sdsid = 0;
-		uint8_t event = 0;
+		uint8_t 	sdsid = 0;
+		EVENTKEY_t	event = NULLKEY;
 	};
 	typedef event_struct event_t;
 	vector<event_t> 	rawlog_vec		{};
@@ -140,7 +118,7 @@ public:
 	EventLog_class( Dataworld_class* _data );
 	virtual ~EventLog_class();
 
-	void add( uint8_t sdsid, uint8_t event );
+	void add( uint8_t sdsid, EVENTKEY_t event );
 	void write_log();
 	void spool();
 	bool capture( uint8_t sdsid, bool flag );

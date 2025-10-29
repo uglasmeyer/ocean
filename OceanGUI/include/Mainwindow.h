@@ -8,14 +8,14 @@
 #include <QTimer>
 #include <QGraphicsView>
 
-// Synthesizer
+// Ocean
 #include <data/Interface.h>
 #include <Mixer.h>
 #include <Spectrum.h>
 #include <App.h>
+#include <data/Configbase.h>
 #include <data/Semaphore.h>
 #include <Wavedisplay_base.h>
-#include <Configbase.h>
 
 // OceanGUI
 #include "ui_mainwindow.h"
@@ -39,21 +39,21 @@ class MainWindow :
     Q_OBJECT
 	string					className			= "";
 public:
-	process_t				Process				{  };
-
-	Config_class			Cfg					{ Process.name };
+	process_t				Process				{};
+	file_structure			fs					{};
+	Config_class			Cfg					{ Process.name, &fs };
 	Semaphore_class			Sem					{ Cfg.Config.Sem_key };
 	Dataworld_class 		DaTA				{ Process.AppId, &Cfg, &Sem };
 	Application_class		App					{ &DaTA };
-	interface_t*			sds 				= DaTA.GetSdsAddr();
 
     EventLog_class			Eventlog			{ &DaTA };
     EventLog_class*			Eventlog_p			= &Eventlog;
     Appstate_class*			Appstate			= &DaTA.Appstate;
     Config_class*			Cfg_p 				= DaTA.Cfg_p;
     interface_t*			sds_master			= DaTA.sds_master;
-    uint8_t					SDS_ID				= sds_master->config;// active SDS for event logging
+    Id_t					SDS_ID				= sds_master->config;// active SDS for event logging
     Interface_class*		Sds					= DaTA.SDS.GetSds( SDS_ID );
+	interface_t*			sds 				= Sds->addr;//DaTA.GetSdsAddr();
 
     Spectrum_class          Spectrum			{};
     Semaphore_class*		Sem_p				= DaTA.Sem_p;
@@ -100,7 +100,7 @@ public:
     } sl_value_t;
     struct sl_lcd_map
     {
-    	int				event; // Mixer id
+    	EVENTKEY_t		event; // Mixer id
     	QLCDNumber*		lcd;
     	QSlider*		sl;
     	uint8_t*		value;
@@ -109,7 +109,7 @@ public:
     typedef sl_lcd_map 	sl_lcd_t;
     struct sB_lbl_map
     {
-    	int 			event;
+    	EVENTKEY_t		event;
     	QSpinBox* 		sb;
     	QLabel* 		lbl;
 		uint8_t*		value;
@@ -119,9 +119,6 @@ public:
     vector<sl_lcd_t>		sl_frqidx_vec		{};
     vector<sl_lcd_t>		sl_volume_vec		{};
     vector<sB_lbl_t>		sB_lbl_vec			{};
-
-    const file_structure	fs					= file_structure();
-
 
     explicit MainWindow(	QWidget*			parent 	= nullptr);
     virtual ~MainWindow();
@@ -142,7 +139,7 @@ private:
 
     void setwidgetvalues();
     void initPanel();
-    void select_Sds( uint8_t sdsid );
+    void select_Sds( Id_t sdsid );
     void initGuiVectors();
     void initOscillatorDisplay();
     void initFreqSlider();
@@ -154,7 +151,7 @@ private:
     void sliderFreq( sl_lcd_t map, uint8_t value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
-    void waveform_slot( uint8_t*, uint8_t, int, int, QLabel* );
+    void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_t, QLabel* );
 
 
 public slots:
@@ -165,7 +162,7 @@ private slots:
 
 //	void show_time_elapsed();
 
-	void cB_Capture( QString str );
+	void Capture( QString str );
 
 	void Rtsp_Dialog();
 	void SDS_Dialog();
@@ -194,7 +191,7 @@ private slots:
     void VCO_Waveform_slot( int );
     void FMO_Waveform_slot( int );
 
-    void exit_synthesizer( const char& appid );
+    void exit_synthesizer( APPID );
     void GUI_Exit();
     void start_synthesizer();
     void start_audio_srv();

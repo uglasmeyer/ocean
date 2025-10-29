@@ -10,6 +10,7 @@
 
 #include <Ocean.h>
 
+
 const char			kbd_rows				= 3;
 const int 			max_kbd_octave			= max_octave - kbd_rows ;
 
@@ -25,9 +26,9 @@ typedef struct kbd_state_struct
 													// 1 Wait for event
 													// 2 scan pos reached the begin of the sta buffer
 	kbdInt_t		key						= 0x0;	// QT::key
-	frq_t			frq						= 0.0;
-	char			note[3]					= { "XX" };
-	char			chord_type				= 'y';
+	frq_t			frq						= 0.0;	// OceanGUI display frequency
+	char			note[3]					= {"XX"};//OceanGUI display key
+	Id_t			chord_type				= 'y';	// OceanGUI display chord type
 
 } kbd_state_t;
 

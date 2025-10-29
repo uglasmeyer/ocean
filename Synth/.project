@@ -4,6 +4,7 @@
 	<comment></comment>
 	<projects>
 		<project>Ocean</project>
+		<project>Setup</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -9,7 +9,6 @@
 #define APP_H_
 
 #include <Ocean.h>
-#include <Version.h>
 #include <data/Semaphore.h>
 #include <data/Statistic.h>
 #include <data/DataWorld.h>
@@ -27,7 +26,7 @@ class Application_class :
 	string 				className 			= "";
 public:
 
-	char 				AppId				= NOID;
+	APPID 				AppId				= NoAPPID;
 	process_t 			properties 			{};
 	Time_class			Timer				{};
 	Kbd_base			Kbd					{};
@@ -39,7 +38,7 @@ public:
 	Interface_class*	Sds					= nullptr;
 
 	string 				This_Application 	= "";
-    const set<int> 		logowner 			=  { GUI_ID, COMPID, RTSPID };
+    const set<APPID>	logowner 			=  { GUI_ID, COMPID, RTSPID };
 
     					Application_class	( Dataworld_class* );
 	virtual 			~Application_class	();
@@ -54,7 +53,6 @@ private:
 	void 				app_properties		();
 	void 				deRegister			();
 	void 				versionTxt			();
-	void 				init_Sds			();
 
 	string 				ProgramName 		= "";
 };
