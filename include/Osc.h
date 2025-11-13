@@ -8,9 +8,9 @@
 #ifndef INCLUDE_OSC_H_
 #define INCLUDE_OSC_H_
 
-#include <data/Memory.h>
 #include <Spectrum.h>
 #include <Adsr.h>
+#include <data/Memory.h>
 #include <Ocean.h>
 #include <System.h>
 #include <Oscwaveform.h>
@@ -25,15 +25,15 @@ class Oscillator :
 	string 			className = "";
 
 public:
-	Memory			Mem_vco;
-	Memory 			Mem_fmo;
-	Memory 			Mem;
+	Heap_Memory			Mem_vco;
+	Heap_Memory 			Mem_fmo;
+	Heap_Memory 			Mem;
 	buffer_t		mem_frames;
 
 	Scanner_class	scanner;
 
 
-					Oscillator			( OscroleId_t role_id, OscId_t type_id, buffer_t bytes );
+					Oscillator			( OscroleId_t role_id, OSCID_e type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;
 	void 			operator=			( Oscillator& osc );
 

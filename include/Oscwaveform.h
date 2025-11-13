@@ -14,7 +14,7 @@ struct oscwaveform_struct
 {
 	enum WFID_t
 	{
-		SINUS,
+		SINUS = 0,
 		TRIANGLE,
 		SGNSIN,
 		RECTANGLE,
@@ -23,8 +23,10 @@ struct oscwaveform_struct
 		PMW,
 		DELTA,
 		NOISE,
-		RANDOM
+		RANDOM,
+		WFID_SIZE
 	};
+	const range_T<WFID_t> wfid_range{ SINUS, WFID_SIZE };
 };
 
 struct param_struct

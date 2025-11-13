@@ -15,7 +15,7 @@
 
 typedef struct bps_struct
 {
-	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8,10 };
+	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8,10,16 };
 	const vector<uint8_t>	Bps_vec	= set2vector( Bps_set );
 	list<string>			Bps_lst	= {};
 	set<string>			Bps_str_set	= {};
@@ -45,7 +45,7 @@ typedef	struct wave_struct
 
 typedef struct fmo_struct
 {
-	Memory*			Mem			= nullptr;
+	Heap_Memory*	Mem			= nullptr;
 	char 			osc_id		= DEFAULT_ID;
 	uint16_t 		volume		= 0; // volume of the fm track
 	string			name		= "";
@@ -53,7 +53,7 @@ typedef struct fmo_struct
 
 typedef struct vco_struct
 {
-	Memory*			Mem			= nullptr;
+	Heap_Memory*	Mem			= nullptr;
 	char 			osc_id		= DEFAULT_ID;
 	uint16_t 		volume		= 0; // volume of the vc track
 	string			name		= "";
@@ -71,8 +71,8 @@ constexpr feature_t default_feature = feature_struct();
 
 typedef struct Connect_struct
 { // SDS related
-	OscId_t		vol 	= NOOSCID;
-	OscId_t		frq 	= NOOSCID;
+	OSCID_e		vol 	= NOOSCID;
+	OSCID_e		frq 	= NOOSCID;
 } connectId_t;
 
 constexpr bool operator==( const connectId_t& lhs, const connectId_t& rhs )
@@ -96,8 +96,8 @@ class Oscillator_base :
 	string			className		= "";
 
 public:
-	OscId_t			typeId			= NOOSCID;//osc_struct::OSCID;
-	OscroleId_t		roleId			= NOROLE;//osc_struct::INSTRID;
+	OSCID_e			typeId			= NOOSCID;
+	OscroleId_t		roleId			= NOROLE;
 	string 			osctype_name 	= "";
 
 	string 			oscrole_name 	= "";
@@ -125,7 +125,7 @@ public:
 	Dynamic_class	DynFrequency{ frqarr_range };
 
 					Oscillator_base() ;
-					Oscillator_base( OscId_t osc_type );
+					Oscillator_base( OSCID_e osc_type );
 	virtual 		~Oscillator_base()
 						{ DESTRUCTOR( className ); };
 

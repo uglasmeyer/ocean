@@ -1,3 +1,41 @@
+// License Notice
+/******************************************************************************
+-> Ocean Sound Lab Application Suite (short Ocean-SL)
+Ocean-SL is a c++Project that provides a set of Sound Managing Applications,
+such as Synthesizer, Audioserver, Composer with Graphical UserInterface for
+Linux based Operating Systems, that allows to generate, play and record sound.
+It includes interfaces for musicxml-files and supports the sound drivers:
+-> native ALSA and
+-> Pulseaudio
+The software includes a simple keyboard to play and record music as you type.
+It comes with a limited set of sample files for instruments and notes to start
+with. Funny play.
+
+-> Ocean-SL GitHub site: https://github.com/uglasmeyer/ocean
+-> Copyright (c) 2024-2025 Ulrich.Glasmeyer@web.de
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software. Any person wishing to
+distribute modifications to the Software is asked to send the modifications to
+the original developer so that they can be incorporated into the canonical
+version. This is, however, not a binding provision of this license.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+******************************************************************************/
+
 
 #include <Appsymbols.h>
 #include <Synth/Synthesizer.h>
@@ -6,15 +44,15 @@
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 const int 				EXITTEST		= 15;
 
-EventQue_class*			EventQue 		= &Sds->Eventque;// &DaTA.Sds_p->Eventque;
+//EventQue_class*			EventQue 		= &Sds->Eventque;// &DaTA.Sds_p->Eventque;
 Wavedisplay_class 		Wavedisplay		{ Sds };
 Wavedisplay_class*		Wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
 Mixer_class				Mixer			{ &DaTA, Wd_p } ;// DaTA.Sds_master );
-Instrument_class 		Instrument		{ sds, Wd_p };
+Instrument_class 		Instrument		{ sds, Wd_p, Cfg.fs };
 Note_class 				Notes			{ &Instrument, &Mixer.StA[ STA_NOTES ] };
 Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
-External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg);
+External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg );
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
 Musicxml_class			MusicXML		{};
@@ -53,33 +91,33 @@ void SetLogLevels()
 
 }
 
+
 void activate_sds()
 {
+
 	// reset state of empty buffers
 	for ( uint id : Mixer.RecIds )
-		sds->StA_state[id].play = false;
+		sds->StA_state_arr[id].play = false;
 
-	std::ranges::for_each( init_keys, [  ]( EVENTKEY_t key )
-			{	DaTA.Sds_p->Event( key );	} );
+	std::ranges::for_each( init_keys, [  ]( EVENTKEY_e key )
+			{	DaTA.Sds_p->Eventque.add( key );	} );
+
+	if ( Mixer.state.instrument )
+		sds->WD_status.roleId = INSTRROLE;
+	if ( Mixer.state.kbd )
+		sds->WD_status.roleId = KBDROLE;
 
 	Keyboard.Enable( DaTA.Appstate.IsKeyboard( ));
 
-	for ( uint id : Mixer.HghIds )
-		Mixer.Set_mixer_state(id, sds->StA_state[id].play );
-
-	for ( uint id : Mixer.StAMemIds )
-	{
-		Mixer.StA[ id ].state 	= sds->StA_state[id];
-		Mixer.StA[ id ].DynVolume.SetupVol( sds->StA_amp_arr[id], FIXED );
-	}
 	if( Mixer.state.notes )
 	{
+		sds->WD_status.roleId = NOTESROLE;
 		if( sds->NotestypeId == XML_ID )
-			DaTA.Sds_p->Event( XMLFILE_KEY );
+			DaTA.Sds_p->Eventque.add( XMLFILE_KEY );
 		else
-			DaTA.Sds_p->Event( NEWNOTESLINEKEY );
+			DaTA.Sds_p->Eventque.add( NEWNOTESLINEKEY );
 	}
-
+	Wavedisplay.SetDataPtr( sds->WD_status );
 }
 
 
@@ -87,7 +125,7 @@ void activate_sds()
 void add_sound()
 {
 	Mixer.state 		= sds->mixer_state;
-	Mixer.state.kbd 	&= ( App.properties.keyboard | sds->StA_state[ STA_KEYBOARD ].play );
+	Mixer.state.kbd 	&= ( App.properties.keyboard | sds->StA_state_arr[ STA_KEYBOARD ].play );
 
 	if (( Mixer.state.instrument ) )
 	{
@@ -105,7 +143,7 @@ void add_sound()
 			Keyboard.Dispatcher( key );
 		else
 			Keyboard.Dispatcher( sds->Kbd_state.key );
-		sds->StA_state[ STA_KEYBOARD ].play = true;
+		sds->StA_state_arr[ STA_KEYBOARD ].play = true;
 		Keyboard.ScanData();
 	}
 	if ( Mixer.state.notes )
@@ -150,8 +188,6 @@ void ApplicationLoop()
 	Log.Comment(INFO, "Entering Application loop\n");
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
-
-	Sem.Release( SEMAPHORE_STARTED );
 
 	Event.Handler();
 	App.Ready();
@@ -269,7 +305,11 @@ int sig_counter = 0;
 void exit_proc( int signal )
 {
 	coutf;
+	if ( signal == SIGILL )
+		exit(0);
+
 	Log.Comment(INFO, "Entering exit procedure for " + Appstate->Name );
+
 	if ( sig_counter > 0 )
 	{
 		coutf << "ERROR:   Exit procedure failed " << endl;

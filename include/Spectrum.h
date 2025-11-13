@@ -38,7 +38,7 @@ struct spec_struct
 	spec_arr_8t					volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
 	spec_dta_ft					sum 	= 1.0;								// sum over .vol
 	spec_arr_8t					wfid 	= { 0,0,0,0,0 };// waveform wdid
-	OscId_t						osc 	= OSCID;
+	OSCID_e						osc 	= OSCID;
 	bool						adsr	= false;
 } ;
 
@@ -78,7 +78,7 @@ public:
 	Table_class*				Get_spectrum_table	();
 	void 						Sum					( spec_struct& );
 	char 						Type_flag			( const string& type_str );
-	OscId_t						Osc_TypeId			( const string& type_str );
+	OSCID_e						Osc_TypeId			( const string& type_str );
 
 
 	void 						Test_Spectrum		();

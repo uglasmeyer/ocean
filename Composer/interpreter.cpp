@@ -5,13 +5,17 @@
  *      Author: sirius
  */
 
+
 #include <Composer/Interpreter.h>
 
+range_T<uint8_t> amp_range{ 0, 100 };
+range_T<uint8_t> uint8_range{ 0, 255 };
 
 Interpreter_class::Interpreter_class( Application_class* app )
 	: Logfacility_class( "Interpreter_class" )
 	, Processor_class( app )
 	, Device_class( app->DaTA->sds_master )
+	, Variation( app->DaTA->sds_master, app->Cfg )
 {
 	className			= Logfacility_class::className;
 	this->sds 			= app->DaTA->GetSdsAddr();
@@ -26,13 +30,13 @@ Interpreter_class::Interpreter_class( Application_class* app )
 	main_view.freqkey 	= OSCFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
-	main_view.oscid		= VCOID;
+	vco_view.oscid		= VCOID;
 	vco_view.wfkey 		= SETWAVEFORMVCOKEY;
 	vco_view.ampkey 	= VCOAMPKEY;
 	vco_view.freqkey 	= VCOFREQUENCYKEY;
 
 	fmo_view.name		= "FMO";
-	main_view.oscid		= FMOID;
+	fmo_view.oscid		= FMOID;
 	fmo_view.wfkey 		= SETWAVEFORMFMOKEY;
 	fmo_view.ampkey 	= FMOAMPKEY;
 	fmo_view.freqkey 	= FMOFREQUENCYKEY;
@@ -167,9 +171,9 @@ void Interpreter_class::RecFile( vector_str_t arr )
 	if ( cmpkeyword( "stop") ) // stop record and write file with synthesizer.record_thead_fcn
 	{
 		expect = { "File number" };
-		int FileNo = pop_int(0, 255 ) ;
+		uint8_t FileNo = pop_T( uint8_range );
 		Processor_class::Push_ifd( &sds->appstate_arr[AUDIOID].state, RECORDSTOP,"record stop" );
-		Processor_class::Push_ifd( &sds->FileNo, FileNo, 		"record file"  ); // trigger record_thead_fcn
+		Processor_class::Push_ifd( &sds->FileNo, FileNo, 		string("record file")  ); // trigger record_thead_fcn
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
 	}
@@ -189,7 +193,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		if ( cmpkeyword( "amp") )
 		{
 			expect = { "loop final volume" };
-			int amp = pop_int(0, 100);
+			uint8_t 	amp 	= pop_T( amp_range );
 			Loop( amp, MASTERAMP_KEY ); // TODO - working
 			return;
 		}
@@ -236,13 +240,13 @@ void Interpreter_class::Set( vector_str_t arr )
 	intro( arr, 2 );
 	if ( cmpkeyword( "octave+" ))
 	{
-		Processor_class::Push_ifd( &sds->FLAG, 1, "octave" );
+		Processor_class::Push_ifd( &sds->FLAG, 1_uint, "octave" );
 		Processor_class::Push_key(SETBASEOCTAVE_KEY, "inc octave");
 		return;
 	}
 	if ( cmpkeyword( "octave-" ))
 	{
-		Processor_class::Push_ifd( &sds->FLAG, 0, "octave" );
+		Processor_class::Push_ifd( &sds->FLAG, 0_uint, "octave" );
 		Processor_class::Push_key(SETBASEOCTAVE_KEY, "dec octave");
 		return;
 	}
@@ -260,14 +264,14 @@ void Interpreter_class::Set( vector_str_t arr )
 		}
 		if( cmpkeyword( "wf") )
 		{
-			Value value{ pop_int(0, 8) };
+			Value value{ pop_T( wfid_range ) };
 			Osc({ "osc", osc, "wf", value.str });
 			return;
 		}
 		if( cmpkeyword( "amp") )
 		{
-			Value value{ pop_int(0, 100 ) };
-			Osc({ "osc", osc, "amp", value.str });
+			uint8_t 	amp 	= pop_T( amp_range );
+			Osc({ "osc", osc, "amp", to_string( amp ) });
 			return;
 		}
 		Wrong_keyword( expect , keyword.Str );
@@ -307,8 +311,8 @@ void Interpreter_class::Notes( vector_str_t arr )
 		if ( cmpkeyword("prefix") )
 		{
 			expect 		= {"#flats", "#sharps" };
-			uint flats 	= pop_int(0,7);
-			uint sharps = pop_int(0,7);
+			uint8_t flats	= pop_T( accidental_range );
+			uint8_t sharps	= pop_T( accidental_range );
 			Processor_class::Push_ifd( &sds->noteline_prefix.flat ,flats, "update flats" );
 			Processor_class::Push_ifd( &sds->noteline_prefix.sharp ,sharps, "update sharps" );
 			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
@@ -319,7 +323,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		if( cmpkeyword("octave") )
 		{
 			expect = { "octave value" };
-			uint oct = pop_int( min_octave, max_octave ) ;
+			uint8_t oct = pop_T( octave_range ) ;
 			Variation.Set_prefix_octave( oct );
 			Processor_class::Push_ifd( &sds->noteline_prefix.Octave ,oct, "update octave" );
 			Processor_class::Push_key( UPDATE_NLP_KEY, "commit");
@@ -359,7 +363,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		if ( cmpkeyword( "on") )
 		{
 			expect = { "volume [%]" };
-			int amp 	= pop_int(0,100);
+			uint8_t 	amp 	= pop_T( amp_range );
 			Processor_class::Push_ifd( &sds->StA_amp_arr[STA_NOTES] ,amp, "play notes" );
 			Processor_class::Push_key( NOTESONKEY, "commit");
 			if ( stack.size() > 0  )
@@ -381,10 +385,10 @@ void Interpreter_class::Notes( vector_str_t arr )
 	if ( cmpkeyword( "per_second" ) )
 	{
 		expect = {"notes per second [ " + Variation.NPS_string +  " ]"};
-		Value nps = pop_int(1,8);
+		Value nps = pop_T( npsidx_range );
 		if ( Variation.Set_notes_per_second( nps.val ) )
 		{
-			Processor_class::Push_ifd( &sds->noteline_prefix.nps, nps.val, "notes per second"  );
+			Processor_class::Push_ifd( &sds->noteline_prefix.nps, (uint8_t)nps.val, "notes per second"  );
 			Processor_class::Push_key( SETNOTESPERSEC_KEY, "set per_second" );
 		}
 		else
@@ -523,11 +527,11 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		expect = vector2set( Spectrum.Get_waveform_vec() );
 		string waveform = pop_stack( 1);
 
-		int wfid = Spectrum.Get_waveform_id( waveform );
+		uint8_t wfid = Spectrum.Get_waveform_id( waveform );
 		if ( wfid < 0 )
 		{
 			Wrong_keyword(expect, waveform);
-			EXCEPTION( "wrong keyword" );
+			Exception( "wrong keyword" );
 		}
 		expect 		= { " duration in seconds" };
 		option_default = "0";
@@ -550,7 +554,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "amp") )
 	{
 		expect = { "volume [%]" };
-		int amp = pop_int(0,100);
+		uint8_t 	amp 	= pop_T( amp_range );
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
 		Processor_class::Push_ifd( &sds->connect_arr[OSCID].vol , VCOID, "connect vol->osc" );
 
@@ -573,7 +577,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( cmpkeyword( "freq") )
 	{
 		expect = { "frequency name or index" };
-		int freq = 1; // pop_int(0, 0xFFFF );
+		uint8_t freq = 1;
 		string f { pop_stack(1) };
 		freq = Frequency.Index( f );
 
@@ -583,14 +587,14 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		if ( loop )
 		{
 			Processor_class::Push_ifd( &sds->frq_slidermode, SLIDE, "slide mode" );
-			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 100, "long frq slide" );
+			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 100_uint, "long frq slide" );
 			Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
 		}
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
 			Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
-			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 0, "frq slide off" );
+			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 0_uint, "frq slide off" );
 
 			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			Pause( { "pause", duration });
@@ -608,7 +612,7 @@ void Interpreter_class::Play( vector_str_t arr )
 
 	expect 			= { "storage id "};
 	if( not set_stack( arr, 3 ) ) return;
-	char staId 		= pop_int( 0, STA_SIZE -1);
+	STAID_e staId 		= pop_T( staid_range );
 
 	expect 			= { "amp" };
 	string k1 		= pop_stack( 1); // amp always
@@ -621,7 +625,7 @@ void Interpreter_class::Play( vector_str_t arr )
 		if ( cmpkeyword( "loop") )
 		{
 			expect = { " dest amp"};
-			int max = pop_int(0,100);
+			uint8_t max = pop_T( percent_range );
 			Processor_class::Push_ifd( &sds->MIX_Id , staId, "mixer id" );
 			Processor_class::Push_ifd( &sds->StA_amp_arr[staId] , max, "% slide duration " );
 			Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
@@ -645,16 +649,14 @@ void Interpreter_class::RecStA( vector_str_t arr )
 {
 	expect = { "store", "amp", "stop", "play", "mute" , "clear", "loop"};
 	intro( arr, 3 );
-	uint max_id = STA_SIZE -1;
 
 	if ( cmpkeyword( "loop" ))
 	{
-		int id = pop_int( 0, max_id );
-		uint8_t end = pop_int(0, 100 );
-//		int step = pop_int(0, 100 );
+		STAID_e	staid	= pop_T( staid_range );
+		uint8_t end = pop_T( percent_range );
 
-		Processor_class::Push_ifd( &sds->MIX_Id , id, "mixer id" );
-		Processor_class::Push_ifd( &sds->StA_amp_arr[id] , end, "% slide duration " );
+		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_amp_arr[staid] , end, "% slide duration " );
 		Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
 		Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
 
@@ -662,14 +664,14 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	}
 	if ( cmpkeyword( "amp") )
 	{
-		int id 	= pop_int(0, max_id);
-		expect = { "volume [%]" };
-		int amp = pop_int(0,100);
-		Comment( INFO, "set amplitude of " + to_string(id) + " to " + to_string(amp) + "%" );
+		STAID_e	staid	= pop_T( staid_range );
+		expect 		= { "volume [%]" };
+		uint8_t 	amp 	= pop_T( amp_range );
+		Comment( INFO, "set amplitude of " + to_string(staid) + " to " + to_string(amp) + "%" );
 
-		Processor_class::Push_ifd( &sds->MIX_Id , id, "mixer id" );
-		Processor_class::Push_ifd( &sds->StA_amp_arr[ id ], amp, "mixer volume" );
-		Processor_class::Push_ifd( &sds->StA_state[id].play, true, "true" );
+		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_amp_arr[ staid ], amp, "mixer volume" );
+		Processor_class::Push_ifd( &sds->StA_state_arr[staid].play, true, "true" );
 		Processor_class::Push_key( SETSTA_KEY	, "set StAs" );
 
 		Processor_class::Push_key( RESET_STA_SCANNER_KEY	, "reset StAscanner" );
@@ -693,25 +695,25 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	if ( cmpkeyword( "notes") )
 	{
 
-		expect = {"mem id 0..5"};
-		int ma_id = pop_int(0, STA_SIZE-1 );
-		Processor_class::Push_ifd( &sds->MIX_Id, ma_id, "mixer id");
+		expect 			= {"mem id 0..5"};
+		STAID_e	staid	= pop_T( staid_range );
+		Processor_class::Push_ifd( &sds->MIX_Id, staid, "mixer id");
 		Processor_class::Push_key( PLAYNOTESREC_ON_KEY, "notes on");
 		return;
 	}
 
 	if ( cmpkeyword( "mute") )
 	{
-		int id = pop_int(0, max_id);
-		Comment( INFO, "mute memory array: " + to_string(id) );
-		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
+		STAID_e	staid	= pop_T( staid_range );
+		Comment( INFO, "mute memory array: " + to_string(staid) );
+		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
 		Processor_class::Push_key(MUTEREC_KEY,  "stop sound" );
 		return;
 	}
 
 	if ( cmpkeyword( "store") )
 	{
-		int id = pop_int(0, max_id);
+		STAID_e id	= pop_T( staid_range );
 		Comment( INFO, "store sound to: " + to_string(id) );
 		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
 		Processor_class::Push_key( STORESOUNDKEY, "store sound" );
@@ -720,9 +722,9 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	if ( cmpkeyword( "clear") )
 	{
-		int id = pop_int(0, max_id);
-		Comment( INFO, "clear " + to_string(id) );
-		Processor_class::Push_ifd( &sds->MIX_Id, id, "mixer id" );
+		STAID_e	staid	= pop_T( staid_range );
+		Comment( INFO, "clear " + to_string(staid) );
+		Processor_class::Push_ifd( &sds->MIX_Id, staid, "mixer id" );
 		Processor_class::Push_key( CLEAR_KEY,  "set clear" );
 		return;
 
@@ -730,9 +732,9 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	if ( cmpkeyword( "stop") )
 	{
-		int id = pop_int(0, max_id);
-		Comment( INFO, "stop recording to: " + to_string(id) );
-		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
+		STAID_e	staid	= pop_T( staid_range );
+		Comment( INFO, "stop recording to: " + to_string(staid) );
+		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
 		Processor_class::Push_key( STOP_STARECORD_KEY, "stop sound" );
 		return;
 	}
@@ -764,7 +766,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( cmpkeyword( "softfreq") )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
-		int freq = pop_int(0,100);
+		uint8_t freq = pop_T( percent_range );
 		Processor_class::Push_ifd( &sds->features[OSCID].glide_effect, freq, "soft freq"  );
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
@@ -774,11 +776,11 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		Comment( INFO, "beat duration is set to: " + stack[0] );
 		expect 		= bps_struct().Bps_str_set;
 		string 	Bps = pop_stack(1 );
-		int 	bps	= char2int( Bps[0]);
+		uint8_t	bps	= char2int( Bps[0]);
 		if ( not bps_struct().Bps_set.contains( bps ) )
 		{
 			Wrong_keyword( expect , Bps );
-			EXCEPTION( "wrong beat duration" );
+			Exception( "wrong beat duration" );
 		}
 
 		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].bps, bps, "beat duration" );
@@ -788,7 +790,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( cmpkeyword( "attack") )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
-		int attack = pop_int(0,100);
+		uint8_t attack = pop_T( percent_range );
 		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].attack, attack, "adsr attack" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr attack" );
 		return;
@@ -796,7 +798,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( cmpkeyword( "decay") )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
-		uint8_t decay = pop_int(0,100);
+		uint8_t decay = pop_T( percent_range );
 		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].decay, decay, "adsr decay" );
 		Processor_class::Push_key( ADSR_KEY, "set adsr decay" );
 		return;
@@ -804,7 +806,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( cmpkeyword( "hall") )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
-		int hall = pop_int(0,100);
+		uint8_t hall = pop_T( percent_range );
 		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].hall, hall, "hall"  );
 		Processor_class::Push_key( ADSR_KEY,  "set hall" );
 		return;
@@ -812,7 +814,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( cmpkeyword( "pmw") )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
-		int dial = pop_int(0,100);
+		uint8_t dial = pop_T( percent_range );
 		Processor_class::Push_ifd( &sds->features[VCOID].PMW_dial, dial, "pmw" );
 		Processor_class::Push_key( PWMDIALKEY, "set pmw" );
 		return;
@@ -830,8 +832,7 @@ void Interpreter_class::Pause( vector_str_t arr )
 
 	if ( cmpkeyword( "key" ))
 	{
-		Processor_class::Push_wait( CMD_WAIT, -1, "press <ret> to continue" );
-
+		Processor_class::Push_wait( CMD_COND_WAIT, 1, "press <ret> to continue" );
 		return;
 	};
 	if ( cmpkeyword( "auto" ) )
@@ -879,7 +880,7 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	if ( Keywords.contains( varname ) )
 	{
 		if ( not testrun)
-			EXCEPTION( "var " + varname + " is keyword" );//raise( SIGINT);
+			Exception( "var " + varname + " is keyword" );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -887,15 +888,13 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	keyword	= pop_stack( 1);
 	if ( not cmpkeyword( "=" ))
 	{
-		Comment( ERROR, "missing equal sign");
-		error = 1;
-		return;
+		Exception( "missing equal sign");
 	}
 	string varvalue 	= pop_stack( 1) ;
 	if ( Keywords.contains( varvalue ) )
 	{
 		if ( not testrun)
-			EXCEPTION( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
+			Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -956,7 +955,7 @@ vector_str_t Interpreter_class::InsertVariable( vector_str_t arr )
 	return result;
 }
 
-void Interpreter_class::Loop( int max, EVENTKEY_t key )
+void Interpreter_class::Loop( uint8_t max, EVENTKEY_e key )
 {
 	if ( key == 0 )
 	{
@@ -971,33 +970,31 @@ void Interpreter_class::Loop( int max, EVENTKEY_t key )
 bool Interpreter_class::Exit()
 {
 	Processor_class::Push_cmd( CMD_EXIT,"exit" );
-	return true;
+	CompilerExit = true;
+	return true; // stop compiler
 }
 
-int Interpreter_class::Find_position( vector<line_struct_t>* program, vector_str_t arr )
+int Interpreter_class::Find_position( const program_vec_t& program, vector_str_t arr )
 { // find the line number in filelines starting with keyword
 
-	expect = { "line tag" };
-	set_stack( arr, 1 );
-	keyword.Str = pop_stack( 1 );
-	keyword.Str.append(" ");
+	uint	line_no 		= 0;
+	string	call_arg		= arr[1];
 
-	uint line_no = 0;
-	for( line_struct_t prgline : *program )
+	for( line_struct_t prgline : program )
 	{
-		string word = prgline.line;
-		if ( strEqual(keyword.Str, word) )
+		if ( strEqual( call_arg, prgline.keyw) )
 		{
 			return line_no;
 		}
-
 		line_no++;
 	}
-	vector<line_struct_t> p = *program;
-	std::for_each( p.begin(), p.end(),
+
+	// not found
+	std::for_each( program.begin(), program.end(),
 			[] ( line_struct_t line )
 			{ if ( line.keyw[0] == ':' ) cout << line.keyw << " " ;} );
-	EXCEPTION( "line >" + keyword.Str + " not found" );//raise( SIGINT );
+
+	Exception( "line >" + arr[1] + " not found" );//raise( SIGINT );
  	return -2;
 }
 
@@ -1018,6 +1015,7 @@ void Interpreter_class::Wrong_keyword( set<string> expected , string given )
 	Comment( INFO, "expected: "  );
 	for ( string expect : expected )
 		cout << expect << endl;
+	Exception( "processing failed" );
 }
 
 
@@ -1031,6 +1029,12 @@ bool Interpreter_class::set_stack( vector_str_t arr, uint min )
 		this->stack = arr;
 		return true;
 	}
+	return false;
+}
+
+bool Interpreter_class::Check_input( string keyword )
+{
+	if( Keywords.contains( keyword ) ) return true;
 	return false;
 }
 
@@ -1052,7 +1056,7 @@ bool Interpreter_class::no_error( int nr )
 		if ( nr > 1 ) cout << " more ..." ;
 		cout << endl;
 		if ( not dialog_mode )
-			EXCEPTION( "unexpected" );//raise( SIGINT );
+			Exception( "unexpected" );//raise( SIGINT );
 		return false;
 	}
 	return true;
@@ -1098,7 +1102,7 @@ void Interpreter_class::show_expected(  )
 	if ( expect.size() > 0 )
 	{
 		cout << cmdline << " missing: [" + *expect.begin();
-		expect.erase( expect.begin() ); // @suppress("Invalid arguments")
+		expect.erase( expect.begin() );
 		for( string word : expect )
 		{
 			string print = word;
@@ -1108,9 +1112,9 @@ void Interpreter_class::show_expected(  )
 	}
 }
 
-int Interpreter_class::pop_int( int min, int max )
+template <typename T >
+T Interpreter_class::pop_T( range_T<T> range )
 {
-//	String Str;
 	if ( option_default.size() == 0 )
 		Str.Str = pop_stack( 1 );
 	else
@@ -1118,21 +1122,24 @@ int Interpreter_class::pop_int( int min, int max )
 
 	if ( Str.is_number() )
 	{
-		int stack_value = Str.secure_stoi(Str.Str);
-		if (( stack_value < min ) or ( stack_value > max ))
+		T stack_value = (T)Str.secure_stoi(Str.Str);
+		if ( not in_range( range, stack_value ) )
 		{
 			Comment( ERROR, "Value "+ Str.Str + " out of bounds" );
-			Comment( INFO, "rejected: " + to_string(min) + "<" + Str.Str + "<" + to_string(max));
+			Comment( INFO, "rejected: ", show_range( range ), ",  ", Str.Str);
 			show_expected();
-			EXCEPTION( "unexpected" );//raise(SIGINT);
+			if( not LogMask[ TEST ])
+				Exception( "unexpected" );//raise(SIGINT);
 		}
 		return stack_value;
 	}
 	else
 	{
 		error = 1;
-		return 0;
+		Exception( Str.Str + " is not a number" );//raise(SIGINT);
 	}
+	return range.min;
+	raise( SIGILL );
 }
 
 void Interpreter_class::check_file( vector_str_t dirs, string name )
@@ -1154,7 +1161,7 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 		DirList = List_directory( dir, fs->snd_type );
 		cout << show_type( DirList ) << endl;
 	}
-	EXCEPTION( "no such file " + name );//raise( SIGINT );
+	Exception( "no such file " + name );//raise( SIGINT );
 }
 
 
@@ -1206,6 +1213,23 @@ void Interpreter_class::Test(  )
 	cout << show_type( List_directory( fs->instrumentdir, fs->snd_type ) ) << endl;
 //	assert ( false );
 	varlist.clear();
+
+	range_T<uint8_t> test_range{0,10};
+
+	string str = "1,2,3,4,5,10,11,-1,500";
+	String Str = str;
+	vector_str_t arr = Str.to_array( ',' );
+	set_stack( arr, 5 );
+	arr.erase( arr.begin() );
+	vector_str_t test_stack = arr;
+
+	for( string val : test_stack )
+	{
+		pop_T( test_range );
+
+//		uint8_t value = pop_T( test_range );
+//		Assert_equal( (int)value, stoi(val) );
+	}
 	TEST_END( className );
 
 }

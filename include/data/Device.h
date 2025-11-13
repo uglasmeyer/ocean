@@ -12,7 +12,7 @@
 #include <Adsr.h>
 #include <data/SharedDataSegment.h>
 
-constexpr connectId_t default_connect( OscId_t oscid )
+constexpr connectId_t default_connect( OSCID_e oscid )
 {
 	return { oscid, oscid };
 };

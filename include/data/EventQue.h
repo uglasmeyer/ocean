@@ -8,8 +8,8 @@
 #ifndef DATA_EVENTQUE_H_
 #define DATA_EVENTQUE_H_
 
-#include <Logfacility.h>
-#include <data/Sdsbase.h>
+//#include <Logfacility.h>
+//#include <data/Sdsbase.h>
 #include <data/SharedDataSegment.h>
 
 // controll of access to SDS.deque and SDS.eventptr
@@ -22,7 +22,7 @@ public:
 	interface_t*	addr		= nullptr;
 	eventptr_t		eventptr;
 	bool			repeat		= false;
-	EVENTKEY_t		prev_event	= NULLKEY;
+	EVENTKEY_e		prev_event	= NULLKEY;
 
 	EventQue_class(  )  :
 		Logfacility_class("EventQue_class"),
@@ -36,8 +36,8 @@ public:
 
 	void 			setup( interface_t* _addr );
 	void 			reset();
-	void 			add( EVENTKEY_t event );
-	EVENTKEY_t 		get();
+	void 			add( EVENTKEY_e event );
+	EVENTKEY_e 		get();
 	string 			show();
 };
 

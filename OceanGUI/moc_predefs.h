@@ -381,7 +381,7 @@
 #define __UINT_LEAST8_MAX__ 255
 #define __UINT_LEAST8_TYPE__ unsigned char
 #define __USER_LABEL_PREFIX__ 
-#define __VERSION__ "Ubuntu Clang 20.1.2 (0ubuntu1)"
+#define __VERSION__ "Ubuntu Clang 20.1.8 (0ubuntu4)"
 #define __WCHAR_MAX__ 2147483647
 #define __WCHAR_TYPE__ int
 #define __WCHAR_WIDTH__ 32
@@ -395,8 +395,8 @@
 #define __clang_literal_encoding__ "UTF-8"
 #define __clang_major__ 20
 #define __clang_minor__ 1
-#define __clang_patchlevel__ 2
-#define __clang_version__ "20.1.2 (0ubuntu1)"
+#define __clang_patchlevel__ 8
+#define __clang_version__ "20.1.8 (0ubuntu4)"
 #define __clang_wide_literal_encoding__ "UTF-32"
 #define __code_model_small__ 1
 #define __cplusplus 201703L

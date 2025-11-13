@@ -11,15 +11,13 @@
 #include <App.h>
 
 
-process_t				Process			{};
 Exit_class				Exit			{};
-file_structure			fs				{};
-Config_class			Cfg				{ Process.name, &fs };
-Logfacility_class		Log				( Process.name );
+Config_class			Cfg				{};
+Logfacility_class		Log				( Cfg.prgName );
 
 #ifndef WITHOUT_SHM // Setup
 	Semaphore_class		Sem				{ Cfg.Config.Sem_key };
-	Dataworld_class 	DaTA			{ Process.AppId, &Cfg, &Sem };
+	Dataworld_class 	DaTA			{ &Cfg, &Sem };
 	Application_class	App				{ &DaTA };
 	interface_t*		sds 			= DaTA.GetSdsAddr();
 	interface_t*		sds_master 		= DaTA.sds_master;

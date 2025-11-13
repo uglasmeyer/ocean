@@ -8,7 +8,7 @@
 #include <Adsr.h>
 #include <Oscwaveform.h>
 
-ADSR_class::ADSR_class( OscId_t _typeid )
+ADSR_class::ADSR_class( OSCID_e _typeid )
 	: Logfacility_class("ADSR_class")
 	, Spectrum_class()
 	, Oscillator_base( _typeid )
@@ -26,6 +26,7 @@ ADSR_class::ADSR_class()
 	className 	= Logfacility_class::className;
 	Set_adsr	( default_adsr );
 };
+
 
 ADSR_class::~ADSR_class()
 {

@@ -9,13 +9,15 @@
 #define GUICOMMON_H
 
 
-#include <data/Config.h>
+
+// Qt
 #include <QDialog>
 #include <QComboBox>
 #include <QString>
 #include <QStringList>
 
 // Ocean
+#include <data/Config.h>
 #include <data/Interface.h>
 #include <Ocean.h>
 #include <System.h>
@@ -26,7 +28,7 @@ constexpr QString Qstring( string str )
 	return QString::fromStdString( str );
 }
 
-constexpr QString QReadStr ( Interface_class* Sds, EVENTKEY_t key  )
+constexpr QString QReadStr ( Interface_class* Sds, EVENTKEY_e key  )
 {
     string str 		= Sds->Read_str( key );
 	return Qstring( str );
@@ -89,10 +91,10 @@ typedef PathStruct Path_t;
 
 struct EventStruct : PathStruct
 {
-	EVENTKEY_t	event;
+	EVENTKEY_e	event;
 	Path_t	 	path ;
 	EventStruct( ) : event( NULLKEY ) {} ;
-	EventStruct( const EVENTKEY_t& _event, const string& _dir, const string& _ext ) :
+	EventStruct( const EVENTKEY_e& _event, const string& _dir, const string& _ext ) :
 		event( _event ), path( _dir, _ext )
 	{
 	}
@@ -102,11 +104,11 @@ typedef EventStruct Event_t;
 
 static file_structure fs = file_structure();
 
-static Event_t EventXML( XMLFILE_KEY		, fs.xmldir, fs.xml_type );
-static Event_t EventNTE( UPDATENOTESKEY		, fs.notesdir, fs.nte_type );
-static Event_t EventINS( SETINSTRUMENTKEY	, fs.instrumentdir, fs.snd_type );
-static Event_t EventWAV( OTHERSTR_KEY		, fs.musicdir, fs.wav_type );
-static vector<Event_t > Event_vec { EventXML, EventNTE, EventINS, EventWAV };
+static Event_t 			EventXML( XMLFILE_KEY		, fs.xmldir			, fs.xml_type );
+static Event_t 			EventNTE( UPDATENOTESKEY	, fs.notesdir		, fs.nte_type );
+static Event_t 			EventINS( SETINSTRUMENTKEY	, fs.instrumentdir	, fs.snd_type );
+static Event_t 			EventWAV( OTHERSTR_KEY		, fs.musicdir		, fs.wav_type );
+static vector<Event_t > EventVec{ EventXML, EventNTE, EventINS, EventWAV };
 
 extern QStringList 		Qstringlist		( const list<string>& str_lst );
 extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );

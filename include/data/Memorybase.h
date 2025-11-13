@@ -10,38 +10,43 @@
 
 #include <Ocean.h>
 #include <Logfacility.h>
-#include <System.h>
 #include <data/Statistic.h>
-/*
- *
- */
 
-struct 				StA_param_struct
+/**************************************************
+ * Mem_param_struct
+ *************************************************/
+struct 				Mem_param_struct
 {
 	string 			name 			;
 	buffer_t		size 			;	// number of buffer frames
 	uint8_t			storage_time	;	// storage time in seconds
 	buffer_t		block_size		= min_frames;  	// numer of read frames
-	StA_param_struct( string _name, int _sec )
+	Mem_param_struct( string _name, int _sec )
 	{
 		name 			= _name;
 		storage_time	= _sec;
 		size 			= frames_per_sec * _sec;
 	};
-	~StA_param_struct(){};
+	~Mem_param_struct(){};
 } 	;
-typedef				StA_param_struct StA_param_t;
+typedef				Mem_param_struct StA_param_t;
 
+/**************************************************
+ * StA_state_struct
+ *************************************************/
 struct 				StA_state_struct // memory array status
-{
-	// SDS related structure
+{	// SDS related
 	bool 			play			= false; // play this memory array
 	bool 			store			= false; // record into this memory array
 	bool			filled			= false; // there record counter is > 0
 	bool			forget			= false; // delete after read
 };
 typedef				StA_state_struct StA_state_t;
+const				StA_state_t 	default_StA_state 	= StA_state_struct();
 
+/**************************************************
+ * shm_data_struct
+ *************************************************/
 struct 				shm_data_struct
 {
 	uint			Id				= 0;		// interface id in the set of shm_data_structures
@@ -55,6 +60,10 @@ struct 				shm_data_struct
 };
 typedef				shm_data_struct shm_ds_t;
 
+/**************************************************
+ * Shm_base
+ * used by Shared_Memory and SDS interface
+ *************************************************/
 
 class 				Shm_base :
 	virtual public 	Logfacility_class
@@ -71,7 +80,6 @@ public:
 
 	void			Test_Memory		();
 
-					Shm_base		();
 					Shm_base		( buffer_t size );
 	virtual 		~Shm_base		();
 
@@ -79,6 +87,9 @@ private:
 
 };
 
+/**************************************************
+ * mem_data_struct
+ *************************************************/
 struct 				mem_data_struct
 {
 	string			name 			= "memory";
@@ -88,7 +99,7 @@ struct 				mem_data_struct
 	buffer_t 		size 			= max_frames; // define a block as a substructue on the memory data
 	buffer_t		bytes			= size * sizeof_type;
 	buffer_t		block_size		= min_frames;
-	buffer_t		block_bytes		= block_size * sizeof_type;
+//	buffer_t		block_bytes		= block_size * sizeof_type;
 	buffer_t 		data_blocks		= size / block_size;
 	uint 			max_records		= data_blocks; // data_block == max-records // TODO verify
 					mem_data_struct	() = default;
@@ -96,20 +107,26 @@ struct 				mem_data_struct
 };
 typedef				mem_data_struct	mem_ds_t;
 
+
+/**************************************************
+ * Memory_base
+ *************************************************/
 class 				Memory_base :
 	public virtual 	Logfacility_class
 {
 	string 			className 		= "";
 public:
+	Data_t* 		Data 			= nullptr;
 	mem_ds_t		mem_ds			= mem_data_struct();
 
-	void 			DsInfo			();
-	void* 			Init_void		();
+	void 			DsInfo			( string name = "Memory_base");
+	void* 			Init_void		( buffer_t bytes );
+	void 			Init_data		( buffer_t bytes );
 	void 			SetDs			( size_t type_bytes );
 	mem_ds_t* 		GetDs			();
+	void 			Clear_data		( Data_t value );
 
 					Memory_base		( buffer_t bytes );
-					Memory_base		();
 	virtual 		~Memory_base	();
 
 };

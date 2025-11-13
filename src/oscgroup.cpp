@@ -87,17 +87,17 @@ void Oscgroup_class::SetSlide( const uint8_t& value )
 			{ o->Set_glide( value);	});
 }
 
-void Oscgroup_class::SetWd( Wavedisplay_class* wd )
+void Oscgroup_class::SetWd( Wavedisplay_class* Wd )
 {
-	std::ranges::for_each( member, [ this, wd ](Oscillator*  osc )
-			{ wd->Add_data_ptr( osc->typeId,
+	std::ranges::for_each( member, [ this, Wd ](Oscillator*  osc )
+			{ Wd->Add_data_ptr( osc->typeId,
 								osc->roleId,
 								osc->MemData_p(),
 								&osc->wp.frames ); });
 	if( osc.roleId == INSTRROLE )
 	{
-		std::ranges::for_each( member, [ this, wd ](Oscillator*  osc )
-				{ wd->Add_data_ptr( osc->typeId,
+		std::ranges::for_each( member, [ this, Wd ](Oscillator*  osc )
+				{ Wd->Add_data_ptr( osc->typeId,
 									ADSRROLE,
 									osc->AdsrMemData_p(),
 									&osc->adsr_frames ); });
@@ -190,14 +190,14 @@ void Oscgroup_class::Run_OSCs( const buffer_t& offs )
 			{ o->OSC( offs ) ;} );
 }
 
-OscId_t Oscgroup_class::Get_oscid_by_name( const string& name )
+OSCID_e Oscgroup_class::Get_oscid_by_name( const string& name )
 {
-	for( OscId_t id : oscIds )
+	for( OSCID_e id : oscIds )
 	{
 		if ( strEqual( typeNames[id], name ) )
 			return id;
 	}
-	EXCEPTION( "unknown Oscillator name: " + name );
+	Exception( "unknown Oscillator name: " + name );
 	return NOOSCID;
 }
 
@@ -214,7 +214,7 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 	if ( strEqual( "MAIN", name  ) ) // compatibility
 		ret = member[ OSCID ];
 	if ( ret == nullptr )
-		{ EXCEPTION( "unknown Oscillator name: " + name ); }
+		{ Exception( "unknown Oscillator name: " + name ); }
 
 	return ret;
 }

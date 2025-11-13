@@ -15,7 +15,6 @@ class Menue_class :
 	virtual public Logfacility_class
 {
 	string 				className 	= "";
-	Kbd_base			Kbd {};
 	ViewInterface_class ViewSds ;
 	Dataworld_class*	DaTA;
 	interface_t*		sds;

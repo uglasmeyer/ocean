@@ -40,7 +40,7 @@ auto get_int = []( int Default, XMLElement* p  )
 	{
 		if (Default < 0 )
 		{
-			EXCEPTION( "Empty mandatory value in xml file" );
+			Exception( "Empty mandatory value in xml file" );
 		}
 		else
 			return Default;

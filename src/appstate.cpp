@@ -18,7 +18,7 @@ Appstate_class::Appstate_class( APPID 			appid,
 	AppId 		= appid;
 	AppType		= ( appid == KEYBOARDID ) ? SYNTHID : appid;
 	sds_vec 	= _sds_vec ;
-	assert( sds_vec[0]->appstate_arr[SYNTHID].type == SYNTHID );
+	Assert_equal( sds_vec[0]->appstate_arr[SYNTHID].type, SYNTHID );
 	SDSid		= assign_sdsid( AppType );
 	if ( SDSid == NoSDSID  )
 	{

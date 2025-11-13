@@ -8,8 +8,8 @@
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
-#include <Keyboard_base.h>
 #include <data/Memory.h>
+#include <Keyboard_base.h>
 #include <Logfacility.h>
 #include <Osc.h>
 #include <Instrument.h>
@@ -118,15 +118,18 @@ class Keyboard_class
 	string 				className 				= "";
 	Oscgroup_class		Oscgroup				{ KBDROLE, 2*monobuffer_bytes };
 	Oscillator*			Osc						= &Oscgroup.osc;
-//	Kbd_pitch_class		kbd_pitch 				;
+//	unique_ptr<Wavedisplay_class>	wd_p;
 
 	Instrument_class* 	instrument_p			;
 	interface_t*		sds_p					;
+	Wavedisplay_class*	wd_p					;
 	Storage_class*		sta_p					;
 	vector<note_t>		Note_vec				{};
 	uint8_t				Note_pos				= 0;
-	file_structure		fs						= file_structure();
+	file_structure*		fs						;
 	Note_class*			Notes					;
+
+	Scanner_class*		scanner					;
 
 public:
 

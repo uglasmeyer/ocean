@@ -21,15 +21,15 @@ string getInput( string text )
 	s 		= App.Kbd.GetString( text + ": ");
 	return s;
 }
-void getvalue( uint8_t* addr, string text, EVENTKEY_t event )
+void getvalue( uint8_t* addr, string text, EVENTKEY_e event )
 {
 	string s;
 	s 		= getInput( text );
 	setvalue( addr, s );
-	Sds->Event( event );
+	Sds->Eventque.add( event );
 
 }
-void getfrq( uint8_t* addr, string text , EVENTKEY_t event )
+void getfrq( uint8_t* addr, string text , EVENTKEY_e event )
 {
 	Frequency_class Frq {};
 	string input = getInput( text );
@@ -43,7 +43,7 @@ void getfrq( uint8_t* addr, string text , EVENTKEY_t event )
 		uint idx = Frq.Index( input );
 		setvalue( addr, to_string(idx) );
 	}
-	Sds->Event( event );
+	Sds->Eventque.add( event );
 }
 #define SWITCH_COMMON( PAGE )\
 	case ESC : { sds_master->sdsview_page = F1; break; };\
@@ -145,7 +145,7 @@ kbdInt_t SwitchF9( kbdInt_t key )
 		case 'd' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
 						for( Interface_class Sds : DaTA.SDS.Vec )
 						{
-							Remove_file( Sds.dumpFile );
+							Sds.Remove_dumpFile();
 						}
 						DaTA.SDS.Delete();
 						System_execute( "ipcs -a", false );
@@ -156,7 +156,7 @@ kbdInt_t SwitchF9( kbdInt_t key )
 						Sds->Reset_ifd();
 						App.Appstate->RestoreStateArr( sds );
 						break; }
-		case 'l' : {	System_execute_bg( "xterm -e tail -f " + fs.nohup_file );
+		case 'l' : {	System_execute_bg( "xterm -e tail -f " + Cfg.fs->nohup_file );
 						break; }
 		SWITCH_COMMON( F9 );
 	} // switch  key

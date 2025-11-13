@@ -15,15 +15,15 @@
 #include <App.h>
 #include <data/Configbase.h>
 #include <data/Semaphore.h>
+#include <include/File_Dialog.h>
 #include <Wavedisplay_base.h>
 
 // OceanGUI
 #include "ui_mainwindow.h"
-#include <include/File_Dialog_class.h>
 #include <include/Keyboad_dialog.h>
 #include <include/Oszilloscopewidget.h>
-#include <include/Rtsp_dialog_class.h>
-#include <include/Spectrum_dialog_class.h>
+#include <include/Rtsp_dialog.h>
+#include <include/Spectrum_dialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -40,10 +40,11 @@ class MainWindow :
 	string					className			= "";
 public:
 	process_t				Process				{};
-	file_structure			fs					{};
-	Config_class			Cfg					{ Process.name, &fs };
+	Config_class			Cfg					{};
+	file_structure*			fs					= Cfg.fs;
+
 	Semaphore_class			Sem					{ Cfg.Config.Sem_key };
-	Dataworld_class 		DaTA				{ Process.AppId, &Cfg, &Sem };
+	Dataworld_class 		DaTA				{ &Cfg, &Sem };
 	Application_class		App					{ &DaTA };
 
     EventLog_class			Eventlog			{ &DaTA };
@@ -76,31 +77,32 @@ public:
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
-    vector<QString>			Qwd_role_names	{};
+    vector<QString>			Qwd_role_names		{};
     vector<QString> 		Qwd_wdmode_names	{};
     vector<QString>			Qwd_fftmodes		{};
     QStringList				QCapture_str_lst	{};
-
+    keymap_struct			Keymap				{};
     vector<QRadioButton*> 	rb_S_vec 			{};
+
     typedef struct cb_state_map
     {
-    	int				id; // Mixer id
+    	STAID_e			id; // Mixer id
     	QCheckBox*		cb;
     	bool*			state;
     } cb_state_t;
     vector<cb_state_t> 		cb_play_sta_vec 	{};
     vector<cb_state_t>		cb_store_sta_vec	{};
-    vector<cb_state_t>		cb_filld_sta_vec	{};
+    vector<cb_state_t>		cb_filled_sta_vec	{};
 
     typedef struct sl_value_map
     {
-    	uint8_t			id; // Mixer id
+    	STAID_e			id; // Mixer id
     	QSlider*		sl;
     	uint8_t*		value;
     } sl_value_t;
     struct sl_lcd_map
     {
-    	EVENTKEY_t		event; // Mixer id
+    	EVENTKEY_e		event; //
     	QLCDNumber*		lcd;
     	QSlider*		sl;
     	uint8_t*		value;
@@ -109,7 +111,7 @@ public:
     typedef sl_lcd_map 	sl_lcd_t;
     struct sB_lbl_map
     {
-    	EVENTKEY_t		event;
+    	EVENTKEY_e		event;
     	QSpinBox* 		sb;
     	QLabel* 		lbl;
 		uint8_t*		value;
@@ -140,7 +142,7 @@ private:
     void setwidgetvalues();
     void initPanel();
     void select_Sds( Id_t sdsid );
-    void initGuiVectors();
+    void initGuiVectors( interface_t* sds);
     void initOscillatorDisplay();
     void initFreqSlider();
     void initScrollbars();
@@ -151,7 +153,7 @@ private:
     void sliderFreq( sl_lcd_t map, uint8_t value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
-    void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_t, QLabel* );
+    void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_e, QLabel* );
 
 
 public slots:
@@ -219,15 +221,25 @@ private slots:
 
     void Clear_Banks();
 
-    void toggle_mute0();
-    void toggle_mute1();
-    void toggle_mute2();
-    void toggle_mute3();
-    void toggle_mute4();
-    void toggle_mute5();
-    void toggle_mute6();
-    void toggle_mute7();
+    void setStaPlay( uint8_t id );
+    void setStaPlay0();
+    void setStaPlay1();
+    void setStaPlay2();
+    void setStaPlay3();
+    void setStaPlay4();
+    void setStaPlay5();
+    void setStaPlay6();
+    void setStaPlay7();
 
+    void setStaStored( uint8_t staId );
+    void setStaStored0();
+    void setStaStored1();
+    void setStaStored2();
+    void setStaStored3();
+    void setStaStored4();
+    void setStaStored5();
+    void setStaStored6();
+    void setStaStored7();
 
     void toggle_store_sta0();
     void toggle_store_sta1();

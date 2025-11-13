@@ -29,8 +29,8 @@ const 		uint			 			HARMON_PRIMS= 8;
 constexpr 	int							HARMON_SIZE = ( HARMON_PRIMS-1) * HARMON_PRIMS / 2 + 1;
 typedef 	array<frq_t,  HARMON_SIZE>	harmonic_t;
 
-constexpr 	range_T<int > 				frqarr_range{ 1, (int)FRQARR_SIZE - 1 };
-constexpr 	range_T<int > 				frqext_range{ 1, (int)FRQEXT_SIZE - 1 };
+constexpr 	range_T<int > 				frqarr_range{ 1, (int)(FRQARR_SIZE - 1) };
+constexpr 	range_T<int > 				frqext_range{ 1, (int)(FRQEXT_SIZE - 1) };
 
 constexpr 	uint frqIndex( const int& note, const int& octave )
 {

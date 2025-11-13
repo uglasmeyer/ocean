@@ -23,7 +23,7 @@ void System_execute( const string& cmd, bool _noexcept )
 	}
 	if ( ret != 0 )
 	{
-		EXCEPTION( cmd + "\ncheck out system error message " );
+		Exception( cmd + "\ncheck out system error message " );
 	}
 }
 
@@ -106,7 +106,7 @@ void Remove_file( string file )
 	if ( filesystem::exists( file ) )
 		filesystem::remove( file);
 	if ( filesystem::exists( file ))
-		EXCEPTION( "cannot remove file: " + file );
+		Exception( "cannot remove file: " + file );
 
 }
 void Rename_file( string old_name, string new_name )
@@ -115,7 +115,7 @@ void Rename_file( string old_name, string new_name )
     filesystem::rename( old_name, new_name);
 
 	if ( filesystem::exists( old_name ))
-		EXCEPTION( "cannot remove file: " + old_name );
+		Exception( "cannot remove file: " + old_name );
 }
 void System_Test()
 {

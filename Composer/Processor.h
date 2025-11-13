@@ -9,14 +9,11 @@
 #define PROCESSOR_H_
 
 #include <App.h>
-//#include <data/Interface.h>
-//#include <data/Semaphore.h>
-//#include <data/Appstate.h>
-//#include <Ocean.h>
 #include <System.h>
 #include <Time.h>
 
-enum  {
+enum CMD_e
+{
 	CMD_EXIT		,
 	CMD_CHADDR 		,
 	CMD_KEY 		,
@@ -24,7 +21,16 @@ enum  {
 	CMD_WAIT		,
 	CMD_STR			,
 	CMD_COND_WAIT 	,
-	CMD_TEXT
+	CMD_TEXT		,
+	CMD_NULL
+};
+
+typedef uint8_t			sds_value_t;
+
+template<class T>
+concept AddressConcept = requires( T a )
+{
+	sizeof(a) == sizeof( sds_value_t );
 };
 
 class Processor_class :
@@ -38,50 +44,47 @@ class Processor_class :
 
 	struct stack_struct
 	{
-		int		prgline		= 0;
-		int			cmd 	= 0;
-		string		cmdstr	= "";
-		EVENTKEY_t	key    	= NULLKEY;
-		char*		chaddr	= nullptr;
-		int			value  	= 0;
-		string		str		{};
+		int				prgline	= 0;
+		CMD_e			cmd 	= CMD_NULL;
+		string			cmdstr	= "";
+		EVENTKEY_e		key    	= NULLKEY;
+		sds_value_t*	chaddr	= nullptr;
+		sds_value_t		value	= 0;
+		string			str		{};
 
 		stack_struct(){};
-		stack_struct( char* addr, char _value, string _str ) :
-			chaddr( addr ), value( _value), str(_str) {};
-		stack_struct( bool* addr, bool _value, string _str ) :
-			chaddr( (char*)addr ), value( _value), str(_str) {};
-		stack_struct( uint8_t* addr, uint8_t _value, string _str ) :
-			chaddr( (char*)addr ), value( _value), str(_str) {};
-		stack_struct( OscId_t* addr, OscId_t _value, string _str ) :
-			chaddr( (char*)addr ), value( _value), str(_str) {};
-		stack_struct( StateId_t* addr, StateId_t _value, string _str ) :
-			chaddr( (char*)addr ), value( _value), str(_str) {};
 
+		template<AddressConcept T>
+		stack_struct( T* addr, T _value, string _str )
+		{
+			chaddr 	= reinterpret_cast<sds_value_t*> (addr);
+			value	= static_cast<sds_value_t> 	(_value);
+			str		= _str;
+		};
 		~stack_struct() = default;
 	} ;
-	typedef stack_struct stack_struct_t;
+
+	Appstate_class*		Appstate;
+	Application_class*	App;
+	string				className = "";
 
 public:
-	Appstate_class*		Appstate;
-	string				className = "";
-	Table_class 		Table{ defaultopt };
 	fstream 			LOG ;
 
 						Processor_class(	Application_class* app );
 	virtual 			~Processor_class(){	DESTRUCTOR( className ) } ;
 
-	void 				Push_str( EVENTKEY_t, uint8_t, string);
-	void 				Push_cmd( uint8_t, string);
-	void 				Push_key( EVENTKEY_t, string );
+	void 				Push_str( EVENTKEY_e, uint8_t, string);
+	void 				Push_cmd( CMD_e cmd, string);
+	void 				Push_key( EVENTKEY_e, string );
 
-	void 				Push_ifd( uint8_t*, uint8_t, string );
-	void 				Push_ifd( bool*, bool, string );
-	void 				Push_ifd( char*, char, string  );
-	void 				Push_ifd( StateId_t*, StateId_t, string  );
-	void 				Push_ifd( OscId_t*, OscId_t, string  );
-
-	void 				Push_wait( uint8_t, int, string );
+	template<AddressConcept T >
+	void 				Push_ifd( T* addr, T value, string str )
+	{
+		stack_struct stack_item = stack_struct( addr, value, str );
+		push_ifd( stack_item );
+	}
+	void 				Push_wait( CMD_e cmd, int, string );
 	void 				Push_text( string );
 	void 				Execute();
 	void 				Clear_process_stack();
@@ -94,30 +97,30 @@ private:
 
 	typedef struct 		print_struct
 	{
-		stack_struct_t 	ps			{};
+		Table_class 	Table{ defaultopt };
+		stack_struct 	ps			{};
 		string 			addr_str 	= "";
 		String 			Str 		{};
 		int				value		= 0;
+		int 			commit_time = 0;
 
-						print_struct( stack_struct_t _ps );
+						print_struct( stack_struct _ps );
 		virtual 		~print_struct() {};
 		void 			assign_val();
 		void 			assign_addr_str();
+		void 			Line( stack_struct ps );
 
 	} print_struct_t;
+	print_struct		print	{ stack_struct() };
 
 	int 				prgline = 0;
-	typedef vector<stack_struct_t>
-						stack_struct_vec_t;
 
-	stack_struct_vec_t 	process_stack	{};
-	stack_struct_t 		stack_item 		= stack_struct();
-	int 				commit_time 	= 0;
+	vector<stack_struct>process_stack	{};
+	stack_struct 		stack_item 		= stack_struct();
 
 	int 				wait_for_commit();
-	void 				execute_str( stack_struct_t& ps);
-	void 				printLn( stack_struct ps );
-	void 				push_ifd( stack_struct_t );
+	void 				execute_str( stack_struct& ps);
+	void 				push_ifd( stack_struct );
 };
 
 #endif /* PROCESSOR_H_ */

@@ -6,29 +6,58 @@
  */
 
 #include <data/Memorybase.h>
+#include <System.h>
 
+/**************************************************
+ * Memory_base
+ *************************************************/
 Memory_base::Memory_base( buffer_t bytes ) :
 	Logfacility_class( "Memory_base" )
 {
-	mem_ds.bytes = bytes;
-	className = Logfacility_class::className;
-	Comment( DEBUG, "pre-init memory size ", bytes );
-};
-
-Memory_base::Memory_base() :
-	Logfacility_class( "Memory_base" )
-{
-	Memory_base(0);
+	mem_ds.bytes 	= bytes;
+	className 		= Logfacility_class::className;
+	Init_data( bytes);
+	Comment( DEBUG, "init memory size ", bytes );
 };
 
 Memory_base::~Memory_base()
 {
 	DESTRUCTOR( className )
 };
-
-
-void* Memory_base::Init_void()
+void Memory_base::SetDs( size_t type_size )
 {
+	// terminology :
+	// sizeof_data	-> 	data_bytes	= sizeof(unit)
+	//					block_bytes = data_bytes*units
+	//					mem_bytes 	= block_bytes*blocks (blocks=sec)
+	//					mem_blocks	=
+
+				mem_ds.sizeof_type 	= type_size;
+				mem_ds.data_blocks 	= mem_ds.bytes / type_size;  //max_frames
+				mem_ds.size			= min_frames;
+				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.size ; // max_frames / min_frames
+
+	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.size;
+	Assert_equal( mem_ds.bytes, bytes );
+}
+
+mem_ds_t* Memory_base::GetDs()
+{
+	return &mem_ds;
+}
+
+void Memory_base::Init_data( buffer_t bytes )
+{
+	Data = ( Data_t* ) Init_void( bytes );
+
+	SetDs( sizeof( Data_t));
+	statistic.data += mem_ds.bytes;
+}
+
+
+void* Memory_base::Init_void( buffer_t bytes )
+{
+	mem_ds.bytes = bytes;
 	assert( mem_ds.bytes > 0 );
 	mem_ds.addr = mmap(	NULL,
 				mem_ds.bytes ,// + 1  ,
@@ -40,9 +69,9 @@ void* Memory_base::Init_void()
 
 	return mem_ds.addr;
 }
-void Memory_base::DsInfo()
+void Memory_base::DsInfo( string name )
 {
-	Comment( DEBUG, "Name             : " + mem_ds.name );
+	Comment( DEBUG, "Name             : " + name );
 	Comment( DEBUG, "Memory bytes     : " + to_string( mem_ds.bytes ));
 	Comment( DEBUG, "Addr             : " + to_hex(( long)mem_ds.addr) );
 	Comment( TEST, "Structure bytes  : " + to_string( mem_ds.sizeof_type ));
@@ -51,9 +80,17 @@ void Memory_base::DsInfo()
 	Comment( TEST, "max data records : " + to_string( mem_ds.max_records ));
 
 }
+void Memory_base::Clear_data( Data_t value )
+{
+	for ( buffer_t n = 0; mem_ds.data_blocks > n; n++ )
+	{
+		Data[n] = value;
+	}
+}
 
-
-
+/**************************************************
+ * Shm_base
+ *************************************************/
 Shm_base::Shm_base( buffer_t bytes ) :
 	Logfacility_class( "Shm_base" )
 {
@@ -61,14 +98,10 @@ Shm_base::Shm_base( buffer_t bytes ) :
 	className			= Logfacility_class::className;
 	Comment( DEBUG, "pre-init shared memory bytes: " , bytes );
 }
-Shm_base::Shm_base()
-	: Logfacility_class( "Shm_base" )
-{
-	Shm_base(0);
-}
 
 Shm_base::~Shm_base()
 {
+	DESTRUCTOR( className )
 }
 
 shm_ds_t* Shm_base::Get( key_t key )
@@ -84,8 +117,9 @@ shm_ds_t* Shm_base::Get( key_t key )
 	if ( shm_ds.shmid < 0 )
 	{
 		Comment( ERROR, Error_text( errno ));
+		Set_Loglevel( DEBUG, true );
 		ShowDs( shm_ds );
-		EXCEPTION("cannot get shared memory" + to_string( shm_ds.shmid ) );
+		Exception("cannot get shared memory" + to_string( shm_ds.shmid ), SIGILL );
 	}
 	else
 	{
@@ -121,7 +155,7 @@ void Shm_base::ShowDs( shm_ds_t ds )
 	strs << SETW << "Bytes : " << dec << ds.bytes << endl;
 	strs << SETW << "blocks: " << dec << ds.bytes/ds.sizeof_type << endl;
 	strs << SETW << "Exist: " << boolalpha <<  ds.eexist  << endl;
-	Comment( DEBUG, strs.str() );
+	Comment( (DEBUG), strs.str() );
 }
 
 void Shm_base::Detach( void* addr )

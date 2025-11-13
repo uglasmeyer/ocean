@@ -23,29 +23,21 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	this->DaTA			= data;
 
 
-	for( uint n : StAMemIds )
+	StA_param_t usr_conf = Mem_param_struct( "temp"		, data->Cfg_p->Config.temp_sec );
+	StA_param_t ist_conf = Mem_param_struct( "Instrument",data->Cfg_p->Config.kbd_sec );
+	StA_param_t ext_conf = Mem_param_struct( "External"	, data->Cfg_p->Config.record_sec );
+	StA_param_t kbd_conf = Mem_param_struct( "Keyboard"	, data->Cfg_p->Config.kbd_sec );
+	StA_param_t nte_conf = Mem_param_struct( "Notes"	, data->Cfg_p->Config.kbd_sec );
+
+	int n = 0;
+	for( const StA_param_t& param : { 	usr_conf, usr_conf, usr_conf, usr_conf,
+										ist_conf, kbd_conf, nte_conf, ext_conf }  )
 	{
-		Storage_class sta;
+		Storage_class sta { param };
 		sta.Id = n;
 		StA.push_back( sta );
+		n++;
 	}
-
-	StA_param_t usr_conf = StA_param_struct( "temp"		, data->Cfg_p->Config.temp_sec );
-	for( uint n : LowIds )
-		StA[n].Setup(usr_conf);
-
-	StA_param_t ext_conf = StA_param_struct( "External"	, data->Cfg_p->Config.record_sec );
-	StA[STA_EXTERNAL].Setup(ext_conf);
-
-	StA_param_t kbd_conf = StA_param_struct( "Keyboard"	, data->Cfg_p->Config.kbd_sec );
-	StA[STA_KEYBOARD].Setup(kbd_conf);
-
-	StA_param_t nte_conf = StA_param_struct( "Notes"	, data->Cfg_p->Config.kbd_sec );
-	StA[STA_NOTES].Setup(nte_conf);
-
-	StA_param_t ist_conf = StA_param_struct( "Instrument", data->Cfg_p->Config.kbd_sec );
-	StA[STA_INSTRUMENT].Setup(ist_conf);
-
 	for( uint n : StAMemIds )
 	{
 		StA[n].scanner.Data 		= StA[n].Data;
@@ -54,11 +46,15 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	}
 
 	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
-	StA[STA_KEYBOARD].scanner.Set_fillrange( StA[STA_KEYBOARD].scanner.mem_range.max );
 
-	StA[STA_NOTES].scanner.Set_wrt_len( max_frames );
-	StA[STA_NOTES].Reset();
+	StA[STA_NOTES   ].scanner.Set_wrt_len( max_frames );
+	StA[STA_NOTES   ].scanner.Set_fillrange( StA[STA_NOTES   ].param.size );
 
+	wd->Add_role_ptr( NOTESROLE		, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
+	wd->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
+	wd->Add_role_ptr( EXTERNALROLE	, StA[ STA_EXTERNAL].Data, &StA[ STA_EXTERNAL].param.size );
+
+	SetStA();
 
 	if( LogMask[ TEST ] )
 	{
@@ -69,17 +65,13 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		Mono_out.DsInfo	( "Wave display data");
 		Out.DsInfo		( );
 	}
-
-	wd->Add_role_ptr( 	EXTERNALROLE,
-						StA [ STA_EXTERNAL].Data,
-						&StA[ STA_EXTERNAL].param.size );
 };
 
 Mixer_class::~Mixer_class()
 {
 	if ( not sds )
 		return;
-	Clear_StA_status( sds->StA_state );
+	Clear_StA_status( sds->StA_state_arr );
 	sds->mixer_state.external	= false;
 	DESTRUCTOR( className );
 };
@@ -100,18 +92,19 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 		sta.Reset();
 }
 
-void Mixer_class::Set_mixer_state( const uint& id, const bool& play )
+void Mixer_class::Set_play_mode( const uint& id, const bool& mode )
 {
-	StA[id].Play_mode( play );
+	StA[id].state.Play( mode );
 
 	switch ( id )
 	{
-		case STA_INSTRUMENT :	{ state.instrument = play; break; }
-		case STA_NOTES 		:	{ state.notes 		= play;	break; }
-		case STA_KEYBOARD	: 	{ state.kbd 		= play; break; }
-		case STA_EXTERNAL 	:	{ state.external 	= play; break; }
+		case STA_INSTRUMENT :	{ state.instrument	= mode; break; }
+		case STA_NOTES 		:	{ state.notes 		= mode;	break; }
+		case STA_KEYBOARD	: 	{ state.kbd 		= mode; break; }
+		case STA_EXTERNAL 	:	{ state.external 	= mode; break; }
 		default				:	break;
 	}
+
 };
 
 void Mixer_class::Update_sds_state( int Id, interface_t* sds )
@@ -120,25 +113,31 @@ void Mixer_class::Update_sds_state( int Id, interface_t* sds )
 	sds->mixer_state =  state;
 	for ( uint id :  StAMemIds )
 	{
-		sds->StA_state[id] 	=  StA[id].state;
+		sds->StA_state_arr[id] 	=  StA[id].state.Get();
 	}
 }
 
-void Mixer_class::SetStA( Id_t mixerId )
-{
-	Comment( INFO, "updating mixer id ", (int)mixerId );
-	bool store = (bool) sds->StA_state[mixerId].store;
-	StA[mixerId].Record_mode( store );
+void Mixer_class::SetStA( Id_t staId )
+{	// synchronize between sds->StA_state and StA[].state
 
-	bool play = (bool) sds->StA_state[mixerId].play;
-	StA[mixerId].Play_mode( play );
+	Comment( INFO, "updating mixer id ", (int)staId );
 
-	sds->StA_state[mixerId] = StA[mixerId].state;
+	Set_play_mode( staId , sds->StA_state_arr[staId].play );
+	StA[staId].state.Filled( sds->StA_state_arr[staId].filled );
+	if ( not StA[staId].state.Filled() )
+	{
+		StA[staId].Reset();
+		if( LowIds.contains( staId ) )
+		{
+			Set_play_mode( staId , false );
+		}
+	}
 
-	Set_mixer_state( mixerId , play );
+	StA[staId].Record_mode( sds->StA_state_arr[staId].store );
 
-	uint8_t amp = sds->StA_amp_arr[ mixerId ];
-	StA[ mixerId ].DynVolume.SetupVol( amp , SLIDE );
+	StA[ staId ].DynVolume.SetupVol( sds->StA_amp_arr[ staId ] , SLIDE );
+
+//	sds->StA_state[staId] = StA[staId].state.Get();
 
 }
 void Mixer_class::SetStA()
@@ -162,9 +161,9 @@ void Mixer_class::add_mono( Data_t* Data, const uint& id )
 			Data[n] =0;
 		}
 	};
-
-	const array<int,8> phase_r = {10,  0,-10,  0,  5, -5,  5, -5 };
-	const array<int,8> phase_l = { 0,-10,  0, 10,  5, -5,  5, -5 };
+//								   +r -l  -r  +l
+	const array<int,8> phase_r = {10,  0,-10,  0,  7, -7,  7, -7 };
+	const array<int,8> phase_l = { 0,-10,  0, 10,  7, -7,  7, -7 };
 
 	if( Data == nullptr ) return;
 	assert( phase_r.size() == StA.size() );
@@ -180,7 +179,7 @@ void Mixer_class::add_mono( Data_t* Data, const uint& id )
 		Mono.Data[n]  				+= rint( Data[n] );//*volpercent );	// collect mono data for store
 	}
 	StA[id].DynVolume.Update();
-	if( StA[ id ].state.forget )
+	if( StA[ id ].state.Forget() )
 		delete_after_read( Data, sds_master->audioframes );
 
 }
@@ -196,6 +195,7 @@ void Mixer_class::add_stereo( Stereo_t* Data  )
 
 		Data[n].left 	+= Out.stereo_data[n].left ;//	* vol_percent * balanceL );
 		Data[n].right 	+= Out.stereo_data[n].right;// 	* vol_percent * balanceR );
+		Out.stereo_data[n] = {0,0};
 	}
 
 }
@@ -225,7 +225,8 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	auto set_sds_filled = [ this ]( uint8_t staid )
 	{
 		bool filled = ( StA[staid].scanner.fillrange.max > 0 );
-		sds->StA_state[staid].filled = filled;
+		StA[staid].state.Filled( filled );
+		sds->StA_state_arr[staid].filled = filled;
 	};
 
 	if( not shm_addr ) return;
@@ -238,15 +239,15 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	}
 
 	// add osc sound
-	if ( StA[ STA_INSTRUMENT ].state.play )
+	if ( StA[ STA_INSTRUMENT ].state.Play() )
 	{
 		add_mono( instrument_Data	, STA_INSTRUMENT );
 	}
-	if ( StA[ STA_NOTES 	].state.play )
+	if ( StA[ STA_NOTES 	].state.Play() )
 	{
 		add_mono( notes_Data		, STA_NOTES );
 	}
-	if ( StA[ STA_KEYBOARD  ].state.play )
+	if ( StA[ STA_KEYBOARD  ].state.Play() )
 	{
 		add_mono( kbd_Data			, STA_KEYBOARD );
 	}
@@ -255,18 +256,21 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	set_sds_filled( STA_KEYBOARD );
 
 	// write/read StA sound
-	for ( uint staid : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
+	for ( uint staId : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
 	{
+		Storage_class& sta = StA[staId];
 
-		if( StA[ staid ].state.store )
-			StA[ staid ].Store_block( Mono.Data );
-		sds->StA_state[staid].store		= StA[staid].state.store;
-		set_sds_filled( staid );
-		if ( StA[ staid ].state.play )
+		if( sta.state.Store() )
+			sta.Store_block( Mono.Data );
+
+		sds->StA_state_arr[staId].store		= sta.state.Store();
+		set_sds_filled( staId );
+
+		if ( sta.state.Play() )
 		{
-			Data_t* StAdata = StA[staid].scanner.Next_read();
+			Data_t* StAdata = sta.scanner.Next_read();
 			if ( StAdata )
-				add_mono( StAdata, staid );
+				add_mono( StAdata, staId );
 		}
 	}
 

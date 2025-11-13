@@ -104,10 +104,14 @@ void Scanner_class::Set_wrt_len( buffer_t n )
 }
 void Scanner_class::Set_fillrange( buffer_t n )
 {
-	if( fillrange.max == mem_range.max )
+	if ( n == 0 )
+	{
+		fillrange.max = n;
 		return;
-	fillrange.max 	= check_range( mem_range, n, "Set_max_len" );
-	fillrange.len	= fillrange.max;
+	}
+	if( fillrange.max == mem_range.max ) // don't change if full
+		return;
+	fillrange.max 	= check_range( mem_range, n, "Set_fillrange" );
 }
 
 //-----------------------------------------------------------------------------
@@ -116,76 +120,26 @@ void Scanner_class::Set_fillrange( buffer_t n )
 
 //-----------------------------------------------------------------------------
 
-Memory::Memory( buffer_t bytes ) :
+Heap_Memory::Heap_Memory( buffer_t bytes ) :
 	Logfacility_class( "Memory" ),
 	Memory_base( bytes )
 {
 	className = Logfacility_class::className;
-	Init_data();
 };
-
-Memory::Memory( ) :
-	Logfacility_class( "Memory" )
-{
-	className = Logfacility_class::className;
-	Comment( DEBUG, "pre-init " + className );
-};
-
-void Memory::Clear_data( Data_t value )
-{
-	for ( buffer_t n = 0; mem_ds.data_blocks > n; n++ )
-	{
-		Data[n] = value;
-	}
-}
-void Memory_base::SetDs( size_t type_size )
-{
-	// terminology :
-	// sizeof_data	-> 	data_bytes	= sizeof(unit)
-	//					block_bytes = data_bytes*units
-	//					mem_bytes 	= block_bytes*blocks (blocks=sec)
-	//					mem_blocks	=
-
-				mem_ds.sizeof_type 	= type_size;
-				mem_ds.data_blocks 	= mem_ds.bytes / type_size;  //max_frames
-				mem_ds.size			= min_frames;
-				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.size ;
-
-	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.size;
-	ASSERTION( mem_ds.bytes == bytes , "init memory", (int)mem_ds.bytes , bytes );
-}
-
-mem_ds_t* Memory_base::GetDs()
-{
-	return &mem_ds;
-}
-
-void Memory::Init_data( )
-{
-	Data = ( Data_t* ) Init_void();
-
-	SetDs( sizeof( Data_t));
-	statistic.data += mem_ds.bytes;
-
-}
-
-void Memory::DsInfo( string name )
-{
-	mem_ds.name = name;
-	Memory_base::DsInfo();
-}
-
 
 //-----------------------------------------------------------------------------
 
 
 //-----------------------------------------------------------------------------
 
-Storage_class::Storage_class( ) :
+Storage_class::Storage_class( StA_param_t param ) :
 	Logfacility_class( "Storage_class" ),
-	Memory()
+	Memory_base( param.size*sizeof(Data_t) )
 {
-	className = Logfacility_class::className;
+	this->param 	= param;
+	className 		= Logfacility_class::className;
+	DsInfo( param.name );
+	Reset( );
 } ;
 
 void Storage_class::Setup( StA_param_t _param )
@@ -193,10 +147,9 @@ void Storage_class::Setup( StA_param_t _param )
 	param 			= _param;
 	mem_ds.bytes 	= sizeof(Data_t) * param.size;
 	mem_ds.size		= min_frames;//param.block_size;
-//	mem_ds.size		= param.size;//min_frames;//param.block_size;
 	mem_ds.block_size=param.block_size;
-	Memory::Init_data( );
-	Memory::DsInfo( param.name );
+	Init_data( mem_ds.bytes );
+	DsInfo( param.name );
 	Reset();
 }
 
@@ -213,7 +166,7 @@ void Storage_class::Write_data( Data_t* src )//, const buffer_t& wrt )
 
 void Storage_class::Store_block( Data_t* src )
 {
-	if ( not state.store ) return;
+	if ( not state.Store() ) return;
 	buffer_t start = record_counter* mem_ds.size;
 	for ( buffer_t n = 0; n < mem_ds.size; n++ )
 	{
@@ -223,11 +176,11 @@ void Storage_class::Store_block( Data_t* src )
 	record_data 	= record_counter * mem_ds.size;
 	scanner.Set_fillrange( record_data );
 	if ( record_counter == mem_ds.max_records - 2 )
-		state.store = false ;
+		state.Store( false ) ;
 }
 
 
-void 	Storage_class::Set_store_counter( uint  n )
+void Storage_class::Set_store_counter( uint  n )
 {
 	Assert_lt(  n , mem_ds.max_records, "mem_ds.max_records" );
 
@@ -239,46 +192,31 @@ void 	Storage_class::Set_store_counter( uint  n )
 	scanner.Set_fillrange	( record_data );
 }
 
-void 	Storage_class::Reset( )
+void Storage_class::Reset( )
 {
 	Comment( DEBUG, "Reset counter ", (int)Id );
 	record_counter 		= 0;
 	record_data 		= 0;
 	read_counter  		= 0;
-	state.store			= false;
-	state.filled		= false;
+	state.Store( false );
+	state.Filled( false );
 	scanner.Set_rpos	(0);
 	scanner.Set_wpos	(0);
 	scanner.Set_fillrange ( 0 );
 	Clear_data			(0);
 //	coutf << "clear sta" << (int)Id << " " << mem_ds.data_blocks << endl;
 }
-void Storage_class::Playnotes( bool flag )
-{
-	state.play 			= flag;
-	state.store			= false;
-	string onoff 		= flag ? " on" : " off";
-	Comment(INFO, "play " + param.name + onoff );
 
-}
-string 	Storage_class::Play_mode( bool flag )
-{
-//	Comment(INFO, "mute " + StAparam.name );
-	state.play 			= flag;
-//	if( scanner.fillrange.max == 0 )
-//		state.play = false;
-	return (state.play) ? "ON" : "OFF";
-}
 
-string Storage_class::Record_mode( bool flag )
+
+void Storage_class::Record_mode( bool flag )
 {
-	state.store = flag;
+	state.Store( flag );
 	if ( flag )
 		read_counter = 0;
-	return (state.store) ? "ON" : "OFF";
 }
 
-uint*	Storage_class::Get_storeCounter_p()
+uint* Storage_class::Get_storeCounter_p()
 {
 	return &record_counter;
 }
@@ -289,10 +227,10 @@ uint*	Storage_class::Get_storeCounter_p()
 
 //-----------------------------------------------------------------------------
 
-Shared_Memory::Shared_Memory( buffer_t size ) :
+Shared_Memory::Shared_Memory( buffer_t bytes ) :
 	Logfacility_class("Shm"),
-	Shm_base( size ),
-	shm_range{0,size/shm_ds.sizeof_type}
+	Shm_base( bytes ),
+	shm_range{0,bytes/shm_ds.sizeof_type}
 {
 	className = Logfacility_class::className;
 };

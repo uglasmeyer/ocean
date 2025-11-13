@@ -25,52 +25,41 @@ enum  KEYCODE {
 	F9 = 0x07e30325b1b
 };
 
-typedef struct keymap_struct
+/**************************************************
+ * keymap_struct
+ *************************************************/
+struct keymap_struct
 {
-	kbdInt_t 	id;
-	string		name;
-	int 		qt;
+	typedef struct keymap_data_struct
+	{
+		kbdInt_t 	id;
+		string		name;
+		string		menu;
+		kbdInt_t	qt;
+	} keymap_data_t;
 
-} keymap_t;
-const vector<keymap_t>	keymap_vec =
-{
-		{ KEYCODE::F1, 	"F1", 0x01000030 },
-		{ KEYCODE::F2, 	"F2", 0x01000031 },
-		{ KEYCODE::F3, 	"F3", 0x01000032 },
-		{ KEYCODE::F4, 	"F4", 0x01000033 },
-		{ KEYCODE::F5, 	"F5", 0x01000034 },
-		{ KEYCODE::F6, 	"F6", 0x01000035 },
-		{ KEYCODE::F7, 	"F7", 0x01000036 },
-		{ KEYCODE::F8, 	"F8", 0x01000037 },
-		{ KEYCODE::F9, 	"F9", 0x01000038 }
-};
-constexpr string map_key_name( kbdInt_t key )
-{
-	for( keymap_t map : keymap_vec )
+	const vector<keymap_data_t>	keymap_vec
 	{
-		if ( map.id == key )
-			return map.name;
-	}
-	if (key < 0xF0 ) //(<128), 127
-	{
-		string str {};
-		str.assign(1, (char)key );
-		return str;
-	}
-	return to_string(key);
+			{ KEYCODE::F1, 	"F1", "Key overview"	, 0x01000030 },
+			{ KEYCODE::F2, 	"F2", "Processes"		, 0x01000031 },
+			{ KEYCODE::F3, 	"F3", "States"			, 0x01000032 },
+			{ KEYCODE::F4, 	"F4", "Que&Waveform"	, 0x01000033 },
+			{ KEYCODE::F5, 	"F5", "Instrument"		, 0x01000034 },
+			{ KEYCODE::F6, 	"F6", "ADSR"			, 0x01000035 },
+			{ KEYCODE::F7, 	"F7", "Spectrum"		, 0x01000036 },
+			{ KEYCODE::F8, 	"F8", "Semaphores"		, 0x01000037 },
+			{ KEYCODE::F9, 	"F9", "Manage Proc."	, 0x01000038 }
+	};
+				keymap_struct	(){};
+				~keymap_struct	() = default;
+	string 		Name			( kbdInt_t key );
+	kbdInt_t 	Qt_key			( kbdInt_t key );
+	string 		Menu			( kbdInt_t key );
 };
 
-constexpr kbdInt_t map_qt_key( kbdInt_t key )
-{
-	for( keymap_t map : keymap_vec )
-	{
-		if ( map.qt == key )
-			return map.id;
-	}
-	return key;
-};
-
-
+/**************************************************
+ * Kbd_base
+ *************************************************/
 class Kbd_base
 	: virtual 	Logfacility_class
 {
@@ -117,8 +106,9 @@ public:             // Access specifier
 
 	string			ShowKey		( kbdkey_t key );
 	string 			ShowKey		( kbdInt_t Int );
-
 private:
+
+
 	struct termios 	old_flags 	= {0};
 	struct termios 	new_flags 	= {0};
 	key_union_struct buf8		{};

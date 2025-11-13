@@ -13,11 +13,11 @@
 #include <data/SharedDataSegment.h>
 #include <data/Appstate.h>
 #include <data/Config.h>
-#include <data/Semaphore.h>
 #include <data/Memory.h>
+#include <data/Semaphore.h>
 #include <data/Sdsbase.h>
 
-typedef vector<Interface_class> SDS_vec_t;
+typedef vector<Interface_class> 	SDS_Vec_t;
 
 /*********************
  * SDS_struct
@@ -27,7 +27,7 @@ typedef struct SDS_struct
 private:
 	string					className 		= "SDS_struct";
 public:
-	SDS_vec_t 				Vec				{};
+	SDS_Vec_t 				Vec				{};
 	sds_vec_t				vec				{};
 	interface_t*			master			= nullptr;
 	Interface_class*		Master			= nullptr;
@@ -77,8 +77,7 @@ public:
 	void 					EmitEvent			( const uint8_t flag, string comment = ""  );
 	void					Test_Dataworld		();
 
-							Dataworld_class		( APPID appid,
-												Config_class* cfg,
+							Dataworld_class		( Config_class* cfg,
 												Semaphore_class* sem );
 	virtual 				~Dataworld_class	();
 
@@ -104,7 +103,7 @@ class EventLog_class :
 	struct event_struct
 	{
 		uint8_t 	sdsid = 0;
-		EVENTKEY_t	event = NULLKEY;
+		EVENTKEY_e	event = NULLKEY;
 	};
 	typedef event_struct event_t;
 	vector<event_t> 	rawlog_vec		{};
@@ -118,7 +117,7 @@ public:
 	EventLog_class( Dataworld_class* _data );
 	virtual ~EventLog_class();
 
-	void add( uint8_t sdsid, EVENTKEY_t event );
+	void add( uint8_t sdsid, EVENTKEY_e event );
 	void write_log();
 	void spool();
 	bool capture( uint8_t sdsid, bool flag );

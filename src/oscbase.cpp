@@ -7,7 +7,7 @@
 
 #include <Oscbase.h>
 
-Oscillator_base::Oscillator_base( OscId_t osc_type ) :
+Oscillator_base::Oscillator_base( OSCID_e osc_type ) :
 	Logfacility_class( "Oscillator_base" )
 {
 	this->spectrum.osc 	= osc_type;

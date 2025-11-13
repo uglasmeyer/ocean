@@ -54,6 +54,7 @@
 #include <sys/types.h>
 #include <termios.h>
 
+
 using namespace std;
 
 // https://en.cppreference.com/w/cpp/language/types
@@ -101,8 +102,8 @@ const uint16_t		measure_parts		= (uint16_t) (max_msec / min_msec);
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
 
-const buffer_t		audio_frames 		= min_frames;//frames_per_sec; // chunksize * 100
-const buffer_t 		chunksize			= min_frames / 2;//300;//min_frames/10;///5;//max_frames / 48;// / 100;//441 , 512; // Audio server chunksize
+const buffer_t		audio_frames 		= min_frames;
+const buffer_t 		chunksize			= audio_frames / 2;
 
 const uint			recduration 		= 3*60; // seconds
 const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
@@ -124,16 +125,26 @@ const string			OctChars_DE		= "CcDdEFfGgAaH";
 template< typename T >
 struct range_T
 {
-	T 		min ;
-	T 		max ;
-	size_t 	len = max - min;
+	T 		min;
+	T 		max;
+	size_t	len = max - min;
 };
 
+const range_T<uint8_t>	percent_range		{ 0, 100 };
 const range_T<int>		volidx_range		{ 0, 100 };
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
 const range_T<int>		octave_range		{ min_octave, max_octave };
 
+template< typename T>
+constexpr bool in_range( range_T<T> range, T val )
+{
+	if ( val < range.min )
+		return false;
+	if ( val > range.max )
+		return false;
+	return true;
+}
 template< typename T>
 constexpr T check_range( range_T<T> r, T val, string errmsg )
 {
@@ -185,7 +196,7 @@ template<typename T>
 string show_range( range_T<T> range )
 {
 	stringstream strs {};
-	strs << range.min << "..." << range.max ;
+	strs << (int)range.min << "..." << (int)range.max ;
 	return strs.str();
 };
 
@@ -218,14 +229,14 @@ constexpr string to_hex( long addr )
 	return strs.str();
 };
 
-enum OscId_t
+enum OSCID_e : unsigned char
 {
 	VCOID,
 	FMOID,
 	OSCID,
 	NOOSCID
 };
-const  vector<OscId_t> oscIds  =
+const  vector<OSCID_e> oscIds  =
 {
 	VCOID,
 	FMOID,
@@ -233,7 +244,7 @@ const  vector<OscId_t> oscIds  =
 };
 #define OSCIDSIZE 3
 
-enum OscroleId_t
+enum OscroleId_t : unsigned char
 {
 	INSTRROLE,
 	NOTESROLE,
@@ -272,7 +283,7 @@ const vector<string> slidermodes =
 		"Slide",
 		"Combine"
 };
-enum DYNAMIC
+enum DYNAMIC : unsigned char
 { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
 
 

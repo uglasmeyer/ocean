@@ -92,9 +92,9 @@ struct file_structure
 	const string 	filename 					= "synthesizer";
 	string			oceanbasename				= baseName( installdir );
 	const string 	snd_type 					= ".snd";	// instruments file extension
-	const string	nte_type					= ".nte";	// notes file extension
+	static constexpr string	nte_type					= ".nte";	// notes file extension
 	const string 	wav_type 					= ".wav";
-	const string 	xml_type					= ".musicxml";
+	static constexpr string 	xml_type					= ".musicxml";
 	const string	Audio_bin					= AUDIOSERVER;
 	const string 	Synth_bin					= SYNTHESIZER;
 	const string 	Keyboard_bin				= SYNTHKBD;
@@ -154,8 +154,9 @@ class Config_class
 	string 			className 			= "";
 
 public:
-
-	file_structure*	fs					;
+	process_t		Process				{};
+	file_structure	Fs					{};
+	file_structure*	fs					= &Fs;
 	string 			configfile 			{};
 	string 			prgName				{};
 	prgarg_t		Config 				= prgarg_struct();
@@ -166,7 +167,7 @@ public:
 	string 			Server_cmd			( string term, string srv, string opt );
 	void 			Test				();
 
-					Config_class		( string Module, file_structure* _fs ) ;
+					Config_class		() ;
 	virtual 		~Config_class		();
 	vector_str_t	parse_cmdline		();
 

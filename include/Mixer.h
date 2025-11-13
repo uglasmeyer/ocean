@@ -14,8 +14,8 @@
 #include <Ocean.h>
 #include <Wavedisplay.h>
 #include <Mixerbase.h>
-#include <data/Memory.h>
 #include <data/DataWorld.h>
+#include <data/Memory.h>
 #include <Dynamic.h>
 #include <notes/Notes.h>
 
@@ -23,8 +23,7 @@
 
 
 class Mixer_class :
-	virtual public 		Logfacility_class,
-	virtual public 		Mixer_base
+	virtual public 		Logfacility_class
 {
 	string 				className		= "";
 	Dataworld_class* 	DaTA;
@@ -32,11 +31,11 @@ class Mixer_class :
 	// provides and manages memory array
 public:
 
-	const vector<Id_t>	AllIds			= Iota<Id_t>(0, 8 );
-	const vector<uint>  RecIds 			= {0, 1, 2, 3, STA_EXTERNAL };
-	const vector<uint>  UsrIds			= {0, 1, 2, 3, 4, 5, 6 };
+	const vector<STAID_e>	AllIds		= Iota_T<STAID_e>( STA_USER00, STA_SIZE );
+	const vector<STAID_e>	RecIds 		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
+	const vector<STAID_e>	UsrIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
 	const vector<uint>	HghIds			= {4, 5, 6, 7 };
-	const vector<uint>	LowIds			= {0, 1, 2, 3 };
+	const set<uint>		LowIds			= {0, 1, 2, 3 };
 
 
 	typedef vector<Storage_class>		StorageArray_t;
@@ -45,8 +44,8 @@ public:
 	mixer_state_t  		state 			= mixer_state_struct();
 	int					composer		= 0;		// note chunk counter
 
-	Memory 				Mono			{ monobuffer_bytes };
-	Memory 				Mono_out		{ monobuffer_bytes };
+	Heap_Memory 		Mono			{ monobuffer_bytes };
+	Heap_Memory 		Mono_out		{ monobuffer_bytes };
 	Stereo_Memory<Stereo_t>
 						Out				{ Stereo_Memory<Stereo_t>::stereobuffer_bytes };
 
@@ -63,7 +62,7 @@ public:
 	void 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
 	void 				Clear_StA_status( StA_state_arr_t& );
 	void 				Update_sds_state( int id, interface_t* sds );
-	void 				Set_mixer_state	( const uint& id, const bool& play );
+	void 				Set_play_mode	( const uint& id, const bool& play );
 	void 				SetStA			();
 	void 				SetStA			( Id_t mixerId );
 

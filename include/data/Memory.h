@@ -73,24 +73,83 @@ public:
 
 };
 
+
+/**************************************************
+ * StAstate_class
+ *************************************************/
+class StAstate_class :
+	StA_state_struct
+{
+public:
+	StAstate_class() :
+		StA_state_struct()
+	{};
+	virtual ~StAstate_class() = default;
+
+	void Forget( bool flag )
+	{
+		forget = flag;
+	}
+	bool Forget()
+	{
+		return forget;
+	}
+	void Store( bool flag )
+	{
+		store = flag;
+	}
+	bool Store()
+	{
+		return store;
+	}
+	void Play( bool flag )
+	{
+		play = flag;
+	}
+	bool Play()
+	{
+		return play;
+	}
+	void Filled( bool flag )
+	{
+		filled = flag;
+	}
+	bool Filled()
+	{
+		return filled;
+	}
+	StA_state_t Get()
+	{
+		StA_state_t 	state 	= StA_state_struct();
+		state.filled 			= filled;
+		state.forget 			= forget;
+		state.play				= play;
+		state.store 			= store;
+		return 			state;
+	}
+	void Set( StA_state_t state )
+	{
+		filled	= state.filled;
+		forget	= state.forget;
+		play	= state.play;
+		store	= state.store;
+	}
+private:
+};
+
 /***************************
- * Memory
+ * Heap_Memory
  **************************/
-class Memory :
+class Heap_Memory :
 	virtual 		Logfacility_class,
 	virtual public 	Memory_base
 {
 	string className =  "";
 
 public:
-	Data_t* 	Data = nullptr;
-	Memory( buffer_t bytes );
-	Memory( );
-	virtual ~Memory() = default;
+	Heap_Memory( buffer_t bytes );
+	virtual ~Heap_Memory() = default;
 
-	void Init_data(  );
-	void Clear_data( Data_t );
-	void DsInfo( string );
 };
 
 
@@ -110,18 +169,13 @@ public:
 
 	stereo* 				stereo_data 		= nullptr;
 
-	Stereo_Memory		(buffer_t size) :
+	Stereo_Memory		(buffer_t bytes) :
 		Logfacility_class( "Stereo_Memory" ),
-		Memory_base( size )
+		Memory_base( bytes )
 	{
 		className = Logfacility_class::className;
-		Init_data( size );
+		Init_data( bytes );
 	}
-	Stereo_Memory() :
-		Logfacility_class( "Memory_base")
-	{
-		className = Logfacility_class::className;
-	};
 
 	virtual ~Stereo_Memory( )
 	{
@@ -130,8 +184,7 @@ public:
 
 	void Init_data( buffer_t bytes, buffer_t bs = min_frames )
 	{
-		Memory_base::mem_ds.bytes = bytes;
-		stereo_data = ( stereo* ) Init_void();
+		stereo_data = ( stereo* ) Init_void( bytes );
 
 		SetDs( sizeof( stereo ) );
 		statistic.stereo += mem_ds.bytes;
@@ -155,12 +208,12 @@ private:
 
 class Storage_class :
 		virtual public Logfacility_class,
-		virtual public Memory
+		virtual public Memory_base
 {
 	string className = "";
 public:
 	// dynamic properties
-	StA_param_t 	param			= StA_param_struct("",0 );
+	StA_param_t 	param			= Mem_param_struct("",0 );
 	string 			Name			= "";
 	uint8_t 		Id				= 0xFF;
 	bool			is_RecId		= false;
@@ -168,19 +221,17 @@ public:
 	Dynamic_class	DynVolume		{ volidx_range };
 	Scanner_class	scanner 		{ nullptr, min_frames, 0 };
 
-	StA_state_t 	state 			= StA_state_struct();
+	StAstate_class 	state 			{};//= StA_state_struct();
 
 	void 			Store_block		( Data_t* ) ;
 	void 			Write_data		( Data_t* src );//, const buffer_t& pos );
-	string 			Record_mode		( bool );
-	string 			Play_mode		( bool );
-	void			Playnotes		( bool );
+	void 			Record_mode		( bool );
 	void 			Setup			( StA_param_t);
 	void 			Set_store_counter( uint n);
 	void 			Reset			();
 	uint*			Get_storeCounter_p();
 
-					Storage_class( );
+					Storage_class( StA_param_t param );
 	virtual 		~Storage_class() = default;
 
 private:
@@ -189,9 +240,10 @@ private:
 	uint 			record_counter	= 0;
 };
 
-/***************************
+/***************************************
  * Shared_Memory
- **************************/
+ * Synthesizer/Audioserver data exchange
+ **************************************/
 class Shared_Memory :
 		virtual public 		Logfacility_class,
 		virtual public 		Shm_base

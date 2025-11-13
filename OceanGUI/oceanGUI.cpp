@@ -1,8 +1,8 @@
 
-// qtcreator
+// OceanGUI
+#include <include/Spectrum_dialog.h>
 #include <include/Mainwindow.h>
 #include <include/Oszilloscopewidget.h>
-#include <include/Spectrum_dialog_class.h>
 #include <ui_mainwindow.h>
 
 // Ocean
@@ -18,8 +18,6 @@
 #include <QPolygon>
 #include <QTimer>
 #include <QRect>
-
-
 
 
 const string 		Module 		= OCEANGUI;
@@ -46,7 +44,7 @@ auto set_sl_sta_value = [ ]( MainWindow* M )
 };
 auto set_cb_filled_value = [  ]( MainWindow* M  )
 {
-	for( MainWindow::cb_state_t map : M->cb_filld_sta_vec )
+	for( MainWindow::cb_state_t map : M->cb_filled_sta_vec )
 		map.cb->setChecked( *map.state );
 };
 
@@ -63,7 +61,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	Sds->Set( Sds->addr->UpdateFlag, true);
 //	Sds->Set( sds_master->Record, (uint8_t)sdsstate_struct::INACTIVE );
 
-    initGuiVectors();
+    initGuiVectors( Sds->addr );
 
 	initStateButtons();
     initOscillatorDisplay();
@@ -84,8 +82,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-	Kbd_base::key_union_t key {};
-	key.Int = map_qt_key( event->key() ) ;
+	QString 		QStr	{};
+	Kbd_base::
+	key_union_t 	key 	{};
+					key.Int = Keymap.Qt_key( event->key() ) ;
 	switch ( key.Int )
 	{
 		case Qt::Key_Escape :
@@ -100,17 +100,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 		}
 	} // switch  key
-	QString QStr{};
 	QStr.assign(1, (QChar)key.Arr[0] );
 	Keyboard_Dialog_p->keyboard_key = QStr;
 	Keyboard_Dialog_p->Setup_Widget();
-
 }
 
 
 void MainWindow::GUI_Exit()
 {
-    qDebug("%s", "Exit" );
+    Info( "Exit" );
+
     QApplication::quit();
 }
 
@@ -193,7 +192,7 @@ auto switch_dialog( Dialog* p )
 void MainWindow::Rtsp_Dialog()
 {
 	switch_dialog( this->Rtsp_Dialog_p );
-    Rtsp_Dialog_p->proc_table_update_all( );
+    Rtsp_Dialog_p->Proc_table_update_all( );
 }
 void MainWindow::SDS_Dialog()
 {
@@ -204,7 +203,7 @@ void MainWindow::SDS_Dialog()
 	}
 	else
 	{
-		string Start_Comstack = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.comstack_bin, "" );
+		string Start_Comstack = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->comstack_bin, "" );
 		System_execute( Start_Comstack );
 	}
 	return;
@@ -244,7 +243,7 @@ void MainWindow::Spectrum_Dialog()
 void MainWindow::waveform_slot(	uint8_t* wf_addr,
 								uint8_t wfid,
 								int ID,
-								EVENTKEY_t wf_key,
+								EVENTKEY_e wf_key,
 								QLabel* label  )
 {
 	Sds->Set( *wf_addr, wfid );
@@ -266,7 +265,6 @@ void MainWindow::VCO_Waveform_slot( int _wfid )
 	waveform_slot( &Sds->addr->spectrum_arr[VCOID].wfid[0], _wfid, VCOID, SETWAVEFORMVCOKEY, ui->wf_vco );
 }
 
-
 void MainWindow::select_Sds( Id_t sdsid )
 {
 	Sds->Set( this->sds_master->config, sdsid );
@@ -277,7 +275,7 @@ void MainWindow::select_Sds( Id_t sdsid )
 	Sds->Set( this->SDS_ID, sdsid );
 	this->sds = Sds->addr;
 
-	initGuiVectors();
+	initGuiVectors( this->sds );
 	initStateButtons();
 
     Info( "Activate SDS ", to_string( (int) Sds->addr->SDS_Id ));
@@ -285,7 +283,7 @@ void MainWindow::select_Sds( Id_t sdsid )
 	File_Dialog_p->SetSds( this->Sds, sdsid );
 	Spectrum_Dialog_p->SetSds( this->Sds, sdsid );
 
-	Rtsp_Dialog_p->proc_table_update_row( sdsid + 1 );
+	Rtsp_Dialog_p->Proc_table_update( this->sds, SYNTHID );
 
    	rb_S_vec[ sds_master->config ]->setChecked( true );
 
@@ -312,58 +310,112 @@ void MainWindow::select_Sds3()
 void MainWindow::CombineFreq()
 {
 	if ( ui->cB_Combine->isChecked() )
-		Sds->Set( Sds->addr->frq_slidermode, (uint8_t) COMBINE );
+		Sds->Set( Sds->addr->frq_slidermode,  COMBINE );
 	else
-		Sds->Set( Sds->addr->frq_slidermode, (uint8_t) SLIDE );
+		Sds->Set( Sds->addr->frq_slidermode, SLIDE );
 }
 
-auto setStaPlay( MainWindow* M, uint8_t id )
+void MainWindow::setStaPlay( uint8_t _id )
 {
-    M->Sds->Set( M->Sds->addr->MIX_Id , id );
-    bool play = not M->Sds->addr->StA_state[id].play;
-    M->Sds->Set( M->Sds->addr->StA_state[id].play, play);
-    M->Eventlog.add( M->SDS_ID, SETSTA_KEY );
-    M->Eventlog.add( M->SDS_ID, RESET_STA_SCANNER_KEY );
-    M->cb_play_sta_vec[ id ].cb->setChecked( play ) ;
+	STAID_e id = (STAID_e)_id;
+	Sds->Set( Sds->addr->MIX_Id , id );
+    bool play = not Sds->addr->StA_state_arr[id].play;
+    Sds->Set( Sds->addr->StA_state_arr[id].play, play);
+    Eventlog.add( SDS_ID, SETSTA_KEY );
+    Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
+    Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
+    cb_play_sta_vec[ id ].cb->setChecked( play ) ;
 }
 
-void MainWindow::toggle_mute0(  )
+void MainWindow::setStaPlay0(  )
 {
-	setStaPlay( this, 0 );
+	setStaPlay( STA_USER00 );
 }
-void MainWindow::toggle_mute1(  )
+void MainWindow::setStaPlay1(  )
 {
-	setStaPlay( this, 1 );
+	setStaPlay( STA_USER01 );
 }
-void MainWindow::toggle_mute2(  )
+void MainWindow::setStaPlay2(  )
 {
-	setStaPlay( this, 2 );
+	setStaPlay( STA_USER02 );
 }
-void MainWindow::toggle_mute3(  )
+void MainWindow::setStaPlay3(  )
 {
-	setStaPlay( this, 3 );
+	setStaPlay( STA_USER03 );
 }
-void MainWindow::toggle_mute4(  )
+void MainWindow::setStaPlay4(  )
 {
-	setStaPlay( this, STA_INSTRUMENT );
+	setStaPlay( STA_INSTRUMENT );
+	Sds->Set( Sds->addr->WD_status.roleId , INSTRROLE );
 }
-void MainWindow::toggle_mute5(  )
+void MainWindow::setStaPlay5(  )
 {
-	setStaPlay( this, STA_KEYBOARD );
+	setStaPlay( STA_KEYBOARD );
+	Sds->Set( Sds->addr->WD_status.roleId , KBDROLE );
 }
-void MainWindow::toggle_mute6(  )
+void MainWindow::setStaPlay6(  )
 {
-	setStaPlay( this, STA_NOTES );
+	setStaPlay( STA_NOTES );
+	Sds->Set( Sds->addr->WD_status.roleId , NOTESROLE );
+
 }
-void MainWindow::toggle_mute7(  )
+void MainWindow::setStaPlay7(  )
 {
-	setStaPlay( this, STA_EXTERNAL );
+	setStaPlay( STA_EXTERNAL );
+	Sds->Set( Sds->addr->WD_status.roleId , EXTERNALROLE );
+
 }
 
-auto toggle_store_sta( MainWindow* M, uint8_t ID )
+void MainWindow::setStaStored( uint8_t _id )
 {
-    M->Sds->Set( M->Sds->addr->MIX_Id , ID );
-    if ( M->Sds->addr->StA_state[ID].store )
+	STAID_e staId = (STAID_e)_id;
+
+    Sds->Set( Sds->addr->MIX_Id , staId );
+    bool filled = not Sds->addr->StA_state_arr[staId].filled;
+    Sds->Set( Sds->addr->StA_state_arr[staId].filled, filled );
+    Eventlog.add( SDS_ID, SETSTA_KEY );
+    Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
+    cb_filled_sta_vec[ staId ].cb->setChecked( filled ) ;
+}
+void MainWindow::setStaStored0()
+{
+	setStaStored( STA_USER00 );
+}
+void MainWindow::setStaStored1()
+{
+	setStaStored( STA_USER01 );
+}
+void MainWindow::setStaStored2()
+{
+	setStaStored( STA_USER02 );
+}
+void MainWindow::setStaStored3()
+{
+	setStaStored( STA_USER03 );
+}
+void MainWindow::setStaStored4()
+{
+	setStaStored( STA_INSTRUMENT );
+}
+void MainWindow::setStaStored5()
+{
+	setStaStored( STA_KEYBOARD );
+}
+void MainWindow::setStaStored6()
+{
+	setStaStored( STA_NOTES );
+}
+void MainWindow::setStaStored7()
+{
+	setStaStored( STA_EXTERNAL );
+}
+
+auto toggle_store_sta( MainWindow* M, uint8_t _id )
+{
+	STAID_e id = (STAID_e)_id;
+
+	M->Sds->Set( M->Sds->addr->MIX_Id , id );
+    if ( M->Sds->addr->StA_state_arr[id].store )
     {
     	M->Eventlog.add( M->SDS_ID, STOP_STARECORD_KEY);
     }
@@ -371,7 +423,7 @@ auto toggle_store_sta( MainWindow* M, uint8_t ID )
     {
         M->Eventlog.add( M->SDS_ID, STORESOUNDKEY);
     }
-    M->cb_store_sta_vec[ ID ].cb->setChecked( false );
+    M->cb_store_sta_vec[ id ].cb->setChecked( false );
 };
 
 void MainWindow::toggle_store_sta0()
@@ -410,9 +462,9 @@ void MainWindow::toggle_store_sta7()
 
 void MainWindow::memory_clear()
 {
-	for( uint id : Mixer_base::StAMemIds )
+	for( uint id : StAMemIds )
 	{
-		*cb_filld_sta_vec[id].state = false;
+		*cb_filled_sta_vec[id].state = false;
 	}
     Eventlog.add( SDS_ID, CLEAR_KEY );
 }
@@ -427,35 +479,35 @@ void MainWindow::mixer_slider( sl_value_t map )
 
 void MainWindow::Sl_mix0( int value )
 {
-	mixer_slider( sl_sta_vec[0] );
+	mixer_slider( sl_sta_vec[STA_USER00] );
 };
 void MainWindow::Sl_mix1( int value )
 {
-	mixer_slider( sl_sta_vec[1] );
+	mixer_slider( sl_sta_vec[STA_USER01] );
 };
 void MainWindow::Sl_mix2( int value )
 {
-	mixer_slider( sl_sta_vec[2] );
+	mixer_slider( sl_sta_vec[STA_USER02] );
 };
 void MainWindow::Sl_mix3( int value )
 {
-	mixer_slider( sl_sta_vec[3] );
+	mixer_slider( sl_sta_vec[STA_USER03] );
 };
 void MainWindow::Sl_mix4( int value )
 {
-	mixer_slider( sl_sta_vec[4] );
+	mixer_slider( sl_sta_vec[STA_INSTRUMENT] );
 };
 void MainWindow::Sl_mix5( int value )
 {
-	mixer_slider( sl_sta_vec[5] );
+	mixer_slider( sl_sta_vec[STA_KEYBOARD] );
 };
 void MainWindow::Sl_mix6( int value )
 {
-	mixer_slider( sl_sta_vec[6] );
+	mixer_slider( sl_sta_vec[STA_NOTES] );
 };
 void MainWindow::Sl_mix7( int value )
 {
-	mixer_slider( sl_sta_vec[7] );
+	mixer_slider( sl_sta_vec[STA_EXTERNAL] );
 };
 
 void MainWindow::slideVol( int value )
@@ -547,7 +599,7 @@ void MainWindow::Slider_FMO_Adjust( int value )
 void MainWindow::start_composer()
 {
 
-    string Start_Composer = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.composer_bin, "" );
+    string Start_Composer = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->composer_bin, "" );
 	System_execute( Start_Composer );
 }
 
@@ -562,8 +614,8 @@ void MainWindow::start_audio_srv()
 		return;
 	}
 
-    string Start_Audio_Srv = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.audio_bin,
-			" > " + fs.nohup_file);
+    string Start_Audio_Srv = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs->audio_bin,
+			" > " + fs->nohup_file);
 
 	System_execute( Start_Audio_Srv.data() );
 
@@ -593,7 +645,7 @@ void MainWindow::start_synthesizer()
 	}
 	else
 	{
-		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs.synth_bin," >> " + fs.nohup_file );
+		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs->synth_bin," >> " + fs->nohup_file );
 		uint8_t sdsid = start_synth( this, cmd );
 		select_Sds(sdsid);
 	}
@@ -607,7 +659,7 @@ void MainWindow::start_keyboard()
 	}
 	else
 	{
-		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs.Keyboard_bin, "" );
+		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->Keyboard_bin, "" );
 		int sdsid = start_synth( this, cmd );
 		select_Sds(sdsid);
 	}
@@ -636,7 +688,7 @@ void MainWindow::Save_Config()
 	Eventlog.add( SDS_ID, SAVEINSTRUMENTKEY);
 }
 
-auto connect_secundary = [  ]( MainWindow* M, OscId_t oscid, OscId_t secid, char mode, bool val )
+auto connect_secundary = [  ]( MainWindow* M, OSCID_e oscid, OSCID_e secid, char mode, bool val )
 {
 	if ( mode == CONF )
 	{
@@ -680,11 +732,12 @@ void MainWindow::get_record_status( )
 
 void MainWindow::SaveRecord() // TODO no yet ready
 {
-	if( ui->cb_overwrite->isChecked() )
-		Sds->Set( sds_master->FileNo ,(uint8_t) 1 ); // take filename from the Other-cstring
-	else
-		Sds->Set( sds_master->FileNo ,(uint8_t) 0 ); // 0=automatic numbering
 
+	if( ui->cb_overwrite->isChecked() )
+		Sds->Set( sds_master->FileNo, 0_uint ); // take filename from the Other-cstring
+	else
+		Sds->Set( sds_master->FileNo ,1_uint ); // 1=automatic numbering
+	// see also: Config.MAXWAVFILES, fs->counter_file
 
     if ( sds_master->Record_state == sdsstate_struct::RECORDING )
     {
@@ -699,8 +752,9 @@ void MainWindow::SaveRecord() // TODO no yet ready
 
 void MainWindow::pB_Debug_clicked()
 {
-    uint8_t counter = ( Sds->addr->WD_status.wd_mode + 1 ) % WD_MODE_SIZE;
-    Sds->Set( Sds->addr->WD_status.wd_mode , counter);
+    uint8_t counter = Sds->addr->WD_status.wd_mode;
+	counter = ( counter + 1 ) % WD_MODE_SIZE;
+    Sds->Set( Sds->addr->WD_status.wd_mode , (WdModeID_t)counter );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
 
     ui->pB_wd_mode->setText( Qwd_wdmode_names[ (int)counter ] );
@@ -708,18 +762,19 @@ void MainWindow::pB_Debug_clicked()
 
 void MainWindow::pB_oscgroup_clicked()
 {
-    OscId_t counter = Sds->addr->WD_status.oscId++ ;
-    Sds->Set( Sds->addr->WD_status.oscId, (OscId_t) (counter % WD_OSC_SIZE ) );
+    uint8_t counter = Sds->addr->WD_status.oscId ;
+	counter = ( counter + 1 ) % WD_OSC_SIZE;
+    Sds->Set( Sds->addr->WD_status.oscId, (OSCID_e)counter );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
     ui->pB_oscgroup->setText( Qwd_osc_names[ (int)counter ] );
 }
 
-
 void MainWindow::pB_Wavedisplay_clicked()
 {
-	OscroleId_t counter = Sds->addr->WD_status.roleId++ ;// ) % WD_ROLES_SIZE;
-    Sds->Set( Sds->addr->WD_status.roleId , (OscroleId_t) (counter % WD_ROLES_SIZE ));
+	uint8_t counter = Sds->addr->WD_status.roleId ;
+	counter = ( counter + 1 ) % WD_ROLES_SIZE;
+    Sds->Set( Sds->addr->WD_status.roleId , (OscroleId_t) counter );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
     ui->pB_Wavedisplay->setText( Qwd_role_names[ counter ] );
@@ -794,7 +849,7 @@ void MainWindow::setwidgetvalues()
     ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ] );
     ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ] );
 	if( Rtsp_Dialog_p->isVisible() )
-		Rtsp_Dialog_p->proc_table_update_all();
+		Rtsp_Dialog_p->Proc_table_update_all();
 
 
    	ui->cB_Capture->setCurrentText( QCapture_str_lst[ Eventlog.capture_state ] );

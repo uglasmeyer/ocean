@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>352</width>
-    <height>341</height>
+    <width>360</width>
+    <height>373</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -525,10 +525,10 @@
    <item row="12" column="0">
     <widget class="QSpinBox" name="sB_Octave">
      <property name="minimum">
-      <number>0</number>
+      <number>-2</number>
      </property>
      <property name="maximum">
-      <number>5</number>
+      <number>2</number>
      </property>
     </widget>
    </item>

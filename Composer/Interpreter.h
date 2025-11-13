@@ -18,16 +18,44 @@
 #include <Variation.h>
 #include <String.h>
 #include <Frequency.h>
-#include "../Composer/Processor.h"
+#include "Composer/Processor.h"
 
 typedef struct line_struct
 {
-	uint no 	= 0;
-	string name	{} ; // filename
-	string line	{} ; // line string
-	string keyw {} ; // keyword
-	string arg1 {} ;
+	int				Id	= 0; // Program Position
+	uint 			no	= 0; // filename line no.
+	string 			name; // filename
+	string 			line; // program line string
+	string 			keyw; // keyword
+	string 			arg1; // unused
+	vector_str_t	args; // program line arr
+
+	line_struct( uint _no, string _line, string _name = "" )
+	{
+		no		= _no;
+		line 	= _line;
+		name	= ( _name.length() > 0 ) ? filesystem::path(_name).stem() : "stdin" ;
+		String Str { _line };
+		Str.replace_comment();
+		Str.replace_char('\t' , ' ');
+		args 	= Str.to_unique_array( ' ' );
+		keyw 	= ( args.size() > 0 ) ? args[0] : "";
+		Str.to_lower( keyw );
+	}
+	void show()
+	{
+		cout 	<< dec << left
+				<< setw( 4) << no << ":"
+				<< setw(16) << name
+				<< setw(60) << line
+				<<endl;
+	}
 } line_struct_t;
+typedef vector<line_struct_t> 	program_vec_t;
+
+#include <Logfacility.h>
+
+
 
 const set<string> Keywords {
 						"add",
@@ -51,24 +79,28 @@ const set<string> Keywords {
 
 /*
 */
-
+/**************************************************
+ * Interpreter_class
+ *************************************************/
 class Interpreter_class
 	: virtual 			Logfacility_class
 	, virtual 			osc_struct
 	, virtual public 	Processor_class
 	, virtual 			Device_class
+	, virtual			oscwaveform_struct
 //	,					sdsstate_struct
+
 {
 	string			className = "";
 	typedef struct view_struct
 	{
 		string 		name 	= "none";
 		uint8_t		oscid	= 0;
-		EVENTKEY_t 	wfkey	= NULLKEY;
+		EVENTKEY_e 	wfkey	= NULLKEY;
 		uint8_t*	wf		= nullptr;
-		EVENTKEY_t	ampkey	= NULLKEY;
+		EVENTKEY_e	ampkey	= NULLKEY;
 		uint8_t* 	amp		= nullptr;
-		EVENTKEY_t	freqkey	= NULLKEY;
+		EVENTKEY_e	freqkey	= NULLKEY;
 		uint8_t*	frqidx	= nullptr;
 
 	} view_struct_t;
@@ -85,14 +117,14 @@ public:
 	Config_class*		Cfg;
 	file_structure*		fs;
 	interface_t* 		sds;
-	Variation_class Variation{};
+	Variation_class 	Variation;
 	view_struct_t main_view, fmo_view, vco_view;
 
 	String Str{""};
 	string cmdline = "";
 	string option_default = "";
 	bool 	dialog_mode = false;
-
+	bool	CompilerExit= false;
 
 	int error = 0;
 	int duration = 0;
@@ -118,11 +150,13 @@ public:
 	void Add( vector_str_t );
 	void Addvariable( vector_str_t );
 	vector_str_t InsertVariable( vector_str_t );
-	int  Find_position( vector<line_struct_t>*, vector_str_t );
+	int  Find_position( const program_vec_t& program, vector_str_t );
 	void Set_dialog_mode( bool );
 	bool Exit();
 	void Set( vector_str_t );
 	void Clear_stack();
+	bool Check_input( string keyword );
+
 	void Test(  );
 
 private:
@@ -134,17 +168,58 @@ private:
 	bool 	testrun 	= false;
 	bool	testreturn 	= false;
 
-	void 	Loop( int , EVENTKEY_t   );
+	void 	Loop( uint8_t , EVENTKEY_e   );
 	bool 	check_count( vector_str_t, size_t );
 	string 	pop_stack( int );
 	bool	set_stack( vector_str_t, uint );
-	int 	pop_int( int, int );
 	void 	show_expected(  );
 	void 	check_file( vector_str_t, string );
 	bool 	no_error( int );
 	void 	intro( vector_str_t, uint );
 	void 	osc_view( view_struct_t, vector_str_t );
 	bool	cmpkeyword ( const string&  );
+
+	template <typename T >
+		T pop_T( range_T<T> range );
+};
+
+
+/**************************************************
+ * Composer_class
+ *************************************************/
+class Composer_class :
+	virtual public Logfacility_class
+{
+	string 					className 		= "";
+	Dataworld_class*		DaTA			;
+	Config_class*			Cfg				;
+	Interpreter_class*		Interpreter		;
+	vector<int>				pos_stack 		{};
+
+
+public:
+	program_vec_t			Program;
+
+	Composer_class( Dataworld_class* data, Interpreter_class* interpreter ) :
+		Logfacility_class("Compiler_class")
+	{
+		className 			= Logfacility_class::className;
+		this->DaTA			= data;
+		this->Cfg			= DaTA->Cfg_p;
+		this->Interpreter	= interpreter;
+	};
+	virtual ~Composer_class()
+	{
+		DESTRUCTOR( className );
+	};
+	bool				Compile			();
+	bool 				PreCompile		( string batch_file );
+	bool				Interprete		( line_struct_t program_line );
+	int 				SetProgramCursor( const program_vec_t& program, line_struct prgLine );
+
+private:
+	int 				return_pos		( int pos );
+	int 				call_pos		( int pos, const program_vec_t& program );
 
 };
 

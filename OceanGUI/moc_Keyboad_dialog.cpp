@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Keyboad_dialog.h'
 **
-** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -17,8 +17,8 @@
 #include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Keyboad_dialog.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 68
-#error "This file was generated using the moc from 6.8.3. It"
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.9.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -34,87 +34,63 @@ namespace {
 struct qt_meta_tag_ZN20Keyboad_Dialog_classE_t {};
 } // unnamed namespace
 
+template <> constexpr inline auto Keyboad_Dialog_class::qt_create_metaobjectdata<qt_meta_tag_ZN20Keyboad_Dialog_classE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "Keyboad_Dialog_class",
+        "buffer_mode",
+        "",
+        "base_octave",
+        "flats",
+        "sharps",
+        "decay_mode",
+        "sliding_mode",
+        "save"
+    };
 
-#ifdef QT_MOC_HAS_STRINGDATA
-static constexpr auto qt_meta_stringdata_ZN20Keyboad_Dialog_classE = QtMocHelpers::stringData(
-    "Keyboad_Dialog_class",
-    "buffer_mode",
-    "",
-    "base_octave",
-    "flats",
-    "sharps",
-    "decay_mode",
-    "sliding_mode",
-    "save"
-);
-#else  // !QT_MOC_HAS_STRINGDATA
-#error "qtmochelpers.h not found or too old."
-#endif // !QT_MOC_HAS_STRINGDATA
-
-Q_CONSTINIT static const uint qt_meta_data_ZN20Keyboad_Dialog_classE[] = {
-
- // content:
-      12,       // revision
-       0,       // classname
-       0,    0, // classinfo
-       7,   14, // methods
-       0,    0, // properties
-       0,    0, // enums/sets
-       0,    0, // constructors
-       0,       // flags
-       0,       // signalCount
-
- // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    1,   56,    2, 0x08,    1 /* Private */,
-       3,    1,   59,    2, 0x08,    3 /* Private */,
-       4,    1,   62,    2, 0x08,    5 /* Private */,
-       5,    1,   65,    2, 0x08,    7 /* Private */,
-       6,    1,   68,    2, 0x08,    9 /* Private */,
-       7,    1,   71,    2, 0x08,   11 /* Private */,
-       8,    0,   74,    2, 0x08,   13 /* Private */,
-
- // slots: parameters
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Bool,    2,
-    QMetaType::Void, QMetaType::Bool,    2,
-    QMetaType::Void,
-
-       0        // eod
-};
-
+    QtMocHelpers::UintData qt_methods {
+        // Slot 'buffer_mode'
+        QtMocHelpers::SlotData<void(int)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'base_octave'
+        QtMocHelpers::SlotData<void(int)>(3, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'flats'
+        QtMocHelpers::SlotData<void(int)>(4, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'sharps'
+        QtMocHelpers::SlotData<void(int)>(5, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'decay_mode'
+        QtMocHelpers::SlotData<void(bool)>(6, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 2 },
+        }}),
+        // Slot 'sliding_mode'
+        QtMocHelpers::SlotData<void(bool)>(7, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 2 },
+        }}),
+        // Slot 'save'
+        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<Keyboad_Dialog_class, qt_meta_tag_ZN20Keyboad_Dialog_classE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
 Q_CONSTINIT const QMetaObject Keyboad_Dialog_class::staticMetaObject = { {
     QMetaObject::SuperData::link<QDialog::staticMetaObject>(),
-    qt_meta_stringdata_ZN20Keyboad_Dialog_classE.offsetsAndSizes,
-    qt_meta_data_ZN20Keyboad_Dialog_classE,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN20Keyboad_Dialog_classE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN20Keyboad_Dialog_classE_t>.data,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_tag_ZN20Keyboad_Dialog_classE_t,
-        // Q_OBJECT / Q_GADGET
-        QtPrivate::TypeAndForceComplete<Keyboad_Dialog_class, std::true_type>,
-        // method 'buffer_mode'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'base_octave'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'flats'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'sharps'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'decay_mode'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'sliding_mode'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'save'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>
-    >,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN20Keyboad_Dialog_classE_t>.metaTypes,
     nullptr
 } };
 
@@ -143,7 +119,7 @@ const QMetaObject *Keyboad_Dialog_class::metaObject() const
 void *Keyboad_Dialog_class::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_ZN20Keyboad_Dialog_classE.stringdata0))
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN20Keyboad_Dialog_classE_t>.strings))
         return static_cast<void*>(this);
     return QDialog::qt_metacast(_clname);
 }

@@ -22,19 +22,20 @@ OszilloscopeWidget::OszilloscopeWidget( interface_t* ifd, QRectF rectangle)
     this->update();
 };
 
-void OszilloscopeWidget::paint(QPainter *painter,
-                               const QStyleOptionGraphicsItem *option,
-                               QWidget *widget)
+void OszilloscopeWidget::paint(QPainter* painter,
+                               const QStyleOptionGraphicsItem* option,
+                               QWidget* widget)
 {
     QGraphicsPolygonItem polygon_item;
     painter->drawRect( drawregion );
     polygon_item.setPolygon( polygon);
     polygon_item.paint( painter, option, widget);
 
-    if ( sds->WD_status.wd_mode == wavedisplay_struct::DEBUGID )
+    int cursor = (int)sds->WD_status.cursor;
+    if ( cursor > 0  )
     {
-    	painter->setPen(QPen(Qt::black, 2, Qt::DashDotLine, Qt::RoundCap));
-    	painter->drawLine( 256, 0, 256, height);
+    	painter->setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap));
+    	painter->drawLine( cursor, 0, cursor, height);
     }
 
 }

@@ -47,17 +47,15 @@ void SynthesizerTestCases()
 	Log.Set_Loglevel( TEST, true );
 
 
-	process_t				Process			{};
-	file_structure			fs				{};
-	Config_class			Cfg				{ Process.name, &fs };
+	Config_class			Cfg				{};
 	Semaphore_class			Sem				{ Cfg.Config.Sem_key };
-	Dataworld_class 		DaTA			{ Process.AppId, &Cfg, &Sem };
+	Dataworld_class 		DaTA			{ &Cfg, &Sem };
 	interface_t*			sds				= DaTA.GetSdsAddr();
 	DaTA.Sds_p->Reset_ifd();
 
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
-	Instrument_class 		Instrument( sds, wd_p );
+	Instrument_class 		Instrument( sds, wd_p, Cfg.fs );
 
 	Application_class		App( &DaTA );
 	Mixer_class				Mixer{&DaTA, wd_p };
@@ -76,8 +74,8 @@ void SynthesizerTestCases()
 	Cfg.Test();
 	DaTA.Sds_p->Reset_ifd();
 
-	Shm_base Shm_test;
-	Shm_test.Test_Memory();
+//	Shm_base Shm_test;
+	DaTA.SHM_0.Test_Memory();
 	Frequency_class Frq {};
 	Frq.TestFrequency();
 
@@ -113,7 +111,7 @@ void SynthesizerTestCases()
 
 	Notes.TestNoteBase();
 
-	Notes.Test();
+//	Notes.TestNotes();
 	MusicXML.Test();
 
 	TestOsc.DynFrequency.TestFrq();

@@ -23,30 +23,34 @@ class Note_class
 		, virtual public Note_base
 {
 	string 				className 	= "";
-	Instrument_class*	instrument 	;
-	Storage_class*		StA			;
+	Instrument_class*	instrument 	= nullptr;
+	Storage_class*		StA			= nullptr;
 
 public:
-	Oscgroup_class	Oscgroup				{ NOTESROLE, 2*monobuffer_bytes };
-	Oscillator*		osc						= &Oscgroup.osc;
-	Oscillator*		vco						= &Oscgroup.vco;
-	Oscillator*		fmo						= &Oscgroup.fmo;
-	Oscillator*		Osc						= &Oscgroup.osc;
+	Oscgroup_class		Oscgroup				{ NOTESROLE, 2*monobuffer_bytes };
+	Oscillator*			osc						= &Oscgroup.osc;
+	Oscillator*			vco						= &Oscgroup.vco;
+	Oscillator*			fmo						= &Oscgroup.fmo;
+	Oscillator*			Osc						= &Oscgroup.osc;
+	file_structure*		fs						= nullptr;
+	Wavedisplay_class*	wd						= nullptr;
+	Scanner_class*		scanner					= nullptr;
+	string				Instrument_name 		{ "" };
+	Trigger_class		Note_itr_start			;
+	Trigger_class		Note_itr_end			;
+	uint8_t 			Octave					= nlp_default.Octave; // 55
 
-	string			Instrument_name 		{ "" };
-	Trigger_class	Note_itr_start			;
-	Trigger_class	Note_itr_end			;
-	uint8_t 		Octave					= noteline_prefix_default.Octave; // 55
+	Dynamic_class		DynFrequency			{ frqarr_range };
 
-	Dynamic_class	DynFrequency			{ frqarr_range };
-
-	Data_t*			NotesData				= osc->MemData_p( );
-	interface_t*	sds						= nullptr;
+	Data_t*				NotesData				= osc->MemData_p( );
+	interface_t*		sds						= nullptr;
 
 					Note_class				( Instrument_class* instr,
-											Storage_class*	sta); 	// used by notes (Synthesizer)
-					Note_class				( ); 							// used by Variation (Composer)
-					Note_class				( interface_t* sds ); 		// used by File_dialog (OceanGUI)
+											Storage_class*	sta);// used by notes (Synthesizer)
+					Note_class				( ); 				// used by Musicxcl
+					Note_class				( file_structure* fs );// variation
+					Note_class				( interface_t* sds,
+											Config_class* cfg  ); // used by File_dialog (OceanGUI)
 	virtual			~Note_class				();
 
 
@@ -56,6 +60,8 @@ public:
 	string 			Get_rhythm_line 		();
 	void 			Set_rhythm_line			(string );
 	bool			Set_notes_per_second	( int );
+	void			Set_noteline_prefix		( noteline_prefix_struct nlp );
+
 	void			LoadMusicxml			( const string& file );
 	bool			Generate_cyclic_data	();
 	bool 			Generate_volatile_data	( bool init = false );
@@ -71,13 +77,15 @@ public:
 	void 			Align_measure			( noteline_prefix_t prefix,
 											string& noteline );
 
-	void 			Test					();
+	void 			TestNotes					();
 	void			Show_note				( note_t, bool debug=false );
 
 	bool 			Start_note_itr			();
 	note_t			Char2note				( char& ch );
 
 	void			Set_notelist			( const notelist_t& notelist );
+
+
 	Table_class 	Note_table 				{ };
 
 	template< class Class>

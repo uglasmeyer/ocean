@@ -11,7 +11,7 @@
 #include <Ocean.h>
 #include <Utilities.h>
 
-#define coutf cout.flush()
+#define coutf 			cout.flush()
 
 template< typename T >
 constexpr bool isTTY ( const T io )

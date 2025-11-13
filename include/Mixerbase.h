@@ -5,16 +5,14 @@
  *      Author: sirius
  */
 
-#include <data/Memory.h>
-#include <Ocean.h>
-
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_
 
+//#include <data/Memorybase.h>
 
-enum STAID
+enum STAID_e : unsigned char
 {
-	STA_USER00,
+	STA_USER00 = 0,
 	STA_USER01,
 	STA_USER02,
 	STA_USER03,
@@ -25,8 +23,7 @@ enum STAID
 	STA_SIZE
 };
 
-template<typename T>
-constexpr string 	StAIdName( const T& sta_id )
+constexpr string StAIdName( STAID_e sta_id )
 {
 	switch ( sta_id )
 	{
@@ -43,44 +40,32 @@ constexpr string 	StAIdName( const T& sta_id )
 							return "";
 							};
 	}
+	return "";
 }
+typedef array<STAID_e, STAID_e::STA_SIZE> 	StAarray_t; //SDS related
 
-typedef array<uint8_t, STA_SIZE> StAarray_t; //SDS related
-
-constexpr StAarray_t genMemIds()
+const 	StAarray_t 	StAMemIds =
 {
-	StAarray_t a{};
-	std::iota(a.begin(), a.end(), 0 );
-	return a;
+	STA_USER00,
+	STA_USER01,
+	STA_USER02,
+	STA_USER03,
+	STA_INSTRUMENT,
+	STA_KEYBOARD,
+	STA_NOTES,
+	STA_EXTERNAL
 };
+const range_T<STAID_e> staid_range{ (STAID_e)0, STA_SIZE };
 
-class Mixer_base
-{
-public:
-	Mixer_base(){};
-	~Mixer_base(){};
-
-	struct mixer_state_struct
-	{
-		// SDS structure
-		bool 	sync			= true; // explicite sync mode
-		bool 	notes			= false; // play notes
-		bool 	external		= false; // external play or record
-		bool	mute			= false; // mute master volume
-		bool	kbd				= false; // play keyboard note
-		bool	instrument		= true; // play instrument
-	} ;
-
-	static constexpr StAarray_t StAMemIds = genMemIds();
-
-	typedef	array< StA_state_t	, STA_SIZE>	StA_state_arr_t;
-}; /*Mixer_base*/
-
-
-typedef 	Mixer_base::mixer_state_struct 	mixer_state_t;
-const 		mixer_state_t					default_mixer_state = Mixer_base::mixer_state_struct();
-typedef		Mixer_base::StA_state_arr_t		StA_state_arr_t;
-constexpr	StA_state_t 					default_StA_state 	= StA_state_struct();
-
+struct mixer_state_struct
+{	// SDS related
+	bool 	sync			= true; // explicite sync mode
+	bool 	notes			= false; // play notes
+	bool 	external		= false; // external play or record
+	bool	mute			= false; // mute master volume
+	bool	kbd				= false; // play keyboard note
+	bool	instrument		= true; // play instrument
+} ;
+typedef 	mixer_state_struct 	mixer_state_t;
 
 #endif /* MIXERBASE_H_ */

@@ -17,45 +17,49 @@ class Wavedisplay_class :
 					wavedisplay_struct,
 	virtual public 	osc_struct
 {
-	Interface_class* Sds_p = nullptr;
+	Interface_class* Sds_p 			= nullptr;
 
 public:
 
-	Wavedisplay_class( Interface_class* sds );
-	virtual ~Wavedisplay_class(){};
+					Wavedisplay_class( Interface_class* sds );
+	virtual 		~Wavedisplay_class() = default;
 
-	void Add_role_ptr	( 	const char& wd_role,
-							Data_t* 	ptr,
-							buffer_t* 	wd_frames );
-	void Add_data_ptr	( 	const char& wd_type,
-							const char& wd_role,
-							Data_t* 	ptr,
-							buffer_t* 	wd_frames );
-	void SetDataPtr		( const wd_status_t& status  );
-	void Write_wavedata ( );
+	void 			Add_role_ptr	( 	OscroleId_t wd_role,
+									Data_t* 	ptr,
+									buffer_t* 	wd_frames );
+	void 			Add_data_ptr	( 	const char& wd_type,
+									OscroleId_t wd_role,
+									Data_t* 	ptr,
+									buffer_t* 	wd_frames );
+	void 			SetDataPtr		( const WD_data_t& status  );
+	void 			Write_wavedata 	();
+	void 			Set_wdcursor	(int pos, int max );
+
 
 private:
-	void set_wdmode		( const char& mode );
-	void setFFTmode		( const bool& mode );
+	void 			set_wdmode		( const WdModeID_t& mode );
+	void 			setFFTmode		( const bool& mode );
+	void 			set_wdcursor	( uint16_t pos );
+
 	string 			className		= "";
 	int 			frame_counter	= 0;
 	int 			index_counter	= 0;
 	buffer_t 		offs 			= 0;
 	size_t 			wdId 			= 0;
 	size_t			osId			= 0;
-	int 			WdMode			= wavedisplay_struct::FULLID;
-	struct wd_data_struct
+	WdModeID_t		WdMode			= wavedisplay_struct::FULLID;
+	struct wd_ptr_struct
 	{
 		Data_t* 	ptr		= nullptr;
 		buffer_t* 	frames	= nullptr;
 	};
 
-	typedef 		wd_data_struct 	wd_data_t;
-	array< array< wd_data_t , WD_OSC_SIZE>,  WD_ROLES_SIZE >
+	typedef 		wd_ptr_struct 	wd_ptr_t;
+	array< array< wd_ptr_t , WD_OSC_SIZE>,  WD_ROLES_SIZE >
 					data_ptr_mtx 	;
 	Data_t*			data_ptr 		= nullptr;
 	buffer_t		wd_frames		= 0;
-	wd_status_t		wd_status		= WD_status_struct();
+	WD_data_t		wd_status		= WD_data_struct();
 //	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_right		= true;
 	bool			fft_mode		= false;

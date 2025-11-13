@@ -194,7 +194,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.1736116305.1130890336." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.147047813" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.exe.release" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.1841592260" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-							<builder buildPath="${workspace_loc:/Ocean}/Shlib" id="cdt.managedbuild.target.gnu.builder.exe.release.13097576" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<builder buildPath="${workspace_loc:/Ocean}/Shlib" enableAutoBuild="false" enableCleanBuild="true" id="cdt.managedbuild.target.gnu.builder.exe.release.1622897913" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1265083005" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
 								<option id="gnu.both.lib.option.flags.595644140" name="Archiver flags" superClass="gnu.both.lib.option.flags" value="-r -v" valueType="string"/>
 							</tool>

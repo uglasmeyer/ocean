@@ -11,11 +11,9 @@
 #include <Appsymbols.h>
 #include <Composer/Interpreter.h>
 
-Interpreter_class 		Compiler( &App );
-Variation_class 		Variation;
-vector<int>				pos_stack {};
-String 					Str{""};
-vector<line_struct_t> 	Program;
+Interpreter_class 		Interpreter( &App );
+Composer_class			Composer{ &DaTA, &Interpreter };
+
 Statistic_class			Statistic{ Log.className };
 
 

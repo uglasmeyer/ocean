@@ -22,6 +22,7 @@ class ViewInterface_class
 	, virtual public	ADSR_class
 	, AppMap_struct
 	, wavedisplay_struct
+
 {
 	string 				className 	= "";
 	int					counter		= 0;
@@ -33,6 +34,8 @@ class ViewInterface_class
 public:
 	Appstate_class		Appstate	;
 	Dataworld_class*	DaTA;
+	Kbd_base			Kbd			{};
+	keymap_struct		Keymap		{};
 
 			ViewInterface_class( APPID appid, Dataworld_class* DaTA );
 	virtual ~ViewInterface_class() = default;
@@ -56,8 +59,10 @@ private:
 	void 	show_system();
 
 
-	void	printHeader();
+	void	printHeader( KEYCODE keycode );
 	void 	printFooter();
+	void 	set_sds( interface_t* sds );
+
 
 	void 	selfTest();
 

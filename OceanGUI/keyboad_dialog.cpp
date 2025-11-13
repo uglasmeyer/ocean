@@ -36,7 +36,7 @@ Keyboad_Dialog_class::~Keyboad_Dialog_class()
 
 void Keyboad_Dialog_class::buffer_mode( int value )
 {
-	Sds->Set( sds_p->StA_state[ STA_KEYBOARD ].forget, (bool)value );
+	Sds->Set( sds_p->StA_state_arr[ STA_KEYBOARD ].forget, (bool)value );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
@@ -77,7 +77,7 @@ void Keyboad_Dialog_class::Setup_Widget()
 {
 	stringstream strs{};
 	strs << setprecision(5) << sds_p->Kbd_state.frq ;
-	char bmode = (char)sds_p->StA_state[ STA_KEYBOARD ].forget;
+	char bmode = (char)sds_p->StA_state_arr[ STA_KEYBOARD ].forget;
 	ui->cB_buffer_mode->setCurrentIndex( bmode );
 	ui->cb_decay_mode->setChecked( sds_p->Kbd_state.ADSR_flag );
 	ui->cb_sliding_mode->setChecked( sds_p->Kbd_state.sliding);

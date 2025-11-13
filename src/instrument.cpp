@@ -9,7 +9,7 @@
 #include <Instrument.h>
 #include <System.h>
 
-Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
+Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p, file_structure* fs )
 	: Logfacility_class("Instrument_class")
 	, Device_class( _sds )
 {
@@ -17,6 +17,10 @@ Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p )
 	className				= Logfacility_class::className;
 
 	this->wd_p 				= _wd_p;
+	this->fs				= fs;
+	Default_instrument_file = fs->instrumentdir + fs->default_snd;
+	instr_ext 				= fs->snd_type;
+
 	Oscgroup.SetWd( this->wd_p );
 	selfTest();
 }
@@ -82,18 +86,18 @@ void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
 void Instrument_class::set_new_name( string name )
 {
 	Name 				= name;
-	Instrument_file 	= fs.instrumentdir + Name + instr_ext;
+	Instrument_file 	= fs->instrumentdir + Name + instr_ext;
 	Comment( INFO, "Instrument Name: " + Name );
 }
 
 void Instrument_class::set_name( string name )
 {
-	Instrument_file 	= fs.instrumentdir + name + instr_ext;
+	Instrument_file 	= fs->instrumentdir + name + instr_ext;
 	if ( filesystem::exists( Instrument_file ) )
 		Name 			= name;
 	else
 	{
-		Name 			= fs.default_name;
+		Name 			= fs->default_name;
 		Instrument_file = Default_instrument_file;
 	}
 	Comment( INFO, "Instrument Name: " + Name );
@@ -283,7 +287,7 @@ bool Instrument_class::read_version1( fstream* File )
 
 bool Instrument_class::read_version2( fstream* File )
 {
-	auto get_con = [ this ]( connectId_t con, OscId_t secid, char mode )
+	auto get_con = [ this ]( connectId_t con, OSCID_e secid, char mode )
 	{
 		switch (mode)
 		{
@@ -337,7 +341,7 @@ bool Instrument_class::read_version2( fstream* File )
 		}
 		if ( strEqual( "CON", Type ))
 		{
-			OscId_t	secid 	= Oscgroup.Get_oscid_by_name( arr[2] );
+			OSCID_e	secid 	= Oscgroup.Get_oscid_by_name( arr[2] );
 			char 	mode 	= arr[3][0];
 			connectId_t con_tmp = sds->connect_arr[oscid];
 			sds->connect_arr[oscid] = get_con( con_tmp, secid, mode );

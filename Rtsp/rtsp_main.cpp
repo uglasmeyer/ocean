@@ -11,25 +11,25 @@
 void Start_audioserver()
 {
     string Start_Audio_Srv = Cfg.Server_cmd( 	Cfg.Config.Nohup,
-    											fs.audio_bin,
+    											Cfg.fs->audio_bin,
 												"-S 0 2>&1 >> " +
-												fs.nohup_file );
+												Cfg.fs->nohup_file );
 	System_execute( Start_Audio_Srv );
 }
 
 void Start_synthesizer( uint cfgid )
 {
     string Start_Synthesizer = Cfg.Server_cmd( Cfg.Config.Nohup,
-    											fs.synth_bin,
+    											Cfg.fs->synth_bin,
 												" -S " + to_string( cfgid ) +
-												" 2>&1 > "  + fs.nohup_file);
+												" 2>&1 > "  + Cfg.fs->nohup_file);
     System_execute( Start_Synthesizer );
 
 }
 
 void Start_gui()
 {
-    string Start_GUI = fs.ocean_bin + " &" ;
+    string Start_GUI = Cfg.fs->ocean_bin + " &" ;
     System_execute( Start_GUI );
     Log.Comment( INFO, Start_GUI );
 }

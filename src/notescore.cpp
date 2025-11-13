@@ -45,7 +45,7 @@ void Note_class::Set_notelist( const notelist_t& nlst )
 {
 	notelist = nlst;
 
-	Noteline_prefix = noteline_prefix_default;
+	Noteline_prefix = nlp_default;
 	Noteline_prefix.Octave = 0;
 //	add_volume( note_itr );
 	Show_note_list( nlst );
@@ -167,6 +167,7 @@ void Note_class::Set_prefix_octave( int oct )
 	if ( not OctaveChars.Set.contains( oct_ch ) ) return; // (nil)
 	Noteline_prefix.Octave = oct;
 	Octave = oct;
+
 }
 
 size_t Note_class::position_parser(  size_t pos )

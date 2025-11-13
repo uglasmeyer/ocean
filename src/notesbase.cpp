@@ -56,19 +56,14 @@ noteline_prefix_t Note_base::Set_base_octave( uint diff )
 {
 	int8_t 				change	= 2 * diff -1; // diff=0 or 1
 	noteline_prefix_t 	nlp 	= Noteline_prefix;
-	int 				oct = check_range( 	octave_range,
+	int 				oct 	= check_range( 	octave_range,
 								Noteline_prefix.Octave + change,
 								"Set_base_octave" );
-	nlp.octave_shift 		= oct - nlp.Octave;
-	Set_noteline_prefix( nlp );
+	nlp.octave_shift 			= oct - nlp.Octave;
+//	Set_noteline_prefix( nlp );
 	return nlp;
 }
 
-void Note_base::Set_noteline_prefix( noteline_prefix_t nlp )
-{
-	this->Noteline_prefix = nlp;
-	Show_noteline_prefix( nlp );
-}
 void Note_base::Show_noteline_prefix( noteline_prefix_t nlp )
 {
 	Table_class Table {"Noteline Prefix", 22 };
@@ -104,7 +99,7 @@ noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 		Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
 											to_string( range[1] ) + "}" );
 		if ( LogMask[ TEST ] ) return;
-		EXCEPTION( "Cannot assign noteline_prefix " +
+		Exception( "Cannot assign noteline_prefix " +
 				 to_string( val ) +
 				" to noteline_structure" );//raise( SIGINT );
 	};
@@ -115,8 +110,8 @@ noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 
 	if ( arr.size() < 5 )
 	{
-		if ( LogMask[ TEST ] ) return noteline_prefix_default;
-		EXCEPTION( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
+		if ( LogMask[ TEST ] ) return nlp_default;
+		Exception( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
 	}
 
 	char oct_ch = arr[0][0];
@@ -133,8 +128,8 @@ noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 	char nps_ch = arr[2][0];
 	if ( not NpsChars.Set.contains( nps_ch ) )
 	{
-		if ( LogMask[ TEST ] ) return noteline_prefix_default;
-		EXCEPTION( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
+		if ( LogMask[ TEST ] ) return nlp_default;
+		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
 	}
 	else
 		nlp.nps = char2int( nps_ch );
@@ -173,8 +168,8 @@ void Note_base::TestNoteBase()
 
 	TEST_START("Notes_base");
 
-	Show_noteline_prefix( noteline_prefix_default );
-	Comment( TEST, Noteline_prefix_to_string( noteline_prefix_default ));
+	Show_noteline_prefix( nlp_default );
+	Comment( TEST, Noteline_prefix_to_string( nlp_default ));
 	string nlp_str = "2,1,4,0,0,0,0";
 	noteline_prefix_t nlp = String_to_noteline_prefix(nlp_str);
 	Show_noteline_prefix(nlp);

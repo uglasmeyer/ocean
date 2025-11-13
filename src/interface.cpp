@@ -5,11 +5,7 @@
  *      Author: sirius
  */
 
-#include <bits/stdint-uintn.h>
-#include <Logfacility.h>
 #include <data/Interface.h>
-#include <utility>
-#include <Utilities.h>
 
 appstate_arr_t initAppstate_arr()
 {
@@ -26,7 +22,7 @@ appstate_arr_t initAppstate_arr()
 connect_arr_t initConnect_arr(  )
 {
 	connect_arr_t arr{};
-	for ( OscId_t oscid : oscIds ) // Indexer complains
+	for ( OSCID_e oscid : oscIds ) // Indexer complains
 	{
 		arr[oscid].frq = oscid;
 		arr[oscid].vol = oscid;
@@ -36,11 +32,10 @@ connect_arr_t initConnect_arr(  )
 
 void Interface_class::selfTest( )
 {
-	OscId_t oscid = OSCID;
-	Assert_lt( addr->connect_arr[oscid].frq, NOOSCID, "connect_arr" );
-	APPID appid = AUDIOID;
-	APPID value = Interface_class::addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
-//	for( int i=0;i<10;i++) coutf<<(int)addr->appstate_arr[i].type<<endl;
+	OSCID_e oscid = OSCID_e::OSCID;
+	Assert_lt( addr->connect_arr[oscid].frq, OSCID_e::NOOSCID, "connect_arr" );
+	APPID appid = APPID::AUDIOID;
+	APPID value = addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
 	Assert_equal( value ,  appid );
 }
 Interface_class::Interface_class( 	APPID appid,
@@ -82,7 +77,7 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 	if ( not ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
-		Reset_ifd(  );
+		Reset_ifd( );
 	}
 	Comment( DEBUG, "check shared memory version");
 
@@ -92,7 +87,7 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 		size_t fsize = filesystem::file_size( sds_dump );
 		if ( fsize != sds_size)
 		{
-			EXCEPTION( 	"sds dump size " + to_string( fsize ) +
+			Exception( 	"sds dump size " + to_string( fsize ) +
 						" differs in sizeof sds" +
 						to_string( sds_size ));
 
@@ -105,16 +100,37 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 	else
 	{
 		Comment( ERROR, "Setup SDS failed");
-		EXCEPTION( "IPC version " + to_string( ifd_data.version ) +
+		Exception( "IPC version " + to_string( ifd_data.version ) +
 				" differs from BIN version " + to_string( addr->version )  +
 				" or lib/ifd_data.bin size ");
 	}
 	ds.eexist = true;
 }
 
-
-
-
+void Interface_class::Remove_dumpFile()
+{
+	Remove_file( dumpFile );
+}
+void Interface_class::Copy_dumpFileTo( string dst )
+{
+	filesystem::copy( 	dumpFile ,
+						dst,
+						filesystem::copy_options::overwrite_existing);
+}
+void Interface_class::Copy_dumpFileFrom( string src )
+{
+	filesystem::copy( 	src ,
+						dumpFile,
+						filesystem::copy_options::overwrite_existing);
+}
+void Interface_class::Delete_Shm()
+{
+	SHM.Delete();
+}
+bool Interface_class::Datasegment_exists()
+{
+	return ds.eexist;
+}
 
 void Interface_class::Write_arr( const wd_arr_t& arr )
 {
@@ -128,7 +144,7 @@ void Interface_class::Write_str(const char selector, const string str )
 
 	if ( addr->appstate_arr[ SDSVIEWID ].state == RUNNING )
 		addr->UpdateFlag = true;
-	const string wrt = str.substr(0, str_buffer_len );
+	const string wrt = str.substr(0, SDSSTR_SIZE-1 );
 
 
 	switch ( selector )
@@ -163,7 +179,7 @@ void Interface_class::Write_str(const char selector, const string str )
 }
 
 
-string Interface_class::Read_str( EVENTKEY_t selector )
+string Interface_class::Read_str( EVENTKEY_e selector )
 {
 	string str;
 	switch ( selector )
@@ -197,7 +213,7 @@ string Interface_class::Read_str( EVENTKEY_t selector )
 
 
 
-void Interface_class::Reset_ifd(  )
+void Interface_class::Reset_ifd()
 {
 	// copy default values into sds memory
 
@@ -205,9 +221,10 @@ void Interface_class::Reset_ifd(  )
 	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
 	addr->appstate_arr	= initAppstate_arr();
 	addr->connect_arr	= initConnect_arr();
+	addr->StA_state_arr[ STA_INSTRUMENT ].play = true;
 	Interface_class::selfTest();
 
-	Dump_ifd();
+	Dump_ifd( );
 }
 
 bool Interface_class::Restore_ifd()
@@ -239,6 +256,7 @@ void Interface_class::Dump_ifd()
 
 	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
 	assert( dumpFile.length() > 0 );
+
 	Eventque.reset();
 	size_t count = 0;
 	FILE* fd = fopen( dumpFile.data() , "w");
@@ -248,7 +266,7 @@ void Interface_class::Dump_ifd()
 		fclose( fd );
 	}
 	if( count != 1 )
-		EXCEPTION( "incomplete dump" + Error_text( errno ) );
+		Exception( "incomplete dump" + Error_text( errno ) );
 }
 
 
@@ -271,10 +289,6 @@ bool Interface_class::reject( APPID appid )
 		return false;
 	}
 };
-void Interface_class::Event( EVENTKEY_t event )
-{
-	Eventque.add( event );
-}
 
 
 
@@ -285,7 +299,7 @@ void Interface_class::Test_interface()
 	Eventque.reset();
 	for( uint n = 0; n<5; n++ )
 	{
-		Eventque.add( (EVENTKEY_t)n );
+		Eventque.add( (EVENTKEY_e)n );
 	}
 	cout << Eventque.show() << endl;
 	uint8_t value = Eventque.get();
@@ -296,6 +310,9 @@ void Interface_class::Test_interface()
 	cout 	<< " length: " << dec << (int)addr->eventptr.length << ":"
 			<< " first : " << (int) addr->eventptr.first
 			<< " last  : " << (int) addr->eventptr.last << endl;
+	Write_str( INSTRUMENTSTR_KEY, "1234567890123456789012345678901234567890" );
+	Assert_equal( SDSSTR_SIZE-1, (uint)Read_str( INSTRUMENTSTR_KEY ).length() );
+
 	TEST_END( className );
 }
 
@@ -315,7 +332,7 @@ void EventQue_class::reset()
 	addr->eventptr 	= eventptr;
 	std::ranges::for_each( addr->deque, []( uint8_t& element ){ element = 0  ;});
 }
-void EventQue_class::add( EVENTKEY_t event )
+void EventQue_class::add( EVENTKEY_e event )
 {
 	if ( event == NULLKEY )
 		return;
@@ -333,12 +350,12 @@ void EventQue_class::add( EVENTKEY_t event )
 	addr->eventptr 				= eventptr;
 }
 
-EVENTKEY_t EventQue_class::get()
+EVENTKEY_e EventQue_class::get()
 {
 	eventptr 					= addr->eventptr;
 	if ( eventptr.length == 0 )
 		return NULLKEY;
-	EVENTKEY_t value 			= (EVENTKEY_t) addr->deque[eventptr.first];
+	EVENTKEY_e value 			= (EVENTKEY_e) addr->deque[eventptr.first];
 	repeat 						= ( value == prev_event );
 	prev_event 					= value;
 	eventptr.first 				= ( eventptr.first + 1 ) % MAXQUESIZE;

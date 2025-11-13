@@ -2,11 +2,24 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <Exit.h>
+#include <String.h>
+Exit_class Exit {};
 
-int main() {
 
 
-    // Initialize curses
+void exit_proc( int signal)
+{
+	cout << "Exit class " << endl;
+	exit( signal );
+}
+/**************************************************
+ https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
+ *************************************************/
+int main()
+{
+
+	// Initialize curses
     initscr();
     cbreak();
     noecho();
@@ -20,7 +33,7 @@ int main() {
     items[2] = new_item("Option 3", "Description for Option 3");
     items[3] = nullptr; // Null-terminate the item list
 
-    MENU *menu = new_menu(items);
+    MENU* menu = new_menu(items);
 
 
     // Display the menu

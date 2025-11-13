@@ -57,8 +57,8 @@ typedef prgarg_struct prgarg_t;
 
 enum APPID
 {
-	AUDIOID = 0,
-	SYNTHID,
+	AUDIOID = 0, // mandatory
+	SYNTHID = 1, // fixed
 	COMPID,
 	GUI_ID,
 	SDSVIEWID,
@@ -81,14 +81,6 @@ enum APPID
 #define TESTPRG		"Testprj"
 #define XMLEDITOR	"musescore3"
 
-template< typename Type >
-vector<Type> Iota( Type beg, Type size )
-{
-	vector<Type> v{};
-	for( Type n = beg; n < (beg+size); n++ )
-		v.push_back( n );
-	return v;
-};
 
 struct AppMap_struct
 {
@@ -105,14 +97,17 @@ struct AppMap_struct
 			{ SETUPID		, SETUP},
 			{ TESTPRGID		, TESTPRG},
 			{ XMLEDITORID	, XMLEDITOR},
-			{ NoAPPID			, "unknown id"},
+			{ NoAPPID		, "unknown id"},
 	};
 	map< string, APPID >AppNameId_map = // @suppress("Invalid arguments")
 			imap<APPID, string>( AppIdName_map ); // @suppress("Invalid arguments")
 	vector<APPID> AppIds{};
+
+
+
 	AppMap_struct()
 	{
-		AppIds = Iota( AUDIOID, NoAPPID );
+		AppIds = Iota_T<APPID>( (APPID)0, NoAPPID );
 	}
 	~AppMap_struct() = default;
 	string AppIdName( APPID appid )

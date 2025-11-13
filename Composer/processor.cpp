@@ -7,18 +7,14 @@
 
 #include <Composer/Processor.h>
 
-Processor_class::Processor_class( Application_class* app ) :
-	Logfacility_class("Processor"),
-	sdsstate_struct()
+/**************************************************
+ * print_struct
+ *************************************************/
+Processor_class::print_struct::print_struct( stack_struct _ps )
 {
-	className		= Logfacility_class::className;
-	this->Sds 		= app->Sds;
-	this->sds		= app->sds;
-	this->Sem 		= app->DaTA->Sem_p;
-	this->Appstate 	= app->Appstate;
-
-	process_stack.clear();
-
+	ps = _ps;
+	assign_addr_str();
+	assign_val();
 	Table.opt.Ident = 0;
 	Table.opt.Crlf 	= '\n';
 	Table.AddColumn( "line nr"	, 4);
@@ -26,26 +22,17 @@ Processor_class::Processor_class( Application_class* app ) :
 	Table.AddColumn( "addr"		, 16);
 	Table.AddColumn( "value"	, 6);
 	Table.AddColumn( "comment"	, 40 );
-};
 
-Processor_class::print_struct::print_struct( stack_struct_t _ps )
-{
-	ps = _ps;
-	assign_addr_str();
-	assign_val();
 }
 void Processor_class::print_struct::assign_val()
 {
 	value = ( ps.cmd == CMD_KEY ) ? ps.key : ps.value;
-
 }
 void Processor_class::print_struct::assign_addr_str()
 {
 	addr_str= Str.to_hex( (long)ps.chaddr );
 }
-
-
-void Processor_class::printLn( stack_struct ps )
+void Processor_class::print_struct::Line( stack_struct ps )
 {
 	if ( ps.cmd == CMD_TEXT )
 	{
@@ -61,9 +48,27 @@ void Processor_class::printLn( stack_struct ps )
 					print.ps.str );
 	commit_time		= 0;
 }
-void Processor_class::Push_cmd( uint8_t cmd, string str )
+
+/**************************************************
+ * Processor_class
+ *************************************************/
+Processor_class::Processor_class( Application_class* app ) :
+	Logfacility_class("Processor"),
+	sdsstate_struct()
 {
-	stack_struct_t stack_item = stack_struct();
+	className		= Logfacility_class::className;
+	this->App		= app;
+	this->Sds 		= app->Sds;
+	this->sds		= app->sds;
+	this->Sem 		= app->DaTA->Sem_p;
+	this->Appstate 	= app->Appstate;
+
+	process_stack.clear();
+
+};
+void Processor_class::Push_cmd( CMD_e cmd, string str )
+{
+	stack_struct stack_item = stack_struct();
 	stack_item.prgline	= prgline;
 	stack_item.cmd 		= cmd;
 	stack_item.cmdstr	= "cmd";
@@ -72,9 +77,9 @@ void Processor_class::Push_cmd( uint8_t cmd, string str )
 
 }
 
-void Processor_class::Push_str( EVENTKEY_t key, uint8_t value, string str )
+void Processor_class::Push_str( EVENTKEY_e key, uint8_t value, string str )
 {
-	stack_struct_t stack_item = stack_struct();
+	stack_struct stack_item = stack_struct();
 	stack_item.prgline	= prgline;
 	stack_item.cmd 		= CMD_STR;
 	stack_item.cmdstr	= "str";
@@ -84,9 +89,9 @@ void Processor_class::Push_str( EVENTKEY_t key, uint8_t value, string str )
 	process_stack.push_back( move( stack_item ) );
 }
 
-void Processor_class::Push_key( EVENTKEY_t key, string str )
+void Processor_class::Push_key( EVENTKEY_e key, string str )
 {
-	stack_struct_t stack_item = stack_struct();
+	stack_struct stack_item = stack_struct();
 	stack_item.prgline	= prgline;
 	stack_item.cmd 		= CMD_KEY;
 	stack_item.cmdstr	= "exec";
@@ -95,42 +100,17 @@ void Processor_class::Push_key( EVENTKEY_t key, string str )
 	process_stack.push_back( move( stack_item ) );
 };
 
-void Processor_class::push_ifd( stack_struct_t stack )
+void Processor_class::push_ifd( stack_struct stack )
 {
 	stack.prgline	= prgline;
 	stack.cmd 		= CMD_CHADDR;
 	stack.cmdstr	= "ldc";
 	process_stack.push_back( move( stack ) );
 };
-void Processor_class::Push_ifd( OscId_t* addr, OscId_t value, string str )
-{
-	stack_struct_t stack_item = stack_struct( addr, value, str );
-	push_ifd( stack_item );
-}
-void Processor_class::Push_ifd( StateId_t* addr, StateId_t value, string str )
-{
-	stack_struct_t stack_item = stack_struct( addr, value, str );
-	push_ifd( stack_item );
-};
-void Processor_class::Push_ifd( uint8_t* addr, uint8_t value, string str )
-{
-	stack_struct_t stack_item = stack_struct( addr, value, str );
-	push_ifd( stack_item );
-};
-void Processor_class::Push_ifd( char* addr, char value, string str )
-{
-	stack_struct_t stack_item = stack_struct( addr, value, str );
-	push_ifd( stack_item );
-};
-void Processor_class::Push_ifd( bool* addr, bool value, string str )
-{
-	stack_struct_t stack_item = stack_struct( addr, value, str );
-	push_ifd( stack_item );
-};
 
-void Processor_class::Push_wait( uint8_t cmd, int value, string str )
+void Processor_class::Push_wait( CMD_e cmd, int value, string str )
 {
-	stack_struct_t stack_item = stack_struct();
+	stack_struct stack_item = stack_struct();
 	stack_item.prgline	= prgline;
 	stack_item.cmd 		= cmd;
 	stack_item.cmdstr	= "wait";
@@ -141,7 +121,7 @@ void Processor_class::Push_wait( uint8_t cmd, int value, string str )
 
 void Processor_class::Push_text( string str )
 {
-	stack_struct_t stack_item = stack_struct();
+	stack_struct stack_item = stack_struct();
 	stack_item.prgline	= prgline;
 	stack_item.cmd 		= CMD_TEXT;
 	stack_item.cmdstr	= "txt";
@@ -149,7 +129,7 @@ void Processor_class::Push_text( string str )
 	process_stack.push_back( move( stack_item ) );
 }
 
-void Processor_class::execute_str( stack_struct_t& ps )
+void Processor_class::execute_str( stack_struct& ps )
 {
 	char* addr = nullptr;
 	switch( ps.value )
@@ -160,18 +140,18 @@ void Processor_class::execute_str( stack_struct_t& ps )
 		default 				: { addr = nullptr; break; }
 	}
 	assert( addr != nullptr );
-	ps.chaddr = addr;
+	ps.chaddr = (sds_value_t*)addr;
 	this->Sds->Write_str( ps.value, ps.str );
 	if ( ps.value == NOTESSTR_KEY )
 		Sds->addr->NotestypeId = NTE_ID;
-	printLn(  ps );
+	print.Line(  ps );
 
 	ps.cmd		= CMD_KEY;
 	ps.cmdstr	= "exec";
 	ps.chaddr	= nullptr;
 	ps.str 		= "set";
-	Sds->Event( ps.key );
-	commit_time = wait_for_commit() ;
+	Sds->Eventque.add( ps.key );
+	print.commit_time = wait_for_commit() ;
 
 
 }
@@ -191,6 +171,7 @@ void Processor_class::Clear_process_stack()
 
 void Processor_class::Set_prgline( int nr )
 {
+
 	prgline = nr;
 }
 
@@ -222,15 +203,15 @@ void Processor_class::Execute()
 	};
 	auto log_init  = [ this ]( )
 	{
-		LOG.open( file_structure().log_file, fstream::out );
-		Table.opt.FILE = &LOG;
+		LOG.open( App->Cfg->fs->log_file, fstream::out );
+		print.Table.opt.FILE = &LOG;
 	};
 
 	intro		( process_stack.size() );
 	log_init 	();
 	Sem->Init	();
 
-	for ( stack_struct_t ps : process_stack )
+	for ( stack_struct ps : process_stack )
 	{
 		if( Appstate->IsExitserver( Sds->addr, COMPID ) )
 			return;
@@ -245,8 +226,8 @@ void Processor_class::Execute()
 			}
 			case CMD_KEY : // write command key value
 			{
-				Sds->Event( ps.key );
-				commit_time = wait_for_commit();
+				Sds->Eventque.add( ps.key );
+				print.commit_time = wait_for_commit();
 				break;
 			}
 			case CMD_EXE :
@@ -257,21 +238,21 @@ void Processor_class::Execute()
 			}
 			case CMD_WAIT :
 			{
-				if  ( ps.value < 0 )
+				wait_loop( ps.value );
+				break;
+			}
+			case CMD_COND_WAIT :
+			{
+				if  ( ps.value == 1 )
 				{
 					getc( stdin );
 				}
 				else
 				{
-					wait_loop( ps.value );
+					uint8_t sec = sds->Noteline_sec;
+					this_thread::sleep_for( std::chrono::seconds(sec));
+					sds->Noteline_sec = 0;
 				}
-				break;
-			}
-			case CMD_COND_WAIT :
-			{
-				uint8_t sec = sds->Noteline_sec;
-				this_thread::sleep_for( std::chrono::seconds(sec));
-				sds->Noteline_sec = 0;
 				break;
 			}
 			case CMD_STR : // write string
@@ -288,7 +269,7 @@ void Processor_class::Execute()
 			case CMD_EXIT :
 			{
 				coutf << ps.prgline << endl;
-				printLn( ps );
+				print.Line( ps );
 
 				LOG.flush() << ps.prgline << endl;;
 				Sem->Release( SEMAPHORE_EXIT );
@@ -297,16 +278,16 @@ void Processor_class::Execute()
 			}
 			default :
 			{
-				EXCEPTION( to_string( ps.prgline) + " default SIGINT");
+				Exception( to_string( ps.prgline) + " default SIGINT");
 				break;
 			}
 		} // end switch
 
-		printLn( ps );
+		print.Line( ps );
 	}
 
 	Comment( INFO, "Execute() terminated without exit/release");
-	Comment( INFO, "Read composer log " + file_structure().log_file );
+	Comment( INFO, "Read composer log " + App->Cfg->fs->log_file );
 	Comment( INFO, "for more information" );
 }
 
@@ -319,9 +300,9 @@ void Processor_class::Test_Processor()
 	Sem->Reset( PROCESSOR_WAIT );
 
 	Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, "default" );
-	Push_ifd( &sds->SHMID, 0, "char" );
-	Push_ifd( &sds->StA_state[0].forget, true, "bool" );
-	Push_ifd( &sds->adsr_arr[OSCID].bps, 0, "beat duration" );
+	Push_ifd( &sds->SHMID, 0_uint, "char" );
+	Push_ifd( &sds->StA_state_arr[0].forget, true, "bool" );
+	Push_ifd( &sds->adsr_arr[OSCID].bps, 0_uint, "beat duration" );
 	Push_key( ADSR_KEY, "set beat duration" );
 
 	Push_cmd( CMD_EXIT, "exit" );

@@ -124,7 +124,7 @@ vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 		}
 		else
 		{
-			{ EXCEPTION( err ); }
+			{ Exception( err ); }
 		}
 	}
 	size_t pos 		= 0;
@@ -217,7 +217,7 @@ float String::secure_stof( string str)
 	}
 	else
 	{
-		EXCEPTION( "cannot convert string: >"+str+"< to integer " );
+		Exception( "cannot convert string: >"+str+"< to integer " );
 	}
 	return -1;
 }
@@ -233,12 +233,15 @@ int String::secure_stoi( string str )
 	}
 	else
 	{
-		EXCEPTION( "cannot convert string: >"+str+"< to integer " );
+		Exception( "cannot convert string: >"+str+"< to integer " );
 	}
 	return -1;
 }
 
-
+void String::to_lower( string& str )
+{
+	std::for_each( str.begin(), str.end(), [] ( char& ch ) { ch = tolower(ch) ; } );
+}
 void String::to_lower()
 {
 	std::for_each( Str.begin(), Str.end(), [] ( char& ch ) { ch = tolower(ch) ; } );

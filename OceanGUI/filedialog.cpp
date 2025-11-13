@@ -1,39 +1,30 @@
 // System includes
-#include <data/Config.h>
-#include <dirent.h>
 
 // QT
-#include <QDebug>
-#include <QString>
 
-// Synthesizer includes
+// Ocean includes
 #include <Ocean.h>
-#include <data/Interface.h>
-#include <Logfacility.h>
-#include <notes/Notes.h>
+#include <Utilities.h>
+#include <data/Config.h>
 #include <EventKeys.h>
-#include <include/Common.h>
-#include <include/File_Dialog_class.h>
 
 // OceanGUI includes
-#include "ui_File_Dialog_class.h"
+#include <include/Common.h>
+#include <include/File_Dialog.h>
 
-
-File_Dialog_class::File_Dialog_class( 	QWidget *parent,
+File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 										Dataworld_class* 	_data,
 										EventLog_class*		_log) :
     Logfacility_class("FileDialog"),
-    Note_class( _data->Sds_p->addr ),
+    Note_class( _data->Sds_p->addr, _data->Cfg_p ),
 	QDialog(parent),
 	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
 
 	this->DaTA 		= _data;
-	this->Sds		= DaTA->Sds_p;
-	this->sds_p		= Sds->addr;
-	this->sem		= DaTA->Sem_p;
-	this->SDS_ID	= sds_p->SDS_Id;
 	this->Eventlog_p= _log;
+	this->sem		= DaTA->Sem_p;
+	this->fs		= DaTA->Cfg_p->fs;
 
 	ui->setupUi(this);
 
@@ -51,7 +42,9 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
-    connect(ui->cb_instrumentfiles	, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
+	SetSds( DaTA->Sds_p, DaTA->Sds_p->addr->SDS_Id );
+
+	connect(ui->cb_instrumentfiles	, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
     connect(ui->cb_notefilenames	, SIGNAL(textActivated(QString)),this, SLOT(Notes_Select(QString)) );
 
     connect(ui->pbInstrumentDone	, SIGNAL(clicked())		,this, SLOT(Instrument_Save()) );
@@ -67,7 +60,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget *parent,
 
     connect(ui->cb_longnote, SIGNAL(clicked(bool)), this, SLOT( Longnote(bool) ));
     Comment( INFO," File_Dialog initialized");
-    Setup_widgets();
+//    Setup_widgets();
 }
 
 File_Dialog_class::~File_Dialog_class() = default;
@@ -76,7 +69,7 @@ void File_Dialog_class::EditMusicXML()
 {
 	const 	string 	musicxml_editor 	= XMLEDITOR;
 	const 	QString qfilename 			= ui->lE_NotesFile->text();
-	const 	string 	filename 			= fs.xmldir + qfilename.toStdString()+ fs.xml_type;
+	const 	string 	filename 			= fs->xmldir + qfilename.toStdString()+ fs->xml_type;
 	const 	string 	cmd 				= musicxml_editor + " " + filename;
 			int		process_id 			= -1;
 
@@ -94,29 +87,30 @@ void File_Dialog_class::Longnote( bool value )
 	Sds->Set( sds_p->features[0].longplay , value );
 }
 
-void File_Dialog_class::SetSds( Interface_class* Sds, int8_t sdsid )
+void File_Dialog_class::SetSds( Interface_class* Sds, Id_t sdsid )
 {
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
 	this->SDS_ID	= sdsid;
+	Assert_equal	( sdsid, sds_p->SDS_Id );
 
 	Setup_widgets();
 
 }
 
-void File_Dialog_class::sB_Octave( int value )
-{
-    int8_t octave_shift = value - sds_p->noteline_prefix.Octave;
-
-	Sds->Set( sds_p->noteline_prefix.octave_shift , octave_shift );
-	Eventlog_p->add( SDS_ID, UPDATE_NLP_KEY );
-}
-
 void File_Dialog_class::cb_Notestype( int cb_value )
 {
-	Sds->Set( sds_p->NotestypeId , (uint8_t)cb_value );
+	Sds->Set( sds_p->NotestypeId , (NOTETYPE_e)cb_value );
     ui->cb_notefilenames->clear();
-    ui->cb_notefilenames->addItems( Qread_filenames( Event_vec[ cb_value].path ) );
+    ui->cb_notefilenames->addItems( Qread_filenames( EventVec[ cb_value].path ) );
+}
+
+void File_Dialog_class::sB_Octave( int value )
+{	// dynamically set during sound generation. see Notes->gen_chord_data
+//    int8_t octave_shift = value;// - sds_p->noteline_prefix.Octave;
+
+	Sds->Set( sds_p->noteline_prefix.octave_shift , (int8_t) value );
+	Eventlog_p->add( SDS_ID, UPDATE_NLP_KEY );
 }
 
 void File_Dialog_class::cB_Convention( int cb_value )
@@ -130,10 +124,9 @@ void File_Dialog_class::cB_Convention( int cb_value )
 void File_Dialog_class::cB_NotesPerSec( int nps_id )
 {
 	uint8_t nps = ui->cb_nps->currentText().toInt();
-	Sds->Set( sds_p->noteline_prefix.nps , (uint8_t)nps );
+	Sds->Set( sds_p->noteline_prefix.nps , nps );
 	Eventlog_p->add( SDS_ID,  UPDATE_NLP_KEY );
 }
-
 
 void File_Dialog_class::Setup_widgets()
 {
@@ -149,7 +142,7 @@ void File_Dialog_class::Setup_widgets()
     QString Notes_name = QReadStr( Sds, NOTESSTR_KEY ) ;
     ui->lE_NotesFile->setText( Notes_name  );
     ui->cb_notefilenames->clear();
-    ui->cb_notefilenames->addItems( Qread_filenames( Event_vec[ notestypeId ].path ));
+    ui->cb_notefilenames->addItems( Qread_filenames( EventVec[ notestypeId ].path ));
     ui->cb_notefilenames->setCurrentText( Notes_name );
     ui->cb_longnote->setChecked( sds_p->features[0].longplay );
 
@@ -179,8 +172,7 @@ void File_Dialog_class::Setup_widgets()
     QStr = QString::number( sds_p->noteline_prefix.nps );
     ui->cb_nps->setCurrentText( QStr );
 
-    int Octave = sds_p->noteline_prefix.Octave + sds_p->noteline_prefix.octave_shift;
-	ui->sB_Octave->setValue( Octave );
+	ui->sB_Octave->setValue( sds_p->noteline_prefix.octave_shift );
 }
 
 
@@ -192,7 +184,7 @@ void File_Dialog_class::New_Notes()
 {
 	if ( sds_p->NotestypeId == XML_ID )
 	{
-		Eventlog_p->add( SDS_ID,  Event_vec[ XML_ID ].event );
+		Eventlog_p->add( SDS_ID,  EventVec[ XML_ID ].event );
     	return;
 	}
 
@@ -203,8 +195,7 @@ void File_Dialog_class::New_Notes()
     if ( verified )
     {
         QStr = ui->lE_Rythm->text();
-        string rhythm_line = QStr.toStdString();
-        Note_class::Set_rhythm_line( rhythm_line );
+        Note_class::Set_rhythm_line( QStr.toStdString() );
 
         QStr = ui->lE_NotesFile->text();
         string notes_file = QStr.toStdString();
@@ -214,7 +205,7 @@ void File_Dialog_class::New_Notes()
         // remote shall read and activate the new note line
         Sds->Write_str( NOTESSTR_KEY, notes_file);
 
-        Eventlog_p->add( SDS_ID,  Event_vec[NTE_ID].event );
+        Eventlog_p->add( SDS_ID,  EventVec[NTE_ID].event );
         Info( "sync notes" );
     	sem->Release( SEMAPHORE_SYNCNOTES );
 

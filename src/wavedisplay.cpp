@@ -50,13 +50,13 @@ void Wavedisplay_class::gen_cxwave_data( )
 	auto gen_full = [ this ]( param_t param )
 	{
 
-		uint 		idx			= 0;
-		uint		step		= wd_frames / param.len;
+		uint 		idx				= 0;
+		uint		step			= wd_frames / param.len;
 		for ( buffer_t n = 0; n < wd_frames; n = n + step )
 		{
 			if ( idx < param.len )
 			{
-				Data_t value = data_ptr[n] ;
+				Data_t value 		= data_ptr[n] ;
 				display_data[ idx ] = value;
 			}
 			else
@@ -168,7 +168,7 @@ void Wavedisplay_class::Write_wavedata()
 	}
 }
 
-void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
+void Wavedisplay_class::SetDataPtr	( const WD_data_t& status  )
 {
 	wd_status 		= status;
 	Data_t* ptr 	= data_ptr_mtx[status.roleId][status.oscId].ptr;
@@ -187,19 +187,35 @@ void Wavedisplay_class::SetDataPtr	( const wd_status_t& status  )
 	setFFTmode( status.fftmode );
 }
 
-void Wavedisplay_class::set_wdmode		( const char& _mode )
+void Wavedisplay_class::Set_wdcursor(int pos, int max )
 {
-	WdMode 			= _mode;
+	set_wdcursor( wavedisplay_len * pos / max );
+}
+
+void Wavedisplay_class::set_wdcursor( uint16_t cursor )
+{
+	switch ( WdMode )
+	{
+		case DEBUGID 	: { cursor = wavedisplay_len / 2;  break; }
+		case FULLID		: { break; }
+		default 		: { cursor = 0; break; }
+	} // switch  WdMode
+	Sds_p->addr->WD_status.cursor = cursor;
+}
+
+void Wavedisplay_class::set_wdmode( const WdModeID_t& _mode )
+{
+	WdMode 		= _mode;
 	debug_right	= false;
+	set_wdcursor( 0 );
 }
 
 void Wavedisplay_class::setFFTmode( const bool& mode )
 {
 	if ( mode )
 		WdMode		= FFTID;
-//	fft_mode = mode;
 }
-void Wavedisplay_class::Add_role_ptr( 	const char& wd_role,
+void Wavedisplay_class::Add_role_ptr( 	OscroleId_t wd_role,
 										Data_t* ptr,
 										buffer_t* wd_frames )
 {
@@ -210,7 +226,7 @@ void Wavedisplay_class::Add_role_ptr( 	const char& wd_role,
 	}
 }
 void Wavedisplay_class::Add_data_ptr( 	const char& wd_type,
-										const char& wd_role,
+										OscroleId_t wd_role,
 										Data_t* 	ptr,
 										buffer_t* 	frames )
 {
@@ -221,12 +237,12 @@ void Wavedisplay_class::Add_data_ptr( 	const char& wd_type,
 					to_string( *frames));
 	if ( ptr == nullptr )
 	{
-		EXCEPTION("Undefined Wavedisplay" );
+		Exception("Undefined Wavedisplay" );
 	}
 	set<int> osctype_set = range_set(0, 2);
 	if ( not osctype_set.contains( wd_type ) )
 	{
-		EXCEPTION( "wd_type out of bounds" );
+		Exception( "wd_type out of bounds" );
 	}
 	data_ptr_mtx[ wd_role ][wd_type ] = { ptr, frames };;
 

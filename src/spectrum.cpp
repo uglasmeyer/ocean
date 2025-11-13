@@ -18,8 +18,8 @@
 
 Spectrum_class::Spectrum_class() :
 	Logfacility_class("Spectrum"),
-	Frequency_class(),
-	oscwaveform_struct()
+	oscwaveform_struct(),
+	Frequency_class()
 {
 	className 		= Logfacility_class::className;
 	spectrumTmp		= default_spectrum;
@@ -98,10 +98,10 @@ bool Spectrum_class::adsr_type( const string& type_str )
 	string sub = type_str.substr(3, 1);
 	return (  sub.length() > 0 );
 }
-OscId_t Spectrum_class::Osc_TypeId( const string& type_str )
+OSCID_e Spectrum_class::Osc_TypeId( const string& type_str )
 {
 	string str = type_str.substr(0, 3 );
-	for( OscId_t id : oscIds )
+	for( OSCID_e id : oscIds )
 	{
 		if ( str.compare( typeNames[ id ] ) == 0 )
 		{

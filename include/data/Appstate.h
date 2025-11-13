@@ -32,7 +32,7 @@ public:
 	const set<APPID>dataProc			{ AUDIOID, SYNTHID, KEYBOARDID };
 
 	const set<APPID>assignMasterSds 	{ AUDIOID, GUI_ID, RTSPID, COMPID, KEYBOARDID, TESTPRGID } ;
-	SdsId_vec_t		all_sdsids			= Iota<Id_t>( 0, MAXCONFIG );
+	SdsId_vec_t		all_sdsids			= Iota_T<Id_t>( 0, MAXCONFIG );
 
 	appstate_arr_t	backup_state		{ };
 

@@ -14,6 +14,8 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 	: Logfacility_class("Keyboard")
 	, Kbd_base()
 	, keyboardState_class( instr->sds )
+	, wd_p( instr->wd_p )
+	, scanner( &StA->scanner )
 
 {
 	className 					= Logfacility_class::className;
@@ -22,8 +24,9 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 	this->sta_p					= StA;
 	this->Kbd_Data				= StA->Data;
 	this->Notes					= notes;
+	this->fs					= instr->fs;
+//	Oscgroup.SetWd				( instr->wd_p );
 
-	Oscgroup.SetWd				( instr->wd_p );
 	Oscgroup.SetScanner			( max_frames );
 	max_notes					= notes_per_sec * StA->param.storage_time;
 
@@ -33,11 +36,11 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 void Keyboard_class::selfTest()
 {
 	ASSERTION( 	sta_p->mem_ds.data_blocks == sta_p->param.storage_time*frames_per_sec, "sta_p->mem_ds.data_blocks",
-				sta_p->mem_ds.data_blocks  , sta_p->param.storage_time*sta_p->param.storage_time);
+				sta_p->mem_ds.data_blocks  , sta_p->param.storage_time*frames_per_sec);
 	ASSERTION( 	sta_p->param.size == sta_p->param.storage_time*frames_per_sec, "sta_p->param.size",
 				sta_p->param.size  , sta_p->param.storage_time*frames_per_sec);
-	assert( sta_p->scanner.inc == min_frames );
-	assert( sds_p->audioframes == sta_p->scanner.inc );
+	assert( scanner->inc == min_frames );
+	assert( sds_p->audioframes == scanner->inc );
 }
 Keyboard_class::~Keyboard_class()
 {
@@ -69,14 +72,14 @@ void Keyboard_class::Enable( bool is_kbd )
 
 	if( is_kbd )
 	{
-		sds_p->StA_state[ STA_KEYBOARD ].play 	= true;
+		sds_p->StA_state_arr[ STA_KEYBOARD ].play 	= true;
 		sds_p->StA_amp_arr[ STA_KEYBOARD ] 		= 75;
 		sds_p->mixer_state.kbd					= true;
 		Info( "Keyboard is enabled");
 	}
 	else
 	{
-		sds_p->StA_state[ STA_KEYBOARD ].play 	= false;
+		sds_p->StA_state_arr[ STA_KEYBOARD ].play 	= false;
 		sds_p->StA_amp_arr[ STA_KEYBOARD ] 		= 0;
 		sds_p->mixer_state.kbd					= false;
 	}
@@ -156,7 +159,7 @@ void Keyboard_class::attack()
 	show_cnt( duration_counter );
 
 	string note_str = Get_note_str();
-	if( sta_p->state.forget )
+	if( sta_p->state.Forget() )
 		coutf  << note_str;
 	else
 	{
@@ -165,7 +168,9 @@ void Keyboard_class::attack()
 		coutf << Noteline << endl;
 	}
 	gen_chord_data();
-	sta_p->scanner.Set_wpos( sta_p->scanner.rpos );
+
+	scanner->Set_fillrange( sta_p->param.size );
+	scanner->Set_wpos( scanner->rpos );
 	sta_p->Write_data( Osc->Mem.Data );//, max_frames );
 
 	decayCounter	= attackCounter ;
@@ -238,7 +243,7 @@ bool Keyboard_class::Save_notes()
 
 	Musicxml_class MusicXML {};
 	notelist_t notelist = notevec2notelist();
-	MusicXML.Notelist2xmlFile( fs.kbdnotes_name , notelist );
+	MusicXML.Notelist2xmlFile( fs->kbdnotes_name , notelist );
 
 
 	return true;
@@ -270,19 +275,19 @@ void Keyboard_class::ScanData()
 		return trigger;
 	};
 
-	kbd_trigger = set_kbd_trigger( sta_p->scanner.rpos );
-	Kbd_Data = sta_p->scanner.Next_read();
+	kbd_trigger = set_kbd_trigger( scanner->rpos );
+	Kbd_Data = scanner->Next_read();
+	if( sds_p->WD_status.roleId == KBDROLE )
+		wd_p->Set_wdcursor( scanner->rpos, scanner->mem_range.max );
 
 	Note_pos = ( Note_pos + 1 ) % max_notes;
 }
 
 
 
-/*
-Kbd_pitch_class
-
- */
-
+/**************************************************
+ * Kbd_pitch_class
+ *************************************************/
 void Kbd_pitch_class::Show_kbd_layout( int8_t base_oct )
 {
 	Table_class Table 	{ "Notes", 11 };

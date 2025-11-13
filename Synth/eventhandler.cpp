@@ -10,7 +10,7 @@
 void Event_class::TestHandler()
 {
 	TEST_START( className );
-	Sds->Event( CONNECTOSC_KEY );
+	Sds->Eventque.add( CONNECTOSC_KEY );
 	TEST_END( className );
 }
 
@@ -19,7 +19,7 @@ void Event_class::TestHandler()
 void Event_class::Handler()
 {
 
-	auto EvInfo = [ this ]( EVENTKEY_t key = NULLKEY, string str )
+	auto EvInfo = [ this ]( EVENTKEY_e key = NULLKEY, string str )
 	{
 		if( this->EventQue->repeat ) return;
 		if ( LogMask[ DEBUG ] )
@@ -30,7 +30,7 @@ void Event_class::Handler()
 	};
 
 	string		str 	= EventQue->show();
-	EVENTKEY_t 	event 	= EventQue->get();
+	EVENTKEY_e 	event 	= EventQue->get();
 
 	if ( event == NULLKEY ) return;
 
@@ -44,7 +44,7 @@ void Event_class::Handler()
 			break;
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
 		EvInfo( event, "receive command <setup play xml notes>");
-		Mixer->Set_mixer_state( STA_NOTES, true );
+		Mixer->Set_play_mode( STA_NOTES, true );
 		Sds->Commit();
 		break;
 	}
@@ -212,7 +212,7 @@ void Event_class::Handler()
 	}
 	case STARTRECORD_KEY : // TODO complete functionality
 	{
-    	if( sds->StA_state[STA_NOTES].play )
+    	if( sds->StA_state_arr[STA_NOTES].play )
     	{
     		sds->Record_state = sdsstate_struct::STARTING;
     		Notes->Note_itr_start.set_active( true );
@@ -222,14 +222,14 @@ void Event_class::Handler()
     	{
     		Notes->Note_itr_start.set_active( false );
     		Notes->Note_itr_end.set_active( false );
-    		Appstate->SetState( sds_master, AUDIOID, RECORDSTART );
+    		sds->Record_state = sdsstate_struct::RECORDSTART;
     	}
 		Sds->Commit();
 		break;
 	}
 	case STOPRECORD_KEY :
 	{
-    	if( sds->StA_state[STA_NOTES].play )
+    	if( sds->StA_state_arr[STA_NOTES].play )
     	{
     		sds->Record_state = sdsstate_struct::STOPPING;
     		Notes->Note_itr_start.set_active( false );
@@ -239,7 +239,7 @@ void Event_class::Handler()
     	{
     		Notes->Note_itr_start.set_active( false );
     		Notes->Note_itr_end.set_active( false );
-    		Appstate->SetState( sds_master, AUDIOID, RECORDSTOP );
+    		sds->Record_state = sdsstate_struct::RECORDSTOP;
     	}
 		Sds->Commit();
 		break;
@@ -253,7 +253,7 @@ void Event_class::Handler()
 	case KBD_EVENT_KEY :
 	{
 		Keyboard->Set_key( );
-		sds->StA_state[ STA_KEYBOARD ].play = true;
+		sds->StA_state_arr[ STA_KEYBOARD ].play = true;
 
 		Sds->Commit();
 		break;
@@ -262,9 +262,9 @@ void Event_class::Handler()
 	{
 		if ( sds_master->Record_state == sdsstate_struct::RECORDING )
 			// Composer - Interpreter
-			Appstate->SetState( sds_master, AUDIOID, RECORDSTART ); // start and  wait
+    		sds->Record_state = sdsstate_struct::RECORDSTOP;
 		else
-			Appstate->SetState( sds_master, AUDIOID, RECORDSTOP );
+    		sds->Record_state = sdsstate_struct::RECORDSTART;
 
 		Sds->Commit();
 		break;
@@ -276,7 +276,7 @@ void Event_class::Handler()
 		if (External->Read_file_header(wav_file))
 		{
 			External->Read_file_data();
-			Mixer->StA[STA_EXTERNAL].Play_mode(true);
+			Mixer->StA[STA_EXTERNAL].state.Play(true);
 			Mixer->StA[STA_EXTERNAL].DynVolume.SetupVol( 100, FIXED );
 			sds->StA_amp_arr[ STA_EXTERNAL ] = 100;
 			Mixer->state.external = true;
@@ -308,11 +308,11 @@ void Event_class::Handler()
 		Comment(INFO,
 				"receiving command <store sound to memory bank " + MbNr.str
 						+ " >");
-		for (int StaId : Mixer_base::StAMemIds)
+		for (int StaId : StAMemIds)
 		{
 			if (MbNr.val == StaId)
 			{
-				string status = 	Mixer->StA[StaId].Record_mode(true); // start record-stop play
+				Mixer->StA[StaId].Record_mode(true); // start record-stop play
 				ProgressBar->Set(	Mixer->StA[StaId].Get_storeCounter_p(),
 									Mixer->StA[StaId].mem_ds.max_records);
 			}
@@ -343,7 +343,10 @@ void Event_class::Handler()
 	}
 	case SETSTA_KEY:
 	{
-		Mixer->SetStA( sds->MIX_Id );
+		uint8_t id = sds->MIX_Id;
+		Mixer->SetStA( id );
+		if (( Mixer->state.instrument ) and ( id == STA_INSTRUMENT ))
+			Notes->Start_note_itr();
 		Sds->Commit();
 		break;
 	}
@@ -353,7 +356,7 @@ void Event_class::Handler()
 		Comment(INFO,
 				"receive command <mute and stop record on id" + id.str
 						+ ">");
-		Mixer->StA[id.val].Play_mode(false); // pause-play, pause-record
+		Mixer->StA[id.val].state.Play(false); // pause-play, pause-record
 		Sds->Commit();
 		break;
 	}
@@ -361,18 +364,19 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (uint id : Mixer_base::StAMemIds) {
-			Mixer->Set_mixer_state(id, false);
+		for (uint id : StAMemIds) {
+			Mixer->Set_play_mode(id, false);
 		}
 		Sds->Commit();
 		break;
 	}
 	case CLEAR_KEY:
 	{
-		for( uint id : Mixer_base::StAMemIds )
+		for( uint id : StAMemIds )
 		{
 			Mixer->StA[id].Reset();
 		}
+		Mixer->SetStA();
 		ProgressBar->Reset(); // RecCounter
 		Sds->Commit();
 		break;
@@ -380,12 +384,12 @@ void Event_class::Handler()
 	case SETSTAPLAY_KEY: // toggle Memory bank status play
 	{
 		Value Id { (int) (sds->MIX_Id) };
-		bool play { (bool) sds->StA_state[Id.val].play };
-		sds->StA_state[Id.val].play = play;
+		bool play { (bool) sds->StA_state_arr[Id.val].play };
+		sds->StA_state_arr[Id.val].play = play;
 		Comment(INFO,
 				"receive command <toggle play on memory bank" + Id.str
 						+ " >" + to_string(play));
-		Mixer->Set_mixer_state(Id.val, play);
+		Mixer->Set_play_mode(Id.val, play);
 		Sds->Commit();
 		break;
 	}
@@ -402,7 +406,7 @@ void Event_class::Handler()
 		}
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		Notes->Generate_cyclic_data();
-		Mixer->Set_mixer_state( STA_NOTES, true );
+		Mixer->Set_play_mode( STA_NOTES, true );
 
 		Sds->Commit();
 		break;
@@ -414,7 +418,7 @@ void Event_class::Handler()
 		Notes->Read(notes_file); // notes have been written to file by the GUI already
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		Notes->Generate_cyclic_data();
-		Mixer->Set_mixer_state( STA_NOTES, true );
+		Mixer->Set_play_mode( STA_NOTES, true );
 
 		Sds->Commit();
 		break;
@@ -446,7 +450,7 @@ void Event_class::Handler()
 		Value amp { (int) (sds->StA_amp_arr[STA_NOTES]) };
 		Comment(INFO, "receive command < notes on " + amp.str + "%>");
 		Mixer->StA[STA_NOTES].DynVolume.SetupVol( amp.val, FIXED );
-		Mixer->Set_mixer_state(STA_NOTES, true);
+		Mixer->Set_play_mode(STA_NOTES, true);
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		Sds->Commit();
 		break;
@@ -454,7 +458,7 @@ void Event_class::Handler()
 	case NOTESOFFKEY:
 	{
 		Comment(INFO, "receive command < notes off>");
-		Mixer->Set_mixer_state(STA_NOTES, false);
+		Mixer->Set_play_mode(STA_NOTES, false);
 		Sds->Commit();
 		break;
 	}
@@ -479,7 +483,8 @@ void Event_class::Handler()
 	case SETNOTESPERSEC_KEY: {
 		Value nps = sds->noteline_prefix.nps;
 		Comment(INFO, "receive command <set notes per second>");
-		if (!Notes->Set_notes_per_second(nps.val)) {
+		if ( not Notes->Set_notes_per_second(nps.val))
+		{
 			Comment(ERROR, nps.str + " notes per second not supported");
 		}
 		Sds->Commit();
@@ -545,7 +550,7 @@ void Event_class::Handler()
 	}
 	default:
 	{
-		EXCEPTION( "Communication Key Id >" + to_string((int) (event ))	+ "< undefined");
+		Exception( "Communication Key Id >" + to_string((int) (event ))	+ "< undefined");
 	}
 	} // switch event
 

@@ -142,8 +142,8 @@ class Variation_class :
 	string className = "";
 public:
 
-	Variation_class() ;
-	~Variation_class(){};
+	Variation_class( interface_t* sds, Config_class* cfg  ) ;
+	~Variation_class() = default;
 
 	typedef vector<note_t>
 				noteword_t;
@@ -160,7 +160,7 @@ public:
 
 private:
 	noteline_prefix_struct
-				Nlp_variation	= noteline_prefix_default;
+				Nlp_variation	= nlp_default;
 
 	string Constant_chars{""};
 	string Rhythm_chars{""};

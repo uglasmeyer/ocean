@@ -121,7 +121,7 @@ void Application_class::Ready(  )
 	Info( "SDS ID: ", (int) DaTA->SDS_Id );
 	cout << Line() << endl;
 	DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
-
+    DaTA->Sem_p->Release( SEMAPHORE_STARTED );
 }
 
 kbdInt_t Application_class::KeyboardKey( bool debug )

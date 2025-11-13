@@ -10,10 +10,6 @@
 
 #include <Ocean.h>
 
-typedef complex<double>	cd_t;
-typedef vector<cd_t>	cd_vec_t;
-
-
 struct wavedisplay_struct
 {
 	const vector<string> types =
@@ -27,7 +23,7 @@ struct wavedisplay_struct
 		"A(τ)",
 		"A(ω)"
 	};
-	enum
+	enum WDMODE_t
 	{
 		FULLID,
 		FLOWID,
@@ -36,27 +32,33 @@ struct wavedisplay_struct
 	};
 
 };
-typedef wavedisplay_struct wavedisplay_t;
+typedef wavedisplay_struct
+						wavedisplay_t;
+typedef wavedisplay_t::WDMODE_t
+						WdModeID_t;
 
-struct WD_status_struct
+struct WD_data_struct
 {	// SDS related
 
-	OscId_t 	oscId 	= OSCID;
-	OscroleId_t	roleId 	= INSTRROLE;
-	bool 		fftmode = false;
-	uint8_t 	wd_mode	= wavedisplay_struct::FULLID;
+	OSCID_e 			oscId 			= OSCID;
+	OscroleId_t			roleId 			= INSTRROLE;
+	bool 				fftmode			= false;
+	WdModeID_t 			wd_mode			= wavedisplay_struct::FULLID;
+	uint16_t			cursor			= 0;		// display current sound location in case of full wd_mode
 
 } ;
-typedef WD_status_struct 		wd_status_t;
+typedef WD_data_struct 	WD_data_t;
 
-const size_t WD_OSC_SIZE 	= NOOSCID;//osc_struct().oscNames.size()-1;
-const size_t WD_ROLES_SIZE 	= NOROLE;//osc_struct().roles.size();
-const size_t WD_MODE_SIZE 	= wavedisplay_struct().types.size();
+const uint8_t 			WD_OSC_SIZE 	= NOOSCID;
+const size_t 			WD_ROLES_SIZE 	= NOROLE;
+const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().types.size();
 
-const size_t wavedisplay_len		= 512;
+const size_t 			wavedisplay_len	= 512;
 
-typedef array< Data_t,	wavedisplay_len> 	wd_arr_t;
+typedef array< Data_t,	wavedisplay_len>wd_arr_t;
 
-extern wd_arr_t fft(cd_vec_t data, bool invert);
+typedef complex<double>	cd_t;
+typedef vector<cd_t>	cd_vec_t;
+extern wd_arr_t 		fft				(cd_vec_t data, bool invert);
 
 #endif /* WAVEDISPLAY_BASE_H_ */

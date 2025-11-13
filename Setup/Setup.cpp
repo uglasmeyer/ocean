@@ -10,6 +10,8 @@
 
 #include <Appsymbols.h>
 
+file_structure* fs = Cfg.fs;
+
 void exit_proc( int signal )
 {
 	Log.Set_Loglevel( DBG2, false );
@@ -68,21 +70,21 @@ void copy_files( string dir, string filter, string destination )
 void create_tararchive()
 {
 	fstream Exclude {};
-	Exclude.open( fs.tarexclude_file, fstream::out );
+	Exclude.open( fs->tarexclude_file, fstream::out );
 	Exclude.flush() << ".git\narchive\nwav/\nlog/\nauto/\ntmp/\nlib/ifd*\nTestprg\n";
 	Exclude.close();
 
-	string cmd1 	= "cd " + fs.homedir ;
-	string arch		= fs.homedir + "ocean_sound_lab_" + Version_No + ".tar ";
-	string excl		= "--exclude-from=" + fs.tarexclude_file + " ";
-	string cmd2 	= "bash -c \"tar -cvf " + arch + excl + fs.oceanbasename + "\"";
+	string cmd1 	= "cd " + fs->homedir ;
+	string arch		= fs->homedir + "ocean_sound_lab_" + Version_No + ".tar ";
+	string excl		= "--exclude-from=" + fs->tarexclude_file + " ";
+	string cmd2 	= "bash -c \"tar -cvf " + arch + excl + fs->oceanbasename + "\"";
 
 	Log.Info(  "executing: ", cmd1, ";", cmd2 );
 	System_execute( cmd1 + ";" + cmd2 );
 }
 void bashrc_oceandir()
 {
-	const string 	bashrc_file 	= fs.homedir + ".bashrc";
+	const string 	bashrc_file 	= fs->homedir + ".bashrc";
 	const string 	tmp_file		= "/tmp/bashrc.tmp";
 	fstream 		Bashrc 				{};
 					Bashrc.open		( bashrc_file, fstream::in);
@@ -93,7 +95,7 @@ void bashrc_oceandir()
 	string 			line 			{};
 	while ( getline( Bashrc, line ))
 	{
-		size_t pos 		= line.find( fs.oceanrc_filename );
+		size_t pos 		= line.find( fs->oceanrc_filename );
 		if ( pos == STRINGNOTFOUND )
 		{
 			Bashtmp << line << endl;
@@ -101,7 +103,7 @@ void bashrc_oceandir()
 	};
 
 	// add ocean.rc to bashrc file
-	Bashtmp << ". " << fs.oceanrc_file << endl;
+	Bashtmp << ". " << fs->oceanrc_file << endl;
 	overwrite( tmp_file, bashrc_file );
 }
 
@@ -109,22 +111,22 @@ void compare_environment()
 {
 	const string env = OCEANDIR;
 	const string oceandir_env = notnull( std::getenv( env.data()) );
-	const string install_dir	= fs.installdir;
+	const string install_dir	= fs->installdir;
 	if ( not strEqual( install_dir, oceandir_env ) )
 	{
 		Log.Comment( WARN, "environment              OCEANDIR=", oceandir_env );
-		Log.Comment( WARN, "is not equal to install directory=", fs.installdir );
+		Log.Comment( WARN, "is not equal to install directory=", fs->installdir );
 	}
 }
 void create_oceanrc()
 {
 	fstream Oceanrc	{};
-	Oceanrc.open	( fs.oceanrc_file, fstream::out );
+	Oceanrc.open	( fs->oceanrc_file, fstream::out );
 	Oceanrc << "export ARCH=`uname -p`" << endl;
-	Oceanrc << "export " << oceandir_env << "=" << fs.installdir << endl;
+	Oceanrc << "export " << oceandir_env << "=" << fs->installdir << endl;
 	Oceanrc << "export OCEANTESTCASE=oceantestcase" << endl;
-	Oceanrc << "export PATH=" << fs.bindir << ":.:$PATH" << endl;
-	Oceanrc << "export LD_LIBRARY_PATH=" << fs.libdir << ":$LD_LIBRARY_PATH"<< endl;
+	Oceanrc << "export PATH=" << fs->bindir << ":.:$PATH" << endl;
+	Oceanrc << "export LD_LIBRARY_PATH=" << fs->libdir << ":$LD_LIBRARY_PATH"<< endl;
 }
 
 void symboliclink( string _src, string _sym, string _ext )
@@ -137,12 +139,12 @@ void symboliclink( string _src, string _sym, string _ext )
 	};
 	if ( strEqual(_sym, "Synthesizer") )
 	{
-		overwrite_link( fs.bindir + "Keyboard");
+		overwrite_link( fs->bindir + "Keyboard");
 	}
-	string link = fs.bindir + _sym;
+	string link = fs->bindir + _sym;
 	if( strEqual( _ext, ".so" ) )
 	{
-		link = fs.libdir + _sym;
+		link = fs->libdir + _sym;
 	}
 	overwrite_link( link );
 }
@@ -154,10 +156,10 @@ void install_binary( string _bin, string _ext )
 
 	filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
 	string 				src_bin_file	= pwd.generic_string() + "/" + _bin;
-	string				dst_bin_file	= fs.archbindir + _bin;
+	string				dst_bin_file	= fs->archbindir + _bin;
 	if( strEqual( _ext, ".so" ) )
 	{
-		dst_bin_file = fs.archlibdir + _bin;
+		dst_bin_file = fs->archlibdir + _bin;
 	}
 	Log.Comment( INFO, "Installing binary: ", dst_bin_file );
 	overwrite( src_bin_file, dst_bin_file );
@@ -178,9 +180,9 @@ void CreateInstalldirs( )
 	};
 
 	Log.Comment( DEBUG, "Checking directory structure");
-	ASSERTION( (fs.install_dirs.size() != 0 ),"DirStructure_class::Create",
-				fs.install_dirs.size(),"not=0");
-	for( string dir : fs.install_dirs )
+	ASSERTION( (fs->install_dirs.size() != 0 ),"DirStructure_class::Create",
+				fs->install_dirs.size(),"not=0");
+	for( string dir : fs->install_dirs )
 	{
 		if ( create_dir( dir ) )
 		{
@@ -191,29 +193,29 @@ void CreateInstalldirs( )
 
 void Setup_Test()
 {
-	fs.show_installdirs();
+	fs->show_installdirs();
 }
 
 
 int main(int argc, char **argv)
 {
 
-	bool full_setup = not filesystem::is_directory( fs.installdir );
+	bool full_setup = not filesystem::is_directory( fs->installdir );
 	CreateInstalldirs( );
 
-	overwrite ( fs.resourcedir + fs.bkground_filename	, fs.bkg_file );
-	overwrite ( fs.resourcedir + fs.setup_filename		, fs.setup_file );
-	overwrite ( fs.resourcedir + fs.ipctool_filename	, fs.ipctool_file );
-	overwrite ( fs.resourcedir + fs.config_filename		, fs.config_file );
-	overwrite ( fs.resourcedir + fs.doc_filename		, fs.doc_file );
-	overwrite ( fs.resourcedir + fs.deploy_filename		, fs.deploy_file );
-	init_file ( fs.instrumentdir + ".test2.snd"			, fs.resourcedir );
-	overwrite ( fs.rc_snd_file							, fs.instrumentdir + fs.default_snd );
-	overwrite ( fs.rc_nte_file							, fs.notesdir + fs.default_nte );
-	init_file ( fs.program_file							, fs.resourcedir );
-	init_file ( fs.prog_libfile							, fs.resourcedir );
-	init_file ( fs.prog_testfile						, fs.resourcedir );
-	overwrite ( fs.resourcedir + fs.template_xmlname	, fs.template_xmlfile );
+	overwrite ( fs->resourcedir + fs->bkground_filename	, fs->bkg_file );
+	overwrite ( fs->resourcedir + fs->setup_filename		, fs->setup_file );
+	overwrite ( fs->resourcedir + fs->ipctool_filename	, fs->ipctool_file );
+	overwrite ( fs->resourcedir + fs->config_filename		, fs->config_file );
+	overwrite ( fs->resourcedir + fs->doc_filename		, fs->doc_file );
+	overwrite ( fs->resourcedir + fs->deploy_filename		, fs->deploy_file );
+	init_file ( fs->instrumentdir + ".test2.snd"			, fs->resourcedir );
+	overwrite ( fs->rc_snd_file							, fs->instrumentdir + fs->default_snd );
+	overwrite ( fs->rc_nte_file							, fs->notesdir + fs->default_nte );
+	init_file ( fs->program_file							, fs->resourcedir );
+	init_file ( fs->prog_libfile							, fs->resourcedir );
+	init_file ( fs->prog_testfile						, fs->resourcedir );
+	overwrite ( fs->resourcedir + fs->template_xmlname	, fs->template_xmlfile );
 	Cfg.Parse_argv(argc, argv );
 	if ( Cfg.Config.test == 'y' )
 	{
@@ -230,30 +232,30 @@ int main(int argc, char **argv)
 			exit(0);
 	}
 
-	Log.Info( "Using Ocean Base Directory ", fs.installdir );
+	Log.Info( "Using Ocean Base Directory ", fs->installdir );
 	bashrc_oceandir();
 	create_oceanrc();
 
 
-	copy_files( fs.instrumentdir,
-				fs.snd_type,
-				fs.resourcedir + "Instruments/" );
-	copy_files( fs.notesdir,
-				fs.nte_type,
-				fs.resourcedir + "Notes/" );
-	copy_files( fs.includedir,
+	copy_files( fs->instrumentdir,
+				fs->snd_type,
+				fs->resourcedir + "Instruments/" );
+	copy_files( fs->notesdir,
+				fs->nte_type,
+				fs->resourcedir + "Notes/" );
+	copy_files( fs->includedir,
 				".synth",
-				fs.resourcedir );
-	copy_files( fs.includedir,
+				fs->resourcedir );
+	copy_files( fs->includedir,
 				".inc",
-				fs.resourcedir );
+				fs->resourcedir );
 
 
 	using filesystem::perms;
 	using filesystem::perm_options;
 
-	permissions( fs.deploy_file	, perms::owner_exec, perm_options::add );
-	permissions( fs.ipctool_file, perms::owner_exec, perm_options::add );
+	permissions( fs->deploy_file	, perms::owner_exec, perm_options::add );
+	permissions( fs->ipctool_file, perms::owner_exec, perm_options::add );
 
 
 	create_tararchive();

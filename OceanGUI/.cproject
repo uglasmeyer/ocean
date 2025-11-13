@@ -289,6 +289,7 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075" moduleId="org.eclipse.cdt.core.settings" name="Shlib">
 				<macros>
 					<stringMacro name="OUTPUT_PREFIX" type="VALUE_TEXT" value="/home/sirius/OceanBase/build/OceanGUI"/>
+					<stringMacro name="git_dir" type="VALUE_TEXT" value="/home/sirius/git/Ocean/"/>
 				</macros>
 				<externalSettings>
 					<externalSetting>
@@ -302,14 +303,16 @@
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" description="OceanGUI shlib" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075" name="Shlib" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.dockerdpath=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg" postannouncebuildStep="" postbuildStep="${ProjDirPath}/../Setup/Shlib/Setup OceanGUI" prebuildStep="${ProjDirPath}/make_moc.sh">
+				<configuration artifactExtension="" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" description="OceanGUI shlib" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075" name="Shlib" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.dockerdpath=,org.eclipse.cdt.docker.launcher.containerbuild.property.enablement=null,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.image=null,org.eclipse.cdt.docker.launcher.containerbuild.property.connection=null" parent="org.eclipse.cdt.build.core.emptycfg" postannouncebuildStep="" postbuildStep="${git_dir}/Setup/${ConfigName}/Setup   ${ProjName}" prebuildStep="${ProjDirPath}/make_moc.sh">
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.112068836" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1263344671" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder autoBuildTarget="all" buildPath="${workspace_loc:/OceanGUI}/Shlib" cleanBuildTarget="clean" id="org.eclipse.cdt.build.core.internal.builder.746318974" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="org.eclipse.cdt.build.core.internal.builder"/>
+							<builder buildPath="${workspace_loc:/OceanGUI}/Shlib" id="cdt.managedbuild.target.gnu.builder.base.2134669849" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.296890338" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
 								<outputType id="cdt.managedbuild.tool.gnu.archiver.output.1999415393" outputPrefix="lib" superClass="cdt.managedbuild.tool.gnu.archiver.output"/>
 							</tool>
@@ -325,7 +328,7 @@
 									<listOptionValue builtIn="false" value="&quot;/usr/include/${ARCH}-linux-gnu/${QT}/QtCore&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/include}&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.debugging.level.1779044386" name="Debug level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.level.1779044386" name="Debug level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.309299505" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.optimization.level.377489131" name="Optimization level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.gprof.1327050372" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" useByScannerDiscovery="false" value="false" valueType="boolean"/>

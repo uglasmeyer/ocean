@@ -12,10 +12,10 @@
 #include <string>
 using namespace std;
 
-#define MAYOR 3
-#define MINOR 12
-#define PATCH 2
-#define DATA_VERSION 35
+#define MAYOR 4
+#define MINOR 0
+#define PATCH 0
+#define DATA_VERSION 36
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -28,6 +28,9 @@ const string Application = "Ocean Sound Lab.";
 
 // Git comment:
 /*
+ *
+version 4.0.0	github version
+				use scanner for Stereo data
 version 3.12.2	SDSMenu_class
 				sdsview_page DATA_VERSIOM 35
 				process_arr_t replaced by appstate_arr_t DATA_VERSION 34

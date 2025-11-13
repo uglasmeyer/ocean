@@ -60,7 +60,7 @@ public:
 	void 					SetScanner			( const buffer_t& maxlen );
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
-	OscId_t 				Get_oscid_by_name	( const string& name );
+	OSCID_e 				Get_oscid_by_name	( const string& name );
 
 	void 					SetSlide			( const uint8_t& value );
 	void 					SetFeatures			( interface_t* sds );

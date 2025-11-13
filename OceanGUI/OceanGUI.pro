@@ -15,11 +15,11 @@ SOURCES += \
 
 HEADERS += \
     include/Keyboad_dialog.h \
-    include/File_Dialog_class.h \
+    include/File_Dialog.h \
     include/Mainwindow.h \
     include/Oszilloscopewidget.h \
-    include/Spectrum_dialog_class.h \
-    include/Rtsp_dialog_class.h \
+    include/Spectrum_dialog.h \
+    include/Rtsp_dialog.h \
     include/Dispatcher.h
 
 FORMS += \

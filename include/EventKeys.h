@@ -14,7 +14,7 @@ https://en.wikipedia.org/wiki/ASCII#Character_set
 #define INCLUDE_KEYS_H_
 
 
-enum EVENTKEY_t
+enum EVENTKEY_e
 {
 	NULLKEY = 0,
 
@@ -112,7 +112,7 @@ enum EVENTKEY_t
 
 #include <vector>
 
-const std::vector<EVENTKEY_t> init_keys =
+const std::vector<EVENTKEY_e> init_keys =
 {
 		// avoid toggle commands here
 		SETINSTRUMENTKEY,

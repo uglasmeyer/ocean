@@ -8,7 +8,7 @@
 #include <Osc.h>
 #include <Oscwaveform.h>
 
-Oscillator::Oscillator( OscroleId_t role_id,  OscId_t _type_id, buffer_t bytes )
+Oscillator::Oscillator( OscroleId_t role_id,  OSCID_e _type_id, buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
 	, Oscillator_base		( _type_id )
 	, ADSR_class			( _type_id )
@@ -161,7 +161,7 @@ auto show_param = [ ]( string type, param_t param, phi_t dT, float freq, float f
 		cout << "dT         " << dT   			<< endl;
 		cout << "base freq  " << freq 			<< endl;
 		cout << "adj. freq  " << frq 			<< endl;
-		EXCEPTION( "phi exceeds maxphi limit: " +
+		Exception( "phi exceeds maxphi limit: " +
 				to_string(param.maxphi) +
 				" < " +
 				to_string( abs(param.phi)) );

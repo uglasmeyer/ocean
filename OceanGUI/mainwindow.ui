@@ -747,7 +747,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>User1</string>
+      <string>UserL-</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta2">
@@ -760,7 +760,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>User2</string>
+      <string>UserR-</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta3">
@@ -773,7 +773,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>User3</string>
+      <string>UserL+</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta7">
@@ -825,7 +825,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>User0</string>
+      <string>UserR+</string>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta6">
@@ -1148,7 +1148,7 @@
    <widget class="QPushButton" name="pBtoggleRecord">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>470</x>
       <y>470</y>
       <width>89</width>
       <height>25</height>
@@ -1706,7 +1706,7 @@
    <widget class="QSlider" name="SliderVCOadjust">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>40</x>
       <y>190</y>
       <width>16</width>
       <height>160</height>
@@ -1722,7 +1722,7 @@
    <widget class="QSlider" name="SliderFMOadjust">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>40</x>
       <y>380</y>
       <width>16</width>
       <height>160</height>

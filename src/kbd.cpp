@@ -7,6 +7,46 @@
 
 #include <Kbd.h>
 
+/**************************************************
+ * keymap_struct
+ *************************************************/
+string keymap_struct::Name( kbdInt_t key )
+{
+	for( keymap_data_t map : keymap_vec )
+	{
+		if ( map.id == key )
+			return map.name;
+	}
+	if (key < 0xF0 ) //(<128), 127
+	{
+		string str {};
+		str.assign(1, (char)key );
+		return str;
+	}
+	return to_string(key);
+};
+kbdInt_t keymap_struct::Qt_key( kbdInt_t key )
+{
+	for( keymap_data_t map : keymap_vec )
+	{
+		if ( map.qt == key )
+			return map.id;
+	}
+	return key;
+}
+string keymap_struct::Menu( kbdInt_t key )
+{
+	for( keymap_data_t map : keymap_vec )
+	{
+		if ( map.id == key )
+			return map.menu;
+	}
+	return "";
+};
+
+/**************************************************
+ * Kbd_base
+ *************************************************/
 Kbd_base::Kbd_base() :
 	Logfacility_class("Kbd_base")
 {
@@ -32,8 +72,8 @@ string Kbd_base::ShowKey( kbdkey_t key )
 	stringstream strs {};
 
 	strs << hex << "0x0" <<
-			key.Int << " : " <<
-			map_key_name( key.Int ) << " ";
+			key.Int << " : ";// <<
+//			map_key_name( key.Int ) << " ";
 	for( uint n = 0; n < key.Arr.size(); n++ )
 	{
 		strs << (int)key.Arr[n] << " ";

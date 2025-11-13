@@ -54,7 +54,7 @@ class ADSR_class :
 	buffer_t 		beat_cursor 	= 0;
 	bool			tainted			= true; // becomes true if adsr_data changes
 	buffer_t		beat_frames		= max_frames;
-	Memory			adsr_Mem		{ monobuffer_bytes }; //max_frames*sizeof(Data)
+	Heap_Memory			adsr_Mem		{ monobuffer_bytes }; //max_frames*sizeof(Data)
 
 public:
 
@@ -71,7 +71,7 @@ public:
 	adsr_t			Get_adsr		();
 	void			Set_bps			();
 	string			Show_adsr		( adsr_t );
-					ADSR_class		( OscId_t _typeid );
+					ADSR_class		( OSCID_e _typeid );
 					ADSR_class		(); // viewSDS
 	virtual 		~ADSR_class		();
 

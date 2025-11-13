@@ -8,23 +8,10 @@
 #ifndef EXIT_H_
 #define EXIT_H_
 
-#include <Ocean.h>
 #include <Logfacility.h>
 
 
 #define NOEXEPT true
-
-#define EXCEPTION( err_str )\
-	{\
-	cout << "An application exception occured " << endl;\
-	cout << "See above the detail, or visit the Synthesizer.log file for more information" <<endl;\
-	cout << "Press <Ctrl>d to enter the common exit procedure" << endl;\
-	string str {err_str};\
-	printf( "file: ( %s ) line: ( %d ) in function: ( %s )\n", __FILE__, __LINE__, __func__ );\
-	printf("%s\n", str.data() ) ;\
-	/* jump to exit_proc( SIGHUP ) */ \
-	raise( SIGHUP ); \
-	};
 
 
 extern void exit_proc( int );
@@ -42,6 +29,7 @@ class Exit_class :
 	const vector<signalmap_t> signalmap =
 	{
 			{ SIGINT, "SIGINT" },
+			{ SIGILL, "SIGILL" }, // used to interrupt the initialization phase of a process
 			{ SIGHUP, "SIGHUP" },
 //			{ SIGABRT,"SIGABRT" },
 			{ SIGTERM,"SIGTERM"}
@@ -49,7 +37,6 @@ class Exit_class :
 
 	string className = "";
 public:
-
 
 	Exit_class( ) :
 		Logfacility_class("Exit_class")

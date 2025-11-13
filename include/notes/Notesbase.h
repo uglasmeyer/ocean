@@ -20,9 +20,15 @@
  https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
  */
 
-const vector<string> NotesExtension { file_structure().xml_type, file_structure().nte_type };
-enum { XML_ID, NTE_ID };
+const vector<string> NotesExtension { file_structure::xml_type, file_structure::nte_type };
+enum NOTETYPE_e
+{
+	XML_ID,
+	NTE_ID
+};
 
+const range_T<uint8_t>	npsidx_range{ 0, 8 };
+const range_T<uint8_t>	accidental_range{ 0_uint, 7_uint };
 typedef vector<int> step_vec_t ;
 constexpr step_vec_t init_pitch( string ac )
 { 	// every char in ac will be translated into a note pos in OctChars
@@ -74,13 +80,13 @@ typedef struct note_value_struct
 	char	step_char	= PAUSE_CH;
 	uint8_t	frqidx		= 1 ;
 
-	note_value_struct(){};
+	note_value_struct() = default;
 	note_value_struct( int oct, char ch, char alt )
 	{
 		octave 			= check_range( octave_range, oct, "note_value_struct" );
 		step_char 		= toupper(ch);
 		step			= step_value( ch );
-		alter			= alt;
+		alter			= ( alt  == 0 ) ? 0 : alt/abs(alt) ;
 		frqidx 			= frqIndex( step + alter, octave );
 	}
 	note_value_struct( int idx )
@@ -107,18 +113,18 @@ typedef struct pitch_struct :
 		name	= "Pause";//frqNamesArray[ frqidx ];
 		freq	= 1.0;//frqArray[ frqidx ];
 	}
+	pitch_struct( int idx ) : // keyboard, notes
+		note_value_struct( idx )
+	{
+		name	= frqNamesArray[ frqidx ];
+		freq	= frqArray[ frqidx ];
+	}
 	pitch_struct( int oct, char ch, int alt ) : // notes, musicxml
 		note_value_struct( oct, ch, alt )
 	{
 		name	= frqNamesArray[ frqidx ];
 		freq	= frqArray[ frqidx ];
 
-	}
-	pitch_struct( int idx ) : // keyboard, notes
-		note_value_struct( idx )
-	{
-		name	= frqNamesArray[ frqidx ];
-		freq	= frqArray[ frqidx ];
 	}
 	~pitch_struct() = default;
 
@@ -174,10 +180,6 @@ class Note_base :
 public:
 
 	const String			OctaveChars		{ octchar_T(min_octave, max_octave ) };
-
-	const string			notes_ext		= file_structure().nte_type;
-
-
 	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
 	const step_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
@@ -186,7 +188,7 @@ public:
 	const vector_str_t 		convention_notes{ 	OctChars_EN,
 												"0123456789AB",
 												"C%D%EF%G%A%B",
-												"CcDdEFfGgAaH"};
+												OctChars_DE};
 	const vector_str_t 		convention_names{ 	"English",
 												"Numeric",
 												"Alphabet",
@@ -205,7 +207,7 @@ public:
 
 
 	typedef struct noteline_prefix_struct
-	{	// SDS
+	{	// SDS related
 		uint8_t		Octave		= 3;
 		int8_t		octave_shift= 0; 	// interpreter : set octave+ | set orctave-
 		uint8_t	 	convention	= 0;
@@ -215,9 +217,9 @@ public:
 		uint8_t		variation	= 0;	// 0 no variation, 1 variable note
 		int			chord_delay = 0;	// msec delay between each note of a chord
 	} noteline_prefix_t;
-	const noteline_prefix_t noteline_prefix_default = noteline_prefix_struct();
-	noteline_prefix_t		Noteline_prefix		= noteline_prefix_default; // D=default, N=numeric
-	String 					Note_Chars			{ convention_notes[ noteline_prefix_default.convention ] };
+	const noteline_prefix_t nlp_default = noteline_prefix_struct();
+	noteline_prefix_t		Noteline_prefix	= nlp_default; // D=default, N=numeric
+	String 					Note_Chars		{ convention_notes[ nlp_default.convention ] };
 
 
 	typedef list<note_t>	notelist_t;
@@ -227,7 +229,7 @@ public:
 	note_itr_t  			note_itr 	= notelist.begin();
 	note_t 					note_buffer = note_struct();
 
-	uint16_t 				min_duration= 1000 / noteline_prefix_default.nps;  //milli seconds
+	uint16_t 				min_duration= 1000 / nlp_default.nps;  //milli seconds
 
 	note_t					rest_note			= note_struct();
 
@@ -246,11 +248,8 @@ public:
 
 
 	void 				Show_noteline_prefix( noteline_prefix_struct nlp );
-	void				Set_noteline_prefix( noteline_prefix_struct nlp );
 	string 				Noteline_prefix_to_string( noteline_prefix_struct nlp );
-	noteline_prefix_t
-						String_to_noteline_prefix( string str );
-
+	noteline_prefix_t	String_to_noteline_prefix( string str );
 	noteline_prefix_t	Set_base_octave( uint );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 	int 				Notechar2Step( char note_char );

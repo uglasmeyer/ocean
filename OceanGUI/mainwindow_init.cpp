@@ -10,7 +10,7 @@
 void MainWindow::initPanel()
 {
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
-    QString Ocean_png = Qstring( fs.bkg_file );
+    QString Ocean_png = Qstring( fs->bkg_file );
     QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
 
@@ -38,10 +38,10 @@ void MainWindow::initPanel()
 void MainWindow::initComboBoxes()
 {
     CB_external         = ui->cb_external;
-    string wavfile_path = fs.musicdir;
+    string wavfile_path = fs->musicdir;
     CB_external->clear();
 
-    Path_t path { wavfile_path, fs.wav_type } ;
+    Path_t path { wavfile_path, fs->wav_type } ;
     CB_external->addItems( Qread_filenames(	path ) );
     QString Qfile	= QReadStr( Sds, OTHERSTR_KEY );
     CB_external->setCurrentText( Qfile );
@@ -110,7 +110,7 @@ void MainWindow::initFreqSlider()
 		ui->cB_Combine->setChecked( true );
 }
 
-void MainWindow::initGuiVectors()
+void MainWindow::initGuiVectors( interface_t* sds)
 {
 
     rb_S_vec =
@@ -123,68 +123,68 @@ void MainWindow::initGuiVectors()
 
     cb_store_sta_vec =
     {
-    	{ 0, ui->cb_ssta0, &Sds->addr->StA_state[0].store },
-		{ 1, ui->cb_ssta1, &Sds->addr->StA_state[1].store },
-		{ 2, ui->cb_ssta2, &Sds->addr->StA_state[2].store },
-		{ 3, ui->cb_ssta3, &Sds->addr->StA_state[3].store },
-		{ 4, ui->cb_ssta4, &Sds->addr->StA_state[4].store },
-		{ 5, ui->cb_ssta5, &Sds->addr->StA_state[5].store },
-		{ 6, ui->cb_ssta6, &Sds->addr->StA_state[6].store },
-		{ 7, ui->cb_ssta7, &Sds->addr->StA_state[7].store }
+    	{ STA_USER00, ui->cb_ssta0, &sds->StA_state_arr[0].store },
+		{ STA_USER01, ui->cb_ssta1, &sds->StA_state_arr[1].store },
+		{ STA_USER02, ui->cb_ssta2, &sds->StA_state_arr[2].store },
+		{ STA_USER03, ui->cb_ssta3, &sds->StA_state_arr[3].store },
+		{ STA_INSTRUMENT, ui->cb_ssta4, &sds->StA_state_arr[4].store },
+		{ STA_KEYBOARD, ui->cb_ssta5, &sds->StA_state_arr[5].store },
+		{ STA_NOTES, ui->cb_ssta6, &sds->StA_state_arr[6].store },
+		{ STA_EXTERNAL, ui->cb_ssta7, &sds->StA_state_arr[7].store }
     };
-    cb_filld_sta_vec =
+    cb_filled_sta_vec =
     {
-    	{ 0, ui->cb_fsta0, &Sds->addr->StA_state[0].filled },
-		{ 1, ui->cb_fsta1, &Sds->addr->StA_state[1].filled },
-		{ 2, ui->cb_fsta2, &Sds->addr->StA_state[2].filled },
-		{ 3, ui->cb_fsta3, &Sds->addr->StA_state[3].filled },
-		{ 4, ui->cb_fsta4, &Sds->addr->StA_state[4].filled },
-		{ 5, ui->cb_fsta5, &Sds->addr->StA_state[5].filled },
-		{ 6, ui->cb_fsta6, &Sds->addr->StA_state[6].filled },
-		{ 7, ui->cb_fsta7, &Sds->addr->StA_state[7].filled }
+    	{ STA_USER00, ui->cb_fsta0, &sds->StA_state_arr[0].filled },
+		{ STA_USER01, ui->cb_fsta1, &sds->StA_state_arr[1].filled },
+		{ STA_USER02, ui->cb_fsta2, &sds->StA_state_arr[2].filled },
+		{ STA_USER03, ui->cb_fsta3, &sds->StA_state_arr[3].filled },
+		{ STA_INSTRUMENT, ui->cb_fsta4, &sds->StA_state_arr[4].filled },
+		{ STA_KEYBOARD, ui->cb_fsta5, &sds->StA_state_arr[5].filled },
+		{ STA_NOTES, ui->cb_fsta6, &sds->StA_state_arr[6].filled },
+		{ STA_EXTERNAL, ui->cb_fsta7, &sds->StA_state_arr[7].filled }
     };
 
     cb_play_sta_vec =
     {
-		{ 0, ui->cb_psta0, &Sds->addr->StA_state[0].play  },
-		{ 1, ui->cb_psta1, &Sds->addr->StA_state[1].play  },
-		{ 2, ui->cb_psta2, &Sds->addr->StA_state[2].play  },
-		{ 3, ui->cb_psta3, &Sds->addr->StA_state[3].play  },
-		{ 4, ui->cb_psta4, &Sds->addr->StA_state[4].play  },
-		{ 5, ui->cb_psta5, &Sds->addr->StA_state[5].play  },
-		{ 6, ui->cb_psta6, &Sds->addr->StA_state[6].play  },
-		{ 7, ui->cb_psta7, &Sds->addr->StA_state[7].play  }
+		{ STA_USER00, ui->cb_psta0, &sds->StA_state_arr[0].play  },
+		{ STA_USER01, ui->cb_psta1, &sds->StA_state_arr[1].play  },
+		{ STA_USER02, ui->cb_psta2, &sds->StA_state_arr[2].play  },
+		{ STA_USER03, ui->cb_psta3, &sds->StA_state_arr[3].play  },
+		{ STA_INSTRUMENT, ui->cb_psta4, &sds->StA_state_arr[4].play  },
+		{ STA_KEYBOARD, ui->cb_psta5, &sds->StA_state_arr[5].play  },
+		{ STA_NOTES, ui->cb_psta6, &sds->StA_state_arr[6].play  },
+		{ STA_EXTERNAL, ui->cb_psta7, &sds->StA_state_arr[7].play  }
 	};
     sl_sta_vec =
     {
-		{ 0, ui->Slider_mix_vol0, &Sds->addr->StA_amp_arr[0]  },
-		{ 1, ui->Slider_mix_vol1, &Sds->addr->StA_amp_arr[1]  },
-		{ 2, ui->Slider_mix_vol2, &Sds->addr->StA_amp_arr[2]  },
-		{ 3, ui->Slider_mix_vol3, &Sds->addr->StA_amp_arr[3]  },
-		{ 4, ui->Slider_mix_vol4, &Sds->addr->StA_amp_arr[4]  },
-		{ 5, ui->Slider_mix_vol5, &Sds->addr->StA_amp_arr[5]  },
-		{ 6, ui->Slider_mix_vol6, &Sds->addr->StA_amp_arr[6]  },
-		{ 7, ui->Slider_mix_vol7, &Sds->addr->StA_amp_arr[7]  }
+		{ STA_USER00, ui->Slider_mix_vol0, &sds->StA_amp_arr[0]  },
+		{ STA_USER01, ui->Slider_mix_vol1, &sds->StA_amp_arr[1]  },
+		{ STA_USER02, ui->Slider_mix_vol2, &sds->StA_amp_arr[2]  },
+		{ STA_USER03, ui->Slider_mix_vol3, &sds->StA_amp_arr[3]  },
+		{ STA_INSTRUMENT, ui->Slider_mix_vol4, &sds->StA_amp_arr[4]  },
+		{ STA_KEYBOARD, ui->Slider_mix_vol5, &sds->StA_amp_arr[5]  },
+		{ STA_NOTES, ui->Slider_mix_vol6, &sds->StA_amp_arr[6]  },
+		{ STA_EXTERNAL, ui->Slider_mix_vol7, &sds->StA_amp_arr[7]  }
 	};
 
     int max = frqarr_range.max - 2*oct_steps;  // refers to keyboard octave
     sl_frqidx_vec =
     {
-   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &Sds->addr->spectrum_arr[VCOID].frqidx[0], max },
-   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &Sds->addr->spectrum_arr[FMOID].frqidx[0], max },
-   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &Sds->addr->spectrum_arr[OSCID].frqidx[0], frqarr_range.max   }
+   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &sds->spectrum_arr[VCOID].frqidx[0], max },
+   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &sds->spectrum_arr[FMOID].frqidx[0], max },
+   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &sds->spectrum_arr[OSCID].frqidx[0], frqarr_range.max   }
     };
     sl_volume_vec =
     {
-   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &Sds->addr->spectrum_arr[VCOID].volidx[0], volidx_range.max },
-   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &Sds->addr->spectrum_arr[FMOID].volidx[0], volidx_range.max },
+   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &sds->spectrum_arr[VCOID].volidx[0], volidx_range.max },
+   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &sds->spectrum_arr[FMOID].volidx[0], volidx_range.max },
    		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &sds_master->Master_Amp	 , volidx_range.max }
     };
     sB_lbl_vec =
     {
-        { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &Sds->addr->spectrum_arr[VCOID].wfid[0] },
-       	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &Sds->addr->spectrum_arr[FMOID].wfid[0] },
-       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &Sds->addr->spectrum_arr[OSCID].wfid[0] }
+        { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &sds->spectrum_arr[VCOID].wfid[0] },
+       	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &sds->spectrum_arr[FMOID].wfid[0] },
+       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &sds->spectrum_arr[OSCID].wfid[0] }
     };
 }
 
@@ -247,14 +247,23 @@ void MainWindow::initUiConnectors()
     connect(ui->cb_ssta6		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta6() ));
     connect(ui->cb_ssta7		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta7() ));
 
-    connect(ui->cb_psta0			, SIGNAL(clicked() )		,this, SLOT(toggle_mute0() ));
-    connect(ui->cb_psta1			, SIGNAL(clicked() )		,this, SLOT(toggle_mute1() ));
-    connect(ui->cb_psta2			, SIGNAL(clicked() )		,this, SLOT(toggle_mute2() ));
-    connect(ui->cb_psta3			, SIGNAL(clicked() )		,this, SLOT(toggle_mute3() ));
-    connect(ui->cb_psta4			, SIGNAL(clicked() )		,this, SLOT(toggle_mute4() ));
-    connect(ui->cb_psta5			, SIGNAL(clicked() )		,this, SLOT(toggle_mute5() ));
-    connect(ui->cb_psta6			, SIGNAL(clicked() )		,this, SLOT(toggle_mute6() ));
-    connect(ui->cb_psta7			, SIGNAL(clicked() )		,this, SLOT(toggle_mute7() ));
+    connect(ui->cb_psta0			, SIGNAL(clicked() )		,this, SLOT(setStaPlay0() ));
+    connect(ui->cb_psta1			, SIGNAL(clicked() )		,this, SLOT(setStaPlay1() ));
+    connect(ui->cb_psta2			, SIGNAL(clicked() )		,this, SLOT(setStaPlay2() ));
+    connect(ui->cb_psta3			, SIGNAL(clicked() )		,this, SLOT(setStaPlay3() ));
+    connect(ui->cb_psta4			, SIGNAL(clicked() )		,this, SLOT(setStaPlay4() ));
+    connect(ui->cb_psta5			, SIGNAL(clicked() )		,this, SLOT(setStaPlay5() ));
+    connect(ui->cb_psta6			, SIGNAL(clicked() )		,this, SLOT(setStaPlay6() ));
+    connect(ui->cb_psta7			, SIGNAL(clicked() )		,this, SLOT(setStaPlay7() ));
+
+    connect(ui->cb_fsta0			, SIGNAL(clicked() )		,this, SLOT(setStaStored0() ));
+    connect(ui->cb_fsta1			, SIGNAL(clicked() )		,this, SLOT(setStaStored1() ));
+    connect(ui->cb_fsta2			, SIGNAL(clicked() )		,this, SLOT(setStaStored2() ));
+    connect(ui->cb_fsta3			, SIGNAL(clicked() )		,this, SLOT(setStaStored3() ));
+    connect(ui->cb_fsta4			, SIGNAL(clicked() )		,this, SLOT(setStaStored4() ));
+    connect(ui->cb_fsta5			, SIGNAL(clicked() )		,this, SLOT(setStaStored5() ));
+    connect(ui->cb_fsta6			, SIGNAL(clicked() )		,this, SLOT(setStaStored6() ));
+    connect(ui->cb_fsta7			, SIGNAL(clicked() )		,this, SLOT(setStaStored7() ));
 
     connect(ui->rb_S0			, SIGNAL(clicked() )		,this, SLOT(select_Sds0() ));
     connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));

@@ -1,5 +1,5 @@
 #include <include/Common.h>
-#include <include/Spectrum_dialog_class.h>
+#include <include/Spectrum_dialog.h>
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
                                              Interface_class* 	gui,
@@ -126,7 +126,7 @@ void Spectrum_Dialog_class::set_spectrum_data()
 	}
 	SetLabelWaveform();
 }
-void Spectrum_Dialog_class::select_spec( OscId_t oscid )
+void Spectrum_Dialog_class::select_spec( OSCID_e oscid )
 {
 	OscId				= oscid;
     Channel 			= 1;

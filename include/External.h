@@ -28,6 +28,7 @@ class 							External_class :
 	interface_t*				sds					= nullptr;
 	FILE*						File				= nullptr;
 	Config_class*				Cfg 				= nullptr;
+	file_structure*				fs					= nullptr;
 
 public:
 	long 						Filedata_size 		= 0;
@@ -49,17 +50,15 @@ public:
 	};
 	status_struct				status				= status_struct();
 
-	bool 						Read_file_data		();
-	bool 						Read_file_header	( string );
-	int 						Save_record_data	( int filenr );
+	const bool 					Read_file_data		();
+	const bool 					Read_file_header	( string );
+	const string 				Save_record_data	( int filenr );
 	void 						Mono2Stereo			( Data_t* mono, uint size );
 	void 						Record_buffer		( Stereo_t* src, buffer_t frames );
-	string 						GetName				();
+	const string				GetName				();
 	void 						Test_External		();
 
 private:
-	file_structure				fs					= file_structure();
-	const uint 					MAXWAVFILES 		= 5; // max numbers of file names generated automatically
 	long int 					read_position 		= 0;
 	buffer_t					record_size			= 0;
 
@@ -67,8 +66,7 @@ private:
 	string 						Name 				= "";
 	string 						Filename 			= "";
 	string 						testcounter_file 	= "/tmp/counter";
-	string 						add_header 			= "cat " + file_structure().raw_file +
-								  	  	  	  	  	  " >> " + file_structure().wav_file;
+
 	void 						write_audio_data	( string );
 	void 						write_music_file	( string );
 	void 						wav_define 			(  long  );
@@ -76,9 +74,10 @@ private:
 	long 						write_audio_data	( string, buffer_t );
 	void 						setName				( string name );
 	bool 						read_stereo_data	( long );
+	string						addheader_cmd		();
 	string 						ffmpeg_cmd			( string wav, string mp3 );
 	string 						id3tool_cmd			( string mp3 );
-	int 						generate_file_no	( uint maxfileno );
+	int 						generate_file_no	();
 
 	void 						close				();
 

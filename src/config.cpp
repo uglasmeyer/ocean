@@ -44,7 +44,7 @@ string install_struct::gitDir()
 	string _dir = "";
 	string _pwd = pwd.generic_string() + "/";
 	if ( _pwd.length() == 0 )
-		EXCEPTION( "PWD not set");
+		Exception( "PWD not set");
 	size_t pos = _pwd.find( "/Ocean/" );
 	if( pos < STRINGNOTFOUND )
 		_dir = _pwd.substr( 0, pos ) + string( "/Ocean/");
@@ -146,14 +146,17 @@ string file_structure::get_rec_filename( uint no )
  * Config_class
 ************************** */
 
-Config_class::Config_class( string Module, file_structure* _fs ) :
+Config_class::Config_class() :
 	Logfacility_class( "Config_class" )
 {
 	className 			= Logfacility_class::className;
-	fs					= _fs;
-	prgName				= Module;
+	prgName				= Process.name;
 
-	Comment( DEBUG, "Program name: ", prgName );
+	if( not ( Process.AppId == SETUPID ))
+	{
+		Comment( INFO, "Program name: ", prgName );
+		cout << Line(80, 'v' )  << endl;
+	}
 	parse_cmdline();
 	if( filesystem::is_regular_file( fs->config_file ) )
 	{
@@ -181,7 +184,7 @@ void Config_class::Read_config(	string cfgfile )
 	ifstream cFile( configfile  );
 	if ( not cFile.is_open() )
 	{
-		EXCEPTION("Couldn't open config file " + configfile);
+		Exception("Couldn't open config file " + configfile);
 	}
 	String Line{""};
 	String Name{""};
@@ -333,7 +336,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			default  : 	Config.filename		= arg				; break;
 		}
 	}
-	cout << "Config.filename " << Config.filename << endl;
+//	cout << "Config.filename " << Config.filename << endl;
 
 }
 

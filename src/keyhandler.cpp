@@ -75,6 +75,7 @@ void keyboardState_class::set_accidental( step_vec_t vec  )
 		}
 	}
 };
+
 Note_base Nb {};
 void keyboardState_class::increase_sharps()
 {
@@ -151,7 +152,7 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.ADSR_flag * sds_p->adsr_arr[OSCID].bps ,"B psec");
 	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds_p->Kbd_state.sliding *
 													Osc->features.glide_effect), "[ % ]");
-	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( sta_p->state.forget, "forget", "persist" ));
+	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( sta_p->state.Forget(), "forget", "persist" ));
 	Table.AddRow( "F7", "increase flats "		, (int) sds_p->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
 	Table.AddRow( "F9", "save notes"			);
@@ -178,7 +179,7 @@ void Keyboard_class::notekey( char ch )
 }
 void Keyboard_class::set_bufferMode( bool forget )
 {
-	sta_p->state.forget 	= forget ;
+	sta_p->state.Forget( forget );
 	if( forget )
 	{
 		sta_volume = sds_p->StA_amp_arr[STA_KEYBOARD];
@@ -188,7 +189,7 @@ void Keyboard_class::set_bufferMode( bool forget )
 	{
 		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
-	sds_p->StA_state[ STA_KEYBOARD ].forget = forget;
+	sds_p->StA_state_arr[ STA_KEYBOARD ].forget = forget;
 	Note_vec.clear();
 	Noteline 			= "";
 }
@@ -196,7 +197,7 @@ void Keyboard_class::set_bufferMode( bool forget )
 void Keyboard_class::Set_key( ) // TODO
 {
 
-	bool forget			= sds_p->StA_state[STA_KEYBOARD].forget;
+	bool forget			= sds_p->StA_state_arr[STA_KEYBOARD].forget;
 	base_octave 		= sds_p->Kbd_state.base_octave;
 	sliding 			= sds_p->Kbd_state.sliding;
 	sharps	 			= sds_p->Kbd_state.sharps;
@@ -230,7 +231,7 @@ void Keyboard_class::keyHandler( kbdkey_t kbd )
 		case F3 : 	{ reset_sharps(); 	; break; }
 		case F4 :	{ toggle_applyADSR(); break; }
 		case F5 : 	{ set_slideMode(); 		break; }
-		case F6	: 	{ set_bufferMode( not sta_p->state.forget );		break; }
+		case F6	: 	{ set_bufferMode( not sta_p->state.Forget() );		break; }
 		case F7 : 	{ increase_flats();		break; }
 		case F8 : 	{ reset_flats(); 			break; }
 		case F9 : 	{ tainted = not Save_notes();	break; }

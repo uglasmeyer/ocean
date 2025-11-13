@@ -9,9 +9,9 @@
 
 // https://en.cppreference.com/w/cpp/language/operators
 
-Variation_class::Variation_class() :
-Logfacility_class{ "Variation_class" },
-Note_class()
+Variation_class::Variation_class( interface_t* sds, Config_class* cfg )
+	: Logfacility_class{ "Variation_class" }
+	, Note_class( sds, cfg )
 {
 	Note_class::Instrument_name = "Variation";
 	className = Logfacility_class::className;
@@ -91,7 +91,7 @@ string Variation_class::input_filter( string input, set<char> valid)
 	string result { "" };
 	std::copy_if( input.begin(), input.end(),
 							back_inserter( result ),
-							[&valid]( char ch ){ return valid.contains(ch);});
+							[valid]( char ch ){ return valid.contains(ch);});
 	return result;
 }
 
@@ -101,19 +101,18 @@ void Variation_class::Define_fix( string notes )
 		{
 			if ( notes[0] == '|' )
 				if ( Note_class::OctaveChars.Set.contains( notes[1] ) )
-					Note_class::Octave = (int)notes[1]-48;
+					Note_class::Octave = char2int(notes[1]);
 		};
 	if ( notes.length() < 4 )
 	{
-		EXCEPTION( "Constant_chars contains less than 4 characters" );
+		Exception( "Constant_chars contains less than 4 characters" );
 	}
 
 	if ( notes[0] == '-' )
 	{
-		EXCEPTION( "Constant_chars must not start with specified character " );
+		Exception( "Constant_chars must not start with specified character " );
 	}
 	String Valid { "r(),.-'| " + Note_class::OctaveChars.Str + Note_class::Note_Chars.Str };
-//	Charset_class Valid_set ( "r(),.-'| " + Note_class::OctaveChars + Note_class::Note_Chars );
 	set_octave( notes );
 	Constant_chars = input_filter( notes, Valid.Set);
 
@@ -345,7 +344,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	}
 	else
 	{
-		EXCEPTION( "Note line rules were not confirmed." );
+		Exception( "Note line rules were not confirmed." );
 	}
 	return noteline;
 }
@@ -375,18 +374,15 @@ void Variation_class::Test()
 		i++;
 	}
 
-
-	Define_variable("(EF)G'',,");
+	Note_base::Note_Chars = OctChars_EN;
 	Define_fix( "afafASDF1234!§$_:;,.-#'+***=)(/{[]}ÄÖ<>|′^'");
-	cout << "Constant_chars: " << Constant_chars << endl;
-	assert( strEqual( Constant_chars , "afafADF1234,.-')(|'" ));
+	Assert_equalstr( Constant_chars , "afafADF1234,.-')(|'") ;
 
 	Define_fix("fGHA");
 	Define_variable("EFG");
 	Gen_noteline("crcrc", "auto");
 
 
-//	Define_fix( "|2CrF-" );
 	Define_fix( "|2CrF-CrF-" );
 	Define_variable ( "C" );
 

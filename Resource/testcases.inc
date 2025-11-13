@@ -1,5 +1,7 @@
 :syntax
-
+osc main amp 75
+rec amp _INSTRUMENT 65
+pause key
 call :syntaxtest1
 
 pause key
@@ -87,7 +89,7 @@ exit
 osc main reset 
 set fmo freq A3
 set fmo amp 20
-adsr beat 0
+#adsr beat 0
 play _INSTRUMENT amp 75 5
 osc main set sinus A4 80 5
 osc main loop freq A5
@@ -96,7 +98,7 @@ set main freq A2
 pause 2
 set main freq A3
 osc main amp loop 0
-pause 10
+pause 5
 play _INSTRUMENT amp 75 5
 
 set fmo freq 10

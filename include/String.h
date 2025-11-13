@@ -20,7 +20,6 @@ extern int 		char2int( const char& ch );
 extern char 	int2char( const int& i );
 extern set<int> range_set( const int& min, const int& max );
 extern bool 	strEqual( const string& , const string&  );
-extern bool		fcomp( const float& a, const float& b, float precision = 1E-4 );
 
 extern string 	notnull( char* cstr );
 
@@ -153,6 +152,7 @@ public:
 	string 			to_hex( long )	;
 	void 			TestString();
 	void 			to_lower( );
+	void 			to_lower( string& str );
 	int 			to_int( const string& s );
 	void			Show( const string& comment );
 

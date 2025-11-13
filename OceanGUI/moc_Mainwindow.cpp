@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'Mainwindow.h'
 **
-** Created by: The Qt Meta Object Compiler version 68 (Qt 6.8.3)
+** Created by: The Qt Meta Object Compiler version 69 (Qt 6.9.2)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -18,8 +18,8 @@
 #include <QtCore/qxptype_traits.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'Mainwindow.h' doesn't include <QObject>."
-#elif Q_MOC_OUTPUT_REVISION != 68
-#error "This file was generated using the moc from 6.8.3. It"
+#elif Q_MOC_OUTPUT_REVISION != 69
+#error "This file was generated using the moc from 6.9.2. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -35,460 +35,353 @@ namespace {
 struct qt_meta_tag_ZN10MainWindowE_t {};
 } // unnamed namespace
 
+template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_tag_ZN10MainWindowE_t>()
+{
+    namespace QMC = QtMocConstants;
+    QtMocHelpers::StringRefStorage qt_stringData {
+        "MainWindow",
+        "update_CB_external",
+        "",
+        "updateColorButtons",
+        "Capture",
+        "str",
+        "Rtsp_Dialog",
+        "SDS_Dialog",
+        "slideFrq",
+        "cB_Beat_per_sec",
+        "dial_PMW_value_changed",
+        "mixer_balance",
+        "chord_delay",
+        "get_record_status",
+        "Main_slot_volume",
+        "VCO_slot_volume",
+        "FMO_slot_volume",
+        "Slider_OSC_Freq",
+        "Slider_FMO_Freq",
+        "Slider_VCO_Freq",
+        "Slider_VCO_Adjust",
+        "Slider_FMO_Adjust",
+        "Main_Waveform_slot",
+        "VCO_Waveform_slot",
+        "FMO_Waveform_slot",
+        "exit_synthesizer",
+        "APPID",
+        "GUI_Exit",
+        "start_synthesizer",
+        "start_audio_srv",
+        "start_composer",
+        "start_keyboard",
+        "connect_oscf",
+        "connect_oscv",
+        "connect_fmov",
+        "connect_vcov",
+        "Sl_mix0",
+        "Sl_mix1",
+        "Sl_mix2",
+        "Sl_mix3",
+        "Sl_mix4",
+        "Sl_mix5",
+        "Sl_mix6",
+        "Sl_mix7",
+        "slideVol",
+        "memory_clear",
+        "SaveRecord",
+        "read_polygon_data",
+        "Clear_Banks",
+        "setStaPlay",
+        "uint8_t",
+        "id",
+        "setStaPlay0",
+        "setStaPlay1",
+        "setStaPlay2",
+        "setStaPlay3",
+        "setStaPlay4",
+        "setStaPlay5",
+        "setStaPlay6",
+        "setStaPlay7",
+        "setStaStored",
+        "staId",
+        "setStaStored0",
+        "setStaStored1",
+        "setStaStored2",
+        "setStaStored3",
+        "setStaStored4",
+        "setStaStored5",
+        "setStaStored6",
+        "setStaStored7",
+        "toggle_store_sta0",
+        "toggle_store_sta1",
+        "toggle_store_sta2",
+        "toggle_store_sta3",
+        "toggle_store_sta4",
+        "toggle_store_sta5",
+        "toggle_store_sta6",
+        "toggle_store_sta7",
+        "select_Sds0",
+        "select_Sds1",
+        "select_Sds2",
+        "select_Sds3",
+        "CombineFreq",
+        "File_Director",
+        "Spectrum_Dialog",
+        "ADSR_Dialog",
+        "Save_Config",
+        "toggle_Mute",
+        "adsr_hall",
+        "pB_Debug_clicked",
+        "wavfile_selected",
+        "arg",
+        "pB_oscgroup_clicked",
+        "pB_Wavedisplay_clicked",
+        "pB_fftmode_clicked"
+    };
 
-#ifdef QT_MOC_HAS_STRINGDATA
-static constexpr auto qt_meta_stringdata_ZN10MainWindowE = QtMocHelpers::stringData(
-    "MainWindow",
-    "update_CB_external",
-    "",
-    "updateColorButtons",
-    "Capture",
-    "str",
-    "Rtsp_Dialog",
-    "SDS_Dialog",
-    "slideFrq",
-    "cB_Beat_per_sec",
-    "dial_PMW_value_changed",
-    "mixer_balance",
-    "chord_delay",
-    "get_record_status",
-    "Main_slot_volume",
-    "VCO_slot_volume",
-    "FMO_slot_volume",
-    "Slider_OSC_Freq",
-    "Slider_FMO_Freq",
-    "Slider_VCO_Freq",
-    "Slider_VCO_Adjust",
-    "Slider_FMO_Adjust",
-    "Main_Waveform_slot",
-    "VCO_Waveform_slot",
-    "FMO_Waveform_slot",
-    "exit_synthesizer",
-    "APPID",
-    "GUI_Exit",
-    "start_synthesizer",
-    "start_audio_srv",
-    "start_composer",
-    "start_keyboard",
-    "connect_oscf",
-    "connect_oscv",
-    "connect_fmov",
-    "connect_vcov",
-    "Sl_mix0",
-    "Sl_mix1",
-    "Sl_mix2",
-    "Sl_mix3",
-    "Sl_mix4",
-    "Sl_mix5",
-    "Sl_mix6",
-    "Sl_mix7",
-    "slideVol",
-    "memory_clear",
-    "SaveRecord",
-    "read_polygon_data",
-    "Clear_Banks",
-    "toggle_mute0",
-    "toggle_mute1",
-    "toggle_mute2",
-    "toggle_mute3",
-    "toggle_mute4",
-    "toggle_mute5",
-    "toggle_mute6",
-    "toggle_mute7",
-    "toggle_store_sta0",
-    "toggle_store_sta1",
-    "toggle_store_sta2",
-    "toggle_store_sta3",
-    "toggle_store_sta4",
-    "toggle_store_sta5",
-    "toggle_store_sta6",
-    "toggle_store_sta7",
-    "select_Sds0",
-    "select_Sds1",
-    "select_Sds2",
-    "select_Sds3",
-    "CombineFreq",
-    "File_Director",
-    "Spectrum_Dialog",
-    "ADSR_Dialog",
-    "Save_Config",
-    "toggle_Mute",
-    "adsr_hall",
-    "pB_Debug_clicked",
-    "wavfile_selected",
-    "arg",
-    "pB_oscgroup_clicked",
-    "pB_Wavedisplay_clicked",
-    "pB_fftmode_clicked"
-);
-#else  // !QT_MOC_HAS_STRINGDATA
-#error "qtmochelpers.h not found or too old."
-#endif // !QT_MOC_HAS_STRINGDATA
-
-Q_CONSTINIT static const uint qt_meta_data_ZN10MainWindowE[] = {
-
- // content:
-      12,       // revision
-       0,       // classname
-       0,    0, // classinfo
-      77,   14, // methods
-       0,    0, // properties
-       0,    0, // enums/sets
-       0,    0, // constructors
-       0,       // flags
-       0,       // signalCount
-
- // slots: name, argc, parameters, tag, flags, initial metatype offsets
-       1,    0,  476,    2, 0x0a,    1 /* Public */,
-       3,    0,  477,    2, 0x0a,    2 /* Public */,
-       4,    1,  478,    2, 0x08,    3 /* Private */,
-       6,    0,  481,    2, 0x08,    5 /* Private */,
-       7,    0,  482,    2, 0x08,    6 /* Private */,
-       8,    1,  483,    2, 0x08,    7 /* Private */,
-       9,    1,  486,    2, 0x08,    9 /* Private */,
-      10,    0,  489,    2, 0x08,   11 /* Private */,
-      11,    0,  490,    2, 0x08,   12 /* Private */,
-      12,    0,  491,    2, 0x08,   13 /* Private */,
-      13,    0,  492,    2, 0x08,   14 /* Private */,
-      14,    0,  493,    2, 0x08,   15 /* Private */,
-      15,    0,  494,    2, 0x08,   16 /* Private */,
-      16,    0,  495,    2, 0x08,   17 /* Private */,
-      17,    1,  496,    2, 0x08,   18 /* Private */,
-      18,    1,  499,    2, 0x08,   20 /* Private */,
-      19,    1,  502,    2, 0x08,   22 /* Private */,
-      20,    1,  505,    2, 0x08,   24 /* Private */,
-      21,    1,  508,    2, 0x08,   26 /* Private */,
-      22,    1,  511,    2, 0x08,   28 /* Private */,
-      23,    1,  514,    2, 0x08,   30 /* Private */,
-      24,    1,  517,    2, 0x08,   32 /* Private */,
-      25,    1,  520,    2, 0x08,   34 /* Private */,
-      27,    0,  523,    2, 0x08,   36 /* Private */,
-      28,    0,  524,    2, 0x08,   37 /* Private */,
-      29,    0,  525,    2, 0x08,   38 /* Private */,
-      30,    0,  526,    2, 0x08,   39 /* Private */,
-      31,    0,  527,    2, 0x08,   40 /* Private */,
-      32,    1,  528,    2, 0x08,   41 /* Private */,
-      33,    1,  531,    2, 0x08,   43 /* Private */,
-      34,    1,  534,    2, 0x08,   45 /* Private */,
-      35,    1,  537,    2, 0x08,   47 /* Private */,
-      36,    1,  540,    2, 0x08,   49 /* Private */,
-      37,    1,  543,    2, 0x08,   51 /* Private */,
-      38,    1,  546,    2, 0x08,   53 /* Private */,
-      39,    1,  549,    2, 0x08,   55 /* Private */,
-      40,    1,  552,    2, 0x08,   57 /* Private */,
-      41,    1,  555,    2, 0x08,   59 /* Private */,
-      42,    1,  558,    2, 0x08,   61 /* Private */,
-      43,    1,  561,    2, 0x08,   63 /* Private */,
-      44,    1,  564,    2, 0x08,   65 /* Private */,
-      45,    0,  567,    2, 0x08,   67 /* Private */,
-      46,    0,  568,    2, 0x08,   68 /* Private */,
-      47,    0,  569,    2, 0x08,   69 /* Private */,
-      48,    0,  570,    2, 0x08,   70 /* Private */,
-      49,    0,  571,    2, 0x08,   71 /* Private */,
-      50,    0,  572,    2, 0x08,   72 /* Private */,
-      51,    0,  573,    2, 0x08,   73 /* Private */,
-      52,    0,  574,    2, 0x08,   74 /* Private */,
-      53,    0,  575,    2, 0x08,   75 /* Private */,
-      54,    0,  576,    2, 0x08,   76 /* Private */,
-      55,    0,  577,    2, 0x08,   77 /* Private */,
-      56,    0,  578,    2, 0x08,   78 /* Private */,
-      57,    0,  579,    2, 0x08,   79 /* Private */,
-      58,    0,  580,    2, 0x08,   80 /* Private */,
-      59,    0,  581,    2, 0x08,   81 /* Private */,
-      60,    0,  582,    2, 0x08,   82 /* Private */,
-      61,    0,  583,    2, 0x08,   83 /* Private */,
-      62,    0,  584,    2, 0x08,   84 /* Private */,
-      63,    0,  585,    2, 0x08,   85 /* Private */,
-      64,    0,  586,    2, 0x08,   86 /* Private */,
-      65,    0,  587,    2, 0x08,   87 /* Private */,
-      66,    0,  588,    2, 0x08,   88 /* Private */,
-      67,    0,  589,    2, 0x08,   89 /* Private */,
-      68,    0,  590,    2, 0x08,   90 /* Private */,
-      69,    0,  591,    2, 0x08,   91 /* Private */,
-      70,    0,  592,    2, 0x08,   92 /* Private */,
-      71,    0,  593,    2, 0x08,   93 /* Private */,
-      72,    0,  594,    2, 0x08,   94 /* Private */,
-      73,    0,  595,    2, 0x08,   95 /* Private */,
-      74,    0,  596,    2, 0x08,   96 /* Private */,
-      75,    0,  597,    2, 0x08,   97 /* Private */,
-      76,    0,  598,    2, 0x08,   98 /* Private */,
-      77,    1,  599,    2, 0x08,   99 /* Private */,
-      79,    0,  602,    2, 0x08,  101 /* Private */,
-      80,    0,  603,    2, 0x08,  102 /* Private */,
-      81,    0,  604,    2, 0x08,  103 /* Private */,
-
- // slots: parameters
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::QString,    5,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, 0x80000000 | 26,    2,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Bool,    2,
-    QMetaType::Void, QMetaType::Bool,    2,
-    QMetaType::Void, QMetaType::Bool,    2,
-    QMetaType::Void, QMetaType::Bool,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void, QMetaType::Int,    2,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::QString,   78,
-    QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void,
-
-       0        // eod
-};
-
+    QtMocHelpers::UintData qt_methods {
+        // Slot 'update_CB_external'
+        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'updateColorButtons'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'Capture'
+        QtMocHelpers::SlotData<void(QString)>(4, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 5 },
+        }}),
+        // Slot 'Rtsp_Dialog'
+        QtMocHelpers::SlotData<void()>(6, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'SDS_Dialog'
+        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'slideFrq'
+        QtMocHelpers::SlotData<void(int)>(8, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'cB_Beat_per_sec'
+        QtMocHelpers::SlotData<void(int)>(9, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'dial_PMW_value_changed'
+        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'mixer_balance'
+        QtMocHelpers::SlotData<void()>(11, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'chord_delay'
+        QtMocHelpers::SlotData<void()>(12, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'get_record_status'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'Main_slot_volume'
+        QtMocHelpers::SlotData<void()>(14, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'VCO_slot_volume'
+        QtMocHelpers::SlotData<void()>(15, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'FMO_slot_volume'
+        QtMocHelpers::SlotData<void()>(16, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'Slider_OSC_Freq'
+        QtMocHelpers::SlotData<void(int)>(17, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Slider_FMO_Freq'
+        QtMocHelpers::SlotData<void(int)>(18, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Slider_VCO_Freq'
+        QtMocHelpers::SlotData<void(int)>(19, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Slider_VCO_Adjust'
+        QtMocHelpers::SlotData<void(int)>(20, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Slider_FMO_Adjust'
+        QtMocHelpers::SlotData<void(int)>(21, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Main_Waveform_slot'
+        QtMocHelpers::SlotData<void(int)>(22, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'VCO_Waveform_slot'
+        QtMocHelpers::SlotData<void(int)>(23, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'FMO_Waveform_slot'
+        QtMocHelpers::SlotData<void(int)>(24, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'exit_synthesizer'
+        QtMocHelpers::SlotData<void(APPID)>(25, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 26, 2 },
+        }}),
+        // Slot 'GUI_Exit'
+        QtMocHelpers::SlotData<void()>(27, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'start_synthesizer'
+        QtMocHelpers::SlotData<void()>(28, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'start_audio_srv'
+        QtMocHelpers::SlotData<void()>(29, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'start_composer'
+        QtMocHelpers::SlotData<void()>(30, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'start_keyboard'
+        QtMocHelpers::SlotData<void()>(31, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'connect_oscf'
+        QtMocHelpers::SlotData<void(bool)>(32, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 2 },
+        }}),
+        // Slot 'connect_oscv'
+        QtMocHelpers::SlotData<void(bool)>(33, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 2 },
+        }}),
+        // Slot 'connect_fmov'
+        QtMocHelpers::SlotData<void(bool)>(34, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 2 },
+        }}),
+        // Slot 'connect_vcov'
+        QtMocHelpers::SlotData<void(bool)>(35, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Bool, 2 },
+        }}),
+        // Slot 'Sl_mix0'
+        QtMocHelpers::SlotData<void(int)>(36, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix1'
+        QtMocHelpers::SlotData<void(int)>(37, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix2'
+        QtMocHelpers::SlotData<void(int)>(38, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix3'
+        QtMocHelpers::SlotData<void(int)>(39, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix4'
+        QtMocHelpers::SlotData<void(int)>(40, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix5'
+        QtMocHelpers::SlotData<void(int)>(41, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix6'
+        QtMocHelpers::SlotData<void(int)>(42, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'Sl_mix7'
+        QtMocHelpers::SlotData<void(int)>(43, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'slideVol'
+        QtMocHelpers::SlotData<void(int)>(44, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::Int, 2 },
+        }}),
+        // Slot 'memory_clear'
+        QtMocHelpers::SlotData<void()>(45, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'SaveRecord'
+        QtMocHelpers::SlotData<void()>(46, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'read_polygon_data'
+        QtMocHelpers::SlotData<void()>(47, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'Clear_Banks'
+        QtMocHelpers::SlotData<void()>(48, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay'
+        QtMocHelpers::SlotData<void(uint8_t)>(49, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 50, 51 },
+        }}),
+        // Slot 'setStaPlay0'
+        QtMocHelpers::SlotData<void()>(52, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay1'
+        QtMocHelpers::SlotData<void()>(53, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay2'
+        QtMocHelpers::SlotData<void()>(54, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay3'
+        QtMocHelpers::SlotData<void()>(55, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay4'
+        QtMocHelpers::SlotData<void()>(56, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay5'
+        QtMocHelpers::SlotData<void()>(57, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay6'
+        QtMocHelpers::SlotData<void()>(58, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaPlay7'
+        QtMocHelpers::SlotData<void()>(59, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored'
+        QtMocHelpers::SlotData<void(uint8_t)>(60, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { 0x80000000 | 50, 61 },
+        }}),
+        // Slot 'setStaStored0'
+        QtMocHelpers::SlotData<void()>(62, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored1'
+        QtMocHelpers::SlotData<void()>(63, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored2'
+        QtMocHelpers::SlotData<void()>(64, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored3'
+        QtMocHelpers::SlotData<void()>(65, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored4'
+        QtMocHelpers::SlotData<void()>(66, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored5'
+        QtMocHelpers::SlotData<void()>(67, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored6'
+        QtMocHelpers::SlotData<void()>(68, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'setStaStored7'
+        QtMocHelpers::SlotData<void()>(69, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta0'
+        QtMocHelpers::SlotData<void()>(70, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta1'
+        QtMocHelpers::SlotData<void()>(71, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta2'
+        QtMocHelpers::SlotData<void()>(72, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta3'
+        QtMocHelpers::SlotData<void()>(73, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta4'
+        QtMocHelpers::SlotData<void()>(74, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta5'
+        QtMocHelpers::SlotData<void()>(75, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta6'
+        QtMocHelpers::SlotData<void()>(76, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_store_sta7'
+        QtMocHelpers::SlotData<void()>(77, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'select_Sds0'
+        QtMocHelpers::SlotData<void()>(78, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'select_Sds1'
+        QtMocHelpers::SlotData<void()>(79, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'select_Sds2'
+        QtMocHelpers::SlotData<void()>(80, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'select_Sds3'
+        QtMocHelpers::SlotData<void()>(81, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'CombineFreq'
+        QtMocHelpers::SlotData<void()>(82, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'File_Director'
+        QtMocHelpers::SlotData<void()>(83, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'Spectrum_Dialog'
+        QtMocHelpers::SlotData<void()>(84, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'ADSR_Dialog'
+        QtMocHelpers::SlotData<void()>(85, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'Save_Config'
+        QtMocHelpers::SlotData<void()>(86, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'toggle_Mute'
+        QtMocHelpers::SlotData<void()>(87, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'adsr_hall'
+        QtMocHelpers::SlotData<void()>(88, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'pB_Debug_clicked'
+        QtMocHelpers::SlotData<void()>(89, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'wavfile_selected'
+        QtMocHelpers::SlotData<void(const QString &)>(90, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 91 },
+        }}),
+        // Slot 'pB_oscgroup_clicked'
+        QtMocHelpers::SlotData<void()>(92, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'pB_Wavedisplay_clicked'
+        QtMocHelpers::SlotData<void()>(93, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'pB_fftmode_clicked'
+        QtMocHelpers::SlotData<void()>(94, 2, QMC::AccessPrivate, QMetaType::Void),
+    };
+    QtMocHelpers::UintData qt_properties {
+    };
+    QtMocHelpers::UintData qt_enums {
+    };
+    return QtMocHelpers::metaObjectData<MainWindow, qt_meta_tag_ZN10MainWindowE_t>(QMC::MetaObjectFlag{}, qt_stringData,
+            qt_methods, qt_properties, qt_enums);
+}
 Q_CONSTINIT const QMetaObject MainWindow::staticMetaObject = { {
     QMetaObject::SuperData::link<QMainWindow::staticMetaObject>(),
-    qt_meta_stringdata_ZN10MainWindowE.offsetsAndSizes,
-    qt_meta_data_ZN10MainWindowE,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN10MainWindowE_t>.stringdata,
+    qt_staticMetaObjectStaticContent<qt_meta_tag_ZN10MainWindowE_t>.data,
     qt_static_metacall,
     nullptr,
-    qt_incomplete_metaTypeArray<qt_meta_tag_ZN10MainWindowE_t,
-        // Q_OBJECT / Q_GADGET
-        QtPrivate::TypeAndForceComplete<MainWindow, std::true_type>,
-        // method 'update_CB_external'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'updateColorButtons'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'Capture'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<QString, std::false_type>,
-        // method 'Rtsp_Dialog'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'SDS_Dialog'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'slideFrq'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'cB_Beat_per_sec'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'dial_PMW_value_changed'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'mixer_balance'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'chord_delay'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'get_record_status'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'Main_slot_volume'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'VCO_slot_volume'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'FMO_slot_volume'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'Slider_OSC_Freq'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Slider_FMO_Freq'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Slider_VCO_Freq'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Slider_VCO_Adjust'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Slider_FMO_Adjust'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Main_Waveform_slot'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'VCO_Waveform_slot'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'FMO_Waveform_slot'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'exit_synthesizer'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<APPID, std::false_type>,
-        // method 'GUI_Exit'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'start_synthesizer'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'start_audio_srv'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'start_composer'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'start_keyboard'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'connect_oscf'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'connect_oscv'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'connect_fmov'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'connect_vcov'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<bool, std::false_type>,
-        // method 'Sl_mix0'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix1'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix2'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix3'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix4'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix5'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix6'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'Sl_mix7'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'slideVol'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<int, std::false_type>,
-        // method 'memory_clear'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'SaveRecord'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'read_polygon_data'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'Clear_Banks'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute0'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute1'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute2'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute3'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute4'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute5'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute6'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_mute7'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta0'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta1'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta2'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta3'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta4'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta5'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta6'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_store_sta7'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'select_Sds0'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'select_Sds1'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'select_Sds2'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'select_Sds3'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'CombineFreq'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'File_Director'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'Spectrum_Dialog'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'ADSR_Dialog'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'Save_Config'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'toggle_Mute'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'adsr_hall'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'pB_Debug_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'wavfile_selected'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        QtPrivate::TypeAndForceComplete<const QString &, std::false_type>,
-        // method 'pB_oscgroup_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'pB_Wavedisplay_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>,
-        // method 'pB_fftmode_clicked'
-        QtPrivate::TypeAndForceComplete<void, std::false_type>
-    >,
+    qt_staticMetaObjectRelocatingContent<qt_meta_tag_ZN10MainWindowE_t>.metaTypes,
     nullptr
 } };
 
@@ -542,38 +435,48 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 42: _t->SaveRecord(); break;
         case 43: _t->read_polygon_data(); break;
         case 44: _t->Clear_Banks(); break;
-        case 45: _t->toggle_mute0(); break;
-        case 46: _t->toggle_mute1(); break;
-        case 47: _t->toggle_mute2(); break;
-        case 48: _t->toggle_mute3(); break;
-        case 49: _t->toggle_mute4(); break;
-        case 50: _t->toggle_mute5(); break;
-        case 51: _t->toggle_mute6(); break;
-        case 52: _t->toggle_mute7(); break;
-        case 53: _t->toggle_store_sta0(); break;
-        case 54: _t->toggle_store_sta1(); break;
-        case 55: _t->toggle_store_sta2(); break;
-        case 56: _t->toggle_store_sta3(); break;
-        case 57: _t->toggle_store_sta4(); break;
-        case 58: _t->toggle_store_sta5(); break;
-        case 59: _t->toggle_store_sta6(); break;
-        case 60: _t->toggle_store_sta7(); break;
-        case 61: _t->select_Sds0(); break;
-        case 62: _t->select_Sds1(); break;
-        case 63: _t->select_Sds2(); break;
-        case 64: _t->select_Sds3(); break;
-        case 65: _t->CombineFreq(); break;
-        case 66: _t->File_Director(); break;
-        case 67: _t->Spectrum_Dialog(); break;
-        case 68: _t->ADSR_Dialog(); break;
-        case 69: _t->Save_Config(); break;
-        case 70: _t->toggle_Mute(); break;
-        case 71: _t->adsr_hall(); break;
-        case 72: _t->pB_Debug_clicked(); break;
-        case 73: _t->wavfile_selected((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 74: _t->pB_oscgroup_clicked(); break;
-        case 75: _t->pB_Wavedisplay_clicked(); break;
-        case 76: _t->pB_fftmode_clicked(); break;
+        case 45: _t->setStaPlay((*reinterpret_cast< std::add_pointer_t<uint8_t>>(_a[1]))); break;
+        case 46: _t->setStaPlay0(); break;
+        case 47: _t->setStaPlay1(); break;
+        case 48: _t->setStaPlay2(); break;
+        case 49: _t->setStaPlay3(); break;
+        case 50: _t->setStaPlay4(); break;
+        case 51: _t->setStaPlay5(); break;
+        case 52: _t->setStaPlay6(); break;
+        case 53: _t->setStaPlay7(); break;
+        case 54: _t->setStaStored((*reinterpret_cast< std::add_pointer_t<uint8_t>>(_a[1]))); break;
+        case 55: _t->setStaStored0(); break;
+        case 56: _t->setStaStored1(); break;
+        case 57: _t->setStaStored2(); break;
+        case 58: _t->setStaStored3(); break;
+        case 59: _t->setStaStored4(); break;
+        case 60: _t->setStaStored5(); break;
+        case 61: _t->setStaStored6(); break;
+        case 62: _t->setStaStored7(); break;
+        case 63: _t->toggle_store_sta0(); break;
+        case 64: _t->toggle_store_sta1(); break;
+        case 65: _t->toggle_store_sta2(); break;
+        case 66: _t->toggle_store_sta3(); break;
+        case 67: _t->toggle_store_sta4(); break;
+        case 68: _t->toggle_store_sta5(); break;
+        case 69: _t->toggle_store_sta6(); break;
+        case 70: _t->toggle_store_sta7(); break;
+        case 71: _t->select_Sds0(); break;
+        case 72: _t->select_Sds1(); break;
+        case 73: _t->select_Sds2(); break;
+        case 74: _t->select_Sds3(); break;
+        case 75: _t->CombineFreq(); break;
+        case 76: _t->File_Director(); break;
+        case 77: _t->Spectrum_Dialog(); break;
+        case 78: _t->ADSR_Dialog(); break;
+        case 79: _t->Save_Config(); break;
+        case 80: _t->toggle_Mute(); break;
+        case 81: _t->adsr_hall(); break;
+        case 82: _t->pB_Debug_clicked(); break;
+        case 83: _t->wavfile_selected((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 84: _t->pB_oscgroup_clicked(); break;
+        case 85: _t->pB_Wavedisplay_clicked(); break;
+        case 86: _t->pB_fftmode_clicked(); break;
         default: ;
         }
     }
@@ -587,7 +490,7 @@ const QMetaObject *MainWindow::metaObject() const
 void *MainWindow::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_ZN10MainWindowE.stringdata0))
+    if (!strcmp(_clname, qt_staticMetaObjectStaticContent<qt_meta_tag_ZN10MainWindowE_t>.strings))
         return static_cast<void*>(this);
     if (!strcmp(_clname, "Logfacility_class"))
         return static_cast< Logfacility_class*>(this);
@@ -602,14 +505,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 77)
+        if (_id < 87)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 77;
+        _id -= 87;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 77)
+        if (_id < 87)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 77;
+        _id -= 87;
     }
     return _id;
 }
