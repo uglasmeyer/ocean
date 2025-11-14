@@ -21,7 +21,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	this->sds 			= data->GetSdsAddr( );
 	this->sds_master 	= data->sds_master;
 	this->DaTA			= data;
-
+	this->Wd_p			= wd;
 
 	StA_param_t usr_conf = Mem_param_struct( "temp"		, data->Cfg_p->Config.temp_sec );
 	StA_param_t ist_conf = Mem_param_struct( "Instrument",data->Cfg_p->Config.kbd_sec );
@@ -52,7 +52,6 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 	wd->Add_role_ptr( NOTESROLE		, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
 	wd->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
-	wd->Add_role_ptr( EXTERNALROLE	, StA[ STA_EXTERNAL].Data, &StA[ STA_EXTERNAL].param.size );
 
 	SetStA();
 
@@ -75,6 +74,13 @@ Mixer_class::~Mixer_class()
 	sds->mixer_state.external	= false;
 	DESTRUCTOR( className );
 };
+
+void Mixer_class::Set_Wdcursor()
+{
+	STAID_e 	staid = sta_rolemap.GetStaid( sds->WD_status.roleId );
+	if ( staid < STA_SIZE )
+		Wd_p->Set_wdcursor( StA[ staid ].scanner.rpos );
+}
 
 void Mixer_class::clear_memory()
 {
@@ -176,7 +182,7 @@ void Mixer_class::add_mono( Data_t* Data, const uint& id )
 		volpermill 		= StA[id].DynVolume.Get() * 0.1;
 		Out.stereo_data[n].left 	+= rint( Data[n] * phase_l[id] * volpermill );
 		Out.stereo_data[n].right 	+= rint( Data[n] * phase_r[id] * volpermill );
-		Mono.Data[n]  				+= rint( Data[n] );//*volpercent );	// collect mono data for store
+		Mono.Data[n]  				+= rint( Data[n] );	// collect mono data for store
 	}
 	StA[id].DynVolume.Update();
 	if( StA[ id ].state.Forget() )
@@ -270,7 +276,9 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		{
 			Data_t* StAdata = sta.scanner.Next_read();
 			if ( StAdata )
+			{
 				add_mono( StAdata, staId );
+			}
 		}
 	}
 

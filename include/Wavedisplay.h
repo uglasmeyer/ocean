@@ -24,16 +24,17 @@ public:
 					Wavedisplay_class( Interface_class* sds );
 	virtual 		~Wavedisplay_class() = default;
 
-	void 			Add_role_ptr	( 	OscroleId_t wd_role,
+	void 			Add_role_ptr	( OscroleId_t wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
-	void 			Add_data_ptr	( 	const char& wd_type,
+	void 			Add_data_ptr	( OSCID_e wd_type,
 									OscroleId_t wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
 	void 			SetDataPtr		( const WD_data_t& status  );
 	void 			Write_wavedata 	();
 	void 			Set_wdcursor	(int pos, int max );
+	void 			Set_wdcursor	(int pos );
 
 
 private:
@@ -43,7 +44,6 @@ private:
 
 	string 			className		= "";
 	int 			frame_counter	= 0;
-	int 			index_counter	= 0;
 	buffer_t 		offs 			= 0;
 	size_t 			wdId 			= 0;
 	size_t			osId			= 0;
@@ -60,7 +60,6 @@ private:
 	Data_t*			data_ptr 		= nullptr;
 	buffer_t		wd_frames		= 0;
 	WD_data_t		wd_status		= WD_data_struct();
-//	osc_roles_t		OscRole			= osc_struct();
 	bool			debug_right		= true;
 	bool			fft_mode		= false;
 	wd_arr_t 		display_data 	= { 0 };
@@ -78,7 +77,7 @@ private:
 	} param_t;
 
 	param_t param_flow	= param_struct();
-	param_t param_full 	= { 0, wavedisplay_len		, max_frames/wavedisplay_len, max_frames };
+	param_t param_full 	= param_struct(); // dynamic parameter are overwritten{ 0, wavedisplay_len		, max_frames/wavedisplay_len, max_frames };
 	param_t param_split	= { 0, wavedisplay_len / 2	, 1 						, max_frames };//frames_per_sec };
 
 };

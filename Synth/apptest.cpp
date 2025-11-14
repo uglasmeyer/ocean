@@ -65,7 +65,7 @@ void SynthesizerTestCases()
 
 	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
-										DaTA.Cfg_p);
+										DaTA.Cfg_p, wd_p);
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };

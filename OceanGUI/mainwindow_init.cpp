@@ -35,6 +35,17 @@ void MainWindow::initPanel()
     File_Dialog_p->setGeometry(rect);
 }
 
+void MainWindow::initLables()
+{
+	ui->cb_ssta0->setText( Qstring( StAIdName( STA_USER00 )));
+	ui->cb_ssta1->setText( Qstring( StAIdName( STA_USER01 )));
+	ui->cb_ssta2->setText( Qstring( StAIdName( STA_USER02 )));
+	ui->cb_ssta3->setText( Qstring( StAIdName( STA_USER03 )));
+	ui->cb_ssta4->setText( Qstring( StAIdName( STA_INSTRUMENT )));
+	ui->cb_ssta5->setText( Qstring( StAIdName( STA_KEYBOARD )));
+	ui->cb_ssta6->setText( Qstring( StAIdName( STA_NOTES )));
+	ui->cb_ssta7->setText( Qstring( StAIdName( STA_EXTERNAL )));
+}
 void MainWindow::initComboBoxes()
 {
     CB_external         = ui->cb_external;

@@ -134,8 +134,8 @@ void Note_class::set_volume_vector( string volline )
 void Note_class::ScanData( )
 {
 	NotesData 	= StA->scanner.Next_read();
-	if( sds->WD_status.roleId == NOTESROLE )
-		wd->Set_wdcursor( scanner->rpos, scanner->mem_range.max );
+//	if( sds->WD_status.roleId == NOTESROLE )
+//		wd->Set_wdcursor( scanner->rpos, scanner->mem_range.max );
 }
 
 void Note_class::gen_chord_data(const note_t&	note,

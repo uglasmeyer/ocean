@@ -42,9 +42,7 @@ SOFTWARE.
 
 
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
-const int 				EXITTEST		= 15;
 
-//EventQue_class*			EventQue 		= &Sds->Eventque;// &DaTA.Sds_p->Eventque;
 Wavedisplay_class 		Wavedisplay		{ Sds };
 Wavedisplay_class*		Wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
@@ -52,7 +50,7 @@ Mixer_class				Mixer			{ &DaTA, Wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument		{ sds, Wd_p, Cfg.fs };
 Note_class 				Notes			{ &Instrument, &Mixer.StA[ STA_NOTES ] };
 Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
-External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg );
+External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, Wd_p );
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
 Musicxml_class			MusicXML		{};
@@ -165,6 +163,7 @@ void add_sound()
 	}
 
 
+
 	Stereo_t* shm_addr = DaTA.GetShm_addr(  );
 
 	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
@@ -177,7 +176,10 @@ void add_sound()
 	ProgressBar.Update();
 
 	if (( sds->WD_status.roleId != AUDIOROLE )	)
+	{
+		Mixer.Set_Wdcursor();
 		Wavedisplay.Write_wavedata();
+	}
 }
 Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add_sound" );
 thread* 		SyncAudio_thread_p = nullptr;

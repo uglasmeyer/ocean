@@ -26,8 +26,9 @@ class Mixer_class :
 	virtual public 		Logfacility_class
 {
 	string 				className		= "";
-	Dataworld_class* 	DaTA;
-
+	Dataworld_class* 	DaTA			;
+	Wavedisplay_class*	Wd_p			;
+	sta_role_map		sta_rolemap		= sta_role_map();
 	// provides and manages memory array
 public:
 
@@ -65,6 +66,8 @@ public:
 	void 				Set_play_mode	( const uint& id, const bool& play );
 	void 				SetStA			();
 	void 				SetStA			( Id_t mixerId );
+	void 				Set_Wdcursor	();
+
 
 	void 				TestMixer		();
 

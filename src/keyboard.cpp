@@ -277,8 +277,8 @@ void Keyboard_class::ScanData()
 
 	kbd_trigger = set_kbd_trigger( scanner->rpos );
 	Kbd_Data = scanner->Next_read();
-	if( sds_p->WD_status.roleId == KBDROLE )
-		wd_p->Set_wdcursor( scanner->rpos, scanner->mem_range.max );
+//	if( sds_p->WD_status.roleId == KBDROLE )
+//		wd_p->Set_wdcursor( scanner->rpos, scanner->mem_range.max );
 
 	Note_pos = ( Note_pos + 1 ) % max_notes;
 }

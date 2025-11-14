@@ -56,6 +56,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	className		= Logfacility_class::className;
 	ui->setupUi(this);
 	initPanel();
+	initLables();
 
 	Sds->Set( sds_master->UpdateFlag, true);
 	Sds->Set( Sds->addr->UpdateFlag, true);

@@ -481,8 +481,8 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/Osc.h \
 		../include/External.h \
 		../include/Progressbar.h \
-		../include/Wav.h \
 		../include/Wavedisplay.h \
+		../include/Wav.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
 		../include/notes/Notes.h \
@@ -623,8 +623,8 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/Osc.h \
 		../include/External.h \
 		../include/Progressbar.h \
-		../include/Wav.h \
 		../include/Wavedisplay.h \
+		../include/Wav.h \
 		../include/notes/Notes.h \
 		../include/Instrument.h \
 		../include/data/Device.h \

@@ -20,21 +20,22 @@ enum STAID_e : unsigned char
 	STA_KEYBOARD,
 	STA_NOTES,
 	STA_EXTERNAL,
-	STA_SIZE
+	STA_SIZE,
+	NO_STA
 };
 
 constexpr string StAIdName( STAID_e sta_id )
 {
 	switch ( sta_id )
 	{
-		case STA_USER00		: return "StA User 0";
-		case STA_USER01		: return "StA User 1";
-		case STA_USER02		: return "StA User 2";
-		case STA_USER03		: return "StA User 3";
-		case STA_INSTRUMENT	: return "StA_Instrument";
-		case STA_KEYBOARD	: return "StA Keyboard";
-		case STA_NOTES		: return "StA Notes";
-		case STA_EXTERNAL	: return "StA External";
+		case STA_USER00		: return "UserR+";
+		case STA_USER01		: return "UserL-";
+		case STA_USER02		: return "UserR-";
+		case STA_USER03		: return "UserL+";
+		case STA_INSTRUMENT	: return "Instrument";
+		case STA_KEYBOARD	: return "Keyboard";
+		case STA_NOTES		: return "Notes";
+		case STA_EXTERNAL	: return "External";
 		default 		: 	{
 							cout << "WARN: unknown Storage Area id: " << ( int)sta_id << endl;
 							return "";
@@ -67,5 +68,30 @@ struct mixer_state_struct
 	bool	instrument		= true; // play instrument
 } ;
 typedef 	mixer_state_struct 	mixer_state_t;
+
+typedef struct sta_rolemap_data
+{
+	OscroleId_t roleid;
+	STAID_e staid;
+} sta_rolemap_data_t;
+
+struct sta_role_map
+{
+	const vector<sta_rolemap_data_t> sta_map_vec =
+	{
+		{ INSTRROLE		, STA_INSTRUMENT },
+		{ NOTESROLE		, STA_NOTES },
+		{ KBDROLE		, STA_KEYBOARD },
+		{ EXTERNALROLE	, STA_EXTERNAL }
+	};
+	STAID_e GetStaid( OscroleId_t role )
+	{
+		if ( role < sta_map_vec.size() )
+			return sta_map_vec[role].staid;
+		else
+			return NO_STA;
+
+	}
+};
 
 #endif /* MIXERBASE_H_ */

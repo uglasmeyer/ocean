@@ -14,8 +14,8 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 0
-#define PATCH 0
-#define DATA_VERSION 36
+#define PATCH 1
+#define DATA_VERSION 37
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -29,6 +29,8 @@ const string Application = "Ocean Sound Lab.";
 // Git comment:
 /*
  *
+version 4.0.1	wavedisplay external with dynamic size
+				DATA_VERSION 37
 version 4.0.0	github version
 				use scanner for Stereo data
 version 3.12.2	SDSMenu_class

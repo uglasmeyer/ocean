@@ -51,22 +51,13 @@ void Wavedisplay_class::gen_cxwave_data( )
 	{
 
 		uint 		idx				= 0;
-		uint		step			= wd_frames / param.len;
-		for ( buffer_t n = 0; n < wd_frames; n = n + step )
+		uint		step			= wd_frames / wavedisplay_len ;
+		Assert_lt( (step-1) * wavedisplay_len, wd_frames );
+
+		for ( buffer_t n = 0; n < wavedisplay_len; n++ )
 		{
-			if ( idx < param.len )
-			{
-				Data_t value 		= data_ptr[n] ;
-				display_data[ idx ] = value;
-			}
-			else
-				break;
-			idx++;
-		}
-		index_counter++;
-		if ( idx >= param.len )
-		{
-			index_counter = 0;
+			display_data[ n ] 	= data_ptr[idx];
+			idx += step;
 		}
 	};
 
@@ -191,6 +182,11 @@ void Wavedisplay_class::Set_wdcursor(int pos, int max )
 {
 	set_wdcursor( wavedisplay_len * pos / max );
 }
+void Wavedisplay_class::Set_wdcursor(int pos )
+{
+	int max = *data_ptr_mtx[wd_status.roleId][wd_status.oscId].frames;
+	set_wdcursor( wavedisplay_len * pos / max );
+}
 
 void Wavedisplay_class::set_wdcursor( uint16_t cursor )
 {
@@ -220,20 +216,20 @@ void Wavedisplay_class::Add_role_ptr( 	OscroleId_t wd_role,
 										buffer_t* wd_frames )
 {
 	// special case for role external and audioserver. They do not have osc's
-	for( char osctype : oscIds )
+	for( OSCID_e osctype : oscIds )
 	{
 		Add_data_ptr( osctype, wd_role, ptr, wd_frames );
 	}
 }
-void Wavedisplay_class::Add_data_ptr( 	const char& wd_type,
+void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 										OscroleId_t wd_role,
 										Data_t* 	ptr,
 										buffer_t* 	frames )
 {
-	Comment( INFO, "adding wave display: " +
+	Comment( INFO, "adding wave display: "	+
 					to_string( wd_role ) 	+ " " +
-					roleNames[wd_role]	+  " - " +
-					typeNames[wd_type] + " " +
+					roleNames[ wd_role ]	+ " - " +
+					typeNames[ wd_type ] 	+ " " +
 					to_string( *frames));
 	if ( ptr == nullptr )
 	{

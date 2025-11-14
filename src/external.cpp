@@ -10,7 +10,7 @@
 #include <System.h>
 
 // Synthesizer read data from file into StA_External
-External_class::External_class	( Storage_class* sta, Config_class* cfg ) :
+External_class::External_class	( Storage_class* sta, Config_class* cfg, Wavedisplay_class* wd ) :
 	Logfacility_class("External"),
 	Memory_base( sta->mem_ds.bytes ),
 	Stereo_Memory( sta->mem_ds.bytes )
@@ -20,35 +20,14 @@ External_class::External_class	( Storage_class* sta, Config_class* cfg ) :
 	this->File 			= NULL;
 	this->Cfg			= cfg;
 	this->fs			= cfg->fs;
+	this->Wd			= wd;
 
-//	buffer_t
-//	ds_size				= cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t);
-//	Stereo_Memory::Init_data( ds_size, min_frames );
+	Filedata_size		= StA->param.size; // wavedisplay external with dynamic size
+	Wd->Add_role_ptr( EXTERNALROLE	, StA->Data, &Filedata_size );
+
 	Stereo_Memory::DsInfo	( ) ;
 };
 
-
-// Audioserver write audio data continuesly into stereo_buffer and write stereo_buffer to file
-External_class::External_class( Config_class* cfg,
-								interface_t* sds ) : //, Stereo_Memory* stereo ) :
-	Logfacility_class("External"),
-	Memory_base( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) ),
-	Stereo_Memory( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) )
-{
-	this->className		= Logfacility_class::className;
-	this->StA 			= nullptr;
-	this->File 			= NULL;
-	this->Cfg			= cfg;
-	this->sds			= sds;
-	this->fs			= cfg->fs;
-
-	Stereo_Memory::DsInfo( ) ;
-};
-
-const string External_class::GetName()
-{
-	return Filename;
-}
 void External_class::setName( string  _name )
 {
 	Name 		= _name;
@@ -125,15 +104,16 @@ const bool External_class::Read_file_data(  )
 	}
 }
 
-bool External_class::read_stereo_data( long data_bytes  )
+bool External_class::read_stereo_data( buffer_t data_bytes  )
 {
 	read_position += fread( stereo_data ,
 							sizeof_stereo,
 							data_bytes/sizeof_stereo,
 							File  );
 	Comment( DEBUG, to_string( read_position ));
-	long read_bytes = read_position * sizeof_stereo;
-	Filedata_size 			= read_bytes;
+	buffer_t
+	read_bytes		= read_position * sizeof_stereo;
+	Filedata_size	= read_bytes;
 
 	if ( read_bytes >= data_bytes )
 	{
@@ -152,6 +132,25 @@ void External_class::close(  )
 	Filename = "";
 	fclose( File );
 }
+
+
+/* public Audioserver functions */
+// Audioserver write audio data continuesly into stereo_buffer and write stereo_buffer to file
+External_class::External_class( Config_class* cfg,
+								interface_t* sds ) : //, Stereo_Memory* stereo ) :
+	Logfacility_class("External"),
+	Memory_base( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) ),
+	Stereo_Memory( cfg->Config.record_sec * frames_per_sec * sizeof(stereo_t) )
+{
+	this->className		= Logfacility_class::className;
+	this->StA 			= nullptr;
+	this->File 			= NULL;
+	this->Cfg			= cfg;
+	this->sds			= sds;
+	this->fs			= cfg->fs;
+
+	Stereo_Memory::DsInfo( ) ;
+};
 
 void External_class::Record_buffer( Stereo_t* src, buffer_t frames )
 {
@@ -207,6 +206,7 @@ long External_class::write_audio_data( string filename, buffer_t rcounter )
     return count;
 }
 
+/*
 void External_class::Mono2Stereo( Data_t* Data, uint size )
 {
 	for( buffer_t n = 0; n < size; n++)
@@ -215,7 +215,7 @@ void External_class::Mono2Stereo( Data_t* Data, uint size )
 		stereo_data[n].right 		= rint( Data[n] );
 	}
 }
-
+*/
 long  External_class::write_wav_header( string dest)
 {
 	if ( filesystem::exists( dest ))

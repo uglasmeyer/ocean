@@ -148,6 +148,7 @@ private:
     void initScrollbars();
     void initStateButtons();
     void initComboBoxes();
+    void initLables();
     void initUiConnectors();
     void initTimer();
     void sliderFreq( sl_lcd_t map, uint8_t value );
