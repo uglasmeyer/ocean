@@ -155,6 +155,7 @@ private:
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
     void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_e, QLabel* );
+    void set_wdrole( OscroleId_t roleid );
 
 
 public slots:

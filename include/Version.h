@@ -14,7 +14,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 0
-#define PATCH 1
+#define PATCH 2
 #define DATA_VERSION 37
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -28,7 +28,8 @@ const string Application = "Ocean Sound Lab.";
 
 // Git comment:
 /*
- *
+
+version 4.0.2	x86_64 binary distribution ocean_sound_lab_4.0.2-37.tar.gz
 version 4.0.1	wavedisplay external with dynamic size
 				DATA_VERSION 37
 version 4.0.0	github version

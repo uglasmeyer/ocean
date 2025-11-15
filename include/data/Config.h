@@ -24,7 +24,7 @@ struct install_struct
 	const string		installdir	 	= read_installfile();
 	const vector<string>files			= { git_dir		, resourcedir,
 											architectur	, installdir };
-	string				getArch		();
+	string				getArch			();
 	string				baseDir			();
 	string 				read_installfile();
 	string				gitDir			();
@@ -92,9 +92,11 @@ struct file_structure
 	const string 	filename 					= "synthesizer";
 	string			oceanbasename				= baseName( installdir );
 	const string 	snd_type 					= ".snd";	// instruments file extension
-	static constexpr string	nte_type					= ".nte";	// notes file extension
+	static constexpr string
+					nte_type					= ".nte";	// notes file extension
 	const string 	wav_type 					= ".wav";
-	static constexpr string 	xml_type					= ".musicxml";
+	static constexpr string
+					xml_type					= ".musicxml";
 	const string	Audio_bin					= AUDIOSERVER;
 	const string 	Synth_bin					= SYNTHESIZER;
 	const string 	Keyboard_bin				= SYNTHKBD;
@@ -122,10 +124,10 @@ struct file_structure
 	const string	prog_testfile				= includedir	+ "testcases.inc";
 	const string	log_file					= logdir		+ "composer.log";
 	const string	nohup_file					= logdir		+ "nohup.log";
-	const string 	doc_filename 				= "Ocean.odt";
+	const string 	doc_filename 				= "Ocean.pdf";
 	const string 	doc_file 					= docdir 		+ doc_filename;
 	const string 	bkground_filename			= "Ocean.png";
-	const string	bkg_file					= libdir		+ bkground_filename;
+	const string	bkground_file				= libdir		+ bkground_filename;
 	const string	setup_filename				= "oceansetup.sh";
 	const string	setup_file					= bindir		+ setup_filename;
 	const string	ipctool_filename			= "clearipc.sh";
@@ -136,7 +138,7 @@ struct file_structure
 	const string	session_dump_file			= tmpdir		+ "session.lib";
 	const string 	tarexclude_file				= "/tmp/tarexclude";
 	const string	oceanrc_filename			= "ocean.rc";
-	const string	oceanrc_file 				= etcdir		+ oceanrc_filename;
+	const string	oceanrc_file 				= etcdir	+ oceanrc_filename;
 	const string	default_name				= "default";
 	const string	default_nte					= default_name + nte_type;
 	const string	rc_nte_file					= resourcedir + "Notes/" + default_nte;
@@ -146,6 +148,8 @@ struct file_structure
 	const string	kbdnotes_file				= autodir + kbdnotes_name + nte_type;
 	const string	template_xmlname			= "template" + xml_type;
 	const string	template_xmlfile			= xmldir + template_xmlname;
+	const string	install_txt					= "install.txt";
+	const string	install_txtfile				= installdir + install_txt;
 };
 
 class Config_class
@@ -161,6 +165,7 @@ public:
 	string 			prgName				{};
 	prgarg_t		Config 				= prgarg_struct();
 
+	void 			CreateInstalldirs	();
 	void 			Read_config			( string cfgfile );
 	void 			Parse_argv			( int argc, char* argv[] );
 	void 			Show_Config			( bool debug = true );
@@ -169,9 +174,9 @@ public:
 
 					Config_class		() ;
 	virtual 		~Config_class		();
-	vector_str_t	parse_cmdline		();
 
 private:
+	vector_str_t	parse_cmdline		();
 
 };
 

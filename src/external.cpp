@@ -113,7 +113,7 @@ bool External_class::read_stereo_data( buffer_t data_bytes  )
 	Comment( DEBUG, to_string( read_position ));
 	buffer_t
 	read_bytes		= read_position * sizeof_stereo;
-	Filedata_size	= read_bytes;
+	Filedata_size	= read_position;
 
 	if ( read_bytes >= data_bytes )
 	{
@@ -121,7 +121,6 @@ bool External_class::read_stereo_data( buffer_t data_bytes  )
 		Comment(DEBUG,"read bytes: " + to_string(read_bytes) );
 		Comment(DEBUG,"data bytes: " + to_string(header_struct.dlength) );
 		Comment(DEBUG,"diff bytes: " + to_string(header_struct.dlength - read_bytes ));
-
 		return true;
 	}
 	return false;

@@ -74,6 +74,8 @@ void Application_class::Start( int argc, char* argv[] )
 {
 
 	Info( "Using OCEADIR=", Cfg->fs->installdir );
+	Cfg->CreateInstalldirs();
+
 	Timer.TimeStamp();
 	Cfg->Parse_argv(argc, argv );
 

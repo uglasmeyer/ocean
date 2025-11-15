@@ -89,15 +89,16 @@ exit
 osc main reset 
 set fmo freq A3
 set fmo amp 20
-#adsr beat 0
+
 play _INSTRUMENT amp 75 5
 osc main set sinus A4 80 5
 osc main loop freq A5
+adsr beat 0
 pause 2
 set main freq A2
 pause 2
 set main freq A3
-osc main amp loop 0
+osc main loop amp 0
 pause 5
 play _INSTRUMENT amp 75 5
 

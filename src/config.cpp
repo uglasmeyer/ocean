@@ -9,21 +9,20 @@ string install_struct::read_installfile()
 	Comment( DEBUG, "reading install_file" );
 	if ( git_dir.length() == 0 )
 		return baseDir();
-	string install = homedir + "OceanBase/";
+	string 			install 	= homedir + "OceanBase/";
+	const string	install_file= git_dir + "install.txt";
+	String 			S 			{};
+	fstream 		Install 	{ install_file, fstream::in };
 
-	String S {};
-	fstream Install {};
-	const string		install_file	= git_dir + "install.txt";
-
-	Install.open( install_file, fstream::in );
 	if ( Install.is_open() )
 	{
 		Comment( DEBUG, "Reading ", install_file );
 		while ( getline( Install, S.Str ))
 		{
+			S.normalize();
 			vector_str_t arr = S.to_array( '=' );
-			if( arr[0].compare( oceandir_env ) == 0 )
-				install = arr[1];
+			if( arr[0].compare( oceandev_env ) == 0 )
+				return arr[1];
 		}
 	}
 	Comment( DEBUG, "installdir= ", install );
@@ -172,6 +171,32 @@ Config_class::Config_class() :
 
 Config_class::~Config_class()
 { DESTRUCTOR( className ); };
+
+void Config_class::CreateInstalldirs( )
+{
+	auto create_dir=[ this ]( string _p )
+	{
+		Comment( DEBUG, "CreateInstalldir: ", _p );
+		if ( filesystem::is_directory( _p ))
+			return false;
+		if ( filesystem::is_regular_file( _p ) )
+		{
+			filesystem::remove( _p);
+		}
+		return filesystem::create_directories( _p );
+	};
+
+	Comment( DEBUG, "Checking directory structure");
+	ASSERTION( (fs->install_dirs.size() != 0 ),"DirStructure_class::Create",
+				fs->install_dirs.size(),"not=0");
+	for( string dir : fs->install_dirs )
+	{
+		if ( create_dir( dir ) )
+		{
+			Comment( BINFO, "Synthesizer directory ", dir, " created");
+		}
+	}
+}
 
 
 void Config_class::Read_config(	string cfgfile )

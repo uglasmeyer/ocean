@@ -60,7 +60,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
 
 	Sds->Set( sds_master->UpdateFlag, true);
 	Sds->Set( Sds->addr->UpdateFlag, true);
-//	Sds->Set( sds_master->Record, (uint8_t)sdsstate_struct::INACTIVE );
 
     initGuiVectors( Sds->addr );
 
@@ -125,15 +124,21 @@ void MainWindow::chord_delay()
 	int value = ui->hs_chord_delay->value();
 	Sds->Set( Sds->addr->noteline_prefix.chord_delay, value );
 }
+void MainWindow::set_wdrole( OscroleId_t roleid )
+{
+	ui->pB_Wavedisplay->setText( Qwd_role_names[ roleid ] );
+
+    Sds->Set( sds->WD_status.roleId, roleid );
+    Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
+}
 void MainWindow::wavfile_selected( const QString &arg)
 {
-    qDebug() << "WAV file " << arg ;
-    QString QStr = arg;
-    string str = QStr.toStdString();
+    string str = arg.toStdString();
     if ( str.length() > 0 )
     {
         Sds->Write_str( WAVFILESTR_KEY, str );
         Eventlog.add( SDS_ID, READ_EXTERNAL_WAVFILE);
+        set_wdrole( EXTERNALROLE );
     }
 }
 
@@ -215,9 +220,7 @@ void MainWindow::SDS_Dialog()
 void MainWindow::ADSR_Dialog()
 {
     switch_dialog( this->Spectrum_Dialog_p );
-	Sds->Set(Sds->addr->WD_status.roleId, ADSRROLE );
-	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-	ui->pB_Wavedisplay->setText( Qwd_role_names[ ADSRROLE ] );
+    set_wdrole( ADSRROLE );
 
 	Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
 	Spectrum_Dialog_p->Set_adsr_flag( true );
@@ -232,9 +235,7 @@ void MainWindow::File_Director()
 void MainWindow::Spectrum_Dialog()
 {
     switch_dialog( this->Spectrum_Dialog_p );
-    Sds->Set(Sds->addr->WD_status.roleId, INSTRROLE );
-    Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
-    ui->pB_Wavedisplay->setText( Qwd_role_names[ INSTRROLE ] );
+    set_wdrole( INSTRROLE );
 
     Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
     this->Spectrum_Dialog_p->Set_adsr_flag( false );

@@ -71,7 +71,15 @@ void create_tararchive()
 {
 	fstream Exclude {};
 	Exclude.open( fs->tarexclude_file, fstream::out );
-	Exclude.flush() << ".git\narchive\nwav/\nlog/\nauto/\ntmp/\nlib/ifd*\nTestprg\n";
+	Exclude.flush() << TESTPRG << "\n"
+			".git\n"
+			"archive\n"
+			"log\n"
+			"auto\n"
+			"tmp\n"
+			"lib/ifd*\n"
+			".project\n"
+			"gmon.out\n";
 	Exclude.close();
 
 	string cmd1 	= "cd " + fs->homedir ;
@@ -122,11 +130,12 @@ void create_oceanrc()
 {
 	fstream Oceanrc	{};
 	Oceanrc.open	( fs->oceanrc_file, fstream::out );
-	Oceanrc << "export ARCH=`uname -p`" << endl;
-	Oceanrc << "export " << oceandir_env << "=" << fs->installdir << endl;
-	Oceanrc << "export OCEANTESTCASE=oceantestcase" << endl;
-	Oceanrc << "export PATH=" << fs->bindir << ":.:$PATH" << endl;
-	Oceanrc << "export LD_LIBRARY_PATH=" << fs->libdir << ":$LD_LIBRARY_PATH"<< endl;
+//	Oceanrc << "export ARCH=`uname -p`" << endl;
+	//	Oceanrc << "export " << oceandir_env << "=" << fs->installdir << endl;
+	Oceanrc << "export " << OCEANDIR << "=$1" << endl;
+//	Oceanrc << "export OCEANTESTCASE=oceantestcase" << endl;
+	Oceanrc << "export PATH=$" << OCEANDIR << "/bin:$PATH" << endl;
+	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib:$LD_LIBRARY_PATH"<< endl;
 }
 
 void symboliclink( string _src, string _sym, string _ext )
@@ -165,45 +174,42 @@ void install_binary( string _bin, string _ext )
 	overwrite( src_bin_file, dst_bin_file );
 	symboliclink( dst_bin_file, _bin, _ext );
 }
-void CreateInstalldirs( )
-{
-	auto create_dir=[ ]( string _p )
-	{
-		Log.Comment( DEBUG, "CreateInstalldir: ", _p );
-		if ( filesystem::is_directory( _p ))
-			return false;
-		if ( filesystem::is_regular_file( _p ) )
-		{
-			filesystem::remove( _p);
-		}
-		return filesystem::create_directories( _p );
-	};
-
-	Log.Comment( DEBUG, "Checking directory structure");
-	ASSERTION( (fs->install_dirs.size() != 0 ),"DirStructure_class::Create",
-				fs->install_dirs.size(),"not=0");
-	for( string dir : fs->install_dirs )
-	{
-		if ( create_dir( dir ) )
-		{
-			Log.Comment( BINFO, "Synthesizer directory " + dir + " created");
-		}
-	}
-}
 
 void Setup_Test()
 {
 	fs->show_installdirs();
 }
 
+void Copy_3rdpartylibs()
+{
+	typedef vector<string> string_vec_t;
+	string_vec_t lib_vec = {
+		"/lib/x86_64-linux-gnu/libQt6Core.so.6",
+		"/lib/x86_64-linux-gnu/libQt6Gui.so.6",
+		"/lib/x86_64-linux-gnu/libQt6Widgets.so.6",
+		"/usr/local/lib/librtaudio.so.7",
+		"/lib/x86_64-linux-gnu/libtinyxml2.so.11"
+	};
+	for ( string lib : lib_vec )
+	{
+		if ( filesystem::exists( lib ) )
+		{
+			filesystem::copy( lib , fs->libdir, filesystem::copy_options::skip_existing );
+		}
+		else
+		{
+			Exception( "no such file to copy: " + lib );
+		}
+	}
+}
 
 int main(int argc, char **argv)
 {
 
 	bool full_setup = not filesystem::is_directory( fs->installdir );
-	CreateInstalldirs( );
+	Cfg.CreateInstalldirs( );
 
-	overwrite ( fs->resourcedir + fs->bkground_filename	, fs->bkg_file );
+	overwrite ( fs->resourcedir + fs->bkground_filename	, fs->bkground_file );
 	overwrite ( fs->resourcedir + fs->setup_filename		, fs->setup_file );
 	overwrite ( fs->resourcedir + fs->ipctool_filename	, fs->ipctool_file );
 	overwrite ( fs->resourcedir + fs->config_filename		, fs->config_file );
@@ -216,6 +222,8 @@ int main(int argc, char **argv)
 	init_file ( fs->prog_libfile							, fs->resourcedir );
 	init_file ( fs->prog_testfile						, fs->resourcedir );
 	overwrite ( fs->resourcedir + fs->template_xmlname	, fs->template_xmlfile );
+	overwrite ( fs->git_dir + fs->install_txt		, fs->install_txtfile );
+
 	Cfg.Parse_argv(argc, argv );
 	if ( Cfg.Config.test == 'y' )
 	{
@@ -257,6 +265,7 @@ int main(int argc, char **argv)
 	permissions( fs->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( fs->ipctool_file, perms::owner_exec, perm_options::add );
 
+	Copy_3rdpartylibs();
 
 	create_tararchive();
 

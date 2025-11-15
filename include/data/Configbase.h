@@ -14,42 +14,45 @@
 #include <Table.h>
 
 #define OCEANDIR "OCEANDIR"
-
-static const Id_t 	MAXCONFIG 	= 4;
+#define OCEANDEV "OCEANDEV"
 static const string	oceandir_env= OCEANDIR;
+static const string	oceandev_env= OCEANDEV;
+
+static const Id_t 	MAXCONFIG 	= 4; 		// number of SDS configration
+											// max 4 can be managed by the GUI
 typedef	array<key_t,MAXCONFIG>	keys_arr_t;
 
 struct prgarg_struct
 {
-		uint 		channel 	= 2;  		// -c
-		uint 		rate 		= sample_rate;	// -r
-		uint 		device 		= 0;		// -d
-		uint 		ch_offs 	= 0; 		// -o
-		uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically
-		char		clear		= 'n';		// -X clear process array
-		char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
-		char		debug		= 'n';
-		char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
-		char 		composer	= 'n';		// start rtsp with option -C
-		char 		oceangui	= 'n';		// start rtsp with option -G
-		string 		Genre		= "Alternative";
-		string 		author		= "U.G.";
-		string		title		= "Experimental";
-		string		album		= Application;
-		string		Term		= "xterm -e ";
-		string		Nohup		= "nohup";
-		string 		ffmpeg 		= "ffmpeg";
-		string		installdir	= "";		 // Setup -I ...
-		string		filename	= "";
-		key_t		Sem_key		= 0x9999;
-		key_t 		SHM_key 	= 0x100; 	// -k
-		key_t		SHM_keyl	= SHM_key;
-		key_t		SHM_keyr	= SHM_key+1;
-		key_t		SDS_key		= 0x6666;
-		keys_arr_t 	sdskeys 	{};
-		uint		temp_sec	= tmpduration; 	// seconds storage in StA
-		uint 		record_sec	= recduration; 	// seconds storage
-		uint		kbd_sec		= kbdduration;	// seconds of keyboard stoarage in StA
+	uint 		channel 	= 2;  		// -c
+	uint 		rate 		= sample_rate;	// -r
+	uint 		device 		= 0;		// -d
+	uint 		ch_offs 	= 0; 		// -o
+	uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically
+	char		clear		= 'n';		// -X clear process array
+	char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
+	char		debug		= 'n';
+	char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
+	char 		composer	= 'n';		// start rtsp with option -C
+	char 		oceangui	= 'n';		// start rtsp with option -G
+	string 		Genre		= "Alternative";
+	string 		author		= "U.G.";
+	string		title		= "Experimental";
+	string		album		= Application;
+	string		Term		= "xterm -e ";
+	string		Nohup		= "nohup";
+	string 		ffmpeg 		= "ffmpeg";
+	string		installdir	= "";		 // Setup -I ...
+	string		filename	= "";
+	key_t		Sem_key		= 0x9999;
+	key_t 		SHM_key 	= 0x100; 	// -k
+	key_t		SHM_keyl	= SHM_key;
+	key_t		SHM_keyr	= SHM_key+1;
+	key_t		SDS_key		= 0x6666;
+	keys_arr_t 	sdskeys 	{};
+	uint		temp_sec	= tmpduration; 	// seconds storage in StA
+	uint 		record_sec	= recduration; 	// seconds storage
+	uint		kbd_sec		= kbdduration;	// seconds of keyboard stoarage in StA
 
 } ;
 typedef prgarg_struct prgarg_t;

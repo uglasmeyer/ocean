@@ -10,7 +10,7 @@
 void MainWindow::initPanel()
 {
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
-    QString Ocean_png = Qstring( fs->bkg_file );
+    QString Ocean_png = Qstring( fs->bkground_file );
     QPixmap bkgnd( Ocean_png );
     bkgnd = bkgnd.scaled(this->size(), Qt::IgnoreAspectRatio);
 

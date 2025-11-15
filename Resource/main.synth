@@ -20,7 +20,7 @@ call :clearstorage
 #call	:test11
 #call 	:test10
 call	:syntax
-call	:testpiano
+#call	:testpiano
 
 #----------------------------------------
 #call 	:stopserver
