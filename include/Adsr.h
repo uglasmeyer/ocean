@@ -2,7 +2,7 @@
  * Adsr.h
  *
  *  Created on: Aug 5, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef ADSR_H_

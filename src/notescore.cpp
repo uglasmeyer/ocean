@@ -2,7 +2,7 @@
  * notescore.cpp
  *
  *  Created on: Oct 27, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 #include <notes/Notes.h>
 

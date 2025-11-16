@@ -1,3 +1,9 @@
+/*
+ * Record.cpp
+ *
+ *  Created on: Mar 28, 2024
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
 
 #include <data/Semaphore.h>
 

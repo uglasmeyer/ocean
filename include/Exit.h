@@ -2,7 +2,7 @@
  * Exit.h
  *
  *  Created on: Oct 29, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef EXIT_H_

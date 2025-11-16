@@ -1,3 +1,9 @@
+/*
+ * SDSview.h
+ *
+ *  Created on: Oct 26, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
 
 
 #ifndef SDSVIEW_H_

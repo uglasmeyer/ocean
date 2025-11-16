@@ -2,7 +2,7 @@
  * Frequency.h
  *
  *  Created on: Feb 7, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 

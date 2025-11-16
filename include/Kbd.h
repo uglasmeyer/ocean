@@ -2,7 +2,7 @@
  * keyboard.cpp
  *
  *  Created on: Dec 23, 2023
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef KBD_H

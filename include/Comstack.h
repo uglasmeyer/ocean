@@ -2,7 +2,7 @@
  * Comstack.h
  *
  *  Created on: Sep 29, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef COMSTACK_H_

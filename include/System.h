@@ -2,7 +2,7 @@
 
  *
  *  Created on: Jan 4, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_COMMON_H_

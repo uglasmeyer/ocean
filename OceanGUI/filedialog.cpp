@@ -1,6 +1,9 @@
-// System includes
-
-// QT
+/*
+ * filedialog.cpp
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
 
 // Ocean includes
 #include <Ocean.h>

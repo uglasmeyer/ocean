@@ -2,7 +2,7 @@
  * Keyboard_base.h
  *
  *  Created on: Jun 4, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef KEYBOARD_BASE_H_

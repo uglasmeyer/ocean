@@ -1,3 +1,11 @@
+/*
+ * keyboard_dialog.cpp
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
 #include "ui_keyboad_dialog.h"
 #include <include/Common.h>
 #include <include/Keyboad_dialog.h>

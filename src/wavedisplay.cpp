@@ -2,7 +2,7 @@
  * Wavedisplayclass.cpp
  *
  *  Created on: Feb 23, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 #include <Wavedisplay_base.h>
 #include <Wavedisplay.h>

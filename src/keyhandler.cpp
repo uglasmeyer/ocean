@@ -2,7 +2,7 @@
  * keyhandler.cpp
  *
  *  Created on: May 10, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Keyboard.h>

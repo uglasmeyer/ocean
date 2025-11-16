@@ -1,3 +1,11 @@
+/*
+ * Mainwindow.h
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 

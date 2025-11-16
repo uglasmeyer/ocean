@@ -2,7 +2,7 @@
  * Notenase.cpp
  *
  *  Created on: Jul 3, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <notes/Notesbase.h>

@@ -2,7 +2,7 @@
  * Wavedisplayclass.h
  *
  *  Created on: Feb 23, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef WAVEDISPLAY_H_

@@ -2,7 +2,7 @@
  * kbd.cpp
  *
  *  Created on: Jan 6, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Kbd.h>

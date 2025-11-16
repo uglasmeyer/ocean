@@ -2,7 +2,7 @@
  * Volume.h
  *
  *  Created on: Mar 9, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DYNAMIC_H_

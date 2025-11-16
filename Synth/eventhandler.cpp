@@ -2,7 +2,7 @@
  * eventhandler.cpp
  *
  *  Created on: Oct 28, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Synth/Synthesizer.h>

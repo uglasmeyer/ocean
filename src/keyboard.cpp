@@ -2,7 +2,7 @@
  * keyboard.cpp
  *
  *  Created on: Aug 14, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Keyboard.h>

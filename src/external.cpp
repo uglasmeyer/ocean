@@ -2,7 +2,7 @@
  * External.cpp
  *
  *  Created on: Mar 29, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <data/DataWorld.h>

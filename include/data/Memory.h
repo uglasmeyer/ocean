@@ -2,7 +2,7 @@
  * sharedmem.h
  *
  *  Created on: Dec 15, 2023
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef SYNTHSHM_H_

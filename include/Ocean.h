@@ -2,7 +2,7 @@
  * Ocean.h
  *
  *  Created on: Dec 15, 2023
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 #ifndef OCEAN_H
 #define OCEAN_H

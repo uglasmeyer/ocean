@@ -2,8 +2,9 @@
  * dataworld.cpp
  *
  *  Created on: Sep 30, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
+
 
 #include <data/DataWorld.h>
 

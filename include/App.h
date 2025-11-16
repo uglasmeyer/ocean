@@ -2,7 +2,7 @@
  * App.h
  *
  *  Created on: Aug 27, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef APP_H_

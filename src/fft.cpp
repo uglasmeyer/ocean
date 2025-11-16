@@ -2,7 +2,7 @@
  * fft.cpp
  *
  *  Created on: Jan 26, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Wavedisplay_base.h>

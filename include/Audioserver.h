@@ -2,7 +2,7 @@
  * Audioserver.h
  *
  *  Created on: Aug 28, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef AUDIOSERVER_H_

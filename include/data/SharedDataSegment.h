@@ -2,7 +2,7 @@
  * SharedDataSegment.h
  *
  *  Created on: Oct 1, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_SHAREDDATASEGMENT_H_

@@ -2,7 +2,7 @@
  * Appstate.h
  *
  *  Created on: May 4, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef VIEWINTERFACE_H_

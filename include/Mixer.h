@@ -2,7 +2,7 @@
  * mixer.h
  *
  *  Created on: Jan 17, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_MIXER_H_

@@ -2,7 +2,7 @@
  * Table.h
  *
  *  Created on: Mar 10, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef TABLE_H_

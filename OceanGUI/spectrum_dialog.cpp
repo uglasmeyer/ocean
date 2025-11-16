@@ -1,3 +1,11 @@
+/*
+ * keyboard_dialog.cpp
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
 #include <include/Common.h>
 #include <include/Spectrum_dialog.h>
 

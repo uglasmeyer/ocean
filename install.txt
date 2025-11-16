@@ -11,6 +11,7 @@ Installation hint:
    for example:
 $  . ./OceanDev/etc/ocean.rc $HOME/extractdir/OceanDev/
    
+   Consider to put a valid command line into the terminal profile
    Hints: This command will setup two environment variables. The PATH and the LD_LIBRARY_PATH to
    ...OceanDev/bin and ...OceanDev/lib respectively, so that the following command in step 2.
    should work.
@@ -20,6 +21,6 @@ $  . ./OceanDev/etc/ocean.rc $HOME/extractdir/OceanDev/
 2. start the Ocean-SL Graphical Userinterface 
 $  OceanGUI
 
-examine the documentation
+check the documentation
 OceanDev/doc/Ocean.pdf
 

@@ -2,7 +2,7 @@
  * musicxml.cpp
  *
  *  Created on: Nov 1, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <notes/MusicXML.h>
@@ -247,8 +247,8 @@ typedef struct xmlnote_value_struct
 	bool dot		= false;
 	xmlnote_value_struct( note_t note, int divisions )
 	{
-		set<int> dot_set {3,6,12};
-		int min_duration	= gcd( measure_duration, ( note.duration ));
+		set<int>dot_set		{3,6,12};
+		int		min_duration= gcd( measure_duration, ( note.duration ));
 		duration			= note.duration * divisions / 500;
 		int type_id			= measure_duration / ( min_duration ) ;
 		if ( dot_set.contains( duration ) )

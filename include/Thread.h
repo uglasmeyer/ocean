@@ -2,7 +2,7 @@
  * Thread.h
  *
  *  Created on: Apr 16, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef THREAD_H_

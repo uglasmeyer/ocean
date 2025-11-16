@@ -1,3 +1,9 @@
+/*
+ * Oszilloscopewidget.h
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
 
 #ifndef OSZILLOSCOPEWIDGET_H
 #define OSZILLOSCOPEWIDGET_H

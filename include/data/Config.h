@@ -2,7 +2,7 @@
  * Client.h
  *
  *  Created on: Sep 6, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_CONFIG_H_

@@ -2,7 +2,7 @@
  * Oscgroup.cpp
  *
  *  Created on: Jan 22, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Oscgroup.h>

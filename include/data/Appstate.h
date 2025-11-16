@@ -2,7 +2,7 @@
  * Appstate.h
  *
  *  Created on: Mar 30, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_APPSTATE_H_

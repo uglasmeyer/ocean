@@ -2,7 +2,7 @@
  * Device.cpp
  *
  *  Created on: Aug 27, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_DEVICE_H_

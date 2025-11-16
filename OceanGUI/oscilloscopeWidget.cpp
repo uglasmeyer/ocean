@@ -1,3 +1,12 @@
+/*
+ * keyboard_dialog.cpp
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
+
 // C++ Project
 // https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene_QGraphicsItems.php
 

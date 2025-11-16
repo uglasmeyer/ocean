@@ -2,7 +2,7 @@
  * External.h
  *
  *  Created on: Mar 29, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef EXTERNAL_H_

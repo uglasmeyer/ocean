@@ -2,7 +2,7 @@
  * Variation.cpp
  *
  *  Created on: Apr 30, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Variation.h>

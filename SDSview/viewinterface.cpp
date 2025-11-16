@@ -2,7 +2,7 @@
  * viewinterface.cpp
  *
  *  Created on: Apr 25, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Viewinterface.h>

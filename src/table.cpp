@@ -2,7 +2,7 @@
  * table.cpp
  *
  *  Created on: Apr 15, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Table.h>

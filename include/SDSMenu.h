@@ -2,7 +2,7 @@
  * Menu.h
  *
  *  Created on: Oct 26, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef SDSMENU_H_

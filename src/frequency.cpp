@@ -2,7 +2,7 @@
  * frequency.cpp
  *
  *  Created on: Feb 13, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 #include <Frequency.h>
 #include <Table.h>

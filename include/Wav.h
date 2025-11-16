@@ -2,7 +2,7 @@
  * audioserver.h
  *
  *  Created on: Jan 24, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 //https://forum.arduino.cc/t/creating-a-wav-file-header/314260/4
 #ifndef INCLUDE_WAV_H_

@@ -2,7 +2,7 @@
  * mixer.cpp
  *
  *  Created on: Dec 31, 2023
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Mixer.h>

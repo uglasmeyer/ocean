@@ -2,7 +2,7 @@
  * Dispatcher.cpp
  *
  *  Created on: Mar 28, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 #include <include/Dispatcher.h>
 

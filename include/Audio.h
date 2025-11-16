@@ -2,7 +2,7 @@
  * Rtaudio.h
  *
  *  Created on: Sep 15, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_AUDIO_H_

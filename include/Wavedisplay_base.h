@@ -2,7 +2,7 @@
  * Wavedisplay_base.h
  *
  *  Created on: Sep 9, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef WAVEDISPLAY_BASE_H_

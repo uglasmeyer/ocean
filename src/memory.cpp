@@ -2,7 +2,7 @@
  * synthshm.cpp
  *
  *  Created on: Jan 16, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <data/Memory.h>
@@ -198,8 +198,8 @@ void Storage_class::Reset( )
 	record_counter 		= 0;
 	record_data 		= 0;
 	read_counter  		= 0;
-	state.Store( false );
-	state.Filled( false );
+	state.Store			( false );
+	state.Filled		( false );
 	scanner.Set_rpos	(0);
 	scanner.Set_wpos	(0);
 	scanner.Set_fillrange ( 0 );

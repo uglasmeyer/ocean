@@ -2,7 +2,7 @@
  * Record.h
  *
  *  Created on: Mar 28, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef PROGRESSBAR_H_

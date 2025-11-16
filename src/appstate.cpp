@@ -2,7 +2,7 @@
  * appstate.cpp
  *
  *  Created on: Apr 26, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 

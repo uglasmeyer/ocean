@@ -2,7 +2,7 @@
  * Sdsbase.h
  *
  *  Created on: Sep 1, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_SDSBASE_H_

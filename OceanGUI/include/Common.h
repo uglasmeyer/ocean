@@ -2,7 +2,7 @@
  * Common.h
  *
  *  Created on: Jan 7, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef GUICOMMON_H

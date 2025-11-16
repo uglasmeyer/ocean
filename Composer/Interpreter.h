@@ -2,7 +2,7 @@
  * Interpreter.h
  *
  *  Created on: Apr 11, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 

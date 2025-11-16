@@ -2,7 +2,7 @@
  * Utilities.h
  *
  *  Created on: Oct 17, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef OCEANUTILITIES_H_

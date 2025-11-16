@@ -2,7 +2,7 @@
  * Notesbase.h
  *
  *  Created on: Jun 20, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_NOTESBASE_H_

@@ -1,3 +1,12 @@
+/*
+ * Spectrum_dialog.h
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
+
 #ifndef SPECTRUM_DIALOG_CLASS_H
 #define SPECTRUM_DIALOG_CLASS_H
 

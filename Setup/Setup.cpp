@@ -9,6 +9,7 @@
 
 
 #include <Appsymbols.h>
+#include <ReleaseNotes.h>
 
 file_structure* fs = Cfg.fs;
 
@@ -67,6 +68,8 @@ void copy_files( string dir, string filter, string destination )
 		overwrite( dir + file, destination + file );
 	}
 }
+
+string deployment_archive = "";
 void create_tararchive()
 {
 	fstream Exclude {};
@@ -82,14 +85,83 @@ void create_tararchive()
 			"gmon.out\n";
 	Exclude.close();
 
-	string cmd1 	= "cd " + fs->homedir ;
-	string arch		= fs->homedir + "ocean_sound_lab_" + Version_No + ".tar ";
-	string excl		= "--exclude-from=" + fs->tarexclude_file + " ";
-	string cmd2 	= "bash -c \"tar -cvf " + arch + excl + fs->oceanbasename + "\"";
+	string arch		= rn_archive;
+	string excl		= " --exclude-from=" + fs->tarexclude_file + " ";
 
-	Log.Info(  "executing: ", cmd1, ";", cmd2 );
-	System_execute( cmd1 + ";" + cmd2 );
+	string cmd1 	= "cd " + fs->homedir ;
+	string cmd2 	= "bash -c \"tar -cvf " + arch + excl + fs->oceanbasename + "\"";
+	string cmd3		= "gzip " + arch;
+
+	string cmd		= cmd1 + ";" + cmd2 + ";" + cmd3;
+	Log.Info(  "executing: ", cmd );
+
+	System_execute( cmd );
+
+	deployment_archive = arch + ".gz";
+
+	string cmd4		= "cksum " + deployment_archive + " >" + deployment_archive + ".cksum";
+	string cmd5		= "shasum -a 256 " + deployment_archive +" > " + deployment_archive + ".sha256";
+			cmd		= cmd1 + ";" + cmd4 + ";" + cmd5;
+	Log.Info(  "executing: ", cmd );
+
+	System_execute( cmd );
+
+	string 	tag		= "v" + Version_No;
+			cmd		= "gh release create " + tag + " " +
+					deployment_archive + " " +
+					deployment_archive + ".cksum " +
+					deployment_archive + ".sha256 " +
+					"--title ocean_sound_lab_" + tag +
+					" --notes-file " + fs->git_dir + "RELEASE_NOTES.md";
+	Log.Info		( cmd );
+	/*
+TAG=v4.0.2-37
+gh release create "$TAG" \
+  ocean_sound_lab_4.0.2-37.tar.gz \
+  ocean_sound_lab_4.0.2-37.tar.gz.cksum \
+  ocean_sound_lab_4.0.2-37.tar.gz.sha256 \
+  --title "ocean_sound_lab $TAG" \
+  --notes-file RELEASE_NOTES.md
+
+*/
 }
+
+string get_check_sum( string _type )
+	{
+		string cksum_file = fs->homedir + rn_tgz + _type;
+		fstream Cksum_file { cksum_file, fstream::in };
+		string cksum;
+		getline( Cksum_file, cksum  );
+		return cksum + "\n";
+	};
+
+
+void Create_ReleaseNotes()
+{
+	string releasenotes_file = fs->git_dir + rn_filename;
+	fstream Release_notes { releasenotes_file, fstream::out };
+
+	const string rn_verification =
+	R"(Verification
+	- verify cksum (as provided by packager):
+	)"  +
+	get_check_sum( ".cksum" ) +
+	"- verify SHA-256 locally: \n" +
+	get_check_sum( ".sha256" ) +
+	"- Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256" + rn_newline;
+
+	Release_notes 	<< rn_title
+					<< rn_summary
+					<< rn_include
+					<< rn_changes
+					<< rn_installation
+					<< rn_verification
+					<< rn_license
+					<< rn_notes
+					<< rn_changelog;
+
+}
+
 void bashrc_oceandir()
 {
 	const string 	bashrc_file 	= fs->homedir + ".bashrc";
@@ -203,6 +275,7 @@ void Copy_3rdpartylibs()
 	}
 }
 
+
 int main(int argc, char **argv)
 {
 
@@ -265,8 +338,11 @@ int main(int argc, char **argv)
 	permissions( fs->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( fs->ipctool_file, perms::owner_exec, perm_options::add );
 
+
 	Copy_3rdpartylibs();
 
 	create_tararchive();
 
+	Create_ReleaseNotes();
+	return  0;
 }

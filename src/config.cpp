@@ -1,3 +1,11 @@
+/*
+ * appstate.cpp
+ *
+ *  Created on: Apr 26, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
 #include <data/Config.h>
 #include <String.h>
 #include <System.h>

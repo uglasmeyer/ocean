@@ -2,7 +2,7 @@
  * Statisticclass.cpp
  *
  *  Created on: Oct 3, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <data/Statistic.h>

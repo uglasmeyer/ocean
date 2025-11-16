@@ -2,7 +2,7 @@
  * processor.cpp
  *
  *  Created on: Apr 16, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Composer/Processor.h>

@@ -2,7 +2,7 @@
  * compiler.cpp
  *
  *  Created on: Nov 12, 2025
- *      Author: sirius
+ * Author: Ulrich.Glasmeyer@web.de
  */
 
 

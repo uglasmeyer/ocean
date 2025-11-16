@@ -2,7 +2,7 @@
 * device.cpp
 *
 *  Created on: Aug 28, 2025
-*      Author: sirius
+*      Author: Ulrich.Glasmeyer@web.de
 */
 
 #include <data/Device.h>

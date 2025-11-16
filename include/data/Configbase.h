@@ -2,7 +2,7 @@
  * Configbase.h
  *
  *  Created on: Oct 17, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_CONFIGBASE_H_

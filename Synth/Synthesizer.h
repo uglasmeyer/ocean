@@ -2,7 +2,7 @@
  * Synthesizer.h
  *
  *  Created on: Sep 19, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef SYNTHESIZER_H_

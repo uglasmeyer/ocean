@@ -2,7 +2,7 @@
  * spectrum.cpp
  *
  *  Created on: Feb 11, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 

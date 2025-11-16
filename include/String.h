@@ -2,7 +2,7 @@
  * String.h
  *
  *  Created on: Mar 3, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef STRING_H_

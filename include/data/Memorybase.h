@@ -2,7 +2,7 @@
  * Shmbase.h
  *
  *  Created on: Oct 2, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_MEMORYBASE_H_

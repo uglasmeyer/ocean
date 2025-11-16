@@ -2,7 +2,7 @@
  * variantion.h
  *
  *  Created on: Apr 30, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef VARIATION_H_

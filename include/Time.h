@@ -2,7 +2,7 @@
  * Time.h
  *
  *  Created on: Sep 11, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef TIME_H_

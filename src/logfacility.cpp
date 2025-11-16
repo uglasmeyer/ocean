@@ -2,7 +2,7 @@
  * Logficility.cpp
  *
  *  Created on: Mar 1, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include 			<Logfacility.h>

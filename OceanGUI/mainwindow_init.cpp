@@ -1,8 +1,8 @@
 /*
- * connectors.cpp
+ * mainwidow_init.cpp
  *
  *  Created on: Feb 12, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <include/Mainwindow.h>

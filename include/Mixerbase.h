@@ -2,7 +2,7 @@
  * Mixerbase.h
  *
  *  Created on: Sep 5, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef MIXERBASE_H_

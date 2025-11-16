@@ -2,7 +2,7 @@
  * Appsymbols.h
  *
  *  Created on: Apr 29, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef APPSYMBOLS_H_

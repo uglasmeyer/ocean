@@ -2,7 +2,7 @@
  * EventQue.h
  *
  *  Created on: Mar 25, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_EVENTQUE_H_

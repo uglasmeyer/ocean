@@ -2,7 +2,7 @@
  * DataWorld.h
  *
  *  Created on: Sep 30, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef DATA_DATAWORLD_H_

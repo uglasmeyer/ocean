@@ -2,7 +2,7 @@
  * playnotes.cpp
  *
  *  Created on: Jan 17, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <data/Config.h>

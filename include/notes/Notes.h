@@ -2,7 +2,7 @@
  * playnotes.h
  *
  *  Created on: Jan 17, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_PLAYNOTES_H_

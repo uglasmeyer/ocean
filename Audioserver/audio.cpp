@@ -2,7 +2,7 @@
  * audio.cpp
  *
  *  Created on: Sep 15, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Audio.h>

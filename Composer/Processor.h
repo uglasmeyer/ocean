@@ -2,7 +2,7 @@
  * processor.h
  *
  *  Created on: Apr 16, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef PROCESSOR_H_

@@ -2,7 +2,7 @@
  * adsr.cpp
  *
  *  Created on: Aug 1, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <Adsr.h>

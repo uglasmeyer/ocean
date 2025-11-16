@@ -2,7 +2,7 @@
  * dynamic.cpp
  *
  *  Created on: Mar 17, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 

@@ -2,7 +2,7 @@
  * GUIinterface.cpp
  *
  *  Created on: Jan 14, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <data/Interface.h>

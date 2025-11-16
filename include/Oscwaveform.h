@@ -2,7 +2,7 @@
  * Oscwaveform.h
  *
  *  Created on: Feb 21, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef OSCWAVEFORM_H_

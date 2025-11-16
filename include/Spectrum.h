@@ -2,7 +2,7 @@
  * spectrum.h
  *
  *  Created on: Dec 26, 2023
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_SPECTRUM_H_

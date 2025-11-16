@@ -2,7 +2,7 @@
  * Rtsp.h
  *
  *  Created on: Sep 29, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef RTSP_RTSP_H_

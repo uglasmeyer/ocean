@@ -2,7 +2,7 @@
  * Semaphore.h
  *
  *  Created on: Sep 21, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef SEMAPHORE_CLASS_H_

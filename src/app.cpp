@@ -2,7 +2,7 @@
  * app.cpp
  *
  *  Created on: Aug 27, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 

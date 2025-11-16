@@ -2,7 +2,7 @@
  * Logficility.h
  *
  *  Created on: Mar 1, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef LOGFACILITY_H_

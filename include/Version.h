@@ -2,7 +2,7 @@
  * version.h
  *
  *  Created on: Jan 19, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef INCLUDE_VERSION_H_

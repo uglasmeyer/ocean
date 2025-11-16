@@ -2,7 +2,7 @@
  * Event.h
  *
  *  Created on: Apr 15, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef EVENT_H_

@@ -1,3 +1,12 @@
+/*
+ * Rtsp_dialog.h
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
+
 #ifndef RTSP_DIALOG_CLASS_H
 #define RTSP_DIALOG_CLASS_H
 

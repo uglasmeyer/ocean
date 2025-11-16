@@ -2,7 +2,7 @@
  * common.cpp
  *
  *  Created on: Dec 30, 2023
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 #include <System.h>
 

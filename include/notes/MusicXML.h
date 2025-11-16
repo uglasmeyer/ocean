@@ -2,7 +2,7 @@
  * MusicXML.h
  *
  *  Created on: Nov 1, 2024
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef NOTES_MUSICXML_H_

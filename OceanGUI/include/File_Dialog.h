@@ -1,3 +1,12 @@
+/*
+ * File_Dialog.h
+ *
+ *  Created on: Mar 28, 2025
+ *      Author: Ulrich.Glasmeyer@web.de
+ */
+
+
+
 #ifndef FILE_DIALOG_CLASS_H
 #define FILE_DIALOG_CLASS_H
 

@@ -2,7 +2,7 @@
  * Oscgroup.h
  *
  *  Created on: Jan 22, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #ifndef OSCGROUP_H_
