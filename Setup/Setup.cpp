@@ -1,8 +1,34 @@
+//@lic
+
+/*  
+    Ocean Sound Lab Application Suite (short Ocean-SL)
+	Ocean-SL is a c++Project that provides a set of Sound Managing Applications,
+	such as Synthesizer, Audioserver, Composer with Graphical UserInterface for
+	Linux based Operating Systems, that allows to generate, play and record sound.
+
+    Copyright (C) 2025  Ulrich.Glasmeyer@web.de
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+@lic*/
+
+
 /*
  * Setup.cpp
  *
  *  Created on: Jul 5, 2025
- *      Author: sirius
+ *      Author: Ulrich.Glasmeyer@web.de
  */
 
 
@@ -82,6 +108,7 @@ void create_tararchive()
 			"tmp\n"
 			"lib/ifd*\n"
 			".project\n"
+			".settings\n"
 			"gmon.out\n";
 	Exclude.close();
 
@@ -106,6 +133,7 @@ void create_tararchive()
 
 	System_execute( cmd );
 
+
 	string 	tag		= "v" + Version_No;
 			cmd		= "gh release create " + tag + " " +
 					deployment_archive + " " +
@@ -114,16 +142,7 @@ void create_tararchive()
 					"--title ocean_sound_lab_" + tag +
 					" --notes-file " + fs->git_dir + "RELEASE_NOTES.md";
 	Log.Info		( cmd );
-	/*
-TAG=v4.0.2-37
-gh release create "$TAG" \
-  ocean_sound_lab_4.0.2-37.tar.gz \
-  ocean_sound_lab_4.0.2-37.tar.gz.cksum \
-  ocean_sound_lab_4.0.2-37.tar.gz.sha256 \
-  --title "ocean_sound_lab $TAG" \
-  --notes-file RELEASE_NOTES.md
 
-*/
 }
 
 string get_check_sum( string _type )
@@ -202,10 +221,7 @@ void create_oceanrc()
 {
 	fstream Oceanrc	{};
 	Oceanrc.open	( fs->oceanrc_file, fstream::out );
-//	Oceanrc << "export ARCH=`uname -p`" << endl;
-	//	Oceanrc << "export " << oceandir_env << "=" << fs->installdir << endl;
 	Oceanrc << "export " << OCEANDIR << "=$1" << endl;
-//	Oceanrc << "export OCEANTESTCASE=oceantestcase" << endl;
 	Oceanrc << "export PATH=$" << OCEANDIR << "/bin:$PATH" << endl;
 	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib:$LD_LIBRARY_PATH"<< endl;
 }
@@ -252,6 +268,19 @@ void Setup_Test()
 	fs->show_installdirs();
 }
 
+void ConvertOdt2Pdf( )
+{
+	Log.Info( "Converting odt to pdf" );
+
+	string cmd1 = "cd " + fs->resourcedir;
+	string cmd2 =  "libreoffice --headless --convert-to pdf --outdir " +
+					fs->docdir + " " +
+					rn_userdoc + ".odt";
+	string	cmd = cmd1 + "; " + cmd2;
+	Log.Info( "Executing: ", cmd );
+	System_execute( cmd );
+}
+
 void Copy_3rdpartylibs()
 {
 	typedef vector<string> string_vec_t;
@@ -281,12 +310,10 @@ int main(int argc, char **argv)
 
 	bool full_setup = not filesystem::is_directory( fs->installdir );
 	Cfg.CreateInstalldirs( );
-
 	overwrite ( fs->resourcedir + fs->bkground_filename	, fs->bkground_file );
 	overwrite ( fs->resourcedir + fs->setup_filename		, fs->setup_file );
 	overwrite ( fs->resourcedir + fs->ipctool_filename	, fs->ipctool_file );
 	overwrite ( fs->resourcedir + fs->config_filename		, fs->config_file );
-	overwrite ( fs->resourcedir + fs->doc_filename		, fs->doc_file );
 	overwrite ( fs->resourcedir + fs->deploy_filename		, fs->deploy_file );
 	init_file ( fs->instrumentdir + ".test2.snd"			, fs->resourcedir );
 	overwrite ( fs->rc_snd_file							, fs->instrumentdir + fs->default_snd );
@@ -317,7 +344,7 @@ int main(int argc, char **argv)
 	bashrc_oceandir();
 	create_oceanrc();
 
-
+	// update git resources
 	copy_files( fs->instrumentdir,
 				fs->snd_type,
 				fs->resourcedir + "Instruments/" );
@@ -338,6 +365,7 @@ int main(int argc, char **argv)
 	permissions( fs->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( fs->ipctool_file, perms::owner_exec, perm_options::add );
 
+	ConvertOdt2Pdf( );
 
 	Copy_3rdpartylibs();
 

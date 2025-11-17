@@ -15,12 +15,10 @@ $  . ./OceanDev/etc/ocean.rc $HOME/extractdir/OceanDev/
    Hints: This command will setup two environment variables. The PATH and the LD_LIBRARY_PATH to
    ...OceanDev/bin and ...OceanDev/lib respectively, so that the following command in step 2.
    should work.
-   !!! The trailing slash in the absolute path name is needed for the internal resolution of 
-   resource locations !!!
+
    
 2. start the Ocean-SL Graphical Userinterface 
 $  OceanGUI
 
-check the documentation
-OceanDev/doc/Ocean.pdf
+check the documentation OceanDev/doc/Ocean.pdf
 

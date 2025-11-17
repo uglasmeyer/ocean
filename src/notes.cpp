@@ -1,3 +1,29 @@
+//@lic
+
+/*  
+    Ocean Sound Lab Application Suite (short Ocean-SL)
+	Ocean-SL is a c++Project that provides a set of Sound Managing Applications,
+	such as Synthesizer, Audioserver, Composer with Graphical UserInterface for
+	Linux based Operating Systems, that allows to generate, play and record sound.
+
+    Copyright (C) 2025  Ulrich.Glasmeyer@web.de
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+@lic*/
+
+
 /*
  * playnotes.cpp
  *
@@ -5,6 +31,7 @@
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+#include <ReleaseNotes.h>
 #include <data/Config.h>
 #include <notes/Notes.h>
 
@@ -413,7 +440,7 @@ void Note_class::Save( string str, noteline_prefix_t prefix, string nl_str )
 
 	string noteline_prefix = Noteline_prefix_to_string( prefix );
 	File <<
-		"#See the documentation file " + fs->doc_filename + "\n" <<
+		"#See the documentation file " + rn_userdoc + ".pdf\n" <<
 		"#about the specification of Prefix, Notes and Volume \n" <<
 		"P=" << noteline_prefix << "\n" <<
 		"N=" << nl_str << "\n" <<

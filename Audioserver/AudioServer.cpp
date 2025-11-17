@@ -1,40 +1,28 @@
-// License Notice
-/******************************************************************************
--> Ocean Sound Lab Application Suite (short Ocean-SL)
-Ocean-SL is a c++Project that provides a set of Sound Managing Applications,
-such as Synthesizer, Audioserver, Composer with Graphical UserInterface for
-Linux based Operating Systems, that allows to generate, play and record sound.
-It includes interfaces for musicxml-files and supports the sound drivers:
--> native ALSA and
--> Pulseaudio
-The software includes a simple keyboard to play and record music as you type.
-It comes with a limited set of sample files for instruments and notes to start
-with. Funny play.
+//@lic
 
--> Ocean-SL GitHub site: https://github.com/uglasmeyer/ocean
--> Copyright (c) 2024-2025 Ulrich.Glasmeyer@web.de
+/*  
+    Ocean Sound Lab Application Suite (short Ocean-SL)
+	Ocean-SL is a c++Project that provides a set of Sound Managing Applications,
+	such as Synthesizer, Audioserver, Composer with Graphical UserInterface for
+	Linux based Operating Systems, that allows to generate, play and record sound.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software. Any person wishing to
-distribute modifications to the Software is asked to send the modifications to
-the original developer so that they can be incorporated into the canonical
-version. This is, however, not a binding provision of this license.
+    Copyright (C) 2025  Ulrich.Glasmeyer@web.de
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
 
-******************************************************************************/
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+@lic*/
+
 
 #include <Audioserver.h>
 
@@ -95,6 +83,8 @@ void show_usage( void )
 void Application_loop()
 {
 	Log.Comment(INFO, "Entering Application loop \n");
+	App.Ready();
+
 
 	while ( not audio_out_done )//and Audio.isStreamRunning() )
 	{
@@ -238,7 +228,6 @@ int main( int argc, char *argv[] )
 	Audio.Start_stream( &RtAudioOut );
 
 	call_for_update();
-	App.Ready();
 	Application_loop();
 
 	Log.Comment( INFO, Cfg.prgName, " reached target exit main()" );

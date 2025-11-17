@@ -1,3 +1,29 @@
+//@lic
+
+/*  
+    Ocean Sound Lab Application Suite (short Ocean-SL)
+	Ocean-SL is a c++Project that provides a set of Sound Managing Applications,
+	such as Synthesizer, Audioserver, Composer with Graphical UserInterface for
+	Linux based Operating Systems, that allows to generate, play and record sound.
+
+    Copyright (C) 2025  Ulrich.Glasmeyer@web.de
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+@lic*/
+
+
 /*
  * version.h
  *
@@ -14,7 +40,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 0
-#define PATCH 2
+#define PATCH 3
 #define DATA_VERSION 37
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -26,9 +52,16 @@ const string Version_str = "Version: " + Version_No;
 
 const string Application = "Ocean Sound Lab.";
 
+const string License_text = R"( 
+    Copyright (C) 2025  Ulrich.Glasmeyer@web.de
+    This program comes with ABSOLUTELY NO WARRANTY; for details read the license conditions.
+    This is free software, and you are welcome to redistribute it
+    under the  conditions of the GNU General Public License <https://www.gnu.org/licenses/>)";
+
 // Git comment:
 /*
 
+version 4.0.3	update install.txt, license informations in files and terminal programs				update license informations in files and terminal programs
 version 4.0.2	x86_64 binary distribution ocean_sound_lab_4.0.2-37.tar.gz
 version 4.0.1	wavedisplay external with dynamic size
 				DATA_VERSION 37
