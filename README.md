@@ -13,7 +13,7 @@ By Ulrich Glasmeyer, during the time 2023 - 2025
 
 This distribution of Ocean-SL contains the following
 - bin	: Audioserver, Synthesizer, Keyboard, Qt6-Userinterface OceanGUI, SDSview, Rtsp
-- lib	: Qt6-runtime, tiny2xml and RtAudio runtime, libocean.so
+- lib	: Qt6-runtime, tinyxml2 and RtAudio runtime, libocean.so
 - etc	: configuration file and sample program, notes and sound files
 - doc	: user documentation
 - var	: sample wav files
@@ -51,9 +51,8 @@ you can use the cmake system as follows:
 - change to the Cmake directory of the source code distribution
 - check the file CMakeLists.txt. 
 
-By default it will create a binary distribution in \$HOME/OceanDev
-
-Check also the correctness of include dirctory \${Qt6}.
+By default it will create a binary distribution in <userHOME>/OceanDev
+Check also the correctness of include dirctory Qt6.
 
 - Enter the command: cmake CMakeLists.txt 
 if this was successful,
