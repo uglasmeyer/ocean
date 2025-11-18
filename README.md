@@ -6,14 +6,14 @@ that allows to generate, play and record sound. It includes interfaces for music
 supports the sound drivers: -> native ALSA and -> Pulseaudio and consists of a direct interface to 
 musescore3 and sound converting tools like ffmpeg and id3tool. The binary distribution of Ocean-SL
 is limited to the x86_64 architecture (Nov.2025). This distribution includes the 3rd party 
-libraries for Qt6, RtAudio and tiny2xml. It is tested and compiled on ubuntu 2025-10 with x86_64.
+libraries for Qt6, RtAudio and tinyxml2. It is tested and compiled on ubuntu 2025-10 with x86_64.
  
 
 By Ulrich Glasmeyer, during the time 2023 - 2025
 
 This distribution of Ocean-SL contains the following
 - bin	: Audioserver, Synthesizer, Keyboard, Qt6-Userinterface OceanGUI, SDSview, Rtsp
-- lib	: Qt6-runtime, tinyxml2 and RtAudio runtime, libocean.so
+- lib	: Qt6-runtime, tinyxml2 and RtAudio runtime, libOcean.so
 - etc	: configuration file and sample program, notes and sound files
 - doc	: user documentation
 - var	: sample wav files
@@ -51,7 +51,7 @@ you can use the cmake system as follows:
 - change to the Cmake directory of the source code distribution
 - check the file CMakeLists.txt. 
 
-By default it will create a binary distribution in <userHOME>/OceanDev
+By default it will create a binary distribution in userHOME/OceanDev
 Check also the correctness of include dirctory Qt6.
 
 - Enter the command: cmake CMakeLists.txt 
