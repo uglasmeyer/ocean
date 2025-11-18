@@ -228,8 +228,8 @@ const uint Audio_class::getDeviceDescription( uint index )
 	int ind = 0;
 	for ( uint dev : deviceIds )
 	{
-		Comment( INFO,  "device Id: " + to_string( dev ) + " " + deviceNames[ ind++ ] );
-//		ind++;
+		Comment( INFO,  "device Id: " + to_string( dev ) + " " + deviceNames[ ind ] );
+		ind++;
 	}
 
 	if ( index >= deviceIds.size() )

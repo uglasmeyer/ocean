@@ -54,7 +54,7 @@ const string License_text = R"(
     Copyright (C) 2025  Ulrich.Glasmeyer@web.de
     This program comes with ABSOLUTELY NO WARRANTY; for details read the license conditions.
     This is free software, and you are welcome to redistribute it
-    under the  conditions of the GNU General Public License <https://www.gnu.org/licenses/>)";
+    under the  conditions of the MIT license <https://www.gnu.org/licenses/>)";
 
 // Git comment:
 /*

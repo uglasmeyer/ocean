@@ -72,7 +72,7 @@ void show_usage( void )
 	str = "Usage: " + Cfg.prgName + " -c #1 -r #2 -d #3 -o #4 \n";
 	str.append("       where \n");
 	str.append("       #1 = number of channels (default=2),\n");
-	str.append("       #2 = the sample rate (default = 44100),\n");
+	str.append("       #2 = the sample rate (default = 48000),\n");
 	str.append("       #3 = device index (default = 0, default device),\n");
 	str.append("       #4 = channelOffset on the device (default = 0) ");
 	Log.Comment( INFO , str );

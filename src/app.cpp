@@ -148,7 +148,12 @@ void Application_class::Ready(  )
     DaTA->Sem_p->Release( SEMAPHORE_STARTED );
     Info( Cfg->prgName, License_text, "\n" );
 
-	Comment(INFO, "ready");
+    string exit_hint = ", press <ESC> to exit";
+    if ( AppId == GUI_ID )
+    {
+    	exit_hint = "";
+    }
+	Comment(INFO, "ready", exit_hint );
 
 }
 

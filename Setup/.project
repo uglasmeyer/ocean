@@ -3,7 +3,6 @@
 	<name>Setup</name>
 	<comment></comment>
 	<projects>
-		<project>Ocean</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
