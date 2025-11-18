@@ -16,3 +16,9 @@ language.settings.xml
 /TestPrj/
 /RELEASE_NOTES.template
 /*tar.gz
+/*/CMakeFiles
+/Cmake/build_*
+/*/cmake_install.cmake
+/*/Makefile
+
+
