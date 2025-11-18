@@ -31,12 +31,31 @@ Thats it.
 I am not a musician but a physician. Now its up to you.
 
 The software was designed for 
-scalability and c++performance, 
-easy to use, 
-reliable process control
-reproducable results
-and all synthesizer controls are programable
+- scalability and c++performance, 
+- easy to use (once you are familiar with its features), 
+- reliable process control
+- reproducable results
+and 
+- all synthesizer controls are programable
 
-As the software currently has no integrated build system (planned for the next release), the binary distribution is added to github (linux x86_64). 
+Source code is available at https://github.com/uglasmeyer/ocean
+To compile the project take a snapshot of the latest version.
+
+There are some prerequisites as follows:
+- gcc version with support for cxx standard 23, eg: (gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0)
+- Qt6 development environment core, widgets, gui and qmake
+- tinyxml2 development environment
+
+If these prerequisites are fulfilled on the Linux machine
+you can use the cmake system as follows:
+- change to the Cmake directory of the source code distribution
+- check the file CMakeLists.txt. 
+By default it will create a binary distribution in $HOME/OceanDev
+Check also the correctness of include dirctory ${Qt6}.
+
+- Enter the command: cmake CMakeLists.txt 
+if this was successful,
+- Enter the command: make
+
 
 Author: Ulrich.Glasmeyer@web.de
