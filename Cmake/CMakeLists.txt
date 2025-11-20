@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.31)
 
 set(CMAKE_CXX_STANDARD 23)
-set(PROJECT_SOURCE_DIR $ENV{HOME}/git/Ocean/)
+set(PROJECT_SOURCE_DIR $ENV{PWD})
 set(Qt6 /usr/include/x86_64-linux-gnu/qt6)
 
+if(EXISTS "${Qt6}" AND IS_DIRECTORY "${Qt6}")
+    message(STATUS "Qt6 OK")
+else()
+    message(FATAL_ERROR "Directory does not exist: ${Qt6} ")
+endif()
+    
 set(CMAKE_BINARY_DIR $ENV{HOME}/OceanDev)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/x86_64)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/x86_64)

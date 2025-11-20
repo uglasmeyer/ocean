@@ -48,13 +48,14 @@ There are some prerequisites as follows:
 
 If these prerequisites are fulfilled on the Linux machine
 you can use the cmake system as follows:
-- change to the Cmake directory of the source code distribution
+- change to the Cmake directory of the source code distribution (it uses pwd),
 - check the file CMakeLists.txt. 
 
-By default it will create a binary distribution in userHOME/OceanDev
-Check also the correctness of include dirctory Qt6.
+By default it will create a binary distribution in HOME/OceanDev . 
+Check also the correctness of include dirctory Qt6 .
 
-- Enter the command: cmake CMakeLists.txt 
+- Enter the command: cmake CMakeLists.txt
+
 if this was successful,
 - Enter the command: make
 
