@@ -56,7 +56,9 @@ constexpr string Line( int len = 58, char ch = '-' )
 	}
 	return str;
 }
-
+/**************************************************
+https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
+ *************************************************/
 inline void	ClearScreen()
 {
 	if ( is_atty )
@@ -76,18 +78,25 @@ inline void CursorHomeCol()
 		std::cout.flush() << "\x1B[0G" ;
 	}
 }
-inline void CursorPos( uint x, uint y )
-{
-	if ( is_atty )
-		std::cout.flush() << "\x1B[" << y << ";" << x << "H" ;
-}
 
-enum 		LOG { ERROR, DEBUG, INFO, WARN, DBG2, BINFO, TEST, PLAIN, TABLE } ;
+
+enum LOG_e
+{
+	ERROR,
+	DEBUG,
+	INFO,
+	WARN,
+	DBG2,
+	BINFO,
+	TEST,
+	PLAIN,
+	TABLE
+} ;
 
 const uint8_t 				LOGMAX 		= 9;
 const uint					LOGINDENT	= 20;
 #define SETW 				setw( LOGINDENT )
-#define NEWLOGLINE				setw( LOGINDENT + 10 )
+#define NEWLOGLINE			setw( LOGINDENT + 10 )
 
 // global Log facility structure
 typedef 	bitset<LOGMAX>		logmask_t;

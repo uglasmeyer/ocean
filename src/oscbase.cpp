@@ -45,8 +45,6 @@ Oscillator_base::Oscillator_base() // adsr, viewinterface
 
 {
 	Oscillator_base{ NOOSCID };
-
-//	this->spectrum = default_spectrum;
 };
 
 

@@ -98,6 +98,7 @@ struct interface_struct // with reasonable defaults
 	DYNAMIC		 	vol_slidemode 				= SLIDE;
 	uint8_t			slide_duration 				= 50; // % of 4*max_seconds
 	KEYCODE			sdsview_page				= KEYCODE::F1;
+	Id_t			sdsview_sdsid				= 0;
 	buffer_t		audioframes					= audio_frames;
 	wd_arr_t		wavedata 					= {};
 	uint8_t 		SHMID 						= 0;//

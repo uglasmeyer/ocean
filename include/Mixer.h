@@ -86,10 +86,9 @@ public:
 //	void Store_noteline( uint8_t, Note_class* );
 	void 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
 	void 				Clear_StA_status( StA_state_arr_t& );
-	void 				Update_sds_state( int id, interface_t* sds );
-	void 				Set_play_mode	( const uint& id, const bool& play );
-	void 				SetStA			();
-	void 				SetStA			( Id_t mixerId );
+	void 				Set_play_mode	( const STAID_e& id, const bool& play );
+	void 				SetStAs			();
+	void 				SetStA			( STAID_e mixerId );
 	void 				Set_Wdcursor	();
 
 

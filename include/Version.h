@@ -38,8 +38,8 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 0
-#define PATCH 3
-#define DATA_VERSION 37
+#define PATCH 4
+#define DATA_VERSION 38
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -59,6 +59,10 @@ const string License_text = R"(
 // Git comment:
 /*
 
+
+version 4.0.4	Composer dialog mode - preparation
+				remove absolute path from make_moc.sh
+				Cannot shutdown running Synthesizer on high SDS by using SDSview
 version 4.0.3	update install.txt, license informations in files and terminal programs				update license informations in files and terminal programs
 version 4.0.2	x86_64 binary distribution ocean_sound_lab_4.0.2-37.tar.gz
 version 4.0.1	wavedisplay external with dynamic size

@@ -56,7 +56,6 @@ public:
 
 	Scanner_class	scanner;
 
-
 					Oscillator			( OscroleId_t role_id, OSCID_e type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;
 	void 			operator=			( Oscillator& osc );

@@ -133,8 +133,9 @@ kbdInt_t Kbd_base::GetKeyInt( int waitms )
 	key3struct_t key { };
 	while( key.Int == 0 )
 	{
-		key.Int = GetKeyInt( false );
 		this_thread::sleep_for( std::chrono::milliseconds( waitms ) );
+		key.Int = GetKeyInt( false );
+
 	}
 	return key.Int;
 

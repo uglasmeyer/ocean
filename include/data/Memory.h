@@ -238,8 +238,7 @@ class Storage_class :
 public:
 	// dynamic properties
 	StA_param_t 	param			= Mem_param_struct("",0 );
-	string 			Name			= "";
-	uint8_t 		Id				= 0xFF;
+	STAID_e 		Id				= NO_STA;
 	bool			is_RecId		= false;
 	uint 			record_data		= 0;
 	Dynamic_class	DynVolume		{ volidx_range };

@@ -88,9 +88,6 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "SaveRecord",
         "read_polygon_data",
         "Clear_Banks",
-        "setStaPlay",
-        "uint8_t",
-        "id",
         "setStaPlay0",
         "setStaPlay1",
         "setStaPlay2",
@@ -99,8 +96,6 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         "setStaPlay5",
         "setStaPlay6",
         "setStaPlay7",
-        "setStaStored",
-        "staId",
         "setStaStored0",
         "setStaStored1",
         "setStaStored2",
@@ -277,96 +272,88 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
         QtMocHelpers::SlotData<void()>(47, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'Clear_Banks'
         QtMocHelpers::SlotData<void()>(48, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'setStaPlay'
-        QtMocHelpers::SlotData<void(uint8_t)>(49, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 50, 51 },
-        }}),
         // Slot 'setStaPlay0'
-        QtMocHelpers::SlotData<void()>(52, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(49, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay1'
-        QtMocHelpers::SlotData<void()>(53, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(50, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay2'
-        QtMocHelpers::SlotData<void()>(54, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(51, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay3'
-        QtMocHelpers::SlotData<void()>(55, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(52, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay4'
-        QtMocHelpers::SlotData<void()>(56, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(53, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay5'
-        QtMocHelpers::SlotData<void()>(57, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(54, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay6'
-        QtMocHelpers::SlotData<void()>(58, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(55, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaPlay7'
-        QtMocHelpers::SlotData<void()>(59, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'setStaStored'
-        QtMocHelpers::SlotData<void(uint8_t)>(60, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 50, 61 },
-        }}),
+        QtMocHelpers::SlotData<void()>(56, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored0'
-        QtMocHelpers::SlotData<void()>(62, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(57, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored1'
-        QtMocHelpers::SlotData<void()>(63, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(58, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored2'
-        QtMocHelpers::SlotData<void()>(64, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(59, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored3'
-        QtMocHelpers::SlotData<void()>(65, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(60, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored4'
-        QtMocHelpers::SlotData<void()>(66, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(61, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored5'
-        QtMocHelpers::SlotData<void()>(67, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(62, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored6'
-        QtMocHelpers::SlotData<void()>(68, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(63, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'setStaStored7'
-        QtMocHelpers::SlotData<void()>(69, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(64, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta0'
-        QtMocHelpers::SlotData<void()>(70, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(65, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta1'
-        QtMocHelpers::SlotData<void()>(71, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(66, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta2'
-        QtMocHelpers::SlotData<void()>(72, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(67, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta3'
-        QtMocHelpers::SlotData<void()>(73, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(68, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta4'
-        QtMocHelpers::SlotData<void()>(74, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(69, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta5'
-        QtMocHelpers::SlotData<void()>(75, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(70, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta6'
-        QtMocHelpers::SlotData<void()>(76, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(71, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_store_sta7'
-        QtMocHelpers::SlotData<void()>(77, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(72, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'select_Sds0'
-        QtMocHelpers::SlotData<void()>(78, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(73, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'select_Sds1'
-        QtMocHelpers::SlotData<void()>(79, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(74, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'select_Sds2'
-        QtMocHelpers::SlotData<void()>(80, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(75, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'select_Sds3'
-        QtMocHelpers::SlotData<void()>(81, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(76, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'CombineFreq'
-        QtMocHelpers::SlotData<void()>(82, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(77, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'File_Director'
-        QtMocHelpers::SlotData<void()>(83, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(78, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'Spectrum_Dialog'
-        QtMocHelpers::SlotData<void()>(84, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(79, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'ADSR_Dialog'
-        QtMocHelpers::SlotData<void()>(85, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(80, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'Save_Config'
-        QtMocHelpers::SlotData<void()>(86, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(81, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'toggle_Mute'
-        QtMocHelpers::SlotData<void()>(87, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(82, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'adsr_hall'
-        QtMocHelpers::SlotData<void()>(88, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(83, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'pB_Debug_clicked'
-        QtMocHelpers::SlotData<void()>(89, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(84, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'wavfile_selected'
-        QtMocHelpers::SlotData<void(const QString &)>(90, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 91 },
+        QtMocHelpers::SlotData<void(const QString &)>(85, 2, QMC::AccessPrivate, QMetaType::Void, {{
+            { QMetaType::QString, 86 },
         }}),
         // Slot 'pB_oscgroup_clicked'
-        QtMocHelpers::SlotData<void()>(92, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(87, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'pB_Wavedisplay_clicked'
-        QtMocHelpers::SlotData<void()>(93, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(88, 2, QMC::AccessPrivate, QMetaType::Void),
         // Slot 'pB_fftmode_clicked'
-        QtMocHelpers::SlotData<void()>(94, 2, QMC::AccessPrivate, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(89, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -435,48 +422,46 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 42: _t->SaveRecord(); break;
         case 43: _t->read_polygon_data(); break;
         case 44: _t->Clear_Banks(); break;
-        case 45: _t->setStaPlay((*reinterpret_cast< std::add_pointer_t<uint8_t>>(_a[1]))); break;
-        case 46: _t->setStaPlay0(); break;
-        case 47: _t->setStaPlay1(); break;
-        case 48: _t->setStaPlay2(); break;
-        case 49: _t->setStaPlay3(); break;
-        case 50: _t->setStaPlay4(); break;
-        case 51: _t->setStaPlay5(); break;
-        case 52: _t->setStaPlay6(); break;
-        case 53: _t->setStaPlay7(); break;
-        case 54: _t->setStaStored((*reinterpret_cast< std::add_pointer_t<uint8_t>>(_a[1]))); break;
-        case 55: _t->setStaStored0(); break;
-        case 56: _t->setStaStored1(); break;
-        case 57: _t->setStaStored2(); break;
-        case 58: _t->setStaStored3(); break;
-        case 59: _t->setStaStored4(); break;
-        case 60: _t->setStaStored5(); break;
-        case 61: _t->setStaStored6(); break;
-        case 62: _t->setStaStored7(); break;
-        case 63: _t->toggle_store_sta0(); break;
-        case 64: _t->toggle_store_sta1(); break;
-        case 65: _t->toggle_store_sta2(); break;
-        case 66: _t->toggle_store_sta3(); break;
-        case 67: _t->toggle_store_sta4(); break;
-        case 68: _t->toggle_store_sta5(); break;
-        case 69: _t->toggle_store_sta6(); break;
-        case 70: _t->toggle_store_sta7(); break;
-        case 71: _t->select_Sds0(); break;
-        case 72: _t->select_Sds1(); break;
-        case 73: _t->select_Sds2(); break;
-        case 74: _t->select_Sds3(); break;
-        case 75: _t->CombineFreq(); break;
-        case 76: _t->File_Director(); break;
-        case 77: _t->Spectrum_Dialog(); break;
-        case 78: _t->ADSR_Dialog(); break;
-        case 79: _t->Save_Config(); break;
-        case 80: _t->toggle_Mute(); break;
-        case 81: _t->adsr_hall(); break;
-        case 82: _t->pB_Debug_clicked(); break;
-        case 83: _t->wavfile_selected((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
-        case 84: _t->pB_oscgroup_clicked(); break;
-        case 85: _t->pB_Wavedisplay_clicked(); break;
-        case 86: _t->pB_fftmode_clicked(); break;
+        case 45: _t->setStaPlay0(); break;
+        case 46: _t->setStaPlay1(); break;
+        case 47: _t->setStaPlay2(); break;
+        case 48: _t->setStaPlay3(); break;
+        case 49: _t->setStaPlay4(); break;
+        case 50: _t->setStaPlay5(); break;
+        case 51: _t->setStaPlay6(); break;
+        case 52: _t->setStaPlay7(); break;
+        case 53: _t->setStaStored0(); break;
+        case 54: _t->setStaStored1(); break;
+        case 55: _t->setStaStored2(); break;
+        case 56: _t->setStaStored3(); break;
+        case 57: _t->setStaStored4(); break;
+        case 58: _t->setStaStored5(); break;
+        case 59: _t->setStaStored6(); break;
+        case 60: _t->setStaStored7(); break;
+        case 61: _t->toggle_store_sta0(); break;
+        case 62: _t->toggle_store_sta1(); break;
+        case 63: _t->toggle_store_sta2(); break;
+        case 64: _t->toggle_store_sta3(); break;
+        case 65: _t->toggle_store_sta4(); break;
+        case 66: _t->toggle_store_sta5(); break;
+        case 67: _t->toggle_store_sta6(); break;
+        case 68: _t->toggle_store_sta7(); break;
+        case 69: _t->select_Sds0(); break;
+        case 70: _t->select_Sds1(); break;
+        case 71: _t->select_Sds2(); break;
+        case 72: _t->select_Sds3(); break;
+        case 73: _t->CombineFreq(); break;
+        case 74: _t->File_Director(); break;
+        case 75: _t->Spectrum_Dialog(); break;
+        case 76: _t->ADSR_Dialog(); break;
+        case 77: _t->Save_Config(); break;
+        case 78: _t->toggle_Mute(); break;
+        case 79: _t->adsr_hall(); break;
+        case 80: _t->pB_Debug_clicked(); break;
+        case 81: _t->wavfile_selected((*reinterpret_cast< std::add_pointer_t<QString>>(_a[1]))); break;
+        case 82: _t->pB_oscgroup_clicked(); break;
+        case 83: _t->pB_Wavedisplay_clicked(); break;
+        case 84: _t->pB_fftmode_clicked(); break;
         default: ;
         }
     }
@@ -505,14 +490,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 87)
+        if (_id < 85)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 87;
+        _id -= 85;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 87)
+        if (_id < 85)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 87;
+        _id -= 85;
     }
     return _id;
 }

@@ -42,6 +42,7 @@ SOFTWARE.
 #include <Mixer.h>
 #include <Ocean.h>
 #include <Kbd.h>
+#include <Mixerbase.h>
 
 // Qt
 #include <QLabel>
@@ -51,6 +52,7 @@ SOFTWARE.
 
 
 const string 		Module 		= OCEANGUI;
+sta_role_map 		StaRole_map = sta_role_map();
 
 //Ui::MainWindow	Ui_Mainwindow_obj{};
 
@@ -156,6 +158,7 @@ void MainWindow::chord_delay()
 }
 void MainWindow::set_wdrole( OscroleId_t roleid )
 {
+	if( roleid == NOROLE ) return;
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ roleid ] );
 
     Sds->Set( sds->WD_status.roleId, roleid );
@@ -347,16 +350,20 @@ void MainWindow::CombineFreq()
 		Sds->Set( Sds->addr->frq_slidermode, SLIDE );
 }
 
-void MainWindow::setStaPlay( uint8_t _id )
+void MainWindow::setStaPlay( STAID_e id )
 {
-	STAID_e id = (STAID_e)_id;
-	Sds->Set( Sds->addr->MIX_Id , id );
-    bool play = not Sds->addr->StA_state_arr[id].play;
-    Sds->Set( Sds->addr->StA_state_arr[id].play, play);
+    bool	play= not Sds->addr->StA_state_arr[id].play;
+    Sds->Set( Sds->addr->MIX_Id , id );
+    Sds->Set( *cb_play_sta_vec[id].state, play);
+    if( play )
+   	{
+    	OscroleId_t role = StaRole_map.GetRoleid( id );
+        set_wdrole( role );
+        Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
+   	}
+
     Eventlog.add( SDS_ID, SETSTA_KEY );
-    Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
-    Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
-    cb_play_sta_vec[ id ].cb->setChecked( play ) ;
+
 }
 
 void MainWindow::setStaPlay0(  )
@@ -378,36 +385,29 @@ void MainWindow::setStaPlay3(  )
 void MainWindow::setStaPlay4(  )
 {
 	setStaPlay( STA_INSTRUMENT );
-	Sds->Set( Sds->addr->WD_status.roleId , INSTRROLE );
 }
 void MainWindow::setStaPlay5(  )
 {
 	setStaPlay( STA_KEYBOARD );
-	Sds->Set( Sds->addr->WD_status.roleId , KBDROLE );
 }
 void MainWindow::setStaPlay6(  )
 {
 	setStaPlay( STA_NOTES );
-	Sds->Set( Sds->addr->WD_status.roleId , NOTESROLE );
-
 }
 void MainWindow::setStaPlay7(  )
 {
 	setStaPlay( STA_EXTERNAL );
-	Sds->Set( Sds->addr->WD_status.roleId , EXTERNALROLE );
-
 }
 
-void MainWindow::setStaStored( uint8_t _id )
+void MainWindow::setStaStored( STAID_e staId )
 {
-	STAID_e staId = (STAID_e)_id;
 
     Sds->Set( Sds->addr->MIX_Id , staId );
     bool filled = not Sds->addr->StA_state_arr[staId].filled;
     Sds->Set( Sds->addr->StA_state_arr[staId].filled, filled );
-    Eventlog.add( SDS_ID, SETSTA_KEY );
     Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
-    cb_filled_sta_vec[ staId ].cb->setChecked( filled ) ;
+    Eventlog.add( SDS_ID, SETSTA_KEY );
+//    cb_filled_sta_vec[ staId ].cb->setChecked( filled ) ;
 }
 void MainWindow::setStaStored0()
 {
@@ -863,6 +863,7 @@ void MainWindow::setwidgetvalues()
 
     Qstr	= int2char( Sds->addr->adsr_arr[OSCID].bps );
     ui->cb_bps->setCurrentText( Qstr );
+
 
 	set_cb_psta_value( this );
 	set_cb_ssta_value( this );

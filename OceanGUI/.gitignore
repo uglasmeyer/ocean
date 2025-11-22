@@ -1,2 +1,5 @@
 /Release/
 /Shlib/
+/gmon.out
+/Makefile_Qt6
+/nohup.out

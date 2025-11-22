@@ -239,7 +239,7 @@ void ViewInterface_class::F2_showProcesses()
 	}
 	Table_class T{ "Process States"	, 15 };
 	T.AddColumn( "Process"			, 15);
-	T.AddColumn( "State"				, 15 );
+	T.AddColumn( "State"			, 15 );
 	T.AddColumn( "PID"				, 15 );
 	T.AddColumn( "Type Id"			, 10 );
 	T.PrintHeader();
@@ -248,15 +248,15 @@ void ViewInterface_class::F2_showProcesses()
 			appid++ )
 	{
 		T.AddRow( AppIdName( (APPID)appid ),
-								Appstate.GetStateStr( 	sds_p, appid ),
-								Appstate.GetPidStr( sds_p, appid ),
-								Appstate.Type(		sds_p, appid ));
+								Appstate.GetStateStr( sds_p, appid ),
+								Appstate.GetPidStr	( sds_p, appid ),
+								Appstate.Type		( sds_p, appid ));
 	}
 	coutf << Line(80) << endl;
 	T.AddRow( 	"Mixer Id" 		, (int)sds_p->MIX_Id,
-				"Sync data id" 	, (int) sds_p->SHMID);
+				"Sync data id" 	, (int)sds_p->SHMID);
 	T.AddRow(	"Audio frames"	, (int)sds_p->audioframes,
-				"Record Progress" , (int)sds_p->RecCounter);
+				"Record Progress",(int)sds_p->RecCounter);
 	T.AddRow(	"File No."		, (int)sds_p->FileNo );
 };
 
@@ -349,6 +349,7 @@ void ViewInterface_class::set_sds( interface_t* sds )
 {
 	this->sds_p = sds;
 	Device_class::Set_sds( sds_p );
+	sds_master->sdsview_sdsid = sds->SDS_Id;
 }
 KEYCODE ViewInterface_class::ShowPage( interface_t* sds )
 {
@@ -403,6 +404,7 @@ Menue_class::~Menue_class()
 };
 void Menue_class::Set_sdsid( int delta )
 {
+	sdsid	= sds_master->sdsview_sdsid;
 	int
 	max 	= (MAXCONFIG - 1);
 	sdsid 	= ( sdsid + delta );
@@ -415,12 +417,13 @@ void Menue_class::Set_sdsid( int delta )
 	Interface_class*
 	Sds 	= DaTA->SDS.GetSds( sdsid );
 	sds 	= Sds->addr;
+	sds_master->sdsview_sdsid = sdsid;
 	DaTA->Appstate.Setup( sds, sds_master );
 }
 
 void Menue_class::Loop()
 {
-	kbdInt_t key 			= Switch( sds_master->sdsview_page );;
+	kbdInt_t key 			= Switch( sds_master->sdsview_page );
 	while ( key != ESC )
 	{
 		ViewSds.ShowPage( sds );

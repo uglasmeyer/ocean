@@ -202,8 +202,8 @@ void ADSR_class::Set_bps()
 	}
 	else
 	{
-		if( has_kbd_role )
-			adsr_data.bps = 1;
+//		if( has_kbd_role )
+//			adsr_data.bps = 1;
 		if ( adsr_data.bps > 0 )
 			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else

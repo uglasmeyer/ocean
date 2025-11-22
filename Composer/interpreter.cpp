@@ -84,7 +84,7 @@ Interpreter_class::~Interpreter_class()
 	DESTRUCTOR( className )
 }
 
-bool Interpreter_class::cmpkeyword ( const string& word )
+bool Interpreter_class::Cmpkeyword ( const string& word )
 {
 	String lower {keyword.Str};
 	lower.to_lower();
@@ -98,18 +98,18 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 	string opt{};
 
 	expect = { "AudioServer", "Synthesizer", "Rtsp" };
-	intro( arr , 2 );
+	Intro( arr , 2 );
 
-	if ( cmpkeyword( "rtsp" ) )
+	if ( Cmpkeyword( "rtsp" ) )
 	{
 		exe = fs->rtsp_bin;
 		opt = "-C";
 	}
-	if ( cmpkeyword( "synthesizer") )
+	if ( Cmpkeyword( "synthesizer") )
 	{
 		exe = fs->Synth_bin;
 	}
-	if ( cmpkeyword( "audioserver") )
+	if ( Cmpkeyword( "audioserver") )
 	{
 		exe = fs->Audio_bin;
 	}
@@ -139,7 +139,7 @@ void Interpreter_class::Start_bin( vector_str_t arr )
 void Interpreter_class::Stop_bin( vector_str_t arr )
 {
 	expect = { "AudioServer", "Synthesizer" };
-	intro( arr, 1 );
+	Intro( arr, 1 );
 
 	if ( strEqual( keyword.Str, "Synthesizer" ) )
 	{
@@ -159,7 +159,7 @@ void Interpreter_class::Stop_bin( vector_str_t arr )
 
 }
 
-void Interpreter_class::intro( vector_str_t arr, uint min )
+void Interpreter_class::Intro( vector_str_t arr, uint min )
 {
 	auto arr_to_str = [ arr ]()
 	{
@@ -179,9 +179,9 @@ void Interpreter_class::intro( vector_str_t arr, uint min )
 void Interpreter_class::RecFile( vector_str_t arr )
 {
 	expect = { "stop", "file", "play", "loop" };
-	intro( arr, 2);
+	Intro( arr, 2);
 
-	if ( cmpkeyword( "file" ) )
+	if ( Cmpkeyword( "file" ) )
 	{
 		expect = { "Record duration in seconds" };
 		option_default = "0";
@@ -192,7 +192,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 
 		return;
 	}
-	if ( cmpkeyword( "stop") ) // stop record and write file with synthesizer.record_thead_fcn
+	if ( Cmpkeyword( "stop") ) // stop record and write file with synthesizer.record_thead_fcn
 	{
 		expect = { "File number" };
 		uint8_t FileNo = pop_T( uint8_range );
@@ -201,7 +201,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		Processor_class::Push_key( SAVE_EXTERNALWAVFILEKEY, 	"stop record" );
 		return;
 	}
-	if ( cmpkeyword( "play") )
+	if ( Cmpkeyword( "play") )
 	{
 		expect 			= { "file no", "replay duration in seconds" };
 		string wavfile 	= "synthesizer" + pop_stack( 2 );
@@ -210,11 +210,11 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		Pause( {"pause", duration } );
 		return;
 	}
-	if ( cmpkeyword( "loop") )
+	if ( Cmpkeyword( "loop") )
 	{
 		expect = {"amp"};
 		keyword.Str = pop_stack( 1);
-		if ( cmpkeyword( "amp") )
+		if ( Cmpkeyword( "amp") )
 		{
 			expect = { "loop final volume" };
 			uint8_t 	amp 	= pop_T( amp_range );
@@ -235,7 +235,7 @@ void Interpreter_class::Random( vector_str_t arr )
 
 
 	expect = { "constant note list"};
-	intro( arr, 6 );
+	Intro( arr, 6 );
 
 	string Constant = keyword.Str;
 	Variation.Define_fix( Constant );
@@ -261,38 +261,38 @@ void Interpreter_class::Random( vector_str_t arr )
 void Interpreter_class::Set( vector_str_t arr )
 {
 	expect = { "octave+", "octave-", "main", "vco", "fmo" };
-	intro( arr, 2 );
-	if ( cmpkeyword( "octave+" ))
+	Intro( arr, 2 );
+	if ( Cmpkeyword( "octave+" ))
 	{
 		Processor_class::Push_ifd( &sds->FLAG, 1_uint, "octave" );
 		Processor_class::Push_key(SETBASEOCTAVE_KEY, "inc octave");
 		return;
 	}
-	if ( cmpkeyword( "octave-" ))
+	if ( Cmpkeyword( "octave-" ))
 	{
 		Processor_class::Push_ifd( &sds->FLAG, 0_uint, "octave" );
 		Processor_class::Push_key(SETBASEOCTAVE_KEY, "dec octave");
 		return;
 	}
-	if ( cmpkeyword( "main" ) or cmpkeyword( "vco" ) or cmpkeyword( "fmo" ))
+	if ( Cmpkeyword( "main" ) or Cmpkeyword( "vco" ) or Cmpkeyword( "fmo" ))
 	{
 		string osc = keyword.Str;
 		expect = { "freq", "wf", "amp" };
 		keyword.Str = pop_stack( 2 );
 
-		if( cmpkeyword( "freq") )
+		if( Cmpkeyword( "freq") )
 		{
 			string value{ pop_stack( 1 ) };
 			Osc({ "osc", osc, "freq", value });
 			return;
 		}
-		if( cmpkeyword( "wf") )
+		if( Cmpkeyword( "wf") )
 		{
 			Value value{ pop_T( wfid_range ) };
 			Osc({ "osc", osc, "wf", value.str });
 			return;
 		}
-		if( cmpkeyword( "amp") )
+		if( Cmpkeyword( "amp") )
 		{
 			uint8_t 	amp 	= pop_T( amp_range );
 			Osc({ "osc", osc, "amp", to_string( amp ) });
@@ -307,9 +307,9 @@ void Interpreter_class::Set( vector_str_t arr )
 void Interpreter_class::Notes( vector_str_t arr )
 {
 	expect = { "load", "play" , "set", "per_second"};
-	intro( arr, 2 );
+	Intro( arr, 2 );
 
-	if ( cmpkeyword( "load") )
+	if ( Cmpkeyword( "load") )
 	{
 		expect = { "Notes name" };
 		string notes_name = pop_stack( 1);
@@ -320,7 +320,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		Processor_class::Push_str( UPDATENOTESKEY, NOTESSTR_KEY, notes_name );
 		return;
 	}
-	if ( cmpkeyword( "set") )
+	if ( Cmpkeyword( "set") )
 	{
 		noteline_prefix_t nl = Variation.Noteline_prefix;
 		Variation.Read("tmp");
@@ -332,7 +332,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		expect		=	{"prefix","octave", "[num]","sentence" };
 		keyword.Str = pop_stack(1);
 
-		if ( cmpkeyword("prefix") )
+		if ( Cmpkeyword("prefix") )
 		{
 			expect 		= {"#flats", "#sharps" };
 			uint8_t flats	= pop_T( accidental_range );
@@ -344,7 +344,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 			Variation.Save( "tmp", Variation.Noteline_prefix, Noteline );
 			return;
 		}
-		if( cmpkeyword("octave") )
+		if( Cmpkeyword("octave") )
 		{
 			expect = { "octave value" };
 			uint8_t oct = pop_T( octave_range ) ;
@@ -356,7 +356,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 			return;
 		}
 
-		if ( cmpkeyword( "num" ) )
+		if ( Cmpkeyword( "num" ) )
 		{
 			Noteline = pop_stack(1);
 			Variation.Set_note_chars( 1 );
@@ -379,12 +379,12 @@ void Interpreter_class::Notes( vector_str_t arr )
 		return;
 	}
 	// notes play notes ACDC
-	if ( cmpkeyword( "play") )
+	if ( Cmpkeyword( "play") )
 	{
 		Comment( INFO, "playing notes " );
 		expect = { "on", "off" };
 		keyword.Str = pop_stack( 1);
-		if ( cmpkeyword( "on") )
+		if ( Cmpkeyword( "on") )
 		{
 			expect = { "volume [%]" };
 			uint8_t 	amp 	= pop_T( amp_range );
@@ -397,7 +397,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 			}
 			return;
 		}
-		if ( cmpkeyword( "off") )
+		if ( Cmpkeyword( "off") )
 		{
 			Comment( INFO, "playing notes off " );
 			Processor_class::Push_key( NOTESOFFKEY, "notes off" );
@@ -406,7 +406,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		Wrong_keyword( expect, keyword.Str );
 		return;
 	}
-	if ( cmpkeyword( "per_second" ) )
+	if ( Cmpkeyword( "per_second" ) )
 	{
 		expect = {"notes per second [ " + Variation.NPS_string +  " ]"};
 		Value nps = pop_T( npsidx_range );
@@ -429,9 +429,9 @@ void Interpreter_class::Notes( vector_str_t arr )
 void Interpreter_class::Instrument( vector_str_t arr )
 {
 	expect = { "load" };
-	intro( arr, 2 );
+	Intro( arr, 2 );
 
-	if ( cmpkeyword( "load") )
+	if ( Cmpkeyword( "load") )
 	{
 		expect = { "instument name "};
 		string instr = pop_stack( 1);
@@ -451,14 +451,14 @@ void Interpreter_class::Instrument( vector_str_t arr )
 void Interpreter_class::Add( vector_str_t arr )
 {
 	expect = {"add", "instrument", "notes", "storage id", "duration|auto "};
-	intro( arr, 4 );
+	Intro( arr, 4 );
 
-	string inst		 	= keyword.Str;
-	string note 		= pop_stack( 1);
-	string amp 			= "0";
-	string ma_id 		= pop_stack( 1 );
+	string 			inst	= keyword.Str;
+	string 			note	= pop_stack( 1);
+	string 			amp		= "0";
+	string 			ma_id	= pop_stack( 1 );
 
-	vector_str_t vec;
+	vector_str_t 	vec;
 
 	vec = { "instrument" , "load" , inst }; 	// SETINSTRUMENTKEY
 	Instrument( vec );
@@ -473,17 +473,17 @@ void Interpreter_class::Osc( vector_str_t arr )
 
 	expect = { "main", "vco", "fmo" };
 	vector_str_t tmp = arr;
-	intro( arr, 3);
+	Intro( arr, 3);
 	view_struct_t view = view_struct();
-	if ( cmpkeyword( "main" ))
+	if ( Cmpkeyword( "main" ))
 	{
 		view = main_view;
 	}
-	if ( cmpkeyword( "fmo") )
+	if ( Cmpkeyword( "fmo") )
 	{
 		view = fmo_view;
 	}
-	if ( cmpkeyword( "vco") )
+	if ( Cmpkeyword( "vco") )
 	{
 		view = vco_view;
 	}
@@ -494,7 +494,7 @@ void Interpreter_class::Osc( vector_str_t arr )
 	}
 
 	keyword.Str = arr[2];
-	if ( cmpkeyword( "set") )
+	if ( Cmpkeyword( "set") )
 	{
 		if ( not check_count( stack, 5) ) return;
 		tmp = { "set","wf", arr[3], "0" };
@@ -515,11 +515,11 @@ void Interpreter_class::Osc( vector_str_t arr )
 void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 {
 	expect = { "mute", "unmute", "reset", "freq", "loop", "wf", "amp" };
-	intro( arr, 2);
+	Intro( arr, 2);
 
 	bool loop = false;
 
-	if ( cmpkeyword( "mute") )
+	if ( Cmpkeyword( "mute") )
 	{
 		Comment( INFO, "Master volume is muted " );
 
@@ -528,7 +528,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		return;
 	}
 
-	if ( cmpkeyword( "unmute") )
+	if ( Cmpkeyword( "unmute") )
 	{
 		Comment( INFO, "Master volume is un-muted " );
 
@@ -536,7 +536,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		Push_key( MASTERAMP_MUTE_KEY, "un-mute master volume" );
 		return;
 	}
-	if ( cmpkeyword( "reset" ))
+	if ( Cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
 		Processor_class::Push_ifd( &sds->connect_arr[OSCID].frq, OSCID, "reset fmo connect" );
@@ -546,7 +546,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	}
 
 
-	if ( cmpkeyword( "wf") )
+	if ( Cmpkeyword( "wf") )
 	{
 		expect = vector2set( Spectrum.Get_waveform_vec() );
 		string waveform = pop_stack( 1);
@@ -555,7 +555,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		if ( wfid < 0 )
 		{
 			Wrong_keyword(expect, waveform);
-			Exception( "wrong keyword" );
+			If_Exception( "wrong keyword" );
 		}
 		expect 		= { " duration in seconds" };
 		option_default = "0";
@@ -568,14 +568,14 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		return;
 	}
 
-	if ( cmpkeyword( "loop") )
+	if ( Cmpkeyword( "loop") )
 	{
 		keyword.Str = pop_stack( 1);
 		loop = true;
 		// TODO
 	}
 
-	if ( cmpkeyword( "amp") )
+	if ( Cmpkeyword( "amp") )
 	{
 		expect = { "volume [%]" };
 		uint8_t 	amp 	= pop_T( amp_range );
@@ -598,7 +598,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		return;
 	}
 
-	if ( cmpkeyword( "freq") )
+	if ( Cmpkeyword( "freq") )
 	{
 		expect = { "frequency name or index" };
 		uint8_t freq = 1;
@@ -641,12 +641,12 @@ void Interpreter_class::Play( vector_str_t arr )
 	expect 			= { "amp" };
 	string k1 		= pop_stack( 1); // amp always
 	keyword.Str 	= k1;
-	if ( cmpkeyword( "amp") )
+	if ( Cmpkeyword( "amp") )
 	{
 		expect = { "loop", "duration in sec." };
 		string k2 = pop_stack( 1); // loop or duration
 		keyword.Str = k2;
-		if ( cmpkeyword( "loop") )
+		if ( Cmpkeyword( "loop") )
 		{
 			expect = { " dest amp"};
 			uint8_t max = pop_T( percent_range );
@@ -672,9 +672,9 @@ void Interpreter_class::Play( vector_str_t arr )
 void Interpreter_class::RecStA( vector_str_t arr )
 {
 	expect = { "store", "amp", "stop", "play", "mute" , "clear", "loop"};
-	intro( arr, 3 );
+	Intro( arr, 3 );
 
-	if ( cmpkeyword( "loop" ))
+	if ( Cmpkeyword( "loop" ))
 	{
 		STAID_e	staid	= pop_T( staid_range );
 		uint8_t end = pop_T( percent_range );
@@ -686,7 +686,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 		return;
 	}
-	if ( cmpkeyword( "amp") )
+	if ( Cmpkeyword( "amp") )
 	{
 		STAID_e	staid	= pop_T( staid_range );
 		expect 		= { "volume [%]" };
@@ -704,11 +704,11 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	}
 
 	// e.g. rec play notes|free
-	if ( cmpkeyword( "play") )
+	if ( Cmpkeyword( "play") )
 	{
 		expect = {"free"};
 		keyword.Str = pop_stack( 1);
-		if ( cmpkeyword( "free") )
+		if ( Cmpkeyword( "free") )
 		{
 			Processor_class::Push_key( PLAYNOTESRECOFF_KEY, "free mode" );
 			return;
@@ -716,7 +716,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		Wrong_keyword( expect , keyword.Str );
 
 	}
-	if ( cmpkeyword( "notes") )
+	if ( Cmpkeyword( "notes") )
 	{
 
 		expect 			= {"mem id 0..5"};
@@ -726,7 +726,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		return;
 	}
 
-	if ( cmpkeyword( "mute") )
+	if ( Cmpkeyword( "mute") )
 	{
 		STAID_e	staid	= pop_T( staid_range );
 		Comment( INFO, "mute memory array: " + to_string(staid) );
@@ -735,7 +735,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		return;
 	}
 
-	if ( cmpkeyword( "store") )
+	if ( Cmpkeyword( "store") )
 	{
 		STAID_e id	= pop_T( staid_range );
 		Comment( INFO, "store sound to: " + to_string(id) );
@@ -744,7 +744,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		return;
 	}
 
-	if ( cmpkeyword( "clear") )
+	if ( Cmpkeyword( "clear") )
 	{
 		STAID_e	staid	= pop_T( staid_range );
 		Comment( INFO, "clear " + to_string(staid) );
@@ -754,7 +754,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	}
 
-	if ( cmpkeyword( "stop") )
+	if ( Cmpkeyword( "stop") )
 	{
 		STAID_e	staid	= pop_T( staid_range );
 		Comment( INFO, "stop recording to: " + to_string(staid) );
@@ -770,7 +770,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 void Interpreter_class::Text( vector_str_t arr )
 {
 	expect = { "text" };
-	intro( arr, 1 );
+	Intro( arr, 1 );
 
 	string text = keyword.Str ;
 	for ( string str : stack )
@@ -785,9 +785,9 @@ void Interpreter_class::Text( vector_str_t arr )
 void Interpreter_class::Adsr( vector_str_t arr )
 {
 	expect =  { "pmw", "hall", "attack", "decay", "softfreq", "beat" };
-	intro( arr, 2 );
+	Intro( arr, 2 );
 
-	if ( cmpkeyword( "softfreq") )
+	if ( Cmpkeyword( "softfreq") )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		uint8_t freq = pop_T( percent_range );
@@ -795,7 +795,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}
-	if ( cmpkeyword( "beat") )
+	if ( Cmpkeyword( "beat") )
 	{
 		Comment( INFO, "beat duration is set to: " + stack[0] );
 		expect 		= bps_struct().Bps_str_set;
@@ -804,14 +804,14 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		if ( not bps_struct().Bps_set.contains( bps ) )
 		{
 			Wrong_keyword( expect , Bps );
-			Exception( "wrong beat duration" );
+			If_Exception( "wrong beat duration" );
 		}
 
 		Processor_class::Push_ifd( &sds->adsr_arr[OSCID].bps, bps, "beat duration" );
 		Processor_class::Push_key( ADSR_KEY, "set beat duration" );
 		return;
 	}
-	if ( cmpkeyword( "attack") )
+	if ( Cmpkeyword( "attack") )
 	{
 		Comment( INFO, "beat attack is set to: " + stack[0] );
 		uint8_t attack = pop_T( percent_range );
@@ -819,7 +819,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		Processor_class::Push_key( ADSR_KEY, "set adsr attack" );
 		return;
 	}
-	if ( cmpkeyword( "decay") )
+	if ( Cmpkeyword( "decay") )
 	{
 		Comment( INFO, "beat decay is set to: " + stack[0] );
 		uint8_t decay = pop_T( percent_range );
@@ -827,7 +827,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		Processor_class::Push_key( ADSR_KEY, "set adsr decay" );
 		return;
 	}
-	if ( cmpkeyword( "hall") )
+	if ( Cmpkeyword( "hall") )
 	{
 		Comment( INFO, "hall effect is set to: " + stack[0] );
 		uint8_t hall = pop_T( percent_range );
@@ -835,7 +835,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 		Processor_class::Push_key( ADSR_KEY,  "set hall" );
 		return;
 	}
-	if ( cmpkeyword( "pmw") )
+	if ( Cmpkeyword( "pmw") )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		uint8_t dial = pop_T( percent_range );
@@ -852,14 +852,14 @@ void Interpreter_class::Pause( vector_str_t arr )
 {
 
 	expect 		= { "duration in seconds", "auto", "key" };
-	intro( arr, 1 );
+	Intro( arr, 1 );
 
-	if ( cmpkeyword( "key" ))
+	if ( Cmpkeyword( "key" ))
 	{
 		Processor_class::Push_wait( CMD_COND_WAIT, 1, "press <ret> to continue" );
 		return;
 	};
-	if ( cmpkeyword( "auto" ) )
+	if ( Cmpkeyword( "auto" ) )
 	{
 		Processor_class::Push_wait( CMD_COND_WAIT, 0, "auto" );
 		return;
@@ -872,8 +872,6 @@ void Interpreter_class::Pause( vector_str_t arr )
 	}
 	Wrong_keyword(expect, keyword.Str);
 }
-
-//vector_str_t Interpreter_class::include( vector_str_t arr, vector_str_t& filelines )
 
 void Interpreter_class::Addvariable( vector_str_t arr )
 {
@@ -904,21 +902,23 @@ void Interpreter_class::Addvariable( vector_str_t arr )
 	if ( Keywords.contains( varname ) )
 	{
 		if ( not testrun)
-			Exception( "var " + varname + " is keyword" );//raise( SIGINT);
+			If_Exception( "var " + varname + " is keyword" );//raise( SIGINT);
 		testreturn = true;
 	};
 
 	set_stack( arr, 2);
 	keyword	= pop_stack( 1);
-	if ( not cmpkeyword( "=" ))
+	if ( not Cmpkeyword( "=" ))
 	{
-		Exception( "missing equal sign");
+		Info( keyword.Str , " is not a keyword");
+		Info( "command is not an assignment" );
+		Wrong_keyword( expect, arr[0] );
 	}
 	string varvalue 	= pop_stack( 1) ;
 	if ( Keywords.contains( varvalue ) )
 	{
 		if ( not testrun)
-			Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
+			If_Exception( "varvalue " + varvalue + " is keyword"  );//raise( SIGINT);
 		testreturn = true;
 	};
 
@@ -1018,7 +1018,7 @@ int Interpreter_class::Find_position( const program_vec_t& program, vector_str_t
 			[] ( line_struct_t line )
 			{ if ( line.keyw[0] == ':' ) cout << line.keyw << " " ;} );
 
-	Exception( "line >" + arr[1] + " not found" );//raise( SIGINT );
+	If_Exception( "line >" + arr[1] + " not found" );//raise( SIGINT );
  	return -2;
 }
 
@@ -1039,7 +1039,8 @@ void Interpreter_class::Wrong_keyword( set<string> expected , string given )
 	Comment( INFO, "expected: "  );
 	for ( string expect : expected )
 		cout << expect << endl;
-	Exception( "processing failed" );
+	if ( dialog_mode ) return;
+	If_Exception( "processing failed" );
 }
 
 
@@ -1072,6 +1073,14 @@ void Interpreter_class::Set_dialog_mode( bool mode )
 	dialog_mode = mode;
 }
 
+void Interpreter_class::If_Exception( string str )
+{
+	error = 1;
+	if( dialog_mode )
+		Comment( ERROR, "Exception: ", str );
+	else
+		Exception( str );
+}
 bool Interpreter_class::no_error( int nr )
 {
 	if ( error > 0 )
@@ -1080,7 +1089,7 @@ bool Interpreter_class::no_error( int nr )
 		if ( nr > 1 ) cout << " more ..." ;
 		cout << endl;
 		if ( not dialog_mode )
-			Exception( "unexpected" );//raise( SIGINT );
+			If_Exception( "unexpected" );//raise( SIGINT );
 		return false;
 	}
 	return true;
@@ -1153,14 +1162,16 @@ T Interpreter_class::pop_T( range_T<T> range )
 			Comment( INFO, "rejected: ", show_range( range ), ",  ", Str.Str);
 			show_expected();
 			if( not LogMask[ TEST ])
-				Exception( "unexpected" );//raise(SIGINT);
+			{
+				If_Exception( "unexpected" );//raise(SIGINT);
+			}
+
 		}
 		return stack_value;
 	}
 	else
 	{
-		error = 1;
-		Exception( Str.Str + " is not a number" );//raise(SIGINT);
+		If_Exception( Str.Str + " is not a number" );//raise(SIGINT);
 	}
 	return range.min;
 	raise( SIGILL );
@@ -1185,7 +1196,7 @@ void Interpreter_class::check_file( vector_str_t dirs, string name )
 		DirList = List_directory( dir, fs->snd_type );
 		cout << show_type( DirList ) << endl;
 	}
-	Exception( "no such file " + name );//raise( SIGINT );
+	If_Exception( "no such file " + name );//raise( SIGINT );
 }
 
 

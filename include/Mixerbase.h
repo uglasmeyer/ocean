@@ -34,19 +34,6 @@ SOFTWARE.
 
 //#include <data/Memorybase.h>
 
-enum STAID_e : unsigned char
-{
-	STA_USER00 = 0,
-	STA_USER01,
-	STA_USER02,
-	STA_USER03,
-	STA_INSTRUMENT,
-	STA_KEYBOARD,
-	STA_NOTES,
-	STA_EXTERNAL,
-	STA_SIZE,
-	NO_STA
-};
 
 constexpr string StAIdName( STAID_e sta_id )
 {
@@ -114,7 +101,17 @@ struct sta_role_map
 			return sta_map_vec[role].staid;
 		else
 			return NO_STA;
-
+	}
+	OscroleId_t GetRoleid( STAID_e staid )
+	{
+		if ( staid < STA_INSTRUMENT )
+			return NOROLE;
+		for( sta_rolemap_data_t roleid_map : sta_map_vec )
+		{
+			if ( staid == roleid_map.staid )
+				return roleid_map.roleid;
+		}
+		return NOROLE;
 	}
 };
 

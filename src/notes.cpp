@@ -42,13 +42,16 @@ Note_class::Note_class( )
 }
 
 Note_class::Note_class( file_structure* fs )
-	: Note_class()
+	: Note_class::Note_class()
 {
 	this->fs = fs;
 }
+
 // File_dialog
 Note_class::Note_class( interface_t* _sds, Config_class* cfg )
-	: Note_class::Logfacility_class("Note_class")
+	: Note_class::Note_class()
+//	: Note_class::Logfacility_class("Note_class")
+//	, Note_class::Note_class Oscgroup ( NOTESROLE, 2*monobuffer_bytes )
 {
 	this->sds		= _sds;
 	this->fs		= cfg->fs;

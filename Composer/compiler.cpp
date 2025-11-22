@@ -37,13 +37,32 @@ SOFTWARE.
 /**************************************************
  * Composer_class
  *************************************************/
+
+
+CODE_e Composer_class::Show( vector_str_t arr )
+{
+	Interpreter->expect = { "stack" };
+	Interpreter->Intro( arr, 1 );
+
+	if( Interpreter->Cmpkeyword( "stack" ) )
+	{
+		coutf << Program.size() << endl;
+		for( line_struct prgline : Program )
+			prgline.show();
+		return NOEXEC;
+	}
+
+	Interpreter->Wrong_keyword( Interpreter->expect, arr[0] );
+	return NOEXEC;
+}
+
 bool Composer_class::Compile()
 {
 
 	uint 				pos 			= 0;
-	uint 				nr_of_filelines = Program.size();
+	uint 				nr_of_prgLines = Program.size();
 
-	while ( ( pos >= 0 ) and ( pos < nr_of_filelines ) )
+	while ( ( pos >= 0 ) and ( pos < nr_of_prgLines ) )
 	{
 		line_struct 	program_line	= Program[pos];
 						pos 			= SetProgramCursor( Program, program_line );
@@ -72,14 +91,13 @@ bool Composer_class::PreCompile( string batch_file )
 	File.open( batch_file, fstream::in );
 	if ( not File.is_open())
 	{
-		Comment(ERROR, "Input file: " + batch_file + " does not exist" );
-		raise (SIGINT );
+		Comment(ERROR, "pre-compiler: Input file: " + batch_file + " does not exist" );
+		return false;
 	}
 	else
 	{
 		Comment( INFO, "Processing input file: \n" + batch_file  );
 	}
-
 
 	string 			path		= filesystem::path( batch_file );
 	string			file_line	= "";
@@ -108,6 +126,8 @@ bool Composer_class::PreCompile( string batch_file )
 			if ( program_line.keyw.length() != 0 )
 			{
 				program_line.Id = program_lineId;
+				if ( Interpreter->dialog_mode )
+					program_line.name = "stdin";
 				Program.push_back( program_line );
 				program_lineId++;		}
 		}
@@ -124,7 +144,9 @@ int Composer_class::return_pos( int pos )
 
 	if ( pos_stack.size() == 0 )
 	{
-		Exception( " return without goto at pos: " + to_string( pos+1 ) ) ;
+		Interpreter->If_Exception( " return without goto at pos: " + to_string( pos+1 ) ) ;
+		Program[pos].keyw = "exit";
+		return pos;
 	}
 	pos = pos_stack.back( );// access the last element
 	pos_stack.pop_back();	// delete the last element
@@ -181,7 +203,7 @@ bool Composer_class::Interprete( line_struct_t program_line )
 
 		if ( Interpreter->error > 0 )
 		{
-			Exception( "Compiler error with return code: " + to_string(  Interpreter->error ) );
+			Interpreter->If_Exception( "Compiler error with return code: " + to_string(  Interpreter->error ) );
 		}
 	}
 	else // is not a keyword

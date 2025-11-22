@@ -23,27 +23,39 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * Composer.h
+ * Lineedit.h
  *
- *  Created on: Sep 29, 2024
+ *  Created on: Nov 21, 2025
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#ifndef COMPOSER_H_
-#define COMPOSER_H_
+#ifndef LINEEDIT_H_
+#define LINEEDIT_H_
 
-#include <Appsymbols.h>
-#include <Composer/Interpreter.h>
-#include <Composer/Lineedit.h>
-
-Interpreter_class 		Interpreter( &App );
-Composer_class			Composer{ &DaTA, &Interpreter };
-
-Statistic_class			Statistic{ Log.className };
+#include <Composer/Interpreter_base.h>
+#include <Kbd.h>
 
 
+/**************************************************
+ * Lineedit_class
+ *************************************************/
+class Lineedit_class :
+	virtual public Logfacility_class
+{
+	string 					className 		= "";
+	Kbd_base 				Kbd 			{};
+	string					Title			;
+	const int				delay			= 1;
+public:
+							Lineedit_class	( string title );
+	virtual 				~Lineedit_class	();
+	void					Program			( program_vec_t& program );
+	void 					Text			( vector_str_t& text );
+	string 					Line			( string _str );
+
+private:
+};
 
 
 
-
-#endif /* COMPOSER_H_ */
+#endif /* LINEEDIT_H_ */

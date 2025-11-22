@@ -26,9 +26,9 @@ Installation
 
 Verification
 	- verify cksum (as provided by packager):
-	645279348 78650368 ocean_sound_lab_4.0.3-37.tar.gz
+	548981504 71051538 ocean_sound_lab_4.0.3-37.tar.gz
 - verify SHA-256 locally: 
-abe2dd968390ad34df21327b29ab801917ebbc04f5f02dfc900f8d7b7f07aaf7  ocean_sound_lab_4.0.3-37.tar.gz
+907a9ce2b0e72f9f448d16ae8679117290a6bda28029ee2b9e711a5e2b31f4e3  ocean_sound_lab_4.0.3-37.tar.gz
 - Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256
 
 License & source

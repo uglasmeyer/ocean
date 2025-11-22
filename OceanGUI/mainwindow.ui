@@ -1138,11 +1138,12 @@
       <x>480</x>
       <y>10</y>
       <width>89</width>
-      <height>25</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Notes and I.</string>
+     <string>Notes,  
+Instruments</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pBtoggleRecord">

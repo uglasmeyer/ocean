@@ -33,7 +33,9 @@ SOFTWARE.
 #include <Instrument.h>
 #include <System.h>
 
-Instrument_class::Instrument_class(interface_t* _sds, Wavedisplay_class* _wd_p, file_structure* fs )
+Instrument_class::Instrument_class(	interface_t* _sds,
+									Wavedisplay_class* _wd_p,
+									file_structure* fs )
 	: Logfacility_class("Instrument_class")
 	, Device_class( _sds )
 {
@@ -72,8 +74,7 @@ void Instrument_class::update_sds()
 {
 	// use this function to update the ifd with the current set of shared information.
 	// that are generated during the Set procedure, with the purpose to
-	// update the SndlabGUI and to
-	// notify comstack about the new data.
+	// update the SndlabGUI and to notify SDSview about the new data.
 
 	Comment(INFO, "Update SDS data");
 	for( char oscid : oscIds )

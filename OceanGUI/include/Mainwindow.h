@@ -188,6 +188,8 @@ private:
     void mixer_slider( sl_value_t map );
     void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_e, QLabel* );
     void set_wdrole( OscroleId_t roleid );
+    void setStaPlay( STAID_e id );
+    void setStaStored( STAID_e staId );
 
 
 public slots:
@@ -255,7 +257,6 @@ private slots:
 
     void Clear_Banks();
 
-    void setStaPlay( uint8_t id );
     void setStaPlay0();
     void setStaPlay1();
     void setStaPlay2();
@@ -265,7 +266,6 @@ private slots:
     void setStaPlay6();
     void setStaPlay7();
 
-    void setStaStored( uint8_t staId );
     void setStaStored0();
     void setStaStored1();
     void setStaStored2();

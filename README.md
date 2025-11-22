@@ -9,7 +9,7 @@ is limited to the x86_64 architecture (Nov.2025). This distribution includes the
 libraries for Qt6, RtAudio and tinyxml2. It is tested and compiled on ubuntu 2025-10 with x86_64.
  
 
-By Ulrich Glasmeyer, during the time 2023 - 2025
+Author Ulrich Glasmeyer, Germany, during the time 2023 - 2025+
 
 This distribution of Ocean-SL contains the following
 - bin	: Audioserver, Synthesizer, Keyboard, Qt6-Userinterface OceanGUI, SDSview, Rtsp
@@ -59,5 +59,9 @@ Check also the correctness of include dirctory Qt6 .
 if this was successful,
 - Enter the command: make
 
+Please don't heasitate to contact me by e-mail
+Ulrich.Glasmeyer@web.de for support.
 
-Author: Ulrich.Glasmeyer@web.de
+
+Open Issues:
+ 

@@ -450,7 +450,7 @@ public:
         label_2->setGeometry(QRect(480, 140, 50, 17));
         pB_play_notes = new QPushButton(centralwidget);
         pB_play_notes->setObjectName("pB_play_notes");
-        pB_play_notes->setGeometry(QRect(480, 10, 89, 25));
+        pB_play_notes->setGeometry(QRect(480, 10, 89, 41));
         pBtoggleRecord = new QPushButton(centralwidget);
         pBtoggleRecord->setObjectName("pBtoggleRecord");
         pBtoggleRecord->setGeometry(QRect(470, 470, 89, 25));
@@ -825,7 +825,8 @@ public:
         cb_psta0->setText(QString());
         pB_Mute_StA->setText(QCoreApplication::translate("MainWindow", "Mute", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PWM", nullptr));
-        pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes and I.", nullptr));
+        pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes,  \n"
+"Instruments", nullptr));
         pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
         rb_S0->setText(QCoreApplication::translate("MainWindow", "Instrument 0", nullptr));
         rb_S1->setText(QCoreApplication::translate("MainWindow", "Instrument 1", nullptr));

@@ -49,7 +49,6 @@ Keyboard_class::Keyboard_class( Instrument_class* 	instr,
 	this->Kbd_Data				= StA->Data;
 	this->Notes					= notes;
 	this->fs					= instr->fs;
-//	Oscgroup.SetWd				( instr->wd_p );
 
 	Oscgroup.SetScanner			( max_frames );
 	max_notes					= notes_per_sec * StA->param.storage_time;
@@ -117,6 +116,9 @@ void Keyboard_class::Set_instrument( )
 	// kbd specific settings
 	Oscgroup.SetSlide( sliding * sds_p->features[OSCID].glide_effect );
 	Oscgroup.Set_Duration( max_msec );
+	adsr_t adsr = Oscgroup.osc.Get_adsr();
+	adsr.bps = ADSR_flag ? sds_p->adsr_arr[OSCID].bps : 1;
+	Oscgroup.osc.Set_adsr( adsr );
 }
 
 bool Keyboard_class::decay(  )

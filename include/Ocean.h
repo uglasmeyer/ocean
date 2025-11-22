@@ -170,11 +170,12 @@ constexpr bool in_range( range_T<T> range, T val )
 	return true;
 }
 template< typename T>
-constexpr T check_range( range_T<T> r, T val, string errmsg )
+constexpr T check_range( range_T<T> r, T val, string errmsg = "" )
 {
 	if( val < r.min )
 	{
-		cout.flush() << "WARNING: " << errmsg
+		if ( errmsg.length() > 0 )
+			cout.flush() << "WARNING: " << errmsg
 									<< ": "
 									<< val
 									<< " adjusted to min boundaries "
@@ -183,7 +184,8 @@ constexpr T check_range( range_T<T> r, T val, string errmsg )
 	}
 	if (val > r.max )
 	{
-		cout.flush() << "WARNING: " << errmsg
+		if ( errmsg.length() > 0 )
+			cout.flush() << "WARNING: " << errmsg
 									<< ": "
 									<< val
 									<< " adjusted to max boundaries "
@@ -310,6 +312,19 @@ const vector<string> slidermodes =
 enum DYNAMIC : unsigned char
 { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
 
+enum STAID_e : unsigned char
+{
+	STA_USER00 = 0,
+	STA_USER01,
+	STA_USER02,
+	STA_USER03,
+	STA_INSTRUMENT,
+	STA_KEYBOARD,
+	STA_NOTES,
+	STA_EXTERNAL,
+	STA_SIZE,
+	NO_STA
+};
 
 
 

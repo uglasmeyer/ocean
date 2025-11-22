@@ -38,68 +38,9 @@ SOFTWARE.
 #include <data/Interface.h>
 #include <EventKeys.h>
 #include <Spectrum.h>
-#include <Ocean.h>
 #include <Variation.h>
-#include <String.h>
-#include <Frequency.h>
-#include "Composer/Processor.h"
-
-typedef struct line_struct
-{
-	int				Id	= 0; // Program Position
-	uint 			no	= 0; // filename line no.
-	string 			name; // filename
-	string 			line; // program line string
-	string 			keyw; // keyword
-	string 			arg1; // unused
-	vector_str_t	args; // program line arr
-
-	line_struct( uint _no, string _line, string _name = "" )
-	{
-		no		= _no;
-		line 	= _line;
-		name	= ( _name.length() > 0 ) ? filesystem::path(_name).stem() : "stdin" ;
-		String Str { _line };
-		Str.replace_comment();
-		Str.replace_char('\t' , ' ');
-		args 	= Str.to_unique_array( ' ' );
-		keyw 	= ( args.size() > 0 ) ? args[0] : "";
-		Str.to_lower( keyw );
-	}
-	void show()
-	{
-		cout 	<< dec << left
-				<< setw( 4) << no << ":"
-				<< setw(16) << name
-				<< setw(60) << line
-				<<endl;
-	}
-} line_struct_t;
-typedef vector<line_struct_t> 	program_vec_t;
-
-#include <Logfacility.h>
-
-
-
-const set<string> Keywords {
-						"add",
-						"adsr",
-						"call",
-						"exit",
-						"instrument",
-						"notes",
-						"osc",
-						"play",
-						"pause",
-						"random",
-						"rec",
-						"record",
-						"return",
-						"set",
-						"start",
-						"stop",
-						"text"
-					};
+#include <Composer/Processor.h>
+#include <Composer/Interpreter_base.h>
 
 /*
 */
@@ -112,7 +53,6 @@ class Interpreter_class
 	, virtual public 	Processor_class
 	, virtual 			Device_class
 	, virtual			oscwaveform_struct
-//	,					sdsstate_struct
 
 {
 	string			className = "";
@@ -153,7 +93,7 @@ public:
 	int error = 0;
 	int duration = 0;
 	String keyword {""};
-	set<string> expect {};
+	set<string> 		expect {};
 
 	Interpreter_class( Application_class* app ) ;
 	virtual ~Interpreter_class();
@@ -180,17 +120,20 @@ public:
 	void Set( vector_str_t );
 	void Clear_stack();
 	bool Check_input( string keyword );
+	bool	Cmpkeyword ( const string&  );
+	void 	Intro( vector_str_t, uint );
+	void	If_Exception( string );
 
 	void Test(  );
 
 private:
-	Spectrum_class 		Spectrum	{};
-	Frequency_class 	Frequency	{};
-	vector_str_t stack {};
-	vector<var_struct_t> varlist {};
-	string	command 	{""};
-	bool 	testrun 	= false;
-	bool	testreturn 	= false;
+	Spectrum_class 			Spectrum	{};
+	Frequency_class 		Frequency	{};
+	vector_str_t 			stack 		{};
+	vector<var_struct_t> 	varlist 	{};
+	string					command 	{""};
+	bool 					testrun 	= false;
+	bool					testreturn 	= false;
 
 	void 	Loop( uint8_t , EVENTKEY_e   );
 	bool 	check_count( vector_str_t, size_t );
@@ -199,9 +142,7 @@ private:
 	void 	show_expected(  );
 	void 	check_file( vector_str_t, string );
 	bool 	no_error( int );
-	void 	intro( vector_str_t, uint );
 	void 	osc_view( view_struct_t, vector_str_t );
-	bool	cmpkeyword ( const string&  );
 
 	template <typename T >
 		T pop_T( range_T<T> range );
@@ -211,21 +152,23 @@ private:
 /**************************************************
  * Composer_class
  *************************************************/
+enum CODE_e { EXECUTE, NOEXEC };
+
 class Composer_class :
 	virtual public Logfacility_class
 {
 	string 					className 		= "";
 	Dataworld_class*		DaTA			;
 	Config_class*			Cfg				;
-	Interpreter_class*		Interpreter		;
 	vector<int>				pos_stack 		{};
 
 
 public:
 	program_vec_t			Program;
+	Interpreter_class*		Interpreter		;
 
 	Composer_class( Dataworld_class* data, Interpreter_class* interpreter ) :
-		Logfacility_class("Compiler_class")
+		Logfacility_class("Composer_class")
 	{
 		className 			= Logfacility_class::className;
 		this->DaTA			= data;
@@ -240,6 +183,7 @@ public:
 	bool 				PreCompile		( string batch_file );
 	bool				Interprete		( line_struct_t program_line );
 	int 				SetProgramCursor( const program_vec_t& program, line_struct prgLine );
+	CODE_e 				Show			( vector_str_t arr );
 
 private:
 	int 				return_pos		( int pos );

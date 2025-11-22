@@ -71,11 +71,12 @@ void getfrq( uint8_t* addr, string text , EVENTKEY_e event )
 }
 #define SWITCH_COMMON( PAGE )\
 	case ESC : { sds_master->sdsview_page = F1; break; };\
-	case PAGE : {  sds_master->sdsview_page = PAGE; break; };\
-	default : { sds_master->sdsview_page = F1; key = ESC; break; }
+	case PAGE: { sds_master->sdsview_page = PAGE; break; };\
+	default  : { sds_master->sdsview_page = F1; key = ESC; break; }
 
 kbdInt_t SwitchF2( kbdInt_t key )
 {
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
 	switch ( toupper(key) )
 	{
 		case 'A': { App.Appstate->SetState( sds, AUDIOID	, sdsstate_struct::EXITSERVER);break; }
@@ -93,6 +94,8 @@ Menue_class MenuF2 { &DaTA, SwitchF2, "Reset: (A)udioserver, (C)omposer, (S)ynth
 
 kbdInt_t SwitchF5( kbdInt_t key )
 {
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
+
 	switch ( (key) )
 	{
 	case 'M' :
@@ -147,6 +150,8 @@ Menue_class MenuF5 { &DaTA, SwitchF5, "select Oscillator first to edit property"
 
 kbdInt_t SwitchF7( kbdInt_t key )
 {
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
+
 	switch ( (key) )
 	{	case 'g' :
 		case 'G' : { getvalue( &sds->features[OSCID].glide_effect	, "effect"	, SOFTFREQUENCYKEY ); break; }
@@ -162,6 +167,8 @@ Menue_class MenuF7 { &DaTA, SwitchF7, "select feature to edit" };
 
 kbdInt_t SwitchF9( kbdInt_t key )
 {
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
+
 	switch ( key )
 	{
 		case 's' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );

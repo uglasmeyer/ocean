@@ -84,7 +84,7 @@ string Logfacility_class::cout_log( uint id, string str )
 	string 			prefix 	= prefixClass + Prefix_vec[ id ].name;
 	stringstream 	strs 	{};
 	string 			endc 	= ( is_atty ) ? endcolor 	: nocolor;
-	uint 			Id		= ( is_atty ) ? id 		: LOG::PLAIN;
+	uint 			Id		= ( is_atty ) ? id 		: LOG_e::PLAIN;
 	size_t			pos		= str.find( '\n' );
 	if ( pos < string::npos )
 	{

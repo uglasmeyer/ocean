@@ -3,9 +3,13 @@ cmake_minimum_required(VERSION 3.31)
 set(OCEAN_PROJECT OceanGUI)
 project(${OCEAN_PROJECT})
 
+execute_process(
+COMMAND ./make_moc.sh 
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 FILE(GLOB PROJECT_SRC *.cpp)
 
-execute_process(COMMAND ./make_moc.sh )
 
 # Add an executable target
 add_executable(${OCEAN_PROJECT}

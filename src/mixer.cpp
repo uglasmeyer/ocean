@@ -53,16 +53,16 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	StA_param_t kbd_conf = Mem_param_struct( "Keyboard"	, data->Cfg_p->Config.kbd_sec );
 	StA_param_t nte_conf = Mem_param_struct( "Notes"	, data->Cfg_p->Config.kbd_sec );
 
-	int n = 0;
+	STAID_e staid = STA_USER00;
 	for( const StA_param_t& param : { 	usr_conf, usr_conf, usr_conf, usr_conf,
 										ist_conf, kbd_conf, nte_conf, ext_conf }  )
 	{
 		Storage_class sta { param };
-		sta.Id = n;
+		sta.Id = staid;
 		StA.push_back( sta );
-		n++;
+		staid++;
 	}
-	for( uint n : StAMemIds )
+	for( STAID_e n : StAMemIds )
 	{
 		StA[n].scanner.Data 		= StA[n].Data;
 		StA[n].scanner.mem_range.max= StA[n].param.size;
@@ -77,7 +77,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	wd->Add_role_ptr( NOTESROLE		, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
 	wd->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
 
-	SetStA();
+	SetStAs();
 
 	if( LogMask[ TEST ] )
 	{
@@ -122,10 +122,9 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 		sta.Reset();
 }
 
-void Mixer_class::Set_play_mode( const uint& id, const bool& mode )
+void Mixer_class::Set_play_mode( const STAID_e& id, const bool& mode )
 {
-	StA[id].state.Play( mode );
-
+	Comment( INFO, "updating mixer id ", (int)id, " play:", (int) mode );
 	switch ( id )
 	{
 		case STA_INSTRUMENT :	{ state.instrument	= mode; break; }
@@ -134,25 +133,17 @@ void Mixer_class::Set_play_mode( const uint& id, const bool& mode )
 		case STA_EXTERNAL 	:	{ state.external 	= mode; break; }
 		default				:	break;
 	}
+	sds->mixer_state = state;
+	StA[id].state.Play( mode );
 
 };
 
-void Mixer_class::Update_sds_state( int Id, interface_t* sds )
-{
 
-	sds->mixer_state =  state;
-	for ( uint id :  StAMemIds )
-	{
-		sds->StA_state_arr[id] 	=  StA[id].state.Get();
-	}
-}
-
-void Mixer_class::SetStA( Id_t staId )
-{	// synchronize between sds->StA_state and StA[].state
-
-	Comment( INFO, "updating mixer id ", (int)staId );
+void Mixer_class::SetStA( STAID_e staId )
+{	// distribution of sds->StA_state into StA[].state
 
 	Set_play_mode( staId , sds->StA_state_arr[staId].play );
+
 	StA[staId].state.Filled( sds->StA_state_arr[staId].filled );
 	if ( not StA[staId].state.Filled() )
 	{
@@ -167,12 +158,12 @@ void Mixer_class::SetStA( Id_t staId )
 
 	StA[ staId ].DynVolume.SetupVol( sds->StA_amp_arr[ staId ] , SLIDE );
 
-//	sds->StA_state[staId] = StA[staId].state.Get();
+	sds->StA_state_arr[staId] = StA[staId].state.Get();
 
 }
-void Mixer_class::SetStA()
+void Mixer_class::SetStAs()
 {
-	for ( Id_t mixerId : AllIds )
+	for ( STAID_e mixerId : AllIds )
 	{
 		SetStA( mixerId );
 	}
@@ -269,7 +260,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	}
 
 	// add osc sound
-	if ( StA[ STA_INSTRUMENT ].state.Play() )
+	if ( state.instrument )//StA[ STA_INSTRUMENT ].state.Play() )
 	{
 		add_mono( instrument_Data	, STA_INSTRUMENT );
 	}

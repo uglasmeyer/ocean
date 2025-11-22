@@ -91,9 +91,9 @@ void MainWindow::initComboBoxes()
 
 void MainWindow::initOscillatorDisplay()
 {
-    QRectF rect         = ui->oscilloscope_view->geometry();
+    QRectF 				rect         = ui->oscilloscope_view->geometry();
     OszilloscopeWidget	OscWidg( Sds->addr, rect );
-    OscWidget_item = new OszilloscopeWidget( Sds->addr, rect ) ;
+    OscWidget_item 		= new OszilloscopeWidget( Sds->addr, rect ) ;
 
     ui->oscilloscope_view->setScene( scene );
     scene->addItem( OscWidget_item );
@@ -158,48 +158,48 @@ void MainWindow::initGuiVectors( interface_t* sds)
 
     cb_store_sta_vec =
     {
-    	{ STA_USER00, ui->cb_ssta0, &sds->StA_state_arr[0].store },
-		{ STA_USER01, ui->cb_ssta1, &sds->StA_state_arr[1].store },
-		{ STA_USER02, ui->cb_ssta2, &sds->StA_state_arr[2].store },
-		{ STA_USER03, ui->cb_ssta3, &sds->StA_state_arr[3].store },
-		{ STA_INSTRUMENT, ui->cb_ssta4, &sds->StA_state_arr[4].store },
-		{ STA_KEYBOARD, ui->cb_ssta5, &sds->StA_state_arr[5].store },
-		{ STA_NOTES, ui->cb_ssta6, &sds->StA_state_arr[6].store },
-		{ STA_EXTERNAL, ui->cb_ssta7, &sds->StA_state_arr[7].store }
+    	{ STA_USER00, ui->cb_ssta0, &sds->StA_state_arr[STA_USER00].store },
+		{ STA_USER01, ui->cb_ssta1, &sds->StA_state_arr[STA_USER01].store },
+		{ STA_USER02, ui->cb_ssta2, &sds->StA_state_arr[STA_USER02].store },
+		{ STA_USER03, ui->cb_ssta3, &sds->StA_state_arr[STA_USER03].store },
+		{ STA_INSTRUMENT, ui->cb_ssta4, &sds->StA_state_arr[STA_INSTRUMENT].store },
+		{ STA_KEYBOARD, ui->cb_ssta5, &sds->StA_state_arr[STA_KEYBOARD].store },
+		{ STA_NOTES, ui->cb_ssta6, &sds->StA_state_arr[STA_NOTES].store },
+		{ STA_EXTERNAL, ui->cb_ssta7, &sds->StA_state_arr[STA_EXTERNAL].store }
     };
     cb_filled_sta_vec =
     {
-    	{ STA_USER00, ui->cb_fsta0, &sds->StA_state_arr[0].filled },
-		{ STA_USER01, ui->cb_fsta1, &sds->StA_state_arr[1].filled },
-		{ STA_USER02, ui->cb_fsta2, &sds->StA_state_arr[2].filled },
-		{ STA_USER03, ui->cb_fsta3, &sds->StA_state_arr[3].filled },
-		{ STA_INSTRUMENT, ui->cb_fsta4, &sds->StA_state_arr[4].filled },
-		{ STA_KEYBOARD, ui->cb_fsta5, &sds->StA_state_arr[5].filled },
-		{ STA_NOTES, ui->cb_fsta6, &sds->StA_state_arr[6].filled },
-		{ STA_EXTERNAL, ui->cb_fsta7, &sds->StA_state_arr[7].filled }
+    	{ STA_USER00, ui->cb_fsta0, &sds->StA_state_arr[STA_USER00].filled },
+		{ STA_USER01, ui->cb_fsta1, &sds->StA_state_arr[STA_USER01].filled },
+		{ STA_USER02, ui->cb_fsta2, &sds->StA_state_arr[STA_USER02].filled },
+		{ STA_USER03, ui->cb_fsta3, &sds->StA_state_arr[STA_USER03].filled },
+		{ STA_INSTRUMENT, ui->cb_fsta4, &sds->StA_state_arr[STA_INSTRUMENT].filled },
+		{ STA_KEYBOARD, ui->cb_fsta5, &sds->StA_state_arr[STA_KEYBOARD].filled },
+		{ STA_NOTES, ui->cb_fsta6, &sds->StA_state_arr[STA_NOTES].filled },
+		{ STA_EXTERNAL, ui->cb_fsta7, &sds->StA_state_arr[STA_EXTERNAL].filled }
     };
 
     cb_play_sta_vec =
     {
-		{ STA_USER00, ui->cb_psta0, &sds->StA_state_arr[0].play  },
-		{ STA_USER01, ui->cb_psta1, &sds->StA_state_arr[1].play  },
-		{ STA_USER02, ui->cb_psta2, &sds->StA_state_arr[2].play  },
-		{ STA_USER03, ui->cb_psta3, &sds->StA_state_arr[3].play  },
-		{ STA_INSTRUMENT, ui->cb_psta4, &sds->StA_state_arr[4].play  },
-		{ STA_KEYBOARD, ui->cb_psta5, &sds->StA_state_arr[5].play  },
-		{ STA_NOTES, ui->cb_psta6, &sds->StA_state_arr[6].play  },
-		{ STA_EXTERNAL, ui->cb_psta7, &sds->StA_state_arr[7].play  }
+		{ STA_USER00, ui->cb_psta0, &sds->StA_state_arr[STA_USER00].play  },
+		{ STA_USER01, ui->cb_psta1, &sds->StA_state_arr[STA_USER01].play  },
+		{ STA_USER02, ui->cb_psta2, &sds->StA_state_arr[STA_USER02].play  },
+		{ STA_USER03, ui->cb_psta3, &sds->StA_state_arr[STA_USER03].play  },
+		{ STA_INSTRUMENT, ui->cb_psta4, &sds->StA_state_arr[STA_INSTRUMENT].play  },
+		{ STA_KEYBOARD, ui->cb_psta5, &sds->StA_state_arr[STA_KEYBOARD].play  },
+		{ STA_NOTES, ui->cb_psta6, &sds->StA_state_arr[STA_NOTES].play  },
+		{ STA_EXTERNAL, ui->cb_psta7, &sds->StA_state_arr[STA_EXTERNAL].play  }
 	};
     sl_sta_vec =
     {
-		{ STA_USER00, ui->Slider_mix_vol0, &sds->StA_amp_arr[0]  },
-		{ STA_USER01, ui->Slider_mix_vol1, &sds->StA_amp_arr[1]  },
-		{ STA_USER02, ui->Slider_mix_vol2, &sds->StA_amp_arr[2]  },
-		{ STA_USER03, ui->Slider_mix_vol3, &sds->StA_amp_arr[3]  },
-		{ STA_INSTRUMENT, ui->Slider_mix_vol4, &sds->StA_amp_arr[4]  },
-		{ STA_KEYBOARD, ui->Slider_mix_vol5, &sds->StA_amp_arr[5]  },
-		{ STA_NOTES, ui->Slider_mix_vol6, &sds->StA_amp_arr[6]  },
-		{ STA_EXTERNAL, ui->Slider_mix_vol7, &sds->StA_amp_arr[7]  }
+		{ STA_USER00, ui->Slider_mix_vol0, &sds->StA_amp_arr[STA_USER00]  },
+		{ STA_USER01, ui->Slider_mix_vol1, &sds->StA_amp_arr[STA_USER01]  },
+		{ STA_USER02, ui->Slider_mix_vol2, &sds->StA_amp_arr[STA_USER02]  },
+		{ STA_USER03, ui->Slider_mix_vol3, &sds->StA_amp_arr[STA_USER03]  },
+		{ STA_INSTRUMENT, ui->Slider_mix_vol4, &sds->StA_amp_arr[STA_INSTRUMENT]  },
+		{ STA_KEYBOARD, ui->Slider_mix_vol5, &sds->StA_amp_arr[STA_KEYBOARD]  },
+		{ STA_NOTES, ui->Slider_mix_vol6, &sds->StA_amp_arr[STA_NOTES]  },
+		{ STA_EXTERNAL, ui->Slider_mix_vol7, &sds->StA_amp_arr[STA_EXTERNAL]  }
 	};
 
     int max = frqarr_range.max - 2*oct_steps;  // refers to keyboard octave

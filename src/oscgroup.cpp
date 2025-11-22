@@ -46,6 +46,8 @@ Oscgroup_class::Oscgroup_class( OscroleId_t role, buffer_t bytes )
 	Data_Reset();
 	selfTest();
 }
+
+
 void Oscgroup_class::operator=( Oscgroup_class& oscg )
 {
 	this->vco = oscg.vco;

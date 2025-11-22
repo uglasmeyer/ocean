@@ -5,9 +5,6 @@
 #include <Exit.h>
 #include <String.h>
 Exit_class Exit {};
-
-
-
 void exit_proc( int signal)
 {
 	cout << "Exit class " << endl;
@@ -16,9 +13,15 @@ void exit_proc( int signal)
 /**************************************************
  https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
  *************************************************/
+#include <Composer/Lineedit.h>
+
 int main()
 {
-
+	Lineedit_class Edit { "Line Edit > "};
+	vector_str_t text = { "Line1", "Line2", "Line3", "Line4", "Line5"};
+	Edit.Text( text );
+	cout << show_str_items( text );
+	return 0;
 	// Initialize curses
     initscr();
     cbreak();

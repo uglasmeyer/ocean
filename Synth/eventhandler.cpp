@@ -358,7 +358,7 @@ void Event_class::Handler()
 	case RESET_STA_SCANNER_KEY : // Audioserver start record
 	{
 		Info( "Reset StA scanner");
-		for( char staid = 0; staid < STA_SIZE; staid++ )
+		for( STAID_e staid : StAMemIds )
 		{
 			Mixer->StA[staid].scanner.Set_rpos(0);
 		}
@@ -367,7 +367,7 @@ void Event_class::Handler()
 	}
 	case SETSTA_KEY:
 	{
-		uint8_t id = sds->MIX_Id;
+		STAID_e id = sds->MIX_Id;
 		Mixer->SetStA( id );
 		if (( Mixer->state.instrument ) and ( id == STA_INSTRUMENT ))
 			Notes->Start_note_itr();
@@ -388,8 +388,10 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (uint id : StAMemIds) {
+		for (STAID_e id : StAMemIds)
+		{
 			Mixer->Set_play_mode(id, false);
+			sds->StA_state_arr[id].play = false;
 		}
 		Sds->Commit();
 		break;
@@ -400,20 +402,8 @@ void Event_class::Handler()
 		{
 			Mixer->StA[id].Reset();
 		}
-		Mixer->SetStA();
+		Mixer->SetStAs();
 		ProgressBar->Reset(); // RecCounter
-		Sds->Commit();
-		break;
-	}
-	case SETSTAPLAY_KEY: // toggle Memory bank status play
-	{
-		Value Id { (int) (sds->MIX_Id) };
-		bool play { (bool) sds->StA_state_arr[Id.val].play };
-		sds->StA_state_arr[Id.val].play = play;
-		Comment(INFO,
-				"receive command <toggle play on memory bank" + Id.str
-						+ " >" + to_string(play));
-		Mixer->Set_play_mode(Id.val, play);
 		Sds->Commit();
 		break;
 	}
@@ -578,5 +568,4 @@ void Event_class::Handler()
 	}
 	} // switch event
 
-	Mixer->Update_sds_state( ALLITEMS, sds);
 }
