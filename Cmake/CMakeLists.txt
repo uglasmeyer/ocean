@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.31)
 
 set(CMAKE_CXX_STANDARD 23)
 set(PROJECT_SOURCE_DIR $ENV{PWD})
-set(Qt6 /usr/include/x86_64-linux-gnu/qt6)
+
+message(STATUS "Host Achitecture: ${ARCH}")
+set(Qt6 /usr/include/${ARCH}-linux-gnu/qt6)
 
 if(EXISTS "${Qt6}" AND IS_DIRECTORY "${Qt6}")
     message(STATUS "Qt6 OK")

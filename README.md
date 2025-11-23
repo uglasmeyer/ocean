@@ -8,7 +8,7 @@ musescore3 and sound converting tools like ffmpeg and id3tool. The binary distri
 is limited to the x86_64 architecture (Nov.2025). This distribution includes the 3rd party 
 libraries for Qt6, RtAudio and tinyxml2. It is tested and compiled on ubuntu 2025-10 with x86_64.
  
-
+which
 Author Ulrich Glasmeyer, Germany, during the time 2023 - 2025+
 
 This distribution of Ocean-SL contains the following
@@ -43,7 +43,7 @@ To compile the project take a snapshot of the latest version.
 
 There are some prerequisites as follows:
 - gcc version with support for cxx standard 23, eg: (gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0)
-- Qt6 development environment core, widgets, gui and qmake
+- Qt6 development environment core, widgets, gui and qmake (qt6-base-dev)
 - tinyxml2 development environment
 
 If these prerequisites are fulfilled on the Linux machine
@@ -51,10 +51,17 @@ you can use the cmake system as follows:
 - change to the Cmake directory of the source code distribution (it uses pwd),
 - check the file CMakeLists.txt. 
 
-By default it will create a binary distribution in HOME/OceanDev . 
-Check also the correctness of include dirctory Qt6 .
+By default the generated makefile system will create the binary files in HOME/OceanDev. The source code is aimed to update an existing runtime, that might contain customizations. For this reason make sure you have installed the binary distribution first and after this, you can overwrite the lib and bin files there, with the compiled files from the source code.
 
-- Enter the command: cmake CMakeLists.txt
+Check also the correctness of include dirctory Qt6. Especially in case of a porting.
+Enter the command: 
+
+- cmake -DARCH=x86_64 CMakeLists.txt
+
+or 
+
+- cmake -DARCH=aarch64 CMakeLists.txt
+
 
 if this was successful,
 - Enter the command: make
