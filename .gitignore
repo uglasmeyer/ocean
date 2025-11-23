@@ -8,6 +8,10 @@
 *.d
 *.~lock*\#
 /.settings/
+/*/.cproject
+/*/.project
+/.project
+/.cproject
 language.settings.xml
 /Build/
 /Test/

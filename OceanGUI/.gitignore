@@ -3,3 +3,5 @@
 /gmon.out
 /Makefile_Qt6
 /nohup.out
+/moc_*
+/.cproject
