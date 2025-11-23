@@ -282,13 +282,15 @@ void ConvertOdt2Pdf( )
 
 void Copy_3rdpartylibs()
 {
+
+	string systemlibdir = "/lib/" + fs->architectur + "-linux-gnu/";
 	typedef vector<string> string_vec_t;
 	string_vec_t lib_vec = {
-		"/lib/x86_64-linux-gnu/libQt6Core.so.6",
-		"/lib/x86_64-linux-gnu/libQt6Gui.so.6",
-		"/lib/x86_64-linux-gnu/libQt6Widgets.so.6",
+		systemlibdir + "libQt6Core.so.6",
+		systemlibdir + "libQt6Gui.so.6",
+		systemlibdir + "libQt6Widgets.so.6",
 		"/usr/local/lib/librtaudio.so.7",
-		"/lib/x86_64-linux-gnu/libtinyxml2.so.11"
+		systemlibdir + "libtinyxml2.so.11"
 	};
 	for ( string lib : lib_vec )
 	{

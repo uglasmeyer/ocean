@@ -45,9 +45,10 @@ struct install_struct
 	const string		git_dir			= gitDir();
 	const string 		resourcedir		= resourceDir();
 	const string		architectur		= getArch();
+	const string		archdir			= architectur + "/";
 	const string		installdir	 	= read_installfile();
 	const vector<string>files			= { git_dir		, resourcedir,
-											architectur	, installdir };
+											archdir	, installdir };
 	string				getArch			();
 	string				baseDir			();
 	string 				read_installfile();
@@ -69,8 +70,8 @@ struct dir_struct
 	const string 	tmpdir  		= installdir + "tmp/";
 	const string 	docdir 			= installdir + "doc/";
 	const string 	vardir			= installdir + "var/";
-	const string	archbindir		= bindir  + architectur;
-	const string	archlibdir		= libdir  + architectur;
+	const string	archbindir		= bindir  + archdir;
+	const string	archlibdir		= libdir  + archdir;
 	const string 	autodir 		= vardir  + "auto/";
 	const string 	musicdir 		= vardir  + "wav/";
 	const string 	rtspdir			= etcdir  + "rtsp/";

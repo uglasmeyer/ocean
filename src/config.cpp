@@ -95,7 +95,7 @@ string install_struct::resourceDir()
 string install_struct::getArch()
 {
 	string arch { notnull( getenv("ARCH") ) };
-	return arch + string( "/" );
+	return arch;
 };
 
 
