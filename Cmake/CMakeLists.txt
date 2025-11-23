@@ -25,6 +25,7 @@ add_subdirectory(../Audioserver build_Audioserver )
 add_subdirectory(../Composer 	build_Composer )
 add_subdirectory(../OceanGUI 	build_OceanGUI )
 add_subdirectory(../Rtsp 		build_Rtsp )
+add_subdirectory(../Setup 		build_Setup )
 add_subdirectory(../SDSview 	build_SDSview )
 add_subdirectory(../Synth 		build_Synth )
 
