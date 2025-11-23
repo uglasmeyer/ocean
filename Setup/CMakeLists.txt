@@ -6,7 +6,6 @@ project(${OCEAN_PROJECT})
 # Add an executable target
 add_executable(${OCEAN_PROJECT} 
 ${OCEAN_PROJECT}.cpp
-audio.cpp
 )
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
