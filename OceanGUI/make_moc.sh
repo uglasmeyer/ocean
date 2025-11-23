@@ -6,4 +6,4 @@ cd `dirname $0`
 #make clean
 NPROC=`nproc`
 make -f Makefile_Qt6 -j$NPROC compiler_uic_make_all
-make mocables
+make -f Makefile_Qt6 mocables

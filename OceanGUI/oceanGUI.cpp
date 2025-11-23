@@ -132,7 +132,9 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 		}
 	} // switch  key
-	QStr.assign(1, (QChar)key.Arr[0] );
+	QStr = "";
+	QStr.push_back( (QChar)key.Arr[0] );
+//	QStr.assign(1, (QChar)key.Arr[0] );
 	Keyboard_Dialog_p->keyboard_key = QStr;
 	Keyboard_Dialog_p->Setup_Widget();
 }
