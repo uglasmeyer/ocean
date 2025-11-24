@@ -266,9 +266,10 @@ void String::to_lower( string& str )
 {
 	std::for_each( str.begin(), str.end(), [] ( char& ch ) { ch = tolower(ch) ; } );
 }
-void String::to_lower()
+string String::to_lower()
 {
 	std::for_each( Str.begin(), Str.end(), [] ( char& ch ) { ch = tolower(ch) ; } );
+	return Str;
 }
 
 string String::to_hex( long value )

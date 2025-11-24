@@ -136,7 +136,7 @@ public:
 	vector<string> 	Vec			{};
 	set<char>		Set			{};
 
-	String( const string& str="" ) :
+	String( const string str="" ) :
 		Logfacility_class( "String_class" )
 	{
 		className = Logfacility_class::className;
@@ -175,7 +175,7 @@ public:
 	float 			secure_stof( string str );
 	string 			to_hex( long )	;
 	void 			TestString();
-	void 			to_lower( );
+	string 			to_lower( );
 	void 			to_lower( string& str );
 	int 			to_int( const string& s );
 	void			Show( const string& comment );

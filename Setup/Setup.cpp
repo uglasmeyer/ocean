@@ -220,7 +220,7 @@ void create_oceanrc()
 {
 	fstream Oceanrc	{};
 	Oceanrc.open	( fs->oceanrc_file, fstream::out );
-	Oceanrc << "export " << OCEANDIR << "=$1" << endl;
+	Oceanrc << "export " << OCEANDIR << "=" << fs->installdir << endl;
 	Oceanrc << "export PATH=$" << OCEANDIR << "/bin:$PATH" << endl;
 	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib:$LD_LIBRARY_PATH"<< endl;
 }
@@ -289,8 +289,8 @@ void Copy_3rdpartylibs()
 		systemlibdir + "libQt6Core.so.6",
 		systemlibdir + "libQt6Gui.so.6",
 		systemlibdir + "libQt6Widgets.so.6",
-		"/usr/local/lib/librtaudio.so.7",
-		systemlibdir + "libtinyxml2.so.11"
+		"/usr/local/lib/librtaudio.so",
+		systemlibdir + "libtinyxml2.so"
 	};
 	for ( string lib : lib_vec )
 	{
