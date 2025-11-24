@@ -81,7 +81,7 @@ class Frequency_class :
 
 public:
 	const float							log2 			= log(2.0);
-	range_T<int8_t>						harmonic_range	{ -HARMON_SIZE, HARMON_SIZE };
+	range_T<int8_t>						harmonic_range	{ -HARMON_SIZE, HARMON_SIZE-1 };
 	frq_t 								Calc			( const frq_t& _base_freq,
 													      const int& idx );
 	frq_t 								GetFrq			( const int& idx );
