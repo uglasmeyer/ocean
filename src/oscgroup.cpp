@@ -32,7 +32,7 @@ SOFTWARE.
 #include <Oscgroup.h>
 #include <data/Device.h>
 
-Oscgroup_class::Oscgroup_class( OscroleId_t role, buffer_t bytes )
+Oscgroup_class::Oscgroup_class( RoleId_t role, buffer_t bytes )
 	: Logfacility_class( "Oscgroup_class" )
 	, Frequency_class()
 	, Note_base()

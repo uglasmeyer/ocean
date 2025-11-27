@@ -32,7 +32,7 @@ SOFTWARE.
 #include <Osc.h>
 #include <Oscwaveform.h>
 
-Oscillator::Oscillator( OscroleId_t role_id,  OSCID_e _type_id, buffer_t bytes )
+Oscillator::Oscillator( RoleId_t role_id,  OSCID_e _type_id, buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
 	, Oscillator_base		( _type_id )
 	, ADSR_class			( _type_id )

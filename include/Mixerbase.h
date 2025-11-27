@@ -82,7 +82,7 @@ typedef 	mixer_state_struct 	mixer_state_t;
 
 typedef struct sta_rolemap_data
 {
-	OscroleId_t roleid;
+	RoleId_t roleid;
 	STAID_e staid;
 } sta_rolemap_data_t;
 
@@ -93,16 +93,20 @@ struct sta_role_map
 		{ INSTRROLE		, STA_INSTRUMENT },
 		{ NOTESROLE		, STA_NOTES },
 		{ KBDROLE		, STA_KEYBOARD },
-		{ EXTERNALROLE	, STA_EXTERNAL }
+		{ EXTERNALROLE	, STA_EXTERNAL },
+		{ USER00ROLE	, STA_USER00 },
+		{ USER01ROLE	, STA_USER01 },
+		{ USER02ROLE	, STA_USER02 },
+		{ USER03ROLE	, STA_USER03 }
 	};
-	STAID_e GetStaid( OscroleId_t role )
+	STAID_e GetStaid( RoleId_t role )
 	{
 		if ( role < sta_map_vec.size() )
 			return sta_map_vec[role].staid;
 		else
 			return NO_STA;
 	}
-	OscroleId_t GetRoleid( STAID_e staid )
+	RoleId_t GetRoleid( STAID_e staid )
 	{
 		if ( staid < STA_INSTRUMENT )
 			return NOROLE;

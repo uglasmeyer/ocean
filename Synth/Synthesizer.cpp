@@ -39,7 +39,7 @@ Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, Wd_p );
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
-Musicxml_class			MusicXML		{};
+Musicxml_class			MusicXML		{ Cfg.fs };
 Event_class				Event{
 							&Instrument,
 							&Notes,

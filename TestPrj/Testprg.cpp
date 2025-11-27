@@ -14,10 +14,10 @@ void exit_proc( int signal)
  https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/menus.html
  *************************************************/
 #include <Composer/Lineedit.h>
-
+Kbd_base Kbd {};
 int main()
 {
-	Lineedit_class Edit { "Line Edit > "};
+	Lineedit_class Edit { "Line Edit > ", &Kbd };
 	vector_str_t text = { "Line1", "Line2", "Line3", "Line4", "Line5"};
 	Edit.Text( text );
 	cout << show_str_items( text );

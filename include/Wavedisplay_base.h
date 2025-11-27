@@ -65,7 +65,7 @@ struct WD_data_struct
 {	// SDS related
 
 	OSCID_e 			oscId 			= OSCID;
-	OscroleId_t			roleId 			= INSTRROLE;
+	RoleId_t			roleId 			= INSTRROLE;
 	bool 				fftmode			= false;
 	WdModeID_t 			wd_mode			= wavedisplay_struct::FULLID;
 	uint16_t			cursor			= 0;		// display current sound location in case of full wd_mode

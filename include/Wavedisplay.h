@@ -48,11 +48,11 @@ public:
 					Wavedisplay_class( Interface_class* sds );
 	virtual 		~Wavedisplay_class() = default;
 
-	void 			Add_role_ptr	( OscroleId_t wd_role,
+	void 			Add_role_ptr	( RoleId_t wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
 	void 			Add_data_ptr	( OSCID_e wd_type,
-									OscroleId_t wd_role,
+									RoleId_t wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
 	void 			SetDataPtr		( const WD_data_t& status  );

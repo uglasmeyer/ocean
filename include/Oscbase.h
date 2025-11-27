@@ -121,7 +121,7 @@ class Oscillator_base :
 
 public:
 	OSCID_e			typeId			= NOOSCID;
-	OscroleId_t		roleId			= NOROLE;
+	RoleId_t		roleId			= NOROLE;
 	string 			osctype_name 	= "";
 
 	string 			oscrole_name 	= "";

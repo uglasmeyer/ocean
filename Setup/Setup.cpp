@@ -36,7 +36,9 @@ SOFTWARE.
 #include <Appsymbols.h>
 #include <ReleaseNotes.h>
 
-file_structure* fs = Cfg.fs;
+file_structure* fs;// = Cfg.fs;
+
+
 
 void exit_proc( int signal )
 {
@@ -95,7 +97,7 @@ void copy_files( string dir, string filter, string destination )
 }
 
 string deployment_archive = "";
-void create_tararchive()
+void create_tararchive( source_struct Ss )
 {
 	fstream Exclude {};
 	Exclude.open( fs->tarexclude_file, fstream::out );
@@ -139,7 +141,7 @@ void create_tararchive()
 					deployment_archive + ".cksum " +
 					deployment_archive + ".sha256 " +
 					"--title ocean_sound_lab_" + tag +
-					" --notes-file " + fs->git_dir + "RELEASE_NOTES.md";
+					" --notes-file " + Ss.sourcedir + "RELEASE_NOTES.md";
 	Log.Info		( cmd );
 
 }
@@ -154,9 +156,9 @@ string get_check_sum( string _type )
 	};
 
 
-void Create_ReleaseNotes()
+void Create_ReleaseNotes( source_struct Ss )
 {
-	string releasenotes_file = fs->git_dir + rn_filename;
+	string releasenotes_file = Ss.sourcedir + rn_filename;
 	fstream Release_notes { releasenotes_file, fstream::out };
 
 	const string rn_verification =
@@ -216,11 +218,15 @@ void compare_environment()
 		Log.Comment( WARN, "is not equal to install directory=", fs->installdir );
 	}
 }
-void create_oceanrc()
+void create_oceanrc( source_struct Ss )
 {
 	fstream Oceanrc	{};
 	Oceanrc.open	( fs->oceanrc_file, fstream::out );
+
 	Oceanrc << "export " << OCEANDIR << "=" << fs->installdir << endl;
+	Oceanrc << "export ARCH=" << Ss.getArch() << endl;
+	Oceanrc << "PATH=$(echo $PATH | sed \"s|$OCEANDIR/bin:||g\")" << endl;
+	Oceanrc << "LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed \"s|$OCEANDIR/lib:||g\")" << endl;
 	Oceanrc << "export PATH=$" << OCEANDIR << "/bin:$PATH" << endl;
 	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib:$LD_LIBRARY_PATH"<< endl;
 }
@@ -262,16 +268,19 @@ void install_binary( string _bin, string _ext )
 	symboliclink( dst_bin_file, _bin, _ext );
 }
 
-void Setup_Test()
+//#include <System.h>
+void Setup_Test( source_struct Ss )
 {
-	fs->show_installdirs();
+	cout << "Architecture: " << Ss.getArch() << endl;
+	cout << "Source Dir:   " << Ss.sourcedir << endl;
+	Ss.show_installdirs();
 }
 
-void ConvertOdt2Pdf( )
+void ConvertOdt2Pdf( source_struct Ss )
 {
 	Log.Info( "Converting odt to pdf" );
 
-	string cmd1 = "cd " + fs->resourcedir;
+	string cmd1 = "cd " + Ss.resourcedir;
 	string cmd2 =  "libreoffice --headless --convert-to pdf --outdir " +
 					fs->docdir + " " +
 					rn_userdoc + ".odt";
@@ -280,10 +289,10 @@ void ConvertOdt2Pdf( )
 	System_execute( cmd );
 }
 
-void Copy_3rdpartylibs()
+void Copy_3rdpartylibs( source_struct Ss )
 {
 
-	string systemlibdir = "/lib/" + fs->architectur + "-linux-gnu/";
+	string systemlibdir = "/lib/" + Ss.architectur + "-linux-gnu/";
 	typedef vector<string> string_vec_t;
 	string_vec_t lib_vec = {
 		systemlibdir + "libQt6Core.so.6",
@@ -308,29 +317,36 @@ void Copy_3rdpartylibs()
 
 int main(int argc, char **argv)
 {
+	Cfg.Parse_argv(argc, argv );
+	source_struct Ss { Cfg.Config.sourcedir };
+
+//	file_structure	Fs { Cfg.Config.sourcedir, Cfg.Config.installdir };
+					fs =Cfg.fs;
+
+	if ( Cfg.Config.test == 'y' )
+	{
+		Setup_Test( Ss );
+		exit(0);
+	}
+	const string	rc_nte_file					= Ss.resourcedir + "Notes/" + fs->default_nte;
+	const string	rc_snd_file					= Ss.resourcedir + "Instruments/" + fs->default_snd;
 
 	bool full_setup = not filesystem::is_directory( fs->installdir );
 	Cfg.CreateInstalldirs( );
-	overwrite ( fs->resourcedir + fs->bkground_filename	, fs->bkground_file );
-	overwrite ( fs->resourcedir + fs->setup_filename		, fs->setup_file );
-	overwrite ( fs->resourcedir + fs->ipctool_filename	, fs->ipctool_file );
-	overwrite ( fs->resourcedir + fs->config_filename		, fs->config_file );
-	overwrite ( fs->resourcedir + fs->deploy_filename		, fs->deploy_file );
-	init_file ( fs->instrumentdir + ".test2.snd"			, fs->resourcedir );
-	overwrite ( fs->rc_snd_file							, fs->instrumentdir + fs->default_snd );
-	overwrite ( fs->rc_nte_file							, fs->notesdir + fs->default_nte );
-	init_file ( fs->program_file							, fs->resourcedir );
-	init_file ( fs->prog_libfile							, fs->resourcedir );
-	init_file ( fs->prog_testfile						, fs->resourcedir );
-	overwrite ( fs->resourcedir + fs->template_xmlname	, fs->template_xmlfile );
-	overwrite ( fs->git_dir + fs->install_txt		, fs->install_txtfile );
+	overwrite ( Ss.resourcedir + fs->bkground_filename	, fs->bkground_file );
+	overwrite ( Ss.resourcedir + fs->setup_filename		, fs->setup_file );
+	overwrite ( Ss.resourcedir + fs->ipctool_filename	, fs->ipctool_file );
+	overwrite ( Ss.resourcedir + fs->config_filename		, fs->config_file );
+	overwrite ( Ss.resourcedir + fs->deploy_filename		, fs->deploy_file );
+	init_file ( fs->instrumentdir + ".test2.snd"			, Ss.resourcedir );
 
-	Cfg.Parse_argv(argc, argv );
-	if ( Cfg.Config.test == 'y' )
-	{
-		Setup_Test();
-		exit(0);
-	}
+	overwrite ( rc_snd_file							, fs->instrumentdir + fs->default_snd );
+	overwrite ( rc_nte_file							, fs->notesdir + fs->default_nte );
+	init_file ( fs->program_file							, Ss.resourcedir );
+	init_file ( fs->prog_libfile							, Ss.resourcedir );
+	init_file ( fs->prog_testfile						, Ss.resourcedir );
+	overwrite ( Ss.resourcedir + fs->template_xmlname	, fs->template_xmlfile );
+	overwrite ( Ss.sourcedir + fs->install_txt		, fs->install_txtfile );
 
 	if( Cfg.Config.filename.length() > 0 )
 	{
@@ -343,22 +359,21 @@ int main(int argc, char **argv)
 
 	Log.Info( "Using Ocean Base Directory ", fs->installdir );
 	bashrc_oceandir();
-	create_oceanrc();
+	create_oceanrc( Ss );
 
 	// update git resources
 	copy_files( fs->instrumentdir,
 				fs->snd_type,
-				fs->resourcedir + "Instruments/" );
+				Ss.resourcedir + "Instruments/" );
 	copy_files( fs->notesdir,
 				fs->nte_type,
-				fs->resourcedir + "Notes/" );
+				Ss.resourcedir + "Notes/" );
 	copy_files( fs->includedir,
 				".synth",
-				fs->resourcedir );
+				Ss.resourcedir );
 	copy_files( fs->includedir,
 				".inc",
-				fs->resourcedir );
-
+				Ss.resourcedir );
 
 	using filesystem::perms;
 	using filesystem::perm_options;
@@ -366,12 +381,12 @@ int main(int argc, char **argv)
 	permissions( fs->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( fs->ipctool_file, perms::owner_exec, perm_options::add );
 
-	ConvertOdt2Pdf( );
+	ConvertOdt2Pdf( Ss );
 
-	Copy_3rdpartylibs();
+	Copy_3rdpartylibs( Ss );
 
-	create_tararchive();
+	create_tararchive( Ss );
 
-	Create_ReleaseNotes();
+	Create_ReleaseNotes( Ss );
 	return  0;
 }

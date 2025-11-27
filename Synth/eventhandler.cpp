@@ -369,8 +369,6 @@ void Event_class::Handler()
 	{
 		STAID_e id = sds->MIX_Id;
 		Mixer->SetStA( id );
-		if (( Mixer->state.instrument ) and ( id == STA_INSTRUMENT ))
-			Notes->Start_note_itr();
 		Sds->Commit();
 		break;
 	}

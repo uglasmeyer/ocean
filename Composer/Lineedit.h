@@ -43,11 +43,12 @@ class Lineedit_class :
 	virtual public Logfacility_class
 {
 	string 					className 		= "";
-	Kbd_base 				Kbd 			{};
+	Kbd_base* 				Kbd 			;
 	string					Title			;
 	const int				delay			= 1;
+	line_struct_t			ls				{ 0, "" };
 public:
-							Lineedit_class	( string title );
+							Lineedit_class	( string title, Kbd_base* kbd );
 	virtual 				~Lineedit_class	();
 	void					Program			( program_vec_t& program );
 	void 					Text			( vector_str_t& text );

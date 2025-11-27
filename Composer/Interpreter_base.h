@@ -35,7 +35,7 @@ SOFTWARE.
 
 #include <String.h>
 
-typedef struct line_struct
+typedef struct line_data_struct
 {
 	int				Id	= 0; // Program Position
 	uint 			no	= 0; // filename line no.
@@ -43,19 +43,25 @@ typedef struct line_struct
 	string 			line; // program line string
 	string 			keyw; // keyword
 	string 			arg1; // unused
-	vector_str_t	args {}; // program line arr
+	vector_str_t	args; // program line arr
+} line_data_t;
+
+typedef struct line_struct :
+		line_data_struct
+{
 
 	line_struct( uint _no, string _line, string _name = "" )
 	{
 		no		= _no;
-		line 	= _line;
 		name	= ( _name.length() > 0 ) ? filesystem::path(_name).stem() : "stdin" ;
-		String Str { _line };
+		String
+		Str 	{ _line };
 		Str.replace_comment();
 		Str.replace_char('\t' , ' ');
+		line	= Str.Str;
 		args 	= Str.to_unique_array( ' ' );
-		keyw 	= ( args.size() > 0 ) ? args[0] : "";
-		Str.to_lower( keyw );
+		Str.Str	= ( args.size() > 0 ) ? args[0] : "";
+		keyw	= Str.to_lower();
 	}
 	void show()
 	{

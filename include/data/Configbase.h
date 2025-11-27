@@ -53,7 +53,7 @@ struct prgarg_struct
 	uint 		device 		= 0;		// -d
 	uint 		ch_offs 	= 0; 		// -o
 	uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically
-	char		clear		= 'n';		// -X clear process array
+//	char		clear		= 'n';		// -X clear process array
 	char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
 	char		debug		= 'n';
 	char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
@@ -67,6 +67,7 @@ struct prgarg_struct
 	string		Nohup		= "nohup";
 	string 		ffmpeg 		= "ffmpeg";
 	string		installdir	= "";		 // Setup -I ...
+	string		sourcedir	= "";		 // Setup -S ...
 	string		filename	= "";
 	key_t		Sem_key		= 0x9999;
 	key_t 		SHM_key 	= 0x100; 	// -k

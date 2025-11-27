@@ -39,7 +39,7 @@ void composer_dialog()
 	string line = "";
 	CODE_e		code ; // subprogram return code
 	Composer.Program.clear();
-	Lineedit_class	Edit { "Ocean command line> " };
+
 	Interpreter.Set_dialog_mode( true );
 	headline( "Entering Composer dialog mode" );
 	while ( true )
@@ -49,7 +49,7 @@ void composer_dialog()
 		line_struct prgLine = line_struct( 0, line );
 		string keyw = prgLine.keyw;
 		if ( keyw.compare("exit")		== 0 )
-			exit_proc( 0 );
+			exit( 0 );
 
 		code = EXECUTE;
 		if ( keyw.compare("show")		== 0 )
@@ -119,7 +119,6 @@ int main( int argc, char* argv[] )
     App.Ready();
 	if ( DaTA.Cfg_p->Config.dialog == 'y' )
 	{
-	    App.Kbd.Reset(); // to make getc work
 		composer_dialog();
 		exit_proc( 0 );
 	}

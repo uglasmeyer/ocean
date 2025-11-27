@@ -158,7 +158,7 @@ void MainWindow::chord_delay()
 	int value = ui->hs_chord_delay->value();
 	Sds->Set( Sds->addr->noteline_prefix.chord_delay, value );
 }
-void MainWindow::set_wdrole( OscroleId_t roleid )
+void MainWindow::set_wdrole( RoleId_t roleid )
 {
 	if( roleid == NOROLE ) return;
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ roleid ] );
@@ -354,12 +354,13 @@ void MainWindow::CombineFreq()
 
 void MainWindow::setStaPlay( STAID_e id )
 {
-    bool	play= not Sds->addr->StA_state_arr[id].play;
     Sds->Set( Sds->addr->MIX_Id , id );
-    Sds->Set( *cb_play_sta_vec[id].state, play);
+
+    bool	play= not Sds->addr->StA_state_arr[id].play;
+    Sds->Set( Sds->addr->StA_state_arr[id].play, play);
     if( play )
    	{
-    	OscroleId_t role = StaRole_map.GetRoleid( id );
+    	RoleId_t role = StaRole_map.GetRoleid( id );
         set_wdrole( role );
         Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
    	}
@@ -403,13 +404,11 @@ void MainWindow::setStaPlay7(  )
 
 void MainWindow::setStaStored( STAID_e staId )
 {
-
     Sds->Set( Sds->addr->MIX_Id , staId );
     bool filled = not Sds->addr->StA_state_arr[staId].filled;
     Sds->Set( Sds->addr->StA_state_arr[staId].filled, filled );
     Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
     Eventlog.add( SDS_ID, SETSTA_KEY );
-//    cb_filled_sta_vec[ staId ].cb->setChecked( filled ) ;
 }
 void MainWindow::setStaStored0()
 {
@@ -444,53 +443,51 @@ void MainWindow::setStaStored7()
 	setStaStored( STA_EXTERNAL );
 }
 
-auto toggle_store_sta( MainWindow* M, uint8_t _id )
+void MainWindow::toggle_store_sta( STAID_e id )
 {
-	STAID_e id = (STAID_e)_id;
 
-	M->Sds->Set( M->Sds->addr->MIX_Id , id );
-    if ( M->Sds->addr->StA_state_arr[id].store )
+	Sds->Set( Sds->addr->MIX_Id , id );
+    if ( Sds->addr->StA_state_arr[id].store )
     {
-    	M->Eventlog.add( M->SDS_ID, STOP_STARECORD_KEY);
+    	Eventlog.add( SDS_ID, STOP_STARECORD_KEY);
     }
     else
     {
-        M->Eventlog.add( M->SDS_ID, STORESOUNDKEY);
+        Eventlog.add( SDS_ID, STORESOUNDKEY);
     }
-    M->cb_store_sta_vec[ id ].cb->setChecked( false );
 };
 
 void MainWindow::toggle_store_sta0()
 {
-	toggle_store_sta( this, STA_USER00 );
+	toggle_store_sta( STA_USER00 );
 }
 void MainWindow::toggle_store_sta1()
 {
-	toggle_store_sta( this, STA_USER01 );
+	toggle_store_sta( STA_USER01 );
 }
 void MainWindow::toggle_store_sta2()
 {
-	toggle_store_sta( this, STA_USER02 );
+	toggle_store_sta( STA_USER02 );
 }
 void MainWindow::toggle_store_sta3()
 {
-	toggle_store_sta( this, STA_USER03 );
+	toggle_store_sta( STA_USER03 );
 }
 void MainWindow::toggle_store_sta4()
 {
-	toggle_store_sta( this, STA_INSTRUMENT );
+	toggle_store_sta( STA_INSTRUMENT );
 }
 void MainWindow::toggle_store_sta5()
 {
-	toggle_store_sta( this, STA_KEYBOARD );
+	toggle_store_sta( STA_KEYBOARD );
 }
 void MainWindow::toggle_store_sta6()
 {
-	toggle_store_sta( this, STA_NOTES );
+	toggle_store_sta( STA_NOTES );
 }
 void MainWindow::toggle_store_sta7()
 {
-	toggle_store_sta( this, STA_EXTERNAL );
+	toggle_store_sta( STA_EXTERNAL );
 }
 
 
@@ -505,7 +502,6 @@ void MainWindow::memory_clear()
 
 void MainWindow::mixer_slider( sl_value_t map )
 {
-
     Sds->Set( Sds->addr->MIX_Id , map.id );
     Sds->Set( *map.value, (uint8_t)map.sl->value() );
     Eventlog.add( SDS_ID, SETSTA_KEY);
@@ -808,7 +804,7 @@ void MainWindow::pB_Wavedisplay_clicked()
 {
 	uint8_t counter = Sds->addr->WD_status.roleId ;
 	counter = ( counter + 1 ) % WD_ROLES_SIZE;
-    Sds->Set( Sds->addr->WD_status.roleId , (OscroleId_t) counter );
+    Sds->Set( Sds->addr->WD_status.roleId , (RoleId_t) counter );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
     ui->pB_Wavedisplay->setText( Qwd_role_names[ counter ] );

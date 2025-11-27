@@ -270,7 +270,7 @@ const  vector<OSCID_e> oscIds  =
 };
 #define OSCIDSIZE 3
 
-enum OscroleId_t : unsigned char
+enum RoleId_t : unsigned char
 {
 	INSTRROLE,
 	NOTESROLE,
@@ -278,6 +278,10 @@ enum OscroleId_t : unsigned char
 	EXTERNALROLE,
 	AUDIOROLE,
 	ADSRROLE,
+	USER00ROLE,
+	USER01ROLE,
+	USER02ROLE,
+	USER03ROLE,
 	NOROLE
 };
 
@@ -291,6 +295,10 @@ typedef struct osc_struct
 		"External",
 		"Audio",
 		"ADSR"
+		"UserR+",
+		"UserL-",
+		"UserR-",
+		"UserL+"
 	};
 
 	const vector<string> typeNames =

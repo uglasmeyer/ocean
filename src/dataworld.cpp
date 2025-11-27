@@ -234,7 +234,7 @@ void EventLog_class::add( event_t ev )
 void EventLog_class::write_log()
 {
 	fstream File;
-	File.open( logfile_name, fstream::out );
+	File.open( DaTA->Cfg_p->fs->reclog_file, fstream::out );
 	for( event_t ev : rawlog_vec )
 	{
 		File << dec << (int)ev.sdsid << ":" << (int)ev.event << endl;
@@ -246,7 +246,7 @@ void EventLog_class::spool()
 	String Str		{""};
 	vector_str_t 	arr;
 	event_t			ev;
-	File.open( logfile_name, fstream::in );
+	File.open( DaTA->Cfg_p->fs->reclog_file, fstream::in );
 	if ( File.is_open() )
 	{
 		while( getline( File, Str.Str))

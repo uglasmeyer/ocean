@@ -188,8 +188,8 @@ private:
 	bool				frqMode					= SLIDE;
 	bool				kbd_trigger				= false;
 	string				Noteline				{};
-	uint				noteline_cnt		= 0;
-	uint8_t				notes_per_sec		= 8;
+	uint				noteline_cnt			= 0;
+	uint8_t				notes_per_sec			= 8;
 
 	void				selfTest				();
 	void 				attack					();

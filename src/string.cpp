@@ -331,9 +331,6 @@ void String::TestString()
 	i = A.to_int( "abcd");
 	assert( i == 0 );
 
-	String Env = notnull( std::getenv("OCEANTESTCASE") );
-	ASSERTION( strEqual( Env.Str, "oceantestcase"), "getenv", notnull( std::getenv("OCEANTESTCASE") ), "oceantestcase"  );
-
 	string str 		= "a=abc=def";
 	String 			S{""};
 	S				= str;

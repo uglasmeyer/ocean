@@ -267,7 +267,7 @@ bool Keyboard_class::Save_notes()
 	delete_leading_nulls( Noteline );
 
 
-	Musicxml_class MusicXML {};
+	Musicxml_class MusicXML { fs };
 	notelist_t notelist = notevec2notelist();
 	MusicXML.Notelist2xmlFile( fs->kbdnotes_name , notelist );
 

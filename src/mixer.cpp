@@ -76,6 +76,8 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 	wd->Add_role_ptr( NOTESROLE		, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
 	wd->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
+	for( STAID_e staid : LowIds )
+		wd->Add_role_ptr( sta_rolemap.GetRoleid( staid ) , StA[ staid].Data, &StA[ staid].param.size );
 
 	SetStAs();
 

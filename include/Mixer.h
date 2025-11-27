@@ -59,8 +59,8 @@ public:
 	const vector<STAID_e>	AllIds		= Iota_T<STAID_e>( STA_USER00, STA_SIZE );
 	const vector<STAID_e>	RecIds 		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
 	const vector<STAID_e>	UsrIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
-	const vector<uint>	HghIds			= {4, 5, 6, 7 };
-	const set<uint>		LowIds			= {0, 1, 2, 3 };
+	const vector<STAID_e>	HghIds		= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
+	const set<STAID_e>		LowIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
 
 
 	typedef vector<Storage_class>		StorageArray_t;

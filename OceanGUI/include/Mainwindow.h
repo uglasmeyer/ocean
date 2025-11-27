@@ -187,9 +187,10 @@ private:
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
     void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_e, QLabel* );
-    void set_wdrole( OscroleId_t roleid );
+    void set_wdrole( RoleId_t roleid );
     void setStaPlay( STAID_e id );
     void setStaStored( STAID_e staId );
+    void toggle_store_sta( STAID_e id );
 
 
 public slots:

@@ -103,10 +103,11 @@ auto get_note_duration = []( int divisions, XMLElement* root )
 };
 
 
-Musicxml_class::Musicxml_class(  ) :
+Musicxml_class::Musicxml_class( file_structure* _fs  ) :
 	Logfacility_class( "Musicxml_class")
 {
-	className = Logfacility_class::className;
+	className 	= Logfacility_class::className;
+	fs			= _fs;
 };
 Musicxml_class::~Musicxml_class()
 {
@@ -159,7 +160,7 @@ pitch_t Musicxml_class::get_pitch( XMLElement* root )
 
 string Musicxml_class::File( const string& name )
 {
-	return fs.xmldir + name + fs.xml_type;
+	return fs->xmldir + name + fs->xml_type;
 }
 // https://www.w3.org/2021/06/musicxml40/tutorial/midi-compatible-part/
 musicxml_t Musicxml_class::XmlFile2notelist( const string& name )

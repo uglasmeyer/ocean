@@ -77,16 +77,16 @@ auto Sout  = [  ] ( int x, int y, string str )
  * Lineedit_class
  *************************************************/
 
-Lineedit_class::Lineedit_class	( string title ) :
+Lineedit_class::Lineedit_class	( string title, Kbd_base* kbd ) :
 	Logfacility_class("Lineedit_class")
 {
 	className = Logfacility_class::className;
 	this->Title	= title;
+	this->Kbd	= kbd;
 };
 Lineedit_class::~Lineedit_class	()
 {
 	DESTRUCTOR( className );
-	Kbd.Reset();
 };
 
 string Lineedit_class::Line( string _str )
@@ -137,7 +137,7 @@ string Lineedit_class::Line( string _str )
 	kbdInt_t key = 0;
 	while( key != KEYCODE::RET )
 	{
-		key = Kbd.GetKeyInt( delay );
+		key = Kbd->GetKeyInt( delay );
 		switch (key)
 		{
 			case KEYCODE::RIGHT	: { inccursor();  break; }
@@ -171,7 +171,7 @@ void Lineedit_class::Text( vector_str_t& text )
 	range_T<int> text_range { 0, (int)text.size()-1 };
 	while( key != KEYCODE::ESC )
 	{
-		key = Kbd.GetKeyInt( delay );
+		key = Kbd->GetKeyInt( delay );
 		switch (key)
 		{
 			case KEYCODE::UP	: { pos++;  break; }
@@ -200,7 +200,7 @@ void Lineedit_class::Program( program_vec_t& program )
 	while( key != KEYCODE::ESC )
 	{
 		string text = program[pos].line;
-		key = Kbd.GetKeyInt( delay );
+		key = Kbd->GetKeyInt( delay );
 		switch (key)
 		{
 			case KEYCODE::UP	: { pos++;  break; }
@@ -212,7 +212,12 @@ void Lineedit_class::Program( program_vec_t& program )
 			default 			: { text.push_back(char(key));
 									text = Line( text ) ; break; }
 		} // switch key
-		program[pos] = line_struct( program[pos].no, text );
+		int No 					= program[pos].no;
+		ls 						= line_struct( No, text );
+		program[pos]			= ls;
+//		program[pos].line		= ls.line;
+//		program[pos].keyw		= ls.keyw;
+//		program[pos].args		= ls.args;
 		pos = check_range( text_range, pos, "" );
 		if ( key > 0 )
 			Sout( 1, get_terminal_size().ws_row, program[pos].line );

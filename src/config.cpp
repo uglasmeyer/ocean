@@ -36,13 +36,37 @@ SOFTWARE.
 #include <Table.h>
 
 
-string install_struct::read_installfile()
+/**************************************************
+ * source_struct
+ *************************************************/
+/*	string _dir = "";
+	string _pwd = pwd.generic_string() + "/";
+	if ( _pwd.length() == 0 )
+		Exception( "PWD not set");
+	size_t pos = _pwd.find( "/Ocean/" );
+	if( pos < STRINGNOTFOUND )
+		_dir = _pwd.substr( 0, pos ) + string( "/Ocean/");
+
+
+	return _dir;
+*/
+source_struct::source_struct( string srcdir )
+{
+	sourcedir		= srcdir;
+	if ( sourcedir.length() == 0 )
+		sourcedir 	= notnull( getenv("PWD") ) + "/../../";
+	resourcedir		= resourceDir();
+	files			= { resourcedir, archdir };
+}
+
+
+string source_struct::read_installfile()
 {
 	Comment( DEBUG, "reading install_file" );
-	if ( git_dir.length() == 0 )
-		return baseDir();
-	string 			install 	= homedir + "OceanBase/";
-	const string	install_file= git_dir + "install.txt";
+	if ( sourcedir.length() == 0 )
+		Exception( "no sourcedir given");
+	string 			install 	= HOME + "/OceanBase/";
+	const string	install_file= sourcedir + "install.txt";
 	String 			S 			{};
 	fstream 		Install 	{ install_file, fstream::in };
 
@@ -63,43 +87,32 @@ string install_struct::read_installfile()
 
 }
 
-void install_struct::show_installdirs()
+void source_struct::show_installdirs()
 {
 	for( string file : files)
 	{
 		Comment( BINFO, file );
 	}
 }
-string install_struct::gitDir()
+string source_struct::resourceDir()
 {
-	string _dir = "";
-	string _pwd = pwd.generic_string() + "/";
-	if ( _pwd.length() == 0 )
-		Exception( "PWD not set");
-	size_t pos = _pwd.find( "/Ocean/" );
-	if( pos < STRINGNOTFOUND )
-		_dir = _pwd.substr( 0, pos ) + string( "/Ocean/");
-
-
-	return _dir;
-}
-string install_struct::resourceDir()
-{
-	if( git_dir.length() == 0 ) return "";
-	string _dir = git_dir + "/Resource/";
+	if( sourcedir.length() == 0 ) return "";
+	string _dir = sourcedir + "/Resource/";
 	if ( not filesystem::is_directory( _dir ) )
 		Comment( ERROR,  "unknown resource directory ", resourcedir );
 	return _dir;
 }
 
-string install_struct::getArch()
+#include <sys/utsname.h>
+string source_struct::getArch()
 {
-	string arch { notnull( getenv("ARCH") ) };
-	return arch;
+    struct utsname utsbuf;
+    uname( &utsbuf );
+    return notnull( utsbuf.machine );
 };
 
 
-string install_struct::baseDir( )
+string install_struct::oceanDir( )
 {
 
 	string basedir = "";
@@ -200,10 +213,10 @@ Config_class::Config_class() :
 	{
 		Read_config( fs->config_file );
 	}
-	if( filesystem::is_regular_file( fs->git_dir + fs->config_filename ) )
-	{
-		Read_config( fs->git_dir + fs->config_filename );
-	}
+//	if( filesystem::is_regular_file( fs->sourcedir + fs->config_filename ) )
+//	{
+//		Read_config( fs->sourcedir + fs->config_filename );
+//	}
 
 };
 
@@ -363,23 +376,28 @@ vector_str_t Config_class::parse_cmdline()
 
 void Config_class::Parse_argv( int argc, char* argv[] )
 {
-
-	// https://en.cppreference.com/w/c/language/main_function
-
 	String 			Str	{""};
 	string 			next{""};
 	char 			ch 	= 0;
 
-	for ( int ndx = 1; ndx < argc; ndx ++ )
+	for ( int ndx = 1; ndx < argc; ndx++ )
 	{
+		cout << ndx << endl;
+
 		string arg = argv[ ndx ];
 		if( arg[0] ==  '-' )
+		{
 			( arg.length() > 1) ? ch = arg[1] : ch = 0;
-		if ( (ndx + 1) == argc  )
-			next = "" ;
+			if ( (ndx + 1) == argc  )
+				next = "" ;
+			else
+				next.assign( argv[ ndx + 1 ] );
+		}
 		else
-			next.assign( argv[ ndx + 1 ] );
-
+		{
+			ch = 0;
+		}
+		cout << next << endl;
 
 		switch ( ch )
 		{
@@ -394,13 +412,14 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			case 'D' : 	Config.dialog 		= 'y'				; break;
 			case 'G' : 	Config.oceangui		= 'y'				; break;
 			case 'I' : 	Config.installdir	= next 				; break;
+			case 'S' : 	Config.sourcedir	= next 				; break;
 			case 'V' :	Set_Loglevel( DEBUG, true );
 						Set_Loglevel( DBG2, true )				; break;
-			case 'X' : 	Config.clear 		= 'y'				; break;
 			default  : 	Config.filename		= arg				; break;
 		}
 	}
-//	cout << "Config.filename " << Config.filename << endl;
+	cout << "Config.filename  " << Config.filename << endl;
+	cout << "Config.sourcedir " << Config.sourcedir << endl;
 
 }
 
@@ -436,6 +455,7 @@ void Config_class::Show_Config( bool debug )
 	Table.AddRow( "keyboard storage sec", Config.kbd_sec	);
 	Table.AddRow( "record storage sec"	, Config.record_sec	);
 	Table.AddRow( "Install directory"	, Config.installdir );
+	Table.AddRow( "Source directory"	, Config.sourcedir );
 	Table.AddRow( "File name"			, Config.filename );
 }
 

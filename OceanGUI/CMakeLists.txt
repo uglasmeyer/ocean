@@ -4,8 +4,8 @@ set(OCEAN_PROJECT OceanGUI)
 project(${OCEAN_PROJECT})
 
 execute_process(
-COMMAND ./make_moc.sh 
-WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+COMMAND 			./make_moc.sh 
+WORKING_DIRECTORY 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 FILE(GLOB PROJECT_SRC *.cpp)
@@ -13,7 +13,7 @@ FILE(GLOB PROJECT_SRC *.cpp)
 
 # Add an executable target
 add_executable(${OCEAN_PROJECT}
-${PROJECT_SRC} 
+	${PROJECT_SRC} 
 )
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
@@ -27,14 +27,14 @@ target_include_directories( ${OCEAN_PROJECT} PRIVATE
 
 # Add the library search path for this target only
 target_link_directories(${OCEAN_PROJECT} PRIVATE 
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+	${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # Link against the shared library (without 'lib' prefix or extension)
 target_link_libraries(${OCEAN_PROJECT} PRIVATE 
-Ocean 
-tinyxml2
-Qt6Core
-Qt6Gui
-Qt6Widgets
+	Ocean 
+	tinyxml2
+	Qt6Core
+	Qt6Gui
+	Qt6Widgets
 )
 

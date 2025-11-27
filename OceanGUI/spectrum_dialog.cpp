@@ -117,7 +117,7 @@ void Spectrum_Dialog_class::set_waveform_vec( vector<string> wf_vec )
 
 void Spectrum_Dialog_class::set_spectrum_view()
 {
-	auto set_wavedisplay = [ this ]( OscroleId_t roleid  )
+	auto set_wavedisplay = [ this ]( RoleId_t roleid  )
 	{
 	    Sds->Set( sds_p->WD_status.oscId	, OscId );
 	    Sds->Set( sds_p->WD_status.roleId	, roleid );

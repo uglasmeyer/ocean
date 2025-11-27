@@ -235,7 +235,7 @@ void Wavedisplay_class::setFFTmode( const bool& mode )
 	if ( mode )
 		WdMode		= FFTID;
 }
-void Wavedisplay_class::Add_role_ptr( 	OscroleId_t wd_role,
+void Wavedisplay_class::Add_role_ptr( 	RoleId_t wd_role,
 										Data_t* ptr,
 										buffer_t* wd_frames )
 {
@@ -246,7 +246,7 @@ void Wavedisplay_class::Add_role_ptr( 	OscroleId_t wd_role,
 	}
 }
 void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
-										OscroleId_t wd_role,
+										RoleId_t 	wd_role,
 										Data_t* 	ptr,
 										buffer_t* 	frames )
 {

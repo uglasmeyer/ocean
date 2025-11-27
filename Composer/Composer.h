@@ -36,10 +36,11 @@ SOFTWARE.
 #include <Composer/Interpreter.h>
 #include <Composer/Lineedit.h>
 
-Interpreter_class 		Interpreter( &App );
-Composer_class			Composer{ &DaTA, &Interpreter };
+Interpreter_class 		Interpreter	{ &App };
+Composer_class			Composer	{ &DaTA, &Interpreter };
 
-Statistic_class			Statistic{ Log.className };
+Statistic_class			Statistic	{ Log.className };
+Lineedit_class			Edit 		{ "Ocean command line> ", &App.Kbd };
 
 
 

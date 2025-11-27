@@ -81,7 +81,7 @@ public:
 	Note_base 				Notes{ };
 
 	XMLDocument 			XMLdoc;
-							Musicxml_class();
+							Musicxml_class( file_structure* _fs);
 	virtual 				~Musicxml_class();
 
 	musicxml_t 				XmlFile2notelist( const string& filename );
@@ -103,7 +103,7 @@ private:
 											const note_t& note,
 											const uint& chord_id );
 
-	file_structure			fs				{};
+	file_structure*			fs				;
 	note_itr_t				note_itr		;
 };
 

@@ -36,25 +36,32 @@ SOFTWARE.
 #include <Logfacility.h>
 #include <System.h>
 
+struct source_struct
+	:	virtual public 	Logfacility_class
+{
+	const string 		HOME 			= notnull( getenv("HOME") );
+	string				sourcedir		;//= sourceDir();
+	string 				resourcedir		;//= resourceDir();
+	vector<string>		files			;//= { resourcedir, archdir };
+	const string		architectur		= getArch();
+	const string		archdir			= architectur + "/";
+						source_struct	( string srcdir );
+	string				getArch			();
+	string 				read_installfile();
+	string 				resourceDir		();
+	void 				show_installdirs();
+
+};
+
 struct install_struct
 :	virtual public 	Logfacility_class
 {
 	const string 		homedir 		= notnull( getenv("HOME") ) + "/";
 	filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
 
-	const string		git_dir			= gitDir();
-	const string 		resourcedir		= resourceDir();
-	const string		architectur		= getArch();
-	const string		archdir			= architectur + "/";
-	const string		installdir	 	= read_installfile();
-	const vector<string>files			= { git_dir		, resourcedir,
-											archdir	, installdir };
-	string				getArch			();
-	string				baseDir			();
-	string 				read_installfile();
-	string				gitDir			();
-	string 				resourceDir		();
-	void 				show_installdirs();
+	const string		installdir	 	= notnull( getenv("OCEANDIR"));//read_installfile();
+	const string		ARCH			= notnull( getenv("ARCH"));
+	string				oceanDir		();
 
 						install_struct	() ;
 	virtual				~install_struct	()
@@ -70,8 +77,8 @@ struct dir_struct
 	const string 	tmpdir  		= installdir + "tmp/";
 	const string 	docdir 			= installdir + "doc/";
 	const string 	vardir			= installdir + "var/";
-	const string	archbindir		= bindir  + archdir;
-	const string	archlibdir		= libdir  + archdir;
+	const string	archbindir		= bindir  + ARCH + "/";
+	const string	archlibdir		= libdir  + ARCH + "/";
 	const string 	autodir 		= vardir  + "auto/";
 	const string 	musicdir 		= vardir  + "wav/";
 	const string 	rtspdir			= etcdir  + "rtsp/";
@@ -162,17 +169,15 @@ struct file_structure
 	const string 	tarexclude_file				= "/tmp/tarexclude";
 	const string	oceanrc_filename			= "ocean.rc";
 	const string	oceanrc_file 				= etcdir	+ oceanrc_filename;
-	const string	default_name				= "default";
-	const string	default_nte					= default_name + nte_type;
-	const string	rc_nte_file					= resourcedir + "Notes/" + default_nte;
-	const string	default_snd					= default_name + snd_type;
-	const string	rc_snd_file					= resourcedir + "Instruments/" + default_snd;
 	const string	kbdnotes_name				= "keyboardNotes";
 	const string	kbdnotes_file				= autodir + kbdnotes_name + nte_type;
 	const string	template_xmlname			= "template" + xml_type;
 	const string	template_xmlfile			= xmldir + template_xmlname;
 	const string	install_txt					= "install.txt";
 	const string	install_txtfile				= installdir + install_txt;
+	const string	default_name				= "default";
+	const string	default_nte					= default_name + nte_type;
+	const string	default_snd					= default_name + snd_type;
 };
 
 class Config_class

@@ -123,7 +123,7 @@ class EventLog_class :
 
 
 	Dataworld_class* 	DaTA;
-	string logfile_name = file_structure().reclog_file;
+	//	string logfile_name = file_structure().reclog_file;
 	struct event_struct
 	{
 		uint8_t 	sdsid = 0;
