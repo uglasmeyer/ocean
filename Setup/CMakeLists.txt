@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.31)
 set(OCEAN_PROJECT Setup)
 project(${OCEAN_PROJECT})
 
-set(WITHOUT_SHM 1)
+add_compile_options(-DWITHOUT_SHM )
+
 # Add an executable target
 add_executable(${OCEAN_PROJECT} 
 	${OCEAN_PROJECT}.cpp
