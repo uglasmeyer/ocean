@@ -191,7 +191,7 @@ void ViewInterface_class::F3_showStates()
 	StA.AddColumn( "Amp.",6);
 	StA.PrintHeader();
 
-	for( STAID_e n : StAMemIds )
+	for( StAId_e n : StAMemIds )
 	{
 		StA.AddRow( (int) n,
 					StAIdName( n ),

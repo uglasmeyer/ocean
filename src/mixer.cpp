@@ -53,7 +53,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	StA_param_t kbd_conf = Mem_param_struct( "Keyboard"	, data->Cfg_p->Config.kbd_sec );
 	StA_param_t nte_conf = Mem_param_struct( "Notes"	, data->Cfg_p->Config.kbd_sec );
 
-	STAID_e staid = STA_USER00;
+	StAId_e staid = STA_USER00;
 	for( const StA_param_t& param : { 	usr_conf, usr_conf, usr_conf, usr_conf,
 										ist_conf, kbd_conf, nte_conf, ext_conf }  )
 	{
@@ -62,7 +62,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 		StA.push_back( sta );
 		staid++;
 	}
-	for( STAID_e n : StAMemIds )
+	for( StAId_e n : StAMemIds )
 	{
 		StA[n].scanner.Data 		= StA[n].Data;
 		StA[n].scanner.mem_range.max= StA[n].param.size;
@@ -70,14 +70,16 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	}
 
 	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
-
 	StA[STA_NOTES   ].scanner.Set_wrt_len( max_frames );
 	StA[STA_NOTES   ].scanner.Set_fillrange( StA[STA_NOTES   ].param.size );
 
-	wd->Add_role_ptr( NOTESROLE		, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
-	wd->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
-	for( STAID_e staid : LowIds )
-		wd->Add_role_ptr( sta_rolemap.GetRoleid( staid ) , StA[ staid].Data, &StA[ staid].param.size );
+	Wd_p->Add_role_ptr( NOTESROLE	, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
+	Wd_p->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
+	for( StAId_e staid : LowIds )
+	{
+		RoleId_e sta_role = sta_rolemap.GetRoleid( staid );
+		Wd_p->Add_role_ptr( sta_role , StA[ staid ].Data, &StA[ staid ].param.size );
+	}
 
 	SetStAs();
 
@@ -101,9 +103,20 @@ Mixer_class::~Mixer_class()
 	DESTRUCTOR( className );
 };
 
+void Mixer_class::BeatClock( const uint8_t& bps )
+{
+	if ( ( bps > 0 ) and ( bps < measure_parts ) )
+	{
+		beat_clock = ( beat_clock + 1 ) % ( measure_parts / bps );
+		state.sync = ( beat_clock == 0 ); //follow instrument rythm if there is any
+	}
+	else
+		state.sync = true; // no rythm
+}
+
 void Mixer_class::Set_Wdcursor()
 {
-	STAID_e 	staid = sta_rolemap.GetStaid( sds->WD_status.roleId );
+	StAId_e 	staid = sta_rolemap.GetStaid( sds->WD_status.roleId );
 	if ( staid < STA_SIZE )
 		Wd_p->Set_wdcursor( StA[ staid ].scanner.rpos );
 }
@@ -124,7 +137,7 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 		sta.Reset();
 }
 
-void Mixer_class::Set_play_mode( const STAID_e& id, const bool& mode )
+void Mixer_class::Set_play_mode( const StAId_e& id, const bool& mode )
 {
 	Comment( INFO, "updating mixer id ", (int)id, " play:", (int) mode );
 	switch ( id )
@@ -141,7 +154,7 @@ void Mixer_class::Set_play_mode( const STAID_e& id, const bool& mode )
 };
 
 
-void Mixer_class::SetStA( STAID_e staId )
+void Mixer_class::SetStA( StAId_e staId )
 {	// distribution of sds->StA_state into StA[].state
 
 	Set_play_mode( staId , sds->StA_state_arr[staId].play );
@@ -156,8 +169,7 @@ void Mixer_class::SetStA( STAID_e staId )
 		}
 	}
 
-	StA[staId].Record_mode( sds->StA_state_arr[staId].store );
-
+//	StA[staId].Record_mode( sds->StA_state_arr[staId].store );
 	StA[ staId ].DynVolume.SetupVol( sds->StA_amp_arr[ staId ] , SLIDE );
 
 	sds->StA_state_arr[staId] = StA[staId].state.Get();
@@ -165,7 +177,7 @@ void Mixer_class::SetStA( STAID_e staId )
 }
 void Mixer_class::SetStAs()
 {
-	for ( STAID_e mixerId : AllIds )
+	for ( StAId_e mixerId : AllIds )
 	{
 		SetStA( mixerId );
 	}
@@ -262,33 +274,26 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	}
 
 	// add osc sound
-	if ( state.instrument )//StA[ STA_INSTRUMENT ].state.Play() )
+	if ( state.instrument )
 	{
-		add_mono( instrument_Data	, STA_INSTRUMENT );
+		add_mono( instrument_Data, STA_INSTRUMENT );
 	}
 	if ( StA[ STA_NOTES 	].state.Play() )
 	{
-		add_mono( notes_Data		, STA_NOTES );
+		add_mono( notes_Data	, STA_NOTES );
 	}
 	if ( StA[ STA_KEYBOARD  ].state.Play() )
 	{
-		add_mono( kbd_Data			, STA_KEYBOARD );
+		add_mono( kbd_Data		, STA_KEYBOARD );
 	}
 	set_sds_filled( STA_INSTRUMENT );
 	set_sds_filled( STA_NOTES );
 	set_sds_filled( STA_KEYBOARD );
 
-	// write/read StA sound
-	for ( uint staId : RecIds )// scan rec_ids and exclude notes from being overwritten by store_block
+	// read sound from StA
+	for ( uint staId : RecIds )
 	{
 		Storage_class& sta = StA[staId];
-
-		if( sta.state.Store() )
-			sta.Store_block( Mono.Data );
-
-		sds->StA_state_arr[staId].store		= sta.state.Store();
-		set_sds_filled( staId );
-
 		if ( sta.state.Play() )
 		{
 			Data_t* StAdata = sta.scanner.Next_read();
@@ -297,6 +302,17 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 				add_mono( StAdata, staId );
 			}
 		}
+	}
+	// write sound to StA
+	for ( uint staId : RecIds )
+	{
+		Storage_class& sta = StA[staId];
+		if( sta.state.Store() )
+			sta.Store_block( Mono.Data );
+
+		if (state.sync )
+			sds->StA_state_arr[staId].store = StA[staId].state.Store();
+		set_sds_filled( staId );
 	}
 
 	add_stereo( shm_addr ); 	// push sound to audio server

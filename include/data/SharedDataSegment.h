@@ -75,7 +75,7 @@ struct interface_struct // with reasonable defaults
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds //
 
-	STAID_e 		MIX_Id						= STA_INSTRUMENT;
+	StAId_e 		MIX_Id						= STA_INSTRUMENT;
 
 	uint8_t	 		FLAG						= CLEAR_KEY;
 	DYNAMIC 		frq_slidermode				= SLIDE;	//

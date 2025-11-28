@@ -39,7 +39,7 @@ using namespace std;
 #define MAYOR 4
 #define MINOR 0
 #define PATCH 4
-#define DATA_VERSION 38
+#define DATA_VERSION 39
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -59,7 +59,8 @@ const string License_text = R"(
 // Git comment:
 /*
 
-
+version 4.0.5	Synchronization of StAs recording with beat trigger
+				BeatTrigger DATA_VERSION 39
 version 4.0.4	Composer dialog mode - preparation
 				remove absolute path from make_moc.sh
 				Cannot shutdown running Synthesizer on high SDS by using SDSview

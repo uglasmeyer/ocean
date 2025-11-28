@@ -126,8 +126,8 @@ const uint 			SDSSTR_SIZE 	= 32; // 31char + 0x0
 const uint  		MAXQUESIZE		= 100;
 typedef 			array<uint8_t	, MAXQUESIZE>				deque_t ;
 typedef				array<appstate_t, NoAPPID>					appstate_arr_t;
-typedef				array<StA_state_t,STAID_e::STA_SIZE> 		StA_state_arr_t;
-typedef				array<uint8_t	, STAID_e::STA_SIZE>		StA_amp_arr_t;
+typedef				array<StA_state_t,StAId_e::STA_SIZE> 		StA_state_arr_t;
+typedef				array<uint8_t	, StAId_e::STA_SIZE>		StA_amp_arr_t;
 typedef				array<feature_t	, OSCIDSIZE >				feature_arr_t;
 typedef				array<spectrum_t, OSCIDSIZE>				spectrum_arr_t;
 typedef				array<adsr_t	, OSCIDSIZE>				adsr_arr_t;
@@ -137,7 +137,7 @@ typedef				char 										cstring_t[SDSSTR_SIZE];
 constexpr 	StA_state_arr_t default_StA_state_arr ()
 {
 	StA_state_arr_t arr {};
-	for( size_t n = 0; n < STAID_e::STA_SIZE; n++ )
+	for( size_t n = 0; n < StAId_e::STA_SIZE; n++ )
 		 arr[n] = default_StA_state;
 	return arr;
 };

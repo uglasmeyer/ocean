@@ -48,16 +48,15 @@ public:
 					Wavedisplay_class( Interface_class* sds );
 	virtual 		~Wavedisplay_class() = default;
 
-	void 			Add_role_ptr	( RoleId_t wd_role,
+	void 			Add_role_ptr	( RoleId_e wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
 	void 			Add_data_ptr	( OSCID_e wd_type,
-									RoleId_t wd_role,
+									RoleId_e wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
 	void 			SetDataPtr		( const WD_data_t& status  );
 	void 			Write_wavedata 	();
-	void 			Set_wdcursor	(int pos, int max );
 	void 			Set_wdcursor	(int pos );
 
 
@@ -80,6 +79,7 @@ private:
 
 	typedef 		wd_ptr_struct 	wd_ptr_t;
 	array< array< wd_ptr_t , WD_OSC_SIZE>,  WD_ROLES_SIZE >
+//	array< array< wd_ptr_t , WD_ROLES_SIZE >,  WD_OSC_SIZE >
 					data_ptr_mtx 	;
 	Data_t*			data_ptr 		= nullptr;
 	buffer_t		wd_frames		= 0;

@@ -37,6 +37,8 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* sds )
 {
 	this->className = Logfacility_class::className;
 	this->Sds_p = sds;
+	Assert_equal( roleNames.size(), (size_t) ROLE_SIZE );
+
 }
 
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
@@ -202,10 +204,7 @@ void Wavedisplay_class::SetDataPtr	( const WD_data_t& status  )
 	setFFTmode( status.fftmode );
 }
 
-void Wavedisplay_class::Set_wdcursor(int pos, int max )
-{
-	set_wdcursor( wavedisplay_len * pos / max );
-}
+
 void Wavedisplay_class::Set_wdcursor(int pos )
 {
 	int max = *data_ptr_mtx[wd_status.roleId][wd_status.oscId].frames;
@@ -235,7 +234,7 @@ void Wavedisplay_class::setFFTmode( const bool& mode )
 	if ( mode )
 		WdMode		= FFTID;
 }
-void Wavedisplay_class::Add_role_ptr( 	RoleId_t wd_role,
+void Wavedisplay_class::Add_role_ptr( 	RoleId_e wd_role,
 										Data_t* ptr,
 										buffer_t* wd_frames )
 {
@@ -246,15 +245,17 @@ void Wavedisplay_class::Add_role_ptr( 	RoleId_t wd_role,
 	}
 }
 void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
-										RoleId_t 	wd_role,
+										RoleId_e 	wd_role,
 										Data_t* 	ptr,
 										buffer_t* 	frames )
 {
-	Comment( INFO, "adding wave display: "	+
-					to_string( wd_role ) 	+ " " +
-					roleNames[ wd_role ]	+ " - " +
-					typeNames[ wd_type ] 	+ " " +
-					to_string( *frames));
+
+//	cout << "wd_role: " << (int) wd_role << endl;
+	Comment( INFO, "adding wave display: ",
+					(int)wd_role ,
+					roleNames[ wd_role ],
+					typeNames[ wd_type ],
+					(int) *frames );
 	if ( ptr == nullptr )
 	{
 		Exception("Undefined Wavedisplay" );
@@ -264,7 +265,7 @@ void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 	{
 		Exception( "wd_type out of bounds" );
 	}
-	data_ptr_mtx[ wd_role ][wd_type ] = { ptr, frames };;
+	data_ptr_mtx[ wd_role ][wd_type ] = wd_ptr_struct{ ptr, frames };
 
 
 

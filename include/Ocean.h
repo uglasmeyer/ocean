@@ -121,7 +121,7 @@ const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
 const uint16_t		min_msec			= 125;
-const uint16_t		measure_parts		= (uint16_t) (max_msec / min_msec);
+const uint16_t		measure_parts		= (uint16_t) (max_msec / min_msec); // = 16
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
@@ -270,7 +270,19 @@ const  vector<OSCID_e> oscIds  =
 };
 #define OSCIDSIZE 3
 
-enum RoleId_t : unsigned char
+typedef struct osc_struct
+{
+
+	const vector<string> typeNames =
+	{
+		"VCO",
+		"FMO",
+		"OSC",
+		""
+	};
+} osc_roles_t;
+
+enum RoleId_e : unsigned char
 {
 	INSTRROLE,
 	NOTESROLE,
@@ -282,45 +294,32 @@ enum RoleId_t : unsigned char
 	USER01ROLE,
 	USER02ROLE,
 	USER03ROLE,
-	NOROLE
+	ROLE_SIZE
 };
-
-typedef struct osc_struct
+const array<string, ROLE_SIZE> roleNames =
 {
-	const vector<string> roleNames =
-	{
-		"Instrument",
-		"Notes",
-		"Keyboard",
-		"External",
-		"Audio",
-		"ADSR"
-		"UserR+",
-		"UserL-",
-		"UserR-",
-		"UserL+"
-	};
-
-	const vector<string> typeNames =
-	{
-		"VCO",
-		"FMO",
-		"OSC",
-		""
-	};
-} osc_roles_t;
-
+	"Instrument",
+	"Notes",
+	"Keyboard",
+	"External",
+	"Audio",
+	"ADSR",
+	"UserR+",
+	"UserL-",
+	"UserR-",
+	"UserL+"
+};
 
 const vector<string> slidermodes =
 {
-		"Fixed",
-		"Slide",
-		"Combine"
+	"Fixed",
+	"Slide",
+	"Combine"
 };
 enum DYNAMIC : unsigned char
 { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
 
-enum STAID_e : unsigned char
+enum StAId_e : unsigned char
 {
 	STA_USER00 = 0,
 	STA_USER01,
@@ -330,8 +329,7 @@ enum STAID_e : unsigned char
 	STA_KEYBOARD,
 	STA_NOTES,
 	STA_EXTERNAL,
-	STA_SIZE,
-	NO_STA
+	STA_SIZE
 };
 
 

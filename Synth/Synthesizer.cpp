@@ -29,6 +29,7 @@ SOFTWARE.
 
 const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
 
+Trigger_class			BeatTrigger		{};
 Wavedisplay_class 		Wavedisplay		{ Sds };
 Wavedisplay_class*		Wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
@@ -40,16 +41,18 @@ External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, Wd_p );
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
 Musicxml_class			MusicXML		{ Cfg.fs };
-Event_class				Event{
-							&Instrument,
-							&Notes,
-							&Keyboard,
-							&Mixer,
-							&Wavedisplay,
-							&DaTA,
-							&External,
-							&ProgressBar,
-							&MusicXML};
+Event_class				Event
+{
+	&Instrument,
+	&Notes,
+	&Keyboard,
+	&Mixer,
+	&Wavedisplay,
+	&DaTA,
+	&External,
+	&ProgressBar,
+	&MusicXML
+};
 
 extern void 			SynthesizerTestCases();
 
@@ -105,11 +108,26 @@ void activate_sds()
 }
 
 
-
 void add_sound()
 {
 	Mixer.state 		= sds->mixer_state;
-	Mixer.state.kbd 	&= ( App.properties.keyboard | sds->StA_state_arr[ STA_KEYBOARD ].play );
+
+	Mixer.BeatClock( sds->adsr_arr[OSCID].bps );
+	// switch the record mode only if state.sync and trigger is active
+	if( Mixer.state.sync )
+	{
+		for( StAId_e staid : StAMemIds )
+		{
+			if ( Mixer.StA[staid].beattrigger.local_data.active )
+			{
+				Mixer.StA[staid].Record_mode( sds->StA_state_arr[staid].store );
+				Mixer.StA[staid].beattrigger.local_data.active = false; // trigger work is done
+			}
+		}
+	}
+//	coutf << Mixer.state.sync << Mixer.StA[0].beattrigger.local_data.active <<
+//			sds->StA_state_arr[0].store << Mixer.StA[0].state.Store() << endl;
+
 
 	if (( Mixer.state.instrument ) )
 	{
@@ -117,9 +135,8 @@ void add_sound()
 		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
-	else
-		Instrument.osc->kbd_trigger = true; // any time
 
+	Mixer.state.kbd 	&= ( App.properties.keyboard | sds->StA_state_arr[ STA_KEYBOARD ].play );
 	kbdInt_t key = App.KeyboardKey( false );
 	if ( Mixer.state.kbd )
 	{
@@ -164,6 +181,7 @@ void add_sound()
 	if (( sds->WD_status.roleId != AUDIOROLE )	)
 	{
 		Mixer.Set_Wdcursor();
+		sds->UpdateFlag = true;
 		Wavedisplay.Write_wavedata();
 	}
 }

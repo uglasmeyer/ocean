@@ -53,14 +53,16 @@ class Mixer_class :
 	Dataworld_class* 	DaTA			;
 	Wavedisplay_class*	Wd_p			;
 	sta_role_map		sta_rolemap		= sta_role_map();
+	int 				beat_clock 		= 0;
+
 	// provides and manages memory array
 public:
 
-	const vector<STAID_e>	AllIds		= Iota_T<STAID_e>( STA_USER00, STA_SIZE );
-	const vector<STAID_e>	RecIds 		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
-	const vector<STAID_e>	UsrIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
-	const vector<STAID_e>	HghIds		= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
-	const set<STAID_e>		LowIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
+	const vector<StAId_e>	AllIds		= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
+	const vector<StAId_e>	RecIds 		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
+	const vector<StAId_e>	UsrIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
+	const vector<StAId_e>	HghIds		= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
+	const set<StAId_e>		LowIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
 
 
 	typedef vector<Storage_class>		StorageArray_t;
@@ -86,10 +88,11 @@ public:
 //	void Store_noteline( uint8_t, Note_class* );
 	void 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
 	void 				Clear_StA_status( StA_state_arr_t& );
-	void 				Set_play_mode	( const STAID_e& id, const bool& play );
+	void 				Set_play_mode	( const StAId_e& id, const bool& play );
 	void 				SetStAs			();
-	void 				SetStA			( STAID_e mixerId );
+	void 				SetStA			( StAId_e mixerId );
 	void 				Set_Wdcursor	();
+	void 				BeatClock		( const uint8_t& bps );
 
 
 	void 				TestMixer		();

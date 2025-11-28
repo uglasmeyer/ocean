@@ -118,7 +118,7 @@ public:
 
     typedef struct cb_state_map
     {
-    	STAID_e			id; // Mixer id
+    	StAId_e			id; // Mixer id
     	QCheckBox*		cb;
     	bool*			state;
     } cb_state_t;
@@ -128,7 +128,7 @@ public:
 
     typedef struct sl_value_map
     {
-    	STAID_e			id; // Mixer id
+    	StAId_e			id; // Mixer id
     	QSlider*		sl;
     	uint8_t*		value;
     } sl_value_t;
@@ -187,10 +187,10 @@ private:
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
     void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_e, QLabel* );
-    void set_wdrole( RoleId_t roleid );
-    void setStaPlay( STAID_e id );
-    void setStaStored( STAID_e staId );
-    void toggle_store_sta( STAID_e id );
+    void set_wdrole( RoleId_e roleid );
+    void setStaPlay( StAId_e id );
+    void setStaStored( StAId_e staId );
+    void toggle_store_sta( StAId_e id );
 
 
 public slots:

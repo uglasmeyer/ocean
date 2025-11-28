@@ -31,6 +31,7 @@ SOFTWARE.
 
 #include <Synth/Synthesizer.h>
 
+
 void Event_class::TestHandler()
 {
 	TEST_START( className );
@@ -315,28 +316,26 @@ void Event_class::Handler()
 
 		break;
 	}
-	case STOP_STARECORD_KEY: // stop record on data array id
+	case STARECORD_STOP_KEY: // stop record on data array id
 	{
-		Value id { (int) (sds->MIX_Id) };
-		Comment(INFO,
-				"receive command <stop record on storage area " + id.str
-						+ ">");
-		Mixer->StA[id.val].Record_mode(false); // stop recording
+		int id = sds->MIX_Id ;
+		Info( "receive command <stop record on storage area", id, ">" );
+		sds->StA_state_arr[id].store = false;
+		Mixer->StA[id].beattrigger.local_data.active = true;
 		ProgressBar->Unset();
 		Sds->Commit();
 		break;
 	}
-	case STORESOUNDKEY: //start record
+	case STARECORD_START_KEY: //start record
 	{
-		Value MbNr { (int) (sds->MIX_Id) };
-		Comment(INFO,
-				"receiving command <store sound to memory bank " + MbNr.str
-						+ " >");
+		int id = sds->MIX_Id;
+		Info( "receive command <start record on storage area", id, ">" );
 		for (int StaId : StAMemIds)
 		{
-			if (MbNr.val == StaId)
+			if ( id == StaId)
 			{
-				Mixer->StA[StaId].Record_mode(true); // start record-stop play
+				sds->StA_state_arr[StaId].store = true;
+				Mixer->StA[id].beattrigger.local_data.active = true;
 				ProgressBar->Set(	Mixer->StA[StaId].Get_storeCounter_p(),
 									Mixer->StA[StaId].mem_ds.max_records);
 			}
@@ -358,7 +357,7 @@ void Event_class::Handler()
 	case RESET_STA_SCANNER_KEY : // Audioserver start record
 	{
 		Info( "Reset StA scanner");
-		for( STAID_e staid : StAMemIds )
+		for( StAId_e staid : StAMemIds )
 		{
 			Mixer->StA[staid].scanner.Set_rpos(0);
 		}
@@ -367,7 +366,7 @@ void Event_class::Handler()
 	}
 	case SETSTA_KEY:
 	{
-		STAID_e id = sds->MIX_Id;
+		StAId_e id = sds->MIX_Id;
 		Mixer->SetStA( id );
 		Sds->Commit();
 		break;
@@ -386,7 +385,7 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (STAID_e id : StAMemIds)
+		for (StAId_e id : StAMemIds)
 		{
 			Mixer->Set_play_mode(id, false);
 			sds->StA_state_arr[id].play = false;

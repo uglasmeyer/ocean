@@ -121,7 +121,7 @@ class Oscillator_base :
 
 public:
 	OSCID_e			typeId			= NOOSCID;
-	RoleId_t		roleId			= NOROLE;
+	RoleId_e		roleId			= ROLE_SIZE;
 	string 			osctype_name 	= "";
 
 	string 			oscrole_name 	= "";
@@ -152,8 +152,6 @@ public:
 					Oscillator_base( OSCID_e osc_type );
 	virtual 		~Oscillator_base()
 						{ DESTRUCTOR( className ); };
-
-	bool			kbd_trigger = false;
 
 	uint8_t 		Set_frequency( string frqName, uint mode );
 	uint8_t			Set_frequency( int idx, uint mode );

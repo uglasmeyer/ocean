@@ -34,27 +34,29 @@ SOFTWARE.
 
 //#include <data/Memorybase.h>
 
-
-constexpr string StAIdName( STAID_e sta_id )
+const array<std::string, STA_SIZE> StANames =
 {
-	switch ( sta_id )
+	"UserR+",
+	"UserL-",
+	"UserR-",
+	"UserL+",
+	"Instrument",
+	"Keyboard",
+	"Notes",
+	"External"
+};
+
+constexpr string StAIdName( StAId_e staid )
+{
+	if( staid < StANames.size() )
+		return StANames[ staid ];
+	else
 	{
-		case STA_USER00		: return "UserR+";
-		case STA_USER01		: return "UserL-";
-		case STA_USER02		: return "UserR-";
-		case STA_USER03		: return "UserL+";
-		case STA_INSTRUMENT	: return "Instrument";
-		case STA_KEYBOARD	: return "Keyboard";
-		case STA_NOTES		: return "Notes";
-		case STA_EXTERNAL	: return "External";
-		default 		: 	{
-							cout << "WARN: unknown Storage Area id: " << ( int)sta_id << endl;
-							return "";
-							};
+		cout << "WARN: unknown Storage Area id: " << ( int)staid << endl;
+		return "";
 	}
-	return "";
 }
-typedef array<STAID_e, STAID_e::STA_SIZE> 	StAarray_t; //SDS related
+typedef array<StAId_e, STA_SIZE> 	StAarray_t; //SDS related
 
 const 	StAarray_t 	StAMemIds =
 {
@@ -67,7 +69,7 @@ const 	StAarray_t 	StAMemIds =
 	STA_NOTES,
 	STA_EXTERNAL
 };
-const range_T<STAID_e> staid_range{ (STAID_e)0, STA_SIZE };
+const range_T<StAId_e> staid_range{ (StAId_e)0, STA_SIZE };
 
 struct mixer_state_struct
 {	// SDS related
@@ -82,8 +84,8 @@ typedef 	mixer_state_struct 	mixer_state_t;
 
 typedef struct sta_rolemap_data
 {
-	RoleId_t roleid;
-	STAID_e staid;
+	RoleId_e roleid;
+	StAId_e staid;
 } sta_rolemap_data_t;
 
 struct sta_role_map
@@ -99,24 +101,23 @@ struct sta_role_map
 		{ USER02ROLE	, STA_USER02 },
 		{ USER03ROLE	, STA_USER03 }
 	};
-	STAID_e GetStaid( RoleId_t role )
+	StAId_e GetStaid( RoleId_e role )
 	{
 		if ( role < sta_map_vec.size() )
 			return sta_map_vec[role].staid;
 		else
-			return NO_STA;
+			return STA_SIZE;
 	}
-	RoleId_t GetRoleid( STAID_e staid )
+	RoleId_e GetRoleid( StAId_e staid )
 	{
-		if ( staid < STA_INSTRUMENT )
-			return NOROLE;
 		for( sta_rolemap_data_t roleid_map : sta_map_vec )
 		{
 			if ( staid == roleid_map.staid )
 				return roleid_map.roleid;
 		}
-		return NOROLE;
+		return ROLE_SIZE;
 	}
 };
+
 
 #endif /* MIXERBASE_H_ */

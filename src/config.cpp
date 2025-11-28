@@ -382,7 +382,6 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 
 	for ( int ndx = 1; ndx < argc; ndx++ )
 	{
-		cout << ndx << endl;
 
 		string arg = argv[ ndx ];
 		if( arg[0] ==  '-' )
@@ -397,7 +396,6 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 		{
 			ch = 0;
 		}
-		cout << next << endl;
 
 		switch ( ch )
 		{

@@ -65,7 +65,7 @@ struct WD_data_struct
 {	// SDS related
 
 	OSCID_e 			oscId 			= OSCID;
-	RoleId_t			roleId 			= INSTRROLE;
+	RoleId_e			roleId 			= INSTRROLE;
 	bool 				fftmode			= false;
 	WdModeID_t 			wd_mode			= wavedisplay_struct::FULLID;
 	uint16_t			cursor			= 0;		// display current sound location in case of full wd_mode
@@ -74,7 +74,7 @@ struct WD_data_struct
 typedef WD_data_struct 	WD_data_t;
 
 const uint8_t 			WD_OSC_SIZE 	= NOOSCID;
-const size_t 			WD_ROLES_SIZE 	= NOROLE;
+const size_t 			WD_ROLES_SIZE 	= ROLE_SIZE;
 const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().types.size();
 
 const size_t 			wavedisplay_len	= 512;

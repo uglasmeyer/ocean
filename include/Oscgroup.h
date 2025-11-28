@@ -56,10 +56,10 @@ public:
 
 
 
-	RoleId_t				oscroleId;
+	RoleId_e				oscroleId;
 
 							//used by FileDialog, musicsml, variation
-							Oscgroup_class		( RoleId_t role, buffer_t bytes  );
+							Oscgroup_class		( RoleId_e role, buffer_t bytes  );
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 

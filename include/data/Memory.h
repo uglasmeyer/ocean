@@ -51,10 +51,10 @@ typedef struct trigger_data_struct
 class Trigger_class
 {
 	trigger_data_t* trigger_data; 	// watch dog point
-	trigger_data_t	local_data;		// dummy
 	string			name 			= "";
 
 public:
+	trigger_data_t	local_data		;		// dummy
 					Trigger_class	( string _name, trigger_data_t* _data );
 					Trigger_class	();
 	virtual			~Trigger_class	() = default;
@@ -238,12 +238,12 @@ class Storage_class :
 public:
 	// dynamic properties
 	StA_param_t 	param			= Mem_param_struct("",0 );
-	STAID_e 		Id				= NO_STA;
+	StAId_e 		Id				= STA_SIZE;
 	bool			is_RecId		= false;
 	uint 			record_data		= 0;
 	Dynamic_class	DynVolume		{ volidx_range };
 	Scanner_class	scanner 		{ nullptr, min_frames, 0 };
-
+	Trigger_class	beattrigger		{};
 	StAstate_class 	state 			{};//= StA_state_struct();
 
 	void 			Store_block		( Data_t* ) ;

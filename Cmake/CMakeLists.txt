@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.31)
-
 set(CMAKE_CXX_STANDARD 23)
+
 set(PROJECT_SOURCE_DIR 	$ENV{PWD})
 set(CMAKE_BINARY_DIR 	$ENV{HOME}/OceanDev)
 
-message(STATUS "Host Achitecture: ${ARCH}" )
+execute_process(
+    COMMAND uname -m
+    OUTPUT_VARIABLE ARCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message(STATUS "Host Achitecture (uname -m): ${ARCH}" )
 set(Qt6 /usr/include/${ARCH}-linux-gnu/qt6)
 
 if(EXISTS "${Qt6}" AND IS_DIRECTORY "${Qt6}")

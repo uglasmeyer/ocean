@@ -780,7 +780,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>190</y>
+       <y>220</y>
        <width>80</width>
        <height>23</height>
       </rect>
@@ -832,7 +832,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>220</y>
+       <y>190</y>
        <width>80</width>
        <height>23</height>
       </rect>
@@ -941,7 +941,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>190</y>
+       <y>220</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -957,7 +957,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>220</y>
+       <y>190</y>
        <width>160</width>
        <height>16</height>
       </rect>
@@ -1070,7 +1070,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>220</y>
+       <y>190</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -1083,7 +1083,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>190</y>
+       <y>220</y>
        <width>92</width>
        <height>23</height>
       </rect>
@@ -2127,7 +2127,7 @@ Instruments</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>190</y>
+       <y>220</y>
        <width>40</width>
        <height>24</height>
       </rect>
@@ -2143,7 +2143,7 @@ Instruments</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>220</y>
+       <y>190</y>
        <width>40</width>
        <height>24</height>
       </rect>

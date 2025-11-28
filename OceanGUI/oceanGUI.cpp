@@ -158,9 +158,9 @@ void MainWindow::chord_delay()
 	int value = ui->hs_chord_delay->value();
 	Sds->Set( Sds->addr->noteline_prefix.chord_delay, value );
 }
-void MainWindow::set_wdrole( RoleId_t roleid )
+void MainWindow::set_wdrole( RoleId_e roleid )
 {
-	if( roleid == NOROLE ) return;
+	if( roleid == ROLE_SIZE ) return;
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ roleid ] );
 
     Sds->Set( sds->WD_status.roleId, roleid );
@@ -352,15 +352,15 @@ void MainWindow::CombineFreq()
 		Sds->Set( Sds->addr->frq_slidermode, SLIDE );
 }
 
-void MainWindow::setStaPlay( STAID_e id )
+void MainWindow::setStaPlay( StAId_e staid )
 {
-    Sds->Set( Sds->addr->MIX_Id , id );
+    Sds->Set( Sds->addr->MIX_Id , staid );
 
-    bool	play= not Sds->addr->StA_state_arr[id].play;
-    Sds->Set( Sds->addr->StA_state_arr[id].play, play);
+    bool	play= not Sds->addr->StA_state_arr[staid].play;
+    Sds->Set( Sds->addr->StA_state_arr[staid].play, play);
     if( play )
    	{
-    	RoleId_t role = StaRole_map.GetRoleid( id );
+    	RoleId_e role = StaRole_map.GetRoleid( staid );
         set_wdrole( role );
         Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
    	}
@@ -402,7 +402,7 @@ void MainWindow::setStaPlay7(  )
 	setStaPlay( STA_EXTERNAL );
 }
 
-void MainWindow::setStaStored( STAID_e staId )
+void MainWindow::setStaStored( StAId_e staId )
 {
     Sds->Set( Sds->addr->MIX_Id , staId );
     bool filled = not Sds->addr->StA_state_arr[staId].filled;
@@ -443,17 +443,17 @@ void MainWindow::setStaStored7()
 	setStaStored( STA_EXTERNAL );
 }
 
-void MainWindow::toggle_store_sta( STAID_e id )
+void MainWindow::toggle_store_sta( StAId_e id )
 {
 
 	Sds->Set( Sds->addr->MIX_Id , id );
     if ( Sds->addr->StA_state_arr[id].store )
     {
-    	Eventlog.add( SDS_ID, STOP_STARECORD_KEY);
+    	Eventlog.add( SDS_ID, STARECORD_STOP_KEY);
     }
     else
     {
-        Eventlog.add( SDS_ID, STORESOUNDKEY);
+        Eventlog.add( SDS_ID, STARECORD_START_KEY);
     }
 };
 
@@ -804,7 +804,7 @@ void MainWindow::pB_Wavedisplay_clicked()
 {
 	uint8_t counter = Sds->addr->WD_status.roleId ;
 	counter = ( counter + 1 ) % WD_ROLES_SIZE;
-    Sds->Set( Sds->addr->WD_status.roleId , (RoleId_t) counter );
+    Sds->Set( Sds->addr->WD_status.roleId , (RoleId_e) counter );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY);
 
     ui->pB_Wavedisplay->setText( Qwd_role_names[ counter ] );

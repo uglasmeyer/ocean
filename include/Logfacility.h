@@ -204,7 +204,8 @@ public:
 		{
 			stringstream strs{};
 			strs << dec;
-			( strs <<  ... << args  ) ;
+			(( strs << args << " "	), ... );
+//			( strs <<  ...  << args ) ;
 			return cout_log( id, strs.str() );
 		}
 		return "";

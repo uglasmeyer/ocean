@@ -636,7 +636,7 @@ void Interpreter_class::Play( vector_str_t arr )
 
 	expect 			= { "storage id "};
 	if( not set_stack( arr, 3 ) ) return;
-	STAID_e staId 		= pop_T( staid_range );
+	StAId_e staId 		= pop_T( staid_range );
 
 	expect 			= { "amp" };
 	string k1 		= pop_stack( 1); // amp always
@@ -676,7 +676,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	if ( Cmpkeyword( "loop" ))
 	{
-		STAID_e	staid	= pop_T( staid_range );
+		StAId_e	staid	= pop_T( staid_range );
 		uint8_t end = pop_T( percent_range );
 
 		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
@@ -688,7 +688,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	}
 	if ( Cmpkeyword( "amp") )
 	{
-		STAID_e	staid	= pop_T( staid_range );
+		StAId_e	staid	= pop_T( staid_range );
 		expect 		= { "volume [%]" };
 		uint8_t 	amp 	= pop_T( amp_range );
 		Comment( INFO, "set amplitude of " + to_string(staid) + " to " + to_string(amp) + "%" );
@@ -720,7 +720,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 
 		expect 			= {"mem id 0..5"};
-		STAID_e	staid	= pop_T( staid_range );
+		StAId_e	staid	= pop_T( staid_range );
 		Processor_class::Push_ifd( &sds->MIX_Id, staid, "mixer id");
 		Processor_class::Push_key( PLAYNOTESREC_ON_KEY, "notes on");
 		return;
@@ -728,7 +728,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	if ( Cmpkeyword( "mute") )
 	{
-		STAID_e	staid	= pop_T( staid_range );
+		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "mute memory array: " + to_string(staid) );
 		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
 		Processor_class::Push_key(MUTEREC_KEY,  "stop sound" );
@@ -737,16 +737,16 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	if ( Cmpkeyword( "store") )
 	{
-		STAID_e id	= pop_T( staid_range );
+		StAId_e id	= pop_T( staid_range );
 		Comment( INFO, "store sound to: " + to_string(id) );
 		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
-		Processor_class::Push_key( STORESOUNDKEY, "store sound" );
+		Processor_class::Push_key( STARECORD_START_KEY, "store sound" );
 		return;
 	}
 
 	if ( Cmpkeyword( "clear") )
 	{
-		STAID_e	staid	= pop_T( staid_range );
+		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "clear " + to_string(staid) );
 		Processor_class::Push_ifd( &sds->MIX_Id, staid, "mixer id" );
 		Processor_class::Push_key( CLEAR_KEY,  "set clear" );
@@ -756,10 +756,10 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	if ( Cmpkeyword( "stop") )
 	{
-		STAID_e	staid	= pop_T( staid_range );
+		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "stop recording to: " + to_string(staid) );
 		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
-		Processor_class::Push_key( STOP_STARECORD_KEY, "stop sound" );
+		Processor_class::Push_key( TRIGGER_RECORD_KEY, "stop sound" );
 		return;
 	}
 

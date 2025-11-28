@@ -73,7 +73,6 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 	float		dbB 		= 0.5;
 	float 		dbH			= 1.0 - dbB;
 	uint		pos			= frame_offset;
-				kbd_trigger = false;
 
 	for ( uint m = 0; m < frames; m++ )
 	{
@@ -81,7 +80,6 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 										adsr_Mem.Data[ hall_cursor ]*dbH );
 		hall_cursor = ( hall_cursor + 1 ) % beat_frames;
 		beat_cursor = ( beat_cursor + 1 ) % beat_frames;
-		kbd_trigger = (( beat_cursor == 0 ) or kbd_trigger );
 		pos			= ( pos + 1 ) % adsr_frames;
 	}
 	if ( has_kbd_role )

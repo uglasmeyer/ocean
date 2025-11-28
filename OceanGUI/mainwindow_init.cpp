@@ -99,7 +99,14 @@ void MainWindow::initOscillatorDisplay()
     scene->addItem( OscWidget_item );
 }
 
+template <typename T, std::size_t N>
+std::vector<T> arrayToVector(const std::array<T, N>& arr)
+{
+    return std::vector<T>(arr.begin(), arr.end());
+}
+
 void MainWindow::initStateButtons()
+
 {
 	Qwd_osc_names 	= Vstringvector( typeNames );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
@@ -110,7 +117,7 @@ void MainWindow::initStateButtons()
 	Qwd_wdmode_names= Vstringvector( wavedisplay_struct().types );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ Sds->addr->WD_status.wd_mode ]);
 
-	Qwd_role_names 	= Vstringvector( roleNames );
+	Qwd_role_names 	= Vstringvector( arrayToVector( roleNames ) );
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ]);
 
     setButton( ui->pB_Rtsp, 2 );

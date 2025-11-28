@@ -48,4 +48,5 @@ SOFTWARE.
 extern void ComposerTestCases();
 extern void SynthesizerTestCases();
 
+
 #endif /* SYNTHESIZER_H_ */
