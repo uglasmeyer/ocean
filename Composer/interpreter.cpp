@@ -759,7 +759,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "stop recording to: " + to_string(staid) );
 		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
-		Processor_class::Push_key( TRIGGER_RECORD_KEY, "stop sound" );
+		Processor_class::Push_key( STARECORD_STOP_KEY, "stop record" );
 		return;
 	}
 
