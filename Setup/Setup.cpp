@@ -159,7 +159,9 @@ string get_check_sum( string _type )
 void Create_ReleaseNotes( source_struct Ss )
 {
 	string releasenotes_file = Ss.sourcedir + rn_filename;
-	fstream Release_notes { releasenotes_file, fstream::out };
+	Log.Info( "Creating the Release note file", releasenotes_file);
+
+	ofstream Release_notes { releasenotes_file };//, fstream::out };
 
 	const string rn_verification =
 	R"(Verification
@@ -220,6 +222,7 @@ void compare_environment()
 }
 void create_oceanrc( source_struct Ss )
 {
+	Log.Info( "Creating the", fs->oceanrc_file );
 	fstream Oceanrc	{};
 	Oceanrc.open	( fs->oceanrc_file, fstream::out );
 
@@ -233,6 +236,8 @@ void create_oceanrc( source_struct Ss )
 
 void symboliclink( string _src, string _sym, string _ext )
 {
+	Log.Info( "Creating the symbolic link structure");
+
 	auto overwrite_link = [ _src ]( string _link )
 	{
 		if( filesystem::exists( _link ))
@@ -318,9 +323,8 @@ void Copy_3rdpartylibs( source_struct Ss )
 int main(int argc, char **argv)
 {
 	Cfg.Parse_argv(argc, argv );
-	source_struct Ss { Cfg.Config.sourcedir };
+	source_struct 	Ss { Cfg.Config.sourcedir };
 
-//	file_structure	Fs { Cfg.Config.sourcedir, Cfg.Config.installdir };
 					fs =Cfg.fs;
 
 	if ( Cfg.Config.test == 'y' )
@@ -336,17 +340,17 @@ int main(int argc, char **argv)
 	overwrite ( Ss.resourcedir + fs->bkground_filename	, fs->bkground_file );
 	overwrite ( Ss.resourcedir + fs->setup_filename		, fs->setup_file );
 	overwrite ( Ss.resourcedir + fs->ipctool_filename	, fs->ipctool_file );
-	overwrite ( Ss.resourcedir + fs->config_filename		, fs->config_file );
-	overwrite ( Ss.resourcedir + fs->deploy_filename		, fs->deploy_file );
-	init_file ( fs->instrumentdir + ".test2.snd"			, Ss.resourcedir );
+	overwrite ( Ss.resourcedir + fs->config_filename	, fs->config_file );
+	overwrite ( Ss.resourcedir + fs->deploy_filename	, fs->deploy_file );
+	init_file ( fs->instrumentdir + ".test2.snd"		, Ss.resourcedir );
 
-	overwrite ( rc_snd_file							, fs->instrumentdir + fs->default_snd );
-	overwrite ( rc_nte_file							, fs->notesdir + fs->default_nte );
-	init_file ( fs->program_file							, Ss.resourcedir );
-	init_file ( fs->prog_libfile							, Ss.resourcedir );
+	overwrite ( rc_snd_file								, fs->instrumentdir + fs->default_snd );
+	overwrite ( rc_nte_file								, fs->notesdir + fs->default_nte );
+	init_file ( fs->program_file						, Ss.resourcedir );
+	init_file ( fs->prog_libfile						, Ss.resourcedir );
 	init_file ( fs->prog_testfile						, Ss.resourcedir );
 	overwrite ( Ss.resourcedir + fs->template_xmlname	, fs->template_xmlfile );
-	overwrite ( Ss.sourcedir + fs->install_txt		, fs->install_txtfile );
+	overwrite ( Ss.sourcedir + fs->install_txt			, fs->install_txtfile );
 
 	if( Cfg.Config.filename.length() > 0 )
 	{
@@ -379,14 +383,15 @@ int main(int argc, char **argv)
 	using filesystem::perm_options;
 
 	permissions( fs->deploy_file	, perms::owner_exec, perm_options::add );
-	permissions( fs->ipctool_file, perms::owner_exec, perm_options::add );
-
-	ConvertOdt2Pdf( Ss );
+	permissions( fs->ipctool_file	, perms::owner_exec, perm_options::add );
 
 	Copy_3rdpartylibs( Ss );
 
-	create_tararchive( Ss );
-
-	Create_ReleaseNotes( Ss );
+	if( Cfg.Config.archive == 'y' )
+	{
+		ConvertOdt2Pdf( Ss );
+		create_tararchive( Ss );
+		Create_ReleaseNotes( Ss );
+	}
 	return  0;
 }

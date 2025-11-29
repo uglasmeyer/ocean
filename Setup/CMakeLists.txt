@@ -20,7 +20,9 @@ target_link_directories(${OCEAN_PROJECT} PRIVATE
 # Link against the shared library (without 'lib' prefix or extension)
 target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean)
 
-execute_process(
-COMMAND 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Setup -S ${PROJECT_SOURCE_DIR}/..
-WORKING_DIRECTORY 	${CMAKE_CURRENT_SOURCE_DIR}
+add_custom_command(
+	TARGET 				${OCEAN_PROJECT}
+	POST_BUILD
+	COMMAND 			${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Setup -S ${PROJECT_SOURCE_DIR}/../
+	WORKING_DIRECTORY 	${CMAKE_CURRENT_SOURCE_DIR}
 )

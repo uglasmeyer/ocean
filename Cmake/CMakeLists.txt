@@ -33,5 +33,6 @@ add_subdirectory(../Rtsp 		build_Rtsp )
 add_subdirectory(../SDSview 	build_SDSview )
 add_subdirectory(../Synth 		build_Synth )
 
+# create a runtime directory
 add_subdirectory(../Setup 		build_Setup )
 

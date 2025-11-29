@@ -59,6 +59,7 @@ struct prgarg_struct
 	char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
 	char 		composer	= 'n';		// start rtsp with option -C
 	char 		oceangui	= 'n';		// start rtsp with option -G
+	char		archive		= 'n';		// setup creates no binary archive
 	string 		Genre		= "Alternative";
 	string 		author		= "U.G.";
 	string		title		= "Experimental";

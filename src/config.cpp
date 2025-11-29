@@ -245,7 +245,7 @@ void Config_class::CreateInstalldirs( )
 	{
 		if ( create_dir( dir ) )
 		{
-			Comment( BINFO, "Synthesizer directory ", dir, " created");
+			Comment( INFO, "Synthesizer directory ", dir, " created");
 		}
 	}
 }
@@ -256,7 +256,7 @@ void Config_class::Read_config(	string cfgfile )
 	map<string, string> 	Get = {}; // @suppress("Invalid template argument")
 
 	configfile = cfgfile;
-	Comment( DEBUG, "Reading config file " + configfile );
+	Comment( INFO, "Reading config file", configfile );
 
 	ifstream cFile( configfile  );
 	if ( not cFile.is_open() )
@@ -390,7 +390,10 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			if ( (ndx + 1) == argc  )
 				next = "" ;
 			else
+			{
 				next.assign( argv[ ndx + 1 ] );
+				ndx++;
+			}
 		}
 		else
 		{
@@ -406,11 +409,12 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			case 'r' : 	Config.rate 		= Str.to_int( next ); break;
 			case 't' : 	Config.test 		= 'y'				; break;
 			case 'v' : 	Set_Loglevel( DEBUG, true )				; break;
+			case 'A' : 	Config.archive		= 'y'				; break;
 			case 'C' : 	Config.composer		= 'y'				; break;
 			case 'D' : 	Config.dialog 		= 'y'				; break;
 			case 'G' : 	Config.oceangui		= 'y'				; break;
-			case 'I' : 	Config.installdir	= next 				; break;
-			case 'S' : 	Config.sourcedir	= next 				; break;
+			case 'I' : 	Config.installdir	= next = trailing_slash( next )	; break;
+			case 'S' : 	Config.sourcedir	= next = trailing_slash( next )	; break;
 			case 'V' :	Set_Loglevel( DEBUG, true );
 						Set_Loglevel( DBG2, true )				; break;
 			default  : 	Config.filename		= arg				; break;
@@ -457,7 +461,18 @@ void Config_class::Show_Config( bool debug )
 	Table.AddRow( "File name"			, Config.filename );
 }
 
-
+string Config_class::trailing_slash( const string& dir )
+{
+	size_t	len		= dir.length();
+	if( len == 0 )
+		return "";
+	size_t 	last = len-1;
+	char	ch	= dir[last];
+	if( ch == '/' )
+		return dir;
+	else
+		return dir + '/';
+}
 string Config_class::Server_cmd( string term, string srv, string srvopt)
 {
 
