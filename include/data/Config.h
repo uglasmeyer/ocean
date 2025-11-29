@@ -36,6 +36,8 @@ SOFTWARE.
 #include <Logfacility.h>
 #include <System.h>
 
+extern string getArch();
+
 struct source_struct
 	:	virtual public 	Logfacility_class
 {
@@ -46,7 +48,6 @@ struct source_struct
 	const string		architectur		= getArch();
 	const string		archdir			= architectur + "/";
 						source_struct	( string srcdir );
-	string				getArch			();
 	string 				read_installfile();
 	string 				resourceDir		();
 	void 				show_installdirs();
@@ -59,8 +60,8 @@ struct install_struct
 	const string 		homedir 		= notnull( getenv("HOME") ) + "/";
 	filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
 
-	const string		installdir	 	= notnull( getenv("OCEANDIR"));//read_installfile();
-	const string		ARCH			= notnull( getenv("ARCH"));
+	const string		installdir	 	= oceanDir();////read_installfile();
+	const string		ARCH			= getArch();
 	string				oceanDir		();
 
 						install_struct	() ;
@@ -188,7 +189,7 @@ class Config_class
 public:
 	process_t		Process				{};
 	file_structure	Fs					{};
-	file_structure*	fs					= &Fs;
+	file_structure*	fs					;
 	string 			configfile 			{};
 	string 			prgName				{};
 	prgarg_t		Config 				= prgarg_struct();

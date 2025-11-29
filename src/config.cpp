@@ -104,7 +104,8 @@ string source_struct::resourceDir()
 }
 
 #include <sys/utsname.h>
-string source_struct::getArch()
+
+string getArch()
 {
     struct utsname utsbuf;
     uname( &utsbuf );
@@ -115,9 +116,15 @@ string source_struct::getArch()
 string install_struct::oceanDir( )
 {
 
-	string basedir = "";
+	string oceandir = notnull( getenv( OCEANDIR ));
+	if( oceandir.length() == 0 )
+	{
+		oceandir = homedir + "OceanDev/";
+		Comment( WARN, "Using default", oceandir );
+	}
+	return oceandir;
 
-	// oceandir
+	string basedir = "";
 	const string Envvar = OCEANDIR;
 	string Env = notnull( std::getenv( Envvar.data()) );
 	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
@@ -202,7 +209,7 @@ Config_class::Config_class() :
 {
 	className 			= Logfacility_class::className;
 	prgName				= Process.name;
-
+	fs					= &Fs;
 	if( not ( Process.AppId == SETUPID ))
 	{
 		Comment( INFO, "Program name: ", prgName );
@@ -213,11 +220,6 @@ Config_class::Config_class() :
 	{
 		Read_config( fs->config_file );
 	}
-//	if( filesystem::is_regular_file( fs->sourcedir + fs->config_filename ) )
-//	{
-//		Read_config( fs->sourcedir + fs->config_filename );
-//	}
-
 };
 
 
@@ -395,7 +397,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 				ndx++;
 			}
 		}
-		else
+		else // assign filename
 		{
 			ch = 0;
 		}
@@ -420,9 +422,12 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			default  : 	Config.filename		= arg				; break;
 		}
 	}
-	cout << "Config.filename  " << Config.filename << endl;
-	cout << "Config.sourcedir " << Config.sourcedir << endl;
-
+	if( Process.AppId == SETUPID )
+	{
+		Info( "Config.filename  ", Config.filename );
+		Info( "Config.sourcedir ", Config.sourcedir);
+		Info( "Config.installdir", Config.installdir);
+	}
 }
 
 void Config_class::Show_Config( bool debug )

@@ -56,12 +56,7 @@ By default the generated makefile system will create the binary files in HOME/Oc
 Check also the correctness of include dirctory Qt6. Especially in case of a porting.
 Enter the command: 
 
-- cmake -DARCH=x86_64 CMakeLists.txt
-
-or 
-
-- cmake -DARCH=aarch64 CMakeLists.txt
-
+- cmake CMakeLists.txt
 
 if this was successful,
 - Enter the command: make

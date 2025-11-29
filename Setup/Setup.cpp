@@ -227,7 +227,7 @@ void create_oceanrc( source_struct Ss )
 	Oceanrc.open	( fs->oceanrc_file, fstream::out );
 
 	Oceanrc << "export " << OCEANDIR << "=" << fs->installdir << endl;
-	Oceanrc << "export ARCH=" << Ss.getArch() << endl;
+	Oceanrc << "export ARCH=" << getArch() << endl;
 	Oceanrc << "PATH=$(echo $PATH | sed \"s|$OCEANDIR/bin:||g\")" << endl;
 	Oceanrc << "LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed \"s|$OCEANDIR/lib:||g\")" << endl;
 	Oceanrc << "export PATH=$" << OCEANDIR << "/bin:$PATH" << endl;
@@ -276,7 +276,7 @@ void install_binary( string _bin, string _ext )
 //#include <System.h>
 void Setup_Test( source_struct Ss )
 {
-	cout << "Architecture: " << Ss.getArch() << endl;
+	cout << "Architecture: " << getArch() << endl;
 	cout << "Source Dir:   " << Ss.sourcedir << endl;
 	Ss.show_installdirs();
 }
@@ -336,7 +336,9 @@ int main(int argc, char **argv)
 	const string	rc_snd_file					= Ss.resourcedir + "Instruments/" + fs->default_snd;
 
 	bool full_setup = not filesystem::is_directory( fs->installdir );
+
 	Cfg.CreateInstalldirs( );
+
 	overwrite ( Ss.resourcedir + fs->bkground_filename	, fs->bkground_file );
 	overwrite ( Ss.resourcedir + fs->setup_filename		, fs->setup_file );
 	overwrite ( Ss.resourcedir + fs->ipctool_filename	, fs->ipctool_file );
