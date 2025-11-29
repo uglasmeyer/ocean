@@ -4,7 +4,7 @@ Summary
 - Prebuilt binary distribution for release 4.0.5-39 (tarball).
 
 what's included
-- ocean_sound_lab_4.0.5-39.tar.gz - prebuilt binaries for linux x86_64, Ubuntu libc.so.6
+- ocean_sound_lab_4.0.5-39_x86_64.tar.gz - prebuilt binaries for linux x86_64, Ubuntu libc.so.6
 and supporting files.
 
 - Ocean Sound Lab provides a programmable set of Sound Managing Applications, such as Synthesizer, 
@@ -21,14 +21,14 @@ and is tested and compiled on ubuntu 2025-10 for x86_64.
 Installation
 1. Download the tarball from the Release assets.
 2. Extract:
-   tar -xzf ocean_sound_lab_4.0.5-39.tar.gz
+   tar -xzf ocean_sound_lab_4.0.5-39_x86_64.tar.gz
 3. Follow the install.txt inside the extracted folder for runtime/setup instructions.
 
 Verification
 	- verify cksum (as provided by packager):
-	568967628 79544624 ocean_sound_lab_4.0.5-39.tar.gz
+	367108019 68285497 ocean_sound_lab_4.0.5-39_x86_64.tar.gz
 - verify SHA-256 locally: 
-9ab1214f0bc494cc6f8dbd2f171379e4b6bb116fb649ccf3b9e92e26cec226e9  ocean_sound_lab_4.0.5-39.tar.gz
+1c036cbdf30a34de25d789317fd3c365f012c012373fc3db4b9adb5641c7bd75  ocean_sound_lab_4.0.5-39_x86_64.tar.gz
 - Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256
 
 License & source

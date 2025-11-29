@@ -112,13 +112,33 @@ void Mixer_class::BeatClock( const uint8_t& bps )
 	}
 	else
 		state.sync = true; // no rythm
+
+	// switch the record mode only if state.sync and trigger is active
+	if( state.sync )
+	{
+		for( StAId_e staid : StAMemIds )
+		{
+			if ( StA[staid].beattrigger.local_data.active )
+			{
+				StA[staid].Record_mode( sds->StA_state_arr[staid].store );
+				StA[staid].beattrigger.local_data.active = false; // trigger work is done
+			}
+		}
+	}
+//	coutf << Mixer.state.sync << Mixer.StA[0].beattrigger.local_data.active <<
+//			sds->StA_state_arr[0].store << Mixer.StA[0].state.Store() << endl;
+
 }
 
 void Mixer_class::Set_Wdcursor()
 {
 	StAId_e 	staid = sta_rolemap.GetStaid( sds->WD_status.roleId );
 	if ( staid < STA_SIZE )
-		Wd_p->Set_wdcursor( StA[ staid ].scanner.rpos );
+	{
+		buffer_t rpos = StA[ staid ].scanner.rpos;
+		Wd_p->Set_wdcursor( rpos );
+		Comment( DEBUG, "Set_Wdcursor", (int) staid, rpos );
+	}
 }
 
 void Mixer_class::clear_memory()
@@ -135,6 +155,19 @@ void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
 			{ state.store = false;});
 	for ( Storage_class sta : StA )
 		sta.Reset();
+}
+
+void Mixer_class::Set_staVolume( const StAId_e& id, uint8_t vol )
+{
+	StA[id].DynVolume.SetupVol( vol, sds->vol_slidemode );
+}
+void Mixer_class::auto_volume( const StAId_e& id)
+{
+	if( sds->StA_amp_arr[id] == 0 )
+	{
+		sds->StA_amp_arr[id] = osc_default_volume;
+		Set_staVolume( id, osc_default_volume );
+	}
 }
 
 void Mixer_class::Set_play_mode( const StAId_e& id, const bool& mode )
@@ -157,7 +190,8 @@ void Mixer_class::Set_play_mode( const StAId_e& id, const bool& mode )
 void Mixer_class::SetStA( StAId_e staId )
 {	// distribution of sds->StA_state into StA[].state
 
-	Set_play_mode( staId , sds->StA_state_arr[staId].play );
+	bool play = sds->StA_state_arr[staId].play;
+	Set_play_mode( staId , play );
 
 	StA[staId].state.Filled( sds->StA_state_arr[staId].filled );
 	if ( not StA[staId].state.Filled() )
@@ -168,9 +202,10 @@ void Mixer_class::SetStA( StAId_e staId )
 			Set_play_mode( staId , false );
 		}
 	}
-
-//	StA[staId].Record_mode( sds->StA_state_arr[staId].store );
-	StA[ staId ].DynVolume.SetupVol( sds->StA_amp_arr[ staId ] , SLIDE );
+	if( StA[staId].state.Play() )
+	{
+		auto_volume( staId );
+	}
 
 	sds->StA_state_arr[staId] = StA[staId].state.Get();
 
@@ -294,7 +329,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 	for ( uint staId : RecIds )
 	{
 		Storage_class& sta = StA[staId];
-		if ( sta.state.Play() )
+		if ( sta.state.Play() and ( not sta.state.Store()) ) //don't play if record
 		{
 			Data_t* StAdata = sta.scanner.Next_read();
 			if ( StAdata )

@@ -58,7 +58,7 @@ const string License_text = R"(
 
 // Git comment:
 /*
-
+				feature autovolume
 version 4.0.5	Synchronization of StAs recording with beat trigger
 				BeatTrigger DATA_VERSION 39
 version 4.0.4	Composer dialog mode - preparation

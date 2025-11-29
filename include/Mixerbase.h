@@ -103,18 +103,16 @@ struct sta_role_map
 	};
 	StAId_e GetStaid( RoleId_e role )
 	{
-		if ( role < sta_map_vec.size() )
-			return sta_map_vec[role].staid;
-		else
-			return STA_SIZE;
+		for( sta_rolemap_data_t rolemap : sta_map_vec )
+			if( role == rolemap.roleid )
+				return rolemap.staid;
+		return STA_SIZE;
 	}
 	RoleId_e GetRoleid( StAId_e staid )
 	{
 		for( sta_rolemap_data_t roleid_map : sta_map_vec )
-		{
 			if ( staid == roleid_map.staid )
 				return roleid_map.roleid;
-		}
 		return ROLE_SIZE;
 	}
 };

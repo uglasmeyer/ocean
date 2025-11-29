@@ -50,7 +50,7 @@ Interpreter_class::Interpreter_class( Application_class* app )
 	main_view.name		= "Main osc";
 	main_view.oscid		= OSCID;
 	main_view.wfkey 	= SETWAVEFORMMAINKEY;
-	main_view.ampkey 	= SETSTA_KEY;//MASTERAMP_KEY;
+	main_view.ampkey 	= STA_VOLUME_KEY; //manage volume of the STA_INSTRUMENT
 	main_view.freqkey 	= OSCFREQUENCYKEY;
 
 	vco_view.name		= "VCO";
@@ -696,7 +696,8 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[ staid ], amp, "mixer volume" );
 		Processor_class::Push_ifd( &sds->StA_state_arr[staid].play, true, "true" );
-		Processor_class::Push_key( SETSTA_KEY	, "set StAs" );
+		Processor_class::Push_key( SETSTA_KEY		, "set StA State" );
+		Processor_class::Push_key( STA_VOLUME_KEY	, "set StA Volume" );
 
 		Processor_class::Push_key( RESET_STA_SCANNER_KEY	, "reset StAscanner" );
 

@@ -364,6 +364,13 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
+	case STA_VOLUME_KEY :
+	{
+		StAId_e staid = sds->MIX_Id;
+		Mixer->Set_staVolume( staid, sds->StA_amp_arr[staid] );
+		Sds->Commit();
+		break;
+	}
 	case SETSTA_KEY:
 	{
 		StAId_e id = sds->MIX_Id;

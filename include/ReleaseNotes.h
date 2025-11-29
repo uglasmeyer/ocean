@@ -34,11 +34,13 @@ SOFTWARE.
 
 #include <Version.h>
 
+extern string getArch();
 
 const string rn_filename = "RELEASE_NOTES.md";
 const string rn_newline = "\n\n";
 const string rn_appname = "ocean_sound_lab";
-const string rn_archive = rn_appname + "_" + Version_No + ".tar";
+const string rn_architecture = getArch();
+const string rn_archive = rn_appname + "_" + Version_No + "_" + rn_architecture + ".tar";
 const string rn_tgz = rn_archive + ".gz";
 const string rn_tag = "v" + Version_No;
 const string rn_userdoc = "Ocean-SL_Usermanual";

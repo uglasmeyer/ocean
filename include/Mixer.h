@@ -93,6 +93,7 @@ public:
 	void 				SetStA			( StAId_e mixerId );
 	void 				Set_Wdcursor	();
 	void 				BeatClock		( const uint8_t& bps );
+	void 				Set_staVolume	( const StAId_e& id, uint8_t vol );
 
 
 	void 				TestMixer		();
@@ -101,6 +102,8 @@ private:
 	void 				clear_memory	();
 	void 				add_mono		( Data_t*, const uint& staId );
 	void 				add_stereo		( Stereo_t* Data  );
+	void 				auto_volume		( const StAId_e& id);
+
 };
 
 

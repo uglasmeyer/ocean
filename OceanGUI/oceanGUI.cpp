@@ -504,7 +504,7 @@ void MainWindow::mixer_slider( sl_value_t map )
 {
     Sds->Set( Sds->addr->MIX_Id , map.id );
     Sds->Set( *map.value, (uint8_t)map.sl->value() );
-    Eventlog.add( SDS_ID, SETSTA_KEY);
+    Eventlog.add( SDS_ID, STA_VOLUME_KEY );
 };
 
 void MainWindow::Sl_mix0( int value )

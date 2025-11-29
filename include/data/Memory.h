@@ -90,6 +90,7 @@ public:
 
 	Data_t* 				Next_read			();
 	void 					Next_write			( buffer_t n );
+	void					Reset				();
 	Data_t* 				Set_rpos			( buffer_t n );
 	buffer_t 				Set_wpos			( buffer_t n );
 	void 					Set_wrt_len			( buffer_t n );

@@ -86,6 +86,10 @@ void activate_sds()
 	for ( uint id : Mixer.RecIds )
 		sds->StA_state_arr[id].play = false;
 
+	// init sound volume on StAs
+	std::ranges::for_each( StAMemIds, []( StAId_e id )
+			{ 	Mixer.Set_staVolume( id, sds->StA_amp_arr[id] );} );
+
 	std::ranges::for_each( init_keys, [  ]( EVENTKEY_e key )
 			{	DaTA.Sds_p->Eventque.add( key );	} );
 
@@ -113,21 +117,6 @@ void add_sound()
 	Mixer.state 		= sds->mixer_state;
 
 	Mixer.BeatClock( sds->adsr_arr[OSCID].bps );
-	// switch the record mode only if state.sync and trigger is active
-	if( Mixer.state.sync )
-	{
-		for( StAId_e staid : StAMemIds )
-		{
-			if ( Mixer.StA[staid].beattrigger.local_data.active )
-			{
-				Mixer.StA[staid].Record_mode( sds->StA_state_arr[staid].store );
-				Mixer.StA[staid].beattrigger.local_data.active = false; // trigger work is done
-			}
-		}
-	}
-//	coutf << Mixer.state.sync << Mixer.StA[0].beattrigger.local_data.active <<
-//			sds->StA_state_arr[0].store << Mixer.StA[0].state.Store() << endl;
-
 
 	if (( Mixer.state.instrument ) )
 	{
@@ -174,7 +163,6 @@ void add_sound()
 						Notes.NotesData,
 						shm_addr
 						);
-
 
 	ProgressBar.Update();
 

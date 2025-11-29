@@ -112,6 +112,13 @@ void Scanner_class::Next_write( buffer_t n )
 {
 	Set_wpos( wpos + n );;
 }
+void Scanner_class::Reset()
+{
+	rpos	= 0;
+	wpos	= 0;
+	fillrange.max = 0;
+}
+
 Data_t* Scanner_class::Set_rpos( buffer_t n )
 {
 	rpos = check_cycle( fillrange, n, "Set_pos" );
@@ -224,9 +231,7 @@ void Storage_class::Reset( )
 	read_counter  		= 0;
 	state.Store			( false );
 	state.Filled		( false );
-	scanner.Set_rpos	(0);
-	scanner.Set_wpos	(0);
-	scanner.Set_fillrange ( 0 );
+	scanner.Reset		();
 	Clear_data			(0);
 //	coutf << "clear sta" << (int)Id << " " << mem_ds.data_blocks << endl;
 }
