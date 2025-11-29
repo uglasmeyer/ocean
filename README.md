@@ -10,7 +10,7 @@ libraries for Qt6, RtAudio and tinyxml2. It is tested and compiled on ubuntu 202
 
 A screen shot of the graphical user interface shall illustrate some of its feature:
 
-![Ocean-SL on screen][Resource/Ocean-SL.png]
+![Ocean-SL on screen](Resource/Ocean-SL.png)
  
 which
 Author Ulrich Glasmeyer, Germany, during the time 2023 - 2025+
