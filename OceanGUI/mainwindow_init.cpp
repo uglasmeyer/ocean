@@ -72,7 +72,6 @@ void MainWindow::initLables()
 }
 void MainWindow::initComboBoxes()
 {
-    CB_external         = ui->cb_external;
     string wavfile_path = fs->musicdir;
     CB_external->clear();
 
@@ -320,7 +319,7 @@ void MainWindow::initUiConnectors()
     connect(ui->SliderFMOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Adjust(int) ));
     connect(ui->SliderVCOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Adjust(int) ));
 
-    connect(ui->cb_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
+    connect(ui->cB_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
 
     connect(ui->cb_connect_fmov	, SIGNAL(clicked( bool ))	,this, SLOT( connect_fmov( bool ) ));
     connect(ui->cb_connect_vcov	, SIGNAL(clicked( bool ))	,this, SLOT( connect_vcov( bool ) ));
