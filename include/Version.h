@@ -38,7 +38,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 1
-#define PATCH 1
+#define PATCH 2
 #define DATA_VERSION 40
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -58,7 +58,9 @@ const string License_text = R"(
 
 // Git comment:
 /*
-version 4.1.1	cb_external unknown syymbol
+
+version 4.1.2	Synthesizer test function core
+version 4.1.1	cb_external unknown symbol
 version 4.1.0	Ocean GUI - Cut Desk
 				DATA_VERSION 40 Wd_state record information
 				Wavedisplay Focus on action

@@ -61,8 +61,8 @@ void Interface_class::selfTest( )
 	APPID appid = APPID::AUDIOID;
 	APPID value = addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
 	Assert_equal( value ,  appid );
-	uint16_t record = addr->WD_status.direction;
-	Assert_equal( record, (uint16_t)0, "Wd_status.record" );
+	Direction_e record = addr->WD_status.direction;
+	Assert_equal( record, wavedisplay_struct::NO_direction, "Wd_status.record" );
 }
 
 Interface_class::Interface_class( 	APPID appid,

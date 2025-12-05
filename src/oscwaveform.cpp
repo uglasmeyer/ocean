@@ -29,10 +29,10 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#include <numbers>
 #include <Oscwaveform.h>
 #include <String.h>
 
+const double pi = 3.141592654;
 
 random_device 	rd;
 mt19937 		engine(rd());
@@ -127,7 +127,6 @@ Data_t Rnd_step( param_t& p )
 	return p.amp * step * rnd_step ;
 }
 
-frq_t pi = numbers::pi;
 const vector<waveFnc_struct> waveFunction_vec
 {
 //     fnc         visible name   maxphi  width

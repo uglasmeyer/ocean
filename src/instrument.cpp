@@ -609,7 +609,7 @@ void Instrument_class::Test_Instrument()
 		Oscgroup.Data_Reset();
 		Oscgroup.Run_OSCs( 0 );
 		float amp1 = Oscgroup.osc.MemData(0) ;
-//		cout << amp0 << " " << amp1 << " " << Oscgroup.osc.phase[0] << " " << (int)Oscgroup.osc.wp.frqidx << endl;
+		cout << amp0 << " " << amp1 << " " << numbers::pi << endl;
 		string com = "member" + to_string(n);
 		ASSERTION( fcomp( amp0, amp1), com.data(),
 					abs ( amp1- amp0 ), "~0" );

@@ -87,6 +87,8 @@ MainWindow::MainWindow(	QWidget *parent ) :
 {
 	className		= Logfacility_class::className;
 	ui->setupUi(this);
+	CB_external = ui->cB_external;
+
 	initPanel();
 	initLables();
 
