@@ -42,6 +42,7 @@ class Wavedisplay_class :
 	virtual public 	osc_struct
 {
 	Interface_class* Sds_p 			= nullptr;
+	range_T<int> wdwindow			{ 0, 0 };
 
 public:
 
@@ -55,13 +56,14 @@ public:
 									RoleId_e wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
-	void 			SetDataPtr		( const WD_data_t& status  );
+	void 			SetDataPtr		( WD_data_t& status  );
 	void 			Write_wavedata 	();
 	void 			Set_wdcursor	(int pos );
+	void 			Set_WdRole		(const RoleId_e &role);
+	void 			Set_wdmode		( const WdModeID_t& mode );
 
 
 private:
-	void 			set_wdmode		( const WdModeID_t& mode );
 	void 			setFFTmode		( const bool& mode );
 	void 			set_wdcursor	( uint16_t pos );
 
@@ -70,7 +72,7 @@ private:
 	buffer_t 		offs 			= 0;
 	size_t 			wdId 			= 0;
 	size_t			osId			= 0;
-	WdModeID_t		WdMode			= wavedisplay_struct::FULLID;
+	WdModeID_t		WdMode			= FULLID;
 	struct wd_ptr_struct
 	{
 		Data_t* 	ptr		= nullptr;
@@ -79,7 +81,6 @@ private:
 
 	typedef 		wd_ptr_struct 	wd_ptr_t;
 	array< array< wd_ptr_t , WD_OSC_SIZE>,  WD_ROLES_SIZE >
-//	array< array< wd_ptr_t , WD_ROLES_SIZE >,  WD_OSC_SIZE >
 					data_ptr_mtx 	;
 	Data_t*			data_ptr 		= nullptr;
 	buffer_t		wd_frames		= 0;
@@ -103,7 +104,7 @@ private:
 	param_t param_flow	= param_struct();
 	param_t param_full 	= param_struct(); // dynamic parameter are overwritten{ 0, wavedisplay_len		, max_frames/wavedisplay_len, max_frames };
 	param_t param_split	= { 0, wavedisplay_len / 2	, 1 						, max_frames };//frames_per_sec };
-
+	param_t param_cursor= { 0, wavedisplay_len, 0, 0 };
 };
 
 #endif /* WAVEDISPLAY_H_ */

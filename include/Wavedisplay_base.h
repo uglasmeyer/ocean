@@ -40,7 +40,8 @@ struct wavedisplay_struct
 	{
 		"Full",
 		"Flow",
-		"Debug"
+		"Debug",
+		"Cursor"
 	};
 	const vector<string> fftmodes =
 	{
@@ -52,7 +53,17 @@ struct wavedisplay_struct
 		FULLID,
 		FLOWID,
 		DEBUGID,
+		CURSORID,
 		FFTID
+	};
+	enum Direction_e
+	{
+		BACK_LEFT,
+		BACK_RIGHT,
+		FRONT_LEFT,
+		FRONT_RIGHT,
+		GOTO_END,
+		NO_direction
 	};
 
 };
@@ -60,17 +71,22 @@ typedef wavedisplay_struct
 						wavedisplay_t;
 typedef wavedisplay_t::WDMODE_t
 						WdModeID_t;
-
+typedef wavedisplay_t::Direction_e
+						Direction_e;
 struct WD_data_struct
 {	// SDS related
 
 	OSCID_e 			oscId 			= OSCID;
 	RoleId_e			roleId 			= INSTRROLE;
 	bool 				fftmode			= false;
-	WdModeID_t 			wd_mode			= wavedisplay_struct::FULLID;
-	uint16_t			cursor			= 0;		// display current sound location in case of full wd_mode
-
+	WdModeID_t 			wd_mode			= wavedisplay_t::FULLID;
+	uint16_t			cursor			= 0; // display current sound location in case of full wd_mode
+	Direction_e			direction		= wavedisplay_t::NO_direction; // cut cursor direction
+	buffer_t			min				= 0; // cut record window min
+	buffer_t			max				= 1; // cut record window max
+	buffer_t			max_records		= 1; // memory max records
 } ;
+
 typedef WD_data_struct 	WD_data_t;
 
 const uint8_t 			WD_OSC_SIZE 	= NOOSCID;

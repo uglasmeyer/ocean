@@ -653,7 +653,7 @@ void Interpreter_class::Play( vector_str_t arr )
 			Processor_class::Push_ifd( &sds->MIX_Id , staId, "mixer id" );
 			Processor_class::Push_ifd( &sds->StA_amp_arr[staId] , max, "% slide duration " );
 			Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
-			Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
+			Processor_class::Push_key( STA_VOLUME_KEY, "set loop volume" );
 			Loop( max, NULLKEY);
 			return;
 		}
@@ -682,7 +682,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[staid] , end, "% slide duration " );
 		Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
-		Processor_class::Push_key( EXTERNAL_AMPLOOP_KEY	, "set loop volume" );
+		Processor_class::Push_key( STA_VOLUME_KEY, "set loop volume" );
 
 		return;
 	}

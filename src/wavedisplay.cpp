@@ -110,6 +110,19 @@ void Wavedisplay_class::gen_cxwave_data( )
 			idx++;
 		}
 	};
+	auto gen_cursor = [ this ]( WD_data_t wd_param )
+	{
+		uint16_t	idx 	= 0;
+		uint		step	= ( wd_param.max - wd_param.min ) / wavedisplay_len ;
+					offs	= wd_param.min;
+
+		for ( buffer_t n = offs; n < wd_param.max; n = n + step )
+		{
+			Data_t value = data_ptr[n] ;
+			display_data[ idx ] = value;
+			idx++;
+		}
+	};
 
 	if ( data_ptr == nullptr )
 	{
@@ -133,6 +146,12 @@ void Wavedisplay_class::gen_cxwave_data( )
 			param = param_flow;
 			param.max_offs = wd_frames - param.len*param.step;
 			gen_flow( param );
+			break;
+		}
+		case CURSORID :
+		{
+			param = param_cursor;
+			gen_cursor( Sds_p->addr->WD_status );
 			break;
 		}
 		case DEBUGID :
@@ -185,32 +204,39 @@ void Wavedisplay_class::Write_wavedata()
 	}
 }
 
-void Wavedisplay_class::SetDataPtr	( const WD_data_t& status  )
+void Wavedisplay_class::SetDataPtr	( WD_data_t& state  )
 {
-	wd_status 		= status;
-	Data_t* ptr 	= data_ptr_mtx[status.roleId][status.oscId].ptr;
+	wd_status 		= state;
+	Data_t* ptr 	= data_ptr_mtx[state.roleId][state.oscId].ptr;
 
 	if ( ptr == nullptr )
 	{
-		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(status.roleId) + "]" +
-														  "[" + to_string(status.oscId) + "]");
+		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(state.roleId) + "]" +
+														  "[" + to_string(state.oscId) + "]");
 		return;
 	}
 	data_ptr 		= ptr;
 	Comment( DEBUG, "wave display selected: "+
-						roleNames[ status.roleId ] + " " +
-						typeNames[ status.oscId ] );
-	set_wdmode( status.wd_mode );
-	setFFTmode( status.fftmode );
+						roleNames[ state.roleId ] + " " +
+						typeNames[ state.oscId ] );
+	Set_wdmode( state.wd_mode );
+	setFFTmode( state.fftmode );
+	state.max_records = *data_ptr_mtx[state.roleId][state.oscId].frames/min_frames;
+
 }
 
+void Wavedisplay_class::Set_WdRole(const RoleId_e &role)
+{
+	Sds_p->addr->WD_status.roleId = role;
+	SetDataPtr(Sds_p->addr->WD_status);
+	Write_wavedata();
+}
 
 void Wavedisplay_class::Set_wdcursor(int pos )
 {
 	int max = *data_ptr_mtx[wd_status.roleId][wd_status.oscId].frames;
 	set_wdcursor( wavedisplay_len * pos / max );
 }
-
 void Wavedisplay_class::set_wdcursor( uint16_t cursor )
 {
 	switch ( WdMode )
@@ -222,7 +248,7 @@ void Wavedisplay_class::set_wdcursor( uint16_t cursor )
 	Sds_p->addr->WD_status.cursor = cursor;
 }
 
-void Wavedisplay_class::set_wdmode( const WdModeID_t& _mode )
+void Wavedisplay_class::Set_wdmode( const WdModeID_t& _mode )
 {
 	WdMode 		= _mode;
 	debug_right	= false;

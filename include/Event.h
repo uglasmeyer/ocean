@@ -55,6 +55,7 @@ class Event_class
 	Note_class*			Notes;
 	Keyboard_class*		Keyboard;
 	Mixer_class*		Mixer;
+	Cutter_class*		Cutter;
 	Wavedisplay_class*	Wavedisplay;
 	Dataworld_class*	DaTA;
 	Semaphore_class*	Sem;
@@ -74,7 +75,8 @@ public:
 				Dataworld_class*	data,
 				External_class*		external,
 				ProgressBar_class*	progressbar,
-				Musicxml_class*		musicxml )
+				Musicxml_class*		musicxml,
+				Cutter_class*		cutter )
 		: Logfacility_class("Event_class")
 		, sdsstate_struct()
 	{
@@ -95,6 +97,7 @@ public:
 		this->ProgressBar	= progressbar;
 		this->MusicXML		= musicxml;
 		this->Appstate		= &DaTA->Appstate;
+		this->Cutter		= cutter;
 	};
 	virtual ~Event_class() = default;
 

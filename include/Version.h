@@ -37,9 +37,9 @@ SOFTWARE.
 using namespace std;
 
 #define MAYOR 4
-#define MINOR 0
-#define PATCH 5
-#define DATA_VERSION 39
+#define MINOR 1
+#define PATCH 0
+#define DATA_VERSION 40
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -58,6 +58,11 @@ const string License_text = R"(
 
 // Git comment:
 /*
+version 4.1.0	Ocean GUI - Cut Desk
+				DATA_VERSION 40 Wd_state record information
+				Wavedisplay Focus on action
+				Save Storage Areas on exit
+				Play WAV file does not work
 				feature autovolume
 version 4.0.5	Synchronization of StAs recording with beat trigger
 				BeatTrigger DATA_VERSION 39

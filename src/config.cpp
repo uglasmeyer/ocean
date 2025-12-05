@@ -226,6 +226,19 @@ Config_class::Config_class() :
 Config_class::~Config_class()
 { DESTRUCTOR( className ); };
 
+void Config_class::setAppCWD()
+{
+	try
+	{
+		filesystem::current_path( fs->tmpdir );
+		Info( "Updated directory", filesystem::current_path() );
+	}
+	catch (const std::filesystem::filesystem_error& e)
+	{
+		Comment( ERROR, "Error:", e.what() );
+	}
+}
+
 void Config_class::CreateInstalldirs( )
 {
 	auto create_dir=[ this ]( string _p )

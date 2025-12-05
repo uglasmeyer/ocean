@@ -2,4 +2,4 @@
 
 ipcrm -a
 ipcs 
-rm $OCEANDIR/lib/ifd*
+rm $OCEANDIR/var/ifd*

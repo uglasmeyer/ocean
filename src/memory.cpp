@@ -144,13 +144,13 @@ void Scanner_class::Set_fillrange( buffer_t n )
 		return;
 	fillrange.max 	= check_range( mem_range, n, "Set_fillrange" );
 }
-
-//-----------------------------------------------------------------------------
-
-
-
-//-----------------------------------------------------------------------------
-
+bool Scanner_class::Get_filled()
+{
+	return ( fillrange.max > 0 );
+}
+/**************************************************
+ * Heap_Memory
+ *************************************************/
 Heap_Memory::Heap_Memory( buffer_t bytes ) :
 	Logfacility_class( "Memory" ),
 	Memory_base( bytes )
@@ -158,11 +158,10 @@ Heap_Memory::Heap_Memory( buffer_t bytes ) :
 	className = Logfacility_class::className;
 };
 
-//-----------------------------------------------------------------------------
 
-
-//-----------------------------------------------------------------------------
-
+/**************************************************
+ * Storage_class
+ *************************************************/
 Storage_class::Storage_class( StA_param_t param ) :
 	Logfacility_class( "Storage_class" ),
 	Memory_base( param.size*sizeof(Data_t) )
@@ -177,7 +176,7 @@ void Storage_class::Setup( StA_param_t _param )
 {
 	param 			= _param;
 	mem_ds.bytes 	= sizeof(Data_t) * param.size;
-	mem_ds.size		= min_frames;//param.block_size;
+	mem_ds.record_size		= min_frames;//param.block_size;
 	mem_ds.block_size=param.block_size;
 	Init_data( mem_ds.bytes );
 	DsInfo( param.name );
@@ -198,29 +197,29 @@ void Storage_class::Write_data( Data_t* src )//, const buffer_t& wrt )
 void Storage_class::Store_block( Data_t* src )
 {
 	if ( not state.Store() ) return;
-	buffer_t start = record_counter* mem_ds.size;
-	for ( buffer_t n = 0; n < mem_ds.size; n++ )
+	buffer_t start = record_counter* mem_ds.record_size;
+	for ( buffer_t n = 0; n < mem_ds.record_size; n++ )
 	{
 		Data[start + n] = src[n];
 	}
 	record_counter 	= ( record_counter + 1 );
-	record_data 	= record_counter * mem_ds.size;
+	record_data 	= record_counter * mem_ds.record_size;
 	scanner.Set_fillrange( record_data );
 	if ( record_counter == mem_ds.max_records - 2 )
 		state.Store( false ) ;
 }
 
-
 void Storage_class::Set_store_counter( uint  n )
 {
-	Assert_lt(  n , mem_ds.max_records, "mem_ds.max_records" );
+	Assert_lt(  n , mem_ds.max_records + 1, "mem_ds.max_records" );
 
 	record_counter 		= n;
-	record_data 		= record_counter * mem_ds.size;
+	record_data 		= record_counter * mem_ds.record_size;
 	if ( read_counter > n )
 		read_counter  	= 0;
-	scanner.Set_rpos		(0);
-	scanner.Set_fillrange	( record_data );
+	scanner.Set_rpos	( 0 );
+	scanner.Set_fillrange(record_data );
+	scanner.Set_wpos	( record_data );
 }
 
 void Storage_class::Reset( )
@@ -230,10 +229,9 @@ void Storage_class::Reset( )
 	record_data 		= 0;
 	read_counter  		= 0;
 	state.Store			( false );
-	state.Filled		( false );
+//	state.Filled		( false );
 	scanner.Reset		();
 	Clear_data			(0);
-//	coutf << "clear sta" << (int)Id << " " << mem_ds.data_blocks << endl;
 }
 
 

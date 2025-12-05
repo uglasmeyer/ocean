@@ -84,9 +84,6 @@ void MainWindow::initComboBoxes()
 	Qbps_str_lst 		= Qstringlist( bps_struct().Bps_lst );
     ui->cb_bps->addItems( Qbps_str_lst );
 
-    QCapture_str_lst	= Qstringlist( {"Capture", "capturing", "Spool", "spooling" } );
-    ui->cB_Capture->addItems( QCapture_str_lst );
-    ui->cB_Capture->setCurrentText( QCapture_str_lst[0] );
 }
 
 void MainWindow::initOscillatorDisplay()
@@ -111,10 +108,10 @@ void MainWindow::initStateButtons()
 	Qwd_osc_names 	= Vstringvector( typeNames );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
 
-	Qwd_fftmodes	= Vstringvector( wavedisplay_struct().fftmodes );
+	Qwd_fftmodes	= Vstringvector( fftmodes );
 	ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_status.fftmode ]);
 
-	Qwd_wdmode_names= Vstringvector( wavedisplay_struct().types );
+	Qwd_wdmode_names= Vstringvector( wavedisplay_struct::types );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ Sds->addr->WD_status.wd_mode ]);
 
 	Qwd_role_names 	= Vstringvector( arrayToVector( roleNames ) );
@@ -237,6 +234,7 @@ void MainWindow::initUiConnectors()
     connect(ui->pB_Specrum		, SIGNAL(clicked() )		,this, SLOT(Spectrum_Dialog() ));
     connect(ui->pB_play_notes	, SIGNAL(clicked() )		,this, SLOT(File_Director() ));
     connect(ui->pB_ADSR			, SIGNAL(clicked() )		,this, SLOT(ADSR_Dialog() ));
+    connect(ui->pB_Cutter		, SIGNAL(clicked() )		,this, SLOT(Cutter_Dialog() ));
 
     connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
     connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() ));
@@ -322,7 +320,6 @@ void MainWindow::initUiConnectors()
     connect(ui->SliderFMOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Adjust(int) ));
     connect(ui->SliderVCOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Adjust(int) ));
 
-    connect(ui->cB_Capture		, SIGNAL(textActivated(QString) ),this, SLOT(Capture(QString) ));
     connect(ui->cb_external		, SIGNAL(textActivated(QString) ),this, SLOT(wavfile_selected(QString) ));
 
     connect(ui->cb_connect_fmov	, SIGNAL(clicked( bool ))	,this, SLOT( connect_fmov( bool ) ));

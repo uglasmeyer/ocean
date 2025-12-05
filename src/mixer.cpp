@@ -75,6 +75,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 
 	Wd_p->Add_role_ptr( NOTESROLE	, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
 	Wd_p->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
+	Wd_p->Add_role_ptr( EXTERNALROLE, StA[ STA_EXTERNAL].Data, &StA[ STA_EXTERNAL].param.size );
 	for( StAId_e staid : LowIds )
 	{
 		RoleId_e sta_role = sta_rolemap.GetRoleid( staid );
@@ -82,6 +83,12 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	}
 
 	SetStAs();
+	dumpFile_base = DaTA->Cfg_p->fs->StAdump_file + ".";
+	for( StAId_e staid : StAMemIds )
+	{
+		StA[staid].filename = dumpFile_base + to_string( staid );
+		RestoreStA( staid );
+	}
 
 	if( LogMask[ TEST ] )
 	{
@@ -98,8 +105,10 @@ Mixer_class::~Mixer_class()
 {
 	if ( not sds )
 		return;
-	Clear_StA_status( sds->StA_state_arr );
-	sds->mixer_state.external	= false;
+	if( not LogMask[TEST ])
+		for( StAId_e staid : StAMemIds )
+			DumpStA( staid );
+
 	DESTRUCTOR( className );
 };
 
@@ -125,13 +134,15 @@ void Mixer_class::BeatClock( const uint8_t& bps )
 			}
 		}
 	}
-//	coutf << Mixer.state.sync << Mixer.StA[0].beattrigger.local_data.active <<
-//			sds->StA_state_arr[0].store << Mixer.StA[0].state.Store() << endl;
+	if( state.sync )
+		Comment( DEBUG, state.sync, StA[0].beattrigger.local_data.active,
+						sds->StA_state_arr[0].store, StA[0].state.Store() );
 
 }
 
-void Mixer_class::Set_Wdcursor()
+void Mixer_class::StA_Wdcursor()
 {
+
 	StAId_e 	staid = sta_rolemap.GetStaid( sds->WD_status.roleId );
 	if ( staid < STA_SIZE )
 	{
@@ -148,13 +159,50 @@ void Mixer_class::clear_memory()
 	Mono.Clear_data(0);
 }
 
-void Mixer_class::Clear_StA_status( StA_state_arr_t& state_arr )
+
+void Mixer_class::ResetStA( const StAId_e& staid )
 {
 	Comment( INFO, "Reset SDS state" );
-	std::ranges::for_each( state_arr, 	[ ]( auto& state )
-			{ state.store = false;});
-	for ( Storage_class sta : StA )
-		sta.Reset();
+	if ( staid == STA_SIZE )
+	{
+		std::ranges::for_each( StAMemIds, 	[ this ]( StAId_e id )
+			{ StA[id].Reset(); } );
+	}
+	else
+	{
+		StA[staid].Reset();
+	}
+	SetStAProperties( staid );
+}
+
+bool Mixer_class::RestoreStA( const StAId_e& staid )
+{
+	// copy dump file data into StA
+
+	string dumpFile 	= StA[staid].filename;
+
+	StA[staid].Clear_data(0);
+
+	Info( "Restore StA data from file", dumpFile );
+	size_t bytes_red = loadData( dumpFile, StA[staid].Data, 0 );
+	uint		records = bytes_red / StA[staid].mem_ds.record_size / sizeof(Data_t);
+	StA[staid].Set_store_counter( records );
+
+
+	return true;
+
+}
+
+void Mixer_class::DumpStA( const StAId_e& staid )
+{
+	// copy StA memory file
+
+	string dumpFile = StA[staid].filename;
+	buffer_t 	bytes2write = StA[staid].scanner.fillrange.max * sizeof(Data_t);//mem_ds.bytes;
+
+	Info( "Dump StA memory to file", dumpFile) ;
+	dumpData( dumpFile, StA[staid].Data, bytes2write );
+
 }
 
 void Mixer_class::Set_staVolume( const StAId_e& id, uint8_t vol )
@@ -186,40 +234,62 @@ void Mixer_class::Set_play_mode( const StAId_e& id, const bool& mode )
 
 };
 
+bool Mixer_class::setFillState( StAId_e id )
+{
+	// achieve consistency between involved parties
+	bool	filled							= ( StA[id].scanner.Get_filled() );
+			sds->StA_state_arr[id].filled 	= filled;
+			StA[id].state.Filled			( filled );
+	return	filled;
+}
 
-void Mixer_class::SetStA( StAId_e staId )
+void Mixer_class::SetStAProperties( StAId_e staId )
 {	// distribution of sds->StA_state into StA[].state
 
-	bool play = sds->StA_state_arr[staId].play;
-	Set_play_mode( staId , play );
-
-	StA[staId].state.Filled( sds->StA_state_arr[staId].filled );
-	if ( not StA[staId].state.Filled() )
+	auto setStA = [ this ]( StAId_e id  )
 	{
-		StA[staId].Reset();
-		if( LowIds.contains( staId ) )
+		bool play = sds->StA_state_arr[id].play;
+		Set_play_mode( id , play );
+
+		if ( not setFillState( id ) )
 		{
-			Set_play_mode( staId , false );
+			StA[id].Reset();
+			if( LowIds.contains( id ) )
+			{
+				Set_play_mode( id , false );
+			}
 		}
-	}
-	if( StA[staId].state.Play() )
+		if( StA[id].state.Play() )
+		{
+			auto_volume( id );
+			RoleId_e 	roleid = sta_rolemap.GetRoleid( id );
+			Wd_p->Set_WdRole( roleid );
+		}
+		sds->StA_state_arr[id] = StA[id].state.Get();
+	};
+
+	if( staId == STA_SIZE )
 	{
-		auto_volume( staId );
+		std::ranges::for_each( StAMemIds, [ this, setStA ](StAId_e id)
+			{ setStA(id) ;} );
+	}
+	else
+	{
+		setStA( staId );
 	}
 
-	sds->StA_state_arr[staId] = StA[staId].state.Get();
+};
 
-}
 void Mixer_class::SetStAs()
 {
 	for ( StAId_e mixerId : AllIds )
 	{
-		SetStA( mixerId );
+		SetStAProperties( mixerId );
 	}
 }
 
 
-void Mixer_class::add_mono( Data_t* Data, const uint& id )
+void Mixer_class::Add_mono( Data_t* Data, const uint& id )
 // sample Data for different sound devices
 // by applying mixer volume per device
 {								//U0  U1  U2  U3  In  Kb  Nt  Ex
@@ -254,7 +324,7 @@ void Mixer_class::add_mono( Data_t* Data, const uint& id )
 
 }
 
-void Mixer_class::add_stereo( Stereo_t* Data  )
+void Mixer_class::Add_stereo( Stereo_t* Data  )
 // sample Data for different Synthesizer into audio memory
 // by applying master volume per Synthesizer
 {
@@ -292,38 +362,31 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 							 Stereo_t* 	shm_addr )
 {
 
-	auto set_sds_filled = [ this ]( uint8_t staid )
-	{
-		bool filled = ( StA[staid].scanner.fillrange.max > 0 );
-		StA[staid].state.Filled( filled );
-		sds->StA_state_arr[staid].filled = filled;
-	};
-
 	if( not shm_addr ) return;
 	clear_memory();
 
 	if ( state.mute )
 	{
-		add_stereo( shm_addr );
+		Add_stereo( shm_addr );
 		return;
 	}
 
 	// add osc sound
 	if ( state.instrument )
 	{
-		add_mono( instrument_Data, STA_INSTRUMENT );
+		Add_mono( instrument_Data, STA_INSTRUMENT );
 	}
 	if ( StA[ STA_NOTES 	].state.Play() )
 	{
-		add_mono( notes_Data	, STA_NOTES );
+		Add_mono( notes_Data	, STA_NOTES );
 	}
 	if ( StA[ STA_KEYBOARD  ].state.Play() )
 	{
-		add_mono( kbd_Data		, STA_KEYBOARD );
+		Add_mono( kbd_Data		, STA_KEYBOARD );
 	}
-	set_sds_filled( STA_INSTRUMENT );
-	set_sds_filled( STA_NOTES );
-	set_sds_filled( STA_KEYBOARD );
+	setFillState( STA_INSTRUMENT );
+	setFillState( STA_NOTES );
+	setFillState( STA_KEYBOARD );
 
 	// read sound from StA
 	for ( uint staId : RecIds )
@@ -334,12 +397,12 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 			Data_t* StAdata = sta.scanner.Next_read();
 			if ( StAdata )
 			{
-				add_mono( StAdata, staId );
+				Add_mono( StAdata, staId );
 			}
 		}
 	}
 	// write sound to StA
-	for ( uint staId : RecIds )
+	for ( StAId_e staId : RecIds )
 	{
 		Storage_class& sta = StA[staId];
 		if( sta.state.Store() )
@@ -347,10 +410,10 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 
 		if (state.sync )
 			sds->StA_state_arr[staId].store = StA[staId].state.Store();
-		set_sds_filled( staId );
+		setFillState( staId );
 	}
 
-	add_stereo( shm_addr ); 	// push sound to audio server
+	Add_stereo( shm_addr ); 	// push sound to audio server
 
 };
 
@@ -363,3 +426,161 @@ void Mixer_class::TestMixer()
 
 
 }
+
+/**************************************************
+ * Cutter_class
+ *************************************************/
+Cutter_class::Cutter_class( Mixer_class* Mixer ) :
+	Logfacility_class("Cutter_class")
+{
+	className 	= Logfacility_class::className;
+	this->StA	= &Mixer->StA;
+	this->sds	= Mixer->sds;
+	this->Wd	= Mixer->Wd_p;
+	this->StAId	= STA_SIZE;
+};
+
+Cutter_class::~Cutter_class()
+{
+	DESTRUCTOR( className );
+};
+
+
+void Cutter_class::Setup()
+{
+	if ( not setStAId() )
+		return;
+
+	buffer_t min	= StA->at(StAId).scanner.fillrange.min;
+	buffer_t max 	= StA->at(StAId).scanner.fillrange.max;
+	buffer_t len 	= max - min;
+	if( len < step_records )
+		return;
+	size_t record_end = min + 2*step_records;
+
+	fillrange					= StA->at(StAId).scanner.fillrange; // backup
+	record_range 				= { min, max, (size_t)len };
+	StA->at(StAId).scanner.Set_fillrange( record_end ) ;
+	StA->at(StAId).scanner.rpos = 0;
+	sds->WD_status.wd_mode 		= CURSORID;
+    sds->WD_status.direction 	= NO_direction;
+	sds->WD_status.max 			= record_end;
+	sds->WD_status.min 			= min;
+	Wd->Set_wdmode( CURSORID );
+	setup_done					= true;
+}
+void Cutter_class::Restore()
+{
+	if ( not setup_done )
+		return;
+	setup_done 							= false;
+	sds->WD_status.wd_mode 				= FULLID;
+	StA->at(StAId).scanner.fillrange 	= fillrange;
+	StAId 								= STA_SIZE;
+	Wd->Set_wdmode( FULLID );
+}
+void Cutter_class::CursorUpdate()
+{
+	// providesdata for wavedisplay update
+	if( StAId == STA_SIZE )
+		return;
+	if ( record_range.len < step_records )
+		return; // no change of boundaries
+
+	sds->WD_status.min			= check_range( record_range, sds->WD_status.min );
+	sds->WD_status.max			= check_range( record_range, sds->WD_status.max );
+
+	buffer_t wd_min				= sds->WD_status.min;
+	buffer_t wd_max				= sds->WD_status.max;
+
+	Direction_e	dir				= sds->WD_status.direction;
+	switch ( dir )
+	{
+		case BACK_LEFT :
+		{
+			buffer_t max	= wd_max - step_records;
+			wd_max			= check_range( record_range, max );
+			break;
+		}
+		case BACK_RIGHT :
+		{
+			buffer_t max	= wd_max + step_records;
+			wd_max			= check_range( record_range, max );
+			break;
+		}
+		case FRONT_LEFT :
+		{
+			buffer_t min 	= wd_min - step_records;
+			wd_min 			= check_range( record_range, min );
+			break;
+		}
+		case FRONT_RIGHT :
+		{
+			buffer_t min 	= wd_min - step_records;
+			wd_min 			= check_range( record_range, min );
+			break;
+		}
+		case GOTO_END :
+		{
+			buffer_t max 	= record_range.max;
+			wd_max			= check_range( record_range, max );
+			break;
+		}
+
+		default : { break; }
+	} // switch  dir
+
+	StA->at(StAId).scanner.fillrange.min = wd_min;
+	StA->at(StAId).scanner.fillrange.max = wd_max;
+	StA->at(StAId).scanner.rpos = StA->at(StAId).scanner.fillrange.min;
+
+	sds->WD_status.min		= wd_min;
+	sds->WD_status.max		= wd_max;
+	sds->WD_status.cursor	= wd_min;
+
+	Info( "Record cursor pos update", 	record_range.min, "<", wd_min, "<",
+										wd_max, "<", record_range.max );
+
+}
+
+bool Cutter_class::setStAId()
+{
+	StAId_e staid 	= GetStaid( sds->WD_status.roleId );
+	if ( RecIds.contains( staid ) )
+	{
+		StAId 			= staid;
+		StAName 		= StAIdName ( staid );
+		return true;
+	}
+	Info( "StA", (int) staid, "is not a record Id" );
+	return false;
+}
+
+void Cutter_class::Cut()
+{
+
+	buffer_t	start		= sds->WD_status.min;
+
+	string		filename 	= StA->at(StAId).filename;
+				cut_data	= &StA->at(StAId).Data[start];
+				cut_bytes	= record_range.len * sizeof(Data_t);
+
+	Info( "changing", filename );
+	if ( dumpData( filename, cut_data, cut_bytes ) )
+	{
+		Info( "Cutting", StAName, 	"from", (int) sds->WD_status.min,
+									"to",	(int) sds->WD_status.max );
+	}
+	else
+	{
+		Comment( ERROR, "failed" );
+	}
+}
+
+
+
+void Cutter_class::Display()
+{
+	Wd->Write_wavedata();
+}
+

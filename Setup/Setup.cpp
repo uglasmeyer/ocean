@@ -108,6 +108,7 @@ void create_tararchive( source_struct Ss )
 			"auto\n"
 			"tmp\n"
 			"lib/ifd*\n"
+			"var/StA_data.bin*\n"
 			".project\n"
 			".settings\n"
 			"gmon.out\n";
@@ -332,10 +333,21 @@ int main(int argc, char **argv)
 		Setup_Test( Ss );
 		exit(0);
 	}
+	bool full_setup = not filesystem::is_directory( fs->installdir );
+
+	if( Cfg.Config.filename.length() > 0 )
+	{
+		filesystem::path path { Cfg.Config.filename };
+
+		install_binary( Cfg.Config.filename, path.extension() );
+		if ( not full_setup )
+			exit(0);
+	}
+
+
 	const string	rc_nte_file					= Ss.resourcedir + "Notes/" + fs->default_nte;
 	const string	rc_snd_file					= Ss.resourcedir + "Instruments/" + fs->default_snd;
 
-	bool full_setup = not filesystem::is_directory( fs->installdir );
 
 	Cfg.CreateInstalldirs( );
 
@@ -354,14 +366,6 @@ int main(int argc, char **argv)
 	overwrite ( Ss.resourcedir + fs->template_xmlname	, fs->template_xmlfile );
 	overwrite ( Ss.sourcedir + fs->install_txt			, fs->install_txtfile );
 
-	if( Cfg.Config.filename.length() > 0 )
-	{
-		filesystem::path path { Cfg.Config.filename };
-
-		install_binary( Cfg.Config.filename, path.extension() );
-		if ( not full_setup )
-			exit(0);
-	}
 
 	Log.Info( "Using Ocean Base Directory ", fs->installdir );
 	bashrc_oceandir();

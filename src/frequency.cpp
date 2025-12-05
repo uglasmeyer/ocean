@@ -112,7 +112,7 @@ uint  Frequency_class::Index( const int& oct, const int& step )
 
 frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
 {
-	char dir = 1;
+	int8_t	dir	= 1;
 	if( value < 0 )
 		dir = -1;
 	int n = check_range( harmonic_range, value, "Frqadj" );
@@ -240,7 +240,7 @@ void Frequency_class::TestFrequency()
 
 	int idxh=HARMON_SIZE-1;
 	f = Frqadj( 0, idxh );
-	float g = 1+harmonicArray[idxh];
+	frq_t g = 1+harmonicArray[idxh];
 	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
 	idxh = -idxh;
@@ -267,7 +267,7 @@ void Frequency_class::TestFrequency()
 	for( test_t test : testvec )
 	{
 		idx = Index( test.frq );
-		ASSERTION( idx == test.idx, "Index ", idx, test.idx );
+		Assert_equal( idx , test.idx, "Index " );
 	}
 
 	TEST_END( className );

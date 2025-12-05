@@ -42,7 +42,7 @@ SOFTWARE.
 
 // Ocean
 #include <data/Interface.h>
-#include <Mixer.h>
+//#include <Mixer.h>
 #include <Spectrum.h>
 #include <App.h>
 #include <data/Configbase.h>
@@ -56,6 +56,7 @@ SOFTWARE.
 #include <include/Oszilloscopewidget.h>
 #include <include/Rtsp_dialog.h>
 #include <include/Spectrum_dialog.h>
+#include <Cutterdialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -66,10 +67,12 @@ QT_END_NAMESPACE
 class MainWindow :
 		public QMainWindow,
 		virtual Logfacility_class,
+		virtual wavedisplay_struct,
 		osc_struct
 {
     Q_OBJECT
 	string					className			= "";
+
 public:
 	process_t				Process				{};
 	Config_class			Cfg					{};
@@ -103,6 +106,9 @@ public:
     Keyboad_Dialog_class	Keyboard_Dialog_obj	{ this, &DaTA, Eventlog_p };
     Keyboad_Dialog_class*	Keyboard_Dialog_p	= &Keyboard_Dialog_obj;
 
+    CutterDialog_class		CutterDialog_obj	{ this, &DaTA, Eventlog_p };
+    CutterDialog_class*		CutterDialog_p		= &CutterDialog_obj;
+
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
     QRect 					Spectrum_Dialog_Rect= QRect( QPoint(0,0),QSize(0,0) );
@@ -112,7 +118,6 @@ public:
     vector<QString>			Qwd_role_names		{};
     vector<QString> 		Qwd_wdmode_names	{};
     vector<QString>			Qwd_fftmodes		{};
-    QStringList				QCapture_str_lst	{};
     keymap_struct			Keymap				{};
     vector<QRadioButton*> 	rb_S_vec 			{};
 
@@ -186,7 +191,7 @@ private:
     void sliderFreq( sl_lcd_t map, uint8_t value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
-    void waveform_slot( uint8_t*, uint8_t, int, EVENTKEY_e, QLabel* );
+    void waveform_slot( uint8_t*, uint8_t, OSCID_e, EVENTKEY_e, QLabel* );
     void set_wdrole( RoleId_e roleid );
     void setStaPlay( StAId_e id );
     void setStaStored( StAId_e staId );
@@ -200,8 +205,6 @@ public slots:
 private slots:
 
 //	void show_time_elapsed();
-
-	void Capture( QString str );
 
 	void Rtsp_Dialog();
 	void SDS_Dialog();
@@ -295,6 +298,7 @@ private slots:
     void File_Director();
     void Spectrum_Dialog();
     void ADSR_Dialog();
+    void Cutter_Dialog();
 
     void Save_Config();
     void toggle_Mute();

@@ -106,7 +106,6 @@ void Semaphore_class::Reset( uint8_t num )
     Comment( DEBUG, "Reset ", (int) num,  State( num ));
 }
 
-
 void Semaphore_class::Aquire( uint8_t num )
 {
 	; // increase the semaphore ( OP_INC )

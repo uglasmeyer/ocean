@@ -95,6 +95,8 @@ public:
 	buffer_t 				Set_wpos			( buffer_t n );
 	void 					Set_wrt_len			( buffer_t n );
 	void 					Set_fillrange		( buffer_t n );
+	bool 					Get_filled			();
+
 
 };
 
@@ -245,7 +247,8 @@ public:
 	Dynamic_class	DynVolume		{ volidx_range };
 	Scanner_class	scanner 		{ nullptr, min_frames, 0 };
 	Trigger_class	beattrigger		{};
-	StAstate_class 	state 			{};//= StA_state_struct();
+	StAstate_class 	state 			{};
+	string			filename		= "";
 
 	void 			Store_block		( Data_t* ) ;
 	void 			Write_data		( Data_t* src );//, const buffer_t& pos );

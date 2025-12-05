@@ -11,9 +11,11 @@ CONFIG += -std=c++2b
 
 SOURCES += \
  \#    OceanGUI_main.cpp
+    cutterdialog.cpp \
     keyboad_dialog.cpp
 
 HEADERS += \
+    Cutterdialog.h \
     include/Keyboad_dialog.h \
     include/File_Dialog.h \
     include/Mainwindow.h \
@@ -24,6 +26,7 @@ HEADERS += \
 
 FORMS += \
     File_Dialog_class.ui \
+    cutterdialog.ui \
     keyboad_dialog.ui \
     mainwindow.ui \
     Rtsp_dialog_class.ui \

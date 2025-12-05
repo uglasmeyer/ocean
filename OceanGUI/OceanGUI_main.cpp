@@ -35,9 +35,9 @@ SOFTWARE.
 
 
 Exit_class			Exit		{};
-Logfacility_class	Log			{ "Ocean Sound Lab" };
+Logfacility_class	Log			{ "Ocean-SL" };
 Statistic_class 	Statistic	{ Log.className };
-const string		TitleModule = Log.className;
+const string		TitleModule = "Ocean Sound Lab Ui - ";
 
 /*
  * https://doc.qt.io/qt-6/qthread.html

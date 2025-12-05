@@ -63,6 +63,7 @@ bool Record_class::Start( )
 	sds->Record_state 					= RECORDING;
 	recording							= true;
 	sds->StA_state_arr[ STA_EXTERNAL].store = true;
+	sds->WD_status.roleId				= AUDIOROLE;
 	rcounter 							= 0;
 	ProgressBar_class::Set				( &rcounter, record_sec * 1000/min_msec );
 

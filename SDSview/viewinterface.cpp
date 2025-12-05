@@ -96,6 +96,8 @@ void ViewInterface_class::show_Que()
 	Table.AddRow( "Mode"	, wavedisplay_struct::types[ sds_p->WD_status.wd_mode ] );
 	Table.AddRow( "FFT"		, wavedisplay_struct::fftmodes[ sds_p->WD_status.fftmode ] );
 	Table.AddRow( "display curor"	, sds_p->WD_status.cursor );
+	Table.AddRow( "record curor"	, sds_p->WD_status.direction );
+	Table.AddRow( "max records"		, sds_p->WD_status.max_records );
 }
 void ViewInterface_class::show_Ipc()
 {

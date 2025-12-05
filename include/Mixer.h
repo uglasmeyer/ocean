@@ -43,69 +43,91 @@ SOFTWARE.
 #include <Dynamic.h>
 #include <notes/Notes.h>
 
-
-
-
 class Mixer_class :
-	virtual public 		Logfacility_class
+	virtual public 			Logfacility_class
 {
-	string 				className		= "";
-	Dataworld_class* 	DaTA			;
-	Wavedisplay_class*	Wd_p			;
-	sta_role_map		sta_rolemap		= sta_role_map();
-	int 				beat_clock 		= 0;
+	string 					className		= "";
+	int 					beat_clock 		= 0;
 
 	// provides and manages memory array
 public:
 
-	const vector<StAId_e>	AllIds		= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
-	const vector<StAId_e>	RecIds 		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
-	const vector<StAId_e>	UsrIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
-	const vector<StAId_e>	HghIds		= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
-	const set<StAId_e>		LowIds		= {STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
+	StorageArray_t 			StA				;
+	Dataworld_class* 		DaTA			;
+	mixer_state_t  			state 			= mixer_state_struct();
+	int						composer		= 0;		// note chunk counter
+	Heap_Memory				Mono			{ monobuffer_bytes };
+	Heap_Memory 			Mono_out		{ monobuffer_bytes };
+	Stereo_Memory<Stereo_t>	Out				{ Stereo_Memory<Stereo_t>::stereobuffer_bytes };
+	Dynamic_class			DynVolume		{ volidx_range };
+	Wavedisplay_class*		Wd_p			;
+	interface_t*	 		sds				= nullptr;
+	interface_t*			sds_master		= nullptr;
+	sta_role_map			sta_rolemap		= sta_role_map();
+
+							Mixer_class 	( Dataworld_class* 	data,
+											Wavedisplay_class* 	wd );
+	virtual 				~Mixer_class	();
+
+	void	 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
+	void 					ResetStA		( const StAId_e& id );
+	void 					Set_play_mode	( const StAId_e& id, const bool& play );
+	void 					SetStAs			();
+	void 					SetStAProperties( StAId_e mixerId );
+	void	 				StA_Wdcursor	();
+	void 					BeatClock		( const uint8_t& bps );
+	void 					Set_staVolume	( const StAId_e& id, uint8_t vol );
+	void 					DumpStA			( const StAId_e& staid );
+	bool 					RestoreStA		( const StAId_e& staid );
 
 
-	typedef vector<Storage_class>		StorageArray_t;
-	StorageArray_t 		StA;
-
-	mixer_state_t  		state 			= mixer_state_struct();
-	int					composer		= 0;		// note chunk counter
-
-	Heap_Memory 		Mono			{ monobuffer_bytes };
-	Heap_Memory 		Mono_out		{ monobuffer_bytes };
-	Stereo_Memory<Stereo_t>
-						Out				{ Stereo_Memory<Stereo_t>::stereobuffer_bytes };
-
-
-	Dynamic_class		DynVolume		{ volidx_range };
-
-	interface_t* 		sds				= nullptr;
-	interface_t*		sds_master		= nullptr;
-						Mixer_class 	( Dataworld_class* 	data,
-										Wavedisplay_class* 	wd );
-	virtual 			~Mixer_class	();
-
-//	void Store_noteline( uint8_t, Note_class* );
-	void 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
-	void 				Clear_StA_status( StA_state_arr_t& );
-	void 				Set_play_mode	( const StAId_e& id, const bool& play );
-	void 				SetStAs			();
-	void 				SetStA			( StAId_e mixerId );
-	void 				Set_Wdcursor	();
-	void 				BeatClock		( const uint8_t& bps );
-	void 				Set_staVolume	( const StAId_e& id, uint8_t vol );
-
-
-	void 				TestMixer		();
+	void 					Add_mono		( Data_t*, const uint& staId );
+	void 					Add_stereo		( Stereo_t* Data  );
+	void 					TestMixer		();
 
 private:
-	void 				clear_memory	();
-	void 				add_mono		( Data_t*, const uint& staId );
-	void 				add_stereo		( Stereo_t* Data  );
-	void 				auto_volume		( const StAId_e& id);
+
+	string 					dumpFile_base	= "";
+	void 					clear_memory	();
+	void 					auto_volume		( const StAId_e& id);
+	bool 					setFillState	( StAId_e id );
 
 };
 
+/**************************************************
+ * Cutter_class
+ *************************************************/
+class Cutter_class :
+	virtual public 			Logfacility_class,
+	virtual					sta_role_map,
+	virtual public 			wavedisplay_struct
+{
+	string 					className 		= "";
+	StorageArray_t*			StA				= nullptr;
+	interface_t*			sds				= nullptr;
+	Wavedisplay_class*		Wd				= nullptr;
+	string					StAName 		= "";
+	range_T<buffer_t>		record_range	= { 0, 0, 0 };
+	range_T<buffer_t>		fillrange		= { 0, 0, 0 };
+	const uint				step_records	= measure_parts*min_frames; // one second max_frames/min_frames
 
+public:
+	StAId_e					StAId;
+	bool					setup_done		= false;
+	Data_t*					cut_data		= nullptr;
+	buffer_t				cut_bytes		= 0;
+
+							Cutter_class	( Mixer_class* Mixer );
+	virtual 				~Cutter_class	();
+	void 					CursorUpdate	();
+	void 					Cut				();
+	void 					Display			();
+	void 					Setup			();
+	void 					Restore			();
+
+private:
+	bool 					setStAId		();
+
+};
 
 #endif /* INCLUDE_MIXER_H_ */

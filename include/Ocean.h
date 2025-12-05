@@ -49,7 +49,6 @@ SOFTWARE.
 #include <map>
 #include <memory> // unique_ptr
 #include <numeric>
-#include <numbers>
 #include <random>
 #include <ranges>
 #include <set>
@@ -113,7 +112,6 @@ const size_t		sizeof_stereo		= sizeof(stereo_t);
 const size_t		sizeof_Stereo		= sizeof(Stereo_t);
 const uint 			sizeof_Data 		= sizeof(Data_t);
 const uint 			sizeof_data 		= sizeof(data_t);
-const phi_t 		pi					= numbers::pi; //3.1415926536;//;
 const uint			sample_rate			= 48000; //device default
 const buffer_t		frames_per_sec  	= sample_rate;
 const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;

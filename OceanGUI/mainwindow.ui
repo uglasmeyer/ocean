@@ -1555,55 +1555,17 @@ Instruments</string>
      <property name="verticalSpacing">
       <number>6</number>
      </property>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="pB_Rtsp">
-       <property name="text">
-        <string>RTSP</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QComboBox" name="cB_Capture"/>
-     </item>
-     <item row="0" column="3">
-      <widget class="QPushButton" name="pB_Save">
-       <property name="text">
-        <string>Save Default</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="4">
-      <widget class="QPushButton" name="pBAudioServer">
-       <property name="text">
-        <string>Audio Server</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="pb_SDSview">
-       <property name="text">
-        <string>view SDS</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
       <widget class="QPushButton" name="pBGuiExit">
        <property name="text">
         <string>GUI EXIT (ESC)</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pBComposer">
-       <property name="text">
-        <string>Composer</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="pb_Keyboard">
-       <property name="text">
-        <string>Keyboard</string>
+     <item row="0" column="0">
+      <widget class="QComboBox" name="cB_external">
+       <property name="editable">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -1614,10 +1576,52 @@ Instruments</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QComboBox" name="cb_external">
-       <property name="editable">
-        <bool>false</bool>
+     <item row="0" column="5">
+      <widget class="QPushButton" name="pb_Keyboard">
+       <property name="text">
+        <string>Keyboard</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QPushButton" name="pBAudioServer">
+       <property name="text">
+        <string>Audio Server</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="pBComposer">
+       <property name="text">
+        <string>Composer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QPushButton" name="pB_Save">
+       <property name="text">
+        <string>Save Default</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="pb_SDSview">
+       <property name="text">
+        <string>view SDS</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="pB_Rtsp">
+       <property name="text">
+        <string>RTSP</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pB_Cutter">
+       <property name="text">
+        <string>Cutter</string>
        </property>
       </widget>
      </item>
@@ -2009,7 +2013,7 @@ Instruments</string>
      </rect>
     </property>
     <property name="text">
-     <string>0              Volume        100        |   storing             stored    playing</string>
+     <string>0              Volume        100        |   storing■           stored    playing►</string>
     </property>
    </widget>
    <widget class="QFrame" name="frame_3">

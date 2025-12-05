@@ -32,16 +32,14 @@ SOFTWARE.
 #ifndef EXTERNAL_H_
 #define EXTERNAL_H_
 
-#include <data/Config.h>
-#include <Ocean.h>
-#include <data/Interface.h>
-#include <data/Memory.h>
+#include <data/DataWorld.h>
 #include <Progressbar.h>
-#include <Wavedisplay.h>
-//#include <Version.h>
 #include <Wav.h>
 
 
+/**************************************************
+ * External_class
+ *************************************************/
 
 class 							External_class :
 	public virtual 				Logfacility_class,
@@ -49,27 +47,24 @@ class 							External_class :
 
 {
 	string						className 			= "";
-	Storage_class* 				StA					= nullptr;
-	interface_t*				sds					= nullptr;
+	Storage_class* 				StA_ext					= nullptr;
 	FILE*						File				= nullptr;
 	Config_class*				Cfg 				= nullptr;
 	file_structure*				fs					= nullptr;
-	Wavedisplay_class*			Wd					= nullptr;
 
 public:
 	buffer_t					Filedata_size 		= 0;
-	struct 						status_struct
-	{
-		bool record = false;
-	};
-	status_struct				status				= status_struct();
+	interface_t*				sds					= nullptr;
+	string 						Filename 			= "";
+	buffer_t					record_size			= 0;
 
 								// Synthesizer read only class
-								External_class		( Storage_class* sta,
+								External_class		( Storage_class*,
 													Config_class* cfg,
-													Wavedisplay_class* wd );
+													interface_t* sds);
 	const bool 					Read_file_data		();
 	const bool 					Read_file_header	( string );
+	void 						SetName				( string name );
 	void 						Test_External		();
 
 
@@ -77,17 +72,16 @@ public:
 								External_class		( Config_class* cfg,
 													interface_t* sds ) ;
 	const string 				Save_record_data	( int filenr );
+	void 						Save_record_data	( string filename );
 	void 						Record_buffer		( Stereo_t* src, buffer_t frames );
 
 	virtual 					~External_class		() = default;
 
 private:
 	long int 					read_position 		= 0;
-	buffer_t					record_size			= 0;
 
 	wav_struct_t 				header_struct;
 	string 						Name 				= "";
-	string 						Filename 			= "";
 	string 						testcounter_file 	= "/tmp/counter";
 
 	void 						write_audio_data	( string );
@@ -95,7 +89,6 @@ private:
 	void 						wav_define 			(  long  );
 	long 						write_wav_header	( string );
 	long 						write_audio_data	( string, buffer_t );
-	void 						setName				( string name );
 	bool 						read_stereo_data	( buffer_t );
 	string						addheader_cmd		();
 	string 						ffmpeg_cmd			( string wav, string mp3 );
@@ -103,6 +96,37 @@ private:
 	int 						generate_file_no	();
 
 	void 						close				();
+
+};
+
+
+/**************************************************
+ * StAExternal_class
+ *************************************************/
+class StAExternal_class :
+	virtual External_class
+{
+//	string 					className 	= "";
+	StorageArray_t*			StA_arr 	= nullptr;
+	Storage_class*			StA			= nullptr;
+public:
+	StAExternal_class( StorageArray_t* sta_arr, Config_class* cfg, interface_t* sds ) :
+//		Logfacility_class("StAExternal_class"),
+		Memory_base( sta_arr->at(STA_EXTERNAL).param.size * sizeof_Data ),
+		Stereo_Memory<stereo_t>( sta_arr->at(STA_EXTERNAL).param.size * sizeof_stereo ),
+		External_class( &sta_arr->at(STA_EXTERNAL), cfg, sds )
+	{
+		this->StA_arr			= sta_arr;
+	};
+	virtual ~StAExternal_class()
+	{
+//		DESTRUCTOR( className );
+	};
+	void Convert_StA2WAV( StAId_e staid );
+
+
+private:
+	void copy_sta2stereo( buffer_t frames );
 
 };
 

@@ -161,7 +161,6 @@ void MainWindow::chord_delay()
 void MainWindow::set_wdrole( RoleId_e roleid )
 {
 	if( roleid == ROLE_SIZE ) return;
-	ui->pB_Wavedisplay->setText( Qwd_role_names[ roleid ] );
 
     Sds->Set( sds->WD_status.roleId, roleid );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
@@ -173,16 +172,10 @@ void MainWindow::wavfile_selected( const QString &arg)
     {
         Sds->Write_str( WAVFILESTR_KEY, str );
         Eventlog.add( SDS_ID, READ_EXTERNAL_WAVFILE);
-        set_wdrole( EXTERNALROLE );
+//        set_wdrole( EXTERNALROLE );
     }
 }
 
-void MainWindow::Capture( QString str )
-{
-	Sds->capture_flag = Eventlog.capture( SDS_ID, not Sds->capture_flag );
-    (Sds->capture_flag) ? 	ui->cB_Capture->setCurrentText( QCapture_str_lst[Eventlog.CAPTURING] ):
-    						ui->cB_Capture->setCurrentText( QCapture_str_lst[Eventlog.SPOOLING ] );
-}
 
 void MainWindow::adsr_hall( )
 {
@@ -251,10 +244,25 @@ void MainWindow::SDS_Dialog()
 
 }
 
+void MainWindow::Cutter_Dialog()
+{
+	if( not CutterDialog_p->isVisible() )
+	{
+	    CutterDialog_p->Setup( Sds );
+	    Sem.Lock( PROCESSOR_WAIT );
+	    if( sds->WD_status.wd_mode == CURSORID )
+	    	switch_dialog( CutterDialog_p );
+	}
+	else
+	{
+		Eventlog.add( SDS_ID, CUT_RESTORE_KEY );
+    	switch_dialog( CutterDialog_p );
+	}
+}
 
 void MainWindow::ADSR_Dialog()
 {
-    switch_dialog( this->Spectrum_Dialog_p );
+	switch_dialog( this->Spectrum_Dialog_p );
     set_wdrole( ADSRROLE );
 
 	Spectrum_Dialog_p->setGeometry(Spectrum_Dialog_Rect );
@@ -279,7 +287,7 @@ void MainWindow::Spectrum_Dialog()
 
 void MainWindow::waveform_slot(	uint8_t* wf_addr,
 								uint8_t wfid,
-								int ID,
+								OSCID_e oscid,
 								EVENTKEY_e wf_key,
 								QLabel* label  )
 {
@@ -287,8 +295,10 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 	Eventlog.add( SDS_ID, wf_key);
 	label->setText( QWaveform_vec[ wfid ] );
 	MainWindow::setFocus();
-
+	Sds->Set( sds->WD_status.oscId, oscid );
+	set_wdrole( INSTRROLE );
 }
+
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
 	waveform_slot( &Sds->addr->spectrum_arr[OSCID].wfid[0], _wfid, OSCID, SETWAVEFORMMAINKEY, ui->wf_OSC );
@@ -360,8 +370,6 @@ void MainWindow::setStaPlay( StAId_e staid )
     Sds->Set( Sds->addr->StA_state_arr[staid].play, play);
     if( play )
    	{
-    	RoleId_e role = StaRole_map.GetRoleid( staid );
-        set_wdrole( role );
         Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
    	}
 
@@ -404,11 +412,8 @@ void MainWindow::setStaPlay7(  )
 
 void MainWindow::setStaStored( StAId_e staId )
 {
-    Sds->Set( Sds->addr->MIX_Id , staId );
-    bool filled = not Sds->addr->StA_state_arr[staId].filled;
-    Sds->Set( Sds->addr->StA_state_arr[staId].filled, filled );
-    Eventlog.add( SDS_ID, RESET_STA_SCANNER_KEY );
-    Eventlog.add( SDS_ID, SETSTA_KEY );
+    Sds->Set( Sds->addr->MIX_Id, staId );
+    Eventlog.add( SDS_ID, CLEAR_KEY );
 }
 void MainWindow::setStaStored0()
 {
@@ -442,6 +447,10 @@ void MainWindow::setStaStored7()
 {
 	setStaStored( STA_EXTERNAL );
 }
+void MainWindow::memory_clear()
+{
+	setStaStored( STA_SIZE );
+}
 
 void MainWindow::toggle_store_sta( StAId_e id )
 {
@@ -455,6 +464,7 @@ void MainWindow::toggle_store_sta( StAId_e id )
     {
         Eventlog.add( SDS_ID, STARECORD_START_KEY);
     }
+    set_wdrole( AUDIOROLE );
 };
 
 void MainWindow::toggle_store_sta0()
@@ -490,15 +500,6 @@ void MainWindow::toggle_store_sta7()
 	toggle_store_sta( STA_EXTERNAL );
 }
 
-
-void MainWindow::memory_clear()
-{
-	for( uint id : StAMemIds )
-	{
-		*cb_filled_sta_vec[id].state = false;
-	}
-    Eventlog.add( SDS_ID, CLEAR_KEY );
-}
 
 void MainWindow::mixer_slider( sl_value_t map )
 {
@@ -572,6 +573,9 @@ void MainWindow::sliderFreq( sl_lcd_t map, uint8_t value )
 void MainWindow::Slider_OSC_Freq( int value )
 {
 	sliderFreq( sl_frqidx_vec[OSCID], value );
+	Sds->Set( sds->WD_status.oscId, OSCID );
+	set_wdrole( INSTRROLE );
+
 }
 void MainWindow::Slider_VCO_Freq( int value )
 {
@@ -579,6 +583,8 @@ void MainWindow::Slider_VCO_Freq( int value )
 
 	sliderFreq( sl_frqidx_vec[VCOID], value );
 	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
+	Sds->Set( sds->WD_status.oscId, VCOID );
+	set_wdrole( INSTRROLE );
 
 }
 void MainWindow::Slider_FMO_Freq( int value )
@@ -587,7 +593,8 @@ void MainWindow::Slider_FMO_Freq( int value )
 
 	sliderFreq( sl_frqidx_vec[FMOID], value );
 	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
-
+	Sds->Set( sds->WD_status.oscId, FMOID );
+	set_wdrole( INSTRROLE );
 }
 
 void MainWindow::sliderVolume( sl_lcd_t map )
@@ -606,24 +613,27 @@ void MainWindow::VCO_slot_volume()
 {
 	sliderVolume( sl_volume_vec[ VCOID ] );
 	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
-
 }
 void MainWindow::FMO_slot_volume()
 {
 	sliderVolume( sl_volume_vec[ FMOID ] );
 	Eventlog.add( SDS_ID, CONNECTOSC_KEY );
-
 }
 
 void MainWindow::Slider_VCO_Adjust( int value )
 {
 	Sds->Set( Sds->addr->features[VCOID].adjust, (uint8_t) value);
 	Eventlog.add( SDS_ID, ADJUST_KEY);
+	Sds->Set( sds->WD_status.oscId, VCOID );
+	set_wdrole( INSTRROLE );
 }
 void MainWindow::Slider_FMO_Adjust( int value )
 {
 	Sds->Set( Sds->addr->features[FMOID].adjust, (uint8_t) value);
 	Eventlog.add( SDS_ID, ADJUST_KEY );
+	Sds->Set( sds->WD_status.oscId, FMOID );
+	set_wdrole( INSTRROLE );
+
 }
 
 void MainWindow::start_composer()
@@ -881,9 +891,11 @@ void MainWindow::setwidgetvalues()
     ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ] );
 	if( Rtsp_Dialog_p->isVisible() )
 		Rtsp_Dialog_p->Proc_table_update_all();
+//	if(( sds->WD_status.wd_mode == CURSORID ) and ( not CutterDialog_p->isVisible() ))
+//		sds->WD_status.wd_mode = FULLID; // inconsistent state
 
+	ui->pB_wd_mode->setText( Qwd_wdmode_names[ sds->WD_status.wd_mode ] );
 
-   	ui->cB_Capture->setCurrentText( QCapture_str_lst[ Eventlog.capture_state ] );
 
    	bool combine = ( Sds->addr->frq_slidermode == COMBINE );
    	ui->cB_Combine->setChecked( combine );
@@ -961,5 +973,9 @@ void MainWindow::updateColorButtons()
     else
         setButton( ui->pB_Specrum, 1 );
 
+    if( CutterDialog_p->isVisible() )
+	    setButton( ui->pB_Cutter, 3 );
+    else
+	    setButton( ui->pB_Cutter, 1 );
 
 }

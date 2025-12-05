@@ -557,6 +557,8 @@ bool Instrument_class::Set( string name )
 	return true;
 }
 
+#include <numbers>
+
 void Instrument_class::Test_Instrument()
 {
 	TEST_START( className );
@@ -642,7 +644,7 @@ void Instrument_class::Test_Instrument()
 	ASSERTION( fcomp( f, 16.3516 ), "" ,f, 16.3516 );
 
 
-	assert( ( sin(1.0) - sin(1.0-2*pi) ) < 1E-6);
+	assert( ( sin(1.0) - sin(1.0-2*numbers::pi) ) < 1E-6);
 
 	adsr_t adsr = Oscgroup.osc.Get_adsr();
 	ASSERTION( 	 adsr.hall == 20, "Oscgroup.osc.adsr_data.hall",

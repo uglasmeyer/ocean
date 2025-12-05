@@ -33,11 +33,12 @@ Trigger_class			BeatTrigger		{};
 Wavedisplay_class 		Wavedisplay		{ Sds };
 Wavedisplay_class*		Wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
-Mixer_class				Mixer			{ &DaTA, Wd_p } ;// DaTA.Sds_master );
 Instrument_class 		Instrument		{ sds, Wd_p, Cfg.fs };
+Mixer_class				Mixer			{ &DaTA, Wd_p } ;
+Cutter_class			Cutter			{ &Mixer };
 Note_class 				Notes			{ &Instrument, &Mixer.StA[ STA_NOTES ] };
 Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
-External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, Wd_p );
+External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, sds );
 ProgressBar_class		ProgressBar		( &sds->RecCounter );
 Time_class				Timer			( &sds->time_elapsed );
 Musicxml_class			MusicXML		{ Cfg.fs };
@@ -51,7 +52,8 @@ Event_class				Event
 	&DaTA,
 	&External,
 	&ProgressBar,
-	&MusicXML
+	&MusicXML,
+	&Cutter
 };
 
 extern void 			SynthesizerTestCases();
@@ -83,7 +85,7 @@ void activate_sds()
 {
 
 	// reset state of empty buffers
-	for ( uint id : Mixer.RecIds )
+	for ( uint id : RecIds )
 		sds->StA_state_arr[id].play = false;
 
 	// init sound volume on StAs
@@ -108,12 +110,26 @@ void activate_sds()
 		else
 			DaTA.Sds_p->Eventque.add( NEWNOTESLINEKEY );
 	}
+	Mixer.SetStAs();
 	Wavedisplay.SetDataPtr( sds->WD_status );
 }
 
 
 void add_sound()
 {
+
+	WdModeID_t 	mode	= sds->WD_status.wd_mode;
+	if ( mode == Cutter.CURSORID )
+	{
+		if ( Cutter.StAId == STA_SIZE) return;
+		Data_t*		StAdata	= Mixer.StA[ Cutter.StAId ].scanner.Next_read();
+		Stereo_t* 	shm_addr= DaTA.GetShm_addr(  );
+					Mixer.Add_mono	( StAdata, Cutter.StAId );
+					Mixer.Add_stereo( shm_addr );
+					Cutter.Display	();
+		return; // cursor control by cutter
+	};
+
 	Mixer.state 		= sds->mixer_state;
 
 	Mixer.BeatClock( sds->adsr_arr[OSCID].bps );
@@ -157,7 +173,6 @@ void add_sound()
 
 
 	Stereo_t* shm_addr = DaTA.GetShm_addr(  );
-
 	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
 						Keyboard.Kbd_Data,
 						Notes.NotesData,
@@ -168,8 +183,7 @@ void add_sound()
 
 	if (( sds->WD_status.roleId != AUDIOROLE )	)
 	{
-		Mixer.Set_Wdcursor();
-		sds->UpdateFlag = true;
+		Mixer.StA_Wdcursor();
 		Wavedisplay.Write_wavedata();
 	}
 }

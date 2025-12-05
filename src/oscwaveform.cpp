@@ -29,6 +29,7 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+#include <numbers>
 #include <Oscwaveform.h>
 #include <String.h>
 
@@ -126,6 +127,7 @@ Data_t Rnd_step( param_t& p )
 	return p.amp * step * rnd_step ;
 }
 
+frq_t pi = numbers::pi;
 const vector<waveFnc_struct> waveFunction_vec
 {
 //     fnc         visible name   maxphi  width

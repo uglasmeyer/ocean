@@ -120,11 +120,11 @@ struct 				mem_data_struct
 	void*			addr			= nullptr;
 	string			hex				= "0x0";
 	uint 			sizeof_type 	= sizeof( Data_t );
-	buffer_t 		size 			= max_frames; // define a block as a substructue on the memory data
-	buffer_t		bytes			= size * sizeof_type;
+	buffer_t 		record_size 			= max_frames; // define a block as a substructue on the memory data
+	buffer_t		bytes			= record_size * sizeof_type;
 	buffer_t		block_size		= min_frames;
 //	buffer_t		block_bytes		= block_size * sizeof_type;
-	buffer_t 		data_blocks		= size / block_size;
+	buffer_t 		data_blocks		= record_size / block_size;
 	uint 			max_records		= data_blocks; // data_block == max-records // TODO verify
 					mem_data_struct	() = default;
 					~mem_data_struct() = default;

@@ -113,16 +113,16 @@ public:
     QPushButton *pB_Mute;
     QWidget *layoutWidget;
     QGridLayout *gridLayout;
-    QPushButton *pB_Rtsp;
-    QComboBox *cB_Capture;
-    QPushButton *pB_Save;
-    QPushButton *pBAudioServer;
-    QPushButton *pb_SDSview;
     QPushButton *pBGuiExit;
-    QPushButton *pBComposer;
-    QPushButton *pb_Keyboard;
+    QComboBox *cB_external;
     QCheckBox *cb_overwrite;
-    QComboBox *cb_external;
+    QPushButton *pb_Keyboard;
+    QPushButton *pBAudioServer;
+    QPushButton *pBComposer;
+    QPushButton *pB_Save;
+    QPushButton *pb_SDSview;
+    QPushButton *pB_Rtsp;
+    QPushButton *pB_Cutter;
     QComboBox *cb_bps;
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_oscgroup;
@@ -564,56 +564,56 @@ public:
         gridLayout->setHorizontalSpacing(15);
         gridLayout->setVerticalSpacing(6);
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        pB_Rtsp = new QPushButton(layoutWidget);
-        pB_Rtsp->setObjectName("pB_Rtsp");
-
-        gridLayout->addWidget(pB_Rtsp, 0, 1, 1, 1);
-
-        cB_Capture = new QComboBox(layoutWidget);
-        cB_Capture->setObjectName("cB_Capture");
-
-        gridLayout->addWidget(cB_Capture, 1, 2, 1, 1);
-
-        pB_Save = new QPushButton(layoutWidget);
-        pB_Save->setObjectName("pB_Save");
-
-        gridLayout->addWidget(pB_Save, 0, 3, 1, 1);
-
-        pBAudioServer = new QPushButton(layoutWidget);
-        pBAudioServer->setObjectName("pBAudioServer");
-
-        gridLayout->addWidget(pBAudioServer, 1, 4, 1, 1);
-
-        pb_SDSview = new QPushButton(layoutWidget);
-        pb_SDSview->setObjectName("pb_SDSview");
-
-        gridLayout->addWidget(pb_SDSview, 1, 1, 1, 1);
-
         pBGuiExit = new QPushButton(layoutWidget);
         pBGuiExit->setObjectName("pBGuiExit");
 
-        gridLayout->addWidget(pBGuiExit, 1, 3, 1, 1);
+        gridLayout->addWidget(pBGuiExit, 1, 4, 1, 1);
 
-        pBComposer = new QPushButton(layoutWidget);
-        pBComposer->setObjectName("pBComposer");
+        cB_external = new QComboBox(layoutWidget);
+        cB_external->setObjectName("cB_external");
+        cB_external->setEditable(false);
 
-        gridLayout->addWidget(pBComposer, 0, 2, 1, 1);
-
-        pb_Keyboard = new QPushButton(layoutWidget);
-        pb_Keyboard->setObjectName("pb_Keyboard");
-
-        gridLayout->addWidget(pb_Keyboard, 0, 4, 1, 1);
+        gridLayout->addWidget(cB_external, 0, 0, 1, 1);
 
         cb_overwrite = new QCheckBox(layoutWidget);
         cb_overwrite->setObjectName("cb_overwrite");
 
         gridLayout->addWidget(cb_overwrite, 1, 0, 1, 1);
 
-        cb_external = new QComboBox(layoutWidget);
-        cb_external->setObjectName("cb_external");
-        cb_external->setEditable(false);
+        pb_Keyboard = new QPushButton(layoutWidget);
+        pb_Keyboard->setObjectName("pb_Keyboard");
 
-        gridLayout->addWidget(cb_external, 0, 0, 1, 1);
+        gridLayout->addWidget(pb_Keyboard, 0, 5, 1, 1);
+
+        pBAudioServer = new QPushButton(layoutWidget);
+        pBAudioServer->setObjectName("pBAudioServer");
+
+        gridLayout->addWidget(pBAudioServer, 1, 5, 1, 1);
+
+        pBComposer = new QPushButton(layoutWidget);
+        pBComposer->setObjectName("pBComposer");
+
+        gridLayout->addWidget(pBComposer, 0, 3, 1, 1);
+
+        pB_Save = new QPushButton(layoutWidget);
+        pB_Save->setObjectName("pB_Save");
+
+        gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
+
+        pb_SDSview = new QPushButton(layoutWidget);
+        pb_SDSview->setObjectName("pb_SDSview");
+
+        gridLayout->addWidget(pb_SDSview, 1, 1, 1, 1);
+
+        pB_Rtsp = new QPushButton(layoutWidget);
+        pB_Rtsp->setObjectName("pB_Rtsp");
+
+        gridLayout->addWidget(pB_Rtsp, 0, 1, 1, 1);
+
+        pB_Cutter = new QPushButton(layoutWidget);
+        pB_Cutter->setObjectName("pB_Cutter");
+
+        gridLayout->addWidget(pB_Cutter, 0, 2, 1, 1);
 
         cb_bps = new QComboBox(centralwidget);
         cb_bps->setObjectName("cb_bps");
@@ -844,14 +844,15 @@ public:
         label_3->setText(QCoreApplication::translate("MainWindow", "Beat per measure", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M a s   t e r", nullptr));
         pB_Mute->setText(QString());
-        pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
-        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
-        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
-        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT (ESC)", nullptr));
-        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
-        pb_Keyboard->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
         cb_overwrite->setText(QCoreApplication::translate("MainWindow", "Overwrite", nullptr));
+        pb_Keyboard->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
+        pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
+        pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
+        pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
+        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
+        pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
+        pB_Cutter->setText(QCoreApplication::translate("MainWindow", "Cutter", nullptr));
         pB_oscgroup->setText(QString());
         pb_fftmode->setText(QString());
         lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
@@ -869,7 +870,7 @@ public:
         label_16->setText(QCoreApplication::translate("MainWindow", "Volume [%]", nullptr));
         lbl_frqglide_sec->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pBSynthesizer->setText(QCoreApplication::translate("MainWindow", "Instrument", nullptr));
-        label_12->setText(QCoreApplication::translate("MainWindow", "0              Volume        100        |   storing             stored    playing", nullptr));
+        label_12->setText(QCoreApplication::translate("MainWindow", "0              Volume        100        |   storing\342\226\240           stored    playing\342\226\272", nullptr));
         cb_fsta0->setText(QString());
         cb_fsta1->setText(QString());
         cb_fsta2->setText(QString());

@@ -43,6 +43,7 @@ void Event_class::TestHandler()
 
 void Event_class::Handler()
 {
+	StAExternal_class	StAExternal{ &Mixer->StA, DaTA->Cfg_p, sds };
 
 	auto EvInfo = [ this ]( EVENTKEY_e key = NULLKEY, string str )
 	{
@@ -66,7 +67,10 @@ void Event_class::Handler()
 	case XMLFILE_KEY :
 	{
 		if ( sds->NotestypeId == NTE_ID )
+		{
+			Sds->Commit();
 			break;
+		}
 		Sem->Release( SEMAPHORE_INITNOTES ); //other
 		EvInfo( event, "receive command <setup play xml notes>");
 		Mixer->Set_play_mode( STA_NOTES, true );
@@ -210,14 +214,14 @@ void Event_class::Handler()
 	case SETWAVEDISPLAYKEY:
 	{
 		if( sds->WD_status.roleId == AUDIOROLE )
+		{
+			Sds->Commit();
 			break; // audio data is handled by the Audio server
-		Wavedisplay->SetDataPtr(sds->WD_status );
-		Wavedisplay->Write_wavedata();
-
+		}
+		Wavedisplay->Set_WdRole( sds->WD_status.roleId );
 		Sds->Commit();
 		break;
 	}
-
 	case SOFTFREQUENCYKEY:
 	{
 		EvInfo( event, "Frequency slide effect update ");
@@ -294,17 +298,15 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case READ_EXTERNAL_WAVFILE: {
+	case READ_EXTERNAL_WAVFILE:
+	{
 		Comment(INFO, "receive command <set external wave file>");
 		string wav_file = Sds->Read_str(WAVFILESTR_KEY);
-//		Sem->Lock(SEMAPHORE_TEST, 1); // assume record thread is working on that file
 		if (External->Read_file_header(wav_file))
 		{
 			External->Read_file_data();
-			Mixer->StA[STA_EXTERNAL].state.Play(true);
-			Mixer->StA[STA_EXTERNAL].DynVolume.SetupVol( 100, FIXED );
-			sds->StA_amp_arr[ STA_EXTERNAL ] = 100;
-			Mixer->state.external = true;
+			sds->StA_state_arr[STA_EXTERNAL ].play	= true;
+			Mixer->SetStAProperties( STA_EXTERNAL );
 			ProgressBar->SetValue( 100 * External->Filedata_size / External->mem_ds.bytes);
 		}
 		else
@@ -312,8 +314,6 @@ void Event_class::Handler()
 			Comment(ERROR, "Failed to setup header");
 		}
 		Sds->Commit();
-//		DaTA->EmitEvent( READ_EXTERNALWAVEFILE );
-
 		break;
 	}
 	case STARECORD_STOP_KEY: // stop record on data array id
@@ -347,13 +347,6 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case EXTERNAL_AMPLOOP_KEY:
-	{
-		uint8_t 	Id 		= sds->MIX_Id;
-		Mixer->StA[Id].DynVolume.SetupVol( sds->StA_amp_arr[Id], SLIDE);
-		Sds->Commit();
-		break;
-	}
 	case RESET_STA_SCANNER_KEY : // Audioserver start record
 	{
 		Info( "Reset StA scanner");
@@ -374,7 +367,7 @@ void Event_class::Handler()
 	case SETSTA_KEY:
 	{
 		StAId_e id = sds->MIX_Id;
-		Mixer->SetStA( id );
+		Mixer->SetStAProperties( id );
 		Sds->Commit();
 		break;
 	}
@@ -400,13 +393,10 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case CLEAR_KEY:
+	case CLEAR_KEY: // all or mix id
 	{
-		for( uint id : StAMemIds )
-		{
-			Mixer->StA[id].Reset();
-		}
-		Mixer->SetStAs();
+		StAId_e	staid = sds->MIX_Id;
+		Mixer->ResetStA( staid );
 		ProgressBar->Reset(); // RecCounter
 		Sds->Commit();
 		break;
@@ -414,17 +404,17 @@ void Event_class::Handler()
 	case UPDATENOTESKEY: // update notes
 	{
 		Comment(INFO, "receive command <update notes>");
-		if ( sds->NotestypeId == XML_ID ) break;
+		if ( sds->NotestypeId == XML_ID )
+		{
+			Sds->Commit();
+			break;
+		}
 		string notes_name = Sds->Read_str(NOTESSTR_KEY);
 		Notes->Read(notes_name);
-		if( Mixer->StA[ STA_NOTES ].DynVolume.GetCurrent().future == 0 )
-		{
-			Mixer->StA[ STA_NOTES ].DynVolume.SetupVol( 75, SLIDE );
-			sds->StA_amp_arr[ STA_NOTES ] = 75;
-		}
 		DaTA->EmitEvent( NEWNOTESLINEFLAG );
 		Notes->Generate_cyclic_data();
-		Mixer->Set_play_mode( STA_NOTES, true );
+		sds->StA_state_arr[STA_NOTES].play = true;
+		Mixer->SetStAProperties( STA_NOTES );
 
 		Sds->Commit();
 		break;
@@ -465,10 +455,12 @@ void Event_class::Handler()
 	}
 	case NOTESONKEY:
 	{
-		Value amp { (int) (sds->StA_amp_arr[STA_NOTES]) };
-		Comment(INFO, "receive command < notes on " + amp.str + "%>");
-		Mixer->StA[STA_NOTES].DynVolume.SetupVol( amp.val, FIXED );
-		Mixer->Set_play_mode(STA_NOTES, true);
+		uint8_t	amp 						= sds->StA_amp_arr[STA_NOTES] ;
+		sds->StA_state_arr[STA_NOTES].play	= true;
+		sds->vol_slidemode					= FIXED;
+		Info( "receive command < notes on", (int) amp, "%>" );
+		Mixer->Set_staVolume( STA_NOTES, amp );
+		Mixer->SetStAProperties( STA_NOTES );
 		Sem->Release(SEMAPHORE_SYNCNOTES);
 		Sds->Commit();
 		break;
@@ -515,14 +507,6 @@ void Event_class::Handler()
 		Sds->Commit();
 		break;
 	}
-	case CONNECTVCO_KEY: //connect VCO volume with FMO data
-	{
-		break;
-	}
-	case CONNECTFMO_KEY: // connect FMO volume with vco data
-	{
-		break;
-	}
 	case SETWAVEFORMFMOKEY:
 	{
 		EvInfo( event, "FMO waveform " + to_string((int) sds->spectrum_arr[OSCID].wfid[0] ) );
@@ -563,6 +547,38 @@ void Event_class::Handler()
 		Comment(INFO, "receiving instrument change to " + instrument);
 		Instrument->Save_Instrument(instrument);
 		DaTA->EmitEvent( NEWINSTRUMENTFLAG, instrument );
+		Sds->Commit();
+		break;
+	}
+	case CUT_UPDATE_KEY :
+	{
+		Cutter->CursorUpdate();
+		Sds->Commit();
+		break;
+	}
+	case CUT_KEY :
+	{
+		Cutter->Cut();
+		Sds->Commit();
+		break;
+	}
+	case CUT_SAVE :
+	{
+		StAExternal.Convert_StA2WAV( Cutter->StAId );
+		DaTA->EmitEvent( RECORDWAVFILEFLAG, "update wav filelist" );
+		Sds->Commit();
+		break;
+	}
+	case CUT_SETUP_KEY	:
+	{
+		Cutter->Setup();
+		Sds->Commit();
+		break;
+
+	}
+	case CUT_RESTORE_KEY	:
+	{
+		Cutter->Restore();
 		Sds->Commit();
 		break;
 	}

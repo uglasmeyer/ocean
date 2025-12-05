@@ -61,7 +61,10 @@ void Interface_class::selfTest( )
 	APPID appid = APPID::AUDIOID;
 	APPID value = addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
 	Assert_equal( value ,  appid );
+	uint16_t record = addr->WD_status.direction;
+	Assert_equal( record, (uint16_t)0, "Wd_status.record" );
 }
+
 Interface_class::Interface_class( 	APPID appid,
 									Id_t sdsid,
 									Config_class* cfg,
@@ -71,10 +74,12 @@ Logfacility_class("SharedData_class" )
 
 	this->AppId = appid;
 	this->className = Logfacility_class::className;
-	this->Sem_p	= sem;
-	this->Cfg_p = cfg;
-	this->fs	= cfg->fs;
-	Setup_SDS( sdsid, cfg->Config.sdskeys[ sdsid ] );
+	this->Sem_p		= sem;
+	this->Cfg_p 	= cfg;
+	this->fs		= cfg->fs;
+	this->dumpFile 	= fs->ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
+
+	Setup_SDS		( sdsid, cfg->Config.sdskeys[ sdsid ] );
 }
 
 
@@ -97,7 +102,6 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 
 	SHM.ShowDs(ds);
 
-	dumpFile = fs->ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
 	if ( not ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
@@ -235,8 +239,6 @@ string Interface_class::Read_str( EVENTKEY_e selector )
 }
 
 
-
-
 void Interface_class::Reset_ifd()
 {
 	// copy default values into sds memory
@@ -261,36 +263,24 @@ bool Interface_class::Restore_ifd()
 	int 			sdsid 		= addr->config;
 	appstate_arr_t 	appstate_arr= addr->appstate_arr;
 	Assert_lt( appstate_arr[0].state, NOSTATE );
-	FILE* 			fd 			= fopen( dumpFile.data() , "r");
 
-	if ( not fd )
-		return false;
-	uint 			size 		= fread( addr, sizeof( ifd_data ), 1, fd);
-	fclose( fd );
+	bool ret = loadData( dumpFile, addr, sizeof( ifd_data ) );
 
 	addr->config				= sdsid;
 	addr->appstate_arr			= appstate_arr;
 	Eventque.reset();
-	return ( size == sizeof( ifd_data ));
+	return ret;//( size == sizeof( ifd_data ));
 }
 
 void Interface_class::Dump_ifd()
 {
 	// copy shared memory data to dumpfile
 
-	Comment(INFO,"Dump shared data to file \n" + dumpFile) ;
-	assert( dumpFile.length() > 0 );
+	Comment(INFO,"Dump SDS  data to file", dumpFile) ;
 
 	Eventque.reset();
-	size_t count = 0;
-	FILE* fd = fopen( dumpFile.data() , "w");
-	if ( fd )
-	{
-		count = fwrite( addr, sizeof( ifd_data ), 1, fd);
-		fclose( fd );
-	}
-	if( count != 1 )
-		Exception( "incomplete dump" + Error_text( errno ) );
+	if ( not dumpData( dumpFile, addr, sizeof( ifd_data ) ) )
+		Comment( ERROR, "failed" );
 }
 
 

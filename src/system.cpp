@@ -125,6 +125,46 @@ string searchPath( string file )
     return string("");
 }
 
+
+size_t loadData( string name, void* data, size_t bytes )
+{
+	auto filesize = [ name ]( )
+	{
+	    filesystem::path filePath = name;
+	    return filesystem::file_size(filePath);;
+	};
+	// copy file to memory
+
+	if( name.length() == 0 )
+		return false;
+	if( not data )
+		return false;
+	if( not filesystem::exists( name ) )
+		return false;
+	if ( bytes == 0 )
+		bytes = filesize();
+
+	ifstream		fd{ name, ios::binary };
+	fd.read( reinterpret_cast<char*>( data ), bytes );
+	fd.close();
+
+	return bytes;
+}
+bool dumpData( string name, void* data, size_t bytes )
+{
+	// copy memory to file
+
+	if( name.length() == 0 )
+		return false;
+	if( not data )
+		return false;
+
+	ofstream		fd{ name, ios::binary };
+	fd.write( reinterpret_cast<char*>( data ), bytes );
+	fd.close();
+	return true;
+
+}
 void Remove_file( string file )
 {
 	if ( filesystem::exists( file ) )

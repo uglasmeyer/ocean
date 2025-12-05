@@ -89,7 +89,8 @@ void SynthesizerTestCases()
 
 	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
-										DaTA.Cfg_p, wd_p);
+										DaTA.Cfg_p,
+										sds );
 	ProgressBar_class		ProgressBar( &sds->RecCounter );
 	Time_class				Timer( &DaTA.sds_master->time_elapsed );
 	Statistic_class 		Statistic{ Log.className };
@@ -176,6 +177,7 @@ void SynthesizerTestCases()
 	DaTA.Test_Dataworld();
 	DaTA.Sds_p->Test_interface();
 
+	Cutter_class	Cutter{ &Mixer };
 	Event_class				Event{
 								&Instrument,
 								&Notes,
@@ -185,7 +187,8 @@ void SynthesizerTestCases()
 								&DaTA,
 								&External,
 								&ProgressBar,
-								&MusicXML};
+								&MusicXML,
+								&Cutter};
 
 	Event.TestHandler();
 

@@ -50,7 +50,8 @@ class Interface_class
 	file_structure*			fs					= nullptr;
 	interface_t 			ifd_data 			= interface_struct();
 	shm_ds_t				ds					= shm_data_struct();
-	Shm_base				SHM					{ sizeof( ifd_data ) };
+	size_t					sds_size			= sizeof( ifd_data );
+	Shm_base				SHM					{ sds_size };
 	string					dumpFile			= "";
 
 
@@ -90,7 +91,6 @@ public:
 	};
 
 private:
-	size_t					sds_size			= sizeof( ifd_data );
 	bool 					reject				( APPID id );
 	void					selfTest			();
 

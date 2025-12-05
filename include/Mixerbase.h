@@ -33,6 +33,7 @@ SOFTWARE.
 #define MIXERBASE_H_
 
 //#include <data/Memorybase.h>
+typedef vector<Storage_class>		StorageArray_t;
 
 const array<std::string, STA_SIZE> StANames =
 {
@@ -70,6 +71,11 @@ const 	StAarray_t 	StAMemIds =
 	STA_EXTERNAL
 };
 const range_T<StAId_e> staid_range{ (StAId_e)0, STA_SIZE };
+const vector<StAId_e>	AllIds	= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
+const set<StAId_e>		RecIds 	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
+const vector<StAId_e>	UsrIds	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
+const vector<StAId_e>	HghIds	= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
+const set<StAId_e>		LowIds	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
 
 struct mixer_state_struct
 {	// SDS related

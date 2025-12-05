@@ -45,6 +45,8 @@ extern bool 			Is_running_process	( const pid_t& pid );
 extern bool 			Is_running_process	( const string& pidstr );
 extern void 			Remove_file			( string file );
 extern void 			Rename_file			( string old_name, string new_name );
+extern size_t 			loadData			( string name, void* data, size_t bytes );
+extern bool 			dumpData			( string name, void* data, size_t bytes);
 
 
 #endif /* INCLUDE_COMMON_H_ */

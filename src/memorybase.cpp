@@ -58,10 +58,10 @@ void Memory_base::SetDs( size_t type_size )
 
 				mem_ds.sizeof_type 	= type_size;
 				mem_ds.data_blocks 	= mem_ds.bytes / type_size;  //max_frames
-				mem_ds.size			= min_frames;
-				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.size ; // max_frames / min_frames
+				mem_ds.record_size	= min_frames;
+				mem_ds.max_records	= mem_ds.data_blocks / mem_ds.record_size ; // max_frames / min_frames
 
-	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.size;
+	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.record_size;
 	Assert_equal( mem_ds.bytes, bytes );
 }
 
@@ -78,7 +78,7 @@ void Memory_base::Init_data( buffer_t bytes )
 	statistic.data += mem_ds.bytes;
 }
 
-
+#include <Table.h>
 void* Memory_base::Init_void( buffer_t bytes )
 {
 	mem_ds.bytes = bytes;
@@ -95,18 +95,28 @@ void* Memory_base::Init_void( buffer_t bytes )
 }
 void Memory_base::DsInfo( string name )
 {
-	Comment( DEBUG, "Name             : " + name );
-	Comment( DEBUG, "Memory bytes     : " + to_string( mem_ds.bytes ));
-	Comment( DEBUG, "Addr             : " + to_hex(( long)mem_ds.addr) );
-	Comment( TEST, "Structure bytes  : " + to_string( mem_ds.sizeof_type ));
-	Comment( TEST, "Record size      : " + to_string( mem_ds.size ));
-	Comment( TEST, "data blocks      : " + to_string( mem_ds.data_blocks ));
-	Comment( TEST, "max data records : " + to_string( mem_ds.max_records ));
-
+	Table_class T {};
+	T.AddColumn( "Data type", 20 );
+	T.AddColumn( "Value", 10 );
+	if( LogMask[DEBUG] )
+	{
+		T.PrintHeader();
+		T.AddRow( "Name", name );
+		T.AddRow( "Memory bytes", mem_ds.bytes );
+		T.AddRow( "Addr", to_hex(( long)mem_ds.addr) );
+	}
+	if( LogMask[TEST] )
+	{
+		T.AddRow( "Block bytes", mem_ds.sizeof_type );
+		T.AddRow( "Record size", mem_ds.record_size );
+		T.AddRow( "data blocks", mem_ds.data_blocks );
+		T.AddRow( "max data records", mem_ds.max_records );
+	}
 }
 void Memory_base::Clear_data( Data_t value )
 {
-	for ( buffer_t n = 0; mem_ds.data_blocks > n; n++ )
+	buffer_t data_blocks = mem_ds.bytes / mem_ds.sizeof_type;
+	for ( buffer_t n = 0; data_blocks > n; n++ )
 	{
 		Data[n] = value;
 	}
