@@ -9,6 +9,7 @@ FILE(GLOB PROJECT_SRC *.cpp)
 add_executable(${OCEAN_PROJECT}
 ${PROJECT_SRC} 
 )
+#add_compile_options( )
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/ ${CMAKE_CURRENT_SOURCE_DIR}/.. )

@@ -425,6 +425,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			default  : 	Config.filename		= arg				; break;
 		}
 	}
+
 	if( Process.AppId == SETUPID )
 	{
 		if ( Config.filename.length() > 0) Info( "Config.filename  ", Config.filename );

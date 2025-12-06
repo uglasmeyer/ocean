@@ -29,9 +29,9 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#include <ReleaseNotes.h>
 #include <data/Config.h>
 #include <notes/Notes.h>
+#include "../Setup/ReleaseNotes.h"
 
 // musicsml, variation
 Note_class::Note_class( )

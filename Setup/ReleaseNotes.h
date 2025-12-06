@@ -40,21 +40,23 @@ const string rn_filename = "RELEASE_NOTES.md";
 const string rn_newline = "\n\n";
 const string rn_appname = "ocean_sound_lab";
 const string rn_architecture = getArch();
-const string rn_archive = rn_appname + "_" + Version_No + "_" + rn_architecture + ".tar";
+const string rn_archive = rn_appname + "_" + Version_No + ".tar";
 const string rn_tgz = rn_archive + ".gz";
+const string rn_sha256 = rn_tgz + ".sha256";
+const string rn_cksum = rn_tgz + ".cksum";
 const string rn_tag = "v" + Version_No;
 const string rn_userdoc = "Ocean-SL_Usermanual";
 
 const string rn_title = "# " + rn_appname + " v" + Version_No + rn_newline;
 const string rn_summary =
 		"Summary\n"
-		"- Prebuilt binary distribution for release " +
+		"- Prebuilt binary and runtime distribution for release " +
 		Version_No +
 		" (tarball)." + rn_newline;
 
 const string rn_include =
 		"what's included\n- " +
-		rn_tgz + " - prebuilt binaries for linux x86_64, Ubuntu libc.so.6\n" +
+		rn_tgz + " - prebuilt binaries for linux x86_64, aarch64, Ubuntu libc.so.6\n" +
  		"and supporting files." + rn_newline;
 
 const string rn_changes =
@@ -96,7 +98,8 @@ this as beeing under construction with respect to a
 
 const string rn_changelog =
 R"(Changelog
-- N/A. 
+- combined distribution of x86 and arch binaries
+- GUI Cut desk, allowing to cut recorded wav files
 )" + rn_newline;
 
 #endif /* RELEASENOTES_H_ */

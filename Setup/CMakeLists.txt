@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.31)
 set(OCEAN_PROJECT Setup)
 project(${OCEAN_PROJECT})
 
-add_compile_options(-DWITHOUT_SHM )
 
 # Add an executable target
 add_executable(${OCEAN_PROJECT} 
@@ -11,7 +10,8 @@ add_executable(${OCEAN_PROJECT}
 )
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/../include/ )
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/
+  ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # Add the library search path for this target only
 target_link_directories(${OCEAN_PROJECT} PRIVATE 

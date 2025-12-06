@@ -11,8 +11,8 @@ A screen shot of the graphical user interface shall illustrate some of its featu
 Author Ulrich Glasmeyer, Germany, during the time 2023 - 2025+
 
 This distribution of Ocean-SL contains the following
-- bin	: Audioserver, Synthesizer, Keyboard, Qt6-Userinterface OceanGUI, SDSview, Rtsp
-- lib	: Qt6-runtime, tinyxml2 and RtAudio runtime, libOcean.so
+- bin	: (x86_64, aarch64) Audioserver, Synthesizer, Keyboard, Qt6-Userinterface OceanGUI, SDSview, Rtsp
+- lib	: (x86_64, aarch64) Qt6-runtime, tinyxml2 and RtAudio runtime, libOcean.so
 - etc	: configuration file and sample program, notes and sound files
 - doc	: user documentation
 - var	: sample wav files

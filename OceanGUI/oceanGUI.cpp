@@ -239,7 +239,7 @@ void MainWindow::SDS_Dialog()
 	}
 	else
 	{
-		string Start_Comstack = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->comstack_bin, "" );
+		string Start_Comstack = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->sdsview_bin, "" );
 		System_execute( Start_Comstack );
 	}
 	return;
