@@ -141,10 +141,10 @@ void create_tararchive( source_struct Ss )
 
 	string 	tag		= "v" + Version_No;
 			cmd		= "gh release create " + tag + " " +
-					deployment_archive + " " +
-					deployment_archive + ".cksum " +
-					deployment_archive + ".sha256 " +
-					"--title ocean_sound_lab_" + tag +
+					rn_tgz + " " +
+					rn_cksum + " " +
+					rn_sha256 +
+					" --title ocean_sound_lab_" + tag +
 					" --notes-file " + Ss.sourcedir + rn_filename;
 	Log.Info		( cmd );
 

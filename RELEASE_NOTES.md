@@ -13,10 +13,10 @@ that allows to generate, play and record sound.
 It includes interfaces for musicxml-files, supports the sound drivers: native ALSA and Pulseaudio 
 and consists of a direct integration of musescore3 and the music file converting tools 
 ffmpeg and id3tool. 
-The binary distribution of Ocean-SL is limited to the x86_64 architecture (as of Nov.2025). 
 This distribution includes the 3rd party runtime libraries for Qt6, RtAudio and tiny2xml 
-and is tested and compiled on ubuntu 2025-10 for x86_64.
+and is tested and compiled on ubuntu 2025-10 for x86_64 and aarch64 on rasperry PI and NUC.
 
+![Ocean Sound-lab GUI](Resource/Ocean-SL.png)
 
 Installation
 1. Download the tarball from the Release assets.
@@ -26,9 +26,9 @@ Installation
 
 Verification
 	- verify cksum (as provided by packager):
-	1927703120 81980178 ocean_sound_lab_4.1.2-40.tar.gz
+	1606890584 81980226 ocean_sound_lab_4.1.2-40.tar.gz
 - verify SHA-256 locally: 
-74e668517c5536e30f98dbe5509fa223558ed67bb010d250aa1e29be316f8571  ocean_sound_lab_4.1.2-40.tar.gz
+edc4b1a5f69a8157711e716afee0ebdbf32a0cad9c3083bcd07edfdf2863383a  ocean_sound_lab_4.1.2-40.tar.gz
 - Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256
 
 License & source

@@ -66,9 +66,8 @@ that allows to generate, play and record sound.
 It includes interfaces for musicxml-files, supports the sound drivers: native ALSA and Pulseaudio 
 and consists of a direct integration of musescore3 and the music file converting tools 
 ffmpeg and id3tool. 
-The binary distribution of Ocean-SL is limited to the x86_64 architecture (as of Nov.2025). 
 This distribution includes the 3rd party runtime libraries for Qt6, RtAudio and tiny2xml 
-and is tested and compiled on ubuntu 2025-10 for x86_64.
+and is tested and compiled on ubuntu 2025-10 for x86_64 and aarch64 on rasperry PI and NUC.
 )" + rn_newline;
 
 const string rn_installation =
