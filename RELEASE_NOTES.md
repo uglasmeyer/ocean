@@ -1,10 +1,10 @@
 # ocean_sound_lab v4.1.2-40
 
 Summary
-- Prebuilt binary distribution for release 4.1.2-40 (tarball).
+- Prebuilt binary and runtime distribution for release 4.1.2-40 (tarball).
 
 what's included
-- ocean_sound_lab_4.1.2-40.tar.gz - prebuilt binaries for linux x86_64, Ubuntu libc.so.6
+- ocean_sound_lab_4.1.2-40.tar.gz - prebuilt binaries for linux x86_64, aarch64, Ubuntu libc.so.6
 and supporting files.
 
 - Ocean Sound Lab provides a programmable set of Sound Managing Applications, such as Synthesizer, 
@@ -26,9 +26,9 @@ Installation
 
 Verification
 	- verify cksum (as provided by packager):
-	4182694026 70571364 ocean_sound_lab_4.1.2-40.tar.gz
+	1927703120 81980178 ocean_sound_lab_4.1.2-40.tar.gz
 - verify SHA-256 locally: 
-55c80957049441fcc205a93f23a63acdc264fbe62fb2278732bc2b37853247c4  ocean_sound_lab_4.1.2-40.tar.gz
+74e668517c5536e30f98dbe5509fa223558ed67bb010d250aa1e29be316f8571  ocean_sound_lab_4.1.2-40.tar.gz
 - Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256
 
 License & source
@@ -47,6 +47,7 @@ this as beeing under construction with respect to a
 
 
 Changelog
-- N/A. 
+- combined distribution of x86 and arch binaries
+- GUI Cut desk, allowing to cut recorded wav files
 
 
