@@ -16,7 +16,6 @@ ffmpeg and id3tool.
 This distribution includes the 3rd party runtime libraries for Qt6, RtAudio and tiny2xml 
 and is tested and compiled on ubuntu 2025-10 for x86_64 and aarch64 on rasperry PI and NUC.
 
-![Ocean Sound-lab GUI](Resource/Ocean-SL.png)
 
 Installation
 1. Download the tarball from the Release assets.
@@ -26,9 +25,9 @@ Installation
 
 Verification
 	- verify cksum (as provided by packager):
-	1606890584 81980226 ocean_sound_lab_4.1.2-40.tar.gz
+	1705709574 81980143 ocean_sound_lab_4.1.2-40.tar.gz
 - verify SHA-256 locally: 
-edc4b1a5f69a8157711e716afee0ebdbf32a0cad9c3083bcd07edfdf2863383a  ocean_sound_lab_4.1.2-40.tar.gz
+166019bd58c61f1902dfffd12812fe3fe17371b725fcd3c4923c74e49f5c61c0  ocean_sound_lab_4.1.2-40.tar.gz
 - Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256
 
 License & source
