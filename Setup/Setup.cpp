@@ -231,8 +231,8 @@ void create_oceanrc( source_struct Ss )
 	Oceanrc << "export ARCH=" << getArch() << endl;
 	Oceanrc << "PATH=$(echo $PATH | sed \"s|$OCEANDIR/bin:||g\")" << endl;
 	Oceanrc << "LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed \"s|$OCEANDIR/lib:||g\")" << endl;
-	Oceanrc << "export PATH=$" << OCEANDIR << "/bin:$PATH" << endl;
-	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib:$LD_LIBRARY_PATH"<< endl;
+	Oceanrc << "export PATH=$" << OCEANDIR << "/bin/$ARCH:$PATH" << endl;
+	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib/$ARCH:$LD_LIBRARY_PATH"<< endl;
 }
 
 void symboliclink( string _src, string _sym, string _ext )
@@ -298,24 +298,26 @@ void ConvertOdt2Pdf( source_struct Ss )
 void Copy_3rdpartylibs( source_struct Ss )
 {
 
+	Log.Info( "Copying 3rd party libraries" );
 	string systemlibdir = "/lib/" + Ss.architectur + "-linux-gnu/";
 	typedef vector<string> string_vec_t;
 	string_vec_t lib_vec = {
 		systemlibdir + "libQt6Core.so.6",
 		systemlibdir + "libQt6Gui.so.6",
 		systemlibdir + "libQt6Widgets.so.6",
-		"/usr/local/lib/librtaudio.so",
-		systemlibdir + "libtinyxml2.so"
+		"/usr/local/lib/librtaudio.so.7",
+		systemlibdir + "libtinyxml2.so.10",
+		systemlibdir + "libtinyxml2.so.11"
 	};
 	for ( string lib : lib_vec )
 	{
 		if ( filesystem::exists( lib ) )
 		{
-			filesystem::copy( lib , fs->libdir, filesystem::copy_options::skip_existing );
+			filesystem::copy( lib , fs->archlibdir, filesystem::copy_options::skip_existing );
 		}
 		else
 		{
-			Exception( "no such file to copy: " + lib );
+			Log.Comment( WARN, "no such file to copy:", lib );
 		}
 	}
 }

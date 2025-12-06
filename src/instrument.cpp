@@ -507,7 +507,7 @@ void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
 void Instrument_class::Save_Instrument( string str )
 {
 	set_new_name( str );
-	Comment( INFO,  "saving sound to: " + Instrument_file);
+	Info( "saving sound to:", Instrument_file);
 
 	fstream FILE;
 	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
@@ -541,13 +541,13 @@ bool Instrument_class::Set( string name )
 
 	if ( read_instrument( ) )
 	{
-		Comment(INFO, "sucessfully loaded instrument " + name );
-		showOscfeatures( ); // stdout
+		Info( "sucessfully loaded instrument", name );
+		showOscfeatures(); // stdout
 		Oscgroup.Show_sound_stack();
 	}
 	else
 	{
-		Comment(ERROR, "cannot load instrument" + name );
+		Comment(ERROR, "cannot load instrument", name );
 		return false;
 	}
 

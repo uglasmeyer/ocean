@@ -39,17 +39,7 @@ SOFTWARE.
 /**************************************************
  * source_struct
  *************************************************/
-/*	string _dir = "";
-	string _pwd = pwd.generic_string() + "/";
-	if ( _pwd.length() == 0 )
-		Exception( "PWD not set");
-	size_t pos = _pwd.find( "/Ocean/" );
-	if( pos < STRINGNOTFOUND )
-		_dir = _pwd.substr( 0, pos ) + string( "/Ocean/");
 
-
-	return _dir;
-*/
 source_struct::source_struct( string srcdir )
 {
 	sourcedir		= srcdir;
@@ -437,9 +427,9 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 	}
 	if( Process.AppId == SETUPID )
 	{
-		Info( "Config.filename  ", Config.filename );
-		Info( "Config.sourcedir ", Config.sourcedir);
-		Info( "Config.installdir", Config.installdir);
+		if ( Config.filename.length() > 0) Info( "Config.filename  ", Config.filename );
+		if ( Config.sourcedir.length() > 0) Info( "Config.sourcedir ", Config.sourcedir);
+		if ( Config.installdir.length() > 0) Info( "Config.installdir", Config.installdir);
 	}
 }
 
