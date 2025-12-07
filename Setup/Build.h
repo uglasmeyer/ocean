@@ -119,7 +119,6 @@ public:
 		className = Logfacility_class::className;
 		srcdir = sdir;
 		Bin = bin;
-		Set_Loglevel( WAIT, true );
 	};
 	virtual ~Deploy_class()
 	{
@@ -128,9 +127,10 @@ public:
 	void commit()
 	{
 		string cmd = "cd " + srcdir + " && ";
+				cmd = cmd + "git add -A && ";
 				cmd = cmd + " git commit";
 
-		System_execute( cmd );
+		Conditional( "Commit", cmd );
 
 	}
 

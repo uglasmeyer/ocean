@@ -55,9 +55,13 @@ void exit_proc( int signal )
 void Conditional( string question, string action )
 {
 	Log.Info( action );
-	kbdInt_t key = Log.Wait( &Kbd, question, "y/n?" );
+	kbdInt_t key = Log.Wait( &Kbd, question, "y/(b)reak?" );
 	if( key == 'y' )
 		System_execute( action );
+	if ( key == 'b' )
+	{
+		raise(1);
+	}
 }
 
 void overwrite ( string _src, string _dst )
@@ -65,31 +69,12 @@ void overwrite ( string _src, string _dst )
 	auto over_write = filesystem::copy_options::overwrite_existing;
 	filesystem::copy( _src , _dst, over_write );
 };
-void init_file( string _dst_file, string _rc_dir )
+void init_file( string _src, string _dst )
 {
-	filesystem::path path { _dst_file };
-	string filename = path.filename();
-	string src_file = _rc_dir + filename;
-	Log.Comment( DEBUG, "init demo file: ", _dst_file );
-
-	if( filesystem::is_directory( _rc_dir ) )
-	{
-		if( filesystem::is_regular_file( src_file ) )
-		{
-			if( not filesystem::exists( _dst_file ) )
-			{
-				filesystem::copy( src_file, _dst_file );
-			}
-			else
-				Log.Comment( DEBUG, _dst_file, " already exists");
-		}
-		else
-			Log.Comment( ERROR, src_file, " is not a regular file");
-
-	}
-	else
-		Log.Comment( ERROR, _rc_dir, " is not a directory");
+	auto mode = filesystem::copy_options::skip_existing;
+	filesystem::copy( _src , _dst, mode );
 }
+
 void copy_files( string dir, string filter, string destination )
 {
 	if ( destination.length() == 0 ) return;
@@ -179,7 +164,7 @@ void compare_environment()
 		Log.Comment( WARN, "is not equal to install directory=", Bin->installdir );
 	}
 }
-void create_oceanrc( source_struct Ss )
+void create_oceanrc()
 {
 	Log.Info( "Creating the", Bin->oceanrc_file );
 	fstream Oceanrc	{};
@@ -252,11 +237,11 @@ void ConvertOdt2Pdf( source_struct Ss )
 	System_execute( cmd );
 }
 
-void Copy_3rdpartylibs( source_struct Ss )
+void Copy_3rdpartylibs( source_struct* Src )
 {
 
 	Log.Info( "Copying 3rd party libraries" );
-	string systemlibdir = "/lib/" + Ss.architectur + "-linux-gnu/";
+	string systemlibdir = "/lib/" + Src->architectur + "-linux-gnu/";
 	typedef vector<string> string_vec_t;
 	string_vec_t lib_vec = {
 		systemlibdir + "libQt6Core.so.6",
@@ -279,10 +264,41 @@ void Copy_3rdpartylibs( source_struct Ss )
 	}
 }
 
+void Setup_runtime( source_struct* Src, file_structure* Bin )
+{
+
+	Cfg.CreateInstalldirs( );
+
+	Copy_3rdpartylibs( Src );
+
+	init_file ( Src->resourcedir + "Notes/" + Bin->default_nte, Bin->notesdir );
+	init_file ( Src->resourcedir + "Instruments/" + Bin->default_snd, Bin->instrumentdir );
+	overwrite ( Src->resourcedir + "Instruments/.test2.snd", Bin->instrumentdir );
+	init_file ( Src->resourcedir + Bin->bkground_filename, Bin->bkground_file );
+	overwrite ( Src->resourcedir + Bin->ipctool_filename, Bin->ipctool_file );
+	init_file ( Src->resourcedir + Bin->config_filename	, Bin->config_file );
+	overwrite ( Src->resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
+	overwrite ( Src->sourcedir + Bin->install_txt		, Bin->install_txtfile );
+
+	init_file ( Src->resourcedir + Bin->program_filename, Bin->includedir );
+	init_file ( Src->resourcedir + Bin->prog_libfilename, Bin->includedir );
+	init_file ( Src->resourcedir + Bin->prog_testfilename,Bin->includedir );
+
+	Log.Info( "Using Ocean Base Directory ", Bin->installdir );
+	bashrc_oceandir();
+	create_oceanrc();
+
+	using filesystem::perms;
+	using filesystem::perm_options;
+
+	permissions( Bin->deploy_file	, perms::owner_exec, perm_options::add );
+	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
+}
 
 int main(int argc, char **argv)
 {
 	Cfg.Parse_argv(argc, argv );
+	Bin 		= Cfg.fs;
 
 	// CDT install binary
 	if( Cfg.Config.filename.length() > 0 )
@@ -295,40 +311,16 @@ int main(int argc, char **argv)
 	}
 
 	source_struct 	Src 		{ Cfg.Config.sourcedir };
-					Bin 		= Cfg.fs;
 	Build_class 	Build 		{ Src.sourcedir, Bin };
 
 	if ( Cfg.Config.test == 'y' )
 	{
 		Setup_Test( Src );
 	}
+	Log.Set_Loglevel( WAIT, true );
 
-	overwrite ( Src.resourcedir + "Instruments/.test2.snd", Bin->instrumentdir );
-	overwrite ( Src.resourcedir + Bin->bkground_filename	, Bin->bkground_file );
-	overwrite ( Src.resourcedir + Bin->ipctool_filename	, Bin->ipctool_file );
-	overwrite ( Src.resourcedir + Bin->config_filename	, Bin->config_file );
-	overwrite ( Src.resourcedir + Bin->deploy_filename	, Bin->deploy_file );
-	const string	rc_nte_file	= Src.resourcedir + "Notes/" + Bin->default_nte;
-	const string	rc_snd_file	= Src.resourcedir + "Instruments/" + Bin->default_snd;
-	overwrite ( rc_snd_file		, Bin->instrumentdir + Bin->default_snd );
-	overwrite ( rc_nte_file		, Bin->notesdir + Bin->default_nte );
-
-	overwrite ( Src.resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
-	overwrite ( Src.sourcedir + Bin->install_txt		, Bin->install_txtfile );
-
-	init_file ( Bin->program_file						, Src.resourcedir );
-	init_file ( Bin->prog_libfile						, Src.resourcedir );
-	init_file ( Bin->prog_testfile						, Src.resourcedir );
-
-	Log.Info( "Using Ocean Base Directory ", Bin->installdir );
-	bashrc_oceandir();
-	create_oceanrc( Src );
-
-	using filesystem::perms;
-	using filesystem::perm_options;
-
-	permissions( Bin->deploy_file	, perms::owner_exec, perm_options::add );
-	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
+	// Setup runtime
+	Setup_runtime( &Src, Bin );
 
 	if ( Cfg.Config.Deploy )
 	{
@@ -339,7 +331,6 @@ int main(int argc, char **argv)
 		// create screen shot
 		// test OceanGUI on rio
 		// test Synthesizer
-		Copy_3rdpartylibs( Src );
 		ConvertOdt2Pdf( Src );
 		create_tararchive( Src );
 		Deploy.Create_ReleaseNotes();

@@ -152,9 +152,12 @@ struct file_structure
 	const string	version_txt					= etcdir		+ "version.txt";
 	const string	datacfg_file				= etcdir		+ "Data.cfg";
 	const string 	counter_file 				= libdir 		+ "counter.bin";
-	const string 	program_file				= includedir 	+ "main.synth";
-	const string	prog_libfile				= includedir	+ "lib.inc";
-	const string	prog_testfile				= includedir	+ "testcases.inc";
+	const string 	program_filename			= "main.synth";
+	const string	prog_libfilename			= "lib.inc";
+	const string	prog_testfilename			= "testcases.inc";
+	const string 	program_file				= includedir 	+ program_filename;
+	const string	prog_libfile				= includedir	+ prog_libfilename;
+	const string	prog_testfile				= includedir	+ prog_testfilename;
 	const string	log_file					= logdir		+ "composer.log";
 	const string	nohup_file					= logdir		+ "nohup.log";
 	const string 	bkground_filename			= "Ocean.png";

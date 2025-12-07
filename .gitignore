@@ -24,7 +24,6 @@ language.settings.xml
 /Cmake/build_*
 /*/cmake_install.cmake
 /*/Makefile
-
-
+/ocean_sound_lab_*
 /debugging.txt
 /nohup.out
