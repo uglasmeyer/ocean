@@ -208,7 +208,7 @@ public:
 private:
 	vector_str_t	parse_cmdline		();
 	string 			trailing_slash		( const string& dir );
-	void 			setAppCWD			();
+	void 			setAppCWD			( string cwd );
 
 
 };

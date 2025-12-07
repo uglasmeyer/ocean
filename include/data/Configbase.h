@@ -52,14 +52,14 @@ struct prgarg_struct
 	uint 		rate 		= sample_rate;	// -r
 	uint 		device 		= 0;		// -d
 	uint 		ch_offs 	= 0; 		// -o
-	uint 		MAXWAVFILES	= 5; // max numbers of file names generated automatically
-//	char		clear		= 'n';		// -X clear process array
+	uint 		MAXWAVFILES	= 5; 		// max numbers of file names generated automatically
 	char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
-	char		debug		= 'n';
+	char		debug		= 'n';		// -v verboose output
 	char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
 	char 		composer	= 'n';		// start rtsp with option -C
 	char 		oceangui	= 'n';		// start rtsp with option -G
 	char		archive		= 'n';		// setup creates no binary archive
+	char		Deploy		= 'n';		// -Y deployment workflow
 	string 		Genre		= "Alternative";
 	string 		author		= "U.G.";
 	string		title		= "Experimental";

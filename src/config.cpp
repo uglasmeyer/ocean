@@ -216,11 +216,11 @@ Config_class::Config_class() :
 Config_class::~Config_class()
 { DESTRUCTOR( className ); };
 
-void Config_class::setAppCWD()
+void Config_class::setAppCWD( string cwd )
 {
 	try
 	{
-		filesystem::current_path( fs->tmpdir );
+		filesystem::current_path( cwd );
 		Info( "Updated directory", filesystem::current_path() );
 	}
 	catch (const std::filesystem::filesystem_error& e)
@@ -422,6 +422,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			case 'S' : 	Config.sourcedir	= next = trailing_slash( next )	; break;
 			case 'V' :	Set_Loglevel( DEBUG, true );
 						Set_Loglevel( DBG2, true )				; break;
+			case 'Y' :	Config.Deploy		= 'y'				; break;
 			default  : 	Config.filename		= arg				; break;
 		}
 	}

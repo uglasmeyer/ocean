@@ -38,6 +38,8 @@ SOFTWARE.
 #include <ReleaseNotes.h>
 #include <System.h>
 
+extern void Conditional( string question, string action );
+
 /**************************************************
  * Build_class
  *************************************************/
@@ -82,7 +84,7 @@ public:
 							+ " cd " +  archbindir + " && "
 							+ " scp * saturn:" + archbindir + "'";
 
-		System_execute( cmd1 );
+		Conditional( "Build remote (rio)", cmd1 );
 		cout << cmd1 << endl;
 	}
 	void local()
@@ -92,8 +94,7 @@ public:
 						+ " cmake CMakeLists.txt &&"
 						+ " make clean &&"
 						+ " make -j12 ";
-		System_execute( cmd1 );
-		cout << cmd1 << endl;
+		Conditional( "Build local", cmd1 );
 	}
 
 private:
@@ -109,7 +110,6 @@ class Deploy_class :
 {
 	string className = "";
 	string srcdir	= "";
-	Kbd_base		Kbd {};
 	file_structure* Bin;
 
 public:
@@ -125,6 +125,14 @@ public:
 	{
 		DESTRUCTOR( className );
 	};
+	void commit()
+	{
+		string cmd = "cd " + srcdir + " && ";
+				cmd = cmd + " git commit";
+
+		System_execute( cmd );
+
+	}
 
 	void Update_Gitdir()
 	{
@@ -133,11 +141,12 @@ public:
 						+ " " + rn_sha256
 						+ " " + rn_cksum
 						+ " " + srcdir;
-		System_execute( cmd1 );
-		cout << cmd1 << endl;
+		Conditional( "move",  cmd1 );
 	}
 	void Github()
 	{
+
+		string 	cmd1	= "cd " + srcdir + " && ";
 		string 	tag		= "v" + Version_No;
 		string	cmd		= "gh release create " + tag + " " +
 						rn_tgz + " " +
@@ -145,10 +154,10 @@ public:
 						rn_sha256 +
 						" --title ocean_sound_lab_" + tag +
 						" --notes-file " + srcdir + rn_filename;
+
 		Info		( cmd );
-		kbdInt_t key = Wait( &Kbd, "Execute ? y/n" );
-		if( key == 'y' )
-			System_execute( cmd );
+
+		Conditional( "Execute", cmd1 + cmd );
 	}
 
 	string get_check_sum( string _type )

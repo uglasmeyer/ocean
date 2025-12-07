@@ -34,11 +34,13 @@ SOFTWARE.
 
 #include <Exit.h>
 #include <data/Config.h>
+
 #include <Build.h>
 
 Exit_class				Exit			{};
 Config_class			Cfg				{};
 Logfacility_class		Log				( Cfg.prgName );
+Kbd_base				Kbd 			{};
 
 file_structure* 		Bin				;
 
@@ -48,6 +50,14 @@ void exit_proc( int signal )
 {
 	Log.Set_Loglevel( DBG2, false );
 	exit(0);
+}
+
+void Conditional( string question, string action )
+{
+	Log.Info( action );
+	kbdInt_t key = Log.Wait( &Kbd, question, "y/n?" );
+	if( key == 'y' )
+		System_execute( action );
 }
 
 void overwrite ( string _src, string _dst )
@@ -274,6 +284,16 @@ int main(int argc, char **argv)
 {
 	Cfg.Parse_argv(argc, argv );
 
+	// CDT install binary
+	if( Cfg.Config.filename.length() > 0 )
+	{
+		Cfg.CreateInstalldirs( );
+		filesystem::path path { Cfg.Config.filename };
+
+		install_binary( Cfg.Config.filename, path.extension() );
+		exit(0);
+	}
+
 	source_struct 	Src 		{ Cfg.Config.sourcedir };
 					Bin 		= Cfg.fs;
 	Build_class 	Build 		{ Src.sourcedir, Bin };
@@ -281,21 +301,7 @@ int main(int argc, char **argv)
 	if ( Cfg.Config.test == 'y' )
 	{
 		Setup_Test( Src );
-		Build.remote( "rio" );
-		Build.local();
 	}
-	bool full_setup = not filesystem::is_directory( Bin->installdir );
-
-	if( Cfg.Config.filename.length() > 0 )
-	{
-		filesystem::path path { Cfg.Config.filename };
-
-		install_binary( Cfg.Config.filename, path.extension() );
-		if ( not full_setup )
-			exit(0);
-	}
-
-	Cfg.CreateInstalldirs( );
 
 	overwrite ( Src.resourcedir + "Instruments/.test2.snd", Bin->instrumentdir );
 	overwrite ( Src.resourcedir + Bin->bkground_filename	, Bin->bkground_file );
@@ -318,37 +324,29 @@ int main(int argc, char **argv)
 	bashrc_oceandir();
 	create_oceanrc( Src );
 
-	// update git resources
-	/*
-	copy_files( Bin->instrumentdir,
-				Bin->snd_type,
-				Src.resourcedir + "Instruments/" );
-	copy_files( Bin->notesdir,
-				Bin->nte_type,
-				Src.resourcedir + "Notes/" );
-	copy_files( Bin->includedir,
-				".synth",
-				Src.resourcedir );
-	copy_files( Bin->includedir,
-				".inc",
-				Src.resourcedir );
-	 */
 	using filesystem::perms;
 	using filesystem::perm_options;
 
 	permissions( Bin->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
 
-
-	if( Cfg.Config.archive == 'y' )
+	if ( Cfg.Config.Deploy )
 	{
 		Deploy_class	Deploy		{ Src.sourcedir, Bin };
+		Deploy.commit();
+		Build.remote( "rio" );
+		Build.local();
+		// create screen shot
+		// test OceanGUI on rio
+		// test Synthesizer
 		Copy_3rdpartylibs( Src );
 		ConvertOdt2Pdf( Src );
 		create_tararchive( Src );
 		Deploy.Create_ReleaseNotes();
 		Deploy.Update_Gitdir();
 		Deploy.Github();
+		// edit Version.h change version number
+
 	}
 	return  0;
 }
