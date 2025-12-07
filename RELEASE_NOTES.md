@@ -24,11 +24,11 @@ Installation
 3. Follow the install.txt inside the extracted folder for runtime/setup instructions.
 
 Verification
-	- verify cksum (as provided by packager):
-	1705709574 81980143 ocean_sound_lab_4.1.2-40.tar.gz
+		- verify cksum (as provided by packager):
+		1173926561 95656661 ocean_sound_lab_4.1.2-40.tar.gz
 - verify SHA-256 locally: 
-166019bd58c61f1902dfffd12812fe3fe17371b725fcd3c4923c74e49f5c61c0  ocean_sound_lab_4.1.2-40.tar.gz
-- Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256
+b49b37b4c312846033854cb45463bac92c745470de1b26871e95b087de64c72b  ocean_sound_lab_4.1.2-40.tar.gz
+- Verify: shasum -a 256 -c ocean_sound_lab_4.1.2-40.tar.gz.sha256
 
 License & source
 - This binary distribution is provided under the terms in the repository LICENSE file.

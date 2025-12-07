@@ -109,13 +109,17 @@ class Deploy_class :
 {
 	string className = "";
 	string srcdir	= "";
+	Kbd_base		Kbd {};
+	file_structure* Bin;
 
 public:
-	Deploy_class( string sdir ) :
+	Deploy_class( string sdir, file_structure* bin ) :
 		Logfacility_class("Deploy_class")
 	{
 		className = Logfacility_class::className;
 		srcdir = sdir;
+		Bin = bin;
+		Set_Loglevel( WAIT, true );
 	};
 	virtual ~Deploy_class()
 	{
@@ -132,6 +136,60 @@ public:
 		System_execute( cmd1 );
 		cout << cmd1 << endl;
 	}
+	void Github()
+	{
+		string 	tag		= "v" + Version_No;
+		string	cmd		= "gh release create " + tag + " " +
+						rn_tgz + " " +
+						rn_cksum + " " +
+						rn_sha256 +
+						" --title ocean_sound_lab_" + tag +
+						" --notes-file " + srcdir + rn_filename;
+		Info		( cmd );
+		kbdInt_t key = Wait( &Kbd, "Execute ? y/n" );
+		if( key == 'y' )
+			System_execute( cmd );
+	}
+
+	string get_check_sum( string _type )
+	{
+		string cksum_file = Bin->homedir + rn_tgz + _type;
+		fstream Cksum_file { cksum_file, fstream::in };
+		string cksum;
+		getline( Cksum_file, cksum  );
+		return cksum + "\n";
+	};
+
+
+	void Create_ReleaseNotes( )
+	{
+		string releasenotes_file = srcdir + rn_filename;
+		Info( "Creating the Release note file", releasenotes_file);
+
+		ofstream Release_notes { releasenotes_file };
+
+		const string rn_verification =
+		R"(Verification
+		- verify cksum (as provided by packager):
+		)"  +
+		get_check_sum( ".cksum" ) +
+		"- verify SHA-256 locally: \n" +
+		get_check_sum( ".sha256" ) +
+		"- Verify: shasum -a 256 -c " +
+		rn_sha256 + rn_newline;
+
+		Release_notes 	<< rn_title
+						<< rn_summary
+						<< rn_include
+						<< rn_changes
+						<< rn_installation
+						<< rn_verification
+						<< rn_license
+						<< rn_notes
+						<< rn_changelog;
+
+	}
+
 
 private:
 };

@@ -32,8 +32,7 @@ SOFTWARE.
 #ifndef KBD_H
 #define KBD_H
 
-#include <Logfacility.h>
-
+#include <Ocean.h>
 #define NOKEY 0
 
 enum  KEYCODE {
@@ -55,6 +54,37 @@ enum  KEYCODE {
 	F8 = 0x07e39315b1b,
 	F9 = 0x07e30325b1b
 };
+
+template< typename T >
+constexpr bool isTTY ( const T io )
+{
+    if (isatty(fileno( io )))
+    	return true; // "stdout is tty"
+    else
+       return false; 	//"stdout is not tty");
+};
+const bool is_atty	= isTTY( stdout );
+/**************************************************
+https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
+ *************************************************/
+inline void	ClearScreen()
+{
+	if ( is_atty )
+		std::cout.flush() << "\x1B[2J\x1B[H";
+}
+inline void CursorHome()
+{
+	if ( is_atty )
+		std::cout.flush() << "\x1B[H" ;
+}
+inline void CursorHomeCol()
+{
+	if ( is_atty )
+	{
+		std::cout.flush() << "\x1B[0G" ;
+	}
+}
+
 
 /**************************************************
  * keymap_struct
@@ -92,7 +122,6 @@ struct keymap_struct
  * Kbd_base
  *************************************************/
 class Kbd_base
-	: virtual 	Logfacility_class
 {
 public:             // Access specifier
 

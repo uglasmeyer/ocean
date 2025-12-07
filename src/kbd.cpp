@@ -71,8 +71,7 @@ string keymap_struct::Menu( kbdInt_t key )
 /**************************************************
  * Kbd_base
  *************************************************/
-Kbd_base::Kbd_base() :
-	Logfacility_class("Kbd_base")
+Kbd_base::Kbd_base()
 {
 	Init();
 };
@@ -169,8 +168,7 @@ void Kbd_base::Reset()
 {
 	if ( is_atty )
 	{
-		if( LogMask[DEBUG] )
-			cout << "Keyboard reset" << endl;
+		cout << "Keyboard reset" << endl;
 		if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
 			perror("tcsetattr ~ICANON");
 	}
@@ -188,20 +186,6 @@ string Kbd_base::GetString( string txt )
 
 void Kbd_base::Test()
 {
-	TEST_START( className );
-	uint nr = 0;
-	kbdkey_t pressed = key_struct( ESC,0,0 );
-	do
-	{
-		Comment( TEST, " > Press <ESC> to finish keyboard test");
-		nr++;
-	}
-	while( not ( pressed.Arr[0] == ESC ) and ( nr < 10 ));
-
-	Comment( TEST, "Keyboard test finished");
-	ASSERTION( pressed.Int == 27L, "Keyboard test ", (long int) pressed.Int, ESC );
-	TEST_END( className );
-
 }
 
 

@@ -70,7 +70,6 @@ string	Logfacility_class::GetendColor( )
 	return nocolor;
 }
 
-
 string Logfacility_class::cout_log( uint id, string str )
 {
 	set<int> 	ignore { ENOENT };
@@ -96,7 +95,6 @@ string Logfacility_class::cout_log( uint id, string str )
 	}
 	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
 	cout.flush() << strs.str();
-
 	return str;
 }
 void Logfacility_class::ResetLogMask()
@@ -160,7 +158,7 @@ void Logfacility_class::Show_loglevel()
 	string on = "";
 	string logmode = ( is_atty ) ? "console logging" : "file logging";
 	Comment( INFO, "Log level activation state with " + logmode );
-	for ( int level = 0; level < LOGMAX; level++ )
+	for ( LOG_e level = (LOG_e)0; level < LOG_SIZE; level++ )
 	{
 		on =  LogMask[ level ] ? "On" : "Off";
 		Comment( level, "Log level " + Prefix_vec[ level ].name + " is " + on );
@@ -180,7 +178,7 @@ string Logfacility_class::Error_text( uint err )
 	return str;
 }
 
-void Logfacility_class::Set_Loglevel( int _level, bool _on )
+void Logfacility_class::Set_Loglevel( LOG_e _level, bool _on )
 {
 
 	uint level = check_range(loglevel_range, _level,"Set_Loglevel" );
@@ -205,7 +203,11 @@ void Logfacility_class::test_end( const string& name )
 void Logfacility_class::Test_Logging( )
 {
 	LogMask = defaultLogMask;
+	Set_Loglevel( WAIT, true );
 	seterrText();
+	Kbd_base kbd {};
+	Wait( &kbd, "Press <return> key to start the test" );
+	Set_Loglevel( WAIT, false );
 	TEST_START( className );
 	Show_loglevel();
 	ASSERTION( LogMask.count() == 5, "logmask count", LogMask.count(), 5  );

@@ -52,15 +52,8 @@ void exit_proc( int signal )
 
 void overwrite ( string _src, string _dst )
 {
-	if ( filesystem::is_regular_file( _dst ) )
-		filesystem::remove( _dst );
-	if ( filesystem::exists( _src ) )
-		filesystem::copy( _src , _dst );
-	else
-	{
-		Log.Comment( ERROR, "no such file:", _src );
-		exit(0);
-	}
+	auto over_write = filesystem::copy_options::overwrite_existing;
+	filesystem::copy( _src , _dst, over_write );
 };
 void init_file( string _dst_file, string _rc_dir )
 {
@@ -130,7 +123,6 @@ void create_tararchive( source_struct Ss )
 	Log.Info(  "executing: ", cmd );
 
 	System_execute( cmd );
-
 	string cmd4		= "cksum " + rn_tgz + " >" + rn_cksum;
 	string cmd5		= "shasum -a 256 " + rn_tgz + " > " + rn_sha256;
 			cmd		= cmd1 + ";" + cmd4 + ";" + cmd5;
@@ -138,55 +130,8 @@ void create_tararchive( source_struct Ss )
 
 	System_execute( cmd );
 
-
-	string 	tag		= "v" + Version_No;
-			cmd		= "gh release create " + tag + " " +
-					rn_tgz + " " +
-					rn_cksum + " " +
-					rn_sha256 +
-					" --title ocean_sound_lab_" + tag +
-					" --notes-file " + Ss.sourcedir + rn_filename;
-	Log.Info		( cmd );
-
 }
 
-string get_check_sum( string _type )
-	{
-		string cksum_file = Bin->homedir + rn_tgz + _type;
-		fstream Cksum_file { cksum_file, fstream::in };
-		string cksum;
-		getline( Cksum_file, cksum  );
-		return cksum + "\n";
-	};
-
-
-void Create_ReleaseNotes( source_struct Ss )
-{
-	string releasenotes_file = Ss.sourcedir + rn_filename;
-	Log.Info( "Creating the Release note file", releasenotes_file);
-
-	ofstream Release_notes { releasenotes_file };//, fstream::out };
-
-	const string rn_verification =
-	R"(Verification
-	- verify cksum (as provided by packager):
-	)"  +
-	get_check_sum( ".cksum" ) +
-	"- verify SHA-256 locally: \n" +
-	get_check_sum( ".sha256" ) +
-	"- Verify: shasum -a 256 -c ocean_sound_lab_4.0.2-37.tar.gz.sha256" + rn_newline;
-
-	Release_notes 	<< rn_title
-					<< rn_summary
-					<< rn_include
-					<< rn_changes
-					<< rn_installation
-					<< rn_verification
-					<< rn_license
-					<< rn_notes
-					<< rn_changelog;
-
-}
 
 void bashrc_oceandir()
 {
@@ -277,7 +222,6 @@ void install_binary( string _bin, string _ext )
 	//	symboliclink( dst_bin_file, _bin, _ext ); obsolete
 }
 
-//#include <System.h>
 void Setup_Test( source_struct Ss )
 {
 	cout << "Architecture: " << getArch() << endl;
@@ -333,14 +277,12 @@ int main(int argc, char **argv)
 	source_struct 	Src 		{ Cfg.Config.sourcedir };
 					Bin 		= Cfg.fs;
 	Build_class 	Build 		{ Src.sourcedir, Bin };
-	Deploy_class	Deploy		{ Src.sourcedir };
 
 	if ( Cfg.Config.test == 'y' )
 	{
 		Setup_Test( Src );
-//		Build.remote( "rio" );
+		Build.remote( "rio" );
 		Build.local();
-		exit(0);
 	}
 	bool full_setup = not filesystem::is_directory( Bin->installdir );
 
@@ -353,33 +295,31 @@ int main(int argc, char **argv)
 			exit(0);
 	}
 
-	const string	rc_nte_file					= Src.resourcedir + "Notes/" + Bin->default_nte;
-	const string	rc_snd_file					= Src.resourcedir + "Instruments/" + Bin->default_snd;
-
-
 	Cfg.CreateInstalldirs( );
 
+	overwrite ( Src.resourcedir + "Instruments/.test2.snd", Bin->instrumentdir );
 	overwrite ( Src.resourcedir + Bin->bkground_filename	, Bin->bkground_file );
-//	overwrite ( Src.resourcedir + Bin->setup_filename		, Bin->setup_file );
 	overwrite ( Src.resourcedir + Bin->ipctool_filename	, Bin->ipctool_file );
 	overwrite ( Src.resourcedir + Bin->config_filename	, Bin->config_file );
 	overwrite ( Src.resourcedir + Bin->deploy_filename	, Bin->deploy_file );
-	init_file ( Bin->instrumentdir + ".test2.snd"		, Src.resourcedir + "Instruments/" );
+	const string	rc_nte_file	= Src.resourcedir + "Notes/" + Bin->default_nte;
+	const string	rc_snd_file	= Src.resourcedir + "Instruments/" + Bin->default_snd;
+	overwrite ( rc_snd_file		, Bin->instrumentdir + Bin->default_snd );
+	overwrite ( rc_nte_file		, Bin->notesdir + Bin->default_nte );
 
-	overwrite ( rc_snd_file								, Bin->instrumentdir + Bin->default_snd );
-	overwrite ( rc_nte_file								, Bin->notesdir + Bin->default_nte );
-	init_file ( Bin->program_file						, Src.resourcedir );
-	init_file ( Bin->prog_libfile						, Src.resourcedir );
-	init_file ( Bin->prog_testfile						, Src.resourcedir );
 	overwrite ( Src.resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
 	overwrite ( Src.sourcedir + Bin->install_txt		, Bin->install_txtfile );
 
+	init_file ( Bin->program_file						, Src.resourcedir );
+	init_file ( Bin->prog_libfile						, Src.resourcedir );
+	init_file ( Bin->prog_testfile						, Src.resourcedir );
 
 	Log.Info( "Using Ocean Base Directory ", Bin->installdir );
 	bashrc_oceandir();
 	create_oceanrc( Src );
 
 	// update git resources
+	/*
 	copy_files( Bin->instrumentdir,
 				Bin->snd_type,
 				Src.resourcedir + "Instruments/" );
@@ -392,21 +332,23 @@ int main(int argc, char **argv)
 	copy_files( Bin->includedir,
 				".inc",
 				Src.resourcedir );
-
+	 */
 	using filesystem::perms;
 	using filesystem::perm_options;
 
 	permissions( Bin->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
 
-	Copy_3rdpartylibs( Src );
 
 	if( Cfg.Config.archive == 'y' )
 	{
+		Deploy_class	Deploy		{ Src.sourcedir, Bin };
+		Copy_3rdpartylibs( Src );
 		ConvertOdt2Pdf( Src );
 		create_tararchive( Src );
-		Create_ReleaseNotes( Src );
+		Deploy.Create_ReleaseNotes();
 		Deploy.Update_Gitdir();
+		Deploy.Github();
 	}
 	return  0;
 }

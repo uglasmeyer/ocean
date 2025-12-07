@@ -34,18 +34,10 @@ SOFTWARE.
 
 #include <Ocean.h>
 #include <Utilities.h>
+#include <Kbd.h>
 
 #define coutf 			cout.flush()
 
-template< typename T >
-constexpr bool isTTY ( const T io )
-{
-    if (isatty(fileno( io )))
-    	return true; // "stdout is tty"
-    else
-       return false; 	//"stdout is not tty");
-};
-const bool is_atty	= isTTY( stdout );
 
 constexpr string Line( int len = 58, char ch = '-' )
 {
@@ -56,31 +48,9 @@ constexpr string Line( int len = 58, char ch = '-' )
 	}
 	return str;
 }
-/**************************************************
-https://gist.github.com/ConnerWill/d4b6c776b509add763e17f9f113fd25b
- *************************************************/
-inline void	ClearScreen()
-{
-	if ( is_atty )
-		std::cout.flush() << "\x1B[2J\x1B[H";
-}
-inline void CursorHome()
-{
-	if ( is_atty )
-		std::cout.flush() << "\x1B[H" ;
-}
-inline void CursorHomeCol()
-{
-	if ( is_atty )
-	{
-		std::cout.flush() << "\x1B[0G" ;
-		std::cout.flush() << Line(80, ' ' );
-		std::cout.flush() << "\x1B[0G" ;
-	}
-}
 
 
-enum LOG_e
+enum  LOG_e : uint8_t
 {
 	ERROR,
 	DEBUG,
@@ -90,16 +60,17 @@ enum LOG_e
 	BINFO,
 	TEST,
 	PLAIN,
-	TABLE
+	TABLE,
+	WAIT,
+	LOG_SIZE
 } ;
 
-const uint8_t 				LOGMAX 		= 9;
 const uint					LOGINDENT	= 20;
 #define SETW 				setw( LOGINDENT )
 #define NEWLOGLINE			setw( LOGINDENT + 10 )
 
 // global Log facility structure
-typedef 	bitset<LOGMAX>		logmask_t;
+typedef 	bitset<LOG_SIZE>		logmask_t;
 
 constexpr logmask_t setdefaultLogMask()
 {
@@ -150,34 +121,34 @@ class Logfacility_class
 {
 
 public:
-	const string	reset		= "\033[39m";
-	const string 	boldon		= "\033[1m";
-	const string	boldoff		= "\033[0m";
-	const string	black		= "\033[30m";
-	const string 	cyan 		= "\033[96m";
-	const string 	green 		= "\033[92m";
-	const string 	red 		= "\033[91m";
-	const string 	magenta 	= "\033[95m";
-	const string 	yellow  	= "\033[33m";
-	const string 	blue 		= "\033[94m";
-	const string	bblack		= boldon + black;
-	const string 	bgreen		= boldon + green;
-	const string 	bred		= boldon + red;
-	const string 	bblue		= boldon + blue;
-	const string 	byellow		= boldon + yellow;
-	const string 	bmagenta	= boldon + magenta;
-	const string	nocolor		= "";
-	const range_T<int>	loglevel_range 	{ 0, LOGMAX - 1 };
-	string 			className 		{ "" };
-	string 			prefixClass 	{ "" };
-	const string 	logFile	 		= logDir + logFileName + string(".log") ;
-	const string 	endcolor		= boldoff + reset;
+	const string			reset		= "\033[39m";
+	const string 			boldon		= "\033[1m";
+	const string			boldoff		= "\033[0m";
+	const string			black		= "\033[30m";
+	const string 			cyan 		= "\033[96m";
+	const string 			green 		= "\033[92m";
+	const string 			red 		= "\033[91m";
+	const string 			magenta 	= "\033[95m";
+	const string 			yellow  	= "\033[33m";
+	const string 			blue 		= "\033[94m";
+	const string			bblack		= boldon + black;
+	const string 			bgreen		= boldon + green;
+	const string 			bred		= boldon + red;
+	const string 			bblue		= boldon + blue;
+	const string 			byellow		= boldon + yellow;
+	const string 			bmagenta	= boldon + magenta;
+	const string			nocolor		= "";
+	const range_T<LOG_e>	loglevel_range 	{ (LOG_e)0, (LOG_e)(LOG_SIZE - 1) };
+	string 					className 		{ "" };
+	string 					prefixClass 	{ "" };
+	const string 			logFile	 		= logDir + logFileName + string(".log") ;
+	const string 			endcolor		= boldoff + reset;
 
 					Logfacility_class( string module  );
 					Logfacility_class( );
 	virtual			~Logfacility_class(  );
 
-	void 			Set_Loglevel	( int level, bool on );
+	void 			Set_Loglevel	( LOG_e level, bool on );
 	string			GetColor		( uint id );
 	string			GetendColor		( );
 	void 			ResetLogMask	();
@@ -195,9 +166,20 @@ public:
 	{
 		return Comment( INFO, args... );
 	};
+	template <class... ArgsT>
+	kbdInt_t Wait( Kbd_base* kbd, ArgsT... args )
+	{
+		kbdInt_t key = NOKEY;
+		Comment( LOG_e::WAIT, args... );
+		if ( LogMask.test( LOG_e::WAIT ) )
+		{
+			key = kbd->GetKeyInt( 100 );
+		}
+		return key;
+	};
 
 	template <class... ArgsT>
-	string Comment( const int& level, ArgsT... args )
+	string Comment( const LOG_e& level, ArgsT... args )
 	{
 		int id = check_range( loglevel_range, level, "Comment" );
 		if ( LogMask.test( id ) )
@@ -205,7 +187,6 @@ public:
 			stringstream strs{};
 			strs << dec;
 			(( strs << args << " "	), ... );
-//			( strs <<  ...  << args ) ;
 			return cout_log( id, strs.str() );
 		}
 		return "";
@@ -246,7 +227,8 @@ private:
 			{"bInfo", bgreen },
 			{"Test ", blue },
 			{""		, nocolor },
-			{"Table", bblack }
+			{"Table", bblack },
+			{"Wait ", bred }
 	};
 
 	string 	cout_log( uint logid, string str );

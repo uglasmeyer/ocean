@@ -150,8 +150,6 @@ void SynthesizerTestCases()
 	Timer.Stop();
 	cout << "Run osc group in " << Timer.Time_elapsed() << " milli seconds" <<  endl;
 
-	Mixer.Test_Logging();
-
 	Keyboard.Kbd_pitch_Test();
 	Keyboard.Test();
 
@@ -168,9 +166,6 @@ void SynthesizerTestCases()
 	DaTA.Sds_p->Reset_ifd();
 	Instrument.Test_Instrument();
 	Instrument.Oscgroup.Run_OSCs( 0 );
-
-
-	Log.Test_Logging();
 
 	System_Test();
 
