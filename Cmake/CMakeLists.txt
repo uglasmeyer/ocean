@@ -30,6 +30,9 @@ COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
+add_compile_options(-Wall -frecord-gcc-switches -pthread -O2 -g )
+
+
 # Add sub-directories
 add_subdirectory(../src 		build_src )
 add_subdirectory(../Audioserver build_Audioserver )

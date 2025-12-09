@@ -360,7 +360,6 @@ void Config_class::Test()
 	vector_str_t args = parse_cmdline();
 	cout << show_str_items( args ) << endl;
 	ASSERTION( args[1][0] == 't', "cmdline contains -t", args[1], "t" );
-//	exit_proc( 0 );
 }
 
 vector_str_t Config_class::parse_cmdline()
@@ -407,23 +406,23 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 
 		switch ( ch )
 		{
-			case 'c' : 	Config.channel		= Str.to_int( next ); break;
-			case 'd' : 	Config.device 		= Str.to_int( next ); break;
-			case 'k' : 	Config.SDS_key 		= Str.to_int( next ); break;
-			case 'o' : 	Config.ch_offs		= Str.to_int( next ); break;
-			case 'r' : 	Config.rate 		= Str.to_int( next ); break;
-			case 't' : 	Config.test 		= 'y'				; break;
-			case 'v' : 	Set_Loglevel( DEBUG, true )				; break;
-			case 'A' : 	Config.archive		= 'y'				; break;
-			case 'C' : 	Config.composer		= 'y'				; break;
-			case 'D' : 	Config.dialog 		= 'y'				; break;
-			case 'G' : 	Config.oceangui		= 'y'				; break;
-			case 'I' : 	Config.installdir	= next = trailing_slash( next )	; break;
-			case 'S' : 	Config.sourcedir	= next = trailing_slash( next )	; break;
-			case 'V' :	Set_Loglevel( DEBUG, true );
-						Set_Loglevel( DBG2, true )				; break;
-			case 'Y' :	Config.Deploy		= 'y'				; break;
-			default  : 	Config.filename		= arg				; break;
+			case 'c' : 	{ Config.channel		= Str.to_int( next ); break; }
+			case 'd' : 	{ Config.device 		= Str.to_int( next ); break; }
+			case 'k' : 	{ Config.SDS_key 		= Str.to_int( next ); break; }
+			case 'o' : 	{ Config.ch_offs		= Str.to_int( next ); break; }
+			case 'r' : 	{ Config.rate 		= Str.to_int( next ); break; }
+			case 't' : 	{ Config.test 		= 'y'				; break; }
+			case 'v' : 	{ Set_Loglevel( DEBUG, true )				; break; }
+			case 'A' : 	{ Config.archive		= 'y'				; break; }
+			case 'C' : 	{ Config.composer		= 'y'				; break; }
+			case 'D' : 	{ Config.dialog 		= 'y'				; break; }
+			case 'G' : 	{ Config.oceangui		= 'y'				; break; }
+			case 'I' : 	{ Config.installdir	= next = trailing_slash( next )	; break; }
+			case 'S' : 	{ Config.sourcedir	= next = trailing_slash( next )	; break; }
+			case 'V' :	{ Set_Loglevel( DEBUG, true );
+						Set_Loglevel( DBG2, true )				; break; }
+			case 'Y' :	{ Config.Deploy		= 'y'				; break; }
+			default  : 	{ Config.filename	= arg				; break; }
 		}
 	}
 

@@ -171,18 +171,19 @@ Storage_class::Storage_class( StA_param_t param ) :
 	DsInfo( param.name );
 	Reset( );
 } ;
-
+/*
 void Storage_class::Setup( StA_param_t _param )
 {
-	param 			= _param;
-	mem_ds.bytes 	= sizeof(Data_t) * param.size;
-	mem_ds.record_size		= min_frames;//param.block_size;
-	mem_ds.block_size=param.block_size;
+	param 				= _param;
+	mem_ds.bytes 		= sizeof(Data_t) * param.size;
+	mem_ds.record_size	= min_frames;//param.block_size;
+	mem_ds.block_size	= param.block_size;
+
 	Init_data( mem_ds.bytes );
 	DsInfo( param.name );
 	Reset();
 }
-
+*/
 void Storage_class::Write_data( Data_t* src )//, const buffer_t& wrt )
 {
 	buffer_t offs = scanner.wpos;
@@ -214,12 +215,14 @@ void Storage_class::Set_store_counter( uint  n )
 	Assert_lt(  n , mem_ds.max_records + 1, "mem_ds.max_records" );
 
 	record_counter 		= n;
+	Info( "StA", Id, "loaded", record_counter, "records");
 	record_data 		= record_counter * mem_ds.record_size;
 	if ( read_counter > n )
 		read_counter  	= 0;
 	scanner.Set_rpos	( 0 );
 	scanner.Set_fillrange(record_data );
 	scanner.Set_wpos	( record_data );
+	param.wdsize		= record_data;
 }
 
 void Storage_class::Reset( )
@@ -232,6 +235,7 @@ void Storage_class::Reset( )
 //	state.Filled		( false );
 	scanner.Reset		();
 	Clear_data			(0);
+	param.wdsize		= param.size;
 }
 
 

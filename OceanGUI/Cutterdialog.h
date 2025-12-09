@@ -44,7 +44,6 @@ public:
 
 private:
 	void setSds( Interface_class* Sds );
-	void set_wdmode( WdModeID_t mode );
 
     Ui::CutterDialog_class *ui;
 

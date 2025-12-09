@@ -195,7 +195,7 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 						(int)adsr_data.attack,
 						(int)adsr_data.decay,
 						(int)osc->features.glide_effect,
-						(int)vco->features.PMW_dial);
+						(int)vco->features.PWM);
 
 	if (file_version == 4 )
 		Table.AddRow(	"ADSR", "OSC",
@@ -209,7 +209,7 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 						(int)adsr_data.decay,
 						(int)osc->features.glide_effect,
 						(int)sds->slide_duration,
-						(int)vco->features.PMW_dial);
+						(int)vco->features.PWM);
 };
 
 bool Instrument_class::assign_adsr3( const vector_str_t& arr )
@@ -229,11 +229,11 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 	if ( file_version == 4 )
 	{
 		sds->slide_duration			= Str.secure_stoi( arr[11] ); //Audioserver
-		sds->features[VCOID].PMW_dial	= Str.secure_stoi( arr[12] );
+		sds->features[VCOID].PWM	= Str.secure_stoi( arr[12] );
 	}
 	else
 	{
-		sds->features[VCOID].PMW_dial	= Str.secure_stoi( arr[11] );
+		sds->features[VCOID].PWM	= Str.secure_stoi( arr[11] );
 	}
 
 	Oscgroup.SetAdsr( sds );
@@ -475,7 +475,7 @@ void Instrument_class::save_features( fstream& FILE )
 			(int) adsr_data.attack,
 			(int) adsr_data.hall,
 			(int) osc->features.glide_effect,
-			(int) vco->features.PMW_dial
+			(int) vco->features.PWM
 			);
 
 }
@@ -616,23 +616,23 @@ void Instrument_class::Test_Instrument()
 	}
 	vco->Test();
 	assert( Set( ".test2" ) );
-	Oscgroup.vco.features.PMW_dial = 98;
+	Oscgroup.vco.features.PWM = 98;
 	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::SGNSIN;
 	Oscgroup.vco.Set_frequency( "A1", FIXED);
 	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 	Save_Instrument( ".test2" );
-	Oscgroup.vco.features.PMW_dial = 0;
+	Oscgroup.vco.features.PWM = 0;
 	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::RECTANGLE;
 	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::RECTANGLE ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 
 	assert( Set( ".test2" ) );
-	ASSERTION( 	sds->features[VCOID].PMW_dial == 98,"Set PMW_dial",
-			(int)sds->features[VCOID].PMW_dial , 98);
-	assert( Oscgroup.vco.features.PMW_dial == 98 );
+	ASSERTION( 	sds->features[VCOID].PWM == 98,"Set PMW_dial",
+			(int)sds->features[VCOID].PWM , 98);
+	assert( Oscgroup.vco.features.PWM == 98 );
 	string a = waveform_str_vec[ oscwaveform_struct::SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);

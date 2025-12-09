@@ -71,7 +71,7 @@ private slots:
 	void base_octave(int);
 	void flats(int);
 	void sharps(int);
-	void decay_mode(bool);
+	void kbdbps( int );
 	void sliding_mode(bool);
 	void save();
 

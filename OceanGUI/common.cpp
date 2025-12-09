@@ -31,7 +31,7 @@ SOFTWARE.
 
 #include <include/Common.h>
 
-
+bps_struct QBps {};
 
 QStringList Qstringlist ( const list<string>& str_lst )
 {

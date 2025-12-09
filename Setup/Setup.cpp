@@ -38,9 +38,9 @@ SOFTWARE.
 #include <Build.h>
 
 Exit_class				Exit			{};
+Kbd_base				Kbd 			{};
 Config_class			Cfg				{};
 Logfacility_class		Log				( Cfg.prgName );
-Kbd_base				Kbd 			{};
 
 file_structure* 		Bin				;
 
@@ -54,10 +54,13 @@ void exit_proc( int signal )
 
 void Conditional( string question, string action )
 {
+	if ( not is_atty ) return;
 	Log.Info( action );
 	kbdInt_t key = Log.Wait( &Kbd, question, "y/(b)reak?" );
+
 	if( key == 'y' )
-		System_execute( action );
+		if ( action.length() > 0 )
+			System_execute( action );
 	if ( key == 'b' )
 	{
 		raise(1);
@@ -174,13 +177,12 @@ void create_oceanrc()
 	Oceanrc << "export ARCH=" << getArch() << endl;
 	Oceanrc << "PATH=$(echo $PATH | sed \"s|$OCEANDIR/bin:||g\")" << endl;
 	Oceanrc << "LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed \"s|$OCEANDIR/lib:||g\")" << endl;
-	Oceanrc << "export PATH=$" << OCEANDIR << "/bin/$ARCH:$PATH" << endl;
+	Oceanrc << "export PATH=$" << OCEANDIR << "/bin/$ARCH:$"<<OCEANDIR<<"/bin:$PATH" << endl;
 	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib/$ARCH:$LD_LIBRARY_PATH"<< endl;
 }
 
 void symboliclink( string _src, string _sym, string _ext )
 {
-	Log.Info( "Creating the symbolic link structure");
 
 	auto overwrite_link = [ _src ]( string _link )
 	{
@@ -190,14 +192,18 @@ void symboliclink( string _src, string _sym, string _ext )
 	};
 	if ( strEqual(_sym, "Synthesizer") )
 	{
-		overwrite_link( Bin->bindir + "Keyboard");
+		Log.Info( "Creating the sym-link Keybboard");
+		overwrite_link( Bin->archbindir + "Keyboard");
 	}
+/*
+
 	string link = Bin->bindir + _sym;
 	if( strEqual( _ext, ".so" ) )
 	{
 		link = Bin->libdir + _sym;
 	}
 	overwrite_link( link );
+ */
 }
 
 void install_binary( string _bin, string _ext )
@@ -214,7 +220,7 @@ void install_binary( string _bin, string _ext )
 	}
 	Log.Comment( INFO, "Installing binary: ", dst_bin_file );
 	overwrite( src_bin_file, dst_bin_file );
-	//	symboliclink( dst_bin_file, _bin, _ext ); obsolete
+	symboliclink( dst_bin_file, _bin, _ext ); //Keyboard
 }
 
 void Setup_Test( source_struct Ss )
@@ -266,6 +272,7 @@ void Copy_3rdpartylibs( source_struct* Src )
 
 void Setup_runtime( source_struct* Src, file_structure* Bin )
 {
+	Log.Info( "Setup runtime" );
 
 	Cfg.CreateInstalldirs( );
 
@@ -295,6 +302,7 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
 }
 
+
 int main(int argc, char **argv)
 {
 	Cfg.Parse_argv(argc, argv );
@@ -317,27 +325,29 @@ int main(int argc, char **argv)
 	{
 		Setup_Test( Src );
 	}
-	Log.Set_Loglevel( WAIT, true );
 
 	// Setup runtime
 	Setup_runtime( &Src, Bin );
 
-	if ( Cfg.Config.Deploy )
+	if ( Cfg.Config.Deploy == 'y' )
 	{
 		Deploy_class	Deploy		{ Src.sourcedir, Bin };
+		Log.Set_Loglevel( WAIT, true );
+		Conditional( "change ReleaseNotes.h", "" );
 		Deploy.commit();
 		Build.remote( "rio" );
 		Build.local();
-		// create screen shot
+		Conditional( "create screenshot "+rn_screenshot_file, "" );
 		// test OceanGUI on rio
 		// test Synthesizer
 		ConvertOdt2Pdf( Src );
 		create_tararchive( Src );
 		Deploy.Create_ReleaseNotes();
+		Conditional( "check archive content", "" );
 		Deploy.Update_Gitdir();
 		Deploy.Github();
+		// push source code to github
 		// edit Version.h change version number
-
 	}
 	return  0;
 }

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "ui_keyboad_dialog.h"
 #include <include/Common.h>
 #include <include/Keyboad_dialog.h>
+#include <include/Common.h>
 
 Keyboad_Dialog_class::Keyboad_Dialog_class(
 		QWidget* 			parent,
@@ -54,7 +55,7 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
     connect( ui->sb_base_octave, SIGNAL(valueChanged(int)), this, SLOT( base_octave(int) ));
     connect( ui->sb_flats, SIGNAL(valueChanged(int)), this, SLOT( flats(int) ));
     connect( ui->sb_sharps, SIGNAL(valueChanged(int)), this, SLOT( sharps(int) ));
-    connect( ui->cb_decay_mode	, SIGNAL( clicked(bool)), 	this, SLOT( decay_mode(bool) ));
+    connect( ui->sB_kbdbps	, SIGNAL(valueChanged(int)), 	this, SLOT( kbdbps(int) ));
     connect( ui->cb_sliding_mode	, SIGNAL( clicked(bool)), 	this, SLOT( sliding_mode(bool) ));
     connect( ui->pB_Save, SIGNAL(clicked()), this, SLOT( save()));
 	Setup_Widget();
@@ -90,9 +91,11 @@ void Keyboad_Dialog_class::sharps(int value )
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
-void Keyboad_Dialog_class::decay_mode(bool value )
+void Keyboad_Dialog_class::kbdbps( int idx )
 {
-	Sds->Set( sds_p->Kbd_state.ADSR_flag, value );
+	int bpsidx = check_cycle2( QBps.bps_range, idx, "kbdbps" );
+	Sds->Set( sds_p->Kbd_state.bpsidx, (uint8_t)bpsidx );
+	ui->sB_kbdbps->setValue( bpsidx );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
@@ -105,13 +108,15 @@ void Keyboad_Dialog_class::save()
 {
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
+
+
 void Keyboad_Dialog_class::Setup_Widget()
 {
 	stringstream strs{};
 	strs << setprecision(5) << sds_p->Kbd_state.frq ;
 	char bmode = (char)sds_p->StA_state_arr[ STA_KEYBOARD ].forget;
 	ui->cB_buffer_mode->setCurrentIndex( bmode );
-	ui->cb_decay_mode->setChecked( sds_p->Kbd_state.ADSR_flag );
+//	ui->sB_kbdbps->setValue( sds_p->Kbd_state.bpsidx );
 	ui->cb_sliding_mode->setChecked( sds_p->Kbd_state.sliding);
 	ui->sb_base_octave->setValue( sds_p->Kbd_state.base_octave );
 	ui->sb_flats->setValue( sds_p->Kbd_state.flats );
@@ -119,6 +124,7 @@ void Keyboad_Dialog_class::Setup_Widget()
 	ui->lbl_key->setText( keyboard_key );
 	ui->lbl_frq->setText( Qstring( strs.str() ));
 	ui->lbl_note->setText( Qstring( sds_p->Kbd_state.note ));
+//    ui->sB_kbdbps->textFromValue( Sds->addr->Kbd_state.bpsidx );
 
 	char chord_type = sds_p->Kbd_state.chord_type;
 	QString Qstr = Qstring( get<1>( Kbd_pitch.Chords_map[chord_type] ) );

@@ -40,7 +40,6 @@ public:
     QLabel *label_2;
     QLabel *label_11;
     QLabel *lbl_note;
-    QCheckBox *cb_decay_mode;
     QLabel *label;
     QLabel *label_12;
     QLabel *label_3;
@@ -52,6 +51,7 @@ public:
     QComboBox *cB_buffer_mode;
     QLabel *label_14;
     QLabel *lbl_chord;
+    QSpinBox *sB_kbdbps;
 
     void setupUi(QDialog *Keyboad_Dialog_class)
     {
@@ -60,7 +60,7 @@ public:
         Keyboad_Dialog_class->resize(237, 264);
         gridLayoutWidget = new QWidget(Keyboad_Dialog_class);
         gridLayoutWidget->setObjectName("gridLayoutWidget");
-        gridLayoutWidget->setGeometry(QRect(10, 0, 225, 255));
+        gridLayoutWidget->setGeometry(QRect(10, 0, 225, 264));
         gridLayout = new QGridLayout(gridLayoutWidget);
         gridLayout->setObjectName("gridLayout");
         gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -131,11 +131,6 @@ public:
 
         gridLayout->addWidget(lbl_note, 0, 1, 1, 1);
 
-        cb_decay_mode = new QCheckBox(gridLayoutWidget);
-        cb_decay_mode->setObjectName("cb_decay_mode");
-
-        gridLayout->addWidget(cb_decay_mode, 3, 1, 1, 1);
-
         label = new QLabel(gridLayoutWidget);
         label->setObjectName("label");
 
@@ -197,6 +192,11 @@ public:
 
         gridLayout->addWidget(lbl_chord, 1, 1, 1, 1);
 
+        sB_kbdbps = new QSpinBox(gridLayoutWidget);
+        sB_kbdbps->setObjectName("sB_kbdbps");
+
+        gridLayout->addWidget(sB_kbdbps, 3, 1, 1, 1);
+
 
         retranslateUi(Keyboad_Dialog_class);
 
@@ -218,7 +218,6 @@ public:
         label_2->setText(QCoreApplication::translate("Keyboad_Dialog_class", "# of sharps", nullptr));
         label_11->setText(QCoreApplication::translate("Keyboad_Dialog_class", "F6", nullptr));
         lbl_note->setText(QCoreApplication::translate("Keyboad_Dialog_class", "Note", nullptr));
-        cb_decay_mode->setText(QString());
         label->setText(QCoreApplication::translate("Keyboad_Dialog_class", "Decay mode", nullptr));
         label_12->setText(QCoreApplication::translate("Keyboad_Dialog_class", "F4", nullptr));
         label_3->setText(QCoreApplication::translate("Keyboad_Dialog_class", "# of flats", nullptr));

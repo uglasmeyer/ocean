@@ -43,6 +43,7 @@ struct 				Mem_param_struct
 {
 	string 			name 			;
 	buffer_t		size 			;	// number of buffer frames
+	buffer_t		wdsize			;	// current frames of the wave display
 	uint8_t			storage_time	;	// storage time in seconds
 	buffer_t		block_size		= min_frames;  	// numer of read frames
 	Mem_param_struct( string _name, int _sec )
@@ -50,6 +51,7 @@ struct 				Mem_param_struct
 		name 			= _name;
 		storage_time	= _sec;
 		size 			= frames_per_sec * _sec;
+		wdsize			= size;
 	};
 	~Mem_param_struct(){};
 } 	;

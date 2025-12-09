@@ -840,7 +840,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "PMW is set to: " + stack[0] );
 		uint8_t dial = pop_T( percent_range );
-		Processor_class::Push_ifd( &sds->features[VCOID].PMW_dial, dial, "pmw" );
+		Processor_class::Push_ifd( &sds->features[VCOID].PWM, dial, "pmw" );
 		Processor_class::Push_key( PWMDIALKEY, "set pmw" );
 		return;
 	}

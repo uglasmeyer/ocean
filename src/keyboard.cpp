@@ -116,9 +116,7 @@ void Keyboard_class::Set_instrument( )
 	// kbd specific settings
 	Oscgroup.SetSlide( sliding * sds_p->features[OSCID].glide_effect );
 	Oscgroup.Set_Duration( max_msec );
-	adsr_t adsr = Oscgroup.osc.Get_adsr();
-	adsr.bps = ADSR_flag ? sds_p->adsr_arr[OSCID].bps : 1;
-	Oscgroup.osc.Set_adsr( adsr );
+	Oscgroup.osc.Set_kbdbps( sds_p->Kbd_state.bpsidx );
 }
 
 bool Keyboard_class::decay(  )
@@ -179,7 +177,7 @@ void Keyboard_class::attack()
 		cout << "-" ;
 		return;
 	}
-	if( ADSR_flag )
+	if( bpsidx )
 		Osc->Reset_beat_cursor();
 
 	show_cnt( duration_counter );

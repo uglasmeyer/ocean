@@ -61,7 +61,10 @@ constexpr bool isTTY ( const T io )
     if (isatty(fileno( io )))
     	return true; // "stdout is tty"
     else
+    {
        return false; 	//"stdout is not tty");
+       errno = 0;
+    }
 };
 const bool is_atty	= isTTY( stdout );
 /**************************************************
@@ -169,7 +172,8 @@ public:             // Access specifier
 private:
 
 
-	struct termios 	old_flags 	= {0};
+	struct termios 	old_flags 	;
+
 	struct termios 	new_flags 	= {0};
 	key_union_struct buf8		{};
 	long int*		buf8_p		= &buf8.Int;

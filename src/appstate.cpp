@@ -46,8 +46,7 @@ Appstate_class::Appstate_class( APPID 			appid,
 	SDSid		= assign_sdsid( AppType );
 	if ( SDSid == NoSDSID  )
 	{
-		Comment( INFO, "Application id ", AppId, " is already registered \n"
-		"on SDS ", 0L );
+		Comment( INFO, "Application id", AppId, "is already registered","on SDS", 0L );
 		Comment( ERROR, "Cannot get valid SDS ID" ) ;
 
 		sds_vec.clear();

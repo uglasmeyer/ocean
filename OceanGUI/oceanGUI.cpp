@@ -136,7 +136,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 	} // switch  key
 	QStr = "";
 	QStr.push_back( (QChar)key.Arr[0] );
-//	QStr.assign(1, (QChar)key.Arr[0] );
 	Keyboard_Dialog_p->keyboard_key = QStr;
 	Keyboard_Dialog_p->Setup_Widget();
 }
@@ -192,11 +191,9 @@ void MainWindow::cB_Beat_per_sec( int bps_id )
     Sds->Set( Sds->addr->adsr_arr[OSCID].bps, bps  );
     Sds->Set( Sds->addr->adsr_arr[VCOID].bps, bps  );
     Sds->Set( Sds->addr->adsr_arr[FMOID].bps, bps  );
-	Eventlog.add( SDS_ID, ADSRALL_KEY );
-
+	Eventlog.add( SDS_ID, ADSR_KEY ); // Instrument bps
 	if ( Spectrum_Dialog_p )
-	{
-	    QString Qstr{ int2char( Sds->addr->adsr_arr[OSCID].bps ) };
+	{	    QString Qstr{ int2char( Sds->addr->adsr_arr[OSCID].bps ) };
 	    Spectrum_Dialog_p->ui->cb_bps->setCurrentText( Qstr );
 	}
 	MainWindow::setFocus();
@@ -213,7 +210,7 @@ void MainWindow::slideFrq( int value )
 void MainWindow::dial_PMW_value_changed()
 {
     uint8_t value = ui->hs_pmw->value();
-    Sds->Set(Sds->addr->features[VCOID].PMW_dial , value );
+    Sds->Set(Sds->addr->features[VCOID].PWM , value );
     Eventlog.add( SDS_ID,PWMDIALKEY);
 }
 
@@ -698,6 +695,7 @@ void MainWindow::start_keyboard()
 	if( Appstate->IsRunning( Sds->addr, KEYBOARDID ))
 	{
 		exit_synthesizer( KEYBOARDID );
+//		exit_synthesizer( SYNTHID );
 	}
 	else
 	{
@@ -858,7 +856,7 @@ void MainWindow::setwidgetvalues()
 		sB_lbl_vec[oscid].lbl->setText( QWaveform_vec[ *sB_lbl_vec[oscid].value] );
 		sB_lbl_vec[oscid].sb->setValue( *sB_lbl_vec[oscid].value );
 	};
-    ui->hs_pmw->setValue			( (int) Sds->addr->features[VCOID].PMW_dial  );
+    ui->hs_pmw->setValue			( (int) Sds->addr->features[VCOID].PWM  );
     ui->hs_hall_effect->setValue	( (int) Sds->addr->adsr_arr[OSCID].hall );
     ui->Slider_slideFrq->setValue	( (int) Sds->addr->features[OSCID].glide_effect );
     ui->Slider_slideVol->setValue	( sds_master->slide_duration);//Master_Amp);

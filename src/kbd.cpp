@@ -73,12 +73,21 @@ string keymap_struct::Menu( kbdInt_t key )
  *************************************************/
 Kbd_base::Kbd_base()
 {
-	Init();
+	tcgetattr (0, &old_flags);
+	new_flags = old_flags;
+	if ( is_atty )
+	{
+		Init();
+	}
 };
 
 Kbd_base::~Kbd_base()
 {
-	Reset();
+	if ( is_atty )
+	{
+		Reset();
+	}
+
 };
 
 string Kbd_base::ShowKey( kbdInt_t Int )
@@ -141,18 +150,22 @@ kbdInt_t Kbd_base::GetKeyInt( int waitms )
 }
 void Kbd_base::Init()
 {
-	fflush(stdout);
 
-	if( tcgetattr (0, &old_flags) < 0 )
-		perror("tcsetattr()");
-	if( tcgetattr (0, &new_flags) < 0 )
-		perror("tcsetattr()");
+//	if( tcgetattr (0, &old_flags) < 0 )
+//	{
+//		perror("tcsetattr()");
+//		return;
+//	}
+
+	//	if( tcgetattr (0, &new_flags) < 0 )
+//		perror("tcsetattr()");
+	fflush(stdout);
 
 	new_flags.c_lflag 		&= ~ICANON;	// non-standard mode
 	new_flags.c_lflag 		&= ~ECHO;	// disable echo and erase
 
 	new_flags.c_cc[VMIN] 	= 0;//1;
-	new_flags.c_cc[VTIME] 	= 0;//1;//0; //0->HIGH cpu load // set break with micro timer???
+	new_flags.c_cc[VTIME] 	= 0;//1;//0; //0->HIGH cpu load // set break with micro timer
 	// In this case TIME is a total read timeout. (timeout in multiples of 0.1 sec)
 	// The read returns if either MIN bytes are received before the timer expires
 	// or if the timer expires. In the latter case the number of bytes received

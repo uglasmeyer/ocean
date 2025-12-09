@@ -94,6 +94,7 @@ public:
 	void			Set_adsr_spec	( spectrum_t );
 	adsr_t			Get_adsr		();
 	void			Set_bps			();
+	void			Set_kbdbps		( uint8_t bps );
 	string			Show_adsr		( adsr_t );
 					ADSR_class		( OSCID_e _typeid );
 					ADSR_class		(); // viewSDS
@@ -101,6 +102,7 @@ public:
 
 private:
 	adsr_struct		adsr_data		;
+	uint8_t			kbdbps			= 1;
 
 	void			adsrOSC			( const buffer_t& );
 };

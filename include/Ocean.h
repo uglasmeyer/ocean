@@ -175,7 +175,7 @@ constexpr T check_range( range_T<T> r, T val, string errmsg = "" )
 		if ( errmsg.length() > 0 )
 			cout.flush() << "WARNING: " << errmsg
 									<< ": "
-									<< val
+									<< (int)val
 									<< " adjusted to min boundaries "
 									<< r.min << endl;
 		return r.min;
@@ -185,7 +185,7 @@ constexpr T check_range( range_T<T> r, T val, string errmsg = "" )
 		if ( errmsg.length() > 0 )
 			cout.flush() << "WARNING: " << errmsg
 									<< ": "
-									<< val
+									<< (int)val
 									<< " adjusted to max boundaries "
 									<< r.max << endl;
 		return r.max;
@@ -194,7 +194,7 @@ constexpr T check_range( range_T<T> r, T val, string errmsg = "" )
 };
 
 template< typename T>
-constexpr T check_cycle( range_T<T> r, T val, string err  )
+constexpr T check_cycle( range_T<T> r, T val, string err=""   )
 {
 	if( r.max == 0 ) return 0;
 	if( val < r.min )

@@ -39,11 +39,13 @@ SOFTWARE.
 
 typedef struct bps_struct
 {
+
 	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8,10,16 };
 	const vector<uint8_t>	Bps_vec	= set2vector( Bps_set );
 	list<string>			Bps_lst	= {};
 	set<string>			Bps_str_set	= {};
-
+	const int			len		= Bps_set.size();
+	range_T<int>			bps_range { 0, len-1 };
 	bps_struct( )
 	{
 		uint8_t index = 0;
@@ -87,7 +89,8 @@ typedef struct feature_struct
 { // SDS related. Is the same for all OSCs
 	uint8_t glide_effect= 0;
 	uint8_t	adjust		= 0; // used by vco and fmo, osc = 0
-	uint8_t	PMW_dial 	= 50;
+	uint8_t	PWM 	= 50;
+//	uint8_t	bpm			= 1; // beats per measure
 	bool	longplay	= false;
 } feature_t;
 

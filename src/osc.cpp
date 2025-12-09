@@ -230,7 +230,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	Sum( spectrum );
 	DynFrequency.SetDelta( features.glide_effect );
 	param_t 	param 		= param_struct();
-				param.pmw	= 1.0 + (float)features.PMW_dial * percent;
+				param.pmw	= 1.0 + (float)features.PWM * percent;
 	frq_t		frq			= 0.0;
 	for ( size_t channel = 0; channel < SPECARR_SIZE; channel++ )
 	{

@@ -143,7 +143,7 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 
 
 	param_t			param 		= param_struct();
-					param.pmw	= 1.0 + (float)features.PMW_dial * percent;
+					param.pmw	= 1.0 + (float)features.PWM * percent;
 	spectrum_t		spec 		= adsr_data.spec;
 
 	for ( size_t channel = 1; channel < SPECARR_SIZE; channel++ )
@@ -190,6 +190,10 @@ void ADSR_class::Set_feature( feature_t f )
 {
 	features = f;
 }
+void ADSR_class::Set_kbdbps( uint8_t bps )
+{
+	kbdbps = bps;
+}
 void ADSR_class::Set_bps()
 {
 	tainted 	= true;
@@ -200,8 +204,8 @@ void ADSR_class::Set_bps()
 	}
 	else
 	{
-//		if( has_kbd_role )
-//			adsr_data.bps = 1;
+		if( has_kbd_role )
+			adsr_data.bps = kbdbps;
 		if ( adsr_data.bps > 0 )
 			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else

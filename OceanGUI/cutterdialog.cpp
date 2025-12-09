@@ -78,9 +78,4 @@ void CutterDialog_class::setSds( Interface_class* Sds )
 	this->SDS_ID	= sds->SDS_Id;
 }
 
-void CutterDialog_class::set_wdmode( WdModeID_t mode )
-{
-    Sds->Set( sds->WD_status.wd_mode, mode );
-    Eventlog->add( SDS_ID, SETWAVEDISPLAYKEY );
-}
 

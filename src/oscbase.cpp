@@ -77,7 +77,7 @@ void Oscillator_base::Set_volume( int vol, uint mode )
 }
 void Oscillator_base::Set_pmw( uint8_t pmw )
 {
-	features.PMW_dial = pmw;
+	features.PWM = pmw;
 }
 
 void Oscillator_base::Set_glide( uint value )
@@ -118,7 +118,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	wp.frames		= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
 	spectrum.volidx[0] 		= Str.secure_stoi(arr[5]);
 	features.glide_effect = Str.secure_stoi( arr[13] );
-	features.PMW_dial 	= Str.secure_stoi( arr[14] );
+	features.PWM 	= Str.secure_stoi( arr[14] );
 
 	return ;
 };

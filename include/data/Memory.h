@@ -253,7 +253,7 @@ public:
 	void 			Store_block		( Data_t* ) ;
 	void 			Write_data		( Data_t* src );//, const buffer_t& pos );
 	void 			Record_mode		( bool );
-	void 			Setup			( StA_param_t);
+//	void 			Setup			( StA_param_t);
 	void 			Set_store_counter( uint n);
 	void 			Reset			();
 	uint*			Get_storeCounter_p();

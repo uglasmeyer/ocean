@@ -75,7 +75,6 @@ Note_class::Note_class( Instrument_class* 	instr,
 	this->scanner	= &sta->scanner;
 	this->Instrument_name.assign( sds->Instrument );
 
-//	Oscgroup.SetWd( instr->wd_p );
 	Oscgroup.SetScanner( max_frames );
 	init_note_table();
 	TestNotes();
@@ -637,8 +636,9 @@ void Note_class::TestNotes()
 	Assert_equal( (int)pitch.frqidx, (int)((max_octave)*oct_steps +11 + C0) );
 
 //	assert (false);
+	Comment( TEST, "Note_class test done ");
+
 	TEST_END( className );
 
 
-	Comment( TEST, "Note_class test done ");
 }

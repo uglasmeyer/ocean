@@ -73,13 +73,13 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	StA[STA_NOTES   ].scanner.Set_wrt_len( max_frames );
 	StA[STA_NOTES   ].scanner.Set_fillrange( StA[STA_NOTES   ].param.size );
 
-	Wd_p->Add_role_ptr( NOTESROLE	, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.size );
-	Wd_p->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.size );
-	Wd_p->Add_role_ptr( EXTERNALROLE, StA[ STA_EXTERNAL].Data, &StA[ STA_EXTERNAL].param.size );
+	Wd_p->Add_role_ptr( NOTESROLE	, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.wdsize );
+	Wd_p->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.wdsize );
+	Wd_p->Add_role_ptr( EXTERNALROLE, StA[ STA_EXTERNAL].Data, &StA[ STA_EXTERNAL].param.wdsize );
 	for( StAId_e staid : LowIds )
 	{
 		RoleId_e sta_role = sta_rolemap.GetRoleid( staid );
-		Wd_p->Add_role_ptr( sta_role , StA[ staid ].Data, &StA[ staid ].param.size );
+		Wd_p->Add_role_ptr( sta_role , StA[ staid ].Data, &StA[ staid ].param.wdsize );
 	}
 
 	SetStAs();
@@ -564,6 +564,7 @@ void Cutter_class::Cut()
 	string		filename 	= StA->at(StAId).filename;
 				cut_data	= &StA->at(StAId).Data[start];
 				cut_bytes	= record_range.len * sizeof(Data_t);
+				StA->at( StAId).param.wdsize = record_range.len;
 
 	Info( "changing", filename );
 	if ( dumpData( filename, cut_data, cut_bytes ) )

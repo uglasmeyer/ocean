@@ -43,7 +43,7 @@ keyboardState_class::keyboardState_class( interface_t* _sds) :
 	sds 	 				= _sds;
 	base_octave				= sds->Kbd_state.base_octave;
 	sharps					= sds->Kbd_state.sharps;
-	ADSR_flag				= sds->Kbd_state.ADSR_flag;
+	bpsidx				= sds->Kbd_state.bpsidx;
 	sliding					= sds->Kbd_state.sliding;
 	change_octave			( 0 );
 };
@@ -137,11 +137,14 @@ void keyboardState_class::reset_flats()
 	flats 						= 0;
 	sds->Kbd_state.flats 		= 0;
 }
-void keyboardState_class::toggle_applyADSR()
+
+bps_struct_t Bps {};
+void keyboardState_class::set_kbdbps()
 {
 	// overwrite Instrument beat counter
-	ADSR_flag 					= not ADSR_flag;
-	sds->Kbd_state.ADSR_flag 	= ADSR_flag;
+	uint8_t bps = sds->Kbd_state.bpsidx + 1;
+	range_T<uint8_t> bps_range { 0_uint, (uint8_t)(Bps.len-1) };
+	sds->Kbd_state.bpsidx 	= check_cycle( bps_range, bps, "" );
 }
 void keyboardState_class::set_slideMode()
 {
@@ -173,7 +176,7 @@ void Keyboard_class::Show_help( bool tty )
 	Table.AddRow( "F1", "keyboard Keys"			);
 	Table.AddRow( "F2", "increase sharps "		, (int) sds_p->Kbd_state.sharps, "#" );
 	Table.AddRow( "F3", "reset sharps "			);
-	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.ADSR_flag * sds_p->adsr_arr[OSCID].bps ,"B psec");
+	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.bpsidx * sds_p->adsr_arr[OSCID].bps ,"B psec");
 	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds_p->Kbd_state.sliding *
 													Osc->features.glide_effect), "[ % ]");
 	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( sta_p->state.Forget(), "forget", "persist" ));
@@ -226,7 +229,7 @@ void Keyboard_class::Set_key( ) // TODO
 	sliding 			= sds_p->Kbd_state.sliding;
 	sharps	 			= sds_p->Kbd_state.sharps;
 	flats 				= sds_p->Kbd_state.flats;
-	ADSR_flag 			= sds_p->Kbd_state.ADSR_flag;
+	bpsidx 			= sds_p->Kbd_state.bpsidx;
 
 	set_octave			( base_octave );
 	set_accidental		( Nb.sharp_pitch );
@@ -250,15 +253,15 @@ void Keyboard_class::keyHandler( kbdkey_t kbd )
 		case '+' :	{ change_octave(  1 ) 		; break; }
 		case '-' :	{ change_octave( -1 ) 		; break; }
 		case '#' :	{ tainted = false;Frequency.ShowFrqTable()	; break; }
-		case F1	:	{ 					; break; }
-		case F2 : 	{ increase_sharps()	; break; }
-		case F3 : 	{ reset_sharps(); 	; break; }
-		case F4 :	{ toggle_applyADSR(); break; }
-		case F5 : 	{ set_slideMode(); 		break; }
+		case F1	:	{ 							; break; }
+		case F2 : 	{ increase_sharps()			; break; }
+		case F3 : 	{ reset_sharps()			; break; }
+		case F4 :	{ set_kbdbps()				; break; }
+		case F5 : 	{ set_slideMode()			; break; }
 		case F6	: 	{ set_bufferMode( not sta_p->state.Forget() );		break; }
-		case F7 : 	{ increase_flats();		break; }
-		case F8 : 	{ reset_flats(); 			break; }
-		case F9 : 	{ tainted = not Save_notes();	break; }
+		case F7 : 	{ increase_flats()			; break; }
+		case F8 : 	{ reset_flats()				; break; }
+		case F9 : 	{ tainted = not Save_notes();break; }
 																															//				default :	{ tainted = true	; break; }
 		default : 	{ notekey( kbd.Int );
 						tainted	= false;

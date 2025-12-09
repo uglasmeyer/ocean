@@ -39,7 +39,7 @@ using namespace std;
 #define MAYOR 4
 #define MINOR 2
 #define PATCH 1
-#define DATA_VERSION 40
+#define DATA_VERSION 41
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -59,7 +59,9 @@ const string License_text = R"(
 // Git comment:
 /*
 
-version 4.2.1.	empty
+version 4.2.1.	Sybolic link to Keyboard is missing
+				Path to $OCEANDIR/bin is missing
+				Keyboard may start on the same SDS as Synthesizer
 version 4.2.0 	Update deployment structure
 version 4.1.2	Synthesizer test function core
 version 4.1.1	cb_external unknown symbol

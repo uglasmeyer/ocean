@@ -124,7 +124,7 @@ protected:
 	void 				increase_flats			();
 	void 				reset_sharps			();
 	void 				reset_flats				();
-	void 				toggle_applyADSR		();
+	void 				set_kbdbps				();
 	void 				set_slideMode			();
 	void 				set_accidental			( uint pitches, int dir  );
 	void 				set_accidental			( step_vec_t vec  );

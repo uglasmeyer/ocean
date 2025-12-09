@@ -44,7 +44,7 @@ typedef struct kbd_state_struct
 	int 			base_octave 			= 3; 	// current min kbd octave changeble by +/-
 	uint			sharps					= 0; 	// range(0 .. 3 ) notebase::sharp_pitch
 	uint			flats					= 0; 	// range(0 .. 2 ) notebase::sharp_pitch
-	bool			ADSR_flag				= true;	// apply ADSR data
+	uint8_t			bpsidx					= 1;	// apply ADSR data
 	bool			sliding					= false;// use wp.glide on frequency
 	char			trigger					= 0;	// record trigger is inactive
 													// 1 Wait for event

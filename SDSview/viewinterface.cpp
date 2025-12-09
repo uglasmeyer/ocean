@@ -141,7 +141,7 @@ void ViewInterface_class::show_spectrum()
 	Adsr.PrintHeader();
 	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->features[OSCID].glide_effect,
 					"(b)eats per second", (int)sds_p->adsr_arr[OSCID].bps );
-	Adsr.AddRow( 	"PWM", (int)sds_p->features[OSCID].PMW_dial,
+	Adsr.AddRow( 	"PWM", (int)sds_p->features[OSCID].PWM,
 					"(h)all", (int)sds_p->adsr_arr[OSCID].hall );
 	Adsr.AddRow( 	"Balance", (int)sds_p->mixer_balance,
 					"chord delay", (int)sds_p->noteline_prefix.chord_delay );

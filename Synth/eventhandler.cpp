@@ -205,9 +205,9 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "PWM change");
 
-		Instrument->osc->Set_pmw(sds->features[VCOID].PMW_dial);
-		Instrument->vco->Set_pmw(sds->features[VCOID].PMW_dial);
-		Instrument->fmo->Set_pmw(sds->features[VCOID].PMW_dial);
+		Instrument->osc->Set_pmw(sds->features[VCOID].PWM);
+		Instrument->vco->Set_pmw(sds->features[VCOID].PWM);
+		Instrument->fmo->Set_pmw(sds->features[VCOID].PWM);
 		Sds->Commit();
 		break;
 	}

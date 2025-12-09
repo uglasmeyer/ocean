@@ -70,7 +70,7 @@ string	Logfacility_class::GetendColor( )
 	return nocolor;
 }
 
-string Logfacility_class::cout_log( uint id, string str )
+string Logfacility_class::cout_log( LOG_e id, string str )
 {
 	set<int> 	ignore { ENOENT };
 	if (( errno ) and not ignore.contains( errno ))
@@ -78,12 +78,12 @@ string Logfacility_class::cout_log( uint id, string str )
 		string txt	= Error_text( errno );
 		if ( txt.length() > 0 )
 			cout.flush() << txt << endl;
-
+		errno = 0;
 	}
 	string 			prefix 	= prefixClass + Prefix_vec[ id ].name;
 	stringstream 	strs 	{};
 	string 			endc 	= ( is_atty ) ? endcolor 	: nocolor;
-	uint 			Id		= ( is_atty ) ? id 		: LOG_e::PLAIN;
+	LOG_e 			Id		= ( is_atty ) ? id 		: LOG_e::PLAIN;
 	size_t			pos		= str.find( '\n' );
 	if ( pos < string::npos )
 	{
@@ -154,7 +154,6 @@ void Logfacility_class::Init_log_file( )
 
 void Logfacility_class::Show_loglevel()
 {
-//	Info( Line() );
 	string on = "";
 	string logmode = ( is_atty ) ? "console logging" : "file logging";
 	Comment( INFO, "Log level activation state with " + logmode );
@@ -181,7 +180,7 @@ string Logfacility_class::Error_text( uint err )
 void Logfacility_class::Set_Loglevel( LOG_e _level, bool _on )
 {
 
-	uint level = check_range(loglevel_range, _level,"Set_Loglevel" );
+	uint level = check_range(loglevel_range, _level, "Set_Loglevel" );
 	LogMask.set( level, _on );
 }
 
@@ -208,6 +207,7 @@ void Logfacility_class::Test_Logging( )
 	Kbd_base kbd {};
 	Wait( &kbd, "Press <return> key to start the test" );
 	Set_Loglevel( WAIT, false );
+
 	TEST_START( className );
 	Show_loglevel();
 	ASSERTION( LogMask.count() == 5, "logmask count", LogMask.count(), 5  );
@@ -225,8 +225,8 @@ void Logfacility_class::Test_Logging( )
 	ASSERTION( L == 12, "OR", L, 12 )
 	bitset<4> bs = 0b1100;
 	ASSERTION( bs[WARN] | bs[ERROR], "bitset", bs.test(ERROR), true );
-	ASSERTION( Printer.redirect != isTTY( stdout ), "isTTY", isTTY( stdout ), Printer.redirect );
 	TEST_END( className );
+	ASSERTION( Printer.redirect != is_atty, "isTTY", is_atty, Printer.redirect );
 
 }
 

@@ -46,13 +46,14 @@ const string rn_sha256 = rn_tgz + ".sha256";
 const string rn_cksum = rn_tgz + ".cksum";
 const string rn_tag = "v" + Version_No;
 const string rn_userdoc = "Ocean-SL_Usermanual";
-
+const string rn_screenshot_file = "Resource/Ocean-SL.png";
+const string rn_screenshot_markup = "![Ocean-SL screenshot]("+rn_screenshot_file+")" + rn_newline;
 const string rn_title = "# " + rn_appname + " v" + Version_No + rn_newline;
 const string rn_summary =
 		"Summary\n"
 		"- Prebuilt binary and runtime distribution for release " +
 		Version_No +
-		" (tarball)." + rn_newline;
+		" (tarball)." + rn_newline + rn_screenshot_markup;
 
 const string rn_include =
 		"what's included\n- " +

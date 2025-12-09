@@ -64,6 +64,7 @@ enum  LOG_e : uint8_t
 	WAIT,
 	LOG_SIZE
 } ;
+const range_T<LOG_e>		loglevel_range 	{ (LOG_e)0, (LOG_e)(LOG_SIZE - 1) };
 
 const uint					LOGINDENT	= 20;
 #define SETW 				setw( LOGINDENT )
@@ -117,6 +118,9 @@ private:
 	Printer.Close(); test_end( classname );
 
 #define LUNDEF 35
+
+
+
 class Logfacility_class
 {
 
@@ -138,7 +142,6 @@ public:
 	const string 			byellow		= boldon + yellow;
 	const string 			bmagenta	= boldon + magenta;
 	const string			nocolor		= "";
-	const range_T<LOG_e>	loglevel_range 	{ (LOG_e)0, (LOG_e)(LOG_SIZE - 1) };
 	string 					className 		{ "" };
 	string 					prefixClass 	{ "" };
 	const string 			logFile	 		= logDir + logFileName + string(".log") ;
@@ -170,6 +173,10 @@ public:
 	kbdInt_t Wait( Kbd_base* kbd, ArgsT... args )
 	{
 		kbdInt_t key = NOKEY;
+		if ( not is_atty )
+		{
+			return key;
+		}
 		Comment( LOG_e::WAIT, args... );
 		if ( LogMask.test( LOG_e::WAIT ) )
 		{
@@ -181,7 +188,7 @@ public:
 	template <class... ArgsT>
 	string Comment( const LOG_e& level, ArgsT... args )
 	{
-		int id = check_range( loglevel_range, level, "Comment" );
+		LOG_e id = check_range( loglevel_range, level, "Comment" );
 		if ( LogMask.test( id ) )
 		{
 			stringstream strs{};
@@ -231,7 +238,7 @@ private:
 			{"Wait ", bred }
 	};
 
-	string 	cout_log( uint logid, string str );
+	string 	cout_log( LOG_e logid, string str );
 	void 	seterrText();
 
 

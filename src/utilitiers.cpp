@@ -60,7 +60,7 @@ void Assert_equalstr( string lhs, string rhs, string message ,
 };
 
 
-unsigned char operator""_uint( unsigned long long int x)
+uint8_t operator""_uint( unsigned long long int x)
 {
 	return (uint8_t)x;
 }
