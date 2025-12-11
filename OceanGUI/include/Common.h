@@ -63,39 +63,20 @@ constexpr QString QReadStr ( Interface_class* Sds, EVENTKEY_e key  )
 template< typename T >
 void setButton( T* pb, int state, bool init=false  )
 {
-	QPalette color = QPalette();
-	QColor default_color = Qt::gray;//QColor(153, 193, 241);
-	if ( init )
-		color.setColor( QPalette::Button, default_color );
-	else
+	auto getcolor = [ init, state ](  )
 	{
-		switch ( state )
+		if ( init ) return Qt::gray;
+		switch (state)
 		{
-			case 0 :
-			{
-				color.setColor(QPalette::Button, Qt::red );
-				break;
-			}
-			case 1 :
-			{
-				color.setColor(QPalette::Button, default_color);
-				break;
-			}
-			case 2 :
-			{
-				color.setColor(QPalette::Button, Qt::yellow );
-				break;
-			}
-			case 3 :
-			{
-				color.setColor(QPalette::Button, Qt::green );
-				break;
-			}
-
-			default:
-				break;
-		}
-	}
+			case 0 : return Qt::red;
+			case 1 : return Qt::gray;
+			case 2 : return Qt::yellow;
+			case 3 : return Qt::green;
+		};
+		return Qt::gray;
+	};
+	QPalette color = QPalette();
+	color.setColor(QPalette::Button, getcolor() );
 	pb->setPalette( color );
 };
 

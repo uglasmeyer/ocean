@@ -45,7 +45,8 @@ namespace Ui {
 class Keyboad_Dialog_class;
 }
 
-class Keyboad_Dialog_class : public QDialog
+class Keyboad_Dialog_class :
+		public QDialog//, virtual public QSpinBox
 {
     Q_OBJECT
 
@@ -76,6 +77,8 @@ private slots:
 	void save();
 
 private:
+	QString textFromValue( int );
+//	int valueFromText( const QString& ) ;
 };
 
 #endif // KEYBOAD_DIALOG_H

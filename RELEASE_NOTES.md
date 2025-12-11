@@ -1,10 +1,12 @@
-# ocean_sound_lab v4.2.1-41
+# ocean_sound_lab v4.2.2-41
 
 Summary
-- Prebuilt binary and runtime distribution for release 4.2.1-41 (tarball).
+- Prebuilt binary and runtime distribution for release 4.2.2-41 (tarball).
+
+![Ocean-SL screenshot](Resource/Ocean-SL.png)
 
 what's included
-- ocean_sound_lab_4.2.1-41.tar.gz - prebuilt binaries for linux x86_64, aarch64, Ubuntu libc.so.6
+- ocean_sound_lab_4.2.2-41.tar.gz - prebuilt binaries for linux x86_64, aarch64, Ubuntu libc.so.6
 and supporting files.
 
 - Ocean Sound Lab provides a programmable set of Sound Managing Applications, such as Synthesizer, 
@@ -20,20 +22,20 @@ and is tested and compiled on ubuntu 2025-10 for x86_64 and aarch64 on rasperry 
 Installation
 1. Download the tarball from the Release assets.
 2. Extract:
-   tar -xzf ocean_sound_lab_4.2.1-41.tar.gz
+   tar -xzf ocean_sound_lab_4.2.2-41.tar.gz
 3. Follow the install.txt inside the extracted folder for runtime/setup instructions.
 
 Verification
 		- verify cksum (as provided by packager):
-		3515971935 116930179 ocean_sound_lab_4.2.1-41.tar.gz
+		1176760853 119315119 ocean_sound_lab_4.2.2-41.tar.gz
 - verify SHA-256 locally: 
-f945c1665bf5ef40fb4ebb8b8b63cdbfa5f3f7d5293c6f0156b70a0846ff4ce7  ocean_sound_lab_4.2.1-41.tar.gz
-- Verify: shasum -a 256 -c ocean_sound_lab_4.2.1-41.tar.gz.sha256
+a99b1bcf381de86f4dbeb4c3d12aa984ca6d2525b05efb51c0ba1f6b99896ee3  ocean_sound_lab_4.2.2-41.tar.gz
+- Verify: shasum -a 256 -c ocean_sound_lab_4.2.2-41.tar.gz.sha256
 
 License & source
 - This binary distribution is provided under the terms in the repository LICENSE file.
 - Full source corresponding to this build is available at:  
-https://github.com/uglasmeyer/ocean/releases/tag/v4.2.1-41
+https://github.com/uglasmeyer/ocean/releases/tag/v4.2.2-41
 
 Notes
 - N/A. If this release contains breaking changes, document migration steps here.
@@ -48,5 +50,6 @@ this as beeing under construction with respect to a
 Changelog
 - combined distribution of x86 and arch binaries
 - GUI Cut desk, allowing to cut recorded wav files
+- updated installation instructions
 
 

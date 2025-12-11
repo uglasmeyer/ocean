@@ -40,11 +40,28 @@ SOFTWARE.
  * source_struct
  *************************************************/
 
+string trailing_dirslash( const string& dir )
+{
+	size_t	len		= dir.length();
+	if( len == 0 )
+		return "";
+	size_t 	last = len-1;
+	char	ch	= dir[last];
+	if( ch == '/' )
+		return dir;
+	else
+		return dir + '/';
+}
+
+
 source_struct::source_struct( string srcdir )
 {
+	if ( srcdir.length() == 0 )
+		srcdir 	= trailing_dirslash( notnull( getenv("OCEANSRC") ) );
+	if ( srcdir.length() == 0 )
+		srcdir  = trailing_dirslash( notnull( getenv("PWD") ) );
 	sourcedir		= srcdir;
-	if ( sourcedir.length() == 0 )
-		sourcedir 	= notnull( getenv("PWD") ) + "/../../";
+
 	resourcedir		= resourceDir();
 	files			= { resourcedir, archdir };
 }
@@ -86,8 +103,7 @@ void source_struct::show_installdirs()
 }
 string source_struct::resourceDir()
 {
-	if( sourcedir.length() == 0 ) return "";
-	string _dir = sourcedir + "/Resource/";
+	string _dir = sourcedir + "Resource/";
 	if ( not filesystem::is_directory( _dir ) )
 		Comment( ERROR,  "unknown resource directory ", resourcedir );
 	return _dir;
@@ -106,7 +122,7 @@ string getArch()
 string install_struct::oceanDir( )
 {
 
-	string oceandir = notnull( getenv( OCEANDIR ));
+	string oceandir = trailing_dirslash( notnull( getenv( OCEANDIR )) );
 	if( oceandir.length() == 0 )
 	{
 		oceandir = homedir + "OceanDev/";
@@ -243,7 +259,7 @@ void Config_class::CreateInstalldirs( )
 		return filesystem::create_directories( _p );
 	};
 
-	Comment( DEBUG, "Checking directory structure");
+	Comment( INFO, "Checking directory structure");
 	ASSERTION( (fs->install_dirs.size() != 0 ),"DirStructure_class::Create",
 				fs->install_dirs.size(),"not=0");
 	for( string dir : fs->install_dirs )
@@ -261,7 +277,7 @@ void Config_class::Read_config(	string cfgfile )
 	map<string, string> 	Get = {}; // @suppress("Invalid template argument")
 
 	configfile = cfgfile;
-	Comment( INFO, "Reading config file", configfile );
+	Comment( DEBUG, "Reading config file", configfile );
 
 	ifstream cFile( configfile  );
 	if ( not cFile.is_open() )
@@ -417,8 +433,8 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			case 'C' : 	{ Config.composer		= 'y'				; break; }
 			case 'D' : 	{ Config.dialog 		= 'y'				; break; }
 			case 'G' : 	{ Config.oceangui		= 'y'				; break; }
-			case 'I' : 	{ Config.installdir	= next = trailing_slash( next )	; break; }
-			case 'S' : 	{ Config.sourcedir	= next = trailing_slash( next )	; break; }
+			case 'I' : 	{ Config.installdir	= next = trailing_dirslash( next )	; break; }
+			case 'S' : 	{ Config.sourcedir	= next = trailing_dirslash( next )	; break; }
 			case 'V' :	{ Set_Loglevel( DEBUG, true );
 						Set_Loglevel( DBG2, true )				; break; }
 			case 'Y' :	{ Config.Deploy		= 'y'				; break; }
@@ -470,18 +486,6 @@ void Config_class::Show_Config( bool debug )
 	Table.AddRow( "File name"			, Config.filename );
 }
 
-string Config_class::trailing_slash( const string& dir )
-{
-	size_t	len		= dir.length();
-	if( len == 0 )
-		return "";
-	size_t 	last = len-1;
-	char	ch	= dir[last];
-	if( ch == '/' )
-		return dir;
-	else
-		return dir + '/';
-}
 string Config_class::Server_cmd( string term, string srv, string srvopt)
 {
 

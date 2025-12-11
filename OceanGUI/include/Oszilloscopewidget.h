@@ -67,9 +67,9 @@ private:
 
     QRectF  boundingRect() const; // implement virtual method boundingRect, need by qgraphicsitem.h
 
-    void    paint(QPainter * painter,
-               const QStyleOptionGraphicsItem * option,
-               QWidget * widget);     // overriding paint() - react on update
+    void    paint(QPainter* painter,
+               const QStyleOptionGraphicsItem* option,
+               QWidget* widget);     // overriding paint() - react on update
 
 };
 

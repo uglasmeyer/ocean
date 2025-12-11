@@ -1,24 +1,23 @@
-OCEANDEV = 	/home/sirius/OceanDev/
-OCEANDIR = 	/home/sirius/OceanSL/
 
 You have sucessfully received and extracted the deployment archive of the Ocean Sound Lab.
 If you are now wondering how to start the application, please follow the steps below.
 
 Installation hint:
 
+1. change to the base directory OceanDev.
 
-1. Source the Ocean-SL-rc-file with the absolute path to the base directory of the installation
-   for example:
-$  . ./OceanDev/etc/ocean.rc $HOME/extractdir/OceanDev/
-   
-   Consider to put a valid command line into the terminal profile
-   Hints: This command will setup two environment variables. The PATH and the LD_LIBRARY_PATH to
-   ...OceanDev/bin and ...OceanDev/lib respectively, so that the following command in step 2.
-   should work.
+2. execute the shell script 
 
+$  ./oceansetup.sh
+
+   Hint: This command will setup two environment variables. The PATH and the LD_LIBRARY_PATH.
+
+3. Source the Ocean-SL-rc-file 
+
+$  . etc/ocean.rc
    
-2. start the Ocean-SL Graphical Userinterface 
+4. start the Ocean-SL Graphical Userinterface 
 $  OceanGUI
 
-check the documentation OceanDev/doc/Ocean.pdf
+check out the documentation OceanDev/doc/Ocean.pdf for further information
 

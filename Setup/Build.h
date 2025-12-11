@@ -34,6 +34,7 @@ SOFTWARE.
 #define BUILD_H_
 
 #include <Logfacility.h>
+#include <Exit.h>
 #include <data/Config.h>
 #include <ReleaseNotes.h>
 #include <System.h>

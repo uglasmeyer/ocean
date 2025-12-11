@@ -44,7 +44,7 @@ SOFTWARE.
 struct interface_struct // with reasonable defaults
 {
 	// local (interface specific
-	Id_t			version						= DATA_VERSION;
+	Id_t			version						= SDS_VERSION;
 	Id_t			SDS_Id						= 0;
 	Id_t			config						= 0; // reference to the Synthesizer sds
 

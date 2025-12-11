@@ -31,10 +31,6 @@ SOFTWARE.
  */
 
 
-
-#include <Exit.h>
-#include <data/Config.h>
-
 #include <Build.h>
 
 Exit_class				Exit			{};
@@ -67,13 +63,18 @@ void Conditional( string question, string action )
 	}
 }
 
-void overwrite ( string _src, string _dst )
+void overwrite ( string _src, string _dst, string comment="" )
 {
-	auto over_write = filesystem::copy_options::overwrite_existing;
-	filesystem::copy( _src , _dst, over_write );
+	auto mode = filesystem::copy_options::overwrite_existing;
+	if ( comment.length() == 0 )
+		comment="Overwriting:";
+	Log.Info( comment, _dst );
+	filesystem::copy( _src , _dst, mode );
 };
 void init_file( string _src, string _dst )
 {
+	if( filesystem::exists( _dst ) )
+		Log.Info( "Skipping", _src );
 	auto mode = filesystem::copy_options::skip_existing;
 	filesystem::copy( _src , _dst, mode );
 }
@@ -153,7 +154,7 @@ void bashrc_oceandir()
 
 	// add ocean.rc to bashrc file
 	Bashtmp << ". " << Bin->oceanrc_file << endl;
-	overwrite( tmp_file, bashrc_file );
+	overwrite( tmp_file, bashrc_file, "Customizing:" );
 }
 
 void compare_environment()
@@ -223,18 +224,22 @@ void install_binary( string _bin, string _ext )
 	symboliclink( dst_bin_file, _bin, _ext ); //Keyboard
 }
 
-void Setup_Test( source_struct Ss )
+void Setup_Test( source_struct* Src, file_structure* Bin )
 {
-	cout << "Architecture: " << getArch() << endl;
-	cout << "Source Dir:   " << Ss.sourcedir << endl;
-	Ss.show_installdirs();
+	Table_class T{ "Setup Configuration" };
+	T.AddColumn( "Config", 20);
+	T.AddColumn( "Value", 20 );
+	T.PrintHeader();
+	T.AddRow( "Architecture", getArch() );
+	T.AddRow( "OCEANSRC", Src->sourcedir );
+	T.AddRow( "OCEANDIR", Bin->installdir );
 }
 
-void ConvertOdt2Pdf( source_struct Ss )
+void ConvertOdt2Pdf( source_struct* Src )
 {
 	Log.Info( "Converting odt to pdf" );
 
-	string cmd1 = "cd " + Ss.resourcedir;
+	string cmd1 = "cd " + Src->resourcedir;
 	string cmd2 =  "libreoffice --headless --convert-to pdf --outdir " +
 					Bin->docdir + " " +
 					rn_userdoc + ".odt";
@@ -253,6 +258,7 @@ void Copy_3rdpartylibs( source_struct* Src )
 		systemlibdir + "libQt6Core.so.6",
 		systemlibdir + "libQt6Gui.so.6",
 		systemlibdir + "libQt6Widgets.so.6",
+		systemlibdir + "libQt6DBus.so.6",
 		"/usr/local/lib/librtaudio.so.7",
 		systemlibdir + "libtinyxml2.so.10",
 		systemlibdir + "libtinyxml2.so.11"
@@ -274,26 +280,29 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 {
 	Log.Info( "Setup runtime" );
 
+	Setup_Test( Src, Bin );
+	ConvertOdt2Pdf( Src );
+
 	Cfg.CreateInstalldirs( );
 
 	Copy_3rdpartylibs( Src );
 
 	init_file ( Src->resourcedir + "Notes/" + Bin->default_nte, Bin->notesdir );
 	init_file ( Src->resourcedir + "Instruments/" + Bin->default_snd, Bin->instrumentdir );
-	overwrite ( Src->resourcedir + "Instruments/.test2.snd", Bin->instrumentdir );
 	init_file ( Src->resourcedir + Bin->bkground_filename, Bin->bkground_file );
-	overwrite ( Src->resourcedir + Bin->ipctool_filename, Bin->ipctool_file );
 	init_file ( Src->resourcedir + Bin->config_filename	, Bin->config_file );
-	overwrite ( Src->resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
-	overwrite ( Src->sourcedir + Bin->install_txt		, Bin->install_txtfile );
-
 	init_file ( Src->resourcedir + Bin->program_filename, Bin->includedir );
 	init_file ( Src->resourcedir + Bin->prog_libfilename, Bin->includedir );
 	init_file ( Src->resourcedir + Bin->prog_testfilename,Bin->includedir );
 
-	Log.Info( "Using Ocean Base Directory ", Bin->installdir );
+	overwrite ( Src->resourcedir + "Instruments/"+Bin->testsnd_filename, Bin->instrumentdir + Bin->testsnd_filename );
+	overwrite ( Src->resourcedir + Bin->ipctool_filename, Bin->ipctool_file );
+	overwrite ( Src->resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
+	overwrite ( Src->sourcedir + Bin->install_txt		, Bin->install_txtfile );
+	overwrite ( Src->sourcedir + "oceansetup.sh"		, Bin->installdir + "oceansetup.sh" );
+
 	bashrc_oceandir();
-	create_oceanrc();
+//	create_oceanrc();
 
 	using filesystem::perms;
 	using filesystem::perm_options;
@@ -317,13 +326,13 @@ int main(int argc, char **argv)
 		install_binary( Cfg.Config.filename, path.extension() );
 		exit(0);
 	}
-
 	source_struct 	Src 		{ Cfg.Config.sourcedir };
 	Build_class 	Build 		{ Src.sourcedir, Bin };
 
 	if ( Cfg.Config.test == 'y' )
 	{
-		Setup_Test( Src );
+		Setup_Test( &Src, Bin );
+		raise(1);
 	}
 
 	// Setup runtime
@@ -340,7 +349,6 @@ int main(int argc, char **argv)
 		Conditional( "create screenshot "+rn_screenshot_file, "" );
 		// test OceanGUI on rio
 		// test Synthesizer
-		ConvertOdt2Pdf( Src );
 		create_tararchive( Src );
 		Deploy.Create_ReleaseNotes();
 		Conditional( "check archive content", "" );

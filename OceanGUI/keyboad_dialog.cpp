@@ -40,8 +40,9 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
 		Dataworld_class* 	_data,
 		EventLog_class*		_log
 		)
-    : QDialog(parent)
-    , ui(new Ui::Keyboad_Dialog_class)
+    : 	  //QSpinBox( parent ),
+QDialog(parent),
+     ui(new Ui::Keyboad_Dialog_class)
 {
 
 	this->DaTA 		= _data;
@@ -51,13 +52,14 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
 
 	ui->setupUi(this);
     ui->cB_buffer_mode->addItems( QStringList{ "persist", "forget" } );
-	connect( ui->cB_buffer_mode, SIGNAL(activated( int )), this, SLOT( buffer_mode( int )));
-    connect( ui->sb_base_octave, SIGNAL(valueChanged(int)), this, SLOT( base_octave(int) ));
-    connect( ui->sb_flats, SIGNAL(valueChanged(int)), this, SLOT( flats(int) ));
-    connect( ui->sb_sharps, SIGNAL(valueChanged(int)), this, SLOT( sharps(int) ));
-    connect( ui->sB_kbdbps	, SIGNAL(valueChanged(int)), 	this, SLOT( kbdbps(int) ));
-    connect( ui->cb_sliding_mode	, SIGNAL( clicked(bool)), 	this, SLOT( sliding_mode(bool) ));
-    connect( ui->pB_Save, SIGNAL(clicked()), this, SLOT( save()));
+
+	connect( ui->cB_buffer_mode	, SIGNAL(activated( int ))	, this, SLOT( Keyboad_Dialog_class::buffer_mode( int )));
+    connect( ui->sb_base_octave	, SIGNAL(valueChanged(int))	, this, SLOT( base_octave(int) ));
+    connect( ui->sb_flats		, SIGNAL(valueChanged(int))	, this, SLOT( flats(int) ));
+    connect( ui->sb_sharps		, SIGNAL(valueChanged(int))	, this, SLOT( sharps(int) ));
+    connect( ui->sB_kbdbps		, SIGNAL(valueChanged(int))	, this, SLOT( kbdbps(int) ));
+    connect( ui->cb_sliding_mode, SIGNAL(clicked(bool))		, this, SLOT( sliding_mode(bool) ));
+    connect( ui->pB_Save		, SIGNAL(clicked())			, this, SLOT( save()));
 	Setup_Widget();
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
@@ -91,11 +93,17 @@ void Keyboad_Dialog_class::sharps(int value )
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
+QString Keyboad_Dialog_class::textFromValue( int value )
+{
+	string str = to_string( QBps.Bps_vec[ value ]) ;
+	ui->label_F4->setText( Qstring( str ) + "bpm");
+	return Qstring( str);
+}
 void Keyboad_Dialog_class::kbdbps( int idx )
 {
 	int bpsidx = check_cycle2( QBps.bps_range, idx, "kbdbps" );
+	textFromValue( bpsidx );
 	Sds->Set( sds_p->Kbd_state.bpsidx, (uint8_t)bpsidx );
-	ui->sB_kbdbps->setValue( bpsidx );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 

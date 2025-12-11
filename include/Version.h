@@ -38,13 +38,13 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 2
-#define PATCH 1
-#define DATA_VERSION 41
+#define PATCH 2
+#define SDS_VERSION 41
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
 							to_string(PATCH) + "-" +
-							to_string(DATA_VERSION);
+							to_string(SDS_VERSION);
 
 const string Version_str = "Version: " + Version_No;
 
@@ -59,6 +59,7 @@ const string License_text = R"(
 // Git comment:
 /*
 
+version 4.2.2.	empty
 version 4.2.1.	Sybolic link to Keyboard is missing
 				Path to $OCEANDIR/bin is missing
 				Keyboard may start on the same SDS as Synthesizer

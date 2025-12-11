@@ -161,6 +161,7 @@ struct file_structure
 	const string	log_file					= logdir		+ "composer.log";
 	const string	nohup_file					= logdir		+ "nohup.log";
 	const string 	bkground_filename			= "Ocean.png";
+	const string	testsnd_filename			= ".test2.snd";
 	const string	bkground_file				= libdir		+ bkground_filename;
 	const string	setup_filename				= "oceansetup.sh";
 	const string	setup_file					= bindir		+ setup_filename;
@@ -210,7 +211,6 @@ public:
 
 private:
 	vector_str_t	parse_cmdline		();
-	string 			trailing_slash		( const string& dir );
 	void 			setAppCWD			( string cwd );
 
 

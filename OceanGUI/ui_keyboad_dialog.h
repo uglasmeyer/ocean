@@ -41,7 +41,7 @@ public:
     QLabel *label_11;
     QLabel *lbl_note;
     QLabel *label;
-    QLabel *label_12;
+    QLabel *label_F4;
     QLabel *label_3;
     QSpinBox *sb_base_octave;
     QSpinBox *sb_sharps;
@@ -136,10 +136,10 @@ public:
 
         gridLayout->addWidget(label, 3, 0, 1, 1);
 
-        label_12 = new QLabel(gridLayoutWidget);
-        label_12->setObjectName("label_12");
+        label_F4 = new QLabel(gridLayoutWidget);
+        label_F4->setObjectName("label_F4");
 
-        gridLayout->addWidget(label_12, 3, 2, 1, 1);
+        gridLayout->addWidget(label_F4, 3, 2, 1, 1);
 
         label_3 = new QLabel(gridLayoutWidget);
         label_3->setObjectName("label_3");
@@ -219,7 +219,7 @@ public:
         label_11->setText(QCoreApplication::translate("Keyboad_Dialog_class", "F6", nullptr));
         lbl_note->setText(QCoreApplication::translate("Keyboad_Dialog_class", "Note", nullptr));
         label->setText(QCoreApplication::translate("Keyboad_Dialog_class", "Decay mode", nullptr));
-        label_12->setText(QCoreApplication::translate("Keyboad_Dialog_class", "F4", nullptr));
+        label_F4->setText(QCoreApplication::translate("Keyboad_Dialog_class", "F4", nullptr));
         label_3->setText(QCoreApplication::translate("Keyboad_Dialog_class", "# of flats", nullptr));
         label_9->setText(QCoreApplication::translate("Keyboad_Dialog_class", "F2/F3", nullptr));
         label_4->setText(QCoreApplication::translate("Keyboad_Dialog_class", "slide mode", nullptr));
