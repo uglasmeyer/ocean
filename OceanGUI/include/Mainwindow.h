@@ -120,6 +120,7 @@ public:
     vector<QString>			Qwd_fftmodes		{};
     keymap_struct			Keymap				{};
     vector<QRadioButton*> 	rb_S_vec 			{};
+	const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
 
     typedef struct cb_state_map
     {

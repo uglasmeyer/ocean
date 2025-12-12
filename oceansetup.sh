@@ -2,26 +2,30 @@
 
 if [ "$OCEANDIR" != "" ]
 then
-	OCEANP=$OCEANDIR/bin/${ARCH}:$OCEANDIR/bin:
+	ARCH=$(uname -m)
+	export OCEANP=$OCEANDIR/bin/${ARCH}:
 	PATH=$(echo $PATH | sed "s|"$OCEANP"||g")
-	OCEANL=$OCEANDIR/lib/$ARCH:
+	OCEANP=$OCEANDIR/bin:
+	PATH=$(echo $PATH | sed "s|"$OCEANP"||g")
+	export OCEANL=$OCEANDIR/lib/$ARCH:
 	LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed "s|$OCEANL||g")
 fi
 
 RCFILE=etc/ocean.rc
 
+export OCEANDIR=$(pwd)
+OCEANP=$OCEANDIR/bin/${ARCH}:$OCEANDIR/bin:
+OCEANL=$OCEANDIR/lib/$ARCH:
 cat <<-EOF   > $RCFILE
 
 # $RCFILE created on $(date)
 
-ARCH=$(uname -m)
+export ARCH=$(uname -m)
 
 export OCEANDIR=$(pwd)
 
-OCEANP=$OCEANDIR/bin/${ARCH}:$OCEANDIR/bin:
 export PATH=${OCEANP}$PATH
 
-OCEANL=$OCEANDIR/lib/$ARCH:
 export LD_LIBRARY_PATH=${OCEANL}$LD_LIBRARY_PATH
 
 EOF

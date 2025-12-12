@@ -793,7 +793,9 @@ void MainWindow::SaveRecord() // TODO no yet ready
 void MainWindow::pB_Debug_clicked()
 {
     uint8_t counter = Sds->addr->WD_status.wd_mode;
-	counter = ( counter + 1 ) % WD_MODE_SIZE;
+    cout << (int)counter;
+	counter = ( counter + 1 ) % ( WD_MODE_SIZE-1 );// no cursor mode
+    cout << (int)counter << endl;
     Sds->Set( Sds->addr->WD_status.wd_mode , (WdModeID_t)counter );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
 
@@ -894,6 +896,8 @@ void MainWindow::setwidgetvalues()
 //	if(( sds->WD_status.wd_mode == CURSORID ) and ( not CutterDialog_p->isVisible() ))
 //		sds->WD_status.wd_mode = FULLID; // inconsistent state
 
+//	WdModeID_t wd_mode = sds->WD_status.wd_mode;
+//	if( wd_mode < WD_MODE_SIZE )
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ sds->WD_status.wd_mode ] );
 
 
