@@ -111,7 +111,8 @@ void MainWindow::initStateButtons()
 	ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_status.fftmode ]);
 
 	Qwd_wdmode_names= Vstringvector( wavedisplay_struct::types );
-	ui->pB_wd_mode->setText( Qwd_wdmode_names[ Sds->addr->WD_status.wd_mode ]);
+	int wd_mode = check_range( wd_mode_range, (int)sds->WD_status.wd_mode );
+	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
 
 	Qwd_role_names 	= Vstringvector( arrayToVector( roleNames ) );
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ]);

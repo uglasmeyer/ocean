@@ -32,7 +32,6 @@ SOFTWARE.
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_
 
-//#include <data/Memorybase.h>
 typedef vector<Storage_class>		StorageArray_t;
 
 const array<std::string, STA_SIZE> StANames =

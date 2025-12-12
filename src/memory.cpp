@@ -238,7 +238,10 @@ void Storage_class::Reset( )
 	param.wdsize		= param.size;
 }
 
-
+void Storage_class::Set_filename( string dir )
+{
+	filename = dir + "StA_data_" + to_string( Id ) + ".bin" ;
+}
 
 void Storage_class::Record_mode( bool flag )
 {

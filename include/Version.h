@@ -38,7 +38,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 2
-#define PATCH 2
+#define PATCH 3
 #define SDS_VERSION 41
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -59,7 +59,9 @@ const string License_text = R"(
 // Git comment:
 /*
 
-version 4.2.2.	empty
+version 4.2.3.	Synthesizer core dump if GUI set to "Cursor" waveform view
+				Synthesizer/Audioserver is sporadically desynchronized on startuo
+version 4.2.2.	update installation instruction
 version 4.2.1.	Sybolic link to Keyboard is missing
 				Path to $OCEANDIR/bin is missing
 				Keyboard may start on the same SDS as Synthesizer

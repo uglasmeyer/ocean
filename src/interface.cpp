@@ -77,7 +77,12 @@ Logfacility_class("SharedData_class" )
 	this->Sem_p		= sem;
 	this->Cfg_p 	= cfg;
 	this->fs		= cfg->fs;
-	this->dumpFile 	= fs->ifd_file + to_string( sdsid) + to_string( ifd_data.version ) ;
+	this->dumpFile 	= fs->vardir +
+					"SDS_data_" +
+					to_string( sdsid) +
+					"_" +
+					to_string( ifd_data.version ) +
+					".bin" ;
 
 	Setup_SDS		( sdsid, cfg->Config.sdskeys[ sdsid ] );
 }

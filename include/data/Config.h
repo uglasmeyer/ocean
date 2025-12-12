@@ -143,7 +143,7 @@ struct file_structure
 	const string 	sdsview_bin					= archbindir	+ Sdsview_bin;
 	const string 	ocean_bin					= archbindir	+ Ocean_bin;
 	const string 	rtsp_bin					= archbindir	+ Rtsp_bin;
-	const string 	ifd_file 					= vardir 		+ "ifd_data.bin";
+//	const string 	ifd_file 					= vardir 		+ "ifd_data.bin";
 	const string 	wav_file 					= musicdir 		+ filename + wav_type;
 	const string 	mp3_file					= musicdir 		+ filename + ".mp3";
 	const string 	raw_file 					= tmpdir 		+ filename + ".raw";
@@ -183,7 +183,7 @@ struct file_structure
 	const string	default_name				= "default";
 	const string	default_nte					= default_name + nte_type;
 	const string	default_snd					= default_name + snd_type;
-	const string	StAdump_file				= vardir + "StA_data.bin";
+//	const string	StAdump_file				= vardir + "StA_data.bin";
 };
 
 class Config_class

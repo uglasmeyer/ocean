@@ -39,6 +39,9 @@ bool 		frqnamesarray_done 	= false;
 bool 		frqarray_done 		= false;
 bool		harmonics_done		= false;
 
+/**************************************************
+ * Frequency_class
+ *************************************************/
 Frequency_class::Frequency_class() :
 	Logfacility_class( "Frequency_class" )
 {
@@ -219,8 +222,6 @@ void Frequency_class::initFrqNamesArray()
 	Comment( DEBUG, "Frequency Names initialized at ", addr );
 	frqnamesarray_done = true;
 }
-
-
 
 void Frequency_class::TestFrequency()
 {

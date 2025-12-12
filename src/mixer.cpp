@@ -83,10 +83,9 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	}
 
 	SetStAs();
-	dumpFile_base = DaTA->Cfg_p->fs->StAdump_file + ".";
 	for( StAId_e staid : StAMemIds )
 	{
-		StA[staid].filename = dumpFile_base + to_string( staid );
+		StA[staid].Set_filename( DaTA->Cfg_p->fs->vardir );
 		RestoreStA( staid );
 	}
 

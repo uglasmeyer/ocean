@@ -56,6 +56,7 @@ Event_class				Event
 	&Cutter
 };
 
+
 extern void 			SynthesizerTestCases();
 
 char	 				Audioserver_state = -1;
@@ -84,6 +85,8 @@ void SetLogLevels()
 void activate_sds()
 {
 
+	if( sds->WD_status.wd_mode == wavedisplay_t::CURSORID )
+		sds->WD_status.wd_mode = wavedisplay_t::FULLID;
 	// reset state of empty buffers
 	for ( uint id : RecIds )
 		sds->StA_state_arr[id].play = false;
@@ -119,7 +122,7 @@ void add_sound()
 {
 
 	WdModeID_t 	mode	= sds->WD_status.wd_mode;
-	if ( mode == Cutter.CURSORID )
+	if ( mode == wavedisplay_t::CURSORID )
 	{
 		if ( Cutter.StAId == STA_SIZE) return;
 		Data_t*		StAdata	= Mixer.StA[ Cutter.StAId ].scanner.Next_read();

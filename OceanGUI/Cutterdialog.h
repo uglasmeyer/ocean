@@ -12,6 +12,8 @@ namespace Ui
 	class CutterDialog_class;
 }
 
+
+
 class CutterDialog_class :
 	public 	QDialog,
 	virtual wavedisplay_struct

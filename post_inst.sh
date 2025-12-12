@@ -3,12 +3,13 @@ GITDIR=$HOME/git/Ocean/
 RESOURCEDIR=$GITDIR/Resource/
 INSTBASE=$HOME/OceanBase/
 
-echo "lines of code: " 
-cat `find $GITDIR -name "*.h" ; find $GITDIR -name "*.cpp"` | wc -l
-echo "header file"
-find $GITDIR -name "*.h" | wc -l
-echo "cpp files:"
-find $GITDIR -name "*.cpp" | wc -l
+LINES=$(cat `find $GITDIR -name "*.h" ; find $GITDIR -name "*.cpp"` | wc -l)
+H_FILES=$(find $GITDIR -name "*.h" | wc -l)
+CPP_FILES=$(find $GITDIR -name "*.cpp" | wc -l)
+
+echo "lines of code: " $LINES 
+echo "header file  : " $H_FILES
+echo "cpp files    : " $CPP_FILES
 
 exit
 

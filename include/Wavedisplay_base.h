@@ -43,6 +43,12 @@ struct wavedisplay_struct
 		"Debug",
 		"Cursor"
 	};
+	const vector<string> guitypesxxx =
+	{
+		"Full",
+		"Flow",
+		"Debug"
+	};
 	const vector<string> fftmodes =
 	{
 		"A(τ)",

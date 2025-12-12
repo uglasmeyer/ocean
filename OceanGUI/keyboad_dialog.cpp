@@ -53,7 +53,7 @@ QDialog(parent),
 	ui->setupUi(this);
     ui->cB_buffer_mode->addItems( QStringList{ "persist", "forget" } );
 
-	connect( ui->cB_buffer_mode	, SIGNAL(activated( int ))	, this, SLOT( Keyboad_Dialog_class::buffer_mode( int )));
+	connect( ui->cB_buffer_mode	, SIGNAL(activated( int ))	, this, SLOT( buffer_mode( int )));
     connect( ui->sb_base_octave	, SIGNAL(valueChanged(int))	, this, SLOT( base_octave(int) ));
     connect( ui->sb_flats		, SIGNAL(valueChanged(int))	, this, SLOT( flats(int) ));
     connect( ui->sb_sharps		, SIGNAL(valueChanged(int))	, this, SLOT( sharps(int) ));

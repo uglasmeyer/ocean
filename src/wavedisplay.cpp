@@ -91,6 +91,8 @@ void Wavedisplay_class::gen_cxwave_data( )
 	{
 		cd_vec_t cdv {};
 		param.step	= rint( wd_frames / wavedisplay_len );
+		if ( param.step == 0 )
+			return;
 		for ( buffer_t n = 0; n < wd_frames; n = n + param.step )
 		{
 			Data_t value = data_ptr[n];
@@ -112,11 +114,12 @@ void Wavedisplay_class::gen_cxwave_data( )
 	};
 	auto gen_cursor = [ this ]( WD_data_t wd_param )
 	{
-		uint16_t	idx 	= 0;
 		uint		step	= ( wd_param.max - wd_param.min ) / wavedisplay_len ;
-					offs	= wd_param.min;
+		if( step == 0 )
+			return;
 
-		for ( buffer_t n = offs; n < wd_param.max; n = n + step )
+		uint16_t	idx 	= 0;
+		for ( buffer_t n = wd_param.min; n < wd_param.max; n = n + step )
 		{
 			Data_t value = data_ptr[n] ;
 			display_data[ idx ] = value;

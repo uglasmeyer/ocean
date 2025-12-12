@@ -91,9 +91,7 @@
 								<option id="gnu.cpp.compiler.option.debugging.gprof.1405383996" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.dialect.flags.775413195" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="--std=gnu++2b" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.misc.randomization.868588347" name="Address randomization (-fPIE)" superClass="gnu.cpp.compiler.option.misc.randomization" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.2043613728" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.compiler.option.preprocessor.def.2043613728" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols"/>
 								<option id="gnu.cpp.compiler.option.debugging.sanitaddress.1086657997" name="Sanitize address (-fsanitize=address)" superClass="gnu.cpp.compiler.option.debugging.sanitaddress" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.debugging.sanitpointers.1988052428" name="Sanitize pointer operations (-fsanitize=pointer-compare -fsanitize=pointer-subtract)" superClass="gnu.cpp.compiler.option.debugging.sanitpointers" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.debugging.sanitundef.1267931366" name="Sanitize undefined behavior (-fsanitize=undefined)" superClass="gnu.cpp.compiler.option.debugging.sanitundef" useByScannerDiscovery="false" value="false" valueType="boolean"/>
@@ -104,9 +102,7 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.170249047" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.1753606649" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.c.compiler.option.preprocessor.def.symbols.1753606649" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.955189718" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.788755137" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -114,7 +110,7 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.link.option.userobjs.621680993" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs"/>
 								<option id="gnu.cpp.link.option.debugging.gprof.128794857" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.1527473499" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/Shlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/build}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/14/"/>
 									<listOptionValue builtIn="false" value="&quot;${OCEANBASE}/lib&quot;"/>
 								</option>
@@ -158,8 +154,7 @@
 				<externalSettings containerId="Ocean;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Ocean"/>
-						<entry flags="RESOLVED" kind="macro" name="_GLIBCXX_ASSERTION" value=""/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/Shlib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/build"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="Ocean" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -215,7 +210,6 @@
 								<option id="gnu.cpp.compiler.option.dialect.flags.1148309420" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.misc.randomization.1665354414" name="Address randomization (-fPIE)" superClass="gnu.cpp.compiler.option.misc.randomization" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.373315496" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
 									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION "/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1258719097" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -225,9 +219,7 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.365856721" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.1866350786" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.c.compiler.option.preprocessor.def.symbols.1866350786" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.336199954" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.157415937" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -237,7 +229,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.debugging.gprof.808326871" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.164861660" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/Shlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/build}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1786179345" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
@@ -278,8 +270,7 @@
 				<externalSettings containerId="Ocean;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Ocean"/>
-						<entry flags="RESOLVED" kind="macro" name="_GLIBCXX_ASSERTION" value=""/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/Shlib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/build"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="Ocean" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>
@@ -312,7 +303,7 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.112068836" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1263344671" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/OceanGUI}/Shlib" id="cdt.managedbuild.target.gnu.builder.base.2134669849" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/Cmake/build_OceanGUI}" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.2134669849" incrementalBuildTarget="" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.296890338" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
 								<outputType id="cdt.managedbuild.tool.gnu.archiver.output.1999415393" outputPrefix="lib" superClass="cdt.managedbuild.tool.gnu.archiver.output"/>
 							</tool>
@@ -321,6 +312,7 @@
 								<option id="gnu.cpp.compiler.option.pthread.1777637157" name="Support for pthread (-pthread)" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.misc.hardening.548723454" name="Hardening options (-fstack-protector-all -Wformat=2 -Wformat-security -Wstrict-overflow)" superClass="gnu.cpp.compiler.option.misc.hardening" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.283018216" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/${ARCH}-linux-gnu/${QT}/QtWidgets"/>
 									<listOptionValue builtIn="false" value="/usr/include/${ARCH}-linux-gnu/${QT}/QtGui"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
@@ -334,9 +326,7 @@
 								<option id="gnu.cpp.compiler.option.debugging.gprof.1327050372" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.dialect.flags.1825946972" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=gnu++2b" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.misc.randomization.185118378" name="Address randomization (-fPIE)" superClass="gnu.cpp.compiler.option.misc.randomization" useByScannerDiscovery="false" value="false" valueType="boolean"/>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.1035831117" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.compiler.option.preprocessor.def.1035831117" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols"/>
 								<option id="gnu.cpp.compiler.option.debugging.sanitaddress.1389953514" name="Sanitize address (-fsanitize=address)" superClass="gnu.cpp.compiler.option.debugging.sanitaddress" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.debugging.sanitpointers.972617284" name="Sanitize pointer operations (-fsanitize=pointer-compare -fsanitize=pointer-subtract)" superClass="gnu.cpp.compiler.option.debugging.sanitpointers" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1568744916" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -346,9 +336,7 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.275745009" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
 								</option>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.preprocessor.def.symbols.2103972045" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="_GLIBCXX_ASSERTION"/>
-								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.c.compiler.option.preprocessor.def.symbols.2103972045" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.176907447" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.410704069" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
@@ -356,7 +344,7 @@
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.link.option.userobjs.810690078" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs"/>
 								<option id="gnu.cpp.link.option.debugging.gprof.546435348" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.2145474002" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/Shlib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/build}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/14/"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.184808073" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
@@ -399,8 +387,124 @@
 				<externalSettings containerId="Ocean;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Ocean"/>
-						<entry flags="RESOLVED" kind="macro" name="_GLIBCXX_ASSERTION" value=""/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/Shlib"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/build"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="Ocean" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+			</storageModule>
+		</cconfiguration>
+		<cconfiguration id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223" moduleId="org.eclipse.cdt.core.settings" name="Cmake">
+				<macros>
+					<stringMacro name="OUTPUT_PREFIX" type="VALUE_TEXT" value="/home/sirius/OceanBase/build/OceanGUI"/>
+					<stringMacro name="git_dir" type="VALUE_TEXT" value="/home/sirius/git/Ocean/"/>
+				</macros>
+				<externalSettings>
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/OceanGUI"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/OceanGUI/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="Synthesizer" srcPrefixMapping="" srcRootPath=""/>
+					</externalSetting>
+				</externalSettings>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223" name="Cmake" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.dockerdpath=,org.eclipse.cdt.docker.launcher.containerbuild.property.enablement=null,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.image=null,org.eclipse.cdt.docker.launcher.containerbuild.property.connection=null" parent="org.eclipse.cdt.build.core.emptycfg" postannouncebuildStep="" postbuildStep="${git_dir}/Setup/${ConfigName}/Setup   ${ProjName}" prebuildStep="${ProjDirPath}/make_moc.sh">
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.base.1329407351" name="Linux GCC" nonInternalBuilderId="cdt.managedbuild.target.gnu.builder.base" superClass="cdt.managedbuild.toolchain.gnu.base">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.75429477" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/Cmake/build_OceanGUI}" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.55197866" incrementalBuildTarget="" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1794388095" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base">
+								<outputType id="cdt.managedbuild.tool.gnu.archiver.output.1863053048" outputPrefix="lib" superClass="cdt.managedbuild.tool.gnu.archiver.output"/>
+							</tool>
+							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${EXTRA_FLAGS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.base.964656328" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+								<option id="gnu.cpp.compiler.option.other.pic.861784792" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.pthread.1710520405" name="Support for pthread (-pthread)" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.misc.hardening.1896498412" name="Hardening options (-fstack-protector-all -Wformat=2 -Wformat-security -Wstrict-overflow)" superClass="gnu.cpp.compiler.option.misc.hardening" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1112680213" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/${ARCH}-linux-gnu/${QT}/QtWidgets"/>
+									<listOptionValue builtIn="false" value="/usr/include/${ARCH}-linux-gnu/${QT}/QtGui"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;/usr/include/${ARCH}-linux-gnu/${QT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;/usr/include/${ARCH}-linux-gnu/${QT}/QtCore&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/include}&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.debugging.level.1574359932" name="Debug level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.1952813353" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.optimization.level.1181739806" name="Optimization level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.more" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.debugging.gprof.1167321869" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.dialect.flags.895292383" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="-std=gnu++2b" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.misc.randomization.1278905614" name="Address randomization (-fPIE)" superClass="gnu.cpp.compiler.option.misc.randomization" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.compiler.option.preprocessor.def.967664149" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols"/>
+								<option id="gnu.cpp.compiler.option.debugging.sanitaddress.1707451520" name="Sanitize address (-fsanitize=address)" superClass="gnu.cpp.compiler.option.debugging.sanitaddress" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<option id="gnu.cpp.compiler.option.debugging.sanitpointers.597985836" name="Sanitize pointer operations (-fsanitize=pointer-compare -fsanitize=pointer-subtract)" superClass="gnu.cpp.compiler.option.debugging.sanitpointers" useByScannerDiscovery="false" value="false" valueType="boolean"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1973732184" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.39504314" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+								<option id="gnu.c.compiler.option.dialect.std.997653335" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.c.compiler.option.include.paths.1038060500" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.c.compiler.option.preprocessor.def.symbols.1538397013" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1822125072" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.952316559" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1297439586" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="gnu.cpp.link.option.userobjs.656277273" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs"/>
+								<option id="gnu.cpp.link.option.debugging.gprof.2022934809" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.paths.212761026" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean/build}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/lib/gcc/x86_64-linux-gnu/14/"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.link.option.libs.1651034353" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="Ocean"/>
+									<listOptionValue builtIn="false" value="Qt6Core"/>
+									<listOptionValue builtIn="false" value="Qt6Gui"/>
+									<listOptionValue builtIn="false" value="Qt6Widgets"/>
+								</option>
+								<option id="gnu.cpp.link.option.pthread.1311155144" name="Support for pthread (-pthread)" superClass="gnu.cpp.link.option.pthread" value="true" valueType="boolean"/>
+								<option id="gnu.cpp.link.option.soname.658242587" name="Shared object name (-Wl,-soname=)" superClass="gnu.cpp.link.option.soname" value="" valueType="string"/>
+								<option id="gnu.cpp.link.option.implname.1079330019" name="Import Library name (-Wl,--out-implib=)" superClass="gnu.cpp.link.option.implname" value="asan" valueType="string"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1872888917" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+								<outputType id="cdt.managedbuild.tool.gnu.cpp.linker.output.1272809644" outputPrefix="" superClass="cdt.managedbuild.tool.gnu.cpp.linker.output"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1413001575" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.both.asm.option.include.paths.1258367863" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.840702452" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<fileInfo id="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223.Synthesizer.cpp" name="Synthesizer.cpp" rcbsApplicability="disable" resourcePath="Synthesizer.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.base.2046059321">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.2046059321" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.964656328">
+							<option id="gnu.cpp.compiler.option.debugging.prof.327519042" name="Generate prof information (-p)" superClass="gnu.cpp.compiler.option.debugging.prof" value="false" valueType="boolean"/>
+							<option id="gnu.cpp.compiler.option.debugging.gprof.764018584" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" value="false" valueType="boolean"/>
+							<option id="gnu.cpp.compiler.option.debugging.sanitleak.110451427" name="Sanitize memory leak (-fsanitize=leak)" superClass="gnu.cpp.compiler.option.debugging.sanitleak" value="true" valueType="boolean"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.527289745" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<sourceEntries>
+						<entry excluding="tools" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
+				<externalSettings containerId="Ocean;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
+					<externalSetting>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/Ocean"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/Ocean/build"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="Ocean" srcPrefixMapping="" srcRootPath=""/>
 					</externalSetting>
 				</externalSettings>

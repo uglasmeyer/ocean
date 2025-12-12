@@ -87,7 +87,6 @@ public:
 
 private:
 
-	string 					dumpFile_base	= "";
 	void 					clear_memory	();
 	void 					auto_volume		( const StAId_e& id);
 	bool 					setFillState	( StAId_e id );
