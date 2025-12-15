@@ -3,9 +3,13 @@ cmake_minimum_required(VERSION 3.31)
 set(OCEAN_PROJECT OceanGUI)
 project(${OCEAN_PROJECT})
 
-
 FILE(GLOB PROJECT_SRC *.cpp)
 
+FILE(GLOB PROJECT_MOC moc_*.cpp)
+if( "${PROJECT_MOC}" STREQUAL "" )
+	execute_process( COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/*.ui )
+endif()
+	
 # Add an executable target
 add_executable(${OCEAN_PROJECT}
 	${PROJECT_SRC} 

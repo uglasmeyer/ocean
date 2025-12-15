@@ -40,7 +40,6 @@ SOFTWARE.
 #include <Version.h>
 
 
-
 Application_class::Application_class( Dataworld_class* _DaTA ) :
 		Logfacility_class( "Application_class" ),
 		Statistic_class( _DaTA->Appstate.Name )

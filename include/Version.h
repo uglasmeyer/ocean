@@ -38,7 +38,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 2
-#define PATCH 3
+#define PATCH 4
 #define SDS_VERSION 41
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -48,7 +48,7 @@ const string Version_No  = 	to_string(MAYOR) + "." +
 
 const string Version_str = "Version: " + Version_No;
 
-const string Application = "Ocean Sound Lab.";
+const string Application = "Ocean Sound Lab";
 
 const string License_text = R"( 
     Copyright (C) 2025  Ulrich.Glasmeyer@web.de
@@ -58,7 +58,10 @@ const string License_text = R"(
 
 // Git comment:
 /*
-
+				provide OceanGUI.desktop
+				touch OceanGUI/ui before qmake (done)
+				ln -s Synthesizer Keyboard missing in binary distribution of x86_64
+				to be removed bin/oceansetup.sh (done)
 version 4.2.3.	Synthesizer core dump if GUI set to "Cursor" waveform view
 				Synthesizer/Audioserver is sporadically desynchronized on startup
 				Usability features

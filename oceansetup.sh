@@ -14,6 +14,12 @@ fi
 RCFILE=etc/ocean.rc
 
 export OCEANDIR=$(pwd)
+
+cp $OCEANDIR/etc/OceanGUI.desktop $HOME/Desktop
+chmod 755 $HOME/Desktop/OceanGUI.desktop
+cp $OCEANDIR/etc/OceanGUI.desktop $HOME/.local/share/applications/
+chmod 755 $HOME/.local/share/applications/OceanGUI.desktop
+
 OCEANP=$OCEANDIR/bin/${ARCH}:$OCEANDIR/bin:
 OCEANL=$OCEANDIR/lib/$ARCH:
 cat <<-EOF   > $RCFILE

@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 CONFIG += -std=c++2b
 
@@ -10,10 +10,11 @@ CONFIG += -std=c++2b
 # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
- \#    OceanGUI_main.cpp
-    cutterdialog.cpp \
-    keyboad_dialog.cpp
+ #    OceanGUI_main.cpp
+ #   cutterdialog.cpp \
+ #   keyboad_dialog.cpp
 
+RESOURCES += ./resource.qrc
 HEADERS += \
     Cutterdialog.h \
     include/Keyboad_dialog.h \

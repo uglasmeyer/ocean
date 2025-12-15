@@ -48,10 +48,7 @@ struct source_struct
 	const string		architectur		= getArch();
 	const string		archdir			= architectur + "/";
 						source_struct	( string srcdir );
-	string 				read_installfile();
 	string 				resourceDir		();
-	void 				show_installdirs();
-
 };
 
 struct install_struct
@@ -107,7 +104,7 @@ struct dir_struct
 		includedir,
 		autodir,
 		rtspdir,
-		xmldir
+		xmldir,
 	};
 			dir_struct	();
 	virtual	~dir_struct	() = default;
@@ -183,7 +180,11 @@ struct file_structure
 	const string	default_name				= "default";
 	const string	default_nte					= default_name + nte_type;
 	const string	default_snd					= default_name + snd_type;
-//	const string	StAdump_file				= vardir + "StA_data.bin";
+	const string	icon_filename				= "Ocean-SL.ico"; // see also OceanGUI/resource.qrc
+																// and OceanGUI/OceanGui_main.cpp
+	const string	icon_file					= libdir + icon_filename;
+	const string 	desktop_filename			= string(OCEANGUI) + ".desktop"; // see also oceansetup.sh
+	const string	desktop_file				= etcdir + desktop_filename;
 };
 
 class Config_class

@@ -23,6 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 // Qt
 #include <QApplication>
+#include <QWindow>
 #include <QThread>
 
 // Ocean
@@ -67,10 +68,9 @@ int main(int argc, char *argv[])
 
     MainWindow 			Window{};
 
-//    QIcon icon("/home/sirius/Software/eclipse/eclipse32.png");
-//    Windowapp.setWindowIcon( icon );
-
-
+    const QIcon 		icon { ":../Resource/Ocean-SL.ico" };
+    Windowapp.setWindowIcon( icon );
+//    Window.setWindowIcon( icon );
     Controller_class Controller{ Window };
 
     Window.App.Start( argc, argv );

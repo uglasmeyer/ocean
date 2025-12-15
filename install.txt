@@ -1,23 +1,31 @@
 
-You have sucessfully received and extracted the deployment archive of the Ocean Sound Lab.
-If you are now wondering how to start the application, please follow the steps below.
+You have sucessfully received and extracted the deployment archive of 
+the Ocean Sound Lab.
+If you are now wondering how to start the application, please follow 
+the steps below.
 
 Installation hint:
 
-1. change to the base directory OceanDev.
+1.	change to the base directory OceanDev.
 
-2. execute the shell script 
+2.	execute the shell script 
 
 $  ./oceansetup.sh
 
-   Hint: This command will setup two environment variables. The PATH and the LD_LIBRARY_PATH.
-
-3. Source the Ocean-SL-rc-file 
+	Hint: This command will setup two environment variables. The PATH and 
+	the LD_LIBRARY_PATH and creates a desktop file
+	To activate the desktop file OceanGUI.desktop it is helpfull to 
+	enter the command
+$ sudo update-desktop-database
+ 
+3.	Source the Ocean-SL-rc-file 
 
 $  . etc/ocean.rc
    
-4. start the Ocean-SL Graphical Userinterface 
+4.	start the Ocean-SL Graphical Userinterface 
 $  OceanGUI
 
-check out the documentation OceanDev/doc/Ocean-SL_Usermanual.pdf for further information
+check out the documentation OceanDev/doc/Ocean-SL_Usermanual.pdf for further
+information
+
 

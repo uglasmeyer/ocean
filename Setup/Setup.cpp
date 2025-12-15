@@ -275,6 +275,25 @@ void Copy_3rdpartylibs( source_struct* Src )
 		}
 	}
 }
+void createDesktopfile()
+{
+	Log.Info( "Creating Desktop File" );
+
+	string filename = Bin->desktop_file;
+	ofstream file { filename };
+	file 	<< "[Desktop Entry]\n"
+			<< "Version="		<< Version_No					<< "\n"
+			<< "Type=Application\n"
+			<< "Name="			<< OCEANGUI						<< "\n"
+			<< "Icon="			<< Bin->icon_file				<< "\n"
+			<< "Exec="			<< Bin->ocean_bin				<< "\n"
+			<< "Path="			<< Bin->archbindir				<< "\n"
+			<< "Comment="		<< Application << " UI"			<< "\n"
+			<< "Categories=Application\n"
+			<< "Terminal=false\n"
+			<< "StartupWMClass="<< OCEANGUI						<< endl;
+
+}
 
 void Setup_runtime( source_struct* Src, file_structure* Bin )
 {
@@ -300,7 +319,7 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 	overwrite ( Src->resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
 	overwrite ( Src->sourcedir + Bin->install_txt		, Bin->install_txtfile );
 	overwrite ( Src->sourcedir + "oceansetup.sh"		, Bin->installdir + "oceansetup.sh" );
-
+	overwrite ( Src->resourcedir + Bin->icon_filename	, Bin->icon_file );
 	bashrc_oceandir();
 //	create_oceanrc();
 
@@ -309,6 +328,8 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 
 	permissions( Bin->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
+
+	createDesktopfile();
 }
 
 

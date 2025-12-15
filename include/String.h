@@ -44,7 +44,6 @@ extern int 		char2int( const char& ch );
 extern char 	int2char( const int& i );
 extern set<int> range_set( const int& min, const int& max );
 extern bool 	strEqual( const string& , const string&  );
-
 extern string 	notnull( char* cstr );
 
 inline string bool_str( bool b, string t="yes", string f="no" )

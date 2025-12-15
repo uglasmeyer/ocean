@@ -52,16 +52,15 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = cutterdialog.cpp \
-		keyboad_dialog.cpp moc_Cutterdialog.cpp \
+SOURCES       =  qrc_resource.cpp \
+		moc_Cutterdialog.cpp \
 		moc_Keyboad_dialog.cpp \
 		moc_File_Dialog.cpp \
 		moc_Mainwindow.cpp \
 		moc_Spectrum_dialog.cpp \
 		moc_Rtsp_dialog.cpp \
 		moc_Dispatcher.cpp
-OBJECTS       = cutterdialog.o \
-		keyboad_dialog.o \
+OBJECTS       = qrc_resource.o \
 		moc_Cutterdialog.o \
 		moc_Keyboad_dialog.o \
 		moc_File_Dialog.o \
@@ -145,8 +144,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		include/Oszilloscopewidget.h \
 		include/Spectrum_dialog.h \
 		include/Rtsp_dialog.h \
-		include/Dispatcher.h cutterdialog.cpp \
-		keyboad_dialog.cpp
+		include/Dispatcher.h 
 QMAKE_TARGET  = OceanGUI
 DESTDIR       = 
 TARGET        = OceanGUI
@@ -228,6 +226,7 @@ Makefile_qt6: OceanGUI.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang/qma
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf \
 		OceanGUI.pro \
+		resource.qrc \
 		/usr/lib/x86_64-linux-gnu/libQt6Widgets.prl \
 		/usr/lib/x86_64-linux-gnu/libQt6Gui.prl \
 		/usr/lib/x86_64-linux-gnu/libQt6Core.prl
@@ -302,6 +301,7 @@ Makefile_qt6: OceanGUI.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang/qma
 /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/yacc.prf:
 /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/lex.prf:
 OceanGUI.pro:
+resource.qrc:
 /usr/lib/x86_64-linux-gnu/libQt6Widgets.prl:
 /usr/lib/x86_64-linux-gnu/libQt6Gui.prl:
 /usr/lib/x86_64-linux-gnu/libQt6Core.prl:
@@ -319,9 +319,9 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
+	$(COPY_FILE) --parents resource.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents Cutterdialog.h include/Keyboad_dialog.h include/File_Dialog.h include/Mainwindow.h include/Oszilloscopewidget.h include/Spectrum_dialog.h include/Rtsp_dialog.h include/Dispatcher.h $(DISTDIR)/
-	$(COPY_FILE) --parents cutterdialog.cpp keyboad_dialog.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents File_Dialog_class.ui cutterdialog.ui keyboad_dialog.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
 
 
@@ -347,8 +347,14 @@ check: first
 benchmark: first
 
 compiler_lrelease_make_all:
-compiler_rcc_make_all:
+compiler_rcc_make_all: qrc_resource.cpp
 compiler_rcc_clean:
+	-$(DEL_FILE) qrc_resource.cpp
+qrc_resource.cpp: resource.qrc \
+		/usr/lib/qt6/libexec/rcc \
+		../Resource/Ocean-SL.ico
+	/usr/lib/qt6/libexec/rcc -name resource resource.qrc -o qrc_resource.cpp
+
 compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
@@ -717,91 +723,12 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
-cutterdialog.o: cutterdialog.cpp Cutterdialog.h \
-		../include/data/DataWorld.h \
-		../include/Ocean.h \
-		../include/data/Interface.h \
-		../include/data/SharedDataSegment.h \
-		../include/data/Sdsbase.h \
-		../include/Kbd.h \
-		../include/Keyboard_base.h \
-		../include/data/Configbase.h \
-		../include/Version.h \
-		../include/String.h \
-		../include/Logfacility.h \
-		../include/Utilities.h \
-		../include/Table.h \
-		../include/data/Memorybase.h \
-		../include/data/Statistic.h \
-		../include/Adsr.h \
-		../include/Oscbase.h \
-		../include/data/Memory.h \
-		../include/Dynamic.h \
-		../include/Frequency.h \
-		../include/Mixerbase.h \
-		../include/Spectrum.h \
-		../include/Oscwaveform.h \
-		../include/EventKeys.h \
-		../include/Wavedisplay_base.h \
-		../include/notes/Notesbase.h \
-		../include/data/Config.h \
-		../include/System.h \
-		../include/Exit.h \
-		../include/data/Semaphore.h \
-		../include/Time.h \
-		../include/data/EventQue.h \
-		../include/data/Appstate.h \
-		ui_cutterdialog.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o cutterdialog.o cutterdialog.cpp
-
-keyboad_dialog.o: keyboad_dialog.cpp ui_keyboad_dialog.h \
-		include/Common.h \
-		../include/data/Config.h \
-		../include/data/Configbase.h \
-		../include/Version.h \
-		../include/Ocean.h \
-		../include/String.h \
-		../include/Logfacility.h \
-		../include/Utilities.h \
-		../include/Kbd.h \
-		../include/Table.h \
-		../include/System.h \
-		../include/Exit.h \
-		../include/data/Interface.h \
-		../include/data/SharedDataSegment.h \
-		../include/data/Sdsbase.h \
-		../include/Keyboard_base.h \
-		../include/data/Memorybase.h \
-		../include/data/Statistic.h \
-		../include/Adsr.h \
-		../include/Oscbase.h \
-		../include/data/Memory.h \
-		../include/Dynamic.h \
-		../include/Frequency.h \
-		../include/Mixerbase.h \
-		../include/Spectrum.h \
-		../include/Oscwaveform.h \
-		../include/EventKeys.h \
-		../include/Wavedisplay_base.h \
-		../include/notes/Notesbase.h \
-		../include/data/Semaphore.h \
-		../include/Time.h \
-		../include/data/EventQue.h \
-		include/Keyboad_dialog.h \
-		../include/data/DataWorld.h \
-		../include/data/Appstate.h \
-		../include/Keyboard.h \
-		../include/Osc.h \
-		../include/Instrument.h \
-		../include/data/Device.h \
-		../include/Oscgroup.h \
-		../include/Wavedisplay.h \
-		../include/notes/Notes.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o keyboad_dialog.o keyboad_dialog.cpp
+qrc_resource.o: qrc_resource.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resource.o qrc_resource.cpp
 
 moc_Cutterdialog.o: moc_Cutterdialog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Cutterdialog.o moc_Cutterdialog.cpp

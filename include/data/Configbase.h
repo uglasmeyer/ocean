@@ -149,7 +149,7 @@ struct AppMap_struct
 	}
 
 };
-const vector<APPID> AppIds = AppMap_struct().AppIds;
+const vector<APPID> AppIds		= AppMap_struct().AppIds;
 
 struct process_properties_struct
 {

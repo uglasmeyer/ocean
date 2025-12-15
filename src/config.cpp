@@ -66,41 +66,6 @@ source_struct::source_struct( string srcdir )
 	files			= { resourcedir, archdir };
 }
 
-
-string source_struct::read_installfile()
-{
-	Comment( DEBUG, "reading install_file" );
-	if ( sourcedir.length() == 0 )
-		Exception( "no sourcedir given");
-	string 			install 	= HOME + "/OceanBase/";
-	const string	install_file= sourcedir + "install.txt";
-	String 			S 			{};
-	fstream 		Install 	{ install_file, fstream::in };
-
-	if ( Install.is_open() )
-	{
-		Comment( DEBUG, "Reading ", install_file );
-		while ( getline( Install, S.Str ))
-		{
-			S.normalize();
-			vector_str_t arr = S.to_array( '=' );
-			if( arr[0].compare( oceandev_env ) == 0 )
-				return arr[1];
-		}
-	}
-	Comment( DEBUG, "installdir= ", install );
-
-	return install;
-
-}
-
-void source_struct::show_installdirs()
-{
-	for( string file : files)
-	{
-		Comment( BINFO, file );
-	}
-}
 string source_struct::resourceDir()
 {
 	string _dir = sourcedir + "Resource/";
