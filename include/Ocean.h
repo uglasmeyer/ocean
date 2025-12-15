@@ -317,18 +317,6 @@ const vector<string> slidermodes =
 enum DYNAMIC : unsigned char
 { FIXED, SLIDE, COMBINE }; // frequency and volume change mode
 
-enum StAId_e : unsigned char
-{
-	STA_USER00 = 0,
-	STA_USER01,
-	STA_USER02,
-	STA_USER03,
-	STA_INSTRUMENT,
-	STA_KEYBOARD,
-	STA_NOTES,
-	STA_EXTERNAL,
-	STA_SIZE
-};
 
 
 

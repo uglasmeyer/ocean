@@ -122,7 +122,6 @@ void Spectrum_Dialog_class::set_spectrum_view()
 	    Sds->Set( sds_p->WD_status.oscId	, OscId );
 	    Sds->Set( sds_p->WD_status.roleId	, roleid );
 		Eventlog_p->add( SDS_ID, SETWAVEDISPLAYKEY );
-
 	};
 
 	if ( ADSR_flag )
@@ -131,6 +130,7 @@ void Spectrum_Dialog_class::set_spectrum_view()
 		spectrum			= sds_p->adsr_arr[ OscId ].spec;
 		spectrum.adsr		= true;
 		set_waveform_vec( adsrwf_str_vec );
+		this->setWindowTitle( "ADSR" );
 	}
 	else
 	{
@@ -138,6 +138,7 @@ void Spectrum_Dialog_class::set_spectrum_view()
 		spectrum			= sds_p->spectrum_arr[ OscId ];
 		spectrum.adsr		= false;
 		set_waveform_vec( waveform_str_vec );
+		this->setWindowTitle( "Spectrum" );
 	}
 	Sds->Set( sds_p->Spectrum_type, OscId );
 

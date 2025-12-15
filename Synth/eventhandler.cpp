@@ -328,9 +328,9 @@ void Event_class::Handler()
 	}
 	case STARECORD_START_KEY: //start record
 	{
-		int id = sds->MIX_Id;
+		StAId_e id = sds->MIX_Id;
 		Info( "receive command <start record on storage area", id, ">" );
-		for (int StaId : StAMemIds)
+		for (StAId_e StaId : StAIds)
 		{
 			if ( id == StaId)
 			{
@@ -350,7 +350,7 @@ void Event_class::Handler()
 	case RESET_STA_SCANNER_KEY : // Audioserver start record
 	{
 		Info( "Reset StA scanner");
-		for( StAId_e staid : StAMemIds )
+		for( StAId_e staid : StAIds )
 		{
 			Mixer->StA[staid].scanner.Set_rpos(0);
 		}
@@ -385,7 +385,7 @@ void Event_class::Handler()
 	{
 		Comment(INFO,
 				"receive command <mute and stop record on all memory banks>");
-		for (StAId_e id : StAMemIds)
+		for (StAId_e id : StAIds)
 		{
 			Mixer->Set_play_mode(id, false);
 			sds->StA_state_arr[id].play = false;

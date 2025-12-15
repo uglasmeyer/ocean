@@ -75,10 +75,10 @@ void Keyboard_class::gen_chord_data( )
 
 	if ( Pitch_vec.size() == 0 )//Kbd_key.nokey )
 		return;
-	Oscgroup.Data_Reset();
 	uint 	delay_frames 	= sds_p->noteline_prefix.chord_delay * frames_per_msec;
 	uint8_t n 				= 0;
-	Osc->Set_volume( kbd_volume, FIXED );
+
+	Oscgroup.Data_Reset();
 	for ( pitch_t pitch : Pitch_vec )
 	{
 		Oscgroup.Set_Note_Frequency( sds_p, pitch.frqidx, frqMode );
@@ -195,7 +195,9 @@ void Keyboard_class::attack()
 
 	scanner->Set_fillrange( sta_p->param.size );
 	scanner->Set_wpos( scanner->rpos );
-	sta_p->Write_data( Osc->Mem.Data );//, max_frames );
+
+	uint8_t volume = sds_p->StA_amp_arr[STA_KEYBOARD] / ( Chord.length()+1 );
+	sta_p->Write_data( Osc->Mem.Data, volume );//, max_frames );
 
 	decayCounter	= attackCounter ;
 
@@ -421,12 +423,38 @@ void Kbd_pitch_class::SetChord( char key )
 	}
 }
 
+void ShowPitch( pitch_t p )
+{
+	Table_class T {"Pitch"};
+	T.AddColumn("Data", 20 );
+	T.AddColumn( "Value", 10 );
+	T.PrintHeader();
+	T.AddRow( "Name", p.name );
+	T.AddRow( "Frequency", p.freq );
+	T.AddRow( "Frqidx", (int)p.frqidx );
+	T.AddRow( "Octave", (int)p.octave );
+	T.AddRow( "Alter", (int)p.alter );
+	T.AddRow( "Step", (int)p.step );
+	T.AddRow( "Char", p.step_char );
+}
 void Kbd_pitch_class::Kbd_pitch_Test()
 {
 	TEST_START( className );
 	int pos 	= keyboard_keys[ 0 ].find( 'S' );
 	ASSERTION( pos == 2, "keyboard_keys", pos, 2 );
+	Chord = get<0>( Chords_map['X'] );
+	Assert_equal( strEqual( Chord, "43" ), true, Chord	);
+
+	SetChord( 'X' );
+	Assert_equal( strEqual( Chord, "43" ), true, Chord	);
+	SetPitch( 'A' );
+	Assert_equal( Pitch_vec.size(), (size_t)3 );
 	TEST_END( className );
+
+	for( const pitch_t& pitch : Pitch_vec)
+	{
+		ShowPitch( pitch );
+	}
 
 }
 

@@ -77,13 +77,12 @@ Logfacility_class("SharedData_class" )
 	this->Sem_p		= sem;
 	this->Cfg_p 	= cfg;
 	this->fs		= cfg->fs;
-	this->dumpFile 	= fs->vardir +
-					"SDS_data_" +
-					to_string( sdsid) +
-					"_" +
-					to_string( ifd_data.version ) +
-					".bin" ;
-
+	this->filename	= "SDS_data_" +
+						to_string( sdsid) +
+						"_" +
+						to_string( ifd_data.version ) +
+						".bin" ;
+	this->dumpFile 	= fs->vardir + filename;
 	Setup_SDS		( sdsid, cfg->Config.sdskeys[ sdsid ] );
 }
 
@@ -281,7 +280,7 @@ void Interface_class::Dump_ifd()
 {
 	// copy shared memory data to dumpfile
 
-	Comment(INFO,"Dump SDS  data to file", dumpFile) ;
+	Comment(INFO,"Dump SDS data   to file", filename) ;
 
 	Eventque.reset();
 	if ( not dumpData( dumpFile, addr, sizeof( ifd_data ) ) )

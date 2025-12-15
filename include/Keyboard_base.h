@@ -52,7 +52,7 @@ typedef struct kbd_state_struct
 	kbdInt_t		key						= 0x0;	// QT::key
 	frq_t			frq						= 0.0;	// OceanGUI display frequency
 	char			note[3]					= {"XX"};//OceanGUI display key
-	Id_t			chord_type				= 'y';	// OceanGUI display chord type
+	Id_t			chord_type				= 'Y';	// OceanGUI display chord type
 
 } kbd_state_t;
 

@@ -43,7 +43,7 @@ keyboardState_class::keyboardState_class( interface_t* _sds) :
 	sds 	 				= _sds;
 	base_octave				= sds->Kbd_state.base_octave;
 	sharps					= sds->Kbd_state.sharps;
-	bpsidx				= sds->Kbd_state.bpsidx;
+	bpsidx					= sds->Kbd_state.bpsidx;
 	sliding					= sds->Kbd_state.sliding;
 	change_octave			( 0 );
 };
@@ -207,16 +207,16 @@ void Keyboard_class::notekey( char ch )
 void Keyboard_class::set_bufferMode( bool forget )
 {
 	sta_p->state.Forget( forget );
+	sds_p->StA_state_arr[ STA_KEYBOARD ].forget = forget;
 	if( forget )
 	{
 		sta_volume = sds_p->StA_amp_arr[STA_KEYBOARD];
 		sds_p->StA_amp_arr[STA_KEYBOARD] = 0;
 	}
 	else
-	{
+	{ // restore volume
 		sds_p->StA_amp_arr[STA_KEYBOARD] = sta_volume;
 	}
-	sds_p->StA_state_arr[ STA_KEYBOARD ].forget = forget;
 	Note_vec.clear();
 	Noteline 			= "";
 }

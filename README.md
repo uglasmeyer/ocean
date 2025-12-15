@@ -41,6 +41,7 @@ To compile the project take a download of the latest source code.
 
 There are some prerequisites:
 - gcc --version with support for cxx standard 23, eg: (gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0)
+- Makefile generator cmake (sudo apt install cmake)
 - Qt6 development environment core, widgets, gui ( sudo apt install qtcreator) and qmake (qt6-base-dev)
 - tinyxml2 development environment ( sudo apt install libtinyxml2-dev )
 
@@ -50,14 +51,15 @@ If these prerequisites are fulfilled on the Linux machine you can use the cmake 
 
 By default the generated makefile system will create the binary files in HOME/OceanDev. The source code is aimed to update an existing runtime, that might contain customizations. For this reason make sure you have installed the binary distribution first and after this, you can overwrite the lib and bin files there, with the compiled files from the source code.
 
-Check also the correctness of include dirctory Qt6. Especially in case of a porting.
-Enter the command: 
+Check also the correctness of the QTVERSION
+Enter the command:
 
 - cmake CMakeLists.txt
 
-if this was successful, enter the command: 
-
 - make
+
+(setting is optional)
+- export OCEANSRC=<location of the source code> eg. $HOME/git/Ocean/
 
 Please don't heasitate to contact me by e-mail
 Ulrich.Glasmeyer@web.de for support.

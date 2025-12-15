@@ -49,6 +49,7 @@ class Keyboad_Dialog_class :
 		public QDialog//, virtual public QSpinBox
 {
     Q_OBJECT
+	QWidget* 		parent			= nullptr;
 
 public:
     Ui::Keyboad_Dialog_class*		ui;

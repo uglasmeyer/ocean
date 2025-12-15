@@ -10,8 +10,9 @@ add_executable(${OCEAN_PROJECT}
 )
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/../include/
-  ${CMAKE_CURRENT_SOURCE_DIR} )
+	${CMAKE_CURRENT_SOURCE_DIR}/../include/
+	${CMAKE_CURRENT_SOURCE_DIR} 
+)
 
 # Add the library search path for this target only
 target_link_directories(${OCEAN_PROJECT} PRIVATE 
@@ -23,7 +24,7 @@ target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean)
 add_custom_command(
 	TARGET 		${OCEAN_PROJECT}
 	POST_BUILD
-	COMMAND 	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Setup -S ${CMAKE_CURRENT_SOURCE_DIR}/..
-    COMMAND 	readelf -p .GCC.command.line ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${OCEAN_PROJECT}
+#	COMMAND 	${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Setup -S ${CMAKE_CURRENT_SOURCE_DIR}/..
+   COMMAND 	readelf -p .GCC.command.line ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${OCEAN_PROJECT}
 	WORKING_DIRECTORY 	${CMAKE_CURRENT_SOURCE_DIR}
 )

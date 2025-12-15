@@ -229,10 +229,31 @@ private:
 
 };
 
+/**************************************************
+ * Mem_param_struct
+ *************************************************/
+struct 				Mem_param_struct
+{
+	string 			name 			;
+	buffer_t		size 			;	// number of buffer frames
+	buffer_t		wdsize			;	// current frames of the wave display
+	uint8_t			storage_time	;	// storage time in seconds
+	buffer_t		block_size		= min_frames;  	// numer of read frames
+	Mem_param_struct( string _name, int _sec )
+	{
+		name 			= _name;
+		storage_time	= _sec;
+		size 			= frames_per_sec * _sec;
+		wdsize			= size;
+	};
+	~Mem_param_struct(){};
+} 	;
+typedef				Mem_param_struct StA_param_t;
+
 /***************************
  * Storage_class
  **************************/
-
+#include <Mixerbase.h>
 class Storage_class :
 		virtual public Logfacility_class,
 		virtual public Memory_base
@@ -248,24 +269,26 @@ public:
 	Scanner_class	scanner 		{ nullptr, min_frames, 0 };
 	Trigger_class	beattrigger		{};
 	StAstate_class 	state 			{};
+	string			file			= "";
 	string			filename		= "";
 
 	void 			Store_block		( Data_t* ) ;
-	void 			Write_data		( Data_t* src );//, const buffer_t& pos );
+	void 			Write_data		( Data_t* src, uint8_t volume = 0 );//, const buffer_t& pos );
 	void 			Record_mode		( bool );
 	void 			Set_filename	( string dir );
 	void 			Set_store_counter( uint n);
 	void 			Reset			();
 	uint*			Get_storeCounter_p();
 
-					Storage_class( StA_param_t param );
-	virtual 		~Storage_class() = default;
+					Storage_class	( StAId_e id, StA_param_t param );
+	virtual 		~Storage_class	() = default;
 
 private:
 
 	uint 			read_counter 	= 0;
 	uint 			record_counter	= 0;
 };
+typedef vector<Storage_class>		StorageArray_t;
 
 /***************************************
  * Shared_Memory

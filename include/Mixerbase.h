@@ -32,7 +32,19 @@ SOFTWARE.
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_
 
-typedef vector<Storage_class>		StorageArray_t;
+enum StAId_e : unsigned char
+{
+	STA_USER00 = 0,
+	STA_USER01,
+	STA_USER02,
+	STA_USER03,
+	STA_INSTRUMENT,
+	STA_KEYBOARD,
+	STA_NOTES,
+	STA_EXTERNAL,
+	STA_SIZE
+};
+
 
 const array<std::string, STA_SIZE> StANames =
 {
@@ -57,20 +69,8 @@ constexpr string StAIdName( StAId_e staid )
 	}
 }
 typedef array<StAId_e, STA_SIZE> 	StAarray_t; //SDS related
-
-const 	StAarray_t 	StAMemIds =
-{
-	STA_USER00,
-	STA_USER01,
-	STA_USER02,
-	STA_USER03,
-	STA_INSTRUMENT,
-	STA_KEYBOARD,
-	STA_NOTES,
-	STA_EXTERNAL
-};
-const range_T<StAId_e> staid_range{ (StAId_e)0, STA_SIZE };
-const vector<StAId_e>	AllIds	= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
+const range_T<StAId_e> 	staid_range{ (StAId_e)0, (StAId_e)(STA_SIZE-1) };
+const vector<StAId_e>	StAIds	= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
 const set<StAId_e>		RecIds 	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
 const vector<StAId_e>	UsrIds	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
 const vector<StAId_e>	HghIds	= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };

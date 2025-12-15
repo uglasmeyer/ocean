@@ -277,7 +277,6 @@ public:
 	noteline_prefix_t	Set_base_octave( uint );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 	int 				Notechar2Step( char note_char );
-
 	uint8_t 			GetFrqIndex( const pitch_t& nvs);
 	void 				TestNoteBase();
 

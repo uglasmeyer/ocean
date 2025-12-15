@@ -19,5 +19,5 @@ $  . etc/ocean.rc
 4. start the Ocean-SL Graphical Userinterface 
 $  OceanGUI
 
-check out the documentation OceanDev/doc/Ocean.pdf for further information
+check out the documentation OceanDev/doc/Ocean-SL_Usermanual.pdf for further information
 

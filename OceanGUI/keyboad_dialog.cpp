@@ -44,6 +44,7 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
 QDialog(parent),
      ui(new Ui::Keyboad_Dialog_class)
 {
+	this->parent	= parent;
 
 	this->DaTA 		= _data;
 	this->Sds		= DaTA->Sds_master;
@@ -73,6 +74,7 @@ void Keyboad_Dialog_class::buffer_mode( int value )
 {
 	Sds->Set( sds_p->StA_state_arr[ STA_KEYBOARD ].forget, (bool)value );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	parent->setFocus();
 }
 
 void Keyboad_Dialog_class::base_octave(int value )
@@ -93,17 +95,12 @@ void Keyboad_Dialog_class::sharps(int value )
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
-QString Keyboad_Dialog_class::textFromValue( int value )
-{
-	string str = to_string( QBps.Bps_vec[ value ]) ;
-	ui->label_F4->setText( Qstring( str ) + "bpm");
-	return Qstring( str);
-}
 void Keyboad_Dialog_class::kbdbps( int idx )
 {
-	int bpsidx = check_cycle2( QBps.bps_range, idx, "kbdbps" );
-	textFromValue( bpsidx );
-	Sds->Set( sds_p->Kbd_state.bpsidx, (uint8_t)bpsidx );
+	int bpsidx	= check_cycle2( QBps.bps_range, idx, "kbdbps" );
+	string str	= to_string( QBps.Bps_vec[ idx ]) ;
+	ui->label_F4->setText( Qstring( str ) + " Bpm");
+	Sds->Set	( sds_p->Kbd_state.bpsidx, (uint8_t)bpsidx );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
@@ -124,7 +121,6 @@ void Keyboad_Dialog_class::Setup_Widget()
 	strs << setprecision(5) << sds_p->Kbd_state.frq ;
 	char bmode = (char)sds_p->StA_state_arr[ STA_KEYBOARD ].forget;
 	ui->cB_buffer_mode->setCurrentIndex( bmode );
-//	ui->sB_kbdbps->setValue( sds_p->Kbd_state.bpsidx );
 	ui->cb_sliding_mode->setChecked( sds_p->Kbd_state.sliding);
 	ui->sb_base_octave->setValue( sds_p->Kbd_state.base_octave );
 	ui->sb_flats->setValue( sds_p->Kbd_state.flats );
@@ -132,9 +128,13 @@ void Keyboad_Dialog_class::Setup_Widget()
 	ui->lbl_key->setText( keyboard_key );
 	ui->lbl_frq->setText( Qstring( strs.str() ));
 	ui->lbl_note->setText( Qstring( sds_p->Kbd_state.note ));
-//    ui->sB_kbdbps->textFromValue( Sds->addr->Kbd_state.bpsidx );
 
 	char chord_type = sds_p->Kbd_state.chord_type;
 	QString Qstr = Qstring( get<1>( Kbd_pitch.Chords_map[chord_type] ) );
 	ui->lbl_chord->setText( Qstr );
+
+	uint8_t idx = sds_p->Kbd_state.bpsidx;
+	ui->sB_kbdbps->setValue( idx );
+	string str	= to_string( QBps.Bps_vec[ idx ]) ;
+	ui->label_F4->setText( Qstring( str ) + " Bpm");
 }

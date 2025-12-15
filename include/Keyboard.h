@@ -43,6 +43,9 @@ SOFTWARE.
 #include <Mixerbase.h>
 #include <notes/Notes.h>
 
+/**************************************************
+ * Kbd_pitch_class
+ *************************************************/
 class Kbd_pitch_class
 	: virtual Logfacility_class
 	, public kbd_state_struct
@@ -87,7 +90,7 @@ public:
 	 */
 
 	pitch_t				pitch 				= pitch_struct();
-	string 				Chord				= get<0>(Chords_map['y']);
+	string 				Chord				= get<0>(Chords_map['Y']);
 
 	pitch_vec_t			Pitch_vec			{};
 
@@ -104,6 +107,9 @@ public:
 private:
 } ;
 
+/**************************************************
+ * keyboardState_class
+ *************************************************/
 class keyboardState_class :
 	public Kbd_pitch_class
 {
@@ -131,7 +137,9 @@ protected:
 
 } ;
 
-
+/**************************************************
+ * Keyboard_class
+ *************************************************/
 class Keyboard_class
 	: virtual public	Logfacility_class
 	, virtual			osc_struct

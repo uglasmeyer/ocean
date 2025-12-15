@@ -914,13 +914,13 @@ void MainWindow::setwidgetvalues()
     ui->lbl_frqglide_sec->setText( QString::number( frq_slide_duration ) + "\n[sec[");
     updateColorButtons();
 
-    bool kbd_up=Appstate->IsRunning( sds, APPID::KEYBOARDID );
-	if( kbd_up  )
+	if( sds->StA_state_arr[ STA_KEYBOARD ].play  )
 	{
 		if( not Keyboard_Dialog_p->isVisible() )
+		{
 			Keyboard_Dialog_p->show();
-		Keyboard_Dialog_p->Setup_Widget();
-
+			Keyboard_Dialog_p->Setup_Widget();
+		}
 	}
 	else
 	{

@@ -60,7 +60,11 @@ const string License_text = R"(
 /*
 
 version 4.2.3.	Synthesizer core dump if GUI set to "Cursor" waveform view
-				Synthesizer/Audioserver is sporadically desynchronized on startuo
+				Synthesizer/Audioserver is sporadically desynchronized on startup
+				Usability features
+				Update Keyboard synchronization
+				Keyboard dialog on GUI appears if StA5 is playing
+				Optimize Keyboard volume control
 version 4.2.2.	update installation instruction
 version 4.2.1.	Sybolic link to Keyboard is missing
 				Path to $OCEANDIR/bin is missing

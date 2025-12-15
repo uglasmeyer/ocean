@@ -119,6 +119,7 @@ void Oscgroup_class::SetWd( Wavedisplay_class* Wd )
 			{ Wd->Add_data_ptr( osc->typeId,
 								osc->roleId,
 								osc->MemData_p(),
+//								&osc->mem_frames); });
 								&osc->wp.frames ); });
 	if( osc.roleId == INSTRROLE )
 	{

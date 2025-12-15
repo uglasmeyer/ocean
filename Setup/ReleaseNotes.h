@@ -101,6 +101,7 @@ R"(Changelog
 - combined distribution of x86 and arch binaries
 - GUI Cut desk, allowing to cut recorded wav files
 - updated installation instructions
+- Usability features
 )" + rn_newline;
 
 #endif /* RELEASENOTES_H_ */

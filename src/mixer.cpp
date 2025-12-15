@@ -57,16 +57,9 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	for( const StA_param_t& param : { 	usr_conf, usr_conf, usr_conf, usr_conf,
 										ist_conf, kbd_conf, nte_conf, ext_conf }  )
 	{
-		Storage_class sta { param };
-		sta.Id = staid;
+		Storage_class sta { staid, param };
 		StA.push_back( sta );
 		staid++;
-	}
-	for( StAId_e n : StAMemIds )
-	{
-		StA[n].scanner.Data 		= StA[n].Data;
-		StA[n].scanner.mem_range.max= StA[n].param.size;
-		StA[n].scanner.wrt 			= StA[n].param.block_size;
 	}
 
 	StA[STA_KEYBOARD].scanner.Set_wrt_len( max_frames );
@@ -83,15 +76,15 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd ) :
 	}
 
 	SetStAs();
-	for( StAId_e staid : StAMemIds )
+	for( Storage_class& sta : StA )
 	{
-		StA[staid].Set_filename( DaTA->Cfg_p->fs->vardir );
-		RestoreStA( staid );
+		sta.Set_filename( DaTA->Cfg_p->fs->vardir );
+		restoreStA( sta );
 	}
 
 	if( LogMask[ TEST ] )
 	{
-		for ( uint n : StAMemIds )
+		for ( uint n : StAIds )
 			StA[n].Memory_base::DsInfo();
 
 		Mono.DsInfo		( "Mono data");
@@ -105,8 +98,8 @@ Mixer_class::~Mixer_class()
 	if ( not sds )
 		return;
 	if( not LogMask[TEST ])
-		for( StAId_e staid : StAMemIds )
-			DumpStA( staid );
+		for( Storage_class& sta : StA )
+			dumpStA( sta );
 
 	DESTRUCTOR( className );
 };
@@ -124,7 +117,7 @@ void Mixer_class::BeatClock( const uint8_t& bps )
 	// switch the record mode only if state.sync and trigger is active
 	if( state.sync )
 	{
-		for( StAId_e staid : StAMemIds )
+		for( StAId_e staid : StAIds )
 		{
 			if ( StA[staid].beattrigger.local_data.active )
 			{
@@ -164,7 +157,7 @@ void Mixer_class::ResetStA( const StAId_e& staid )
 	Comment( INFO, "Reset SDS state" );
 	if ( staid == STA_SIZE )
 	{
-		std::ranges::for_each( StAMemIds, 	[ this ]( StAId_e id )
+		std::ranges::for_each( StAIds, 	[ this ]( StAId_e id )
 			{ StA[id].Reset(); } );
 	}
 	else
@@ -174,33 +167,30 @@ void Mixer_class::ResetStA( const StAId_e& staid )
 	SetStAProperties( staid );
 }
 
-bool Mixer_class::RestoreStA( const StAId_e& staid )
+bool Mixer_class::restoreStA( Storage_class& sta )
 {
 	// copy dump file data into StA
 
-	string dumpFile 	= StA[staid].filename;
+	sta.Clear_data(0);
 
-	StA[staid].Clear_data(0);
-
-	Info( "Restore StA data from file", dumpFile );
-	size_t bytes_red = loadData( dumpFile, StA[staid].Data, 0 );
-	uint		records = bytes_red / StA[staid].mem_ds.record_size / sizeof(Data_t);
-	StA[staid].Set_store_counter( records );
+	Info( "Restore StA data from file", sta.filename );
+	size_t bytes_red = loadData( sta.file, sta.Data, 0 );
+	uint		records = bytes_red / sta.mem_ds.record_size / sizeof(Data_t);
+	sta.Set_store_counter( records );
 
 
 	return true;
 
 }
 
-void Mixer_class::DumpStA( const StAId_e& staid )
+void Mixer_class::dumpStA( Storage_class& sta )
 {
 	// copy StA memory file
 
-	string dumpFile = StA[staid].filename;
-	buffer_t 	bytes2write = StA[staid].scanner.fillrange.max * sizeof(Data_t);//mem_ds.bytes;
+	buffer_t 	bytes2write = sta.scanner.fillrange.max * sizeof(Data_t);//mem_ds.bytes;
 
-	Info( "Dump StA memory to file", dumpFile) ;
-	dumpData( dumpFile, StA[staid].Data, bytes2write );
+	Info( "Dump StA memory to file", sta.filename ) ;
+	dumpData( sta.file, sta.Data, bytes2write );
 
 }
 
@@ -269,7 +259,7 @@ void Mixer_class::SetStAProperties( StAId_e staId )
 
 	if( staId == STA_SIZE )
 	{
-		std::ranges::for_each( StAMemIds, [ this, setStA ](StAId_e id)
+		std::ranges::for_each( StAIds, [ this, setStA ](StAId_e id)
 			{ setStA(id) ;} );
 	}
 	else
@@ -281,7 +271,7 @@ void Mixer_class::SetStAProperties( StAId_e staId )
 
 void Mixer_class::SetStAs()
 {
-	for ( StAId_e mixerId : AllIds )
+	for ( StAId_e mixerId : StAIds )
 	{
 		SetStAProperties( mixerId );
 	}
@@ -560,7 +550,7 @@ void Cutter_class::Cut()
 
 	buffer_t	start		= sds->WD_status.min;
 
-	string		filename 	= StA->at(StAId).filename;
+	string		filename 	= StA->at(StAId).file;
 				cut_data	= &StA->at(StAId).Data[start];
 				cut_bytes	= record_range.len * sizeof(Data_t);
 				StA->at( StAId).param.wdsize = record_range.len;

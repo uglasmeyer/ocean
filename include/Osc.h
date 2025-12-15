@@ -49,9 +49,9 @@ class Oscillator :
 	string 			className = "";
 
 public:
-	Heap_Memory			Mem_vco;
-	Heap_Memory 			Mem_fmo;
-	Heap_Memory 			Mem;
+	Heap_Memory		Mem_vco;
+	Heap_Memory 	Mem_fmo;
+	Heap_Memory 	Mem;
 	buffer_t		mem_frames;
 
 	Scanner_class	scanner;

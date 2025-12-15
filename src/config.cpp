@@ -59,7 +59,7 @@ source_struct::source_struct( string srcdir )
 	if ( srcdir.length() == 0 )
 		srcdir 	= trailing_dirslash( notnull( getenv("OCEANSRC") ) );
 	if ( srcdir.length() == 0 )
-		srcdir  = trailing_dirslash( notnull( getenv("PWD") ) );
+		srcdir  = trailing_dirslash( notnull( getenv("PWD") ) ) + "../";
 	sourcedir		= srcdir;
 
 	resourcedir		= resourceDir();

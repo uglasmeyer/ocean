@@ -77,8 +77,6 @@ public:
 	void	 				StA_Wdcursor	();
 	void 					BeatClock		( const uint8_t& bps );
 	void 					Set_staVolume	( const StAId_e& id, uint8_t vol );
-	void 					DumpStA			( const StAId_e& staid );
-	bool 					RestoreStA		( const StAId_e& staid );
 
 
 	void 					Add_mono		( Data_t*, const uint& staId );
@@ -90,6 +88,8 @@ private:
 	void 					clear_memory	();
 	void 					auto_volume		( const StAId_e& id);
 	bool 					setFillState	( StAId_e id );
+	void 					dumpStA			( Storage_class& sta );
+	bool 					restoreStA		( Storage_class& sta );
 
 };
 

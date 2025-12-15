@@ -92,7 +92,7 @@ void activate_sds()
 		sds->StA_state_arr[id].play = false;
 
 	// init sound volume on StAs
-	std::ranges::for_each( StAMemIds, []( StAId_e id )
+	std::ranges::for_each( StAIds, []( StAId_e id )
 			{ 	Mixer.Set_staVolume( id, sds->StA_amp_arr[id] );} );
 
 	std::ranges::for_each( init_keys, [  ]( EVENTKEY_e key )

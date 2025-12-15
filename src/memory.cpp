@@ -93,8 +93,8 @@ void Scanner_class::Show( bool debug, void* p )
 	if ((not p) or ( p == &inc )) Info( "Read frames      : ", inc );
 	if ((not p) or ( p == &wrt )) Info( "Write frames     : ", wrt );
 	if ((not p) or ( p == &trigger )) Info( "Read trigger.state		: ", trigger );
-
 }
+
 Data_t* Scanner_class::Next_read()
 {
 	if ( fillrange.max == 0 )
@@ -162,35 +162,40 @@ Heap_Memory::Heap_Memory( buffer_t bytes ) :
 /**************************************************
  * Storage_class
  *************************************************/
-Storage_class::Storage_class( StA_param_t param ) :
+Storage_class::Storage_class( StAId_e id, StA_param_t param ) :
 	Logfacility_class( "Storage_class" ),
 	Memory_base( param.size*sizeof(Data_t) )
 {
-	this->param 	= param;
-	className 		= Logfacility_class::className;
-	DsInfo( param.name );
+	this->param 			= param;
+	className 				= Logfacility_class::className;
+	scanner.Data 			= Data;
+	scanner.mem_range.max	= param.size;
+	scanner.wrt 			= param.block_size;
+	Id						= id;
 	Reset( );
-} ;
-/*
-void Storage_class::Setup( StA_param_t _param )
-{
-	param 				= _param;
-	mem_ds.bytes 		= sizeof(Data_t) * param.size;
-	mem_ds.record_size	= min_frames;//param.block_size;
-	mem_ds.block_size	= param.block_size;
-
-	Init_data( mem_ds.bytes );
 	DsInfo( param.name );
-	Reset();
-}
-*/
-void Storage_class::Write_data( Data_t* src )//, const buffer_t& wrt )
+
+} ;
+
+void Storage_class::Write_data( Data_t* src, uint8_t volume )//, const buffer_t& wrt )
 {
 	buffer_t offs = scanner.wpos;
+	if ( volume == 0 )
+	{
 	for ( buffer_t n = 0; n < scanner.wrt; n++ )
 	{
 		Data[ offs ] += src[n];
 		offs = ( offs + 1 ) % ( scanner.mem_range.max );
+	}
+	}
+	else
+	{
+		float vol_percent = volume * percent;
+		for ( buffer_t n = 0; n < scanner.wrt; n++ )
+		{
+			Data[ offs ] += src[n] * vol_percent;
+			offs = ( offs + 1 ) % ( scanner.mem_range.max );
+		}
 	}
 	scanner.Set_fillrange( scanner.wpos + scanner.wrt );
 }
@@ -240,7 +245,8 @@ void Storage_class::Reset( )
 
 void Storage_class::Set_filename( string dir )
 {
-	filename = dir + "StA_data_" + to_string( Id ) + ".bin" ;
+	filename	= "StA_data_" + to_string( Id ) + ".bin";
+	file 		= dir + filename ;
 }
 
 void Storage_class::Record_mode( bool flag )

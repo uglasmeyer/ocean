@@ -53,7 +53,7 @@ class Interface_class
 	size_t					sds_size			= sizeof( ifd_data );
 	Shm_base				SHM					{ sds_size };
 	string					dumpFile			= "";
-
+	string					filename			= "";
 
 public:
 	EventQue_class			Eventque			{}; // considered to be a named class extension

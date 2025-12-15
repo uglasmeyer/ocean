@@ -415,7 +415,7 @@ public:
         Slider_mix_vol0->setOrientation(Qt::Orientation::Horizontal);
         frame_4 = new QFrame(centralwidget);
         frame_4->setObjectName("frame_4");
-        frame_4->setGeometry(QRect(1140, 40, 40, 251));
+        frame_4->setGeometry(QRect(1140, 40, 31, 251));
         frame_4->setFrameShape(QFrame::Shape::StyledPanel);
         frame_4->setFrameShadow(QFrame::Shadow::Raised);
         cb_psta1 = new QCheckBox(frame_4);
@@ -444,7 +444,7 @@ public:
         cb_psta0->setGeometry(QRect(0, 10, 92, 23));
         pB_Mute_StA = new QPushButton(centralwidget);
         pB_Mute_StA->setObjectName("pB_Mute_StA");
-        pB_Mute_StA->setGeometry(QRect(1110, 290, 75, 25));
+        pB_Mute_StA->setGeometry(QRect(1120, 290, 75, 25));
         label_2 = new QLabel(centralwidget);
         label_2->setObjectName("label_2");
         label_2->setGeometry(QRect(480, 140, 50, 17));
@@ -542,7 +542,7 @@ public:
         sB_FMO->setMaximum(9);
         pb_clear = new QPushButton(centralwidget);
         pb_clear->setObjectName("pb_clear");
-        pb_clear->setGeometry(QRect(1030, 290, 75, 25));
+        pb_clear->setGeometry(QRect(1040, 290, 75, 25));
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName("label_3");
         label_3->setGeometry(QRect(480, 200, 81, 31));
@@ -720,7 +720,7 @@ public:
         label_12->setGeometry(QRect(765, 10, 421, 20));
         frame_3 = new QFrame(centralwidget);
         frame_3->setObjectName("frame_3");
-        frame_3->setGeometry(QRect(1050, 40, 40, 251));
+        frame_3->setGeometry(QRect(1070, 40, 40, 251));
         frame_3->setFrameShape(QFrame::Shape::StyledPanel);
         frame_3->setFrameShadow(QFrame::Shadow::Raised);
         cb_fsta0 = new QCheckBox(frame_3);
