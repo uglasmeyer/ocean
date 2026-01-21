@@ -39,8 +39,7 @@ SOFTWARE.
 
 
 class Dynamic_class
-	: virtual Logfacility_class
-	, virtual Frequency_class
+	: virtual public Frequency_class
 {
 	string 			className 			= "";
 	uint8_t			slideduration 		= 0;
@@ -50,30 +49,28 @@ class Dynamic_class
 	const range_T<uint8_t>
 					slide_duration_range{ 0, 100 };
 
+public:
 	typedef struct state_struct
 	{
 		float		present				= 0.0;
 		float 		future_f			= 0.0;
 		float		past_f				= 0.0;
 		float		delta 				= 0.0;
-		uint8_t		future				= 0;
-		uint8_t		past				= 0;
-		uint8_t		mode				= FIXED;
+		int			future				= 0;
+		int			past				= 0;
+		int			mode				= FIXED;
 	} state_t;
 
-	state_t 		restorestate		= state_struct();
-	state_t			current				= state_struct();
-
-public:
 
 			Dynamic_class( range_T<int> r );
 	virtual ~Dynamic_class();
 
-	uint8_t	SetupVol(int future_vol, int mode);
-	uint8_t SetupFrq(int future_frq, int mode);
+	uint8_t	SetupVol(int future_vol, DYNAMIC mode);
+	uint8_t SetupFrq(int future_frq, DYNAMIC mode);
 
 	void 	SetDelta( const uint8_t& sl_duration  );
 	float 	Get( );
+	void	SetCurrent( state_t state );
 	state_t GetCurrent();
 	void 	Update();
 	float 	Reset_state();
@@ -84,14 +81,18 @@ public:
 
 
 private:
-	constexpr buffer_t slideFrames( const uint8_t& sl_duration );
-	void	setup();
+	state_t 		restorestate		= state_struct();
+	state_t			current				= state_struct();
+
+	constexpr buffer_t
+			slideFrames( const uint8_t& sl_duration );
+	void	setup_past();
 	void 	end();
 	void 	set_state();
 
 
 };
-
+typedef Dynamic_class::state_t dynamic_state_t;
 
 
 #endif /* DYNAMIC_H_ */

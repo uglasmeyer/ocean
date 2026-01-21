@@ -48,18 +48,16 @@ typedef vector<Interface_class> 	SDS_Vec_t;
  *********************/
 typedef struct SDS_struct
 {
-private:
-	string					className 		= "SDS_struct";
 public:
 	SDS_Vec_t 				Vec				{};
 	sds_vec_t				vec				{};
-	interface_t*			master			= nullptr;
-	Interface_class*		Master			= nullptr;
+	interface_t*			master			;
+	Interface_class*		Master			;
 
 							SDS_struct		( APPID appid,
 											Config_class* Cfg_p,
 											Semaphore_class* Sem_p );
-	virtual 				~SDS_struct		();
+	virtual 				~SDS_struct		() = default;
 	Interface_class* 		GetSds			( int id );
 	interface_t* 			GetSdsAddr		( int id );
 	void 					Delete			();
@@ -73,31 +71,29 @@ public:
 class 	Dataworld_class :
 		virtual public Logfacility_class
 {
-	string 					className 	= "";
 public:
 
-	APPID					AppId				= NoAPPID;
-	Id_t					SDS_Id				= -1;
+	APPID					AppId				;
 
-	Shared_Memory			SHM_0				{ Shared_Memory::sharedbuffer_size };
-	Shared_Memory			SHM_1				{ Shared_Memory::sharedbuffer_size };
+	SDS_t			 		SDS 				;
+	Appstate_class 			Appstate			;
+	Id_t					SDS_Id				;
 
-	SDS_t			 		SDS ;
-	Appstate_class 			Appstate;
-
-	Stereo_t* 				ShmAddr_0 			= nullptr;
-	Stereo_t* 				ShmAddr_1 			= nullptr;
-	Interface_class*		Sds_p				= nullptr;
-	Interface_class*		Sds_master			= nullptr;
-	interface_t*			sds_master			= nullptr;
-	Config_class*			Cfg_p				= nullptr;
-	Semaphore_class*		Sem_p				= nullptr;
+	Interface_class*		Sds_p				;
+	Interface_class*		Sds_master			;
+	interface_t*			sds_master			;
+	Config_class*			Cfg_p				;
+	Semaphore_class*		Sem_p				;
+	Shm_base				SHM_l				;
+	Shm_base				SHM_r				;
+	Stereo_t* 				ShmAddr_l 			;
+	Stereo_t* 				ShmAddr_r 			;
 
 	interface_t* 			GetSdsAddr			();
-	Interface_class*		GetSds				( );
-	Stereo_t* 				SetShm_addr			( ); 			// Audioserver
-	Stereo_t* 				GetShm_addr			( ); 			// Synthesizer
-	void 					ClearShm			( const buffer_t& frames );
+	Interface_class*		GetSds				();
+	Stereo_t* 				SetShm_addr			(); // Audioserver
+	Stereo_t* 				GetShm_addr			();	// Synthesizer
+	void 					ClearShm			();
 	void 					EmitEvent			( const uint8_t flag, string comment = ""  );
 	void					Test_Dataworld		();
 
@@ -107,8 +103,11 @@ public:
 
 
 private:
+	void 					init_shared_data	();
 
-	void 					init_Shm( Shared_Memory& SHM, key_t key, uint idx );
+	void 					init_Shm			( Shm_base& SHM,
+												key_t key,
+												uint idx );
 };
 
 

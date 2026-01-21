@@ -30,18 +30,6 @@ SOFTWARE.
  */
 #include <notes/Notes.h>
 
-	// control characters
-	const char IGNORE 		= ' ';
-	const char PAUSE 		= PAUSE_CH;
-	const char INCDUR 		= '-';
-	const char SLIDE_CH		= '>';
-	const char INCOCT		= '\'';
-	const char DECOCT		= ',';
-	const char NEWOCT		= '|';
-	const char LINEBREAK	= '\n';
-	const char BRACKETOPEN	= '(';
-	const char BRACKETCLOSE	= ')';
-	const char LONGPLAY		= '!';
 
 void Note_class::Align_measure( noteline_prefix_t prefix, string& noteline )
 {
@@ -65,13 +53,13 @@ uint Note_class::Calc_notelist_msec( notelist_t notelist )
 	};
 
 
-void Note_class::Set_notelist( const notelist_t& nlst )
+void Note_class::Set_xmlnotelist( const notelist_t& nlst )
 {
 	notelist = nlst;
+	sds->Noteline_sec = musicxml.scoreduration / 1000;
 
 	Noteline_prefix = nlp_default;
 	Noteline_prefix.Octave = 0;
-//	add_volume( note_itr );
 	Show_note_list( nlst );
 }
 
@@ -88,6 +76,7 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 	auto brackets_aligned = [str]()
 	{
 		int c = 0;
+		char p = 0;
 		for ( char ch : str )
 		{
 			switch (ch )
@@ -96,6 +85,9 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 				case BRACKETCLOSE	: {c--; break;}
 				default		: break;
 			} // switch
+			if( ( c == 0 ) and ( p == BRACKETOPEN ) )
+				return false; // empty bracket
+			p = ch;
 			if( c < 0 )return false; // more CLOSE than OPEN
 		} //for
 		return ( c == 0 );
@@ -225,7 +217,7 @@ size_t Note_class::position_parser(  size_t pos )
 		{
 		if (( note_itr == notelist.end() ) or ( pos > noteline_len - 1 ))
 		{
-			Comment( ERROR, "Our of bounds occured at position " + to_string(pos) + " of " );
+			Comment( ERROR, "Out of bounds occured at position ",pos, "of" );
 			Comment( ERROR, noteline );
 			return true;
 		}

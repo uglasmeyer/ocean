@@ -34,18 +34,19 @@ SOFTWARE.
 #ifndef SPECTRUM_DIALOG_CLASS_H
 #define SPECTRUM_DIALOG_CLASS_H
 
-#include "ui_spectrum_dialog_class.h"
 
-
+// Qt
 #include <QDialog>
 #include <QTimer>
-
+// Oceean
 #include <Ocean.h>
 #include <Spectrum.h>
 #include <data/Interface.h>
 #include <EventKeys.h>
 #include <data/DataWorld.h>
+// oceanGUI
 #include <include/Common.h>
+#include "ui_spectrum_dialog_class.h"
 
 namespace Ui {
 class Spectrum_Dialog_class;
@@ -74,29 +75,29 @@ public:
     EventLog_class*			Eventlog_p;
 
     adsr_t					adsr_data;
-    OSCID_e					OscId;
-    Id_t					Channel = 1; // active slot last selected Wafeform out of 4
+    OSCID_e					OscId			= OSCID;
+    Id_t					Channel 		= 1; // active slot last selected Wafeform out of 4
 
-    vector<QSlider*>		fS_vec {};
-    vector<QSpinBox*>		sb_vec {};
-    vector<QRadioButton*> 	rb_vec {};
-    Frequency_class			Frequency {};
-    string 					instrument{};
+    vector<QSlider*>		fS_vec 			{};
+    vector<QSlider*>		vS_vec			{};
+    vector<QSpinBox*>		sb_vec 			{};
+    vector<QRadioButton*> 	rb_vec 			{};
+    Frequency_class			Frequency 		{};
     uint8_t 				waveform_id;
-    vector<QString> 		Waveform_vec {};
-    uint 					waveform_vec_len = 0;
-    uint8_t 				SDS_ID = 0;
+    vector<QString> 		Waveform_vec	{};
+    uint 					waveform_vec_len= 0;
+    uint8_t 				SDS_ID			= 0;
 
 
-    void Setup_widgets( spectrum_t );
-    void Update_instrument();
     void SetLabelWaveform();
-    void SetLabelInstrument( const QString& instr );
-    void SetSds( Interface_class* Sds, int8_t id );
+	void Setup_widgets();
+
+    void SetSds( Interface_class* Sds );
     void Set_adsr_flag( bool flag );
 
 private slots:
-    void fS1( int );
+	void SetInstrument(); // Dispatcher
+	void fS1( int );
     void vS2( int );
     void fS3( int );
     void vS4( int );
@@ -116,9 +117,9 @@ private slots:
     void decay (int);
 
     void save( );
-    void select_spec_fmo();
-    void select_spec_vco();
-    void select_spec_main();
+    void select_oscid_fmo();
+    void select_oscid_vco();
+    void select_oscid_main();
     void reset();
 
     void adsr_slot( bool flag );
@@ -128,13 +129,14 @@ private slots:
 private:
     bool ADSR_flag = false;
 
-    void select_spec( OSCID_e oscid );
-    void set_spectrum_data();
+    void select_oscid( OSCID_e oscid );
+    void save_spectrum_data();
     void set_spectrum_view();
     void waveform_spinbox( uint id, int value  );
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
     void set_waveform_vec( vector<string> waveform_vec );
+
 };
 
 #endif // SPECTRUM_DIALOG_CLASS_H

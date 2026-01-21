@@ -36,11 +36,13 @@ SOFTWARE.
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <String.h>
+#include <Oscwaveform.h>
+
 
 const int 								C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
 
 #define FRQINDEX( note, octave )\
-		{ (octave) * oct_steps + (note) + C0 }
+		{ ( (octave) * oct_steps + (note) + C0 ) }
 
 constexpr 	int 						FRQARR_SIZE = FRQINDEX( 0, max_octave ) ;
 const		uint8_t						FRQEXT_SIZE = FRQARR_SIZE + 3*oct_steps;
@@ -66,27 +68,33 @@ constexpr 	uint8_t						A4			= frqIndex(9,4); // 440 Hz
 constexpr 	uint8_t						A3			= frqIndex(9,3); // 220 Hz
 constexpr 	uint8_t						A2			= frqIndex(9,2); // 110 Hz
 constexpr 	uint8_t						A1			= frqIndex(9,1); //  55 Hz
+constexpr	uint8_t						A0			= frqIndex(9,0); // oct_base_frq
 constexpr 	uint8_t						C4			= frqIndex(0,4); // 261 Hz
 extern 		frqarray_t 					frqArray;
 extern 		frqstrarr_t 				frqNamesArray;
 extern 		harmonic_t					harmonicArray;
 
+/**************************************************
+ * Frequency_class
+ *************************************************/
 class Frequency_class :
-	virtual Logfacility_class
+	public virtual Logfacility_class,
+	public virtual oscwaveform_struct,
+	public virtual	osc_struct
+
 {
-	string 								className 		= "";
 	void 								initFrqArray	();
 	void 								initFrqNamesArray();
 	void 								initHarmonics	();
 
 public:
 	const float							log2 			= log(2.0);
-	range_T<int8_t>						harmonic_range	{ -HARMON_SIZE, HARMON_SIZE-1 };
+	range_T<uint8_t>					harmonic_range	{ 0,  HARMON_SIZE - 1 };
 	frq_t 								Calc			( const frq_t& _base_freq,
 													      const int& idx );
-	frq_t 								GetFrq			( const int& idx );
+	frq_t 								GetFrq			( int& idx );
 	frq_t 								Frqadj			( const uint8_t& channel,
-														  const int8_t& value );
+														  const uint8_t& frqidx );
 	uint  								Index			( const string& frqName );
 	uint  								Index			( const int& oct,
 														  const int& step );

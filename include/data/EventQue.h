@@ -32,8 +32,6 @@ SOFTWARE.
 #ifndef DATA_EVENTQUE_H_
 #define DATA_EVENTQUE_H_
 
-//#include <Logfacility.h>
-//#include <data/Sdsbase.h>
 #include <data/SharedDataSegment.h>
 
 // controll of access to SDS.deque and SDS.eventptr

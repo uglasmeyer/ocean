@@ -34,8 +34,66 @@ SOFTWARE.
 #include <System.h>
 
 
-//-----------------------------------------------------------------------------
+/**************************************************
+ * StAstate_class
+ *************************************************/
+StAstate_class::StAstate_class() :
+	StA_state_struct()
+{
+};
 
+void StAstate_class::Forget( bool flag )
+{
+	forget = flag;
+}
+bool StAstate_class::Forget()
+{
+	return forget;
+}
+void StAstate_class::Store( bool flag )
+{
+	store = flag;
+}
+bool StAstate_class::Store()
+{
+	return store;
+}
+void StAstate_class::Play( bool flag )
+{
+	play = flag;
+}
+bool StAstate_class::Play()
+{
+	return play;
+}
+void StAstate_class::Filled( bool flag )
+{
+	filled = flag;
+}
+bool StAstate_class::Filled()
+{
+	return filled;
+}
+StA_state_t StAstate_class::Get()
+{
+	StA_state_t 	state 	= StA_state_struct();
+	state.filled 			= filled;
+	state.forget 			= forget;
+	state.play				= play;
+	state.store 			= store;
+	return 					state;
+}
+void StAstate_class::Set( StA_state_t state )
+{
+	filled	= state.filled;
+	forget	= state.forget;
+	play	= state.play;
+	store	= state.store;
+}
+
+/**************************************************
+ * Trigger_class
+ *************************************************/
 Trigger_class::Trigger_class( string _name, trigger_data_t* _data )
 {
 	trigger_data 	= _data;
@@ -47,15 +105,15 @@ Trigger_class::Trigger_class()
 	name			= "local";
 }
 
-void Trigger_class::set_state( bool _state ) // producer
+void Trigger_class::SetState( bool _state ) // producer
 {
 	trigger_data->state 	= _state;
 }
-void Trigger_class::set_active( bool _active ) // controller
+void Trigger_class::SetActive( bool _active ) // controller
 {
 	trigger_data->active 	= _active;
 }
-bool Trigger_class::get() // action
+bool Trigger_class::Get() // action
 {
 	bool state = ( trigger_data->active and trigger_data->state);
 	if( state ) cout << "trigger " << name << endl;
@@ -70,16 +128,15 @@ bool Trigger_class::get() // action
 	// |-----------------|-----------------|-----------------| wrt = x*inc
 
 Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _inc, buffer_t _max )
-	: Logfacility_class( "Scanner_class" )
-	, mem_range{ 0, _max}
-	, fillrange{ 0, 0 }
+	: Logfacility_class	( "Scanner_class" )
+	, mem_range			{ 0, _max }
+	, fillrange			{ 0, 0 }
 {
-	className		= Logfacility_class::className;
-	rpos 			= 0;
-	wpos			= 0;
-	Data 			= &_ptr[ 0 ];
-	inc				= audio_frames;	// min_frames;//_inc;
-	wrt				= _inc; 		// use set_wrt_len to change
+	className			= Logfacility_class::className;
+	rpos 				= 0;
+	wpos				= 0;
+	Data 				= &_ptr[ 0 ];
+	inc					= audio_frames;	// min_frames;//_inc;
 }
 
 void Scanner_class::Show( bool debug, void* p )
@@ -91,211 +148,193 @@ void Scanner_class::Show( bool debug, void* p )
 	if ((not p) or ( p == &mem_range.max )) Info( "Memory max       : ", mem_range.max );
 	if ((not p) or ( p == &fillrange.max )) Info( "fillrange max    : ", fillrange.max );
 	if ((not p) or ( p == &inc )) Info( "Read frames      : ", inc );
-	if ((not p) or ( p == &wrt )) Info( "Write frames     : ", wrt );
 	if ((not p) or ( p == &trigger )) Info( "Read trigger.state		: ", trigger );
 }
 
 Data_t* Scanner_class::Next_read()
 {
-	if ( fillrange.max == 0 )
+	if ( ( fillrange.max == 0 ) or ( readlock ) )
 	{
+		rpos = 0;
 		return nullptr; // data is empty
 	}
 	Data_t*
 	data 			= &Data[ rpos ];
-	rpos 			= ( rpos + inc ) % fillrange.max;//check_cycle( fillrange, rpos + inc, "Next" );
+	rpos 			= check_cycle2( fillrange, rpos + inc, "Next" );//( rpos + inc ) % fillrange.max;//;
 	trigger			= ( rpos < inc ); // indicates a next cycle or start cycle
 	return data;
 }
 
-void Scanner_class::Next_write( buffer_t n )
+buffer_t Scanner_class::Next_wpos( buffer_t n )
 {
-	Set_wpos( wpos + n );;
-}
-void Scanner_class::Reset()
-{
-	rpos	= 0;
-	wpos	= 0;
-	fillrange.max = 0;
+	Set_wpos( wpos + n );
+	return wpos;
 }
 
 Data_t* Scanner_class::Set_rpos( buffer_t n )
 {
-	rpos = check_cycle( fillrange, n, "Set_pos" );
+	rpos = check_cycle( fillrange, n, __builtin_FUNCTION() );
 	return &Data[n];
 }
 buffer_t Scanner_class::Set_wpos( buffer_t n )
 {
-	wpos = check_cycle( mem_range, n, "Set_wpos" );
+	wpos = check_cycle( mem_range, n, __builtin_FUNCTION() );
 	return wpos;
 }
-void Scanner_class::Set_wrt_len( buffer_t n )
+void Scanner_class::Lock_read( bool flag )
 {
-	wrt 		= check_range( mem_range, n, "Set_wrt_len");
+	readlock = flag;
+}
+void Scanner_class::Reset()
+{
+///	rpos	= 0;
+//	wpos	= 0;
+	Set_fillrange(0);
 }
 void Scanner_class::Set_fillrange( buffer_t n )
 {
 	if ( n == 0 )
 	{
-		fillrange.max = n;
+		fillrange.max = 0;
+		fillrange.len = 0;
+		Set_wpos(0);
+		Set_rpos(0);
 		return;
 	}
 	if( fillrange.max == mem_range.max ) // don't change if full
 		return;
 	fillrange.max 	= check_range( mem_range, n, "Set_fillrange" );
+	fillrange.len	= fillrange.max - fillrange.min;
 }
 bool Scanner_class::Get_filled()
 {
 	return ( fillrange.max > 0 );
 }
+
+
+
 /**************************************************
  * Heap_Memory
  *************************************************/
 Heap_Memory::Heap_Memory( buffer_t bytes ) :
-	Logfacility_class( "Memory" ),
-	Memory_base( bytes )
+	Logfacility_class	( "Memory" ),
+	Memory_base			( sizeof_Data, bytes )
 {
-	className = Logfacility_class::className;
+	className 			= Logfacility_class::className;
 };
 
 
 /**************************************************
  * Storage_class
  *************************************************/
-Storage_class::Storage_class( StAId_e id, StA_param_t param ) :
-	Logfacility_class( "Storage_class" ),
-	Memory_base( param.size*sizeof(Data_t) )
+Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
+	Logfacility_class		( "Storage_class" ),
+	Memory_base				( sizeof_Data, _param.size*sizeof_Data ),
+	param					( _param.name, _param.storage_time ),
+	DynVolume				( volidx_range ),
+	scanner 				( Memory_base::Data, min_frames, _param.size )
+
 {
-	this->param 			= param;
 	className 				= Logfacility_class::className;
-	scanner.Data 			= Data;
-	scanner.mem_range.max	= param.size;
-	scanner.wrt 			= param.block_size;
-	Id						= id;
-	Reset( );
-	DsInfo( param.name );
+	this->Id				= id;
+	Reset					( );
+	DsInfo					( param.name );
 
 } ;
 
-void Storage_class::Write_data( Data_t* src, uint8_t volume )//, const buffer_t& wrt )
+void Storage_class::Write_data( Data_t* src, buffer_t frames, const float volume )
 {
-	buffer_t offs = scanner.wpos;
-	if ( volume == 0 )
+	buffer_t offs 		= scanner.wpos;
+	touched				= true;
+	for ( buffer_t n = 0; n < frames; n++ )
 	{
-	for ( buffer_t n = 0; n < scanner.wrt; n++ )
-	{
-		Data[ offs ] += src[n];
-		offs = ( offs + 1 ) % ( scanner.mem_range.max );
+		Data[ offs ] 	+= src[n] * volume;
+		offs			= ( offs + 1 ) % ( scanner.mem_range.max );
 	}
-	}
-	else
-	{
-		float vol_percent = volume * percent;
-		for ( buffer_t n = 0; n < scanner.wrt; n++ )
-		{
-			Data[ offs ] += src[n] * vol_percent;
-			offs = ( offs + 1 ) % ( scanner.mem_range.max );
-		}
-	}
-	scanner.Set_fillrange( scanner.wpos + scanner.wrt );
+
+	scanner.Set_fillrange( scanner.wpos + frames );
 }
 
-void Storage_class::Store_block( Data_t* src )
+void Storage_class::Store_record( Data_t* src )
 {
-	if ( not state.Store() ) return;
-	buffer_t start = record_counter* mem_ds.record_size;
+//	if ( not state.Store() )
+//		return;
+
+				touched		= true;
+	buffer_t	offs 		= scanner.wpos;
 	for ( buffer_t n = 0; n < mem_ds.record_size; n++ )
 	{
-		Data[start + n] = src[n];
+		Data[offs + n] = src[n];
 	}
-	record_counter 	= ( record_counter + 1 );
-	record_data 	= record_counter * mem_ds.record_size;
-	scanner.Set_fillrange( record_data );
-	if ( record_counter == mem_ds.max_records - 2 )
-		state.Store( false ) ;
+
+	buffer_t 	blocks				 	= mem_ds.record_size;
+				scanner.Next_wpos		( blocks );
+				scanner.Set_fillrange	( scanner.wpos );
+				state.Store				( scanner.fillrange.max < scanner.mem_range.max );
+				records 				= scanner.fillrange.max / mem_ds.record_size;
 }
 
-void Storage_class::Set_store_counter( uint  n )
+void Storage_class::Store_counter( uint  _records )
 {
-	Assert_lt(  n , mem_ds.max_records + 1, "mem_ds.max_records" );
+	Assert_lt(  _records , mem_ds.max_records + 1, "mem_ds.max_records" );
 
-	record_counter 		= n;
-	Info( "StA", Id, "loaded", record_counter, "records");
-	record_data 		= record_counter * mem_ds.record_size;
-	if ( read_counter > n )
-		read_counter  	= 0;
-	scanner.Set_rpos	( 0 );
-	scanner.Set_fillrange(record_data );
-	scanner.Set_wpos	( record_data );
-	param.wdsize		= record_data;
+	buffer_t	blocks					= _records * mem_ds.record_size;
+				records					= _records;
+				scanner.Set_fillrange	( blocks );
+				scanner.Set_rpos		( 0 );
+				scanner.Set_wpos		( blocks );
+				if ( blocks > 0 ) // do not set wdsize to 0
+				{
+					param.wdsize		= blocks;
+					touched				= true;
+				}
+	Info( "StA", Id, "loaded", records, "records");
+}
+
+uint* Storage_class::Store_counter()
+{
+	return &records;
 }
 
 void Storage_class::Reset( )
 {
 	Comment( DEBUG, "Reset counter ", (int)Id );
-	record_counter 		= 0;
-	record_data 		= 0;
-	read_counter  		= 0;
+	records 			= 0;
 	state.Store			( false );
-//	state.Filled		( false );
 	scanner.Reset		();
 	Clear_data			(0);
-	param.wdsize		= param.size;
+	touched				= false;
 }
 
-void Storage_class::Set_filename( string dir )
+void Storage_class::Set_filename( string dir, uint8_t sdsid )
 {
-	filename	= "StA_data_" + to_string( Id ) + ".bin";
-	file 		= dir + filename ;
+	filename		= "StA_data"	+ to_string( Id ) + ".bin";
+	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
+	if( not filesystem::exists( subdir ) )
+	{
+		filesystem::create_directories( subdir );
+	}
+	file 		= subdir + filename ;
 }
 
 void Storage_class::Record_mode( bool flag )
 {
 	state.Store( flag );
-	if ( flag )
-		read_counter = 0;
-}
-
-uint* Storage_class::Get_storeCounter_p()
-{
-	return &record_counter;
 }
 
 
 
-
-
-//-----------------------------------------------------------------------------
-
-Shared_Memory::Shared_Memory( buffer_t bytes ) :
-	Logfacility_class("Shm"),
-	Shm_base( bytes ),
-	shm_range{0,bytes/shm_ds.sizeof_type}
+void Storage_class::Volume( uint8_t vol, DYNAMIC mode )
 {
-	className = Logfacility_class::className;
-};
-
-Shared_Memory::~Shared_Memory()
-{
+	DynVolume.SetupVol( vol, mode );
+;
+}
+float Storage_class::Volume()
+{	// returns volume in %
+	return DynVolume.GetCurrent().future_f;
 }
 
-void Shared_Memory::Clear( const buffer_t& _frames )
-{
-	if ( not addr )
-	{
-		Comment( ERROR, "shm undefined");
-		return;
-	}
-	buffer_t frames = check_range( shm_range, _frames, "Clear shm" );
-	for ( buffer_t n = 0; n < frames ; n++ )
-	{
-		addr[n] = {0,0};
-	}
-}
 
-void Shared_Memory::Stereo_buffer( key_t key )
-{
-	this->ds 		= *Get( key );
-	this->ds.addr 	= (Stereo_t*) this->ds.addr;
-	this->addr 		= (Stereo_t*) this->ds.addr;
-}
+
+
+

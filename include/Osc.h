@@ -37,24 +37,20 @@ SOFTWARE.
 #include <data/Memory.h>
 #include <Ocean.h>
 #include <System.h>
-#include <Oscwaveform.h>
+//#include <Oscwaveform.h>
 
 
 class Oscillator :
-	virtual public 	Logfacility_class,
-	virtual public 	Spectrum_class,
-	virtual public 	Oscillator_base,
 	virtual public 	ADSR_class
 {
-	string 			className = "";
-
 public:
-	Heap_Memory		Mem_vco;
-	Heap_Memory 	Mem_fmo;
-	Heap_Memory 	Mem;
-	buffer_t		mem_frames;
-
-	Scanner_class	scanner;
+	RoleId_e		roleId				;
+	string 			oscrole_name 		;
+	Heap_Memory		Mem_vco				;
+	Heap_Memory 	Mem_fmo				;
+	Heap_Memory 	Mem					;
+	buffer_t		mem_frames			;
+	Scanner_class	scanner				;
 
 					Oscillator			( RoleId_e role_id, OSCID_e type_id, buffer_t bytes );
 	virtual			~Oscillator() 		= default;

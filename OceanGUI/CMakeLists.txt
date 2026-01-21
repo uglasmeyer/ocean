@@ -3,12 +3,13 @@ cmake_minimum_required(VERSION 3.31)
 set(OCEAN_PROJECT OceanGUI)
 project(${OCEAN_PROJECT})
 
-FILE(GLOB PROJECT_SRC *.cpp)
 
 FILE(GLOB PROJECT_MOC moc_*.cpp)
 if( "${PROJECT_MOC}" STREQUAL "" )
 	execute_process( COMMAND touch ${CMAKE_CURRENT_SOURCE_DIR}/*.ui )
 endif()
+
+FILE(GLOB PROJECT_SRC *.cpp)
 	
 # Add an executable target
 add_executable(${OCEAN_PROJECT}
@@ -21,6 +22,7 @@ set ( QMAKE_TARGET qmakeTarget)
 add_custom_target(${QMAKE_TARGET}
 	COMMAND  ${QMAKE} -o ${QTMAKEFILE} OceanGUI.pro -spec linux-clang
 	# CONFIG+=debug CONFIG+=qml_debug
+	COMMAND make -f ${QTMAKEFILE} compiler_rcc_make_all
 	COMMAND make -f ${QTMAKEFILE} compiler_uic_make_all
 	COMMAND make -f ${QTMAKEFILE} mocables
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 

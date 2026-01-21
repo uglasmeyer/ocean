@@ -74,7 +74,16 @@ void Dispatcher_class::Loop(  )
 				emit( UpdateFileList() );
 				break;
 			}
+			case UPDATE_KBDDIALOG_FLAG :
+			{
+				emit( UpdateKeyboardDialog() );
+				break;
+			}
 			case NEWINSTRUMENTFLAG :
+			{
+				emit( UpdateSpectrumDialog() );
+				break;
+			}
 			case NEWNOTESLINEFLAG :
 			{
 				emit( UpdateFileDialog() );
@@ -91,6 +100,11 @@ void Dispatcher_class::Loop(  )
 			case RECORDWAVFILEFLAG :
 			{
 				emit( UpdateFileList() );
+				break;
+			}
+			case CUT_UPDATE_DISPLAY_FLAG :
+			{
+				emit( UpdateCutDesk() );
 				break;
 			}
 			default:
@@ -121,8 +135,14 @@ Controller_class::Controller_class( MainWindow& window ) :
 					window.Rtsp_Dialog_p, SLOT( UpdateLog(QString)) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateFileDialog() ),
 					window.File_Dialog_p, SLOT( Setup_widgets()) );
+	window.connect( Dispatcher_p, SIGNAL( UpdateSpectrumDialog() ),
+					window.Spectrum_Dialog_p, SLOT( SetInstrument()) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateColorButtons() ),
 					window_p, SLOT( updateColorButtons() ) );
+	window.connect( Dispatcher_p, SIGNAL( UpdateCutDesk() ),
+					window.CutterDialog_p, SLOT( updateCutDesk() ) );
+	window.connect( Dispatcher_p, SIGNAL( UpdateKeyboardDialog() ),
+					window.Keyboard_Dialog_p, SLOT( Setup_Widget() ) );
 
 	Thread.start();
 }

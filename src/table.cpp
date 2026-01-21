@@ -55,41 +55,29 @@ void Table_class::AddColumn( string name, uint width )
 void Table_class::PrintHeader()
 {
 
-	string color 		= GetColor( TABLE );
-	string endcolor 	= GetendColor();
+	string color 		= GetColor( TABLE, opt.FILE );
+	string endcolor 	= GetendColor( opt.FILE );
 
-	cout << color << setw( opt.Ident ) << left << setfill('.') << opt.Titel << endcolor ;
+	*opt.FILE << color << setw( opt.Ident ) << left << setfill('.') << opt.Titel << endcolor ;
 	if ( opt.Titel.length() > opt.Ident )
-		cout << endl;
+		*opt.FILE << endl;
 	for( header_t row : header_v )
 	{
-		if ( not opt.FILE )
-			 cout  << dec << setw(row.width) << left << setfill(' ')<< row.txt << opt.Separator;
-		else
-			*opt.FILE  << dec << setw(row.width) << left << setfill(' ')<< row.txt << opt.Separator;
+		*opt.FILE  << dec << setw(row.width) << left << setfill(' ')<< row.txt << opt.Separator;
 	}
-	if( not opt.FILE )
-		cout << endl;
-	else
-		*opt.FILE << '\n';
+	*opt.FILE << '\n';
 }
 string Table_class::cout_row( string txt )
 {
-	string color 		= GetColor( TABLE );
-	string endc			= GetendColor();
+	string color 		= GetColor( TABLE, opt.FILE );
+	string endc			= GetendColor( opt.FILE );
 	string colorline 	= color + txt + endc + opt.Crlf;
 
-	cout << colorline;
-	if( opt.FILE )
-	{
-		if( not opt.FILE->is_open() )
-		{
-			Comment(WARN, "file not open");
-			return colorline;
-		}
+	if( opt.FILE == &cout )
+		*opt.FILE << colorline;
+	else
+		*opt.FILE << txt << endl;
 
-		*opt.FILE << txt << opt.Crlf;
-	}
 	return colorline;
 }
 void Table_class::TestTable()

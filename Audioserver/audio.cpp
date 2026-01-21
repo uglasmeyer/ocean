@@ -63,7 +63,7 @@ bool Record_class::Start( )
 	sds->Record_state 					= RECORDING;
 	recording							= true;
 	sds->StA_state_arr[ STA_EXTERNAL].store = true;
-	sds->WD_status.roleId				= AUDIOROLE;
+	sds->WD_state.roleId				= AUDIOROLE;
 	rcounter 							= 0;
 	ProgressBar_class::Set				( &rcounter, record_sec * 1000/min_msec );
 
@@ -91,8 +91,8 @@ void Record_class::Stop( bool init )
 bool Record_class::State( StateId trigger )
 {
 	bool 		recordstate = ((sds->Record_state == trigger) or
-								Note_start.get() or
-								Note_end.get() );
+								Note_start.Get() or
+								Note_end.Get() );
 	return 		recordstate;
 }
 void Record_class::Set_rcounter( )
@@ -282,6 +282,10 @@ void AudioVolume_class::selfTest()
 	f = 32767.0/2/Max;
 	Assert_equal( ratio, f );
 
+	float 		balanceR	= 0.5 * ( 60 ) / 200.0;
+	float 		balanceL 	= 0.5 *0.5 - balanceR;
+	Assert_equal( fcomp( balanceR/balanceL, (float)6/4 ), true , "balance ratio" );
+	sds->overmodulated = false;
 }
 const float AudioVolume_class::dynamic_limit( buffer_t frames, Stereo_t* src )
 {
@@ -296,11 +300,14 @@ const float AudioVolume_class::dynamic_limit( buffer_t frames, Stereo_t* src )
 	{
 		float Ratio = 1.0 / ratio;
 		coutf << "Output " << max << " limited by ratio " << Ratio << endl;
+		sds->overmodulated = true;
 		return Ratio;
 	}
+	else
+	{
 		return 1.0;
+	}
 }
-
 void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst )
 {	// transform Stereo data to stereo data using
 	// dynamic volume, balance and dynamic limitat calculation
@@ -308,8 +315,8 @@ void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst
 	DynVolume.SetupVol( sds->Master_Amp, sds->vol_slidemode );
 
 	float 		ratio 		= dynamic_limit( frames, src );
-	float 		balanceL 	= ratio * ( 100.0 - sds->mixer_balance ) / 200.0;
-	float 		balanceR	= ratio - balanceL;
+	float 		balanceR	= ratio * ( sds->mixer_balance ) / 200.0;
+	float 		balanceL 	= ratio * 0.5 -  balanceR;
 
 	DynVolume.SetDelta( sds->slide_duration );
 	for( buffer_t n = 0; n < frames ; n++ )

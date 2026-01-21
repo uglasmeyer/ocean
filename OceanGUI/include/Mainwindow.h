@@ -42,7 +42,6 @@ SOFTWARE.
 
 // Ocean
 #include <data/Interface.h>
-//#include <Mixer.h>
 #include <Spectrum.h>
 #include <App.h>
 #include <data/Configbase.h>
@@ -120,7 +119,9 @@ public:
     vector<QString>			Qwd_fftmodes		{};
     keymap_struct			Keymap				{};
     vector<QRadioButton*> 	rb_S_vec 			{};
-	const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
+
+    RoleId_e				prev_wd_role		;
+    const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
 
     typedef struct cb_state_map
     {
@@ -166,7 +167,9 @@ public:
 
 private:
 //    Ui::MainWindow*		ui;
-    unique_ptr<Ui::MainWindow>		ui;
+    bps_struct			Bps					;
+    unique_ptr<Ui::MainWindow>
+    					ui					;
 
     QTimer				osc_timer_obj		{};
     QTimer*				osc_timer			= &osc_timer_obj;
@@ -174,8 +177,7 @@ private:
     QTimer*				status_timer		= &status_timer_obj;
     QGraphicsScene  	Scene 				{ this };
     QGraphicsScene*     scene 				= &Scene ;
-    OszilloscopeWidget* OscWidget_item;			//	created by "new";
-
+    OszilloscopeWidget* OscWidget_item		;			//	created by "new";
 
     void setwidgetvalues();
     void initPanel();
@@ -189,7 +191,7 @@ private:
     void initLables();
     void initUiConnectors();
     void initTimer();
-    void sliderFreq( sl_lcd_t map, uint8_t value );
+    void sliderFreq( sl_lcd_t map, int value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
     void waveform_slot( uint8_t*, uint8_t, OSCID_e, EVENTKEY_e, QLabel* );
@@ -211,7 +213,9 @@ private slots:
 	void SDS_Dialog();
 
     void slideFrq( int );
-    void cB_Beat_per_sec( int );
+    void Notes_per_measure( int );
+    void Beat_per_sec( int  );
+
     void dial_PMW_value_changed();
     void mixer_balance();
     void chord_delay();

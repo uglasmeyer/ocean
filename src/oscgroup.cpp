@@ -32,17 +32,25 @@ SOFTWARE.
 #include <Oscgroup.h>
 #include <data/Device.h>
 
+Oscgroup_class::Oscgroup_class()
+	: Logfacility_class( "Oscgroup_class" )
+	, vco( ROLE_SIZE, VCOID, 0 )
+	, fmo( ROLE_SIZE, FMOID, 0 )
+	, osc( ROLE_SIZE, OSCID, 0 )
+{
+	oscroleId 		= ROLE_SIZE;
+}
 Oscgroup_class::Oscgroup_class( RoleId_e role, buffer_t bytes )
 	: Logfacility_class( "Oscgroup_class" )
-	, Frequency_class()
-	, Note_base()
 	, vco( role, VCOID, bytes )
 	, fmo( role, FMOID, bytes )
 	, osc( role, OSCID, bytes )
 {
-	className		= Logfacility_class::className;
-	member 			= { &vco, &fmo, &osc };
 	oscroleId 		= role;
+	this->member 	= { &vco, &fmo, &osc };
+	this->dynarr	= { vco.DynFrequency.GetCurrent(),
+						fmo.DynFrequency.GetCurrent(),
+						osc.DynFrequency.GetCurrent()};
 	Data_Reset();
 	selfTest();
 }
@@ -76,7 +84,6 @@ void Oscgroup_class::SetInstrument( interface_t* sds )
 	Set_Connections	( sds );
 	SetSpectrum		( sds );
 }
-
 void Oscgroup_class::Connection_Reset()
 {
 	std::ranges::for_each( member, [](Oscillator*  o)
@@ -96,7 +103,11 @@ void Oscgroup_class::SetFeatures( interface_t* sds )
 {
 	for( char oscid : oscIds )
 	{
-		member[ oscid ]->features = sds->features[ oscid ];
+		member[ oscid ]->features.slide_frq	= sds->features[OSCID].slide_frq ;
+		member[ oscid ]->features.PWM 			= sds->features[VCOID].PWM ;
+		member[ oscid ]->features.longplay 		= sds->features[OSCID].longplay ;
+
+		member[ oscid ]->features.adjust 		= sds->features[oscid].adjust ;
 	}
 }
 void Oscgroup_class::SetAdsr( interface_t* sds )
@@ -106,11 +117,25 @@ void Oscgroup_class::SetAdsr( interface_t* sds )
 		member[oscid]->Set_adsr	( sds->adsr_arr[oscid] );
 	}
 }
+void Oscgroup_class::Adsr_OSC()
+{
+	for( char oscid : oscIds )
+	{
+		member[oscid]->Adsr_OSC() ;
+	}
+}
+void Oscgroup_class::Set_kbdbps( uint8_t bps )
+{
+	for( char oscid : oscIds )
+	{
+		member[oscid]->Set_kbdbps( bps );
+	}
+}
 
-void Oscgroup_class::SetSlide( const uint8_t& value )
+void Oscgroup_class::SetSlideFrq( const uint8_t& value )
 {
 	std::ranges::for_each( member, [ value ](Oscillator*  o)
-			{ o->Set_glide( value);	});
+			{ o->Set_slideFrq( value); });
 }
 
 void Oscgroup_class::SetWd( Wavedisplay_class* Wd )
@@ -119,15 +144,15 @@ void Oscgroup_class::SetWd( Wavedisplay_class* Wd )
 			{ Wd->Add_data_ptr( osc->typeId,
 								osc->roleId,
 								osc->MemData_p(),
-//								&osc->mem_frames); });
 								&osc->wp.frames ); });
 	if( osc.roleId == INSTRROLE )
 	{
 		std::ranges::for_each( member, [ this, Wd ](Oscillator*  osc )
-				{ Wd->Add_data_ptr( osc->typeId,
-									ADSRROLE,
-									osc->AdsrMemData_p(),
-									&osc->adsr_frames ); });
+		{
+			Wd->Add_data_ptr( 	osc->typeId,
+								ADSRROLE,
+								osc->AdsrMemData_p(),
+								&osc->adsr_frames ); });
 		}
 	}
 
@@ -135,7 +160,6 @@ void Oscgroup_class::SetScanner( const buffer_t& maxlen )
 {
 	std::ranges::for_each( member, [ maxlen ](Oscillator*  o)
 	{
-		o->scanner.Set_wrt_len( max_frames );
 		o->scanner.Set_fillrange( maxlen );
 	});
 
@@ -158,63 +182,98 @@ void Oscgroup_class::Show_sound_stack() // show_status
 }
 
 void Oscgroup_class::Set_Note_Frequency	( 	interface_t*	sds,
-											const uint8_t& idx,
-											const uint& mode )
-{
-	int diff = idx - sds->spectrum_arr[OSCID].frqidx[0];
-	osc.Set_frequency( idx, mode );
+											const uint8_t& 	idx,
+											const DYNAMIC& 	mode )
+{ 	// keep index distance to main osc
 
-	vco.Set_frequency( sds->spectrum_arr[VCOID].frqidx[0] + diff, mode );
-	fmo.Set_frequency( sds->spectrum_arr[FMOID].frqidx[0] + diff, mode );
+	int diff = 0;
+	osc.Set_frequency( idx - diff, mode );
+
+	diff = sds->spectrum_arr[OSCID].frqidx[0] - sds->spectrum_arr[VCOID].frqidx[0];
+	vco.Set_frequency( idx - diff, mode );
+
+	diff = sds->spectrum_arr[OSCID].frqidx[0] - sds->spectrum_arr[FMOID].frqidx[0];
+	fmo.Set_frequency( idx - diff, mode );
 }
 
-void Oscgroup_class::Set_Combine_Frequency( const uint8_t& base_idx,
+
+
+void Oscgroup_class::Set_Combine_Frequency( interface_t* sds,
 											const uint8_t& idx,
-											const uint& mode )
+											const DYNAMIC& mode )
 {
-	int diff = idx - base_idx;
+	int diff = idx - osc.spectrum.frqidx[0];
 	osc.Set_frequency( idx, mode );
 
-	vco.Set_frequency( vco.spectrum.frqidx[0] + diff, mode );
-	fmo.Set_frequency( fmo.spectrum.frqidx[0] + diff, mode );
+	vco.Set_frequency( sds->spectrum_arr[VCOID].frqidx[0] + diff, FIXED );
+	fmo.Set_frequency( sds->spectrum_arr[FMOID].frqidx[0] + diff, FIXED );
 
-	Comment( DEBUG, "Set_Combine_Frequency ", (int)diff);
+	Table_class T { };
+	T.AddColumn( "Osc", 5 );
+	T.AddColumn( "base", 5 );
+	T.AddColumn( "New", 5 );
+	T.PrintHeader();
+	T.AddRow( "OSC", (int)sds->spectrum_arr[OSCID].frqidx[0], (int)osc.spectrum.frqidx[0] );
+	T.AddRow( "VCO", (int)sds->spectrum_arr[VCOID].frqidx[0], (int)vco.spectrum.frqidx[0] );
+	T.AddRow( "FMO", (int)sds->spectrum_arr[FMOID].frqidx[0], (int)fmo.spectrum.frqidx[0] );
+
 }
 
 void Oscgroup_class::Set_Duration( const uint& msec )
 {
 	uint duration = check_range( duration_range, msec, "Set_Duration");
 	std::ranges::for_each( member, [ &duration ](Oscillator*  o)
-			{ o->Setwp_frames( duration );});
+		{ o->Setwp_frames( duration );});
 }
+void Oscgroup_class::Reset_beat_cursor()
+{
+	std::ranges::for_each( member, [ ](Oscillator*  o)
+		{ o->Reset_beat_cursor();});
 
+}
 void Oscgroup_class::Set_Osc_Note(  interface_t*	sds,
 									const uint8_t& 	key,
 									const uint& 	msec,
 									const uint& 	volume,
-									const uint& 	mode)
+									const DYNAMIC& 	mode)
 {
-	Set_Duration		( msec );
-	Set_Note_Frequency	( sds, key, mode );
-	osc.Set_volume		( volume, FIXED);//wp.volume	= volume ;
+	Set_Duration			( msec );
+	Set_Note_Frequency		( sds, key, mode );
+	osc.Set_spectrum_volume	( volume );
 }
 
 void Oscgroup_class::Phase_Reset()
 {
 	std::ranges::for_each( member, [](Oscillator*  o)
-			{ o->Phase_reset() ;});
+	{ o->Phase_reset() ;});
 }
 
 void Oscgroup_class::Data_Reset()
 {
 	std::ranges::for_each( member, [](Oscillator*  o)
-			{ o->Data_reset() ;});
+	{ o->Data_reset() ;});
 }
 
+void Oscgroup_class::Restore_Dyn()
+{
+	std::ranges::for_each( member, [ this ]( Oscillator* osc )
+	{
+		osc->DynFrequency.SetCurrent( dynarr[osc->typeId] );
+	} );
+}
+void Oscgroup_class::Backup_Dyn()
+{
+	std::ranges::for_each( member, [ this ]( Oscillator* osc )
+	{
+		dynarr[osc->typeId] = osc->DynFrequency.GetCurrent();
+	} );
+}
 void Oscgroup_class::Run_OSCs( const buffer_t& offs )
 {
-	std::ranges::for_each( member, [ &offs ](Oscillator* o)
-			{ o->OSC( offs ) ;} );
+	std::ranges::for_each( member, [ &offs ]( Oscillator* osc )
+	{
+		osc->OSC( offs ) ;
+	} );
 }
 
 OSCID_e Oscgroup_class::Get_oscid_by_name( const string& name )
@@ -233,11 +292,11 @@ Oscillator* Oscgroup_class::Get_osc_by_name( const string& name )
 	Oscillator* ret = nullptr;
 
 	std::ranges::for_each( member, [ name, &ret ](Oscillator* o)
-			{ if ( strEqual( o->osctype_name, name ) )
-				{
-					ret = o;
-				}
-			} );
+	{
+		if ( strEqual( o->osctype_name, name ) )
+			ret = o;
+	}
+	);
 	if ( strEqual( "MAIN", name  ) ) // compatibility
 		ret = member[ OSCID ];
 	if ( ret == nullptr )

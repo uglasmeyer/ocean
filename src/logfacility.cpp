@@ -57,15 +57,15 @@ Logfacility_class::~Logfacility_class(  )
 	DESTRUCTOR( className )
 };
 
-string	Logfacility_class::GetColor( uint id )
+string	Logfacility_class::GetColor( uint id, ostream* out )
 {
-	if ( is_atty )
+	if ( is_atty and ( out == &cout ))
 		return Prefix_vec[ id ].color;
 	return Prefix_vec[ PLAIN ].color;
 }
-string	Logfacility_class::GetendColor( )
+string	Logfacility_class::GetendColor( ostream* out )
 {
-	if ( is_atty )
+	if ( is_atty and ( out == &cout ))
 		return endcolor;
 	return nocolor;
 }
@@ -183,6 +183,12 @@ void Logfacility_class::Set_Loglevel( LOG_e _level, bool _on )
 	uint level = check_range(loglevel_range, _level, "Set_Loglevel" );
 	LogMask.set( level, _on );
 }
+LOG_e Logfacility_class::Logmask( LOG_e _level )
+{
+	if( logmask.test( _level ) )
+		return _level;
+	return NOLOG;
+}
 
 void Logfacility_class::test_start( const string& name)
 {
@@ -227,7 +233,7 @@ void Logfacility_class::Test_Logging( )
 	ASSERTION( bs[WARN] | bs[ERROR], "bitset", bs.test(ERROR), true );
 	TEST_END( className );
 	ASSERTION( Printer.redirect != is_atty, "isTTY", is_atty, Printer.redirect );
-
+	Assert_equal( strEqual(__builtin_FUNCTION(), "Test_Logging"), true, string(__builtin_FUNCTION()) );
 }
 
 

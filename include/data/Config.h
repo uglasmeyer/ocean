@@ -42,23 +42,26 @@ struct source_struct
 	:	virtual public 	Logfacility_class
 {
 	const string 		HOME 			= notnull( getenv("HOME") );
-	string				sourcedir		;//= sourceDir();
-	string 				resourcedir		;//= resourceDir();
-	vector<string>		files			;//= { resourcedir, archdir };
 	const string		architectur		= getArch();
 	const string		archdir			= architectur + "/";
+	string				sourcedir		;
+	string 				resourcedir		;
+	vector<string>		files			;
+
 						source_struct	( string srcdir );
 	string 				resourceDir		();
 };
 
 struct install_struct
-:	virtual public 	Logfacility_class
+	:	virtual public 	Logfacility_class
 {
 	const string 		homedir 		= notnull( getenv("HOME") ) + "/";
-	filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
+	const filesystem::path
+						pwd				{ notnull( getenv("PWD") ) };
 
-	const string		installdir	 	= oceanDir();////read_installfile();
+	const string		installdir	 	= oceanDir();
 	const string		ARCH			= getArch();
+
 	string				oceanDir		();
 
 						install_struct	() ;
@@ -111,6 +114,8 @@ struct dir_struct
 
 };
 
+const string	default_name				= "default";
+
 struct file_structure
 	: virtual dir_struct
 {
@@ -140,7 +145,6 @@ struct file_structure
 	const string 	sdsview_bin					= archbindir	+ Sdsview_bin;
 	const string 	ocean_bin					= archbindir	+ Ocean_bin;
 	const string 	rtsp_bin					= archbindir	+ Rtsp_bin;
-//	const string 	ifd_file 					= vardir 		+ "ifd_data.bin";
 	const string 	wav_file 					= musicdir 		+ filename + wav_type;
 	const string 	mp3_file					= musicdir 		+ filename + ".mp3";
 	const string 	raw_file 					= tmpdir 		+ filename + ".raw";
@@ -177,8 +181,8 @@ struct file_structure
 	const string	template_xmlfile			= xmldir + template_xmlname;
 	const string	install_txt					= "install.txt";
 	const string	install_txtfile				= installdir + install_txt;
-	const string	default_name				= "default";
 	const string	default_nte					= default_name + nte_type;
+	const string	default_xml					= default_name + xml_type;
 	const string	default_snd					= default_name + snd_type;
 	const string	icon_filename				= "Ocean-SL.ico"; // see also OceanGUI/resource.qrc
 																// and OceanGUI/OceanGui_main.cpp
@@ -187,6 +191,9 @@ struct file_structure
 	const string	desktop_file				= etcdir + desktop_filename;
 };
 
+/**************************************************
+ * Config_class
+ *************************************************/
 class Config_class
 :	Logfacility_class
 {

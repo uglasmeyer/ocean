@@ -29,6 +29,7 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+#include <QScreen>
 #include <include/Common.h>
 
 bps_struct QBps {};

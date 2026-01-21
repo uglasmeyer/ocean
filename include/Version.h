@@ -37,9 +37,9 @@ SOFTWARE.
 using namespace std;
 
 #define MAYOR 4
-#define MINOR 2
-#define PATCH 4
-#define SDS_VERSION 41
+#define MINOR 3
+#define PATCH 0
+#define SDS_VERSION 46
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -58,7 +58,25 @@ const string License_text = R"(
 
 // Git comment:
 /*
-				provide OceanGUI.desktop
+
+
+
+4.3.0-46 save keyboard notes
+4.3.0-45 instrumentClock set instrument beat separately from instrument adsr
+4.3.0-44 show Cut desk left/right bounds on wavedisplay
+enable Cut desk cursor
+musicxml note timing problems
+manage Storage volume
+remove clearipc.sh
+create a data version dependend backup of SDSview and libOcean.so
+(better solution needed for inconsistent SDS).
+to be checked: Balance in conjunktion with User Storage
+feature: save stas per  instrument
+4.3.0-43		beatclock added to SDS
+4.3.0-42		show overmodulated sound in OceanGUI (done)
+				Use SDSview -i to clear ipc.(done)
+
+4.2.4-41		provide OceanGUI.desktop
 				touch OceanGUI/ui before qmake (done)
 				ln -s Synthesizer Keyboard missing in binary distribution of x86_64
 				to be removed bin/oceansetup.sh (done)

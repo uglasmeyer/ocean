@@ -62,11 +62,13 @@ public:
     Id_t			SDS_ID			= 0;
     QString			keyboard_key	= "Key";
 
-    void 							Setup_Widget		();
     explicit Keyboad_Dialog_class(	QWidget* 			parent 	= nullptr,
     								Dataworld_class* 	_data 	= nullptr,
     								EventLog_class*  	_log	= nullptr);
     ~Keyboad_Dialog_class();
+
+public slots:
+	void Setup_Widget		();
 
 private slots:
 	void buffer_mode( int );
@@ -79,7 +81,6 @@ private slots:
 
 private:
 	QString textFromValue( int );
-//	int valueFromText( const QString& ) ;
 };
 
 #endif // KEYBOAD_DIALOG_H

@@ -45,7 +45,6 @@ class Device_class
 	: virtual public 	Logfacility_class
 	, virtual public	osc_struct
 {
-	string 				className 				= "";
 
 	interface_t* 		sds_p;
 

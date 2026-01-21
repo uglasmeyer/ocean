@@ -39,6 +39,19 @@ SOFTWARE.
 #include <String.h>
 #include <Table.h>
 
+// noteline control characters
+const char IGNORE 		= ' ';
+const char PAUSE 		= '.';
+const char INCDUR 		= '-';
+const char SLIDE_CH		= '>';
+const char INCOCT		= '\'';
+const char DECOCT		= ',';
+const char NEWOCT		= '|';
+const char LINEBREAK	= '\n';
+const char BRACKETOPEN	= '(';
+const char BRACKETCLOSE	= ')';
+const char LONGPLAY		= '!';
+
 /*
  * References
  https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
@@ -53,7 +66,9 @@ enum NOTETYPE_e
 
 const range_T<uint8_t>	npsidx_range{ 0, 8 };
 const range_T<uint8_t>	accidental_range{ 0_uint, 7_uint };
+
 typedef vector<int> step_vec_t ;
+
 constexpr step_vec_t init_pitch( string ac )
 { 	// every char in ac will be translated into a note pos in OctChars
 	// ac char must be in OctChars
@@ -71,8 +86,10 @@ constexpr step_vec_t init_pitch( string ac )
 	}
 	return pitch_vec;
 };
+const step_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
+const step_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
+
 #define NONOTE 		-12
-#define PAUSE_CH 	'.'
 
 constexpr char alter_value( char ch )
 {
@@ -101,7 +118,7 @@ typedef struct note_value_struct
 	int8_t 	step 		= NONOTE;
 	int8_t	octave		= 0;
 	int		alter 		= 0 ; 	// -1,0, +1
-	char	step_char	= PAUSE_CH;
+	char	step_char	= PAUSE;
 	uint8_t	frqidx		= 1 ;
 
 	note_value_struct() = default;
@@ -131,24 +148,24 @@ typedef struct pitch_struct :
 {
 	string				name		= "";
 	float				freq		= 0.0;
-	pitch_struct() :
-		note_value_struct()
+
+	pitch_struct()
+		: note_value_struct()
 	{
 		name	= "Pause";//frqNamesArray[ frqidx ];
 		freq	= 1.0;//frqArray[ frqidx ];
 	}
-	pitch_struct( int idx ) : // keyboard, notes
-		note_value_struct( idx )
+	pitch_struct( int idx ) // keyboard, notes
+		: note_value_struct( idx )
 	{
 		name	= frqNamesArray[ frqidx ];
 		freq	= frqArray[ frqidx ];
 	}
-	pitch_struct( int oct, char ch, int alt ) : // notes, musicxml
-		note_value_struct( oct, ch, alt )
+	pitch_struct( int oct, char ch, int alt ) // notes, musicxml
+		: note_value_struct( oct, ch, alt )
 	{
 		name	= frqNamesArray[ frqidx ];
 		freq	= frqArray[ frqidx ];
-
 	}
 	~pitch_struct() = default;
 
@@ -166,6 +183,12 @@ typedef struct 	note_struct
 {
 	int16_t				number		= -1;
 	note_struct(){};
+	note_struct( char ch, uint8_t vol ) // Restnote
+	{
+		str.push_back	(ch);
+		chord.push_back	( pitch_struct() );
+		volume			= vol;
+	}
 	note_struct( int16_t nr )
 	{
 		number = nr;
@@ -183,8 +206,11 @@ typedef struct 	note_struct
 
 const uint16_t	measure_duration	= 2000; // 2 sec.
 
+/**************************************************
+ * Note_base
+ *************************************************/
 class Note_base :
-	virtual  		Logfacility_class,
+	virtual public	Logfacility_class,
 	virtual public 	Frequency_class
 {
 	string 					className		= "";
@@ -206,8 +232,6 @@ public:
 	const String			OctaveChars		{ octchar_T(min_octave, max_octave ) };
 	const String			NpsChars		{ "12458" };
 	const string			NPS_string 		{ "1 2 4 5 8" };
-	const step_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
-	const step_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
 
 	const vector_str_t 		convention_notes{ 	OctChars_EN,
 												"0123456789AB",
@@ -221,7 +245,7 @@ public:
 												NUMERIC,
 												ALPHABET,
 												GERMAN };
-	set<int> 				conventionId_set { 	ENGLISH,
+	const set<int>			conventionId_set { 	ENGLISH,
 												NUMERIC,
 												ALPHABET,
 												GERMAN};
@@ -246,16 +270,17 @@ public:
 	String 					Note_Chars		{ convention_notes[ nlp_default.convention ] };
 
 
-	typedef list<note_t>	notelist_t;
+	typedef list<note_t>	notelist_t	;
 	notelist_t 				notelist	{};
 	typedef notelist_t::iterator
-							note_itr_t;
-	note_itr_t  			note_itr 	= notelist.begin();
-	note_t 					note_buffer = note_struct();
+							note_itr_t	;
+	note_itr_t  			note_itr 	;
+	note_t 					note_buffer ;
+	note_t 					EmptyNote	;
 
-	uint16_t 				min_duration= 1000 / nlp_default.nps;  //milli seconds
+	uint16_t 				min_duration;  //milli seconds
 
-	note_t					rest_note			= note_struct();
+	note_t					rest_note	;
 
 
 	struct 	musicxml_struct
@@ -273,7 +298,7 @@ public:
 
 	void 				Show_noteline_prefix( noteline_prefix_struct nlp );
 	string 				Noteline_prefix_to_string( noteline_prefix_struct nlp );
-	noteline_prefix_t	String_to_noteline_prefix( string str );
+	noteline_prefix_t	String_to_noteline_prefix( const string& str );
 	noteline_prefix_t	Set_base_octave( uint );
 	float	 			CalcFreq ( const float& freq ,  pitch_t& pitch );
 	int 				Notechar2Step( char note_char );

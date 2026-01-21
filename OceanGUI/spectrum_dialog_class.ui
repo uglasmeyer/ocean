@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>398</width>
-    <height>213</height>
+    <height>261</height>
    </rect>
   </property>
   <property name="palette">
@@ -456,212 +456,6 @@
    <string>Spectrum</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="sb_spwf2">
-       <property name="wrapping">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>9</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QSpinBox" name="sb_spwf4">
-       <property name="wrapping">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>9</number>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="6">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="2" column="0">
-        <widget class="QRadioButton" name="rb_spec_fmo">
-         <property name="text">
-          <string>FMO</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QRadioButton" name="rb_spec_main">
-         <property name="text">
-          <string>OSC</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QRadioButton" name="rb_spec_vco">
-         <property name="text">
-          <string>VCO</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="5">
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QSlider" name="fS_7">
-         <property name="minimum">
-          <number>-50</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="vS_8">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="6">
-      <widget class="QRadioButton" name="rb_reset">
-       <property name="text">
-        <string>Reset</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QSlider" name="fS_3">
-         <property name="minimum">
-          <number>-50</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="vS_4">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="0">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QSlider" name="fS_1">
-           <property name="minimum">
-            <number>-50</number>
-           </property>
-           <property name="maximum">
-            <number>50</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Orientation::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSlider" name="vS_2">
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Orientation::Vertical</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="4">
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QSlider" name="fS_5">
-         <property name="minimum">
-          <number>-50</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="vS_6">
-         <property name="maximum">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="1" column="0">
-      <widget class="QSpinBox" name="sb_spwf1">
-       <property name="wrapping">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>9</number>
-       </property>
-       <property name="stepType">
-        <enum>QAbstractSpinBox::StepType::DefaultStepType</enum>
-       </property>
-       <property name="displayIntegerBase">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="4">
-      <widget class="QSpinBox" name="sb_spwf3">
-       <property name="wrapping">
-        <bool>true</bool>
-       </property>
-       <property name="minimum">
-        <number>0</number>
-       </property>
-       <property name="maximum">
-        <number>9</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="1" rowspan="2">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
@@ -688,16 +482,6 @@
       <widget class="QComboBox" name="cb_bps"/>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Attack/Delay</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QFrame" name="frame_2">
        <property name="frameShape">
         <enum>QFrame::Shape::StyledPanel</enum>
@@ -707,9 +491,26 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Attack</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QSlider" name="hs_attack">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Decay</string>
           </property>
          </widget>
         </item>
@@ -736,32 +537,7 @@
      <property name="leftMargin">
       <number>0</number>
      </property>
-     <item row="2" column="1">
-      <widget class="QLabel" name="lbl_instrument">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);
-font: 700 11pt &quot;Ubuntu&quot;;</string>
-       </property>
-       <property name="text">
-        <string>Instrument</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="pB_save_spectrum">
-       <property name="text">
-        <string>Save</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="lbl_spectrumDisplay">
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
+     <item row="3" column="2">
       <widget class="QLCDNumber" name="lcd_spectrumDisplay">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
@@ -783,7 +559,17 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="styleSheet">
+        <string notr="true">font: 600 11pt &quot;Ubuntu Sans&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Waveform</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
       <widget class="QLabel" name="lbl_waveform">
        <property name="palette">
         <palette>
@@ -1236,16 +1022,6 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label">
-       <property name="styleSheet">
-        <string notr="true">font: 700 11pt &quot;Ubuntu Sans&quot;;</string>
-       </property>
-       <property name="text">
-        <string>Instrument:</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <spacer name="verticalSpacer">
        <property name="orientation">
@@ -1262,7 +1038,238 @@ font: 700 11pt &quot;Ubuntu&quot;;</string>
        </property>
       </spacer>
      </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="lbl_spectrumDisplay">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
     </layout>
+   </item>
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="sb_spwf2">
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QSpinBox" name="sb_spwf4">
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="6">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="2" column="0">
+        <widget class="QRadioButton" name="rb_spec_fmo">
+         <property name="text">
+          <string>FMO</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QRadioButton" name="rb_spec_main">
+         <property name="text">
+          <string>OSC</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QRadioButton" name="rb_spec_vco">
+         <property name="text">
+          <string>VCO</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="5">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QSlider" name="fS_7">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="vS_8">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="6">
+      <widget class="QRadioButton" name="rb_reset">
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QSlider" name="fS_3">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="vS_4">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QSlider" name="fS_1">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>50</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="vS_2">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item row="0" column="4">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QSlider" name="fS_5">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="vS_6">
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QSpinBox" name="sb_spwf1">
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+       <property name="stepType">
+        <enum>QAbstractSpinBox::StepType::DefaultStepType</enum>
+       </property>
+       <property name="displayIntegerBase">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QSpinBox" name="sb_spwf3">
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="pB_save_spectrum">
+     <property name="text">
+      <string>Save Instrument</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="lbl_instrument">
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+font: 700 11pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Instrument</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

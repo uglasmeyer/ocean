@@ -1,5 +1,5 @@
 #include "Cutterdialog.h"
-#include "ui_cutterdialog.h"
+#include "ui_CutDesk_Dialog.h"
 
 CutterDialog_class::CutterDialog_class(QWidget *parent,
 		Dataworld_class* data,
@@ -11,7 +11,6 @@ CutterDialog_class::CutterDialog_class(QWidget *parent,
 	this->sds_master	= DaTA->sds_master;
 	this->Eventlog		= el;
 	setSds( DaTA->Sds_p );
-//# mute all StAs
 
     ui->setupUi(this);
     connect(ui->pb_back_right	, SIGNAL(clicked() ),this, SLOT(Step_forward() ));
@@ -22,6 +21,7 @@ CutterDialog_class::CutterDialog_class(QWidget *parent,
     connect(ui->pB_Cut			, SIGNAL(clicked() ),this, SLOT(Cut_tail() ));
     connect(ui->pB_Save			, SIGNAL(clicked() ),this, SLOT(Save() ));
 
+	updateCutDesk();
 }
 
 CutterDialog_class::~CutterDialog_class()
@@ -31,31 +31,38 @@ CutterDialog_class::~CutterDialog_class()
 
 void CutterDialog_class::Step_forward()
 {
-	Sds->Set( sds->WD_status.direction, BACK_RIGHT );
+	Sds->Set( sds->WD_state.direction, BACK_RIGHT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 
 }
 void CutterDialog_class::Step_backward()
 {
-	Sds->Set( sds->WD_status.direction, BACK_LEFT );
+	Sds->Set( sds->WD_state.direction, BACK_LEFT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 }
 void CutterDialog_class::Step_front_forward()
 {
-	Sds->Set( sds->WD_status.direction, FRONT_RIGHT );
+	Sds->Set( sds->WD_state.direction, FRONT_RIGHT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 
 }
 void CutterDialog_class::Step_front_backward()
 {
-	Sds->Set( sds->WD_status.direction, FRONT_LEFT );
+	Sds->Set( sds->WD_state.direction, FRONT_LEFT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 }
 void CutterDialog_class::Step_to_end()
 {
-	Sds->Set( sds->WD_status.direction, GOTO_END );
+	Sds->Set( sds->WD_state.direction, GOTO_END );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 }
+void CutterDialog_class::updateCutDesk()
+{
+	ui->lcdNumber->display( sds->WD_state.cursor.min );
+	ui->lcdNumber_2->display( sds->WD_state.cursor.max );
+	coutf << "CutterDialog_class::updateCutDesk" << endl;
+}
+
 void CutterDialog_class::Cut_tail()
 {
 	Eventlog->add( SDS_ID, CUT_KEY );
@@ -67,9 +74,10 @@ void CutterDialog_class::Save()
 
 void CutterDialog_class::Setup( Interface_class* Sds )
 {
-
 	setSds( Sds );
-	Eventlog->add(SDS_ID, CUT_SETUP_KEY );}
+	Eventlog->add(SDS_ID, CUT_SETUP_KEY );
+	updateCutDesk();
+}
 
 void CutterDialog_class::setSds( Interface_class* Sds )
 {

@@ -80,8 +80,10 @@ void MainWindow::initComboBoxes()
     QString Qfile	= QReadStr( Sds, OTHERSTR_KEY );
     CB_external->setCurrentText( Qfile );
 
-	Qbps_str_lst 		= Qstringlist( bps_struct().Bps_lst );
-    ui->cb_bps->addItems( Qbps_str_lst );
+	Qbps_str_lst 				= Qstringlist( Bps.Bps_lst );
+    ui->CB_kbd_bps->addItems	( Qbps_str_lst );
+    ui->CB_inst_bps->addItems	( Qbps_str_lst );
+
 
 }
 
@@ -105,17 +107,18 @@ void MainWindow::initStateButtons()
 
 {
 	Qwd_osc_names 	= Vstringvector( typeNames );
-	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_status.oscId ]);
+	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_state.oscId ]);
 
 	Qwd_fftmodes	= Vstringvector( fftmodes );
-	ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_status.fftmode ]);
+	ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_state.fftmode ]);
 
 	Qwd_wdmode_names= Vstringvector( wavedisplay_struct::types );
-	int wd_mode = check_range( wd_mode_range, (int)sds->WD_status.wd_mode );
+	int wd_mode = check_range( wd_mode_range, (int)sds->WD_state.wd_mode );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
 
+
 	Qwd_role_names 	= Vstringvector( arrayToVector( roleNames ) );
-	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_status.roleId ]);
+	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_state.roleId ]);
 
     setButton( ui->pB_Rtsp, 2 );
     setButton( ui->pB_play_notes, 2 );
@@ -143,7 +146,8 @@ void MainWindow::initFreqSlider()
 	{
 		map.sl->setMinimum( 1 );
 		map.sl->setMaximum( map.max );
-		map.sl->setValue( Spectrum.GetFrq( *map.value));
+		int frqidx = *map.value;
+		map.sl->setValue( Spectrum.GetFrq( frqidx ));
 	}
 	if ( Sds->addr->frq_slidermode == COMBINE )
 		ui->cB_Combine->setChecked( true );
@@ -206,7 +210,7 @@ void MainWindow::initGuiVectors( interface_t* sds)
 		{ STA_EXTERNAL, ui->Slider_mix_vol7, &sds->StA_amp_arr[STA_EXTERNAL]  }
 	};
 
-    int max = frqarr_range.max - 2*oct_steps;  // refers to keyboard octave
+    int max = frqarr_range.max - 2*oct_steps;  // 2 refers to max keyboard octave
     sl_frqidx_vec =
     {
    		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &sds->spectrum_arr[VCOID].frqidx[0], max },
@@ -263,7 +267,8 @@ void MainWindow::initUiConnectors()
     connect(ui->hs_balance		, SIGNAL(valueChanged(int) ),this, SLOT(mixer_balance() ));
     connect(ui->hs_chord_delay	, SIGNAL(valueChanged(int) ),this, SLOT(chord_delay() ));
 
-    connect(ui->cb_bps			, SIGNAL(activated(int) )	,this, SLOT(cB_Beat_per_sec(int) ));
+    connect(ui->CB_kbd_bps		, SIGNAL(activated(int) )	,this, SLOT(Notes_per_measure(int) ));
+    connect(ui->CB_inst_bps		, SIGNAL(activated(int) )	,this, SLOT(Beat_per_sec(int) ));
     connect(ui->pB_Wavedisplay 	, SIGNAL(clicked() )		,this, SLOT(pB_Wavedisplay_clicked() ));
     connect(ui->pB_wd_mode		, SIGNAL(clicked() )		,this, SLOT(pB_Debug_clicked() ));
     connect(ui->pB_oscgroup		, SIGNAL(clicked() )		,this, SLOT(pB_oscgroup_clicked() ));

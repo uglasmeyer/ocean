@@ -68,9 +68,6 @@ int main(int argc, char *argv[])
 
     MainWindow 			Window{};
 
-    const QIcon 		icon { ":../Resource/Ocean-SL.ico" };
-    Windowapp.setWindowIcon( icon );
-//    Window.setWindowIcon( icon );
     Controller_class Controller{ Window };
 
     Window.App.Start( argc, argv );

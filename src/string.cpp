@@ -437,6 +437,9 @@ void String::TestString()
 	bool b = (abs(secure_stof( "-10.05" )) - 10.05) < 1E-2;
 	ASSERTION(  ( b ),"secure_stof", secure_stof( "-10.05" ), -10.05 );
 
+	Assert_equal( char2int('0'), 0 );
+	Assert_equal( char2int('2'), 2 );
+
 	TEST_END( "String" );
 
 }

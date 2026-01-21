@@ -35,18 +35,20 @@ SOFTWARE.
 #include <Wavedisplay_base.h>
 #include <data/Interface.h>
 
-
+/**************************************************
+ * Wavedisplay_class
+ *************************************************/
 class Wavedisplay_class :
-	virtual			Logfacility_class,
+	virtual	public	Logfacility_class,
 					wavedisplay_struct,
 	virtual public 	osc_struct
 {
-	Interface_class* Sds_p 			= nullptr;
-	range_T<int> wdwindow			{ 0, 0 };
+	Interface_class* Sds_p 			;
+	interface_t*	sds				;
 
 public:
 
-					Wavedisplay_class( Interface_class* sds );
+					Wavedisplay_class( Interface_class* _sds );
 	virtual 		~Wavedisplay_class() = default;
 
 	void 			Add_role_ptr	( RoleId_e wd_role,
@@ -56,9 +58,9 @@ public:
 									RoleId_e wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
-	void 			SetDataPtr		( WD_data_t& status  );
+	void 			Set_DataPtr		( WD_data_t& status  );
 	void 			Write_wavedata 	();
-	void 			Set_wdcursor	(int pos );
+	void 			Set_wdcursor	( buffer_t pos, buffer_t unit );
 	void 			Set_WdRole		(const RoleId_e &role);
 	void 			Set_wdmode		( const WdModeID_t& mode );
 
@@ -66,32 +68,13 @@ public:
 private:
 	void 			setFFTmode		( const bool& mode );
 	void 			set_wdcursor	( uint16_t pos );
+	void	 		gen_cxwave_data	( void  );
 
-	string 			className		= "";
-	int 			frame_counter	= 0;
-	buffer_t 		offs 			= 0;
-	size_t 			wdId 			= 0;
-	size_t			osId			= 0;
-	WdModeID_t		WdMode			= FULLID;
-	struct wd_ptr_struct
+	typedef struct wd_ptr_struct
 	{
 		Data_t* 	ptr		= nullptr;
 		buffer_t* 	frames	= nullptr;
-	};
-
-	typedef 		wd_ptr_struct 	wd_ptr_t;
-	array< array< wd_ptr_t , WD_OSC_SIZE>,  WD_ROLES_SIZE >
-					data_ptr_mtx 	;
-	Data_t*			data_ptr 		= nullptr;
-	buffer_t		wd_frames		= 0;
-	WD_data_t		wd_status		= WD_data_struct();
-	bool			debug_right		= true;
-	bool			fft_mode		= false;
-	wd_arr_t 		display_data 	= { 0 };
-
-	void	 		gen_cxwave_data( void  );
-
-
+	} wd_ptr_t;
 
 	typedef struct param_struct
 	{
@@ -101,10 +84,25 @@ private:
 		buffer_t max_offs 	= max_frames - len*step ;
 	} param_t;
 
-	param_t param_flow	= param_struct();
-	param_t param_full 	= param_struct(); // dynamic parameter are overwritten{ 0, wavedisplay_len		, max_frames/wavedisplay_len, max_frames };
-	param_t param_split	= { 0, wavedisplay_len / 2	, 1 						, max_frames };//frames_per_sec };
-	param_t param_cursor= { 0, wavedisplay_len, 0, 0 };
+	typedef array< 	array< wd_ptr_t , 	WD_OSC_SIZE>,  	WD_ROLES_SIZE >
+					data_ptr_mtx_t;
+
+	string 			className		;
+	int 			frame_counter	;
+	buffer_t 		offs 			;
+	WdModeID_t		WdMode			;
+	data_ptr_mtx_t	data_ptr_mtx 	;
+	Data_t*			data_ptr 		;
+	wd_ptr_t		Wd_ptr			;
+	WD_data_t		wd_data			;
+	bool			debug_right		;
+	bool			fft_mode		;
+	wd_arr_t 		display_data 	{ 0 };
+
+	param_t param_flow				;
+	param_t param_full 				;
+	param_t param_split				;
+	param_t param_cursor			;
 };
 
 #endif /* WAVEDISPLAY_H_ */

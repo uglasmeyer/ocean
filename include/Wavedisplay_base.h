@@ -34,6 +34,16 @@ SOFTWARE.
 
 #include <Ocean.h>
 
+template< typename T >
+struct cursor_T
+{
+	T		min = 0;
+	T		cur = 0;
+	T		max = 0;
+
+	size_t 	len = ( max - min );
+};
+
 struct wavedisplay_struct
 {
 	const vector<string> types =
@@ -42,12 +52,6 @@ struct wavedisplay_struct
 		"Flow",
 		"Debug",
 		"Cursor"
-	};
-	const vector<string> guitypesxxx =
-	{
-		"Full",
-		"Flow",
-		"Debug"
 	};
 	const vector<string> fftmodes =
 	{
@@ -79,6 +83,13 @@ typedef wavedisplay_t::WDMODE_t
 						WdModeID_t;
 typedef wavedisplay_t::Direction_e
 						Direction_e;
+typedef range_T<int16_t>
+						record_range_t;
+typedef cursor_T<int16_t>
+						cursor_t;
+
+const int 			wavedisplay_len	= 512;
+
 struct WD_data_struct
 {	// SDS related
 
@@ -86,11 +97,9 @@ struct WD_data_struct
 	RoleId_e			roleId 			= INSTRROLE;
 	bool 				fftmode			= false;
 	WdModeID_t 			wd_mode			= wavedisplay_t::FULLID;
-	uint16_t			cursor			= 0; // display current sound location in case of full wd_mode
-	Direction_e			direction		= wavedisplay_t::NO_direction; // cut cursor direction
-	buffer_t			min				= 0; // cut record window min
-	buffer_t			max				= 1; // cut record window max
-	buffer_t			max_records		= 1; // memory max records
+	Direction_e			direction		= wavedisplay_t::NO_direction; // GUI bounds cursor direction
+	buffer_t			frames			= 0; // max number of frames presented in the display
+	cursor_t			cursor			{ 0, 0, 1 }; // len=param.size / minframes is constant
 } ;
 
 typedef WD_data_struct 	WD_data_t;
@@ -99,7 +108,6 @@ const uint8_t 			WD_OSC_SIZE 	= NOOSCID;
 const size_t 			WD_ROLES_SIZE 	= ROLE_SIZE;
 const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().types.size();
 
-const size_t 			wavedisplay_len	= 512;
 
 typedef array< Data_t,	wavedisplay_len>wd_arr_t;
 

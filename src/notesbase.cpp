@@ -37,11 +37,18 @@ Note_base::Note_base () :
 	Logfacility_class("Note_base"),
 	Frequency_class()
 {
-	className 					= Logfacility_class::className;
-	rest_note.str 				= PAUSE_CH;
-	rest_note.chord.push_back	( pitch_struct() );
-	rest_note.duration			= min_duration;
-	rest_note.volume			= 0;
+	this->min_duration			= 1000 / nlp_default.nps;  //milli seconds
+	this->className 			= Logfacility_class::className;
+	this->note_buffer 			= note_struct();
+	this->notelist.clear		();
+	this->note_itr 				= notelist.begin();
+	this->Noteline_prefix		= nlp_default; // D=default, N=numeric
+	this->Note_Chars			= { convention_notes[ nlp_default.convention ] };
+	this->rest_note				= note_struct( PAUSE, 0 );
+	this->rest_note.duration	= min_duration;
+	this->EmptyNote				= rest_note;
+	this->EmptyNote.chord.clear	();
+
 }
 
 Note_base::~Note_base()
@@ -116,21 +123,21 @@ string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
 	return strs.str();
 }
 
-noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
+noteline_prefix_t Note_base::String_to_noteline_prefix( const string& str )
 {
 	auto range_error = [ this ]( auto val, vector<size_t> range )
 	{
-		Comment ( ERROR, "Out of Range [" + to_string( range[0] ) + "," +
-											to_string( range[1] ) + "}" );
-		if ( LogMask[ TEST ] ) return;
-		Exception( "Cannot assign noteline_prefix " +
-				 to_string( val ) +
-				" to noteline_structure" );//raise( SIGINT );
+		Comment ( ERROR, "Out of Range [", range[0], range[1], "]" );
+		if ( LogMask[ TEST ] )
+			return 0;
+		Comment( ERROR,  "Cannot assign noteline_prefix ", (int)val, "to noteline_structure" );
+		raise( SIGINT );
+		return 0;
 	};
 
-	noteline_prefix_t nlp;
-	String S = str;
-	vector_str_t arr = S.to_unique_array(',');
+	noteline_prefix_t 	nlp = nlp_default;
+	String 				S 	{ str };
+	vector_str_t 		arr = S.to_unique_array(',');
 
 	if ( arr.size() < 5 )
 	{
@@ -159,10 +166,8 @@ noteline_prefix_t Note_base::String_to_noteline_prefix( string str )
 		nlp.nps = char2int( nps_ch );
 
 
-	set<int> pref_set = range_set( 0, 7 );
-
-	int
-	val = char2int( arr[3][0] );
+	set<int> 	pref_set 	= range_set( 0, 7 );
+	int			val 		= char2int( arr[3][0] );
 	if ( pref_set.contains( val ) )
 		nlp.flat = val;
 	else

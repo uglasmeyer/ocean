@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Keyboard</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>

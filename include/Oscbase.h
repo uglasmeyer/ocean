@@ -64,7 +64,6 @@ typedef struct bps_struct
 typedef	struct wave_struct
 { // SDS related
 
-	frq_t		freq		= frqArray[A3];
 	uint16_t	msec		= max_msec; 	// min_milli_sec or max_milli_sec
 	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
@@ -87,10 +86,9 @@ typedef struct vco_struct
 
 typedef struct feature_struct
 { // SDS related. Is the same for all OSCs
-	uint8_t glide_effect= 0;
+	uint8_t slide_frq= 0;
 	uint8_t	adjust		= 0; // used by vco and fmo, osc = 0
-	uint8_t	PWM 	= 50;
-//	uint8_t	bpm			= 1; // beats per measure
+	uint8_t	PWM 		= 50;
 	bool	longplay	= false;
 } feature_t;
 
@@ -115,19 +113,16 @@ constexpr ostream& operator<<( ostream& os, const connectId_t& connect )
 	return os;
 }
 
+/**************************************************
+ * Oscillator_base
+ *************************************************/
 
 class Oscillator_base :
-	virtual public	Logfacility_class,
 	virtual public 	Spectrum_class
 {
-	string			className		= "";
-
 public:
-	OSCID_e			typeId			= NOOSCID;
-	RoleId_e		roleId			= ROLE_SIZE;
+	OSCID_e			typeId			;
 	string 			osctype_name 	= "";
-
-	string 			oscrole_name 	= "";
 
 	bool			is_osc_type 	= false;
 	bool			is_fmo_type 	= false;
@@ -136,39 +131,30 @@ public:
 	bool			has_notes_role 	= false;
 	bool			has_instr_role 	= false;
 
+	connectId_t		Connect			;
+	feature_t 		features 		= feature_struct();
+	wave_t 			wp 				= wave_struct();
+	fmo_t 			fp 				= fmo_struct();
+	vco_t 			vp 				= vco_struct();
+	spectrum_t		spectrum		;
+	const spec_arr_dt
+					default_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
+	spec_arr_dt		phase 		;
+	Dynamic_class	DynFrequency;
 
-
-
-	connectId_t		Connect		= Connect_struct();
-
-	feature_t 		features 	= feature_struct();
-	wave_t 			wp 			= wave_struct();
-	fmo_t 			fp 			= fmo_struct();
-	vco_t 			vp 			= vco_struct();
-	spectrum_t		spectrum	= default_spectrum;//= Spectrum_class::spec_struct();
-	spec_arr_dt		default_phase
-								= { 0.0, 0.0, 0.0, 0.0, 0.0};
-	spec_arr_dt		phase 		= default_phase;
-	Dynamic_class	DynFrequency{ frqarr_range };
-
-					Oscillator_base() ;
-					Oscillator_base( OSCID_e osc_type );
+					Oscillator_base	( OSCID_e osc_type );
 	virtual 		~Oscillator_base()
 						{ DESTRUCTOR( className ); };
 
-	uint8_t 		Set_frequency( string frqName, uint mode );
-	uint8_t			Set_frequency( int idx, uint mode );
-	void 			Set_volume( int vol, uint mode);
+	uint8_t 		Set_frequency	( string frqName, DYNAMIC mode );
+	uint8_t			Set_frequency	( int idx, DYNAMIC mode );
+	void 			Set_spectrum_volume( int vol);
 	void 			Line_interpreter( vector_str_t arr );
-	void 			Set_waveform( spec_arr_8t wf_vec   );
-	void			Set_pmw( uint8_t );
-	void			Set_spectrum( spectrum_t );
-	void 			Set_glide( uint value );
-	void			Setwp( wave_t wp );
-	void 			Get_sound_stack( Table_class* T );
-
-private:
-
+	void 			Set_waveform	( spec_arr_8t wf_vec   );
+	void			Set_pmw			( uint8_t );
+	void			Set_spectrum	( spectrum_t );
+	void 			Set_slideFrq	( uint8_t value );
+	void 			Get_sound_stack	( Table_class* T );
 
 }; // close class Oscillator_base
 

@@ -63,6 +63,7 @@ QDialog(parent),
     connect( ui->pB_Save		, SIGNAL(clicked())			, this, SLOT( save()));
 	Setup_Widget();
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	this->move(0,100);
 }
 
 Keyboad_Dialog_class::~Keyboad_Dialog_class()
@@ -111,9 +112,9 @@ void Keyboad_Dialog_class::sliding_mode(bool value )
 }
 void Keyboad_Dialog_class::save()
 {
+	Sds->Set( sds_p->Kbd_state.savenotes, true );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
-
 
 void Keyboad_Dialog_class::Setup_Widget()
 {

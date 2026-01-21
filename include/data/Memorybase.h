@@ -57,12 +57,25 @@ struct 				shm_data_struct
 {
 	uint			Id				= 0;		// interface id in the set of shm_data_structures
 	bool			eexist			= false;	// becomes true if attached
-	buffer_t 		bytes			= 0;		// in bytes
-	int				sizeof_type		= sizeof( Stereo_t );
-	key_t			key				= 0;		// shm key
+	buffer_t 		bytes			;			// in bytes
+	int				sizeof_type		;//= sizeof( Stereo_t );
+	key_t			key				;		// shm key
 	int 			shmid			= -1;		// shmid
 	void* 			addr			= nullptr;
 	string			hex				= "0x0";
+	shm_data_struct( int type_size, buffer_t _bytes, key_t _key )
+	{
+		this->bytes			= _bytes;
+		this->sizeof_type	= type_size;
+		this->key			= _key;
+	}
+	shm_data_struct( )
+	{
+		this->bytes			= 0;
+		this->sizeof_type	= 0;
+		this->key			= 0;
+	}
+	~shm_data_struct() = default;
 };
 typedef				shm_data_struct shm_ds_t;
 
@@ -76,17 +89,18 @@ class 				Shm_base :
 {
 	string 			className 		= "";
 public:
-	shm_ds_t		shm_ds			= shm_data_struct();
+	shm_ds_t		shm_ds			;
 
 	shm_ds_t* 		Get				( key_t key );
 	void 			ShowDs			( shm_ds_t );
 	void* 			Attach			( int id );
+	void 			Clear			();
 	void 			Detach			( void* );
-	void 			Delete			( ); // SDSview only
+	void 			Delete			(); // SDSview only
 
 	void			Test_Memory		();
 
-					Shm_base		( buffer_t size );
+					Shm_base		( int type_size, buffer_t size, key_t key ); //interface SDS
 	virtual 		~Shm_base		();
 
 private:
@@ -98,17 +112,22 @@ private:
  *************************************************/
 struct 				mem_data_struct
 {
+	const static buffer_t
+					record_size 	{ min_frames }; // define a block as a substructue on the memory data
 	string			name 			= "memory";
 	void*			addr			= nullptr;
 	string			hex				= "0x0";
-	uint 			sizeof_type 	= sizeof( Data_t );
-	buffer_t 		record_size 			= max_frames; // define a block as a substructue on the memory data
-	buffer_t		bytes			= record_size * sizeof_type;
-	buffer_t		block_size		= min_frames;
-//	buffer_t		block_bytes		= block_size * sizeof_type;
-	buffer_t 		data_blocks		= record_size / block_size;
-	uint 			max_records		= data_blocks; // data_block == max-records // TODO verify
-					mem_data_struct	() = default;
+	int				sizeof_type 	;
+	buffer_t		bytes			;
+	buffer_t 		data_blocks		;
+	uint 			max_records		;
+					mem_data_struct	( int type_bytes, buffer_t data_bytes )
+					{
+						sizeof_type = type_bytes;
+						bytes		= data_bytes;
+						data_blocks = bytes / type_bytes;
+						max_records	= data_blocks / record_size;
+					}
 					~mem_data_struct() = default;
 };
 typedef				mem_data_struct	mem_ds_t;
@@ -123,16 +142,16 @@ class 				Memory_base :
 	string 			className 		= "";
 public:
 	Data_t* 		Data 			= nullptr;
-	mem_ds_t		mem_ds			= mem_data_struct();
+	mem_ds_t		mem_ds			;//= mem_data_struct();
 
 	void 			DsInfo			( string name = "Memory_base");
-	void* 			Init_void		( buffer_t bytes );
+	void* 			Init_void		( uint8_t type_size, buffer_t bytes );
 	void 			Init_data		( buffer_t bytes );
 	void 			SetDs			( size_t type_bytes );
 	mem_ds_t* 		GetDs			();
 	void 			Clear_data		( Data_t value );
 
-					Memory_base		( buffer_t bytes );
+					Memory_base		( uint8_t type_bytes, buffer_t bytes );
 	virtual 		~Memory_base	();
 
 };

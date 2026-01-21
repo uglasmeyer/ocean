@@ -66,7 +66,7 @@ public:
 	virtual 			~Instrument_class		();
 ;
 	bool 				Set						( string );
-	void 				Save_Instrument			( string );
+	void 				Save			( string );
 	void				Set_adsr				( char osdid );
 	void 				Update_osc_spectrum		( char oscid );
 	bool 				Connect					( Oscillator* osc,
@@ -92,14 +92,15 @@ private:
 	void 				assign_spectrum			( const string&	type,
 												const string& 	name,
 												const char& 	flag );
-	void 				showOscfeatures			(fstream* FILE = nullptr );
 	bool 				read_instrument			();
 	void 				init_data_structure		( Oscillator*, vector_str_t);
 	void 				update_sds				();
+
+	void 				showOscfeatures			( ostream& FILE = cout );
 	int 				getVersion				( fstream& File );
-	bool				read_version1			( fstream* File );
-	bool				read_version2			( fstream* File );
-	void 				save_features			( fstream& FILE );
-	void 				save_connections		( fstream& FILE, Oscillator* osc );
+	bool				read_version1			( fstream& File );
+	bool				read_version2			( fstream& File );
+	void 				save_features			( ostream& FILE );
+	void 				save_connections		( ostream& FILE, Oscillator* osc );
 };
 #endif /* INSTRUMENT_H_ */

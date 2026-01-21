@@ -61,7 +61,7 @@ void Interface_class::selfTest( )
 	APPID appid = APPID::AUDIOID;
 	APPID value = addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
 	Assert_equal( value ,  appid );
-	Direction_e record = addr->WD_status.direction;
+	Direction_e record = addr->WD_state.direction;
 	Assert_equal( record, wavedisplay_struct::NO_direction, "Wd_status.record" );
 }
 
@@ -69,28 +69,42 @@ Interface_class::Interface_class( 	APPID appid,
 									Id_t sdsid,
 									Config_class* cfg,
 									Semaphore_class* sem ):
-Logfacility_class("SharedData_class" )
+	Logfacility_class	("SharedData_class" ),
+	sds_key				( cfg->Config.sdskeys[ sdsid ] ),
+	sds_size			( sizeof(interface_struct) ),
+	SHM					( sds_size, sds_size, sds_key ),
+	Eventque			()
 {
 
-	this->AppId = appid;
-	this->className = Logfacility_class::className;
-	this->Sem_p		= sem;
-	this->Cfg_p 	= cfg;
-	this->fs		= cfg->fs;
-	this->filename	= "SDS_data_" +
-						to_string( sdsid) +
-						"_" +
-						to_string( ifd_data.version ) +
-						".bin" ;
-	this->dumpFile 	= fs->vardir + filename;
-	Setup_SDS		( sdsid, cfg->Config.sdskeys[ sdsid ] );
+	this->AppId 		= appid;
+	this->className 	= Logfacility_class::className;
+	this->Sem_p			= sem;
+	this->Cfg_p 		= cfg;
+	this->fs			= cfg->fs;
+	ifd_data			= interface_struct();
+	this->shm_ds			= SHM.shm_ds;
+
+	this->dumpFile		= "";
+	this->filename		= "";
+
+	Set_filename		( fs->vardir, sdsid );
+	Setup_SDS			( sdsid, sds_key );
 }
-
-
 
 Interface_class::~Interface_class()
 {
 	DESTRUCTOR( className );
+}
+
+void Interface_class::Set_filename( string dir, uint8_t sdsid )
+{
+	this->filename	= "SdS_data.bin";
+	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
+	if( not filesystem::exists( subdir ) )
+	{
+		filesystem::create_directories( subdir );
+	}
+	this->dumpFile	= subdir + filename ;
 }
 
 
@@ -98,15 +112,14 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 {
 	Comment(INFO, "allocating shared memory for IPC " + to_string( sdsid ));
 
-	ds 					= *SHM.Get( key );
-	ds.Id				= sdsid;
-	this->addr			= ( interface_t* ) ds.addr;
-	this->addr->SDS_Id	= sdsid;
+	shm_ds 					= SHM.shm_ds;//*SHM.Get( key );
+	shm_ds.Id				= sdsid;
+	this->addr				= ( interface_t* ) SHM.shm_ds.addr;
 	Eventque.setup( addr );
 
-	SHM.ShowDs(ds);
+	SHM.ShowDs(shm_ds);
 
-	if ( not ds.eexist )
+	if ( not shm_ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
 		Reset_ifd( );
@@ -125,6 +138,8 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 
 		}
 	}
+//	loadData( dumpFile, addr, sizeof( ifd_data ) );
+	this->addr->SDS_Id	= sdsid;
 	if (( ifd_data.version == addr->version ))
 	{
 		Comment( DEBUG, "OK");
@@ -136,7 +151,7 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 				" differs from BIN version " + to_string( addr->version )  +
 				" or lib/ifd_data.bin size ");
 	}
-	ds.eexist = true;
+	shm_ds.eexist = true;
 }
 
 void Interface_class::Remove_dumpFile()
@@ -161,7 +176,7 @@ void Interface_class::Delete_Shm()
 }
 bool Interface_class::Datasegment_exists()
 {
-	return ds.eexist;
+	return shm_ds.eexist;
 }
 
 void Interface_class::Write_arr( const wd_arr_t& arr )

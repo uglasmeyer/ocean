@@ -282,16 +282,17 @@ void createDesktopfile()
 	string filename = Bin->desktop_file;
 	ofstream file { filename };
 	file 	<< "[Desktop Entry]\n"
-			<< "Version="		<< Version_No					<< "\n"
+			<< "Version="		<< Version_No			<< "\n"
 			<< "Type=Application\n"
-			<< "Name="			<< OCEANGUI						<< "\n"
-			<< "Icon="			<< Bin->icon_file				<< "\n"
-			<< "Exec="			<< Bin->ocean_bin				<< "\n"
-			<< "Path="			<< Bin->archbindir				<< "\n"
-			<< "Comment="		<< Application << " UI"			<< "\n"
+			<< "Name="			<< OCEANGUI				<< "\n"
+			<< "Icon="			<< Bin->icon_file		<< "\n"
+			<< "Exec=env QT_QPA_PLATFORM=xcb "
+			<<	Bin->Ocean_bin							<< "\n"
+			<< "Path="			<< Bin->archbindir		<< "\n"
+			<< "Comment="		<< Application << " UI"	<< "\n"
 			<< "Categories=Application\n"
 			<< "Terminal=false\n"
-			<< "StartupWMClass="<< OCEANGUI						<< endl;
+			<< "StartupWMClass="<< OCEANGUI				<< endl;
 
 }
 
@@ -307,6 +308,7 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 	Copy_3rdpartylibs( Src );
 
 	init_file ( Src->resourcedir + "Notes/" + Bin->default_nte, Bin->notesdir );
+	init_file ( Src->resourcedir + "Notes/" + Bin->default_xml, Bin->xmldir );
 	init_file ( Src->resourcedir + "Instruments/" + Bin->default_snd, Bin->instrumentdir );
 	init_file ( Src->resourcedir + Bin->bkground_filename, Bin->bkground_file );
 	init_file ( Src->resourcedir + Bin->config_filename	, Bin->config_file );

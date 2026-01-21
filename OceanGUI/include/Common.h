@@ -40,6 +40,7 @@ SOFTWARE.
 #include <QString>
 #include <QStringList>
 
+
 // Ocean
 #include <data/Config.h>
 #include <data/Interface.h>
@@ -60,6 +61,8 @@ constexpr QString QReadStr ( Interface_class* Sds, EVENTKEY_e key  )
 	return Qstring( str );
 };
 //#76BAFA
+
+
 template< typename T >
 void setButton( T* pb, int state, bool init=false  )
 {
@@ -111,7 +114,7 @@ typedef EventStruct Event_t;
 
 static file_structure fs = file_structure();
 
-static Event_t 			EventXML( XMLFILE_KEY		, fs.xmldir			, fs.xml_type );
+static Event_t 			EventXML( UPDATENOTESKEY	, fs.xmldir			, fs.xml_type );
 static Event_t 			EventNTE( UPDATENOTESKEY	, fs.notesdir		, fs.nte_type );
 static Event_t 			EventINS( SETINSTRUMENTKEY	, fs.instrumentdir	, fs.snd_type );
 static Event_t 			EventWAV( OTHERSTR_KEY		, fs.musicdir		, fs.wav_type );
@@ -121,5 +124,6 @@ extern QStringList 		Qstringlist		( const list<string>& str_lst );
 extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );
 extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
 extern QStringList		Qread_filenames	( const Path_t _path );
+extern void 			SetGeometry		( QWidget* Widget );
 
 #endif

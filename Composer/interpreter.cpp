@@ -356,6 +356,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 			return;
 		}
 
+		// notes set [num] noteline rythmline
 		if ( Cmpkeyword( "num" ) )
 		{
 			Noteline = pop_stack(1);
@@ -611,14 +612,14 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		if ( loop )
 		{
 			Processor_class::Push_ifd( &sds->frq_slidermode, SLIDE, "slide mode" );
-			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 100_uint, "long frq slide" );
+			Processor_class::Push_ifd( &sds->features[OSCID].slide_frq , 100_uint, "long frq slide" );
 			Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
 		}
 			expect 		= { " duration in seconds" };
 			option_default = "0";
 			string duration = pop_stack(0 );
 			Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
-			Processor_class::Push_ifd( &sds->features[OSCID].glide_effect , 0_uint, "frq slide off" );
+			Processor_class::Push_ifd( &sds->features[OSCID].slide_frq , 0_uint, "frq slide off" );
 
 			Processor_class::Push_key(  view.freqkey, "set frequency"  );
 			Pause( { "pause", duration });
@@ -650,7 +651,7 @@ void Interpreter_class::Play( vector_str_t arr )
 		{
 			expect = { " dest amp"};
 			uint8_t max = pop_T( percent_range );
-			Processor_class::Push_ifd( &sds->MIX_Id , staId, "mixer id" );
+			Processor_class::Push_ifd( &sds->StA_Id , staId, "mixer id" );
 			Processor_class::Push_ifd( &sds->StA_amp_arr[staId] , max, "% slide duration " );
 			Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
 			Processor_class::Push_key( STA_VOLUME_KEY, "set loop volume" );
@@ -679,7 +680,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		StAId_e	staid	= pop_T( staid_range );
 		uint8_t end = pop_T( percent_range );
 
-		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_Id , staid, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[staid] , end, "% slide duration " );
 		Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
 		Processor_class::Push_key( STA_VOLUME_KEY, "set loop volume" );
@@ -693,7 +694,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		uint8_t 	amp 	= pop_T( amp_range );
 		Comment( INFO, "set amplitude of " + to_string(staid) + " to " + to_string(amp) + "%" );
 
-		Processor_class::Push_ifd( &sds->MIX_Id , staid, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_Id , staid, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[ staid ], amp, "mixer volume" );
 		Processor_class::Push_ifd( &sds->StA_state_arr[staid].play, true, "true" );
 		Processor_class::Push_key( SETSTA_KEY		, "set StA State" );
@@ -718,11 +719,11 @@ void Interpreter_class::RecStA( vector_str_t arr )
 
 	}
 	if ( Cmpkeyword( "notes") )
-	{
+	{	//rec notes staid
 
 		expect 			= {"mem id 0..5"};
 		StAId_e	staid	= pop_T( staid_range );
-		Processor_class::Push_ifd( &sds->MIX_Id, staid, "mixer id");
+		Processor_class::Push_ifd( &sds->StA_Id, staid, "mixer id");
 		Processor_class::Push_key( PLAYNOTESREC_ON_KEY, "notes on");
 		return;
 	}
@@ -731,7 +732,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "mute memory array: " + to_string(staid) );
-		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
+		Processor_class::Push_ifd( &sds->StA_Id, staid, "sound" );
 		Processor_class::Push_key(MUTEREC_KEY,  "stop sound" );
 		return;
 	}
@@ -740,7 +741,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		StAId_e id	= pop_T( staid_range );
 		Comment( INFO, "store sound to: " + to_string(id) );
-		Processor_class::Push_ifd( &sds->MIX_Id, id, "sound" );
+		Processor_class::Push_ifd( &sds->StA_Id, id, "sound" );
 		Processor_class::Push_key( STARECORD_START_KEY, "store sound" );
 		return;
 	}
@@ -749,17 +750,17 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "clear " + to_string(staid) );
-		Processor_class::Push_ifd( &sds->MIX_Id, staid, "mixer id" );
+		Processor_class::Push_ifd( &sds->StA_Id, staid, "mixer id" );
 		Processor_class::Push_key( CLEAR_KEY,  "set clear" );
 		return;
 
 	}
 
 	if ( Cmpkeyword( "stop") )
-	{
+	{	// rec stop staid
 		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "stop recording to: " + to_string(staid) );
-		Processor_class::Push_ifd( &sds->MIX_Id, staid, "sound" );
+		Processor_class::Push_ifd( &sds->StA_Id, staid, "sound" );
 		Processor_class::Push_key( STARECORD_STOP_KEY, "stop record" );
 		return;
 	}
@@ -792,7 +793,7 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
 		uint8_t freq = pop_T( percent_range );
-		Processor_class::Push_ifd( &sds->features[OSCID].glide_effect, freq, "soft freq"  );
+		Processor_class::Push_ifd( &sds->features[OSCID].slide_frq, freq, "soft freq"  );
 		Processor_class::Push_key( SOFTFREQUENCYKEY,  "set soft freq" );
 		return;
 	}

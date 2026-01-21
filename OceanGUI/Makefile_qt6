@@ -153,7 +153,7 @@ TARGET        = OceanGUI
 first: all
 ####### Build rules
 
-OceanGUI: ui_File_Dialog_class.h ui_cutterdialog.h ui_keyboad_dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h $(OBJECTS)  
+OceanGUI: ui_CutDesk_Dialog.h ui_File_Dialog_class.h ui_keyboad_dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET)  $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile_qt6: OceanGUI.pro /usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang/qmake.conf /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
@@ -322,7 +322,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents resource.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents Cutterdialog.h include/Keyboad_dialog.h include/File_Dialog.h include/Mainwindow.h include/Oszilloscopewidget.h include/Spectrum_dialog.h include/Rtsp_dialog.h include/Dispatcher.h $(DISTDIR)/
-	$(COPY_FILE) --parents File_Dialog_class.ui cutterdialog.ui keyboad_dialog.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
+	$(COPY_FILE) --parents CutDesk_Dialog.ui File_Dialog_class.ui keyboad_dialog.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -385,9 +385,9 @@ moc_Cutterdialog.cpp: Cutterdialog.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
-		../include/Oscwaveform.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -423,9 +423,9 @@ moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
-		../include/Oscwaveform.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -443,6 +443,7 @@ moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
 		../include/notes/Notes.h \
+		../include/notes/MusicXML.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Keyboad_dialog.h -o moc_Keyboad_dialog.cpp
@@ -485,6 +486,7 @@ moc_File_Dialog.cpp: include/File_Dialog.h \
 		../include/Osc.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
+		../include/notes/MusicXML.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
 		ui_File_Dialog_class.h \
@@ -512,9 +514,9 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
-		../include/Oscwaveform.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -534,6 +536,7 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/Osc.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
+		../include/notes/MusicXML.h \
 		ui_File_Dialog_class.h \
 		ui_mainwindow.h \
 		include/Keyboad_dialog.h \
@@ -542,15 +545,14 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		include/Rtsp_dialog.h \
 		ui_Rtsp_dialog_class.h \
 		include/Spectrum_dialog.h \
-		ui_spectrum_dialog_class.h \
 		include/Common.h \
+		ui_spectrum_dialog_class.h \
 		Cutterdialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Mainwindow.h -o moc_Mainwindow.cpp
 
 moc_Spectrum_dialog.cpp: include/Spectrum_dialog.h \
-		ui_spectrum_dialog_class.h \
 		../include/Ocean.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
@@ -585,6 +587,7 @@ moc_Spectrum_dialog.cpp: include/Spectrum_dialog.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
 		include/Common.h \
+		ui_spectrum_dialog_class.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
 	/usr/lib/qt6/libexec/moc $(DEFINES) --include /home/sirius/git/Ocean/OceanGUI/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt6/mkspecs/linux-clang -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/include -I/usr/include/x86_64-linux-gnu/qt6 -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/c++/14 -I/usr/include/x86_64-linux-gnu/c++/14 -I/usr/include/c++/14/backward -I/usr/lib/llvm-19/lib/clang/19/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include/Spectrum_dialog.h -o moc_Spectrum_dialog.cpp
@@ -611,9 +614,9 @@ moc_Rtsp_dialog.cpp: include/Rtsp_dialog.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
-		../include/Oscwaveform.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -654,9 +657,9 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
+		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
-		../include/Oscwaveform.h \
 		../include/EventKeys.h \
 		../include/Wavedisplay_base.h \
 		../include/notes/Notesbase.h \
@@ -671,6 +674,7 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/Osc.h \
 		../include/Oscgroup.h \
 		../include/Wavedisplay.h \
+		../include/notes/MusicXML.h \
 		ui_File_Dialog_class.h \
 		ui_mainwindow.h \
 		include/Keyboad_dialog.h \
@@ -679,8 +683,8 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		include/Rtsp_dialog.h \
 		ui_Rtsp_dialog_class.h \
 		include/Spectrum_dialog.h \
-		ui_spectrum_dialog_class.h \
 		include/Common.h \
+		ui_spectrum_dialog_class.h \
 		Cutterdialog.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -690,16 +694,16 @@ compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_File_Dialog_class.h ui_cutterdialog.h ui_keyboad_dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
+compiler_uic_make_all: ui_CutDesk_Dialog.h ui_File_Dialog_class.h ui_keyboad_dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_File_Dialog_class.h ui_cutterdialog.h ui_keyboad_dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
+	-$(DEL_FILE) ui_CutDesk_Dialog.h ui_File_Dialog_class.h ui_keyboad_dialog.h ui_mainwindow.h ui_Rtsp_dialog_class.h ui_spectrum_dialog_class.h
+ui_CutDesk_Dialog.h: CutDesk_Dialog.ui \
+		/usr/lib/qt6/libexec/uic
+	/usr/lib/qt6/libexec/uic CutDesk_Dialog.ui -o ui_CutDesk_Dialog.h
+
 ui_File_Dialog_class.h: File_Dialog_class.ui \
 		/usr/lib/qt6/libexec/uic
 	/usr/lib/qt6/libexec/uic File_Dialog_class.ui -o ui_File_Dialog_class.h
-
-ui_cutterdialog.h: cutterdialog.ui \
-		/usr/lib/qt6/libexec/uic
-	/usr/lib/qt6/libexec/uic cutterdialog.ui -o ui_cutterdialog.h
 
 ui_keyboad_dialog.h: keyboad_dialog.ui \
 		/usr/lib/qt6/libexec/uic

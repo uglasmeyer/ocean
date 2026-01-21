@@ -59,9 +59,9 @@ public:
 					Trigger_class	();
 	virtual			~Trigger_class	() = default;
 
-	void 			set_state		( bool _state ); // producer
-	void 			set_active		( bool _active ); // controller
-	bool 			get				(); // action
+	void 			SetState		( bool _state ); // producer
+	void 			SetActive		( bool _active ); // controller
+	bool 			Get				(); // action
 };
 
 /***************************
@@ -71,13 +71,13 @@ class Scanner_class
 	: public virtual Logfacility_class
 {
 	string					className		= "";
+	bool					readlock		= false;
 public:
 	// scanner_t scanner = scanner_struct( Mem.Data, min_frames, max_frames );
 
 	buffer_t				inc; 			// read frame
 	buffer_t 				rpos;			// currejt read  cursor
 	buffer_t				wpos;			// current write cursor
-	buffer_t				wrt; 			// write frames
 	Data_t*					Data;
 
 	range_T<buffer_t>		mem_range;		// 0<pos<max
@@ -89,15 +89,14 @@ public:
 	void 					Show			( bool debug, void* p = nullptr );
 
 	Data_t* 				Next_read			();
-	void 					Next_write			( buffer_t n );
+	buffer_t				Next_wpos			( buffer_t n );
 	void					Reset				();
+	void 					Lock_read			( bool flag );
+
 	Data_t* 				Set_rpos			( buffer_t n );
 	buffer_t 				Set_wpos			( buffer_t n );
-	void 					Set_wrt_len			( buffer_t n );
 	void 					Set_fillrange		( buffer_t n );
 	bool 					Get_filled			();
-
-
 };
 
 
@@ -108,60 +107,19 @@ class StAstate_class :
 	StA_state_struct
 {
 public:
-	StAstate_class() :
-		StA_state_struct()
-	{};
-	virtual ~StAstate_class() = default;
+				StAstate_class	();
+	virtual 	~StAstate_class	() = default;
 
-	void Forget( bool flag )
-	{
-		forget = flag;
-	}
-	bool Forget()
-	{
-		return forget;
-	}
-	void Store( bool flag )
-	{
-		store = flag;
-	}
-	bool Store()
-	{
-		return store;
-	}
-	void Play( bool flag )
-	{
-		play = flag;
-	}
-	bool Play()
-	{
-		return play;
-	}
-	void Filled( bool flag )
-	{
-		filled = flag;
-	}
-	bool Filled()
-	{
-		return filled;
-	}
-	StA_state_t Get()
-	{
-		StA_state_t 	state 	= StA_state_struct();
-		state.filled 			= filled;
-		state.forget 			= forget;
-		state.play				= play;
-		state.store 			= store;
-		return 			state;
-	}
-	void Set( StA_state_t state )
-	{
-		filled	= state.filled;
-		forget	= state.forget;
-		play	= state.play;
-		store	= state.store;
-	}
-private:
+	void 		Forget			( bool flag );
+	bool 		Forget			();
+	void 		Store			( bool flag );
+	bool 		Store			();
+	void 		Play			( bool flag );
+	bool 		Play			();
+	void 		Filled			( bool flag );
+	bool 		Filled			();
+	StA_state_t Get				();
+	void 		Set				( StA_state_t state );
 };
 
 /***************************
@@ -184,7 +142,7 @@ public:
 /***************************
  * Stereo_Memory
  **************************/
-template< typename stereo >
+template< typename stereoT >
 class Stereo_Memory :
 	virtual public 	Logfacility_class,
 	virtual public 	Memory_base
@@ -192,13 +150,13 @@ class Stereo_Memory :
 	string className = "";
 public:
 
-	static const buffer_t	stereobuffer_bytes 	= recduration*frames_per_sec * sizeof( stereo );
+	static const buffer_t	stereobuffer_bytes 	= recduration*frames_per_sec * sizeof(stereoT) ;
 
-	stereo* 				stereo_data 		= nullptr;
+	stereoT* 				stereo_data 		= nullptr;
 
-	Stereo_Memory		(buffer_t bytes) :
+	Stereo_Memory		(uint8_t type_bytes, buffer_t bytes) :
 		Logfacility_class( "Stereo_Memory" ),
-		Memory_base( bytes )
+		Memory_base( type_bytes, bytes )
 	{
 		className = Logfacility_class::className;
 		Init_data( bytes );
@@ -211,21 +169,19 @@ public:
 
 	void Init_data( buffer_t bytes, buffer_t bs = min_frames )
 	{
-		stereo_data = ( stereo* ) Init_void( bytes );
+		stereo_data = ( stereoT* ) Init_void( sizeof(stereoT), bytes );
 
-		SetDs( sizeof( stereo ) );
+		Assert_equal( mem_ds.bytes, mem_ds.sizeof_type * mem_ds.max_records * mem_ds.record_size );
 		statistic.stereo += mem_ds.bytes;
 		mem_ds.name	= Logfacility_class::className;
 	}
 	void Clear_data()
 	{
-		stereo zero = { 0,0 };
+		stereoT zero = { 0,0 };
 		for ( buffer_t n = 0 ; n < mem_ds.data_blocks ; n++ )
 			stereo_data[n] = zero;
 
 	}
-
-private:
 
 };
 
@@ -238,6 +194,7 @@ struct 				Mem_param_struct
 	buffer_t		size 			;	// number of buffer frames
 	buffer_t		wdsize			;	// current frames of the wave display
 	uint8_t			storage_time	;	// storage time in seconds
+	const static
 	buffer_t		block_size		= min_frames;  	// numer of read frames
 	Mem_param_struct( string _name, int _sec )
 	{
@@ -261,59 +218,33 @@ class Storage_class :
 	string className = "";
 public:
 	// dynamic properties
-	StA_param_t 	param			= Mem_param_struct("",0 );
-	StAId_e 		Id				= STA_SIZE;
-	bool			is_RecId		= false;
-	uint 			record_data		= 0;
-	Dynamic_class	DynVolume		{ volidx_range };
-	Scanner_class	scanner 		{ nullptr, min_frames, 0 };
+	StA_param_t 	param			;
+	StAId_e 		Id				;
+	Dynamic_class	DynVolume		;
+	Scanner_class	scanner 		;
 	Trigger_class	beattrigger		{};
 	StAstate_class 	state 			{};
 	string			file			= "";
 	string			filename		= "";
+	bool			touched			= false;
 
-	void 			Store_block		( Data_t* ) ;
-	void 			Write_data		( Data_t* src, uint8_t volume = 0 );//, const buffer_t& pos );
+	void 			Store_record		( Data_t* ) ;
+	void 			Write_data		( Data_t* src, buffer_t frames, const float volume );//, const buffer_t& pos );
 	void 			Record_mode		( bool );
-	void 			Set_filename	( string dir );
-	void 			Set_store_counter( uint n);
+	void 			Set_filename	( string dir, uint8_t sdsid );
+	void 			Store_counter	( uint records );
+	uint*			Store_counter	();
 	void 			Reset			();
-	uint*			Get_storeCounter_p();
+	void			Volume			( uint8_t vol, DYNAMIC mode );
+	float			Volume			();
 
 					Storage_class	( StAId_e id, StA_param_t param );
 	virtual 		~Storage_class	() = default;
 
 private:
-
-	uint 			read_counter 	= 0;
-	uint 			record_counter	= 0;
+	uint 			records	= 0;
 };
 typedef vector<Storage_class>		StorageArray_t;
-
-/***************************************
- * Shared_Memory
- * Synthesizer/Audioserver data exchange
- **************************************/
-class Shared_Memory :
-		virtual public 		Logfacility_class,
-		virtual public 		Shm_base
-{
-	string 					className 			= "";
-public:
-	shm_ds_t				ds					= shm_data_struct();
-
-	static const buffer_t 	sharedbuffer_size 	= (audio_frames) * sizeof( Stereo_t );
-	Stereo_t* 				addr 				= nullptr;
-	range_T<buffer_t>		shm_range			;
-							Shared_Memory( buffer_t size );
-	virtual 				~Shared_Memory();
-
-	void 					Stereo_buffer( key_t key );
-	void 					Clear( const buffer_t& frames );
-
-
-};
-
 
 
 

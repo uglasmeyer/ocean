@@ -35,7 +35,7 @@ SOFTWARE.
 
 Variation_class::Variation_class( interface_t* sds, Config_class* cfg )
 	: Logfacility_class{ "Variation_class" }
-	, Note_class( sds, cfg )
+	, Note_class( sds, cfg->fs )
 {
 	Note_class::Instrument_name = "Variation";
 	className = Logfacility_class::className;

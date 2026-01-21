@@ -46,9 +46,9 @@ Instrument_class::Instrument_class(	interface_t* _sds,
 	this->fs				= fs;
 	Default_instrument_file = fs->instrumentdir + fs->default_snd;
 	instr_ext 				= fs->snd_type;
-
-	Oscgroup.SetWd( this->wd_p );
-	selfTest();
+	Oscgroup.Set_Duration	( min_msec );
+	Oscgroup.SetWd			( this->wd_p );
+	selfTest				();
 }
 
 Instrument_class::~Instrument_class()
@@ -122,7 +122,7 @@ void Instrument_class::set_name( string name )
 		Name 			= name;
 	else
 	{
-		Name 			= fs->default_name;
+		Name 			= default_name;
 		Instrument_file = Default_instrument_file;
 	}
 	Comment( INFO, "Instrument Name: " + Name );
@@ -141,31 +141,12 @@ bool Instrument_class::assign_adsr 	( vector_str_t arr )
 	return true;
 }
 
-/*
-auto showOscfeatures2 = [  ]( Oscillator* osc, Oscillator* vco )
-{
-	Table_class Table { "Features" };
-	Table.AddColumn( "Attack"	, 6 );
-	Table.AddColumn( "Decay"	, 6 );
-	Table.AddColumn( "Hall"		, 6 );
-	Table.AddColumn( "Beats"	, 6 );
-	Table.AddColumn( "SlideF"	, 6 );
-	Table.AddColumn( "Pmw"		, 6 );
-	Table.PrintHeader();
-	adsr_t adsr = osc->Get_adsr();
-	Table.AddRow(	(int)adsr.attack,
-					(int)adsr.decay,
-					(int)adsr.hall,
-					(int)adsr.bps,
-					(int)osc->features.glide_effect,
-					(int)vco->features.PMW_dial);
-};
-*/
 
-void Instrument_class::showOscfeatures( fstream* FILE )
+
+void Instrument_class::showOscfeatures( ostream& FILE )
 {
 	tableopt_t 	opt 			= defaultopt;
-				opt.FILE 		= FILE;
+				opt.FILE 		= &FILE;
 				opt.Separator 	= ',';
 	Table_class Table			{ opt };
 	Table.AddColumn( "Type"		, 6 );
@@ -194,7 +175,7 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 						(int)adsr_data.decay,
 						(int)adsr_data.attack,
 						(int)adsr_data.decay,
-						(int)osc->features.glide_effect,
+						(int)osc->features.slide_frq,
 						(int)vco->features.PWM);
 
 	if (file_version == 4 )
@@ -207,7 +188,7 @@ void Instrument_class::showOscfeatures( fstream* FILE )
 						(int)adsr_data.decay,
 						(int)adsr_data.attack,
 						(int)adsr_data.decay,
-						(int)osc->features.glide_effect,
+						(int)osc->features.slide_frq,
 						(int)sds->slide_duration,
 						(int)vco->features.PWM);
 };
@@ -217,7 +198,7 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 	String 	Str			{""};
 	sds->adsr_arr[OSCID].bps	= Str.secure_stoi( arr[3] );
 	sds->adsr_arr[OSCID].hall	= Str.secure_stoi( arr[2] );
-	sds->adsr_arr[OSCID].attack= Str.secure_stoi( arr[4] );
+	sds->adsr_arr[OSCID].attack	= Str.secure_stoi( arr[4] );
 	sds->adsr_arr[OSCID].decay	= Str.secure_stoi( arr[5] );
 
 	sds->adsr_arr[VCOID].attack = Str.secure_stoi( arr[6]	);
@@ -225,7 +206,7 @@ bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 	sds->adsr_arr[FMOID].attack = Str.secure_stoi( arr[8]	);
 	sds->adsr_arr[FMOID].decay	= Str.secure_stoi( arr[9] 	);
 
-	sds->features[OSCID].glide_effect = Str.secure_stoi( arr[10] );
+	sds->features[OSCID].slide_frq = Str.secure_stoi( arr[10] );
 	if ( file_version == 4 )
 	{
 		sds->slide_duration			= Str.secure_stoi( arr[11] ); //Audioserver
@@ -275,14 +256,14 @@ int Instrument_class::getVersion( fstream& File )
 	return -1;
 }
 
-bool Instrument_class::read_version1( fstream* File )
+bool Instrument_class::read_version1( fstream& File )
 {
 	String 			Str			{""};
 	string 			keyword;
 	vector_str_t 	arr 		{};
 	Oscillator* 	osc 		= nullptr;
 
-	getline( *File, Str.Str );
+	getline( File, Str.Str );
 	do
 	{
 		Str.normalize();
@@ -303,14 +284,14 @@ bool Instrument_class::read_version1( fstream* File )
 			}
 		}
 
-	} while( getline( *File, Str.Str));
+	} while( getline( File, Str.Str));
 
-	File->close();
+	File.close();
 	return true;
 }
 
 
-bool Instrument_class::read_version2( fstream* File )
+bool Instrument_class::read_version2( fstream& File )
 {
 	auto get_con = [ this ]( connectId_t con, OSCID_e secid, char mode )
 	{
@@ -329,7 +310,7 @@ bool Instrument_class::read_version2( fstream* File )
 	char		 	oscid 	= -1;
 
 	Comment( DEBUG, "read_version2 ", Name );
-	getline( *File, Str.Str );
+	getline( File, Str.Str );
 	do
 	{
 		Str.normalize();
@@ -338,7 +319,7 @@ bool Instrument_class::read_version2( fstream* File )
 
 		if( strEqual( "Type", CfgType ))
 		{
-			Type = ""; //ignore
+			Type = "noOSC"; //ignore
 		}
 		else
 		{
@@ -372,7 +353,7 @@ bool Instrument_class::read_version2( fstream* File )
 			sds->connect_arr[oscid] = get_con( con_tmp, secid, mode );
 		}
 
-	} while( getline( *File, Str.Str));
+	} while( getline( File, Str.Str));
 
 	return true;
 }
@@ -403,21 +384,17 @@ bool Instrument_class::read_instrument( )
 	{
 		case 0 :
 		case 1 :
-			code = read_version1( &File );
+			code = read_version1( File );
 			break;
 		case 2 :
 		case 3 :
 		case 4 :
-			code = read_version2( &File );
+			code = read_version2( File );
 			break;
 		default :
 			code = false;
 			break;
 	}
-
-
-
-
 	return code;
 }
 
@@ -443,15 +420,12 @@ bool Instrument_class::Connect( Oscillator* osc, Oscillator* sec, char mode )
 			break;
 		}
 	};
-	Set_sds_connect_state(osc->typeId, osc->Connect );
-//	Show_Connection_names( osc->typeId );
-	assert( osc->Connect == Get_connect_state( osc->typeId ) );
 
 	return ret;
 
 }
 
-void Instrument_class::save_features( fstream& FILE )
+void Instrument_class::save_features( ostream& FILE )
 {
 	tableopt_t opt = defaultopt;
 	opt.FILE = &FILE;
@@ -474,13 +448,13 @@ void Instrument_class::save_features( fstream& FILE )
 			(int) adsr_data.bps,
 			(int) adsr_data.attack,
 			(int) adsr_data.hall,
-			(int) osc->features.glide_effect,
+			(int) osc->features.slide_frq,
 			(int) vco->features.PWM
 			);
 
 }
 
-void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
+void Instrument_class::save_connections( ostream& FILE, Oscillator* osc )
 {
 	tableopt_t opt = defaultopt;
 	opt.FILE = &FILE;
@@ -501,31 +475,29 @@ void Instrument_class::save_connections( fstream& FILE, Oscillator* osc )
 			osc->osctype_name,
 			osc->vp.name,
 			"V");
-
-
 }
-void Instrument_class::Save_Instrument( string str )
+
+void Instrument_class::Save( string str )
 {
 	set_new_name( str );
 	Info( "saving sound to:", Instrument_file);
 
-	fstream FILE;
-	FILE.open(Instrument_file, fstream::out ); // overwrite the file content
+	fstream FILE	{ Instrument_file, fstream::out };
 
 	// Instrument file version
 	FILE 	<< "VERSION=" << (int)actual_version << endl;
 	file_version = actual_version;
 
 	// Type ADSR
-	showOscfeatures( &FILE );
+	showOscfeatures( FILE );
 
-	for ( Oscillator* osc : Oscgroup.member )
+	for ( OSCID_e oscid : oscIds )
 	{
 		// Type SPE
-		osc->Show_spectrum_table( &FILE, osc->spectrum );
-		osc->Show_spectrum_table( &FILE, osc->Get_adsr().spec );
+		osc->Show_spectrum_table( FILE, sds->spectrum_arr[oscid] );
+		osc->Show_spectrum_table( FILE, sds->adsr_arr[oscid].spec );
 		// Type CONN
-		save_connections( FILE, osc );
+		save_connections( FILE, Oscgroup.member[oscid] );
 	}
 
 	FILE.close();
@@ -542,7 +514,7 @@ bool Instrument_class::Set( string name )
 	if ( read_instrument( ) )
 	{
 		Info( "sucessfully loaded instrument", name );
-		showOscfeatures(); // stdout
+		showOscfeatures();
 		Oscgroup.Show_sound_stack();
 	}
 	else
@@ -569,36 +541,35 @@ void Instrument_class::Test_Instrument()
 	Assert_equal( connect, default_connect( OSCID ), "connect_state" );
 
 	assert( Set( ".test2" ) );
-	assert( strEqual( osc->fp.name, typeNames[ FMOID ] ) );
+	Assert_equal( strEqual( osc->fp.name, typeNames[ FMOID ] ), true );
 	assert( strEqual( osc->vp.name, typeNames[ VCOID ] ) );
 	ASSERTION( Get_connect_state( OSCID ).vol == sds->connect_arr[OSCID].vol , "connect_state",
 			(int)Get_connect_state( OSCID ).vol, (int)sds->connect_arr[OSCID].vol );
 	ASSERTION( Get_connect_state( OSCID ).frq == sds->connect_arr[OSCID].frq, "connect_state",
 			(int)Get_connect_state( OSCID ).frq, (int)sds->connect_arr[OSCID].frq );
-	Connect( fmo, fmo, CONF );
-	Connect( fmo, fmo, CONV );
+//	Connect( fmo, fmo, CONF );
+//	Connect( fmo, fmo, CONV );
 
 
 
 	showOscfeatures( );
 
-	Save_Instrument( ".test2" );
+	Save( ".test2" );
 	showOscfeatures( );
 	ASSERTION( file_version == actual_version, "version", file_version , actual_version );
 
 	Oscgroup.osc.Setwp_frames( min_msec );
-	float f = Oscgroup.osc.GetFrq( Oscgroup.osc.spectrum.frqidx[0] );
+	float f = frqArray[ Oscgroup.osc.spectrum.frqidx[0] ];
 	ASSERTION( f == (float)220, "frequency", f, 220.000000 );
-	ASSERTION( fcomp( 	sds->spectrum_arr[OSCID].frqidx[0], 71), "frequency",
-						sds->spectrum_arr[OSCID].frqidx[0], 71 );
+	Assert_equal( (int)sds->spectrum_arr[OSCID].frqidx[0], 71, "frequency" );
 
 	Oscgroup.osc.Phase_reset();
 	Oscgroup.osc.Set_frequency( 71, FIXED ); // 220 Hz
 
 	Oscgroup.Data_Reset();
 	osc->Connection_reset();
-	fmo->Set_volume(100,FIXED);
-	vco->Set_volume(0,FIXED);
+	fmo->Set_spectrum_volume(100);
+	vco->Set_spectrum_volume(0);
 	Oscgroup.Show_sound_stack();
 	Oscgroup.Run_OSCs(0);
 	uint8_t past = Oscgroup.osc.DynFrequency.GetCurrent().past;
@@ -622,7 +593,7 @@ void Instrument_class::Test_Instrument()
 	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
-	Save_Instrument( ".test2" );
+	Save( ".test2" );
 	Oscgroup.vco.features.PWM = 0;
 	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::RECTANGLE;
 	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::RECTANGLE ],
@@ -632,7 +603,7 @@ void Instrument_class::Test_Instrument()
 	assert( Set( ".test2" ) );
 	ASSERTION( 	sds->features[VCOID].PWM == 98,"Set PMW_dial",
 			(int)sds->features[VCOID].PWM , 98);
-	assert( Oscgroup.vco.features.PWM == 98 );
+	Assert_equal( (int)Oscgroup.vco.features.PWM, 98 );
 	string a = waveform_str_vec[ oscwaveform_struct::SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
@@ -640,7 +611,7 @@ void Instrument_class::Test_Instrument()
 	assert( Oscgroup.osc.fp.Mem->Data == Oscgroup.fmo.MemData_p() );
 //	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
 	Oscgroup.fmo.Set_frequency( C0, FIXED );
-	f = Oscgroup.fmo.GetFrq( Oscgroup.fmo.spectrum.frqidx[0]);
+	f = frqArray[ Oscgroup.fmo.spectrum.frqidx[0] ];
 	ASSERTION( fcomp( f, 16.3516 ), "" ,f, 16.3516 );
 
 

@@ -41,9 +41,7 @@ SOFTWARE.
 
 
 Spectrum_class::Spectrum_class() :
-	Logfacility_class("Spectrum"),
-	oscwaveform_struct(),
-	Frequency_class()
+	Logfacility_class("Spectrum")
 {
 	className 		= Logfacility_class::className;
 	spectrumTmp		= default_spectrum;
@@ -66,16 +64,21 @@ spectrum_t Spectrum_class::Get_spectrum()
 }
 void Spectrum_class::assign_frq( int channel, string str  )
 {
-	int value = 0;
-	String Str{""};
-	if ( str.length() > 0 )
+	int 	value 	= 0;
+	String 	Str		{""};
+			value 	= ( str.length() > 0 ) ? Str.secure_stoi( str ) : 0;
+
+	if( channel > 0 )
 	{
-		value 					= Str.secure_stoi( str );
-		spectrumTmp.frqidx[channel]= check_range( frqarr_range, value, "assign_frq" );
+		spectrumTmp.frqidx[channel]= check_range( harmonic_range, uint8_t( value ), "assign_frq" );
+		spectrumTmp.frqadj[channel] = Frqadj(channel, value );
 	}
 	else
-		spectrumTmp.frqidx[channel] = 0;
-	spectrumTmp.frqadj[channel] = Frqadj(channel, value );
+	{
+		spectrumTmp.frqidx[channel]= check_range( frqarr_range, value, "assign_frq" );
+		spectrumTmp.frqadj[channel] = Frqadj( 0, 0 );
+	}
+
 };
 
 void Spectrum_class::assign_vol( int i, string str  )
@@ -119,8 +122,8 @@ char Spectrum_class::Type_flag( const string& type_str )
 }
 bool Spectrum_class::adsr_type( const string& type_str )
 {
-	string sub = type_str.substr(3, 1);
-	return (  sub.length() > 0 );
+//	string sub = type_str.substr(3, 1);
+	return (  type_str.length() > 3 );
 }
 OSCID_e Spectrum_class::Osc_TypeId( const string& type_str )
 {
@@ -216,11 +219,11 @@ Table_class* Spectrum_class::Get_spectrum_table	()
 	return &this->Table;
 }
 
-void Spectrum_class::Show_spectrum_table(	fstream* f,
+void Spectrum_class::Show_spectrum_table(	ostream& f,
 											const spectrum_t& spec,
 											bool header )
 {
-	Table.opt.FILE 		= f;
+	Table.opt.FILE 		= &f;
 	string OscRoleTag = typeNames[ spec.osc ];
 	if( spec.adsr )
 		OscRoleTag += "A";
@@ -272,8 +275,23 @@ void Spectrum_class::Sum( spectrum_t& spec )
 	spec.sum = _sum;
 }
 
+#include <System.h>
 void Spectrum_class::Test_Spectrum()
 {
+
+	spectrum_data					test_spectrum		=
+	{
+								.vol				= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
+								.frqadj				= { 1.0, 2.0, 3.0, 4.0, 5.0 },
+								.frqidx 			= { A3, 0, 0, 0, 0 },
+								.volidx 			= { 100, 0, 0, 0, 0 },
+								.sum 				= 1.0,
+								.wfid 				= { SINUS, SINUS,SINUS,SINUS,SINUS},
+								.osc 				= OSCID,
+								.adsr				= false
+	};
+
+
 	TEST_START( className );
 
 	String str { "SPEF,FMOA,1,2,3,4,5" };
@@ -300,12 +318,13 @@ void Spectrum_class::Test_Spectrum()
 			waveform_str_vec[3],
 			waveFunction_vec[3].name );
 
-	fstream f;
-	f.open( "/tmp/Save_spectrum_table.txt", fstream::out );
-	Show_spectrum_table( &f, this->spectrumTmp );
+	string test_file = "/tmp/Save_spectrum_table.txt";
+	Remove_file( test_file );
+	fstream f { test_file, fstream::out };
+	Show_spectrum_table( f, test_spectrum );
 	f.close();
-
-//assert(false);
+	Assert_equal( filesystem::exists( test_file ) , true );
+//	raise( SIGILL );
 
 	TEST_END( className );
 }

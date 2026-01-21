@@ -58,6 +58,7 @@ public:
         if (Keyboad_Dialog_class->objectName().isEmpty())
             Keyboad_Dialog_class->setObjectName("Keyboad_Dialog_class");
         Keyboad_Dialog_class->resize(237, 264);
+        Keyboad_Dialog_class->setAutoFillBackground(true);
         gridLayoutWidget = new QWidget(Keyboad_Dialog_class);
         gridLayoutWidget->setObjectName("gridLayoutWidget");
         gridLayoutWidget->setGeometry(QRect(10, 0, 225, 264));

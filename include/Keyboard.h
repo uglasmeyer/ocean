@@ -62,7 +62,6 @@ class Kbd_pitch_class
 		assert( chars.size() > 0);
 		return chars;
 	}
-	string				className			= "";
 	interface_t*		sds_p				;
 
 public:
@@ -76,7 +75,6 @@ public:
 		{'N',{ string("<")	, string("Power ") }}
 	};
 	set<char>			chord_keys			= init_chord_keys( Chords_map );
-											//{ 'y', 'x', 'c', 'v', 'b', 'n' };
 	const array<string, kbd_rows>
 						dflt_keyboard_keys	{  	string("A_S_DF_J_K_L") ,
 												string("Q_W_ER_U_I_O") ,
@@ -98,9 +96,8 @@ public:
 						Kbd_pitch_class		( interface_t* sds);
 						Kbd_pitch_class		(); // keyboard_dialog
 	virtual 			~Kbd_pitch_class	() 	= default;
-	void 				SetPitch			( int key );
+	char 				SetPitch			( int key );
 	void 				SetChord			( char key );
-	string 				Get_note_str		();
 	void 				Show_kbd_layout		( int8_t base_oct );
 	void 				Kbd_pitch_Test		();
 
@@ -116,10 +113,10 @@ class keyboardState_class :
 	interface_t* 		sds;
 	const range_T<uint>	sharps_range			{ 0, 3 }; // TODO reduced range
 	const range_T<uint>	flats_range				{ 0, 2 }; // TODO reduced range
-	frq_t				basefrq;
+	frq_t				basefrq					;
+	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
 
 protected:
-	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
 
 						keyboardState_class		( interface_t* _sds );
 						~keyboardState_class() 	= default;
@@ -138,6 +135,54 @@ protected:
 } ;
 
 /**************************************************
+ * Noteline_struct
+ *************************************************/
+typedef struct Noteline_struct
+{
+	string 				str				;
+
+						Noteline_struct	();
+	virtual				~Noteline_struct() = default;
+	void 				AddPitch			( const pitch_vec_t& pv );
+	void 				AddLenth		( uint& cnt );
+	string 				Get_note_str	( const pitch_vec_t& pv );
+} Noteline_t;
+
+
+/**************************************************
+ * Notevector_struct
+ *************************************************/
+typedef struct 			Notevector_struct
+{
+private:
+	Note_class*			Notes					;
+	file_structure*		Fs						;
+	size_t				Size					;
+
+	vector<note_t>		note_vec				{};
+	Noteline_t			Noteline				;
+	int					Note_pos				;
+	note_t				EmptyNote				;
+
+public:
+
+	virtual				~Notevector_struct		();
+						Notevector_struct		( Note_class* notes,
+												file_structure* fs,
+												size_t size );
+	void				Add						( pitch_vec_t vec, bool forget, uint& cnt );
+	void				Init					();
+	void				Fill					( size_t start );
+	void 				Store					( pitch_vec_t& pv );
+	void 				Next					();
+	bool				SaveMusicxml			();
+	void				SaveNoteLine			();
+	void 				LoadNoteLine			();
+
+} Notevector_t;
+
+
+/**************************************************
  * Keyboard_class
  *************************************************/
 class Keyboard_class
@@ -147,71 +192,61 @@ class Keyboard_class
 	, virtual public	sdsstate_struct
 	, virtual public	keyboardState_class
 {
-	string 				className 				= "";
-	Oscgroup_class		Oscgroup				{ KBDROLE, 2*monobuffer_bytes };
-	Oscillator*			Osc						= &Oscgroup.osc;
-//	unique_ptr<Wavedisplay_class>	wd_p;
-
+	Oscgroup_class		Oscgroup				;
+	Oscillator*			Osc						;
 	Instrument_class* 	instrument_p			;
 	interface_t*		sds_p					;
 	Wavedisplay_class*	wd_p					;
-	Storage_class*		sta_p					;
-	vector<note_t>		Note_vec				{};
-	uint8_t				Note_pos				= 0;
+	Storage_class*		StA						;
 	file_structure*		fs						;
 	Note_class*			Notes					;
-
 	Scanner_class*		scanner					;
+	const uint8_t		notes_per_sec			= 8;
+	int					max_notes				;
+	Notevector_t		Note_vec				;
 
 public:
 
 	Data_t*				Kbd_Data;
-	bool				Enabled					= false;
+	bool				Enabled					;
 
 						Keyboard_class			( 	Instrument_class*,
 													Storage_class*,
 													Note_class* );
 						Keyboard_class			(); // see comstack
 	virtual 			~Keyboard_class			();
-	void 				Dispatcher				( kbdInt_t key );
+	void 				Dispatcher				( kbdInt_t key, bool trigger );
 	void 				Set_instrument			();
 	void 				Enable					( bool iskbd );
 	void 				ScanData				();
 	void 				Show_help				( bool tty );
-	void				Set_key					();
-	bool 				Save_notes				();
+	void				Set_kbdstate			();
+	bool 				Save_notes				( bool save = true );
 
 private:
 
-	uint				max_notes				= 0;//notes_per_sec * 4*max_sec;
-	const int 			releaseCounter			= 0;
+	const int 			releaseCounter			= 1;
 	const int 			attackCounter 			= measure_parts;//rint( max_frames / min_frames );
-	int 				decayCounter 			= 0;
-	uint 				duration_counter 		= 0;// count the beats of note kbd_key
-	uint				holdCounter				= 0;
-	const uint			kbd_volume				= 75;
-	uint8_t 			sta_volume				= kbd_volume;
+	uint8_t				kbd_volume				;
+	float				sta_volume				;
+	int 				decayCounter 			;
+	uint 				duration_counter 		;
+	bool				frqMode					;
+	pitch_vec_t			Pitch_old				;
 	kbdkey_t			Kbd_key					{};
-	feature_t			kbd_adsr				= feature_struct();
-	bool				frqMode					= SLIDE;
-	bool				kbd_trigger				= false;
-	string				Noteline				{};
-	uint				noteline_cnt			= 0;
-	uint8_t				notes_per_sec			= 8;
 
 	void				selfTest				();
 	void 				attack					();
 	void 				release					();
 	bool 				decay					();
-	void 				gen_chord_data			();
+	void 				gen_chord_data			( pitch_vec_t pitch_vec );
+
 	// keyhandler.cpp
 
 	void 				keyHandler				( kbdkey_t kbd );
+	void				release_note			();
 	void 				notekey					( char key );
 	void				set_bufferMode			( bool forget);
-	void 				initNoteVector			();
-
-
 };
 
 

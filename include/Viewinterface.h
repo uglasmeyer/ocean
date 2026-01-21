@@ -38,6 +38,9 @@ SOFTWARE.
 #include <Adsr.h>
 #include <data/Device.h>
 
+/**************************************************
+ * ViewInterface_class
+ *************************************************/
 class ViewInterface_class
 	: virtual public 	Logfacility_class
 	, virtual 			sdsstate_struct
@@ -48,7 +51,6 @@ class ViewInterface_class
 	, wavedisplay_struct
 
 {
-	string 				className 	= "";
 	int					counter		= 0;
 	string				footer		= "";
 	Interface_class*	Sds_p 		= nullptr;

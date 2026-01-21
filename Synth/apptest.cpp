@@ -41,7 +41,7 @@ auto test_cycle2_range = [  ]( range_T<int> range  )
 	int value1 = check_cycle2(range, value0 , "" );
 	Assert_equal( value0 , value1, range_str );
 	int value = range.max;
-	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
+	ASSERTION( 	check_cycle2(range, value , "" ) == range.min, range_str,
 				check_cycle2(range, value, "" ), value );
 	 value = range.min;
 	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
@@ -85,7 +85,6 @@ void SynthesizerTestCases()
 	Mixer_class				Mixer{&DaTA, wd_p };
 
 	Note_class 				Notes{ &Instrument, &Mixer.StA[ STA_NOTES ] };
-	Musicxml_class			MusicXML{ Cfg.fs};
 
 	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
@@ -100,7 +99,7 @@ void SynthesizerTestCases()
 	DaTA.Sds_p->Reset_ifd();
 
 //	Shm_base Shm_test;
-	DaTA.SHM_0.Test_Memory();
+	DaTA.SHM_l.Test_Memory();
 	Frequency_class Frq {};
 	Frq.TestFrequency();
 
@@ -136,8 +135,7 @@ void SynthesizerTestCases()
 
 	Notes.TestNoteBase();
 
-//	Notes.TestNotes();
-	MusicXML.Test();
+	Notes.Test_Musicxml();
 
 	TestOsc.DynFrequency.TestFrq();
 
@@ -172,7 +170,7 @@ void SynthesizerTestCases()
 	DaTA.Test_Dataworld();
 	DaTA.Sds_p->Test_interface();
 
-	Cutter_class	Cutter{ &Mixer };
+	CutDesk_class	Cutter{ &Mixer };
 	Event_class				Event{
 								&Instrument,
 								&Notes,
@@ -182,7 +180,7 @@ void SynthesizerTestCases()
 								&DaTA,
 								&External,
 								&ProgressBar,
-								&MusicXML,
+//								&MusicXML,
 								&Cutter};
 
 	Event.TestHandler();

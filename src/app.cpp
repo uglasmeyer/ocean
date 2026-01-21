@@ -87,8 +87,8 @@ void Application_class::app_properties()
 {
 	properties.logowner		= logowner.contains( AppId );
 	properties.start_once	= Appstate->assignMasterSds.contains( AppId );
-	properties.data_process	= Appstate->Is_dataproc( AppId ) ;
-	properties.keyboard		= Appstate->IsKeyboard();
+	properties.data_process	= Cfg->Process.data_process ;
+	properties.keyboard		= Cfg->Process.keyboard;
 	properties.pid			= Appstate->getPid( sds, AppId );
 	properties.Show();
 }

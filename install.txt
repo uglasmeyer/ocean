@@ -14,8 +14,8 @@ $  ./oceansetup.sh
 
 	Hint: This command will setup two environment variables. The PATH and 
 	the LD_LIBRARY_PATH and creates a desktop file
-	To activate the desktop file OceanGUI.desktop it is helpfull to 
-	enter the command
+	To activate the desktop file OceanGUI.desktop it is helpfull (instead
+	of login/logout) to enter the command
 $ sudo update-desktop-database
  
 3.	Source the Ocean-SL-rc-file 

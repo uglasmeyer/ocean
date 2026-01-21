@@ -86,7 +86,7 @@ extern  		int 				sgn( const float& x );
 
 
 #define MODPHI( phi, maxphi )\
-	( abs(phi) > (maxphi) ) ? (phi) - sgn(phi)*(maxphi) : phi;
+	( abs(phi) > maxphi ) ? ( phi - sgn(phi)*maxphi ) : phi;
 
 
 #endif /* OSCWAVEFORM_H_ */

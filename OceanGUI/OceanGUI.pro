@@ -26,8 +26,8 @@ HEADERS += \
     include/Dispatcher.h
 
 FORMS += \
+    CutDesk_Dialog.ui \
     File_Dialog_class.ui \
-    cutterdialog.ui \
     keyboad_dialog.ui \
     mainwindow.ui \
     Rtsp_dialog_class.ui \

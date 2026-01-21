@@ -33,24 +33,22 @@ SOFTWARE.
 #include <Oscwaveform.h>
 
 ADSR_class::ADSR_class( OSCID_e _typeid )
-	: Logfacility_class("ADSR_class")
-	, Spectrum_class()
-	, Oscillator_base( _typeid )
+	: Logfacility_class	("ADSR_class")
+	, Spectrum_class	()
+	, Oscillator_base	( _typeid )
+	, adsr_Mem			( monobuffer_bytes )
 {
-	className 			= Logfacility_class::className;
-	Set_adsr			( default_adsr );
+	this->hall_cursor 	= 0;
+	this->beat_cursor 	= 0;
+	this->tainted		= true; // becomes true if adsr_data changes
+	this->beat_frames	= max_frames;
+	this->adsr_frames 	= adsr_Mem.mem_ds.data_blocks ;
+	this->adsr_data		= adsr_struct();
 	adsr_data.spec.osc	= _typeid;
-};
 
-ADSR_class::ADSR_class()
-	: Logfacility_class("ADSR_class")
-	, Spectrum_class()
-	, Oscillator_base()
-{
-	className 	= Logfacility_class::className;
-	Set_adsr	( default_adsr );
+	Set_kbdbps			( 1 );
+	Set_adsr			( default_adsr );
 };
-
 
 ADSR_class::~ADSR_class()
 {
@@ -58,6 +56,11 @@ ADSR_class::~ADSR_class()
 		coutf << "~" << className << endl;
 }
 
+Data_t* ADSR_class::Adsr_OSC()
+{
+	adsrOSC( beat_frames );
+	return adsr_Mem.Data;
+}
 Data_t* ADSR_class::AdsrMemData_p()
 {
 	return adsr_Mem.Data;
@@ -70,9 +73,9 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 
 	if ( tainted ) adsrOSC( beat_frames );
 
-	float		dbB 		= 0.5;
-	float 		dbH			= 1.0 - dbB;
-	uint		pos			= frame_offset;
+	const float	dbB 	= 0.5;
+	const float dbH		= 1.0 - dbB;
+	uint		pos		= frame_offset;
 
 	for ( uint m = 0; m < frames; m++ )
 	{
@@ -117,9 +120,13 @@ auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_
 void ADSR_class::adsrOSC( const buffer_t& bframes )
 {
 
-	if ( bframes == 0 ) 		return;
 	if ( not tainted ) 			return;
 	tainted 					= false;
+	if ( bframes == 0 )
+	{
+		adsr_Mem.Clear_data(0);
+		return;
+	}
 
 	buffer_t		aframes 	= rint( bframes * 0.002 );
 	if ( adsr_data.attack 	> 0 )
@@ -129,12 +136,24 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 	const float		y0 			= expf( - delta );
 	const float 	dy			= (1.0 - y0) / aframes;
 
-	Spectrum_class::Sum( adsr_data.spec );
+	Spectrum_class::Sum			( adsr_data.spec );
 
-	for ( buffer_t n = 0; n < bframes ; n++ )
+	buffer_t		n			;
+	for ( n = 0; n < bframes ; n++ )
 	{
 		adsr_Mem.Data[n] 		= adsr_data.spec.vol[0] * adsr_fnc( aframes, n, y0, dy, d_delta );
 	}
+//	if( adsr_Mem.Data[n-1] > 0 ) 	// release
+//	{
+//		const buffer_t	len		= 1000;
+//		const buffer_t 	x0		= bframes - len;
+//		const Data_t	y0		= adsr_Mem.Data[n-1];
+//		const Data_t	dy		= y0 / len;
+//		for( buffer_t m = 0; m < len; m++ )
+//		{
+//			adsr_Mem.Data[x0 + m] = ( y0 - dy * m );
+//		}
+//	}
 	for ( buffer_t n = bframes; n < adsr_frames ; n++ )
 	{
 		adsr_Mem.Data[n] 		= 0.0;
@@ -151,14 +170,13 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 		if ( spec.volidx[channel] > 0 )
 		{
 
-			uint8_t			wfid		= spec.wfid[ channel ];
+			const uint8_t	wfid		= spec.wfid[ channel ];
 			wave_function_t	fnc			= adsrFunction_vec[ wfid ].fnc ;
 							param.maxphi= adsrFunction_vec[ wfid ].maxphi;
-			float 			dT 			= param.maxphi / bframes;
-							param.dphi	= dT * spec.frqadj[ channel ];// * adsr_data.bps;
+			const float		dT 			= param.maxphi / bframes;
+							param.dphi	= dT * spec.frqadj[ channel ];
 							param.phi	= 0.0;
 							param.amp	= spec.volidx[ channel ] * percent/adsrFunction_vec[ wfid ].width;
-							//spec.vol[ channel ] / adsrFunction_vec[ wfid ].width  ;
 			for ( buffer_t n = 0; n < bframes ; n++ )
 			{
 				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] * fnc( param );
@@ -192,27 +210,35 @@ void ADSR_class::Set_feature( feature_t f )
 }
 void ADSR_class::Set_kbdbps( uint8_t bps )
 {
-	kbdbps = bps;
+	tainted 	= true;
+	kbdbps 		= bps;
 }
-void ADSR_class::Set_bps()
+void ADSR_class::Set_bps( uint8_t bps )
 {
 	tainted 	= true;
+	beat_frames = 0;
 	if ( ( has_notes_role ) )	// overwrite instrument settings
 	{
 		adsr_data.bps 	= 1;
-		beat_frames 	= wp.frames;//rint( adsr_frames / adsr_data.bps );//
+		beat_frames 	= wp.frames;
 	}
 	else
 	{
 		if( has_kbd_role )
+		{
 			adsr_data.bps = kbdbps;
+		}
+
 		if ( adsr_data.bps > 0 )
 			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else
 			beat_frames = 0;
-	}
-//	adsrOSC( beat_frames );
 
+		if ( bps > 0 )
+			beat_frames = rint( beat_frames / bps );
+		else
+			beat_frames = 0;
+	}
 }
 void ADSR_class::Set_adsr_spec	( spectrum_t spec )
 {
@@ -222,12 +248,11 @@ void ADSR_class::Set_adsr_spec	( spectrum_t spec )
 
 adsr_t ADSR_class::Set_adsr( adsr_t _adsr )
 {
-	adsr_data 	= _adsr;
-	tainted 	= true;
-	Set_bps( );
-	Set_hallcursor();
-	return adsr_data;
-//	adsrOSC( beat_frames );
+	adsr_data 		= _adsr;
+	tainted 		= true;
+	Set_bps			( );
+	Set_hallcursor	();
+	return 			adsr_data;
 }
 
 adsr_t ADSR_class::Get_adsr()

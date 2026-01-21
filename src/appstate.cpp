@@ -33,24 +33,25 @@ SOFTWARE.
 #include <data/Appstate.h>
 #define NoSDSID -1
 
+/**************************************************
+ * Appstate_class
+ *************************************************/
 Appstate_class::Appstate_class( APPID 			appid,
 								sds_vec_t		_sds_vec ) :
 	Logfacility_class("Appstate_class"),
 	sdsstate_struct()
 {
-	className 	= Logfacility_class::className;
 	AppId 		= appid;
-	AppType		= ( appid == KEYBOARDID ) ? SYNTHID : appid;
 	sds_vec 	= _sds_vec ;
+
+	AppType		= ( appid == KEYBOARDID ) ? SYNTHID : appid;
 	Assert_equal( sds_vec[0]->appstate_arr[SYNTHID].type, SYNTHID );
 	SDSid		= assign_sdsid( AppType );
 	if ( SDSid == NoSDSID  )
 	{
 		Comment( INFO, "Application id", AppId, "is already registered","on SDS", 0L );
 		Comment( ERROR, "Cannot get valid SDS ID" ) ;
-
-		sds_vec.clear();
-		return;
+		raise( SIGILL );
 	}
 	sds_master	= sds_vec[0];
 	sds			= sds_vec[SDSid];
@@ -138,12 +139,6 @@ bool Appstate_class::IsOffline( interface_t* sds, APPID appid )
 bool Appstate_class::IsExitserver( interface_t* sds, APPID appid )
 {
 	bool flag = ( EXITSERVER == GetState( sds, appid ));
-	return flag;
-}
-
-bool Appstate_class::IsKeyboard	()
-{
-	bool flag = ( is_atty and ( this->AppId	== KEYBOARDID ));
 	return flag;
 }
 
@@ -276,7 +271,3 @@ int Appstate_class::GetNextSdsId(  ) // external use by GUI
 	return ID;
 }
 
-bool Appstate_class::Is_dataproc( APPID appid )
-{
-	return dataProc.contains( appid );
-}

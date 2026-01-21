@@ -44,24 +44,25 @@ Semaphore_class::~Semaphore_class()
 }
 void Semaphore_class::init()
 {
-	Comment( INFO, "initializing the semaphore facility");
-	Comment( INFO, "using semaphore key " + to_string( SEM_KEY));
-    semid = semget( SEM_KEY, SEMNUM_SIZE, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
+	Info( "initializing the semaphore facility with key", SEM_KEY );
+
+	semid = semget( SEM_KEY, SEMNUM_SIZE, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR );
     if( errno == EEXIST )
     {
         semid = semget( SEM_KEY, SEMNUM_SIZE, SEM_INIT );
+        errno = 0;
     }
     else
     {
-    	Comment( INFO, "creating semaphore set " + to_string( semid ));
+        if (semid < 0)
+        {
+        	Exception( "System Error");
+        }
+    	Info( "creating semaphore set ", semid );
     }
-    if (semid < 0)
-    {
-        perror("semget");
-        exit( SIGHUP );
-    }
+
     State( SEMNUM_SIZE );
-	Comment( INFO, "attached to semaphore set " + to_string( semid ));
+	Info( "attached to semaphore set ", semid );
 }
 
 void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
@@ -108,12 +109,12 @@ void Semaphore_class::Reset( uint8_t num )
 
 void Semaphore_class::Aquire( uint8_t num )
 {
-	; // increase the semaphore ( OP_INC )
+	// increase the semaphore ( OP_INC )
 	Semop( num, OP_INC );
 }
 void Semaphore_class::Release( uint8_t num)
 {
-	;	// decrease the semaphore ( OP_DEC )
+	// decrease the semaphore ( OP_DEC )
 	if ( not ( Getval(num, GETVAL) > 0 ) ) return;
 	Semop( num, OP_DEC );
 }
@@ -138,7 +139,7 @@ void ReleaseProxy_fnc( 	Semaphore_class* 	sem,
 
 bool Semaphore_class::Lock( uint8_t num, uint timeout )
 {
-	;	// wait for release
+	// wait for release
 	thread ReleaseProxy_thread (	ReleaseProxy_fnc, this, num, timeout );
 
 	ReleaseProxy_thread.detach();
@@ -164,7 +165,7 @@ string Semaphore_class::State(uint8_t num)
 	Table.AddColumn("ncn", 4);
 	Table.AddColumn("zcn", 4);
 
-	auto cout_semstate = [ & ](uint num)
+	auto show_semstate = [ & ](uint num)
 	{
 		if ( (LogMask[TEST]) or (LogMask[DEBUG]) )
 			Table.AddRow(	num,
@@ -178,12 +179,12 @@ string Semaphore_class::State(uint8_t num)
 	if (num == SEMNUM_SIZE)
 	{
 		for (uint n = 0; n < SEMNUM_SIZE; n++)
-			cout_semstate(n);
+			show_semstate(n);
 		return "";
 	}
 	else
 	{
-		cout_semstate(num);
+		show_semstate(num);
 		return "";
 	}
 }

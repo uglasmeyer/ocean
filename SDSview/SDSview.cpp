@@ -23,6 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 #include <Appsymbols.h>
+
 void exit_proc( int s )
 {
 	Sem.Release( SEMAPHORE_EXIT );
@@ -154,7 +155,7 @@ kbdInt_t SwitchF7( kbdInt_t key )
 
 	switch ( (key) )
 	{	case 'g' :
-		case 'G' : { getvalue( &sds->features[OSCID].glide_effect	, "effect"	, SOFTFREQUENCYKEY ); break; }
+		case 'G' : { getvalue( &sds->features[OSCID].slide_frq	, "effect"	, SOFTFREQUENCYKEY ); break; }
 		case 'b' :
 		case 'B' : { getvalue( &sds->adsr_arr[OSCID].bps  			, "Beats p.sec"	, ADSR_KEY ); break; }
 		case 'h' :
@@ -223,6 +224,16 @@ int main( int argc, char* argv[] )
 {
 	App.Start( argc, argv );
 
+	if( Cfg.Config.clearipc == 'y' )
+	{
+		DaTA.Appstate.Shutdown_all( DaTA.SDS.vec );
+		for( Interface_class& Sds : DaTA.SDS.Vec )
+		{
+			Sds.Remove_dumpFile();
+		}
+		DaTA.SDS.Delete();
+		raise( SIGINT );
+	}
 	MenuMain.Loop();
 	return 0;
 

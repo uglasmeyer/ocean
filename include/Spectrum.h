@@ -41,7 +41,6 @@ enum  { SPEV, SPEF, SPEW };
 #include <Ocean.h>
 #include <Logfacility.h>
 #include <Frequency.h>
-#include <Oscwaveform.h>
 #include <Table.h>
 
 
@@ -54,53 +53,42 @@ typedef array<phi_t		 ,	SPECARR_SIZE>
 typedef array<uint8_t	 ,	SPECARR_SIZE>
 							spec_arr_8t;
 
-struct spec_struct
+
+struct spectrum_data
 {	// SDS  related
 	spec_arr_ft					vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
 	spec_arr_ft					frqadj	= { 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
-	spec_arr_8t					frqidx 	= { A3, 1, 1, 1, 1 };				// frq slider value
+	spec_arr_8t					frqidx 	= { A3, 0, 0, 0, 0 };				// frq slider value
 	spec_arr_8t					volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
 	spec_dta_ft					sum 	= 1.0;								// sum over .vol
 	spec_arr_8t					wfid 	= { 0,0,0,0,0 };// waveform wdid
 	OSCID_e						osc 	= OSCID;
 	bool						adsr	= false;
 } ;
+typedef spectrum_data			spectrum_t;
+const spectrum_t 				default_spectrum	= spectrum_data();
 
+/**************************************************
+ * Spectrum_class
+ *************************************************/
 class Spectrum_class :
-	public 	virtual 			Logfacility_class,
-	public	virtual 			oscwaveform_struct,
-	public	virtual 			Frequency_class,
-	public 	virtual				osc_struct
-
+	public	virtual 			Frequency_class
 {
-	string 						className 			= "";
-
 public:
 
-	spec_struct					test_spectrum		=
-	{
-								.vol				= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
-								.frqadj				= { 1.0, 2.0, 3.0, 4.0, 5.0 },
-								.frqidx 			= { A3, C0, C0, C0, C0 },
-								.volidx 			= { 100, 0, 0, 0, 0 },
-								.sum 				= 1.0,
-								.wfid 				= { SINUS, 0,0,0,0},
-								.osc 				= OSCID,
-								.adsr				= false
-	};
 
-	spec_struct					Parse_data			( vector_str_t arr );
+	spectrum_data				Parse_data			( vector_str_t arr );
 	int 						Get_waveform_id		( string );
 	string 						Get_waveform_str	( int );
 	vector<string>				Get_waveform_vec	( );
-	spec_struct					Get_spectrum		();
-	string 						Show_spectrum		( const spec_struct spec );
-	string 						Show_spectrum_type	( const int& _type, const spec_struct& spec );
-	void						Show_spectrum_table	(fstream* f,
-													const spec_struct& spec,
+	spectrum_data				Get_spectrum		();
+	string 						Show_spectrum		( const spectrum_data spec );
+	string 						Show_spectrum_type	( const int& _type, const spectrum_data& spec );
+	void						Show_spectrum_table	( ostream& f,
+													const spectrum_data& spec,
 													bool header = true );
 	Table_class*				Get_spectrum_table	();
-	void 						Sum					( spec_struct& );
+	void 						Sum					( spectrum_data& );
 	char 						Type_flag			( const string& type_str );
 	OSCID_e						Osc_TypeId			( const string& type_str );
 
@@ -113,7 +101,7 @@ public:
 private:
 	const array<int		,3> 	spectrumNum 		= {  SPEV,   SPEF,   SPEW  };
 	const array<string	,3> 	spectrumTag 		= { "SPEV", "SPEF", "SPEW" };
-	spec_struct					spectrumTmp			= spec_struct();
+	spectrum_data				spectrumTmp			= spectrum_data();
 
 	void 						assign_frq			( int channel, string str  );
 	void 						assign_vol			( int channel, string str  );
@@ -123,7 +111,6 @@ private:
 
 };
 
-typedef spec_struct				spectrum_t;
-const spectrum_t 				default_spectrum	= spec_struct();
+
 
 #endif /* INCLUDE_SPECTRUM_H_ */

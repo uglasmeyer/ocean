@@ -35,6 +35,9 @@ SOFTWARE.
 #include <Viewinterface.h>
 #include <Kbd.h>
 
+/**************************************************
+ * Menue_class
+ *************************************************/
 class Menue_class :
 	virtual public Logfacility_class
 {

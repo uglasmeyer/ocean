@@ -45,7 +45,7 @@ class Event_class
 	, virtual			osc_struct
 	, 					sdsstate_struct
 {
-	string 				className = "";
+	StAExternal_class	StAExternal;
 
 	Interface_class* 	Sds;
 	Interface_class*	Sds_master;
@@ -55,13 +55,12 @@ class Event_class
 	Note_class*			Notes;
 	Keyboard_class*		Keyboard;
 	Mixer_class*		Mixer;
-	Cutter_class*		Cutter;
+	CutDesk_class*		CutDesk;
 	Wavedisplay_class*	Wavedisplay;
 	Dataworld_class*	DaTA;
 	Semaphore_class*	Sem;
 	External_class*		External;
 	ProgressBar_class*	ProgressBar;
-	Musicxml_class*		MusicXML;
 	EventQue_class*		EventQue;
 	Appstate_class*		Appstate;
 
@@ -75,12 +74,11 @@ public:
 				Dataworld_class*	data,
 				External_class*		external,
 				ProgressBar_class*	progressbar,
-				Musicxml_class*		musicxml,
-				Cutter_class*		cutter )
+				CutDesk_class*		cutter )
 		: Logfacility_class("Event_class")
 		, sdsstate_struct()
+	, StAExternal( &mixer->StA, data->Cfg_p, data->Sds_p->addr )
 	{
-		className = Logfacility_class::className;
 		this->DaTA			= data;
 		this->Sds			= DaTA->Sds_p;
 		this->Sds_master	= DaTA->Sds_master;
@@ -95,9 +93,9 @@ public:
 		this->Wavedisplay	= wavedisplay;
 		this->External		= external;
 		this->ProgressBar	= progressbar;
-		this->MusicXML		= musicxml;
+//		this->MusicXML		= musicxml;
 		this->Appstate		= &DaTA->Appstate;
-		this->Cutter		= cutter;
+		this->CutDesk		= cutter;
 	};
 	virtual ~Event_class() = default;
 

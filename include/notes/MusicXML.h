@@ -38,6 +38,17 @@ SOFTWARE.
 
 using namespace tinyxml2;
 
+typedef struct xmlnote_value_struct
+{
+
+	int duration 	= 0;
+	string type 	= "";
+	bool dot		= false;
+	xmlnote_value_struct( note_t note, int divisions );
+	~xmlnote_value_struct() = default;
+
+} xmlnote_value_t;
+
 struct xmlstatistic_struct
 {
 	Table_class 	Table		{};
@@ -46,28 +57,10 @@ struct xmlstatistic_struct
 	int				Chords		= 0;
 	int				Align		= 0;
 	int				Duration	= 0;
-	xmlstatistic_struct()
-	{
-		InitTable();
-	};
+	xmlstatistic_struct();
 	~xmlstatistic_struct()=default;
-	void InitTable()
-	{
-		Table.opt.Titel = "Score statistics";
-		Table.AddColumn("Item", 25);
-		Table.AddColumn( "Value", 6 );
-	}
-	void Show( bool debug )
-	{
-		if( not debug ) return;
-
-		Table.PrintHeader();
-		Table.AddRow( "Measures:"	, Measures );
-		Table.AddRow( "Chords:"		, Chords );
-		Table.AddRow( "Notes:"		, xmlNotes );
-		Table.AddRow( "Align:"		, Align );
-		Table.AddRow( "Score duration", Duration );
-	}
+	void InitTable();
+	void Show( bool debug );
 };
 
 class Musicxml_class

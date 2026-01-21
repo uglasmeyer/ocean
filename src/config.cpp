@@ -60,8 +60,8 @@ source_struct::source_struct( string srcdir )
 		srcdir 	= trailing_dirslash( notnull( getenv("OCEANSRC") ) );
 	if ( srcdir.length() == 0 )
 		srcdir  = trailing_dirslash( notnull( getenv("PWD") ) ) + "../";
-	sourcedir		= srcdir;
 
+	sourcedir		= srcdir;
 	resourcedir		= resourceDir();
 	files			= { resourcedir, archdir };
 }
@@ -195,7 +195,9 @@ Config_class::Config_class() :
 
 
 Config_class::~Config_class()
-{ DESTRUCTOR( className ); };
+{
+	DESTRUCTOR( className );
+};
 
 void Config_class::setAppCWD( string cwd )
 {
@@ -318,9 +320,11 @@ void Config_class::Read_config(	string cfgfile )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
 	}
-	Config.SHM_keyl = Config.SHM_key;
-	Config.SHM_keyr = Config.SHM_key + 1;
-
+	if( Process.data_process )
+	{
+		Config.SHM_keyl = Config.SHM_key;
+		Config.SHM_keyr = Config.SHM_key + 1;
+	}
 
 	Config.test		= get_char( Config.test, "test" );
 	std::set<char> yn = {'n', 'y', 0 };
@@ -389,6 +393,7 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 		{
 			case 'c' : 	{ Config.channel		= Str.to_int( next ); break; }
 			case 'd' : 	{ Config.device 		= Str.to_int( next ); break; }
+			case 'i' :	{ Config.clearipc		= 'y'				; break; }
 			case 'k' : 	{ Config.SDS_key 		= Str.to_int( next ); break; }
 			case 'o' : 	{ Config.ch_offs		= Str.to_int( next ); break; }
 			case 'r' : 	{ Config.rate 		= Str.to_int( next ); break; }

@@ -97,14 +97,14 @@ struct sta_role_map
 {
 	const vector<sta_rolemap_data_t> sta_map_vec =
 	{
-		{ INSTRROLE		, STA_INSTRUMENT },
-		{ NOTESROLE		, STA_NOTES },
-		{ KBDROLE		, STA_KEYBOARD },
-		{ EXTERNALROLE	, STA_EXTERNAL },
 		{ USER00ROLE	, STA_USER00 },
 		{ USER01ROLE	, STA_USER01 },
 		{ USER02ROLE	, STA_USER02 },
-		{ USER03ROLE	, STA_USER03 }
+		{ USER03ROLE	, STA_USER03 },
+		{ INSTRROLE		, STA_INSTRUMENT },
+		{ KBDROLE		, STA_KEYBOARD },
+		{ NOTESROLE		, STA_NOTES },
+		{ EXTERNALROLE	, STA_EXTERNAL }
 	};
 	StAId_e GetStaid( RoleId_e role )
 	{

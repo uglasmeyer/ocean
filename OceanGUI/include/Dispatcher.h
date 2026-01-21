@@ -36,12 +36,17 @@ SOFTWARE.
 #include <QObject>
 #include <QThread>
 #include <Ocean.h>
+
+// Ocean-SL
 #include <Logfacility.h>
 #include <data/Semaphore.h>
 #include <data/DataWorld.h>
 #include <EventKeys.h>
 #include <include/Mainwindow.h>
 
+/**************************************************
+ * Dispatcher_class
+ *************************************************/
 class Dispatcher_class :
 		public QObject,
 		virtual Logfacility_class
@@ -64,7 +69,10 @@ signals:
     void UpdateRtspLog(const QString& Qlog_str);
     void UpdateFileList();
     void UpdateFileDialog();
+    void UpdateSpectrumDialog();
+    void UpdateKeyboardDialog();
     void UpdateColorButtons();
+    void UpdateCutDesk();
     void finished();
 
 private:

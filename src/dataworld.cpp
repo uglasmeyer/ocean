@@ -37,37 +37,44 @@ SOFTWARE.
  *************************************************/
 Dataworld_class::Dataworld_class( 	Config_class* cfg,
 									Semaphore_class* sem )
-	:Logfacility_class( "Dataworld_class")
-	,SDS( cfg->Process.AppId, cfg, sem )
-	,Appstate( cfg->Process.AppId, SDS.vec )
+	: Logfacility_class( "Dataworld_class")
+	, AppId				( cfg->Process.AppId )
+	, SDS				( AppId, cfg, sem )
+	, Appstate			( AppId, SDS.vec )
+	, SDS_Id			( Appstate.SDSid )
+	, SHM_l				{ sizeof_Stereo, audio_frames * sizeof_Stereo, cfg->Config.SHM_keyl }
+	, SHM_r				{ sizeof_Stereo, audio_frames * sizeof_Stereo, cfg->Config.SHM_keyr }
 {
 
-	className = Logfacility_class::className;
-	this->AppId	= cfg->Process.AppId;
-	this->Cfg_p = cfg;
-	this->Sem_p = sem;
+	this->Cfg_p 		= cfg;
+	this->Sem_p 		= sem;
 
-	SDS_Id 		= Appstate.SDSid;
-	if( SDS_Id < 0 )
-	{
-		Exception( "cannot initialize data world ", SIGILL );
-	}
-	Sds_master	= SDS.Master;
-	sds_master 	= SDS.master;//(interface_t*) SdsVec.vec[0].ds.addr;
-	Sds_p 		= SDS.GetSds( SDS_Id );
+	this->Sds_master	= SDS.Master;
+	this->sds_master 	= SDS.master;
+	this->Sds_p 		= SDS.GetSds( SDS_Id );
 
-	if ( Appstate.Is_dataproc( AppId ) )
+	init_shared_data();
+}
+
+void Dataworld_class::init_shared_data()
+{
+	if ( Cfg_p->Process.data_process  )
 	{
 		Comment(INFO,"Attaching stereo buffers");
 
-		init_Shm( SHM_0, Cfg_p->Config.SHM_keyl, 0 );
-		ShmAddr_0 = (Stereo_t*) SHM_0.ds.addr;
+		init_Shm( SHM_l, Cfg_p->Config.SHM_keyl, 0 );
+		ShmAddr_l = (Stereo_t*) SHM_l.shm_ds.addr;
 
-		init_Shm( SHM_1, Cfg_p->Config.SHM_keyr, 1 );
-		ShmAddr_1 = (Stereo_t*) SHM_1.ds.addr;
+		init_Shm( SHM_r, Cfg_p->Config.SHM_keyr, 1 );
+		ShmAddr_r = (Stereo_t*) SHM_r.shm_ds.addr;
 	}
 }
-
+void Dataworld_class::init_Shm( Shm_base& SHM, key_t key, uint idx )
+{
+	// Shared Memory
+	SHM.shm_ds.Id 	= idx;
+	SHM.ShowDs		( SHM.shm_ds );
+}
 Interface_class* Dataworld_class::GetSds(  )
 {
 	return SDS.GetSds( SDS_Id );
@@ -81,34 +88,28 @@ interface_t* Dataworld_class::GetSdsAddr( )
 
 Dataworld_class::~Dataworld_class()
 {
-	if ( Appstate.Is_dataproc( AppId) )
+	if ( Cfg_p->Process.data_process )
 	{
-		SHM_0.Detach( SHM_0.ds.addr );
-		SHM_1.Detach( SHM_1.ds.addr );
+		SHM_l.Detach( SHM_l.shm_ds.addr );
+		SHM_r.Detach( SHM_r.shm_ds.addr );
 	}
 	DESTRUCTOR( className );
 }
 
 
-void Dataworld_class::init_Shm( Shared_Memory& SHM, key_t key, uint idx )
-{
-	// Shared Memory
-	SHM.Stereo_buffer( key );
-	SHM.ds.Id = idx;
-	SHM.ShowDs( SHM.ds );
-}
 
 
-void Dataworld_class::ClearShm( const buffer_t& frames )
+
+void Dataworld_class::ClearShm()
 {
 	int 			shm_id 	= sds_master->SHMID;
-	( shm_id == 0 ) ? SHM_0.Clear( frames ) : SHM_1.Clear( frames );
+	( shm_id == 0 ) ? SHM_l.Clear() : SHM_r.Clear();
 }
 
 Stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 {
 	uint8_t			shm_id 	= sds_master->SHMID;
-	Stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_1 : ShmAddr_0;
+	Stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_r : ShmAddr_l;
 	return addr;
 
 }
@@ -119,7 +120,7 @@ Stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 	uint8_t			shm_id 	= sds_master->SHMID;
 
 	shm_id 	= ( shm_id + 1 ) % 2;
-	addr 	= (	shm_id == 0 ) ? ShmAddr_0 : ShmAddr_1;
+	addr 	= (	shm_id == 0 ) ? ShmAddr_l : ShmAddr_r;
 	sds_master->SHMID 	= shm_id;
 
 	return addr;
@@ -147,11 +148,11 @@ void Dataworld_class::Test_Dataworld()
 		cout << "read/write on Sds " << sdsid << " ok: " << str << endl;
 	}
 	sds_master->SHMID = 0;
-	ClearShm( min_frames );
+	ClearShm( );
 	cout << "read/write on SHM " << 0 << " ok: " << endl;
 
 	sds_master->SHMID = 1;
-	ClearShm( min_frames );
+	ClearShm( );
 	cout << "read/write on SHM " << 1 << " ok: " << endl;
 	TEST_END( className );
 
@@ -166,7 +167,6 @@ SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p
 	for ( Id_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
 	{
 		Interface_class	Sds 		{ appid, sdsid, Cfg_p, Sem_p };
-//		interface_t* 	sds 		= (interface_t*) Sds.ds.addr;
 		interface_t* 	sds 		= Sds.addr;
 						sds->SDS_Id = sdsid;
 		vec  .push_back( sds );
@@ -177,9 +177,6 @@ SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p
 	master		= GetSdsAddr( 0 );
 	Master		= GetSds( 0 );
 }
-
-SDS_struct::~SDS_struct()
-{ DESTRUCTOR( className ); }
 
 Interface_class* SDS_struct::GetSds( int id )
 {
@@ -206,10 +203,9 @@ void SDS_struct::Delete()
 	}
 }
 
-/****************
+/**************************************************
  * EventLog_class
- ***************/
-
+ *************************************************/
 EventLog_class::EventLog_class( Dataworld_class* _data ) :
 	Logfacility_class("EventLog_class")
 {

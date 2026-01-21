@@ -24,13 +24,14 @@ SOFTWARE.
 
 #include <Audioserver.h>
 
+
 void errorCallback( RtAudioErrorType, const std::string& txt )
 {
 	Log.Comment(ERROR, txt ) ;
 	errno =  0;
 }
 
-bool 					RecordThreadDone 	= false;
+//bool 					RecordThreadDone 	= false;
 void save_record_fcn()
 {
 	string filename		= Record.External.Save_record_data( sds_master->FileNo );
@@ -95,16 +96,16 @@ void Application_loop()
 
 void write_waveaudio()
 {
-	if ( sds->WD_status.roleId != AUDIOROLE )
+	if ( sds->WD_state.roleId != AUDIOROLE )
 		return;
 
 
 	for( buffer_t n = 0; n < audioframes; n++ )
 	{
-		mono_out.Data[n] = stereo.stereo_data[n].left + stereo.stereo_data[n].right;//shm_addr[n].left + shm_addr[n].right;
+		wd_mono_mem.Data[n] = stereo.stereo_data[n].left + stereo.stereo_data[n].right;//shm_addr[n].left + shm_addr[n].right;
 	}
 
-	Wavedisplay.SetDataPtr( sds->WD_status );
+	Wavedisplay.Set_DataPtr( sds->WD_state );
 	Wavedisplay.Write_wavedata();
 }
 
@@ -119,8 +120,8 @@ void Request_data()
 
 void call_for_update()
 {
-	DaTA.ClearShm( audioframes );
-	shm_addr = DaTA.SetShm_addr( );
+	DaTA.ClearShm();
+	shm_addr = DaTA.SetShm_addr();
 
 	Volume.Transform( audioframes, shm_addr, stereo.stereo_data );
 
@@ -215,8 +216,8 @@ int main( int argc, char *argv[] )
 	WD_data_t wd_status 	= WD_data_struct();
 	wd_status.roleId 		= AUDIOROLE;
 	wd_status.oscId 		= OSCID;
-	Wavedisplay.Add_role_ptr( wd_status.roleId, mono_out.Data, &audioframes);
-	Wavedisplay.SetDataPtr( wd_status );
+	Wavedisplay.Add_role_ptr( wd_status.roleId, wd_mono_mem.Data, &audioframes);
+	Wavedisplay.Set_DataPtr( wd_status );
 
 // end parametrization
 // -------------------------------------------------------------------------------

@@ -41,11 +41,10 @@ SOFTWARE.
 class Appstate_class :
 	virtual public Logfacility_class,
 	virtual public sdsstate_struct,
-			public AppMap_struct
+	virtual	public AppMap_struct
 
 {
 public:
-	string 			className 			= "";
 	string			Name 				= "";
 	APPID 			AppId				;
 	APPID 			AppType				;
@@ -53,9 +52,14 @@ public:
 	interface_t* 	sds 				= nullptr;
 	interface_t* 	sds_master			= nullptr;
 	sds_vec_t		sds_vec				{};
-	const set<APPID>dataProc			{ AUDIOID, SYNTHID, KEYBOARDID };
 
-	const set<APPID>assignMasterSds 	{ AUDIOID, GUI_ID, RTSPID, COMPID, KEYBOARDID, TESTPRGID } ;
+	const set<APPID>assignMasterSds 	{ SDSVIEWID,
+											AUDIOID,
+											GUI_ID,
+											RTSPID,
+											COMPID,
+											KEYBOARDID,
+											TESTPRGID } ;
 	SdsId_vec_t		all_sdsids			= Iota_T<Id_t>( 0, MAXCONFIG );
 
 	appstate_arr_t	backup_state		{ };
@@ -81,8 +85,6 @@ public:
 	bool			IsRunning  			( interface_t* sds, APPID appid );
 	bool			IsOffline  			( interface_t* sds, APPID appid );
 	bool 			IsExitserver		( interface_t* sds, APPID appid );
-	bool			IsKeyboard			( );
-	bool 			Is_dataproc			( APPID appid );
 
 	void 			SetRunning			( );
 	void 			SetOffline			( );

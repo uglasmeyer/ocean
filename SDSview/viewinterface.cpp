@@ -36,20 +36,18 @@ SOFTWARE.
  * ViewInterface_class
  *************************************************/
 ViewInterface_class::ViewInterface_class( APPID appid, Dataworld_class* DaTA_p )
-	: Logfacility_class( "ViewInterface_class")
-	, sdsstate_struct()
-	, interface_struct()
-	, Device_class( DaTA_p->sds_master )
-	, ADSR_class()
-	, Appstate( appid, DaTA_p->SDS.vec )
+	: Logfacility_class	( "ViewInterface_class")
+	, Device_class		( DaTA_p->sds_master )
+	, Oscillator_base	( OSCID )
+	, ADSR_class		( OSCID )
+	, Appstate			( appid, DaTA_p->SDS.vec )
+	, DaTA				( DaTA_p )
+
 {
-	className 		= Logfacility_class::className;
-	this->DaTA		= DaTA_p;
 	Sds_p			= DaTA->Sds_master;
 	sds_master		= DaTA->sds_master;
 	set_sds			( sds_master );
-	ViewInterface_class::
-	selfTest		();
+	this->selfTest	();
 };
 void ViewInterface_class::selfTest()
 {
@@ -88,16 +86,21 @@ void ViewInterface_class::show_Que()
 		cout << sds_p->wavedata[n] << " " ;
 	cout << " ..." << endl;
 	Table_class Table { "Wavedisplay Status" };
-	Table.AddColumn( "Feature", 20 );
-	Table.AddColumn( "Value", 10 );
+	Table.AddColumn( "Cursor"	, 15 );
+	Table.AddColumn( "Value"	, 10 );
+	Table.AddColumn( "Feature"	, 15 );
+	Table.AddColumn( "Value"	, 10 );
 	Table.PrintHeader();
-	Table.AddRow( "Role"	, roleNames[ sds_p->WD_status.roleId ] );
-	Table.AddRow( "Osc"		, typeNames[ sds_p->WD_status.oscId ] );
-	Table.AddRow( "Mode"	, wavedisplay_struct::types[ sds_p->WD_status.wd_mode ] );
-	Table.AddRow( "FFT"		, wavedisplay_struct::fftmodes[ sds_p->WD_status.fftmode ] );
-	Table.AddRow( "display curor"	, sds_p->WD_status.cursor );
-	Table.AddRow( "record curor"	, sds_p->WD_status.direction );
-	Table.AddRow( "max records"		, sds_p->WD_status.max_records );
+	Table.AddRow( "frames"		, sds_p->WD_state.frames
+				, ""			, "" );
+	Table.AddRow( "move"		, sds_p->WD_state.direction
+				, "Osc"			, typeNames[ sds_p->WD_state.oscId ]);
+	Table.AddRow( "left bound"	, sds_p->WD_state.cursor.min
+				, "FFT"			, wavedisplay_struct::fftmodes[ sds_p->WD_state.fftmode ]);
+	Table.AddRow( "displ.cursor", sds_p->WD_state.cursor.cur
+				, "Role"		, roleNames[ sds_p->WD_state.roleId ] );
+	Table.AddRow( "right bound"	, sds_p->WD_state.cursor.max
+				, "Mode"		, wavedisplay_struct::types[ sds_p->WD_state.wd_mode ]);
 }
 void ViewInterface_class::show_Ipc()
 {
@@ -131,7 +134,7 @@ void ViewInterface_class::show_spectrum()
     T->PrintHeader();
 	for ( Id_t oscid : oscIds )
 	{
-		Show_spectrum_table( nullptr, sds_p->spectrum_arr[oscid], false );
+		Show_spectrum_table( cout, sds_p->spectrum_arr[oscid], false );
 	}
 	Table_class Adsr{ "OSC Features",15 };
 	Adsr.AddColumn( "Feature"		, 20);
@@ -139,7 +142,7 @@ void ViewInterface_class::show_spectrum()
 	Adsr.AddColumn( "Feature"		, 20);
 	Adsr.AddColumn( "Value"			, 6 );
 	Adsr.PrintHeader();
-	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->features[OSCID].glide_effect,
+	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->features[OSCID].slide_frq,
 					"(b)eats per second", (int)sds_p->adsr_arr[OSCID].bps );
 	Adsr.AddRow( 	"PWM", (int)sds_p->features[OSCID].PWM,
 					"(h)all", (int)sds_p->adsr_arr[OSCID].hall );
@@ -152,8 +155,7 @@ void ViewInterface_class::show_Adsr()
 {
 	for ( Id_t oscid : oscIds )
 	{
-		adsr_arr[oscid].spec.frqidx[0] = sds_p->adsr_arr[oscid].bps;
-		Show_spectrum_table( nullptr, adsr_arr[oscid].spec );
+		Show_spectrum_table( cout, sds_p->adsr_arr[oscid].spec );
 	}
 	Table_class Adsr{ "OSC Features",15 };
 	Adsr.AddColumn( "Feature", 20);
@@ -255,7 +257,7 @@ void ViewInterface_class::F2_showProcesses()
 								Appstate.Type		( sds_p, appid ));
 	}
 	coutf << Line(80) << endl;
-	T.AddRow( 	"Mixer Id" 		, (int)sds_p->MIX_Id,
+	T.AddRow( 	"Mixer Id" 		, (int)sds_p->StA_Id,
 				"Sync data id" 	, (int)sds_p->SHMID);
 	T.AddRow(	"Audio frames"	, (int)sds_p->audioframes,
 				"Record Progress",(int)sds_p->RecCounter);
@@ -265,7 +267,7 @@ void ViewInterface_class::F2_showProcesses()
 vector<string> typeNames_b { "(V)CO", "(F)MO", "(M)ain" };
 void ViewInterface_class::showOSCs()
 {
-	auto frq_str = [ this ](uint8_t idx)
+	auto frq_str = [ this ](int idx)
 	{
 		float	f	= GetFrq( idx );
 		stringstream strs;
@@ -290,7 +292,7 @@ void ViewInterface_class::showOSCs()
 		T.AddRow( "", 	"(W)aveform"	, Get_waveform_str( sds_p->spectrum_arr[oscid].wfid[0])  );
 	}
 	cout << Line(80) << endl;
-	T.AddRow( 	"Notes" , sds_p->Notes + NotesExtension[ sds_p->NotestypeId ],
+	T.AddRow( 	"Notes" , sds_p->Notes + NotesExtension[ sds_p->NotesTypeId ],
 				"Notes duration" , (int) sds_p->Noteline_sec);
 	T.AddRow(	"Wav filename" , sds_p->Other );
 	T.AddRow( 	"Prefix Octave", (int) sds_p->noteline_prefix.Octave,
@@ -299,8 +301,10 @@ void ViewInterface_class::showOSCs()
 
 void ViewInterface_class::printHeader( KEYCODE keycode )
 {
-	string name = Keymap.Menu( keycode );
-	Table_class T { name , 23  };
+	string menu = Keymap.Menu( keycode );
+	string name	= Keymap.Name( keycode );
+	string head = name + " " + menu;
+	Table_class T { head , 23  };
 	T.AddColumn("Sds Id", 10);
 	T.AddColumn("Config", 8 );
 	T.AddColumn("Addres", 14 );
@@ -344,7 +348,8 @@ void ViewInterface_class::printFooter()
 	T.AddColumn( "Description"	, 20 );
 	T.PrintHeader();
 	T.AddRow( exit_key, exit_txt, "|", "F1","more keyboard keys" );
-	T.AddRow( footer);
+	if( footer.length() > 0 )
+		T.AddRow( footer);
 }
 
 void ViewInterface_class::set_sds( interface_t* sds )

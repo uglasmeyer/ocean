@@ -118,10 +118,6 @@ typedef struct appstate_struct
 	int				pid		= NoPID;
 } appstate_t;
 
-
-
-
-
 const uint 			SDSSTR_SIZE 	= 32; // 31char + 0x0
 const uint  		MAXQUESIZE		= 100;
 typedef 			array<uint8_t	, MAXQUESIZE>				deque_t ;

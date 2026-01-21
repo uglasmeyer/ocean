@@ -69,14 +69,15 @@ struct interface_struct // with reasonable defaults
 
 	/* SDS specific control elements */
 
-	OSCID_e			Spectrum_type				= OSCID_e::OSCID;//default_spectrum.osc;
-	NOTETYPE_e		NotestypeId					= XML_ID; // musicxml
+	OSCID_e			SpectrumTypeId				= OSCID_e::OSCID;//default_spectrum.osc;
+	NOTETYPE_e		NotesTypeId					= XML_ID; // musicxml
 	noteline_prefix_t
 					noteline_prefix				{ Note_base::noteline_prefix_struct() };
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds //
 
-	StAId_e 		MIX_Id						= STA_INSTRUMENT;
-
+	StAId_e 		StA_Id						= STA_INSTRUMENT;
+	uint8_t			beatClock					= 8; // Kbd notes_per measure
+	uint8_t			instrumentClock				= adsr_arr[OSCID].bps;
 	uint8_t	 		FLAG						= CLEAR_KEY;
 	DYNAMIC 		frq_slidermode				= SLIDE;	//
 
@@ -87,7 +88,7 @@ struct interface_struct // with reasonable defaults
 	deque_t			deque						{ NULLKEY };
 	eventptr_t		eventptr					= EventPtr_struct();
 	char			eventstr[512]				{0};
-	WD_data_t		WD_status					= WD_data_struct();
+	WD_data_t		WD_state					= WD_data_struct();
 
 	/* SDS specific control elements end
 	*/
@@ -100,6 +101,7 @@ struct interface_struct // with reasonable defaults
 	KEYCODE			sdsview_page				= KEYCODE::F1;
 	Id_t			sdsview_sdsid				= 0;
 	buffer_t		audioframes					= audio_frames;
+	uint8_t			overmodulated				= false;
 	wd_arr_t		wavedata 					= {};
 	uint8_t 		SHMID 						= 0;//
 	uint8_t 		RecCounter					= 0;		// handshake data exchange//

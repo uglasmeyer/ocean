@@ -15,12 +15,16 @@ void exit_proc( int signal)
  *************************************************/
 #include <Composer/Lineedit.h>
 Kbd_base Kbd {};
+#include <Table.h>
 int main()
 {
-	Lineedit_class Edit { "Line Edit > ", &Kbd };
+/*	Lineedit_class Edit { "Line Edit > ", &Kbd };
 	vector_str_t text = { "Line1", "Line2", "Line3", "Line4", "Line5"};
 	Edit.Text( text );
 	cout << show_str_items( text );
+	*/
+	Table_class T {};
+	T.TestTable();
 	return 0;
 	// Initialize curses
     initscr();

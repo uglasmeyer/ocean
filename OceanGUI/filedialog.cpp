@@ -43,7 +43,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 										Dataworld_class* 	_data,
 										EventLog_class*		_log) :
     Logfacility_class("FileDialog"),
-    Note_class( _data->Sds_p->addr, _data->Cfg_p ),
+    Note_class( _data->Sds_p->addr, _data->Cfg_p->fs ),
 	QDialog(parent),
 	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
@@ -69,7 +69,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
-	SetSds( DaTA->Sds_p, DaTA->Sds_p->addr->SDS_Id );
+	SetSds( DaTA->Sds_p );
 
 	connect(ui->cb_instrumentfiles	, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
     connect(ui->cb_notefilenames	, SIGNAL(textActivated(QString)),this, SLOT(Notes_Select(QString)) );
@@ -114,12 +114,11 @@ void File_Dialog_class::Longnote( bool value )
 	Sds->Set( sds_p->features[0].longplay , value );
 }
 
-void File_Dialog_class::SetSds( Interface_class* Sds, Id_t sdsid )
+void File_Dialog_class::SetSds( Interface_class* Sds )
 {
 	this->Sds 		= Sds;
 	this->sds_p 	= Sds->addr;
-	this->SDS_ID	= sdsid;
-	Assert_equal	( sdsid, sds_p->SDS_Id );
+	this->SDS_ID	= sds_p->SDS_Id;
 
 	Setup_widgets();
 
@@ -127,7 +126,7 @@ void File_Dialog_class::SetSds( Interface_class* Sds, Id_t sdsid )
 
 void File_Dialog_class::cb_Notestype( int cb_value )
 {
-	Sds->Set( sds_p->NotestypeId , (NOTETYPE_e)cb_value );
+	Sds->Set( sds_p->NotesTypeId , (NOTETYPE_e)cb_value );
     ui->cb_notefilenames->clear();
     ui->cb_notefilenames->addItems( Qread_filenames( EventVec[ cb_value].path ) );
 }
@@ -157,7 +156,7 @@ void File_Dialog_class::cB_NotesPerSec( int nps_id )
 
 void File_Dialog_class::Setup_widgets()
 {
-    uint8_t notestypeId = sds_p->NotestypeId;
+    uint8_t notestypeId = sds_p->NotesTypeId;
 	ui->cb_Notestype->setCurrentIndex( notestypeId );
 
     QString Instrument_name = QReadStr( Sds, INSTRUMENTSTR_KEY );
@@ -173,14 +172,14 @@ void File_Dialog_class::Setup_widgets()
     ui->cb_notefilenames->setCurrentText( Notes_name );
     ui->cb_longnote->setChecked( sds_p->features[0].longplay );
 
-    if ( sds_p->NotestypeId == XML_ID )
+    if ( sds_p->NotesTypeId == XML_ID )
     	return;
 
     // nte section follows
     Note_class::Read( Notes_name.toStdString() );
     string Notesline =  Note_class::Get_note_line();
     bool verifyed = Verify_noteline( Noteline_prefix, Notesline );
-    setButton( ui->pbNotesDone, verifyed );
+    setButton( ui->pbNotesDone, 3*verifyed );
 
     ui->lE_Notes->setText( Qstring( Notesline ) );
 
@@ -209,7 +208,7 @@ void File_Dialog_class::Setup_widgets()
 // ----------------------------------------------------------------------------- Notes
 void File_Dialog_class::New_Notes()
 {
-	if ( sds_p->NotestypeId == XML_ID )
+	if ( sds_p->NotesTypeId == XML_ID )
 	{
 		Eventlog_p->add( SDS_ID,  EventVec[ XML_ID ].event );
     	return;
@@ -218,7 +217,7 @@ void File_Dialog_class::New_Notes()
     QString QStr = ui->lE_Notes->text();
     string note_line = QStr.toStdString();
     bool verified = Verify_noteline( sds_p->noteline_prefix, note_line );
-    setButton( ui->pbNotesDone, verified );
+    setButton( ui->pbNotesDone, 3*(int)verified );
     if ( verified )
     {
         QStr = ui->lE_Rythm->text();
@@ -239,15 +238,15 @@ void File_Dialog_class::New_Notes()
     }
 }
 
-void File_Dialog_class::Notes_Select(QString Note_name)
+void File_Dialog_class::Notes_Select(QString note_filename)
 {
-    if ( Note_name.length() == 0 ) return;
+    if ( note_filename.length() == 0 ) return;
 
-    ui->lE_NotesFile->setText( Note_name );
+    ui->lE_NotesFile->setText( note_filename );
 
-    string note_name = Note_name.toStdString();
+    string note_name = note_filename.toStdString();
     Sds->Write_str( NOTESSTR_KEY, note_name );
-    uint8_t notestypeId = sds_p->NotestypeId;
+    uint8_t notestypeId = sds_p->NotesTypeId;
 
     if ( notestypeId == XML_ID ) return;
 
@@ -274,7 +273,7 @@ void File_Dialog_class::Instrument_Save()
     string str			= QStr.toStdString();
     Sds->Write_str( INSTRUMENTSTR_KEY, str );
 
-	Eventlog_p->add( SDS_ID, NEWINSTRUMENTKEY );
+	Eventlog_p->add( SDS_ID, SAVEINSTRUMENTKEY );
 }
 void File_Dialog_class::Notes_Done_clicked()
 {

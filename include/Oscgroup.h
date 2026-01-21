@@ -42,40 +42,37 @@ SOFTWARE.
 
 class 						Oscgroup_class :
 	public virtual 			Logfacility_class,
-	virtual					Frequency_class,
-	public virtual 			Note_base,
 	virtual					osc_struct
 {
-	string					className			= "";
 public:
-	Oscillator 				vco;
-	Oscillator 				fmo;
-	Oscillator 				osc;
+	Oscillator 				vco			;
+	Oscillator 				fmo			;
+	Oscillator 				osc			;
+	vector<Oscillator*>		member		;
+	array<dynamic_state_t,3> dynarr		;
 
-	vector<Oscillator*>		member				{};// = { &vco, &fmo, &osc };
-
-
-
-	RoleId_e				oscroleId;
+	RoleId_e				oscroleId	;
 
 							//used by FileDialog, musicsml, variation
+							Oscgroup_class		();
 							Oscgroup_class		( RoleId_e role, buffer_t bytes  );
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 
 	void					Set_Note_Frequency	( interface_t* sds,
-												  const uint8_t& idx,
-												  const uint& mode );
-	void 					Set_Combine_Frequency(const uint8_t& base_idx,
-												  const uint8_t& idx,
-												  const uint& mode );
+												const uint8_t& idx,
+												const DYNAMIC& mode );
+	void 					Set_Combine_Frequency(interface_t* sds,
+												const uint8_t& idx,
+												const DYNAMIC& mode );
 	void 					Set_Osc_Note		( interface_t* sds,
-												  const uint8_t& key,
-												  const uint& duration,
-												  const uint& volume,
-												  const uint& mode);
+												const uint8_t& key,
+												const uint& duration,
+												const uint& volume,
+												const DYNAMIC& mode);
 	void 					Run_OSCs			( const buffer_t& offs );
 	void 					Set_Duration		( const uint& duration );
+	void 					Reset_beat_cursor	();
 
 	void 					Data_Reset			();
 	void 					Phase_Reset			();
@@ -83,17 +80,23 @@ public:
 	void 					Set_Connections		( interface_t* sds );
 	void 					SetWd				( Wavedisplay_class* wd );
 	void 					SetScanner			( const buffer_t& maxlen );
+	void					Set_kbdbps			( uint8_t bps );
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
 	OSCID_e 				Get_oscid_by_name	( const string& name );
 
-	void 					SetSlide			( const uint8_t& value );
+	void 					SetSlideFrq			( const uint8_t& value );
 	void 					SetFeatures			( interface_t* sds );
 	void 					SetAdsr				( interface_t* sds );
+	void 					Adsr_OSC			();
+
 	void 					SetSpectrum			( interface_t* sds );
 
 	void 					Show_sound_stack	();
 	void 					SetInstrument		( interface_t* sds );
+	void 					Backup_Dyn			();
+	void 					Restore_Dyn			();
+
 
 private:
 	void 					selfTest			();

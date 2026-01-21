@@ -47,35 +47,36 @@ Dynamic_class::~Dynamic_class()
 {
 };
 
-uint8_t Dynamic_class::SetupVol(int future_vol,	int _mode)
+uint8_t Dynamic_class::SetupVol(int future_vol,	DYNAMIC _mode)
 {
 	if ( _mode == COMBINE )
 		current.mode = SLIDE;
 	else
-		current.mode 	= _mode;
-	current.future	= check_range( range, future_vol, "SetupVol" );
-	current.future_f= current.future * percent;
-	setup();
+		current.mode	= _mode;
+	current.future		= check_range( range, future_vol, "SetupVol" );
+	current.future_f	= current.future * percent;
+	setup_past();
 	return current.future;
 }
 
-uint8_t Dynamic_class::SetupFrq(int future_frq, int _mode)
+uint8_t Dynamic_class::SetupFrq(int future_frq, DYNAMIC _mode)
 {
 	if ( _mode == COMBINE )
 		current.mode = SLIDE;
 	else
 		current.mode 	= _mode;
-	current.future	= check_range( range, future_frq, "SetupFrq" );
-	current.future_f= GetFrq( current.future );
-	setup();
+	current.future		= check_range( range, future_frq, "SetupFrq" );
+	current.future_f	= GetFrq( current.future );
+	setup_past			();
+//	set_state();
 	return current.future;
 }
-void Dynamic_class::setup()
+void Dynamic_class::setup_past()
 {
 	if ( current.past == 0 ) // initialize past
 	{
-		current.past = current.future;
-		current.mode = FIXED;
+		current.past 	= current.future;
+		current.mode 	= FIXED;
 	}
 	if ( current.mode == FIXED )
 		end();
@@ -94,21 +95,17 @@ void Dynamic_class::SetDelta ( const uint8_t& sl_duration )
 {
 	if( sl_duration == 0 ) // disable dynamic
 	{
-		current.mode = FIXED;
-		end();
-		current.delta = 0.0;
-		set_state();
+		current.mode 	= FIXED;
+		current.delta 	= 0.0;
+		end				();
+		set_state		();
 		return;
 	}
-	else
-	{
-		current.mode = SLIDE;
-	}
-	buffer_t 	slide_frames	= slideFrames( sl_duration );
-	float 		delta_value		= current.future_f - current.past_f;
-	current.delta				= abs( delta_value / slide_frames );
-	set_state();
-	return;
+	const buffer_t 	slide_frames	= slideFrames( sl_duration );
+	const float		delta_value		= current.future_f - current.past_f;
+					current.delta	= abs( delta_value / slide_frames );
+					current.mode 	= SLIDE;
+					set_state		();
 };
 
 constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& duration )
@@ -124,11 +121,14 @@ constexpr buffer_t Dynamic_class::slideFrames( const uint8_t& duration )
 }
 
 
-Dynamic_class::state_t Dynamic_class::GetCurrent()
+dynamic_state_t Dynamic_class::GetCurrent()
 {
 	return current;
 }
-
+void Dynamic_class::SetCurrent( state_t state )
+{
+	current = state;
+}
 float Dynamic_class::Get( )
 {
 	if( current.mode == FIXED )

@@ -167,7 +167,7 @@ void Processor_class::execute_str( stack_struct& ps )
 	ps.chaddr = (sds_value_t*)addr;
 	this->Sds->Write_str( ps.value, ps.str );
 	if ( ps.value == NOTESSTR_KEY )
-		Sds->addr->NotestypeId = NTE_ID;
+		Sds->addr->NotesTypeId = NTE_ID;
 	print.Line(  ps );
 
 	ps.cmd		= CMD_KEY;

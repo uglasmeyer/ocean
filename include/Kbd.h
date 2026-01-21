@@ -37,6 +37,7 @@ SOFTWARE.
 
 enum  KEYCODE {
 	ESC		= 0x01b,//27,
+	RELEASE	= ' ',	//32
 	RET		= 10,
 	BACK	= 127,
 	DOWN	= 4348699,
@@ -103,7 +104,7 @@ struct keymap_struct
 	} keymap_data_t;
 
 	const vector<keymap_data_t>	keymap_vec
-	{
+	{	//		key			name	menu
 			{ KEYCODE::F1, 	"F1", "Key overview"	, 0x01000030 },
 			{ KEYCODE::F2, 	"F2", "Processes"		, 0x01000031 },
 			{ KEYCODE::F3, 	"F3", "States"			, 0x01000032 },

@@ -108,10 +108,11 @@ typedef stereo_struct
 					stereo_t;
 
 
-const size_t		sizeof_stereo		= sizeof(stereo_t);
-const size_t		sizeof_Stereo		= sizeof(Stereo_t);
-const uint 			sizeof_Data 		= sizeof(Data_t);
-const uint 			sizeof_data 		= sizeof(data_t);
+const uint8_t		sizeof_stereo		= sizeof(stereo_t);
+const uint8_t		sizeof_Stereo		= sizeof(Stereo_t);
+const uint8_t		sizeof_Data 		= sizeof(Data_t);
+const uint8_t		sizeof_data 		= sizeof(data_t);
+
 const uint			sample_rate			= 48000; //device default
 const buffer_t		frames_per_sec  	= sample_rate;
 const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
@@ -119,7 +120,7 @@ const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
 const uint16_t		min_msec			= 125;
-const uint16_t		measure_parts		= (uint16_t) (max_msec / min_msec); // = 16
+const int16_t		measure_parts		= (int16_t) (max_msec / min_msec); // = 16
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
@@ -132,23 +133,26 @@ const uint			tmpduration 		= 30; 	// temp memory storage 30*frames_per_sec
 const uint			kbdduration			= 2;
 const buffer_t 		recordmemory_bytes 	= recduration*frames_per_sec * sizeof_Data; // 3 minutes 32Mb
 const buffer_t 		monobuffer_bytes   	= max_frames * sizeof_Data;
+const buffer_t 		audiobuffer_bytes   = audio_frames * sizeof_Data;
+const buffer_t		Stereoaudio_bytes	= audio_frames * sizeof_Stereo;
+const buffer_t		stereoaudio_bytes	= audio_frames * sizeof_stereo;
 const Data_t		max_data_amp		= 4096*4;
 
-const uint			osc_default_volume	= 75; // %
-const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = C0
+const uint8_t		osc_default_volume	= 75; // %
 const float			percent				= 0.01;
 
-const int				oct_steps		= 12;
-const static uint		max_octave		= 7;
-const uint 				min_octave 		= 0;
-const string			OctChars_EN		= "CcDdEFfGgAaB";
-const string			OctChars_DE		= "CcDdEFfGgAaH";
+const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = A0
+const int			oct_steps			= 12;
+const static uint	max_octave			= 7;
+const uint 			min_octave 			= 0;
+const string		OctChars_EN			= "CcDdEFfGgAaB";
+const string		OctChars_DE			= "CcDdEFfGgAaH";
 
 template< typename T >
 struct range_T
 {
-	T 		min;
-	T 		max;
+	T	min;
+	T	max;
 	size_t	len = max - min;
 };
 
@@ -211,7 +215,7 @@ constexpr T check_cycle2( range_T<T> r, T val, string err  )
 		return 0;
 	if( val < r.min )
 		return r.max - ((r.min - val ) % r.len);
-	if ( val > r.max )
+	if ( val >= r.max )
 		return r.min + ((val - r.max ) % r.len);
 	return val;
 };
@@ -220,7 +224,7 @@ template<typename T>
 string show_range( range_T<T> range )
 {
 	stringstream strs {};
-	strs << (int)range.min << "..." << (int)range.max ;
+	strs << (int)range.min << "..." << (int)range.max << ", " << (int) range.len ;
 	return strs.str();
 };
 
@@ -282,30 +286,30 @@ typedef struct osc_struct
 
 enum RoleId_e : unsigned char
 {
-	INSTRROLE,
-	NOTESROLE,
-	KBDROLE,
-	EXTERNALROLE,
-	AUDIOROLE,
-	ADSRROLE,
 	USER00ROLE,
 	USER01ROLE,
 	USER02ROLE,
 	USER03ROLE,
+	INSTRROLE,
+	KBDROLE,
+	NOTESROLE,
+	EXTERNALROLE,
+	AUDIOROLE,
+	ADSRROLE,
 	ROLE_SIZE
 };
 const array<string, ROLE_SIZE> roleNames =
 {
-	"Instrument",
-	"Notes",
-	"Keyboard",
-	"External",
-	"Audio",
-	"ADSR",
 	"UserR+",
 	"UserL-",
 	"UserR-",
-	"UserL+"
+	"UserL+",
+	"Instrument",
+	"Keyboard",
+	"Notes",
+	"External",
+	"Audio",
+	"ADSR"
 };
 
 const vector<string> slidermodes =
@@ -315,7 +319,11 @@ const vector<string> slidermodes =
 	"Combine"
 };
 enum DYNAMIC : unsigned char
-{ FIXED, SLIDE, COMBINE }; // frequency and volume change mode
+{
+	FIXED,
+	SLIDE,
+	COMBINE
+}; // frequency and volume change mode
 
 
 

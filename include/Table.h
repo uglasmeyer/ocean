@@ -38,7 +38,7 @@ typedef struct 			tableOpt_struct
 {
 	uint 				Ident 		= 0;
 	string				Titel 		= "";
-	fstream* 			FILE 		= nullptr;
+	ostream* 			FILE 		= &cout;
 	char 				Separator 	= ' ';
 	char				Crlf		= '\n';
 } tableopt_t;

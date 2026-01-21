@@ -32,13 +32,6 @@ SOFTWARE.
 #include <notes/MusicXML.h>
 #include <notes/Notes.h>
 
-inline bool next_measure( uint note_duration, uint& score_duration )
-{
-	score_duration += note_duration;
-	uint mod = score_duration % (measure_duration);
-	return ( mod < note_duration );
-}
-
 map<int, string> type_id_map = // @suppress("Invalid arguments")
 {
 	{32, "32th" 	},
@@ -48,6 +41,51 @@ map<int, string> type_id_map = // @suppress("Invalid arguments")
 	{ 2, "half" 	},
 	{ 1, "whole" 	}
 };
+
+xmlnote_value_struct::xmlnote_value_struct( note_t note, int divisions )
+{
+	set<int>dot_set			{ 3, 6, 12 };
+	int			min_duration= gcd( int(measure_duration), int(note.duration) ); // @suppress("Function cannot be instantiated")
+				duration	= note.duration * divisions / 500;
+	int 		type_id		= measure_duration / ( min_duration ) ;
+	if ( dot_set.contains( duration ) )
+	{
+		dot 		 		= true;
+		type 				= type_id_map[ type_id / 2 ];
+	}
+	else
+		type 				= type_id_map[ type_id ];
+}
+
+xmlstatistic_struct::xmlstatistic_struct()
+{
+	InitTable();
+};
+void xmlstatistic_struct::InitTable()
+{
+	Table.opt.Titel = "Score statistics";
+	Table.AddColumn("Item", 25);
+	Table.AddColumn( "Value", 6 );
+}
+void xmlstatistic_struct::Show( bool debug )
+{
+	if( not debug ) return;
+
+	Table.PrintHeader();
+	Table.AddRow( "Measures:"	, Measures );
+	Table.AddRow( "Chords:"		, Chords );
+	Table.AddRow( "Notes:"		, xmlNotes );
+	Table.AddRow( "Align:"		, Align );
+	Table.AddRow( "Score duration", Duration );
+}
+
+inline bool next_measure( uint note_duration, uint& score_duration )
+{
+	score_duration += note_duration;
+	uint mod = score_duration % (measure_duration);
+	return ( mod < note_duration );
+}
+
 map<string, int> type_str_map = imap( type_id_map );
 
 auto get_text = []( XMLElement* p  )
@@ -143,14 +181,15 @@ pitch_t Musicxml_class::get_pitch( XMLElement* root )
 
 	if ( not root ) return pitch_struct() ;
 
-	int oct = -1;
-	int alt = 0;
-	string str = "";
-	char ch = PAUSE_CH;
+	int 	oct = -1;
+	int 	alt = 0;
+	string 	str = "";
+	char 	ch 	= PAUSE;
 
-	xml_value( "octave", oct, root );
-	xml_value( "alter", alt, root );
-	xml_text( "step", str, root );
+	xml_value	( "octave"	, oct, root );
+	xml_value	( "alter"	, alt, root );
+	xml_text	( "step"	, str, root );
+
 	if( str.length() > 0 ) ch = str[0];
 
 	pitch_t pitch= pitch_struct( oct, ch, alt );
@@ -212,6 +251,7 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 		note_p = measure_p->FirstChildElement("note");
 		while( note_p )
 		{
+
 			note_t	note { note_struct( note_number ) };
 
 			XMLElement* // get pitch from note
@@ -223,7 +263,7 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 			p = note_p->FirstChildElement("rest");
 			if( p )
 			{
-				pitch.step_char = PAUSE_CH;
+				pitch.step_char = PAUSE;
 				pitch.step 		= NONOTE;
 				note.volume 	= 0;
 			}
@@ -264,29 +304,6 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 
 
 
-typedef struct xmlnote_value_struct
-{
-
-	int duration 	= 0;
-	string type 	= "";
-	bool dot		= false;
-	xmlnote_value_struct( note_t note, int divisions )
-	{
-		set<int>dot_set		{3,6,12};
-		int		min_duration= gcd( measure_duration, ( note.duration ));
-		duration			= note.duration * divisions / 500;
-		int type_id			= measure_duration / ( min_duration ) ;
-		if ( dot_set.contains( duration ) )
-		{
-			dot = true;
-			type 				= type_id_map[ type_id / 2 ];
-		}
-		else
-			type 				= type_id_map[ type_id ];
-	}
-	~xmlnote_value_struct() = default;
-
-} xmlnote_value_t;
 
 auto insert_child =[]( XMLElement* root, const string& tag, auto value )
 {
@@ -437,84 +454,19 @@ void Musicxml_class::Notelist2xmlFile( 	const string& name,
 
     save_document( File( name ) );
 
-    if ( musicxml.notelist.size() == 0 )
+    if ( note_list.size() == 0 )
     {
     	Info( "empty note list ");
     }
     else
     {
 
-		xmlstatistic.xmlNotes += musicxml.notelist.back().number;
-		xmlstatistic.Measures = measure_number-1;
+//		xmlstatistic.xmlNotes += musicxml.notelist.back().number;
+    	//		xmlstatistic.Measures = measure_number-1;
+		xmlstatistic.Measures = measure_number;
 		xmlstatistic.Duration += score_duration;
 		xmlstatistic.Show( true );
     }
 return;
 }
 
-void Musicxml_class::Test()
-{
-	TEST_START( className );
-
-	Note_class Notes{};
-	note_t note{};
-	typedef struct testvalue_struct
-	{
-		string 	testid;
-		int 	duration;
-		int 	noteduration; // multipe of 1/4/divisions
-		string 	type;
-		bool 	dot;
-	} testvalue_t;
-	vector<testvalue_t> testvec =
-	{
-		{"test1", 125, 				1, "16th"	, false },
-		{"test1", 250, 				2, "eighth"	, false },
-		{"test2", 500, 				4, "quarter", false },
-		{"test3", 750, 				6, "quarter", true	},
-		{"test4", 1000, 			8, "half"	, false	},
-		{"test5", 1500, 			12, "half"	, true	},
-		{"test6", measure_duration,	16, "whole"	, false	},
-		{"test7", 1875, 			15, "16th"	, false	}
-
-	};
-	string teststr = "";
-	for( testvalue_t test : testvec )
-	{
-		teststr = test.testid + " duration";
-		note.duration = test.duration;
-		xmlnote_value_t xmlnote_value = xmlnote_value_struct( note, musicxml.divisions );
-		ASSERTION( xmlnote_value.duration == test.noteduration, teststr,
-				(int)xmlnote_value.duration, (int)test.noteduration );
-		teststr = test.testid + " type";
-		ASSERTION( strEqual(xmlnote_value.type, test.type) , teststr,
-							xmlnote_value.type, test.type);
-		ASSERTION( xmlnote_value.dot == test.dot , teststr,
-							(bool) xmlnote_value.dot, (bool)test.dot);
-	}
-
-
-	noteline_prefix_t nlp {};
-	nlp.nps = 4;
-	string Noteline = "A2B3-C4D3-.D3A4..A2-B3-C4-D3-A-B-";
-	notelist_t nl = Notes.Gen_notelist( nlp, Noteline );
-	Notes.Show_note_list( nl );
-	Notelist2xmlFile( "test" , nl );
-
-
-	Notes.musicxml = XmlFile2notelist(  "test"  );
-	Notes.Show_note_list( Notes.musicxml.notelist ); // @suppress("Invalid arguments")
-	cout << "instrument_name: " <<  Notes.musicxml.instrument_name<<endl;
-	cout << "divisions      : " <<  Notes.musicxml.divisions <<endl;
-	cout << "beats          : " <<  Notes.musicxml.beats<<endl;
-
-	musicxml_t testxml = Note_base::musicxml_struct();
-	int beats = Notes.musicxml.beats;
-	ASSERTION(	beats == testxml.beats, "Music xml beats",beats, testxml.beats );
-	int divisions = Notes.musicxml.divisions;
-	ASSERTION(	divisions == testxml.divisions, "Music xml divisions",divisions, testxml.divisions );
-	int duration = Notes.musicxml.scoreduration;
-	ASSERTION(	duration == 6000, "Music xml scoreduration",	duration, 6000L );
-
-	TEST_END( className );
-}

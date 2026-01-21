@@ -60,6 +60,7 @@ struct prgarg_struct
 	char 		oceangui	= 'n';		// start rtsp with option -G
 	char		archive		= 'n';		// setup creates no binary archive
 	char		Deploy		= 'n';		// -Y deployment workflow
+	char		clearipc	= 'n';		// SDSview -C call ipcrm -a
 	string 		Genre		= "Alternative";
 	string 		author		= "U.G.";
 	string		title		= "Experimental";
@@ -71,14 +72,15 @@ struct prgarg_struct
 	string		sourcedir	= "";		 // Setup -S ...
 	string		filename	= "";
 	key_t		Sem_key		= 0x9999;
-	key_t 		SHM_key 	= 0x100; 	// -k
+	key_t 		SHM_key 	= 0x0; 	// -k
 	key_t		SHM_keyl	= SHM_key;
-	key_t		SHM_keyr	= SHM_key+1;
+	key_t		SHM_keyr	= SHM_key;
 	key_t		SDS_key		= 0x6666;
 	keys_arr_t 	sdskeys 	{};
 	uint		temp_sec	= tmpduration; 	// seconds storage in StA
 	uint 		record_sec	= recduration; 	// seconds storage
 	uint		kbd_sec		= kbdduration;	// seconds of keyboard stoarage in StA
+
 
 } ;
 typedef prgarg_struct prgarg_t;
@@ -159,6 +161,7 @@ struct process_properties_struct
 	bool		logowner 		= false;
 	bool		keyboard		= false;
 };
+const set<APPID>dataProc			{ AUDIOID, SYNTHID, KEYBOARDID };
 
 typedef struct process_struct :
 	process_properties_struct,
@@ -168,7 +171,10 @@ typedef struct process_struct :
 	const APPID		AppId 		= AppNameId( name );
 	process_struct( ) :
 		process_properties_struct()
-	{	};
+	{
+		data_process 	= dataProc.contains( AppId );
+		keyboard		= ( ( AppId == KEYBOARDID ) and ( is_atty ) );
+	};
 
 	virtual ~process_struct() 	= default;
 	void Show()

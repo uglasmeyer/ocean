@@ -40,11 +40,11 @@ SOFTWARE.
 #include <Ocean.h>
 #include <System.h>
 #include <Oscgroup.h>
-
+#include <notes/MusicXML.h>
 
 class Note_class
-		: virtual public Logfacility_class
-		, virtual public Note_base
+//		: virtual public Logfacility_class
+		: virtual public Note_base
 {
 	string 				className 	= "";
 	Instrument_class*	instrument 	= nullptr;
@@ -56,6 +56,7 @@ public:
 	Oscillator*			vco						= &Oscgroup.vco;
 	Oscillator*			fmo						= &Oscgroup.fmo;
 	Oscillator*			Osc						= &Oscgroup.osc;
+	Musicxml_class		Musicxml				;
 	file_structure*		fs						= nullptr;
 	Wavedisplay_class*	wd						= nullptr;
 	Scanner_class*		scanner					= nullptr;
@@ -64,21 +65,17 @@ public:
 	Trigger_class		Note_itr_end			;
 	uint8_t 			Octave					= nlp_default.Octave; // 55
 
-	Dynamic_class		DynFrequency			{ frqarr_range };
-
 	Data_t*				NotesData				= osc->MemData_p( );
 	interface_t*		sds						= nullptr;
 
 					Note_class				( Instrument_class* instr,
-											Storage_class*	sta);// used by notes (Synthesizer)
-					Note_class				( ); 				// used by Musicxcl
-					Note_class				( file_structure* fs );// variation
+											Storage_class*	sta);	// Synthesizer
 					Note_class				( interface_t* sds,
-											Config_class* cfg  ); // used by File_dialog (OceanGUI)
+											file_structure* fs ); 	// File_dialog, variation
 	virtual			~Note_class				();
 
 
-	string 			Read					( string );
+	string 			Read					( string filename );
 	void			Save					( string, noteline_prefix_t , string  );
 	string 			Get_note_line 			();
 	string 			Get_rhythm_line 		();
@@ -101,13 +98,15 @@ public:
 	void 			Align_measure			( noteline_prefix_t prefix,
 											string& noteline );
 
-	void 			TestNotes					();
+	void 			TestNotes				();
+	void 			Test_Musicxml			();
+
 	void			Show_note				( note_t, bool debug=false );
 
 	bool 			Start_note_itr			();
 	note_t			Char2note				( char& ch );
 
-	void			Set_notelist			( const notelist_t& notelist );
+	void			Set_xmlnotelist			( const notelist_t& notelist );
 
 
 	Table_class 	Note_table 				{ };
@@ -150,19 +149,19 @@ private:
 	size_t			parse_error				= 0;
 	int 			timestamp 				= 0;
 	uint 			scoretime 				= 0;
+	uint8_t 		read_cnt 				= 0;
 
 
 	void			note_itr_next			();
 	bool 			note_itr_end			();
 
-	void 			sta_write_data			( uint duration );
+	bool 			Note_clock				( bool init );
+	void 			sta_write_data			( const note_t& note );
 	string 			get_name				();
 	bool 			compiler 				( noteline_prefix_t,  string );
 	bool			set_file_name			( string );
-	size_t			position_parser( size_t );
-	void 			gen_chord_data			( const note_t&,
-											const uint& duration,
-											const bool& partnote );
+	size_t			position_parser			( size_t );
+	void 			gen_chord_data			( const note_t& note );
 	void 			change_alphabet_notes	( noteline_prefix_t );
 	void            set_volume_vector		( string );
 	void			fill_note_list			();

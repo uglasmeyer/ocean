@@ -62,6 +62,7 @@ enum  LOG_e : uint8_t
 	PLAIN,
 	TABLE,
 	WAIT,
+	NOLOG,
 	LOG_SIZE
 } ;
 const range_T<LOG_e>		loglevel_range 	{ (LOG_e)0, (LOG_e)(LOG_SIZE - 1) };
@@ -94,6 +95,9 @@ const string 		logDir 		{ "/tmp/log/" };
 const string 		logFileName	{ "Synthesizer" };
 const string 		logFile		= logDir + logFileName + string(".log") ;
 
+/**************************************************
+ * Printer_class
+ *************************************************/
 class Printer_class
 {
 	//https://stackoverflow.com/questions/9084099/re-opening-stdout-and-stdin-file-descriptors-after-closing-them	bool redirect 		= false;
@@ -146,14 +150,16 @@ public:
 	string 					prefixClass 	{ "" };
 	const string 			logFile	 		= logDir + logFileName + string(".log") ;
 	const string 			endcolor		= boldoff + reset;
+	logmask_t 				logmask			= defaultLogMask;
 
 					Logfacility_class( string module  );
 					Logfacility_class( );
 	virtual			~Logfacility_class(  );
 
 	void 			Set_Loglevel	( LOG_e level, bool on );
-	string			GetColor		( uint id );
-	string			GetendColor		( );
+	LOG_e			Logmask			( LOG_e level );
+	string			GetColor		( uint id, ostream* = &cout );
+	string			GetendColor		( ostream* = &cout );
 	void 			ResetLogMask	();
 	void 			Show_loglevel	();
 	string 			Error_text		( uint );
@@ -235,7 +241,8 @@ private:
 			{"Test ", blue },
 			{""		, nocolor },
 			{"Table", bblack },
-			{"Wait ", bred }
+			{"Wait ", bred },
+			{"", nocolor }
 	};
 
 	string 	cout_log( LOG_e logid, string str );

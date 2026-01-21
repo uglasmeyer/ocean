@@ -54,7 +54,7 @@ public:
     {
         if (File_Dialog_class->objectName().isEmpty())
             File_Dialog_class->setObjectName("File_Dialog_class");
-        File_Dialog_class->resize(360, 373);
+        File_Dialog_class->resize(366, 373);
         QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -292,7 +292,7 @@ public:
         label_4->setText(QCoreApplication::translate("File_Dialog_class", "Note Convention", nullptr));
         label_3->setText(QCoreApplication::translate("File_Dialog_class", "NPS", nullptr));
         pbNotesDone->setText(QCoreApplication::translate("File_Dialog_class", "Notes Done", nullptr));
-        label_2->setText(QCoreApplication::translate("File_Dialog_class", "Octave", nullptr));
+        label_2->setText(QCoreApplication::translate("File_Dialog_class", "Octave shift", nullptr));
         label_5->setText(QCoreApplication::translate("File_Dialog_class", "Notes type", nullptr));
         cb_longnote->setText(QCoreApplication::translate("File_Dialog_class", "Long note", nullptr));
         pB_EditMusicxml->setText(QCoreApplication::translate("File_Dialog_class", "Edit musicxml", nullptr));

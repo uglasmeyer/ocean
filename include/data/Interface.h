@@ -30,8 +30,8 @@ SOFTWARE.
  */
 
 
-#ifndef GUIINTERFACE_H_
-#define GUIINTERFACE_H_
+#ifndef INTERFACE_H_
+#define INTERFACE_H_
 
 #include <data/SharedDataSegment.h>
 #include <EventKeys.h>
@@ -43,22 +43,22 @@ class Interface_class
 	: virtual public 		Logfacility_class
 	, 						sdsstate_struct
 {
-	string					className			= "";
-	APPID					AppId				= NoAPPID;
-	Semaphore_class*		Sem_p				= nullptr;
-	Config_class*			Cfg_p				= nullptr;
-	file_structure*			fs					= nullptr;
-	interface_t 			ifd_data 			= interface_struct();
-	shm_ds_t				ds					= shm_data_struct();
-	size_t					sds_size			= sizeof( ifd_data );
-	Shm_base				SHM					{ sds_size };
-	string					dumpFile			= "";
-	string					filename			= "";
+	string					className			;
+	APPID					AppId				;
+	key_t					sds_key				;
+	Semaphore_class*		Sem_p				;
+	Config_class*			Cfg_p				;
+	file_structure*			fs					;
+	interface_t 			ifd_data 			;
+	size_t					sds_size			;
+	Shm_base				SHM					;
+	shm_ds_t				shm_ds				;
+	string					dumpFile			;
+	string					filename			;
 
 public:
-	EventQue_class			Eventque			{}; // considered to be a named class extension
-	interface_t* 			addr				= nullptr;
-	bool					capture_flag		= false;
+	EventQue_class			Eventque			;
+	interface_t* 			addr				;
 
 							Interface_class		( APPID appid,
 												Id_t sdsid,
@@ -68,6 +68,7 @@ public:
 
 
 	void					Setup_SDS			( Id_t sdsid, key_t key );
+	void 					Set_filename		( string dir, uint8_t sdsid );
 	void 					Write_arr			( const wd_arr_t& arr );
 	void 					Write_str			( char, string );
 	string 					Read_str			( EVENTKEY_e );
@@ -89,6 +90,13 @@ public:
 			return;
 		ref = value;
 	};
+	template < typename V >
+	void Set( volatile V& ref, V value )
+	{
+		if ( reject( AppId ) )
+			return;
+		ref = value;
+	};
 
 private:
 	bool 					reject				( APPID id );
@@ -98,4 +106,4 @@ private:
 
 
 
-#endif /* GUIINTERFACE_H_ */
+#endif /* INTERFACE_H_ */

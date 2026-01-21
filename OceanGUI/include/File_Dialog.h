@@ -72,7 +72,7 @@ public:
     void 						New_Instrument		();
     void 						set_le_instrument	( QString );
     void 						set_le_notes		( QString );
-    void 						SetSds				( Interface_class* sds, Id_t id );
+    void 						SetSds				( Interface_class* sds );
 
     explicit					File_Dialog_class(	QWidget* 		 parent	= nullptr,
     												Dataworld_class* _data 	= nullptr,

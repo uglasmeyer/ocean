@@ -45,8 +45,6 @@ bool		harmonics_done		= false;
 Frequency_class::Frequency_class() :
 	Logfacility_class( "Frequency_class" )
 {
-	className 					= Logfacility_class::className;
-
 	if ( not frqarray_done )
 		initFrqArray();
 	if( not frqnamesarray_done )
@@ -67,10 +65,10 @@ frq_t Frequency_class::Calc( const frq_t& _base_freq, const int& idx )
 	return frq;
 }
 
-frq_t Frequency_class::GetFrq( const int& idx )
+frq_t Frequency_class::GetFrq( int& idx )
 {
-	uint frqidx = check_range( frqext_range, idx, "GetFrq" );
-	return frqArray[ frqidx];
+	idx = check_range( frqext_range, idx, "GetFrq" );
+	return frqArray[ idx];
 }
 
 
@@ -113,13 +111,10 @@ uint  Frequency_class::Index( const int& oct, const int& step )
 	return check_range( frqext_range, idx, "Index" );
 }
 
-frq_t Frequency_class::Frqadj( const uint8_t& channel, const int8_t& value )
+frq_t Frequency_class::Frqadj( const uint8_t& channel, const uint8_t& frqidx )
 {
-	int8_t	dir	= 1;
-	if( value < 0 )
-		dir = -1;
-	int n = check_range( harmonic_range, value, "Frqadj" );
-	return ( 1 + dir*harmonicArray[ abs(n)] + channel ) ;
+	uint8_t n = check_range( harmonic_range, frqidx, "Frqadj" );
+	return ( 1 + harmonicArray[ n] + channel ) ;
 };
 
 void Frequency_class::ShowFrqTable()
@@ -144,16 +139,16 @@ void Frequency_class::ShowFrqTable()
 
 void Frequency_class::initHarmonics()
 {
-	harmonics_done = true;
-	vector<int> 				harmonic_prims = { 1,2,3,5,7,11,13,17 };
+	harmonics_done 				= true;
+	vector<int> harmonic_prims 	= { 1,2,3,5,7,11,13,17 };
 	assert( harmonic_prims.size() == HARMON_PRIMS );
-	vector<frq_t> harmonic_vec {0.0};
+	vector<frq_t> harmonic_vec { 0.0 };
 	for( uint i = 0 ; i < HARMON_PRIMS; i++ )
 		for( uint j = i+1; j < HARMON_PRIMS; j++ )
 		{
-			int pi = harmonic_prims[i];
-			int pj = harmonic_prims[j];
-			float fraction = float(pi) / pj;
+			int pi 			= harmonic_prims[i];
+			int pj 			= harmonic_prims[j];
+			float fraction 	= float(pi) / pj;
 			harmonic_vec.push_back( fraction );
 //			coutf << pi << "/" << pj << "=" << fraction <<  endl;
 		}
@@ -161,6 +156,7 @@ void Frequency_class::initHarmonics()
 
 	for( uint n = 0; n < harmonic_vec.size(); n++ )
 		harmonicArray[n] = harmonic_vec[n];
+	assert( HARMON_SIZE == harmonic_vec.size() );
 //	coutf << "size: " << harmonic_vec.size() << endl;
 
 }
@@ -229,7 +225,8 @@ void Frequency_class::TestFrequency()
 
 	ShowFrqTable();
 	frq_t f;
-	f = GetFrq( 10 );
+	int i = 10;
+	f = GetFrq( i );
 	ASSERTION( f == 1, "Frq calc 10", f, 1 );
 	int idx;
 	idx = Index( "A3" );
@@ -239,14 +236,14 @@ void Frequency_class::TestFrequency()
 	f = Calc( 10, idx);
 	ASSERTION( fcomp(f,40), "Frq base 10", f, 40 );
 
-	int idxh=HARMON_SIZE-1;
+	int idxh=harmonic_range.max;
 	f = Frqadj( 0, idxh );
 	frq_t g = 1+harmonicArray[idxh];
 	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
-	idxh = -idxh;
+	idxh = 0;
 	f = Frqadj( 0, idxh );
-	g = 1-harmonicArray[abs(idxh)];
+	g = 1-harmonicArray[idxh];
 	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
 	typedef struct test_struct

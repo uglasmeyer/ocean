@@ -59,16 +59,27 @@ void OszilloscopeWidget::paint(QPainter* painter,
                                const QStyleOptionGraphicsItem* option,
                                QWidget* widget)
 {
-    QGraphicsPolygonItem polygon_item;
-    painter->drawRect( drawregion );
-    polygon_item.setPolygon( polygon);
-    polygon_item.paint( painter, option, widget);
 
-    int cursor = (int)sds->WD_status.cursor;
+	auto CursorLine = [ this, painter ]( Qt::GlobalColor color, uint16_t cursor )
+	{
+    	painter->setPen(QPen(color, 1, Qt::SolidLine, Qt::RoundCap));
+    	painter->drawLine( cursor, 0, cursor, height);
+	};
+
+    QGraphicsPolygonItem 	polygon_item;
+    painter->drawRect		( drawregion );
+    polygon_item.setPolygon	( polygon);
+    polygon_item.paint		( painter, option, widget);
+
+    uint16_t cursor = (int)sds->WD_state.cursor.cur;
     if ( cursor > 0  )
     {
-    	painter->setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::RoundCap));
-    	painter->drawLine( cursor, 0, cursor, height);
+    	CursorLine( Qt::black, cursor );
+    }
+    if ( sds->WD_state.wd_mode == wavedisplay_t::CURSORID )
+    {
+    	CursorLine( Qt::red, sds->WD_state.cursor.min );
+    	CursorLine( Qt::red, sds->WD_state.cursor.max );
     }
 
 }

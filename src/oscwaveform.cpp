@@ -86,6 +86,10 @@ Data_t Sinus( param_t& p )
 {
 	return p.amp * (  sin( p.phi ) );
 }
+Data_t CoSinus( param_t& p )
+{
+	return p.amp * (  cos( p.phi ) );
+}
 Data_t SignSin( param_t& p )
 {
 	return ( p.amp * psgn(  sin ( p.phi ) ));
@@ -157,7 +161,7 @@ const range_T<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
 
 const vector<waveFnc_struct> adsrFunction_vec
 {
-	{  Const	, "constant"	, 1 	},
+	{  CoSinus	, "cosinus"		, 2*pi 	},
 	{  Sinus	, "sinus"		, 2*pi 	},
 	{  Triangle	, "triangle"	, 2		},
 	{  SignSin	, "signsin"		, 2*pi 	},

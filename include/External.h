@@ -112,8 +112,8 @@ class StAExternal_class :
 public:
 	StAExternal_class( StorageArray_t* sta_arr, Config_class* cfg, interface_t* sds ) :
 //		Logfacility_class("StAExternal_class"),
-		Memory_base( sta_arr->at(STA_EXTERNAL).param.size * sizeof_Data ),
-		Stereo_Memory<stereo_t>( sta_arr->at(STA_EXTERNAL).param.size * sizeof_stereo ),
+		Memory_base( sizeof_Data, sta_arr->at(STA_EXTERNAL).param.size * sizeof_Data ),
+		Stereo_Memory<stereo_t>( sizeof_stereo, sta_arr->at(STA_EXTERNAL).param.size * sizeof_stereo ),
 		External_class( &sta_arr->at(STA_EXTERNAL), cfg, sds )
 	{
 		this->StA_arr			= sta_arr;
@@ -122,11 +122,11 @@ public:
 	{
 //		DESTRUCTOR( className );
 	};
-	void Convert_StA2WAV( StAId_e staid );
+	void Convert_StA2WAV( StAId_e staid, range_T<buffer_t> range );
 
 
 private:
-	void copy_sta2stereo( buffer_t frames );
+	void copy_sta2stereo( Data_t* src_p, buffer_t frames );
 
 };
 

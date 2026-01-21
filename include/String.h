@@ -88,6 +88,16 @@ template< class C > list< C > vector2list( vector< C > v )
 	}
 	return l;
 }
+template< class C > vector< C > list2vector( list< C > l )
+{
+	vector< C > v {};
+	for( C c : l )
+	{
+		v.push_back( c );
+	}
+	return v;
+
+}
 
 template<class C> string show_str_items( C all_items )
 {
