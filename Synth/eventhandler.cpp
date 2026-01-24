@@ -231,7 +231,7 @@ void Event_class::Handler()
 		{
 			Instrument->Oscgroup.member[wd_state.oscId]->Adsr_OSC();
 		}
-		Wavedisplay->Set_WdRole( wd_state.roleId );
+		Wavedisplay->Set_WdData();
 		Sds->Commit();
 		break;
 	}

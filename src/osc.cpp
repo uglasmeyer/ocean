@@ -32,7 +32,9 @@ SOFTWARE.
 #include <Osc.h>
 #include <Oscwaveform.h>
 
-Oscillator::Oscillator( RoleId_e role_id,  OSCID_e _type_id, buffer_t bytes )
+Oscillator::Oscillator	( RoleId_e role_id,
+						OSCID_e _type_id,
+						buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
 	, Oscillator_base	( _type_id )
 	, ADSR_class		( _type_id )
@@ -40,27 +42,25 @@ Oscillator::Oscillator( RoleId_e role_id,  OSCID_e _type_id, buffer_t bytes )
 	, Mem_vco			( bytes )
 	, Mem_fmo			( bytes )
 	, Mem				( bytes )
-	, scanner			( Mem.Data, min_frames, Mem.mem_ds.data_blocks )
+	, mem_frames		( Mem.mem_ds.data_blocks )
+	, scanner			( Mem.Data, mem_frames )
 {
-	mem_frames			= Mem.mem_ds.data_blocks ;
 
-	osctype_name		= typeNames[typeId];
-
+	this->osctype_name	= typeNames[typeId];
 	this->oscrole_name	= roleNames[roleId];
+	this->is_osc_type 	= ( typeId == OSCID );
+	this->is_fmo_type	= ( typeId == FMOID );
+	this->is_vco_type	= ( typeId == VCOID );
+	this->has_kbd_role	= ( roleId == KBDROLE );
+	this->has_notes_role= ( roleId == NOTESROLE );
+	this->has_instr_role= ( roleId == INSTRROLE );
 
-	is_osc_type 		= ( typeId == OSCID );
-	is_fmo_type			= ( typeId == FMOID );
-	is_vco_type			= ( typeId == VCOID );
-	has_kbd_role 		= ( roleId == KBDROLE );
-	has_notes_role 		= ( roleId == NOTESROLE );
-	has_instr_role 		= ( roleId == INSTRROLE );
+	Connection_reset	();
+	Data_reset			();
 
-	Connection_reset();
-	Data_reset		();
-
-	Mem_vco.DsInfo	( oscrole_name + ":" + osctype_name );
-	Mem_fmo.DsInfo	( oscrole_name + ":" + osctype_name );
-	Mem.DsInfo		( oscrole_name + ":" + osctype_name );
+	Mem_vco.DsInfo		( oscrole_name + ":" + osctype_name );
+	Mem_fmo.DsInfo		( oscrole_name + ":" + osctype_name );
+	Mem.DsInfo			( oscrole_name + ":" + osctype_name );
 
 	Comment( INFO, oscrole_name + ":" + osctype_name + " initialized" );
 

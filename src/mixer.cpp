@@ -138,7 +138,7 @@ void Mixer_class::StA_Wdcursor()
 	StAId_e 	staid = sta_rolemap.GetStaid( sds->WD_state.roleId );
 	if ( staid < STA_SIZE )
 	{
-		buffer_t rpos = StA[ staid ].scanner.rpos;
+		buffer_t 	rpos = StA[ staid ].scanner.rpos;
 		Wd_p->Set_wdcursor( rpos, 1 );
 		Comment( Logmask(DEBUG), "Set_Wdcursor", (int) staid, rpos );
 	}
@@ -247,8 +247,7 @@ void Mixer_class::SetStAProperties( StAId_e staId )
 		if( StA[id].state.Play() )
 		{
 			auto_volume( id );
-			RoleId_e 	roleid = sta_rolemap.GetRoleid( id );
-			Wd_p->Set_WdRole( roleid );
+			sds->WD_state.roleId = sta_rolemap.GetRoleid( id );
 		}
 		sds->StA_state_arr[id] = StA[id].state.Get();
 	};
@@ -288,18 +287,18 @@ void Mixer_class::Add_mono( Data_t* Data, const uint& id )
 		}
 	};
 
-//												  +r  -l  -r  +l  In  Ky  No  Ex
+												//+r  -l  -r  +l  In  Ky  No  Ex
 	const array<int,StAId_e::STA_SIZE> phase_r = {10,  0,-10,  0,  7, -7,  7, -7 };
 	const array<int,StAId_e::STA_SIZE> phase_l = { 0,-10,  0, 10,  7, -7,  7, -7 };
 
 	StA[id].DynVolume.SetDelta( sds_master->slide_duration );
-	for( buffer_t n = 0; n < sds_master->audioframes; n++)
+	for( buffer_t n = 0; n < audio_frames; n++)
 	{
 		float
 		volpermill 					= StA[id].DynVolume.Get() * 0.1;
 		Out.stereo_data[n].left 	+= rint( Data[n] * phase_l[id] * volpermill );
 		Out.stereo_data[n].right 	+= rint( Data[n] * phase_r[id] * volpermill );
-		RecMono_mem.Data[n]  				+= rint( Data[n] );	// collect mono data for store
+		RecMono_mem.Data[n]  		+= rint( Data[n] );	// collect mono data for sta store
 	}
 	StA[id].DynVolume.Update();
 	if( StA[ id ].state.Forget() )
@@ -307,18 +306,16 @@ void Mixer_class::Add_mono( Data_t* Data, const uint& id )
 
 }
 
-void Mixer_class::Add_stereo( Stereo_t* Data  )
+void Mixer_class::AddStereo( Stereo_t* Data  )
 // sample Data for different Synthesizer into audio memory
 // by applying master volume per Synthesizer
 {
-	buffer_t	audioframes	= sds_master->audioframes;
 
-	for( buffer_t n = 0; n < audioframes ; n++ )
+	for( buffer_t n = 0; n < audio_frames ; n++ )
 	{
-
-		Data[n].left 	+= Out.stereo_data[n].left ;//	* vol_percent * balanceL );
-		Data[n].right 	+= Out.stereo_data[n].right;// 	* vol_percent * balanceR );
-		Out.stereo_data[n] = {0,0};
+		Data[n].left 	+= Out.stereo_data[n].left ;
+		Data[n].right 	+= Out.stereo_data[n].right;
+		Out.stereo_data[n] = { 0, 0 }; // no longer needed
 	}
 
 }
@@ -339,6 +336,11 @@ void Mixer_class::Store_noteline( uint8_t arr_id, Note_class* Notes )
 }
 */
 
+bool Mixer_class::Cutdesk_isActive()
+{
+	return ( sds->WD_state.wd_mode == wavedisplay_t::CURSORID );
+}
+
 void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 							 Data_t* 	kbd_Data,
 							 Data_t* 	notes_Data,
@@ -350,7 +352,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 
 	if ( state.mute )
 	{
-		Add_stereo( shm_addr );
+		AddStereo( shm_addr );
 		return;
 	}
 
@@ -396,7 +398,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		setFillState( staId );
 	}
 
-	Add_stereo( shm_addr ); 	// push sound to audio server
+	AddStereo( shm_addr ); 	// push sound to audio server
 
 };
 
@@ -451,7 +453,7 @@ inline int16_t set_record_steps( uint8_t bps )
 	return ( bps == 0 ) ? 1 : measure_parts / bps;
 };
 
-inline int16_t conv_int16( int value, int max )
+inline int16_t to_cursor( int value, int max )
 {
 	int	ret 	= 0;
 	if (max != 0 )
@@ -467,20 +469,18 @@ auto Update_Sds = [  ]( interface_t* sds,
 	int	max_records				= sds->WD_state.frames / min_frames;
 
 	sds->WD_state.direction 	= wavedisplay_t::NO_direction;
-	sds->WD_state.cursor.min	= conv_int16( range.min, max_records ),
-	sds->WD_state.cursor.max	= conv_int16( range.max, max_records ) ;
+	sds->WD_state.cursor.min	= to_cursor( range.min, max_records ),
+	sds->WD_state.cursor.max	= to_cursor( range.max, max_records ) ;
 
 	scanner.fillrange.min		= range.min * min_frames ;
-	scanner.Set_fillrange		( range.max * min_frames );
-	if( not in_range( scanner.fillrange, scanner.rpos ) )
-		scanner.rpos 			= range.min * min_frames;
+	scanner.fillrange.max 		= ( range.max * min_frames );
+	scanner.Set_rpos			( scanner.rpos );
 
 };
 
 CutDesk_class::CutDesk_class( Mixer_class* mixer ) :
 	Logfacility_class("Cutter_class")
 {
-	className 					= Logfacility_class::className;
 	this->Mixer					= mixer;
 	this->StA					= nullptr;
 	this->sds					= Mixer->sds;
@@ -491,12 +491,34 @@ CutDesk_class::CutDesk_class( Mixer_class* mixer ) :
 	this->record_range			= { 0, 0 };
 	this->record_limits			= { 0, 0 };
 	this->restore_range			= { 0, 0 };
+	this->restore_wddata		= sds->WD_state;
+	this->cutdeskIds 			= RecIds;
+	cutdeskIds.insert			( STA_KEYBOARD );
+
 };
 
 CutDesk_class::~CutDesk_class()
 {
+	Restore();
 	DESTRUCTOR( className );
 };
+
+bool CutDesk_class::setStAId()
+{
+	StAId_e	staid 		= GetStaid( sds->WD_state.roleId );
+	if ( cutdeskIds.contains( staid ) )
+	{
+		StAId 			= staid;
+		StAName 		= StAIdName ( staid );
+		StA				= &Mixer->StA[staid];
+		return true;
+	}
+	else
+	{
+		Info( "StA", (int) staid, "is not a record Id" );
+		return false;
+	}
+}
 
 void CutDesk_class::Setup()
 {
@@ -506,30 +528,21 @@ void CutDesk_class::Setup()
 
 	// init record range, record_limits, sds->WDstate
 			restore_range		= StA->scanner.fillrange; 	// backup fillrange
+			restore_wddata		= sds->WD_state;
 	int16_t	min					= restore_range.min / min_frames;
 	int16_t	max 				= restore_range.max / min_frames;
 	int16_t	len			 		= ( max - min );
-				step_records	= set_record_steps( sds->beatClock );
+			step_records		= set_record_steps( sds->beatClock );
 	if( len < step_records )
 		return; 				// nothing to do
 
 			record_range 		= { min, int16_t( min + measure_parts ) };
 			record_limits		= { min, max		};
 
-			Wd->Set_wdmode		( CURSORID );
 			sds->WD_state.wd_mode=CURSORID;
-			sds->WD_state.frames= restore_range.max;
+			sds->WD_state.fftmode=false;
 			Update_Sds			( sds, record_range, StA->scanner );
-}
-
-void CutDesk_class::reset()
-{
-	StAId 						= STA_SIZE;
-	StA							= nullptr;
-	Wd->Set_wdmode				( FULLID );
-	sds->WD_state.wd_mode 		= FULLID;
-	sds->WD_state.cursor.min	= 0;
-	sds->WD_state.cursor.max	= wavedisplay_len;
+			Wd->Set_WdData		();
 }
 
 void CutDesk_class::Restore()
@@ -537,7 +550,10 @@ void CutDesk_class::Restore()
 	if ( not StA )
 		return;					// setup misssing or failed
 	StA->scanner.fillrange 		= restore_range;
-	reset();
+	sds->WD_state				= restore_wddata;
+	StAId 						= STA_SIZE;
+	StA							= nullptr;
+	Wd->Set_WdData();
 }
 
 void CutDesk_class::CursorUpdate()
@@ -597,29 +613,10 @@ void CutDesk_class::CursorUpdate()
 	} // switch  dir
 	record_range 	= { rmin, rmax };
 	Update_Sds		( sds, record_range, StA->scanner );
-
 	Info( "Record cursor pos update", 	record_limits.min, "<", record_range.min, "<",
 										record_range.max, "<", record_limits.max );
 }
 
-bool CutDesk_class::setStAId()
-{
-	StAId_e	staid 		= GetStaid( sds->WD_state.roleId );
-	set<StAId_e> cutdeskIds = RecIds;
-	cutdeskIds.insert( STA_KEYBOARD );
-	if ( cutdeskIds.contains( staid ) )
-	{
-		StAId 			= staid;
-		StAName 		= StAIdName ( staid );
-		StA				= &Mixer->StA[staid];
-		return true;
-	}
-	else
-	{
-		Info( "StA", (int) staid, "is not a record Id" );
-		return false;
-	}
-}
 
 void CutDesk_class::Cut()
 {
@@ -648,9 +645,15 @@ void CutDesk_class::Cut()
 	}
 }
 
-void CutDesk_class::Display()
+void CutDesk_class::Loop()
 {
-	Wd->Set_wdcursor( StA->scanner.rpos, 1 );
-	Wd->Write_wavedata();
+	Data_t*		StAdata				= StA->scanner.Next_read();
+	Stereo_t* 	shm_addr			= Mixer->DaTA->GetShm_addr();
+	if( not StAdata )				return;
+				Mixer->Add_mono		( StAdata, StAId );
+				Mixer->AddStereo	( shm_addr );
+				sds->UpdateFlag = true;
+				Mixer->StA_Wdcursor	();
+				Wd->WriteData		();
 }
 

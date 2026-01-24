@@ -42,11 +42,12 @@ SOFTWARE.
 #include <Oscgroup.h>
 #include <notes/MusicXML.h>
 
+/**************************************************
+ * Note_class
+ *************************************************/
 class Note_class
-//		: virtual public Logfacility_class
 		: virtual public Note_base
 {
-	string 				className 	= "";
 	Instrument_class*	instrument 	= nullptr;
 	Storage_class*		StA			= nullptr;
 

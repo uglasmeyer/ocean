@@ -77,10 +77,8 @@ void Processor_class::print_struct::Line( stack_struct ps )
  * Processor_class
  *************************************************/
 Processor_class::Processor_class( Application_class* app ) :
-	Logfacility_class("Processor"),
-	sdsstate_struct()
+	Logfacility_class("Processor")
 {
-	className		= Logfacility_class::className;
 	this->App		= app;
 	this->Sds 		= app->Sds;
 	this->sds		= app->sds;

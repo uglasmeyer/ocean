@@ -90,7 +90,6 @@ class Processor_class :
 
 	Appstate_class*		Appstate;
 	Application_class*	App;
-	string				className = "";
 
 public:
 	fstream 			LOG ;

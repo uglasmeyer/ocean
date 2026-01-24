@@ -66,20 +66,20 @@ void ViewInterface_class::show_Que()
 	cout << "Event ptr first : " << (int)sds_p->eventptr.first << endl;
 	cout << "          last  : " << (int)sds_p->eventptr.last  << endl;
 	cout << "          length: " << (int)sds_p->eventptr.length << endl;
-	string color = black;
+	string color = COLOR::black;
 	uint8_t pos = 0;
 	for ( uint8_t ch : sds_p->deque )
 	{
 		if( pos == sds_p->eventptr.last)
-			color = bblue;
+			color = COLOR::bblue;
 		if( pos == sds_p->eventptr.first )
-			color = bred;
+			color = COLOR::bred;
 		if( pos > sds_p->eventptr.last )
-			color = black;
+			color = COLOR::black;
 		cout.flush() << color << dec << setw(3) << (int)ch << ":" ;
 		pos++;
 	}
-	cout.flush() << endcolor << endl;
+	cout.flush() << COLOR::endcolor << endl;
 	cout << "Wavedata [ 0 ... 20 ]" << endl;
 	cout.precision(5);
 	for( uint n = 0; n< 20; n++ )

@@ -139,10 +139,9 @@ typedef				mem_data_struct	mem_ds_t;
 class 				Memory_base :
 	public virtual 	Logfacility_class
 {
-	string 			className 		= "";
 public:
-	Data_t* 		Data 			= nullptr;
-	mem_ds_t		mem_ds			;//= mem_data_struct();
+	Data_t* 		Data 			;
+	mem_ds_t		mem_ds			;
 
 	void 			DsInfo			( string name = "Memory_base");
 	void* 			Init_void		( uint8_t type_size, buffer_t bytes );

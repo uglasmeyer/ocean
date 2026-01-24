@@ -38,13 +38,12 @@ Note_base::Note_base () :
 	Frequency_class()
 {
 	this->min_duration			= 1000 / nlp_default.nps;  //milli seconds
-	this->className 			= Logfacility_class::className;
 	this->note_buffer 			= note_struct();
 	this->notelist.clear		();
 	this->note_itr 				= notelist.begin();
 	this->Noteline_prefix		= nlp_default; // D=default, N=numeric
 	this->Note_Chars			= { convention_notes[ nlp_default.convention ] };
-	this->rest_note				= note_struct( PAUSE, 0 );
+	this->rest_note				= note_struct( NOTE::PAUSE, 0 );
 	this->rest_note.duration	= min_duration;
 	this->EmptyNote				= rest_note;
 	this->EmptyNote.chord.clear	();

@@ -35,7 +35,7 @@ Wavedisplay_class*		Wd_p 			= &Wavedisplay;
 Appstate_class*			Appstate 		= &DaTA.Appstate;
 Instrument_class 		Instrument		{ sds, Wd_p, Cfg.fs };
 Mixer_class				Mixer			{ &DaTA, Wd_p } ;
-CutDesk_class			Cutter			{ &Mixer };
+CutDesk_class			CutDesk			{ &Mixer };
 Note_class 				Notes			{ &Instrument, &Mixer.StA[ STA_NOTES ] };
 Keyboard_class			Keyboard		( &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, sds );
@@ -50,7 +50,7 @@ Event_class				Event			{
 										&DaTA,
 										&External,
 										&ProgressBar,
-										&Cutter
+										&CutDesk
 										};
 
 
@@ -93,26 +93,18 @@ void activate_sds()
 	Keyboard.Enable( App.properties.keyboard ) ;
 	Mixer.SetStAs();
 
-	if( sds->WD_state.wd_mode == wavedisplay_t::CURSORID )
+	if( Mixer.Cutdesk_isActive())
 		sds->WD_state.wd_mode = wavedisplay_t::FULLID;
-	Wavedisplay.Set_WdRole( sds->WD_state.roleId );
+	Wavedisplay.Set_WdData();
 }
 
 
 void add_sound()
 {
 
-	WdModeID_t 	mode	= sds->WD_state.wd_mode;
-	if ( mode == wavedisplay_t::CURSORID )
+	if ( Mixer.Cutdesk_isActive() )
 	{
-		if ( Cutter.StAId == STA_SIZE) return;
-		Cutter.Display	();
-
-		Data_t*		StAdata			= Mixer.StA[ Cutter.StAId ].scanner.Next_read();
-		Stereo_t* 	shm_addr		= DaTA.GetShm_addr(  );
-					Mixer.Add_mono	( StAdata, Cutter.StAId );
-					Mixer.Add_stereo( shm_addr );
-					sds->UpdateFlag = true;
+		CutDesk.Loop();
 		return; // cursor control by cutter
 	};
 
@@ -166,7 +158,7 @@ void add_sound()
 	if (( sds->WD_state.roleId != AUDIOROLE )	)
 	{
 		Mixer.StA_Wdcursor();
-		Wavedisplay.Write_wavedata();
+		Wavedisplay.WriteData();
 	}
 
 

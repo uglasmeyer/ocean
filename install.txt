@@ -17,6 +17,8 @@ $  ./oceansetup.sh
 	To activate the desktop file OceanGUI.desktop it is helpfull (instead
 	of login/logout) to enter the command
 $ sudo update-desktop-database
+	and
+$ desktop-file-validate OceanGUI.desktop
  
 3.	Source the Ocean-SL-rc-file 
 

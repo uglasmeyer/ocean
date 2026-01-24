@@ -88,13 +88,13 @@ void ComposerTestCases()
 	Processor.Test_Processor();
 	Processor.Set_Loglevel( TEST, true );
 	Interpreter.Test( );
-
-	string arg = "-t";
-	char* args = arg.data();
-	App.Start(1, &args );
-	Interpreter.Variation.Test();
 	Charset_class A("abdefabdef");
 	A.test();
+
+//	string arg = "-t";
+//	char* args = arg.data();
+//	App.Start(1, &args );
+//
 }
 
 void exit_proc( int signal )

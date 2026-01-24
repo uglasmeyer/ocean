@@ -43,7 +43,8 @@ class Wavedisplay_class :
 					wavedisplay_struct,
 	virtual public 	osc_struct
 {
-	Interface_class* Sds_p 			;
+	Interface_class*
+					Sds_p 			;
 	interface_t*	sds				;
 
 public:
@@ -58,15 +59,13 @@ public:
 									RoleId_e wd_role,
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
-	void 			Set_DataPtr		( WD_data_t& status  );
-	void 			Write_wavedata 	();
+	void 			Set_WdData		();
+	void 			WriteData 		();
 	void 			Set_wdcursor	( buffer_t pos, buffer_t unit );
-	void 			Set_WdRole		(const RoleId_e &role);
-	void 			Set_wdmode		( const WdModeID_t& mode );
 
 
 private:
-	void 			setFFTmode		( const bool& mode );
+	void 			set_Wdmode		( const WdModeID_t& mode, bool fftmode );
 	void 			set_wdcursor	( uint16_t pos );
 	void	 		gen_cxwave_data	( void  );
 
@@ -87,22 +86,21 @@ private:
 	typedef array< 	array< wd_ptr_t , 	WD_OSC_SIZE>,  	WD_ROLES_SIZE >
 					data_ptr_mtx_t;
 
-	string 			className		;
 	int 			frame_counter	;
 	buffer_t 		offs 			;
 	WdModeID_t		WdMode			;
 	data_ptr_mtx_t	data_ptr_mtx 	;
-	Data_t*			data_ptr 		;
+	Data_t*			wd_ptr 			;
+	buffer_t		wd_frames		;
 	wd_ptr_t		Wd_ptr			;
 	WD_data_t		wd_data			;
 	bool			debug_right		;
-	bool			fft_mode		;
 	wd_arr_t 		display_data 	{ 0 };
 
-	param_t param_flow				;
-	param_t param_full 				;
-	param_t param_split				;
-	param_t param_cursor			;
+	param_t 		param_flow		;
+	param_t 		param_full 		;
+	param_t 		param_split		;
+	param_t 		param_cursor	;
 };
 
 #endif /* WAVEDISPLAY_H_ */

@@ -32,12 +32,14 @@ SOFTWARE.
 #ifndef VARIATION_H_
 #define VARIATION_H_
 
-#include <Mixer.h>
+//#include <Mixer.h>
 #include <notes/Notes.h>
 #include <Ocean.h>
 
-
-class Charset_class //: virtual public string
+/**************************************************
+ * Charset_class
+ *************************************************/
+class Charset_class
 {
 	// a charset A is a unique string of chars
 	string		 SetStr	{};
@@ -48,9 +50,9 @@ public:
 	Charset_class( string set )
 	{
 		SetStr = set;	// the origin of the string
-		std::copy( set.begin(),set.end(), back_inserter( Set ));
-		std::sort(Set.begin(),Set.end());
-		std::unique_copy(set.begin(), set.end(), back_inserter(uSet));
+		std::ranges::copy( set, back_inserter( Set ));
+		std::ranges::sort(Set);
+		std::ranges::unique_copy(set, back_inserter(uSet));
 	};
 
 	~Charset_class(){};
@@ -159,51 +161,56 @@ public:
 
 };
 
+
+/**************************************************
+ * Variation_class
+ *************************************************/
 class Variation_class :
 		virtual public Logfacility_class,
 		virtual public Note_class
 {
-	string className = "";
 public:
 
-	Variation_class( interface_t* sds, Config_class* cfg  ) ;
-	~Variation_class() = default;
+				Variation_class	( interface_t* sds, Config_class* cfg  ) ;
+				~Variation_class() = default;
 
 	typedef vector<note_t>
 				noteword_t;
 	typedef vector<noteword_t>
 				notesentence_t;
 
-	void 		Set_note_chars( uint );
-	void 		Set_note_chars( uint, uint );
-	void 		Define_fix( string  );
-	void 		Define_variable( string  );
-	void 		Define_rhythm  ( string );
-	string 		Gen_noteline( string pattern, string filename );
-	void 		Test();
+	void 		Set_note_chars	( uint );
+	void 		Set_note_chars	( uint, uint );
+	void 		Define_fix		( string  );
+	void 		Define_variable	( string  );
+	void 		Define_rhythm  	( string );
+	string 		Gen_noteline	( string pattern, string filename );
+	void 		selfTest		();
 
 private:
 	noteline_prefix_struct
 				Nlp_variation	= nlp_default;
 
-	string Constant_chars{""};
-	string Rhythm_chars{""};
-	random_device rd;
+	string 		Constant_chars	{""};
+	string 		Rhythm_chars	{""};
+	random_device
+				rd;
 
-	noteword_t 		Random_Notes{};
-	notesentence_t 	Sentence{};
+	noteword_t 	Random_Notes	{};
+	notesentence_t
+				Sentence		{};
 
-	noteword_t 	list2vector( notelist_t );
-	string 		insert_random(  );
-	string 		input_filter( string , set<char> );
+	noteword_t 	list2vector		( notelist_t );
+	string 		insert_random	();
+	string 		input_filter	( string , set<char> );
 	void 		define_random_note_vector( string str );
 	noteword_t 	gen_random_note_word();
 	void 		randomize_notes_octave( string );
-	noteword_t 	str2words( string note_str );
-	void 		swap_word( int i, int j );
-	void		reverse_word( int i );
-	void 		set_octave( int, noteword_t& );
-	string 		scan_sentence( char );
+	noteword_t 	str2words		( string note_str );
+	void 		swap_word		( int i, int j );
+	void		reverse_word	( int i );
+	void 		set_octave		( int, noteword_t& );
+	string 		scan_sentence	( char );
 
 	template<typename T>
 	auto gen_random_note( T random_set)

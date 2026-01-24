@@ -88,7 +88,7 @@ typedef range_T<int16_t>
 typedef cursor_T<int16_t>
 						cursor_t;
 
-const int 			wavedisplay_len	= 512;
+const int 				wavedisplay_len	= 512;
 
 struct WD_data_struct
 {	// SDS related
@@ -99,7 +99,7 @@ struct WD_data_struct
 	WdModeID_t 			wd_mode			= wavedisplay_t::FULLID;
 	Direction_e			direction		= wavedisplay_t::NO_direction; // GUI bounds cursor direction
 	buffer_t			frames			= 0; // max number of frames presented in the display
-	cursor_t			cursor			{ 0, 0, 1 }; // len=param.size / minframes is constant
+	cursor_t			cursor			{ 0, 0, wavedisplay_len }; // len=param.size / minframes is constant
 } ;
 
 typedef WD_data_struct 	WD_data_t;
@@ -111,8 +111,8 @@ const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().types.size();
 
 typedef array< Data_t,	wavedisplay_len>wd_arr_t;
 
-typedef complex<double>	cd_t;
-typedef vector<cd_t>	cd_vec_t;
+typedef complex<double>					cd_t;
+typedef vector<cd_t>					cd_vec_t;
 extern wd_arr_t 		fft				(cd_vec_t data, bool invert);
 
 #endif /* WAVEDISPLAY_BASE_H_ */

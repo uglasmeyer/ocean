@@ -38,7 +38,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 3
-#define PATCH 0
+#define PATCH 1
 #define SDS_VERSION 46
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -60,7 +60,7 @@ const string License_text = R"(
 /*
 
 
-
+4.3.1.46 no audio during dut desk dialog
 4.3.0-46 save keyboard notes
 4.3.0-45 instrumentClock set instrument beat separately from instrument adsr
 4.3.0-44 show Cut desk left/right bounds on wavedisplay

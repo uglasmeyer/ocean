@@ -35,12 +35,10 @@ SOFTWARE.
 /**************************************************
  * Memory_base
  *************************************************/
-Memory_base::Memory_base( uint8_t type_bytes, buffer_t bytes ) :
-	Logfacility_class( "Memory_base" )
+Memory_base::Memory_base( uint8_t type_bytes, buffer_t bytes )
+	: Logfacility_class( "Memory_base" )
 	, mem_ds( sizeof_Data, bytes )
 {
-//	mem_ds.bytes 	= bytes;
-	className 		= Logfacility_class::className;
 	Init_data( bytes);
 	Comment( DEBUG, "init memory size ", bytes );
 };

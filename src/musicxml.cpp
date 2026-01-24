@@ -184,7 +184,7 @@ pitch_t Musicxml_class::get_pitch( XMLElement* root )
 	int 	oct = -1;
 	int 	alt = 0;
 	string 	str = "";
-	char 	ch 	= PAUSE;
+	char 	ch 	= NOTE::PAUSE;
 
 	xml_value	( "octave"	, oct, root );
 	xml_value	( "alter"	, alt, root );
@@ -263,7 +263,7 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 			p = note_p->FirstChildElement("rest");
 			if( p )
 			{
-				pitch.step_char = PAUSE;
+				pitch.step_char = NOTE::PAUSE;
 				pitch.step 		= NONOTE;
 				note.volume 	= 0;
 			}

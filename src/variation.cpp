@@ -38,9 +38,9 @@ Variation_class::Variation_class( interface_t* sds, Config_class* cfg )
 	, Note_class( sds, cfg->fs )
 {
 	Note_class::Instrument_name = "Variation";
-	className = Logfacility_class::className;
 	Nlp_variation.variation = 1;
 	Nlp_variation.nps		= 2;
+	selfTest();
 };
 
 
@@ -156,24 +156,24 @@ void Variation_class::Define_rhythm( string rhythm )
 
 Variation_class::noteword_t Variation_class::gen_random_note_word()
 {
-	note_t 	note{};
-	noteword_t 		word{};
+	note_t 		note		{};
+	noteword_t 	word		{};
 
-	buffer_t duration 	= 0;
+	buffer_t 	duration 	= 0;
 
 	while ( duration < measure_duration )
 	{
 		note = gen_random_note( Random_Notes );
 
-		duration += Note_class::min_duration;
-		note.duration = Note_class::min_duration;
+		duration 		+=Note_class::min_duration;
+		note.duration 	= Note_class::min_duration;
 		char ch = gen_random_note( Random_Notes ).str[0];
 		while ( ( ch == '-' ) and ( duration < measure_duration ))
 		{
-			duration += Note_class::min_duration;
-			note.duration += Note_class::min_duration;
+			duration 		+= Note_class::min_duration;
+			note.duration 	+= Note_class::min_duration;
 			note.str.push_back( '-' );
-			ch = gen_random_note( Random_Notes ).str[0];
+			ch 				= gen_random_note( Random_Notes ).str[0];
 		}
 		note.octave = Note_class::Octave;
 		word.push_back( note );
@@ -373,7 +373,7 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	return noteline;
 }
 
-void Variation_class::Test()
+void Variation_class::selfTest()
 {
 	TEST_START( this->className );
 

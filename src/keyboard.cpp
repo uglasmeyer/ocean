@@ -284,7 +284,7 @@ void Noteline_struct::AddLenth( uint& cnt )
 		return; // dont add note duration for empty notes
 	for( uint i = 0; ((i < cnt ) and ( i < measure_parts )); i++ )
 	{
-		str.push_back( INCDUR );
+		str.push_back( NOTE::INCDUR );
 		cout << "-";
 	}
 	cout << endl;

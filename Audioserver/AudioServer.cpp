@@ -100,13 +100,13 @@ void write_waveaudio()
 		return;
 
 
-	for( buffer_t n = 0; n < audioframes; n++ )
+	for( buffer_t n = 0; n < audio_frames; n++ )
 	{
 		wd_mono_mem.Data[n] = stereo.stereo_data[n].left + stereo.stereo_data[n].right;//shm_addr[n].left + shm_addr[n].right;
 	}
 
-	Wavedisplay.Set_DataPtr( sds->WD_state );
-	Wavedisplay.Write_wavedata();
+	Wavedisplay.Set_WdData();
+	Wavedisplay.WriteData();
 }
 
 void Request_data()
@@ -123,7 +123,7 @@ void call_for_update()
 	DaTA.ClearShm();
 	shm_addr = DaTA.SetShm_addr();
 
-	Volume.Transform( audioframes, shm_addr, stereo.stereo_data );
+	Volume.Transform( audio_frames, shm_addr, stereo.stereo_data );
 
 	Request_data();
 }
@@ -133,7 +133,7 @@ void call_for_update()
 //Time_class Measure{};
 void set_ncounter( buffer_t n )
 {
-	if(n < audioframes )
+	if(n < audio_frames )
 		return;
 
 	ncounter = 0;
@@ -145,7 +145,7 @@ void set_ncounter( buffer_t n )
 
 	if ( Record.recording )
 	{
-		Record.Store_audioframes( shm_addr, audioframes );
+		Record.Store_audioframes( shm_addr, audio_frames );
 		Record.Set_rcounter();
 	}
 
@@ -213,11 +213,8 @@ int main( int argc, char *argv[] )
 
 
 // 	init wavedisplay
-	WD_data_t wd_status 	= WD_data_struct();
-	wd_status.roleId 		= AUDIOROLE;
-	wd_status.oscId 		= OSCID;
-	Wavedisplay.Add_role_ptr( wd_status.roleId, wd_mono_mem.Data, &audioframes);
-	Wavedisplay.Set_DataPtr( wd_status );
+	buffer_t audioframes = audio_frames; // not constant
+	Wavedisplay.Add_role_ptr( AUDIOROLE, wd_mono_mem.Data, &audioframes);
 
 // end parametrization
 // -------------------------------------------------------------------------------

@@ -36,6 +36,28 @@ SOFTWARE.
 #include <Utilities.h>
 #include <Kbd.h>
 
+namespace COLOR
+{
+	const string			reset		= "\033[39m";
+	const string 			boldon		= "\033[1m";
+	const string			boldoff		= "\033[0m";
+	const string			black		= "\033[30m";
+	const string 			cyan 		= "\033[96m";
+	const string 			green 		= "\033[92m";
+	const string 			red 		= "\033[91m";
+	const string 			magenta 	= "\033[95m";
+	const string 			yellow  	= "\033[33m";
+	const string 			blue 		= "\033[94m";
+	const string			bblack		= boldon + black;
+	const string 			bgreen		= boldon + green;
+	const string 			bred		= boldon + red;
+	const string 			bblue		= boldon + blue;
+	const string 			byellow		= boldon + yellow;
+	const string 			bmagenta	= boldon + magenta;
+	const string 			endcolor	= boldoff + reset;
+	const string			nocolor		= "";
+}
+
 #define coutf 			cout.flush()
 
 
@@ -124,33 +146,16 @@ private:
 #define LUNDEF 35
 
 
-
+/**************************************************
+ * Logfacility_class
+ *************************************************/
 class Logfacility_class
 {
 
 public:
-	const string			reset		= "\033[39m";
-	const string 			boldon		= "\033[1m";
-	const string			boldoff		= "\033[0m";
-	const string			black		= "\033[30m";
-	const string 			cyan 		= "\033[96m";
-	const string 			green 		= "\033[92m";
-	const string 			red 		= "\033[91m";
-	const string 			magenta 	= "\033[95m";
-	const string 			yellow  	= "\033[33m";
-	const string 			blue 		= "\033[94m";
-	const string			bblack		= boldon + black;
-	const string 			bgreen		= boldon + green;
-	const string 			bred		= boldon + red;
-	const string 			bblue		= boldon + blue;
-	const string 			byellow		= boldon + yellow;
-	const string 			bmagenta	= boldon + magenta;
-	const string			nocolor		= "";
-	string 					className 		{ "" };
-	string 					prefixClass 	{ "" };
-	const string 			logFile	 		= logDir + logFileName + string(".log") ;
-	const string 			endcolor		= boldoff + reset;
-	logmask_t 				logmask			= defaultLogMask;
+	string 					className 		;
+	string 					prefixClass 	;
+	logmask_t 				logmask			;
 
 					Logfacility_class( string module  );
 					Logfacility_class( );
@@ -224,31 +229,10 @@ private:
 	} pair_struct_t;
 	typedef array<pair_struct_t, 64> error_arr_t ;
 
-	error_arr_t error_arr { pair_struct() };
-
-	// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-
-
-
-	vector<log_struct> Prefix_vec =
-	{
-			{"Error", bred },
-			{"Debug", black },
-			{"Info ", bblue },
-			{"Warn ", bmagenta },
-			{"Dbg2 ", yellow },
-			{"bInfo", bgreen },
-			{"Test ", blue },
-			{""		, nocolor },
-			{"Table", bblack },
-			{"Wait ", bred },
-			{"", nocolor }
-	};
-
-	string 	cout_log( LOG_e logid, string str );
-	void 	seterrText();
-
-
+	error_arr_t 		error_arr;
+	vector<log_struct> 	Prefix_vec;
+	string 				cout_log( LOG_e logid, string str );
+	void 				seterrText();
 };
 
 

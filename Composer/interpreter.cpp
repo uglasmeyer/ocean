@@ -36,12 +36,11 @@ range_T<uint8_t> amp_range{ 0, 100 };
 range_T<uint8_t> uint8_range{ 0, 255 };
 
 Interpreter_class::Interpreter_class( Application_class* app )
-	: Logfacility_class( "Interpreter_class" )
-	, Processor_class( app )
-	, Device_class( app->DaTA->sds_master )
-	, Variation( app->DaTA->sds_master, app->Cfg )
+	: Logfacility_class	( "Interpreter_class" )
+	, Processor_class	( app )
+	, Device_class		( app->DaTA->sds_master )
+	, Variation			( app->DaTA->sds_master, app->Cfg )
 {
-	className			= Logfacility_class::className;
 	this->sds 			= app->DaTA->GetSdsAddr();
 	this->Sds 			= app->DaTA->Sds_master;
 	this->Cfg 			= app->DaTA->Cfg_p;
@@ -76,6 +75,11 @@ Interpreter_class::Interpreter_class( Application_class* app )
 	fmo_view.wf 		= &sds->spectrum_arr[FMOID].wfid[0];
 	fmo_view.amp 		= &sds->spectrum_arr[FMOID].volidx[0];
 	fmo_view.frqidx 	= &sds->spectrum_arr[FMOID].frqidx[0];
+
+	this->dialog_mode 	= false;
+	this->CompilerExit	= false;
+	this->error			= 0;
+	this->duration 		= 0;
 
 }
 
@@ -218,7 +222,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		{
 			expect = { "loop final volume" };
 			uint8_t 	amp 	= pop_T( amp_range );
-			Loop( amp, MASTERAMP_KEY ); // TODO - working
+			amploop( amp, MASTERAMP_KEY ); // TODO - working
 			return;
 		}
 		Wrong_keyword( expect , keyword.Str );
@@ -585,7 +589,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 
 		if ( loop ) // TODO-working
 		{
-			Loop( amp, MASTERAMP_LOOP_KEY );
+			amploop( amp, MASTERAMP_LOOP_KEY );
 		}
 		else
 		{
@@ -655,7 +659,7 @@ void Interpreter_class::Play( vector_str_t arr )
 			Processor_class::Push_ifd( &sds->StA_amp_arr[staId] , max, "% slide duration " );
 			Processor_class::Push_ifd( &sds->vol_slidemode , SLIDE, "slide mode" );
 			Processor_class::Push_key( STA_VOLUME_KEY, "set loop volume" );
-			Loop( max, NULLKEY);
+			amploop( max, NULLKEY);
 			return;
 		}
 		else
@@ -981,7 +985,7 @@ vector_str_t Interpreter_class::InsertVariable( vector_str_t arr )
 	return result;
 }
 
-void Interpreter_class::Loop( uint8_t max, EVENTKEY_e key )
+void Interpreter_class::amploop( uint8_t max, EVENTKEY_e key )
 {
 	if ( key == 0 )
 	{

@@ -74,10 +74,11 @@ public:
 	void 					SetStAProperties( StAId_e mixerId );
 	void	 				StA_Wdcursor	();
 	void 					BeatClock		( const uint8_t& bps );
+	bool					Cutdesk_isActive();
 
 
 	void 					Add_mono		( Data_t*, const uint& staId );
-	void 					Add_stereo		( Stereo_t* Data  );
+	void 					AddStereo		( Stereo_t* Data  );
 	void 					TestMixer		();
 
 private:
@@ -101,7 +102,6 @@ class CutDesk_class :
 {
 	record_range_t			record_range	;
 	record_range_t			record_limits	;
-	string 					className 		= "";
 	Mixer_class*			Mixer			;
 	Storage_class*			StA				;
 	interface_t*			sds				;
@@ -112,18 +112,20 @@ class CutDesk_class :
 public:
 	StAId_e					StAId			;
 	range_T<buffer_t>		restore_range	;
+	WD_data_t				restore_wddata	;
 
 							CutDesk_class	( Mixer_class* Mixer );
 	virtual 				~CutDesk_class	();
 	void 					CursorUpdate	();
 	void 					Cut				();
-	void 					Display			();
+	void 					Loop			();
 	void 					Setup			();
 	void 					Restore			();
 
 private:
+	set<StAId_e> 			cutdeskIds		;//= RecIds;
+
 	bool 					setStAId		();
-	void 					reset			();
 };
 
 #endif /* INCLUDE_MIXER_H_ */

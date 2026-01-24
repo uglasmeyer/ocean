@@ -35,7 +35,6 @@ SOFTWARE.
 Wavedisplay_class::Wavedisplay_class( Interface_class* _sds )
 : Logfacility_class("Wavedisplay")
 {
-	this->className 	= Logfacility_class::className;
 	this->Sds_p 		= _sds;
 	this->sds			= _sds->addr;
 	this->param_flow	= param_struct();
@@ -45,12 +44,10 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* _sds )
 	this->frame_counter	= 0;
 	this->offs 			= 0;
 	this->WdMode		= sds->WD_state.wd_mode;
-	this->data_ptr 		= nullptr;
+	this->wd_ptr 		= nullptr;
 	this->Wd_ptr		= wd_ptr_struct();
 	this->wd_data		= WD_data_struct();
 	this->debug_right	= true;
-	this->fft_mode		= false;
-
 	Assert_equal( roleNames.size(), (size_t) ROLE_SIZE );
 
 }
@@ -58,21 +55,20 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* _sds )
 // max_fames - step*len - _offs > 0 => max_offs = max_frames - step*len
 void Wavedisplay_class::gen_cxwave_data( )
 {
-	buffer_t	wd_frames		= *Wd_ptr.frames;
 	if ( wd_frames == 0 )
 	{
 		Comment( WARN, "Zero wavedisplay frames", (int)wd_data.roleId, ",", (int)wd_data.oscId );
 		return;
 	}
 
-	auto gen_debug = [ this, wd_frames ]( param_t param )
+	auto gen_debug = [ this ]( param_t param )
 	{
 		if ( debug_right ) // n = param.len ... 2*param.len - left data range -> back buffer range
 		{	// fill this area thereafter
 			debug_right = not debug_right;
 			for ( buffer_t n = 0; n < param.len; n++ )
 			{
-				Data_t value = data_ptr[n];
+				Data_t value = wd_ptr[n];
 				display_data[ n + param.len  ] = value;   // right half
 			}
 		}
@@ -81,13 +77,13 @@ void Wavedisplay_class::gen_cxwave_data( )
 			debug_right = not debug_right;
 			for ( buffer_t n = wd_frames - param.len; n < wd_frames; n++ )
 			{
-				Data_t value = data_ptr[n];
+				Data_t value = wd_ptr[n];
 				display_data[ n + param.len - wd_frames ] = value;
 			}
 		}
 	};
 
-	auto gen_full = [ this, wd_frames ]( param_t param )
+	auto gen_full = [ this ]( param_t param )
 	{
 
 		uint 		idx				= 0;
@@ -97,12 +93,12 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 		for ( buffer_t n = 0; n < wavedisplay_len; n++ )
 		{
-			display_data[ n ] 	= data_ptr[idx];
+			display_data[ n ] 	= wd_ptr[idx];
 			idx += step;
 		}
 	};
 
-	auto gen_fft = [ this, wd_frames ]( param_t param )
+	auto gen_fft = [ this ]( param_t param )
 	{
 		cd_vec_t cdv {};
 		param.step	= rint( wd_frames / wavedisplay_len );
@@ -110,24 +106,24 @@ void Wavedisplay_class::gen_cxwave_data( )
 			return;
 		for ( buffer_t n = 0; n < wd_frames; n = n + param.step )
 		{
-			Data_t value = data_ptr[n];
+			Data_t value = wd_ptr[n];
 			cdv.push_back( cd_t( (double)value, 0.0 ));
 		}
 		display_data = fft( cdv, false );
 	};
 
-	auto gen_flow = [ this, wd_frames ]( param_t param )
+	auto gen_flow = [ this ]( param_t param )
 	{
 		uint idx 	= 0;
 		uint step	= param.step;
 		for ( buffer_t n = offs; n < param.len*step + offs; n = n + step )
 		{
-			Data_t value = data_ptr[n] ;
+			Data_t value = wd_ptr[n] ;
 			display_data[ idx ] = value;
 			idx++;
 		}
 	};
-	if ( data_ptr == nullptr )
+	if ( wd_ptr == nullptr )
 	{
 		Comment(ERROR, "wave display got nullptr at index " +
 						to_string(wd_data.roleId) + "," +
@@ -184,7 +180,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 	}
 }
 
-void Wavedisplay_class::Write_wavedata()
+void Wavedisplay_class::WriteData()
 {
 	auto _scale = [ this ](  )
 	{
@@ -208,44 +204,35 @@ void Wavedisplay_class::Write_wavedata()
 	}
 }
 
-void Wavedisplay_class::Set_DataPtr	( WD_data_t& state  )
+void Wavedisplay_class::Set_WdData	()
 {
-	Wd_ptr			= data_ptr_mtx[state.roleId][state.oscId];
+	wd_data					= sds->WD_state;
+	Wd_ptr					= data_ptr_mtx[wd_data.roleId][wd_data.oscId];
 
 	if ( Wd_ptr.ptr == nullptr )
 	{
-		Comment( WARN, "Cannot set Wavedisplay ptr to null [" + to_string(state.roleId) + "]" +
-														  "[" + to_string(state.oscId) + "]");
+		Comment( WARN, "Cannot set Wavedisplay ptr to null [" , (int)wd_data.roleId, "] ["
+														  	  , (int)wd_data.oscId , "]");
 		return;
 	}
-	wd_data 		= state;
-	data_ptr 		= Wd_ptr.ptr;
-
-	Comment( Logmask(DEBUG), "wave display selected: "+
-							roleNames[ state.roleId ] + " " +
-							typeNames[ state.oscId ] );
-	Set_wdmode( state.wd_mode );
-	setFFTmode( state.fftmode );
-	state.cursor.len 			= *Wd_ptr.frames/min_frames;
-	sds->WD_state.cursor.len 	= state.cursor.len;
-	sds->WD_state.frames		= *Wd_ptr.frames;
-}
-
-void Wavedisplay_class::Set_WdRole(const RoleId_e &role)
-{
-	sds->WD_state.roleId = role;
-	Set_DataPtr(sds->WD_state);
+	wd_ptr 					= Wd_ptr.ptr;
+	wd_frames				= *Wd_ptr.frames;
+	wd_data.frames			= wd_frames;
+	set_Wdmode				( wd_data.wd_mode, wd_data.fftmode );
+	sds->WD_state			= wd_data;
+	Comment( WARN, "Wavedisplay ptr set to [" 	, (int)wd_data.roleId, "] ["
+												, (int)wd_data.oscId , "]");
 }
 
 // pos is frames 	-> unit = 1
 // pos is records 	-> unit = min_frames
 void Wavedisplay_class::Set_wdcursor( buffer_t pos, buffer_t unit )
 {	// convert scanner position or record position into wavedisplay position
-	int max = *Wd_ptr.frames / unit;
-	sds->WD_state.frames = *Wd_ptr.frames;
+	if( WdMode == FFTID ) return;// no time coordinate for fftmode
+
+	int max = wd_frames / unit;
 	set_wdcursor( wavedisplay_len * pos / max );
 }
-
 void Wavedisplay_class::set_wdcursor( uint16_t cursor )
 {
 	switch ( WdMode )
@@ -255,21 +242,19 @@ void Wavedisplay_class::set_wdcursor( uint16_t cursor )
 		case CURSORID	: {	break; }
 		default 		: { cursor = 0; break; }
 	} // switch  WdMode
-	sds->WD_state.cursor.cur = cursor;
+	wd_data.cursor.cur			= cursor;
+	sds->WD_state.cursor.cur 	= cursor;
 }
 
-void Wavedisplay_class::Set_wdmode( const WdModeID_t& _mode )
+void Wavedisplay_class::set_Wdmode( const WdModeID_t& _mode, bool fftmode )
 {
-	WdMode 		= _mode;
-	debug_right	= false;
-	set_wdcursor( 0 );
-}
-
-void Wavedisplay_class::setFFTmode( const bool& mode )
-{
-	if ( mode )
+	if ( fftmode )
 		WdMode		= FFTID;
+	else
+		WdMode 		= _mode;
+	debug_right	= false;
 }
+
 void Wavedisplay_class::Add_role_ptr( 	RoleId_e wd_role,
 										Data_t* ptr,
 										buffer_t* wd_frames )
@@ -283,7 +268,7 @@ void Wavedisplay_class::Add_role_ptr( 	RoleId_e wd_role,
 void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 										RoleId_e 	wd_role,
 										Data_t* 	ptr,
-										buffer_t* 	wd_frames )
+										buffer_t* 	frames )
 {
 
 //	cout << "wd_role: " << (int) wd_role << endl;
@@ -291,7 +276,7 @@ void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 					(int)wd_role ,
 					roleNames[ wd_role ],
 					typeNames[ wd_type ],
-					(int) *wd_frames );
+					(int) *frames );
 	if ( ptr == nullptr )
 	{
 		Exception("Undefined Wavedisplay" );
@@ -301,9 +286,7 @@ void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 	{
 		Exception( "wd_type out of bounds" );
 	}
-	data_ptr_mtx[ wd_role ][wd_type ] = wd_ptr_struct{ ptr, wd_frames };
-
-
+	data_ptr_mtx[ wd_role ][wd_type ] = wd_ptr_struct{ ptr, frames };
 
 }
 

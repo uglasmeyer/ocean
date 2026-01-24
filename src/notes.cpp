@@ -53,7 +53,6 @@ Note_class::Note_class( Instrument_class* 	instr,
 	, Note_itr_end	( "Note_itr end  ", &instr->sds->Note_end )
 {
 	this->sds 		= instr->sds;
-	this->className = Logfacility_class::className;
 	this->instrument= instr;
 	this->fs		= instr->fs;
 	this->wd		= instr->wd_p;
@@ -228,7 +227,7 @@ bool Note_class::Generate_volatile_data( bool init )
 		StA->param.wdsize = StA->scanner.mem_range.max;
 
 		Note_itr_start.SetState( true );
-	note_itr = notelist.begin();
+		note_itr = notelist.begin();
 	}
 	StA->state.Forget( true );
 	sds->StA_state_arr[STA_NOTES].forget = true;

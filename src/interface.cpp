@@ -363,7 +363,8 @@ void EventQue_class::reset()
 {
 	eventptr 		= EventPtr_struct();
 	addr->eventptr 	= eventptr;
-	std::ranges::for_each( addr->deque, []( uint8_t& element ){ element = 0  ;});
+	std::ranges::for_each( addr->deque, []( uint8_t& element )
+		{ element = 0  ;});
 }
 void EventQue_class::add( EVENTKEY_e event )
 {

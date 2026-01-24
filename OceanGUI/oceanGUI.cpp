@@ -57,6 +57,7 @@ RoleId_e			prev_roleid = INSTRROLE;
 
 auto default_WD_role = [  ]( interface_t* sds, RoleId_e selected_role, StAId_e staid )
 {
+	return selected_role;
 	bool play = false;
 	if( staid < STA_SIZE )
 		play = sds->StA_state_arr[staid].play;
@@ -103,6 +104,7 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	prev_wd_role	= sds->WD_state.roleId;
 
 	ui->setupUi(this);
+	this->setFocusPolicy(Qt::StrongFocus);
 	CB_external 	= ui->cB_external;
 
 	initPanel();
@@ -153,11 +155,8 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 	uint8_t key_ch = key.Arr[0];
 	if( key_ch > 0 )
 	{
-		QStr = "";
 		QStr.push_back( QChar(key_ch) );
 		set_wdrole( KBDROLE );
-		Keyboard_Dialog_p->keyboard_key = QStr;
-		Keyboard_Dialog_p->Setup_Widget();
 	}
 }
 
@@ -946,6 +945,8 @@ void MainWindow::setwidgetvalues()
 		{
 			Keyboard_Dialog_p->show();
 			Keyboard_Dialog_p->Setup_Widget();
+//			this->setFocus( Qt::ActiveWindowFocusReason );
+			this->setFocus();//DOES NOT WORK
 		}
 	}
 	else

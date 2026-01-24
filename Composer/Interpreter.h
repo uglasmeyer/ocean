@@ -48,14 +48,13 @@ SOFTWARE.
  * Interpreter_class
  *************************************************/
 class Interpreter_class
-	: virtual 			Logfacility_class
+	: virtual public	Logfacility_class
 	, virtual 			osc_struct
 	, virtual public 	Processor_class
 	, virtual 			Device_class
 	, virtual			oscwaveform_struct
 
 {
-	string			className = "";
 	typedef struct view_struct
 	{
 		string 		name 	= "none";
@@ -77,72 +76,73 @@ class Interpreter_class
 
 
 public:
-	Interface_class* 	Sds;
-	Config_class*		Cfg;
-	file_structure*		fs;
-	interface_t* 		sds;
-	Variation_class 	Variation;
-	view_struct_t main_view, fmo_view, vco_view;
+	Interface_class* 		Sds					;
+	Config_class*			Cfg					;
+	file_structure*			fs					;
+	interface_t* 			sds					;
+	Variation_class 		Variation			;
+	view_struct_t 			main_view, fmo_view, vco_view;
 
-	String Str{""};
-	string cmdline = "";
-	string option_default = "";
-	bool 	dialog_mode = false;
-	bool	CompilerExit= false;
+	String 					Str					{};
+	string 					cmdline 			= "";
+	string 					option_default		= "";
+	bool 					dialog_mode 		;
+	bool					CompilerExit		;
 
-	int error = 0;
-	int duration = 0;
-	String keyword {""};
-	set<string> 		expect {};
+	int 					error 				;
+	int 					duration 			;
+	String 					keyword 			{};
+	set<string> 			expect 				{};
 
-	Interpreter_class( Application_class* app ) ;
-	virtual ~Interpreter_class();
+							Interpreter_class	( Application_class* app ) ;
+	virtual 				~Interpreter_class	();
 
-	void Start_bin( vector_str_t );
-	void Stop_bin( vector_str_t );
-	void Instrument( vector_str_t );
-	void Notes( vector_str_t );
-	void Random( vector_str_t );
-	void Osc( vector_str_t );
-	void Adsr( vector_str_t );
-	void RecStA( vector_str_t );
-	void RecFile( vector_str_t );
-	void Wrong_keyword( set<string>, string );
-	void Pause( vector_str_t );
-	void Play( vector_str_t );
-	void Text( vector_str_t );
-	void Add( vector_str_t );
-	void Addvariable( vector_str_t );
-	vector_str_t InsertVariable( vector_str_t );
-	int  Find_position( const program_vec_t& program, vector_str_t );
-	void Set_dialog_mode( bool );
-	bool Exit();
-	void Set( vector_str_t );
-	void Clear_stack();
-	bool Check_input( string keyword );
-	bool	Cmpkeyword ( const string&  );
-	void 	Intro( vector_str_t, uint );
-	void	If_Exception( string );
+	void 					Start_bin			( vector_str_t );
+	void 					Stop_bin			( vector_str_t );
+	void 					Instrument			( vector_str_t );
+	void 					Notes				( vector_str_t );
+	void 					Random				( vector_str_t );
+	void 					Osc					( vector_str_t );
+	void 					Adsr				( vector_str_t );
+	void 					RecStA				( vector_str_t );
+	void 					RecFile				( vector_str_t );
+	void 					Wrong_keyword		( set<string>, string );
+	void 					Pause				( vector_str_t );
+	void 					Play				( vector_str_t );
+	void 					Text				( vector_str_t );
+	void 					Add					( vector_str_t );
+	void 					Addvariable			( vector_str_t );
+	vector_str_t 			InsertVariable		( vector_str_t );
+	void 					Set					( vector_str_t );
+	int  					Find_position		( const program_vec_t& program,
+												vector_str_t );
+	void 					Set_dialog_mode		( bool );
+	bool 					Exit				();
+	void					Clear_stack			();
+	bool 					Check_input			( string keyword );
+	bool					Cmpkeyword 			( const string&  );
+	void 					Intro				( vector_str_t, uint );
+	void					If_Exception		( string );
 
-	void Test(  );
+	void 					Test				();
 
 private:
-	Spectrum_class 			Spectrum	{};
-	Frequency_class 		Frequency	{};
-	vector_str_t 			stack 		{};
-	vector<var_struct_t> 	varlist 	{};
-	string					command 	{""};
-	bool 					testrun 	= false;
-	bool					testreturn 	= false;
+	Spectrum_class 			Spectrum			{};
+	Frequency_class 		Frequency			{};
+	vector_str_t 			stack 				{};
+	vector<var_struct_t>	varlist 			{};
+	string					command 			{""};
+	bool 					testrun 			= false;
+	bool					testreturn 			= false;
 
-	void 	Loop( uint8_t , EVENTKEY_e   );
-	bool 	check_count( vector_str_t, size_t );
-	string 	pop_stack( int );
-	bool	set_stack( vector_str_t, uint );
-	void 	show_expected(  );
-	void 	check_file( vector_str_t, string );
-	bool 	no_error( int );
-	void 	osc_view( view_struct_t, vector_str_t );
+	void 					amploop				( uint8_t , EVENTKEY_e   );
+	bool 					check_count			( vector_str_t, size_t );
+	string 					pop_stack			( int );
+	bool					set_stack			( vector_str_t, uint );
+	void 					show_expected		();
+	void 					check_file			( vector_str_t, string );
+	bool 					no_error			( int );
+	void 					osc_view			( view_struct_t, vector_str_t );
 
 	template <typename T >
 		T pop_T( range_T<T> range );

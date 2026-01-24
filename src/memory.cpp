@@ -127,16 +127,14 @@ bool Trigger_class::Get() // action
 	// |-----|-----|-----|-----|-----|-----|-----|-----|-----| inc
 	// |-----------------|-----------------|-----------------| wrt = x*inc
 
-Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _inc, buffer_t _max )
+Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _max )
 	: Logfacility_class	( "Scanner_class" )
 	, mem_range			{ 0, _max }
 	, fillrange			{ 0, 0 }
 {
-	className			= Logfacility_class::className;
 	rpos 				= 0;
 	wpos				= 0;
 	Data 				= &_ptr[ 0 ];
-	inc					= audio_frames;	// min_frames;//_inc;
 }
 
 void Scanner_class::Show( bool debug, void* p )
@@ -160,7 +158,8 @@ Data_t* Scanner_class::Next_read()
 	}
 	Data_t*
 	data 			= &Data[ rpos ];
-	rpos 			= check_cycle2( fillrange, rpos + inc, "Next" );//( rpos + inc ) % fillrange.max;//;
+	assert( fillrange.len > 0 );
+	rpos 			= check_cycle2( fillrange, rpos + inc, __builtin_FUNCTION() );
 	trigger			= ( rpos < inc ); // indicates a next cycle or start cycle
 	return data;
 }
@@ -174,7 +173,7 @@ buffer_t Scanner_class::Next_wpos( buffer_t n )
 Data_t* Scanner_class::Set_rpos( buffer_t n )
 {
 	rpos = check_cycle( fillrange, n, __builtin_FUNCTION() );
-	return &Data[n];
+	return &Data[rpos];
 }
 buffer_t Scanner_class::Set_wpos( buffer_t n )
 {
@@ -195,8 +194,7 @@ void Scanner_class::Set_fillrange( buffer_t n )
 {
 	if ( n == 0 )
 	{
-		fillrange.max = 0;
-		fillrange.len = 0;
+		fillrange		= { 0, 0, 0 };
 		Set_wpos(0);
 		Set_rpos(0);
 		return;
@@ -220,7 +218,6 @@ Heap_Memory::Heap_Memory( buffer_t bytes ) :
 	Logfacility_class	( "Memory" ),
 	Memory_base			( sizeof_Data, bytes )
 {
-	className 			= Logfacility_class::className;
 };
 
 
@@ -232,7 +229,7 @@ Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 	Memory_base				( sizeof_Data, _param.size*sizeof_Data ),
 	param					( _param.name, _param.storage_time ),
 	DynVolume				( volidx_range ),
-	scanner 				( Memory_base::Data, min_frames, _param.size )
+	scanner 				( Memory_base::Data, _param.size )
 
 {
 	className 				= Logfacility_class::className;

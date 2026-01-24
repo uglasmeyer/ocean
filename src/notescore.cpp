@@ -81,11 +81,11 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 		{
 			switch (ch )
 			{
-				case BRACKETOPEN 	: {c++; break;}
-				case BRACKETCLOSE	: {c--; break;}
+				case NOTE::BRA 	: {c++; break;}
+				case NOTE::KET	: {c--; break;}
 				default		: break;
 			} // switch
-			if( ( c == 0 ) and ( p == BRACKETOPEN ) )
+			if( ( c == 0 ) and ( p == NOTE::BRA ) )
 				return false; // empty bracket
 			p = ch;
 			if( c < 0 )return false; // more CLOSE than OPEN
@@ -166,10 +166,10 @@ note_t Note_class::Char2note( char& ch )
 {
 	pitch_t pitch 			= pitch_struct( Octave, ch, alter_value(ch) );
 
-	note_buffer.chord.push_back( pitch );
-	note_buffer.str.push_back(ch);
-	note_buffer.duration    		= min_duration; // will be updated later
-	note_buffer.glide[0].chord.step	= note_buffer.chord[0].step;
+			note_buffer.chord.push_back( pitch );
+			note_buffer.str.push_back(ch);
+			note_buffer.duration    		= min_duration; // will be updated later
+			note_buffer.glide[0].chord.step	= note_buffer.chord[0].step;
 	if ( note_buffer.chord[0].step 	== NONOTE )
 		note_buffer.volume 			= 0;
 	else
@@ -230,19 +230,19 @@ size_t Note_class::position_parser(  size_t pos )
 	note_itr--;
 	switch (note_char )
 	{
-		case LONGPLAY :
+		case NOTE::LONGPLAY :
 		{
 			note_itr->longplay = true;
-			note_itr->str.append(1, LONGPLAY );
+			note_itr->str.append(1, NOTE::LONGPLAY );
 			break;
 		}
-		case SLIDE_CH : // allowed: >F or >|3F
+		case NOTE::SLIDE : // allowed: >F or >|3F
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len; // test note_itr
-			note_itr->str.push_back( SLIDE_CH );
+			note_itr->str.push_back( NOTE::SLIDE );
 			note_itr->glide[0].glide = true;
 			pos++; //
-			if ( noteline[pos] == NEWOCT ) // oct change case >|3F
+			if ( noteline[pos] == NOTE::NEWOCT ) // oct change case >|3F
 			{
 				note_itr->str.push_back( noteline[pos] );
 				pos++;
@@ -266,7 +266,7 @@ size_t Note_class::position_parser(  size_t pos )
 			}
 			break;
 		}
-		case BRACKETOPEN : //(
+		case NOTE::BRA : //(
 		{
 			set_duration();
 			note_buffer = note_struct(); // clear note_buffer;
@@ -274,19 +274,19 @@ size_t Note_class::position_parser(  size_t pos )
 			pos++;
 			int nc_pos = 0;
 			char ch = noteline[pos];
-			while( ch != BRACKETCLOSE )
+			while( ch != NOTE::KET )
 			{
 				if ( Note_Chars.Set.contains( ch ) )
 				{
 					Char2note( noteline[pos] ); // append note_buffer
 					nc_pos++;
 				}
-				if ( ch == INCOCT )
+				if ( ch == NOTE::INCOCT )
 				{
 					note_buffer.chord.back().octave += 1;
 					note_buffer.str.push_back(ch);
 				}
-				if ( ch == DECOCT )
+				if ( ch == NOTE::DECOCT )
 				{
 					note_buffer.chord.back().octave -= 1;
 					note_buffer.str.push_back(ch);
@@ -297,39 +297,39 @@ size_t Note_class::position_parser(  size_t pos )
 			pos--; // close bracket pos
 			break;
 		}
-		case BRACKETCLOSE :
+		case NOTE::KET :
 		{
 			note_buffer.str.append( ")" );
 			notelist.push_back( note_buffer );
 			break;
 		}
-		case INCDUR :
+		case NOTE::INCDUR :
 		{
 			if ( out_of_bounds( pos ) ) return noteline_len;
 			note_duration++; // increase tHe duration of a note
-			note_itr->str.push_back( INCDUR );
+			note_itr->str.push_back( NOTE::INCDUR );
 			break;
 		}
-		case INCOCT :
+		case NOTE::INCOCT :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
 			note_itr->chord.back().octave += 1;
-			note_itr->str.push_back( INCOCT );
+			note_itr->str.push_back( NOTE::INCOCT );
 			break;
 		}
-		case DECOCT :
+		case NOTE::DECOCT :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
 			note_itr->chord.back().octave -= 1;
-			note_itr->str.push_back( DECOCT );
+			note_itr->str.push_back( NOTE::DECOCT );
 			break;
 		}
-		case NEWOCT : // nextchar may define a new octave
+		case NOTE::NEWOCT : // nextchar may define a new octave
 		{
 			pos++;
 
-			if ( noteline[pos] == INCOCT ) { Octave += 1; break; }
-			if ( noteline[pos] == DECOCT ) { Octave -= 1; break; }
+			if ( noteline[pos] == NOTE::INCOCT ) { Octave += 1; break; }
+			if ( noteline[pos] == NOTE::DECOCT ) { Octave -= 1; break; }
 
 			int oct = get_oct_value( noteline[pos] );
 			if ( oct < 0 )
@@ -338,11 +338,11 @@ size_t Note_class::position_parser(  size_t pos )
 			return pos;
 			break;
 		}
-		case IGNORE :
+		case NOTE::IGNORE :
 		{
 			break;
 		}
-		case LINEBREAK :
+		case NOTE::LINEBREAK :
 		{
 			note_itr = notelist.begin();
 			break;
@@ -350,7 +350,7 @@ size_t Note_class::position_parser(  size_t pos )
 		default : 	// this note-char is not a special character (<>-|.)
 		{
 			if (( Note_Chars.Set.contains( note_char ) ) or
-				( note_char == PAUSE ))
+				( note_char == NOTE::PAUSE ))
 			{	// this note-char is a note that must be stored in the note-list
 				set_duration(); // duration of the previou note
 				note_buffer = note_struct( notenumber ); // clear note_buffer;

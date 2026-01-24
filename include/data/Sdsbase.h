@@ -61,7 +61,7 @@ struct sdsstate_struct
 		 NOSTATE
 		};
 
-	map<int, string> sdsstate_map  // @suppress("Invalid arguments")
+	map< const unsigned char , string > sdsstate_map
 	{
 		{ OFFLINE		, "OFFLINE" },
 		{ RUNNING		, "RUNNING" },
@@ -81,7 +81,7 @@ struct sdsstate_struct
 
 	sdsstate_struct()
 	{
-		assert( sdsstate_map.size() >= StateId::NOSTATE );
+		assert( ( sdsstate_map.size() - 1 ) == StateId::NOSTATE );
 	};
 	~sdsstate_struct() = default;
 	string sdsstateName( StateId id )

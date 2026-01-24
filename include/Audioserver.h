@@ -63,7 +63,6 @@ char 					shm_id 				= 0; // out_data = Shm_a
 Stereo_t*				shm_addr 			= nullptr;
 
 bool 					audio_out_done		= false;
-buffer_t				audioframes			= audio_frames;
 
 // ----------------------------------------------------------------
 // RT Audio constant declarations

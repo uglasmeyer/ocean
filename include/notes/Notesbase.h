@@ -40,18 +40,19 @@ SOFTWARE.
 #include <Table.h>
 
 // noteline control characters
+namespace NOTE {
 const char IGNORE 		= ' ';
 const char PAUSE 		= '.';
 const char INCDUR 		= '-';
-const char SLIDE_CH		= '>';
+const char SLIDE		= '>';
 const char INCOCT		= '\'';
 const char DECOCT		= ',';
 const char NEWOCT		= '|';
 const char LINEBREAK	= '\n';
-const char BRACKETOPEN	= '(';
-const char BRACKETCLOSE	= ')';
+const char BRA			= '(';
+const char KET			= ')';
 const char LONGPLAY		= '!';
-
+}
 /*
  * References
  https://blog.sheetmusicplus.com/2015/12/30/learn-how-to-read-sheet-music-notes/
@@ -118,7 +119,7 @@ typedef struct note_value_struct
 	int8_t 	step 		= NONOTE;
 	int8_t	octave		= 0;
 	int		alter 		= 0 ; 	// -1,0, +1
-	char	step_char	= PAUSE;
+	char	step_char	= NOTE::PAUSE;
 	uint8_t	frqidx		= 1 ;
 
 	note_value_struct() = default;
@@ -213,7 +214,6 @@ class Note_base :
 	virtual public	Logfacility_class,
 	virtual public 	Frequency_class
 {
-	string 					className		= "";
 
 	template <typename T>
 	constexpr string octchar_T( T min, T max )

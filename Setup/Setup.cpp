@@ -282,7 +282,7 @@ void createDesktopfile()
 	string filename = Bin->desktop_file;
 	ofstream file { filename };
 	file 	<< "[Desktop Entry]\n"
-			<< "Version="		<< Version_No			<< "\n"
+			<< "Version=1.0"			<< "\n"
 			<< "Type=Application\n"
 			<< "Name="			<< OCEANGUI				<< "\n"
 			<< "Icon="			<< Bin->icon_file		<< "\n"
@@ -290,7 +290,7 @@ void createDesktopfile()
 			<<	Bin->Ocean_bin							<< "\n"
 			<< "Path="			<< Bin->archbindir		<< "\n"
 			<< "Comment="		<< Application << " UI"	<< "\n"
-			<< "Categories=Application\n"
+			<< "Categories=AudioVideo\n"
 			<< "Terminal=false\n"
 			<< "StartupWMClass="<< OCEANGUI				<< endl;
 

@@ -70,12 +70,11 @@ public:
 class Scanner_class
 	: public virtual Logfacility_class
 {
-	string					className		= "";
 	bool					readlock		= false;
 public:
 	// scanner_t scanner = scanner_struct( Mem.Data, min_frames, max_frames );
 
-	buffer_t				inc; 			// read frame
+	const buffer_t			inc 			= audio_frames;// read frame
 	buffer_t 				rpos;			// currejt read  cursor
 	buffer_t				wpos;			// current write cursor
 	Data_t*					Data;
@@ -84,7 +83,7 @@ public:
 	range_T<buffer_t>		fillrange;
 	bool					trigger 		= false;
 
-							Scanner_class	( Data_t* _ptr, buffer_t _inc, buffer_t _max );
+							Scanner_class	( Data_t* _ptr, buffer_t _max );
 	virtual 				~Scanner_class()= default;
 	void 					Show			( bool debug, void* p = nullptr );
 
@@ -126,11 +125,9 @@ public:
  * Heap_Memory
  **************************/
 class Heap_Memory :
-	virtual 		Logfacility_class,
+	virtual public	Logfacility_class,
 	virtual public 	Memory_base
 {
-	string className =  "";
-
 public:
 	Heap_Memory( buffer_t bytes );
 	virtual ~Heap_Memory() = default;

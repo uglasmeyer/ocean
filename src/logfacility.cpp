@@ -30,12 +30,16 @@ SOFTWARE.
  */
 
 #include 			<Logfacility.h>
-
+#include 			<Viewinterface.h>
 logmask_t 			LogMask 			= defaultLogMask;
+using namespace COLOR;
 
 Logfacility_class::Logfacility_class( string module )
 {
-					seterrText();
+					seterrText		();
+					prefixClass 	= "" ;
+					logmask			= defaultLogMask;
+
 	int 			pos 				= module.find("_" );
 	int				max_len				= LOGINDENT - 5;
 					this->className 	= module;
@@ -46,6 +50,23 @@ Logfacility_class::Logfacility_class( string module )
 					prefixClass 		= strs.str();
 	string 			_path 				= string( logDir );
 					filesystem::create_directories( _path );
+
+					// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+					Prefix_vec =
+					{
+							{"Error", bred },
+							{"Debug", black },
+							{"Info ", bblue },
+							{"Warn ", bmagenta },
+							{"Dbg2 ", yellow },
+							{"bInfo", bgreen },
+							{"Test ", blue },
+							{""		, nocolor },
+							{"Table", bblack },
+							{"Wait ", bred },
+							{"", nocolor }
+					};
+
 };
 Logfacility_class::Logfacility_class( )
 {
