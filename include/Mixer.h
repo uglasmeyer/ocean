@@ -44,23 +44,20 @@ SOFTWARE.
 #include <notes/Notes.h>
 
 class Mixer_class :
-	virtual public 			Logfacility_class
+	virtual public 			Logfacility_class,
+	public virtual			Interface_base
 {
-	string 					className		= "";
 	int 					beat_clock 		= 0;
 
 	// provides and manages memory array
 public:
 
 	StorageArray_t 			StA				;
-	Dataworld_class* 		DaTA			;
 	int						composer		= 0;		// note chunk counter
 	Heap_Memory				RecMono_mem			;
 	Stereo_Memory<Stereo_t>	Out				;
 	Dynamic_class			DynVolume		;
 	Wavedisplay_class*		Wd_p			;
-	interface_t*	 		sds				;
-	interface_t*			sds_master		;
 	sta_role_map			sta_rolemap		= sta_role_map();
 	mixer_state_t  			state 			= mixer_state_struct();
 
@@ -88,7 +85,7 @@ private:
 	bool 					setFillState	( StAId_e id );
 	void 					dumpStA			( Storage_class& sta );
 	bool 					restoreStA		( Storage_class& sta );
-	void 					set_play_mode	( const StAId_e& id, const bool& play );
+	void 					set_play_mode	( const StAId_e& id,  bool play );
 
 };
 
@@ -97,6 +94,7 @@ private:
  *************************************************/
 class CutDesk_class :
 	virtual public 			Logfacility_class,
+	virtual	public			Interface_base,
 	virtual					sta_role_map,
 	virtual public 			wavedisplay_struct
 {
@@ -104,7 +102,6 @@ class CutDesk_class :
 	record_range_t			record_limits	;
 	Mixer_class*			Mixer			;
 	Storage_class*			StA				;
-	interface_t*			sds				;
 	Wavedisplay_class*		Wd				;
 	string					StAName 		;
 	uint16_t				step_records	;

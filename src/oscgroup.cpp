@@ -79,10 +79,12 @@ void Oscgroup_class::SetSpectrum( interface_t* sds )
 void Oscgroup_class::SetInstrument( interface_t* sds )
 {
 
+	Comment( DEBUG, "SetInstrument ...");
 	SetAdsr			( sds );
 	SetFeatures		( sds );
 	Set_Connections	( sds );
 	SetSpectrum		( sds );
+
 }
 void Oscgroup_class::Connection_Reset()
 {
@@ -124,14 +126,15 @@ void Oscgroup_class::Adsr_OSC()
 		member[oscid]->Adsr_OSC() ;
 	}
 }
-void Oscgroup_class::Set_kbdbps( uint8_t bps )
+void Oscgroup_class::KbdAttack( uint8_t bps )
 {
+	Comment( DEBUG, "KbdAttack:", (int)bps );
 	for( char oscid : oscIds )
 	{
-		member[oscid]->Set_kbdbps( bps );
+		member[oscid]->KbdAttack( bps );
 	}
-}
 
+}
 void Oscgroup_class::SetSlideFrq( const uint8_t& value )
 {
 	std::ranges::for_each( member, [ value ](Oscillator*  o)
@@ -152,7 +155,7 @@ void Oscgroup_class::SetWd( Wavedisplay_class* Wd )
 			Wd->Add_data_ptr( 	osc->typeId,
 								ADSRROLE,
 								osc->AdsrMemData_p(),
-								&osc->adsr_frames ); });
+								&osc->adsr_wp_frames ); });
 		}
 	}
 
@@ -205,17 +208,8 @@ void Oscgroup_class::Set_Combine_Frequency( interface_t* sds,
 	int diff = idx - osc.spectrum.frqidx[0];
 	osc.Set_frequency( idx, mode );
 
-	vco.Set_frequency( sds->spectrum_arr[VCOID].frqidx[0] + diff, FIXED );
-	fmo.Set_frequency( sds->spectrum_arr[FMOID].frqidx[0] + diff, FIXED );
-
-	Table_class T { };
-	T.AddColumn( "Osc", 5 );
-	T.AddColumn( "base", 5 );
-	T.AddColumn( "New", 5 );
-	T.PrintHeader();
-	T.AddRow( "OSC", (int)sds->spectrum_arr[OSCID].frqidx[0], (int)osc.spectrum.frqidx[0] );
-	T.AddRow( "VCO", (int)sds->spectrum_arr[VCOID].frqidx[0], (int)vco.spectrum.frqidx[0] );
-	T.AddRow( "FMO", (int)sds->spectrum_arr[FMOID].frqidx[0], (int)fmo.spectrum.frqidx[0] );
+	vco.Set_frequency( sds->spectrum_arr[VCOID].frqidx[0] + diff, mode );
+	fmo.Set_frequency( sds->spectrum_arr[FMOID].frqidx[0] + diff, mode );
 
 }
 
@@ -225,10 +219,10 @@ void Oscgroup_class::Set_Duration( const uint& msec )
 	std::ranges::for_each( member, [ &duration ](Oscillator*  o)
 		{ o->Setwp_frames( duration );});
 }
-void Oscgroup_class::Reset_beat_cursor()
+void Oscgroup_class::ResetBeatCursor()
 {
 	std::ranges::for_each( member, [ ](Oscillator*  o)
-		{ o->Reset_beat_cursor();});
+		{ o->ResetBeatCursor();});
 
 }
 void Oscgroup_class::Set_Osc_Note(  interface_t*	sds,
@@ -254,18 +248,18 @@ void Oscgroup_class::Data_Reset()
 	{ o->Data_reset() ;});
 }
 
-void Oscgroup_class::Restore_Dyn()
+void Oscgroup_class::RestorePhase( pitch_t& pitch)
 {
-	std::ranges::for_each( member, [ this ]( Oscillator* osc )
+	std::ranges::for_each( member, [ this, &pitch ]( Oscillator* osc )
 	{
-		osc->DynFrequency.SetCurrent( dynarr[osc->typeId] );
+		osc->spectrum.phi = pitch.phi[osc->typeId];
 	} );
 }
-void Oscgroup_class::Backup_Dyn()
+void Oscgroup_class::BackupPhase( pitch_t& pitch )
 {
-	std::ranges::for_each( member, [ this ]( Oscillator* osc )
+	std::ranges::for_each( member, [ this, &pitch ]( Oscillator* osc )
 	{
-		dynarr[osc->typeId] = osc->DynFrequency.GetCurrent();
+		pitch.phi[osc->typeId] = osc->spectrum.phi;
 	} );
 }
 void Oscgroup_class::Run_OSCs( const buffer_t& offs )

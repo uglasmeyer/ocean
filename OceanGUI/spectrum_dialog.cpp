@@ -23,25 +23,24 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * keyboard_dialog.cpp
+ * spectrum_dialog.cpp
  *
  *  Created on: Mar 28, 2025
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
 
-#include <include/Common.h>
 #include <include/Spectrum_dialog.h>
 
-Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
-                                             Interface_class* 	_Sds,
+Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
+											 Dataworld_class* 	data ,
 											 EventLog_class*	_log) :
     Logfacility_class("Spectrum"),
 	Spectrum_class(),
+	Interface_base( data ),
 	QDialog(parent),
 	ui(new Ui::Spectrum_Dialog_class)
 {
-	className 			= Logfacility_class::className;
     Waveform_vec 		= Vstringvector( Get_waveform_vec() );
     waveform_vec_len 	= Waveform_vec.size();
 
@@ -87,7 +86,6 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget *parent,
     connect( ui->cb_adsr	, SIGNAL( clicked(bool)), 	this, SLOT( adsr_slot(bool) ));
 
     Eventlog_p				= _log;
-    this->SetSds( _Sds );
 
 }
 
@@ -101,7 +99,6 @@ void Spectrum_Dialog_class::cb_bps_slot( int bps_id )
     Sds->Set( sds_p->adsr_arr[ OscId ].bps, bps  );
 
     Eventlog_p->add( SDS_ID, ADSR_KEY );
-
 }
 
 void Spectrum_Dialog_class::set_waveform_vec( vector<string> wf_vec )
@@ -322,12 +319,9 @@ void Spectrum_Dialog_class::SetInstrument()
     select_oscid( sds_p->SpectrumTypeId );
     Setup_widgets();
 }
-void Spectrum_Dialog_class::SetSds( Interface_class* Sds )
+void Spectrum_Dialog_class::SetSds()
 {
-	this->Sds 		= Sds;
-	this->sds_p 	= Sds->addr;
-	this->SDS_ID	= sds_p->SDS_Id;
-
+	Interface_base::SetSds();
     SetInstrument();
 }
 

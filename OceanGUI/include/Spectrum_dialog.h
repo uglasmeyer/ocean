@@ -54,23 +54,20 @@ class Spectrum_Dialog_class;
 
 class Spectrum_Dialog_class :
 		public 			QDialog,
-		public virtual 	Spectrum_class
+		public virtual 	Spectrum_class,
+		public virtual	Interface_base
 
 {
     Q_OBJECT
-	string className			= "";
 public:
     unique_ptr<Ui::Spectrum_Dialog_class> 		ui;
 
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
-                                   Interface_class* gui = nullptr,
+                                   Dataworld_class* data = nullptr,
 								   EventLog_class* _log = nullptr);
     virtual ~Spectrum_Dialog_class();
 
     spectrum_t 				spectrum;
-
-    Interface_class* 		Sds;
-    interface_t* 			sds_p;
 
     EventLog_class*			Eventlog_p;
 
@@ -83,16 +80,14 @@ public:
     vector<QSpinBox*>		sb_vec 			{};
     vector<QRadioButton*> 	rb_vec 			{};
     Frequency_class			Frequency 		{};
-    uint8_t 				waveform_id;
     vector<QString> 		Waveform_vec	{};
     uint 					waveform_vec_len= 0;
-    uint8_t 				SDS_ID			= 0;
 
 
     void SetLabelWaveform();
 	void Setup_widgets();
 
-    void SetSds( Interface_class* Sds );
+	void SetSds();
     void Set_adsr_flag( bool flag );
 
 private slots:

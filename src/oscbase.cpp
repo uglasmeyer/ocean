@@ -38,9 +38,12 @@ Oscillator_base::Oscillator_base( OSCID_e osc_type ) :
 {
 	this->spectrum		= default_spectrum;
 	this->spectrum.osc 	= osc_type;
+	this->is_osc_type 	= ( typeId == OSCID );
+	this->is_fmo_type	= ( typeId == FMOID );
+	this->is_vco_type	= ( typeId == VCOID );
+
 
 	this->Connect		= { osc_type, osc_type };
-	this->phase 		= default_phase;
 };
 
 uint8_t Oscillator_base::Set_frequency( string frqName, DYNAMIC mode )
@@ -75,17 +78,14 @@ void Oscillator_base::Set_slideFrq( uint8_t value )
 void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
 {
 	spectrum.wfid	= wf_vec;
-	phase 			= default_phase; // because of maxphi changes
-
+	spectrum.phi	= default_phase; // because of maxphi changes
 }
 
 void Oscillator_base::Set_spectrum( spectrum_t spectrum )
 {
-//	Set_frequency	( spectrum.frqidx[0], FIXED );
 	Set_frequency	( spectrum.frqidx[0], SLIDE );
 	Set_spectrum_volume		( spectrum.volidx[0] );
 	this->spectrum 	= spectrum;
-//	Set_waveform	( spectrum.wfid );
 }
 
 

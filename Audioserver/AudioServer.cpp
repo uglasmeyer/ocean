@@ -31,7 +31,6 @@ void errorCallback( RtAudioErrorType, const std::string& txt )
 	errno =  0;
 }
 
-//bool 					RecordThreadDone 	= false;
 void save_record_fcn()
 {
 	string filename		= Record.External.Save_record_data( sds_master->FileNo );
@@ -85,7 +84,7 @@ void Application_loop()
 	App.Ready();
 
 
-	while ( not audio_out_done )//and Audio.isStreamRunning() )
+	while ( not audio_out_done )
 	{
 		App.KeyboardKey( false );
 	    this_thread::sleep_for( std::chrono::milliseconds(100));
@@ -96,7 +95,7 @@ void Application_loop()
 
 void write_waveaudio()
 {
-	if ( sds->WD_state.roleId != AUDIOROLE )
+	if ( sds_p->WD_state.roleId != AUDIOROLE )
 		return;
 
 
@@ -124,6 +123,11 @@ void call_for_update()
 	shm_addr = DaTA.SetShm_addr();
 
 	Volume.Transform( audio_frames, shm_addr, stereo.stereo_data );
+	if ( Record.recording )
+	{
+		Record.Store_audioframes( stereo.stereo_data, audio_frames );
+		Record.Set_rcounter();
+	}
 
 	Request_data();
 }
@@ -143,11 +147,6 @@ void set_ncounter( buffer_t n )
 	if (Record.State( Record.RECORDSTOP ) )
 		Record.Stop ();
 
-	if ( Record.recording )
-	{
-		Record.Store_audioframes( shm_addr, audio_frames );
-		Record.Set_rcounter();
-	}
 
 	call_for_update();
 
@@ -179,13 +178,13 @@ int RtAudioOut(	void* outputBuffer,
 		ncounter 	= (ncounter	+ 1 );
 	}
 
-	if ( Appstate->IsExitserver( sds, AUDIOID ) ) 		// set by the oceangui process
+	if ( Appstate->IsExitserver( sds_p, AUDIOID ) ) 		// set by the oceangui process
 		audio_out_done = true;							// trigger Application_loop() to terminate
 	if ( audio_out_done ) 								// set by exit_proc signal
 		return 1;										// terminate stream and drain
 //		return 2;										// return abort
 
-	Appstate->SetRunning(  );
+	Appstate->SetRunning();
 
 	return 0; 											// return value to continue thread
 } // RtAudio callback function
@@ -205,12 +204,10 @@ int main( int argc, char *argv[] )
 		DaTA.Sem_p->Reset( id );
 	}
 
-
 //	init record thread
 	thread
 	SaveRecord_thread( &Thread_class::Loop, &SaveRecord ); // run class method: Loop in a thread
 	SaveRecord_thread_p = &SaveRecord_thread;
-
 
 // 	init wavedisplay
 	buffer_t audioframes = audio_frames; // not constant

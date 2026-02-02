@@ -39,7 +39,7 @@ Interpreter_class::Interpreter_class( Application_class* app )
 	: Logfacility_class	( "Interpreter_class" )
 	, Processor_class	( app )
 	, Device_class		( app->DaTA->sds_master )
-	, Variation			( app->DaTA->sds_master, app->Cfg )
+	, Variation			( app->DaTA )
 {
 	this->sds 			= app->DaTA->GetSdsAddr();
 	this->Sds 			= app->DaTA->Sds_master;
@@ -413,7 +413,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 	}
 	if ( Cmpkeyword( "per_second" ) )
 	{
-		expect = {"notes per second [ " + Variation.NPS_string +  " ]"};
+		expect = {"notes per second [ " + show_items( Variation.NpsChars.Bps_vec ) +  " ]"};
 		Value nps = pop_T( npsidx_range );
 		if ( Variation.Set_notes_per_second( nps.val ) )
 		{

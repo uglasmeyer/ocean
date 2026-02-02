@@ -71,8 +71,8 @@ class Audio_class
 	uint				sample_rate			;
 	frame_t*			frame				;
 	RtAudio 			Rt					{ RtAudio::LINUX_PULSE, &errorCallback };
-	vector<uint>		deviceIds 			;//Rt.getDeviceIds();
-	vector<string> 		deviceNames 		;//Rt.getDeviceNames();
+	vector<uint>		deviceIds 			;
+	vector<string> 		deviceNames 		;
 
 public:
 
@@ -118,12 +118,10 @@ private:
  * Record_class
  *************************************************/
 class Record_class :
-	virtual public 		Logfacility_class,
 	virtual 			ProgressBar_class,
 	virtual public		sdsstate_struct,
 	virtual				Trigger_class
 {
-	string 				className	 		= "";
 	Time_class			RecTimer			{};
 	Trigger_class		Note_start			;
 	Trigger_class		Note_end			;
@@ -142,9 +140,11 @@ public:
 	bool 				Start				();
 	void 				Stop				( bool init = false );
 	bool				State				( StateId trigger );
-	void				Store_audioframes	( Stereo_t* addr, buffer_t frames );
+	void				Store_audioframes	( stereo_t* addr, buffer_t frames );
 	void 				Set_rcounter		();
 
+private:
+	void				set_recording		( StateId_t StateID, bool flag );
 };
 
 #include <Dynamic.h>
@@ -156,9 +156,9 @@ public:
 class AudioVolume_class :
 	Logfacility_class
 {
-	string 				className			= "";
 	interface_t* 		sds					;
-	Dynamic_class 		DynVolume 			{ volidx_range };
+	Dynamic_class 		DynVolume 			;
+	data_t 				Max 				;
 
 public:
 
@@ -170,7 +170,6 @@ public:
 private:
 	const float 		dynamic_limit		( buffer_t frames, Stereo_t* src );
 	void 				selfTest			();
-	data_t 				Max 				= numeric_limits<data_t>::max();
 };
 
 

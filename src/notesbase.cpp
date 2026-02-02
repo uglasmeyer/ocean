@@ -130,7 +130,7 @@ noteline_prefix_t Note_base::String_to_noteline_prefix( const string& str )
 		if ( LogMask[ TEST ] )
 			return 0;
 		Comment( ERROR,  "Cannot assign noteline_prefix ", (int)val, "to noteline_structure" );
-		raise( SIGINT );
+		raise( SIGILL );
 		return 0;
 	};
 
@@ -155,14 +155,14 @@ noteline_prefix_t Note_base::String_to_noteline_prefix( const string& str )
 		range_error( nlp.convention, {0, convention_names.size() } );
 
 
-	char nps_ch = arr[2][0];
-	if ( not NpsChars.Set.contains( nps_ch ) )
+	uint8_t nps = char2int( arr[2][0] );
+	if ( not NpsChars.Bps_set.contains( nps ) )
 	{
 		if ( LogMask[ TEST ] ) return nlp_default;
 		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
 	}
 	else
-		nlp.nps = char2int( nps_ch );
+		nlp.nps = nps;
 
 
 	set<int> 	pref_set 	= range_set( 0, 7 );

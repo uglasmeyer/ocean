@@ -30,14 +30,13 @@ SOFTWARE.
  */
 
 #include <Osc.h>
-#include <Oscwaveform.h>
 
 Oscillator::Oscillator	( RoleId_e role_id,
 						OSCID_e _type_id,
 						buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
 	, Oscillator_base	( _type_id )
-	, ADSR_class		( _type_id )
+	, ADSR_class		( role_id, _type_id )
 	, roleId			( role_id )
 	, Mem_vco			( bytes )
 	, Mem_fmo			( bytes )
@@ -48,12 +47,6 @@ Oscillator::Oscillator	( RoleId_e role_id,
 
 	this->osctype_name	= typeNames[typeId];
 	this->oscrole_name	= roleNames[roleId];
-	this->is_osc_type 	= ( typeId == OSCID );
-	this->is_fmo_type	= ( typeId == FMOID );
-	this->is_vco_type	= ( typeId == VCOID );
-	this->has_kbd_role	= ( roleId == KBDROLE );
-	this->has_notes_role= ( roleId == NOTESROLE );
-	this->has_instr_role= ( roleId == INSTRROLE );
 
 	Connection_reset	();
 	Data_reset			();
@@ -91,7 +84,7 @@ void Oscillator::self_Test()
 
 void Oscillator::Phase_reset()
 {
-	phase = default_phase;
+	spectrum.phi = default_phase;
 }
 void Oscillator::Data_reset(  )
 {
@@ -230,7 +223,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			const uint8_t	wfid			= spectrum.wfid[channel];
 			wave_function_t	fnc 			= waveFunction_vec[ wfid ].fnc;
 							param.maxphi	= abs( waveFunction_vec[ wfid ].maxphi );
-							param.phi		= phase[channel];
+							param.phi		= spectrum.phi[channel];
 							param.amp		= spectrum.vol[channel];
 			const phi_t		dT				= param.maxphi * dt;
 			for( buffer_t pos = frame_offset; pos < frames + frame_offset; pos++ )
@@ -247,7 +240,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 			}
 //			if ( param.maxphi < abs(param.phi) )
 //				show_param	( osctype_name, param, dT, freq, frq );
-			phase[channel] = param.phi;
+			spectrum.phi[channel] = param.phi;
 			DynFrequency.Update();
 		}
 	}
@@ -258,14 +251,13 @@ void Oscillator::Setwp_frames( uint16_t msec )
 {
 	wp.msec 	= msec;
 	wp.frames	= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
-	Set_bps		( );
 }
 void Oscillator::Set_long_note( bool l )
 {
 	longnote = l ;
 }
 
-void Oscillator::Reset_beat_cursor()
+void Oscillator::ResetBeatCursor()
 {
 	Set_beatcursor( 0 );
 	Set_hallcursor( 0 );
@@ -310,7 +302,7 @@ void Oscillator::Test()
 	uint A3 = testosc.Index("A3");
 	ASSERTION( fcomp( frqArray[ A3 ], 220), "frq index", frqArray[ A3 ], 220 );
 
-	phase[0]	= 0.0;
+	spectrum.phi	= default_phase;
 	testosc.Set_frequency( A3, FIXED ); // 220 Hz
 	testosc.Set_spectrum_volume( 100 );
 

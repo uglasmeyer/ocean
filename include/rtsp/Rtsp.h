@@ -37,6 +37,5 @@ SOFTWARE.
 
 Time_class Timer{};
 sdsstate_struct Sdsstate {};
-Appstate_class* Appstate = &DaTA.Appstate;
 
 #endif /* RTSP_RTSP_H_ */

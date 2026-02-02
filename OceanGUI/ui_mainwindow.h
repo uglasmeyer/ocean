@@ -209,37 +209,29 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
         palette.setBrush(QPalette::ColorGroup::Active, QPalette::ColorRole::PlaceholderText, brush7);
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        palette.setBrush(QPalette::ColorGroup::Active, QPalette::ColorRole::Accent, brush2);
+#endif
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::WindowText, brush);
-        QBrush brush8(QColor(239, 239, 239, 255));
-        brush8.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Button, brush8);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Button, brush1);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Light, brush2);
-        QBrush brush9(QColor(202, 202, 202, 255));
-        brush9.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Midlight, brush9);
-        QBrush brush10(QColor(159, 159, 159, 255));
-        brush10.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Dark, brush10);
-        QBrush brush11(QColor(184, 184, 184, 255));
-        brush11.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Mid, brush11);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Midlight, brush3);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Dark, brush4);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Mid, brush5);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Text, brush);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::BrightText, brush2);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::ButtonText, brush);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Base, brush2);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Window, brush8);
-        QBrush brush12(QColor(118, 118, 118, 255));
-        brush12.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Shadow, brush12);
-        QBrush brush13(QColor(247, 247, 247, 255));
-        brush13.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::AlternateBase, brush13);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Window, brush1);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Shadow, brush);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::AlternateBase, brush3);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::ToolTipBase, brush6);
         palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::ToolTipText, brush);
-        QBrush brush14(QColor(0, 0, 0, 128));
-        brush14.setStyle(Qt::BrushStyle::SolidPattern);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::PlaceholderText, brush14);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::PlaceholderText, brush7);
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Accent, brush2);
 #endif
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::WindowText, brush4);
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Button, brush1);
@@ -252,14 +244,19 @@ public:
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::ButtonText, brush4);
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Base, brush1);
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Window, brush1);
-        QBrush brush15(QColor(177, 177, 177, 255));
-        brush15.setStyle(Qt::BrushStyle::SolidPattern);
-        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Shadow, brush15);
-        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::AlternateBase, brush13);
+        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Shadow, brush);
+        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::AlternateBase, brush1);
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::ToolTipBase, brush6);
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::ToolTipText, brush);
+        QBrush brush8(QColor(76, 96, 120, 127));
+        brush8.setStyle(Qt::BrushStyle::SolidPattern);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::PlaceholderText, brush14);
+        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::PlaceholderText, brush8);
+#endif
+        QBrush brush9(QColor(220, 236, 255, 255));
+        brush9.setStyle(Qt::BrushStyle::SolidPattern);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Accent, brush9);
 #endif
         MainWindow->setPalette(palette);
         MainWindow->setAcceptDrops(false);
@@ -479,7 +476,7 @@ public:
         progressBar_record->setValue(0);
         OSCLCD_Hz = new QLCDNumber(centralwidget);
         OSCLCD_Hz->setObjectName("OSCLCD_Hz");
-        OSCLCD_Hz->setGeometry(QRect(60, 10, 141, 51));
+        OSCLCD_Hz->setGeometry(QRect(60, 10, 131, 51));
         OSCLCD_Hz->setDigitCount(5);
         OSCLCD_Hz->setProperty("value", QVariant(0.000000000000000));
         glidefrequency = new QLabel(centralwidget);
@@ -687,7 +684,8 @@ public:
         hs_balance->setGeometry(QRect(580, 110, 160, 16));
         hs_balance->setMinimum(-100);
         hs_balance->setMaximum(100);
-        hs_balance->setPageStep(1);
+        hs_balance->setSingleStep(5);
+        hs_balance->setPageStep(5);
         hs_balance->setOrientation(Qt::Orientation::Horizontal);
         hs_balance->setInvertedControls(false);
         label_14 = new QLabel(centralwidget);
@@ -765,7 +763,8 @@ public:
         hs_chord_delay->setGeometry(QRect(580, 170, 160, 16));
         hs_chord_delay->setMinimum(0);
         hs_chord_delay->setMaximum(200);
-        hs_chord_delay->setPageStep(1);
+        hs_chord_delay->setSingleStep(10);
+        hs_chord_delay->setPageStep(10);
         hs_chord_delay->setOrientation(Qt::Orientation::Horizontal);
         hs_chord_delay->setInvertedControls(false);
         hs_pmw = new QScrollBar(centralwidget);
@@ -839,7 +838,7 @@ public:
         pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
         rb_S0->setText(QCoreApplication::translate("MainWindow", "Instrument 0", nullptr));
         rb_S1->setText(QCoreApplication::translate("MainWindow", "Instrument 1", nullptr));
-        rb_S2->setText(QCoreApplication::translate("MainWindow", "Inatrument 2", nullptr));
+        rb_S2->setText(QCoreApplication::translate("MainWindow", "Instrument 2", nullptr));
         rb_S3->setText(QCoreApplication::translate("MainWindow", "Instrument 3", nullptr));
         glidefrequency->setText(QCoreApplication::translate("MainWindow", "glide frq.", nullptr));
         pB_Wavedisplay->setText(QString());

@@ -124,6 +124,7 @@ const int16_t		measure_parts		= (int16_t) (max_msec / min_msec); // = 16
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
+const buffer_t		record_size 		= min_frames; // define a block as a substructue on the memory data
 
 const buffer_t		audio_frames 		= min_frames;
 const buffer_t 		chunksize			= audio_frames / 2;

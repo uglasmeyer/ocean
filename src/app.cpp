@@ -42,15 +42,12 @@ SOFTWARE.
 
 Application_class::Application_class( Dataworld_class* _DaTA ) :
 		Logfacility_class( "Application_class" ),
+		Interface_base			( _DaTA ),
 		Statistic_class( _DaTA->Appstate.Name )
 {
+
 	this->ProgramName			= _DaTA->Appstate.Name;
-	this->className				= Logfacility_class::className ;
-	this->DaTA					= _DaTA;
 	this->Cfg 					= DaTA->Cfg_p;
-	this->sds_master			= DaTA->sds_master;
-	this->Sds					= DaTA->GetSds( );
-	this->sds					= Sds->addr;
 	this->AppId					= DaTA->AppId;
 	this->Appstate				= &DaTA->Appstate;
 	this->This_Application 		= Application + ProgramName + " " + Version_str;
@@ -89,7 +86,7 @@ void Application_class::app_properties()
 	properties.start_once	= Appstate->assignMasterSds.contains( AppId );
 	properties.data_process	= Cfg->Process.data_process ;
 	properties.keyboard		= Cfg->Process.keyboard;
-	properties.pid			= Appstate->getPid( sds, AppId );
+	properties.pid			= Appstate->getPid( sds_p, AppId );
 	properties.Show();
 }
 
@@ -124,7 +121,7 @@ void Application_class::deRegister( )
 	Timer.TimeStamp();
 
 	pid_t thispid 	= getpid();
-	pid_t sdspid 	= DaTA->Appstate.getPid( sds, AppId );
+	pid_t sdspid 	= DaTA->Appstate.getPid( sds_p, AppId );
 	if ( thispid != sdspid ) return;
 
 	DaTA->Appstate.SetOffline( );//this->sds, this->AppId );
@@ -162,7 +159,7 @@ kbdInt_t Application_class::KeyboardKey( bool debug )
 	if( key == ESC )
 	{
 	    Info( "Exit by user requst <ESC>" );
-		Appstate->SetExitserver( sds, AppId );
+		Appstate->SetExitserver( sds_p, AppId );
 	}
 	return key;
 

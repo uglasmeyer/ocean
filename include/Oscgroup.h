@@ -32,11 +32,9 @@ SOFTWARE.
 #ifndef OSCGROUP_H_
 #define OSCGROUP_H_
 
-#include <Ocean.h>
 #include <notes/Notesbase.h>
 #include <Osc.h>
 #include <Wavedisplay.h>
-#include <data/SharedDataSegment.h>
 
 
 
@@ -72,7 +70,7 @@ public:
 												const DYNAMIC& mode);
 	void 					Run_OSCs			( const buffer_t& offs );
 	void 					Set_Duration		( const uint& duration );
-	void 					Reset_beat_cursor	();
+	void 					ResetBeatCursor	();
 
 	void 					Data_Reset			();
 	void 					Phase_Reset			();
@@ -80,7 +78,8 @@ public:
 	void 					Set_Connections		( interface_t* sds );
 	void 					SetWd				( Wavedisplay_class* wd );
 	void 					SetScanner			( const buffer_t& maxlen );
-	void					Set_kbdbps			( uint8_t bps );
+	void					KbdAttack			( uint8_t bps );
+
 	string 					Show_Spectrum		();
 	Oscillator* 			Get_osc_by_name		( const string& name );
 	OSCID_e 				Get_oscid_by_name	( const string& name );
@@ -94,8 +93,8 @@ public:
 
 	void 					Show_sound_stack	();
 	void 					SetInstrument		( interface_t* sds );
-	void 					Backup_Dyn			();
-	void 					Restore_Dyn			();
+	void 					BackupPhase			( pitch_t& pitch );
+	void 					RestorePhase		( pitch_t& pitch );
 
 
 private:

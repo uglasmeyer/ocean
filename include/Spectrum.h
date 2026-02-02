@@ -38,14 +38,26 @@ enum  { SPEV, SPEF, SPEW };
 
 
 #include <Dynamic.h>
-#include <Ocean.h>
+//#include <Ocean.h>
 #include <Logfacility.h>
-#include <Frequency.h>
+//#include <Frequency.h>
 #include <Table.h>
+
+template< typename Item >
+constexpr array<Item, OSCIDSIZE > default_oscgroup_arr_T( Item dflt )
+{
+	array<Item, OSCIDSIZE > arr{};
+	for ( char id = 0; id < OSCIDSIZE; id++ )
+	{
+		arr[id] = dflt;
+	}
+	return arr;
+};
 
 
 const static size_t 		SPECARR_SIZE = 5;
-typedef frq_t 				spec_dta_ft;
+
+typedef float 				spec_dta_ft;
 typedef array<spec_dta_ft,	SPECARR_SIZE>
 							spec_arr_ft;
 typedef array<phi_t		 ,	SPECARR_SIZE>
@@ -53,6 +65,9 @@ typedef array<phi_t		 ,	SPECARR_SIZE>
 typedef array<uint8_t	 ,	SPECARR_SIZE>
 							spec_arr_8t;
 
+const spec_arr_dt			default_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
+typedef array<spec_arr_dt, OSCIDSIZE> phase_arr_t;
+const phase_arr_t			default_phase_arr = default_oscgroup_arr_T( default_phase );
 
 struct spectrum_data
 {	// SDS  related
@@ -61,7 +76,8 @@ struct spectrum_data
 	spec_arr_8t					frqidx 	= { A3, 0, 0, 0, 0 };				// frq slider value
 	spec_arr_8t					volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
 	spec_dta_ft					sum 	= 1.0;								// sum over .vol
-	spec_arr_8t					wfid 	= { 0,0,0,0,0 };// waveform wdid
+	spec_arr_8t					wfid 	= { 0,0,0,0,0 };					// waveform wdid
+	spec_arr_dt					phi		= default_phase;
 	OSCID_e						osc 	= OSCID;
 	bool						adsr	= false;
 } ;

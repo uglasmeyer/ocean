@@ -44,7 +44,8 @@ typedef struct bps_struct
 	const vector<uint8_t>	Bps_vec	= set2vector( Bps_set );
 	list<string>			Bps_lst	= {};
 	set<string>			Bps_str_set	= {};
-	const int			len		= Bps_set.size();
+	vector<string>		Bps_str_vec = {};
+	const int				len		= Bps_set.size();
 	range_T<int>			bps_range { 0, len-1 };
 	bps_struct( )
 	{
@@ -54,6 +55,7 @@ typedef struct bps_struct
 			string str 		= to_string( bps );
 			Bps_str_set.insert( string( 1, int2char(bps)) );
 			Bps_lst.push_back( str );
+			Bps_str_vec.push_back( str );
 			index++;
 		}
 	}
@@ -122,14 +124,11 @@ class Oscillator_base :
 {
 public:
 	OSCID_e			typeId			;
-	string 			osctype_name 	= "";
+	string 			osctype_name 	;
 
-	bool			is_osc_type 	= false;
-	bool			is_fmo_type 	= false;
-	bool			is_vco_type 	= false;
-	bool			has_kbd_role   	= false;
-	bool			has_notes_role 	= false;
-	bool			has_instr_role 	= false;
+	bool			is_osc_type 	;
+	bool			is_fmo_type 	;
+	bool			is_vco_type 	;
 
 	connectId_t		Connect			;
 	feature_t 		features 		= feature_struct();
@@ -137,10 +136,7 @@ public:
 	fmo_t 			fp 				= fmo_struct();
 	vco_t 			vp 				= vco_struct();
 	spectrum_t		spectrum		;
-	const spec_arr_dt
-					default_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
-	spec_arr_dt		phase 		;
-	Dynamic_class	DynFrequency;
+	Dynamic_class	DynFrequency	;
 
 					Oscillator_base	( OSCID_e osc_type );
 	virtual 		~Oscillator_base()

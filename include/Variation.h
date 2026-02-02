@@ -167,11 +167,12 @@ public:
  *************************************************/
 class Variation_class :
 		virtual public Logfacility_class,
+		virtual public Interface_base,
 		virtual public Note_class
 {
 public:
 
-				Variation_class	( interface_t* sds, Config_class* cfg  ) ;
+				Variation_class	( Dataworld_class* data  ) ;
 				~Variation_class() = default;
 
 	typedef vector<note_t>

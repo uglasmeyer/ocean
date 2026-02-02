@@ -116,6 +116,4 @@ void Assert_lt( Compare lhs, Compare rhs, string message = " < ",
 	};
 
 
-
-
 #endif /* UTILITIES_H_ */

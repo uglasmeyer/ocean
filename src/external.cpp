@@ -91,36 +91,37 @@ const bool External_class::Read_file_data(  )
 		return false;
 	}
 
-	buffer_t 	bytes 	= header_struct.dlength;
-	uint 		blocks 	= bytes/sizeof_stereo/StA_ext->mem_ds.record_size;
-	uint 		frames	= bytes/sizeof_stereo;
+	mem_ds_t	mem_ds	= mem_data_struct( sizeof_stereo, header_struct.dlength );
+//	buffer_t 	bytes 	= header_struct.dlength;
+//	uint 		blocks 	= bytes/sizeof_stereo/record_size;
+//	uint 		frames	= bytes/sizeof_stereo;
 
 	if (LogMask[DBG2])
 		StA_ext->DsInfo("Memory Array External");
-	if ( frames > StA_ext->mem_ds.data_blocks )
+	if ( mem_ds.data_blocks > StA_ext->mem_ds.data_blocks )
 	{
 		Comment(WARN, "Partly read file data into memory.");
 		Comment(WARN, "Taking limits from memory info" );
-		frames 	= StA_ext->mem_ds.data_blocks;
-		blocks	= StA_ext->mem_ds.max_records;
-		bytes 	= StA_ext->mem_ds.bytes;
+		mem_ds.data_blocks 	= StA_ext->mem_ds.data_blocks;
+		mem_ds.max_records	= StA_ext->mem_ds.max_records;
+		mem_ds.bytes 	= StA_ext->mem_ds.bytes;
 	}
 
 	StA_ext->Clear_data( 0 );
 
-	if( read_stereo_data( bytes ) )
+	if( read_stereo_data( mem_ds.bytes ) )
 	{
-		for ( buffer_t n = 0; n < frames; n++)
+		for ( buffer_t n = 0; n < mem_ds.data_blocks; n++)
 		{
 			Data_t L = stereo_data[n].left;
 			Data_t R = stereo_data[n].right;
 			StA_ext->Data[n]	= L + R;
 		}
 		Comment(INFO,"Converted stereo to mono data");
-		Comment(INFO,"Bytes   " + to_string(bytes));
-		Comment(INFO,"Blocks  " + to_string(blocks));
-		Comment(INFO,"Structs " + to_string(frames));
-		StA_ext->Store_counter( blocks );
+		Comment(INFO,"Bytes   ", mem_ds.bytes );
+		Comment(INFO,"Records ", mem_ds.max_records );
+		Comment(INFO,"Frames  ", mem_ds.data_blocks );
+		StA_ext->Store_counter( mem_ds.max_records );
 
 		return true;
 	}
@@ -178,14 +179,13 @@ External_class::External_class( Config_class* cfg,
 	Stereo_Memory::DsInfo( ) ;
 };
 
-void External_class::Record_buffer( Stereo_t* src, buffer_t frames )
+void External_class::Record_buffer( stereo_t* src, buffer_t frames )
 {
 	for ( buffer_t n = 0; n < frames; n++ )
 	{
-		Stereo_Memory::stereo_data[n + record_size ].left  = rint( src[ n ].left );
-		Stereo_Memory::stereo_data[n + record_size ].right = rint( src[ n ].right);
+		Stereo_Memory::stereo_data[n + record_size ] = src[n] ;
 	}
-	record_size += frames; // variable frame size (audioframes);
+	record_size += frames;
 }
 
 int External_class::generate_file_no()
@@ -317,7 +317,7 @@ void External_class::Save_record_data( string filename )
 	buffer_t 	count			= write_audio_data( fs->raw_file, record_size );
 	bool 		success 		= ( record_size == count );
 	if ( success )
-		Info( "All", record_size * mem_ds.sizeof_type, "bytes written to file");
+		Info( "All", record_size * mem_ds.block_size, "bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(record_size) + " written");

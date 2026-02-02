@@ -33,36 +33,29 @@ SOFTWARE.
 #define INSTRUMENT_H_
 
 #include <data/Device.h>
-#include <Ocean.h>
-#include <data/Interface.h>
+#include <data/DataWorld.h>
 #include <Spectrum.h>
-#include <Osc.h>
 #include <Oscgroup.h>
 #include <Wavedisplay.h>
-#include <String.h>
-#include <System.h>
-#include <Table.h>
+//#include <Table.h>
 
 class Instrument_class:
 	virtual public 		Logfacility_class,
+	virtual public		Interface_base,
 	virtual public		Device_class,
 	virtual				osc_struct
 {
-	string 				className				= "";
 public:
 	string 				Name 					= "";
 
-	interface_t*  		sds						= nullptr;
 	Oscgroup_class		Oscgroup				{ INSTRROLE, monobuffer_bytes };
 	Oscillator*			osc						= &Oscgroup.osc;
 	Oscillator*			vco						= &Oscgroup.vco;
 	Oscillator*			fmo						= &Oscgroup.fmo;
 	Wavedisplay_class*	wd_p					= nullptr;
-	file_structure*		fs						;
 
-						Instrument_class		( interface_t* ifd ,
-												Wavedisplay_class* wd,
-												file_structure* fs);
+						Instrument_class		( Dataworld_class* data ,
+												Wavedisplay_class* wd );
 	virtual 			~Instrument_class		();
 ;
 	bool 				Set						( string );
@@ -77,8 +70,8 @@ public:
 
 private:
 	string 				Instrument_file			= "";
-	string 				Default_instrument_file = "";//fs::instrumentdir + fs.default_snd;
-	string 				instr_ext 				= "";//fs.snd_type;
+	string 				Default_instrument_file = "";
+	string 				instr_ext 				= "";
 	int 				file_version 			= -1;
 	set<int>			supported 				{ 0, 1, 2, 3, 4 };
 	int					actual_version			= 4;

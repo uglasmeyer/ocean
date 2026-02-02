@@ -140,7 +140,7 @@ Controller_class::Controller_class( MainWindow& window ) :
 	window.connect( Dispatcher_p, SIGNAL( UpdateColorButtons() ),
 					window_p, SLOT( updateColorButtons() ) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateCutDesk() ),
-					window.CutterDialog_p, SLOT( updateCutDesk() ) );
+					window.CutDesk_Dialog_p, SLOT( updateCutDesk() ) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateKeyboardDialog() ),
 					window.Keyboard_Dialog_p, SLOT( Setup_Widget() ) );
 

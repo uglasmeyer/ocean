@@ -33,17 +33,13 @@ SOFTWARE.
 #include <Instrument.h>
 #include <System.h>
 
-Instrument_class::Instrument_class(	interface_t* _sds,
-									Wavedisplay_class* _wd_p,
-									file_structure* fs )
-	: Logfacility_class("Instrument_class")
-	, Device_class( _sds )
+Instrument_class::Instrument_class(	Dataworld_class* data,
+									Wavedisplay_class* _wd_p )
+	: Logfacility_class	( "Instrument_class")
+	, Interface_base	( data )
+	, Device_class		( Interface_base::sds_p )
 {
-	this->sds 				= _sds;
-	className				= Logfacility_class::className;
-
 	this->wd_p 				= _wd_p;
-	this->fs				= fs;
 	Default_instrument_file = fs->instrumentdir + fs->default_snd;
 	instr_ext 				= fs->snd_type;
 	Oscgroup.Set_Duration	( min_msec );
@@ -79,9 +75,9 @@ void Instrument_class::update_sds()
 	Comment(INFO, "Update SDS data");
 	for( char oscid : oscIds )
 	{
-		sds->adsr_arr[oscid]	= Oscgroup.member[oscid]->Get_adsr();
-		sds->features[oscid] 	= Oscgroup.member[oscid]->features;
-		sds->spectrum_arr[oscid]= Oscgroup.member[oscid]->spectrum;
+		sds_p->adsr_arr[oscid]	= Oscgroup.member[oscid]->Get_adsr();
+		sds_p->features[oscid] 	= Oscgroup.member[oscid]->features;
+		sds_p->spectrum_arr[oscid]= Oscgroup.member[oscid]->spectrum;
 	}
 
 }
@@ -89,12 +85,12 @@ void Instrument_class::update_sds()
 void Instrument_class::Update_osc_spectrum( char oscid )
 {
 	Oscillator* osc 	= Oscgroup.member[ oscid ];
-	osc->spectrum		= sds->spectrum_arr[ oscid ] ;
+	osc->spectrum		= sds_p->spectrum_arr[ oscid ] ;
 }
 
 void Instrument_class::Set_adsr( char oscid )
 {
-	Oscgroup.member[ oscid ]->Set_adsr	( sds->adsr_arr[ oscid ] );
+	Oscgroup.member[ oscid ]->Set_adsr	( sds_p->adsr_arr[ oscid ] );
 }
 
 void Instrument_class::init_data_structure( Oscillator* osc, vector_str_t arr  )
@@ -189,36 +185,36 @@ void Instrument_class::showOscfeatures( ostream& FILE )
 						(int)adsr_data.attack,
 						(int)adsr_data.decay,
 						(int)osc->features.slide_frq,
-						(int)sds->slide_duration,
+						(int)sds_p->slide_duration,
 						(int)vco->features.PWM);
 };
 
 bool Instrument_class::assign_adsr3( const vector_str_t& arr )
 {
 	String 	Str			{""};
-	sds->adsr_arr[OSCID].bps	= Str.secure_stoi( arr[3] );
-	sds->adsr_arr[OSCID].hall	= Str.secure_stoi( arr[2] );
-	sds->adsr_arr[OSCID].attack	= Str.secure_stoi( arr[4] );
-	sds->adsr_arr[OSCID].decay	= Str.secure_stoi( arr[5] );
+	sds_p->adsr_arr[OSCID].bps	= Str.secure_stoi( arr[3] );
+	sds_p->adsr_arr[OSCID].hall	= Str.secure_stoi( arr[2] );
+	sds_p->adsr_arr[OSCID].attack	= Str.secure_stoi( arr[4] );
+	sds_p->adsr_arr[OSCID].decay	= Str.secure_stoi( arr[5] );
 
-	sds->adsr_arr[VCOID].attack = Str.secure_stoi( arr[6]	);
-	sds->adsr_arr[VCOID].decay	= Str.secure_stoi( arr[7] 	);
-	sds->adsr_arr[FMOID].attack = Str.secure_stoi( arr[8]	);
-	sds->adsr_arr[FMOID].decay	= Str.secure_stoi( arr[9] 	);
+	sds_p->adsr_arr[VCOID].attack = Str.secure_stoi( arr[6]	);
+	sds_p->adsr_arr[VCOID].decay	= Str.secure_stoi( arr[7] 	);
+	sds_p->adsr_arr[FMOID].attack = Str.secure_stoi( arr[8]	);
+	sds_p->adsr_arr[FMOID].decay	= Str.secure_stoi( arr[9] 	);
 
-	sds->features[OSCID].slide_frq = Str.secure_stoi( arr[10] );
+	sds_p->features[OSCID].slide_frq = Str.secure_stoi( arr[10] );
 	if ( file_version == 4 )
 	{
-		sds->slide_duration			= Str.secure_stoi( arr[11] ); //Audioserver
-		sds->features[VCOID].PWM	= Str.secure_stoi( arr[12] );
+		sds_p->slide_duration			= Str.secure_stoi( arr[11] ); //Audioserver
+		sds_p->features[VCOID].PWM	= Str.secure_stoi( arr[12] );
 	}
 	else
 	{
-		sds->features[VCOID].PWM	= Str.secure_stoi( arr[11] );
+		sds_p->features[VCOID].PWM	= Str.secure_stoi( arr[11] );
 	}
 
-	Oscgroup.SetAdsr( sds );
-	Oscgroup.SetFeatures( sds );
+	Oscgroup.SetAdsr( sds_p );
+	Oscgroup.SetFeatures( sds_p );
 
 	return true;
 
@@ -280,7 +276,7 @@ bool Instrument_class::read_version1( fstream& File )
 			if ( TypeFlag >= 0 )
 			{
 					osc->spectrum = osc->Parse_data( arr );
-					sds->spectrum_arr[ osc->typeId ] = osc->spectrum;
+					sds_p->spectrum_arr[ osc->typeId ] = osc->spectrum;
 			}
 		}
 
@@ -339,18 +335,18 @@ bool Instrument_class::read_version2( fstream& File )
 		{
 			spectrum_t spec_tmp = osc->Parse_data( arr ) ;
 			if ( spec_tmp.adsr )
-				sds->adsr_arr[oscid].spec = spec_tmp ;
+				sds_p->adsr_arr[oscid].spec = spec_tmp ;
 			else
 			{
-				sds->spectrum_arr[oscid] = spec_tmp;
+				sds_p->spectrum_arr[oscid] = spec_tmp;
 			}
 		}
 		if ( strEqual( "CON", Type ))
 		{
 			OSCID_e	secid 	= Oscgroup.Get_oscid_by_name( arr[2] );
 			char 	mode 	= arr[3][0];
-			connectId_t con_tmp = sds->connect_arr[oscid];
-			sds->connect_arr[oscid] = get_con( con_tmp, secid, mode );
+			connectId_t con_tmp = sds_p->connect_arr[oscid];
+			sds_p->connect_arr[oscid] = get_con( con_tmp, secid, mode );
 		}
 
 	} while( getline( File, Str.Str));
@@ -494,8 +490,8 @@ void Instrument_class::Save( string str )
 	for ( OSCID_e oscid : oscIds )
 	{
 		// Type SPE
-		osc->Show_spectrum_table( FILE, sds->spectrum_arr[oscid] );
-		osc->Show_spectrum_table( FILE, sds->adsr_arr[oscid].spec );
+		osc->Show_spectrum_table( FILE, sds_p->spectrum_arr[oscid] );
+		osc->Show_spectrum_table( FILE, sds_p->adsr_arr[oscid].spec );
 		// Type CONN
 		save_connections( FILE, Oscgroup.member[oscid] );
 	}
@@ -524,7 +520,7 @@ bool Instrument_class::Set( string name )
 	}
 
 	Oscgroup.Data_Reset();
-	Oscgroup.SetInstrument( sds );
+	Oscgroup.SetInstrument( sds_p );
 
 	return true;
 }
@@ -543,10 +539,10 @@ void Instrument_class::Test_Instrument()
 	assert( Set( ".test2" ) );
 	Assert_equal( strEqual( osc->fp.name, typeNames[ FMOID ] ), true );
 	assert( strEqual( osc->vp.name, typeNames[ VCOID ] ) );
-	ASSERTION( Get_connect_state( OSCID ).vol == sds->connect_arr[OSCID].vol , "connect_state",
-			(int)Get_connect_state( OSCID ).vol, (int)sds->connect_arr[OSCID].vol );
-	ASSERTION( Get_connect_state( OSCID ).frq == sds->connect_arr[OSCID].frq, "connect_state",
-			(int)Get_connect_state( OSCID ).frq, (int)sds->connect_arr[OSCID].frq );
+	ASSERTION( Get_connect_state( OSCID ).vol == sds_p->connect_arr[OSCID].vol , "connect_state",
+			(int)Get_connect_state( OSCID ).vol, (int)sds_p->connect_arr[OSCID].vol );
+	ASSERTION( Get_connect_state( OSCID ).frq == sds_p->connect_arr[OSCID].frq, "connect_state",
+			(int)Get_connect_state( OSCID ).frq, (int)sds_p->connect_arr[OSCID].frq );
 //	Connect( fmo, fmo, CONF );
 //	Connect( fmo, fmo, CONV );
 
@@ -561,7 +557,7 @@ void Instrument_class::Test_Instrument()
 	Oscgroup.osc.Setwp_frames( min_msec );
 	float f = frqArray[ Oscgroup.osc.spectrum.frqidx[0] ];
 	ASSERTION( f == (float)220, "frequency", f, 220.000000 );
-	Assert_equal( (int)sds->spectrum_arr[OSCID].frqidx[0], 71, "frequency" );
+	Assert_equal( (int)sds_p->spectrum_arr[OSCID].frqidx[0], 71, "frequency" );
 
 	Oscgroup.osc.Phase_reset();
 	Oscgroup.osc.Set_frequency( 71, FIXED ); // 220 Hz
@@ -601,8 +597,8 @@ void Instrument_class::Test_Instrument()
 
 
 	assert( Set( ".test2" ) );
-	ASSERTION( 	sds->features[VCOID].PWM == 98,"Set PMW_dial",
-			(int)sds->features[VCOID].PWM , 98);
+	ASSERTION( 	sds_p->features[VCOID].PWM == 98,"Set PMW_dial",
+			(int)sds_p->features[VCOID].PWM , 98);
 	Assert_equal( (int)Oscgroup.vco.features.PWM, 98 );
 	string a = waveform_str_vec[ oscwaveform_struct::SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );

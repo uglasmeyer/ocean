@@ -46,6 +46,8 @@ class Wavedisplay_class :
 	Interface_class*
 					Sds_p 			;
 	interface_t*	sds				;
+	string 			rolename		;
+	string 			oscname			;
 
 public:
 
@@ -68,6 +70,7 @@ private:
 	void 			set_Wdmode		( const WdModeID_t& mode, bool fftmode );
 	void 			set_wdcursor	( uint16_t pos );
 	void	 		gen_cxwave_data	( void  );
+	void 			set_wdnames		( WD_data_t wd_data );
 
 	typedef struct wd_ptr_struct
 	{

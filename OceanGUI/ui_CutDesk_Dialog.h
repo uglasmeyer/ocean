@@ -19,7 +19,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_CutterDialog_class
+class Ui_CutDesk_Dialog_class
 {
 public:
     QWidget *gridLayoutWidget;
@@ -34,12 +34,12 @@ public:
     QLCDNumber *lcdNumber;
     QLCDNumber *lcdNumber_2;
 
-    void setupUi(QDialog *CutterDialog_class)
+    void setupUi(QDialog *CutDesk_Dialog_class)
     {
-        if (CutterDialog_class->objectName().isEmpty())
-            CutterDialog_class->setObjectName("CutterDialog_class");
-        CutterDialog_class->resize(538, 78);
-        gridLayoutWidget = new QWidget(CutterDialog_class);
+        if (CutDesk_Dialog_class->objectName().isEmpty())
+            CutDesk_Dialog_class->setObjectName("CutDesk_Dialog_class");
+        CutDesk_Dialog_class->resize(538, 78);
+        gridLayoutWidget = new QWidget(CutDesk_Dialog_class);
         gridLayoutWidget->setObjectName("gridLayoutWidget");
         gridLayoutWidget->setGeometry(QRect(10, 10, 526, 60));
         gridLayout = new QGridLayout(gridLayoutWidget);
@@ -91,27 +91,27 @@ public:
         gridLayout->addWidget(lcdNumber_2, 1, 3, 1, 1);
 
 
-        retranslateUi(CutterDialog_class);
+        retranslateUi(CutDesk_Dialog_class);
 
-        QMetaObject::connectSlotsByName(CutterDialog_class);
+        QMetaObject::connectSlotsByName(CutDesk_Dialog_class);
     } // setupUi
 
-    void retranslateUi(QDialog *CutterDialog_class)
+    void retranslateUi(QDialog *CutDesk_Dialog_class)
     {
-        CutterDialog_class->setWindowTitle(QCoreApplication::translate("CutterDialog_class", "Cut Desk", nullptr));
-        pb_back_right->setText(QCoreApplication::translate("CutterDialog_class", "Step >", nullptr));
-        pb_front_right->setText(QCoreApplication::translate("CutterDialog_class", "> Step", nullptr));
-        pB_back_left->setText(QCoreApplication::translate("CutterDialog_class", "Step <", nullptr));
-        pb_front_left->setText(QCoreApplication::translate("CutterDialog_class", "< Step", nullptr));
-        pB_Cut->setText(QCoreApplication::translate("CutterDialog_class", "Cut", nullptr));
-        pB_goto_end->setText(QCoreApplication::translate("CutterDialog_class", "End >>", nullptr));
-        pB_Save->setText(QCoreApplication::translate("CutterDialog_class", "Save", nullptr));
+        CutDesk_Dialog_class->setWindowTitle(QCoreApplication::translate("CutDesk_Dialog_class", "Cut Desk", nullptr));
+        pb_back_right->setText(QCoreApplication::translate("CutDesk_Dialog_class", "Step >", nullptr));
+        pb_front_right->setText(QCoreApplication::translate("CutDesk_Dialog_class", "> Step", nullptr));
+        pB_back_left->setText(QCoreApplication::translate("CutDesk_Dialog_class", "Step <", nullptr));
+        pb_front_left->setText(QCoreApplication::translate("CutDesk_Dialog_class", "< Step", nullptr));
+        pB_Cut->setText(QCoreApplication::translate("CutDesk_Dialog_class", "Cut", nullptr));
+        pB_goto_end->setText(QCoreApplication::translate("CutDesk_Dialog_class", "End >>", nullptr));
+        pB_Save->setText(QCoreApplication::translate("CutDesk_Dialog_class", "Save", nullptr));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class CutterDialog_class: public Ui_CutterDialog_class {};
+    class CutDesk_Dialog_class: public Ui_CutDesk_Dialog_class {};
 } // namespace Ui
 
 QT_END_NAMESPACE

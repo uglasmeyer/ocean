@@ -64,7 +64,7 @@ void Stop_audioserver()
 void Stop_synthesizer()
 {
 	Log.Comment( INFO, "Receiver signal to stop");
-	DaTA.Appstate.SetExitserver( sds, APPID::SYNTHID ); // TODO wrong sds
+	DaTA.Appstate.SetExitserver( sds_p, APPID::SYNTHID ); // TODO wrong sds
 }
 
 int sig_counter = 0;
@@ -100,7 +100,7 @@ int main(  int argc, char* argv[] )
 {
 
 	App.Start( argc, argv );
-	sds = App.sds;
+	sds_p = App.sds_p;
 
 	if ( Cfg.Config.test == 'y' )
 	{
@@ -113,7 +113,7 @@ int main(  int argc, char* argv[] )
 
 	Sem.Release( RTSP_STARTED );
 
-	StateId_t rtsp_state = Appstate->GetState( sds, App.AppId );
+	StateId_t rtsp_state = Appstate->GetState( sds_p, App.AppId );
 	Log.Comment( INFO, "RTSP is ", Sdsstate.sdsstateName( rtsp_state ));
 
 	if( Cfg.Config.oceangui == 'y' )

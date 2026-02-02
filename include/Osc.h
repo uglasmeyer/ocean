@@ -32,12 +32,7 @@ SOFTWARE.
 #ifndef INCLUDE_OSC_H_
 #define INCLUDE_OSC_H_
 
-#include <Spectrum.h>
 #include <Adsr.h>
-#include <data/Memory.h>
-#include <Ocean.h>
-#include <System.h>
-//#include <Oscwaveform.h>
 
 
 class Oscillator :
@@ -71,7 +66,7 @@ public:
 	void 			Set_long_note		( bool );
 	void			Setwp_frames		( uint16_t );
 
-	void 			Reset_beat_cursor	();
+	void 			ResetBeatCursor	();
 
 	Data_t* 		MemData_p			();
 	Data_t*			GetData_p			( const buffer_t& frame_offset );

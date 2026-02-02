@@ -33,9 +33,10 @@ SOFTWARE.
 
 // https://en.cppreference.com/w/cpp/language/operators
 
-Variation_class::Variation_class( interface_t* sds, Config_class* cfg )
+Variation_class::Variation_class( Dataworld_class* data )
 	: Logfacility_class{ "Variation_class" }
-	, Note_class( sds, cfg->fs )
+	, Interface_base( data )
+	, Note_class( data )
 {
 	Note_class::Instrument_name = "Variation";
 	Nlp_variation.variation = 1;

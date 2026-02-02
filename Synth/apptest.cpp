@@ -30,7 +30,10 @@ SOFTWARE.
  */
 
 #include <Utilities.h>
-#include "../Synth/Synthesizer.h"
+#include <Event.h>
+#include <App.h>
+
+//#include "../Synth/Synthesizer.h"
 
 auto test_cycle2_range = [  ]( range_T<int> range  )
 {
@@ -66,7 +69,6 @@ isopen = false;
 void SynthesizerTestCases()
 {
 
-
 	Logfacility_class		Log( "SynthesizerTest" );
 	Log.Set_Loglevel( TEST, true );
 
@@ -76,17 +78,16 @@ void SynthesizerTestCases()
 	Dataworld_class 		DaTA			{ &Cfg, &Sem };
 	interface_t*			sds				= DaTA.GetSdsAddr();
 	DaTA.Sds_p->Reset_ifd();
-
 	Wavedisplay_class		Wavedisplay{ DaTA.Sds_p};
 	Wavedisplay_class*		wd_p = &Wavedisplay;
-	Instrument_class 		Instrument( sds, wd_p, Cfg.fs );
+	Instrument_class 		Instrument( &DaTA, wd_p );
 
 	Application_class		App( &DaTA );
 	Mixer_class				Mixer{&DaTA, wd_p };
 
-	Note_class 				Notes{ &Instrument, &Mixer.StA[ STA_NOTES ] };
+	Note_class 				Notes{ &DaTA, &Instrument, &Mixer.StA[ STA_NOTES ] };
 
-	Keyboard_class			Keyboard( 	&Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
+	Keyboard_class			Keyboard( 	&DaTA, &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
 	External_class 			External( 	&Mixer.StA[ STA_EXTERNAL],
 										DaTA.Cfg_p,
 										sds );
@@ -170,7 +171,7 @@ void SynthesizerTestCases()
 	DaTA.Test_Dataworld();
 	DaTA.Sds_p->Test_interface();
 
-	CutDesk_class	Cutter{ &Mixer };
+	CutDesk_class			Cutter{ &Mixer };
 	Event_class				Event{
 								&Instrument,
 								&Notes,
@@ -180,13 +181,12 @@ void SynthesizerTestCases()
 								&DaTA,
 								&External,
 								&ProgressBar,
-//								&MusicXML,
 								&Cutter};
 
 	Event.TestHandler();
 
 	DaTA.Sds_p->Restore_ifd();
-//	Log.Set_Loglevel( TEST, true );
+	Log.Set_Loglevel( TEST, true );
 
 
 }

@@ -47,7 +47,9 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* _sds )
 	this->wd_ptr 		= nullptr;
 	this->Wd_ptr		= wd_ptr_struct();
 	this->wd_data		= WD_data_struct();
+	this->wd_frames		= 0;
 	this->debug_right	= true;
+	set_wdnames			( sds->WD_state );
 	Assert_equal( roleNames.size(), (size_t) ROLE_SIZE );
 
 }
@@ -125,9 +127,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 	};
 	if ( wd_ptr == nullptr )
 	{
-		Comment(ERROR, "wave display got nullptr at index " +
-						to_string(wd_data.roleId) + "," +
-						to_string(wd_data.oscId)) ;
+		Comment(ERROR, "wave display got nullptr for", rolename, oscname );
 		return;
 	}
 
@@ -204,6 +204,11 @@ void Wavedisplay_class::WriteData()
 	}
 }
 
+void Wavedisplay_class::set_wdnames( WD_data_t wd_data )
+{
+	rolename	= roleNames[wd_data.roleId];
+	oscname		= typeNames[wd_data.oscId];
+};
 void Wavedisplay_class::Set_WdData	()
 {
 	wd_data					= sds->WD_state;
@@ -220,8 +225,8 @@ void Wavedisplay_class::Set_WdData	()
 	wd_data.frames			= wd_frames;
 	set_Wdmode				( wd_data.wd_mode, wd_data.fftmode );
 	sds->WD_state			= wd_data;
-	Comment( WARN, "Wavedisplay ptr set to [" 	, (int)wd_data.roleId, "] ["
-												, (int)wd_data.oscId , "]");
+	set_wdnames				( wd_data );
+	Comment( INFO, "Wavedisplay ptr set to [" 	, rolename, "][", oscname , "]");
 }
 
 // pos is frames 	-> unit = 1
@@ -259,7 +264,7 @@ void Wavedisplay_class::Add_role_ptr( 	RoleId_e wd_role,
 										Data_t* ptr,
 										buffer_t* wd_frames )
 {
-	// special case for role external and audioserver. They do not have osc's
+	// special case for StA role and audioserver. They do not have osc's
 	for( OSCID_e osctype : oscIds )
 	{
 		Add_data_ptr( osctype, wd_role, ptr, wd_frames );
@@ -273,7 +278,6 @@ void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 
 //	cout << "wd_role: " << (int) wd_role << endl;
 	Comment( INFO, "adding wave display: ",
-					(int)wd_role ,
 					roleNames[ wd_role ],
 					typeNames[ wd_type ],
 					(int) *frames );

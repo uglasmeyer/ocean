@@ -37,9 +37,9 @@ SOFTWARE.
 using namespace std;
 
 #define MAYOR 4
-#define MINOR 3
-#define PATCH 1
-#define SDS_VERSION 46
+#define MINOR 4
+#define PATCH 0
+#define SDS_VERSION 48
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -59,7 +59,7 @@ const string License_text = R"(
 // Git comment:
 /*
 
-
+4.4.0.48 switch back to prev_roleId if current wave display is dectivated
 4.3.1.46 no audio during dut desk dialog
 4.3.0-46 save keyboard notes
 4.3.0-45 instrumentClock set instrument beat separately from instrument adsr

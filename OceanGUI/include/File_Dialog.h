@@ -46,10 +46,11 @@ SOFTWARE.
 
 // OceanGUI
 #include <ui_File_Dialog_class.h>
+#include <Common.h>
 
 class File_Dialog_class :
 	public 						QDialog,
-	virtual 					Logfacility_class,
+	public virtual				Interface_base,
 	virtual 					Note_class,
 								sdsstate_struct
 {
@@ -60,19 +61,15 @@ public:
     unique_ptr<Ui::File_Dialog_class>
     							ui;
     QString         			QNote_Chars			{ "Notes: ( )"};
-    Dataworld_class* 			DaTA				= nullptr;
-    Interface_class* 			Sds					= nullptr;
     Semaphore_class* 			sem					= nullptr;
-    interface_t*				sds_p				= nullptr;
     EventLog_class*				Eventlog_p			= nullptr;
-    int8_t						SDS_ID				= 0;
 
 
     void 						New_Notes			();
     void 						New_Instrument		();
     void 						set_le_instrument	( QString );
     void 						set_le_notes		( QString );
-    void 						SetSds				( Interface_class* sds );
+    void 						SetSds				();
 
     explicit					File_Dialog_class(	QWidget* 		 parent	= nullptr,
     												Dataworld_class* _data 	= nullptr,

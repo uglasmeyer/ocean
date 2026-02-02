@@ -73,7 +73,7 @@ public:
 													interface_t* sds ) ;
 	const string 				Save_record_data	( int filenr );
 	void 						Save_record_data	( string filename );
-	void 						Record_buffer		( Stereo_t* src, buffer_t frames );
+	void 						Record_buffer		( stereo_t* src, buffer_t frames );
 
 	virtual 					~External_class		() = default;
 

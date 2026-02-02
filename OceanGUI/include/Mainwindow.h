@@ -46,16 +46,16 @@ SOFTWARE.
 #include <App.h>
 #include <data/Configbase.h>
 #include <data/Semaphore.h>
-#include <include/File_Dialog.h>
+#include <include/Cutterdialog.h>
 #include <Wavedisplay_base.h>
 
 // OceanGUI
 #include "ui_mainwindow.h"
+#include <include/File_Dialog.h>
 #include <include/Keyboad_dialog.h>
 #include <include/Oszilloscopewidget.h>
 #include <include/Rtsp_dialog.h>
 #include <include/Spectrum_dialog.h>
-#include <Cutterdialog.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -70,7 +70,6 @@ class MainWindow :
 		osc_struct
 {
     Q_OBJECT
-	string					className			= "";
 
 public:
 	process_t				Process				{};
@@ -88,7 +87,7 @@ public:
     interface_t*			sds_master			= DaTA.sds_master;
     Id_t					SDS_ID				= sds_master->config;// active SDS for event logging
     Interface_class*		Sds					= DaTA.SDS.GetSds( SDS_ID );
-	interface_t*			sds 				= Sds->addr;//DaTA.GetSdsAddr();
+	interface_t*			sds_p 				= Sds->addr;//DaTA.GetSdsAddr();
 
     Spectrum_class          Spectrum			{};
     Semaphore_class*		Sem_p				= DaTA.Sem_p;
@@ -99,14 +98,14 @@ public:
     File_Dialog_class		File_Dialog_obj		{ this, &DaTA, Eventlog_p  };
     File_Dialog_class*		File_Dialog_p		= &File_Dialog_obj;
 
-    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA.Sds_p, Eventlog_p };
+    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, &DaTA, Eventlog_p };
     Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
 
     Keyboad_Dialog_class	Keyboard_Dialog_obj	{ this, &DaTA, Eventlog_p };
     Keyboad_Dialog_class*	Keyboard_Dialog_p	= &Keyboard_Dialog_obj;
 
-    CutterDialog_class		CutterDialog_obj	{ this, &DaTA, Eventlog_p };
-    CutterDialog_class*		CutterDialog_p		= &CutterDialog_obj;
+    CutDesk_Dialog_class	CutterDialog_obj	{ this, &DaTA, Eventlog_p };
+    CutDesk_Dialog_class*	CutDesk_Dialog_p		= &CutterDialog_obj;
 
     QComboBox*              CB_external         = nullptr;
     QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
@@ -120,7 +119,8 @@ public:
     keymap_struct			Keymap				{};
     vector<QRadioButton*> 	rb_S_vec 			{};
 
-    RoleId_e				prev_wd_role		;
+    sta_role_map 			StaRole_map 		= sta_role_map();
+    vector<RoleId_e>		prev_wdrole_vec		{};
     const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
 
     typedef struct cb_state_map
@@ -191,11 +191,13 @@ private:
     void initLables();
     void initUiConnectors();
     void initTimer();
+    void initPrev_role_vec();
     void sliderFreq( sl_lcd_t map, int value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
     void waveform_slot( uint8_t*, uint8_t, OSCID_e, EVENTKEY_e, QLabel* );
     void set_wdrole( RoleId_e roleid );
+    void unset_wdrole( RoleId_e roleid );
     void setStaPlay( StAId_e id );
     void setStaStored( StAId_e staId );
     void toggle_store_sta( StAId_e id );

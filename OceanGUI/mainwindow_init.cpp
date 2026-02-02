@@ -103,6 +103,20 @@ std::vector<T> arrayToVector(const std::array<T, N>& arr)
     return std::vector<T>(arr.begin(), arr.end());
 }
 
+void MainWindow::initPrev_role_vec( )
+{
+
+	for( StAId_e staid : StAIds )
+	{
+		if( sds_p->StA_state_arr[ staid ].play )
+			prev_wdrole_vec.push_back( StaRole_map.GetRoleid( staid) );
+	}
+	if ( prev_wdrole_vec.size() == 0 )
+		set_wdrole( INSTRROLE );
+	else
+		set_wdrole( prev_wdrole_vec.back() );
+};
+
 void MainWindow::initStateButtons()
 
 {
@@ -113,7 +127,7 @@ void MainWindow::initStateButtons()
 	ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_state.fftmode ]);
 
 	Qwd_wdmode_names= Vstringvector( wavedisplay_struct::types );
-	int wd_mode = check_range( wd_mode_range, (int)sds->WD_state.wd_mode );
+	int wd_mode = check_range( wd_mode_range, (int)sds_p->WD_state.wd_mode );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
 
 

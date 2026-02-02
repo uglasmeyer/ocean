@@ -39,7 +39,7 @@ ViewInterface_class::ViewInterface_class( APPID appid, Dataworld_class* DaTA_p )
 	: Logfacility_class	( "ViewInterface_class")
 	, Device_class		( DaTA_p->sds_master )
 	, Oscillator_base	( OSCID )
-	, ADSR_class		( OSCID )
+	, ADSR_class		( INSTRROLE, OSCID )
 	, Appstate			( appid, DaTA_p->SDS.vec )
 	, DaTA				( DaTA_p )
 

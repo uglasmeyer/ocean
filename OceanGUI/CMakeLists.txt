@@ -18,7 +18,7 @@ add_executable(${OCEAN_PROJECT}
 
 set ( QTMAKEFILE Makefile_${QTVERSION} )
 set ( QMAKE /usr/lib/${QTVERSION}/bin/qmake )
-set ( QMAKE_TARGET qmakeTarget)
+set ( QMAKE_TARGET make_moc )
 add_custom_target(${QMAKE_TARGET}
 	COMMAND  ${QMAKE} -o ${QTMAKEFILE} OceanGUI.pro -spec linux-clang
 	# CONFIG+=debug CONFIG+=qml_debug
@@ -28,6 +28,11 @@ add_custom_target(${QMAKE_TARGET}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
 )
 add_dependencies( ${OCEAN_PROJECT} ${QMAKE_TARGET})
+
+add_custom_target( "clean_moc" 
+	COMMAND	make -f ${QTMAKEFILE} clean
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 	
+)
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/ 

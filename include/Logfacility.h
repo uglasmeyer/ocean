@@ -123,11 +123,11 @@ const string 		logFile		= logDir + logFileName + string(".log") ;
 class Printer_class
 {
 	//https://stackoverflow.com/questions/9084099/re-opening-stdout-and-stdin-file-descriptors-after-closing-them	bool redirect 		= false;
-	bool 	testFinished 	= false;
-	int 	save_out 		= -1;//dup( STDOUT_FILENO );
+	bool 	testFinished 	;
+	int 	save_out 		;
+	bool	redirect		;
 
 public:
-	bool	redirect		= false;
 			Printer_class	(bool redirect );
 	virtual ~Printer_class	();
 	void 	Close			();
@@ -157,8 +157,7 @@ public:
 	string 					prefixClass 	;
 	logmask_t 				logmask			;
 
-					Logfacility_class( string module  );
-					Logfacility_class( );
+					Logfacility_class( const string module = "Log" );
 	virtual			~Logfacility_class(  );
 
 	void 			Set_Loglevel	( LOG_e level, bool on );
@@ -197,7 +196,7 @@ public:
 	};
 
 	template <class... ArgsT>
-	string Comment( const LOG_e& level, ArgsT... args )
+	inline string Comment( const LOG_e& level, ArgsT... args )
 	{
 		LOG_e id = check_range( loglevel_range, level, "Comment" );
 		if ( LogMask.test( id ) )

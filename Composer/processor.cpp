@@ -81,7 +81,7 @@ Processor_class::Processor_class( Application_class* app ) :
 {
 	this->App		= app;
 	this->Sds 		= app->Sds;
-	this->sds		= app->sds;
+	this->sds_p		= app->sds_p;
 	this->Sem 		= app->DaTA->Sem_p;
 	this->Appstate 	= app->Appstate;
 
@@ -271,9 +271,9 @@ void Processor_class::Execute()
 				}
 				else
 				{
-					uint8_t sec = sds->Noteline_sec;
+					uint8_t sec = sds_p->Noteline_sec;
 					this_thread::sleep_for( std::chrono::seconds(sec));
-					sds->Noteline_sec = 0;
+					sds_p->Noteline_sec = 0;
 				}
 				break;
 			}
@@ -322,9 +322,9 @@ void Processor_class::Test_Processor()
 	Sem->Reset( PROCESSOR_WAIT );
 
 	Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, "default" );
-	Push_ifd( &sds->SHMID, 0_uint, "char" );
-	Push_ifd( &sds->StA_state_arr[0].forget, true, "bool" );
-	Push_ifd( &sds->adsr_arr[OSCID].bps, 0_uint, "beat duration" );
+	Push_ifd( &sds_p->SHMID, 0_uint, "char" );
+	Push_ifd( &sds_p->StA_state_arr[0].forget, true, "bool" );
+	Push_ifd( &sds_p->adsr_arr[OSCID].bps, 0_uint, "beat duration" );
 	Push_key( ADSR_KEY, "set beat duration" );
 
 	Push_cmd( CMD_EXIT, "exit" );

@@ -77,17 +77,13 @@ Interface_class::Interface_class( 	APPID appid,
 {
 
 	this->AppId 		= appid;
-	this->className 	= Logfacility_class::className;
 	this->Sem_p			= sem;
 	this->Cfg_p 		= cfg;
 	this->fs			= cfg->fs;
-	ifd_data			= interface_struct();
-	this->shm_ds			= SHM.shm_ds;
+	this->ifd_data		= interface_struct();
+	this->shm_ds		= SHM.shm_ds;
 
-	this->dumpFile		= "";
-	this->filename		= "";
-
-	Set_filename		( fs->vardir, sdsid );
+	Set_dumpFile		( fs->vardir, sdsid );
 	Setup_SDS			( sdsid, sds_key );
 }
 
@@ -96,9 +92,8 @@ Interface_class::~Interface_class()
 	DESTRUCTOR( className );
 }
 
-void Interface_class::Set_filename( string dir, uint8_t sdsid )
+void Interface_class::Set_dumpFile( string dir, uint8_t sdsid )
 {
-	this->filename	= "SdS_data.bin";
 	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
 	if( not filesystem::exists( subdir ) )
 	{

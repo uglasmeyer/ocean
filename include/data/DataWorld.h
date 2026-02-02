@@ -111,6 +111,46 @@ private:
 };
 
 
+/**************************************************
+ * Interface_base
+ *************************************************/
+class Interface_base :
+	virtual public 			Logfacility_class
+{
+public:
+	Dataworld_class*		DaTA	;
+	file_structure*			fs		;
+	Interface_class*		Sds		;
+	interface_t*			sds_master;
+	interface_t*			sds_p	;
+	Id_t					SDS_ID	;
+
+	Interface_base( Dataworld_class* data ) :
+		Logfacility_class	("Interface_base")
+	{
+		this->DaTA			= data;
+		this->sds_master 	= data->sds_master;
+		this->fs			= data->Cfg_p->fs;
+		SetSds				();
+	};
+	virtual ~Interface_base()
+	{
+		DESTRUCTOR( className );
+	};
+	void SetSds( )
+	{
+		if( DaTA->SDS_Id == GUI_ID )
+			this->SDS_ID	= sds_master->config;
+		else
+			this->SDS_ID	= DaTA->SDS_Id;
+		this->Sds 			= DaTA->SDS.GetSds( SDS_ID );
+		this->sds_p 		= Sds->addr;
+	}
+
+private:
+};
+
+
 /*******************
  * EventLog_class
  *******************/

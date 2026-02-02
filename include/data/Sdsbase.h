@@ -61,7 +61,7 @@ struct sdsstate_struct
 		 NOSTATE
 		};
 
-	map< const unsigned char , string > sdsstate_map
+	map< const unsigned char , string > sdsstate_map // @suppress("Invalid arguments")
 	{
 		{ OFFLINE		, "OFFLINE" },
 		{ RUNNING		, "RUNNING" },
@@ -139,45 +139,6 @@ constexpr 	StA_state_arr_t default_StA_state_arr ()
 };
 
 
-constexpr adsr_arr_t default_adsr_expr(  )
-{
-	adsr_arr_t arr{};
-	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
-	{
-		arr[oscid] = default_adsr;
-	}
-	return arr;
-};
-
-constexpr spectrum_arr_t default_spectrum_expr(  )
-{
-	spectrum_arr_t arr{};
-	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
-	{
-		arr[oscid] = default_spectrum;
-	}
-	return arr;
-};
-
-constexpr feature_arr_t default_feature_expr(  )
-{
-	feature_arr_t arr{};
-	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
-	{
-		arr[oscid] = default_feature;
-	}
-	return arr;
-};
-
-constexpr connect_arr_t default_connect_expr(  )
-{
-	connect_arr_t arr{};
-	for ( char oscid = 0; oscid < OSCIDSIZE; oscid++ )
-	{
-		arr[oscid] = Connect_struct();
-	}
-	return arr;
-};
 
 
 #endif /* DATA_SDSBASE_H_ */

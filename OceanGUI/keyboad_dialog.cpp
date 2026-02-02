@@ -40,15 +40,13 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
 		Dataworld_class* 	_data,
 		EventLog_class*		_log
 		)
-    : 	  //QSpinBox( parent ),
-QDialog(parent),
-     ui(new Ui::Keyboad_Dialog_class)
+    : OceanGUI_base( _data ),
+	  QDialog(parent),
+     ui(new Ui::Keyboad_Dialog_class),
+	 Kbd_pitch( _data->sds_master )
 {
 	this->parent	= parent;
 
-	this->DaTA 		= _data;
-	this->Sds		= DaTA->Sds_master;
-	this->sds_p		= Sds->addr;
 	this->Eventlog_p= _log;
 
 	ui->setupUi(this);
@@ -61,7 +59,9 @@ QDialog(parent),
     connect( ui->sB_kbdbps		, SIGNAL(valueChanged(int))	, this, SLOT( kbdbps(int) ));
     connect( ui->cb_sliding_mode, SIGNAL(clicked(bool))		, this, SLOT( sliding_mode(bool) ));
     connect( ui->pB_Save		, SIGNAL(clicked())			, this, SLOT( save()));
-	Setup_Widget();
+
+
+	Setup_Widget	();
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 	this->move(0,100);
 }
@@ -71,6 +71,11 @@ Keyboad_Dialog_class::~Keyboad_Dialog_class()
     delete ui;
 }
 
+void Keyboad_Dialog_class::SetSds()
+{
+	OceanGUI_base::SetSds();
+	Setup_Widget	();
+}
 void Keyboad_Dialog_class::buffer_mode( int value )
 {
 	Sds->Set( sds_p->StA_state_arr[ STA_KEYBOARD ].forget, (bool)value );

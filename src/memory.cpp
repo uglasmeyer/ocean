@@ -232,7 +232,6 @@ Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 	scanner 				( Memory_base::Data, _param.size )
 
 {
-	className 				= Logfacility_class::className;
 	this->Id				= id;
 	Reset					( );
 	DsInfo					( param.name );
@@ -259,30 +258,29 @@ void Storage_class::Store_record( Data_t* src )
 
 				touched		= true;
 	buffer_t	offs 		= scanner.wpos;
-	for ( buffer_t n = 0; n < mem_ds.record_size; n++ )
+	for ( buffer_t n = 0; n < record_size; n++ )
 	{
 		Data[offs + n] = src[n];
 	}
 
-	buffer_t 	blocks				 	= mem_ds.record_size;
-				scanner.Next_wpos		( blocks );
+				scanner.Next_wpos		( record_size );
 				scanner.Set_fillrange	( scanner.wpos );
 				state.Store				( scanner.fillrange.max < scanner.mem_range.max );
-				records 				= scanner.fillrange.max / mem_ds.record_size;
+				records 				= scanner.fillrange.max / record_size;
 }
 
 void Storage_class::Store_counter( uint  _records )
 {
 	Assert_lt(  _records , mem_ds.max_records + 1, "mem_ds.max_records" );
 
-	buffer_t	blocks					= _records * mem_ds.record_size;
+	buffer_t	data_blocks				= _records * record_size;
 				records					= _records;
-				scanner.Set_fillrange	( blocks );
+				scanner.Set_fillrange	( data_blocks );
 				scanner.Set_rpos		( 0 );
-				scanner.Set_wpos		( blocks );
-				if ( blocks > 0 ) // do not set wdsize to 0
+				scanner.Set_wpos		( data_blocks );
+				if ( data_blocks > 0 ) // do not set wdsize to 0
 				{
-					param.wdsize		= blocks;
+					param.wdsize		= data_blocks;
 					touched				= true;
 				}
 	Info( "StA", Id, "loaded", records, "records");

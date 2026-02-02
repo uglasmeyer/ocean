@@ -41,31 +41,32 @@ SOFTWARE.
 #include <data/DataWorld.h>
 #include <Keyboard.h>
 
+//OceanGUI
+#include <Common.h>
+
 namespace Ui {
 class Keyboad_Dialog_class;
 }
 
 class Keyboad_Dialog_class :
-		public QDialog//, virtual public QSpinBox
+	public 				QDialog,
+	public virtual		OceanGUI_base
 {
     Q_OBJECT
 	QWidget* 		parent			= nullptr;
 
 public:
     Ui::Keyboad_Dialog_class*		ui;
-    Dataworld_class* DaTA			= nullptr;
-    Interface_class* Sds			= nullptr;
-    interface_t*	sds_p			= nullptr;
     EventLog_class*	Eventlog_p		= nullptr;
-    Kbd_pitch_class Kbd_pitch 		{};
-
-    Id_t			SDS_ID			= 0;
+    Kbd_pitch_class Kbd_pitch 		;
     QString			keyboard_key	= "Key";
 
     explicit Keyboad_Dialog_class(	QWidget* 			parent 	= nullptr,
     								Dataworld_class* 	_data 	= nullptr,
     								EventLog_class*  	_log	= nullptr);
     ~Keyboad_Dialog_class();
+    void SetSds();
+
 
 public slots:
 	void Setup_Widget		();

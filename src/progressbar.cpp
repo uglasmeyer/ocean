@@ -31,11 +31,17 @@ SOFTWARE.
 
 #include <Progressbar.h>
 
-ProgressBar_class::ProgressBar_class(uint8_t* counter_p) :
-Logfacility_class("Record")
+/**************************************************
+ * ProgressBar_class
+ *************************************************/
+ProgressBar_class::ProgressBar_class(uint8_t* counter_p)
+	: Logfacility_class("Record")
 {
-	this->RecCounter = counter_p;
-	this->counter = 0;
+	this->RecCounter 	= counter_p;
+	this->counter 		= 0;
+	this->max_counter	= 1;
+	this->active		= false;
+
 };
 
 ProgressBar_class::~ProgressBar_class()
@@ -51,9 +57,9 @@ void ProgressBar_class::Setup( uint8_t* sds )
 void ProgressBar_class::Set( uint* count, uint max )
 {
 	Comment( INFO, "recording is activated");
-	counter = count;
+	counter 	= count;
 	max_counter = max;
-	active = true;
+	active 		= true;
 }
 
 void ProgressBar_class::Reset( )

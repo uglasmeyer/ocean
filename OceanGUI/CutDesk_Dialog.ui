@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CutterDialog_class</class>
- <widget class="QDialog" name="CutterDialog_class">
+ <class>CutDesk_Dialog_class</class>
+ <widget class="QDialog" name="CutDesk_Dialog_class">
   <property name="geometry">
    <rect>
     <x>0</x>

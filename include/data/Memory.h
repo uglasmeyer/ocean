@@ -144,7 +144,6 @@ class Stereo_Memory :
 	virtual public 	Logfacility_class,
 	virtual public 	Memory_base
 {
-	string className = "";
 public:
 
 	static const buffer_t	stereobuffer_bytes 	= recduration*frames_per_sec * sizeof(stereoT) ;
@@ -152,10 +151,8 @@ public:
 	stereoT* 				stereo_data 		= nullptr;
 
 	Stereo_Memory		(uint8_t type_bytes, buffer_t bytes) :
-		Logfacility_class( "Stereo_Memory" ),
 		Memory_base( type_bytes, bytes )
 	{
-		className = Logfacility_class::className;
 		Init_data( bytes );
 	}
 
@@ -168,7 +165,7 @@ public:
 	{
 		stereo_data = ( stereoT* ) Init_void( sizeof(stereoT), bytes );
 
-		Assert_equal( mem_ds.bytes, mem_ds.sizeof_type * mem_ds.max_records * mem_ds.record_size );
+		Assert_equal( mem_ds.bytes, mem_ds.block_size * mem_ds.max_records * record_size );
 		statistic.stereo += mem_ds.bytes;
 		mem_ds.name	= Logfacility_class::className;
 	}
@@ -212,7 +209,6 @@ class Storage_class :
 		virtual public Logfacility_class,
 		virtual public Memory_base
 {
-	string className = "";
 public:
 	// dynamic properties
 	StA_param_t 	param			;

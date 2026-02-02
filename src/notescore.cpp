@@ -56,7 +56,7 @@ uint Note_class::Calc_notelist_msec( notelist_t notelist )
 void Note_class::Set_xmlnotelist( const notelist_t& nlst )
 {
 	notelist = nlst;
-	sds->Noteline_sec = musicxml.scoreduration / 1000;
+	sds_p->Noteline_sec = musicxml.scoreduration / 1000;
 
 	Noteline_prefix = nlp_default;
 	Noteline_prefix.Octave = 0;
@@ -95,8 +95,8 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 
 	// pre check
 	noteline_sec 		= 0;
-	if ( sds )
-		sds->Noteline_sec = noteline_sec;
+	if ( sds_p )
+		sds_p->Noteline_sec = noteline_sec;
 
 	if ( str.length() == 0 )
 	{
@@ -124,8 +124,8 @@ bool Note_class::Verify_noteline( noteline_prefix_t prefix, string str )
 	if ( mod == 0 )
 	{
 		noteline_sec = noteline_msec / 1000;
-		if ( sds )
-			sds->Noteline_sec = noteline_sec;
+		if ( sds_p )
+			sds_p->Noteline_sec = noteline_sec;
 		Comment(INFO, "Note line duration: " + to_string( noteline_sec ) + " [sec]");
 		return true;
 	}

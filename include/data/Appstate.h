@@ -49,23 +49,23 @@ public:
 	APPID 			AppId				;
 	APPID 			AppType				;
 	int8_t			SDSid				;
-	interface_t* 	sds 				= nullptr;
-	interface_t* 	sds_master			= nullptr;
+	interface_t* 	sds 				;
+	interface_t* 	sds_master			;
 	sds_vec_t		sds_vec				{};
 
-	const set<APPID>assignMasterSds 	{ SDSVIEWID,
+	const set<APPID>assignMasterSds 	{ 	SDSVIEWID,
 											AUDIOID,
 											GUI_ID,
 											RTSPID,
 											COMPID,
-											KEYBOARDID,
+//											KEYBOARDID,
 											TESTPRGID } ;
 	SdsId_vec_t		all_sdsids			= Iota_T<Id_t>( 0, MAXCONFIG );
 
 	appstate_arr_t	backup_state		{ };
 
-					Appstate_class		( 	APPID appid,
-											sds_vec_t sds_vec
+					Appstate_class		( APPID appid,
+										sds_vec_t sds_vec
 										);
 
 	virtual			~Appstate_class		()

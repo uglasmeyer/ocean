@@ -60,10 +60,10 @@ struct interface_struct // with reasonable defaults
 
 
 	/* instrument definition starts */
-	feature_arr_t	features					= default_feature_expr();
-	adsr_arr_t		adsr_arr					= default_adsr_expr();
-	spectrum_arr_t	spectrum_arr				= default_spectrum_expr();
-	connect_arr_t	connect_arr					= default_connect_expr();
+	feature_arr_t	features					= default_oscgroup_arr_T( default_feature );
+	adsr_arr_t		adsr_arr					= default_oscgroup_arr_T( default_adsr );
+	spectrum_arr_t	spectrum_arr				= default_oscgroup_arr_T( default_spectrum );
+	connect_arr_t	connect_arr					= default_oscgroup_arr_T( Connect_struct() );
 
 	/* instrument definition ends	 */
 

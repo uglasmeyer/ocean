@@ -75,6 +75,7 @@ void Dataworld_class::init_Shm( Shm_base& SHM, key_t key, uint idx )
 	SHM.shm_ds.Id 	= idx;
 	SHM.ShowDs		( SHM.shm_ds );
 }
+
 Interface_class* Dataworld_class::GetSds(  )
 {
 	return SDS.GetSds( SDS_Id );

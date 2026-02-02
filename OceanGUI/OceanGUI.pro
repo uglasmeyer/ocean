@@ -16,7 +16,7 @@ SOURCES += \
 
 RESOURCES += ./resource.qrc
 HEADERS += \
-    Cutterdialog.h \
+    include/Cutterdialog.h \
     include/Keyboad_dialog.h \
     include/File_Dialog.h \
     include/Mainwindow.h \

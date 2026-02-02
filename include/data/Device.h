@@ -46,7 +46,7 @@ class Device_class
 	, virtual public	osc_struct
 {
 
-	interface_t* 		sds_p;
+	interface_t* 		sds;
 
 public:
 	typedef struct connectName_struct

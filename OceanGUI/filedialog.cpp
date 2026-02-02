@@ -42,13 +42,13 @@ SOFTWARE.
 File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 										Dataworld_class* 	_data,
 										EventLog_class*		_log) :
-    Logfacility_class("FileDialog"),
-    Note_class( _data->Sds_p->addr, _data->Cfg_p->fs ),
-	QDialog(parent),
+    Logfacility_class	("FileDialog"),
+	Interface_base		( _data ),
+    Note_class			( _data ),
+	QDialog				(parent),
 	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
 
-	this->DaTA 		= _data;
 	this->Eventlog_p= _log;
 	this->sem		= DaTA->Sem_p;
 	this->fs		= DaTA->Cfg_p->fs;
@@ -63,13 +63,13 @@ File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
     ui->cb_convention->clear();
     ui->cb_convention->addItems( QStrL );
 
-    QStrL = Qstringvector( NpsChars.Vec );
+    QStrL = Qstringvector( NpsChars.Bps_str_vec );
     ui->cb_nps->clear();
     ui->cb_nps->addItems( QStrL );
 
 	ui->sB_Octave->setMaximum( OctaveChars.Str.length()-1 );
 
-	SetSds( DaTA->Sds_p );
+	SetSds();
 
 	connect(ui->cb_instrumentfiles	, SIGNAL(textActivated(QString)),this, SLOT(Instrument_Select(QString)) );
     connect(ui->cb_notefilenames	, SIGNAL(textActivated(QString)),this, SLOT(Notes_Select(QString)) );
@@ -114,14 +114,10 @@ void File_Dialog_class::Longnote( bool value )
 	Sds->Set( sds_p->features[0].longplay , value );
 }
 
-void File_Dialog_class::SetSds( Interface_class* Sds )
+void File_Dialog_class::SetSds()
 {
-	this->Sds 		= Sds;
-	this->sds_p 	= Sds->addr;
-	this->SDS_ID	= sds_p->SDS_Id;
-
+	Interface_base::SetSds();
 	Setup_widgets();
-
 }
 
 void File_Dialog_class::cb_Notestype( int cb_value )

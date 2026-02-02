@@ -62,7 +62,7 @@ class Processor_class :
 	public 				sdsstate_struct
 {
 	Interface_class* 	Sds ;
-	interface_t* 		sds ;
+	interface_t* 		sds_p ;
 	Semaphore_class*	Sem ;
 	Time_class			Timer{};
 

@@ -30,7 +30,6 @@ SOFTWARE.
  */
 
 #include <Keyboard.h>
-#include <cstring> // strcpy
 
 
 /**************************************************
@@ -41,11 +40,12 @@ keyboardState_class::keyboardState_class( interface_t* _sds) :
 
 {
 	sds 	 				= _sds;
-	base_octave				= sds->Kbd_state.base_octave;
 	sharps					= sds->Kbd_state.sharps;
+	flats					= sds->Kbd_state.flats;
 	bpsidx					= sds->Kbd_state.bpsidx;
 	sliding					= sds->Kbd_state.sliding;
-	change_octave			( 0 );
+	chord_type				= sds->Kbd_state.chord_type;
+	set_octave				( sds->Kbd_state.base_octave );
 };
 
 void keyboardState_class::change_octave( int inc )
@@ -53,7 +53,7 @@ void keyboardState_class::change_octave( int inc )
 	base_octave					= check_range( 	Kbdoctave_range,
 												base_octave  + inc,
 												"change_octave" );
-	sds->Kbd_state.base_octave	= base_octave;
+	sds->Kbd_state.base_octave= base_octave;
 	basefrq						= frqArray[ frqIndex( 0, base_octave ) ];
 }
 
@@ -63,77 +63,24 @@ void keyboardState_class::set_octave( int oct )
 	basefrq						= frqArray[ frqIndex( 0, base_octave ) ];
 }
 
-void keyboardState_class::set_accidental( uint loc, int dir  )
-{
-	for( uint oct = 0; oct < kbd_rows; oct++)
-	{
-		keyboard_keys[oct][ (loc + dir)%oct_steps ] = keyboard_keys[oct][ loc ];
-		keyboard_keys[oct][ loc     ]	= '_';
-	}
-};
-
-void keyboardState_class::set_accidental( step_vec_t vec  )
-{
-	keyboard_keys		= dflt_keyboard_keys;
-
-	for( uint n = 0; n < sharps; n++ )
-	{
-		int8_t dir = 1;
-		for( uint row = 0; row < kbd_rows; row++)
-		{
-			uint8_t keyloc = vec[n];
-			uint8_t newloc= (keyloc+dir) % oct_steps;
-			keyboard_keys[row][newloc] = keyboard_keys[row][ keyloc ];
-			keyboard_keys[row][ keyloc ]	= '_';
-		}
-	}
-	for( uint n = 0; n < flats; n++ )
-	{
-		int8_t dir = -1;
-		for( uint row = 0; row < kbd_rows; row++)
-		{
-			uint8_t keyloc = vec[n] ;
-			int8_t newloc	= keyloc + dir;
-			if( ( newloc ) < 0 )
-				newloc = oct_steps - 1;
-			keyboard_keys[row][newloc] = keyboard_keys[row][ keyloc ];
-			keyboard_keys[row][ keyloc     ]	= '_';
-		}
-	}
-};
-
 void keyboardState_class::increase_sharps()
 {
 	sharps 						= check_range( sharps_range, sharps + 1, "increase_sharps" );
 	sds->Kbd_state.sharps 		= sharps;
-
-	if ( sharps > 0 )
-	{
-		uint location			= ( sharp_pitch[ sharps-1 ] ) ;
-		set_accidental( location, 1 );
-	}
 }
 
 void keyboardState_class::increase_flats()
 {
 	flats 						= check_range( flats_range, flats + 1, "increase_flats" );
 	sds->Kbd_state.flats 		= flats;
-	if ( flats > 0 )
-	{
-		uint location			= ( flat_pitch[ flats-1 ] ) ;
-		set_accidental( location, -1 );
-	}
-
 }
 void keyboardState_class::reset_sharps()
 {
-	keyboard_keys				= dflt_keyboard_keys;
 	sharps 						= 0;
 	sds->Kbd_state.sharps 		= 0;
 }
 void keyboardState_class::reset_flats()
 {
-	keyboard_keys				= dflt_keyboard_keys;
 	flats 						= 0;
 	sds->Kbd_state.flats 		= 0;
 }
@@ -189,19 +136,18 @@ void Keyboard_class::Show_help( bool tty )
 void Keyboard_class::notekey( char ch )
 {
 			SetChord	( ch );
-	char	note_char	= SetPitch( ch ) ;
+	char	note_char	= SetPitchVec( ch ) ;
 
-	if ( Pitch_vec.size() > 0 )
+	if ( pitch_vec.size() > 0 )
 	{
 		if( note_char != NONOTE )
 		{
-			Set_instrument();
-
 			if( sds_p->StA_amp_arr[STA_KEYBOARD] == 0 )
 			{
 				sds_p->StA_amp_arr[STA_KEYBOARD] = kbd_volume;
 			}
 			StA->Volume( sds_p->StA_amp_arr[STA_KEYBOARD], SLIDE );
+			Comment( DEBUG, "notekey:", (int)note_char );
 		}
 	}
 
@@ -222,27 +168,12 @@ void Keyboard_class::set_bufferMode( bool forget )
 	Note_vec.Init();
 }
 
-void Keyboard_class::Set_kbdstate( )
+void Keyboard_class::SetKbdKey( )
 {
-
-	bool forget			= sds_p->StA_state_arr[STA_KEYBOARD].forget;
-	bool save			= sds_p->Kbd_state.savenotes;
-	kbdInt_t key 		= sds_p->Kbd_state.key;
-	base_octave 		= sds_p->Kbd_state.base_octave;
-	sliding 			= sds_p->Kbd_state.sliding;
-	sharps	 			= sds_p->Kbd_state.sharps;
-	flats 				= sds_p->Kbd_state.flats;
-	bpsidx 				= sds_p->Kbd_state.bpsidx;
-	set_octave			( base_octave );
-	set_accidental		( sharp_pitch );
-	set_accidental		( flat_pitch );
-	set_bufferMode		( forget );
-	Dispatcher			( key, sds_p->mixer_state.sync );
-	Save_notes			( save );
-	sds_p->Kbd_state.key= NOKEY;
-	sds_p->Kbd_state.savenotes= false;
-	sds_p->StA_state_arr[ STA_KEYBOARD ].play = true;
-
+	kbdkey_t	Key					;
+				Key.Int				= sds_p->Kbd_state.key;
+				keyHandler			( Key );
+				sds_p->Kbd_state.key= NOKEY;
 }
 
 void Keyboard_class::release_note()

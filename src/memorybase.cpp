@@ -55,7 +55,7 @@ void Memory_base::SetDs( size_t type_size )
 	//					mem_bytes 	= block_bytes*blocks (blocks=sec)
 	//					mem_blocks	=
 
-	buffer_t 	bytes 				= mem_ds.sizeof_type * mem_ds.max_records * mem_ds.record_size;
+	buffer_t 	bytes 				= mem_ds.block_size * mem_ds.max_records * record_size;
 	Assert_equal( mem_ds.bytes, bytes );
 }
 
@@ -69,7 +69,7 @@ void Memory_base::Init_data( buffer_t _bytes )
 	Data = ( Data_t* ) Init_void( sizeof_Data, _bytes );
 
 //	SetDs( sizeof_Data );
-	Assert_equal( mem_ds.bytes, mem_ds.sizeof_type * mem_ds.max_records * mem_ds.record_size );
+	Assert_equal( mem_ds.bytes, mem_ds.block_size * mem_ds.max_records * record_size );
 	statistic.data += mem_ds.bytes;
 }
 
@@ -103,8 +103,8 @@ void Memory_base::DsInfo( string name )
 	}
 	if( LogMask[TEST] )
 	{
-		T.AddRow( "Block bytes", mem_ds.sizeof_type );
-		T.AddRow( "Record size", mem_ds.record_size );
+		T.AddRow( "Block bytes", mem_ds.block_size );
+		T.AddRow( "Records    ", mem_ds.max_records );
 		T.AddRow( "data blocks", mem_ds.data_blocks );
 		T.AddRow( "max data records", mem_ds.max_records );
 	}

@@ -37,7 +37,6 @@ statistic_t statistic = statistic_struct(); // extern declared in statistic.h
 Statistic_class::Statistic_class( string name ) :
 Logfacility_class( "Statistic" )
 {
-	className = Logfacility_class::className;
 	module = name;
 }
 

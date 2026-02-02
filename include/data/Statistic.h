@@ -50,8 +50,6 @@ extern statistic_t statistic;
 class Statistic_class :
 	public virtual Logfacility_class
 {
-	string className = "";
-
 public:
 
 	string module = "";

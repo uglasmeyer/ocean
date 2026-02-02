@@ -70,6 +70,7 @@ const adsr_struct		default_adsr	=
 class ADSR_class :
 	virtual	public	Oscillator_base
 {
+	const buffer_t 	adsr_frames 	= max_frames;
 	buffer_t 		hall_cursor 	;
 	buffer_t 		beat_cursor 	;
 	bool			tainted			; // becomes true if adsr_data changes
@@ -77,10 +78,14 @@ class ADSR_class :
 	Heap_Memory		adsr_Mem		;
 	adsr_struct		adsr_data		;
 	uint8_t			kbdbps			;
+	bool			kbdattack		; // set to true by keyboard attack
 
 public:
 
-	buffer_t 		adsr_frames 	;
+	buffer_t		adsr_wp_frames	;
+	bool			has_kbd_role   	;
+	bool			has_notes_role 	;
+	bool			has_instr_role 	;
 
 	void 			Apply_adsr		( buffer_t frames, Data_t* data, buffer_t frame_offset );
 	Data_t* 		AdsrMemData_p	();
@@ -93,9 +98,10 @@ public:
 	adsr_t			Get_adsr		();
 	Data_t*			Adsr_OSC		();
 	void			Set_bps			( uint8_t bps = 1 );
-	void			Set_kbdbps		( uint8_t bps );
+	void			KbdAttack		( uint8_t bps );
+
 	string			Show_adsr		( adsr_t );
-					ADSR_class		( OSCID_e _typeid );
+					ADSR_class		( RoleId_e roleId, OSCID_e _typeid );
 	virtual 		~ADSR_class		();
 
 private:

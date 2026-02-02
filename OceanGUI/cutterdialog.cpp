@@ -1,16 +1,38 @@
-#include "Cutterdialog.h"
-#include "ui_CutDesk_Dialog.h"
+/**************************************************************************
+MIT License
 
-CutterDialog_class::CutterDialog_class(QWidget *parent,
-		Dataworld_class* data,
-		EventLog_class* el)
-    : QDialog(parent)
-    , ui(new Ui::CutterDialog_class)
+Copyright (c) 2025 Ulrich Glasmeyer
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+****************************************************************************/
+
+
+#include <include/Cutterdialog.h>
+
+CutDesk_Dialog_class::CutDesk_Dialog_class(	QWidget *parent,
+											Dataworld_class* data,
+											EventLog_class* el)
+    : OceanGUI_base( data )
+	, QDialog(parent)
+    , ui(new Ui::CutDesk_Dialog_class)
 {
-	this->DaTA			= data;
-	this->sds_master	= DaTA->sds_master;
 	this->Eventlog		= el;
-	setSds( DaTA->Sds_p );
 
     ui->setupUi(this);
     connect(ui->pb_back_right	, SIGNAL(clicked() ),this, SLOT(Step_forward() ));
@@ -24,66 +46,66 @@ CutterDialog_class::CutterDialog_class(QWidget *parent,
 	updateCutDesk();
 }
 
-CutterDialog_class::~CutterDialog_class()
+CutDesk_Dialog_class::~CutDesk_Dialog_class()
 {
     delete ui;
 }
 
-void CutterDialog_class::Step_forward()
+void CutDesk_Dialog_class::Step_forward()
 {
-	Sds->Set( sds->WD_state.direction, BACK_RIGHT );
+	Sds->Set( sds_p->WD_state.direction, BACK_RIGHT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 
 }
-void CutterDialog_class::Step_backward()
+void CutDesk_Dialog_class::Step_backward()
 {
-	Sds->Set( sds->WD_state.direction, BACK_LEFT );
+	Sds->Set( sds_p->WD_state.direction, BACK_LEFT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 }
-void CutterDialog_class::Step_front_forward()
+void CutDesk_Dialog_class::Step_front_forward()
 {
-	Sds->Set( sds->WD_state.direction, FRONT_RIGHT );
+	Sds->Set( sds_p->WD_state.direction, FRONT_RIGHT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 
 }
-void CutterDialog_class::Step_front_backward()
+void CutDesk_Dialog_class::Step_front_backward()
 {
-	Sds->Set( sds->WD_state.direction, FRONT_LEFT );
+	Sds->Set( sds_p->WD_state.direction, FRONT_LEFT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 }
-void CutterDialog_class::Step_to_end()
+void CutDesk_Dialog_class::Step_to_end()
 {
-	Sds->Set( sds->WD_state.direction, GOTO_END );
+	Sds->Set( sds_p->WD_state.direction, GOTO_END );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
 }
-void CutterDialog_class::updateCutDesk()
+void CutDesk_Dialog_class::updateCutDesk()
 {
-	ui->lcdNumber->display( sds->WD_state.cursor.min );
-	ui->lcdNumber_2->display( sds->WD_state.cursor.max );
-	coutf << "CutterDialog_class::updateCutDesk" << endl;
+	ui->lcdNumber->display( sds_p->WD_state.cursor.min );
+	ui->lcdNumber_2->display( sds_p->WD_state.cursor.max );
+	coutf << "CutDesk_Dialog_class::updateCutDesk" << endl;
 }
 
-void CutterDialog_class::Cut_tail()
+void CutDesk_Dialog_class::Cut_tail()
 {
 	Eventlog->add( SDS_ID, CUT_KEY );
 }
-void CutterDialog_class::Save()
+void CutDesk_Dialog_class::Save()
 {
 	Eventlog->add( SDS_ID, CUT_SAVE );
 }
 
-void CutterDialog_class::Setup( Interface_class* Sds )
+void CutDesk_Dialog_class::Setup( Interface_class* Sds )
 {
-	setSds( Sds );
+	SetSds();
 	Eventlog->add(SDS_ID, CUT_SETUP_KEY );
 	updateCutDesk();
 }
 
-void CutterDialog_class::setSds( Interface_class* Sds )
+void CutDesk_Dialog_class::SetSds()
 {
-	this->Sds 		= Sds;
-	this->sds		= Sds->addr;
-	this->SDS_ID	= sds->SDS_Id;
+	OceanGUI_base::SetSds();
+	updateCutDesk();
 }
+
 
 

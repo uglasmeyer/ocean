@@ -32,14 +32,9 @@ SOFTWARE.
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
-#include <data/Memory.h>
-#include <Keyboard_base.h>
-#include <Logfacility.h>
-#include <Osc.h>
 #include <Instrument.h>
 #include <Kbd.h>
-#include <Ocean.h>
-#include <Oscgroup.h>
+#include <Keyboard_base.h>
 #include <Mixerbase.h>
 #include <notes/Notes.h>
 
@@ -47,22 +42,22 @@ SOFTWARE.
  * Kbd_pitch_class
  *************************************************/
 class Kbd_pitch_class
-	: virtual Logfacility_class
-	, public kbd_state_struct
+	: virtual 			Logfacility_class
+	, public 			kbd_state_struct
 {
-	typedef map<char, tuple<string, string>> chords_map_t;
+	typedef map<const char, tuple<string, string>> chords_map_t;
 
 	constexpr set<char> init_chord_keys( chords_map_t chords )
 	{
 		set<char> chars {};
 		for( auto [ch, str] : chords )
 		{
-			chars.insert( ch );// @suppress("Invalid arguments")
+			chars.insert( ch );
 		}
 		assert( chars.size() > 0);
 		return chars;
 	}
-	interface_t*		sds_p				;
+	interface_t*		sds				;
 
 public:
 	chords_map_t Chords_map		// @suppress("Invalid arguments")
@@ -74,31 +69,33 @@ public:
 		{'B',{ string("433"), string("Moll+ ") }},
 		{'N',{ string("<")	, string("Power ") }}
 	};
-	set<char>			chord_keys			= init_chord_keys( Chords_map );
+	const set<char>			chord_keys			= init_chord_keys( Chords_map );
 	const array<string, kbd_rows>
-						dflt_keyboard_keys	{  	string("A_S_DF_J_K_L") ,
+							keyboard_keys	{  	string("A_S_DF_J_K_L") ,
 												string("Q_W_ER_U_I_O") ,
 												string("1_2_34_7_8_9")};
-	array<string, kbd_rows>
-						keyboard_keys		{ dflt_keyboard_keys };
 
 	/*
 	 https://www.delamar.de/songwriting/akkorde-lernen-49754/#akkorde-bestimmen
 	 https://de.wikipedia.org/wiki/American_Standard_Code_for_Information_Interchange
 	 */
 
-	pitch_t				pitch 				= pitch_struct();
 	string 				Chord				= get<0>(Chords_map['Y']);
 
-	pitch_vec_t			Pitch_vec			{};
+
+	pitch_vec_t			pitch_vec			{};
+	pitch_t				pitch 				= pitch_struct();
 
 
-						Kbd_pitch_class		( interface_t* sds);
-						Kbd_pitch_class		(); // keyboard_dialog
+						Kbd_pitch_class		( interface_t* _sds);
 	virtual 			~Kbd_pitch_class	() 	= default;
-	char 				SetPitch			( int key );
+
+	char				SetPitch			( char key );
+	char 				SetPitchVec			( int key );
 	void 				SetChord			( char key );
 	void 				Show_kbd_layout		( int8_t base_oct );
+	void 				ShowPitch			( pitch_t p );
+
 	void 				Kbd_pitch_Test		();
 
 private:
@@ -110,13 +107,14 @@ private:
 class keyboardState_class :
 	public Kbd_pitch_class
 {
-	interface_t* 		sds;
-	const range_T<uint>	sharps_range			{ 0, 3 }; // TODO reduced range
-	const range_T<uint>	flats_range				{ 0, 2 }; // TODO reduced range
-	frq_t				basefrq					;
+	const range_T<uint>	sharps_range			{ 0, 3 };
+	const range_T<uint>	flats_range				{ 0, 3 };
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
+	frq_t				basefrq					;
 
-protected:
+public:
+	interface_t* 		sds					;
+
 
 						keyboardState_class		( interface_t* _sds );
 						~keyboardState_class() 	= default;
@@ -129,8 +127,6 @@ protected:
 	void 				reset_flats				();
 	void 				set_kbdbps				();
 	void 				set_slideMode			();
-	void 				set_accidental			( uint pitches, int dir  );
-	void 				set_accidental			( step_vec_t vec  );
 
 } ;
 
@@ -143,7 +139,7 @@ typedef struct Noteline_struct
 
 						Noteline_struct	();
 	virtual				~Noteline_struct() = default;
-	void 				AddPitch			( const pitch_vec_t& pv );
+	void 				AddPitch		( const pitch_vec_t& pv );
 	void 				AddLenth		( uint& cnt );
 	string 				Get_note_str	( const pitch_vec_t& pv );
 } Noteline_t;
@@ -187,18 +183,19 @@ public:
  *************************************************/
 class Keyboard_class
 	: virtual public	Logfacility_class
+	, public virtual	Interface_base
 	, virtual			osc_struct
 	, virtual public	Kbd_base
 	, virtual public	sdsstate_struct
 	, virtual public	keyboardState_class
 {
 	Oscgroup_class		Oscgroup				;
+	Oscillator*			Vco						;
+	Oscillator*			Fmo						;
 	Oscillator*			Osc						;
 	Instrument_class* 	instrument_p			;
-	interface_t*		sds_p					;
 	Wavedisplay_class*	wd_p					;
 	Storage_class*		StA						;
-	file_structure*		fs						;
 	Note_class*			Notes					;
 	Scanner_class*		scanner					;
 	const uint8_t		notes_per_sec			= 8;
@@ -210,7 +207,8 @@ public:
 	Data_t*				Kbd_Data;
 	bool				Enabled					;
 
-						Keyboard_class			( 	Instrument_class*,
+						Keyboard_class			( 	Dataworld_class*,
+													Instrument_class*,
 													Storage_class*,
 													Note_class* );
 						Keyboard_class			(); // see comstack
@@ -220,13 +218,13 @@ public:
 	void 				Enable					( bool iskbd );
 	void 				ScanData				();
 	void 				Show_help				( bool tty );
-	void				Set_kbdstate			();
+	void				SetKbdKey				();
 	bool 				Save_notes				( bool save = true );
 
 private:
 
 	const int 			releaseCounter			= 1;
-	const int 			attackCounter 			= measure_parts;//rint( max_frames / min_frames );
+	const int 			attackCounter 			= measure_parts;
 	uint8_t				kbd_volume				;
 	float				sta_volume				;
 	int 				decayCounter 			;

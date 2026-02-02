@@ -33,20 +33,22 @@ SOFTWARE.
 #define INCLUDE_PLAYNOTES_H_
 
 #include <Spectrum.h>
+#include <data/DataWorld.h>
 #include <Instrument.h>
-#include <notes/Notesbase.h>
 #include <Oscbase.h>
 #include <Osc.h>
 #include <Ocean.h>
 #include <System.h>
 #include <Oscgroup.h>
+#include <notes/Notesbase.h>
 #include <notes/MusicXML.h>
 
 /**************************************************
  * Note_class
  *************************************************/
 class Note_class
-		: virtual public Note_base
+	: virtual public 	Note_base
+	, public virtual 	Interface_base
 {
 	Instrument_class*	instrument 	= nullptr;
 	Storage_class*		StA			= nullptr;
@@ -58,21 +60,18 @@ public:
 	Oscillator*			fmo						= &Oscgroup.fmo;
 	Oscillator*			Osc						= &Oscgroup.osc;
 	Musicxml_class		Musicxml				;
-	file_structure*		fs						= nullptr;
 	Wavedisplay_class*	wd						= nullptr;
 	Scanner_class*		scanner					= nullptr;
 	string				Instrument_name 		{ "" };
 	Trigger_class		Note_itr_start			;
 	Trigger_class		Note_itr_end			;
 	uint8_t 			Octave					= nlp_default.Octave; // 55
-
 	Data_t*				NotesData				= osc->MemData_p( );
-	interface_t*		sds						= nullptr;
 
-					Note_class				( Instrument_class* instr,
+					Note_class				( Dataworld_class* data,
+											Instrument_class* instr,
 											Storage_class*	sta);	// Synthesizer
-					Note_class				( interface_t* sds,
-											file_structure* fs ); 	// File_dialog, variation
+					Note_class				( Dataworld_class* data ); 	// File_dialog, variation
 	virtual			~Note_class				();
 
 
@@ -88,7 +87,7 @@ public:
 	bool			Generate_cyclic_data	();
 	bool 			Generate_volatile_data	( bool init = false );
 	void			ScanData				();
-	void 			SetSDS					( noteline_prefix_t nlp );
+	void 			Set_nlp					( noteline_prefix_t nlp );
 
 	void			Set_prefix_octave		( int );
 	bool			Verify_noteline			( noteline_prefix_t nlp,
@@ -162,7 +161,7 @@ private:
 	bool 			compiler 				( noteline_prefix_t,  string );
 	bool			set_file_name			( string );
 	size_t			position_parser			( size_t );
-	void 			gen_chord_data			( const note_t& note );
+	void 			gen_chord_data			( note_t& note );
 	void 			change_alphabet_notes	( noteline_prefix_t );
 	void            set_volume_vector		( string );
 	void			fill_note_list			();

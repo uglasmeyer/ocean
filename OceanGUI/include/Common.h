@@ -44,6 +44,7 @@ SOFTWARE.
 // Ocean
 #include <data/Config.h>
 #include <data/Interface.h>
+#include <data/DataWorld.h>
 #include <Ocean.h>
 #include <System.h>
 #include <EventKeys.h>
@@ -125,5 +126,39 @@ extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );
 extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
 extern QStringList		Qread_filenames	( const Path_t _path );
 extern void 			SetGeometry		( QWidget* Widget );
+
+/**************************************************
+ * OceanGUI_base
+ *************************************************/
+class OceanGUI_base :
+	virtual public 			Logfacility_class
+{
+public:
+	Dataworld_class*		DaTA	;
+	Interface_class*		Sds		;
+	interface_t*			sds_master;
+	interface_t*			sds_p	;
+	Id_t					SDS_ID	;
+
+	OceanGUI_base( Dataworld_class* data ) :
+		Logfacility_class	("OceanGUI_base")
+	{
+		this->DaTA			= data;
+		this->sds_master 	= data->sds_master;
+		SetSds				();
+	};
+	virtual ~OceanGUI_base()
+	{
+		DESTRUCTOR( className );
+	};
+	void SetSds( )
+	{
+		this->SDS_ID	= DaTA->sds_master->config;
+		this->Sds 		= DaTA->SDS.GetSds( SDS_ID );
+		this->sds_p 	= Sds->addr;
+	}
+
+private:
+};
 
 #endif

@@ -32,7 +32,6 @@ SOFTWARE.
 #ifndef APP_H_
 #define APP_H_
 
-#include <Ocean.h>
 #include <data/Semaphore.h>
 #include <data/Statistic.h>
 #include <data/DataWorld.h>
@@ -44,25 +43,22 @@ SOFTWARE.
 
 class Application_class :
 	virtual Logfacility_class,
-	sdsstate_struct,
+	public virtual Interface_base,
+	public sdsstate_struct,
 	Statistic_class
 {
-	string 				className 			= "";
+    const set<APPID>	logowner 			=  { GUI_ID, COMPID, RTSPID };
+	string 				This_Application 	;
+	string 				ProgramName 		;
+
 public:
 
-	APPID 				AppId				= NoAPPID;
+	APPID 				AppId				;
 	process_t 			properties 			{};
 	Time_class			Timer				{};
 	Kbd_base			Kbd					{};
-	Dataworld_class*	DaTA				= nullptr;
-	Appstate_class*		Appstate			= nullptr;
-	interface_t* 		sds					= nullptr;
-	interface_t*		sds_master			= nullptr;
-	Config_class*		Cfg 				= nullptr;
-	Interface_class*	Sds					= nullptr;
-
-	string 				This_Application 	= "";
-    const set<APPID>	logowner 			=  { GUI_ID, COMPID, RTSPID };
+	Appstate_class*		Appstate			;
+	Config_class*		Cfg 				;
 
     					Application_class	( Dataworld_class* );
 	virtual 			~Application_class	();
@@ -78,7 +74,6 @@ private:
 	void 				deRegister			();
 	void 				versionTxt			();
 
-	string 				ProgramName 		= "";
 };
 
 

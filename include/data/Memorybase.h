@@ -112,18 +112,16 @@ private:
  *************************************************/
 struct 				mem_data_struct
 {
-	const static buffer_t
-					record_size 	{ min_frames }; // define a block as a substructue on the memory data
+	buffer_t		bytes			;
+	int				block_size		;
+	buffer_t 		data_blocks		;
+	uint 			max_records		;
 	string			name 			= "memory";
 	void*			addr			= nullptr;
 	string			hex				= "0x0";
-	int				sizeof_type 	;
-	buffer_t		bytes			;
-	buffer_t 		data_blocks		;
-	uint 			max_records		;
 					mem_data_struct	( int type_bytes, buffer_t data_bytes )
 					{
-						sizeof_type = type_bytes;
+						block_size	= type_bytes;
 						bytes		= data_bytes;
 						data_blocks = bytes / type_bytes;
 						max_records	= data_blocks / record_size;

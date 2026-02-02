@@ -49,7 +49,7 @@ class Event_class
 
 	Interface_class* 	Sds;
 	Interface_class*	Sds_master;
-	interface_t*		sds;
+	interface_t*		sds_p;
 	interface_t*		sds_master;
 	Instrument_class*	Instrument;
 	Note_class*			Notes;
@@ -83,7 +83,7 @@ public:
 		this->Sds			= DaTA->Sds_p;
 		this->Sds_master	= DaTA->Sds_master;
 		this->sds_master	= DaTA->sds_master;
-		this->sds 			= Sds->addr;
+		this->sds_p 			= Sds->addr;
 		this->Sem			= DaTA->Sem_p;
 		this->EventQue		= &DaTA->Sds_p->Eventque;
 		this->Instrument 	= instrument;

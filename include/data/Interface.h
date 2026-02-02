@@ -43,7 +43,7 @@ class Interface_class
 	: virtual public 		Logfacility_class
 	, 						sdsstate_struct
 {
-	string					className			;
+	const string 			filename			= "SdS_data.bin";
 	APPID					AppId				;
 	key_t					sds_key				;
 	Semaphore_class*		Sem_p				;
@@ -54,7 +54,6 @@ class Interface_class
 	Shm_base				SHM					;
 	shm_ds_t				shm_ds				;
 	string					dumpFile			;
-	string					filename			;
 
 public:
 	EventQue_class			Eventque			;
@@ -68,7 +67,7 @@ public:
 
 
 	void					Setup_SDS			( Id_t sdsid, key_t key );
-	void 					Set_filename		( string dir, uint8_t sdsid );
+	void 					Set_dumpFile		( string dir, uint8_t sdsid );
 	void 					Write_arr			( const wd_arr_t& arr );
 	void 					Write_str			( char, string );
 	string 					Read_str			( EVENTKEY_e );

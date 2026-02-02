@@ -22,33 +22,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ****************************************************************************/
 
-/*
- * Appsymbols.h
- *
- *  Created on: Apr 29, 2025
- *      Author: Ulrich.Glasmeyer@web.de
- */
-
-#ifndef APPSYMBOLS_H_
-#define APPSYMBOLS_H_
-
-#include <App.h>
 
 
-Exit_class			Exit			{};
-Config_class		Cfg				{};
-Logfacility_class	Log				( Cfg.prgName );
-Semaphore_class		Sem				{ Cfg.Config.Sem_key };
-Dataworld_class 	DaTA			{ &Cfg, &Sem };
-Appstate_class*		Appstate 		= &DaTA.Appstate;
-interface_t*		sds_master 		= DaTA.sds_master;
-Interface_class*	Sds_master		= DaTA.Sds_master;
-Application_class	App				{ &DaTA };
-interface_t*		sds_p 			= App.sds_p;		// consistent with  Interface_base
-Interface_class*	Sds				= App.Sds;			// consistent with  Interface_base
+#ifndef CUTTERDIALOG_H
+#define CUTTERDIALOG_H
 
+// Ocean
 
+// Qt
+#include <QDialog>
 
+// OceanGUI
+#include <include/Common.h>
+#include <ui_CutDesk_Dialog.h>
 
+namespace Ui
+{
+	class CutDesk_Dialog_class;
+}
 
-#endif /* APPSYMBOLS_H_ */
+class CutDesk_Dialog_class :
+	public 				QDialog				,
+	virtual 			wavedisplay_struct,
+	public virtual		OceanGUI_base
+{
+    Q_OBJECT
+
+    EventLog_class*		Eventlog			;
+    Ui::CutDesk_Dialog_class*
+						ui					;
+
+private:
+
+public:
+    explicit 			CutDesk_Dialog_class( QWidget*		parent	= nullptr,
+    										Dataworld_class* data 	= nullptr,
+											EventLog_class* el 		= nullptr );
+    					~CutDesk_Dialog_class	();
+	void 				Setup				( Interface_class* Sds );
+	void				SetSds				();
+
+private 				slots				:
+	void 				Step_forward		();
+	void 				Step_backward		();
+	void 				Step_front_forward	();
+	void 				Step_front_backward	();
+	void 				Step_to_end			();
+	void 				Cut_tail			();
+	void 				Save				();
+
+public 					slots				:
+	void 				updateCutDesk		();
+
+};
+
+#endif // CUTTERDIALOG_H

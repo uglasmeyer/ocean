@@ -30,15 +30,20 @@ SOFTWARE.
  */
 
 #include 			<Logfacility.h>
-#include 			<Viewinterface.h>
-logmask_t 			LogMask 			= defaultLogMask;
-using namespace COLOR;
 
-Logfacility_class::Logfacility_class( string module )
+logmask_t 			LogMask 			= defaultLogMask;
+
+
+using namespace 	COLOR;
+
+/**************************************************
+ * Logfacility_class
+ *************************************************/
+Logfacility_class::Logfacility_class( const string module )
 {
-					seterrText		();
-					prefixClass 	= "" ;
-					logmask			= defaultLogMask;
+					seterrText			();
+					prefixClass 		= "" ;
+					this->logmask		= defaultLogMask;
 
 	int 			pos 				= module.find("_" );
 	int				max_len				= LOGINDENT - 5;
@@ -64,14 +69,10 @@ Logfacility_class::Logfacility_class( string module )
 							{""		, nocolor },
 							{"Table", bblack },
 							{"Wait ", bred },
-							{"", nocolor }
+							{""		, nocolor }
 					};
 
 };
-Logfacility_class::Logfacility_class( )
-{
-	Logfacility_class( "Log" );
-}
 
 Logfacility_class::~Logfacility_class(  )
 {
@@ -253,15 +254,20 @@ void Logfacility_class::Test_Logging( )
 	bitset<4> bs = 0b1100;
 	ASSERTION( bs[WARN] | bs[ERROR], "bitset", bs.test(ERROR), true );
 	TEST_END( className );
-	ASSERTION( Printer.redirect != is_atty, "isTTY", is_atty, Printer.redirect );
 	Assert_equal( strEqual(__builtin_FUNCTION(), "Test_Logging"), true, string(__builtin_FUNCTION()) );
 }
 
-
+/**************************************************
+ * Printer_class
+ *************************************************/
 
 Printer_class::Printer_class(bool _redirect )
 {
-	redirect = _redirect;
+	this->testFinished 	= false;
+	this->save_out 		= -1;
+	this->redirect 		= _redirect;
+//	Assert_equal( redirect, is_atty , "isTTY" );
+
 	fflush(stdout);
 	if (redirect)
 	{

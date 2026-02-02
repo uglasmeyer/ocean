@@ -95,6 +95,7 @@ struct WD_data_struct
 
 	OSCID_e 			oscId 			= OSCID;
 	RoleId_e			roleId 			= INSTRROLE;
+	RoleId_e			prevroleId		= INSTRROLE;
 	bool 				fftmode			= false;
 	WdModeID_t 			wd_mode			= wavedisplay_t::FULLID;
 	Direction_e			direction		= wavedisplay_t::NO_direction; // GUI bounds cursor direction

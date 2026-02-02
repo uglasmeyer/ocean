@@ -40,18 +40,19 @@ SOFTWARE.
 #include <Table.h>
 
 // noteline control characters
-namespace NOTE {
-const char IGNORE 		= ' ';
-const char PAUSE 		= '.';
-const char INCDUR 		= '-';
-const char SLIDE		= '>';
-const char INCOCT		= '\'';
-const char DECOCT		= ',';
-const char NEWOCT		= '|';
-const char LINEBREAK	= '\n';
-const char BRA			= '(';
-const char KET			= ')';
-const char LONGPLAY		= '!';
+namespace 	NOTE
+{
+	const char 	IGNORE 		= ' ';
+	const char	PAUSE 		= '.';
+	const char 	INCDUR 		= '-';
+	const char 	SLIDE		= '>';
+	const char 	INCOCT		= '\'';
+	const char 	DECOCT		= ',';
+	const char 	NEWOCT		= '|';
+	const char 	LINEBREAK	= '\n';
+	const char 	BRA			= '(';
+	const char 	KET			= ')';
+	const char 	LONGPLAY	= '!';
 }
 /*
  * References
@@ -87,8 +88,8 @@ constexpr step_vec_t init_pitch( string ac )
 	}
 	return pitch_vec;
 };
-const step_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 }; 	// BEADGCF
-const step_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };		// FCGDAEB
+const step_vec_t 		flat_pitch 		= init_pitch( "BEADGCF" );//{ 11,4,9,5,10,3,8 };
+const step_vec_t 		sharp_pitch		= init_pitch( "FCGDAEB" );//{ 8,3,10,5,0,7,2 };
 
 #define NONOTE 		-12
 
@@ -149,6 +150,7 @@ typedef struct pitch_struct :
 {
 	string				name		= "";
 	float				freq		= 0.0;
+	phase_arr_t 		phi			= default_phase_arr;
 
 	pitch_struct()
 		: note_value_struct()
@@ -230,8 +232,7 @@ class Note_base :
 public:
 
 	const String			OctaveChars		{ octchar_T(min_octave, max_octave ) };
-	const String			NpsChars		{ "12458" };
-	const string			NPS_string 		{ "1 2 4 5 8" };
+	bps_struct_t			NpsChars		{};
 
 	const vector_str_t 		convention_notes{ 	OctChars_EN,
 												"0123456789AB",

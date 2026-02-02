@@ -42,7 +42,6 @@ Record_class::Record_class( Dataworld_class* data ) :
 	Note_end			( "Notes end  ", &data->sds_master->Note_end ),
 	External			( data->Cfg_p, data->sds_master )
 {
-	this->className			= Logfacility_class::className;
 	this->sds				= data->sds_master;
 	this->sds->RecCounter 	= 0;
 	this->sds->Record_state	= INACTIVE;
@@ -58,12 +57,17 @@ Record_class::~Record_class()
 {
 	DESTRUCTOR( className );
 };
+
+void Record_class::set_recording( StateId_t StateId, bool flag )
+{
+	sds->Record_state 						= StateId;
+	sds->StA_state_arr[ STA_EXTERNAL ].store = flag; //public record state
+	recording								= flag; // Audioser internal recording state
+
+};
 bool Record_class::Start( )
 {
-	sds->Record_state 					= RECORDING;
-	recording							= true;
-	sds->StA_state_arr[ STA_EXTERNAL].store = true;
-	sds->WD_state.roleId				= AUDIOROLE;
+	set_recording( RECORDING, true );
 	rcounter 							= 0;
 	ProgressBar_class::Set				( &rcounter, record_sec * 1000/min_msec );
 
@@ -78,9 +82,7 @@ void Record_class::Stop( bool init )
 		Sem->Release( SEMAPHORE_RECORD ); // save recording to file
 
 	ProgressBar_class::Unset();
-	recording							= false; // Audioser internal recording state
-	sds->Record_state 					= INACTIVE; //public record state
-	sds->StA_state_arr[ STA_EXTERNAL ].store= false;
+	set_recording( INACTIVE , false );
 
 	if ( not init )
 	{
@@ -90,10 +92,9 @@ void Record_class::Stop( bool init )
 }
 bool Record_class::State( StateId trigger )
 {
-	bool 		recordstate = ((sds->Record_state == trigger) or
-								Note_start.Get() or
-								Note_end.Get() );
-	return 		recordstate;
+	return ((sds->Record_state == trigger) or
+			Note_start.Get() 				or
+			Note_end.Get() );
 }
 void Record_class::Set_rcounter( )
 {
@@ -102,7 +103,7 @@ void Record_class::Set_rcounter( )
 	if( rcounter * audio_frames >= record_sec * frames_per_sec )
 		Stop( false );
 }
-void Record_class::Store_audioframes( Stereo_t* addr, buffer_t frames )
+void Record_class::Store_audioframes( stereo_t* addr, buffer_t frames )
 {
 	External.Record_buffer( addr, frames );
 }
@@ -254,12 +255,14 @@ const uint Audio_class::getDeviceDescription( uint index )
  * AudioVolume_class
  **********************************************/
 AudioVolume_class::AudioVolume_class( interface_t* _sds)
-	: Logfacility_class( "AudioVolume_class" )
+	: Logfacility_class	( "AudioVolume_class" )
+	, DynVolume 		( volidx_range )
+
 {
-	className = Logfacility_class::className;
-	this->sds = _sds;
-	DynVolume.SetupVol( sds->Master_Amp,	FIXED ); //set start and master_volume
-	selfTest();
+	this->sds 			= _sds;
+	this->Max			= numeric_limits< data_t >::max();
+	DynVolume.SetupVol	( sds->Master_Amp,	FIXED );
+	selfTest			();
 };
 
 void AudioVolume_class::selfTest()
@@ -273,10 +276,12 @@ void AudioVolume_class::selfTest()
 	Stereo_t* src = &src_arr[0];
 	float ratio = dynamic_limit( 5, src );
 	Assert_equal( ratio, 1.0f , " " );
+
 	src_arr[1] = { -2.0f*(float)Max, 0.0f };
 	ratio = dynamic_limit( 5, src );
 	float f = 32767.0/2/Max;
 	Assert_equal( ratio, f );
+
 	src_arr[2] = { -2.0f, 0.0f };
 	ratio = dynamic_limit( 5, src );
 	f = 32767.0/2/Max;
@@ -299,8 +304,8 @@ const float AudioVolume_class::dynamic_limit( buffer_t frames, Stereo_t* src )
 	if ( ratio > 1.0 )
 	{
 		float Ratio = 1.0 / ratio;
-		coutf << "Output " << max << " limited by ratio " << Ratio << endl;
 		sds->overmodulated = true;
+		Comment( WARN, "Output", max, "limited by ratio", Ratio );
 		return Ratio;
 	}
 	else
@@ -310,13 +315,13 @@ const float AudioVolume_class::dynamic_limit( buffer_t frames, Stereo_t* src )
 }
 void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst )
 {	// transform Stereo data to stereo data using
-	// dynamic volume, balance and dynamic limitat calculation
+	// dynamic volume, balance and dynamic limit calculation
 
 	DynVolume.SetupVol( sds->Master_Amp, sds->vol_slidemode );
 
 	float 		ratio 		= dynamic_limit( frames, src );
-	float 		balanceR	= ratio * ( sds->mixer_balance ) / 200.0;
-	float 		balanceL 	= ratio * 0.5 -  balanceR;
+	float 		balanceR	= ratio * ( 100 + sds->mixer_balance ) / 200.0;
+	float 		balanceL 	= ratio -  balanceR;
 
 	DynVolume.SetDelta( sds->slide_duration );
 	for( buffer_t n = 0; n < frames ; n++ )

@@ -32,28 +32,35 @@ SOFTWARE.
 #include <Adsr.h>
 #include <Oscwaveform.h>
 
-ADSR_class::ADSR_class( OSCID_e _typeid )
+inline string alpha( bool flag )
+{
+	return ( flag ) ? "true" : "false";
+}
+
+ADSR_class::ADSR_class( RoleId_e roleId, OSCID_e _typeid )
 	: Logfacility_class	("ADSR_class")
 	, Spectrum_class	()
 	, Oscillator_base	( _typeid )
-	, adsr_Mem			( monobuffer_bytes )
+	, adsr_Mem			( max_frames*sizeof_Data )
 {
-	this->hall_cursor 	= 0;
-	this->beat_cursor 	= 0;
+	this->has_kbd_role	= ( roleId == KBDROLE );
+	this->has_notes_role= ( roleId == NOTESROLE );
+	this->has_instr_role= ( roleId == INSTRROLE );
 	this->tainted		= true; // becomes true if adsr_data changes
 	this->beat_frames	= max_frames;
-	this->adsr_frames 	= adsr_Mem.mem_ds.data_blocks ;
+	this->adsr_wp_frames= max_frames;
 	this->adsr_data		= adsr_struct();
 	adsr_data.spec.osc	= _typeid;
 
-	Set_kbdbps			( 1 );
+	Set_beatcursor		( 0 );
+	Set_hallcursor		( 0 );
+	KbdAttack			( 1 );
 	Set_adsr			( default_adsr );
 };
 
 ADSR_class::~ADSR_class()
 {
-	if( LogMask[ DEBUG ] )
-		coutf << "~" << className << endl;
+	DESTRUCTOR( className );
 }
 
 Data_t* ADSR_class::Adsr_OSC()
@@ -68,10 +75,16 @@ Data_t* ADSR_class::AdsrMemData_p()
 
 void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offset )
 {
-	if ( adsr_data.bps	== 0 ) return;
-	if ( beat_frames 	== 0 ) return;
+	if ( not kbdattack )
+	{
+		if ( adsr_data.bps	== 0 ) return;
+	}
 
-	if ( tainted ) adsrOSC( beat_frames );
+	if ( beat_frames 	== 0 ) return;
+	if ( tainted )
+		adsrOSC( beat_frames );
+
+	kbdattack			= false;
 
 	const float	dbB 	= 0.5;
 	const float dbH		= 1.0 - dbB;
@@ -81,16 +94,24 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 	{
 		Data[ pos ] = Data[ pos ] * ( 	adsr_Mem.Data[ beat_cursor ]*dbB +
 										adsr_Mem.Data[ hall_cursor ]*dbH );
-		hall_cursor = ( hall_cursor + 1 ) % beat_frames;
-		beat_cursor = ( beat_cursor + 1 ) % beat_frames;
-		pos			= ( pos + 1 ) % adsr_frames;
+		hall_cursor = ( hall_cursor + 1 )	% beat_frames;
+		beat_cursor = ( beat_cursor + 1 )	% beat_frames;
+		pos			= ( pos + 1 ) 			% adsr_frames;
 	}
 	if ( has_kbd_role )
-		Comment( DEBUG, "beat_cursor: " , (int) beat_cursor );
+		Comment( DEBUG, "Apply_adsr::", osctype_name,
+						"beat_cursor:" , (int) beat_cursor );
 }
 
+typedef struct adsr_param_struct
+{
+	buffer_t 	aframes;
+	float 		y0;
+	float		dy;
+	float 		d_delta;
+} adsr_param_t;
 
-auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_delta  )
+auto adsr_fnc = [  ]( buffer_t n, const adsr_param_t p  )
 {
 	/* maxima
 	kill(all);
@@ -106,13 +127,13 @@ auto adsr_fnc = [  ]( buffer_t aframes, buffer_t n, float y0, float dy, float d_
 	plot2d([fattack, fdecay], [n,0,beatframes],[y,0,2]);
 	*/
 
-	if ( n < aframes ) 	// attack
+	if ( n < p.aframes ) 	// attack
 	{
-		return ( y0 + n*dy );
+		return ( p.y0 + n * p.dy );
 	}
-	else				// decay
+	else					// decay
 	{
-		float delta 	= ( n - aframes ) * d_delta;
+		float delta 	= ( n - p.aframes ) * p.d_delta;
 		return ( exp( -delta ) );
 	}
 };
@@ -127,8 +148,9 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 		adsr_Mem.Clear_data(0);
 		return;
 	}
+	Comment( DEBUG, "adsrOSC::", osctype_name, (int)bframes, alpha(kbdattack) );
 
-	buffer_t		aframes 	= rint( bframes * 0.002 );
+	buffer_t		aframes 	= rint( bframes * 0.002 ); // minimal attack length
 	if ( adsr_data.attack 	> 0 )
 					aframes 	= rint ( bframes * adsr_data.attack * percent );
 	const float 	d_delta		= ( ( 100 - adsr_data.decay ) / 3.0 ) / bframes;
@@ -136,24 +158,14 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 	const float		y0 			= expf( - delta );
 	const float 	dy			= (1.0 - y0) / aframes;
 
-	Spectrum_class::Sum			( adsr_data.spec );
+	adsr_param_t 	adsr_param	= { aframes, y0, dy, d_delta };
+	if( ( kbdattack ) and ( kbdbps == 0 ) )
+					adsr_param 	= { aframes, 0.0, 1.0f/float(aframes), 0.0 };
 
-	buffer_t		n			;
-	for ( n = 0; n < bframes ; n++ )
+	for ( buffer_t n = 0; n < bframes ; n++ )
 	{
-		adsr_Mem.Data[n] 		= adsr_data.spec.vol[0] * adsr_fnc( aframes, n, y0, dy, d_delta );
+		adsr_Mem.Data[n] 		= adsr_data.spec.vol[0] * adsr_fnc( n, adsr_param );
 	}
-//	if( adsr_Mem.Data[n-1] > 0 ) 	// release
-//	{
-//		const buffer_t	len		= 1000;
-//		const buffer_t 	x0		= bframes - len;
-//		const Data_t	y0		= adsr_Mem.Data[n-1];
-//		const Data_t	dy		= y0 / len;
-//		for( buffer_t m = 0; m < len; m++ )
-//		{
-//			adsr_Mem.Data[x0 + m] = ( y0 - dy * m );
-//		}
-//	}
 	for ( buffer_t n = bframes; n < adsr_frames ; n++ )
 	{
 		adsr_Mem.Data[n] 		= 0.0;
@@ -164,6 +176,7 @@ void ADSR_class::adsrOSC( const buffer_t& bframes )
 	param_t			param 		= param_struct();
 					param.pmw	= 1.0 + (float)features.PWM * percent;
 	spectrum_t		spec 		= adsr_data.spec;
+	Spectrum_class::Sum			( spec );
 
 	for ( size_t channel = 1; channel < SPECARR_SIZE; channel++ )
 	{
@@ -208,12 +221,15 @@ void ADSR_class::Set_feature( feature_t f )
 {
 	features = f;
 }
-void ADSR_class::Set_kbdbps( uint8_t bps )
+void ADSR_class::KbdAttack( uint8_t bps )
 {
 	tainted 	= true;
 	kbdbps 		= bps;
+	kbdattack	= ( kbdbps == 0 ) ? true : false;
+	Set_bps		();
+	Comment( DEBUG, "KbdAttack::", osctype_name, alpha(kbdattack) );
 }
-void ADSR_class::Set_bps( uint8_t bps )
+void ADSR_class::Set_bps( uint8_t beatclock )
 {
 	tainted 	= true;
 	beat_frames = 0;
@@ -232,13 +248,21 @@ void ADSR_class::Set_bps( uint8_t bps )
 		if ( adsr_data.bps > 0 )
 			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else
-			beat_frames = 0;
+		{
+			if ( kbdattack )
+				beat_frames = adsr_frames;
+			else
+				beat_frames = 0;
+		}
 
-		if ( bps > 0 )
-			beat_frames = rint( beat_frames / bps );
+		if ( beatclock > 0 )
+			beat_frames = rint( beat_frames / beatclock );
 		else
+		{
 			beat_frames = 0;
+		}
 	}
+	Comment( DEBUG, "Set_bps, beatframes:", beat_frames );
 }
 void ADSR_class::Set_adsr_spec	( spectrum_t spec )
 {
@@ -247,11 +271,12 @@ void ADSR_class::Set_adsr_spec	( spectrum_t spec )
 }
 
 adsr_t ADSR_class::Set_adsr( adsr_t _adsr )
-{
+{	// ADSRALL_KEY
 	adsr_data 		= _adsr;
 	tainted 		= true;
-	Set_bps			( );
+	Set_bps			();
 	Set_hallcursor	();
+	Comment( DEBUG, "Set_adsr, beatframes:", beat_frames );
 	return 			adsr_data;
 }
 
