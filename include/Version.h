@@ -57,6 +57,7 @@ const string License_text = R"(
     under the  conditions of the MIT license <https://www.gnu.org/licenses/>)";
 
 // Git comment:
+
 /*
 
 4.4.0.48 switch back to prev_roleId if current wave display is dectivated
