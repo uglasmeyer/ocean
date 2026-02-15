@@ -40,8 +40,7 @@ SOFTWARE.
  *************************************************/
 class Wavedisplay_class :
 	virtual	public	Logfacility_class,
-					wavedisplay_struct,
-	virtual public 	osc_struct
+					wavedisplay_struct
 {
 	Interface_class*
 					Sds_p 			;
@@ -70,7 +69,7 @@ private:
 	void 			set_Wdmode		( const WdModeID_t& mode, bool fftmode );
 	void 			set_wdcursor	( uint16_t pos );
 	void	 		gen_cxwave_data	( void  );
-	void 			set_wdnames		( WD_data_t wd_data );
+	void 			set_wdnames		(  RoleId_e roleid, OSCID_e oscid );
 
 	typedef struct wd_ptr_struct
 	{
@@ -104,6 +103,7 @@ private:
 	param_t 		param_full 		;
 	param_t 		param_split		;
 	param_t 		param_cursor	;
+	param_t			param_fft		;
 };
 
 #endif /* WAVEDISPLAY_H_ */

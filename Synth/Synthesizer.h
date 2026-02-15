@@ -46,21 +46,8 @@ SOFTWARE.
 #include <Thread.h>
 
 extern void ComposerTestCases();
-extern void SynthesizerTestCases();
+extern void SynthesizerTest();
 
-const std::vector<EVENTKEY_e> init_keys =
-{
-		// avoid toggle commands here
-		SETINSTRUMENTKEY,
-		SETWAVEDISPLAYKEY,
-		ADSRALL_KEY,
-		FEATURE_KEY,
-		PWMDIALKEY,
-		SOFTFREQUENCYKEY,
-		OSCFREQUENCYKEY,
-		VCOFREQUENCYKEY,
-		FMOFREQUENCYKEY
-};
 
 
 #endif /* SYNTHESIZER_H_ */

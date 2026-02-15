@@ -36,11 +36,12 @@ SOFTWARE.
 #include <Osc.h>
 #include <Wavedisplay.h>
 
+/**************************************************
+ * Oscgroup_class
+ *************************************************/
 
-
-class 						Oscgroup_class :
-	public virtual 			Logfacility_class,
-	virtual					osc_struct
+class 						Oscgroup_class
+	: public virtual 		Logfacility_class
 {
 public:
 	Oscillator 				vco			;
@@ -48,8 +49,6 @@ public:
 	Oscillator 				osc			;
 	vector<Oscillator*>		member		;
 	array<dynamic_state_t,3> dynarr		;
-
-	RoleId_e				oscroleId	;
 
 							//used by FileDialog, musicsml, variation
 							Oscgroup_class		();
@@ -63,11 +62,8 @@ public:
 	void 					Set_Combine_Frequency(interface_t* sds,
 												const uint8_t& idx,
 												const DYNAMIC& mode );
-	void 					Set_Osc_Note		( interface_t* sds,
-												const uint8_t& key,
-												const uint& duration,
-												const uint& volume,
-												const DYNAMIC& mode);
+	void 					ChordData			( interface_t* sds,
+												chord_t chord );
 	void 					Run_OSCs			( const buffer_t& offs );
 	void 					Set_Duration		( const uint& duration );
 	void 					ResetBeatCursor	();
@@ -84,7 +80,7 @@ public:
 	Oscillator* 			Get_osc_by_name		( const string& name );
 	OSCID_e 				Get_oscid_by_name	( const string& name );
 
-	void 					SetSlideFrq			( const uint8_t& value );
+	void 					SetSlider_Frq			( const uint8_t& value );
 	void 					SetFeatures			( interface_t* sds );
 	void 					SetAdsr				( interface_t* sds );
 	void 					Adsr_OSC			();

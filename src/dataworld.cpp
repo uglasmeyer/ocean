@@ -52,6 +52,7 @@ Dataworld_class::Dataworld_class( 	Config_class* cfg,
 	this->Sds_master	= SDS.Master;
 	this->sds_master 	= SDS.master;
 	this->Sds_p 		= SDS.GetSds( SDS_Id );
+	this->Test_result	= "";
 
 	init_shared_data();
 }
@@ -94,12 +95,13 @@ Dataworld_class::~Dataworld_class()
 		SHM_l.Detach( SHM_l.shm_ds.addr );
 		SHM_r.Detach( SHM_r.shm_ds.addr );
 	}
+	if( Test_result.length() > 0 )
+	{
+		coutf << "Test Synthesizer " << Test_result << endl;
+	}
+
 	DESTRUCTOR( className );
 }
-
-
-
-
 
 void Dataworld_class::ClearShm()
 {

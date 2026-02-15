@@ -73,12 +73,14 @@ string keymap_struct::Menu( kbdInt_t key )
  *************************************************/
 Kbd_base::Kbd_base()
 {
-	tcgetattr (0, &old_flags);
-	new_flags = old_flags;
-	if ( is_atty )
-	{
-		Init();
-	}
+	this->new_flags = {0};
+	this->buf8.Int	= 0L;
+	this->buf8_p	= &buf8.Int;
+	this->key8		= key_struct();
+	tcgetattr		(0, &old_flags);
+	new_flags 		= old_flags;
+
+	Init			();
 };
 
 Kbd_base::~Kbd_base()
@@ -138,7 +140,7 @@ kbdInt_t Kbd_base::GetKeyInt	( bool debug )
 
 kbdInt_t Kbd_base::GetKeyInt( int waitms )
 {
-	key3struct_t key { };
+	kbdkey_t key { };
 	while( key.Int == 0 )
 	{
 		this_thread::sleep_for( std::chrono::milliseconds( waitms ) );
@@ -151,6 +153,8 @@ kbdInt_t Kbd_base::GetKeyInt( int waitms )
 void Kbd_base::Init()
 {
 
+	if( not is_atty )
+		return;
 //	if( tcgetattr (0, &old_flags) < 0 )
 //	{
 //		perror("tcsetattr()");

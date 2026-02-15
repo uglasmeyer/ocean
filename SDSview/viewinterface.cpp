@@ -29,6 +29,7 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+#include <Osctypes.h>
 #include <Viewinterface.h>
 #include <Keyboard.h>
 
@@ -38,8 +39,9 @@ SOFTWARE.
 ViewInterface_class::ViewInterface_class( APPID appid, Dataworld_class* DaTA_p )
 	: Logfacility_class	( "ViewInterface_class")
 	, Device_class		( DaTA_p->sds_master )
-	, Oscillator_base	( OSCID )
-	, ADSR_class		( INSTRROLE, OSCID )
+	, osctype_struct	( OSCID, INSTRROLE )
+	, Oscillator_base	( OSCID, INSTRROLE )
+	, ADSR_class		( OSCID, INSTRROLE )
 	, Appstate			( appid, DaTA_p->SDS.vec )
 	, DaTA				( DaTA_p )
 
@@ -148,7 +150,8 @@ void ViewInterface_class::show_spectrum()
 					"(h)all", (int)sds_p->adsr_arr[OSCID].hall );
 	Adsr.AddRow( 	"Balance", (int)sds_p->mixer_balance,
 					"chord delay", (int)sds_p->noteline_prefix.chord_delay );
-	Adsr.AddRow( 	"Frq Slider Mode", slidermodes[ sds_p->frq_slidermode ] ) ;
+	Adsr.AddRow( 	"Frq Slider Mode", slidermodes[ sds_p->frq_slidermode ],
+					"Keyboard Clock", (int)sds_p->beatClock ) ;
 
 }
 void ViewInterface_class::show_Adsr()
@@ -456,7 +459,7 @@ kbdInt_t Menue_class::Key_event( )
 	{
 		return ((sds->UpdateFlag ) 	or (sds_master->UpdateFlag ));
 	};
-	key3struct_t key {};
+	kbdkey_t key {};
 	while( key.Int == 0 )
 	{
 		key.Int = ViewSds.Kbd.GetKeyInt( true );

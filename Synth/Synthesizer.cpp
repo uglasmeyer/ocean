@@ -26,8 +26,6 @@ SOFTWARE.
 #include <Synth/Synthesizer.h>
 #include <Appsymbols.h>
 
-
-
 Trigger_class			BeatTrigger		{};
 Wavedisplay_class 		Wavedisplay		{ Sds };
 Instrument_class 		Instrument		{ &DaTA, &Wavedisplay };
@@ -50,11 +48,12 @@ Event_class				Event			{
 										&CutDesk
 										};
 
+Data_t*					Kbd_Data		= Mixer.StA[STA_KEYBOARD ].Data;
+Data_t*					Notes_Data		= Mixer.StA[STA_NOTES ].Data;
+const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
+StateId_t 				Audioserver_state= StateId_t::INACTIVE;
+extern void 			SynthesizerTest	();
 
-extern void 			SynthesizerTestCases();
-const uint 				Sync_Semaphore 		= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
-
-StateId_t 				Audioserver_state 	= StateId_t::INACTIVE;
 void AudioServer_state()
 {
 	StateId_t 	state				=  Appstate->GetState( sds_master, AUDIOID );
@@ -81,23 +80,10 @@ void SetLogLevels()
 
 void activate_sds()
 {
-
-	std::ranges::for_each( init_keys, [  ]( EVENTKEY_e key )
-			{	DaTA.Sds_p->Eventque.add( key );	} );
-
-	if( Mixer.state.notes )
-	{
-		DaTA.Sds_p->Eventque.add( UPDATENOTESKEY );
-	}
-
+	Sds->Activate_sds();
 	Keyboard.Enable( App.properties.keyboard ) ;
-	Mixer.SetStAs();
-
-	if( Mixer.Cutdesk_isActive())
-		sds_p->WD_state.wd_mode = wavedisplay_t::FULLID;
 	Wavedisplay.Set_WdData();
 }
-
 
 void add_sound()
 {
@@ -110,7 +96,7 @@ void add_sound()
 
 	Mixer.state 		= sds_p->mixer_state;
 
-	Mixer.BeatClock( sds_p->beatClock );//adsr_arr[OSCID].bps );
+	Mixer.BeatClock( sds_p->beatClock );
 
 	if (( Mixer.state.instrument ) or ( sds_p->WD_state.roleId == INSTRROLE ) )
 	{
@@ -132,7 +118,7 @@ void add_sound()
 		Keyboard.Dispatcher( key, sync ); //key from keyboard terminal
 		DaTA.EmitEvent( UPDATE_KBDDIALOG_FLAG, "Keyboad_Dialog_class::Setup_Widget" );
 
-		Keyboard.ScanData();
+		Kbd_Data = Keyboard.ScanData();
 	}
 	if ( Mixer.state.notes )
 	{
@@ -146,7 +132,7 @@ void add_sound()
 			Notes.Note_itr_start.SetActive( false );
 			Notes.Note_itr_end.SetActive( false );
 		}
-		Notes.ScanData();
+		Notes_Data = Notes.ScanData();
 
 	}
 
@@ -161,8 +147,8 @@ void add_sound()
 
 	Stereo_t* shm_addr = DaTA.GetShm_addr(  );
 	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
-						Keyboard.Kbd_Data,
-						Notes.NotesData,
+						Kbd_Data,
+						Notes_Data,
 						shm_addr
 						);
 }
@@ -179,7 +165,7 @@ void ApplicationLoop()
 	Event.Handler();
 	App.Ready();
 	Appstate->SetRunning();
-	Keyboard.Show_help( Keyboard.Enabled );
+	Keyboard.Show_help( App.properties.keyboard );
 
 	while ( Appstate->IsRunning( sds_p, App.AppId ) )
 	{
@@ -253,7 +239,7 @@ int main( int argc, char* argv[] )
 	{
 		Log.Set_Loglevel( TEST, true );
 		Sem.Release( SEMAPHORE_STARTED );
-		SynthesizerTestCases();
+		SynthesizerTest();
 		Log.Show_loglevel();
 
 		exit_proc( 0 );

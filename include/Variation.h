@@ -168,7 +168,7 @@ public:
 class Variation_class :
 		virtual public Logfacility_class,
 		virtual public Interface_base,
-		virtual public Note_class
+		virtual public NotesCore_class
 {
 public:
 

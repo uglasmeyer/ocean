@@ -32,10 +32,10 @@ SOFTWARE.
 #ifndef OSCBASE_H_
 #define OSCBASE_H_
 
+#include <Osctypes.h>
 #include <data/Memory.h>
 #include <Spectrum.h>
-#include <String.h>
-#include <Frequency.h>
+
 
 typedef struct bps_struct
 {
@@ -46,22 +46,25 @@ typedef struct bps_struct
 	set<string>			Bps_str_set	= {};
 	vector<string>		Bps_str_vec = {};
 	const int				len		= Bps_set.size();
-	range_T<int>			bps_range { 0, len-1 };
+	range_T<int>			idx_range { 0, len-1 };
+	range_T<uint8_t>		set_range { 0, 16 };
+	string					Bps_str	{};
 	bps_struct( )
 	{
 		uint8_t index = 0;
 		for( uint8_t bps : Bps_vec )
 		{
-			string str 		= to_string( bps );
-			Bps_str_set.insert( string( 1, int2char(bps)) );
-			Bps_lst.push_back( str );
+			string str 			= to_string( bps );
+			Bps_str.append		( str + ", ");
+			Bps_str_set.insert	( string( 1, int2char(bps)) );
+			Bps_lst.push_back	( str );
 			Bps_str_vec.push_back( str );
 			index++;
 		}
 	}
 	virtual ~bps_struct() = default;
 
-} bps_struct_t;
+} bps_t;
 
 typedef	struct wave_struct
 { // SDS related
@@ -88,7 +91,7 @@ typedef struct vco_struct
 
 typedef struct feature_struct
 { // SDS related. Is the same for all OSCs
-	uint8_t slide_frq= 0;
+	uint8_t slide_frq	= 0;
 	uint8_t	adjust		= 0; // used by vco and fmo, osc = 0
 	uint8_t	PWM 		= 50;
 	bool	longplay	= false;
@@ -119,26 +122,22 @@ constexpr ostream& operator<<( ostream& os, const connectId_t& connect )
  * Oscillator_base
  *************************************************/
 
-class Oscillator_base :
-	virtual public 	Spectrum_class
+class Oscillator_base
+	: virtual public 	Spectrum_class
+	, virtual public	osctype_struct
 {
+
 public:
-	OSCID_e			typeId			;
-	string 			osctype_name 	;
 
-	bool			is_osc_type 	;
-	bool			is_fmo_type 	;
-	bool			is_vco_type 	;
-
-	connectId_t		Connect			;
 	feature_t 		features 		= feature_struct();
 	wave_t 			wp 				= wave_struct();
 	fmo_t 			fp 				= fmo_struct();
 	vco_t 			vp 				= vco_struct();
-	spectrum_t		spectrum		;
 	Dynamic_class	DynFrequency	;
+	bps_t	Bps				;
+	spectrum_t		spectrum		;
 
-					Oscillator_base	( OSCID_e osc_type );
+					Oscillator_base	( OSCID_e osc_type, RoleId_e role );
 	virtual 		~Oscillator_base()
 						{ DESTRUCTOR( className ); };
 
@@ -149,10 +148,12 @@ public:
 	void 			Set_waveform	( spec_arr_8t wf_vec   );
 	void			Set_pmw			( uint8_t );
 	void			Set_spectrum	( spectrum_t );
-	void 			Set_slideFrq	( uint8_t value );
+	void 			SetSlider_frq	( uint8_t value );
 	void 			Get_sound_stack	( Table_class* T );
 
-}; // close class Oscillator_base
+protected:
+	connectId_t		Connect			;
+};
 
 
 #endif /* OSCBASE_H_ */

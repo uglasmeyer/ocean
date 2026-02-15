@@ -39,8 +39,6 @@ class Oscillator :
 	virtual public 	ADSR_class
 {
 public:
-	RoleId_e		roleId				;
-	string 			oscrole_name 		;
 	Heap_Memory		Mem_vco				;
 	Heap_Memory 	Mem_fmo				;
 	Heap_Memory 	Mem					;

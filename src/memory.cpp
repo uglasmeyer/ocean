@@ -120,6 +120,14 @@ bool Trigger_class::Get() // action
 	trigger_data->state		= false;
 	return state;
 }
+string Trigger_class::Str()
+{
+	stringstream strs;
+	strs 	<< "Trigger: " 	<< name
+			<< "active " 	<< (int)trigger_data->active
+			<< "state  " 	<< (int)trigger_data->state	;
+	return strs.str();
+}
 
 
 	// 0             pos             <          max      <   Max
@@ -233,6 +241,10 @@ Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 
 {
 	this->Id				= id;
+	this->file				= "";
+	this->filename			= "";
+	this->touched			= false;
+
 	Reset					( );
 	DsInfo					( param.name );
 
@@ -253,8 +265,8 @@ void Storage_class::Write_data( Data_t* src, buffer_t frames, const float volume
 
 void Storage_class::Store_record( Data_t* src )
 {
-//	if ( not state.Store() )
-//		return;
+	if ( not state.Store() )
+		return;
 
 				touched		= true;
 	buffer_t	offs 		= scanner.wpos;

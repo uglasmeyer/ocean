@@ -79,13 +79,14 @@ void Processor_class::print_struct::Line( stack_struct ps )
 Processor_class::Processor_class( Application_class* app ) :
 	Logfacility_class("Processor")
 {
-	this->App		= app;
-	this->Sds 		= app->Sds;
-	this->sds_p		= app->sds_p;
-	this->Sem 		= app->DaTA->Sem_p;
-	this->Appstate 	= app->Appstate;
+	this->App				= app;
+	this->Sds 				= app->Sds;
+	this->sds_p				= app->sds_p;
+	this->Sem 				= app->DaTA->Sem_p;
+	this->Appstate 			= app->Appstate;
+	this->Debug_Processing	= false;
 
-	process_stack.clear();
+	process_stack.clear		();
 
 };
 void Processor_class::Push_cmd( CMD_e cmd, string str )
@@ -304,8 +305,15 @@ void Processor_class::Execute()
 				break;
 			}
 		} // end switch
-
-		print.Line( ps );
+		if( Debug_Processing )
+		{
+			coutf << ps.str << "\n" << "Debug wait until <return> key";
+			getc( stdin );
+		}
+		else
+		{
+			print.Line( ps );
+		}
 	}
 
 	Comment( INFO, "Execute() terminated without exit/release");

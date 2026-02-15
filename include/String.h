@@ -101,7 +101,7 @@ template< class C > vector< C > list2vector( list< C > l )
 
 template<class C> string show_str_items( C all_items )
 {
-	stringstream strs{ "" };
+	stringstream strs	{ " " };
     for ( auto item : all_items )
     {
    		strs << item << " ";

@@ -51,7 +51,7 @@ SOFTWARE.
 class File_Dialog_class :
 	public 						QDialog,
 	public virtual				Interface_base,
-	virtual 					Note_class,
+	virtual 					NotesCore_class,
 								sdsstate_struct
 {
     Q_OBJECT

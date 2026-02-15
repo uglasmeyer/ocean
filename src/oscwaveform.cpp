@@ -46,9 +46,9 @@ int sgn( const float& x )
 	return ( x >= 0 ) ? 1 : -1;
 }
 
-float psgn( const float& x )
+float psgn( const float& x, const float& y )
 {
-	return ( x > 0 ) ? x : 0 ;
+	return ( x + 1.0 > y ) ? x : 0 ;
 }
 
 
@@ -92,7 +92,7 @@ Data_t CoSinus( param_t& p )
 }
 Data_t SignSin( param_t& p )
 {
-	return ( p.amp * psgn(  sin ( p.phi ) ));
+	return ( p.amp * psgn(  sin ( p.phi ), p.pmw ));
 }
 Data_t Rectangle( param_t& p )
 { // maxima: round(mod(phi,1))*amp*2-amp;

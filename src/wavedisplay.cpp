@@ -41,16 +41,16 @@ Wavedisplay_class::Wavedisplay_class( Interface_class* _sds )
 	this->param_full 	= param_struct();
 	this->param_split	= { 0, wavedisplay_len / 2	, 1 , max_frames };
 	this->param_cursor	= { 0, wavedisplay_len, 0, 0 };
+	this->param_fft		= { 0, wavedisplay_len*2, 0, 0 };
 	this->frame_counter	= 0;
 	this->offs 			= 0;
-	this->WdMode		= sds->WD_state.wd_mode;
-	this->wd_ptr 		= nullptr;
+
+	Set_WdData			( );
 	this->Wd_ptr		= wd_ptr_struct();
-	this->wd_data		= WD_data_struct();
 	this->wd_frames		= 0;
 	this->debug_right	= true;
-	set_wdnames			( sds->WD_state );
-	Assert_equal( roleNames.size(), (size_t) ROLE_SIZE );
+
+	Assert_equal( roleNames.size()-1, (size_t) ROLE_SIZE );
 
 }
 
@@ -59,7 +59,10 @@ void Wavedisplay_class::gen_cxwave_data( )
 {
 	if ( wd_frames == 0 )
 	{
-		Comment( WARN, "Zero wavedisplay frames", (int)wd_data.roleId, ",", (int)wd_data.oscId );
+		Comment( WARN, "Zero wavedisplay frames: ",
+						rolename,
+						oscname,
+						wd_frames );
 		return;
 	}
 
@@ -102,14 +105,16 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 	auto gen_fft = [ this ]( param_t param )
 	{
-		cd_vec_t cdv {};
-		param.step	= rint( wd_frames / wavedisplay_len );
-		if ( param.step == 0 )
+		cd_vec_t	cdv 	{};
+		float 		frames 	= float( wd_frames );
+		float 		dn		= frames/ float(param.len) ;
+		if ( dn < 1.0 )
 			return;
-		for ( buffer_t n = 0; n < wd_frames; n = n + param.step )
+		for ( float n = 0.0; n < frames; n = n + dn )
 		{
-			Data_t value = wd_ptr[n];
-			cdv.push_back( cd_t( (double)value, 0.0 ));
+			buffer_t 	m 		= n;
+			Data_t		value 	= wd_ptr[m];
+			cdv.push_back		( cd_t( (double)value, 0.0 ));
 		}
 		display_data = fft( cdv, false );
 	};
@@ -127,7 +132,10 @@ void Wavedisplay_class::gen_cxwave_data( )
 	};
 	if ( wd_ptr == nullptr )
 	{
-		Comment(ERROR, "wave display got nullptr for", rolename, oscname );
+		Comment( ERROR, "wave display got nullptr for: ",
+						rolename,
+						oscname,
+						wd_frames );
 		return;
 	}
 
@@ -161,7 +169,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 		}
 		case FFTID :
 		{
-			param = param_full;
+			param = param_fft;
 			gen_fft( param );
 			break;
 		}
@@ -173,7 +181,7 @@ void Wavedisplay_class::gen_cxwave_data( )
 
 	frame_counter++;
 	offs = offs + param.drift * frame_counter;
-	if ( offs >= param.max_offs )
+	if ( offs > param.max_offs )
 	{
 		frame_counter 	= 0;
 		offs			= 0;
@@ -204,10 +212,10 @@ void Wavedisplay_class::WriteData()
 	}
 }
 
-void Wavedisplay_class::set_wdnames( WD_data_t wd_data )
+void Wavedisplay_class::set_wdnames( RoleId_e roleid, OSCID_e oscid )
 {
-	rolename	= roleNames[wd_data.roleId];
-	oscname		= typeNames[wd_data.oscId];
+	rolename	= roleNames[roleid];
+	oscname		= typeNames[oscid];
 };
 void Wavedisplay_class::Set_WdData	()
 {
@@ -225,8 +233,11 @@ void Wavedisplay_class::Set_WdData	()
 	wd_data.frames			= wd_frames;
 	set_Wdmode				( wd_data.wd_mode, wd_data.fftmode );
 	sds->WD_state			= wd_data;
-	set_wdnames				( wd_data );
-	Comment( INFO, "Wavedisplay ptr set to [" 	, rolename, "][", oscname , "]");
+	set_wdnames				( wd_data.roleId, wd_data.oscId );
+	Comment( INFO, "Wavedisplay ptr set to: ",
+					rolename,
+					oscname,
+					wd_frames );
 }
 
 // pos is frames 	-> unit = 1
@@ -276,10 +287,10 @@ void Wavedisplay_class::Add_data_ptr( 	OSCID_e		wd_type,
 										buffer_t* 	frames )
 {
 
-//	cout << "wd_role: " << (int) wd_role << endl;
+	set_wdnames( wd_role, wd_type );
 	Comment( INFO, "adding wave display: ",
-					roleNames[ wd_role ],
-					typeNames[ wd_type ],
+					rolename,
+					oscname,
 					(int) *frames );
 	if ( ptr == nullptr )
 	{

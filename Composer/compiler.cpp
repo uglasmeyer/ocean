@@ -188,6 +188,8 @@ bool Composer_class::Interprete( line_struct_t program_line )
 		if ( keyword.compare("add") 		== 0 )	Interpreter->Add( arr );
 		if ( keyword.compare("adsr") 		== 0 )	Interpreter->Adsr( arr );
 		if ( keyword.compare("exit") 		== 0 )	return Interpreter->Exit();
+		if ( keyword.compare("debug")		== 0 )	Interpreter->Debug();
+		if ( keyword.compare("dyn") 		== 0 )	Interpreter->Dynamic( arr );
 		if ( keyword.compare("instrument") 	== 0 ) 	Interpreter->Instrument( arr );
 		if ( keyword.compare("notes") 		== 0 )	Interpreter->Notes( arr );
 		if ( keyword.compare("osc") 		== 0 )	Interpreter->Osc( arr );
@@ -196,6 +198,7 @@ bool Composer_class::Interprete( line_struct_t program_line )
 		if ( keyword.compare("rec") 		== 0 )	Interpreter->RecStA( arr );
 		if ( keyword.compare("record") 		== 0 )	Interpreter->RecFile( arr );
 		if ( keyword.compare("random") 		== 0 )	Interpreter->Random( arr );
+		if ( keyword.compare("reset") 		== 0 )	Interpreter->Reset( arr );
 		if ( keyword.compare("set") 		== 0 )	Interpreter->Set( arr );
 		if ( keyword.compare("start") 		== 0 )	Interpreter->Start_bin( arr );
 		if ( keyword.compare("stop") 		== 0 )	Interpreter->Stop_bin( arr );

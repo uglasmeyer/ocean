@@ -285,7 +285,19 @@ bool Interface_class::Restore_ifd()
 	Eventque.reset();
 	return ret;//( size == sizeof( ifd_data ));
 }
+void Interface_class::Activate_sds()
+{
+	std::ranges::for_each( init_keys, [ this ]( EVENTKEY_e key )
+			{	Eventque.add( key );	} );
 
+	if( addr->mixer_state.notes )
+	{
+		Eventque.add( UPDATENOTESKEY );
+	}
+
+	if( addr->WD_state.wd_mode == wavedisplay_t::CURSORID ) // ensure consistency
+		addr->WD_state.wd_mode = wavedisplay_t::FULLID;
+}
 void Interface_class::Dump_ifd()
 {
 	// copy shared memory data to dumpfile

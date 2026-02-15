@@ -59,9 +59,10 @@ public:
 					Trigger_class	();
 	virtual			~Trigger_class	() = default;
 
+	bool 			Get				(); // action
 	void 			SetState		( bool _state ); // producer
 	void 			SetActive		( bool _active ); // controller
-	bool 			Get				(); // action
+	string			Str				();
 };
 
 /***************************
@@ -210,16 +211,15 @@ class Storage_class :
 		virtual public Memory_base
 {
 public:
-	// dynamic properties
 	StA_param_t 	param			;
 	StAId_e 		Id				;
 	Dynamic_class	DynVolume		;
 	Scanner_class	scanner 		;
-	Trigger_class	beattrigger		{};
-	StAstate_class 	state 			{};
-	string			file			= "";
-	string			filename		= "";
-	bool			touched			= false;
+	Trigger_class	beattrigger		;
+	StAstate_class 	state 			;
+	string			file			;
+	string			filename		;
+	bool			touched			;
 
 	void 			Store_record		( Data_t* ) ;
 	void 			Write_data		( Data_t* src, buffer_t frames, const float volume );//, const buffer_t& pos );

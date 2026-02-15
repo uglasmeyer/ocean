@@ -33,6 +33,10 @@ SOFTWARE.
 #include <Instrument.h>
 #include <System.h>
 
+
+/**************************************************
+ * Instrument_class
+ *************************************************/
 Instrument_class::Instrument_class(	Dataworld_class* data,
 									Wavedisplay_class* _wd_p )
 	: Logfacility_class	( "Instrument_class")
@@ -73,7 +77,7 @@ void Instrument_class::update_sds()
 	// update the SndlabGUI and to notify SDSview about the new data.
 
 	Comment(INFO, "Update SDS data");
-	for( char oscid : oscIds )
+	for( OSCID_e oscid : oscIds )
 	{
 		sds_p->adsr_arr[oscid]	= Oscgroup.member[oscid]->Get_adsr();
 		sds_p->features[oscid] 	= Oscgroup.member[oscid]->features;
@@ -344,6 +348,8 @@ bool Instrument_class::read_version2( fstream& File )
 		if ( strEqual( "CON", Type ))
 		{
 			OSCID_e	secid 	= Oscgroup.Get_oscid_by_name( arr[2] );
+			if( oscid == FMOID )
+				secid = FMOID;
 			char 	mode 	= arr[3][0];
 			connectId_t con_tmp = sds_p->connect_arr[oscid];
 			sds_p->connect_arr[oscid] = get_con( con_tmp, secid, mode );
@@ -526,25 +532,24 @@ bool Instrument_class::Set( string name )
 }
 
 #include <numbers>
-
+#include <Oscwaveform.h>
 void Instrument_class::Test_Instrument()
 {
 	TEST_START( className );
 
 	connectId_t connect = Get_connect_state( OSCID );
-	assert( strEqual( osc->fp.name, typeNames[ OSCID ] ) );
-	assert( strEqual( osc->vp.name, typeNames[ OSCID ] ) );
+
+	Assert_equal( strEqual( osc->fp.name, typeNames[OSCID]), true );
+	Assert_equal( strEqual( osc->vp.name, typeNames[OSCID]), true );
 	Assert_equal( connect, default_connect( OSCID ), "connect_state" );
 
 	assert( Set( ".test2" ) );
-	Assert_equal( strEqual( osc->fp.name, typeNames[ FMOID ] ), true );
-	assert( strEqual( osc->vp.name, typeNames[ VCOID ] ) );
+	Assert_equal( strEqual( osc->fp.name, typeNames[FMOID] ), true );
+	assert( strEqual( osc->vp.name, typeNames[VCOID]  ));
 	ASSERTION( Get_connect_state( OSCID ).vol == sds_p->connect_arr[OSCID].vol , "connect_state",
 			(int)Get_connect_state( OSCID ).vol, (int)sds_p->connect_arr[OSCID].vol );
 	ASSERTION( Get_connect_state( OSCID ).frq == sds_p->connect_arr[OSCID].frq, "connect_state",
 			(int)Get_connect_state( OSCID ).frq, (int)sds_p->connect_arr[OSCID].frq );
-//	Connect( fmo, fmo, CONF );
-//	Connect( fmo, fmo, CONV );
 
 
 
@@ -584,15 +589,15 @@ void Instrument_class::Test_Instrument()
 	vco->Test();
 	assert( Set( ".test2" ) );
 	Oscgroup.vco.features.PWM = 98;
-	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::SGNSIN;
+	Oscgroup.vco.spectrum.wfid[0] = SGNSIN;
 	Oscgroup.vco.Set_frequency( "A1", FIXED);
-	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::SGNSIN ],
+	assert( strEqual( 	waveform_str_vec[ SGNSIN ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 	Save( ".test2" );
 	Oscgroup.vco.features.PWM = 0;
-	Oscgroup.vco.spectrum.wfid[0] = oscwaveform_struct::RECTANGLE;
-	assert( strEqual( 	waveform_str_vec[ oscwaveform_struct::RECTANGLE ],
+	Oscgroup.vco.spectrum.wfid[0] = RECTANGLE;
+	assert( strEqual( 	waveform_str_vec[ RECTANGLE ],
 						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
 
 
@@ -600,7 +605,7 @@ void Instrument_class::Test_Instrument()
 	ASSERTION( 	sds_p->features[VCOID].PWM == 98,"Set PMW_dial",
 			(int)sds_p->features[VCOID].PWM , 98);
 	Assert_equal( (int)Oscgroup.vco.features.PWM, 98 );
-	string a = waveform_str_vec[ oscwaveform_struct::SGNSIN ];
+	string a = waveform_str_vec[ SGNSIN ];
 	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
 

@@ -92,9 +92,9 @@ void Record_class::Stop( bool init )
 }
 bool Record_class::State( StateId trigger )
 {
-	return ((sds->Record_state == trigger) or
+	return ( (sds->Record_state == trigger)	or
 			Note_start.Get() 				or
-			Note_end.Get() );
+			Note_end.Get() 					);
 }
 void Record_class::Set_rcounter( )
 {

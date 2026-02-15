@@ -30,21 +30,25 @@ SOFTWARE.
  */
 
 
-/**********************
- * Volume_class
- *********************/
 #include <Table.h>
 #include <Dynamic.h>
 
+/**************************************************
+ * Dynamic_class
+ *************************************************/
 Dynamic_class::Dynamic_class( range_T<int> _range )
 	: Logfacility_class("Dynamic_class")
 	, Frequency_class()
 {
-	className 	= Logfacility_class::className ;
-	range		= _range;
+	this->range			= _range;
+	this->slideduration = 0;
+	this->restorestate	= state_struct();
+	this->current		= state_struct();
+
 };
 Dynamic_class::~Dynamic_class()
 {
+	DESTRUCTOR( className )
 };
 
 uint8_t Dynamic_class::SetupVol(int future_vol,	DYNAMIC _mode)
@@ -68,7 +72,6 @@ uint8_t Dynamic_class::SetupFrq(int future_frq, DYNAMIC _mode)
 	current.future		= check_range( range, future_frq, "SetupFrq" );
 	current.future_f	= GetFrq( current.future );
 	setup_past			();
-//	set_state();
 	return current.future;
 }
 void Dynamic_class::setup_past()
@@ -80,6 +83,7 @@ void Dynamic_class::setup_past()
 	}
 	if ( current.mode == FIXED )
 		end();
+	coutf << "setup_past " << current.past << endl;
 }
 float Dynamic_class::Reset_state()
 {
@@ -125,7 +129,7 @@ dynamic_state_t Dynamic_class::GetCurrent()
 {
 	return current;
 }
-void Dynamic_class::SetCurrent( state_t state )
+void Dynamic_class::SetCurrent( dynamic_state_t state )
 {
 	current = state;
 }
@@ -158,7 +162,7 @@ void Dynamic_class::Update()
 
 void Dynamic_class::end()
 {
-	current.past 	= current.future;
+	current.past 	= current.future  ;
 	current.past_f	= current.future_f;
 	current.present	= current.future_f;
 }
@@ -187,7 +191,10 @@ void Dynamic_class::TestFrq()
 	// Test Frequency
 	//
 	TEST_START( className );
-	range = frqarr_range ;
+
+	range = frqext_range ;
+	Assert_equal( check_range( range,    200, "" ), int(FRQEXT_SIZE)-1 );
+
 	SetupFrq(C0, FIXED );
 	SetupFrq(71, SLIDE );
 	SetDelta( 1 );

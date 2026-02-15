@@ -49,7 +49,7 @@ SOFTWARE.
 #include <System.h>
 #include <EventKeys.h>
 
-extern bps_struct_t QBps;
+extern bps_t QBps;
 
 constexpr QString Qstring( string str )
 {

@@ -32,11 +32,11 @@ SOFTWARE.
 #ifndef KEYBOARD_H_
 #define KEYBOARD_H_
 
-#include <Instrument.h>
 #include <Kbd.h>
 #include <Keyboard_base.h>
 #include <Mixerbase.h>
 #include <notes/Notes.h>
+#include <Instrument.h>
 
 /**************************************************
  * Kbd_pitch_class
@@ -69,7 +69,7 @@ public:
 		{'B',{ string("433"), string("Moll+ ") }},
 		{'N',{ string("<")	, string("Power ") }}
 	};
-	const set<char>			chord_keys			= init_chord_keys( Chords_map );
+	const set<char>			chord_keys		= init_chord_keys( Chords_map );
 	const array<string, kbd_rows>
 							keyboard_keys	{  	string("A_S_DF_J_K_L") ,
 												string("Q_W_ER_U_I_O") ,
@@ -80,10 +80,9 @@ public:
 	 https://de.wikipedia.org/wiki/American_Standard_Code_for_Information_Interchange
 	 */
 
-	string 				Chord				= get<0>(Chords_map['Y']);
+	string 				Chordrule_map		= get<0>(Chords_map['Y']);
 
-
-	pitch_vec_t			pitch_vec			{};
+	chord_t				chord				{};
 	pitch_t				pitch 				= pitch_struct();
 
 
@@ -111,9 +110,9 @@ class keyboardState_class :
 	const range_T<uint>	flats_range				{ 0, 3 };
 	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
 	frq_t				basefrq					;
+	interface_t* 		sds						;
 
 public:
-	interface_t* 		sds					;
 
 
 						keyboardState_class		( interface_t* _sds );
@@ -139,9 +138,9 @@ typedef struct Noteline_struct
 
 						Noteline_struct	();
 	virtual				~Noteline_struct() = default;
-	void 				AddPitch		( const pitch_vec_t& pv );
+	void 				AddPitch		( const chord_t& pv );
 	void 				AddLenth		( uint& cnt );
-	string 				Get_note_str	( const pitch_vec_t& pv );
+	string 				Get_note_str	( const chord_t& pv );
 } Noteline_t;
 
 
@@ -166,10 +165,10 @@ public:
 						Notevector_struct		( Note_class* notes,
 												file_structure* fs,
 												size_t size );
-	void				Add						( pitch_vec_t vec, bool forget, uint& cnt );
+	void				Add						( chord_t vec, bool forget, uint& cnt );
 	void				Init					();
 	void				Fill					( size_t start );
-	void 				Store					( pitch_vec_t& pv );
+	void 				Store					( chord_t& pv );
 	void 				Next					();
 	bool				SaveMusicxml			();
 	void				SaveNoteLine			();
@@ -184,14 +183,10 @@ public:
 class Keyboard_class
 	: virtual public	Logfacility_class
 	, public virtual	Interface_base
-	, virtual			osc_struct
-	, virtual public	Kbd_base
 	, virtual public	sdsstate_struct
 	, virtual public	keyboardState_class
 {
-	Oscgroup_class		Oscgroup				;
-	Oscillator*			Vco						;
-	Oscillator*			Fmo						;
+	Oscgroup_class		Oscgroup;
 	Oscillator*			Osc						;
 	Instrument_class* 	instrument_p			;
 	Wavedisplay_class*	wd_p					;
@@ -203,20 +198,15 @@ class Keyboard_class
 	Notevector_t		Note_vec				;
 
 public:
-
-	Data_t*				Kbd_Data;
-	bool				Enabled					;
-
 						Keyboard_class			( 	Dataworld_class*,
 													Instrument_class*,
 													Storage_class*,
 													Note_class* );
-						Keyboard_class			(); // see comstack
 	virtual 			~Keyboard_class			();
 	void 				Dispatcher				( kbdInt_t key, bool trigger );
 	void 				Set_instrument			();
 	void 				Enable					( bool iskbd );
-	void 				ScanData				();
+	Data_t*				ScanData				();
 	void 				Show_help				( bool tty );
 	void				SetKbdKey				();
 	bool 				Save_notes				( bool save = true );
@@ -230,14 +220,14 @@ private:
 	int 				decayCounter 			;
 	uint 				duration_counter 		;
 	bool				frqMode					;
-	pitch_vec_t			Pitch_old				;
+	chord_t				Chord_old				;
 	kbdkey_t			Kbd_key					{};
 
 	void				selfTest				();
 	void 				attack					();
 	void 				release					();
 	bool 				decay					();
-	void 				gen_chord_data			( pitch_vec_t pitch_vec );
+	void 				gen_chord_data			( chord_t pitch_vec );
 
 	// keyhandler.cpp
 

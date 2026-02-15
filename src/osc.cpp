@@ -30,23 +30,21 @@ SOFTWARE.
  */
 
 #include <Osc.h>
+#include <Oscwaveform.h>
 
 Oscillator::Oscillator	( RoleId_e role_id,
 						OSCID_e _type_id,
 						buffer_t bytes )
 	: Logfacility_class	( "Oscillator" )
-	, Oscillator_base	( _type_id )
-	, ADSR_class		( role_id, _type_id )
-	, roleId			( role_id )
+	, osctype_struct	( _type_id, role_id )
+	, Oscillator_base	( _type_id, role_id )
+	, ADSR_class		( _type_id, role_id )
 	, Mem_vco			( bytes )
 	, Mem_fmo			( bytes )
 	, Mem				( bytes )
 	, mem_frames		( Mem.mem_ds.data_blocks )
 	, scanner			( Mem.Data, mem_frames )
 {
-
-	this->osctype_name	= typeNames[typeId];
-	this->oscrole_name	= roleNames[roleId];
 
 	Connection_reset	();
 	Data_reset			();

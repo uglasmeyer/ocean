@@ -429,7 +429,6 @@
 								<option id="gnu.cpp.compiler.option.pthread.1710520405" name="Support for pthread (-pthread)" superClass="gnu.cpp.compiler.option.pthread" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.misc.hardening.1896498412" name="Hardening options (-fstack-protector-all -Wformat=2 -Wformat-security -Wstrict-overflow)" superClass="gnu.cpp.compiler.option.misc.hardening" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.1112680213" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Ocean}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/${ARCH}-linux-gnu/${QT}/QtWidgets"/>
 									<listOptionValue builtIn="false" value="/usr/include/${ARCH}-linux-gnu/${QT}/QtGui"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
@@ -496,7 +495,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="tools" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -538,7 +537,13 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.2062205759;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.2062205759.;cdt.managedbuild.tool.gnu.cpp.compiler.base.1619920023;cdt.managedbuild.tool.gnu.cpp.compiler.input.1258719097">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223.;cdt.managedbuild.tool.gnu.c.compiler.base.39504314;cdt.managedbuild.tool.gnu.c.compiler.input.1822125072">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.2062205759;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.2062205759.;cdt.managedbuild.tool.gnu.c.compiler.base.205962079;cdt.managedbuild.tool.gnu.c.compiler.input.336199954">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223.;cdt.managedbuild.tool.gnu.cpp.compiler.base.964656328;cdt.managedbuild.tool.gnu.cpp.compiler.input.1973732184">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.;cdt.managedbuild.tool.gnu.cpp.compiler.base.613934749;cdt.managedbuild.tool.gnu.cpp.compiler.input.1568744916">

@@ -32,67 +32,61 @@ SOFTWARE.
 #ifndef DYNAMIC_H_
 #define DYNAMIC_H_
 
-#include <Ocean.h>
-#include <Logfacility.h>
-#include <String.h>
 #include <Frequency.h>
 
+typedef struct state_struct
+{
+	float		present				= 0.0;
+	float 		future_f			= 0.0;
+	float		past_f				= 0.0;
+	float		delta 				= 0.0;
+	int			future				= 0;
+	int			past				= 0;
+	int			mode				= FIXED;
+} dynamic_state_t;
 
+/**************************************************
+ * Dynamic_class
+ *************************************************/
 class Dynamic_class
 	: virtual public Frequency_class
 {
-	string 			className 			= "";
-	uint8_t			slideduration 		= 0;
 
 	const buffer_t	test_frames			= 1000;
-	range_T<int>	range				;//{ 0, 0 };
 	const range_T<uint8_t>
 					slide_duration_range{ 0, 100 };
+	range_T<int>	range				;
+	uint8_t			slideduration 		;
+	dynamic_state_t	restorestate		;
+	dynamic_state_t	current				;
 
 public:
-	typedef struct state_struct
-	{
-		float		present				= 0.0;
-		float 		future_f			= 0.0;
-		float		past_f				= 0.0;
-		float		delta 				= 0.0;
-		int			future				= 0;
-		int			past				= 0;
-		int			mode				= FIXED;
-	} state_t;
 
 
-			Dynamic_class( range_T<int> r );
-	virtual ~Dynamic_class();
+					Dynamic_class		( range_T<int> r );
+	virtual 		~Dynamic_class		();
 
-	uint8_t	SetupVol(int future_vol, DYNAMIC mode);
-	uint8_t SetupFrq(int future_frq, DYNAMIC mode);
-
-	void 	SetDelta( const uint8_t& sl_duration  );
-	float 	Get( );
-	void	SetCurrent( state_t state );
-	state_t GetCurrent();
-	void 	Update();
-	float 	Reset_state();
-
-	void 	Show( bool on );
-	void 	TestVol();
-	void 	TestFrq();
-
+	uint8_t			SetupVol			(int future_vol, DYNAMIC mode);
+	uint8_t 		SetupFrq			(int future_frq, DYNAMIC mode);
+	void 			SetDelta			( const uint8_t& sl_duration  );
+	float 			Get					( );
+	void			SetCurrent			( dynamic_state_t state );
+	dynamic_state_t GetCurrent			();
+	void 			Update				();
+	float 			Reset_state			();
+	void 			Show				( bool on );
+	void 			TestVol				();
+	void 			TestFrq				();
 
 private:
-	state_t 		restorestate		= state_struct();
-	state_t			current				= state_struct();
-
 	constexpr buffer_t
-			slideFrames( const uint8_t& sl_duration );
-	void	setup_past();
-	void 	end();
-	void 	set_state();
+					slideFrames( const uint8_t& sl_duration );
+	void			setup_past();
+	void 			end();
+	void 			set_state();
 
 
 };
-typedef Dynamic_class::state_t dynamic_state_t;
 
 
 #endif /* DYNAMIC_H_ */

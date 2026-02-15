@@ -46,6 +46,7 @@ class ViewInterface_class
 	, virtual 			sdsstate_struct
 	, virtual 			interface_struct
 	, virtual			Device_class
+	, virtual public	osctype_struct
 	, virtual public	ADSR_class
 	, AppMap_struct
 	, wavedisplay_struct

@@ -34,24 +34,21 @@ SOFTWARE.
 
 #include <Ocean.h>
 
-struct oscwaveform_struct
+enum WFID_t
 {
-	enum WFID_t
-	{
-		SINUS = 0,
-		TRIANGLE,
-		SGNSIN,
-		RECTANGLE,
-		SAWTOOTHL,
-		SAWTOOTHR,
-		PMW,
-		DELTA,
-		NOISE,
-		RANDOM,
-		WFID_SIZE
-	};
-	const range_T<WFID_t> wfid_range{ SINUS, WFID_SIZE };
+	SINUS = 0,
+	TRIANGLE,
+	SGNSIN,
+	RECTANGLE,
+	SAWTOOTHL,
+	SAWTOOTHR,
+	PMW,
+	DELTA,
+	NOISE,
+	RANDOM,
+	WFID_SIZE
 };
+const range_T<WFID_t> wfid_range{ SINUS, WFID_SIZE };
 
 struct param_struct
 {

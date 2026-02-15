@@ -33,28 +33,32 @@ SOFTWARE.
 #define INCLUDE_MIXER_H_
 
 #include <Osc.h>
-#include <Oscbase.h>
-#include <External.h>
-#include <Ocean.h>
+//#include <Oscbase.h>
+//#include <External.h>
+//#include <Ocean.h>
 #include <Wavedisplay.h>
 #include <Mixerbase.h>
 #include <data/DataWorld.h>
-#include <data/Memory.h>
-#include <Dynamic.h>
-#include <notes/Notes.h>
+//#include <data/Memory.h>
+//#include <Dynamic.h>
+//#include <notes/Notes.h>
 
+/**************************************************
+ * Mixer_class
+ * provides and manages Storage Area
+ *************************************************/
 class Mixer_class :
 	virtual public 			Logfacility_class,
 	public virtual			Interface_base
 {
 	int 					beat_clock 		= 0;
 
-	// provides and manages memory array
+
 public:
 
 	StorageArray_t 			StA				;
 	int						composer		= 0;		// note chunk counter
-	Heap_Memory				RecMono_mem			;
+	Heap_Memory				RecMono			;
 	Stereo_Memory<Stereo_t>	Out				;
 	Dynamic_class			DynVolume		;
 	Wavedisplay_class*		Wd_p			;

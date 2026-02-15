@@ -33,11 +33,13 @@ SOFTWARE.
 #define INCLUDE_NOTESBASE_H_
 
 #include <data/Config.h>
-#include <Ocean.h>
-#include <Frequency.h>
+//#include <Ocean.h>
+//#include <Frequency.h>
 #include <Oscbase.h>
-#include <String.h>
-#include <Table.h>
+//#include <String.h>
+//#include <Table.h>
+
+extern float get_chord_volume( float volume, uint8_t chordlen );
 
 // noteline control characters
 namespace 	NOTE
@@ -181,7 +183,7 @@ typedef struct glide_struct
 } glide_t ;
 
 const uint8_t	notes_default_volume = 80;
-typedef vector<pitch_t>	pitch_vec_t;
+typedef vector<pitch_t>	chord_t;
 typedef struct 	note_struct
 {
 	int16_t				number		= -1;
@@ -198,7 +200,7 @@ typedef struct 	note_struct
 	}
 	~note_struct() = default;
 	string 				str 		= ""; 	// humen readable
-	pitch_vec_t			chord		{ };	// notes are generated at the same time
+	chord_t			chord		{ };	// notes are generated at the same time
 	uint16_t 			duration 	= 125; 	// msec
 	uint16_t			volume 		= notes_default_volume;//0; 	// percentage of max_volume
 	uint8_t 			octave 		= 0; 	// variation only
@@ -232,7 +234,7 @@ class Note_base :
 public:
 
 	const String			OctaveChars		{ octchar_T(min_octave, max_octave ) };
-	bps_struct_t			NpsChars		{};
+	bps_t			NpsChars		{};
 
 	const vector_str_t 		convention_notes{ 	OctChars_EN,
 												"0123456789AB",

@@ -32,6 +32,9 @@ SOFTWARE.
 #ifndef MIXERBASE_H_
 #define MIXERBASE_H_
 
+#include <Utilities.h>
+#include <Osctypes.h>
+
 enum StAId_e : unsigned char
 {
 	STA_USER00 = 0,

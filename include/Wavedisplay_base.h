@@ -33,6 +33,7 @@ SOFTWARE.
 #define WAVEDISPLAY_BASE_H_
 
 #include <Ocean.h>
+#include <Osctypes.h>
 
 template< typename T >
 struct cursor_T

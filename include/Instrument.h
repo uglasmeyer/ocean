@@ -39,11 +39,11 @@ SOFTWARE.
 #include <Wavedisplay.h>
 //#include <Table.h>
 
-class Instrument_class:
-	virtual public 		Logfacility_class,
-	virtual public		Interface_base,
-	virtual public		Device_class,
-	virtual				osc_struct
+class Instrument_class
+	: virtual public 		Logfacility_class
+	, virtual public		Interface_base
+	, virtual public		Device_class
+//	virtual				osctype_struct
 {
 public:
 	string 				Name 					= "";

@@ -43,7 +43,6 @@ constexpr connectId_t default_connect( OSCID_e oscid )
 
 class Device_class
 	: virtual public 	Logfacility_class
-	, virtual public	osc_struct
 {
 
 	interface_t* 		sds;
@@ -63,7 +62,6 @@ public:
 
 	void 				Set_sds					( interface_t* sds );
 	connectName_t		Get_connection_names	( char oscid );
-	void 				Show_Connection_names	( char oscid );
 	void 				SelfTest				();
 
 private:

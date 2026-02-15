@@ -8,7 +8,7 @@ A screen shot of the graphical user interface shall illustrate some of its featu
 ![Ocean-SL on screen](Resource/Ocean-SL.png)
  
 
-Author Ulrich Glasmeyer, Germany, during the time 2023 - 2025+
+Author Ulrich Glasmeyer, Germany, during the time 2023 - 2026
 
 This distribution of Ocean-SL contains the following
 - bin	: (x86_64, aarch64) Audioserver, Synthesizer, Keyboard, Qt6-Userinterface OceanGUI, SDSview, Rtsp

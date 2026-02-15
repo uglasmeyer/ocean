@@ -33,15 +33,8 @@ SOFTWARE.
 
 inline float get_sta_volume( Storage_class* sta_p, uint8_t chordlen )
 { //
-	float 			volume		= sta_p->Volume();
-	range_T<uint8_t>chord_range { 1, 4 };
-					chordlen 	= check_range( chord_range, chordlen, "set_sta_volume" );
-	if ( chordlen > 1 ) // 2,3,4  --> volume = 3/4, 2,3/ 1,2
-	{
-		volume 	=	( volume * ( 5.0 - chordlen ) ) / ( 6.0 - chordlen );
-	}
-	assert(volume< 1.0);
-	return volume;
+	float 	volume			= sta_p->Volume();
+	return 	get_chord_volume( volume, chordlen );
 }
 
 Keyboard_class::Keyboard_class( Dataworld_class*	data,
@@ -58,22 +51,20 @@ Keyboard_class::Keyboard_class( Dataworld_class*	data,
 	, Note_vec				( notes, instr->fs, max_notes )
 
 {
-	this->Vco				= &Oscgroup.vco;
-	this->Fmo				= &Oscgroup.fmo;
+//	this->Vco				= &Oscgroup.vco;
+//	this->Fmo				= &Oscgroup.fmo;
 	this->Osc				= &Oscgroup.osc;
 
 	this->instrument_p 		= instr;
 	this->Notes				= notes;
 	this->StA				= sta;
-	this->Kbd_Data			= sta->Data;
 	this->fs				= instr->fs;
 	this->decayCounter 		= 0;
 	this->duration_counter 	= 0;// count the beats of note kbd_key
 	this->kbd_volume		= sds_p->StA_amp_arr[STA_KEYBOARD];
 	this->sta_volume		= kbd_volume * percent;
 	this->frqMode			= SLIDE;
-	this->Enabled			= false;
-	this->Pitch_old.clear	();
+	this->Chord_old.clear	();
 
 	Oscgroup.Set_Duration	( max_msec );
 	Oscgroup.SetScanner		( max_frames );
@@ -100,37 +91,24 @@ Keyboard_class::~Keyboard_class()
 	DESTRUCTOR( className )
 }
 
-void Keyboard_class::gen_chord_data( pitch_vec_t pitch_vec )
+void Keyboard_class::gen_chord_data( chord_t chord )
 {
-	if ( pitch_vec.size() == 0 )//Kbd_key.nokey
+	if ( chord.size() == 0 )//Kbd_key.nokey
 		return;
 	Comment( DEBUG, "gen_chord_data" );
-
-	const uint 	delay_frames 	= sds_p->noteline_prefix.chord_delay * frames_per_msec;
-	uint8_t 	n 				= 0;
 
 	Oscgroup.Data_Reset			();
 	if( bpsidx == 0 ) // clear forward
 	{
 		scanner->Set_wpos( scanner->rpos );
-		StA->Write_data( Osc->Mem.Data, Osc->wp.frames, sta_volume );
+		StA->Write_data( Osc->Mem.Data, Osc->wp.frames, 0.0 );
 	}
-
-	for ( pitch_t& pitch 		: pitch_vec )
-	{
-		Oscgroup.RestorePhase( pitch );
-		Oscgroup.Set_Note_Frequency	( sds_p, pitch.frqidx, SLIDE );
-		Oscgroup.Run_OSCs			( n * delay_frames );
-		Oscgroup.BackupPhase( pitch );
-		n++;
-	}
-	Pitch_old = pitch_vec;
+	Oscgroup.ChordData( sds_p, chord );
+	Chord_old = chord;
 }
 
 void Keyboard_class::Enable( bool is_kbd )
 {
-	Enabled = is_kbd;
-
 	if( is_kbd )
 	{
 		sds_p->StA_state_arr[ STA_KEYBOARD ].play 	= true;
@@ -147,7 +125,7 @@ void Keyboard_class::Set_instrument( )
 {
 	Oscgroup.SetInstrument( sds_p );
 	// kbd specific settings
-	Oscgroup.SetSlideFrq( sliding * sds_p->features[OSCID].slide_frq );
+	Oscgroup.SetSlider_Frq( sliding * sds_p->features[OSCID].slide_frq );
 }
 
 bool Keyboard_class::decay(  )
@@ -169,15 +147,15 @@ void Keyboard_class::attack()
 	Comment( DEBUG, "attack" );
 	if( not StA->touched ) 	// act on an sta reset from outside
 		Note_vec.Init();
-	Note_vec.Add			( pitch_vec, StA->state.Forget(), duration_counter );
+	Note_vec.Add			( chord, StA->state.Forget(), duration_counter );
 
 	Set_instrument			();
 	Oscgroup.KbdAttack		( sds_p->Kbd_state.bpsidx ); // overwrite Instrument setting from sds
 
 	Oscgroup.ResetBeatCursor();
-	sta_volume 				= get_sta_volume( StA, pitch_vec.size() );
-	gen_chord_data			( pitch_vec );
-	pitch_vec.clear			();
+	sta_volume 				= get_sta_volume( StA, chord.size() );
+	gen_chord_data			( chord );
+	chord.clear				();
 
 	scanner->Set_wpos		( scanner->rpos );
 	StA->Write_data			( Osc->Mem.Data, Osc->wp.frames, sta_volume );
@@ -188,32 +166,33 @@ void Keyboard_class::attack()
 
 void Keyboard_class::release(  )
 {
-	if( Pitch_old.size() == 0 )
+	if( Chord_old.size() == 0 )
 		return;
 	Comment( DEBUG, "release" );
 
 	if (sds_p->Kbd_state.bpsidx > 0 )
 		return;
 	decayCounter		= attackCounter ;
-	gen_chord_data		( Pitch_old );
+	gen_chord_data		( Chord_old );
 
-	sta_volume 			= get_sta_volume( StA, Pitch_old.size() );
+	sta_volume 			= get_sta_volume( StA, Chord_old.size() );
 	scanner->Set_wpos	( scanner->rpos );
 	StA->Write_data		( Osc->Mem.Data, Osc->wp.frames, sta_volume  );
 
 	StA->state.Forget	( true );
 }
-void Keyboard_class::ScanData()
+Data_t* Keyboard_class::ScanData()
 {
 	scanner->Set_fillrange( StA->param.size );
-	Kbd_Data = scanner->Next_read();
+	Data_t*	Kbd_Data = scanner->Next_read();
 	Note_vec.Next();
+	return Kbd_Data;
 }
 void Keyboard_class::Dispatcher( kbdInt_t key, bool sync )
 {
 	auto keypressed = [ key, this ](  )
 	{
-		return ( pitch_vec.size() > 0 );
+		return ( chord.size() > 0 );
 	};
 
 	Kbd_key.Int	= key;
@@ -259,13 +238,13 @@ Noteline_struct::Noteline_struct()
 {
 	str 			= ""			;
 }
-void Noteline_struct::AddPitch( const pitch_vec_t& pv )
+void Noteline_struct::AddPitch( const chord_t& pv )
 {
 	string s = Get_note_str( pv );
 	str.append( s );
 	coutf << s << " ";
 }
-string Noteline_struct::Get_note_str( const pitch_vec_t& pv )
+string Noteline_struct::Get_note_str( const chord_t& pv )
 {
 	string s = pv[0].name;
 	if( pv.size() > 1 )
@@ -361,7 +340,7 @@ void Notevector_struct::Init()
 	}
 	Note_pos = 0;
 }
-void Notevector_struct::Add( pitch_vec_t vec, bool forget, uint& cnt )//TODO
+void Notevector_struct::Add( chord_t vec, bool forget, uint& cnt )//TODO
 {
 	if( forget )
 		return;
@@ -370,7 +349,7 @@ void Notevector_struct::Add( pitch_vec_t vec, bool forget, uint& cnt )//TODO
 	Store( vec );
 
 }
-void Notevector_struct::Store( pitch_vec_t& pv )
+void Notevector_struct::Store( chord_t& pv )
 {
 	if( note_vec.size() == 0 )
 		Init();
@@ -492,21 +471,21 @@ char Kbd_pitch_class::SetPitchVec( int key )
 
 	sds->Kbd_state.frq= pitch.freq;
 	strcpy( sds->Kbd_state.note, pitch.name.data() );
-	pitch_vec.push_back( pitch );
+	chord.push_back( pitch );
 
-	if (( Chord.length() > 0 ) )
+	if (( Chordrule_map.length() > 0 ) )
 	{
 		uint8_t idx 	= pitch.frqidx;
-		for( char ch 	: Chord )
+		for( char ch 	: Chordrule_map )
 		{
 			idx				= char2int(ch) + idx;
 
 			pitch_t pitch 	=	pitch_struct( idx);
-			pitch_vec.push_back( pitch );
+			chord.push_back( pitch );
 			//			ShowPitch( pitch );
 		}
 	}
-	return pitch_vec[0].step; // base pitch step
+	return chord[0].step; // base pitch step
 }
 
 void Kbd_pitch_class::SetChord( char key )
@@ -514,7 +493,7 @@ void Kbd_pitch_class::SetChord( char key )
 	char KEY = toupper( key );
 	if( chord_keys.contains( KEY ))
 	{
-		Chord = get<0>( Chords_map[KEY] );
+		Chordrule_map = get<0>( Chords_map[KEY] );
 		sds->Kbd_state.chord_type = KEY;
 	}
 }
@@ -525,16 +504,16 @@ void Kbd_pitch_class::Kbd_pitch_Test()
 	TEST_START( className );
 	int pos 	= keyboard_keys[ 0 ].find( 'S' );
 	ASSERTION( pos == 2, "keyboard_keys", pos, 2 );
-	Chord = get<0>( Chords_map['X'] );
-	Assert_equal( strEqual( Chord, "43" ), true, Chord	);
+	Chordrule_map = get<0>( Chords_map['X'] );
+	Assert_equal( strEqual( Chordrule_map, "43" ), true, Chordrule_map	);
 
 	SetChord( 'X' );
-	Assert_equal( strEqual( Chord, "43" ), true, Chord	);
+	Assert_equal( strEqual( Chordrule_map, "43" ), true, Chordrule_map	);
 	SetPitchVec( 'A' );
-	Assert_equal( pitch_vec.size(), (size_t)3 );
+	Assert_equal( chord.size(), (size_t)3 );
 	TEST_END( className );
 
-	for( const pitch_t& pitch : pitch_vec)
+	for( const pitch_t& pitch : chord)
 	{
 		ShowPitch( pitch );
 	}

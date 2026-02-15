@@ -34,9 +34,9 @@ SOFTWARE.
 #define FREQUENCY_H_
 
 #include <Ocean.h>
+#include <Osctypes.h>
 #include <Logfacility.h>
 #include <String.h>
-#include <Oscwaveform.h>
 
 
 const int 								C0			= 26;	// defined by: frq_vedtor[C0] = oct_base_frq
@@ -77,11 +77,8 @@ extern 		harmonic_t					harmonicArray;
 /**************************************************
  * Frequency_class
  *************************************************/
-class Frequency_class :
-	public virtual Logfacility_class,
-	public virtual oscwaveform_struct,
-	public virtual	osc_struct
-
+class Frequency_class
+	: public virtual Logfacility_class
 {
 	void 								initFrqArray	();
 	void 								initFrqNamesArray();

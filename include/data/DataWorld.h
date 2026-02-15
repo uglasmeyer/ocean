@@ -88,6 +88,7 @@ public:
 	Shm_base				SHM_r				;
 	Stereo_t* 				ShmAddr_l 			;
 	Stereo_t* 				ShmAddr_r 			;
+	string					Test_result			;
 
 	interface_t* 			GetSdsAddr			();
 	Interface_class*		GetSds				();

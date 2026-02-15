@@ -44,7 +44,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 										EventLog_class*		_log) :
     Logfacility_class	("FileDialog"),
 	Interface_base		( _data ),
-    Note_class			( _data ),
+    NotesCore_class			( _data ),
 	QDialog				(parent),
 	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
@@ -172,14 +172,14 @@ void File_Dialog_class::Setup_widgets()
     	return;
 
     // nte section follows
-    Note_class::Read( Notes_name.toStdString() );
-    string Notesline =  Note_class::Get_note_line();
+    NotesCore_class::Read( Notes_name.toStdString() );
+    string Notesline =  NotesCore_class::Get_note_line();
     bool verifyed = Verify_noteline( Noteline_prefix, Notesline );
     setButton( ui->pbNotesDone, 3*verifyed );
 
     ui->lE_Notes->setText( Qstring( Notesline ) );
 
-    string Rhythmline = Note_class::Get_rhythm_line();
+    string Rhythmline = NotesCore_class::Get_rhythm_line();
     QString
     QStr = Qstring( Rhythmline );
     ui->lE_Rythm->setText( QStr );
@@ -217,12 +217,12 @@ void File_Dialog_class::New_Notes()
     if ( verified )
     {
         QStr = ui->lE_Rythm->text();
-        Note_class::Set_rhythm_line( QStr.toStdString() );
+        NotesCore_class::Set_rhythm_line( QStr.toStdString() );
 
         QStr = ui->lE_NotesFile->text();
         string notes_file = QStr.toStdString();
 
-        Note_class::Save( notes_file, sds_p->noteline_prefix, note_line );
+        NotesCore_class::Save( notes_file, sds_p->noteline_prefix, note_line );
 
         // remote shall read and activate the new note line
         Sds->Write_str( NOTESSTR_KEY, notes_file);
@@ -246,9 +246,9 @@ void File_Dialog_class::Notes_Select(QString note_filename)
 
     if ( notestypeId == XML_ID ) return;
 
-	ui->lE_Notes->setText( Qstring( Note_class::Read( note_name ) ));
+	ui->lE_Notes->setText( Qstring( NotesCore_class::Read( note_name ) ));
 
-	ui->lE_Rythm->setText( Qstring( Note_class::Get_rhythm_line() ) );
+	ui->lE_Rythm->setText( Qstring( NotesCore_class::Get_rhythm_line() ) );
 }
 
 

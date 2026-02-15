@@ -23,6 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 #include <Appsymbols.h>
+#include <Oscwaveform.h>
 
 void exit_proc( int s )
 {

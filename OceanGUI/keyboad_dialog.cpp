@@ -103,9 +103,9 @@ void Keyboad_Dialog_class::sharps(int value )
 
 void Keyboad_Dialog_class::kbdbps( int idx )
 {
-	int bpsidx	= check_cycle2( QBps.bps_range, idx, "kbdbps" );
+	int bpsidx	= check_cycle2( QBps.idx_range, idx, "kbdbps" );
 	string str	= to_string( QBps.Bps_vec[ idx ]) ;
-	ui->label_F4->setText( Qstring( str ) + " Bpm");
+	ui->label_F4->setText( Qstring( str ) + " Bpm" );
 	Sds->Set	( sds_p->Kbd_state.bpsidx, (uint8_t)bpsidx );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }

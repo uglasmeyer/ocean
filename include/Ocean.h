@@ -258,60 +258,8 @@ constexpr string to_hex( long addr )
 	return strs.str();
 };
 
-enum OSCID_e : unsigned char
-{
-	VCOID,
-	FMOID,
-	OSCID,
-	NOOSCID
-};
-const  vector<OSCID_e> oscIds  =
-{
-	VCOID,
-	FMOID,
-	OSCID
-};
-#define OSCIDSIZE 3
 
-typedef struct osc_struct
-{
 
-	const vector<string> typeNames =
-	{
-		"VCO",
-		"FMO",
-		"OSC",
-		""
-	};
-} osc_roles_t;
-
-enum RoleId_e : unsigned char
-{
-	USER00ROLE,
-	USER01ROLE,
-	USER02ROLE,
-	USER03ROLE,
-	INSTRROLE,
-	KBDROLE,
-	NOTESROLE,
-	EXTERNALROLE,
-	AUDIOROLE,
-	ADSRROLE,
-	ROLE_SIZE
-};
-const array<string, ROLE_SIZE> roleNames =
-{
-	"UserR+",
-	"UserL-",
-	"UserR-",
-	"UserL+",
-	"Instrument",
-	"Keyboard",
-	"Notes",
-	"External",
-	"Audio",
-	"ADSR"
-};
 
 const vector<string> slidermodes =
 {

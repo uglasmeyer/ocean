@@ -33,6 +33,20 @@ SOFTWARE.
 #include <System.h>
 #include <Exit.h>
 
+const 	range_T<uint8_t>chord_range { 1, 4 };
+float get_chord_volume( float volume, uint8_t chordlen )
+{
+	if( chordlen == 0)
+		return 0.0;
+	chordlen 	= check_range( chord_range, chordlen, "set_sta_volume" );
+	float	vol = volume;
+	if ( chordlen > 1 ) // 2,3,4  --> volume = 3/4, 2,3/ 1,2
+		vol 	=	( volume * ( 5.0 - chordlen ) ) / ( 6.0 - chordlen );
+
+	assert(vol < 1.0001);
+	return vol;
+}
+
 Note_base::Note_base () :
 	Logfacility_class("Note_base"),
 	Frequency_class()

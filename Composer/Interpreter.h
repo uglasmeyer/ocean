@@ -33,11 +33,6 @@ SOFTWARE.
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
-#include <data/Config.h>
-#include <data/DataWorld.h>
-#include <data/Interface.h>
-#include <EventKeys.h>
-#include <Spectrum.h>
 #include <Variation.h>
 #include <Composer/Processor.h>
 #include <Composer/Interpreter_base.h>
@@ -49,10 +44,8 @@ SOFTWARE.
  *************************************************/
 class Interpreter_class
 	: virtual public	Logfacility_class
-	, virtual 			osc_struct
 	, virtual public 	Processor_class
 	, virtual 			Device_class
-	, virtual			oscwaveform_struct
 
 {
 	typedef struct view_struct
@@ -74,59 +67,8 @@ class Interpreter_class
 		string		value;
 	} var_struct_t;
 
+	bps_t			Bps					;
 
-public:
-	Interface_class* 		Sds					;
-	Config_class*			Cfg					;
-	file_structure*			fs					;
-	interface_t* 			sds					;
-	Variation_class 		Variation			;
-	view_struct_t 			main_view, fmo_view, vco_view;
-
-	String 					Str					{};
-	string 					cmdline 			= "";
-	string 					option_default		= "";
-	bool 					dialog_mode 		;
-	bool					CompilerExit		;
-
-	int 					error 				;
-	int 					duration 			;
-	String 					keyword 			{};
-	set<string> 			expect 				{};
-
-							Interpreter_class	( Application_class* app ) ;
-	virtual 				~Interpreter_class	();
-
-	void 					Start_bin			( vector_str_t );
-	void 					Stop_bin			( vector_str_t );
-	void 					Instrument			( vector_str_t );
-	void 					Notes				( vector_str_t );
-	void 					Random				( vector_str_t );
-	void 					Osc					( vector_str_t );
-	void 					Adsr				( vector_str_t );
-	void 					RecStA				( vector_str_t );
-	void 					RecFile				( vector_str_t );
-	void 					Wrong_keyword		( set<string>, string );
-	void 					Pause				( vector_str_t );
-	void 					Play				( vector_str_t );
-	void 					Text				( vector_str_t );
-	void 					Add					( vector_str_t );
-	void 					Addvariable			( vector_str_t );
-	vector_str_t 			InsertVariable		( vector_str_t );
-	void 					Set					( vector_str_t );
-	int  					Find_position		( const program_vec_t& program,
-												vector_str_t );
-	void 					Set_dialog_mode		( bool );
-	bool 					Exit				();
-	void					Clear_stack			();
-	bool 					Check_input			( string keyword );
-	bool					Cmpkeyword 			( const string&  );
-	void 					Intro				( vector_str_t, uint );
-	void					If_Exception		( string );
-
-	void 					Test				();
-
-private:
 	Spectrum_class 			Spectrum			{};
 	Frequency_class 		Frequency			{};
 	vector_str_t 			stack 				{};
@@ -134,18 +76,75 @@ private:
 	string					command 			{""};
 	bool 					testrun 			= false;
 	bool					testreturn 			= false;
+	int 					duration 			;
+	String 					keyword 			{};
+	String 					Str					{};
+	string 					cmdline 			= "";
+	string 					option_default		= "";
+	Interface_class* 		Sds					;
+	Config_class*			Cfg					;
+	file_structure*			fs					;
+	interface_t* 			sds					;
+	Variation_class 		Variation			;
+	view_struct_t 			main_view, fmo_view, vco_view;
+
+public:
+
+	bool 					dialog_mode 		;
+	bool					CompilerExit		;
+	int 					error 				;
+	set<string> 			expect 				{};
+
+							Interpreter_class	( Application_class* app ) ;
+	virtual 				~Interpreter_class	();
+
+	void 					Add					( vector_str_t );
+	void 					Addvariable			( vector_str_t );
+	void 					Adsr				( vector_str_t );
+	void					Clear_stack			();
+	bool 					Check_input			( string keyword );
+	bool					Cmpkeyword 			( const string&  );
+	void 					Debug				();
+	void 					Dynamic				( vector_str_t arr );
+	bool 					Exit				();
+	int  					Find_position		( const program_vec_t& program,
+												vector_str_t );
+	void 					Instrument			( vector_str_t );
+	vector_str_t 			InsertVariable		( vector_str_t );
+	void 					Intro				( vector_str_t, uint );
+	void					If_Exception		( string );
+	void 					Notes				( vector_str_t );
+	void 					Osc					( vector_str_t );
+	void 					Pause				( vector_str_t );
+	void 					Play				( vector_str_t );
+	void 					Random				( vector_str_t );
+	void 					Reset				( vector_str_t );
+	void 					RecStA				( vector_str_t );
+	void 					RecFile				( vector_str_t );
+	void 					Set					( vector_str_t );
+	void 					Set_dialog_mode		( bool );
+	void 					Start_bin			( vector_str_t );
+	void 					Stop_bin			( vector_str_t );
+	void 					Text				( vector_str_t );
+	void 					Test				();
+	void 					Wrong_keyword		( set<string>, string );
+
+
+private:
 
 	void 					amploop				( uint8_t , EVENTKEY_e   );
 	bool 					check_count			( vector_str_t, size_t );
-	string 					pop_stack			( int );
-	bool					set_stack			( vector_str_t, uint );
-	void 					show_expected		();
 	void 					check_file			( vector_str_t, string );
 	bool 					no_error			( int );
 	void 					osc_view			( view_struct_t, vector_str_t );
+	string 					pop_stack			( int );
+	bool					set_stack			( vector_str_t, uint );
+	void 					show_expected		();
 
+	template< typename Arg>
+		void 				wrong_argument		( set<string> expected , Arg given );
 	template <typename T >
-		T pop_T( range_T<T> range );
+		T 					pop_T				( range_T<T> range );
 };
 
 

@@ -29,7 +29,7 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-
+#include <Oscwaveform.h>
 #include <Spectrum.h>
 #include <String.h>
 #include <Table.h>
@@ -130,7 +130,7 @@ OSCID_e Spectrum_class::Osc_TypeId( const string& type_str )
 	string str = type_str.substr(0, 3 );
 	for( OSCID_e id : oscIds )
 	{
-		if ( str.compare( typeNames[ id ] ) == 0 )
+		if ( str.compare( typeNames[id] ) == 0 )
 		{
 			return id;
 		}
@@ -224,7 +224,7 @@ void Spectrum_class::Show_spectrum_table(	ostream& f,
 											bool header )
 {
 	Table.opt.FILE 		= &f;
-	string OscRoleTag = typeNames[ spec.osc ];
+	string OscRoleTag	= typeNames[spec.osc];
 	if( spec.adsr )
 		OscRoleTag += "A";
 
@@ -242,7 +242,7 @@ void Spectrum_class::Show_spectrum_table(	ostream& f,
 string Spectrum_class::Show_spectrum_type( const int& _type, const spectrum_t& spec )
 {
 	stringstream strs{""};
-	string OscRoleTag = typeNames[ spec.osc ];
+	string OscRoleTag = typeNames[spec.osc];
 	if( spec.adsr )
 		OscRoleTag += "A";
 

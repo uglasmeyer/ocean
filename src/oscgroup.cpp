@@ -38,7 +38,6 @@ Oscgroup_class::Oscgroup_class()
 	, fmo( ROLE_SIZE, FMOID, 0 )
 	, osc( ROLE_SIZE, OSCID, 0 )
 {
-	oscroleId 		= ROLE_SIZE;
 }
 Oscgroup_class::Oscgroup_class( RoleId_e role, buffer_t bytes )
 	: Logfacility_class( "Oscgroup_class" )
@@ -46,7 +45,6 @@ Oscgroup_class::Oscgroup_class( RoleId_e role, buffer_t bytes )
 	, fmo( role, FMOID, bytes )
 	, osc( role, OSCID, bytes )
 {
-	oscroleId 		= role;
 	this->member 	= { &vco, &fmo, &osc };
 	this->dynarr	= { vco.DynFrequency.GetCurrent(),
 						fmo.DynFrequency.GetCurrent(),
@@ -135,10 +133,10 @@ void Oscgroup_class::KbdAttack( uint8_t bps )
 	}
 
 }
-void Oscgroup_class::SetSlideFrq( const uint8_t& value )
+void Oscgroup_class::SetSlider_Frq( const uint8_t& value )
 {
 	std::ranges::for_each( member, [ value ](Oscillator*  o)
-			{ o->Set_slideFrq( value); });
+			{ o->SetSlider_frq( value); });
 }
 
 void Oscgroup_class::SetWd( Wavedisplay_class* Wd )
@@ -225,17 +223,20 @@ void Oscgroup_class::ResetBeatCursor()
 		{ o->ResetBeatCursor();});
 
 }
-void Oscgroup_class::Set_Osc_Note(  interface_t*	sds,
-									const uint8_t& 	key,
-									const uint& 	msec,
-									const uint& 	volume,
-									const DYNAMIC& 	mode)
+void Oscgroup_class::ChordData( interface_t* sds, chord_t chord )
 {
-	Set_Duration			( msec );
-	Set_Note_Frequency		( sds, key, mode );
-	osc.Set_spectrum_volume	( volume );
-}
+	const uint 		frame_delay	= sds->noteline_prefix.chord_delay * frames_per_msec;
+	uint 			n 			= 0;
+	for ( pitch_t& pitch : chord )
+	{
+		RestorePhase		( pitch );
+		Set_Note_Frequency	( sds, pitch.frqidx, SLIDE );
+		Run_OSCs			( n*frame_delay );
+		BackupPhase			( pitch );
+		n++;
+	}
 
+}
 void Oscgroup_class::Phase_Reset()
 {
 	std::ranges::for_each( member, [](Oscillator*  o)

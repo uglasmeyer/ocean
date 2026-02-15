@@ -440,8 +440,14 @@ void String::TestString()
 	Assert_equal( char2int('0'), 0 );
 	Assert_equal( char2int('2'), 2 );
 
-	TEST_END( "String" );
+	set<string> StrSet { "ab", "cd", "ef", "gh" };
+	assert( StrSet.contains("cd"));
+	assert( not StrSet.contains("de"));
 
+	StrSet = {"a","b","c"};
+    assert( StrSet.contains("b"));
+
+	TEST_END( "String" );
 }
 
 

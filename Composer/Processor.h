@@ -33,8 +33,6 @@ SOFTWARE.
 #define PROCESSOR_H_
 
 #include <App.h>
-#include <System.h>
-#include <Time.h>
 
 enum CMD_e
 {
@@ -92,7 +90,8 @@ class Processor_class :
 	Application_class*	App;
 
 public:
-	fstream 			LOG ;
+	fstream 			LOG					;
+	bool				Debug_Processing	;
 
 						Processor_class(	Application_class* app );
 	virtual 			~Processor_class(){	DESTRUCTOR( className ) } ;

@@ -31,6 +31,7 @@ SOFTWARE.
 
 
 #include <Composer/Interpreter.h>
+#include <Oscwaveform.h>
 
 range_T<uint8_t> amp_range{ 0, 100 };
 range_T<uint8_t> uint8_range{ 0, 255 };
@@ -39,6 +40,7 @@ Interpreter_class::Interpreter_class( Application_class* app )
 	: Logfacility_class	( "Interpreter_class" )
 	, Processor_class	( app )
 	, Device_class		( app->DaTA->sds_master )
+	, Bps				()
 	, Variation			( app->DaTA )
 {
 	this->sds 			= app->DaTA->GetSdsAddr();
@@ -262,6 +264,57 @@ void Interpreter_class::Random( vector_str_t arr )
 	cout << random_noteline << endl;
 }
 
+void Interpreter_class::Debug()
+{
+	Processor_class::Debug_Processing = true;
+}
+void Interpreter_class::Dynamic( vector_str_t arr )
+{
+	expect = { "vol, frq", "mode" };
+	Intro( arr, 1 );
+	if( Cmpkeyword( "vol" ) )
+	{
+		expect = { show_range( volidx_range ) };
+		uint8_t value = pop_T( volidx_range );
+		Processor_class::Push_ifd( &sds->vol_slidemode, SLIDE, "volume slide mode" );
+		Processor_class::Push_ifd( &sds->slide_duration, value, "dynamic volume" );
+		return;
+	}
+	if( Cmpkeyword( "frq" ) )
+	{
+		expect = { show_range( volidx_range ) };//0..100
+		uint8_t value = pop_T( volidx_range );
+		Processor_class::Push_ifd( &sds->frq_slidermode, COMBINE, "frquency slide mode" );
+		Processor_class::Push_ifd( &sds->features[OSCID].slide_frq, value, "dynamic volume" );
+		Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
+		return;
+	}
+	if( Cmpkeyword( "mode") )
+	{
+		expect = { "0 = fixed", "1 = slide", "2 = combine" };
+		range_T<uint8_t> dynamic_range = { 0,2 };
+		uint8_t mode = pop_T( dynamic_range );
+		string mode_str = slidermodes[ mode ];
+		Processor_class::Push_ifd( &sds->frq_slidermode, DYNAMIC(mode), "frquency mode "+mode_str );
+		Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
+		return;
+	}
+	Wrong_keyword( expect , keyword.Str );
+
+}
+void Interpreter_class::Reset( vector_str_t arr )
+{
+	expect = { "sds" };
+	Intro( arr, 1 );
+	if( Cmpkeyword( "sds" ) )
+	{
+		Processor_class::Push_key( RESETSDS_KEY, "reset sds" );
+		return;
+	}
+	Wrong_keyword( expect , keyword.Str );
+
+}
+
 void Interpreter_class::Set( vector_str_t arr )
 {
 	expect = { "octave+", "octave-", "main", "vco", "fmo" };
@@ -433,23 +486,32 @@ void Interpreter_class::Notes( vector_str_t arr )
 
 void Interpreter_class::Instrument( vector_str_t arr )
 {
-	expect = { "load" };
+	expect = { "load", "beat" };
 	Intro( arr, 2 );
 
 	if ( Cmpkeyword( "load") )
 	{
-		expect = { "instument name "};
-		string instr = pop_stack( 1);
-		Comment( INFO, "loading instrument " + instr );
+				expect	= { "instument name "};
+		string	instr	= pop_stack( 1 );
+		Info( "loading instrument " + instr );
 		check_file( { fs->instrumentdir } , instr + fs->snd_type );
-
-//		Push_text( command );
 		Processor_class::Push_str( SETINSTRUMENTKEY, INSTRUMENTSTR_KEY, instr );
-//		Processor_class::Push_key( SETINSTRUMENTKEY, "set instrument" );
+		return;
+	}
+	if ( Cmpkeyword( "beat" ) )
+	{
+				expect 	= { "# of beats per second [" + Bps.Bps_str + "]" };
+		uint8_t count	= pop_T( Bps.set_range );
+		if( not Bps.Bps_set.contains( count ) )
+		{
+			wrong_argument( expect, (int)count );
+		}
+		Info( "Set beat count for the instrument to: ", (int)count );
+		Processor_class::Push_ifd( &sds->instrumentClock, count, "beat clock" );
+		Processor_class::Push_key( BEATCLOCK_KEY, "set");
 		return;
 	}
 	Wrong_keyword(  expect , keyword.Str );
-;
 }
 
 
@@ -526,18 +588,16 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 
 	if ( Cmpkeyword( "mute") )
 	{
-		Comment( INFO, "Master volume is muted " );
+		Comment( INFO, "toggle mute" );
 
-		Push_ifd( &sds->mixer_state.mute, false, "false" );
 		Push_key( MASTERAMP_MUTE_KEY, "mute master volume" );
 		return;
 	}
 
 	if ( Cmpkeyword( "unmute") )
 	{
-		Comment( INFO, "Master volume is un-muted " );
+		Comment( INFO, "toggle Mute " );
 
-		Push_ifd( &sds->mixer_state.mute, true, "true" );
 		Push_key( MASTERAMP_MUTE_KEY, "un-mute master volume" );
 		return;
 	}
@@ -616,17 +676,15 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 		if ( loop )
 		{
 			Processor_class::Push_ifd( &sds->frq_slidermode, SLIDE, "slide mode" );
-			Processor_class::Push_ifd( &sds->features[OSCID].slide_frq , 100_uint, "long frq slide" );
 			Processor_class::Push_key(  SOFTFREQUENCYKEY, "set index"  );
 		}
-			expect 		= { " duration in seconds" };
-			option_default = "0";
-			string duration = pop_stack(0 );
-			Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
-			Processor_class::Push_ifd( &sds->features[OSCID].slide_frq , 0_uint, "frq slide off" );
+		expect 		= { " duration in seconds" };
+		option_default = "0";
+		string duration = pop_stack(0 );
 
-			Processor_class::Push_key(  view.freqkey, "set frequency"  );
-			Pause( { "pause", duration });
+		Processor_class::Push_ifd(  view.frqidx, freq, "frq index"  );
+		Processor_class::Push_key(  view.freqkey, "set frequency"  );
+		Pause( { "pause", duration });
 
 		return;
 	}
@@ -682,7 +740,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	if ( Cmpkeyword( "loop" ))
 	{
 		StAId_e	staid	= pop_T( staid_range );
-		uint8_t end = pop_T( percent_range );
+		uint8_t end 	= pop_T( percent_range );
 
 		Processor_class::Push_ifd( &sds->StA_Id , staid, "mixer id" );
 		Processor_class::Push_ifd( &sds->StA_amp_arr[staid] , end, "% slide duration " );
@@ -710,13 +768,27 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	}
 
 	// e.g. rec play notes|free
+	// rec play #1 [on|off]
 	if ( Cmpkeyword( "play") )
 	{
-		expect = {"free"};
+		expect = { "on", "off" };
 		keyword.Str = pop_stack( 1);
-		if ( Cmpkeyword( "free") )
+		if( Cmpkeyword( "off" ) )
 		{
-			Processor_class::Push_key( PLAYNOTESRECOFF_KEY, "free mode" );
+			expect			= { "StA Id" };
+			StAId_e	staid	= pop_T( staid_range );
+			Processor_class::Push_ifd( &sds->StA_Id , staid, "StA id" );
+			Processor_class::Push_ifd( &sds->StA_state_arr[staid].play, false, "off" );
+			Processor_class::Push_key( SETSTA_KEY		, "set StA State" );
+			return;
+		}
+		if( Cmpkeyword( "on" ) )
+		{
+			expect			= { "StA Id" };
+			StAId_e	staid	= pop_T( staid_range );
+			Processor_class::Push_ifd( &sds->StA_Id , staid, "StA id" );
+			Processor_class::Push_ifd( &sds->StA_state_arr[staid].play, true, "on" );
+			Processor_class::Push_key( SETSTA_KEY		, "set StA State" );
 			return;
 		}
 		Wrong_keyword( expect , keyword.Str );
@@ -737,7 +809,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 		StAId_e	staid	= pop_T( staid_range );
 		Comment( INFO, "mute memory array: " + to_string(staid) );
 		Processor_class::Push_ifd( &sds->StA_Id, staid, "sound" );
-		Processor_class::Push_key(MUTEREC_KEY,  "stop sound" );
+		Processor_class::Push_key(MUTESTA_KEY,  "stop sound" );
 		return;
 	}
 
@@ -804,12 +876,12 @@ void Interpreter_class::Adsr( vector_str_t arr )
 	if ( Cmpkeyword( "beat") )
 	{
 		Comment( INFO, "beat duration is set to: " + stack[0] );
-		expect 		= bps_struct().Bps_str_set;
-		string 	Bps = pop_stack(1 );
-		uint8_t	bps	= char2int( Bps[0]);
-		if ( not bps_struct().Bps_set.contains( bps ) )
+		expect 		= Bps.Bps_str_set;
+		string 	bps_str = pop_stack(1 );
+		uint8_t	bps	= char2int( bps_str[0]);
+		if ( not Bps.Bps_set.contains( bps ) )
 		{
-			Wrong_keyword( expect , Bps );
+			Wrong_keyword( expect , bps_str );
 			If_Exception( "wrong beat duration" );
 		}
 
@@ -1038,10 +1110,23 @@ bool Interpreter_class::check_count( vector_str_t arr, size_t min_size )
 	}
 	return true;
 }
+
+template< typename Arg>
+void Interpreter_class::wrong_argument( set<string> expected , Arg given )
+{
+	error = 1;
+	Comment( WARN, "unhandled argument: ", given );
+	Comment( INFO, "expected: "  );
+	for ( string expect : expected )
+		cout << expect << endl;
+	if ( dialog_mode ) return;
+	If_Exception( "processing failed" );
+}
+
 void Interpreter_class::Wrong_keyword( set<string> expected , string given )
 {
 	error = 1;
-	Comment( WARN, "unhandled keyword: " + given );
+	Comment( WARN, "unhandled argument: ", given );
 	Comment( INFO, "expected: "  );
 	for ( string expect : expected )
 		cout << expect << endl;

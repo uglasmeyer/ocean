@@ -31,6 +31,7 @@ SOFTWARE.
 
 
 #include <include/Spectrum_dialog.h>
+#include <Oscwaveform.h>
 
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
 											 Dataworld_class* 	data ,

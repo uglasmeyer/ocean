@@ -49,7 +49,6 @@ extern void 			errorCallback		( RtAudioErrorType, const std::string& txt );
 class Audio_class
 	: virtual public	Logfacility_class
 {
-	string 				className 			= "";
 	typedef struct 		device_struct
 	{
 		uint 	Index;
@@ -62,10 +61,11 @@ class Audio_class
 	RtAudio::
 	StreamParameters	streamParams 		{};
 	RtAudio::
-	StreamOptions		streamOptions 		= {	.flags 				= RTAUDIO_HOG_DEVICE,
-												.numberOfBuffers 	= 2,
-												.streamName 		= Application,
-												.priority			= 0
+	StreamOptions		streamOptions 		= {
+											.flags 				= RTAUDIO_HOG_DEVICE,
+											.numberOfBuffers 	= 2,
+											.streamName 		= Application,
+											.priority			= 0
 											};
 	uint				bufferFrames		= chunksize;
 	uint				sample_rate			;
@@ -79,13 +79,12 @@ public:
 	Audio_class( Config_class* cfg )
 		: Logfacility_class("Audio_class")
 	{
-		className 				= Logfacility_class::className;
-		this->sample_rate		= cfg->Config.rate;
-		this->frame 			= ( frame_t* )calloc( cfg->Config.channel, sizeof( frame_t ) );
-		deviceIds 				= Rt.getDeviceIds();
-		deviceNames 			= Rt.getDeviceNames();
+		this->sample_rate			= cfg->Config.rate;
+		this->frame 				= ( frame_t* )calloc( cfg->Config.channel, sizeof( frame_t ) );
+		deviceIds 					= Rt.getDeviceIds();
+		deviceNames 				= Rt.getDeviceNames();
 
-		Rt.showWarnings			( true );
+		Rt.showWarnings				( true );
 		streamParams.nChannels 		= cfg->Config.channel;
 		streamParams.firstChannel 	= cfg->Config.ch_offs;
 		streamParams.deviceId 		= getDeviceDescription( cfg->Config.device );

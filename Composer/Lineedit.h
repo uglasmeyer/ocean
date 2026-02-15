@@ -33,7 +33,6 @@ SOFTWARE.
 #define LINEEDIT_H_
 
 #include <Composer/Interpreter_base.h>
-#include <Kbd.h>
 
 
 /**************************************************

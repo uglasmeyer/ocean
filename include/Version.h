@@ -38,7 +38,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 4
-#define PATCH 0
+#define PATCH 1
 #define SDS_VERSION 48
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -60,6 +60,7 @@ const string License_text = R"(
 
 /*
 
+4.1.1-48 stabalized usability features
 4.4.0.48 switch back to prev_roleId if current wave display is dectivated
 4.3.1.46 no audio during dut desk dialog
 4.3.0-46 save keyboard notes

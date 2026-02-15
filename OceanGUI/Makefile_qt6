@@ -385,10 +385,10 @@ moc_Cutterdialog.cpp: include/Cutterdialog.h \
 		../include/data/Statistic.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
+		../include/Osctypes.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
 		../include/EventKeys.h \
@@ -422,10 +422,10 @@ moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/data/Statistic.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
+		../include/Osctypes.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
 		../include/EventKeys.h \
@@ -439,12 +439,12 @@ moc_Keyboad_dialog.cpp: include/Keyboad_dialog.h \
 		../include/data/EventQue.h \
 		../include/data/Appstate.h \
 		../include/Keyboard.h \
+		../include/notes/Notes.h \
 		../include/Instrument.h \
 		../include/data/Device.h \
 		../include/Oscgroup.h \
 		../include/Osc.h \
 		../include/Wavedisplay.h \
-		../include/notes/Notes.h \
 		../include/notes/MusicXML.h \
 		moc_predefs.h \
 		/usr/lib/qt6/libexec/moc
@@ -458,9 +458,9 @@ moc_File_Dialog.cpp: include/File_Dialog.h \
 		../include/notes/Notes.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
-		../include/String.h \
 		../include/Frequency.h \
-		../include/Oscwaveform.h \
+		../include/Osctypes.h \
+		../include/String.h \
 		../include/Table.h \
 		../include/data/DataWorld.h \
 		../include/data/Interface.h \
@@ -513,10 +513,10 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/data/Statistic.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
+		../include/Osctypes.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
 		../include/EventKeys.h \
@@ -559,12 +559,12 @@ moc_Spectrum_dialog.cpp: include/Spectrum_dialog.h \
 		../include/Ocean.h \
 		../include/Spectrum.h \
 		../include/Dynamic.h \
+		../include/Frequency.h \
+		../include/Osctypes.h \
 		../include/Logfacility.h \
 		../include/Utilities.h \
 		../include/Kbd.h \
 		../include/String.h \
-		../include/Frequency.h \
-		../include/Oscwaveform.h \
 		../include/Table.h \
 		../include/data/Interface.h \
 		../include/data/SharedDataSegment.h \
@@ -614,10 +614,10 @@ moc_Rtsp_dialog.cpp: include/Rtsp_dialog.h \
 		../include/data/Statistic.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
+		../include/Osctypes.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
 		../include/EventKeys.h \
@@ -657,10 +657,10 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/data/Statistic.h \
 		../include/Adsr.h \
 		../include/Oscbase.h \
+		../include/Osctypes.h \
 		../include/data/Memory.h \
 		../include/Dynamic.h \
 		../include/Frequency.h \
-		../include/Oscwaveform.h \
 		../include/Mixerbase.h \
 		../include/Spectrum.h \
 		../include/EventKeys.h \

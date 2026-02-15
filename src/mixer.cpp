@@ -39,7 +39,7 @@ SOFTWARE.
 Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 	: Logfacility_class	("Mixer_class")
 	, Interface_base	( data )
-	, RecMono_mem		( audiobuffer_bytes )
+	, RecMono			( audiobuffer_bytes )
 	, Out				( sizeof_Stereo, Stereoaudio_bytes )
 	, DynVolume			( volidx_range )
 
@@ -84,7 +84,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		for ( uint n : StAIds )
 			StA[n].Memory_base::DsInfo();
 
-		RecMono_mem.DsInfo		( "Mono data");
+		RecMono.DsInfo		( "Mono data");
 		Out.DsInfo		( );
 	}
 };
@@ -105,26 +105,16 @@ void Mixer_class::BeatClock( const uint8_t& bps )
 	if ( ( bps > 0 ) and ( bps < measure_parts ) )
 	{
 		beat_clock = ( beat_clock + 1 ) % ( measure_parts / bps );
-		state.sync = ( beat_clock == 0 ); //follow instrument rythm if there is any
+		state.sync = ( beat_clock == 0 ); //follow instrument rythm if there is any (bps>0)
 	}
 	else
-		state.sync = true; // no rythm
-
-	// switch the record mode only if state.sync and trigger is active
-	if( state.sync )
 	{
-		for( StAId_e staid : StAIds )
-		{
-			if ( StA[staid].beattrigger.local_data.active )
-			{
-				StA[staid].Record_mode( sds_p->StA_state_arr[staid].store );
-				StA[staid].beattrigger.local_data.active = false; // trigger work is done
-			}
-		}
-		Comment( Logmask(DEBUG), state.sync, StA[0].beattrigger.local_data.active,
-								sds_p->StA_state_arr[0].store, StA[0].state.Store() );
+		beat_clock = ( beat_clock + 1 ) % ( measure_parts );
+		state.sync = true; // no rythm
 	}
 	sds_p->mixer_state.sync = state.sync;
+
+	// reset Audiovolume
 	if( beat_clock == 0 )
 		sds_master->overmodulated = false;
 
@@ -146,7 +136,7 @@ void Mixer_class::clear_temporary_memory()
 {
 	// clear temporary memories
 	Out.Clear_data();
-	RecMono_mem.Clear_data(0);
+	RecMono.Clear_data(0);
 }
 
 
@@ -193,9 +183,10 @@ void Mixer_class::dumpStA( Storage_class& sta )
 
 }
 
-
 void Mixer_class::auto_volume( const StAId_e& id)
 {
+	if ( id == STA_SIZE )
+		return;
 	if( sds_p->StA_amp_arr[id] == 0 )
 	{
 		sds_p->StA_amp_arr[id] = osc_default_volume;
@@ -220,6 +211,8 @@ void Mixer_class::set_play_mode( const StAId_e& id, bool mode )
 
 bool Mixer_class::setFillState( StAId_e id )
 {
+	if ( id == STA_SIZE )
+		return false;
 	// achieve consistency between involved parties
 	bool	filled							= ( StA[id].scanner.Get_filled() );
 			sds_p->StA_state_arr[id].filled = filled;
@@ -230,6 +223,8 @@ bool Mixer_class::setFillState( StAId_e id )
 void Mixer_class::SetStAProperties( StAId_e staId )
 {	// distribution of sds_p->StA_state_arr into StA[].state
 
+	if( staId == STA_SIZE )
+		return;
 	Storage_class* sta = &StA[staId];
 
 	sta->state.Set( sds_p->StA_state_arr[staId] );
@@ -262,11 +257,12 @@ void Mixer_class::SetStAs()
 }
 
 
-void Mixer_class::Add_mono( Data_t* Data, const uint& id )
-// sample Data for different sound devices
+void Mixer_class::Add_mono( Data_t* deviceData, const uint& id )
+// collect Data from different sound devices  StAs
 // by applying mixer volume per device
 {								//U0  U1  U2  U3  In  Kb  Nt  Ex
-	if( Data == nullptr ) return;
+	if( deviceData == nullptr )
+		return;
 
 	auto delete_after_read = [ ]( Data_t* Data, buffer_t frames )
 	{
@@ -285,13 +281,14 @@ void Mixer_class::Add_mono( Data_t* Data, const uint& id )
 	{
 		float
 		volpermill 					= StA[id].DynVolume.Get() * 0.1;
-		Out.stereo_data[n].left 	+= rint( Data[n] * phase_l[id] * volpermill );
-		Out.stereo_data[n].right 	+= rint( Data[n] * phase_r[id] * volpermill );
-		RecMono_mem.Data[n]  		+= rint( Data[n] );	// collect mono data for sta store
+		Out.stereo_data[n].left 	+= rint( deviceData[n] * phase_l[id] * volpermill );
+		Out.stereo_data[n].right 	+= rint( deviceData[n] * phase_r[id] * volpermill );
+		RecMono.Data[n]  			+= rint( deviceData[n] );	// collect mono data for sta store
 	}
 	StA[id].DynVolume.Update();
+
 	if( StA[ id ].state.Forget() )
-		delete_after_read( Data, sds_master->audioframes );
+		delete_after_read( deviceData, audio_frames );
 
 }
 
@@ -337,7 +334,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 {
 
 	if( not shm_addr ) return;
-	clear_temporary_memory();
+//	clear_temporary_memory();
 
 	if ( state.mute )
 	{
@@ -345,7 +342,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		return;
 	}
 
-	// add osc sound
+	// read sound from devices and store to RecMono
 	if ( state.instrument )
 	{
 		Add_mono( instrument_Data, STA_INSTRUMENT );
@@ -369,24 +366,22 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		if ( sta.state.Play() and ( not sta.state.Store()) ) //don't play if record
 		{
 			Data_t* StAdata = sta.scanner.Next_read();
-			if ( StAdata )
-			{
-				Add_mono( StAdata, staId );
-			}
+			Add_mono( StAdata, staId );
 		}
 	}
+
 	// write sound to StA
 	for ( StAId_e staId : RecIds )
 	{
-		Storage_class& sta = StA[staId];
-		if( sta.state.Store() )
-			sta.Store_record( RecMono_mem.Data );
 		if( state.sync ) // sync from beatclock
-			sds_p->StA_state_arr[staId].store = StA[staId].state.Store();
-
+		{
+			StA[staId].state.Store( sds_p->StA_state_arr[staId].store );
+		}
+		StA[staId].Store_record( RecMono.Data );
 		setFillState( staId );
 	}
 
+	RecMono.Clear_data( 0 );// no longer needed
 	AddStereo( shm_addr ); 	// push sound to audio server
 
 };

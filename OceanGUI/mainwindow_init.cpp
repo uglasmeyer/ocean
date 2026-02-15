@@ -30,7 +30,83 @@ SOFTWARE.
  */
 
 #include <include/Mainwindow.h>
+#include <Oscwaveform.h>
 
+/**************************************************
+ * WfDisplay_que_struct
+ *************************************************/
+WfDisplay_que_struct::WfDisplay_que_struct( interface_t* _sds, sta_role_map* _map )
+{
+	this->sds			= _sds;
+	this->roleMap		= _map;
+	this->debug			= false;
+	Init				();
+}
+void WfDisplay_que_struct::Add( RoleId_e role )
+{
+	if ( Vec.size() == 0 )
+	{
+		Vec.push_back	( role );
+	}
+	if( Vec.back() != role )
+	{
+		Vec.push_back	( role );
+	}
+	prev_role		= Vec.back();
+	Set_prev();
+}
+void WfDisplay_que_struct::Init()
+{
+	Vec.clear			();
+	for( StAId_e staid : StAIds )
+	{
+		if( sds->StA_state_arr[ staid ].play )
+			Add( roleMap->GetRoleid( staid) );
+	}
+	Set_prev();
+}
+void WfDisplay_que_struct::Remove( RoleId_e role )
+{
+	if( Vec.empty() )
+	{
+		Add( sds->WD_state.roleId );
+		return;
+	}
+	else
+	{
+		vector<RoleId_e> tmp{};
+		for( RoleId_e _role : Vec )
+		{
+			if( role != _role )
+				tmp.push_back( _role );
+		}
+		Vec = tmp;
+	}
+	Set_prev();
+}
+void WfDisplay_que_struct::Set_prev()
+{
+	if( Vec.size() == 0 )
+		prev_role = sds->WD_state.roleId;
+	else
+		prev_role = Vec.back();
+	sds->WD_state.roleId = prev_role;
+
+	Show();
+}
+void WfDisplay_que_struct::Show()
+{
+	if ( debug )
+		coutf << 	"Display_fifo RoleIds: (" <<
+					(int)sds->WD_state.roleId << "," <<
+					(int)prev_role << ") " <<
+					show_items( Vec ) << endl;
+}
+
+
+/**************************************************
+ * MainWindow
+ *************************************************/
 void MainWindow::initPanel()
 {
     // https://stackoverflow.com/questions/17095957/qt-creator-and-main-window-background-image
@@ -103,19 +179,7 @@ std::vector<T> arrayToVector(const std::array<T, N>& arr)
     return std::vector<T>(arr.begin(), arr.end());
 }
 
-void MainWindow::initPrev_role_vec( )
-{
 
-	for( StAId_e staid : StAIds )
-	{
-		if( sds_p->StA_state_arr[ staid ].play )
-			prev_wdrole_vec.push_back( StaRole_map.GetRoleid( staid) );
-	}
-	if ( prev_wdrole_vec.size() == 0 )
-		set_wdrole( INSTRROLE );
-	else
-		set_wdrole( prev_wdrole_vec.back() );
-};
 
 void MainWindow::initStateButtons()
 
@@ -131,7 +195,7 @@ void MainWindow::initStateButtons()
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
 
 
-	Qwd_role_names 	= Vstringvector( arrayToVector( roleNames ) );
+	Qwd_role_names 	= Vstringvector( roleNames );
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_state.roleId ]);
 
     setButton( ui->pB_Rtsp, 2 );
@@ -261,7 +325,7 @@ void MainWindow::initUiConnectors()
     connect(ui->pBGuiExit		, SIGNAL(clicked() )		,this, SLOT(GUI_Exit() ));
     connect(ui->pBtoggleRecord	, SIGNAL(clicked(bool) )	,this, SLOT(SaveRecord() ));
     connect(ui->pB_Mute			, SIGNAL(clicked() )		,this, SLOT(toggle_Mute() ));
-    connect(ui->pB_Mute_StA		, SIGNAL(clicked() )		,this, SLOT(Clear_Banks() ));
+    connect(ui->pB_Mute_StA		, SIGNAL(clicked() )		,this, SLOT(clear_StAs_play() ));
     connect(ui->pB_Save			, SIGNAL(clicked() )		,this, SLOT(Save_Config() ));
     connect(ui->pb_clear		, SIGNAL(clicked() )		,this, SLOT(memory_clear() ));
 

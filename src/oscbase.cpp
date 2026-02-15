@@ -31,17 +31,15 @@ SOFTWARE.
 
 #include <Oscbase.h>
 
-Oscillator_base::Oscillator_base( OSCID_e osc_type ) :
-	Logfacility_class	( "Oscillator_base" )
-	, typeId			( osc_type )
-	, DynFrequency		(  frqext_range )
+Oscillator_base::Oscillator_base(  OSCID_e osc_type, RoleId_e role  )
+	: Logfacility_class	( "Oscillator_base" )
+	, osctype_struct	( osc_type, role )
+	, DynFrequency		( frqext_range )
+	, Bps				()
+	, spectrum			()
 {
 	this->spectrum		= default_spectrum;
 	this->spectrum.osc 	= osc_type;
-	this->is_osc_type 	= ( typeId == OSCID );
-	this->is_fmo_type	= ( typeId == FMOID );
-	this->is_vco_type	= ( typeId == VCOID );
-
 
 	this->Connect		= { osc_type, osc_type };
 };
@@ -70,7 +68,7 @@ void Oscillator_base::Set_pmw( uint8_t pmw )
 	features.PWM = pmw;
 }
 
-void Oscillator_base::Set_slideFrq( uint8_t value )
+void Oscillator_base::SetSlider_frq( uint8_t value )
 {
 	features.slide_frq = value;
 }

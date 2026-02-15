@@ -80,7 +80,6 @@ auto set_cb_filled_value = [  ]( MainWindow* M  )
 
 MainWindow::MainWindow(	QWidget *parent ) :
 		Logfacility_class( "OceanGUI" ),
-		osc_struct(),
 		Bps(),
 		ui(new Ui::MainWindow{} )
 {
@@ -96,7 +95,6 @@ MainWindow::MainWindow(	QWidget *parent ) :
 	Sds->Set( Sds->addr->UpdateFlag, true);
 
     initGuiVectors( Sds->addr );
-	initPrev_role_vec();
 
 	initStateButtons();
     initOscillatorDisplay();
@@ -164,21 +162,16 @@ void MainWindow::chord_delay()
 }
 void MainWindow::set_wdrole( RoleId_e roleid )//TODO
 {
-	Sds->Set( sds_p->WD_state.prevroleId, sds_p->WD_state.roleId );
-	Sds->Set( sds_p->WD_state.roleId, roleid );
-	prev_wdrole_vec.push_back( roleid );
-	coutf << show_items( prev_wdrole_vec ) << endl;
+	WfDisplay_que.Add( roleid );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
 }
-void MainWindow::unset_wdrole( RoleId_e roleid )//TODO
+
+void MainWindow::unset_wdrole( RoleId_e role )//TODO
 {
-	if( not prev_wdrole_vec.empty() )
-		prev_wdrole_vec.pop_back();
-	RoleId_e role = prev_wdrole_vec.back();
-	Sds->Set( sds_p->WD_state.roleId, role );
-	coutf << show_items( prev_wdrole_vec ) << endl;
-	Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
+	WfDisplay_que.Remove( role );
+    Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
 }
+
 void MainWindow::wavfile_selected( const QString &arg)
 {
     string str = arg.toStdString();
@@ -389,10 +382,11 @@ void MainWindow::setStaPlay( StAId_e staid )
     bool 	play		= not sds_p->StA_state_arr[staid].play ;
     		Sds->Set	( Sds->addr->StA_state_arr[staid].play, play );
     		Sds->Set	( Sds->addr->StA_Id , staid );
+    RoleId_e role		= StaRole_map.GetRoleid( staid );
     		if( play )
-    			set_wdrole	( StaRole_map.GetRoleid( staid ) );
+    			set_wdrole	( role );
     		else
-    			unset_wdrole	( sds_p->WD_state.prevroleId );
+    			unset_wdrole( role );
 
     		Eventlog.add( SDS_ID, SETSTA_KEY );
 }
@@ -567,18 +561,20 @@ void MainWindow::slideVol( int value )
     Eventlog.add( 0, MASTERAMP_KEY);
 }
 
-void MainWindow::Clear_Banks()
+void MainWindow::clear_StAs_play()
 {
 	for( cb_state_t map : cb_play_sta_vec )
 		map.cb->setChecked(false);
-    Eventlog.add( SDS_ID, MUTEMBKEY);
+    Eventlog.add( SDS_ID, STAS_CLEARPLAY_KEY );
 }
 void MainWindow::toggle_Mute()
 {
-    bool mute_flag 	= not Sds->addr->mixer_state.mute ;
-    Eventlog.add( SDS_ID, MASTERAMP_MUTE_KEY);
-    QString Qstr = mute_flag ? "UnMute" : "Mute";
-    ui->pB_Mute->setText( Qstr );
+	Eventlog.add( SDS_ID, MASTERAMP_MUTE_KEY);
+	return;
+    bool	mute_flag 	= not Sds->addr->mixer_state.mute ;
+    QString Qstr 		= mute_flag ? "UnMute" : "Mute";
+   			Sds->Set	( sds_p->mixer_state.mute, mute_flag );
+   			ui->pB_Mute->setText( Qstr );
 }
 
 
@@ -834,9 +830,9 @@ void MainWindow::pB_oscgroup_clicked()
 void MainWindow::pB_Wavedisplay_clicked()
 {
 	RoleId_e 	prev_role	= Sds->addr->WD_state.roleId;
+	unset_wdrole			( prev_role );
 	RoleId_e 	role	 	= RoleId_e( ( prev_role + 1 ) %  WD_ROLES_SIZE ) ;
-				unset_wdrole( prev_role );
-				set_wdrole	( role );
+	set_wdrole				( role );
 };
 
 void MainWindow::pB_fftmode_clicked()

@@ -127,7 +127,7 @@ struct keymap_struct
  *************************************************/
 class Kbd_base
 {
-public:             // Access specifier
+public:
 
 	typedef struct key_union_struct
 	{
@@ -137,6 +137,7 @@ public:             // Access specifier
 			array<uint8_t,8> 	Arr;
 		};
 	} key_union_t;
+
 	typedef struct key_struct :
 		key_union_struct
 	{
@@ -175,14 +176,14 @@ private:
 
 	struct termios 	old_flags 	;
 
-	struct termios 	new_flags 	= {0};
-	key_union_struct buf8		{};
-	long int*		buf8_p		= &buf8.Int;
-	kbdkey_t		key8		= key_struct();
+	struct termios 	new_flags 	;
+	key_union_struct buf8		;
+	long int*		buf8_p		;
+	kbdkey_t		key8		;
 };
 
 typedef Kbd_base::key_struct
-					key3struct_t;
+					kbdkey_t;
 
 
 

@@ -37,15 +37,13 @@ inline string alpha( bool flag )
 	return ( flag ) ? "true" : "false";
 }
 
-ADSR_class::ADSR_class( RoleId_e roleId, OSCID_e _typeid )
+ADSR_class::ADSR_class( OSCID_e _typeid, RoleId_e roleId )
 	: Logfacility_class	("ADSR_class")
 	, Spectrum_class	()
-	, Oscillator_base	( _typeid )
+	, osctype_struct	( _typeid, roleId )
+	, Oscillator_base	( _typeid, roleId )
 	, adsr_Mem			( max_frames*sizeof_Data )
 {
-	this->has_kbd_role	= ( roleId == KBDROLE );
-	this->has_notes_role= ( roleId == NOTESROLE );
-	this->has_instr_role= ( roleId == INSTRROLE );
 	this->tainted		= true; // becomes true if adsr_data changes
 	this->beat_frames	= max_frames;
 	this->adsr_wp_frames= max_frames;
@@ -77,10 +75,12 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 {
 	if ( not kbdattack )
 	{
-		if ( adsr_data.bps	== 0 ) return;
+		if ( adsr_data.bps	== 0 )
+			return;
 	}
 
-	if ( beat_frames 	== 0 ) return;
+	if ( beat_frames 	== 0 )
+		return;
 	if ( tainted )
 		adsrOSC( beat_frames );
 
@@ -138,7 +138,7 @@ auto adsr_fnc = [  ]( buffer_t n, const adsr_param_t p  )
 	}
 };
 
-void ADSR_class::adsrOSC( const buffer_t& bframes )
+void ADSR_class::adsrOSC( buffer_t bframes )
 {
 
 	if ( not tainted ) 			return;
@@ -221,10 +221,10 @@ void ADSR_class::Set_feature( feature_t f )
 {
 	features = f;
 }
-void ADSR_class::KbdAttack( uint8_t bps )
+void ADSR_class::KbdAttack( uint8_t bpsidx )
 {
 	tainted 	= true;
-	kbdbps 		= bps;
+	kbdbps 		= Bps.Bps_vec[bpsidx];
 	kbdattack	= ( kbdbps == 0 ) ? true : false;
 	Set_bps		();
 	Comment( DEBUG, "KbdAttack::", osctype_name, alpha(kbdattack) );
@@ -249,13 +249,13 @@ void ADSR_class::Set_bps( uint8_t beatclock )
 			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else
 		{
-			if ( kbdattack )
+			if ( kbdattack ) // generate new adsr
 				beat_frames = adsr_frames;
 			else
 				beat_frames = 0;
 		}
 
-		if ( beatclock > 0 )
+		if ( beatclock > 0 ) // generate new adsr
 			beat_frames = rint( beat_frames / beatclock );
 		else
 		{

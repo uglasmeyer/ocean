@@ -33,16 +33,14 @@ SOFTWARE.
 
 // https://cp-algorithms.com/algebra/fft.html
 
-//using cd_t = complex<double>;
 const double PI = acos(-1);
 
 wd_arr_t fft(cd_vec_t data, bool invert)
 {
 	// assure data_len is power of 2
-	uint data_len = 512;// ;
-    if ( data.size() < 512 )
-    	data_len = 256;
-
+	uint data_len = 1024;// ;
+	if(  data.size() < 1024 )
+		data_len	= 512;
     // prepare data
     for ( uint i = 1, j = 0; i < data_len; i++)
     {

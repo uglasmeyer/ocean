@@ -85,7 +85,7 @@ void keyboardState_class::reset_flats()
 	sds->Kbd_state.flats 		= 0;
 }
 
-bps_struct_t Bps {};
+bps_t Bps {};
 void keyboardState_class::set_kbdbps()
 {
 	// overwrite Instrument beat counter
@@ -138,7 +138,7 @@ void Keyboard_class::notekey( char ch )
 			SetChord	( ch );
 	char	note_char	= SetPitchVec( ch ) ;
 
-	if ( pitch_vec.size() > 0 )
+	if ( chord.size() > 0 )
 	{
 		if( note_char != NONOTE )
 		{

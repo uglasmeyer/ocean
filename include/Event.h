@@ -39,10 +39,14 @@ SOFTWARE.
 #include <notes/MusicXML.h>
 #include <Mixer.h>
 #include <data/Sdsbase.h>
+#include <External.h>
 
+/**************************************************
+ * Event_class
+ * manage Synthesizer events from OceanGUI, Composer
+ *************************************************/
 class Event_class
 	: virtual public 	Logfacility_class
-	, virtual			osc_struct
 	, 					sdsstate_struct
 {
 	StAExternal_class	StAExternal;
@@ -74,33 +78,11 @@ public:
 				Dataworld_class*	data,
 				External_class*		external,
 				ProgressBar_class*	progressbar,
-				CutDesk_class*		cutter )
-		: Logfacility_class("Event_class")
-		, sdsstate_struct()
-	, StAExternal( &mixer->StA, data->Cfg_p, data->Sds_p->addr )
-	{
-		this->DaTA			= data;
-		this->Sds			= DaTA->Sds_p;
-		this->Sds_master	= DaTA->Sds_master;
-		this->sds_master	= DaTA->sds_master;
-		this->sds_p 			= Sds->addr;
-		this->Sem			= DaTA->Sem_p;
-		this->EventQue		= &DaTA->Sds_p->Eventque;
-		this->Instrument 	= instrument;
-		this->Notes			= notes;
-		this->Keyboard		= keyboard;
-		this->Mixer			= mixer;
-		this->Wavedisplay	= wavedisplay;
-		this->External		= external;
-		this->ProgressBar	= progressbar;
-//		this->MusicXML		= musicxml;
-		this->Appstate		= &DaTA->Appstate;
-		this->CutDesk		= cutter;
-	};
-	virtual ~Event_class() = default;
+				CutDesk_class*		cutter );
+	virtual 	~Event_class() = default;
 
-	void Handler( );
-	void TestHandler();
+	void 		Handler( );
+	void 		TestHandler();
 
 private:
 

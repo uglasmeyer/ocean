@@ -66,6 +66,7 @@ public:
 	virtual 				~Interface_class	();
 
 
+	void 					Activate_sds		();
 	void					Setup_SDS			( Id_t sdsid, key_t key );
 	void 					Set_dumpFile		( string dir, uint8_t sdsid );
 	void 					Write_arr			( const wd_arr_t& arr );

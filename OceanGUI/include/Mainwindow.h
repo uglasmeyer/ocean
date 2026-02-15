@@ -61,13 +61,38 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+/**************************************************
+ * WfDisplay_que_struct
+ *************************************************/
+struct WfDisplay_que_struct
+{
+	typedef vector<RoleId_e>
+					roleid_vec_t;
 
+    roleid_vec_t	Vec					{};
+    RoleId_e		prev_role			;
+    interface_t*	sds					;
+    sta_role_map*	roleMap				;
+    bool			debug				;
 
-class MainWindow :
-		public QMainWindow,
-		virtual Logfacility_class,
-		virtual wavedisplay_struct,
-		osc_struct
+					WfDisplay_que_struct( interface_t* _sds, sta_role_map* _map );
+					~WfDisplay_que_struct() = default;
+	void 			Add					( RoleId_e role );
+	void 			Init				();
+	void 			Remove				( RoleId_e role );
+	void 			Set_prev			();
+	void 			Show				();
+
+};
+
+/**************************************************
+ * MainWindow
+ *************************************************/
+class MainWindow
+	: public QMainWindow
+	, virtual Logfacility_class
+	, virtual wavedisplay_struct
+
 {
     Q_OBJECT
 
@@ -120,7 +145,7 @@ public:
     vector<QRadioButton*> 	rb_S_vec 			{};
 
     sta_role_map 			StaRole_map 		= sta_role_map();
-    vector<RoleId_e>		prev_wdrole_vec		{};
+    WfDisplay_que_struct	WfDisplay_que		{ sds_p, &StaRole_map };
     const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
 
     typedef struct cb_state_map
@@ -191,7 +216,6 @@ private:
     void initLables();
     void initUiConnectors();
     void initTimer();
-    void initPrev_role_vec();
     void sliderFreq( sl_lcd_t map, int value );
     void sliderVolume( sl_lcd_t map );
     void mixer_slider( sl_value_t map );
@@ -266,7 +290,7 @@ private slots:
     void SaveRecord();
     void read_polygon_data();
 
-    void Clear_Banks();
+    void clear_StAs_play();
 
     void setStaPlay0();
     void setStaPlay1();

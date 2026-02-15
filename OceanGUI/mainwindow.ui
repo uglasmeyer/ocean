@@ -1143,14 +1143,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>Mute</string>
+     <string>Clear</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>140</y>
+      <y>110</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -1345,7 +1345,7 @@ Instruments</string>
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>80</y>
+      <y>50</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -1518,14 +1518,14 @@ Instruments</string>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>200</y>
-      <width>61</width>
+      <x>610</x>
+      <y>170</y>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Notes/measure</string>
+     <string>Instrument Bps</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -1657,7 +1657,7 @@ Instruments</string>
    <widget class="QComboBox" name="CB_kbd_bps">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>700</x>
       <y>200</y>
       <width>41</width>
       <height>25</height>
@@ -1699,7 +1699,7 @@ Instruments</string>
    <widget class="QPushButton" name="pb_fftmode">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>480</x>
       <y>230</y>
       <width>81</width>
       <height>26</height>
@@ -1840,6 +1840,9 @@ Instruments</string>
     <property name="maximum">
      <number>100</number>
     </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
     <property name="pageStep">
      <number>10</number>
     </property>
@@ -1862,15 +1865,21 @@ Instruments</string>
     <property name="maximum">
      <number>100</number>
     </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Orientation::Vertical</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::TickPosition::TicksBothSides</enum>
     </property>
    </widget>
    <widget class="QScrollBar" name="hs_hall_effect">
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>80</y>
+      <y>50</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1892,7 +1901,7 @@ Instruments</string>
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>110</y>
+      <y>80</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -1920,7 +1929,7 @@ Instruments</string>
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>110</y>
+      <y>80</y>
       <width>50</width>
       <height>17</height>
      </rect>
@@ -1930,29 +1939,37 @@ Instruments</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="cb_connect_vcov">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>460</y>
+      <y>340</y>
       <width>111</width>
-      <height>24</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>connect VCO</string>
+     <string>FMO frq-&gt;
+VCO vol</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="cb_connect_fmov">
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>270</y>
+      <y>303</y>
       <width>111</width>
-      <height>24</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>connect FMO</string>
+     <string>VCO frq -&gt;
+FMO vol</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="cb_connect_oscv">
@@ -2194,20 +2211,20 @@ Instruments</string>
     <property name="geometry">
      <rect>
       <x>480</x>
-      <y>170</y>
+      <y>140</y>
       <width>50</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>delay</string>
+     <string>Delay</string>
     </property>
    </widget>
    <widget class="QScrollBar" name="hs_chord_delay">
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>170</y>
+      <y>140</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -2235,7 +2252,7 @@ Instruments</string>
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>140</y>
+      <y>110</y>
       <width>160</width>
       <height>16</height>
      </rect>
@@ -2272,14 +2289,14 @@ Instruments</string>
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>610</x>
       <y>200</y>
-      <width>61</width>
+      <width>91</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Beats/second</string>
+     <string>Keyboard Bps</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -2289,10 +2306,36 @@ Instruments</string>
     <property name="geometry">
      <rect>
       <x>700</x>
-      <y>200</y>
+      <y>170</y>
       <width>41</width>
       <height>25</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>280</y>
+      <width>151</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>sub connection</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>510</y>
+      <width>66</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>WAV file</string>
     </property>
    </widget>
   </widget>
