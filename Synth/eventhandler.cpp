@@ -575,7 +575,6 @@ void Event_class::Handler()
 	{
 		StAExternal.Convert_StA2WAV( CutDesk->StAId, CutDesk->restore_range );
 		DaTA->EmitEvent( RECORDWAVFILEFLAG, "update wav filelist" );
-
 		BREAK
 	}
 	case CUT_RESTORE_KEY	:

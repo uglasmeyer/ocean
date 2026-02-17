@@ -77,6 +77,13 @@ set<int> range_set( const int& min, const int& max )
 
 
 
+String::String( const string str ) :
+	Logfacility_class( "String_class" )
+{
+	this->Str = str;
+    this->Set = to_set( );
+    std::ranges::for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});
+}
 
 vector_str_t String::to_array( char ch )
 {
@@ -270,13 +277,6 @@ string String::to_lower()
 {
 	std::for_each( Str.begin(), Str.end(), [] ( char& ch ) { ch = tolower(ch) ; } );
 	return Str;
-}
-
-string String::to_hex( long value )
-{
-	stringstream ss;
-	ss << "0x" << uppercase << hex << value ;
-	return ss.str();
 }
 
 int String::to_int( const string& s )

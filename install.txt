@@ -28,6 +28,9 @@ $  . etc/ocean.rc
 $  OceanGUI
 
 check out the documentation OceanDev/doc/Ocean-SL_Usermanual.pdf for further
-information
+information.
+Remark: The layout of the UI is optimized for a screen resolutio of 1280x720
+(16:9).
+
 
 

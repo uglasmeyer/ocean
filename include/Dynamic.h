@@ -34,6 +34,20 @@ SOFTWARE.
 
 #include <Frequency.h>
 
+const vector<string> slidermodes =
+{
+	"Fixed",
+	"Slide",
+	"Combine"
+};
+enum DYNAMIC : unsigned char
+{
+	FIXED,
+	SLIDE,
+	COMBINE
+}; // frequency and volume change mode
+
+
 typedef struct state_struct
 {
 	float		present				= 0.0;

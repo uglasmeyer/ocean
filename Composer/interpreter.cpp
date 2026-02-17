@@ -274,7 +274,7 @@ void Interpreter_class::Dynamic( vector_str_t arr )
 	Intro( arr, 1 );
 	if( Cmpkeyword( "vol" ) )
 	{
-		expect = { show_range( volidx_range ) };
+		expect = { range_str( volidx_range ) };
 		uint8_t value = pop_T( volidx_range );
 		Processor_class::Push_ifd( &sds->vol_slidemode, SLIDE, "volume slide mode" );
 		Processor_class::Push_ifd( &sds->slide_duration, value, "dynamic volume" );
@@ -282,7 +282,7 @@ void Interpreter_class::Dynamic( vector_str_t arr )
 	}
 	if( Cmpkeyword( "frq" ) )
 	{
-		expect = { show_range( volidx_range ) };//0..100
+		expect = { range_str( volidx_range ) };//0..100
 		uint8_t value = pop_T( volidx_range );
 		Processor_class::Push_ifd( &sds->frq_slidermode, COMBINE, "frquency slide mode" );
 		Processor_class::Push_ifd( &sds->features[OSCID].slide_frq, value, "dynamic volume" );
@@ -1250,7 +1250,7 @@ T Interpreter_class::pop_T( range_T<T> range )
 		if ( not in_range( range, stack_value ) )
 		{
 			Comment( ERROR, "Value "+ Str.Str + " out of bounds" );
-			Comment( INFO, "rejected: ", show_range( range ), ",  ", Str.Str);
+			Comment( INFO, "rejected: ", range_str( range ), ",  ", Str.Str);
 			show_expected();
 			if( not LogMask[ TEST ])
 			{

@@ -235,16 +235,14 @@ Heap_Memory::Heap_Memory( buffer_t bytes ) :
 Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 	Logfacility_class		( "Storage_class" ),
 	Memory_base				( sizeof_Data, _param.size*sizeof_Data ),
-	param					( _param.name, _param.storage_time ),
+	param					( _param.name, _param.storage_time, _param.sta_dir ),
 	DynVolume				( volidx_range ),
 	scanner 				( Memory_base::Data, _param.size )
 
 {
 	this->Id				= id;
-	this->file				= "";
-	this->filename			= "";
-	this->touched			= false;
 
+	set_filename			( param.sta_dir, id );
 	Reset					( );
 	DsInfo					( param.name );
 
@@ -268,20 +266,20 @@ void Storage_class::Store_record( Data_t* src )
 	if ( not state.Store() )
 		return;
 
-				touched		= true;
 	buffer_t	offs 		= scanner.wpos;
-	for ( buffer_t n = 0; n < record_size; n++ )
+				touched		= true;
+	for ( buffer_t n = 0; n < min_frames; n++ )
 	{
 		Data[offs + n] = src[n];
 	}
 
-				scanner.Next_wpos		( record_size );
-				scanner.Set_fillrange	( scanner.wpos );
-				state.Store				( scanner.fillrange.max < scanner.mem_range.max );
-				records 				= scanner.fillrange.max / record_size;
+	scanner.Next_wpos		( min_frames );
+	scanner.Set_fillrange	( scanner.wpos );
+	state.Store				( scanner.fillrange.max < scanner.mem_range.max );
+	records 				= scanner.fillrange.max / min_frames;
 }
 
-void Storage_class::Store_counter( uint  _records )
+void Storage_class::Set_records( uint  _records )
 {
 	Assert_lt(  _records , mem_ds.max_records + 1, "mem_ds.max_records" );
 
@@ -290,11 +288,11 @@ void Storage_class::Store_counter( uint  _records )
 				scanner.Set_fillrange	( data_blocks );
 				scanner.Set_rpos		( 0 );
 				scanner.Set_wpos		( data_blocks );
-				if ( data_blocks > 0 ) // do not set wdsize to 0
-				{
-					param.wdsize		= data_blocks;
-					touched				= true;
-				}
+	if ( data_blocks > 0 ) // do not set wdsize to 0
+	{
+		param.wdsize		= data_blocks;
+		touched				= true;
+	}
 	Info( "StA", Id, "loaded", records, "records");
 }
 
@@ -313,7 +311,7 @@ void Storage_class::Reset( )
 	touched				= false;
 }
 
-void Storage_class::Set_filename( string dir, uint8_t sdsid )
+void Storage_class::set_filename( string dir, uint8_t sdsid )
 {
 	filename		= "StA_data"	+ to_string( Id ) + ".bin";
 	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";

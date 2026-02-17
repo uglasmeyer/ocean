@@ -30,8 +30,9 @@ SOFTWARE.
  */
 
 #include <Utilities.h>
+using namespace experimental;
 
-void Exception( string message, int signal, const experimental::source_location location )
+void Exception( string message, int signal, const source_location location )
 {
 	cout << "An application exception occured at:" << endl;\
 	show_source_location( location );
@@ -39,7 +40,7 @@ void Exception( string message, int signal, const experimental::source_location 
 	raise( signal );
 };
 
-void show_source_location( const experimental::source_location location )
+void show_source_location( const source_location location )
 {
 			cout << "file: "
               << location.file_name() << '('
@@ -49,7 +50,7 @@ void show_source_location( const experimental::source_location location )
 }
 
 void Assert_equalstr( string lhs, string rhs, string message ,
-		const experimental::source_location location )
+		const source_location location )
 {
 	bool comp = ( lhs.compare( rhs ) == 0 );
 	if ( not comp )

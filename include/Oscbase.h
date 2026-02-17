@@ -76,17 +76,17 @@ typedef	struct wave_struct
 typedef struct fmo_struct
 {
 	Heap_Memory*	Mem			= nullptr;
-	char 			osc_id		= DEFAULT_ID;
+	OSCID_e			osc_id		= FMOID;
 	uint16_t 		volume		= 0; // volume of the fm track
-	string			name		= "";
+	string			name		= "FMO";
 } fmo_t;  // all wave parameter for the fmo
 
 typedef struct vco_struct
 {
 	Heap_Memory*	Mem			= nullptr;
-	char 			osc_id		= DEFAULT_ID;
+	OSCID_e			osc_id		= VCOID;
 	uint16_t 		volume		= 0; // volume of the vc track
-	string			name		= "";
+	string			name		= "VCO";
 } vco_t;  // all wave parameter for vco
 
 typedef struct feature_struct

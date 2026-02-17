@@ -121,7 +121,7 @@ const bool External_class::Read_file_data(  )
 		Comment(INFO,"Bytes   ", mem_ds.bytes );
 		Comment(INFO,"Records ", mem_ds.max_records );
 		Comment(INFO,"Frames  ", mem_ds.data_blocks );
-		StA_ext->Store_counter( mem_ds.max_records );
+		StA_ext->Set_records( mem_ds.max_records );
 
 		return true;
 	}

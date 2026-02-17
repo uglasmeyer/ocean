@@ -305,7 +305,7 @@ void MainWindow::initGuiVectors( interface_t* sds)
     {
         { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &sds->spectrum_arr[VCOID].wfid[0] },
        	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &sds->spectrum_arr[FMOID].wfid[0] },
-       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_OSC, &sds->spectrum_arr[OSCID].wfid[0] }
+       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_osc, &sds->spectrum_arr[OSCID].wfid[0] }
     };
 }
 

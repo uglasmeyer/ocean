@@ -80,6 +80,8 @@ void CutDesk_Dialog_class::Step_to_end()
 }
 void CutDesk_Dialog_class::updateCutDesk()
 {
+	string	str = sds_p->Other;
+	ui->lbl_wav_file->setText( Qstring( str ) );
 	ui->lcdNumber->display( sds_p->WD_state.cursor.min );
 	ui->lcdNumber_2->display( sds_p->WD_state.cursor.max );
 	coutf << "CutDesk_Dialog_class::updateCutDesk" << endl;

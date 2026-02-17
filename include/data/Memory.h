@@ -189,16 +189,18 @@ struct 				Mem_param_struct
 	buffer_t		size 			;	// number of buffer frames
 	buffer_t		wdsize			;	// current frames of the wave display
 	uint8_t			storage_time	;	// storage time in seconds
+	string			sta_dir			;	// storage base directory
 	const static
 	buffer_t		block_size		= min_frames;  	// numer of read frames
-	Mem_param_struct( string _name, int _sec )
+	Mem_param_struct( string _name, int _sec, string _dir )
 	{
 		name 			= _name;
 		storage_time	= _sec;
 		size 			= frames_per_sec * _sec;
 		wdsize			= size;
+		sta_dir			= _dir;
 	};
-	~Mem_param_struct(){};
+	~Mem_param_struct()	= default;
 } 	;
 typedef				Mem_param_struct StA_param_t;
 
@@ -219,23 +221,24 @@ public:
 	StAstate_class 	state 			;
 	string			file			;
 	string			filename		;
-	bool			touched			;
+	bool			touched			; // indicate that the StA has data different from Zero
 
-	void 			Store_record		( Data_t* ) ;
+					Storage_class	( StAId_e id, StA_param_t param );
+	virtual 		~Storage_class	() = default;
+	void 			Store_record	( Data_t* ) ;
 	void 			Write_data		( Data_t* src, buffer_t frames, const float volume );//, const buffer_t& pos );
 	void 			Record_mode		( bool );
-	void 			Set_filename	( string dir, uint8_t sdsid );
-	void 			Store_counter	( uint records );
+	void 			Set_records		( uint records );
 	uint*			Store_counter	();
 	void 			Reset			();
 	void			Volume			( uint8_t vol, DYNAMIC mode );
 	float			Volume			();
 
-					Storage_class	( StAId_e id, StA_param_t param );
-	virtual 		~Storage_class	() = default;
 
 private:
 	uint 			records	= 0;
+	void 			set_filename	( string dir, uint8_t sdsid );
+
 };
 typedef vector<Storage_class>		StorageArray_t;
 

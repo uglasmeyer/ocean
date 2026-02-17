@@ -52,17 +52,16 @@ class Mixer_class :
 	public virtual			Interface_base
 {
 	int 					beat_clock 		= 0;
-
+	sta_role_map			sta_rolemap		= sta_role_map();
+	Heap_Memory				RecMono			;
+	Stereo_Memory<Stereo_t>	Out				;
 
 public:
 
 	StorageArray_t 			StA				;
 	int						composer		= 0;		// note chunk counter
-	Heap_Memory				RecMono			;
-	Stereo_Memory<Stereo_t>	Out				;
 	Dynamic_class			DynVolume		;
 	Wavedisplay_class*		Wd_p			;
-	sta_role_map			sta_rolemap		= sta_role_map();
 	mixer_state_t  			state 			= mixer_state_struct();
 
 							Mixer_class 	( Dataworld_class* 	data,

@@ -14,6 +14,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QLCDNumber>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QWidget>
 
@@ -30,9 +31,10 @@ public:
     QPushButton *pb_front_left;
     QPushButton *pB_Cut;
     QPushButton *pB_goto_end;
-    QPushButton *pB_Save;
     QLCDNumber *lcdNumber;
     QLCDNumber *lcdNumber_2;
+    QPushButton *pB_Save;
+    QLabel *lbl_wav_file;
 
     void setupUi(QDialog *CutDesk_Dialog_class)
     {
@@ -75,11 +77,6 @@ public:
 
         gridLayout->addWidget(pB_goto_end, 0, 5, 1, 1);
 
-        pB_Save = new QPushButton(gridLayoutWidget);
-        pB_Save->setObjectName("pB_Save");
-
-        gridLayout->addWidget(pB_Save, 1, 5, 1, 1);
-
         lcdNumber = new QLCDNumber(gridLayoutWidget);
         lcdNumber->setObjectName("lcdNumber");
 
@@ -89,6 +86,16 @@ public:
         lcdNumber_2->setObjectName("lcdNumber_2");
 
         gridLayout->addWidget(lcdNumber_2, 1, 3, 1, 1);
+
+        pB_Save = new QPushButton(gridLayoutWidget);
+        pB_Save->setObjectName("pB_Save");
+
+        gridLayout->addWidget(pB_Save, 1, 4, 1, 1);
+
+        lbl_wav_file = new QLabel(gridLayoutWidget);
+        lbl_wav_file->setObjectName("lbl_wav_file");
+
+        gridLayout->addWidget(lbl_wav_file, 1, 5, 1, 1);
 
 
         retranslateUi(CutDesk_Dialog_class);
@@ -106,6 +113,7 @@ public:
         pB_Cut->setText(QCoreApplication::translate("CutDesk_Dialog_class", "Cut", nullptr));
         pB_goto_end->setText(QCoreApplication::translate("CutDesk_Dialog_class", "End >>", nullptr));
         pB_Save->setText(QCoreApplication::translate("CutDesk_Dialog_class", "Save", nullptr));
+        lbl_wav_file->setText(QCoreApplication::translate("CutDesk_Dialog_class", "None", nullptr));
     } // retranslateUi
 
 };

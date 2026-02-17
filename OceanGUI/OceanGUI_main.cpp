@@ -33,16 +33,11 @@ SOFTWARE.
 #include <include/Dispatcher.h>
 #include <include/Mainwindow.h>
 
-
-
 Exit_class			Exit		{};
 Logfacility_class	Log			{ "Ocean-SL" };
 Statistic_class 	Statistic	{ Log.className };
 const string		TitleModule = "Ocean Sound Lab Ui - ";
 
-/*
- * https://doc.qt.io/qt-6/qthread.html
- */
 void set_title( MainWindow* window )
 {
     QString QVersion 	= Qstring( Version_str );
@@ -56,10 +51,9 @@ void exit_proc( int signal )
 //	Log.Set_Loglevel( DBG2, true );
 	if( signal == SIGILL )
 		exit( 0 );
-	coutf << TitleModule << " exit on signal " + to_string( signal ) << endl;
+	Log.Info( TitleModule, "exit on signal", signal );
 	Statistic.Show_Statistic( );
     QApplication::exit(0);
-//	exit(0);
 }
 
 int main(int argc, char *argv[])
@@ -74,7 +68,7 @@ int main(int argc, char *argv[])
 
     set_title( &Window);
 
-    Window.show();
+    Window.showMaximized();
 
     Window.App.Ready();
     Windowapp.exec();

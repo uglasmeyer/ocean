@@ -54,7 +54,7 @@ void Processor_class::print_struct::assign_val()
 }
 void Processor_class::print_struct::assign_addr_str()
 {
-	addr_str= Str.to_hex( (long)ps.chaddr );
+	addr_str= to_hex( (long)ps.chaddr );
 }
 void Processor_class::print_struct::Line( stack_struct ps )
 {

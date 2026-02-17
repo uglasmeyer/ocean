@@ -174,12 +174,15 @@ void MainWindow::unset_wdrole( RoleId_e role )//TODO
 
 void MainWindow::wavfile_selected( const QString &arg)
 {
-    string str = arg.toStdString();
-    if ( str.length() > 0 )
+    if ( arg.length() > 0 )
     {
+        string str = arg.toStdString();
         Sds->Write_str( WAVFILESTR_KEY, str );
         Eventlog.add( SDS_ID, READ_EXTERNAL_WAVFILE);
-//        set_wdrole( EXTERNALROLE );
+        if( CutDesk_Dialog_p->isVisible() )
+        {
+        	CutDesk_Dialog_p->Setup( Sds );
+        }
     }
 }
 
@@ -316,7 +319,7 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 
 void MainWindow::Main_Waveform_slot( int _wfid )
 {
-	waveform_slot( &Sds->addr->spectrum_arr[OSCID].wfid[0], _wfid, OSCID, SETWAVEFORMMAINKEY, ui->wf_OSC );
+	waveform_slot( &Sds->addr->spectrum_arr[OSCID].wfid[0], _wfid, OSCID, SETWAVEFORMMAINKEY, ui->wf_osc );
 }
 void MainWindow::FMO_Waveform_slot(int _wfid)
 {

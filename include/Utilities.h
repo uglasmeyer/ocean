@@ -49,6 +49,23 @@ extern void Exception( string message = "", int signal = SIGHUP,
 		const experimental::source_location location = experimental::source_location::current());
 
 
+
+template< typename Enum>
+Enum& operator++(Enum& _enum)
+{
+	_enum = static_cast<Enum>(static_cast<int>(_enum) + 1);
+	return _enum;
+};
+
+// Postfix increment operator (x++)
+template< typename Enum>
+Enum operator++( Enum& _enum, int)
+{
+	Enum temp = _enum;
+	++_enum; // Use the prefix increment logic
+	return temp;
+};
+
 template<class Compare>
 void Show_Assert( Compare lhs, Compare rhs, string message )
 {

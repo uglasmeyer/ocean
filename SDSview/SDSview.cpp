@@ -109,7 +109,7 @@ kbdInt_t SwitchF5( kbdInt_t key )
 		{
 			case 'f' : { getfrq( &sds->spectrum_arr[OSCID].frqidx[0], "Frequency", OSCFREQUENCYKEY ); break; }
 			case 'v' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
-			case 'w' : { getvalue( &sds->spectrum_arr[OSCID].wfid[0], show_range(waveform_range), SETWAVEFORMMAINKEY ); break; }
+			case 'w' : { getvalue( &sds->spectrum_arr[OSCID].wfid[0], range_str(waveform_range), SETWAVEFORMMAINKEY ); break; }
 			default  : break ;
 		}
 		break;
@@ -123,7 +123,7 @@ kbdInt_t SwitchF5( kbdInt_t key )
 		{
 			case 'f' : { getfrq( &sds->spectrum_arr[FMOID].frqidx[0], "Frequency", FMOFREQUENCYKEY ); break; }
 			case 'v' : { getvalue( &sds->spectrum_arr[FMOID].volidx[0], "Amplitude", FMOAMPKEY ); break; }
-			case 'w' : { getvalue( &sds->spectrum_arr[FMOID].wfid[0], show_range(waveform_range), SETWAVEFORMFMOKEY ); break; }
+			case 'w' : { getvalue( &sds->spectrum_arr[FMOID].wfid[0], range_str(waveform_range), SETWAVEFORMFMOKEY ); break; }
 			default  : break ;
 		}
 		break;
@@ -137,7 +137,7 @@ kbdInt_t SwitchF5( kbdInt_t key )
 		{
 			case 'f' : { getfrq( &sds->spectrum_arr[VCOID].frqidx[0], "Frequency", VCOFREQUENCYKEY ); break; }
 			case 'v' : { getvalue( &sds->spectrum_arr[VCOID].volidx[0], "Amplitude", VCOAMPKEY ); break; }
-			case 'w' : { getvalue( &sds->spectrum_arr[VCOID].wfid[0], show_range(waveform_range), SETWAVEFORMVCOKEY ); break; }
+			case 'w' : { getvalue( &sds->spectrum_arr[VCOID].wfid[0], range_str(waveform_range), SETWAVEFORMVCOKEY ); break; }
 			default  : break ;
 		}
 		break;

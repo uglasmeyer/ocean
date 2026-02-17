@@ -136,24 +136,26 @@ bool is_string( T v )
 	return (typeid( v )  == typeid(string())) ? true : false ;
 }
 
+constexpr string to_hex( long addr )
+{
+	stringstream strs;
+	strs << "0x" << uppercase << hex << addr ;
+	return strs.str();
+};
+
+/**************************************************
+ * String
+ *************************************************/
 class String :
 		virtual public Logfacility_class
 {
-	string 			className 	= "";
 public:
 	string 			Str			{};
 	vector<string> 	Vec			{};
 	set<char>		Set			{};
 
-	String( const string str="" ) :
-		Logfacility_class( "String_class" )
-	{
-		className = Logfacility_class::className;
-		this->Str = str;
-        this->Set = to_set( );
-        std::ranges::for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});
-	}
-	~String(){};
+	String( const string str="" );
+	~String() = default;
 
 	void operator=(const string& str)
     {
@@ -182,7 +184,6 @@ public:
 	bool			is_number( 			);
 	int 			secure_stoi( string	str );
 	float 			secure_stof( string str );
-	string 			to_hex( long )	;
 	void 			TestString();
 	string 			to_lower( );
 	void 			to_lower( string& str );

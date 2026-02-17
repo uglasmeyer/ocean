@@ -107,6 +107,7 @@ struct 				stereo_struct
 typedef stereo_struct
 					stereo_t;
 
+#define NoPID 		-1
 
 const uint8_t		sizeof_stereo		= sizeof(stereo_t);
 const uint8_t		sizeof_Stereo		= sizeof(Stereo_t);
@@ -222,57 +223,15 @@ constexpr T check_cycle2( range_T<T> r, T val, string err  )
 };
 
 template<typename T>
-string show_range( range_T<T> range )
+string range_str( range_T<T> range )
 {
 	stringstream strs {};
 	strs << (int)range.min << "..." << (int)range.max << ", " << (int) range.len ;
 	return strs.str();
 };
 
-#define ALLITEMS	-1
-#define DEFAULT_ID	-1
-#define NoPID 		-1
 
 
-
-template< typename Enum>
-Enum& operator++(Enum& _enum)
-{
-	_enum = static_cast<Enum>(static_cast<int>(_enum) + 1);
-	return _enum;
-};
-
-// Postfix increment operator (x++)
-template< typename Enum>
-Enum operator++( Enum& _enum, int)
-{
-	Enum temp = _enum;
-	++_enum; // Use the prefix increment logic
-	return temp;
-};
-
-constexpr string to_hex( long addr )
-{
-	stringstream strs;
-	strs << "0x" << uppercase << hex << addr ;
-	return strs.str();
-};
-
-
-
-
-const vector<string> slidermodes =
-{
-	"Fixed",
-	"Slide",
-	"Combine"
-};
-enum DYNAMIC : unsigned char
-{
-	FIXED,
-	SLIDE,
-	COMBINE
-}; // frequency and volume change mode
 
 
 

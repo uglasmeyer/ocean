@@ -122,7 +122,6 @@ private:
 		Table_class 	Table{ defaultopt };
 		stack_struct 	ps			{};
 		string 			addr_str 	= "";
-		String 			Str 		{};
 		int				value		= 0;
 		int 			commit_time = 0;
 

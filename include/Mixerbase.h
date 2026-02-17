@@ -49,36 +49,16 @@ enum StAId_e : unsigned char
 };
 
 
-const array<std::string, STA_SIZE> StANames =
-{
-	"UserR+",
-	"UserL-",
-	"UserR-",
-	"UserL+",
-	"Instrument",
-	"Keyboard",
-	"Notes",
-	"External"
-};
 
-constexpr string StAIdName( StAId_e staid )
-{
-	if( staid < StANames.size() )
-		return StANames[ staid ];
-	else
-	{
-		cout << "WARN: unknown Storage Area id: " << ( int)staid << endl;
-		return "";
-	}
-}
 typedef array<StAId_e, STA_SIZE> 	StAarray_t; //SDS related
 const range_T<StAId_e> 	staid_range{ (StAId_e)0, (StAId_e)(STA_SIZE-1) };
 const vector<StAId_e>	StAIds	= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
-const set<StAId_e>		RecIds 	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
-const vector<StAId_e>	UsrIds	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
-const vector<StAId_e>	HghIds	= {STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
-const set<StAId_e>		LowIds	= {STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
-
+const set<StAId_e>		RecIds 	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
+const vector<StAId_e>	UsrIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
+const vector<StAId_e>	HghIds	= { STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
+const set<StAId_e>		LowIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
+const set<StAId_e>		WdIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03,
+									STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
 struct mixer_state_struct
 {	// SDS related
 	bool 	sync			= true; // explicite sync mode
@@ -98,6 +78,17 @@ typedef struct sta_rolemap_data
 
 struct sta_role_map
 {
+	const vector<std::string> StANames =
+	{
+		"UserR+",
+		"UserL-",
+		"UserR-",
+		"UserL+",
+		"Instrument",
+		"Keyboard",
+		"Notes",
+		"External"
+	};
 	const vector<sta_rolemap_data_t> sta_map_vec =
 	{
 		{ USER00ROLE	, STA_USER00 },
@@ -124,6 +115,17 @@ struct sta_role_map
 		return ROLE_SIZE;
 	}
 };
+const std::vector<std::string> StANames = sta_role_map().StANames;
+constexpr string StAIdName( StAId_e staid )
+{
+	if( staid < StANames.size() )
+		return StANames[ staid ];
+	else
+	{
+		cout << "WARN: unknown Storage Area id: " << ( int)staid << endl;
+		return "";
+	}
+}
 
 
 #endif /* MIXERBASE_H_ */

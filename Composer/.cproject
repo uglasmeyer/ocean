@@ -301,6 +301,7 @@
 		<configuration configurationName="Shlib">
 			<resource resourceType="PROJECT" workspacePath="/Composer"/>
 		</configuration>
+		<configuration configurationName="Cmake"/>
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/Composer"/>
 		</configuration>

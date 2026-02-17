@@ -45,33 +45,28 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 
 {
 	Info( "Init Mixer_class" );
-	this->className 	= Logfacility_class::className;
 	this->Wd_p			= wd;
 
-	StA_param_t usr_conf = Mem_param_struct( "temp"		, data->Cfg_p->Config.temp_sec );
-	StA_param_t ist_conf = Mem_param_struct( "Instrument",data->Cfg_p->Config.kbd_sec );
-	StA_param_t ext_conf = Mem_param_struct( "External"	, data->Cfg_p->Config.record_sec );
-	StA_param_t kbd_conf = Mem_param_struct( "Keyboard"	, data->Cfg_p->Config.kbd_sec );
-	StA_param_t nte_conf = Mem_param_struct( "Notes"	, data->Cfg_p->Config.kbd_sec );
+	string 		sta_dir	= fs->vardir;
+	StA_param_t usr_conf( "", data->Cfg_p->Config.temp_sec	, sta_dir );
+	StA_param_t ist_conf( "", data->Cfg_p->Config.kbd_sec	, sta_dir );
+	StA_param_t ext_conf( "", data->Cfg_p->Config.record_sec, sta_dir );
+	StA_param_t kbd_conf( "", data->Cfg_p->Config.kbd_sec	, sta_dir );
+	StA_param_t nte_conf( "", data->Cfg_p->Config.kbd_sec	, sta_dir );
 
-	StAId_e staid = STA_USER00;
-	for( const StA_param_t& param : { 	usr_conf, usr_conf, usr_conf, usr_conf,
-										ist_conf, kbd_conf, nte_conf, ext_conf }  )
+	StAId_e 	staid	= STA_USER00;
+	for( StA_param_t param : { 	usr_conf, usr_conf, usr_conf, usr_conf,
+								ist_conf, kbd_conf, nte_conf, ext_conf }  )
 	{
+		param.name		= StANames[staid];
 		Storage_class sta { staid, param };
-		sta.Volume( sds_p->StA_amp_arr[staid], FIXED );
-		sta.Set_filename( DaTA->Cfg_p->fs->vardir, sds_p->SDS_Id );
-		restoreStA( sta );
-		StA.push_back( sta );
+		sta.Volume		( sds_p->StA_amp_arr[staid], FIXED );
+		restoreStA		( sta );
+		StA.push_back	( sta );
 		staid++;
 	}
 
-	StA[STA_NOTES   ].scanner.Set_fillrange( StA[STA_NOTES   ].param.size );
-
-	Wd_p->Add_role_ptr( NOTESROLE	, StA[ STA_NOTES   ].Data, &StA[ STA_NOTES   ].param.wdsize );
-	Wd_p->Add_role_ptr( KBDROLE		, StA[ STA_KEYBOARD].Data, &StA[ STA_KEYBOARD].param.wdsize );
-	Wd_p->Add_role_ptr( EXTERNALROLE, StA[ STA_EXTERNAL].Data, &StA[ STA_EXTERNAL].param.wdsize );
-	for( StAId_e staid : LowIds )
+	for( StAId_e staid : WdIds )
 	{
 		RoleId_e sta_role = sta_rolemap.GetRoleid( staid );
 		Wd_p->Add_role_ptr( sta_role , StA[ staid ].Data, &StA[ staid ].param.wdsize );
@@ -84,7 +79,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 		for ( uint n : StAIds )
 			StA[n].Memory_base::DsInfo();
 
-		RecMono.DsInfo		( "Mono data");
+		RecMono.DsInfo	( "Mono data" );
 		Out.DsInfo		( );
 	}
 };
@@ -114,7 +109,7 @@ void Mixer_class::BeatClock( const uint8_t& bps )
 	}
 	sds_p->mixer_state.sync = state.sync;
 
-	// reset Audiovolume
+	// reset audio volume alarm
 	if( beat_clock == 0 )
 		sds_master->overmodulated = false;
 
@@ -161,11 +156,10 @@ bool Mixer_class::restoreStA( Storage_class& sta )
 
 			sta.Clear_data(0);
 
-	size_t	bytes_red 			= loadData( sta.file, sta.Data, 0 );
-	mem_ds_t	mem_ds			= mem_data_struct( sta.mem_ds.block_size, bytes_red );
-//	uint	records				= bytes_red / sta.mem_ds.record_size / sta.mem_ds.block_size;
-			sta.Store_counter	( mem_ds.max_records );
+	size_t		bytes_red	= loadData( sta.file, sta.Data, 0 );
+	mem_ds_t	mem_ds		= mem_data_struct( sta.mem_ds.block_size, bytes_red );
 
+	sta.Set_records			( mem_ds.max_records );
 	Info( "Restore StA data from file", sta.filename );
 
 	return true;
@@ -377,7 +371,7 @@ void Mixer_class::Add_Sound( Data_t* 	instrument_Data,
 		{
 			StA[staId].state.Store( sds_p->StA_state_arr[staId].store );
 		}
-		StA[staId].Store_record( RecMono.Data );
+		StA[staId].Store_record( RecMono.Data ); // move recmono data to StA data
 		setFillState( staId );
 	}
 
@@ -418,9 +412,9 @@ void Mixer_class::TestMixer()
 	Assert_equal( sds_p->WD_state.roleId, INSTRROLE );
 
 	range_T<int> r{10,14};
-	Info( show_range( r ) );
+	Info( range_str( r ) );
 	r = { 1 , 12 };
-	Info( show_range( r ) );
+	Info( range_str( r ) );
 	Assert_equal( (int)r.len, 11 );
 	cursor_T<int> c{0,1,3};
 	Assert_equal( c.len, size_t(3) );
@@ -492,6 +486,8 @@ bool CutDesk_class::setStAId()
 	StAId_e	staid 		= GetStaid( sds_p->WD_state.roleId );
 	if ( cutdeskIds.contains( staid ) )
 	{
+		if( StA )
+			Restore();
 		StAId 			= staid;
 		StAName 		= StAIdName ( staid );
 		StA				= &Mixer->StA[staid];
@@ -620,7 +616,7 @@ void CutDesk_class::Cut()
 									"bytes;", cut_bytes);
 		StA->Reset();
 		loadData( filename, StA->Data, cut_bytes );
-		StA->Store_counter( records );
+		StA->Set_records( records );
 		restore_range = StA->scanner.fillrange;
 	}
 	else
