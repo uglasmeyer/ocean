@@ -32,7 +32,7 @@ SOFTWARE.
 #include <data/Config.h>
 #include <Instrument.h>
 #include <System.h>
-
+#include <fstream>
 
 /**************************************************
  * Instrument_class
@@ -588,31 +588,31 @@ void Instrument_class::Test_Instrument()
 	}
 	vco->Test();
 	assert( Set( ".test2" ) );
-	Oscgroup.vco.features.PWM = 98;
-	Oscgroup.vco.spectrum.wfid[0] = SGNSIN;
-	Oscgroup.vco.Set_frequency( "A1", FIXED);
-	assert( strEqual( 	waveform_str_vec[ SGNSIN ],
-						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
+	vco->features.PWM = 98;
+	vco->spectrum.wfid[0] = SGNSIN;
+	vco->Set_frequency( "A1", FIXED);
+	Assert_equalstr( 	waveform_str_vec[ SGNSIN ],
+						vco->Get_waveform_str( vco->spectrum.wfid[0] )) ;
 
 	Save( ".test2" );
-	Oscgroup.vco.features.PWM = 0;
-	Oscgroup.vco.spectrum.wfid[0] = RECTANGLE;
-	assert( strEqual( 	waveform_str_vec[ RECTANGLE ],
-						Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] )));
+	vco->features.PWM = 0;
+	vco->spectrum.wfid[0] = RECTANGLE;
+	Assert_equalstr( 	waveform_str_vec[ RECTANGLE ],
+						vco->Get_waveform_str( vco->spectrum.wfid[0] ));
 
 
 	assert( Set( ".test2" ) );
 	ASSERTION( 	sds_p->features[VCOID].PWM == 98,"Set PMW_dial",
 			(int)sds_p->features[VCOID].PWM , 98);
-	Assert_equal( (int)Oscgroup.vco.features.PWM, 98 );
+	Assert_equal( vco->features.PWM, uint8_t(98) );
 	string a = waveform_str_vec[ SGNSIN ];
-	string b = Oscgroup.vco.Get_waveform_str( Oscgroup.vco.spectrum.wfid[0] );
+	string b = vco->Get_waveform_str( vco->spectrum.wfid[0] );
 	ASSERTION( strEqual( a,b), "SGNSIN", a, b);
 
-	assert( Oscgroup.osc.fp.Mem->Data == Oscgroup.fmo.MemData_p() );
-//	assert( Oscgroup.osc.fp.data == Oscgroup.fmo.Mem.Data );
-	Oscgroup.fmo.Set_frequency( C0, FIXED );
-	f = frqArray[ Oscgroup.fmo.spectrum.frqidx[0] ];
+	assert( Oscgroup.osc.fp.Mem->Data == fmo->MemData_p() );
+//	assert( Oscgroup.osc.fp.data == fmo->Mem.Data );
+	fmo->Set_frequency( C0, FIXED );
+	f = frqArray[ fmo->spectrum.frqidx[0] ];
 	ASSERTION( fcomp( f, 16.3516 ), "" ,f, 16.3516 );
 
 

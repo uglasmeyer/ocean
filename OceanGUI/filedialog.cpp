@@ -46,7 +46,7 @@ File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 	Interface_base		( _data ),
     NotesCore_class			( _data ),
 	QDialog				(parent),
-	ui(new Ui::File_Dialog_class{} ) // Syntax: ptrname( new Ui::QDialog classname{} )
+	ui(new Ui::File_Dialog_class ) // Syntax: ptrname( new Ui::QDialog classname{} )
 {
 
 	this->Eventlog_p= _log;
@@ -90,7 +90,23 @@ File_Dialog_class::File_Dialog_class( 	QWidget*			parent,
 //    Setup_widgets();
 }
 
-File_Dialog_class::~File_Dialog_class() = default;
+File_Dialog_class::~File_Dialog_class()
+{
+	delete ui;
+}
+void File_Dialog_class::Dialog()
+{
+	if( this->isVisible() )
+	{
+		this->hide();
+	}
+	else
+	{
+	    Setup_widgets();
+		this->show();
+	}
+
+}
 
 void File_Dialog_class::EditMusicXML()
 {

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ SOFTWARE.
 #include <notes/Notes.h>
 #include <data/Config.h>
 #include <../Setup/ReleaseNotes.h>
+#include <fstream>
 
 NotesCore_class::NotesCore_class( Dataworld_class* data ) 	// File_dialog, variation
 	: Logfacility_class		( "NotesCore_class" )
@@ -59,7 +60,6 @@ NotesCore_class::NotesCore_class( Dataworld_class* data ) 	// File_dialog, varia
 	volume_vec.clear		();
 	init_note_table			();
 	Test_NotesCore			();
-//	Test_Musicxml			();
 };
 NotesCore_class::~NotesCore_class()
 {

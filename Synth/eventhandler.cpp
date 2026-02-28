@@ -233,7 +233,7 @@ void Event_class::Handler()
 		EvInfo( event, "all ADSR change");
 		Instrument->Oscgroup.SetAdsr( sds_p );
 		if( not Mixer->state.instrument )
-			Instrument->Oscgroup.Adsr_OSC();
+			Instrument->Oscgroup.Run_Adsr();
 		BREAK
 	}
 	case ADSR_KEY:

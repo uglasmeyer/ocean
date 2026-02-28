@@ -59,7 +59,7 @@ class Processor_class :
 	public virtual 		Logfacility_class,
 	public 				sdsstate_struct
 {
-	Interface_class* 	Sds ;
+	SharedData_class* 	Sds ;
 	interface_t* 		sds_p ;
 	Semaphore_class*	Sem ;
 	Time_class			Timer{};
@@ -90,7 +90,6 @@ class Processor_class :
 	Application_class*	App;
 
 public:
-	fstream 			LOG					;
 	bool				Debug_Processing	;
 
 						Processor_class(	Application_class* app );

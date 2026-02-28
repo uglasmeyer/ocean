@@ -51,8 +51,8 @@ class Event_class
 {
 	StAExternal_class	StAExternal;
 
-	Interface_class* 	Sds;
-	Interface_class*	Sds_master;
+	SharedData_class* 	Sds;
+	SharedData_class*	Sds_master;
 	interface_t*		sds_p;
 	interface_t*		sds_master;
 	Instrument_class*	Instrument;

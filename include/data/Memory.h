@@ -237,7 +237,7 @@ public:
 
 private:
 	uint 			records	= 0;
-	void 			set_filename	( string dir, uint8_t sdsid );
+	void 			set_filename	();
 
 };
 typedef vector<Storage_class>		StorageArray_t;

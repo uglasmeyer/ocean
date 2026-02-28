@@ -49,14 +49,15 @@ SOFTWARE.
 #include <System.h>
 #include <EventKeys.h>
 
-extern bps_t QBps;
+extern bps_t 		QBps;
+extern Config_class Cfg;
 
 constexpr QString Qstring( string str )
 {
 	return QString::fromStdString( str );
 }
 
-constexpr QString QReadStr ( Interface_class* Sds, EVENTKEY_e key  )
+constexpr QString QReadStr ( SharedData_class* Sds, EVENTKEY_e key  )
 {
     string str 		= Sds->Read_str( key );
 	return Qstring( str );
@@ -113,12 +114,10 @@ struct EventStruct : PathStruct
 } ;
 typedef EventStruct Event_t;
 
-static file_structure fs = file_structure();
-
-static Event_t 			EventXML( UPDATENOTESKEY	, fs.xmldir			, fs.xml_type );
-static Event_t 			EventNTE( UPDATENOTESKEY	, fs.notesdir		, fs.nte_type );
-static Event_t 			EventINS( SETINSTRUMENTKEY	, fs.instrumentdir	, fs.snd_type );
-static Event_t 			EventWAV( OTHERSTR_KEY		, fs.musicdir		, fs.wav_type );
+static Event_t 			EventXML( UPDATENOTESKEY	, Cfg.fs->xmldir		, Cfg.fs->xml_type );
+static Event_t 			EventNTE( UPDATENOTESKEY	, Cfg.fs->notesdir		, Cfg.fs->nte_type );
+static Event_t 			EventINS( SETINSTRUMENTKEY	, Cfg.fs->instrumentdir	, Cfg.fs->snd_type );
+static Event_t 			EventWAV( OTHERSTR_KEY		, Cfg.fs->musicdir		, Cfg.fs->wav_type );
 static vector<Event_t > EventVec{ EventXML, EventNTE, EventINS, EventWAV };
 
 extern QStringList 		Qstringlist		( const list<string>& str_lst );
@@ -135,7 +134,7 @@ class OceanGUI_base :
 {
 public:
 	Dataworld_class*		DaTA	;
-	Interface_class*		Sds		;
+	SharedData_class*		Sds		;
 	interface_t*			sds_master;
 	interface_t*			sds_p	;
 	Id_t					SDS_ID	;

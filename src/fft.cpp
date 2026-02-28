@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ SOFTWARE.
  *  Created on: Jan 26, 2025
  *      Author: Ulrich.Glasmeyer@web.de
  */
-
+#include <complex>
 #include <Wavedisplay_base.h>
 
 // https://cp-algorithms.com/algebra/fft.html

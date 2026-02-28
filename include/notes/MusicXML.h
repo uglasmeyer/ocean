@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -63,10 +63,12 @@ struct xmlstatistic_struct
 	void Show( bool debug );
 };
 
+/**************************************************
+ * Musicxml_class
+ *************************************************/
 class Musicxml_class
 	: public virtual Logfacility_class
 {
-	string className = "";
 public:
 
 
@@ -74,7 +76,7 @@ public:
 	Note_base 				Notes{ };
 
 	XMLDocument 			XMLdoc;
-							Musicxml_class( file_structure* _fs);
+							Musicxml_class( fs_t* _fs);
 	virtual 				~Musicxml_class();
 
 	musicxml_t 				XmlFile2notelist( const string& filename );
@@ -96,7 +98,7 @@ private:
 											const note_t& note,
 											const uint& chord_id );
 
-	file_structure*			fs				;
+	fs_t*					fs				;
 	note_itr_t				note_itr		;
 };
 

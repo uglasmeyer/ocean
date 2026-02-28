@@ -25,10 +25,10 @@ SOFTWARE.
 
 #include <include/Cutterdialog.h>
 
-CutDesk_Dialog_class::CutDesk_Dialog_class(	QWidget *parent,
-											Dataworld_class* data,
-											EventLog_class* el)
-    : OceanGUI_base( data )
+CutDesk_Dialog_class::CutDesk_Dialog_class(	QWidget* 			parent,
+											Dataworld_class* 	data,
+											EventLog_class* 	el )
+    : Interface_base( data )
 	, QDialog(parent)
     , ui(new Ui::CutDesk_Dialog_class)
 {
@@ -51,6 +51,22 @@ CutDesk_Dialog_class::~CutDesk_Dialog_class()
     delete ui;
 }
 
+void CutDesk_Dialog_class::Dialog()
+{
+	if( not this->isVisible() )
+	{
+	    Setup( Sds );
+	    DaTA->Sem_p->Lock( PROCESSOR_WAIT );
+	    if( sds_p->WD_state.wd_mode == CURSORID )
+	    	this->show();
+	}
+	else
+	{
+		Eventlog->add( SDS_ID, CUT_RESTORE_KEY );
+    	this->hide();
+	}
+
+}
 void CutDesk_Dialog_class::Step_forward()
 {
 	Sds->Set( sds_p->WD_state.direction, BACK_RIGHT );
@@ -96,7 +112,7 @@ void CutDesk_Dialog_class::Save()
 	Eventlog->add( SDS_ID, CUT_SAVE );
 }
 
-void CutDesk_Dialog_class::Setup( Interface_class* Sds )
+void CutDesk_Dialog_class::Setup( SharedData_class* Sds )
 {
 	SetSds();
 	Eventlog->add(SDS_ID, CUT_SETUP_KEY );
@@ -105,7 +121,7 @@ void CutDesk_Dialog_class::Setup( Interface_class* Sds )
 
 void CutDesk_Dialog_class::SetSds()
 {
-	OceanGUI_base::SetSds();
+	Interface_base::SetSds();
 	updateCutDesk();
 }
 

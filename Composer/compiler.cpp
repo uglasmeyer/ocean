@@ -33,7 +33,7 @@ SOFTWARE.
 
 
 #include <Composer/Interpreter.h>
-
+#include <fstream>
 /**************************************************
  * Composer_class
  *************************************************/

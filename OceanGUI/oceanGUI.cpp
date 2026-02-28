@@ -1,7 +1,7 @@
-/**************************************************************************
+/**********************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,96 +29,107 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-// OceanGUI
-#include <include/Spectrum_dialog.h>
-#include <include/Mainwindow.h>
-#include <include/Oszilloscopewidget.h>
-#include <ui_mainwindow.h>
+// Qt
 
 // Ocean
-#include <EventKeys.h>
-#include <Wavedisplay_base.h>
-#include <Logfacility.h>
-#include <Mixer.h>
-#include <Ocean.h>
-#include <Kbd.h>
-#include <Mixerbase.h>
 
-// Qt
-#include <QLabel>
-#include <QPolygon>
-#include <QTimer>
-#include <QRect>
-
+// OceanGUI
+#include <include/Mainwindow.h>
 
 const string 		Module 			= OCEANGUI;
+typedef MainWindow::cb_state_map cb_state_t;
+typedef MainWindow::sl_value_map sl_value_t;
 
-
+auto set_sl_sta_value = [ ]( MainWindow* M )
+{
+    for( sl_value_t map : M->sl_sta_vec )
+    	map.sl->setValue( *map.value );
+};
 auto set_cb_ssta_value = [ ]( MainWindow* M )
 {
-
-	for( MainWindow::cb_state_t map : M->cb_store_sta_vec )
-    {
+	for( cb_state_t map : M->cb_store_sta_vec )
     	map.cb->setChecked( (bool) *map.state );
-    }
 };
 auto set_cb_psta_value = [ ]( MainWindow* M )
 {
-    for( MainWindow::cb_state_t map : M->cb_play_sta_vec )
+    for( cb_state_t map : M->cb_play_sta_vec )
     	map.cb->setChecked( *map.state );
-};
-auto set_sl_sta_value = [ ]( MainWindow* M )
-{
-    for( MainWindow::sl_value_t map : M->sl_sta_vec )
-    	map.sl->setValue( *map.value );
 };
 auto set_cb_filled_value = [  ]( MainWindow* M  )
 {
-	for( MainWindow::cb_state_t map : M->cb_filled_sta_vec )
+	for( cb_state_t map : M->cb_filled_sta_vec )
 		map.cb->setChecked( *map.state );
 };
 
-MainWindow::MainWindow(	QWidget *parent ) :
-		Logfacility_class( "OceanGUI" ),
-		Bps(),
-		ui(new Ui::MainWindow{} )
+
+
+auto AppIdRole = [ ]( APPID appid )
 {
+	map<APPID, RoleId_e > AppIdRole_map // @suppress("Invalid arguments")
+	{
+			{ AUDIOID		, AUDIOROLE },
+			{ SYNTHID		, INSTRROLE },
+			{ KEYBOARDID	, KBDROLE }
+	};
 
-	ui->setupUi(this);
-	this->setFocusPolicy(Qt::StrongFocus);
-	CB_external 	= ui->cB_external;
-
-	initPanel();
-	initLables();
-
+	auto role_itr = AppIdRole_map.find( appid );
+	if( role_itr != AppIdRole_map.end() )
+		return role_itr->second;
+	else
+		return ROLE_SIZE;
+};
+/**************************************************
+ * MainWindow
+ *************************************************/
+MainWindow::MainWindow		( QWidget *parent )
+	: Logfacility_class		( "OceanGUI" )
+	, wavedisplay_struct	()
+	, ui					( new Ui::MainWindow )
+	, Bps					()
+{
 	Sds->Set( sds_master->UpdateFlag, true);
 	Sds->Set( Sds->addr->UpdateFlag, true);
 
-    initGuiVectors( Sds->addr );
+	Rtsp_Dialog_p			= new Rtsp_Dialog_class { this, DaTA_p };
+	File_Dialog_p			= new File_Dialog_class { this, DaTA_p, Eventlog_p };
+	Spectrum_Dialog_p 		= new Spectrum_Dialog_class { this, DaTA_p, Eventlog_p };
+	Keyboard_Dialog_p		= new Keyboad_Dialog_class{ this, DaTA_p, Eventlog_p };
+	CutDesk_Dialog_p		= new CutDesk_Dialog_class{ this, DaTA_p, Eventlog_p };
+	ui->setupUi				( this );
 
-	initStateButtons();
-    initOscillatorDisplay();
-    initFreqSlider();
-    initScrollbars();
-    initComboBoxes();
+	initPanel				();
+	initLables				();
+    initGuiVectors			( Sds->addr );
+    initScrollbars			();
+	initStateButtons		();
+    initOscillatorDisplay	();
+    initFreqSlider			();
+    initComboBoxes			();
 
-    initUiConnectors();
-    initTimer();
+    initUiConnectors		();
+    updateColorButtons		();
+    initTimer				(); //-< update widgets
+
+    Info( "User Interface initialized" );
 }
 
 MainWindow::~MainWindow()
 {
 	DESTRUCTOR( className );
-	printf( "%p\n\n", OscWidget_item );
-	if ( OscWidget_item ) delete ( OscWidget_item );
+	delete Rtsp_Dialog_p;
+	delete File_Dialog_p;
+	delete OscWidget_item;
+	delete Spectrum_Dialog_p;
+	delete Keyboard_Dialog_p;
+	delete CutDesk_Dialog_p;
+	delete scene;
+	delete ui;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-	QString 		QStr	{};
-	Kbd_base::
-	key_union_t 	key 	{};
-					key.Int = Keymap.Qt_key( event->key() ) ;
+	kbdkey_t	 	key 	{};
+					key.Int	= Keymap.Qt_key( event->key() ) ;
 	switch ( key.Int )
 	{
 		case Qt::Key_Escape :
@@ -133,12 +144,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 			break;
 		}
 	} // switch  key
-	uint8_t key_ch = key.Arr[0];
-	if( key_ch > 0 )
-	{
-		QStr.push_back( QChar(key_ch) );
-		set_wdrole( KBDROLE );
-	}
+	set_wdrole( KBDROLE );
 }
 
 
@@ -160,19 +166,19 @@ void MainWindow::chord_delay()
 	int value = ui->hs_chord_delay->value();
 	Sds->Set( Sds->addr->noteline_prefix.chord_delay, value );
 }
-void MainWindow::set_wdrole( RoleId_e roleid )//TODO
+void MainWindow::set_wdrole( RoleId_e roleid )
 {
 	WfDisplay_que.Add( roleid );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
 }
 
-void MainWindow::unset_wdrole( RoleId_e role )//TODO
+void MainWindow::unset_wdrole( RoleId_e role )
 {
 	WfDisplay_que.Remove( role );
     Eventlog.add( SDS_ID, SETWAVEDISPLAYKEY );
 }
 
-void MainWindow::wavfile_selected( const QString &arg)
+void MainWindow::wavfile_selected( QString arg)
 {
     if ( arg.length() > 0 )
     {
@@ -199,14 +205,12 @@ void MainWindow::Beat_per_sec( int bps_id )
 	uint8_t bps = Bps.Bps_vec[bps_id];
 	Sds->Set( Sds->addr->instrumentClock, bps );
     Eventlog.add( SDS_ID, BEATCLOCK_KEY );
-	MainWindow::setFocus();
 }
 
 void MainWindow::Notes_per_measure( int bps_id )
 {
 	uint8_t bps = Bps.Bps_vec[bps_id];
 	Sds->Set( Sds->addr->beatClock, bps );
-	MainWindow::setFocus();
 }
 
 void MainWindow::slideFrq( int value )
@@ -224,82 +228,18 @@ void MainWindow::dial_PMW_value_changed()
     Eventlog.add( SDS_ID,PWMDIALKEY);
 }
 
-template< class Dialog>
-auto switch_dialog( Dialog* p )
-{
-	if( p->isVisible() )
-	{
-		p->hide();
-		return false;
-	}
-	else
-	{
-		p->move(0,0);
-		p->show();
-		return true;
-	}
-}
-void MainWindow::Rtsp_Dialog()
-{
-	switch_dialog( this->Rtsp_Dialog_p );
-    Rtsp_Dialog_p->Proc_table_update_all( );
-}
-void MainWindow::SDS_Dialog()
-{
-	if( Appstate->IsRunning( sds_master, SDSVIEWID ) )
-	{
-		Appstate->SetExitserver( sds_master, SDSVIEWID );
-		Sem_p->Lock( SEMAPHORE_EXIT);
-	}
-	else
-	{
-		string Start_Comstack = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->sdsview_bin, "" );
-		System_execute( Start_Comstack );
-	}
-	return;
 
-}
-
-void MainWindow::Cutter_Dialog()
-{
-	if( not CutDesk_Dialog_p->isVisible() )
-	{
-	    CutDesk_Dialog_p->Setup( Sds );
-	    Sem.Lock( PROCESSOR_WAIT );
-	    if( sds_p->WD_state.wd_mode == CURSORID )
-	    	switch_dialog( CutDesk_Dialog_p );
-	}
-	else
-	{
-		Eventlog.add( SDS_ID, CUT_RESTORE_KEY );
-    	switch_dialog( CutDesk_Dialog_p );
-	}
-}
 
 void MainWindow::ADSR_Dialog()
 {
 
-	if( switch_dialog( this->Spectrum_Dialog_p ) )
-	{
-		Spectrum_Dialog_p->Set_adsr_flag( true );
-	    set_wdrole( ADSRROLE );
-	}
-	else
-	{
-		unset_wdrole( ADSRROLE );
-	}
-}
-
-void MainWindow::File_Director()
-{
-	switch_dialog( this->File_Dialog_p );
-    File_Dialog_p->Setup_widgets();
+	this->Spectrum_Dialog_p->Dialog( true );
+	Spectrum_Dialog_p->isVisible() ? set_wdrole( ADSRROLE ) : unset_wdrole( ADSRROLE );
 }
 
 void MainWindow::Spectrum_Dialog()
 {
-    switch_dialog( this->Spectrum_Dialog_p );
-    this->Spectrum_Dialog_p->Set_adsr_flag( false );
+    this->Spectrum_Dialog_p->Dialog( false);
 }
 
 
@@ -311,7 +251,6 @@ void MainWindow::waveform_slot(	uint8_t* wf_addr,
 {
 	Sds->Set( *wf_addr, wfid );
 	label->setText( QWaveform_vec[ wfid ] );
-	MainWindow::setFocus();
 	sds_p->WD_state.oscId=oscid;
 	set_wdrole( INSTRROLE );
 	Eventlog.add( SDS_ID, wf_key);
@@ -336,9 +275,9 @@ void MainWindow::select_Sds( Id_t sdsid )
 	Sds->Set( this->sds_master->UpdateFlag	, true);
 	Sds->Set( this->Sds->addr->UpdateFlag	, true); // update old sds
 
-	this->Sds = DaTA.SDS.GetSds( sdsid ); // set new sds
-	Sds->Set( this->SDS_ID, sdsid );
-	this->sds_p = Sds->addr;
+	this->Sds 		= DaTA.SDS.GetSds( sdsid ); // set new sds
+	this->SDS_ID	= sdsid ;
+	this->sds_p 	= Sds->addr;
 
 	initGuiVectors( this->sds_p );
 	initStateButtons();
@@ -583,7 +522,7 @@ void MainWindow::toggle_Mute()
 
 void MainWindow::sliderFreq( sl_lcd_t map, int value )
 {
-	float freq 		= Spectrum.GetFrq( value );
+	float freq 		= Spectrum_Dialog_p->Frequency.GetFrq( value );
 	map.lcd->display(  freq  );
 	Sds->Set( *map.value, uint8_t( value ) );
 
@@ -652,93 +591,72 @@ void MainWindow::Slider_FMO_Adjust( int value )
 
 }
 
+void MainWindow::changeAppState( APPID appid, string terminal, string binary  )
+{
+	interface_t* sds = sds_p;
+	if( Appstate->assignMasterSds.contains( appid ) )
+		sds = sds_master;
+	if( Appstate->IsRunning( sds, appid ) )
+	{
+		Appstate->SetExitserver( sds, appid ) ;
+		return;
+	}
+
+	if( Appstate->IsRunning( sds_master, RTSPID ) )
+	{
+		if ( Sem_p->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
+			Sem_p->Release( SYNTHESIZER_START );
+		return;
+	}
+
+	string opt = "";
+	if( strEqual( terminal, "nohup"  ) )
+		opt = " 2>&1 >> " + fs->nohup_file;
+	string cmd = Cfg_p->Server_cmd( terminal, binary, opt );
+	System_execute( cmd, true );
+
+	Id_t sdsid = Appstate->GetNextSdsId( appid );
+	if( sdsid != sds_master->config )
+	{
+		select_Sds( sdsid );
+	}
+
+	RoleId_e role = AppIdRole( appid );
+	set_wdrole( role );
+}
+
+void MainWindow::start_audio_srv()
+{
+	changeAppState( AUDIOID, Cfg_p->Config.Nohup, fs->audio_bin );
+	return;
+}
+void MainWindow::start_synthesizer()
+{
+	changeAppState( SYNTHID, Cfg_p->Config.Nohup, fs->synth_bin );
+	return;
+}
+void MainWindow::start_keyboard()
+{
+	changeAppState( KEYBOARDID, Cfg_p->Config.Term, fs->Keyboard_bin );
+	return;
+}
+void MainWindow::start_sdsview()
+{
+	changeAppState( SDSVIEWID, Cfg_p->Config.Term, fs->sdsview_bin );
+	return;
+}
 void MainWindow::start_composer()
 {
-
     string Start_Composer = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->composer_bin, "" );
 	System_execute( Start_Composer );
 }
 
 
-void MainWindow::start_audio_srv()
-{
-	if( Appstate->IsRunning( sds_master, RTSPID ) )
-		return;
-	if( Appstate->IsRunning( sds_master, AUDIOID))
-	{
-		Appstate->SetExitserver( sds_master, AUDIOID) ;
-		return;
-	}
-
-    string Start_Audio_Srv = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs->audio_bin,
-			" > " + fs->nohup_file);
-
-	System_execute( Start_Audio_Srv.data() );
-
-}
-
-auto start_synth = [  ]( MainWindow* M, string cmd )
-{
-	if( M->Appstate->IsRunning( M->sds_master, RTSPID ) )
-	{
-	    if ( M->Sem_p->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
-	    	M->Sem_p->Release( SYNTHESIZER_START );
-	    return M->SDS_ID;
-	}
-
-	Id_t sdsid = M->DaTA.Appstate.GetNextSdsId( );
-	if ( sdsid < 0 ) return M->SDS_ID;
-
-    System_execute( cmd.data() );
-    return sdsid;
-
-};
-void MainWindow::start_synthesizer()
-{
-	if( Appstate->IsRunning( Sds->addr, SYNTHID ) )
-	{
-		exit_synthesizer( SYNTHID );
-	}
-	else
-	{
-		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Nohup, fs->synth_bin," 2>&1 >> " + fs->nohup_file );
-		uint8_t sdsid = start_synth( this, cmd );
-		select_Sds(sdsid);
-	}
-
-}
-void MainWindow::start_keyboard()
-{
-	if( Appstate->IsRunning( Sds->addr, KEYBOARDID ))
-	{
-		exit_synthesizer( KEYBOARDID );
-	}
-	else
-	{
-		string cmd = Cfg_p->Server_cmd( Cfg_p->Config.Term, fs->Keyboard_bin, "-v" );
-		int sdsid = start_synth( this, cmd );
-
-		select_Sds(sdsid);
-		set_wdrole( KBDROLE );
-	}
-}
 void MainWindow::read_polygon_data()
 {
     OscWidget_item->read_polygon_data();
 };
 
-void MainWindow::exit_synthesizer( APPID appid )
-{
-	if ( Appstate->IsRunning( sds_master, RTSPID ) )
-	{
-		if ( Sem_p->Getval( SEMAPHORE_EXIT, GETVAL ) > 0 )
-			Sem_p->Release( SEMAPHORE_EXIT );
-		return;
-	}
-	Appstate->SetExitserver( Sds->addr, appid );
-    DaTA.Sem_p->Lock( SEMAPHORE_EXIT, 2 );
-	setwidgetvalues();
-}
 
 void MainWindow::Save_Config()
 {
@@ -850,18 +768,19 @@ void MainWindow::pB_fftmode_clicked()
 void MainWindow::update_CB_external()
 {
 	Info( "update recording info");
-	CB_external->clear();
-	CB_external->addItems( Qread_filenames( EventWAV.path ));
+	ui->cB_external->clear();
+	ui->cB_external->addItems( Qread_filenames( EventWAV.path ));
 	QString Qfile	= QReadStr( Sds, EventWAV.event );
-	CB_external->setCurrentText( Qfile );
+	ui->cB_external->setCurrentText( Qfile );
 }
 
 void MainWindow::setwidgetvalues()
 {
+	Comment( DEBUG, "MainWindow::setwidgetvalues" );
 	if( Appstate->IsExitserver( sds_p, GUI_ID ) )
 		GUI_Exit();
 	else
-		App.Appstate->SetRunning(  );
+		Appstate->SetRunning(  );
 
 	for ( int oscid : oscIds )
 	{
@@ -929,8 +848,6 @@ void MainWindow::setwidgetvalues()
 		{
 			Keyboard_Dialog_p->show();
 			Keyboard_Dialog_p->Setup_Widget();
-//			this->setFocus( Qt::ActiveWindowFocusReason );
-			this->setFocus();//DOES NOT WORK
 		}
 	}
 	else
@@ -938,13 +855,11 @@ void MainWindow::setwidgetvalues()
 		if( Keyboard_Dialog_p->isVisible() )
 			Keyboard_Dialog_p->hide();
 	}
-
-
 }
 
 void MainWindow::updateColorButtons()
 {
-
+	Comment( DEBUG, "MainWindow::updateColorButtons" );
 	auto isRunning = [ this ]( APPID appid, interface_t* sds )
 	{
 		return Appstate->IsRunning( sds , appid );

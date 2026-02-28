@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@ SOFTWARE.
 #include <Osc.h>
 #include <Wavedisplay.h>
 
+
 /**************************************************
  * Oscgroup_class
  *************************************************/
@@ -48,10 +49,9 @@ public:
 	Oscillator 				fmo			;
 	Oscillator 				osc			;
 	vector<Oscillator*>		member		;
-	array<dynamic_state_t,3> dynarr		;
 
-							//used by FileDialog, musicsml, variation
-							Oscgroup_class		();
+
+							Oscgroup_class		(); //used by FileDialog, musicsml, variation
 							Oscgroup_class		( RoleId_e role, buffer_t bytes  );
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
@@ -65,8 +65,9 @@ public:
 	void 					ChordData			( interface_t* sds,
 												chord_t chord );
 	void 					Run_OSCs			( const buffer_t& offs );
+	void 					Run_Adsr			();
 	void 					Set_Duration		( const uint& duration );
-	void 					ResetBeatCursor	();
+	void 					ResetBeatCursor		();
 
 	void 					Data_Reset			();
 	void 					Phase_Reset			();
@@ -74,6 +75,7 @@ public:
 	void 					Set_Connections		( interface_t* sds );
 	void 					SetWd				( Wavedisplay_class* wd );
 	void 					SetScanner			( const buffer_t& maxlen );
+	void					SetBeatcursor		( buffer_t pos );
 	void					KbdAttack			( uint8_t bps );
 
 	string 					Show_Spectrum		();
@@ -83,7 +85,6 @@ public:
 	void 					SetSlider_Frq			( const uint8_t& value );
 	void 					SetFeatures			( interface_t* sds );
 	void 					SetAdsr				( interface_t* sds );
-	void 					Adsr_OSC			();
 
 	void 					SetSpectrum			( interface_t* sds );
 
@@ -98,5 +99,7 @@ private:
 
 
 };
+
+typedef Oscgroup_class Oscgroup_t;
 
 #endif /* OSCGROUP_H_ */

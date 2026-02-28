@@ -30,21 +30,27 @@ SOFTWARE.
 // Ocean
 
 // Qt
+#include <QObject>
 #include <QDialog>
 
 // OceanGUI
 #include <include/Common.h>
 #include <ui_CutDesk_Dialog.h>
 
+QT_BEGIN_NAMESPACE
 namespace Ui
 {
 	class CutDesk_Dialog_class;
 }
+QT_END_NAMESPACE
 
+/**************************************************
+ * CutDesk_Dialog_class
+ *************************************************/
 class CutDesk_Dialog_class :
 	public 				QDialog				,
 	virtual 			wavedisplay_struct,
-	public virtual		OceanGUI_base
+	public virtual		Interface_base
 {
     Q_OBJECT
 
@@ -58,11 +64,11 @@ public:
     explicit 			CutDesk_Dialog_class( QWidget*		parent	= nullptr,
     										Dataworld_class* data 	= nullptr,
 											EventLog_class* el 		= nullptr );
-    					~CutDesk_Dialog_class	();
-	void 				Setup				( Interface_class* Sds );
+    virtual				~CutDesk_Dialog_class	();
+	void 				Setup				( SharedData_class* Sds );
 	void				SetSds				();
 
-private 				slots				:
+private slots:
 	void 				Step_forward		();
 	void 				Step_backward		();
 	void 				Step_front_forward	();
@@ -71,9 +77,10 @@ private 				slots				:
 	void 				Cut_tail			();
 	void 				Save				();
 
-public 					slots				:
-	void 				updateCutDesk		();
 
+public slots:
+	void 				updateCutDesk		();
+	void				Dialog				();
 };
 
 #endif // CUTTERDIALOG_H

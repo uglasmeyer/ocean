@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -60,11 +60,10 @@ struct interface_struct // with reasonable defaults
 
 
 	/* instrument definition starts */
-	feature_arr_t	features					= default_oscgroup_arr_T( default_feature );
-	adsr_arr_t		adsr_arr					= default_oscgroup_arr_T( default_adsr );
-	spectrum_arr_t	spectrum_arr				= default_oscgroup_arr_T( default_spectrum );
-	connect_arr_t	connect_arr					= default_oscgroup_arr_T( Connect_struct() );
-
+	feature_arr_t	features					= { default_feature };
+	adsr_arr_t		adsr_arr					= { default_adsr };
+	spectrum_arr_t	spectrum_arr				= { default_spectrum };
+	connect_arr_t	connect_arr					= { default_connectId };
 	/* instrument definition ends	 */
 
 	/* SDS specific control elements */
@@ -72,7 +71,7 @@ struct interface_struct // with reasonable defaults
 	OSCID_e			SpectrumTypeId				= OSCID_e::OSCID;//default_spectrum.osc;
 	NOTETYPE_e		NotesTypeId					= XML_ID; // musicxml
 	noteline_prefix_t
-					noteline_prefix				{ Note_base::noteline_prefix_struct() };
+					noteline_prefix				= Note_base::noteline_prefix_struct() ;
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds //
 
 	StAId_e 		StA_Id						= STA_INSTRUMENT;
@@ -83,11 +82,11 @@ struct interface_struct // with reasonable defaults
 
 	bool 			UpdateFlag 					= true;
 	uint8_t			time_elapsed 				= 0;
-	appstate_arr_t	appstate_arr				{};//= defaultAppstate_expr();
+	appstate_arr_t	appstate_arr				= { appstate_struct() };
 
 	deque_t			deque						{ NULLKEY };
 	eventptr_t		eventptr					= EventPtr_struct();
-	char			eventstr[512]				{0};
+	char			eventstr[512]				{ 0 };
 	WD_data_t		WD_state					= WD_data_struct();
 
 	/* SDS specific control elements end
@@ -102,7 +101,7 @@ struct interface_struct // with reasonable defaults
 	Id_t			sdsview_sdsid				= 0;
 	buffer_t		audioframes					= audio_frames;
 	uint8_t			overmodulated				= false;
-	wd_arr_t		wavedata 					= {};
+	wd_arr_t		wavedata 					= { 0 };
 	uint8_t 		SHMID 						= 0;//
 	uint8_t 		RecCounter					= 0;		// handshake data exchange//
 	trigger_data_t	Note_start					= trigger_data_struct(); // TODO to be evaluated
@@ -115,6 +114,8 @@ struct interface_struct // with reasonable defaults
 
 												// sta-scanner, note_itr_end
 	uint8_t 		FileNo						= 1;// generate filename
+	uint8_t			align_byte0					= 1;// align
+	uint8_t			align_byte1					= 1;// align
 
 } ;
 typedef interface_struct 		interface_t;

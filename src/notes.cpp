@@ -52,7 +52,7 @@ Note_class::Note_class( Dataworld_class* 	data ,
 	this->read_cnt		= 0;
 
 	Oscgroup.SetScanner	( max_frames );
-	TestNotes			();
+	testNotes			();
 }
 
 Note_class::~Note_class( )
@@ -77,13 +77,11 @@ void Note_class::gen_chord_data( note_t& note )
 		Oscgroup.SetSlider_Frq( 0 );
 
 	Osc->Set_long_note( true );//note.longnote );//or longnote );
-
-
-	const uint	msec 			= ( note.longplay or sds_p->features[0].longplay ) ?
-								1000 : note.duration;
-	Oscgroup.Set_Duration		( msec );
+//	const uint	msec 			= ( note.longplay or sds_p->features[0].longplay ) ?
+//								1000 : note.duration;
+	Oscgroup.Set_Duration		( max_msec );
 	Osc->Set_spectrum_volume	( note.volume );
-	Osc->Set_beatcursor			( 0 );
+	Oscgroup.SetBeatcursor		( 0 );
 
 	Oscgroup.ChordData( sds_p, note.chord );
 }
@@ -200,28 +198,6 @@ void Note_class::LoadMusicxml( const string& file )
 }
 
 //-------------------------------------------------------------
-bool Note_class::Start_note_itr()
-{
-	Info( "Start_note_itr");
-	if ( note_itr == notelist.end() )
-	{
-		Comment( WARN, "Empty notelist" );
-		if( StA )
-			StA->Reset();
-		Note_itr_end.SetState	( true );
-		return false;
-	}
-	if( StA )
-		StA->Reset();//scanner.Set_rpos( 0 );
-	read_cnt = 0;
-
-	note_itr 		= notelist.begin();
-	Note_itr_start.SetState( true );
-//	scanner->Set_fillrange( StA->param.size );
-	scanner->Set_rpos( 0 );
-	scanner->Set_wpos( 0 );
-	return true;
-}
 
 bool Note_class::note_itr_end()
 {
@@ -236,14 +212,14 @@ void Note_class::note_itr_next()
 
 
 
-void Note_class::TestNotes()
+void Note_class::testNotes()
 {
 
 	TEST_START( className );
 	int oct = 4;
 	pitch_t pitch = pitch_struct( oct, 'a', alter_value('a') );
 	ShowFrqTable();
-	ASSERTION( pitch.step == 9, "Assert test value ",(int)pitch.step, 9  )  ;
+	Assert_equal( pitch.step, int8_t(9) )  ;
 	ASSERTION( pitch.alter == 1, "Assert test value ",(int)pitch.alter, 1  )  ;
 	ASSERTION( pitch.frqidx == 84, "Assert test value ",(int)pitch.frqidx, 84  )  ;
 

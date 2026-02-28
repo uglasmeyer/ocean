@@ -58,7 +58,6 @@ public:
 											GUI_ID,
 											RTSPID,
 											COMPID,
-//											KEYBOARDID,
 											TESTPRGID } ;
 	SdsId_vec_t		all_sdsids			= Iota_T<Id_t>( 0, MAXCONFIG );
 
@@ -100,7 +99,7 @@ public:
 	void  			Shutdown			( interface_t* sds, APPID appid );
 	StateId_t		GetState			( interface_t* sds, APPID appid );
 
-	int 			GetNextSdsId		(  ); //find next synthesizer SDS
+	int 			GetNextSdsId		( APPID appid ); //find next synthesizer SDS
 
 private:
 	Id_t 			assign_sdsid		( APPID appid ); // returns Sds_Id

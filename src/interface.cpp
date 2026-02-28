@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,18 +30,8 @@ SOFTWARE.
  */
 
 #include <data/Interface.h>
+#include <data/SharedDataSegment.h>
 
-appstate_arr_t initAppstate_arr()
-{
-	appstate_arr_t arr {};
-	for( APPID appid : AppIds )
-	{
-		arr[appid] = appstate_struct();
-		arr[appid].type = appid; // Indexer complains
-	}
-	arr[SYNTHID].state = StateId_t::DEFAULT;
-	return arr;
-};
 
 connect_arr_t initConnect_arr(  )
 {
@@ -54,18 +44,20 @@ connect_arr_t initConnect_arr(  )
 	return arr;
 };
 
-void Interface_class::selfTest( )
+void SharedData_class::selfTest( )
 {
 	OSCID_e oscid = OSCID_e::OSCID;
 	Assert_lt( addr->connect_arr[oscid].frq, OSCID_e::NOOSCID, "connect_arr" );
+
 	APPID appid = APPID::AUDIOID;
-	APPID value = addr->appstate_arr[appid].type; // @suppress("Field cannot be resolved")
+	APPID value = addr->appstate_arr[appid].type;
 	Assert_equal( value ,  appid );
+
 	Direction_e record = addr->WD_state.direction;
 	Assert_equal( record, wavedisplay_struct::NO_direction, "Wd_status.record" );
 }
 
-Interface_class::Interface_class( 	APPID appid,
+SharedData_class::SharedData_class( 	APPID appid,
 									Id_t sdsid,
 									Config_class* cfg,
 									Semaphore_class* sem ):
@@ -87,12 +79,12 @@ Interface_class::Interface_class( 	APPID appid,
 	Setup_SDS			( sdsid, sds_key );
 }
 
-Interface_class::~Interface_class()
+SharedData_class::~SharedData_class()
 {
 	DESTRUCTOR( className );
 }
 
-void Interface_class::Set_dumpFile( string dir, uint8_t sdsid )
+void SharedData_class::Set_dumpFile( string dir, uint8_t sdsid )
 {
 	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
 	if( not filesystem::exists( subdir ) )
@@ -103,16 +95,15 @@ void Interface_class::Set_dumpFile( string dir, uint8_t sdsid )
 }
 
 
-void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
+void SharedData_class::Setup_SDS( Id_t sdsid, key_t key)
 {
 	Comment(INFO, "allocating shared memory for IPC " + to_string( sdsid ));
 
-	shm_ds 					= SHM.shm_ds;//*SHM.Get( key );
-	shm_ds.Id				= sdsid;
-	this->addr				= ( interface_t* ) SHM.shm_ds.addr;
-	Eventque.setup( addr );
-
-	SHM.ShowDs(shm_ds);
+	shm_ds 			= SHM.shm_ds;//*SHM.Get( key );
+	shm_ds.Id		= sdsid;
+	this->addr		= ( interface_t* ) SHM.shm_ds.addr;
+	Eventque.setup	( addr );
+	SHM.ShowDs		( shm_ds );
 
 	if ( not shm_ds.eexist )
 	{
@@ -149,38 +140,38 @@ void Interface_class::Setup_SDS( Id_t sdsid, key_t key)
 	shm_ds.eexist = true;
 }
 
-void Interface_class::Remove_dumpFile()
+void SharedData_class::Remove_dumpFile()
 {
 	Remove_file( dumpFile );
 }
-void Interface_class::Copy_dumpFileTo( string dst )
+void SharedData_class::Copy_dumpFileTo( string dst )
 {
 	filesystem::copy( 	dumpFile ,
 						dst,
 						filesystem::copy_options::overwrite_existing);
 }
-void Interface_class::Copy_dumpFileFrom( string src )
+void SharedData_class::Copy_dumpFileFrom( string src )
 {
 	filesystem::copy( 	src ,
 						dumpFile,
 						filesystem::copy_options::overwrite_existing);
 }
-void Interface_class::Delete_Shm()
+void SharedData_class::Delete_Shm()
 {
 	SHM.Delete();
 }
-bool Interface_class::Datasegment_exists()
+bool SharedData_class::Datasegment_exists()
 {
 	return shm_ds.eexist;
 }
 
-void Interface_class::Write_arr( const wd_arr_t& arr )
+void SharedData_class::Write_arr( const wd_arr_t& arr )
 {
 	for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
 		addr->wavedata[n] = arr[n] ;
 }
 #include <cstring>
-void Interface_class::Write_str(const char selector, const string str )
+void SharedData_class::Write_str(const char selector, const string str )
 {
 	if (reject( AppId )) return;
 
@@ -188,12 +179,11 @@ void Interface_class::Write_str(const char selector, const string str )
 		addr->UpdateFlag = true;
 	const string wrt = str.substr(0, SDSSTR_SIZE-1 );
 
-
 	switch ( selector )
 	{
 		case INSTRUMENTSTR_KEY :
 		{
-			strcpy( addr->Instrument, wrt.data());
+			strcpy( addr->Instrument, wrt.data() );
 			break;
 		}
 		case NOTESSTR_KEY :
@@ -221,7 +211,7 @@ void Interface_class::Write_str(const char selector, const string str )
 }
 
 
-string Interface_class::Read_str( EVENTKEY_e selector )
+string SharedData_class::Read_str( EVENTKEY_e selector )
 {
 	string str;
 	switch ( selector )
@@ -252,24 +242,25 @@ string Interface_class::Read_str( EVENTKEY_e selector )
 	return str;
 }
 
-
-void Interface_class::Reset_ifd()
-{
-	// copy default values into sds memory
+extern appstate_arr_t initAppstate_arr();
+void SharedData_class::Reset_ifd()
+{	// copy default values into sds memory
 
 	Comment(INFO, "Reset shared data");
-	memcpy( addr	, &ifd_data		, sizeof( interface_t ) );
+//	memcpy( addr	, &ifd_data		, sizeof( ifd_data ) );
+	*addr = ifd_data;
+
 	addr->appstate_arr	= initAppstate_arr();
 	addr->connect_arr	= initConnect_arr();
 	addr->StA_state_arr[ STA_INSTRUMENT ].play = true;
-	Interface_class::selfTest();
+	SharedData_class::selfTest();
 
 	Dump_ifd( );
 }
 
-bool Interface_class::Restore_ifd()
+bool SharedData_class::Restore_ifd()
 {
-	// copy dump file data into memory
+	// copy dump file data into share data segment
 
 	Comment(INFO,"Restore shared data from file");
 	assert( dumpFile.size() > 0 );
@@ -285,7 +276,7 @@ bool Interface_class::Restore_ifd()
 	Eventque.reset();
 	return ret;//( size == sizeof( ifd_data ));
 }
-void Interface_class::Activate_sds()
+void SharedData_class::Activate_sds()
 {
 	std::ranges::for_each( init_keys, [ this ]( EVENTKEY_e key )
 			{	Eventque.add( key );	} );
@@ -298,7 +289,7 @@ void Interface_class::Activate_sds()
 	if( addr->WD_state.wd_mode == wavedisplay_t::CURSORID ) // ensure consistency
 		addr->WD_state.wd_mode = wavedisplay_t::FULLID;
 }
-void Interface_class::Dump_ifd()
+void SharedData_class::Dump_ifd()
 {
 	// copy shared memory data to dumpfile
 
@@ -310,14 +301,14 @@ void Interface_class::Dump_ifd()
 }
 
 
-void Interface_class::Commit()
+void SharedData_class::Commit()
 {
 	addr->UpdateFlag = true;
 	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
 		Sem_p->Release( PROCESSOR_WAIT );
 }
 
-bool Interface_class::reject( APPID appid )
+bool SharedData_class::reject( APPID appid )
 {
 	StateId_t composer_state = addr->appstate_arr[COMPID].state;
 	if (( composer_state == RUNNING ) and ( appid != COMPID ))
@@ -333,7 +324,7 @@ bool Interface_class::reject( APPID appid )
 
 
 
-void Interface_class::Test_interface()
+void SharedData_class::Test_interface()
 {
 	TEST_START( className );
 	Eventque.reset();

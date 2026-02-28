@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,12 +23,13 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * common.cpp
+ * system.cpp
  *
  *  Created on: Dec 30, 2023
  *      Author: Ulrich.Glasmeyer@web.de
  */
 #include <System.h>
+#include <fstream>
 
 bool has_cmd_processor() // e.g. /bin/sh or cmd.exe
 {
@@ -127,13 +128,13 @@ string searchPath( string file )
 
 
 size_t loadData( string name, void* data, size_t bytes )
-{
+{	// copy file to memory
+
 	auto filesize = [ name ]( )
 	{
 	    filesystem::path filePath = name;
 	    return filesystem::file_size(filePath);;
 	};
-	// copy file to memory
 
 	if( name.length() == 0 )
 		return false;
@@ -144,26 +145,36 @@ size_t loadData( string name, void* data, size_t bytes )
 	if ( bytes == 0 )
 		bytes = filesize();
 
-	ifstream		fd{ name, ios::binary };
+	ifstream		fd	{ name, ios::binary };
 	fd.read( reinterpret_cast<char*>( data ), bytes );
 	fd.close();
 
 	return bytes;
 }
+
+#include <iostream>
 bool dumpData( string name, void* data, size_t bytes )
-{
-	// copy memory to file
+{	// copy memory to file
+
+	auto dir = [ name ]()
+	{
+		filesystem::path path { name };
+		return path.root_path();
+	};
+//	array<char,100> Data = { 0 };
+//	fstream		fd	{ "/tmp/test", fd.binary | fd.out | fd.trunc | fd.out };
+//	fd.write( reinterpret_cast<char*>( &Data ), 100 );
 
 	if( name.length() == 0 )
 		return false;
 	if( not data )
 		return false;
+	if( not filesystem::exists( dir() ))
+		return false;
 
-	ofstream		fd{ name, ios::binary };
-	fd.write( reinterpret_cast<char*>( data ), bytes );
-	fd.close();
+	std::fstream		FD	{ name, ios_base::binary|ios_base::out };
+	FD.write( reinterpret_cast<char*>( data ), bytes );
 	return true;
-
 }
 void Remove_file( string file )
 {

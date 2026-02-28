@@ -31,8 +31,9 @@ add_dependencies( ${OCEAN_PROJECT} ${QMAKE_TARGET})
 
 add_custom_target( "clean_moc" 
 	COMMAND	make -f ${QTMAKEFILE} clean
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 	
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/../include/ 

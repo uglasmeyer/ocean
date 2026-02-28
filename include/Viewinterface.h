@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +33,6 @@ SOFTWARE.
 #define VIEWINTERFACE_H_
 
 #include <data/DataWorld.h>
-#include <data/Interface.h>
-#include <data/Appstate.h>
-#include <Adsr.h>
 #include <data/Device.h>
 
 /**************************************************
@@ -54,7 +51,7 @@ class ViewInterface_class
 {
 	int					counter		= 0;
 	string				footer		= "";
-	Interface_class*	Sds_p 		= nullptr;
+	SharedData_class*	Sds_p 		= nullptr;
 	interface_t* 		sds_p 		= nullptr;
 	interface_t*		sds_master	= nullptr;
 

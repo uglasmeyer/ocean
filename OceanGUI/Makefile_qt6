@@ -40,7 +40,7 @@ DISTNAME      = OceanGUI1.0.0
 DISTDIR = /home/sirius/git/Ocean/OceanGUI/.tmp/OceanGUI1.0.0
 LINK          = clang++
 LFLAGS        = -ccc-gcc-name g++ -Wl,-rpath-link,/usr/lib/x86_64-linux-gnu
-LIBS          = $(SUBLIBS) -L/home/sirius/OceanDev/lib -lOcean /usr/lib/x86_64-linux-gnu/libQt6Widgets.so /usr/lib/x86_64-linux-gnu/libQt6Gui.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libQt6Core.so -lpthread -lGLX -lOpenGL   
+LIBS          = $(SUBLIBS) -L/home/sirius/OceanDev/lib/x86_64/ -lOcean /usr/lib/x86_64-linux-gnu/libQt6Widgets.so /usr/lib/x86_64-linux-gnu/libQt6Gui.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libQt6Core.so -lpthread -lGLX -lOpenGL   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -141,7 +141,7 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/spec_pre.prf \
 		include/Keyboad_dialog.h \
 		include/File_Dialog.h \
 		include/Mainwindow.h \
-		include/Oszilloscopewidget.h \
+		include/DataGraphicClass.h \
 		include/Spectrum_dialog.h \
 		include/Rtsp_dialog.h \
 		include/Dispatcher.h 
@@ -321,7 +321,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resource.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/Cutterdialog.h include/Keyboad_dialog.h include/File_Dialog.h include/Mainwindow.h include/Oszilloscopewidget.h include/Spectrum_dialog.h include/Rtsp_dialog.h include/Dispatcher.h $(DISTDIR)/
+	$(COPY_FILE) --parents include/Cutterdialog.h include/Keyboad_dialog.h include/File_Dialog.h include/Mainwindow.h include/DataGraphicClass.h include/Spectrum_dialog.h include/Rtsp_dialog.h include/Dispatcher.h $(DISTDIR)/
 	$(COPY_FILE) --parents CutDesk_Dialog.ui File_Dialog_class.ui keyboad_dialog.ui mainwindow.ui Rtsp_dialog_class.ui spectrum_dialog_class.ui $(DISTDIR)/
 
 
@@ -531,9 +531,6 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/App.h \
 		../include/data/DataWorld.h \
 		../include/data/Appstate.h \
-		include/Cutterdialog.h \
-		include/Common.h \
-		ui_CutDesk_Dialog.h \
 		ui_mainwindow.h \
 		include/File_Dialog.h \
 		../include/notes/Notes.h \
@@ -544,9 +541,11 @@ moc_Mainwindow.cpp: include/Mainwindow.h \
 		../include/Wavedisplay.h \
 		../include/notes/MusicXML.h \
 		ui_File_Dialog_class.h \
+		include/Cutterdialog.h \
+		include/Common.h \
+		ui_CutDesk_Dialog.h \
 		include/Keyboad_dialog.h \
 		../include/Keyboard.h \
-		include/Oszilloscopewidget.h \
 		include/Rtsp_dialog.h \
 		ui_Rtsp_dialog_class.h \
 		include/Spectrum_dialog.h \
@@ -670,9 +669,6 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/data/Appstate.h \
 		include/Mainwindow.h \
 		../include/App.h \
-		include/Cutterdialog.h \
-		include/Common.h \
-		ui_CutDesk_Dialog.h \
 		ui_mainwindow.h \
 		include/File_Dialog.h \
 		../include/notes/Notes.h \
@@ -683,9 +679,11 @@ moc_Dispatcher.cpp: include/Dispatcher.h \
 		../include/Wavedisplay.h \
 		../include/notes/MusicXML.h \
 		ui_File_Dialog_class.h \
+		include/Cutterdialog.h \
+		include/Common.h \
+		ui_CutDesk_Dialog.h \
 		include/Keyboad_dialog.h \
 		../include/Keyboard.h \
-		include/Oszilloscopewidget.h \
 		include/Rtsp_dialog.h \
 		ui_Rtsp_dialog_class.h \
 		include/Spectrum_dialog.h \

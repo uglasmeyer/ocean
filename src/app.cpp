@@ -38,7 +38,7 @@ SOFTWARE.
 
 #include <App.h>
 #include <Version.h>
-
+#include <fstream>
 
 Application_class::Application_class( Dataworld_class* _DaTA ) :
 		Logfacility_class( "Application_class" ),

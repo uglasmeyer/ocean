@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -176,7 +176,7 @@ kbdInt_t SwitchF9( kbdInt_t key )
 		case 's' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
 						break; }
 		case 'd' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
-						for( Interface_class Sds : DaTA.SDS.Vec )
+						for( SharedData_class Sds : DaTA.SDS.Vec )
 						{
 							Sds.Remove_dumpFile();
 						}
@@ -228,14 +228,14 @@ int main( int argc, char* argv[] )
 	if( Cfg.Config.clearipc == 'y' )
 	{
 		DaTA.Appstate.Shutdown_all( DaTA.SDS.vec );
-		for( Interface_class& Sds : DaTA.SDS.Vec )
+		for( SharedData_class& Sds : DaTA.SDS.Vec )
 		{
 			Sds.Remove_dumpFile();
 		}
 		DaTA.SDS.Delete();
 		raise( SIGINT );
 	}
+
 	MenuMain.Loop();
-	return 0;
 
 }

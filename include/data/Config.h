@@ -116,6 +116,9 @@ struct dir_struct
 
 const string	default_name				= "default";
 
+/**************************************************
+ * file_structure
+ *************************************************/
 struct file_structure
 	: virtual dir_struct
 {
@@ -190,7 +193,7 @@ struct file_structure
 	const string 	desktop_filename			= string(OCEANGUI) + ".desktop"; // see also oceansetup.sh
 	const string	desktop_file				= etcdir + desktop_filename;
 };
-
+typedef file_structure fs_t;
 /**************************************************
  * Config_class
  *************************************************/
@@ -201,8 +204,8 @@ class Config_class
 
 public:
 	process_t		Process				{};
-	file_structure	Fs					{};
-	file_structure*	fs					;
+	fs_t			Fs					{};
+	fs_t*			fs					;
 	string 			configfile 			{};
 	string 			prgName				{};
 	prgarg_t		Config 				= prgarg_struct();

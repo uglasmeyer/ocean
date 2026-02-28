@@ -36,19 +36,19 @@ SOFTWARE.
 Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
 											 Dataworld_class* 	data ,
 											 EventLog_class*	_log) :
-    Logfacility_class("Spectrum"),
-	Spectrum_class(),
-	Interface_base( data ),
-	QDialog(parent),
-	ui(new Ui::Spectrum_Dialog_class)
+    Logfacility_class	("Spectrum"),
+	Spectrum_class		(),
+	Interface_base		( data ),
+	QDialog				( parent ),
+	ui					( new Ui::Spectrum_Dialog_class )
 {
-    Waveform_vec 		= Vstringvector( Get_waveform_vec() );
-    waveform_vec_len 	= Waveform_vec.size();
+    QWaveform_vec 		= Vstringvector( Get_waveform_vec() );
+    Eventlog_p			= _log;
 
-    ui->setupUi(this);
+    ui->setupUi			(this);
     ui->rb_spec_main->setChecked(true);
-    QStringList				Qbps_str_lst		= Qstringlist( bps_struct().Bps_lst );
-    ui->cb_bps->addItems	( Qbps_str_lst );
+    QStringList			Qbps_str_lst		= Qstringlist( bps_struct().Bps_lst );
+    ui->cb_bps->addItems( Qbps_str_lst );
 
     connect( ui->fS_1, SIGNAL(valueChanged(int)), this, SLOT(fS1( int )));
     connect( ui->vS_2, SIGNAL(valueChanged(int)), this, SLOT(vS2( int )));
@@ -86,13 +86,31 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
 
     connect( ui->cb_adsr	, SIGNAL( clicked(bool)), 	this, SLOT( adsr_slot(bool) ));
 
-    Eventlog_p				= _log;
 
 }
 
 Spectrum_Dialog_class::~Spectrum_Dialog_class()
 {
 	DESTRUCTOR( className );
+	delete ui->vS_4;
+	delete ui->vS_2;
+	delete ui->vS_6;
+	delete ui->vS_8;
+	delete ui;
+}
+void Spectrum_Dialog_class::Dialog( bool adsr )
+{
+	if( this->isVisible() )
+	{
+		this->hide();
+	}
+	else
+	{
+	    Setup_widgets();
+		this->show();
+	}
+    Set_adsr_flag( adsr );
+
 }
 void Spectrum_Dialog_class::cb_bps_slot( int bps_id )
 {
@@ -109,7 +127,7 @@ void Spectrum_Dialog_class::set_waveform_vec( vector<string> wf_vec )
     ui->sb_spwf2->setMaximum( max );
     ui->sb_spwf3->setMaximum( max );
     ui->sb_spwf4->setMaximum( max );
-    Waveform_vec= Vstringvector( wf_vec );
+    QWaveform_vec= Vstringvector( wf_vec );
 }
 
 void Spectrum_Dialog_class::set_spectrum_view()
@@ -309,7 +327,7 @@ void Spectrum_Dialog_class::save()
 void Spectrum_Dialog_class::SetLabelWaveform( )
 {
 	int wfid = sb_vec[ Channel ]->value();
-	ui->lbl_waveform->setText( Waveform_vec[ wfid ] );
+	ui->lbl_waveform->setText( QWaveform_vec[ wfid ] );
 }
 
 

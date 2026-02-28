@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -60,7 +60,7 @@ struct prgarg_struct
 	char 		oceangui	= 'n';		// start rtsp with option -G
 	char		archive		= 'n';		// setup creates no binary archive
 	char		Deploy		= 'n';		// -Y deployment workflow
-	char		clearipc	= 'n';		// SDSview -C call ipcrm -a
+	char		clearipc	= 'n';		// SDSview -i call ipcrm -a
 	string 		Genre		= "Alternative";
 	string 		author		= "U.G.";
 	string		title		= "Experimental";
@@ -116,25 +116,24 @@ enum APPID
 struct AppMap_struct
 {
 
-	map<APPID, string> AppIdName_map // @suppress("Invalid arguments")
+	map<APPID, string > AppIdName_map // @suppress("Invalid arguments")
 	{
-			{ AUDIOID		, AUDIOSERVER },
-			{ SYNTHID		, SYNTHESIZER},
-			{ COMPID		, COMPOSER},
-			{ GUI_ID		, OCEANGUI},
-			{ SDSVIEWID		, SDSVIEW},
-			{ RTSPID		, RTSP},
-			{ KEYBOARDID	, SYNTHKBD},
-			{ SETUPID		, SETUP},
-			{ TESTPRGID		, TESTPRG},
-			{ XMLEDITORID	, XMLEDITOR},
-			{ NoAPPID		, "unknown id"},
+			{ AUDIOID		, AUDIOSERVER	 },
+			{ SYNTHID		, SYNTHESIZER	 },
+			{ COMPID		, COMPOSER		 },
+			{ GUI_ID		, OCEANGUI		 },
+			{ SDSVIEWID		, SDSVIEW		 },
+			{ RTSPID		, RTSP			 },
+			{ KEYBOARDID	, SYNTHKBD		 },
+			{ SETUPID		, SETUP			 },
+			{ TESTPRGID		, TESTPRG		 },
+			{ XMLEDITORID	, XMLEDITOR		 },
+			{ NoAPPID		, "unknown id"	 },
 	};
+
 	map< string, APPID >AppNameId_map = // @suppress("Invalid arguments")
 			imap<APPID, string>( AppIdName_map ); // @suppress("Invalid arguments")
 	vector<APPID> AppIds{};
-
-
 
 	AppMap_struct()
 	{

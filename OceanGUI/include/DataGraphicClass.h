@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ SOFTWARE.
 #define OSZILLOSCOPEWIDGET_H
 // C++ Project
 
-#include <Ocean.h>
+//#include <Ocean.h>
 #include <data/Interface.h>
 
 // Qt
@@ -46,24 +46,28 @@ SOFTWARE.
 // https://forum.qt.io/topic/86500/understanding-paintevent
 
 
-
-class OszilloscopeWidget : public QGraphicsItem
+/**************************************************
+ * DataGraphic_class
+ *************************************************/
+class DataGraphic_class
+	: public QGraphicsItem,
+	  Logfacility_class
 {
-
-public:
-    interface_t*          sds;
-
-    OszilloscopeWidget( interface_t*, QRectF );
-    ~OszilloscopeWidget(){};
-
-    void    read_polygon_data();
-
-private:
     QRectF          drawregion;
     QPolygonF       polygon;
     uint 			shiftY 		= 0;
     uint			height		= 0;
     float			data_scale	= 0;
+
+public:
+    interface_t*          sds;
+
+    		DataGraphic_class	( interface_t*, QRectF );
+    virtual	~DataGraphic_class	() = default;
+
+    void    read_polygon_data();
+
+private:
 
     QRectF  boundingRect() const; // implement virtual method boundingRect, need by qgraphicsitem.h
 

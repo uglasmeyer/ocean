@@ -41,7 +41,7 @@ SOFTWARE.
 #include <data/Semaphore.h>
 #include <data/Sdsbase.h>
 
-typedef vector<Interface_class> 	SDS_Vec_t;
+typedef vector<SharedData_class> 	SDS_Vec_t;
 
 /*********************
  * SDS_struct
@@ -52,13 +52,13 @@ public:
 	SDS_Vec_t 				Vec				{};
 	sds_vec_t				vec				{};
 	interface_t*			master			;
-	Interface_class*		Master			;
+	SharedData_class*		Master			;
 
 							SDS_struct		( APPID appid,
 											Config_class* Cfg_p,
 											Semaphore_class* Sem_p );
 	virtual 				~SDS_struct		() = default;
-	Interface_class* 		GetSds			( int id );
+	SharedData_class* 		GetSds			( int id );
 	interface_t* 			GetSdsAddr		( int id );
 	void 					Delete			();
 
@@ -79,8 +79,8 @@ public:
 	Appstate_class 			Appstate			;
 	Id_t					SDS_Id				;
 
-	Interface_class*		Sds_p				;
-	Interface_class*		Sds_master			;
+	SharedData_class*		Sds_p				;
+	SharedData_class*		Sds_master			;
 	interface_t*			sds_master			;
 	Config_class*			Cfg_p				;
 	Semaphore_class*		Sem_p				;
@@ -91,7 +91,7 @@ public:
 	string					Test_result			;
 
 	interface_t* 			GetSdsAddr			();
-	Interface_class*		GetSds				();
+	SharedData_class*		GetSds				();
 	Stereo_t* 				SetShm_addr			(); // Audioserver
 	Stereo_t* 				GetShm_addr			();	// Synthesizer
 	void 					ClearShm			();
@@ -104,7 +104,7 @@ public:
 
 
 private:
-	void 					init_shared_data	();
+	void 					init_shared_sound	();
 
 	void 					init_Shm			( Shm_base& SHM,
 												key_t key,
@@ -120,8 +120,8 @@ class Interface_base :
 {
 public:
 	Dataworld_class*		DaTA	;
-	file_structure*			fs		;
-	Interface_class*		Sds		;
+	fs_t*					fs		;
+	SharedData_class*		Sds		;
 	interface_t*			sds_master;
 	interface_t*			sds_p	;
 	Id_t					SDS_ID	;

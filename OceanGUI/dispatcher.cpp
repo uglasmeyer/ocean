@@ -30,10 +30,12 @@ SOFTWARE.
  */
 #include <include/Dispatcher.h>
 
+/**************************************************
+ * Dispatcher_class
+ *************************************************/
 Dispatcher_class::Dispatcher_class( Dataworld_class* _data ) :
 	Logfacility_class( "Dispatcher_class")
 {
-	this->className = Logfacility_class::className;
 	Sem_p = _data->Sem_p;
 	Sds_p = _data->Sds_master;
 	Sds_master = _data->Sds_master;
@@ -112,13 +114,15 @@ void Dispatcher_class::Loop(  )
 		} // switch FLAG
 	}
 }
-
+/**************************************************
+ * Controller_class
+ *************************************************/
 Controller_class::Controller_class( MainWindow& window ) :
-	Dispatcher( &window.DaTA )
+	Dispatcher( window.DaTA_p )
 {
-	MainWindow*		window_p = &window;
-	Dispatcher_class* Dispatcher_p = &Dispatcher;
-	Dispatcher_p->moveToThread( Thread_p );
+	MainWindow*			window_p 		= &window;
+	Dispatcher_class* 	Dispatcher_p 	= &Dispatcher;
+	Dispatcher_p->moveToThread			( Thread_p );
 
 	window.connect( Thread_p, &QThread::started,
 					Dispatcher_p, &Dispatcher_class::Loop );

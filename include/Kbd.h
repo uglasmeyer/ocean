@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ SOFTWARE.
 #include <Ocean.h>
 #define NOKEY 0
 
-enum  KEYCODE {
+enum KEYCODE : long int {
 	ESC		= 0x01b,//27,
 	RELEASE	= ' ',	//32
 	RET		= 10,
@@ -44,7 +44,8 @@ enum  KEYCODE {
 	UP		= 4283163,
 	LEFT	= 4479771,
 	RIGHT	= 4414235,
-	DEL		= 2117294875,
+	DEL		= 0x07e335b1b,
+//	2117294875,
 	F1 = 0x00000504f1b,
 	F2 = 0x00000514f1b,
 	F3 = 0x00000524f1b,
@@ -104,7 +105,7 @@ struct keymap_struct
 	} keymap_data_t;
 
 	const vector<keymap_data_t>	keymap_vec
-	{	//		key			name	menu
+	{	//		key			name	menu				Qt::Key_
 			{ KEYCODE::F1, 	"F1", "Key overview"	, 0x01000030 },
 			{ KEYCODE::F2, 	"F2", "Processes"		, 0x01000031 },
 			{ KEYCODE::F3, 	"F3", "States"			, 0x01000032 },
@@ -113,7 +114,8 @@ struct keymap_struct
 			{ KEYCODE::F6, 	"F6", "ADSR"			, 0x01000035 },
 			{ KEYCODE::F7, 	"F7", "Spectrum"		, 0x01000036 },
 			{ KEYCODE::F8, 	"F8", "Semaphores"		, 0x01000037 },
-			{ KEYCODE::F9, 	"F9", "Manage Proc."	, 0x01000038 }
+			{ KEYCODE::F9, 	"F9", "Manage Proc."	, 0x01000038 },
+			{ KEYCODE::DEL,	"DEL","Delete"			, 0x01000007 }
 	};
 				keymap_struct	(){};
 				~keymap_struct	() = default;

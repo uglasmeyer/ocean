@@ -424,28 +424,13 @@ void Menue_class::Set_sdsid( int delta )
 	if( delta == 0 )
 		sdsid = sds_master->config;
 
-	Interface_class*
+	SharedData_class*
 	Sds 	= DaTA->SDS.GetSds( sdsid );
 	sds 	= Sds->addr;
 	sds_master->sdsview_sdsid = sdsid;
 	DaTA->Appstate.Setup( sds, sds_master );
 }
 
-void Menue_class::Loop()
-{
-	kbdInt_t key 			= Switch( sds_master->sdsview_page );
-	while ( key != ESC )
-	{
-		ViewSds.ShowPage( sds );
-		key 	= Key_event();
-		switch( key )
-		{
-			case '+' 	: { Set_sdsid( 1 ); break;}
-			case '-' 	: { Set_sdsid(-1 ); break;}
-			default		: { key		= Switch( key ); break; }
-		}
-	}
-}
 
 
 kbdInt_t Menue_class::Key_event( )
@@ -455,7 +440,7 @@ kbdInt_t Menue_class::Key_event( )
 		sds->UpdateFlag 		= false;
 		sds_master->UpdateFlag 	= false;
 	};
-	auto is_updateFlag = [this  ](  )
+	auto is_updateFlag = [ this ](  )
 	{
 		return ((sds->UpdateFlag ) 	or (sds_master->UpdateFlag ));
 	};
@@ -470,8 +455,24 @@ kbdInt_t Menue_class::Key_event( )
 			reset_updateFlag();
 		}
 		if( ViewSds.Appstate.IsExitserver( sds_master, SDSVIEWID ) )
-			raise( 1 );
+			raise( SIGHUP );
 
 	}
 	return key.Int;
+}
+
+void Menue_class::Loop()
+{
+	kbdInt_t key 			= Switch( sds_master->sdsview_page );
+	while ( key != ESC )
+	{
+		ViewSds.ShowPage( sds );
+		key 	= Key_event();
+		switch	( key )
+		{
+			case '+' 	: { Set_sdsid	( 1 )			; break; }
+			case '-' 	: { Set_sdsid	(-1 )			; break; }
+			default		: { key			= Switch( key )	; break; }
+		}
+	}
 }

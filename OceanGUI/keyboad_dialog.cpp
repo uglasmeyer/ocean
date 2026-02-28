@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,27 +29,28 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-
-#include "ui_keyboad_dialog.h"
-#include <include/Common.h>
+// OceanGUI
+#include <ui_keyboad_dialog.h>
 #include <include/Keyboad_dialog.h>
-#include <include/Common.h>
 
+/**************************************************
+ * Keyboard_Dialog_class
+ *************************************************/
 Keyboad_Dialog_class::Keyboad_Dialog_class(
-		QWidget* 			parent,
-		Dataworld_class* 	_data,
-		EventLog_class*		_log
-		)
-    : OceanGUI_base( _data ),
-	  QDialog(parent),
-     ui(new Ui::Keyboad_Dialog_class),
-	 Kbd_pitch( _data->sds_master )
+	QWidget* 			_parent,
+	Dataworld_class* 	_data,
+	EventLog_class*		_log
+)
+    : Interface_base	( _data )
+	, QDialog			( _parent )
+    , ui				(new Ui::Keyboad_Dialog_class )
+	, Kbd_pitch			( _data->sds_master )
 {
-	this->parent	= parent;
+	this->parent		= _parent;
+	this->Eventlog_p	= _log;
+	Eventlog_p->add		( SDS_ID, KBD_EVENT_KEY );
 
-	this->Eventlog_p= _log;
-
-	ui->setupUi(this);
+	ui->setupUi			(this);
     ui->cB_buffer_mode->addItems( QStringList{ "persist", "forget" } );
 
 	connect( ui->cB_buffer_mode	, SIGNAL(activated( int ))	, this, SLOT( buffer_mode( int )));
@@ -60,10 +61,7 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
     connect( ui->cb_sliding_mode, SIGNAL(clicked(bool))		, this, SLOT( sliding_mode(bool) ));
     connect( ui->pB_Save		, SIGNAL(clicked())			, this, SLOT( save()));
 
-
-	Setup_Widget	();
-	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
-	this->move(0,100);
+	Setup_Widget		();
 }
 
 Keyboad_Dialog_class::~Keyboad_Dialog_class()
@@ -73,7 +71,7 @@ Keyboad_Dialog_class::~Keyboad_Dialog_class()
 
 void Keyboad_Dialog_class::SetSds()
 {
-	OceanGUI_base::SetSds();
+	Interface_base::SetSds();
 	Setup_Widget	();
 }
 void Keyboad_Dialog_class::buffer_mode( int value )
@@ -117,6 +115,7 @@ void Keyboad_Dialog_class::sliding_mode(bool value )
 }
 void Keyboad_Dialog_class::save()
 {
+	Sds->Set( sds_p->Kbd_state.key, kbdInt_t(F9) );
 	Sds->Set( sds_p->Kbd_state.savenotes, true );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }

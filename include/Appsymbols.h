@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -42,10 +42,10 @@ Semaphore_class		Sem				{ Cfg.Config.Sem_key };
 Dataworld_class 	DaTA			{ &Cfg, &Sem };
 Appstate_class*		Appstate 		= &DaTA.Appstate;
 interface_t*		sds_master 		= DaTA.sds_master;
-Interface_class*	Sds_master		= DaTA.Sds_master;
+SharedData_class*	Sds_master		= DaTA.Sds_master;
 Application_class	App				{ &DaTA };
 interface_t*		sds_p 			= App.sds_p;		// consistent with  Interface_base
-Interface_class*	Sds				= App.Sds;			// consistent with  Interface_base
+SharedData_class*	Sds				= App.Sds;			// consistent with  Interface_base
 
 
 

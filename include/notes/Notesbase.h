@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,7 @@ SOFTWARE.
 #define INCLUDE_NOTESBASE_H_
 
 #include <data/Config.h>
-//#include <Ocean.h>
-//#include <Frequency.h>
 #include <Oscbase.h>
-//#include <String.h>
-//#include <Table.h>
 
 extern float get_chord_volume( float volume, uint8_t chordlen );
 
@@ -68,8 +64,8 @@ enum NOTETYPE_e
 	NTE_ID
 };
 
-const range_T<uint8_t>	npsidx_range{ 0, 8 };
-const range_T<uint8_t>	accidental_range{ 0_uint, 7_uint };
+const range_T<uint8_t>	npsidx_range	{ 0, 8 };
+const range_T<uint8_t>	accidental_range{ 0, 7 };
 
 typedef vector<int> step_vec_t ;
 
@@ -267,6 +263,7 @@ public:
 		uint8_t		sharp		= 0;	// number of sharps in the key signature - FCGDAEB
 		uint8_t		variation	= 0;	// 0 no variation, 1 variable note
 		int			chord_delay = 0;	// msec delay between each note of a chord
+		uint8_t		free		= 1;	// align to even structure size
 	} noteline_prefix_t;
 	const noteline_prefix_t nlp_default = noteline_prefix_struct();
 	noteline_prefix_t		Noteline_prefix	= nlp_default; // D=default, N=numeric

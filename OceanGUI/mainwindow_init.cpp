@@ -44,6 +44,8 @@ WfDisplay_que_struct::WfDisplay_que_struct( interface_t* _sds, sta_role_map* _ma
 }
 void WfDisplay_que_struct::Add( RoleId_e role )
 {
+	if( role == ROLE_SIZE )
+		return;
 	if ( Vec.size() == 0 )
 	{
 		Vec.push_back	( role );
@@ -120,19 +122,6 @@ void MainWindow::initPanel()
     palette.setColor(QPalette::Button, QColor(0,179,255) );
     this->setPalette(palette);
 
-    Spectrum_Dialog_Rect = Spectrum_Dialog_p->geometry();  //get current geometry of help window
-    QRect parentRect = this->geometry();      //get current geometry of this window
-//    QPoint oscview_TopLeft = QPoint( ui->oscilloscope_view->geometry().bottomLeft() );
-    QPoint oscview_TopLeft = QPoint (0 ,0 );
-    Spectrum_Dialog_Rect= QRect( oscview_TopLeft, Spectrum_Dialog_p->geometry().size() );
-    //get current geometry of this window
-    //    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
-//    rect.moveTo(mapToGlobal( Spectrum_Dialog_TopLeft ));
-
-    QRect rect = File_Dialog_p->geometry();  //get current geometry of help window
-    parentRect = this->geometry();      //get current geometry of this window
-    rect.moveTo(mapToGlobal(QPoint(parentRect.x() + parentRect.width() - rect.width(), parentRect.y())));
-    File_Dialog_p->setGeometry(rect);
 }
 
 void MainWindow::initLables()
@@ -148,13 +137,12 @@ void MainWindow::initLables()
 }
 void MainWindow::initComboBoxes()
 {
-    string wavfile_path = fs->musicdir;
-    CB_external->clear();
+	ui->cB_external->clear();
 
-    Path_t path { wavfile_path, fs->wav_type } ;
-    CB_external->addItems( Qread_filenames(	path ) );
+    Path_t path { fs->musicdir, fs->wav_type } ;
+    ui->cB_external->addItems( Qread_filenames(	path ) );
     QString Qfile	= QReadStr( Sds, OTHERSTR_KEY );
-    CB_external->setCurrentText( Qfile );
+    ui->cB_external->setCurrentText( Qfile );
 
 	Qbps_str_lst 				= Qstringlist( Bps.Bps_lst );
     ui->CB_kbd_bps->addItems	( Qbps_str_lst );
@@ -166,9 +154,8 @@ void MainWindow::initComboBoxes()
 void MainWindow::initOscillatorDisplay()
 {
     QRectF 				rect         = ui->oscilloscope_view->geometry();
-    OszilloscopeWidget	OscWidg( Sds->addr, rect );
-    OscWidget_item 		= new OszilloscopeWidget( Sds->addr, rect ) ;
-
+    scene				= new QGraphicsScene( this );
+    OscWidget_item 		= new DataGraphic_class( Sds->addr, rect ) ;
     ui->oscilloscope_view->setScene( scene );
     scene->addItem( OscWidget_item );
 }
@@ -194,7 +181,6 @@ void MainWindow::initStateButtons()
 	int wd_mode = check_range( wd_mode_range, (int)sds_p->WD_state.wd_mode );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
 
-
 	Qwd_role_names 	= Vstringvector( roleNames );
 	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_state.roleId ]);
 
@@ -202,20 +188,19 @@ void MainWindow::initStateButtons()
     setButton( ui->pB_play_notes, 2 );
     setButton( ui->pB_Specrum, 2 );
     setButton( ui->pBGuiExit, 3 );
-
-
-
-
 }
 
 void MainWindow::initScrollbars()
 {
-	QWaveform_vec 		= Vstringvector( waveform_str_vec);
-    uint sb_max = QWaveform_vec.size()-1;
-
-    ui->sB_OSC->setMaximum(sb_max);
-    ui->sB_FMO->setMaximum(sb_max);
-    ui->sB_VCO->setMaximum(sb_max);
+	QWaveform_vec 	= Vstringvector( waveform_str_vec );
+	assert( QWaveform_vec.size() > 0 );
+    uint sb_max 	= QWaveform_vec.size()-1;
+    vector<QSpinBox*> Sb_osc = { ui->sB_FMO, ui->sB_VCO, ui->sB_OSC };
+    for( OSCID_e oscid : oscIds )
+    {
+    	Sb_osc[oscid]->setMaximum( sb_max );
+    	Sb_osc[oscid]->setValue( (int)sds_p->spectrum_arr[oscid].wfid[0] );
+    }
 }
 
 void MainWindow::initFreqSlider()
@@ -225,7 +210,7 @@ void MainWindow::initFreqSlider()
 		map.sl->setMinimum( 1 );
 		map.sl->setMaximum( map.max );
 		int frqidx = *map.value;
-		map.sl->setValue( Spectrum.GetFrq( frqidx ));
+		map.sl->setValue( Spectrum_Dialog_p->Frequency.GetFrq( frqidx ));
 	}
 	if ( Sds->addr->frq_slidermode == COMBINE )
 		ui->cB_Combine->setChecked( true );
@@ -311,13 +296,13 @@ void MainWindow::initGuiVectors( interface_t* sds)
 
 void MainWindow::initUiConnectors()
 {
-    connect(ui->pB_Rtsp			, SIGNAL(clicked() )		,this, SLOT(Rtsp_Dialog() ));
-    connect(ui->pb_SDSview		, SIGNAL(clicked() )		,this, SLOT(SDS_Dialog() ));
     connect(ui->pB_Specrum		, SIGNAL(clicked() )		,this, SLOT(Spectrum_Dialog() ));
-    connect(ui->pB_play_notes	, SIGNAL(clicked() )		,this, SLOT(File_Director() ));
     connect(ui->pB_ADSR			, SIGNAL(clicked() )		,this, SLOT(ADSR_Dialog() ));
-    connect(ui->pB_Cutter		, SIGNAL(clicked() )		,this, SLOT(Cutter_Dialog() ));
+    connect(ui->pB_Rtsp			, SIGNAL(clicked() )		,Rtsp_Dialog_p, SLOT(Dialog() ));
+    connect(ui->pB_play_notes	, SIGNAL(clicked() )		,File_Dialog_p, SLOT(Dialog() ));
+    connect(ui->pB_Cutter		, SIGNAL(clicked() )		,CutDesk_Dialog_p, SLOT(Dialog() ));
 
+    connect(ui->pb_SDSview		, SIGNAL(clicked() )		,this, SLOT(start_sdsview() ));
     connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
     connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() ));
     connect(ui->pBAudioServer	, SIGNAL(clicked() )		,this, SLOT(start_audio_srv() ));
@@ -370,23 +355,23 @@ void MainWindow::initUiConnectors()
     connect(ui->cb_ssta6		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta6() ));
     connect(ui->cb_ssta7		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta7() ));
 
-    connect(ui->cb_psta0			, SIGNAL(clicked() )		,this, SLOT(setStaPlay0() ));
-    connect(ui->cb_psta1			, SIGNAL(clicked() )		,this, SLOT(setStaPlay1() ));
-    connect(ui->cb_psta2			, SIGNAL(clicked() )		,this, SLOT(setStaPlay2() ));
-    connect(ui->cb_psta3			, SIGNAL(clicked() )		,this, SLOT(setStaPlay3() ));
-    connect(ui->cb_psta4			, SIGNAL(clicked() )		,this, SLOT(setStaPlay4() ));
-    connect(ui->cb_psta5			, SIGNAL(clicked() )		,this, SLOT(setStaPlay5() ));
-    connect(ui->cb_psta6			, SIGNAL(clicked() )		,this, SLOT(setStaPlay6() ));
-    connect(ui->cb_psta7			, SIGNAL(clicked() )		,this, SLOT(setStaPlay7() ));
+    connect(ui->cb_psta0		, SIGNAL(clicked() )		,this, SLOT(setStaPlay0() ));
+    connect(ui->cb_psta1		, SIGNAL(clicked() )		,this, SLOT(setStaPlay1() ));
+    connect(ui->cb_psta2		, SIGNAL(clicked() )		,this, SLOT(setStaPlay2() ));
+    connect(ui->cb_psta3		, SIGNAL(clicked() )		,this, SLOT(setStaPlay3() ));
+    connect(ui->cb_psta4		, SIGNAL(clicked() )		,this, SLOT(setStaPlay4() ));
+    connect(ui->cb_psta5		, SIGNAL(clicked() )		,this, SLOT(setStaPlay5() ));
+    connect(ui->cb_psta6		, SIGNAL(clicked() )		,this, SLOT(setStaPlay6() ));
+    connect(ui->cb_psta7		, SIGNAL(clicked() )		,this, SLOT(setStaPlay7() ));
 
-    connect(ui->cb_fsta0			, SIGNAL(clicked() )		,this, SLOT(setStaStored0() ));
-    connect(ui->cb_fsta1			, SIGNAL(clicked() )		,this, SLOT(setStaStored1() ));
-    connect(ui->cb_fsta2			, SIGNAL(clicked() )		,this, SLOT(setStaStored2() ));
-    connect(ui->cb_fsta3			, SIGNAL(clicked() )		,this, SLOT(setStaStored3() ));
-    connect(ui->cb_fsta4			, SIGNAL(clicked() )		,this, SLOT(setStaStored4() ));
-    connect(ui->cb_fsta5			, SIGNAL(clicked() )		,this, SLOT(setStaStored5() ));
-    connect(ui->cb_fsta6			, SIGNAL(clicked() )		,this, SLOT(setStaStored6() ));
-    connect(ui->cb_fsta7			, SIGNAL(clicked() )		,this, SLOT(setStaStored7() ));
+    connect(ui->cb_fsta0		, SIGNAL(clicked() )		,this, SLOT(setStaStored0() ));
+    connect(ui->cb_fsta1		, SIGNAL(clicked() )		,this, SLOT(setStaStored1() ));
+    connect(ui->cb_fsta2		, SIGNAL(clicked() )		,this, SLOT(setStaStored2() ));
+    connect(ui->cb_fsta3		, SIGNAL(clicked() )		,this, SLOT(setStaStored3() ));
+    connect(ui->cb_fsta4		, SIGNAL(clicked() )		,this, SLOT(setStaStored4() ));
+    connect(ui->cb_fsta5		, SIGNAL(clicked() )		,this, SLOT(setStaStored5() ));
+    connect(ui->cb_fsta6		, SIGNAL(clicked() )		,this, SLOT(setStaStored6() ));
+    connect(ui->cb_fsta7		, SIGNAL(clicked() )		,this, SLOT(setStaStored7() ));
 
     connect(ui->rb_S0			, SIGNAL(clicked() )		,this, SLOT(select_Sds0() ));
     connect(ui->rb_S1			, SIGNAL(clicked() )		,this, SLOT(select_Sds1() ));
@@ -415,7 +400,7 @@ void MainWindow::initUiConnectors()
 void MainWindow::initTimer()
 {
     connect(status_timer, &QTimer::timeout, this, &MainWindow::setwidgetvalues );
-    connect(osc_timer, &QTimer::timeout, this, &MainWindow::read_polygon_data );
-    status_timer->start(1000); 	// update widgets
-    osc_timer->start(250); 		// update oscilloscope widget 4 Hz
+    connect(osc_timer	, &QTimer::timeout, this, &MainWindow::read_polygon_data );
+    status_timer->start	(1000); 	// update widgets
+    osc_timer->start	(250); 		// update oscilloscope widget 4 Hz
 }

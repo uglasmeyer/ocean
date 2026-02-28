@@ -91,7 +91,7 @@ public:
 	string 				Read					( string filename );
 	void				Save					( string, noteline_prefix_t , string  );
 	void 				Set_nlp					( noteline_prefix_t nlp );
-	void				Set_noteline_prefix		( noteline_prefix_struct nlp );
+	void				Set_noteline_prefix		( noteline_prefix_t nlp );
 	bool				Set_notes_per_second	( int );
 	void				Set_prefix_octave		( int );
 	void 				Set_rhythm_line			( string );
@@ -150,7 +150,7 @@ class Note_class
 {
 	Instrument_class*	instrument 				;
 	Storage_class*		StA						;
-	Oscgroup_class		Oscgroup				;
+	Oscgroup_t			Oscgroup				;
 	Oscillator*			osc						;
 	Oscillator*			vco						;
 	Oscillator*			fmo						;
@@ -164,14 +164,12 @@ public:
 
 						Note_class				( Dataworld_class* data,
 												Instrument_class* instr,
-												Storage_class*	sta);	// Synthesizer
+												Storage_class*	sta );	// Synthesizer
 	virtual				~Note_class				();
 	void				LoadMusicxml			( const string& file );
 	bool				Generate_cyclic_data	();
 	bool 				Generate_volatile_data	( bool init = false );
 	Data_t*				ScanData				();
-	void 				TestNotes				();
-	bool 				Start_note_itr			();
 
 private:
 	void				note_itr_next			();
@@ -179,6 +177,7 @@ private:
 	bool	 			Note_clock				( bool init );
 	void 				sta_write_data			( const note_t& note );
 	void 				gen_chord_data			( note_t& note );
+	void 				testNotes				();
 
 };
 

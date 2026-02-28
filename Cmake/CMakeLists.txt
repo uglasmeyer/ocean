@@ -46,7 +46,7 @@ COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # uniform compile switches
-add_compile_options(-Wall -frecord-gcc-switches -pthread -O2 -g )
+add_compile_options(-Wall -frecord-gcc-switches -pthread -O2 -g -fPIC )
 
 # Add sub-directories
 add_subdirectory(../src 		build_src )
@@ -56,8 +56,9 @@ add_subdirectory(../OceanGUI 	build_OceanGUI )
 add_subdirectory(../Rtsp 		build_Rtsp )
 add_subdirectory(../SDSview 	build_SDSview )
 add_subdirectory(../Synth 		build_Synth )
-# add_subdirectory(../TestPrj 		build_TestPrj )
+#add_subdirectory(../TestPrj 		build_TestPrj )
 
 # create a runtime directory
 add_subdirectory(../Setup 		build_Setup )
+
 

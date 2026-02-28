@@ -49,9 +49,9 @@ Oscillator::Oscillator	( RoleId_e role_id,
 	Connection_reset	();
 	Data_reset			();
 
-	Mem_vco.DsInfo		( oscrole_name + ":" + osctype_name );
-	Mem_fmo.DsInfo		( oscrole_name + ":" + osctype_name );
-	Mem.DsInfo			( oscrole_name + ":" + osctype_name );
+	Mem_vco.DsInfo		( oscrole_name + ":" + osctype_name + "_vco" );
+	Mem_fmo.DsInfo		( oscrole_name + ":" + osctype_name + "_fmo" );
+	Mem.DsInfo			( oscrole_name + ":" + osctype_name + "main" );
 
 	Comment( INFO, oscrole_name + ":" + osctype_name + " initialized" );
 

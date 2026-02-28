@@ -276,15 +276,16 @@ void Spectrum_class::Sum( spectrum_t& spec )
 }
 
 #include <System.h>
+#include <fstream>
 void Spectrum_class::Test_Spectrum()
 {
 
 	spectrum_data					test_spectrum		=
 	{
 								.vol				= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
+								.volidx 			= { 100, 0, 0, 0, 0 },
 								.frqadj				= { 1.0, 2.0, 3.0, 4.0, 5.0 },
 								.frqidx 			= { A3, 0, 0, 0, 0 },
-								.volidx 			= { 100, 0, 0, 0, 0 },
 								.sum 				= 1.0,
 								.wfid 				= { SINUS, SINUS,SINUS,SINUS,SINUS},
 								.osc 				= OSCID,

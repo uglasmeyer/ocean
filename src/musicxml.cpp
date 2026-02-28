@@ -141,10 +141,9 @@ auto get_note_duration = []( int divisions, XMLElement* root )
 };
 
 
-Musicxml_class::Musicxml_class( file_structure* _fs  ) :
+Musicxml_class::Musicxml_class( fs_t* _fs  ) :
 	Logfacility_class( "Musicxml_class")
 {
-	className 	= Logfacility_class::className;
 	fs			= _fs;
 };
 Musicxml_class::~Musicxml_class()

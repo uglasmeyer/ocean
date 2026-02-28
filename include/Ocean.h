@@ -36,9 +36,9 @@ SOFTWARE.
 #include <array>
 #include <bitset>
 #include <cstdlib>
-#include <complex>
+//#include <complex>
 #include <filesystem>
-#include <fstream>
+//#include <fstream>
 #include <functional>
 #include <initializer_list>
 #include <iomanip> // setfill cout ...
@@ -160,6 +160,7 @@ struct range_T
 
 const range_T<uint8_t>	percent_range		{ 0, 100 };
 const range_T<int>		volidx_range		{ 0, 100 };
+const range_T<uint8_t>	uint8_range			{ 0, 255 };
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
 const range_T<int>		octave_range		{ min_octave, max_octave };

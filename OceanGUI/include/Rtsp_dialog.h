@@ -35,11 +35,12 @@ SOFTWARE.
 #define RTSP_DIALOG_CLASS_H
 
 // Qt
+#include <QObject>
 #include <QDialog>
 #include <QtWidgets/QTableWidget>
 
 // OceanGUI
-#include "ui_Rtsp_dialog_class.h"
+#include <ui_Rtsp_dialog_class.h>
 
 // Ocean
 #include <data/DataWorld.h>
@@ -48,9 +49,15 @@ SOFTWARE.
 #include <data/Semaphore.h>
 #include <System.h>
 
-namespace Ui {
-class Rtsp_Dialog_class ;
+/**************************************************
+ * Rtsp_Dialog_class
+ *************************************************/
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+	class Rtsp_Dialog_class ;
 }
+QT_END_NAMESPACE
 
 class Rtsp_Dialog_class :
 	public 				QDialog,
@@ -58,9 +65,10 @@ class Rtsp_Dialog_class :
 						AppMap_struct
 {
     Q_OBJECT
-	string 				className 				= "";
-    Dataworld_class*	DaTA;
-	unique_ptr<Ui::Rtsp_Dialog_class>			ui;
+	Ui::Rtsp_Dialog_class*
+						ui						;
+
+    Dataworld_class*	DaTA					;
 	const int			max_table_rows			= MAXCONFIG + 1;
 
 public:
@@ -68,14 +76,14 @@ public:
     void 				Proc_table_update		( interface_t* sds, APPID apppid );
     void 				Proc_table_update_all	();
 
-
     explicit 			Rtsp_Dialog_class		(
     											QWidget* 			parent 	= nullptr,
 												Dataworld_class*	data	= nullptr);
     virtual 			~Rtsp_Dialog_class		();
 
-    public slots:
+public slots:
 	void 				UpdateLog				( const QString& logstr );
+	void 				Dialog				 	();
 
 
 private:

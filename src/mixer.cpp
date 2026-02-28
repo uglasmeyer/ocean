@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ Mixer_class::Mixer_class( Dataworld_class* data, Wavedisplay_class* wd )
 	Info( "Init Mixer_class" );
 	this->Wd_p			= wd;
 
-	string 		sta_dir	= fs->vardir;
+	string 		sta_dir	= fs->vardir + "SDS_"	+ to_string( SDS_ID ) + "/";
 	StA_param_t usr_conf( "", data->Cfg_p->Config.temp_sec	, sta_dir );
 	StA_param_t ist_conf( "", data->Cfg_p->Config.kbd_sec	, sta_dir );
 	StA_param_t ext_conf( "", data->Cfg_p->Config.record_sec, sta_dir );
@@ -88,7 +88,7 @@ Mixer_class::~Mixer_class()
 {
 	if ( not sds_p )
 		return;
-	if( not LogMask[TEST ])
+	if( not LogMask[TEST ] )
 		for( Storage_class& sta : StA )
 			dumpStA( sta );
 
@@ -127,14 +127,6 @@ void Mixer_class::StA_Wdcursor()
 	}
 }
 
-void Mixer_class::clear_temporary_memory()
-{
-	// clear temporary memories
-	Out.Clear_data();
-	RecMono.Clear_data(0);
-}
-
-
 void Mixer_class::ResetStA( const StAId_e& staid )
 {
 	Comment( INFO, "Reset SDS state" );
@@ -152,7 +144,7 @@ void Mixer_class::ResetStA( const StAId_e& staid )
 
 bool Mixer_class::restoreStA( Storage_class& sta )
 {
-	// copy dump file data into StA
+	// copy dump file data into StA memory
 
 			sta.Clear_data(0);
 
@@ -167,9 +159,9 @@ bool Mixer_class::restoreStA( Storage_class& sta )
 }
 
 void Mixer_class::dumpStA( Storage_class& sta )
-{
-	// copy StA memory file
+{	// copy StA memory file
 
+//	Comment( DEBUG, __builtin_FUNCTION() );
 	buffer_t 	bytes2write = sta.scanner.fillrange.max * sizeof(Data_t);//mem_ds.bytes;
 
 	Info( "Dump StA memory to file", sta.filename ) ;

@@ -30,6 +30,7 @@ SOFTWARE.
  */
 #include <External.h>
 #include <System.h>
+#include <fstream>
 
 // Synthesizer read data from file into StA_External
 External_class::External_class	( 	Storage_class* sta,

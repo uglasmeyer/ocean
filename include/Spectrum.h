@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2ß26 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * spectrum.h
+ * Spectrum.h
  *
  *  Created on: Dec 26, 2023
  *      Author: Ulrich.Glasmeyer@web.de
@@ -38,9 +38,7 @@ enum  { SPEV, SPEF, SPEW };
 
 
 #include <Dynamic.h>
-//#include <Ocean.h>
 #include <Logfacility.h>
-//#include <Frequency.h>
 #include <Table.h>
 
 template< typename Item >
@@ -64,19 +62,19 @@ typedef array<phi_t		 ,	SPECARR_SIZE>
 							spec_arr_dt;
 typedef array<uint8_t	 ,	SPECARR_SIZE>
 							spec_arr_8t;
-
+typedef array<spec_arr_dt,	OSCIDSIZE>
+							phase_arr_t;
 const spec_arr_dt			default_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
-typedef array<spec_arr_dt, OSCIDSIZE> phase_arr_t;
 const phase_arr_t			default_phase_arr = default_oscgroup_arr_T( default_phase );
 
 struct spectrum_data
 {	// SDS  related
-	spec_arr_ft					vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
-	spec_arr_ft					frqadj	= { 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
-	spec_arr_8t					frqidx 	= { A3, 0, 0, 0, 0 };				// frq slider value
-	spec_arr_8t					volidx 	= { 100, 0, 0, 0, 0 };				// frq slider value
+	spec_arr_ft					vol		{ 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
+	spec_arr_8t					volidx  { 100, 0, 0, 0, 0 };				// frq slider value
+	spec_arr_ft					frqadj	{ 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
+	spec_arr_8t					frqidx 	{ A3, 0, 0, 0, 0 };				// frq slider value
 	spec_dta_ft					sum 	= 1.0;								// sum over .vol
-	spec_arr_8t					wfid 	= { 0,0,0,0,0 };					// waveform wdid
+	spec_arr_8t					wfid 	{ 0, 0, 0, 0, 0 };					// waveform wdid
 	spec_arr_dt					phi		= default_phase;
 	OSCID_e						osc 	= OSCID;
 	bool						adsr	= false;

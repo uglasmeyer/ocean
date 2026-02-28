@@ -168,6 +168,11 @@ void Keyboard_class::set_bufferMode( bool forget )
 	Note_vec.Init();
 }
 
+void Keyboard_class::delete_sta()
+{
+	Note_vec.Init();
+	StA->Clear_data( 0 );
+}
 void Keyboard_class::SetKbdKey( )
 {
 	kbdkey_t	Key					;
@@ -193,6 +198,7 @@ void Keyboard_class::keyHandler( kbdkey_t kbd )
 		case '-' 		:	{ change_octave( -1 ) 		; break; }
 		case '#' 		:	{ tainted = false; Notes->ShowFrqTable()	; break; }
 		case RELEASE	: 	{ tainted = false; release_note()			; break; }
+		case DEL		:	{ tainted = false; delete_sta()				; break; }
 		case F1			:	{ 							; break; }
 		case F2			: 	{ increase_sharps()			; break; }
 		case F3 		: 	{ reset_sharps()			; break; }

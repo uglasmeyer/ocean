@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -53,8 +53,8 @@ class Dispatcher_class :
 {
     Q_OBJECT
 	Semaphore_class* 	Sem_p 		= nullptr;
-	Interface_class* 	Sds_p 		= nullptr;
-	Interface_class*	Sds_master	= nullptr;
+	SharedData_class* 	Sds_p 		= nullptr;
+	SharedData_class*	Sds_master	= nullptr;
 	bool 				loop_done 	= false;
 
 public:
@@ -78,6 +78,9 @@ signals:
 private:
 };
 
+/**************************************************
+ * Controller_class
+ *************************************************/
 class Controller_class :
 		public QObject
 {

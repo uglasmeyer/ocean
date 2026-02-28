@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -114,7 +114,7 @@ typedef struct EventPtr_struct
 typedef struct appstate_struct
 { // SDS relevant
 	APPID			type	= NoAPPID;
-	StateId_t		state	= StateId_t::OFFLINE;
+	StateId_t		state	= StateId_t::DEFAULT;
 	int				pid		= NoPID;
 } appstate_t;
 
@@ -128,7 +128,7 @@ typedef				array<feature_t	, OSCIDSIZE >				feature_arr_t;
 typedef				array<spectrum_t, OSCIDSIZE>				spectrum_arr_t;
 typedef				array<adsr_t	, OSCIDSIZE>				adsr_arr_t;
 typedef				array<connectId_t,OSCIDSIZE>				connect_arr_t;
-typedef				char 										cstring_t[SDSSTR_SIZE];
+typedef				char										cstring_t[SDSSTR_SIZE];
 
 constexpr 	StA_state_arr_t default_StA_state_arr ()
 {

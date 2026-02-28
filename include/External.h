@@ -50,7 +50,7 @@ class 							External_class :
 	Storage_class* 				StA_ext					= nullptr;
 	FILE*						File				= nullptr;
 	Config_class*				Cfg 				= nullptr;
-	file_structure*				fs					= nullptr;
+	fs_t*						fs					= nullptr;
 
 public:
 	buffer_t					Filedata_size 		= 0;

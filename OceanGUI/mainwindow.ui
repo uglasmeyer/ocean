@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -486,22 +489,6 @@
    <string>OceanGUI</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>10</y>
-      <width>41</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>OSC (main)</string>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QLCDNumber" name="OSCLCD_Amp">
     <property name="geometry">
      <rect>
@@ -717,7 +704,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>UserL-</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta2">
@@ -730,7 +717,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>UserR-</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta3">
@@ -743,7 +730,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>UserL+</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta7">
@@ -756,7 +743,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>External</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta4">
@@ -769,7 +756,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Instrument</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta5">
@@ -782,7 +769,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Keyboard</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta0">
@@ -795,7 +782,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>UserR+</string>
+      <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta6">
@@ -808,7 +795,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Notes</string>
+      <string/>
      </property>
     </widget>
    </widget>
@@ -1322,19 +1309,6 @@ Instruments</string>
       <number>9</number>
      </property>
     </widget>
-    <widget class="QLabel" name="wf_vco_2">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>-140</y>
-       <width>66</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QFrame" name="frame_9">
     <property name="geometry">
@@ -1733,7 +1707,7 @@ Instruments</string>
 VCO vol</string>
     </property>
     <property name="checkable">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QCheckBox" name="cb_connect_fmov">
@@ -2300,7 +2274,24 @@ r</string>
     </property>
    </widget>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1221</width>
+     <height>23</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

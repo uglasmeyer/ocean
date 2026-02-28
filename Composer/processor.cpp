@@ -30,6 +30,9 @@ SOFTWARE.
  */
 
 #include <Composer/Processor.h>
+#include <fstream>
+
+fstream 			LOG					;
 
 /**************************************************
  * print_struct
@@ -76,6 +79,7 @@ void Processor_class::print_struct::Line( stack_struct ps )
 /**************************************************
  * Processor_class
  *************************************************/
+
 Processor_class::Processor_class( Application_class* app ) :
 	Logfacility_class("Processor")
 {

@@ -83,7 +83,6 @@ void Dynamic_class::setup_past()
 	}
 	if ( current.mode == FIXED )
 		end();
-	coutf << "setup_past " << current.past << endl;
 }
 float Dynamic_class::Reset_state()
 {

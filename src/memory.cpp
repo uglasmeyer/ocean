@@ -238,12 +238,11 @@ Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 	param					( _param.name, _param.storage_time, _param.sta_dir ),
 	DynVolume				( volidx_range ),
 	scanner 				( Memory_base::Data, _param.size )
-
 {
 	this->Id				= id;
 
-	set_filename			( param.sta_dir, id );
-	Reset					( );
+	set_filename			();
+	Reset					();
 	DsInfo					( param.name );
 
 } ;
@@ -311,15 +310,14 @@ void Storage_class::Reset( )
 	touched				= false;
 }
 
-void Storage_class::set_filename( string dir, uint8_t sdsid )
+void Storage_class::set_filename()
 {
 	filename		= "StA_data"	+ to_string( Id ) + ".bin";
-	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
-	if( not filesystem::exists( subdir ) )
+	if( not filesystem::exists( param.sta_dir ) )
 	{
-		filesystem::create_directories( subdir );
+		filesystem::create_directories( param.sta_dir );
 	}
-	file 		= subdir + filename ;
+	file 		= param.sta_dir + filename ;
 }
 
 void Storage_class::Record_mode( bool flag )

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,9 @@ SOFTWARE.
 
 extern void exit_proc( int );
 
+/**************************************************
+ * Exit_class
+ *************************************************/
 class Exit_class :
 	public virtual Logfacility_class
 {
@@ -59,30 +62,13 @@ class Exit_class :
 			{ SIGTERM,"SIGTERM"}
 	};
 
-	string className = "";
 public:
 
-	Exit_class( ) :
-		Logfacility_class("Exit_class")
-	{
-		this->className = Logfacility_class::className;
-		catch_signals();
-	};
-	virtual ~Exit_class()
-	{
-		DESTRUCTOR( className );
-	};
+			Exit_class();
+	virtual ~Exit_class();
 
 private:
-	void catch_signals( )
-	{
-		for ( signalmap_t sig : signalmap )
-		{
-			Comment( DEBUG, "Catching signal: " + sig.name );
-			signal( sig.signal	, &exit_proc );
-		}
-	}
-
+	void 	catch_signals();
 };
 
 

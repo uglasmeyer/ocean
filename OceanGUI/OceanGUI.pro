@@ -10,7 +10,7 @@ CONFIG += -std=c++2b
 # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
- #    OceanGUI_main.cpp
+ #   OceanGUI_main.cpp
  #   cutterdialog.cpp \
  #   keyboad_dialog.cpp
 
@@ -20,7 +20,7 @@ HEADERS += \
     include/Keyboad_dialog.h \
     include/File_Dialog.h \
     include/Mainwindow.h \
-    include/Oszilloscopewidget.h \
+    include/DataGraphicClass.h \
     include/Spectrum_dialog.h \
     include/Rtsp_dialog.h \
     include/Dispatcher.h
@@ -38,7 +38,7 @@ CONFIG += lrelease
 
 INCLUDEPATH += /home/sirius/git/Ocean/include
 
-LIBS += -L"/home/sirius/OceanDev/lib" -lOcean
+LIBS += -L"/home/sirius/OceanDev/lib/x86_64/" -lOcean
 #  LIBS += /home/sirius/git/Ocean/Release/libOcean.a
 #  http://doc.qt.io/qt-5/third-party-libraries.html
 

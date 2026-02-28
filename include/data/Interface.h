@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,12 +34,12 @@ SOFTWARE.
 #define INTERFACE_H_
 
 #include <data/SharedDataSegment.h>
-#include <EventKeys.h>
+#include <data/Config.h>
 #include <data/Semaphore.h>
 #include <data/EventQue.h>
-#include <data/Config.h>
+#include <EventKeys.h>
 
-class Interface_class
+class SharedData_class
 	: virtual public 		Logfacility_class
 	, 						sdsstate_struct
 {
@@ -48,7 +48,7 @@ class Interface_class
 	key_t					sds_key				;
 	Semaphore_class*		Sem_p				;
 	Config_class*			Cfg_p				;
-	file_structure*			fs					;
+	fs_t*					fs					;
 	interface_t 			ifd_data 			;
 	size_t					sds_size			;
 	Shm_base				SHM					;
@@ -59,11 +59,11 @@ public:
 	EventQue_class			Eventque			;
 	interface_t* 			addr				;
 
-							Interface_class		( APPID appid,
+							SharedData_class		( APPID appid,
 												Id_t sdsid,
 												Config_class*,
 												Semaphore_class* );
-	virtual 				~Interface_class	();
+	virtual 				~SharedData_class	();
 
 
 	void 					Activate_sds		();
@@ -82,7 +82,7 @@ public:
 	void					Copy_dumpFileTo		( string dst );
 	void					Copy_dumpFileFrom	( string src );
 	void 					Test_interface		();
-
+	void					test_reset_ifd		();
 	template < typename V >
 	void Set( V& ref, V value )
 	{

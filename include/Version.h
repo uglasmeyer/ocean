@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@ using namespace std;
 
 #define MAYOR 4
 #define MINOR 4
-#define PATCH 2
+#define PATCH 3
 #define SDS_VERSION 48
 
 const string Version_No  = 	to_string(MAYOR) + "." +
@@ -51,8 +51,8 @@ const string Version_str = "Version: " + Version_No;
 const string Application = "Ocean Sound Lab";
 
 const string License_text = R"( 
-    Copyright (C) 2025  Ulrich.Glasmeyer@web.de
-    This program comes with ABSOLUTELY NO WARRANTY; for details read the license conditions.
+    Copyright (C) 2025,2026  Ulrich.Glasmeyer@web.de
+    This program comes with ABSOLUTELY NO WARRANTY.
     This is free software, and you are welcome to redistribute it
     under the  conditions of the MIT license <https://www.gnu.org/licenses/>)";
 
@@ -60,8 +60,9 @@ const string License_text = R"(
 
 /*
 
-4.1.2-48 Cutdesk display wav-file
-4.1.1-48 stabalized usability features
+4.4.3-48 Wavedisplay history
+4.4.2-48 Cutdesk display wav-file
+4.4.1-48 stabalized usability features
 4.4.0.48 switch back to prev_roleId if current wave display is dectivated
 4.3.1.46 no audio during dut desk dialog
 4.3.0-46 save keyboard notes

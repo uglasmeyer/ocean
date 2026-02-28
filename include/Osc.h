@@ -83,5 +83,6 @@ private:
 
 };
 
+typedef Oscillator Oscillator_t;
 
 #endif /* INCLUDE_OSC_H_ */

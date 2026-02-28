@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ SOFTWARE.
 #define KEYBOAD_DIALOG_H
 
 //Qt
+#include <QObject>
 #include <QDialog>
 
 // Ocean
@@ -44,27 +45,33 @@ SOFTWARE.
 //OceanGUI
 #include <Common.h>
 
-namespace Ui {
-class Keyboad_Dialog_class;
+/**************************************************
+ * Keyboad_Dialog_class
+ *************************************************/
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+	class Keyboad_Dialog_class;
 }
+QT_END_NAMESPACE
 
 class Keyboad_Dialog_class :
 	public 				QDialog,
-	public virtual		OceanGUI_base
+	public virtual		Interface_base
 {
     Q_OBJECT
+    Ui::Keyboad_Dialog_class*		ui				;
 	QWidget* 		parent			= nullptr;
 
 public:
-    Ui::Keyboad_Dialog_class*		ui;
-    EventLog_class*	Eventlog_p		= nullptr;
-    Kbd_pitch_class Kbd_pitch 		;
-    QString			keyboard_key	= "Key";
+    EventLog_class*					Eventlog_p		= nullptr;
+    Kbd_pitch_class 				Kbd_pitch 		;
+    QString							keyboard_key	= "Key";
 
-    explicit Keyboad_Dialog_class(	QWidget* 			parent 	= nullptr,
+    explicit Keyboad_Dialog_class(	QWidget* 			_parent = nullptr,
     								Dataworld_class* 	_data 	= nullptr,
     								EventLog_class*  	_log	= nullptr);
-    ~Keyboad_Dialog_class();
+    virtual	~Keyboad_Dialog_class();
     void SetSds();
 
 

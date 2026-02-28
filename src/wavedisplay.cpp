@@ -30,9 +30,10 @@ SOFTWARE.
  */
 #include <Wavedisplay_base.h>
 #include <Wavedisplay.h>
+#include <complex>
 
 
-Wavedisplay_class::Wavedisplay_class( Interface_class* _sds )
+Wavedisplay_class::Wavedisplay_class( SharedData_class* _sds )
 : Logfacility_class("Wavedisplay")
 {
 	this->Sds_p 		= _sds;

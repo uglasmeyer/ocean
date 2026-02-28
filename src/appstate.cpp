@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,16 @@ SOFTWARE.
 #include <data/Appstate.h>
 #define NoSDSID -1
 
+appstate_arr_t initAppstate_arr()
+{
+	appstate_arr_t arr {};
+	for( APPID appid : AppIds )
+	{
+		arr[appid].type = appid;
+	}
+	return arr;
+};
+
 /**************************************************
  * Appstate_class
  *************************************************/
@@ -44,8 +54,12 @@ Appstate_class::Appstate_class( APPID 			appid,
 	AppId 		= appid;
 	sds_vec 	= _sds_vec ;
 
+	for( interface_t* sds : sds_vec )
+		if( sds->appstate_arr[0].state == sdsstate_struct::DEFAULT )
+			sds->appstate_arr = initAppstate_arr();
+	Assert_equal( sds_vec[0]->appstate_arr[SYNTHID].type, SYNTHID, "appstate_arr" );
+
 	AppType		= ( appid == KEYBOARDID ) ? SYNTHID : appid;
-	Assert_equal( sds_vec[0]->appstate_arr[SYNTHID].type, SYNTHID );
 	SDSid		= assign_sdsid( AppType );
 	if ( SDSid == NoSDSID  )
 	{
@@ -57,6 +71,7 @@ Appstate_class::Appstate_class( APPID 			appid,
 	sds			= sds_vec[SDSid];
 	Name 		= AppIdName( appid );
 	sds->appstate_arr[appid].type = AppType;
+	SetState	( sds, appid, sdsstate_struct::RUNNING );
 };
 
 SdsId_vec_t Appstate_class::allowed_sdsid( APPID appid )
@@ -173,6 +188,7 @@ void Appstate_class::SetExitserver( interface_t* sds, APPID appid )
 		SetState( sds, appid, OFFLINE );
 	else
 		SetState( sds, appid, EXITSERVER );
+	sds_master->UpdateFlag = true;
 }
 
 void Appstate_class::CheckAppstates( interface_t* sds )
@@ -261,13 +277,15 @@ void Appstate_class::RestoreStateArr( interface_t* sds )
 	CheckAppstates( sds );
 }
 
-int Appstate_class::GetNextSdsId(  ) // external use by GUI
+int Appstate_class::GetNextSdsId( APPID appid ) // external use by GUI
 {
-	int ID = assign_sdsid( SYNTHID);
-	if ( ID > 0 )
+	//	int ID = assign_sdsid( SYNTHID );
+	int config = sds->config;
+	int id = assign_sdsid( appid );
+	if ( ( id > 0 ) and ( ( appid == SYNTHID ) or ( appid == KEYBOARDID ) ) )
 	{
-		sds->config = ID;  	// master_sds refers to Synthesizer ID
+		config = id;
 	}
-	return ID;
+	return config;
 }
 

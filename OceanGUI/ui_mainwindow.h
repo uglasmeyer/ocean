@@ -19,6 +19,7 @@
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
@@ -34,7 +35,6 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QLabel *label;
     QLCDNumber *OSCLCD_Amp;
     QSlider *Slider_VCO_Hz;
     QSlider *Slider_VCO_vol;
@@ -93,7 +93,6 @@ public:
     QFrame *frame_7;
     QLabel *wf_vco;
     QSpinBox *sB_VCO;
-    QLabel *wf_vco_2;
     QFrame *frame_9;
     QLabel *wf_fmo;
     QSpinBox *sB_FMO;
@@ -167,11 +166,13 @@ public:
     QLCDNumber *OSCLCD_Hz;
     QLabel *glidefrequency;
     QStatusBar *statusbar;
+    QMenuBar *menuBar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
+        MainWindow->setEnabled(true);
         MainWindow->resize(1221, 632);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
@@ -261,10 +262,6 @@ public:
         MainWindow->setAcceptDrops(false);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
-        label = new QLabel(centralwidget);
-        label->setObjectName("label");
-        label->setGeometry(QRect(220, 10, 41, 41));
-        label->setWordWrap(true);
         OSCLCD_Amp = new QLCDNumber(centralwidget);
         OSCLCD_Amp->setObjectName("OSCLCD_Amp");
         OSCLCD_Amp->setGeometry(QRect(330, 10, 111, 51));
@@ -486,9 +483,6 @@ public:
         sB_VCO->setGeometry(QRect(90, 0, 44, 41));
         sB_VCO->setWrapping(true);
         sB_VCO->setMaximum(9);
-        wf_vco_2 = new QLabel(frame_7);
-        wf_vco_2->setObjectName("wf_vco_2");
-        wf_vco_2->setGeometry(QRect(30, -140, 66, 17));
         frame_9 = new QFrame(centralwidget);
         frame_9->setObjectName("frame_9");
         frame_9->setGeometry(QRect(60, 460, 131, 41));
@@ -632,7 +626,7 @@ public:
         cb_connect_vcov->setObjectName("cb_connect_vcov");
         cb_connect_vcov->setEnabled(false);
         cb_connect_vcov->setGeometry(QRect(330, 340, 111, 31));
-        cb_connect_vcov->setCheckable(false);
+        cb_connect_vcov->setCheckable(true);
         cb_connect_fmov = new QCheckBox(centralwidget);
         cb_connect_fmov->setObjectName("cb_connect_fmov");
         cb_connect_fmov->setGeometry(QRect(330, 303, 111, 31));
@@ -837,7 +831,13 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
+        statusbar->setEnabled(false);
         MainWindow->setStatusBar(statusbar);
+        menuBar = new QMenuBar(MainWindow);
+        menuBar->setObjectName("menuBar");
+        menuBar->setEnabled(false);
+        menuBar->setGeometry(QRect(0, 0, 1221, 23));
+        MainWindow->setMenuBar(menuBar);
 
         retranslateUi(MainWindow);
 
@@ -847,19 +847,18 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "OceanGUI", nullptr));
-        label->setText(QCoreApplication::translate("MainWindow", "OSC (main)", nullptr));
         labelVCO->setText(QCoreApplication::translate("MainWindow", "VCO", nullptr));
         labelFMO->setText(QCoreApplication::translate("MainWindow", "FMO", nullptr));
         label_7->setText(QCoreApplication::translate("MainWindow", "Frequency [Hz]", nullptr));
         label_8->setText(QCoreApplication::translate("MainWindow", "Frequency [Hz]", nullptr));
-        cb_ssta1->setText(QCoreApplication::translate("MainWindow", "UserL-", nullptr));
-        cb_ssta2->setText(QCoreApplication::translate("MainWindow", "UserR-", nullptr));
-        cb_ssta3->setText(QCoreApplication::translate("MainWindow", "UserL+", nullptr));
-        cb_ssta7->setText(QCoreApplication::translate("MainWindow", "External", nullptr));
-        cb_ssta4->setText(QCoreApplication::translate("MainWindow", "Instrument", nullptr));
-        cb_ssta5->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
-        cb_ssta0->setText(QCoreApplication::translate("MainWindow", "UserR+", nullptr));
-        cb_ssta6->setText(QCoreApplication::translate("MainWindow", "Notes", nullptr));
+        cb_ssta1->setText(QString());
+        cb_ssta2->setText(QString());
+        cb_ssta3->setText(QString());
+        cb_ssta7->setText(QString());
+        cb_ssta4->setText(QString());
+        cb_ssta5->setText(QString());
+        cb_ssta0->setText(QString());
+        cb_ssta6->setText(QString());
         cb_psta1->setText(QString());
         cb_psta2->setText(QString());
         cb_psta3->setText(QString());
@@ -882,7 +881,6 @@ public:
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
         pB_Specrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
         wf_vco->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
-        wf_vco_2->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         wf_fmo->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pb_clear->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "Instrument Bps", nullptr));

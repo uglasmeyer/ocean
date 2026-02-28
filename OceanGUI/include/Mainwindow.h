@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ SOFTWARE.
 #define MAINWINDOW_H
 
 // Qt
+#include <QObject>
 #include <QMainWindow>
 #include <QDebug>
 #include <Qt>
@@ -42,24 +43,21 @@ SOFTWARE.
 
 // Ocean
 #include <data/Interface.h>
-#include <Spectrum.h>
-#include <App.h>
 #include <data/Configbase.h>
 #include <data/Semaphore.h>
-#include <include/Cutterdialog.h>
+#include <Spectrum.h>
+#include <App.h>
 #include <Wavedisplay_base.h>
 
 // OceanGUI
-#include "ui_mainwindow.h"
+#include <ui_mainwindow.h>
 #include <include/File_Dialog.h>
+#include <include/Cutterdialog.h>
 #include <include/Keyboad_dialog.h>
-#include <include/Oszilloscopewidget.h>
 #include <include/Rtsp_dialog.h>
 #include <include/Spectrum_dialog.h>
+#include <DataGraphicClass.h>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
 
 /**************************************************
  * WfDisplay_que_struct
@@ -88,53 +86,59 @@ struct WfDisplay_que_struct
 /**************************************************
  * MainWindow
  *************************************************/
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+	class MainWindow;
+}
+QT_END_NAMESPACE
+
+extern	Dataworld_class 	DaTA;
+extern	Application_class	App;
+
 class MainWindow
-	: public QMainWindow
-	, virtual Logfacility_class
-	, virtual wavedisplay_struct
+	: public 				QMainWindow
+	, virtual 				Logfacility_class
+	, virtual 				wavedisplay_struct
 
 {
     Q_OBJECT
+    Ui::MainWindow*			ui					;
 
 public:
-	process_t				Process				{};
-	Config_class			Cfg					{};
-	file_structure*			fs					= Cfg.fs;
+    explicit MainWindow		( QWidget*	parent 	= nullptr );
+    virtual ~MainWindow		();
 
-	Semaphore_class			Sem					{ Cfg.Config.Sem_key };
-	Dataworld_class 		DaTA				{ &Cfg, &Sem };
-	Application_class		App					{ &DaTA };
 
-    EventLog_class			Eventlog			{ &DaTA };
-    EventLog_class*			Eventlog_p			= &Eventlog;
-    Appstate_class*			Appstate			= &DaTA.Appstate;
-    Config_class*			Cfg_p 				= DaTA.Cfg_p;
-    interface_t*			sds_master			= DaTA.sds_master;
+	Dataworld_class*		DaTA_p				= &DaTA;
+    Appstate_class*			Appstate			= &DaTA_p->Appstate;
+    Config_class*			Cfg_p 				= DaTA_p->Cfg_p;
+	fs_t*					fs					= Cfg_p->fs;
+    interface_t*			sds_master			= DaTA_p->sds_master;
     Id_t					SDS_ID				= sds_master->config;// active SDS for event logging
-    Interface_class*		Sds					= DaTA.SDS.GetSds( SDS_ID );
-	interface_t*			sds_p 				= Sds->addr;//DaTA.GetSdsAddr();
+    SharedData_class*		Sds					= DaTA_p->SDS.GetSds( SDS_ID );
+	interface_t*			sds_p 				= Sds->addr;//DaTA_p->GetSdsAddr();
+    Semaphore_class*		Sem_p				= DaTA_p->Sem_p;
 
-    Spectrum_class          Spectrum			{};
-    Semaphore_class*		Sem_p				= DaTA.Sem_p;
+    EventLog_class			Eventlog			{ DaTA_p };
+    EventLog_class*			Eventlog_p			= &Eventlog;
 
-    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, &DaTA};
-    Rtsp_Dialog_class*		Rtsp_Dialog_p		= &Rtsp_Dialog_obj;
+//    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA_p};
+    Rtsp_Dialog_class*		Rtsp_Dialog_p		;//= &Rtsp_Dialog_obj;
 
-    File_Dialog_class		File_Dialog_obj		{ this, &DaTA, Eventlog_p  };
-    File_Dialog_class*		File_Dialog_p		= &File_Dialog_obj;
+//    File_Dialog_class		File_Dialog_obj		{ this, DaTA_p, Eventlog_p  };
+    File_Dialog_class*		File_Dialog_p		;//= &File_Dialog_obj;
 
-    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, &DaTA, Eventlog_p };
-    Spectrum_Dialog_class*  Spectrum_Dialog_p 	= &Spectrum_Dialog_obj;
+//    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA_p, Eventlog_p };
+    Spectrum_Dialog_class*  Spectrum_Dialog_p 	;//= &Spectrum_Dialog_obj;
 
-    Keyboad_Dialog_class	Keyboard_Dialog_obj	{ this, &DaTA, Eventlog_p };
-    Keyboad_Dialog_class*	Keyboard_Dialog_p	= &Keyboard_Dialog_obj;
+//    Keyboad_Dialog_class	Keyboard_Dialog_obj	{ this, DaTA_p, Eventlog_p };
+    Keyboad_Dialog_class*	Keyboard_Dialog_p	;//= &Keyboard_Dialog_obj;
 
-    CutDesk_Dialog_class	CutterDialog_obj	{ this, &DaTA, Eventlog_p };
-    CutDesk_Dialog_class*	CutDesk_Dialog_p		= &CutterDialog_obj;
+//    CutDesk_Dialog_class	CutterDialog_obj	{ this, DaTA_p, Eventlog_p };
+    CutDesk_Dialog_class*	CutDesk_Dialog_p	;//= &CutterDialog_obj;
 
-    QComboBox*              CB_external         = nullptr;
-    QString                 Instrument_name     = QReadStr( Sds, INSTRUMENTSTR_KEY ) ;
-    QRect 					Spectrum_Dialog_Rect= QRect( QPoint(0,0),QSize(0,0) );
+
     vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
@@ -148,22 +152,28 @@ public:
     WfDisplay_que_struct	WfDisplay_que		{ sds_p, &StaRole_map };
     const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
 
-    typedef struct cb_state_map
+    struct cb_state_map
     {
     	StAId_e			id; // Mixer id
     	QCheckBox*		cb;
     	bool*			state;
-    } cb_state_t;
+    	uint8_t			align = 0;
+    };
+    typedef cb_state_map cb_state_t;
+
     vector<cb_state_t> 		cb_play_sta_vec 	{};
     vector<cb_state_t>		cb_store_sta_vec	{};
     vector<cb_state_t>		cb_filled_sta_vec	{};
 
-    typedef struct sl_value_map
+    struct sl_value_map
     {
     	StAId_e			id; // Mixer id
     	QSlider*		sl;
     	uint8_t*		value;
-    } sl_value_t;
+//    	uint8_t			align = 0;
+    };
+    typedef sl_value_map sl_value_t;
+
     struct sl_lcd_map
     {
     	EVENTKEY_e		event; //
@@ -171,42 +181,39 @@ public:
     	QSlider*		sl;
     	uint8_t*		value;
 		int				max;
+//    	uint8_t			align = 0;
     };
     typedef sl_lcd_map 	sl_lcd_t;
+
     struct sB_lbl_map
     {
     	EVENTKEY_e		event;
     	QSpinBox* 		sb;
     	QLabel* 		lbl;
 		uint8_t*		value;
+//    	uint8_t			align = 0;
     };
     typedef sB_lbl_map 	sB_lbl_t;
+
     vector<sl_value_t>		sl_sta_vec 			{};
     vector<sl_lcd_t>		sl_frqidx_vec		{};
     vector<sl_lcd_t>		sl_volume_vec		{};
     vector<sB_lbl_t>		sB_lbl_vec			{};
 
-    explicit MainWindow(	QWidget*			parent 	= nullptr);
-    virtual ~MainWindow();
-    //
-
 private:
-//    Ui::MainWindow*		ui;
-    bps_struct			Bps					;
-    unique_ptr<Ui::MainWindow>
-    					ui					;
+    bps_struct				Bps					;
 
-    QTimer				osc_timer_obj		{};
-    QTimer*				osc_timer			= &osc_timer_obj;
-    QTimer				status_timer_obj	{};
-    QTimer*				status_timer		= &status_timer_obj;
-    QGraphicsScene  	Scene 				{ this };
-    QGraphicsScene*     scene 				= &Scene ;
-    OszilloscopeWidget* OscWidget_item		;			//	created by "new";
+    QTimer					osc_timer_obj		{};
+    QTimer*					osc_timer			= &osc_timer_obj;
+    QTimer					status_timer_obj	{};
+    QTimer*					status_timer		= &status_timer_obj;
+
+    DataGraphic_class*		OscWidget_item		; // created by new DataGraphic_class;
+    QGraphicsScene*     	scene 				; // created by new QGraphicsScene
 
     void setwidgetvalues();
-    void initPanel();
     void select_Sds( Id_t sdsid );
+    void initPanel();
     void initGuiVectors( interface_t* sds);
     void initOscillatorDisplay();
     void initFreqSlider();
@@ -225,18 +232,13 @@ private:
     void setStaPlay( StAId_e id );
     void setStaStored( StAId_e staId );
     void toggle_store_sta( StAId_e id );
-
+    void changeAppState( APPID appid, string terminal, string binary  );
 
 public slots:
 	void update_CB_external();
     void updateColorButtons();
 
 private slots:
-
-//	void show_time_elapsed();
-
-	void Rtsp_Dialog();
-	void SDS_Dialog();
 
     void slideFrq( int );
     void Notes_per_measure( int );
@@ -245,7 +247,6 @@ private slots:
     void dial_PMW_value_changed();
     void mixer_balance();
     void chord_delay();
-
 
     void get_record_status( );
 
@@ -264,8 +265,8 @@ private slots:
     void VCO_Waveform_slot( int );
     void FMO_Waveform_slot( int );
 
-    void exit_synthesizer( APPID );
     void GUI_Exit();
+	void start_sdsview();
     void start_synthesizer();
     void start_audio_srv();
     void start_composer();
@@ -326,10 +327,8 @@ private slots:
 
     void CombineFreq();
 
-    void File_Director();
     void Spectrum_Dialog();
     void ADSR_Dialog();
-    void Cutter_Dialog();
 
     void Save_Config();
     void toggle_Mute();
@@ -337,7 +336,7 @@ private slots:
     void adsr_hall();
 
     void pB_Debug_clicked();
-    void wavfile_selected( const QString &arg);
+    void wavfile_selected( QString arg);
     void pB_oscgroup_clicked();
     void pB_Wavedisplay_clicked();
     void pB_fftmode_clicked();
@@ -347,5 +346,3 @@ protected:
 };
 
 #endif // MAINWINDOW_H
-
-

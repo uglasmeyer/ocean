@@ -93,7 +93,7 @@ void SynthesizerTest()
 
 	Log.Set_Loglevel( TEST, true );
 	DaTA.Test_result = "FAILED";
-	DaTA.Sds_p->Reset_ifd();
+//	DaTA.Sds_p->Reset_ifd();
 	coutf << "SynthesizerTestCases" << endl;
 
 	Cfg.Test();

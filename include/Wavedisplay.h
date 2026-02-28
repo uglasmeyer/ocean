@@ -42,7 +42,7 @@ class Wavedisplay_class :
 	virtual	public	Logfacility_class,
 					wavedisplay_struct
 {
-	Interface_class*
+	SharedData_class*
 					Sds_p 			;
 	interface_t*	sds				;
 	string 			rolename		;
@@ -50,7 +50,7 @@ class Wavedisplay_class :
 
 public:
 
-					Wavedisplay_class( Interface_class* _sds );
+					Wavedisplay_class( SharedData_class* _sds );
 	virtual 		~Wavedisplay_class() = default;
 
 	void 			Add_role_ptr	( RoleId_e wd_role,

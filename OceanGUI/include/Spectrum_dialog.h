@@ -36,6 +36,7 @@ SOFTWARE.
 
 
 // Qt
+#include <QObject>
 #include <QDialog>
 #include <QTimer>
 // Oceean
@@ -48,9 +49,15 @@ SOFTWARE.
 #include <include/Common.h>
 #include "ui_spectrum_dialog_class.h"
 
-namespace Ui {
-class Spectrum_Dialog_class;
+/**************************************************
+ * Spectrum_Dialog_class
+ *************************************************/
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+	class Spectrum_Dialog_class;
 }
+QT_END_NAMESPACE
 
 class Spectrum_Dialog_class :
 		public 			QDialog,
@@ -59,8 +66,9 @@ class Spectrum_Dialog_class :
 
 {
     Q_OBJECT
+	Ui::Spectrum_Dialog_class*	ui;
+
 public:
-    unique_ptr<Ui::Spectrum_Dialog_class> 		ui;
 
     explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
                                    Dataworld_class* data = nullptr,
@@ -71,7 +79,6 @@ public:
 
     EventLog_class*			Eventlog_p;
 
-    adsr_t					adsr_data;
     OSCID_e					OscId			= OSCID;
     Id_t					Channel 		= 1; // active slot last selected Wafeform out of 4
 
@@ -80,8 +87,7 @@ public:
     vector<QSpinBox*>		sb_vec 			{};
     vector<QRadioButton*> 	rb_vec 			{};
     Frequency_class			Frequency 		{};
-    vector<QString> 		Waveform_vec	{};
-    uint 					waveform_vec_len= 0;
+    vector<QString> 		QWaveform_vec	{};
 
 
     void SetLabelWaveform();
@@ -89,6 +95,8 @@ public:
 
 	void SetSds();
     void Set_adsr_flag( bool flag );
+	void Dialog ( bool flag );
+
 
 private slots:
 	void SetInstrument(); // Dispatcher

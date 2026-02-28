@@ -59,6 +59,7 @@ typedef struct state_struct
 	int			mode				= FIXED;
 } dynamic_state_t;
 
+
 /**************************************************
  * Dynamic_class
  *************************************************/

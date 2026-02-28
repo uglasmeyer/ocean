@@ -33,8 +33,7 @@ SOFTWARE.
 #include <Composer/Interpreter.h>
 #include <Oscwaveform.h>
 
-range_T<uint8_t> amp_range{ 0, 100 };
-range_T<uint8_t> uint8_range{ 0, 255 };
+
 
 Interpreter_class::Interpreter_class( Application_class* app )
 	: Logfacility_class	( "Interpreter_class" )
@@ -223,7 +222,7 @@ void Interpreter_class::RecFile( vector_str_t arr )
 		if ( Cmpkeyword( "amp") )
 		{
 			expect = { "loop final volume" };
-			uint8_t 	amp 	= pop_T( amp_range );
+			uint8_t 	amp 	= pop_T( volidx_range );
 			amploop( amp, MASTERAMP_KEY ); // TODO - working
 			return;
 		}
@@ -351,7 +350,7 @@ void Interpreter_class::Set( vector_str_t arr )
 		}
 		if( Cmpkeyword( "amp") )
 		{
-			uint8_t 	amp 	= pop_T( amp_range );
+			uint8_t 	amp 	= pop_T( volidx_range );
 			Osc({ "osc", osc, "amp", to_string( amp ) });
 			return;
 		}
@@ -445,7 +444,7 @@ void Interpreter_class::Notes( vector_str_t arr )
 		if ( Cmpkeyword( "on") )
 		{
 			expect = { "volume [%]" };
-			uint8_t 	amp 	= pop_T( amp_range );
+			uint8_t 	amp 	= pop_T( volidx_range );
 			Processor_class::Push_ifd( &sds->StA_amp_arr[STA_NOTES] ,amp, "play notes" );
 			Processor_class::Push_key( NOTESONKEY, "commit");
 			if ( stack.size() > 0  )
@@ -643,7 +642,7 @@ void Interpreter_class::osc_view( view_struct_t view, vector_str_t arr )
 	if ( Cmpkeyword( "amp") )
 	{
 		expect = { "volume [%]" };
-		uint8_t 	amp 	= pop_T( amp_range );
+		uint8_t 	amp 	= pop_T( volidx_range );
 		Comment( INFO, "Set amplitude " + to_string(amp) + " for " + view.name );
 		Processor_class::Push_ifd( &sds->connect_arr[OSCID].vol , VCOID, "connect vol->osc" );
 
@@ -753,7 +752,7 @@ void Interpreter_class::RecStA( vector_str_t arr )
 	{
 		StAId_e	staid	= pop_T( staid_range );
 		expect 		= { "volume [%]" };
-		uint8_t 	amp 	= pop_T( amp_range );
+		uint8_t 	amp 	= pop_T( volidx_range );
 		Comment( INFO, "set amplitude of " + to_string(staid) + " to " + to_string(amp) + "%" );
 
 		Processor_class::Push_ifd( &sds->StA_Id , staid, "mixer id" );

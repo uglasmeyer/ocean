@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -64,4 +64,28 @@ void Assert_equalstr( string lhs, string rhs, string message ,
 uint8_t operator""_uint( unsigned long long int x)
 {
 	return (uint8_t)x;
+}
+
+#include <Exit.h>
+
+/**************************************************
+ * Exit_class
+ *************************************************/
+Exit_class::Exit_class( ) :
+	Logfacility_class("Exit_class")
+{
+	catch_signals();
+};
+Exit_class::~Exit_class()
+{
+	DESTRUCTOR( className );
+};
+
+void Exit_class::catch_signals( )
+{
+	for ( signalmap_t sig : signalmap )
+	{
+		Comment( DEBUG, "Catching signal: " + sig.name );
+		signal( sig.signal	, &exit_proc );
+	}
 }

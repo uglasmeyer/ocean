@@ -160,7 +160,7 @@ void ADSR_class::adsrOSC( buffer_t bframes )
 
 	adsr_param_t 	adsr_param	= { aframes, y0, dy, d_delta };
 	if( ( kbdattack ) and ( kbdbps == 0 ) )
-					adsr_param 	= { aframes, 0.0, 1.0f/float(aframes), 0.0 };
+		adsr_param 				= { aframes, 0.0, 1.0f/float(aframes), 0.0 };
 
 	for ( buffer_t n = 0; n < bframes ; n++ )
 	{

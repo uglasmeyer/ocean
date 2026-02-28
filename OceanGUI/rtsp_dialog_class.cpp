@@ -36,11 +36,10 @@ SOFTWARE.
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
 )
-	: Logfacility_class( "Rtsp_Dialog_class" ),
-	  QDialog(parent),
-	  ui( new Ui::Rtsp_Dialog_class {})
+	: Logfacility_class	( "Rtsp_Dialog_class" )
+	, QDialog			(parent)
+	, ui				( new Ui::Rtsp_Dialog_class )
 {
-	className		= Logfacility_class::className;
     this->DaTA		= data;
 
     ui->setupUi(this);
@@ -53,7 +52,22 @@ Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 Rtsp_Dialog_class::~Rtsp_Dialog_class()
 {
 //	delete ( twItem_p );
-//	delete(ui);
+	delete ui->process_table;
+	delete ui->tB_log;
+	delete ui;
+}
+
+void Rtsp_Dialog_class::Dialog()
+{
+	if( this->isVisible() )
+	{
+		this->hide();
+	}
+	else
+	{
+		Proc_table_update_all();
+		this->show();
+	}
 }
 
 void Rtsp_Dialog_class::UpdateLog( const QString& logstr )

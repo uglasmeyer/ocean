@@ -26,9 +26,9 @@ SOFTWARE.
 
 auto headline = [ ]( string comment  )
 {
-	Log.Comment( BINFO, Line( 80 - 26 ) );
+	Log.Comment( BINFO, Line() );
 	Log.Comment( BINFO, comment );
-	Log.Comment(  INFO, Line( 80 - 26) );
+	Log.Comment(  INFO, Line() );
 };
 
 

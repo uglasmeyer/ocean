@@ -83,7 +83,6 @@ public:
 
 private:
 
-	void 					clear_temporary_memory	();
 	void 					auto_volume		( const StAId_e& id);
 	bool 					setFillState	( StAId_e id );
 	void 					dumpStA			( Storage_class& sta );

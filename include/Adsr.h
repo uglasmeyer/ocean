@@ -37,9 +37,9 @@ SOFTWARE.
 const spectrum_t default_adsr_spec =
 {
 							.vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
+							.volidx 	= { 100, 0  , 0  , 0  , 0   },
 							.frqadj		= { 1.0, 2.0, 3.0, 4.0, 5.0 },
 							.frqidx 	= { 1  , 0  , 0  , 0  , 0   }, // see bps
-							.volidx 	= { 100, 0  , 0  , 0  , 0   },
 							.sum 		= 1.0,
 							.wfid 		= { 1  , 1  , 1  , 1  , 1   },
 							.osc 		= OSCID,

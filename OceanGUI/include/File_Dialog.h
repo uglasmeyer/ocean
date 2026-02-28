@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,9 +35,10 @@ SOFTWARE.
 #define FILE_DIALOG_CLASS_H
 
 // Qt includes
+#include <QObject>
 #include <QDialog>
 #include <QComboBox>
-#include <QMainWindow>
+//#include <QMainWindow>
 
 // Synthesizer
 #include <Logfacility.h>
@@ -48,6 +49,17 @@ SOFTWARE.
 #include <ui_File_Dialog_class.h>
 #include <Common.h>
 
+
+/**************************************************
+ * File_Dialoh_class
+ *************************************************/
+QT_BEGIN_NAMESPACE
+namespace Ui
+{
+	class File_Dialog_class;
+}
+QT_END_NAMESPACE
+
 class File_Dialog_class :
 	public 						QDialog,
 	public virtual				Interface_base,
@@ -55,12 +67,9 @@ class File_Dialog_class :
 								sdsstate_struct
 {
     Q_OBJECT
+	Ui::File_Dialog_class*		ui;
 
 public:
-	//	Ui::File_Dialog_class*			ui;
-    unique_ptr<Ui::File_Dialog_class>
-    							ui;
-    QString         			QNote_Chars			{ "Notes: ( )"};
     Semaphore_class* 			sem					= nullptr;
     EventLog_class*				Eventlog_p			= nullptr;
 
@@ -80,6 +89,7 @@ private:
 
 public slots:
     void 						Setup_widgets		();
+    void						Dialog				();
 
 private slots:
 

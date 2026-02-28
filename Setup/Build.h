@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ SOFTWARE.
 #include <data/Config.h>
 #include <ReleaseNotes.h>
 #include <System.h>
+#include <fstream>
 
 extern void Conditional( string question, string action );
 
@@ -109,17 +110,15 @@ private:
 class Deploy_class :
 	virtual public Logfacility_class
 {
-	string className = "";
-	string srcdir	= "";
-	file_structure* Bin;
+	string	srcdir	;
+	fs_t*	Bin		;
 
 public:
 	Deploy_class( string sdir, file_structure* bin ) :
 		Logfacility_class("Deploy_class")
 	{
-		className = Logfacility_class::className;
-		srcdir = sdir;
-		Bin = bin;
+		srcdir	= sdir;
+		Bin		= bin;
 	};
 	virtual ~Deploy_class()
 	{

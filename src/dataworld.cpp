@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,13 +31,14 @@ SOFTWARE.
 
 
 #include <data/DataWorld.h>
+#include <fstream>
 
 /**************************************************
  * Dataworld_class
  *************************************************/
 Dataworld_class::Dataworld_class( 	Config_class* cfg,
 									Semaphore_class* sem )
-	: Logfacility_class( "Dataworld_class")
+	: Logfacility_class	( "Dataworld_class" )
 	, AppId				( cfg->Process.AppId )
 	, SDS				( AppId, cfg, sem )
 	, Appstate			( AppId, SDS.vec )
@@ -54,10 +55,10 @@ Dataworld_class::Dataworld_class( 	Config_class* cfg,
 	this->Sds_p 		= SDS.GetSds( SDS_Id );
 	this->Test_result	= "";
 
-	init_shared_data();
+	init_shared_sound	();
 }
 
-void Dataworld_class::init_shared_data()
+void Dataworld_class::init_shared_sound()
 {
 	if ( Cfg_p->Process.data_process  )
 	{
@@ -77,7 +78,7 @@ void Dataworld_class::init_Shm( Shm_base& SHM, key_t key, uint idx )
 	SHM.ShowDs		( SHM.shm_ds );
 }
 
-Interface_class* Dataworld_class::GetSds(  )
+SharedData_class* Dataworld_class::GetSds(  )
 {
 	return SDS.GetSds( SDS_Id );
 }
@@ -142,7 +143,7 @@ void Dataworld_class::EmitEvent( const uint8_t flag, string comment )
 void Dataworld_class::Test_Dataworld()
 {
 	TEST_START( className );
-	Interface_class* Sds;
+	SharedData_class* Sds;
 	for ( uint sdsid = 0; sdsid < 4; sdsid++ )
 	{
 		Sds = SDS.GetSds( sdsid );
@@ -169,11 +170,11 @@ SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p
 {
 	for ( Id_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
 	{
-		Interface_class	Sds 		{ appid, sdsid, Cfg_p, Sem_p };
+		SharedData_class Sds 		{ appid, sdsid, Cfg_p, Sem_p };
 		interface_t* 	sds 		= Sds.addr;
 						sds->SDS_Id = sdsid;
-		vec  .push_back( sds );
-		Vec  .push_back( Sds );
+		vec.push_back				( sds );
+		Vec.push_back				( Sds );
 	};
 
 	assert( Vec[0].addr != Vec[1].addr );
@@ -181,7 +182,7 @@ SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p
 	Master		= GetSds( 0 );
 }
 
-Interface_class* SDS_struct::GetSds( int id )
+SharedData_class* SDS_struct::GetSds( int id )
 {
 	return &Vec[ id ];
 }
@@ -200,7 +201,7 @@ interface_t* SDS_struct::GetSdsAddr( int id )
 }
 void SDS_struct::Delete()
 {
-	for( Interface_class& Sds : Vec )
+	for( SharedData_class& Sds : Vec )
 	{
 		Sds.Delete_Shm();
 	}
@@ -262,7 +263,7 @@ bool EventLog_class::capture( uint8_t sdsid, bool flag )
 {
 
 	capture_flag = flag;
-	Interface_class* Sds = DaTA->SDS.GetSds( sdsid );
+	SharedData_class* Sds = DaTA->SDS.GetSds( sdsid );
 	if ( capture_flag )
 	{
 		capture_state = CAPTURING;

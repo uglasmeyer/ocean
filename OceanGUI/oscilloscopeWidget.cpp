@@ -34,44 +34,47 @@ SOFTWARE.
 // C++ Project
 // https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene_QGraphicsItems.php
 
-#include <include/Oszilloscopewidget.h>
 #include <qpainter.h>
+#include "include/DataGraphicClass.h"
 
+/**************************************************
+ * DataGraphic_class
+ *************************************************/
+DataGraphic_class::DataGraphic_class( interface_t* ifd, QRectF rectf)
+	: Logfacility_class		( "DataGraphic_class" )
 
-QRectF OszilloscopeWidget::boundingRect() const
+{
+    this->drawregion		= { 0, 0, rectf.width()-10, rectf.height()-10 };
+    this->sds   			= ifd;
+    this->height 			= drawregion.height();
+    this->shiftY 			= height / 2;
+    this->data_scale		= height / max_data_amp / 2.0;
+    this->read_polygon_data	();		// draw scene
+};
+
+QRectF DataGraphic_class::boundingRect() const
 {
     return QRectF( drawregion );
 }
 
-OszilloscopeWidget::OszilloscopeWidget( interface_t* ifd, QRectF rectangle)
-{
-    drawregion  = { 0,0,rectangle.width()-10, rectangle.height()-10 };
-
-    height 		= drawregion.height();
-    shiftY 		= height / 2;
-	data_scale	= height / max_data_amp / 2.0;
-
-    this->sds   = ifd;
-    this->update();
-};
-
-void OszilloscopeWidget::paint(QPainter* painter,
-                               const QStyleOptionGraphicsItem* option,
-                               QWidget* widget)
+void DataGraphic_class::paint(	QPainter* painter,
+								const QStyleOptionGraphicsItem* option,
+								QWidget* widget )
 {
 
 	auto CursorLine = [ this, painter ]( Qt::GlobalColor color, uint16_t cursor )
 	{
-    	painter->setPen(QPen(color, 1, Qt::SolidLine, Qt::RoundCap));
-    	painter->drawLine( cursor, 0, cursor, height);
+    	painter->setPen		( QPen(color, 1, Qt::SolidLine, Qt::RoundCap) );
+    	painter->drawLine	( cursor, 0, cursor, height );
 	};
 
+	Comment( DEBUG, "DataGraphic_class::paint" );
     QGraphicsPolygonItem 	polygon_item;
     painter->drawRect		( drawregion );
-    polygon_item.setPolygon	( polygon);
-    polygon_item.paint		( painter, option, widget);
+    polygon_item.setPolygon	( polygon );
+    polygon_item.paint		( painter, option, widget );
 
-    uint16_t cursor = (int)sds->WD_state.cursor.cur;
+    uint16_t cursor 		= sds->WD_state.cursor.cur;
     if ( cursor > 0  )
     {
     	CursorLine( Qt::black, cursor );
@@ -81,14 +84,13 @@ void OszilloscopeWidget::paint(QPainter* painter,
     	CursorLine( Qt::red, sds->WD_state.cursor.min );
     	CursorLine( Qt::red, sds->WD_state.cursor.max );
     }
-
 }
 
-void OszilloscopeWidget::read_polygon_data(  )
+void DataGraphic_class::read_polygon_data(  )
 {
     // init polygon
 	polygon.clear();
-    polygon << QPoint(0,0);
+    polygon << QPoint( 0, 0 );
 
     Data_t x = 0;
     for ( auto y : sds->wavedata )
@@ -97,9 +99,9 @@ void OszilloscopeWidget::read_polygon_data(  )
         x++;
     }
 
-    polygon << QPoint(x,0);
+    polygon << QPoint(x,0);// horizontal line
 
     // shift polygon upward
-    polygon.translate(QPoint( 0, height-shiftY ));
+    polygon.translate( QPoint( 0, height-shiftY ) );
     this->update(); // redraw scene
 }

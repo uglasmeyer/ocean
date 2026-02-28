@@ -81,9 +81,9 @@ class Interpreter_class
 	String 					Str					{};
 	string 					cmdline 			= "";
 	string 					option_default		= "";
-	Interface_class* 		Sds					;
+	SharedData_class* 		Sds					;
 	Config_class*			Cfg					;
-	file_structure*			fs					;
+	fs_t*					fs					;
 	interface_t* 			sds					;
 	Variation_class 		Variation			;
 	view_struct_t 			main_view, fmo_view, vco_view;

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -104,6 +104,7 @@ typedef struct Connect_struct
 	OSCID_e		vol 	= NOOSCID;
 	OSCID_e		frq 	= NOOSCID;
 } connectId_t;
+const connectId_t default_connectId = Connect_struct();
 
 constexpr bool operator==( const connectId_t& lhs, const connectId_t& rhs )
 {

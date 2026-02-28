@@ -46,9 +46,6 @@ Oscgroup_class::Oscgroup_class( RoleId_e role, buffer_t bytes )
 	, osc( role, OSCID, bytes )
 {
 	this->member 	= { &vco, &fmo, &osc };
-	this->dynarr	= { vco.DynFrequency.GetCurrent(),
-						fmo.DynFrequency.GetCurrent(),
-						osc.DynFrequency.GetCurrent()};
 	Data_Reset();
 	selfTest();
 }
@@ -117,7 +114,7 @@ void Oscgroup_class::SetAdsr( interface_t* sds )
 		member[oscid]->Set_adsr	( sds->adsr_arr[oscid] );
 	}
 }
-void Oscgroup_class::Adsr_OSC()
+void Oscgroup_class::Run_Adsr()
 {
 	for( char oscid : oscIds )
 	{
@@ -165,6 +162,15 @@ void Oscgroup_class::SetScanner( const buffer_t& maxlen )
 	});
 
 }
+void Oscgroup_class::SetBeatcursor( buffer_t pos )
+{
+	std::ranges::for_each( member, [ pos ]( Oscillator*  o)
+	{
+		o->Set_beatcursor( pos );
+
+	});
+}
+
 void Oscgroup_class::Show_sound_stack() // show_status
 {
 	Table_class 	Table{"Sound stack" };

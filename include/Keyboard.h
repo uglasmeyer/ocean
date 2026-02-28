@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -151,7 +151,7 @@ typedef struct 			Notevector_struct
 {
 private:
 	Note_class*			Notes					;
-	file_structure*		Fs						;
+	fs_t*				Fs						;
 	size_t				Size					;
 
 	vector<note_t>		note_vec				{};
@@ -163,7 +163,7 @@ public:
 
 	virtual				~Notevector_struct		();
 						Notevector_struct		( Note_class* notes,
-												file_structure* fs,
+												fs_t* fs,
 												size_t size );
 	void				Add						( chord_t vec, bool forget, uint& cnt );
 	void				Init					();
@@ -186,14 +186,14 @@ class Keyboard_class
 	, virtual public	sdsstate_struct
 	, virtual public	keyboardState_class
 {
-	Oscgroup_class		Oscgroup;
+	const uint8_t		notes_per_sec			= 8;
+	Oscgroup_t			Oscgroup				;
 	Oscillator*			Osc						;
 	Instrument_class* 	instrument_p			;
 	Wavedisplay_class*	wd_p					;
 	Storage_class*		StA						;
 	Note_class*			Notes					;
 	Scanner_class*		scanner					;
-	const uint8_t		notes_per_sec			= 8;
 	int					max_notes				;
 	Notevector_t		Note_vec				;
 
@@ -235,6 +235,8 @@ private:
 	void				release_note			();
 	void 				notekey					( char key );
 	void				set_bufferMode			( bool forget);
+	void 				delete_sta				();
+
 };
 
 
