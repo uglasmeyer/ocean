@@ -37,9 +37,9 @@ SOFTWARE.
 using namespace std;
 
 #define MAYOR 4
-#define MINOR 4
-#define PATCH 3
-#define SDS_VERSION 48
+#define MINOR 5
+#define PATCH 0
+#define SDS_VERSION 49
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -60,6 +60,9 @@ const string License_text = R"(
 
 /*
 
+4.5.0-49 Capture input devicd
+			Fourier spectrum waveform
+			automatic ipc resize
 4.4.3-48 Wavedisplay history
 4.4.2-48 Cutdesk display wav-file
 4.4.1-48 stabalized usability features
@@ -68,14 +71,14 @@ const string License_text = R"(
 4.3.0-46 save keyboard notes
 4.3.0-45 instrumentClock set instrument beat separately from instrument adsr
 4.3.0-44 show Cut desk left/right bounds on wavedisplay
-enable Cut desk cursor
-musicxml note timing problems
-manage Storage volume
+enable Cut desk cursor - done
+musicxml note timing problems - done
+manage Storage volume - done
 remove clearipc.sh
 create a data version dependend backup of SDSview and libOcean.so
 (better solution needed for inconsistent SDS).
-to be checked: Balance in conjunktion with User Storage
-feature: save stas per  instrument
+to be checked: Balance in conjunktion with User Storage - done
+feature: save stas per  instrument - done
 4.3.0-43		beatclock added to SDS
 4.3.0-42		show overmodulated sound in OceanGUI (done)
 				Use SDSview -i to clear ipc.(done)

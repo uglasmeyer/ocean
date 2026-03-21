@@ -85,7 +85,7 @@ public:
     QRadioButton *rb_S2;
     QRadioButton *rb_S3;
     QProgressBar *progressBar_record;
-    QPushButton *pB_Wavedisplay;
+    QPushButton *pB_WdRole;
     QGraphicsView *oscilloscope_view;
     QPushButton *pB_wd_mode;
     QLabel *label_5;
@@ -102,15 +102,16 @@ public:
     QWidget *layoutWidget;
     QGridLayout *gridLayout;
     QPushButton *pBGuiExit;
-    QComboBox *cB_external;
-    QCheckBox *cb_overwrite;
     QPushButton *pb_Keyboard;
     QPushButton *pBAudioServer;
     QPushButton *pBComposer;
     QPushButton *pB_Save;
-    QPushButton *pb_SDSview;
     QPushButton *pB_Rtsp;
     QPushButton *pB_Cutter;
+    QComboBox *cB_external;
+    QPushButton *pB_Capture;
+    QPushButton *pb_SDSview;
+    QCheckBox *cb_overwrite;
     QComboBox *CB_kbd_bps;
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_oscgroup;
@@ -173,7 +174,7 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
         MainWindow->setEnabled(true);
-        MainWindow->resize(1221, 632);
+        MainWindow->resize(1221, 650);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::BrushStyle::SolidPattern);
@@ -453,9 +454,9 @@ public:
         progressBar_record->setObjectName("progressBar_record");
         progressBar_record->setGeometry(QRect(580, 470, 411, 23));
         progressBar_record->setValue(0);
-        pB_Wavedisplay = new QPushButton(centralwidget);
-        pB_Wavedisplay->setObjectName("pB_Wavedisplay");
-        pB_Wavedisplay->setGeometry(QRect(480, 260, 81, 25));
+        pB_WdRole = new QPushButton(centralwidget);
+        pB_WdRole->setObjectName("pB_WdRole");
+        pB_WdRole->setGeometry(QRect(480, 260, 81, 25));
         oscilloscope_view = new QGraphicsView(centralwidget);
         oscilloscope_view->setObjectName("oscilloscope_view");
         oscilloscope_view->setGeometry(QRect(480, 290, 512, 166));
@@ -520,17 +521,6 @@ public:
 
         gridLayout->addWidget(pBGuiExit, 1, 4, 1, 1);
 
-        cB_external = new QComboBox(layoutWidget);
-        cB_external->setObjectName("cB_external");
-        cB_external->setEditable(false);
-
-        gridLayout->addWidget(cB_external, 0, 0, 1, 1);
-
-        cb_overwrite = new QCheckBox(layoutWidget);
-        cb_overwrite->setObjectName("cb_overwrite");
-
-        gridLayout->addWidget(cb_overwrite, 1, 0, 1, 1);
-
         pb_Keyboard = new QPushButton(layoutWidget);
         pb_Keyboard->setObjectName("pb_Keyboard");
 
@@ -551,11 +541,6 @@ public:
 
         gridLayout->addWidget(pB_Save, 0, 4, 1, 1);
 
-        pb_SDSview = new QPushButton(layoutWidget);
-        pb_SDSview->setObjectName("pb_SDSview");
-
-        gridLayout->addWidget(pb_SDSview, 1, 1, 1, 1);
-
         pB_Rtsp = new QPushButton(layoutWidget);
         pB_Rtsp->setObjectName("pB_Rtsp");
 
@@ -565,6 +550,27 @@ public:
         pB_Cutter->setObjectName("pB_Cutter");
 
         gridLayout->addWidget(pB_Cutter, 0, 2, 1, 1);
+
+        cB_external = new QComboBox(layoutWidget);
+        cB_external->setObjectName("cB_external");
+        cB_external->setEditable(false);
+
+        gridLayout->addWidget(cB_external, 1, 0, 1, 1);
+
+        pB_Capture = new QPushButton(layoutWidget);
+        pB_Capture->setObjectName("pB_Capture");
+
+        gridLayout->addWidget(pB_Capture, 0, 0, 1, 1);
+
+        pb_SDSview = new QPushButton(layoutWidget);
+        pb_SDSview->setObjectName("pb_SDSview");
+
+        gridLayout->addWidget(pb_SDSview, 1, 2, 1, 1);
+
+        cb_overwrite = new QCheckBox(layoutWidget);
+        cb_overwrite->setObjectName("cb_overwrite");
+
+        gridLayout->addWidget(cb_overwrite, 1, 1, 1, 1);
 
         CB_kbd_bps = new QComboBox(centralwidget);
         CB_kbd_bps->setObjectName("CB_kbd_bps");
@@ -607,7 +613,7 @@ public:
         hs_hall_effect->setObjectName("hs_hall_effect");
         hs_hall_effect->setGeometry(QRect(580, 50, 160, 16));
         hs_hall_effect->setMaximum(100);
-        hs_hall_effect->setPageStep(1);
+        hs_hall_effect->setPageStep(5);
         hs_hall_effect->setOrientation(Qt::Orientation::Horizontal);
         hs_hall_effect->setInvertedControls(false);
         hs_balance = new QScrollBar(centralwidget);
@@ -702,7 +708,7 @@ public:
         hs_pmw->setGeometry(QRect(580, 110, 160, 16));
         hs_pmw->setMinimum(0);
         hs_pmw->setMaximum(100);
-        hs_pmw->setPageStep(1);
+        hs_pmw->setPageStep(5);
         hs_pmw->setOrientation(Qt::Orientation::Horizontal);
         hs_pmw->setInvertedControls(false);
         pB_ADSR = new QPushButton(centralwidget);
@@ -720,7 +726,7 @@ public:
         label_11->setGeometry(QRect(330, 280, 151, 18));
         label_18 = new QLabel(centralwidget);
         label_18->setObjectName("label_18");
-        label_18->setGeometry(QRect(410, 510, 66, 18));
+        label_18->setGeometry(QRect(410, 540, 66, 18));
         gridLayoutWidget_2 = new QWidget(centralwidget);
         gridLayoutWidget_2->setObjectName("gridLayoutWidget_2");
         gridLayoutWidget_2->setGeometry(QRect(20, 10, 295, 151));
@@ -871,12 +877,12 @@ public:
         label_2->setText(QCoreApplication::translate("MainWindow", "PWM", nullptr));
         pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes,  \n"
 "Instruments", nullptr));
-        pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Save", nullptr));
+        pBtoggleRecord->setText(QCoreApplication::translate("MainWindow", "Record", nullptr));
         rb_S0->setText(QCoreApplication::translate("MainWindow", "Instrument 0", nullptr));
         rb_S1->setText(QCoreApplication::translate("MainWindow", "Instrument 1", nullptr));
         rb_S2->setText(QCoreApplication::translate("MainWindow", "Instrument 2", nullptr));
         rb_S3->setText(QCoreApplication::translate("MainWindow", "Instrument 3", nullptr));
-        pB_Wavedisplay->setText(QString());
+        pB_WdRole->setText(QString());
         pB_wd_mode->setText(QString());
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
         pB_Specrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
@@ -886,14 +892,15 @@ public:
         label_3->setText(QCoreApplication::translate("MainWindow", "Instrument Bps", nullptr));
         pB_Mute->setText(QString());
         pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT (ESC)", nullptr));
-        cb_overwrite->setText(QCoreApplication::translate("MainWindow", "Overwrite", nullptr));
         pb_Keyboard->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
         pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
         pBComposer->setText(QCoreApplication::translate("MainWindow", "Composer", nullptr));
         pB_Save->setText(QCoreApplication::translate("MainWindow", "Save Default", nullptr));
-        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         pB_Rtsp->setText(QCoreApplication::translate("MainWindow", "RTSP", nullptr));
-        pB_Cutter->setText(QCoreApplication::translate("MainWindow", "Cutter", nullptr));
+        pB_Cutter->setText(QCoreApplication::translate("MainWindow", "CutDesk", nullptr));
+        pB_Capture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
+        pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
+        cb_overwrite->setText(QCoreApplication::translate("MainWindow", "Overwrite", nullptr));
         pB_oscgroup->setText(QString());
         pb_fftmode->setText(QString());
         lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));

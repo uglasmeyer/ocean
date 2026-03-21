@@ -73,9 +73,6 @@ public:
 	void 			Test				();
 
 private:
-
-
-
 	bool 			longnote			= false; // set trigger for long notes
 	const float		fmo_scale			= 0.003;//0.001;
 	void 			mem_init			();

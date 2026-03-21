@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,8 @@ Event_class::Event_class(	Instrument_class* 	instrument,
 							Dataworld_class*	data,
 							External_class*		external,
 							ProgressBar_class*	progressbar,
-							CutDesk_class*		cutter )
+							CutDesk_class*		cutter,
+							Capture_class*		capture )
 	: Logfacility_class	("Event_class")
 	, sdsstate_struct	()
 	, StAExternal		( &mixer->StA, data->Cfg_p, data->Sds_p->addr )
@@ -60,6 +61,7 @@ Event_class::Event_class(	Instrument_class* 	instrument,
 	this->ProgressBar	= progressbar;
 	this->Appstate		= &DaTA->Appstate;
 	this->CutDesk		= cutter;
+	this->Capture		= capture;
 };
 
 
@@ -232,7 +234,7 @@ void Event_class::Handler()
 	{
 		EvInfo( event, "all ADSR change");
 		Instrument->Oscgroup.SetAdsr( sds_p );
-		if( not Mixer->state.instrument )
+		if( sds_p->WD_state.adsrmode )
 			Instrument->Oscgroup.Run_Adsr();
 		BREAK
 	}
@@ -241,8 +243,27 @@ void Event_class::Handler()
 		EvInfo( event, "ADSR change");
 		OSCID_e oscid = sds_p->SpectrumTypeId;
 		Instrument->Set_adsr( oscid );
-		if( not Mixer->state.instrument )
+		if( sds_p->WD_state.adsrmode )
+		{
 			Instrument->Oscgroup.member[oscid]->Adsr_OSC();
+		}
+		BREAK
+	}
+	case SETWAVEDISPLAYKEY:
+	{
+		WD_data_t	wd_state 	= sds_p->WD_state;
+		if( wd_state.roleId == AUDIOROLE )
+		{
+			BREAK
+			 // audio data is provided by the Audio server
+		}
+		if( wd_state.adsrmode )
+		{
+			Instrument->Oscgroup.SetAdsr( sds_p );
+			Instrument->Oscgroup.member[wd_state.oscId]->Adsr_OSC();
+			DaTA->EmitEvent( READADSRDATAFLAG, "read adsr data" );
+		}
+		Wavedisplay->Set_WdData();
 		BREAK
 	}
 	case PWMDIALKEY:
@@ -254,21 +275,6 @@ void Event_class::Handler()
 		Instrument->fmo->Set_pmw(sds_p->features[VCOID].PWM);
 		BREAK
 	}
-	case SETWAVEDISPLAYKEY:
-	{
-		WD_data_t	wd_state 	= sds_p->WD_state;
-		if( wd_state.roleId == AUDIOROLE )
-		{
-			BREAK
-			 // audio data is provided by the Audio server
-		}
-		if( wd_state.roleId == ADSRROLE )
-		{
-			Instrument->Oscgroup.member[wd_state.oscId]->Adsr_OSC();
-		}
-		Wavedisplay->Set_WdData();
-		BREAK
-	}
 	case SOFTFREQUENCYKEY:
 	{
 		EvInfo( event, "Frequency slide effect update ");
@@ -278,7 +284,8 @@ void Event_class::Handler()
 		sds_p->features[VCOID].slide_frq = slide;
 		BREAK
 	}
-	case STARTRECORD_KEY : // TODO complete functionality
+
+ 	 case STARTRECORD_KEY : // TODO complete functionality
 	{
     	if( sds_p->StA_state_arr[STA_NOTES].play )
     	{
@@ -294,6 +301,7 @@ void Event_class::Handler()
     	}
 		BREAK
 	}
+
 	case STOPRECORD_KEY :
 	{
     	if( sds_p->StA_state_arr[STA_NOTES].play )
@@ -308,6 +316,25 @@ void Event_class::Handler()
     		Notes->Note_itr_end.SetActive( false );
     		sds_p->Record_state = sdsstate_struct::RECORDSTOP;
     	}
+
+		BREAK
+	}
+	case CAPTURE_KEY : // TODO complete functionality
+	{
+		StateId_t state = sds_master->Capture_state;
+		if ( state == RECORDSTART )				// 7
+		{
+			state = RECORDING;					// 9
+			Sem->Release( SEMAPHORE_CAPTURE );
+		}
+		else
+		{
+			Capture->Stop( STA_EXTERNAL );
+			state = INACTIVE; 					// 12
+		}
+		sds_master->Capture_state = state;
+		DaTA->EmitEvent( APPSTATE_FLAG, "update capture state " + to_string(state) );
+
 		BREAK
 	}
 	case KBD_SAVE_KEY :

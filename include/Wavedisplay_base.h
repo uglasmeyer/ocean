@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include <Ocean.h>
 #include <Osctypes.h>
+#include <Oscwaveform.h>
 
 template< typename T >
 struct cursor_T
@@ -47,25 +48,34 @@ struct cursor_T
 
 struct wavedisplay_struct
 {
+	const vector<string> button_types =
+	{
+		"Full",
+		"Flow",
+		"Debug"
+	};
 	const vector<string> types =
 	{
 		"Full",
 		"Flow",
 		"Debug",
-		"Cursor"
+		"Cursor",
+		"Fft",
+		"Adsr"
 	};
 	const vector<string> fftmodes =
 	{
 		"A(τ)",
 		"A(ω)"
 	};
-	enum WDMODE_t
+	enum WDMODE_t : unsigned char // classification of the display data calculation by gen_cxwave_data
 	{
 		FULLID,
 		FLOWID,
 		DEBUGID,
 		CURSORID,
-		FFTID
+		FFTID,
+		ADSRID
 	};
 	enum Direction_e
 	{
@@ -90,14 +100,15 @@ typedef cursor_T<int16_t>
 						cursor_t;
 
 const int 				wavedisplay_len	= 512;
+const int 				adsrdisplay_len	= 256;
 
 struct WD_data_struct
 {	// SDS related
 
 	OSCID_e 			oscId 			= OSCID;
 	RoleId_e			roleId 			= INSTRROLE;
-	RoleId_e			prevroleId		= INSTRROLE;
 	bool 				fftmode			= false;
+	bool				adsrmode		= false;
 	WdModeID_t 			wd_mode			= wavedisplay_t::FULLID;
 	Direction_e			direction		= wavedisplay_t::NO_direction; // GUI bounds cursor direction
 	buffer_t			frames			= 0; // max number of frames presented in the display
@@ -107,14 +118,14 @@ struct WD_data_struct
 typedef WD_data_struct 	WD_data_t;
 
 const uint8_t 			WD_OSC_SIZE 	= NOOSCID;
-const size_t 			WD_ROLES_SIZE 	= ROLE_SIZE;
-const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().types.size();
+const size_t 			WD_ROLES_SIZE 	= ROLE_SIZE-1; //exclude ADSRROLE
+const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().button_types.size();
 
 
 typedef array< Data_t,	wavedisplay_len>wd_arr_t;
+typedef array< Data_t,	adsrdisplay_len>ad_arr_t;
 
-typedef complex<double>					cd_t;
-typedef vector<cd_t>					cd_vec_t;
-extern wd_arr_t 		fft				(cd_vec_t data, bool invert);
+
+
 
 #endif /* WAVEDISPLAY_BASE_H_ */

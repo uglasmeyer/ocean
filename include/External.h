@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,19 +40,17 @@ SOFTWARE.
 /**************************************************
  * External_class
  *************************************************/
-
-class 							External_class :
+class External_class :
 	public virtual 				Logfacility_class,
 	public virtual 				Stereo_Memory<stereo_t>
 
 {
-	string						className 			= "";
-	Storage_class* 				StA_ext					= nullptr;
 	FILE*						File				= nullptr;
-	Config_class*				Cfg 				= nullptr;
-	fs_t*						fs					= nullptr;
 
 public:
+	Config_class*				Cfg 				= nullptr;
+	fs_t*						fs					= nullptr;
+	Storage_class* 				StA_ext				= nullptr;
 	buffer_t					Filedata_size 		= 0;
 	interface_t*				sds					= nullptr;
 	string 						Filename 			= "";
@@ -61,12 +59,12 @@ public:
 								// Synthesizer read only class
 								External_class		( Storage_class*,
 													Config_class* cfg,
-													interface_t* sds);
+													interface_t* sds );
 	const bool 					Read_file_data		();
 	const bool 					Read_file_header	( string );
 	void 						SetName				( string name );
 	void 						Test_External		();
-
+	void 						Stereo2StA			();
 
 								// Audioserver write only class
 								External_class		( Config_class* cfg,
@@ -74,7 +72,6 @@ public:
 	const string 				Save_record_data	( int filenr );
 	void 						Save_record_data	( string filename );
 	void 						Record_buffer		( stereo_t* src, buffer_t frames );
-
 	virtual 					~External_class		() = default;
 
 private:
@@ -106,7 +103,6 @@ private:
 class StAExternal_class :
 	virtual External_class
 {
-//	string 					className 	= "";
 	StorageArray_t*			StA_arr 	= nullptr;
 	Storage_class*			StA			= nullptr;
 public:
@@ -118,10 +114,7 @@ public:
 	{
 		this->StA_arr			= sta_arr;
 	};
-	virtual ~StAExternal_class()
-	{
-//		DESTRUCTOR( className );
-	};
+	virtual ~StAExternal_class()= default ;
 	void Convert_StA2WAV( StAId_e staid, range_T<buffer_t> range );
 
 

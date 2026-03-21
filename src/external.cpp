@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * External.cpp
+ * external.cpp
  *
  *  Created on: Mar 29, 2024
  *      Author: Ulrich.Glasmeyer@web.de
@@ -33,15 +33,14 @@ SOFTWARE.
 #include <fstream>
 
 // Synthesizer read data from file into StA_External
-External_class::External_class	( 	Storage_class* sta,
-									Config_class* cfg,
-									interface_t* sds ) :
-	Logfacility_class("External"),
+External_class::External_class	( 	Storage_class*	sta,
+									Config_class*	cfg,
+									interface_t*	sds ) :
+	Logfacility_class( "External" ),
 	Memory_base( sizeof_Data, sta->param.size * sizeof_Data ),
 	Stereo_Memory<stereo_t>( sizeof_stereo, sta->param.size * sizeof_stereo )
 {
-	className			= Logfacility_class::className;
-	this->StA_ext 			= sta;
+	this->StA_ext 		= sta;
 	this->File 			= NULL;
 	this->Cfg			= cfg;
 	this->sds			= sds;
@@ -93,9 +92,6 @@ const bool External_class::Read_file_data(  )
 	}
 
 	mem_ds_t	mem_ds	= mem_data_struct( sizeof_stereo, header_struct.dlength );
-//	buffer_t 	bytes 	= header_struct.dlength;
-//	uint 		blocks 	= bytes/sizeof_stereo/record_size;
-//	uint 		frames	= bytes/sizeof_stereo;
 
 	if (LogMask[DBG2])
 		StA_ext->DsInfo("Memory Array External");
@@ -105,19 +101,20 @@ const bool External_class::Read_file_data(  )
 		Comment(WARN, "Taking limits from memory info" );
 		mem_ds.data_blocks 	= StA_ext->mem_ds.data_blocks;
 		mem_ds.max_records	= StA_ext->mem_ds.max_records;
-		mem_ds.bytes 	= StA_ext->mem_ds.bytes;
+		mem_ds.bytes 		= StA_ext->mem_ds.bytes;
 	}
 
 	StA_ext->Clear_data( 0 );
 
 	if( read_stereo_data( mem_ds.bytes ) )
 	{
-		for ( buffer_t n = 0; n < mem_ds.data_blocks; n++)
-		{
-			Data_t L = stereo_data[n].left;
-			Data_t R = stereo_data[n].right;
-			StA_ext->Data[n]	= L + R;
-		}
+		Stereo2StA();
+//		for ( buffer_t n = 0; n < mem_ds.data_blocks; n++)
+//		{
+//			Data_t L = stereo_data[n].left;
+//			Data_t R = stereo_data[n].right;
+//			StA_ext->Data[n]	= L + R;
+//		}
 		Comment(INFO,"Converted stereo to mono data");
 		Comment(INFO,"Bytes   ", mem_ds.bytes );
 		Comment(INFO,"Records ", mem_ds.max_records );
@@ -184,9 +181,19 @@ void External_class::Record_buffer( stereo_t* src, buffer_t frames )
 {
 	for ( buffer_t n = 0; n < frames; n++ )
 	{
-		Stereo_Memory::stereo_data[n + record_size ] = src[n] ;
+		Stereo_Memory::stereo_data[n + record_size ] = src[n];
 	}
 	record_size += frames;
+}
+
+void External_class::Stereo2StA( )
+{
+	for ( buffer_t n = 0; n < mem_ds.data_blocks; n++)
+	{
+		Data_t L = stereo_data[n].left;
+		Data_t R = stereo_data[n].right;
+		StA_ext->Data[n]	= L + R;
+	}
 }
 
 int External_class::generate_file_no()

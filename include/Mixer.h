@@ -33,15 +33,9 @@ SOFTWARE.
 #define INCLUDE_MIXER_H_
 
 #include <Osc.h>
-//#include <Oscbase.h>
-//#include <External.h>
-//#include <Ocean.h>
 #include <Wavedisplay.h>
 #include <Mixerbase.h>
 #include <data/DataWorld.h>
-//#include <data/Memory.h>
-//#include <Dynamic.h>
-//#include <notes/Notes.h>
 
 /**************************************************
  * Mixer_class
@@ -126,5 +120,6 @@ private:
 
 	bool 					setStAId		();
 };
+
 
 #endif /* INCLUDE_MIXER_H_ */

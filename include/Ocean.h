@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,9 +36,7 @@ SOFTWARE.
 #include <array>
 #include <bitset>
 #include <cstdlib>
-//#include <complex>
 #include <filesystem>
-//#include <fstream>
 #include <functional>
 #include <initializer_list>
 #include <iomanip> // setfill cout ...
@@ -83,7 +81,7 @@ using namespace std;
 // https://en.cppreference.com/w/cpp/language/types
 typedef unsigned long int 	buffer_t;
 typedef float		 		Data_t; // range -32767 ... +32767
-typedef signed short 		data_t; // range -32767 ... +32767
+typedef int16_t		 		data_t; // range -32767 ... +32767
 typedef vector<Data_t>		DataVec_t;
 typedef double				phi_t;
 typedef float 				frq_t;
@@ -117,6 +115,7 @@ const uint8_t		sizeof_data 		= sizeof(data_t);
 const uint			sample_rate			= 48000; //device default
 const buffer_t		frames_per_sec  	= sample_rate;
 const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
+const phi_t 		dt 					= 1.0 / ( frames_per_sec );	//seconds per frame
 
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
@@ -145,7 +144,7 @@ const float			percent				= 0.01;
 
 const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = A0
 const int			oct_steps			= 12;
-const static uint	max_octave			= 7;
+const uint			max_octave			= 7;
 const uint 			min_octave 			= 0;
 const string		OctChars_EN			= "CcDdEFfGgAaB";
 const string		OctChars_DE			= "CcDdEFfGgAaH";

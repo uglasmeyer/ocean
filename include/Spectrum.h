@@ -64,8 +64,8 @@ typedef array<uint8_t	 ,	SPECARR_SIZE>
 							spec_arr_8t;
 typedef array<spec_arr_dt,	OSCIDSIZE>
 							phase_arr_t;
-const spec_arr_dt			default_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
-const phase_arr_t			default_phase_arr = default_oscgroup_arr_T( default_phase );
+const spec_arr_dt			zero_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
+const phase_arr_t			default_phase_arr = default_oscgroup_arr_T( zero_phase );
 
 struct spectrum_data
 {	// SDS  related
@@ -75,7 +75,7 @@ struct spectrum_data
 	spec_arr_8t					frqidx 	{ A3, 0, 0, 0, 0 };				// frq slider value
 	spec_dta_ft					sum 	= 1.0;								// sum over .vol
 	spec_arr_8t					wfid 	{ 0, 0, 0, 0, 0 };					// waveform wdid
-	spec_arr_dt					phi		= default_phase;
+	spec_arr_dt					phi		= zero_phase;
 	OSCID_e						osc 	= OSCID;
 	bool						adsr	= false;
 } ;
@@ -89,7 +89,18 @@ class Spectrum_class :
 	public	virtual 			Frequency_class
 {
 public:
-
+	const spectrum_t			TestSpectrum =
+	{
+		.vol		{ 0.5, 0.25, 0.25, 0.0, 0.0 },
+		.volidx  	{ 50, 25, 25, 0, 0 },
+		.frqadj		{ 1.0, 2.0, 3.0, 4.0, 5.0 },
+		.frqidx 	{ A3, 0, 0, 0, 0 },
+		.sum 		= 1.0,
+		.wfid 		{ 0, 0, 0, 0, 0 },
+		.phi		= zero_phase,
+		.osc 		= OSCID,
+		.adsr		= false
+	};
 
 	spectrum_data				Parse_data			( vector_str_t arr );
 	int 						Get_waveform_id		( string );

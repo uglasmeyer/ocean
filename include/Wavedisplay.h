@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ SOFTWARE.
 #ifndef WAVEDISPLAY_H_
 #define WAVEDISPLAY_H_
 
-#include <Wavedisplay_base.h>
+#include <Fourier.h>
 #include <data/Interface.h>
 
 /**************************************************
@@ -49,8 +49,8 @@ class Wavedisplay_class :
 	string 			oscname			;
 
 public:
-
-					Wavedisplay_class( SharedData_class* _sds );
+	Fourier_class*	fourier			;
+					Wavedisplay_class( SharedData_class* _sds, Fourier_class* _fourier );
 	virtual 		~Wavedisplay_class() = default;
 
 	void 			Add_role_ptr	( RoleId_e wd_role,
@@ -61,18 +61,21 @@ public:
 									Data_t* 	ptr,
 									buffer_t* 	wd_frames );
 	void 			Set_WdData		();
-	void 			WriteData 		();
 	void 			Set_wdcursor	( buffer_t pos, buffer_t unit );
-
+	void			TestWd			();
+	void 			WriteData 		();
 
 private:
-	void 			set_Wdmode		( const WdModeID_t& mode, bool fftmode );
-	void 			set_wdcursor	( uint16_t pos );
-	void	 		gen_cxwave_data	( void  );
-	void 			set_wdnames		(  RoleId_e roleid, OSCID_e oscid );
+	void	 		gen_wave_data	( WdModeID_t mode );
+	void 			set_Wdmode		();
+	void 			set_Wdcursor	( uint16_t pos );
+	void 			set_Wdnames		();
+	void 			set_Wdptr		( RoleId_e role);
 
 	typedef struct wd_ptr_struct
 	{
+		RoleId_e	role	{};
+		OSCID_e		type	{};
 		Data_t* 	ptr		= nullptr;
 		buffer_t* 	frames	= nullptr;
 	} wd_ptr_t;
@@ -85,7 +88,7 @@ private:
 		buffer_t max_offs 	= max_frames - len*step ;
 	} param_t;
 
-	typedef array< 	array< wd_ptr_t , 	WD_OSC_SIZE>,  	WD_ROLES_SIZE >
+	typedef array< 	array< wd_ptr_t , 	WD_OSC_SIZE>, ROLE_SIZE >
 					data_ptr_mtx_t;
 
 	int 			frame_counter	;
@@ -104,6 +107,7 @@ private:
 	param_t 		param_split		;
 	param_t 		param_cursor	;
 	param_t			param_fft		;
+	param_t			param_adsr		;
 };
 
 #endif /* WAVEDISPLAY_H_ */

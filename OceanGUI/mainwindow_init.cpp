@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,14 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#include <include/Mainwindow.h>
+
+// Ocean
 #include <Oscwaveform.h>
+
+// OceanGUI
+#include <Mainwindow.h>
+
+
 
 /**************************************************
  * WfDisplay_que_struct
@@ -119,7 +125,7 @@ void MainWindow::initPanel()
     QPalette palette;
     palette.setBrush(QPalette::Window, bkgnd);
     palette.setColor(QPalette::WindowText, Qt::white);
-    palette.setColor(QPalette::Button, QColor(0,179,255) );
+    palette.setColor(QPalette::Button, QColor( defaultButtonRGB ) );
     this->setPalette(palette);
 
 }
@@ -151,13 +157,13 @@ void MainWindow::initComboBoxes()
 
 }
 
-void MainWindow::initOscillatorDisplay()
+void MainWindow::initDataDisplay()
 {
-    QRectF 				rect         = ui->oscilloscope_view->geometry();
     scene				= new QGraphicsScene( this );
-    OscWidget_item 		= new DataGraphic_class( Sds->addr, rect ) ;
+    OscWidget_item 		= new DataGraphic_class( Sds->addr, ui->oscilloscope_view ) ;
     ui->oscilloscope_view->setScene( scene );
     scene->addItem( OscWidget_item );
+    OscWidget_item->ReadWaveData();
 }
 
 template <typename T, std::size_t N>
@@ -166,23 +172,26 @@ std::vector<T> arrayToVector(const std::array<T, N>& arr)
     return std::vector<T>(arr.begin(), arr.end());
 }
 
-
-
 void MainWindow::initStateButtons()
-
 {
+
 	Qwd_osc_names 	= Vstringvector( typeNames );
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_state.oscId ]);
 
 	Qwd_fftmodes	= Vstringvector( fftmodes );
 	ui->pb_fftmode->setText( Qwd_fftmodes [ Sds->addr->WD_state.fftmode ]);
 
-	Qwd_wdmode_names= Vstringvector( wavedisplay_struct::types );
-	int wd_mode = check_range( wd_mode_range, (int)sds_p->WD_state.wd_mode );
+	Qwd_wdmode_names= Vstringvector( wavedisplay_struct::button_types );
+	int wd_mode		= check_range( wd_mode_range, (int)sds_p->WD_state.wd_mode );
 	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
 
-	Qwd_role_names 	= Vstringvector( roleNames );
-	ui->pB_Wavedisplay->setText( Qwd_role_names[ Sds->addr->WD_state.roleId ]);
+	Qwd_role_names 	= Vstringvector( StANames );
+	Qwd_role_names.push_back( "Audio" );
+	StAId_e staid = StaRole_map.GetStaid( sds_p->WD_state.roleId );
+	QString sta_name = "";
+	if ( staid < WD_ROLES_SIZE )
+		sta_name= Qwd_role_names[ staid ];
+	ui->pB_WdRole->setText( sta_name );
 
     setButton( ui->pB_Rtsp, 2 );
     setButton( ui->pB_play_notes, 2 );
@@ -207,7 +216,7 @@ void MainWindow::initFreqSlider()
 {
 	for( sl_lcd_t map : sl_frqidx_vec )
 	{
-		map.sl->setMinimum( 1 );
+		map.sl->setMinimum( frqarr_range.min );
 		map.sl->setMaximum( map.max );
 		int frqidx = *map.value;
 		map.sl->setValue( Spectrum_Dialog_p->Frequency.GetFrq( frqidx ));
@@ -302,17 +311,18 @@ void MainWindow::initUiConnectors()
     connect(ui->pB_play_notes	, SIGNAL(clicked() )		,File_Dialog_p, SLOT(Dialog() ));
     connect(ui->pB_Cutter		, SIGNAL(clicked() )		,CutDesk_Dialog_p, SLOT(Dialog() ));
 
-    connect(ui->pb_SDSview		, SIGNAL(clicked() )		,this, SLOT(start_sdsview() ));
+    connect(ui->pb_SDSview		, SIGNAL(clicked() )		,this, SLOT(start_sdsview() 	));
     connect(ui->pBSynthesizer	, SIGNAL(clicked() )		,this, SLOT(start_synthesizer() ));
-    connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() ));
-    connect(ui->pBAudioServer	, SIGNAL(clicked() )		,this, SLOT(start_audio_srv() ));
-    connect(ui->pBComposer		, SIGNAL(clicked() )		,this, SLOT(start_composer() ));
-    connect(ui->pBGuiExit		, SIGNAL(clicked() )		,this, SLOT(GUI_Exit() ));
-    connect(ui->pBtoggleRecord	, SIGNAL(clicked(bool) )	,this, SLOT(SaveRecord() ));
-    connect(ui->pB_Mute			, SIGNAL(clicked() )		,this, SLOT(toggle_Mute() ));
-    connect(ui->pB_Mute_StA		, SIGNAL(clicked() )		,this, SLOT(clear_StAs_play() ));
-    connect(ui->pB_Save			, SIGNAL(clicked() )		,this, SLOT(Save_Config() ));
-    connect(ui->pb_clear		, SIGNAL(clicked() )		,this, SLOT(memory_clear() ));
+    connect(ui->pb_Keyboard		, SIGNAL(clicked() )		,this, SLOT(start_keyboard() 	));
+    connect(ui->pBAudioServer	, SIGNAL(clicked() )		,this, SLOT(start_audio_srv() 	));
+    connect(ui->pBComposer		, SIGNAL(clicked() )		,this, SLOT(start_composer() 	));
+    connect(ui->pBGuiExit		, SIGNAL(clicked() )		,this, SLOT(GUI_Exit() 			));
+    connect(ui->pBtoggleRecord	, SIGNAL(clicked(bool) )	,this, SLOT(SaveRecord() 		));
+    connect(ui->pB_Capture		, SIGNAL(clicked() )		,this, SLOT(capture_audio() 	));
+    connect(ui->pB_Mute			, SIGNAL(clicked() )		,this, SLOT(toggle_Mute() 		));
+    connect(ui->pB_Mute_StA		, SIGNAL(clicked() )		,this, SLOT(clear_StAs_play() 	));
+    connect(ui->pB_Save			, SIGNAL(clicked() )		,this, SLOT(Save_Config() 		));
+    connect(ui->pb_clear		, SIGNAL(clicked() )		,this, SLOT(memory_clear() 		));
 
     connect(ui->Slider_VCO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Freq(int) ));
     connect(ui->Slider_FMO_Hz	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Freq(int) ));
@@ -332,7 +342,7 @@ void MainWindow::initUiConnectors()
 
     connect(ui->CB_kbd_bps		, SIGNAL(activated(int) )	,this, SLOT(Notes_per_measure(int) ));
     connect(ui->CB_inst_bps		, SIGNAL(activated(int) )	,this, SLOT(Beat_per_sec(int) ));
-    connect(ui->pB_Wavedisplay 	, SIGNAL(clicked() )		,this, SLOT(pB_Wavedisplay_clicked() ));
+    connect(ui->pB_WdRole	 	, SIGNAL(clicked() )		,this, SLOT(pB_Wavedisplay_clicked() ));
     connect(ui->pB_wd_mode		, SIGNAL(clicked() )		,this, SLOT(pB_Debug_clicked() ));
     connect(ui->pB_oscgroup		, SIGNAL(clicked() )		,this, SLOT(pB_oscgroup_clicked() ));
     connect(ui->pb_fftmode		, SIGNAL(clicked() )		,this, SLOT(pB_fftmode_clicked() ));
@@ -400,7 +410,7 @@ void MainWindow::initUiConnectors()
 void MainWindow::initTimer()
 {
     connect(status_timer, &QTimer::timeout, this, &MainWindow::setwidgetvalues );
-    connect(osc_timer	, &QTimer::timeout, this, &MainWindow::read_polygon_data );
+    connect(osc_timer	, &QTimer::timeout, this, &MainWindow::read_wave_data );
     status_timer->start	(1000); 	// update widgets
     osc_timer->start	(250); 		// update oscilloscope widget 4 Hz
 }

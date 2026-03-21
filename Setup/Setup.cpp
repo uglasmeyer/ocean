@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,11 +32,14 @@ SOFTWARE.
 
 
 #include <Build.h>
+#include <Fourier.h>
+
 
 Exit_class				Exit			{};
 Kbd_base				Kbd 			{};
 Config_class			Cfg				{};
 Logfacility_class		Log				( Cfg.prgName );
+Fourier_class			Fourier			{};
 
 file_structure* 		Bin				;
 

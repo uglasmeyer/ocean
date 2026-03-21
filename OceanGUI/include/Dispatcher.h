@@ -48,10 +48,11 @@ SOFTWARE.
  * Dispatcher_class
  *************************************************/
 class Dispatcher_class :
-		public QObject,
+		public QObject,		// is a Qt-Object because of slots
 		virtual Logfacility_class
 {
     Q_OBJECT
+
 	Semaphore_class* 	Sem_p 		= nullptr;
 	SharedData_class* 	Sds_p 		= nullptr;
 	SharedData_class*	Sds_master	= nullptr;
@@ -73,6 +74,7 @@ signals:
     void UpdateKeyboardDialog();
     void UpdateColorButtons();
     void UpdateCutDesk();
+    void ReadAdsrData();
     void finished();
 
 private:

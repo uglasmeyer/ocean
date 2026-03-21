@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ SOFTWARE.
  */
 
 #include <Audio.h>
-
+#include <Utilities.h>
 
 /**************************************************
  * Record_class
@@ -109,23 +109,113 @@ void Record_class::Store_audioframes( stereo_t* addr, buffer_t frames )
 }
 
 
+/**************************************************
+ * Capture_class
+ *************************************************/
+
+typedef Capture_class::InputData_struct	InputData_t;
+int RtAudioIn( 	void*	/*outputBuffer*/,
+				void* 	inputBuffer,
+				uint 	nBufferFrames,
+				double	streamTime,
+				RtAudioStreamStatus status,
+				void* 	classdata )
+{
+	InputData_t*	capture 	= ( InputData_t* ) classdata;
+	frame_t* 		buffer 		= ( frame_t* ) inputBuffer ;
+
+	for( buffer_t n = 0; n < nBufferFrames; n++ )
+	{
+		frame_t stereo 			= buffer[n];
+		capture->staData[capture->frameCounter] = Data_t( stereo.left + stereo.right );
+		capture->frameCounter 	+= 1;
+	}
+
+	if ( capture->frameCounter >= capture->maxFrames )
+		return 2;	// abort
+	if ( capture->streamDone )
+		return 1;	// stop stream
+	return 0;		// contiunue
+}
+
+Capture_class::Capture_class( External_class* ext ) :
+	Logfacility_class	( "Capture_class" ),
+	Audio_class			( ext->Cfg, IN ),
+	InputData			( ext )
+{
+	this->Extern		= ext;
+
+};
+Capture_class::~Capture_class()
+{
+	DESTRUCTOR( className );
+};
+
+void Capture_class::Start( StAId_e staid )
+{
+	InputData.streamDone= false;
+	InputData.frameCounter	= *Extern->StA_ext->Store_counter() * audio_frames;
+	Start_stream		( &RtAudioIn, (void*) &InputData );
+}
+
+void Capture_class::Stop( StAId_e staid )
+{
+	InputData.streamDone= true;
+	Shutdown_stream		();
+	Extern->StA_ext->Set_records( InputData.frameCounter/audio_frames );
+}
+
 
 /**********************************************
  * Audio_class
  **********************************************/
 
+extern Logfacility_class Log;
+void errorCallback( RtAudioErrorType err, const std::string& txt )
+{
+	Log.Comment(ERROR, txt ) ;
+}
 
+Audio_class::Audio_class( Config_class* cfg, IO_DIRECTION_e dir )
+	: Logfacility_class		( "Audio_class" )
+	, Rt					(  )
+{
+	this->direction			= dir;
+	this->sample_rate		= cfg->Config.rate;
+	deviceIds 				= Rt.getDeviceIds();
+	deviceNames 			= Rt.getDeviceNames();
 
-void 	Audio_class::show_parameter()
+	Rt.showWarnings			( true );
+	streamParams.nChannels 	= cfg->Config.channel;
+	streamParams.firstChannel= cfg->Config.ch_offs;
+	streamParams.deviceId 	= getDeviceDescription( cfg->Config.device );
+	show_characteristic		();
+/*
+	#define USE_INTERLEAVED
+	#if !defined( USE_INTERLEAVED )
+			options.flags |= RTAUDIO_NONINTERLEAVED,
+	#endif
+*/
+};
+Audio_class::~Audio_class()
+{
+	Shutdown_stream();
+	Info( "frame buffer deleted" );
+
+	DESTRUCTOR( className );
+};
+
+void Audio_class::show_characteristic()
 {
 
 // The parameter list is available after stream open
-	Table_class	T{"Parameter in use" };
+	Table_class	T{"Characteristic" };
 	T.AddColumn( "Parameter", 20 );
 	T.AddColumn( "Value"	, 10 );
 	T.PrintHeader();
 
-	T.AddRow( "Buffer size"			, bufferFrames );
+
+	T.AddRow( "Buffer size"			, streamFrames );
 	T.AddRow( "Number of buffers"	, streamOptions.numberOfBuffers );
 	T.AddRow( "Stream latency"		, Rt.getStreamLatency() );
 	T.AddRow( "Stream sample rate"	, Rt.getStreamSampleRate() );
@@ -133,20 +223,25 @@ void 	Audio_class::show_parameter()
 	T.AddRow( "RtApi option flags"	, streamOptions.flags );
 	T.AddRow( "Device Id"			, streamParams.deviceId );
 	T.AddRow( "Device name"			, DeviceDescription.Name );
+
+	RtAudio::DeviceInfo Info = Rt.getDeviceInfo( streamParams.deviceId );
+    T.AddRow( "Max Output channels", Info.outputChannels );
+    T.AddRow( "Max input channels", Info.inputChannels );
+    T.AddRow( "Max duplex channels", Info.duplexChannels );
+    T.AddRow( "Is default output", yesno( Info.isDefaultOutput ) );
+    T.AddRow( "Is default input", yesno( Info.isDefaultInput ) );
+    T.AddRow( "Sample rates", show_items( Info.sampleRates ) );
+
 }
 
-void Audio_class::Start_stream( RtAudioCallback Audio_out  )
+
+void Audio_class::Start_stream( RtAudioCallback Audio_fnc, void* userData )
 {
+	open_stream( Audio_fnc, userData );
 
-	open_stream(  Audio_out );
-	if ( not Rt.isStreamOpen() )
-	{
-		Exception( Rt.getErrorText() );
-	}
-	else
-		Comment( INFO, "Audio Stream is open ") ;
+	Rt.startStream();
 
-	if ( Rt.startStream() )
+	if ( not Rt.isStreamRunning() )
 	{
 		Exception( Rt.getErrorText() );
 	}
@@ -154,48 +249,57 @@ void Audio_class::Start_stream( RtAudioCallback Audio_out  )
 		Comment( INFO, "Audio Stream is started ") ;
 }
 
-//#define FORMAT RTAUDIO_SINT16 // 16bit signed integer
-
-void Audio_class::open_stream( RtAudioCallback Audio_out )
+void Audio_class::open_stream( RtAudioCallback AudioIO_fnc, void* userData )
 {
 
 	// An error in the openStream() function can be detected either by
 	// checking for a non-zero return value OR by a subsequent call to
 	// isStreamOpen().
 
-	Comment(INFO, "Opening Audio Stream");
-
-	if ( Rt.openStream(	&streamParams,
-						NULL,
-						RTAUDIO_SINT16,	// 16bit signed integer
-						sample_rate,
-						&bufferFrames,
-						Audio_out,
-						( void* )frame,
-						&streamOptions ) )
+	RtAudioErrorType err = RTAUDIO_UNKNOWN_ERROR;
+	if ( direction == IN )
 	{
-		Exception( Rt.getErrorText() );
+		if( not Rt.isStreamOpen() )
+			err = Rt.openStream(	NULL,
+									&streamParams,
+									RTAUDIO_SINT16,	// 16bit signed integer
+									sample_rate,
+									&streamFrames,
+									AudioIO_fnc,
+									userData
+	//								, &streamOptions
+									) ;
 	}
+	else
+	{
+		if( not Rt.isStreamOpen() )
+			err = Rt.openStream(	&streamParams,
+									NULL,
+									RTAUDIO_SINT16,	// 16bit signed integer
+									sample_rate,
+									&streamFrames,
+									AudioIO_fnc,
+									NULL,//( void* )frame,
+									&streamOptions ) ;
+	}
+	show_characteristic();
 
-	show_parameter();
+	if ( not Rt.isStreamOpen() )
+	{
+		Exception( to_string( err ) + Rt.getErrorText() );
+	}
 }
 
 void Audio_class::Shutdown_stream()
 {
-	if ( not Rt.isStreamRunning() )
+	if ( Rt.isStreamRunning() )
 	{
 		Rt.stopStream();
 	}
 
-	if ( not Rt.isStreamOpen() )
+	if ( Rt.isStreamOpen() )
 	{
 		Rt.closeStream();
-	}
-
-	if ( frame )
-	{
-		free( frame);
-		Info( "frame buffer freed" );
 	}
 }
 
@@ -241,7 +345,10 @@ const uint Audio_class::getDeviceDescription( uint index )
 
 	if ( index == 0 )
 	{
-		DeviceDescription = {0, Rt.getDefaultOutputDevice(), "default output device" };
+		if( direction == IN )
+			DeviceDescription = {0, Rt.getDefaultInputDevice(), deviceNames[ 0 ] };
+		else
+			DeviceDescription = {0, Rt.getDefaultOutputDevice(), deviceNames[ 0 ] };
 	}
 	else
 	{
@@ -334,3 +441,4 @@ void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst
 	DynVolume.Update();
 
 }
+

@@ -31,7 +31,10 @@ SOFTWARE.
 
 // OceanGUI
 #include <ui_keyboad_dialog.h>
-#include <include/Keyboad_dialog.h>
+#include <Keyboad_dialog.h>
+#include <GUIcommon.h>
+
+extern bps_t 		QBps;
 
 /**************************************************
  * Keyboard_Dialog_class

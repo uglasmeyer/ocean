@@ -98,6 +98,7 @@ enum APPID
 	SETUPID,
 	TESTPRGID,
 	XMLEDITORID,
+	CLEARIPCID,
 	NoAPPID
 };
 
@@ -111,6 +112,7 @@ enum APPID
 #define SETUP		"Setup"
 #define TESTPRG		"Testprj"
 #define XMLEDITOR	"musescore3"
+#define CLEARIPC	"Clearipc"
 
 
 struct AppMap_struct
@@ -128,6 +130,7 @@ struct AppMap_struct
 			{ SETUPID		, SETUP			 },
 			{ TESTPRGID		, TESTPRG		 },
 			{ XMLEDITORID	, XMLEDITOR		 },
+			{ CLEARIPCID	, CLEARIPC		 },
 			{ NoAPPID		, "unknown id"	 },
 	};
 

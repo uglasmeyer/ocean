@@ -29,9 +29,13 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+// Qt
 #include <QScreen>
-#include <include/Common.h>
 
+// OceanGUI
+#include <GUIcommon.h>
+#include <Oscbase.h>
+#include <Test.h>
 bps_struct QBps {};
 
 QStringList Qstringlist ( const list<string>& str_lst )

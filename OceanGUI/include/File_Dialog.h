@@ -47,7 +47,6 @@ SOFTWARE.
 
 // OceanGUI
 #include <ui_File_Dialog_class.h>
-#include <Common.h>
 
 
 /**************************************************

@@ -67,7 +67,7 @@ void Dispatcher_class::Loop(  )
 		{
 			case UPDATELOG_EVENT :
 			{
-				emit UpdateRtspLog( Qlog_str);
+				emit( UpdateRtspLog( Qlog_str) );
 				Sds_master->Write_str( UPDATELOG_EVENT, "" );
 				break;
 			}
@@ -109,6 +109,12 @@ void Dispatcher_class::Loop(  )
 				emit( UpdateCutDesk() );
 				break;
 			}
+			case READADSRDATAFLAG :
+			{
+				emit( ReadAdsrData() );
+				emit( UpdateRtspLog( Qlog_str) );
+				break;
+			}
 			default:
 				break;
 		} // switch FLAG
@@ -147,6 +153,9 @@ Controller_class::Controller_class( MainWindow& window ) :
 					window.CutDesk_Dialog_p, SLOT( updateCutDesk() ) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateKeyboardDialog() ),
 					window.Keyboard_Dialog_p, SLOT( Setup_Widget() ) );
+	window.connect( Dispatcher_p, SIGNAL( ReadAdsrData() ),
+					window.Spectrum_Dialog_p, SLOT( UpdateDataDisplay() ) );
+
 
 	Thread.start();
 }

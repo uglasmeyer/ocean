@@ -236,7 +236,7 @@ public:
 
 
 private:
-	uint 			records	= 0;
+	uint 			records			= 0;
 	void 			set_filename	();
 
 };

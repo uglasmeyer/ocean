@@ -34,8 +34,8 @@ SOFTWARE.
 #include <QDialog>
 
 // OceanGUI
-#include <include/Common.h>
 #include <ui_CutDesk_Dialog.h>
+#include <data/DataWorld.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui

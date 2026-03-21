@@ -47,7 +47,7 @@ connect_arr_t initConnect_arr(  )
 void SharedData_class::selfTest( )
 {
 	OSCID_e oscid = OSCID_e::OSCID;
-	Assert_lt( addr->connect_arr[oscid].frq, OSCID_e::NOOSCID, "connect_arr" );
+	Assert_lt( (int)addr->connect_arr[oscid].frq, (int)OSCID_e::NOOSCID, "connect_arr" );
 
 	APPID appid = APPID::AUDIOID;
 	APPID value = addr->appstate_arr[appid].type;
@@ -57,7 +57,7 @@ void SharedData_class::selfTest( )
 	Assert_equal( record, wavedisplay_struct::NO_direction, "Wd_status.record" );
 }
 
-SharedData_class::SharedData_class( 	APPID appid,
+SharedData_class::SharedData_class( APPID appid,
 									Id_t sdsid,
 									Config_class* cfg,
 									Semaphore_class* sem ):
@@ -97,7 +97,7 @@ void SharedData_class::Set_dumpFile( string dir, uint8_t sdsid )
 
 void SharedData_class::Setup_SDS( Id_t sdsid, key_t key)
 {
-	Comment(INFO, "allocating shared memory for IPC " + to_string( sdsid ));
+	Comment(INFO, "allocating shared memory for SDS", (int)sdsid );
 
 	shm_ds 			= SHM.shm_ds;//*SHM.Get( key );
 	shm_ds.Id		= sdsid;
@@ -112,36 +112,33 @@ void SharedData_class::Setup_SDS( Id_t sdsid, key_t key)
 	}
 	Comment( DEBUG, "check shared memory version");
 
-	filesystem::path sds_dump = dumpFile;
-	if (( filesystem::exists( sds_dump )))
+	filesystem::path sds_dump_path = dumpFile;
+	if (( filesystem::exists( sds_dump_path )))
 	{
-		size_t fsize = filesystem::file_size( sds_dump );
+		size_t fsize = filesystem::file_size( sds_dump_path );
 		if ( fsize != sds_size)
 		{
-			Exception( 	"sds dump size " + to_string( fsize ) +
-						" differs in sizeof sds" +
-						to_string( sds_size ));
-
+			Comment	( INFO, "sds dump size ", fsize, "differs in sizeof sds", sds_size );
+			Remove_dumpFile();
 		}
 	}
-//	loadData( dumpFile, addr, sizeof( ifd_data ) );
 	this->addr->SDS_Id	= sdsid;
-	if (( ifd_data.version == addr->version ))
+	if (( ifd_data.version == addr->version ) )
 	{
 		Comment( DEBUG, "OK");
 	}
 	else
 	{
-		Comment( ERROR, "Setup SDS failed");
-		Exception( "IPC version " + to_string( ifd_data.version ) +
-				" differs from BIN version " + to_string( addr->version )  +
-				" or lib/ifd_data.bin size ");
+		Comment( ERROR, "SDS content differs");
+		Exception( 	"IPC version " + to_string( ifd_data.version ) +
+					" is different to SDS version " + to_string( addr->version ) );
 	}
 	shm_ds.eexist = true;
 }
 
 void SharedData_class::Remove_dumpFile()
 {
+	Info( "removing dump file", dumpFile );
 	Remove_file( dumpFile );
 }
 void SharedData_class::Copy_dumpFileTo( string dst )
@@ -165,10 +162,15 @@ bool SharedData_class::Datasegment_exists()
 	return shm_ds.eexist;
 }
 
-void SharedData_class::Write_arr( const wd_arr_t& arr )
+void SharedData_class::Write_wave_arr( const wd_arr_t& arr )
 {
 	for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
 		addr->wavedata[n] = arr[n] ;
+}
+void SharedData_class::Write_adsr_arr( const wd_arr_t& arr )
+{
+	for( buffer_t n = 0 ; n < adsrdisplay_len; n++ )
+		addr->adsrdata[n] = arr[n] * 1024 * 8 ;
 }
 #include <cstring>
 void SharedData_class::Write_str(const char selector, const string str )
@@ -242,22 +244,22 @@ string SharedData_class::Read_str( EVENTKEY_e selector )
 	return str;
 }
 
-extern appstate_arr_t initAppstate_arr();
 void SharedData_class::Reset_ifd()
 {	// copy default values into sds memory
 
 	Comment(INFO, "Reset shared data");
-//	memcpy( addr	, &ifd_data		, sizeof( ifd_data ) );
 	*addr = ifd_data;
 
-	addr->appstate_arr	= initAppstate_arr();
-	addr->connect_arr	= initConnect_arr();
 	addr->StA_state_arr[ STA_INSTRUMENT ].play = true;
-	SharedData_class::selfTest();
-
-	Dump_ifd( );
 }
 
+bool SharedData_class::Load_ifd()
+{
+	Comment(INFO,"load SDS data from file");
+
+	bool	ret = loadData( dumpFile, addr, sizeof( ifd_data ) );
+	return	ret;
+}
 bool SharedData_class::Restore_ifd()
 {
 	// copy dump file data into share data segment
@@ -269,7 +271,7 @@ bool SharedData_class::Restore_ifd()
 	appstate_arr_t 	appstate_arr= addr->appstate_arr;
 	Assert_lt( appstate_arr[0].state, NOSTATE );
 
-	bool ret = loadData( dumpFile, addr, sizeof( ifd_data ) );
+	bool ret = Load_ifd();
 
 	addr->config				= sdsid;
 	addr->appstate_arr			= appstate_arr;
@@ -286,6 +288,7 @@ void SharedData_class::Activate_sds()
 		Eventque.add( UPDATENOTESKEY );
 	}
 
+	addr->Capture_state	= INACTIVE;
 	if( addr->WD_state.wd_mode == wavedisplay_t::CURSORID ) // ensure consistency
 		addr->WD_state.wd_mode = wavedisplay_t::FULLID;
 }

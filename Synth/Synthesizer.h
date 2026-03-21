@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,7 @@ SOFTWARE.
 #include <System.h>
 #include <data/EventQue.h>
 #include <Thread.h>
+#include <Audio.h>
 
 extern void ComposerTestCases();
 extern void SynthesizerTest();

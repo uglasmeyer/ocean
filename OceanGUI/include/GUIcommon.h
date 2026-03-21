@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,25 +32,38 @@ SOFTWARE.
 #ifndef GUICOMMON_H
 #define GUICOMMON_H
 
-
-
 // Qt
 #include <QDialog>
 #include <QComboBox>
 #include <QString>
 #include <QStringList>
 
-
 // Ocean
-#include <data/Config.h>
 #include <data/Interface.h>
-#include <data/DataWorld.h>
-#include <Ocean.h>
-#include <System.h>
-#include <EventKeys.h>
 
-extern bps_t 		QBps;
 extern Config_class Cfg;
+#define defaultButtonRGB 0,179,255
+
+template< typename T >
+void setButton( T* button, int state, bool init=false  )
+{
+	auto getcolor = [ init, state ](  )
+	{
+		if ( init ) return QColor( Qt::gray );
+		switch (state)
+		{
+			case 0 : return QColor( Qt::red );
+			case 1 : return QColor( Qt::gray );
+			case 2 : return QColor( Qt::yellow );
+			case 3 : return QColor( Qt::green );
+			case 4 : return QColor( defaultButtonRGB );
+			default: return QColor( Qt::gray );
+		};
+	};
+	QPalette color = QPalette{};
+	color.setColor(QPalette::Button, getcolor() );
+	button->setPalette( color );
+};
 
 constexpr QString Qstring( string str )
 {
@@ -62,28 +75,8 @@ constexpr QString QReadStr ( SharedData_class* Sds, EVENTKEY_e key  )
     string str 		= Sds->Read_str( key );
 	return Qstring( str );
 };
-//#76BAFA
 
 
-template< typename T >
-void setButton( T* pb, int state, bool init=false  )
-{
-	auto getcolor = [ init, state ](  )
-	{
-		if ( init ) return Qt::gray;
-		switch (state)
-		{
-			case 0 : return Qt::red;
-			case 1 : return Qt::gray;
-			case 2 : return Qt::yellow;
-			case 3 : return Qt::green;
-		};
-		return Qt::gray;
-	};
-	QPalette color = QPalette();
-	color.setColor(QPalette::Button, getcolor() );
-	pb->setPalette( color );
-};
 
 struct PathStruct
 {
@@ -126,38 +119,5 @@ extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
 extern QStringList		Qread_filenames	( const Path_t _path );
 extern void 			SetGeometry		( QWidget* Widget );
 
-/**************************************************
- * OceanGUI_base
- *************************************************/
-class OceanGUI_base :
-	virtual public 			Logfacility_class
-{
-public:
-	Dataworld_class*		DaTA	;
-	SharedData_class*		Sds		;
-	interface_t*			sds_master;
-	interface_t*			sds_p	;
-	Id_t					SDS_ID	;
 
-	OceanGUI_base( Dataworld_class* data ) :
-		Logfacility_class	("OceanGUI_base")
-	{
-		this->DaTA			= data;
-		this->sds_master 	= data->sds_master;
-		SetSds				();
-	};
-	virtual ~OceanGUI_base()
-	{
-		DESTRUCTOR( className );
-	};
-	void SetSds( )
-	{
-		this->SDS_ID	= DaTA->sds_master->config;
-		this->Sds 		= DaTA->SDS.GetSds( SDS_ID );
-		this->sds_p 	= Sds->addr;
-	}
-
-private:
-};
-
-#endif
+#endif /* GUICOMMON_H */

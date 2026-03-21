@@ -20,7 +20,7 @@ HEADERS += \
     include/Keyboad_dialog.h \
     include/File_Dialog.h \
     include/Mainwindow.h \
-    include/DataGraphicClass.h \
+#    include/DataGraphicClass.h \
     include/Spectrum_dialog.h \
     include/Rtsp_dialog.h \
     include/Dispatcher.h

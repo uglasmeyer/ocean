@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ SOFTWARE.
 
 #include <Ocean.h>
 
-enum WFID_t
+enum WFID_t : unsigned char
 {
 	SINUS = 0,
 	TRIANGLE,
@@ -42,33 +42,34 @@ enum WFID_t
 	RECTANGLE,
 	SAWTOOTHL,
 	SAWTOOTHR,
+	TRAPECE,
 	PMW,
 	DELTA,
 	NOISE,
 	RANDOM,
+	FOURIER,
 	WFID_SIZE
 };
 const range_T<WFID_t> wfid_range{ SINUS, WFID_SIZE };
 
-struct param_struct
+typedef struct param_struct
 {
-	float amp		= 0.0;
-	phi_t phi		= 0.0;
-	phi_t dphi		= 0.0;
-	phi_t maxphi 	= 0.0;
-	float pmw		= 0.0;
-};
-typedef param_struct param_t;
+	float 	amp		= 0.0;
+	phi_t 	phi		= 0.0;
+	phi_t 	dphi	= 0.0;
+	phi_t 	maxphi 	= 0.0;
+	float 	pmw		= 0.0;
+} param_t;
 
-typedef function<Data_t( param_t& )>	wave_function_t;
+typedef function<Data_t( param_t& )>wave_function_t;
 struct waveFnc_struct
 {
 	wave_function_t		fnc;
 	string				name	= "sinus";
-	phi_t 				maxphi 	= 2*numbers::pi;
+	phi_t 				maxphi 	= 2*M_PI;
 	float 				width	= 1.0;
 };
-typedef 		waveFnc_struct 		waveFnc_t;
+typedef waveFnc_struct 				waveFnc_t;
 
 extern const 	vector<waveFnc_t>  	waveFunction_vec;
 extern const 	vector<string> 		waveform_str_vec;
@@ -84,6 +85,5 @@ extern  		int 				sgn( const float& x );
 
 #define MODPHI( phi, maxphi )\
 	( abs(phi) > maxphi ) ? ( phi - sgn(phi)*maxphi ) : phi;
-
 
 #endif /* OSCWAVEFORM_H_ */

@@ -64,7 +64,7 @@ typedef struct bps_struct
 	}
 	virtual ~bps_struct() = default;
 
-} bps_t;
+}	bps_t;
 
 typedef	struct wave_struct
 { // SDS related
@@ -135,7 +135,7 @@ public:
 	fmo_t 			fp 				= fmo_struct();
 	vco_t 			vp 				= vco_struct();
 	Dynamic_class	DynFrequency	;
-	bps_t	Bps				;
+	bps_t			Bps				;
 	spectrum_t		spectrum		;
 
 					Oscillator_base	( OSCID_e osc_type, RoleId_e role );

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1221</width>
-    <height>632</height>
+    <height>650</height>
    </rect>
   </property>
   <property name="palette">
@@ -1113,7 +1113,7 @@ Instruments</string>
      </rect>
     </property>
     <property name="text">
-     <string>Save</string>
+     <string>Record</string>
     </property>
    </widget>
    <widget class="QFrame" name="frame_5">
@@ -1197,7 +1197,7 @@ Instruments</string>
      <number>0</number>
     </property>
    </widget>
-   <widget class="QPushButton" name="pB_Wavedisplay">
+   <widget class="QPushButton" name="pB_WdRole">
     <property name="geometry">
      <rect>
       <x>480</x>
@@ -1423,20 +1423,6 @@ Instruments</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QComboBox" name="cB_external">
-       <property name="editable">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="cb_overwrite">
-       <property name="text">
-        <string>Overwrite</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="5">
       <widget class="QPushButton" name="pb_Keyboard">
        <property name="text">
@@ -1465,13 +1451,6 @@ Instruments</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="pb_SDSview">
-       <property name="text">
-        <string>view SDS</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="pB_Rtsp">
        <property name="text">
@@ -1482,7 +1461,35 @@ Instruments</string>
      <item row="0" column="2">
       <widget class="QPushButton" name="pB_Cutter">
        <property name="text">
-        <string>Cutter</string>
+        <string>CutDesk</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QComboBox" name="cB_external">
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pB_Capture">
+       <property name="text">
+        <string>Capture</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="pb_SDSview">
+       <property name="text">
+        <string>view SDS</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QCheckBox" name="cb_overwrite">
+       <property name="text">
+        <string>Overwrite</string>
        </property>
       </widget>
      </item>
@@ -1640,7 +1647,7 @@ Instruments</string>
      <number>100</number>
     </property>
     <property name="pageStep">
-     <number>1</number>
+     <number>5</number>
     </property>
     <property name="orientation">
      <enum>Qt::Orientation::Horizontal</enum>
@@ -2003,7 +2010,7 @@ FMO vol</string>
      <number>100</number>
     </property>
     <property name="pageStep">
-     <number>1</number>
+     <number>5</number>
     </property>
     <property name="orientation">
      <enum>Qt::Orientation::Horizontal</enum>
@@ -2068,7 +2075,7 @@ FMO vol</string>
     <property name="geometry">
      <rect>
       <x>410</x>
-      <y>510</y>
+      <y>540</y>
       <width>66</width>
       <height>18</height>
      </rect>

@@ -76,7 +76,7 @@ void Oscillator_base::SetSlider_frq( uint8_t value )
 void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
 {
 	spectrum.wfid	= wf_vec;
-	spectrum.phi	= default_phase; // because of maxphi changes
+	spectrum.phi	= zero_phase; // because of maxphi changes
 }
 
 void Oscillator_base::Set_spectrum( spectrum_t spectrum )

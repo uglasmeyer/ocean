@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025. 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -84,9 +84,14 @@ void ViewInterface_class::show_Que()
 	cout.flush() << COLOR::endcolor << endl;
 	cout << "Wavedata [ 0 ... 20 ]" << endl;
 	cout.precision(5);
+
 	for( uint n = 0; n< 20; n++ )
 		cout << sds_p->wavedata[n] << " " ;
 	cout << " ..." << endl;
+	for( uint n = 0; n< 20; n++ )
+		cout << sds_p->adsrdata[n] << " " ;
+	cout << " ..." << endl;
+
 	Table_class Table { "Wavedisplay Status" };
 	Table.AddColumn( "Cursor"	, 15 );
 	Table.AddColumn( "Value"	, 10 );
@@ -217,7 +222,8 @@ void ViewInterface_class::F3_showStates()
 	T.AddRow( "External:"	, sds_p->mixer_state.external, "Mute:"	,sds_p->mixer_state.mute);
 	T.AddRow( "Note:"		, sds_p->mixer_state.notes, "Keyboard:"	,sds_p->mixer_state.kbd);
 	T.AddRow( "Syncronize:" , sds_p->mixer_state.sync,"Instrumemt:"	,sds_p->mixer_state.instrument);
-	T.AddRow( "Record:" 	, sdsstateName( sds_p->Record_state ),""	,"");
+	T.AddRow( "Record:" 	, sdsstateName( sds_p->Record_state )	,
+			  "Capture:"	, sdsstateName( sds_master->Capture_state ) );
 
 }
 

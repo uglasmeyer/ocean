@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ SOFTWARE.
  */
 
 #include <Event.h>
-#include <App.h>
+
 auto test_cycle_range = [  ]( range_T<int> range  )
 {
 	string 	range_str 	= to_string( range.min) + "..." + to_string(range.max) ;
@@ -73,9 +73,10 @@ auto test_cycle2_range = [  ]( range_T<int> range  )
 };
 
 bool 							isopen 		= false;
-extern Config_class 			Cfg;
-extern Logfacility_class		Log;
-extern Dataworld_class 			DaTA;
+extern Logfacility_class	Log				;
+extern Dataworld_class		DaTA			;
+extern Config_class			Cfg				;
+
 extern Instrument_class 		Instrument;
 extern Mixer_class				Mixer;
 extern Note_class 				Notes;
@@ -83,19 +84,25 @@ extern Keyboard_class			Keyboard;
 extern External_class 			External;
 extern Time_class				Timer;
 extern Event_class				Event;
+extern Wavedisplay_class		Wavedisplay;
 
-
+void PrepareTest()
+{
+	Log.Set_Loglevel( TEST, true );
+	DaTA.Test_result = "FAILED";
+	coutf << "SynthesizerTestCases" << endl;
+	DaTA.Sds_p->Dump_ifd();
+	DaTA.Sds_p->Reset_ifd();
+}
 void SynthesizerTest()
 {
 	String 			TestStr	{""};
 	Oscillator 		TestOsc	{ INSTRROLE, OSCID, monobuffer_bytes };
 	Spectrum_class 	Spectrum{};
 
-	Log.Set_Loglevel( TEST, true );
-	DaTA.Test_result = "FAILED";
-//	DaTA.Sds_p->Reset_ifd();
-	coutf << "SynthesizerTestCases" << endl;
-
+	PrepareTest();
+	DaTA.Test_Dataworld();
+	DaTA.Sds_p->Test_interface();
 	Cfg.Test();
 
 	DaTA.SHM_l.Test_Memory();
@@ -115,6 +122,11 @@ void SynthesizerTest()
 	Notes.Test_Musicxml();
 
 	TestOsc.DynFrequency.TestFrq();
+	Instrument.osc->Set_spectrum( Spectrum.TestSpectrum ); //220 Hz
+	Instrument.osc->OSC( 0 );
+	Wavedisplay.TestWd();
+	Instrument.wd_p->fourier->TestFourier();
+
 	Mixer.DynVolume.TestVol( );
 	Mixer.TestMixer();
 
@@ -131,12 +143,8 @@ void SynthesizerTest()
 
 	System_Test();
 
-	DaTA.Test_Dataworld();
-	DaTA.Sds_p->Test_interface();
-
 	Event.TestHandler();
 
-	DaTA.Sds_p->Restore_ifd();
 	Log.Set_Loglevel( TEST, true );
 	DaTA.Test_result = "SUCCESS";
 }

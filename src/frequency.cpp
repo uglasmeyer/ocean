@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -70,7 +70,6 @@ frq_t Frequency_class::GetFrq( int& idx )
 	idx = check_range( frqext_range, idx, "GetFrq" );
 	return frqArray[ idx];
 }
-
 
 uint Frequency_class::Index( const string& frqName )
 {
@@ -163,24 +162,24 @@ void Frequency_class::initHarmonics()
 void Frequency_class::initFrqArray(  )
 {
 
-	uint C0idx = C0-1;
+	uint C0idx = C0;
 
 	for ( uint n = 0; n < FRQEXT_SIZE-1; n++)
 	{
 		float x = 0;
-		if ( n < 9 ) 			// range 0.1 ... 0.9
-			x = (n + 1 ) * 0.1;
+		if ( n < 10 ) 			// range 0.0 ... 0.9
+			x = n * 0.1;
 		else
 		{
 			if (n < C0idx )		// range 1 ... 16
-				x = n - 8  ;
+				x = n - 9  ;
 			else
 				// log(x/oct_base_freq)/log2*oct_steps + C0idx = n
 				x = pow(2.0, (n-C0idx)/((float)oct_steps) ) * oct_base_freq ; // C0 = oct_base_freq
 		}
-		frqArray[n+1] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
+		frqArray[n] =  round ( x * 10000 ) / 10000 ; // adjust digit precision
 	}
-	frqArray[0] = C0;
+//	frqArray[0] = C0;
 	string addr = to_hex( (long)&frqArray );
 	Comment( DEBUG, "Piano key frequencies initialized at ", addr );
 	frqarray_done = true;
@@ -190,7 +189,7 @@ void Frequency_class::initFrqNamesArray()
 {
 	// https://de.wikipedia.org/wiki/Frequenzen_der_gleichstufigen_Stimmung
 
-	for ( uint n = 1; n<10;n++ )
+	for ( uint n = 0; n<10;n++ )
 	{
 		string frqName{""};
 		frqName.push_back('0');

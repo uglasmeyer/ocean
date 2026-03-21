@@ -47,21 +47,21 @@ SOFTWARE.
 #include <data/Semaphore.h>
 #include <Spectrum.h>
 #include <App.h>
-#include <Wavedisplay_base.h>
 
 // OceanGUI
 #include <ui_mainwindow.h>
-#include <include/File_Dialog.h>
-#include <include/Cutterdialog.h>
-#include <include/Keyboad_dialog.h>
-#include <include/Rtsp_dialog.h>
-#include <include/Spectrum_dialog.h>
+#include <File_Dialog.h>
+#include <Cutterdialog.h>
+#include <Keyboad_dialog.h>
+#include <Rtsp_dialog.h>
+#include <Spectrum_dialog.h>
 #include <DataGraphicClass.h>
 
 
 /**************************************************
  * WfDisplay_que_struct
  *************************************************/
+
 struct WfDisplay_que_struct
 {
 	typedef vector<RoleId_e>
@@ -123,20 +123,11 @@ public:
     EventLog_class			Eventlog			{ DaTA_p };
     EventLog_class*			Eventlog_p			= &Eventlog;
 
-//    Rtsp_Dialog_class		Rtsp_Dialog_obj		{ this, DaTA_p};
-    Rtsp_Dialog_class*		Rtsp_Dialog_p		;//= &Rtsp_Dialog_obj;
-
-//    File_Dialog_class		File_Dialog_obj		{ this, DaTA_p, Eventlog_p  };
-    File_Dialog_class*		File_Dialog_p		;//= &File_Dialog_obj;
-
-//    Spectrum_Dialog_class  	Spectrum_Dialog_obj { this, DaTA_p, Eventlog_p };
-    Spectrum_Dialog_class*  Spectrum_Dialog_p 	;//= &Spectrum_Dialog_obj;
-
-//    Keyboad_Dialog_class	Keyboard_Dialog_obj	{ this, DaTA_p, Eventlog_p };
-    Keyboad_Dialog_class*	Keyboard_Dialog_p	;//= &Keyboard_Dialog_obj;
-
-//    CutDesk_Dialog_class	CutterDialog_obj	{ this, DaTA_p, Eventlog_p };
-    CutDesk_Dialog_class*	CutDesk_Dialog_p	;//= &CutterDialog_obj;
+    Rtsp_Dialog_class*		Rtsp_Dialog_p		;
+    File_Dialog_class*		File_Dialog_p		;
+    Spectrum_Dialog_class*  Spectrum_Dialog_p 	;
+    Keyboad_Dialog_class*	Keyboard_Dialog_p	;
+    CutDesk_Dialog_class*	CutDesk_Dialog_p	;
 
 
     vector<QString> 		QWaveform_vec		{};
@@ -148,9 +139,9 @@ public:
     keymap_struct			Keymap				{};
     vector<QRadioButton*> 	rb_S_vec 			{};
 
-    sta_role_map 			StaRole_map 		= sta_role_map();
+    sta_role_map			StaRole_map 		{};
     WfDisplay_que_struct	WfDisplay_que		{ sds_p, &StaRole_map };
-    const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE-1 };
+    const range_T<int> 		wd_mode_range 		{ 0, WD_MODE_SIZE - 1 };
 
     struct cb_state_map
     {
@@ -181,7 +172,6 @@ public:
     	QSlider*		sl;
     	uint8_t*		value;
 		int				max;
-//    	uint8_t			align = 0;
     };
     typedef sl_lcd_map 	sl_lcd_t;
 
@@ -191,7 +181,6 @@ public:
     	QSpinBox* 		sb;
     	QLabel* 		lbl;
 		uint8_t*		value;
-//    	uint8_t			align = 0;
     };
     typedef sB_lbl_map 	sB_lbl_t;
 
@@ -215,7 +204,7 @@ private:
     void select_Sds( Id_t sdsid );
     void initPanel();
     void initGuiVectors( interface_t* sds);
-    void initOscillatorDisplay();
+    void initDataDisplay();
     void initFreqSlider();
     void initScrollbars();
     void initStateButtons();
@@ -289,7 +278,8 @@ private slots:
     void slideVol(int);
     void memory_clear();
     void SaveRecord();
-    void read_polygon_data();
+    void capture_audio();
+    void read_wave_data();
 
     void clear_StAs_play();
 

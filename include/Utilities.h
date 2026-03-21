@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,8 @@ SOFTWARE.
 
 extern unsigned char operator""_uint( unsigned long long int x);
 using namespace std;
+
+constexpr string yesno ( bool flag ) { return ( flag ) ? "yes" : "no "; };
 
 extern void Assert_equalstr( string lhs, string rhs, string message = " == ",
 		const experimental::source_location location = experimental::source_location::current());

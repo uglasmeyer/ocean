@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * Rtaudio.h
+ * Audio.h
  *
  *  Created on: Sep 15, 2025
  *      Author: Ulrich.Glasmeyer@web.de
@@ -34,12 +34,12 @@ SOFTWARE.
 
 
 #include <data/DataWorld.h>
+#include <External.h>
 #include <RtAudio.h>
 
 
 typedef 				stereo_t 			frame_t;
 
-extern void 			errorCallback		( RtAudioErrorType, const std::string& txt );
 
 
 
@@ -62,57 +62,44 @@ class Audio_class
 	StreamParameters	streamParams 		{};
 	RtAudio::
 	StreamOptions		streamOptions 		= {
-											.flags 				= RTAUDIO_HOG_DEVICE,
+											.flags 				= 0,//RTAUDIO_HOG_DEVICE,
 											.numberOfBuffers 	= 2,
 											.streamName 		= Application,
 											.priority			= 0
 											};
-	uint				bufferFrames		= chunksize;
+	uint				streamFrames		= chunksize;
 	uint				sample_rate			;
 	frame_t*			frame				;
-	RtAudio 			Rt					{ RtAudio::LINUX_PULSE, &errorCallback };
 	vector<uint>		deviceIds 			;
 	vector<string> 		deviceNames 		;
+	RtAudio				Rt					;
 
 public:
-
-	Audio_class( Config_class* cfg )
-		: Logfacility_class("Audio_class")
+	enum IO_DIRECTION_e : unsigned char
 	{
-		this->sample_rate			= cfg->Config.rate;
-		this->frame 				= ( frame_t* )calloc( cfg->Config.channel, sizeof( frame_t ) );
-		deviceIds 					= Rt.getDeviceIds();
-		deviceNames 				= Rt.getDeviceNames();
-
-		Rt.showWarnings				( true );
-		streamParams.nChannels 		= cfg->Config.channel;
-		streamParams.firstChannel 	= cfg->Config.ch_offs;
-		streamParams.deviceId 		= getDeviceDescription( cfg->Config.device );
-/*
-		#define USE_INTERLEAVED
-		#if !defined( USE_INTERLEAVED )
-				options.flags |= RTAUDIO_NONINTERLEAVED,
-		#endif
-*/
+		IN,
+		OUT
 	};
-	~Audio_class()
-	{
-		DESTRUCTOR( className );
-	};
+	IO_DIRECTION_e		direction			;
 
-	void 				Start_stream		( RtAudioCallback Audio_out );
+	Audio_class( Config_class* cfg, IO_DIRECTION_e dir );
+	virtual ~Audio_class();
+
+	void 				Start_stream		( RtAudioCallback Audio_out,
+											void* userData = nullptr );
 	void 				Shutdown_stream		();
 
-private:
-	void				open_stream			( RtAudioCallback Audio_out );
 
-	void 				show_parameter		();
+private:
+	void				open_stream			( RtAudioCallback AudioIO_fnc,
+											void* userData = nullptr );
+
+	void 				show_characteristic	();
 	const uint 			getDeviceDescription( uint index );
 	unsigned int 		selectDeviceIndex	( vector<string> deviceNames );
 
 };
 
-#include <External.h>
 /**************************************************
  * Record_class
  *************************************************/
@@ -171,5 +158,51 @@ private:
 	void 				selfTest			();
 };
 
+
+
+extern int	RtAudioIn		(	void*	outputBuffer,
+								void* 	/*inputBuffer*/,
+								uint 	nBufferFrames,
+								double	streamTime,
+								RtAudioStreamStatus status,
+								void* /* userData */) ;
+extern void	errorCallback	(	RtAudioErrorType,
+								const string& txt );
+
+/**************************************************
+ * Capture_class
+ *************************************************/
+class Capture_class :
+	virtual public Logfacility_class,
+	virtual public Audio_class
+{
+	External_class* Extern	;
+
+public:
+	typedef struct InputData_struct
+	{
+		Data_t* 	staData			;
+		buffer_t 	maxFrames		;
+		buffer_t 	frameCounter	;
+		bool		streamDone		;
+
+		InputData_struct( External_class* ext )
+		{
+			staData 	= ext->StA_ext->Data;
+			maxFrames	= ext->StA_ext->param.size;
+			frameCounter= 0;
+			streamDone	= false;
+		}
+		~InputData_struct() = default;
+	} InputData_t;
+	InputData_t		InputData		;
+
+				Capture_class( External_class* ext );
+	virtual 	~Capture_class();
+	void 		Start		( StAId_e staid );
+	void		Stop		( StAId_e staid );
+
+private:
+};
 
 #endif /* INCLUDE_AUDIO_H_ */

@@ -59,7 +59,7 @@ public:
 	EventQue_class			Eventque			;
 	interface_t* 			addr				;
 
-							SharedData_class		( APPID appid,
+							SharedData_class	( APPID appid,
 												Id_t sdsid,
 												Config_class*,
 												Semaphore_class* );
@@ -69,11 +69,13 @@ public:
 	void 					Activate_sds		();
 	void					Setup_SDS			( Id_t sdsid, key_t key );
 	void 					Set_dumpFile		( string dir, uint8_t sdsid );
-	void 					Write_arr			( const wd_arr_t& arr );
+	void 					Write_wave_arr		( const wd_arr_t& arr );
+	void 					Write_adsr_arr		( const wd_arr_t& arr );
 	void 					Write_str			( char, string );
 	string 					Read_str			( EVENTKEY_e );
 	void 					Commit				();
 	void					Dump_ifd			();
+	bool					Load_ifd			();
 	bool 					Restore_ifd			();
 	void 					Reset_ifd			();
 	bool 					Datasegment_exists	();

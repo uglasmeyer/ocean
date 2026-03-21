@@ -87,7 +87,6 @@ typedef				shm_data_struct shm_ds_t;
 class 				Shm_base :
 	virtual public 	Logfacility_class
 {
-	string 			className 		= "";
 public:
 	shm_ds_t		shm_ds			;
 
@@ -97,13 +96,13 @@ public:
 	void 			Clear			();
 	void 			Detach			( void* );
 	void 			Delete			(); // SDSview only
-
 	void			Test_Memory		();
 
 					Shm_base		( int type_size, buffer_t size, key_t key ); //interface SDS
 	virtual 		~Shm_base		();
 
 private:
+	void 			ipcrm			( key_t key );
 
 };
 

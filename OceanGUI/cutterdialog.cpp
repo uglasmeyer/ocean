@@ -23,7 +23,8 @@ SOFTWARE.
 ****************************************************************************/
 
 
-#include <include/Cutterdialog.h>
+#include <Cutterdialog.h>
+#include <GUIcommon.h>
 
 CutDesk_Dialog_class::CutDesk_Dialog_class(	QWidget* 			parent,
 											Dataworld_class* 	data,

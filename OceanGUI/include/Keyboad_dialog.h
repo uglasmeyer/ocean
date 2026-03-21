@@ -42,8 +42,6 @@ SOFTWARE.
 #include <data/DataWorld.h>
 #include <Keyboard.h>
 
-//OceanGUI
-#include <Common.h>
 
 /**************************************************
  * Keyboad_Dialog_class

@@ -30,7 +30,7 @@ SOFTWARE.
  */
 
 #include <Adsr.h>
-#include <Oscwaveform.h>
+//#include <Oscwaveform.h>
 
 inline string alpha( bool flag )
 {
@@ -38,7 +38,7 @@ inline string alpha( bool flag )
 }
 
 ADSR_class::ADSR_class( OSCID_e _typeid, RoleId_e roleId )
-	: Logfacility_class	("ADSR_class")
+	: Logfacility_class	( "ADSR_class" )
 	, Spectrum_class	()
 	, osctype_struct	( _typeid, roleId )
 	, Oscillator_base	( _typeid, roleId )
@@ -189,7 +189,8 @@ void ADSR_class::adsrOSC( buffer_t bframes )
 			const float		dT 			= param.maxphi / bframes;
 							param.dphi	= dT * spec.frqadj[ channel ];
 							param.phi	= 0.0;
-							param.amp	= spec.volidx[ channel ] * percent/adsrFunction_vec[ wfid ].width;
+							param.amp	= spec.volidx[ channel ] *
+											percent/adsrFunction_vec[ wfid ].width;
 			for ( buffer_t n = 0; n < bframes ; n++ )
 			{
 				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] * fnc( param );

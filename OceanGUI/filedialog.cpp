@@ -36,7 +36,7 @@ SOFTWARE.
 #include <EventKeys.h>
 
 // OceanGUI includes
-#include <include/Common.h>
+#include <GUIcommon.h>
 #include <include/File_Dialog.h>
 
 File_Dialog_class::File_Dialog_class( 	QWidget*			parent,

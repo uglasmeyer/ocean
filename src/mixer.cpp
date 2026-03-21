@@ -629,3 +629,6 @@ void CutDesk_class::Loop()
 				Wd->WriteData		();
 }
 
+
+
+

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -72,13 +72,13 @@ typedef 	mixer_state_struct 	mixer_state_t;
 
 typedef struct sta_rolemap_data
 {
-	RoleId_e roleid;
-	StAId_e staid;
+	RoleId_e	roleid;
+	StAId_e		staid;
 } sta_rolemap_data_t;
 
 struct sta_role_map
 {
-	const vector<std::string> StANames =
+	vector<std::string> StANames =
 	{
 		"UserR+",
 		"UserL-",
@@ -89,7 +89,7 @@ struct sta_role_map
 		"Notes",
 		"External"
 	};
-	const vector<sta_rolemap_data_t> sta_map_vec =
+	vector<sta_rolemap_data_t> sta_map_vec =
 	{
 		{ USER00ROLE	, STA_USER00 },
 		{ USER01ROLE	, STA_USER01 },

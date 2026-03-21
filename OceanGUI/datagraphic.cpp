@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * keyboard_dialog.cpp
+ * datagraphic.cpp
  *
  *  Created on: Mar 28, 2025
  *      Author: Ulrich.Glasmeyer@web.de
@@ -35,26 +35,29 @@ SOFTWARE.
 // https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene_QGraphicsItems.php
 
 #include <qpainter.h>
-#include "include/DataGraphicClass.h"
+#include <include/DataGraphicClass.h>
 
 /**************************************************
  * DataGraphic_class
  *************************************************/
-DataGraphic_class::DataGraphic_class( interface_t* ifd, QRectF rectf)
+DataGraphic_class::DataGraphic_class( interface_t* ifd, QGraphicsView* view )
 	: Logfacility_class		( "DataGraphic_class" )
 
 {
-    this->drawregion		= { 0, 0, rectf.width()-10, rectf.height()-10 };
     this->sds   			= ifd;
+	this->graphicsview		= view;
+	this->drawregion		= boundingRect();
     this->height 			= drawregion.height();
     this->shiftY 			= height / 2;
     this->data_scale		= height / max_data_amp / 2.0;
-    this->read_polygon_data	();		// draw scene
+    this->ReadWaveData	();		// draw scene on init
 };
 
 QRectF DataGraphic_class::boundingRect() const
 {
-    return QRectF( drawregion );
+	const QRectF rect 		= this->graphicsview->geometry();
+    const QRectF region		= { 0, 0, rect.width()-10, rect.height()-10 };
+    return region;
 }
 
 void DataGraphic_class::paint(	QPainter* painter,
@@ -69,6 +72,7 @@ void DataGraphic_class::paint(	QPainter* painter,
 	};
 
 	Comment( DEBUG, "DataGraphic_class::paint" );
+
     QGraphicsPolygonItem 	polygon_item;
     painter->drawRect		( drawregion );
     polygon_item.setPolygon	( polygon );
@@ -86,22 +90,40 @@ void DataGraphic_class::paint(	QPainter* painter,
     }
 }
 
-void DataGraphic_class::read_polygon_data(  )
+Data_t DataGraphic_class::readDataEntry()
 {
-    // init polygon
 	polygon.clear();
     polygon << QPoint( 0, 0 );
-
-    Data_t x = 0;
-    for ( auto y : sds->wavedata )
-    {
-        polygon << QPoint(x, - y * data_scale );
-        x++;
-    }
-
-    polygon << QPoint(x,0);// horizontal line
+    return 0;
+}
+void DataGraphic_class::readDataExit( Data_t x )
+{
+    polygon << QPoint( x, 0 );// horizontal line
 
     // shift polygon upward
     polygon.translate( QPoint( 0, height-shiftY ) );
     this->update(); // redraw scene
+}
+
+void DataGraphic_class::ReadAdsrData()
+{
+	Data_t x = readDataEntry();
+    for ( auto y : sds->adsrdata )
+    {
+        polygon << QPoint( x, - y * data_scale );
+        x++;
+    }
+    readDataExit( x );
+}
+
+void DataGraphic_class::ReadWaveData()
+{
+
+    Data_t x = readDataEntry();
+    for ( auto y : sds->wavedata )
+    {
+        polygon << QPoint( x, - y * data_scale );
+        x++;
+    }
+    readDataExit( x );
 }

@@ -34,6 +34,14 @@ SOFTWARE.
 #include <String.h>
 #include <System.h>
 #include <Table.h>
+#include <sys/utsname.h>
+
+string getArch()
+{
+    struct utsname uts_data;
+    uname( &uts_data );
+    return notnull( uts_data.machine );
+};
 
 
 /**************************************************
@@ -74,16 +82,10 @@ string source_struct::resourceDir()
 	return _dir;
 }
 
-#include <sys/utsname.h>
 
-string getArch()
-{
-    struct utsname utsbuf;
-    uname( &utsbuf );
-    return notnull( utsbuf.machine );
-};
-
-
+/**************************************************
+ * install_struct
+ *************************************************/
 string install_struct::oceanDir( )
 {
 
@@ -147,9 +149,17 @@ string install_struct::oceanDir( )
 install_struct::install_struct()
 : 	Logfacility_class( "install_struct" )
 {};
+
+/**************************************************
+ * dir_struct
+ *************************************************/
 dir_struct::dir_struct( )
 	: install_struct()
 {};
+
+/**************************************************
+ * file_structure
+ *************************************************/
 file_structure::file_structure()
 	: dir_struct()
 {};

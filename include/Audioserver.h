@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,14 +43,15 @@ SOFTWARE.
 
 
 
-Audio_class				Audio				{ &Cfg };
+Audio_class				Audio				{ &Cfg, Audio_class::OUT };
 Record_class			Record				{ &DaTA };
 Heap_Memory				wd_mono_mem			{ audiobuffer_bytes }; // wave display data
 Stereo_Memory<stereo_t>	stereo				{ sizeof_stereo, stereoaudio_bytes }; // audio data
 
 Time_class				Timer				{};
 ProgressBar_class		ProgressBar			{ &sds_p->RecCounter };
-Wavedisplay_class		Wavedisplay			{ Sds_master };
+//Fourier_class			Fourier				{};
+Wavedisplay_class		Wavedisplay			{ Sds_master, fourier };
 AudioVolume_class		Volume				{ sds_master };
 EventLog_class			Eventlog			{ &DaTA };
 

@@ -33,8 +33,6 @@ class Ui_Spectrum_Dialog_class
 {
 public:
     QGridLayout *gridLayout_4;
-    QSlider *verticalSlider;
-    QGraphicsView *graphicsView;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *cb_adsr;
     QLabel *label_3;
@@ -54,6 +52,8 @@ public:
     QPushButton *pB_save_spectrum;
     QLabel *lbl_instrument;
     QGridLayout *gridLayout_5;
+    QGraphicsView *graphicsView;
+    QSlider *horizontalSlider;
     QGridLayout *gridLayout;
     QSpinBox *sb_spwf2;
     QSpinBox *sb_spwf4;
@@ -77,14 +77,13 @@ public:
     QSlider *vS_6;
     QSpinBox *sb_spwf1;
     QSpinBox *sb_spwf3;
-    QSlider *horizontalSlider;
-    QSpacerItem *verticalSpacer_2;
+    QSlider *verticalSlider;
 
     void setupUi(QDialog *Spectrum_Dialog_class)
     {
         if (Spectrum_Dialog_class->objectName().isEmpty())
             Spectrum_Dialog_class->setObjectName("Spectrum_Dialog_class");
-        Spectrum_Dialog_class->resize(550, 261);
+        Spectrum_Dialog_class->resize(588, 293);
         QPalette palette;
         QBrush brush(QColor(0, 0, 0, 255));
         brush.setStyle(Qt::BrushStyle::SolidPattern);
@@ -175,17 +174,6 @@ public:
         Spectrum_Dialog_class->setPalette(palette);
         gridLayout_4 = new QGridLayout(Spectrum_Dialog_class);
         gridLayout_4->setObjectName("gridLayout_4");
-        verticalSlider = new QSlider(Spectrum_Dialog_class);
-        verticalSlider->setObjectName("verticalSlider");
-        verticalSlider->setOrientation(Qt::Orientation::Vertical);
-
-        gridLayout_4->addWidget(verticalSlider, 1, 4, 1, 1);
-
-        graphicsView = new QGraphicsView(Spectrum_Dialog_class);
-        graphicsView->setObjectName("graphicsView");
-
-        gridLayout_4->addWidget(graphicsView, 1, 3, 1, 1);
-
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setObjectName("verticalLayout_2");
         cb_adsr = new QCheckBox(Spectrum_Dialog_class);
@@ -352,7 +340,25 @@ public:
 
         gridLayout_5 = new QGridLayout();
         gridLayout_5->setObjectName("gridLayout_5");
-        gridLayout_5->setContentsMargins(10, -1, -1, -1);
+        gridLayout_5->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
+        gridLayout_5->setContentsMargins(10, 10, -1, -1);
+        graphicsView = new QGraphicsView(Spectrum_Dialog_class);
+        graphicsView->setObjectName("graphicsView");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(graphicsView->sizePolicy().hasHeightForWidth());
+        graphicsView->setSizePolicy(sizePolicy1);
+        graphicsView->setMinimumSize(QSize(260, 128));
+
+        gridLayout_5->addWidget(graphicsView, 1, 0, 1, 1);
+
+        horizontalSlider = new QSlider(Spectrum_Dialog_class);
+        horizontalSlider->setObjectName("horizontalSlider");
+        horizontalSlider->setOrientation(Qt::Orientation::Horizontal);
+
+        gridLayout_5->addWidget(horizontalSlider, 0, 0, 1, 1);
+
 
         gridLayout_4->addLayout(gridLayout_5, 0, 2, 1, 1);
 
@@ -505,15 +511,11 @@ public:
 
         gridLayout_4->addLayout(gridLayout, 0, 0, 1, 1);
 
-        horizontalSlider = new QSlider(Spectrum_Dialog_class);
-        horizontalSlider->setObjectName("horizontalSlider");
-        horizontalSlider->setOrientation(Qt::Orientation::Horizontal);
+        verticalSlider = new QSlider(Spectrum_Dialog_class);
+        verticalSlider->setObjectName("verticalSlider");
+        verticalSlider->setOrientation(Qt::Orientation::Vertical);
 
-        gridLayout_4->addWidget(horizontalSlider, 0, 3, 1, 1);
-
-        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
-
-        gridLayout_4->addItem(verticalSpacer_2, 2, 3, 1, 1);
+        gridLayout_4->addWidget(verticalSlider, 0, 4, 1, 1);
 
 
         retranslateUi(Spectrum_Dialog_class);

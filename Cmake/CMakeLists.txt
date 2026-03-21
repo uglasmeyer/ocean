@@ -28,7 +28,7 @@ if( "${NPROC}" STREQUAL "" )
 	message( STATUS "no nproc" )
 else()
 	message(STATUS "using ${NPROC} parallel builds" )
-	set(ENV{MAKEFLAGS} "-j${NPROC}" )
+	set( ENV{MAKEFLAGS} "-j${NPROC}" )
 endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${ARCH})
@@ -46,17 +46,19 @@ COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # uniform compile switches
-add_compile_options(-Wall -frecord-gcc-switches -pthread -O2 -g -fPIC )
+add_compile_options(-Wall -frecord-gcc-switches -pthread -fPIC )
+add_compile_options(-O2 -g )
 
 # Add sub-directories
 add_subdirectory(../src 		build_src )
 add_subdirectory(../Audioserver build_Audioserver )
 add_subdirectory(../Composer 	build_Composer )
+add_subdirectory(../Clearipc 	build_Clearipc )
 add_subdirectory(../OceanGUI 	build_OceanGUI )
 add_subdirectory(../Rtsp 		build_Rtsp )
 add_subdirectory(../SDSview 	build_SDSview )
 add_subdirectory(../Synth 		build_Synth )
-#add_subdirectory(../TestPrj 		build_TestPrj )
+add_subdirectory(../TestPrj 	build_TestPrj )
 
 # create a runtime directory
 add_subdirectory(../Setup 		build_Setup )

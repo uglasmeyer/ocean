@@ -95,12 +95,11 @@ string	Logfacility_class::GetendColor( ostream* out )
 string Logfacility_class::cout_log( LOG_e id, string str )
 {
 	set<int> 	ignore { ENOENT };
-	if (( errno ) and not ignore.contains( errno ))
+	if ( ( errno ) and not ignore.contains( errno ) )
 	{
 		string txt	= Error_text( errno );
 		if ( txt.length() > 0 )
 			cout.flush() << txt << endl;
-		errno = 0;
 	}
 	string 			prefix 	= prefixClass + Prefix_vec[ id ].name;
 	stringstream 	strs 	{};

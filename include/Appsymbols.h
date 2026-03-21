@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025,2026 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,8 +33,6 @@ SOFTWARE.
 #define APPSYMBOLS_H_
 
 #include <App.h>
-
-
 Exit_class			Exit			{};
 Config_class		Cfg				{};
 Logfacility_class	Log				( Cfg.prgName );
@@ -48,7 +46,9 @@ interface_t*		sds_p 			= App.sds_p;		// consistent with  Interface_base
 SharedData_class*	Sds				= App.Sds;			// consistent with  Interface_base
 
 
+#include <Fourier.h>
 
+extern Fourier_class* 		fourier;
 
 
 #endif /* APPSYMBOLS_H_ */

@@ -101,13 +101,15 @@ struct interface_struct // with reasonable defaults
 	Id_t			sdsview_sdsid				= 0;
 	buffer_t		audioframes					= audio_frames;
 	uint8_t			overmodulated				= false;
-	wd_arr_t		wavedata 					= { 0 };
+	wd_arr_t		wavedata 					= { 0 }; // wave display data
+	ad_arr_t		adsrdata					= { 0 }; // adsr display data
 	uint8_t 		SHMID 						= 0;//
 	uint8_t 		RecCounter					= 0;		// handshake data exchange//
 	trigger_data_t	Note_start					= trigger_data_struct(); // TODO to be evaluated
 	trigger_data_t	Note_end					= trigger_data_struct(); // by AudioServer
 
 	StateId_t		Record_state				= sdsstate_struct::INACTIVE;
+	StateId_t		Capture_state				= sdsstate_struct::INACTIVE;
 	// current recording activity managed by the Audioserver
 	// Audioserver recording state
 	// RECORDING, STARTING, STOPPING, INACTIVE

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -46,8 +46,9 @@ SOFTWARE.
 #include <EventKeys.h>
 #include <data/DataWorld.h>
 // oceanGUI
-#include <include/Common.h>
-#include "ui_spectrum_dialog_class.h"
+#include <GUIcommon.h>
+#include <DataGraphicClass.h>
+#include <ui_spectrum_dialog_class.h>
 
 /**************************************************
  * Spectrum_Dialog_class
@@ -89,6 +90,8 @@ public:
     Frequency_class			Frequency 		{};
     vector<QString> 		QWaveform_vec	{};
 
+    DataGraphic_class*		AdsrWidget_item	; // created by new DataGraphic_class;
+    QGraphicsScene*     	scene 			; // created by new QGraphicsScene
 
     void SetLabelWaveform();
 	void Setup_widgets();
@@ -96,9 +99,11 @@ public:
 	void SetSds();
     void Set_adsr_flag( bool flag );
 	void Dialog ( bool flag );
+	void initDataDisplay();
 
 
 private slots:
+	void UpdateDataDisplay();
 	void SetInstrument(); // Dispatcher
 	void fS1( int );
     void vS2( int );
@@ -139,6 +144,7 @@ private:
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
     void set_waveform_vec( vector<string> waveform_vec );
+    void add_event( EVENTKEY_e key );
 
 };
 

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025, 2026 Ulrich Glasmeyer
+Copyright (c) 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,59 +22,73 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ****************************************************************************/
 
+
 /*
- * App.h
+ * Fourier.h
  *
- *  Created on: Aug 27, 2024
+ *  Created on: Mar 9, 2026
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#ifndef APP_H_
-#define APP_H_
+#ifndef FOURIER_H_
+#define FOURIER_H_
 
-#include <data/Statistic.h>
-#include <data/DataWorld.h>
-#include <Kbd.h>
+#include <Wavedisplay_base.h>
+#include <complex>
 
+typedef complex<double>					cd_t;
+typedef vector<cd_t>					cd_vec_t;
 
+#include <Logfacility.h>
 
-// https://en.cppreference.com/w/cpp/language/parameter_pack
-
-class Application_class :
-	virtual Logfacility_class,
-	public virtual Interface_base,
-	public sdsstate_struct,
-	Statistic_class
+/**************************************************
+ * Fourier_class
+ *************************************************/
+class Fourier_class :
+	virtual public Logfacility_class
 {
-    const set<APPID>	logowner 			=  { GUI_ID, COMPID, RTSPID };
-	string 				This_Application 	;
-	string 				ProgramName 		;
+	typedef struct idx_val_data
+	{
+		uint 	idx	= 0;
+		phi_t	dphi= 0.0;
+		float	amp = 0.0;
+		phi_t	phi	= 0.0;
+	} idx_val_t;
+	typedef vector<idx_val_t>		fourier_vec_t;
+
+	struct
+	{
+		bool operator()( idx_val_t a, idx_val_t b) const
+		{
+			return ( abs(a.amp) > abs(b.amp) ) ;
+		}
+	} Greater;
+
+	uint16_t		resolution		;
+	cd_vec_t		cd_data			;
+	fourier_vec_t	idx_vec			{};
+	fourier_vec_t 	coeff_vec		{};
+
 
 public:
 
-	APPID 				AppId				;
-	process_t 			properties 			{};
-	Time_class			Timer				{};
-	Kbd_base			Kbd					{};
-	Appstate_class*		Appstate			;
-	Config_class*		Cfg 				;
-
-    					Application_class	( Dataworld_class* );
-	virtual 			~Application_class	();
-
-	void 				Start				( int, char* [] );
-	void 				Ready				();
-	kbdInt_t			KeyboardKey			( bool debug);
-
+					Fourier_class	();
+	virtual			~Fourier_class	();
+	wd_arr_t 		Amplitude		( wd_arr_t data );
+	Data_t 			Fnc				( param_t& p );
+	void			TestFourier		();
 
 private:
-	bool 				redirect_stderr 	= false;
-	void 				app_properties		();
-	void 				deRegister			();
-	void 				versionTxt			();
 
+	void 			findPeaks		();
+	void 			genCdData		( wd_arr_t& data );
+	void 			genCoeff		();
+	void			initIdxvec		();
+	void 			normCoeff		( uint max_count );
+	void 			norm_wd_size	( uint max );
+	void			show_coeff		( fourier_vec_t coeff  );
 };
 
 
 
-#endif /* APP_H_ */
+#endif /* FOURIER_H_ */

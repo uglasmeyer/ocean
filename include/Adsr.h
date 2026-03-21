@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025,2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,7 @@ SOFTWARE.
 #define ADSR_H_
 
 #include <Oscbase.h>
+#include <Oscwaveform.h>
 
 const spectrum_t default_adsr_spec =
 {
@@ -64,6 +65,8 @@ const adsr_struct		default_adsr	=
 		.decay 	= 90,
 		.spec 	= default_adsr_spec
 };
+
+
 
 
 /**************************************************

@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * Oszilloscopewidget.h
+ * DataGraphicClass.h
  *
  *  Created on: Mar 28, 2025
  *      Author: Ulrich.Glasmeyer@web.de
@@ -31,14 +31,15 @@ SOFTWARE.
 
 #ifndef OSZILLOSCOPEWIDGET_H
 #define OSZILLOSCOPEWIDGET_H
-// C++ Project
-
-//#include <Ocean.h>
-#include <data/Interface.h>
 
 // Qt
+#include <QObject>
 #include <QPolygon>
 #include <QGraphicsWidget>
+#include <QGraphicsView>
+
+// Ocean
+#include <data/Interface.h>
 
 
 // https://doc.qt.io/qt-6/eventsandfilters.html
@@ -49,11 +50,23 @@ SOFTWARE.
 /**************************************************
  * DataGraphic_class
  *************************************************/
+//QT_BEGIN_NAMESPACE
+//namespace Ui
+//{
+//	class DataGraphic_class;
+//}
+//QT_END_NAMESPACE
+
+
 class DataGraphic_class
 	: public QGraphicsItem,
+//		public QObject,
 	  Logfacility_class
 {
+//	Q_OBJECT
+
     QRectF          drawregion;
+    QGraphicsView*	graphicsview;
     QPolygonF       polygon;
     uint 			shiftY 		= 0;
     uint			height		= 0;
@@ -62,15 +75,16 @@ class DataGraphic_class
 public:
     interface_t*          sds;
 
-    		DataGraphic_class	( interface_t*, QRectF );
+    		DataGraphic_class	( interface_t*, QGraphicsView* );
     virtual	~DataGraphic_class	() = default;
 
-    void    read_polygon_data();
+    void    ReadWaveData();
+    void    ReadAdsrData();
 
 private:
-
+    Data_t 	readDataEntry();
+    void 	readDataExit( Data_t x );
     QRectF  boundingRect() const; // implement virtual method boundingRect, need by qgraphicsitem.h
-
     void    paint(QPainter* painter,
                const QStyleOptionGraphicsItem* option,
                QWidget* widget);     // overriding paint() - react on update

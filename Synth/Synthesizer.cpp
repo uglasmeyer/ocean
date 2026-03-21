@@ -26,14 +26,17 @@ SOFTWARE.
 #include <Synth/Synthesizer.h>
 #include <Appsymbols.h>
 
+
 Trigger_class			BeatTrigger		{};
-Wavedisplay_class 		Wavedisplay		{ Sds };
+Wavedisplay_class 		Wavedisplay		{ Sds, fourier };
+Wavedisplay_class*		Wd_p			= &Wavedisplay;
 Instrument_class 		Instrument		{ &DaTA, &Wavedisplay };
 Mixer_class				Mixer			{ &DaTA, &Wavedisplay } ;
+External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, sds_p );
+Capture_class			Capture			{ &External };
 CutDesk_class			CutDesk			{ &Mixer };
 Note_class 				Notes			{ &DaTA, &Instrument, &Mixer.StA[ STA_NOTES ] };
 Keyboard_class			Keyboard		( &DaTA, &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
-External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, sds_p );
 ProgressBar_class		ProgressBar		( &sds_p->RecCounter );
 Time_class				Timer			( &sds_p->time_elapsed );
 Event_class				Event			{
@@ -45,7 +48,8 @@ Event_class				Event			{
 										&DaTA,
 										&External,
 										&ProgressBar,
-										&CutDesk
+										&CutDesk,
+										&Capture
 										};
 
 Data_t*					Kbd_Data		= Mixer.StA[STA_KEYBOARD ].Data;
@@ -103,6 +107,8 @@ void add_sound()
 		Instrument.Oscgroup.Data_Reset();
 		Instrument.Oscgroup.Run_OSCs( 0 );
 	}
+	if ( sds_p->WD_state.adsrmode )
+		DaTA.EmitEvent( READADSRDATAFLAG, "read adsr data" );
 
 	Mixer.state.kbd 	&= ( App.properties.keyboard | sds_p->StA_state_arr[ STA_KEYBOARD ].play );
 	if ( Mixer.state.kbd )
@@ -152,9 +158,15 @@ void add_sound()
 						shm_addr
 						);
 }
-Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add_sound" );
+Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add sound" );
 thread* 		SyncAudio_thread_p = nullptr;
 
+void readAudio()
+{
+	Capture.Start( STA_EXTERNAL );
+}
+Thread_class 	ReadAudio( DaTA.Sem_p, SEMAPHORE_CAPTURE, readAudio, "read audio" );
+thread* 		ReadAudio_thread_p = nullptr;
 
 void ApplicationLoop()
 {
@@ -262,6 +274,10 @@ int main( int argc, char* argv[] )
 	SyncAudio_thread( &Thread_class::Loop, &SyncAudio );
     SyncAudio_thread_p = &SyncAudio_thread;
 
+    thread
+	ReadAudio_thread( &Thread_class::Loop, &ReadAudio );
+    ReadAudio_thread_p = &ReadAudio_thread;
+
     Log.Comment(INFO, "Application initialized");
 	ApplicationLoop( );
 	exit_proc( 0 );
@@ -283,12 +299,19 @@ void stop_threads()
 	ReadNotes.StopLoop();
 	if ( ReadNotes_thread_p )
 		ReadNotes_thread_p->join();
+
+	ReadAudio.StopLoop();
+	if ( ReadAudio_thread_p )
+		ReadAudio_thread_p->join();
 }
 
 int sig_counter = 0;
 void exit_proc( int signal )
 {
 	coutf;
+	if ( LogMask[TEST] )
+		DaTA.Sds_p->Load_ifd();
+
 	if ( signal == SIGILL )
 		exit(0);
 

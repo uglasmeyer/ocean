@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -125,7 +125,6 @@ Shm_base::Shm_base( int type_size, buffer_t bytes, key_t key ) :
 	Logfacility_class( "Shm_base" ),
 	shm_ds( type_size, bytes, key )
 {
-	className			= Logfacility_class::className;
 	if( key > 0 )
 	{
 		Get(key );
@@ -138,24 +137,48 @@ Shm_base::~Shm_base()
 	DESTRUCTOR( className )
 }
 
+size_t get_shm_size( int shmid )
+{
+	shmid_ds shm_ds {};
+	shmctl( shmid, SHM_STAT, &shm_ds);
+	return shm_ds.shm_segsz;
+}
+
 shm_ds_t* Shm_base::Get( key_t key )
 {
 	assert( shm_ds.bytes > 0 );
-	shm_ds.key 	= key;
+	shm_ds.key 		= key;
+
 
 	// shm segment exists?
 	shmget( shm_ds.key, shm_ds.bytes , S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL );
-	shm_ds.eexist = ( EEXIST == errno );
-	errno = 0;
+	shm_ds.eexist 	= ( EEXIST == errno );
+	errno 			= 0;
 
-	shm_ds.shmid = shmget ( shm_ds.key, shm_ds.bytes, S_IRUSR | S_IWUSR | IPC_CREAT );
-
+	shm_ds.shmid	= shmget ( shm_ds.key, shm_ds.bytes, S_IRUSR | S_IWUSR | IPC_CREAT );
 	if ( shm_ds.shmid < 0 )
 	{
-		Comment( ERROR, Error_text( errno ));
-		Set_Loglevel( DEBUG, true );
-		ShowDs( shm_ds );
-		Exception("cannot get shared memory" + to_string( shm_ds.shmid ), SIGILL );
+		if( errno ==  EINVAL )
+		{
+			ipcrm		( shm_ds.key );
+			shm_ds.shmid= shmget ( shm_ds.key, shm_ds.bytes, S_IRUSR | S_IWUSR | IPC_CREAT );
+		}
+		if( shm_ds.shmid < 0 )
+		{
+			Comment		( ERROR, Error_text( errno ));
+			Set_Loglevel( DEBUG, true );
+			ShowDs		( shm_ds );
+			Exception	("cannot get shared memory" + to_string( shm_ds.shmid ), SIGILL );
+		}
+	}
+	else
+	{
+		if( get_shm_size( shm_ds.shmid ) != shm_ds.bytes )
+		{
+			Comment( INFO, "SDS differs in size" );
+			ipcrm( shm_ds.key );
+			Exception	("cannot get shared memory id " + to_string( shm_ds.shmid ), SIGILL );
+		}
 	}
 
 	shm_ds.addr 	= Attach( shm_ds.shmid );
@@ -218,18 +241,32 @@ void Shm_base::Detach( void* addr )
 
 void Shm_base::Delete()
 {
-	shmid_ds dsbuf = shmid_ds();
+	shmid_ds ds_data {};
 	Comment( INFO , "Mark shared memory id: ", shm_ds.shmid, " to be destroyed" );
 
 	if ( shm_ds.addr )
 	{
-		shmctl( shm_ds.shmid, IPC_RMID, &dsbuf );
-		Info( "done, # attached: ", dsbuf.shm_nattch );
+		shmctl( shm_ds.shmid, IPC_RMID, &ds_data );
+		Info( "done, # attached: ", ds_data.shm_nattch );
 	}
 	else
 		Comment( ERROR, "Null " );
 }
 
+void Shm_base::ipcrm( key_t key )
+{
+	shmid_ds ds_data {};
+	int shmid = shmget ( key, 0, 0 );
+	if( shmid > 0 )
+	{
+		shmctl( shmid, IPC_RMID, &ds_data );
+		Info( "SHM id:", shmid, "removed" );
+	}
+	else
+	{
+		Info( "shm key:", key, "not a sds" );
+	}
+}
 void Shm_base::Test_Memory()
 {
 	TEST_START( className );

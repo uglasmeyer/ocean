@@ -82,7 +82,7 @@ void Oscillator::self_Test()
 
 void Oscillator::Phase_reset()
 {
-	spectrum.phi = default_phase;
+	spectrum.phi = zero_phase;
 }
 void Oscillator::Data_reset(  )
 {
@@ -189,7 +189,6 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	assert( wp.frames + frame_offset - 1 < mem_frames );
 
 	const buffer_t 		frames 		= wp.frames;
-	const phi_t 		dt 			= 1.0 / ( frames_per_sec );	//seconds per frame
 	const float 		fmo_vol 	= fmo_scale * (float)this->fp.volume;
 	const Data_t 		vco_adjust 	= max_data_amp / 2;
 	const Data_t		vol_adjust	= ( vco_adjust * features.adjust ) * percent;
@@ -212,7 +211,33 @@ void Oscillator::OSC (  buffer_t frame_offset )
 	DynFrequency.SetDelta	( features.slide_frq );
 	param_t 	param 		= param_struct();
 				param.pmw	= 1.0 + (float)features.PWM * percent;
-	for ( size_t channel = 0; channel < SPECARR_SIZE; channel++ )
+
+	if( ( spectrum.wfid[0] == FOURIER ) )
+	{
+		if( is_osc_type )
+		{
+			frq_t 			freq 			= DynFrequency.Reset_state();
+							param.maxphi	= abs( waveFunction_vec[ FOURIER ].maxphi );
+			phi_t			dT				= param.maxphi * dt;
+			wave_function_t	fnc 			= waveFunction_vec[ FOURIER ].fnc;
+			for( buffer_t 	pos 			= frame_offset;
+							pos 			< frames + frame_offset;
+							pos++ )
+			{
+							freq 		= DynFrequency.Get();
+							param.dphi	= freq * dT;
+							oscData[pos]= max_data_amp * fnc( param );
+			}
+			DynFrequency.Update();
+
+			Apply_adsr( frames, MemData_p(), frame_offset );
+		}
+		return;
+	}
+
+	for( size_t channel 	= 0;
+				channel 	< SPECARR_SIZE;
+				channel++ )
 	{
 		if ( spectrum.volidx[channel] > 0 )
 		{
@@ -224,7 +249,10 @@ void Oscillator::OSC (  buffer_t frame_offset )
 							param.phi		= spectrum.phi[channel];
 							param.amp		= spectrum.vol[channel];
 			const phi_t		dT				= param.maxphi * dt;
-			for( buffer_t pos = frame_offset; pos < frames + frame_offset; pos++ )
+
+			for( buffer_t 	pos 			= frame_offset;
+							pos 			< frames + frame_offset;
+							pos++ )
 			{
 				const float	vco_vol 	= ( vco_adjust 	+ vcoData[pos] ) * vol_per_cent ;
 							oscData[pos]+= vol_adjust 	+ vco_vol * fnc( param );
@@ -236,8 +264,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 							param.phi	= param.phi + param.dphi;
 							param.phi 	= MODPHI( param.phi, param.maxphi );
 			}
-//			if ( param.maxphi < abs(param.phi) )
-//				show_param	( osctype_name, param, dT, freq, frq );
+
 			spectrum.phi[channel] = param.phi;
 			DynFrequency.Update();
 		}
@@ -300,7 +327,7 @@ void Oscillator::Test()
 	uint A3 = testosc.Index("A3");
 	ASSERTION( fcomp( frqArray[ A3 ], 220), "frq index", frqArray[ A3 ], 220 );
 
-	spectrum.phi	= default_phase;
+	spectrum.phi	= zero_phase;
 	testosc.Set_frequency( A3, FIXED ); // 220 Hz
 	testosc.Set_spectrum_volume( 100 );
 

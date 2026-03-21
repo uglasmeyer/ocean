@@ -40,6 +40,7 @@ SOFTWARE.
 #include <Mixer.h>
 #include <data/Sdsbase.h>
 #include <External.h>
+#include <Audio.h>
 
 /**************************************************
  * Event_class
@@ -67,6 +68,7 @@ class Event_class
 	ProgressBar_class*	ProgressBar;
 	EventQue_class*		EventQue;
 	Appstate_class*		Appstate;
+	Capture_class*		Capture;
 
 public:
 
@@ -78,7 +80,9 @@ public:
 				Dataworld_class*	data,
 				External_class*		external,
 				ProgressBar_class*	progressbar,
-				CutDesk_class*		cutter );
+				CutDesk_class*		cutter,
+				Capture_class*		capture);
+
 	virtual 	~Event_class() = default;
 
 	void 		Handler( );
