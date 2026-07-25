@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,22 +40,23 @@ SOFTWARE.
 /**************************************************
  * StA_state_struct
  *************************************************/
-struct 				StA_state_struct // memory array status
+struct 				StA_state_data // StA specific state flags
 {	// SDS related
-	bool 			play			= false; // play this memory array
-	bool 			store			= false; // record into this memory array
-	bool			filled			= false; // there record counter is > 0
+	bool 			play			= false; // play this StA
+	bool 			store			= false; // store data into this StA
+	bool			filled			= false; // if true the record counter is > 0
 	bool			forget			= false; // delete after read
+	bool			start			= false; // if true reset scanner read position
 };
-typedef				StA_state_struct StA_state_t;
-const				StA_state_t 	default_StA_state 	= StA_state_struct();
+typedef				StA_state_data	StA_state_t;
+const				StA_state_t 	default_StA_state 	= StA_state_data();
 
 /**************************************************
  * shm_data_struct
  *************************************************/
 struct 				shm_data_struct
 {
-	uint			Id				= 0;		// interface id in the set of shm_data_structures
+	Id_t			Id				= 0;		// interface id in the set of shm_data_structures
 	bool			eexist			= false;	// becomes true if attached
 	buffer_t 		bytes			;			// in bytes
 	int				sizeof_type		;//= sizeof( Stereo_t );
@@ -139,6 +140,7 @@ class 				Memory_base :
 public:
 	Data_t* 		Data 			;
 	mem_ds_t		mem_ds			;
+	bool			is_zero		;  // true if data content is zero
 
 	void 			DsInfo			( string name = "Memory_base");
 	void* 			Init_void		( uint8_t type_size, buffer_t bytes );

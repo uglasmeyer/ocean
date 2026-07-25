@@ -28,6 +28,7 @@ SOFTWARE.
  *  Created on: Oct 2, 2024
  *      Author: Ulrich.Glasmeyer@web.de
  */
+#include <sys/mman.h>
 
 #include <data/Memorybase.h>
 #include <System.h>
@@ -39,8 +40,9 @@ Memory_base::Memory_base( uint8_t type_bytes, buffer_t bytes )
 	: Logfacility_class( "Memory_base" )
 	, mem_ds( sizeof_Data, bytes )
 {
-	Init_data( bytes);
-	Comment( DEBUG, "init memory size ", bytes );
+	this->is_zero	= true;
+	Init_data		( bytes);
+	Comment			( DEBUG, "init memory size ", bytes );
 };
 
 Memory_base::~Memory_base()
@@ -115,6 +117,7 @@ void Memory_base::Clear_data( Data_t value )
 	{
 		Data[n] = value;
 	}
+	is_zero = true;
 }
 
 /**************************************************
@@ -137,18 +140,45 @@ Shm_base::~Shm_base()
 	DESTRUCTOR( className )
 }
 
-size_t get_shm_size( int shmid )
+int shm_nattach( int shmid )
+{
+	shmid_ds shm_ds {};
+	shmctl( shmid, SHM_STAT, &shm_ds);
+	return shm_ds.shm_nattch;
+}
+size_t shm_size( int shmid )
 {
 	shmid_ds shm_ds {};
 	shmctl( shmid, SHM_STAT, &shm_ds);
 	return shm_ds.shm_segsz;
 }
 
+void Shm_base::ipcrm( key_t key )
+{
+	int shmid = shmget ( key, 0, 0 );
+	if( shmid > 0 )
+	{
+		if( shm_nattach( shmid ) == 0 )
+		{
+			shmid_ds ds_data {};
+			shmctl( shmid, IPC_RMID, &ds_data );
+			Info( "SHM id:", shmid, "removed" );
+		}
+		else
+		{
+			Comment 	( ERROR, "Cannot resize Shared Memory." );
+			Exception	( "There are attached processes", SIGILL );
+		}
+	}
+	else
+	{
+		Info( "shm key:", key, "not a Shared  Data Segment." );
+	}
+}
 shm_ds_t* Shm_base::Get( key_t key )
 {
 	assert( shm_ds.bytes > 0 );
 	shm_ds.key 		= key;
-
 
 	// shm segment exists?
 	shmget( shm_ds.key, shm_ds.bytes , S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL );
@@ -173,11 +203,13 @@ shm_ds_t* Shm_base::Get( key_t key )
 	}
 	else
 	{
-		if( get_shm_size( shm_ds.shmid ) != shm_ds.bytes )
+		if( shm_size( shm_ds.shmid ) != shm_ds.bytes )
 		{
-			Comment( INFO, "SDS differs in size" );
-			ipcrm( shm_ds.key );
-			Exception	("cannot get shared memory id " + to_string( shm_ds.shmid ), SIGILL );
+			Comment	( INFO, "existing SDS differs in size" );
+			ipcrm	( shm_ds.key );
+			Exception(	"cannot get shared memory id: " + to_string( shm_ds.shmid ) +
+						" from shm key: " + to_string( shm_ds.key ) +
+						"\ntry to restart application" , SIGILL );
 		}
 	}
 
@@ -253,20 +285,7 @@ void Shm_base::Delete()
 		Comment( ERROR, "Null " );
 }
 
-void Shm_base::ipcrm( key_t key )
-{
-	shmid_ds ds_data {};
-	int shmid = shmget ( key, 0, 0 );
-	if( shmid > 0 )
-	{
-		shmctl( shmid, IPC_RMID, &ds_data );
-		Info( "SHM id:", shmid, "removed" );
-	}
-	else
-	{
-		Info( "shm key:", key, "not a sds" );
-	}
-}
+
 void Shm_base::Test_Memory()
 {
 	TEST_START( className );

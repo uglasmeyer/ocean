@@ -161,7 +161,7 @@ string Lineedit_class::Line( string _str )
 
 }
 
-void Lineedit_class::Text( vector_str_t& text )
+void Lineedit_class::Text( string_vec_t& text )
 {
 	int pos = text.size();
 	string line = "";

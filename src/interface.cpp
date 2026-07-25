@@ -23,14 +23,13 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * GUIinterface.cpp
+ * interface.cpp
  *
  *  Created on: Jan 14, 2024
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
 #include <data/Interface.h>
-#include <data/SharedDataSegment.h>
 
 
 connect_arr_t initConnect_arr(  )
@@ -49,23 +48,26 @@ void SharedData_class::selfTest( )
 	OSCID_e oscid = OSCID_e::OSCID;
 	Assert_lt( (int)addr->connect_arr[oscid].frq, (int)OSCID_e::NOOSCID, "connect_arr" );
 
-	APPID appid = APPID::AUDIOID;
-	APPID value = addr->appstate_arr[appid].type;
+	APPID_e appid = APPID_e::AUDIOID;
+	APPID_e value = addr->appstate_arr[appid].type;
 	Assert_equal( value ,  appid );
 
 	Direction_e record = addr->WD_state.direction;
 	Assert_equal( record, wavedisplay_struct::NO_direction, "Wd_status.record" );
 }
 
-SharedData_class::SharedData_class( APPID appid,
-									Id_t sdsid,
-									Config_class* cfg,
+/**************************************************
+ * SharedData_class
+ *************************************************/
+SharedData_class::SharedData_class( APPID_e			appid,
+									Id_t			sdsid,
+									Config_class*	cfg,
 									Semaphore_class* sem ):
 	Logfacility_class	("SharedData_class" ),
 	sds_key				( cfg->Config.sdskeys[ sdsid ] ),
 	sds_size			( sizeof(interface_struct) ),
 	SHM					( sds_size, sds_size, sds_key ),
-	Eventque			()
+	Eventque			( SHM.shm_ds.addr )
 {
 
 	this->AppId 		= appid;
@@ -73,10 +75,14 @@ SharedData_class::SharedData_class( APPID appid,
 	this->Cfg_p 		= cfg;
 	this->fs			= cfg->fs;
 	this->ifd_data		= interface_struct();
+	this->ifd_data.SDS_Id = sdsid;
 	this->shm_ds		= SHM.shm_ds;
+	this->addr			= ( interface_t* ) SHM.shm_ds.addr;
+	this->addr->SDS_Id	= sdsid;
+	this->shm_ds.Id		= sdsid;
 
-	Set_dumpFile		( fs->vardir, sdsid );
-	Setup_SDS			( sdsid, sds_key );
+	set_dumpFile		( fs->vardir, sdsid );
+	init_SDS			();
 }
 
 SharedData_class::~SharedData_class()
@@ -84,7 +90,7 @@ SharedData_class::~SharedData_class()
 	DESTRUCTOR( className );
 }
 
-void SharedData_class::Set_dumpFile( string dir, uint8_t sdsid )
+void SharedData_class::set_dumpFile( string dir, uint8_t sdsid )
 {
 	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
 	if( not filesystem::exists( subdir ) )
@@ -95,34 +101,15 @@ void SharedData_class::Set_dumpFile( string dir, uint8_t sdsid )
 }
 
 
-void SharedData_class::Setup_SDS( Id_t sdsid, key_t key)
+void SharedData_class::init_SDS()
 {
-	Comment(INFO, "allocating shared memory for SDS", (int)sdsid );
-
-	shm_ds 			= SHM.shm_ds;//*SHM.Get( key );
-	shm_ds.Id		= sdsid;
-	this->addr		= ( interface_t* ) SHM.shm_ds.addr;
-	Eventque.setup	( addr );
-	SHM.ShowDs		( shm_ds );
-
 	if ( not shm_ds.eexist )
 	{
 		Comment(WARN, "initializing data interface using default values ");
 		Reset_ifd( );
 	}
-	Comment( DEBUG, "check shared memory version");
 
-	filesystem::path sds_dump_path = dumpFile;
-	if (( filesystem::exists( sds_dump_path )))
-	{
-		size_t fsize = filesystem::file_size( sds_dump_path );
-		if ( fsize != sds_size)
-		{
-			Comment	( INFO, "sds dump size ", fsize, "differs in sizeof sds", sds_size );
-			Remove_dumpFile();
-		}
-	}
-	this->addr->SDS_Id	= sdsid;
+	Comment( DEBUG, "check shared memory version");
 	if (( ifd_data.version == addr->version ) )
 	{
 		Comment( DEBUG, "OK");
@@ -133,7 +120,24 @@ void SharedData_class::Setup_SDS( Id_t sdsid, key_t key)
 		Exception( 	"IPC version " + to_string( ifd_data.version ) +
 					" is different to SDS version " + to_string( addr->version ) );
 	}
-	shm_ds.eexist = true;
+
+	filesystem::path sds_dump_path = dumpFile;
+	if (( filesystem::exists( sds_dump_path )))
+	{
+		size_t fsize = filesystem::file_size( sds_dump_path );
+		if ( fsize == sds_size)
+		{
+			;
+		}
+		else
+		{
+			Comment	( INFO, "sds dump size ", fsize, "differs in sizeof sds", sds_size );
+			Remove_dumpFile();
+		}
+	}
+	shm_ds.eexist	= true;
+	SHM.ShowDs		( shm_ds );
+	Assert_equal( (int)this->shm_ds.Id, (int)this->addr->SDS_Id );
 }
 
 void SharedData_class::Remove_dumpFile()
@@ -162,80 +166,108 @@ bool SharedData_class::Datasegment_exists()
 	return shm_ds.eexist;
 }
 
-void SharedData_class::Write_wave_arr( const wd_arr_t& arr )
-{
-	for( buffer_t n = 0 ; n < wavedisplay_len; n++ )
-		addr->wavedata[n] = arr[n] ;
-}
-void SharedData_class::Write_adsr_arr( const wd_arr_t& arr )
-{
-	for( buffer_t n = 0 ; n < adsrdisplay_len; n++ )
-		addr->adsrdata[n] = arr[n] * 1024 * 8 ;
-}
 #include <cstring>
-void SharedData_class::Write_str(const char selector, const string str )
+char* SharedData_class::Write_str( CSTRKEY_e selector, const string str )
 {
-	if (reject( AppId )) return;
+	if (reject( AppId )) return nullptr;
 
-	if ( addr->appstate_arr[ SDSVIEWID ].state == RUNNING )
-		addr->UpdateFlag = true;
-	const string wrt = str.substr(0, SDSSTR_SIZE-1 );
+//	cannot access sds_master
+//	if ( addr->appstate_arr[ SDSVIEWID ].state == StateId_e::RUNNING )
+//		addr->UpdateFlag = true;
 
+	char* char_p = nullptr;
+	size_t size = 0;
 	switch ( selector )
 	{
-		case INSTRUMENTSTR_KEY :
+		case INSTRUMENTSTR :
 		{
-			strcpy( addr->Instrument, wrt.data() );
+			size = SDSNAME_SIZE;
+			char_p = addr->Instrument;
 			break;
 		}
-		case NOTESSTR_KEY :
+		case NOTENAMESTR :
 		{
-			strcpy( addr->Notes, wrt.data() );
+			size = SDSNAME_SIZE;
+			char_p =addr->Notes;
 			break;
 		}
-		case OTHERSTR_KEY :
+		case SESSIONSTR :
 		{
-			strcpy( addr->Other, wrt.data() );
+			size = SDSNAME_SIZE;
+			char_p = addr->Session;
 			break;
 		}
-		case UPDATELOG_EVENT :
+		case WAVFILE_STR :
 		{
-			strcpy( addr->eventstr, str.data() );
+			size = SDSNAME_SIZE;
+			char_p = addr->WAV_filename;
+			break;
+		}
+		case UPDATELOG_STR :
+		{
+			size = SDSLONG_SIZE;
+			char_p = addr->eventstr;
+			break;
+		}
+		case NOTELINESTR :
+		{
+			size = SDSLONG_SIZE;
+			char_p = addr->Noteline;
+			break;
+		}
+		case RHYTHMLINESTR :
+		{
+			size = SDSLONG_SIZE;
+			char_p = addr->Rythmline;
 			break;
 		}
 		default:
 		{
-			strcpy( addr->Other, wrt.data() );
+			Exception( "unhandled str id: " + to_string( int( selector )) );
 			break;
 		}
-	}
 
+	} // switch
+	const string wrt = str.substr(0, size-1 );
+	strcpy( char_p, wrt.data() );
+
+	return char_p;
 }
 
 
-string SharedData_class::Read_str( EVENTKEY_e selector )
+string SharedData_class::Read_str( CSTRKEY_e selector )
 {
 	string str;
 	switch ( selector )
 	{
-		case INSTRUMENTSTR_KEY :
+		case INSTRUMENTSTR :
 		{
 			str.assign( addr->Instrument );
 			break;
 		}
-		case NOTESSTR_KEY :
+		case NOTENAMESTR :
 		{
 			str.assign( addr->Notes );
 			break;
 		}
-		case UPDATELOG_EVENT :
+		case UPDATELOG_STR :
 		{
 			str.assign( addr->eventstr );
 			break;
 		}
+		case SESSIONSTR :
+		{
+			str.assign( addr->Session );
+			break;
+		}
+		case WAVFILE_STR :
+		{
+			str.assign( addr->WAV_filename );
+			break;
+		}
 		default :
 		{
-			str.assign( addr->Other );
+			Exception( "unknown key: " + to_string( int( selector ) ) );
 			break;
 		}
 
@@ -244,13 +276,24 @@ string SharedData_class::Read_str( EVENTKEY_e selector )
 	return str;
 }
 
+constexpr appstate_arr_t initAppstate_arr()
+{
+	appstate_arr_t arr { appstate_data() };
+	for( APPID_e appid : AppMap_struct().AppIds )
+	{
+		arr[appid].type = appid;
+	}
+	return arr;
+};
+
 void SharedData_class::Reset_ifd()
 {	// copy default values into sds memory
 
 	Comment(INFO, "Reset shared data");
 	*addr = ifd_data;
-
+	addr->connect_arr = initConnect_arr();
 	addr->StA_state_arr[ STA_INSTRUMENT ].play = true;
+	addr->appstate_arr = initAppstate_arr();
 }
 
 bool SharedData_class::Load_ifd()
@@ -267,30 +310,44 @@ bool SharedData_class::Restore_ifd()
 	Comment(INFO,"Restore shared data from file");
 	assert( dumpFile.size() > 0 );
 
-	int 			sdsid 		= addr->config;
+	Id_t 			config 		= addr->comId;
+	uint8_t 		SHMID		= addr->SHMID;
 	appstate_arr_t 	appstate_arr= addr->appstate_arr;
-	Assert_lt( appstate_arr[0].state, NOSTATE );
+	KEYCODE			sdsview_page= addr->sdsview_page;
+	Id_t			sdsview_sdsid=addr->sdsview_sdsid;
+
+	Assert_lt( appstate_arr[0].state, StateId_e::STATEID_SIZE );
 
 	bool ret = Load_ifd();
 
-	addr->config				= sdsid;
+	addr->comId					= config;
+	addr->SHMID					= SHMID;
 	addr->appstate_arr			= appstate_arr;
-	Eventque.reset();
-	return ret;//( size == sizeof( ifd_data ));
+	addr->sdsview_page			= sdsview_page;
+	addr->sdsview_sdsid			= sdsview_sdsid;
+	Eventque.Reset();
+	return ret;
 }
-void SharedData_class::Activate_sds()
-{
-	std::ranges::for_each( init_keys, [ this ]( EVENTKEY_e key )
-			{	Eventque.add( key );	} );
 
-	if( addr->mixer_state.notes )
+void SharedData_class::Prepare_sds()
+{
+	// switch addr->NotesTypeId because of incomplet commit
+	switch (addr->NotesTypeId)
 	{
-		Eventque.add( UPDATENOTESKEY );
+		case BUSY_XML : { addr->NotesTypeId = XML_ID; break; }
+		case BUSY_NTE : { addr->NotesTypeId = NTE_ID; break; }
+		default : { break; }
 	}
 
-	addr->Capture_state	= INACTIVE;
-	if( addr->WD_state.wd_mode == wavedisplay_t::CURSORID ) // ensure consistency
-		addr->WD_state.wd_mode = wavedisplay_t::FULLID;
+	addr->Capture_state	= StateId_e::INACTIVE;
+	if( addr->WD_state.mode == WdModeID_t::RANGE_WD ) // ensure consistency
+		addr->WD_state.mode = WdModeID_t::FULL_WD;
+
+	if( ifd_data.SDS_Id == MASTER_SDSID )
+	{
+		if ( addr->Master_Amp == 0 )
+			addr->Master_Amp = osc_default_volume;
+	}
 }
 void SharedData_class::Dump_ifd()
 {
@@ -298,23 +355,24 @@ void SharedData_class::Dump_ifd()
 
 	Comment(INFO,"Dump SDS data   to file", filename) ;
 
-	Eventque.reset();
-	if ( not dumpData( dumpFile, addr, sizeof( ifd_data ) ) )
-		Comment( ERROR, "failed" );
+	Eventque.Reset();
+	bool success = dumpData( dumpFile, addr, sizeof( ifd_data ) );
+	if ( success ) return;
+	Comment( ERROR, "writing", sizeof( ifd_data ), " bytes to directory", dumpFile );
 }
 
 
 void SharedData_class::Commit()
 {
 	addr->UpdateFlag = true;
-	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
-		Sem_p->Release( PROCESSOR_WAIT );
+//	if ( Sem_p->Getval( PROCESSOR_WAIT, GETVAL ) > 0 )
+	Sem_p->Release( PROCESSOR_WAIT );
 }
 
-bool SharedData_class::reject( APPID appid )
+bool SharedData_class::reject( APPID_e appid )
 {
-	StateId_t composer_state = addr->appstate_arr[COMPID].state;
-	if (( composer_state == RUNNING ) and ( appid != COMPID ))
+	StateId_e composer_state = addr->appstate_arr[COMPOSERID].state;
+	if (( composer_state == StateId_e::RUNNING ) and ( appid != COMPOSERID ))
 	{
 		return true;
 	}
@@ -330,48 +388,56 @@ bool SharedData_class::reject( APPID appid )
 void SharedData_class::Test_interface()
 {
 	TEST_START( className );
-	Eventque.reset();
+	Eventque.Reset();
 	for( uint n = 0; n<5; n++ )
 	{
-		Eventque.add( (EVENTKEY_e)n );
+		Eventque.Add( (EVENTKEY_e)n );
 	}
-	cout << Eventque.show() << endl;
-	uint8_t value = Eventque.get();
+	cout << Eventque.Show() << endl;
+	uint8_t value = Eventque.Get();
 	ASSERTION( value == 1, "eventque.get()", value, 1 );
-	cout << Eventque.show()<< endl;
-	cout << dec << (int)Eventque.get() << endl;
-	cout << Eventque.show()<< endl;
+	cout << Eventque.Show()<< endl;
+	cout << dec << (int)Eventque.Get() << endl;
+	cout << Eventque.Show()<< endl;
 	cout 	<< " length: " << dec << (int)addr->eventptr.length << ":"
 			<< " first : " << (int) addr->eventptr.first
 			<< " last  : " << (int) addr->eventptr.last << endl;
-	Write_str( INSTRUMENTSTR_KEY, "1234567890123456789012345678901234567890" );
-	Assert_equal( SDSSTR_SIZE-1, (uint)Read_str( INSTRUMENTSTR_KEY ).length() );
+
+	string istr = "1234567890123456789012345678901234567890";
+	Write_str( INSTRUMENTSTR, istr );
+	string rstr = Read_str( INSTRUMENTSTR );
+	Assert_equal( SDSNAME_SIZE-1, (uint)rstr.length() );
+	cstring_T<cstring_name>	cstr{ &addr->Instrument, SDSNAME_SIZE };
+	string str = cstr.read();
+	Assert_equal( rstr, str );
 
 	TEST_END( className );
 }
 
-
-/****************
+/**************************************************
  * EventQue_class
- ***************/
-
-void EventQue_class::setup( interface_t* _addr )
+ *************************************************/
+EventQue_class::EventQue_class( void* _sds )
+	: Logfacility_class	( "EventQue_class" )
+//	, eventptr			()
 {
-	addr = _addr;
-	reset();
+	this->sds		= ( interface_t* )_sds;
+	this->Repeat	= false;
+	this->prev_event= NULLKEY;
+	this->eventptr	= sds->eventptr;
 }
-void EventQue_class::reset()
+void EventQue_class::Reset()
 {
-	eventptr 		= EventPtr_struct();
-	addr->eventptr 	= eventptr;
-	std::ranges::for_each( addr->deque, []( uint8_t& element )
-		{ element = 0  ;});
+	eventptr		= EventPtr_data();
+	sds->eventptr 	= eventptr;
+	std::ranges::for_each( sds->deque, []( EVENTKEY_e& key )
+		{ key = NULLKEY  ;});
 }
-void EventQue_class::add( EVENTKEY_e event )
+void EventQue_class::Add( EVENTKEY_e event )
 {
 	if ( event == NULLKEY )
 		return;
-	eventptr = addr->eventptr;
+	eventptr = sds->eventptr;
 
 	if ( eventptr.length >= MAXQUESIZE )
 	{
@@ -379,37 +445,29 @@ void EventQue_class::add( EVENTKEY_e event )
 		return;
 	}
 
-	addr->deque[eventptr.last] 	= (uint8_t) event;
+	sds->deque[eventptr.last] 	= event;
 	eventptr.last 				= ( eventptr.last + 1 ) % MAXQUESIZE;
 	eventptr.length 			+= 1;
-	addr->eventptr 				= eventptr;
+	sds->eventptr 				= eventptr;
 }
 
-EVENTKEY_e EventQue_class::get()
+EVENTKEY_e EventQue_class::Get()
 {
-	eventptr 					= addr->eventptr;
+	eventptr 					= sds->eventptr;
 	if ( eventptr.length == 0 )
 		return NULLKEY;
-	EVENTKEY_e value 			= (EVENTKEY_e) addr->deque[eventptr.first];
-	repeat 						= ( value == prev_event );
+	EVENTKEY_e value 			= (EVENTKEY_e) sds->deque[eventptr.first];
+//	Repeat 						= ( value == prev_event );
 	prev_event 					= value;
 	eventptr.first 				= ( eventptr.first + 1 ) % MAXQUESIZE;
 	eventptr.length 			-= 1;
-	addr->eventptr 				= eventptr;
+	sds->eventptr 				= eventptr;
 	return value;
 }
 
-string EventQue_class::show()
+string EventQue_class::Show()
 {
-	stringstream strs{};
-	eventptr = addr->eventptr;
-	uint index = eventptr.first;
-	for( uint n = 0 ; n < eventptr.length; n++ )
-	{
-		strs << dec << (int) addr->deque[ index ] << ":";
-		index = ( index + 1 ) % MAXQUESIZE;
-	}
-	return strs.str();
+	return show_items( sds->deque );
 }
 
 

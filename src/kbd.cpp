@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,10 @@ kbdInt_t keymap_struct::Qt_key( kbdInt_t key )
 		if ( map.qt == key )
 			return map.id;
 	}
-	return key;
+	if ( ( key < 127 ) and ( key > 42 ) ) // A..Z, 0..9 and +,-./
+		return key;
+	else
+		return 0;
 }
 string keymap_struct::Menu( kbdInt_t key )
 {
@@ -119,10 +122,10 @@ string Kbd_base::ShowKey( kbdkey_t key )
 
 kbdInt_t Kbd_base::GetKeyInt	( bool debug )
 {
-	fflush(stdout);
-	buf8.Int 			= 0x0;//Nullkey3;//{ 0,0,0 };
+//	fflush(stdout);
+	buf8.Int 		= 0x0;//Nullkey3;//{ 0,0,0 };
 
-	if(read(0, buf8_p, 8) < 0)
+	if( read(0, buf8_p, 8) < 0 )
 		perror("GetKeystruct()");
 
 	key8.nokey 		= ( buf8.Int == 0 );
@@ -141,11 +144,10 @@ kbdInt_t Kbd_base::GetKeyInt	( bool debug )
 kbdInt_t Kbd_base::GetKeyInt( int waitms )
 {
 	kbdkey_t key { };
-	while( key.Int == 0 )
+	while( key.Int == NOKEY )
 	{
 		this_thread::sleep_for( std::chrono::milliseconds( waitms ) );
 		key.Int = GetKeyInt( false );
-
 	}
 	return key.Int;
 
@@ -155,15 +157,7 @@ void Kbd_base::Init()
 
 	if( not is_atty )
 		return;
-//	if( tcgetattr (0, &old_flags) < 0 )
-//	{
-//		perror("tcsetattr()");
-//		return;
-//	}
-
-	//	if( tcgetattr (0, &new_flags) < 0 )
-//		perror("tcsetattr()");
-	fflush(stdout);
+	fflush( stdout );
 
 	new_flags.c_lflag 		&= ~ICANON;	// non-standard mode
 	new_flags.c_lflag 		&= ~ECHO;	// disable echo and erase
@@ -176,8 +170,10 @@ void Kbd_base::Init()
 	// is returned even if that number is zero.
 	// If an interrupt occurs before the timer expires and no bytes are read
 	// the read returns -1 with errno set to EINTR.
-	if(tcsetattr(0, TCSANOW, &new_flags) < 0)
+	if(tcsetattr( 0, TCSANOW, &new_flags) < 0)
 		perror("Kbd_base::Init() ICANON");
+//	std::cout << "\033[?17;0;0c"; // DECSCA: disable bell
+//	    std::cout.flush();
 
 }
 
@@ -188,6 +184,8 @@ void Kbd_base::Reset()
 		cout << "Keyboard reset" << endl;
 		if( tcsetattr(0, TCSADRAIN, &old_flags ) < 0)
 			perror("tcsetattr ~ICANON");
+		cout.flush() << "\033[?17;0;0c"; // DECSCA: disable bell
+
 	}
 }
 

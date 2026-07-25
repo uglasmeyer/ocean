@@ -41,7 +41,6 @@ SOFTWARE.
 class Menue_class :
 	virtual public Logfacility_class
 {
-	string 				className 	= "";
 	ViewInterface_class ViewSds ;
 	Dataworld_class*	DaTA;
 	interface_t*		sds;
@@ -49,13 +48,20 @@ class Menue_class :
 	Id_t 				sdsid;
 	KEYCODE 			page 		= KEYCODE::F1;
 
-	typedef function< kbdInt_t( kbdInt_t)> switch_fnc_t ;
+	typedef function< kbdInt_t( kbdInt_t ) > switch_fnc_t ;
 	switch_fnc_t 		Switch;
+
+	enum SDSDELTA_e : char
+	{
+		MINUS = -1,
+		PLUS = 1,
+		UNCHANGED = 0
+	};
 
 public:
 	Menue_class( Dataworld_class* data, switch_fnc_t _switch, string footer = "" ) ;
 	virtual ~Menue_class();
-	void Set_sdsid( int delta );
+	void Set_sdsid( SDSDELTA_e delta );
 	void Loop();
 
 private:

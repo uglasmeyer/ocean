@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>538</width>
+    <width>628</width>
     <height>78</height>
    </rect>
   </property>
@@ -18,40 +18,39 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>526</width>
+     <width>616</width>
      <height>60</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="4">
+    <item row="0" column="6">
      <widget class="QPushButton" name="pb_back_right">
       <property name="text">
        <string>Step &gt;</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
+    <item row="1" column="5">
+     <widget class="QLCDNumber" name="lcdNumber_2"/>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLCDNumber" name="lcdNumber"/>
+    </item>
+    <item row="0" column="3">
      <widget class="QPushButton" name="pb_front_right">
       <property name="text">
        <string>&gt; Step</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="3">
-     <widget class="QPushButton" name="pB_back_left">
+    <item row="0" column="8">
+     <widget class="QPushButton" name="pB_rotate_left">
       <property name="text">
-       <string>Step &lt;</string>
+       <string>&lt; Rotate</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QPushButton" name="pb_front_left">
-      <property name="text">
-       <string>&lt; Step</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
+    <item row="1" column="1">
      <widget class="QPushButton" name="pB_Cut">
       <property name="text">
        <string>Cut</string>
@@ -59,31 +58,62 @@
      </widget>
     </item>
     <item row="0" column="5">
+     <widget class="QPushButton" name="pB_back_left">
+      <property name="text">
+       <string>Step &lt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="7">
+     <spacer name="horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="6">
      <widget class="QPushButton" name="pB_goto_end">
       <property name="text">
        <string>End &gt;&gt;</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="2">
-     <widget class="QLCDNumber" name="lcdNumber"/>
+    <item row="1" column="9">
+     <widget class="QLabel" name="lbl_wav_file">
+      <property name="text">
+       <string>None</string>
+      </property>
+     </widget>
     </item>
-    <item row="1" column="3">
-     <widget class="QLCDNumber" name="lcdNumber_2"/>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="pb_front_left">
+      <property name="text">
+       <string>&lt; Step</string>
+      </property>
+     </widget>
     </item>
-    <item row="1" column="4">
+    <item row="0" column="9">
+     <widget class="QPushButton" name="pB_rotate_right">
+      <property name="text">
+       <string>Rotate &gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8">
      <widget class="QPushButton" name="pB_Save">
       <property name="text">
        <string>Save</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="5">
-     <widget class="QLabel" name="lbl_wav_file">
-      <property name="text">
-       <string>None</string>
-      </property>
-     </widget>
+    <item row="0" column="4">
+     <widget class="QComboBox" name="cB_Stepwidth"/>
     </item>
    </layout>
   </widget>

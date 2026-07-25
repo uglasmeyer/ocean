@@ -30,12 +30,8 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#include <App.h>
 
 
-#include <Fourier.h>
-Fourier_class		Fourier			{};
-Fourier_class*		fourier			= &Fourier;
 
 
 

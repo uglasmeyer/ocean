@@ -33,70 +33,89 @@ SOFTWARE.
 #include <data/Appstate.h>
 #define NoSDSID -1
 
-appstate_arr_t initAppstate_arr()
-{
-	appstate_arr_t arr {};
-	for( APPID appid : AppIds )
-	{
-		arr[appid].type = appid;
-	}
-	return arr;
-};
 
 /**************************************************
  * Appstate_class
  *************************************************/
-Appstate_class::Appstate_class( APPID 			appid,
+Appstate_class::Appstate_class( APPID_e 		appid,
 								sds_vec_t		_sds_vec ) :
 	Logfacility_class("Appstate_class"),
 	sdsstate_struct()
 {
 	AppId 		= appid;
-	sds_vec 	= _sds_vec ;
+	sds_vec 	= _sds_vec;
+	sds_master	= sds_vec[ MASTER_SDSID ];
 
-	for( interface_t* sds : sds_vec )
-		if( sds->appstate_arr[0].state == sdsstate_struct::DEFAULT )
-			sds->appstate_arr = initAppstate_arr();
-	Assert_equal( sds_vec[0]->appstate_arr[SYNTHID].type, SYNTHID, "appstate_arr" );
+	all_sdsids	= Iota_T<Id_t>( 0, MAXCONFIG );
+	Assert_equal( (int)sds_master->appstate_arr[SYNTHID].type, (int)SYNTHID, "appstate_arr" );
 
-	AppType		= ( appid == KEYBOARDID ) ? SYNTHID : appid;
+	AppType		= ( AppId == KEYBOARDID ) ? SYNTHID : AppId;
 	SDSid		= assign_sdsid( AppType );
 	if ( SDSid == NoSDSID  )
 	{
-		Comment( INFO, "Application id", AppId, "is already registered","on SDS", 0L );
 		Comment( ERROR, "Cannot get valid SDS ID" ) ;
 		raise( SIGILL );
+		return;
 	}
-	sds_master	= sds_vec[0];
-	sds			= sds_vec[SDSid];
-	Name 		= AppIdName( appid );
-	sds->appstate_arr[appid].type = AppType;
-	SetState	( sds, appid, sdsstate_struct::RUNNING );
+	sds								= sds_vec[ SDSid ];
+	Name 							= AppIdName( AppId );
+	sds->appstate_arr[AppId].type 	= AppType;
+	SetRunning();
 };
-
-SdsId_vec_t Appstate_class::allowed_sdsid( APPID appid )
+Appstate_class::~Appstate_class()
 {
-	if( assignMasterSds.contains( appid) )
-		return { 0 };
+	DESTRUCTOR( className );
+}
+
+SdsId_vec_t Appstate_class::allowed_sdsid( APPID_e appid )
+{
+	if( UniqueRunApp.contains( appid) )
+		return { MASTER_SDSID };
 	else
 		return all_sdsids;
 }
 
-Id_t Appstate_class::assign_sdsid( APPID appid ) // returns Sds_Id
+Id_t Appstate_class::assign_sdsid( APPID_e appid ) // returns Sds_Id
 {
-	SdsId_vec_t	validsdsids = allowed_sdsid( appid );
-	for( Id_t sdsid : validsdsids )
+	auto get_sdsid = [ this, appid ]( SdsId_vec_t valid_sids  )
 	{
-		CheckAppstate( sds_vec[sdsid], appid );
-		if ( getPid( sds_vec[sdsid], appid ) == NoPID )
+		for( Id_t sdsid : valid_sids ) // scan the range that has no pid
+		{
+			interface_t* sds = sds_vec[ sdsid ];
+			CheckAppstate( sds, appid ); // clean up the state if needed
+			if ( GetPid( sds, appid ) == NoPID )
+				return sdsid;
+		}
+		string valid_str = show_items( valid_sids );
+		Comment( INFO, "Application id", (int)AppId, "is already registered on SDS", valid_str );
+
+		return Id_t( NoSDSID ); // -> SIGILL
+	};
+
+	// The composer specifies the sdsid for the synthesizer module
+	// in case of composer::autostart (default = yes)
+
+	SdsId_vec_t valid_sids = { MASTER_SDSID };
+	if( MultiRunApp.contains ( appid ) )
+	{
+		if( sds_master->mixer_state.composer )
+		{
+			valid_sids = { sds_master->comId };
+		}
+		else
+		{
+			valid_sids = all_sdsids;
+			Id_t sdsid = get_sdsid( valid_sids );
+			sds_master->comId = sdsid;
 			return sdsid;
+		}
 	}
-	return NoSDSID;
+	return get_sdsid( valid_sids );
 }
 
-APPID Appstate_class::Type( interface_t* sds, APPID appid )
+APPID_e Appstate_class::Type( interface_t* sds, APPID_e appid )
 {
-	APPID _type = appid;//sds->appstate_arr[appid].type;
+	APPID_e _type = appid;
 	return _type;
 }
 
@@ -106,68 +125,117 @@ void Appstate_class::Setup( interface_t* _sds, interface_t* _sds_master )
 	this->sds_master 	= _sds_master;
 }
 
-void Appstate_class::SetState( interface_t* sds, APPID appid, StateId_t state )
+void Appstate_class::setState( interface_t* sds, APPID_e appid, StateId_e state )
 {
 	sds->appstate_arr[ Type(sds, appid) ].state = state;
+	sds_master->UpdateFlag = true;
 }
 
-void Appstate_class::SetPid( interface_t* sds, APPID appid, int pid )
+void Appstate_class::SetPid( interface_t* sds, APPID_e appid, int pid )
 {
 	sds->appstate_arr[ Type(sds, appid) ].pid = pid;
 }
 
-StateId_t	Appstate_class::GetState( interface_t* sds, APPID appid )
+StateId_e	Appstate_class::GetState( interface_t* sds, APPID_e appid )
 {
-	APPID _type = Type(sds, appid);
+	APPID_e _type = Type(sds, appid);
 	Assert_lt( (size_t)_type , sds->appstate_arr.size(), "" );
 	return sds->appstate_arr[ _type ].state;
 }
 
-string	Appstate_class::GetStateStr( interface_t* sds, APPID appid )
+string	Appstate_class::GetStateStr( interface_t* sds, APPID_e appid )
 {
-	StateId_t state = GetState( sds, appid );
+	StateId_e state = GetState( sds, appid );
 	return sdsstateName( state );
 }
 
-int Appstate_class::getPid( interface_t* sds, APPID appid )
+int Appstate_class::GetPid( interface_t* sds, APPID_e appid )
 {
 	return sds->appstate_arr[ Type(sds, appid) ].pid;
 }
 
-string	Appstate_class::GetPidStr( interface_t* sds, APPID appid )
+string	Appstate_class::GetPidStr( interface_t* sds, APPID_e appid )
 {
-	return to_string( getPid( sds, appid ) );
+	return to_string( GetPid( sds, appid ) );
 }
 
-bool Appstate_class::IsRunning( interface_t* sds, APPID appid )
+bool Appstate_class::IsRunning()
 {
-	bool flag = ( RUNNING == GetState( sds, appid ));
+	StateId_e	state	= GetState( this->sds, this->AppId );
+	bool 		flag	= ( ( state == RUNNING ) or ( state == SLEEPING ) );
+	return		flag;
+}
+
+bool Appstate_class::IsRunning( interface_t* sds, APPID_e appid )
+{
+	StateId_e	state	= GetState( sds, appid );
+	bool 		flag	= ( ( state == RUNNING ) or ( state == SLEEPING ) );
+	return		flag;
+}
+
+Id_t Appstate_class::Find_running( APPID_e appid )
+{
+	for( interface_t* sds : sds_vec )
+	{
+		if( IsRunning( sds, appid ) )
+		{
+			return sds->SDS_Id;
+		}
+	}
+	return MAIN_SYNTHID;
+}
+
+bool Appstate_class::IsOffline( interface_t* sds, APPID_e appid )
+{
+	bool flag = ( StateId_e::OFFLINE == GetState( sds, appid ));
 	return flag;
 }
 
-bool Appstate_class::IsOffline( interface_t* sds, APPID appid )
+bool Appstate_class::IsInactive()
 {
-	bool flag = ( OFFLINE == GetState( sds, appid ));
+	bool flag = ( StateId_e::INACTIVE == GetState( this->sds, this->AppId ));
 	return flag;
 }
 
-bool Appstate_class::IsExitserver( interface_t* sds, APPID appid )
+bool Appstate_class::IsSleeping()
 {
-	bool flag = ( EXITSERVER == GetState( sds, appid ));
+	bool flag = ( StateId_e::SLEEPING == GetState( this->sds, this->AppId ));
+	return flag;
+}
+bool Appstate_class::IsExitserver( interface_t* sds, APPID_e appid )
+{
+	bool flag = ( StateId_e::EXITSERVER == GetState( sds, appid ));
 	return flag;
 }
 
-void Appstate_class::SetRunning(  )
+void Appstate_class::SetRunning( interface_t* sds, APPID_e appid )
 {
-	SetState( this->sds, this->AppId, RUNNING );
+	setState( sds, appid, StateId_e::RUNNING );
 }
 
-void Appstate_class::Announce( )
+void Appstate_class::SetSleeping()
+{
+	setState( this->sds, this->AppId, StateId_e::SLEEPING );
+}
+
+void Appstate_class::SetRunning()
+{
+	SetRunning( this->sds, this->AppId );
+}
+
+void Appstate_class::SetInactive()
+{
+	StateId_e	state = GetState( sds, this->AppId );
+	if( set<StateId_e>{ OFFLINE, EXITSERVER }.contains( state ) )
+		return;
+	setState( this->sds, this->AppId, INACTIVE );
+}
+
+void Appstate_class::Announce()
 {
 	Info( "announcing application ", Name );
 	SetRunning( );
 	SetPid( sds, AppId, getpid() );
-	sds_master->UpdateFlag = true;
 }
 
 void Appstate_class::SetOffline()
@@ -175,30 +243,30 @@ void Appstate_class::SetOffline()
 	SetOffline( this->sds, this->AppId );
 }
 
-void Appstate_class::SetOffline( interface_t* sds, APPID appid )
+void Appstate_class::SetOffline( interface_t* sds, APPID_e appid )
 {
-	SetState( sds, appid, OFFLINE );
 	SetPid( sds, appid, NoPID );
-
-	sds_master->UpdateFlag 			= true;
+	setState( sds, appid, OFFLINE );
 }
-void Appstate_class::SetExitserver( interface_t* sds, APPID appid )
+void Appstate_class::SetExitserver( interface_t* sds, APPID_e appid )
 {
 	if ( IsExitserver( sds, appid ) )
-		SetState( sds, appid, OFFLINE );
+		SetOffline( sds, appid );
 	else
-		SetState( sds, appid, EXITSERVER );
-	sds_master->UpdateFlag = true;
+		setState( sds, appid, EXITSERVER );
 }
 
 void Appstate_class::CheckAppstates( interface_t* sds )
 {
-	for( APPID appid : AppIds )
+	for( APPID_e appid : AppIds )
 		CheckAppstate( sds, appid );
 }
-bool Appstate_class::CheckAppstate( interface_t* sds, APPID appid )
-{
-	int pid = getPid( sds, appid );
+bool Appstate_class::CheckAppstate( interface_t* sds, APPID_e appid )
+{	// return true if appud is not running
+	// vis versa
+
+	// check for inconsistencies and try to correct them
+	int pid = GetPid( sds, appid );
 	Comment( DEBUG, "pid; ", pid );
 
 	// check if a pid for this application is registered
@@ -213,34 +281,38 @@ bool Appstate_class::CheckAppstate( interface_t* sds, APPID appid )
 			Comment( DEBUG, "running " );
 	}
 
-	pid = getPid( sds, appid );
-	if ( ( pid == NoPID ) )
+	pid = GetPid( sds, appid );
+	if ( pid == NoPID )
 	{
-		SetState( sds, appid, OFFLINE );
+		if( not IsOffline( sds, appid ) )
+			SetOffline( sds, appid );
 		return true;
 	}
-	if ( ( pid > NoPID ) and ( IsExitserver( sds, appid ) ) )
+	else
 	{
-		Comment( WARN, "Application is already in exit state" );
-		System_execute( " kill " + to_string( pid ), NOEXEPT );
-		SetOffline( sds, appid );
-		return true;
+		if ( IsExitserver( sds, appid ) )
+		{
+			Comment( WARN, "Application is already in exit state" );
+			System_execute( " kill " + to_string( pid ), NOEXEPT );
+			SetOffline( sds, appid );
+			return true;
+		}
 	}
 	return false;
 }
 
-void  Appstate_class::Shutdown( interface_t* sds, APPID appid )
+void  Appstate_class::Shutdown( interface_t* sds, APPID_e appid )
 {
 	Info( "shutting down ", AppIdName( appid ) );
 	SetExitserver( sds, appid );
 }
 
-void Appstate_class::Shutdown_all( vector< interface_t* >  _sds_vec )
+void Appstate_class::Shutdown_all()
 {
 	Comment( DEBUG, "Shutting down all instances" );
-	for( interface_t* sds : _sds_vec )
+	for( interface_t* sds : sds_vec )
 	{
-		for( APPID appid : AppIds )
+		for( APPID_e appid : AppIds )
 		{
 			if( IsRunning( sds, appid ) )
 			{
@@ -248,20 +320,6 @@ void Appstate_class::Shutdown_all( vector< interface_t* >  _sds_vec )
 					Shutdown( sds, appid );
 			}
 		}
-	}
-}
-
-bool Appstate_class::StartOnceOk( interface_t* sds )
-{
-	// allow running only one time per sds
-	CheckAppstate( sds, AppId );
-	pid_t pid = getPid( sds, AppId );
-	if ( pid < 0 )
-		return true;
-	else
-	{
-		Comment( ERROR, "This Ocean process should only start once per sds" );
-		return false;
 	}
 }
 
@@ -275,17 +333,5 @@ void Appstate_class::RestoreStateArr( interface_t* sds )
 {
 	sds->appstate_arr = backup_state;
 	CheckAppstates( sds );
-}
-
-int Appstate_class::GetNextSdsId( APPID appid ) // external use by GUI
-{
-	//	int ID = assign_sdsid( SYNTHID );
-	int config = sds->config;
-	int id = assign_sdsid( appid );
-	if ( ( id > 0 ) and ( ( appid == SYNTHID ) or ( appid == KEYBOARDID ) ) )
-	{
-		config = id;
-	}
-	return config;
 }
 

@@ -35,7 +35,8 @@ SOFTWARE.
 #include <Ocean.h>
 #define NOKEY 0
 
-enum KEYCODE : long int {
+enum KEYCODE : long int
+{
 	ESC		= 0x01b,//27,
 	RELEASE	= ' ',	//32
 	RET		= 10,
@@ -45,7 +46,6 @@ enum KEYCODE : long int {
 	LEFT	= 4479771,
 	RIGHT	= 4414235,
 	DEL		= 0x07e335b1b,
-//	2117294875,
 	F1 = 0x00000504f1b,
 	F2 = 0x00000514f1b,
 	F3 = 0x00000524f1b,
@@ -105,7 +105,7 @@ struct keymap_struct
 	} keymap_data_t;
 
 	const vector<keymap_data_t>	keymap_vec
-	{	//		key			name	menu				Qt::Key_
+	{	//		key			name	menu				Qt::Key_Escape
 			{ KEYCODE::F1, 	"F1", "Key overview"	, 0x01000030 },
 			{ KEYCODE::F2, 	"F2", "Processes"		, 0x01000031 },
 			{ KEYCODE::F3, 	"F3", "States"			, 0x01000032 },
@@ -115,7 +115,8 @@ struct keymap_struct
 			{ KEYCODE::F7, 	"F7", "Spectrum"		, 0x01000036 },
 			{ KEYCODE::F8, 	"F8", "Semaphores"		, 0x01000037 },
 			{ KEYCODE::F9, 	"F9", "Manage Proc."	, 0x01000038 },
-			{ KEYCODE::DEL,	"DEL","Delete"			, 0x01000007 }
+			{ KEYCODE::DEL,	"DEL","Delete"			, 0x01000007 },
+			{ KEYCODE::ESC,	"ESC","Escape"			, 0x01000000 },
 	};
 				keymap_struct	(){};
 				~keymap_struct	() = default;
@@ -164,18 +165,16 @@ public:
 					Kbd_base	();
 	virtual 		~Kbd_base	();
 
-	void 			Reset		();
-	void			Test		();
-	void 			Init		();
 	string 			GetString	( string txt );
 	kbdInt_t	 	GetKeyInt	( bool debug = false );
 	kbdInt_t 		GetKeyInt	( int waitms );
-
+	void 			Init		();
+	void 			Reset		();
 	string			ShowKey		( kbdkey_t key );
 	string 			ShowKey		( kbdInt_t Int );
+	void			Test		();
+
 private:
-
-
 	struct termios 	old_flags 	;
 
 	struct termios 	new_flags 	;

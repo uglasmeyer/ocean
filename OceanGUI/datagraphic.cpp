@@ -40,17 +40,18 @@ SOFTWARE.
 /**************************************************
  * DataGraphic_class
  *************************************************/
-DataGraphic_class::DataGraphic_class( interface_t* ifd, QGraphicsView* view )
+DataGraphic_class::DataGraphic_class( interface_t* ifd
+									, QGraphicsView* view
+									, datagraphics_param_t _param )
 	: Logfacility_class		( "DataGraphic_class" )
-
 {
-    this->sds   			= ifd;
 	this->graphicsview		= view;
+	this->param				= _param;
 	this->drawregion		= boundingRect();
     this->height 			= drawregion.height();
-    this->shiftY 			= height / 2;
-    this->data_scale		= height / max_data_amp / 2.0;
-    this->ReadWaveData	();		// draw scene on init
+	this->shiftY			= height / 2 * param.centerY;
+	this->param.scale		= param.scale*height;
+	Set_sds					( ifd );
 };
 
 QRectF DataGraphic_class::boundingRect() const
@@ -58,6 +59,11 @@ QRectF DataGraphic_class::boundingRect() const
 	const QRectF rect 		= this->graphicsview->geometry();
     const QRectF region		= { 0, 0, rect.width()-10, rect.height()-10 };
     return region;
+}
+
+void DataGraphic_class::Set_sds( interface_t* _sds )
+{
+	this->sds = _sds;
 }
 
 void DataGraphic_class::paint(	QPainter* painter,
@@ -71,59 +77,54 @@ void DataGraphic_class::paint(	QPainter* painter,
     	painter->drawLine	( cursor, 0, cursor, height );
 	};
 
+	auto showCursor = [ this, CursorLine ](  )
+	{
+	    uint16_t cursor 	= sds->WD_state.cursor.cur;
+	    if ( cursor > 0  )
+	    {
+	    	CursorLine( Qt::black, cursor );
+	    }
+	    if ( sds->WD_state.mode == wavedisplay_t::RANGE_WD )
+	    {
+	    	CursorLine( Qt::green, sds->WD_state.cursor.min );
+	    	CursorLine( Qt::green, sds->WD_state.cursor.max );
+	    }
+	};
+
 	Comment( DEBUG, "DataGraphic_class::paint" );
 
-    QGraphicsPolygonItem 	polygon_item;
     painter->drawRect		( drawregion );
-    polygon_item.setPolygon	( polygon );
+    if( param.cursor )
+    	showCursor			();
+    QGraphicsPolygonItem 	polygon_item { polygon };
     polygon_item.paint		( painter, option, widget );
 
-    uint16_t cursor 		= sds->WD_state.cursor.cur;
-    if ( cursor > 0  )
-    {
-    	CursorLine( Qt::black, cursor );
-    }
-    if ( sds->WD_state.wd_mode == wavedisplay_t::CURSORID )
-    {
-    	CursorLine( Qt::red, sds->WD_state.cursor.min );
-    	CursorLine( Qt::red, sds->WD_state.cursor.max );
-    }
 }
 
-Data_t DataGraphic_class::readDataEntry()
+Data_t DataGraphic_class::readDataBegin()
 {
 	polygon.clear();
     polygon << QPoint( 0, 0 );
     return 0;
 }
-void DataGraphic_class::readDataExit( Data_t x )
+void DataGraphic_class::readDataEnd( Data_t x )
 {
-    polygon << QPoint( x, 0 );// horizontal line
+	polygon << QPoint( x, 0 );// horizontal line
 
     // shift polygon upward
-    polygon.translate( QPoint( 0, height-shiftY ) );
-    this->update(); // redraw scene
+	polygon.translate( QPoint( 0, height-shiftY ) );
+//    this->update(); // redraw scene
+
 }
 
-void DataGraphic_class::ReadAdsrData()
+void DataGraphic_class::ReadData( Data_t* Y, int len )
 {
-	Data_t x = readDataEntry();
-    for ( auto y : sds->adsrdata )
+	Data_t X = readDataBegin();
+    for ( int n = 0; n < len; n++ )
     {
-        polygon << QPoint( x, - y * data_scale );
-        x++;
+        polygon << QPoint( X, - Y[n] * param.scale );
+        X = n;
     }
-    readDataExit( x );
+    readDataEnd( X );
 }
 
-void DataGraphic_class::ReadWaveData()
-{
-
-    Data_t x = readDataEntry();
-    for ( auto y : sds->wavedata )
-    {
-        polygon << QPoint( x, - y * data_scale );
-        x++;
-    }
-    readDataExit( x );
-}

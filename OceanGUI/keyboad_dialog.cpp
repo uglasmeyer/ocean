@@ -47,7 +47,7 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
     : Interface_base	( _data )
 	, QDialog			( _parent )
     , ui				(new Ui::Keyboad_Dialog_class )
-	, Kbd_pitch			( _data->sds_master )
+	, Kbd_pitch			( _data->SDS.master )
 {
 	this->parent		= _parent;
 	this->Eventlog_p	= _log;
@@ -64,7 +64,9 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
     connect( ui->cb_sliding_mode, SIGNAL(clicked(bool))		, this, SLOT( sliding_mode(bool) ));
     connect( ui->pB_Save		, SIGNAL(clicked())			, this, SLOT( save()));
 
+    this->move( QPoint( 0, 0 ) );
 	Setup_Widget		();
+	this->setFocusPolicy( Qt::NoFocus );
 }
 
 Keyboad_Dialog_class::~Keyboad_Dialog_class()
@@ -72,9 +74,33 @@ Keyboad_Dialog_class::~Keyboad_Dialog_class()
     delete ui;
 }
 
+//void Keyboad_Dialog_class::keyPressEvent(QKeyEvent *event)
+//{
+//	kbdkey_t	 	key 	{};
+//					key.Int	= Keymap.Qt_key( event->key() ) ;
+//	switch ( key.Int )
+//	{
+//	// handle keycodes < 48 / see QT_key
+//		case KEYCODE::ESC :
+//		{
+//			break;
+//		}
+//		case 0 :
+//		{
+//			break;
+//		}
+//		default :
+//		{
+//			sds_p->Kbd_state.key = key.Int;
+//			break;
+//		}
+//	} // switch  key
+//	QDialog::keyPressEvent( event );
+//}
+
 void Keyboad_Dialog_class::SetSds()
 {
-	Interface_base::SetSds();
+	Interface_base::Set_Sds();
 	Setup_Widget	();
 }
 void Keyboad_Dialog_class::buffer_mode( int value )
@@ -84,31 +110,32 @@ void Keyboad_Dialog_class::buffer_mode( int value )
 	parent->setFocus();
 }
 
-void Keyboad_Dialog_class::base_octave(int value )
+void Keyboad_Dialog_class::base_octave( int value )
 {
-	Sds->Set( sds_p->Kbd_state.base_octave, value );
+	Sds->Set( sds_p->Kbd_state.base_octave, uint8_t( value ) );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
-void Keyboad_Dialog_class::flats(int value )
+void Keyboad_Dialog_class::flats( int value )
 {
-	Sds->Set( sds_p->Kbd_state.flats, (uint)value );
+	Sds->Set( sds_p->Kbd_state.flats, uint8_t( value ) );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
-void Keyboad_Dialog_class::sharps(int value )
+void Keyboad_Dialog_class::sharps( int value )
 {
-	Sds->Set( sds_p->Kbd_state.sharps, (uint)value );
+	Sds->Set( sds_p->Kbd_state.sharps, uint8_t( value ) );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 
 void Keyboad_Dialog_class::kbdbps( int idx )
 {
-	int bpsidx	= check_cycle2( QBps.idx_range, idx, "kbdbps" );
-	string str	= to_string( QBps.Bps_vec[ idx ]) ;
+	int 	bpsidx	= check_cycle2( QBps.idx_range, idx );
+	string	str		= QBps.Bps_str_vec[ bpsidx ];
 	ui->label_F4->setText( Qstring( str ) + " Bpm" );
-	Sds->Set	( sds_p->Kbd_state.bpsidx, (uint8_t)bpsidx );
-	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	uint8_t bpsval	= QBps.Bps_vec[bpsidx];
+	Sds->Set		( sds_p->Kbd_state.bpsval, bpsval );
+	Eventlog_p->add	( SDS_ID, KBD_EVENT_KEY );
 }
 
 void Keyboad_Dialog_class::sliding_mode(bool value )
@@ -118,9 +145,7 @@ void Keyboad_Dialog_class::sliding_mode(bool value )
 }
 void Keyboad_Dialog_class::save()
 {
-	Sds->Set( sds_p->Kbd_state.key, kbdInt_t(F9) );
-	Sds->Set( sds_p->Kbd_state.savenotes, true );
-	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	Eventlog_p->add( SDS_ID, KBD_SAVE_KEY );
 }
 
 void Keyboad_Dialog_class::Setup_Widget()
@@ -141,7 +166,7 @@ void Keyboad_Dialog_class::Setup_Widget()
 	QString Qstr = Qstring( get<1>( Kbd_pitch.Chords_map[chord_type] ) );
 	ui->lbl_chord->setText( Qstr );
 
-	uint8_t idx = sds_p->Kbd_state.bpsidx;
+	uint8_t idx = QBps.bps_idx( sds_p->Kbd_state.bpsval );
 	ui->sB_kbdbps->setValue( idx );
 	string str	= to_string( QBps.Bps_vec[ idx ]) ;
 	ui->label_F4->setText( Qstring( str ) + " Bpm");

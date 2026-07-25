@@ -125,7 +125,7 @@ bool Spectrum_class::adsr_type( const string& type_str )
 //	string sub = type_str.substr(3, 1);
 	return (  type_str.length() > 3 );
 }
-OSCID_e Spectrum_class::Osc_TypeId( const string& type_str )
+OSCID_e Spectrum_class::osc_TypeId( const string& type_str )
 {
 	string str = type_str.substr(0, 3 );
 	for( OSCID_e id : oscIds )
@@ -139,7 +139,7 @@ OSCID_e Spectrum_class::Osc_TypeId( const string& type_str )
 	return NOOSCID;
 }
 
-spectrum_t Spectrum_class::Parse_data(  vector_str_t arr )
+spectrum_t Spectrum_class::Parse_data(  string_vec_t arr )
 {
 	auto assign_dta = [ this ]( vector<string> arr, char _type )
 	{
@@ -168,7 +168,7 @@ spectrum_t Spectrum_class::Parse_data(  vector_str_t arr )
 
 	char arrtype = Type_flag( arr[0] );
 	spectrumTmp.adsr= adsr_type( arr[1] );//adsr;
-	spectrumTmp.osc = Osc_TypeId( arr[1]);//oscid;
+	spectrumTmp.osc = osc_TypeId( arr[1]);//oscid;
 	assign_dta( arr, arrtype );
 	Sum( spectrumTmp );
 	return spectrumTmp;
@@ -296,7 +296,7 @@ void Spectrum_class::Test_Spectrum()
 	TEST_START( className );
 
 	String str { "SPEF,FMOA,1,2,3,4,5" };
-	vector_str_t arr = str.to_array( ',' );
+	string_vec_t arr = str.to_array( ',' );
 	Parse_data( arr );
 
 	str = "SPEF,VCO,1,2,3,4,5";

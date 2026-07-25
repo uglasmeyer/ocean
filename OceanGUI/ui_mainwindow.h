@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 6.9.2
+** Created by: Qt User Interface Compiler version 6.10.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -89,7 +89,7 @@ public:
     QGraphicsView *oscilloscope_view;
     QPushButton *pB_wd_mode;
     QLabel *label_5;
-    QPushButton *pB_Specrum;
+    QPushButton *pB_Spectrum;
     QFrame *frame_7;
     QLabel *wf_vco;
     QSpinBox *sB_VCO;
@@ -115,7 +115,6 @@ public:
     QComboBox *CB_kbd_bps;
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_oscgroup;
-    QPushButton *pb_fftmode;
     QLabel *lb_FMO_LFO;
     QLabel *lb_VCO_LFO;
     QSlider *SliderVCOadjust;
@@ -160,12 +159,13 @@ public:
     QSlider *Slider_OSC_Vol;
     QGridLayout *gridLayout_2;
     QSpinBox *sB_OSC;
-    QCheckBox *cB_Combine;
     QLabel *wf_osc;
     QLabel *lbl_frqglide_sec;
     QLabel *label_9;
     QLCDNumber *OSCLCD_Hz;
     QLabel *glidefrequency;
+    QCheckBox *cB_Combine_vco;
+    QCheckBox *cB_Combine_fmo;
     QStatusBar *statusbar;
     QMenuBar *menuBar;
 
@@ -260,6 +260,7 @@ public:
         palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Accent, brush9);
 #endif
         MainWindow->setPalette(palette);
+        MainWindow->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
         MainWindow->setAcceptDrops(false);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
@@ -337,16 +338,28 @@ public:
         cb_ssta7->setGeometry(QRect(0, 220, 80, 23));
         cb_ssta4 = new QCheckBox(frame);
         cb_ssta4->setObjectName("cb_ssta4");
+        cb_ssta4->setEnabled(true);
         cb_ssta4->setGeometry(QRect(0, 130, 80, 23));
+        QFont font;
+        font.setFamilies({QString::fromUtf8("Ubuntu Sans")});
+        font.setItalic(false);
+        cb_ssta4->setFont(font);
         cb_ssta5 = new QCheckBox(frame);
         cb_ssta5->setObjectName("cb_ssta5");
+        cb_ssta5->setEnabled(true);
         cb_ssta5->setGeometry(QRect(0, 160, 80, 23));
+        QFont font1;
+        font1.setFamilies({QString::fromUtf8("Ubuntu Mono")});
+        font1.setItalic(true);
+        cb_ssta5->setFont(font1);
         cb_ssta0 = new QCheckBox(frame);
         cb_ssta0->setObjectName("cb_ssta0");
         cb_ssta0->setGeometry(QRect(0, 10, 80, 23));
         cb_ssta6 = new QCheckBox(frame);
         cb_ssta6->setObjectName("cb_ssta6");
+        cb_ssta6->setEnabled(true);
         cb_ssta6->setGeometry(QRect(0, 190, 80, 23));
+        cb_ssta6->setFont(font1);
         frame_2 = new QFrame(centralwidget);
         frame_2->setObjectName("frame_2");
         frame_2->setGeometry(QRect(760, 40, 191, 251));
@@ -468,9 +481,9 @@ public:
         label_5 = new QLabel(centralwidget);
         label_5->setObjectName("label_5");
         label_5->setGeometry(QRect(480, 50, 50, 17));
-        pB_Specrum = new QPushButton(centralwidget);
-        pB_Specrum->setObjectName("pB_Specrum");
-        pB_Specrum->setGeometry(QRect(570, 10, 88, 25));
+        pB_Spectrum = new QPushButton(centralwidget);
+        pB_Spectrum->setObjectName("pB_Spectrum");
+        pB_Spectrum->setGeometry(QRect(570, 10, 88, 25));
         frame_7 = new QFrame(centralwidget);
         frame_7->setObjectName("frame_7");
         frame_7->setGeometry(QRect(60, 270, 131, 41));
@@ -584,9 +597,6 @@ public:
         pB_oscgroup = new QPushButton(centralwidget);
         pB_oscgroup->setObjectName("pB_oscgroup");
         pB_oscgroup->setGeometry(QRect(660, 260, 81, 26));
-        pb_fftmode = new QPushButton(centralwidget);
-        pb_fftmode->setObjectName("pb_fftmode");
-        pb_fftmode->setGeometry(QRect(480, 230, 81, 26));
         lb_FMO_LFO = new QLabel(centralwidget);
         lb_FMO_LFO->setObjectName("lb_FMO_LFO");
         lb_FMO_LFO->setGeometry(QRect(220, 400, 31, 18));
@@ -630,7 +640,7 @@ public:
         label_14->setGeometry(QRect(480, 80, 50, 17));
         cb_connect_vcov = new QCheckBox(centralwidget);
         cb_connect_vcov->setObjectName("cb_connect_vcov");
-        cb_connect_vcov->setEnabled(false);
+        cb_connect_vcov->setEnabled(true);
         cb_connect_vcov->setGeometry(QRect(330, 340, 111, 31));
         cb_connect_vcov->setCheckable(true);
         cb_connect_fmov = new QCheckBox(centralwidget);
@@ -794,12 +804,6 @@ public:
 
         gridLayout_2->addWidget(sB_OSC, 3, 1, 1, 1);
 
-        cB_Combine = new QCheckBox(gridLayoutWidget_2);
-        cB_Combine->setObjectName("cB_Combine");
-        cB_Combine->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
-
-        gridLayout_2->addWidget(cB_Combine, 4, 1, 1, 1);
-
         wf_osc = new QLabel(gridLayoutWidget_2);
         wf_osc->setObjectName("wf_osc");
 
@@ -834,10 +838,21 @@ public:
         glidefrequency->setObjectName("glidefrequency");
         glidefrequency->setGeometry(QRect(20, 150, 39, 36));
         glidefrequency->setWordWrap(true);
+        cB_Combine_vco = new QCheckBox(centralwidget);
+        cB_Combine_vco->setObjectName("cB_Combine_vco");
+        cB_Combine_vco->setGeometry(QRect(110, 330, 85, 23));
+        cB_Combine_vco->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
+        cB_Combine_fmo = new QCheckBox(centralwidget);
+        cB_Combine_fmo->setObjectName("cB_Combine_fmo");
+        cB_Combine_fmo->setGeometry(QRect(110, 520, 85, 23));
+        cB_Combine_fmo->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
-        statusbar->setEnabled(false);
+        statusbar->setEnabled(true);
+        QFont font2;
+        font2.setPointSize(13);
+        statusbar->setFont(font2);
         MainWindow->setStatusBar(statusbar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
@@ -885,7 +900,7 @@ public:
         pB_WdRole->setText(QString());
         pB_wd_mode->setText(QString());
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
-        pB_Specrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
+        pB_Spectrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
         wf_vco->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         wf_fmo->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pb_clear->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
@@ -902,7 +917,6 @@ public:
         pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         cb_overwrite->setText(QCoreApplication::translate("MainWindow", "Overwrite", nullptr));
         pB_oscgroup->setText(QString());
-        pb_fftmode->setText(QString());
         lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
         lb_VCO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "adjust", nullptr));
@@ -938,11 +952,12 @@ public:
 "t\n"
 "e\n"
 "r", nullptr));
-        cB_Combine->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
         wf_osc->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         lbl_frqglide_sec->setText(QCoreApplication::translate("MainWindow", "txt", nullptr));
         label_9->setText(QCoreApplication::translate("MainWindow", " [Hz]", nullptr));
         glidefrequency->setText(QCoreApplication::translate("MainWindow", "glide frq.", nullptr));
+        cB_Combine_vco->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
+        cB_Combine_fmo->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
     } // retranslateUi
 
 };

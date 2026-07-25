@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -39,18 +39,20 @@ class Time_class :
 	virtual public 			Logfacility_class
 {
 	// https://en.cppreference.com/w/cpp/chrono
-	string					className		{};
 	std::chrono::time_point<std::chrono::steady_clock>
 							start_time;
 	std::chrono::time_point<std::chrono::steady_clock>
 							stop_time;
 	const long int 			wait 			= max_sec * 1000 ;
-	long int 				latency 		= 0;
-	uint8_t					tel				= 0;
-	uint8_t*				time_elapsed	= &tel;
+	long int 				latency 		;
+	uint8_t					tel				;
+	uint8_t*				time_elapsed	;
+	bool					overload			;
+	bool*					overload_p		;
+	int						threshold		;
 
 public:
-
+	StateId_e				State			;
 							Time_class		( uint8_t* tel );
 							Time_class		();
 	virtual 				~Time_class		();
@@ -60,7 +62,8 @@ public:
 	void 					Stop			();
 	void 					Block			();
 	void 					Wait			( const uint&, const string& dur = "sec"  );
-	uint 					Performance		();
+	uint 					Performance		( bool* overload );
+	void					Set_Threshold	( int msec, bool* overload );
 	void 					TimeStamp		();
 	void 					Test			();
 };

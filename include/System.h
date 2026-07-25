@@ -36,17 +36,51 @@ SOFTWARE.
 #include <String.h>
 #include <Exit.h>
 
-extern vector<string> 	List_directory		( const string& path, const string& filter );
-extern string 			searchPath			( string filename );
-extern void 			System_execute		( const string& cmd, bool noexect = false );
-extern int 				System_execute_bg	( const string& _cmd);
+extern int	 			System_execute		( const string& cmd, bool noexect = false );
+extern int 				System_execute_bg	( const string& _cmd, string log1 );
 extern void 			System_Test			();
 extern bool 			Is_running_process	( const pid_t& pid );
-extern bool 			Is_running_process	( const string& pidstr );
 extern void 			Remove_file			( string file );
 extern void 			Rename_file			( string old_name, string new_name );
+extern void 			Touch_file			( string file );
 extern size_t 			loadData			( string name, void* data, size_t bytes );
 extern bool 			dumpData			( string name, void* data, size_t bytes);
+extern bool 			Write_template_text	( string file, string text, bool overwrite );
+
+/**************************************************
+ * dircontent_struct
+ * provide information and keep data concerning
+ * a list of directories (searchPath)
+ * for a specific filename extension (ext)
+ *************************************************/
+struct dircontent_struct
+{
+	// a list of directories to search for files with extension ext
+	string_vec_t	searchPath 			{};
+	// contains the file names
+	string_vec_t 	filename_vec		{};
+	// contains the full qualified path to filename
+	string_vec_t	dir_entry_vec		{};
+	string 			ext					;
+	// failes with exceptio in case of true
+	bool			select_strong		; // do not replace not found by default
+
+					dircontent_struct	( string_vec_t dirs, string _ext );
+	virtual			~dircontent_struct	() = default;
+	void 			UpdatePath			( string_vec_t path );
+	void		 	list_directories	();
+	void 			updateContent		();
+	string			Getfile				( string name );
+	string 			Select				( string& name, const string& default_name );
+	string			Select_strong		( string& name, const string& default_name  );
+
+	void			Create				( string name );
+	bool 			Is_empty			();
+	bool 			Is_file				( string name );
+
+
+};
+typedef dircontent_struct dircontent_t;
 
 
 #endif /* INCLUDE_COMMON_H_ */

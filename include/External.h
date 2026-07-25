@@ -48,11 +48,11 @@ class External_class :
 	FILE*						File				= nullptr;
 
 public:
+	interface_t*				sds_master			;
 	Config_class*				Cfg 				= nullptr;
 	fs_t*						fs					= nullptr;
 	Storage_class* 				StA_ext				= nullptr;
 	buffer_t					Filedata_size 		= 0;
-	interface_t*				sds					= nullptr;
 	string 						Filename 			= "";
 	buffer_t					record_size			= 0;
 
@@ -68,11 +68,11 @@ public:
 
 								// Audioserver write only class
 								External_class		( Config_class* cfg,
-													interface_t* sds ) ;
+													interface_t* sdssh ) ;
+	virtual 					~External_class		() = default;
 	const string 				Save_record_data	( int filenr );
 	void 						Save_record_data	( string filename );
 	void 						Record_buffer		( stereo_t* src, buffer_t frames );
-	virtual 					~External_class		() = default;
 
 private:
 	long int 					read_position 		= 0;
@@ -99,27 +99,23 @@ private:
 
 /**************************************************
  * StAExternal_class
+ * extend the external class to convert sta data 0..7 to wav/mp3 files
  *************************************************/
 class StAExternal_class :
 	virtual External_class
 {
-	StorageArray_t*			StA_arr 	= nullptr;
-	Storage_class*			StA			= nullptr;
+	StorageArray_t*	StA_arr 			;
 public:
-	StAExternal_class( StorageArray_t* sta_arr, Config_class* cfg, interface_t* sds ) :
-//		Logfacility_class("StAExternal_class"),
-		Memory_base( sizeof_Data, sta_arr->at(STA_EXTERNAL).param.size * sizeof_Data ),
-		Stereo_Memory<stereo_t>( sizeof_stereo, sta_arr->at(STA_EXTERNAL).param.size * sizeof_stereo ),
-		External_class( &sta_arr->at(STA_EXTERNAL), cfg, sds )
-	{
-		this->StA_arr			= sta_arr;
-	};
-	virtual ~StAExternal_class()= default ;
-	void Convert_StA2WAV( StAId_e staid, range_T<buffer_t> range );
-
+					StAExternal_class	( StorageArray_t* sta_arr,
+										Config_class* cfg,
+										interface_t* sds );
+	virtual 		~StAExternal_class	()= default ;
+	void 			Convert_StA2WAV		( StAId_e staid,
+										range_T<buffer_t> range );
 
 private:
-	void copy_sta2stereo( Data_t* src_p, buffer_t frames );
+	void 			copy_sta2stereo		( Data_t* src_p,
+										buffer_t frames );
 
 };
 

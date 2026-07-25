@@ -34,7 +34,8 @@ SOFTWARE.
 
 
 #include <data/DataWorld.h>
-#include <External.h>
+#include <alsa/conf.h>
+
 #include <RtAudio.h>
 
 
@@ -82,8 +83,8 @@ public:
 	};
 	IO_DIRECTION_e		direction			;
 
-	Audio_class( Config_class* cfg, IO_DIRECTION_e dir );
-	virtual ~Audio_class();
+						Audio_class			( Config_class* cfg, IO_DIRECTION_e dir );
+	virtual 			~Audio_class		();
 
 	void 				Start_stream		( RtAudioCallback Audio_out,
 											void* userData = nullptr );
@@ -101,17 +102,42 @@ private:
 };
 
 /**************************************************
+ * AudioVolume_class
+ *************************************************/
+#include <Dynamic.h>
+#include <data/Interface.h>
+
+class AudioVolume_class :
+	Logfacility_class
+{
+	interface_t* 		sds_master					;
+	Dynamic_class 		DynVolume 			;
+	data_t 				Max 				;
+
+public:
+
+						AudioVolume_class	( interface_t* _sds);
+	virtual				~AudioVolume_class	() ;
+
+	void 				Transform			( buffer_t frames, Stereo_t* src, stereo_t* dst );
+
+private:
+	const float 		dynamic_limit		( buffer_t frames, Stereo_t* src );
+	void 				selfTest			();
+};
+
+/**************************************************
  * Record_class
  *************************************************/
+#include <External.h>
 class Record_class :
 	virtual 			ProgressBar_class,
-	virtual public		sdsstate_struct,
 	virtual				Trigger_class
 {
 	Time_class			RecTimer			{};
 	Trigger_class		Note_start			;
 	Trigger_class		Note_end			;
-	interface_t*		sds					;
+	interface_t*		sds_master					;
 	Semaphore_class*	Sem					;
 	Appstate_class*		Appstate			;
 	uint				rcounter			= 0; // # of recorded audioframes
@@ -124,39 +150,16 @@ public:
 						Record_class		( Dataworld_class* data );
 	virtual 			~Record_class		();
 	bool 				Start				();
-	void 				Stop				( bool init = false );
-	bool				State				( StateId trigger );
+	void 				Stop				();
+	bool				State				( StateId_e trigger );
 	void				Store_audioframes	( stereo_t* addr, buffer_t frames );
 	void 				Set_rcounter		();
 
 private:
-	void				set_recording		( StateId_t StateID, bool flag );
+	void				set_recording		( StateId_e StateID, bool flag );
 };
 
-#include <Dynamic.h>
-#include <data/Interface.h>
 
-/**************************************************
- * AudioVolume_class
- *************************************************/
-class AudioVolume_class :
-	Logfacility_class
-{
-	interface_t* 		sds					;
-	Dynamic_class 		DynVolume 			;
-	data_t 				Max 				;
-
-public:
-
-						AudioVolume_class	( interface_t* _sds);
-	virtual				~AudioVolume_class	() = default;
-
-	void 				Transform			( buffer_t frames, Stereo_t* src, stereo_t* dst );
-
-private:
-	const float 		dynamic_limit		( buffer_t frames, Stereo_t* src );
-	void 				selfTest			();
-};
 
 
 
@@ -176,7 +179,8 @@ class Capture_class :
 	virtual public Logfacility_class,
 	virtual public Audio_class
 {
-	External_class* Extern	;
+	External_class* Extern			;
+	Storage_class*	StA				;
 
 public:
 	typedef struct InputData_struct
@@ -185,6 +189,7 @@ public:
 		buffer_t 	maxFrames		;
 		buffer_t 	frameCounter	;
 		bool		streamDone		;
+		bool		record			;
 
 		InputData_struct( External_class* ext )
 		{
@@ -192,15 +197,17 @@ public:
 			maxFrames	= ext->StA_ext->param.size;
 			frameCounter= 0;
 			streamDone	= false;
+			record		= false;
 		}
 		~InputData_struct() = default;
 	} InputData_t;
-	InputData_t		InputData		;
+	InputData_t					InputData				;
 
-				Capture_class( External_class* ext );
-	virtual 	~Capture_class();
-	void 		Start		( StAId_e staid );
-	void		Stop		( StAId_e staid );
+				Capture_class	( External_class* ext )	;
+	virtual 	~Capture_class	();
+	void 		ReadAudio		( bool begin );
+	void 		Start			( StAId_e staid );
+	void		Stop			( StAId_e staid );
 
 private:
 };

@@ -51,10 +51,9 @@ add_compile_options(-O2 -g )
 
 # Add sub-directories
 add_subdirectory(../src 		build_src )
+add_subdirectory(../OceanGUI 	build_OceanGUI )
 add_subdirectory(../Audioserver build_Audioserver )
 add_subdirectory(../Composer 	build_Composer )
-add_subdirectory(../Clearipc 	build_Clearipc )
-add_subdirectory(../OceanGUI 	build_OceanGUI )
 add_subdirectory(../Rtsp 		build_Rtsp )
 add_subdirectory(../SDSview 	build_SDSview )
 add_subdirectory(../Synth 		build_Synth )

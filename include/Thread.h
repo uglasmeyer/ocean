@@ -40,27 +40,22 @@ typedef function< void( void )> loop_function_t;
 class Thread_class :
 	virtual Logfacility_class
 {
-	string 				className 		= "";
-	uint 				SemId;
+	SEMID_e				SemId;
 	Semaphore_class* 	Sem_p;
 	bool 				thread_done 	= false;
 	loop_function_t 	loop_fnc;
-	string 				Name 			= "";
 
 public:
 
 	Thread_class( 	Semaphore_class* sem,
-					uint semid,
-					loop_function_t fnc,
-					const string& name ) :
+					SEMID_e semid,
+					loop_function_t fnc ) :
 		Logfacility_class("Thread_class")
 	{
 		Set_Loglevel( INFO, true );
-		className 	= Logfacility_class::className;
 		SemId 		= semid;
 		Sem_p		= sem;
 		loop_fnc 	= fnc;
-		Name		= name;
 	};
 
 	~Thread_class()
@@ -77,7 +72,7 @@ public:
 			if( thread_done )
 				break;
 			else
-				this->loop_fnc(  );
+				this->loop_fnc();
 		}
 		Info( "Loop terminated on semaphore ", Sem_p->SemName( SemId ) );
 

@@ -32,11 +32,10 @@ SOFTWARE.
 #include <data/Semaphore.h>
 
 Semaphore_class::Semaphore_class( key_t key) :
-Logfacility_class( "Semaphore_class")
+	Logfacility_class	( "Semaphore_class")
 {
-	className 		= Logfacility_class::className;
-	this->SEM_KEY 	= key;//Cfg->Config.Sem_key;
-	init();
+	this->SEM_KEY 		= key;
+	init				();
 }
 
 Semaphore_class::~Semaphore_class()
@@ -61,7 +60,7 @@ void Semaphore_class::init()
     	Info( "creating semaphore set ", semid );
     }
 
-    State( SEMNUM_SIZE );
+    State( (SEMID_e)SEMNUM_SIZE );
 	Info( "attached to semaphore set ", semid );
 }
 
@@ -79,12 +78,12 @@ void Semaphore_class::Semop( const unsigned short& num, const short int& sop )
     if ( sop > 0 )
     			txt = "Aquire  ";
     if( num < SEMAPHORE_SENDDATA0 )
-    	Comment( DBG2, txt, "Sem ", (int)num, " ",  State( num ))
+    	Comment( DBG2, txt, "Sem ", (int)num, " ",  State( (SEMID_e)num ))
     ;
     if ( ret < 0 )
     {
     	Comment( ERROR, to_string( ret ) + " " + Error_text( errno )  );
-        Comment( ERROR, State( num ));
+        Comment( ERROR, State( (SEMID_e)num ));
     }
 }
 
@@ -101,25 +100,25 @@ void Semaphore_class::Init()
     }
 }
 
-void Semaphore_class::Reset( uint8_t num )
+void Semaphore_class::Reset( SEMID_e num )
 {
 	semctl(semid, num, SETVAL, 0 );
     Comment( DEBUG, "Reset ", (int) num,  State( num ));
 }
 
-void Semaphore_class::Aquire( uint8_t num )
+void Semaphore_class::Aquire( SEMID_e num )
 {
 	// increase the semaphore ( OP_INC )
 	Semop( num, OP_INC );
 }
-void Semaphore_class::Release( uint8_t num)
+void Semaphore_class::Release( SEMID_e num)
 {
 	// decrease the semaphore ( OP_DEC )
 	if ( not ( Getval(num, GETVAL) > 0 ) ) return;
 	Semop( num, OP_DEC );
 }
 
-void Semaphore_class::Lock( uint8_t num )
+void Semaphore_class::Lock( SEMID_e num )
 {
 	// wait for release
 	Aquire( num );
@@ -127,7 +126,7 @@ void Semaphore_class::Lock( uint8_t num )
 }
 
 void ReleaseProxy_fnc( 	Semaphore_class* 	sem,
-						uint 				semaphore,
+						SEMID_e 			semaphore,
 						uint 				wait_timeout )
 {
 	sem->Comment( TEST, "proxyfnc started");
@@ -137,7 +136,7 @@ void ReleaseProxy_fnc( 	Semaphore_class* 	sem,
 }
 
 
-bool Semaphore_class::Lock( uint8_t num, uint timeout )
+bool Semaphore_class::Lock( SEMID_e num, uint timeout )
 {
 	// wait for release
 	thread ReleaseProxy_thread (	ReleaseProxy_fnc, this, num, timeout );
@@ -148,12 +147,12 @@ bool Semaphore_class::Lock( uint8_t num, uint timeout )
     return true;
 }
 
-int Semaphore_class::Getval( uint8_t num, int op )
+int Semaphore_class::Getval( SEMID_e num, int op )
 {
 	assert( num < SEMNUM_SIZE );
 	return semctl( semid, num, op, UNUSED );
 }
-string Semaphore_class::State(uint8_t num)
+string Semaphore_class::State(SEMID_e num)
 {
 
 	if( not LogMask[ TEST ] ) return ".";
@@ -165,10 +164,10 @@ string Semaphore_class::State(uint8_t num)
 	Table.AddColumn("ncn", 4);
 	Table.AddColumn("zcn", 4);
 
-	auto show_semstate = [ & ](uint num)
+	auto show_semstate = [ & ](SEMID_e num)
 	{
 		if ( (LogMask[TEST]) or (LogMask[DEBUG]) )
-			Table.AddRow(	num,
+			Table.AddRow(	(int)num,
 							semnum_map[ num ],
 							Getval(num, GETPID),
 							Getval(num, GETVAL),
@@ -178,8 +177,8 @@ string Semaphore_class::State(uint8_t num)
 
 	if (num == SEMNUM_SIZE)
 	{
-		for (uint n = 0; n < SEMNUM_SIZE; n++)
-			show_semstate(n);
+		for ( uint8_t n = 0; n < SEMNUM_SIZE; n++)
+			show_semstate( (SEMID_e)n );
 		return "";
 	}
 	else
@@ -189,7 +188,7 @@ string Semaphore_class::State(uint8_t num)
 	}
 }
 
-string Semaphore_class::SemName( uint num )
+string Semaphore_class::SemName( SEMID_e num )
 {
 	return semnum_map[ num ];
 }

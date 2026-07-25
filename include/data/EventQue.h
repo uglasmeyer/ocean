@@ -34,36 +34,56 @@ SOFTWARE.
 
 #include <data/SharedDataSegment.h>
 
-// controll of access to SDS.deque and SDS.eventptr
+/**************************************************
+ * EventQue_class
+ * management of the SDS.deque structure and
+ * SDS.eventptr structure
+ *
+ *************************************************/
 class EventQue_class :
 		virtual Logfacility_class,
-		EventPtr_struct
+		EventPtr_data
 {
-	string 			className	= "";
+	interface_t*	sds			;
+	eventptr_t		eventptr	;
+	EVENTKEY_e		prev_event	;
 public:
-	interface_t*	addr		= nullptr;
-	eventptr_t		eventptr;
-	bool			repeat		= false;
-	EVENTKEY_e		prev_event	= NULLKEY;
+	bool			Repeat		;
 
-	EventQue_class(  )  :
-		Logfacility_class("EventQue_class"),
-		eventptr()
-	{
-		className = Logfacility_class::className;
-	}
+					EventQue_class	( void* _sds );
+	virtual 		~EventQue_class	(){};
 
-
-	virtual ~EventQue_class(){};
-
-	void 			setup( interface_t* _addr );
-	void 			reset();
-	void 			add( EVENTKEY_e event );
-	EVENTKEY_e 		get();
-	string 			show();
+	void 			Reset			();
+	void 			Add				( EVENTKEY_e event );
+	EVENTKEY_e 		Get				();
+	string 			Show			();
 };
 
 
+typedef vector<EVENTKEY_e> eventkey_vec_t;
+typedef struct event_buffer_struct
+{
+	eventkey_vec_t Keybuffer;
+	EventQue_class* eventque;
+
+	event_buffer_struct( EventQue_class* que)
+	{
+		Keybuffer	= {};
+		eventque	= que;
+	};
+	~event_buffer_struct() = default;
+	void add( eventkey_vec_t vec )
+	{
+		std::ranges::for_each( vec, [ this ]( EVENTKEY_e key)
+				{ Keybuffer.push_back( key) ;});
+	};
+	void release()
+	{	// add event_buffer to eventque
+		std::ranges::for_each( Keybuffer, [ this ]( EVENTKEY_e key )
+				{ eventque->Add( key );	} );
+		Keybuffer.clear();
+	}
+} event_buffer_t;
 
 
 #endif /* DATA_EVENTQUE_H_ */

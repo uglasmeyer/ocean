@@ -57,7 +57,7 @@ struct adsr_struct
 } ;
 typedef adsr_struct			adsr_t;
 
-const adsr_struct		default_adsr	=
+const adsr_t				default_adsr	=
 {
 		.bps 	= 1,
 		.hall 	= 0,
@@ -66,11 +66,9 @@ const adsr_struct		default_adsr	=
 		.spec 	= default_adsr_spec
 };
 
-
-
-
 /**************************************************
  * ADSR_class
+ * manage adsr_data and generate adsr waveform out of it
  *************************************************/
 class ADSR_class :
 	virtual	public	Oscillator_base
@@ -80,35 +78,33 @@ class ADSR_class :
 	bool			tainted			; // becomes true if adsr_data changes
 	buffer_t		beat_frames		;
 	Heap_Memory		adsr_Mem		;
-	adsr_struct		adsr_data		;
-	uint8_t			kbdbps			;
+	adsr_t			adsr_data		;
 	bool			kbdattack		; // set to true by keyboard attack
 	buffer_t 		beat_cursor 	;
-
-protected:
+	uint8_t*		beatclock		;
 
 public:
 	buffer_t		adsr_wp_frames	;
+//	bool			Trigger			;
 
 	void 			Apply_adsr		( buffer_t frames, Data_t* data, buffer_t frame_offset );
 	Data_t* 		AdsrMemData_p	();
-
 	void	 		Set_hallcursor	( buffer_t cursor = 0);
 	void			Set_beatcursor	( buffer_t cursor );
-	void 			Set_feature		( feature_t f );
 	adsr_t			Set_adsr		( adsr_t );
 	void			Set_adsr_spec	( spectrum_t );
 	adsr_t			Get_adsr		();
 	Data_t*			Adsr_OSC		();
-	void			Set_bps			( uint8_t bps = 1 );
-	void			KbdAttack		( uint8_t bps );
-
+	void			Set_bps			();
+	void 			Set_beatclock	( uint8_t* bpm );
+	void			KbdAttack		();
 	string			Show_adsr		( adsr_t );
+	bool			Sync			();
+
 					ADSR_class		( OSCID_e _typeid, RoleId_e roleId );
 	virtual 		~ADSR_class		();
 
 private:
-
 	void			adsrOSC			( buffer_t bframes );
 };
 

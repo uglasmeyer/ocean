@@ -28,16 +28,17 @@ SOFTWARE.
 
 
 Trigger_class			BeatTrigger		{};
-Wavedisplay_class 		Wavedisplay		{ Sds, fourier };
+Wavedisplay_class 		Wavedisplay		{ Sds };
 Wavedisplay_class*		Wd_p			= &Wavedisplay;
 Instrument_class 		Instrument		{ &DaTA, &Wavedisplay };
 Mixer_class				Mixer			{ &DaTA, &Wavedisplay } ;
-External_class 			External		( &Mixer.StA[ STA_EXTERNAL], &Cfg, sds_p );
+External_class 			External		( &Mixer.StA[ STA_EXTERNAL], Cfg_p, sds_master );
 Capture_class			Capture			{ &External };
 CutDesk_class			CutDesk			{ &Mixer };
-Note_class 				Notes			{ &DaTA, &Instrument, &Mixer.StA[ STA_NOTES ] };
+Musicxml_class			Musicxml		{ DaTA.Cfg_p->fs };
+Note_class 				Notes			{ &DaTA, &Instrument, &Mixer.StA[ STA_NOTES ], &Musicxml };
 Keyboard_class			Keyboard		( &DaTA, &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
-ProgressBar_class		ProgressBar		( &sds_p->RecCounter );
+ProgressBar_class		ProgressBar		( &sds_master->RecCounter );
 Time_class				Timer			( &sds_p->time_elapsed );
 Event_class				Event			{
 										&Instrument,
@@ -54,81 +55,119 @@ Event_class				Event			{
 
 Data_t*					Kbd_Data		= Mixer.StA[STA_KEYBOARD ].Data;
 Data_t*					Notes_Data		= Mixer.StA[STA_NOTES ].Data;
-const uint 				Sync_Semaphore 	= SEMAPHORE_SENDDATA0 + DaTA.SDS_Id;
-StateId_t 				Audioserver_state= StateId_t::INACTIVE;
+Data_t*					Instr_Data		= Instrument.Oscgroup.member[OSCID]->Mem.Data;
+const SEMID_e 			Sync_Semaphore 	= SemIds[ DaTA.SDS_Id ];
 extern void 			SynthesizerTest	();
 
-void AudioServer_state()
+StateId_e 				Audio_state		= DEFAULT;
+
+void AppState_update()
 {
-	StateId_t 	state				=  Appstate->GetState( sds_master, AUDIOID );
-	if( state == Audioserver_state )
-		return ;
+	StateId_e audio_state 	= Appstate->GetState( sds_master, AUDIOID );
+	bool changed			= not ( Audio_state == audio_state );
+	Audio_state				= audio_state;
+	if ( changed )
+	{
+		Log.Comment( LOG_e::INFO, "Audioserver state is: ", App.sdsstateName( audio_state ) );
+		cout.flush();
+	}
+	bool	audio_is_running	= ( Audio_state == RUNNING );
 
-				Audioserver_state	= state;
-
-	LOG_e		level 				= LOG_e::WARN;
-	if ( state == StateId_t::RUNNING )
-		level	= LOG_e::INFO;
-	Log.Comment( level, "Audioserver state is: ", App.sdsstateName( state ) );
-
-	return ;
+	if( audio_is_running )
+	{
+		if( Appstate->IsSleeping() )
+			Appstate->SetRunning();
+	}
+	else
+	{
+		if( Appstate->IsRunning() )
+			Appstate->SetSleeping();
+	}
 }
 
 void SetLogLevels()
 {
-
 	Log.Show_loglevel();
-
 }
-
 
 void activate_sds()
 {
-	Sds->Activate_sds();
-	Keyboard.Enable( App.properties.keyboard ) ;
-	Wavedisplay.Set_WdData();
+	eventkey_vec_t init_keys =
+	{
+		// avoid toggle commands here
+		// all events are executed on the prepared set of data in the SDS
+		SETINSTRUMENTKEY,
+		SETWAVEDISPLAYKEY,
+		BEATCLOCK_KEY,
+		SETSTA_KEY
+	};
+	// the order of initialization matters
+	Keyboard.Enable				( App.properties.keyboard ) ;
+	Sds->Prepare_sds			();
+	sds_p->eventDebug			= false;
+	sds_p->StA_Id				= STAID_ALL;
+	Wavedisplay.Set_WdData		();
+
+	Event.eventbuffer.add		( init_keys );
+	Event.eventbuffer.release	();
 }
+
+void update_WD_data()
+{
+	if( sds_p->WD_state.roleId == AUDIOROLE )
+		return;
+	Wavedisplay.Set_WdData	();
+	Mixer.StA_Wdcursor		();
+	Wavedisplay.WriteData	();
+	DaTA.EmitEvent			( READWAVEDATAFLAG, "update display data" );
+}
+
+Time_class Sound			{};
+long int time_elapsed		= 0;
+
+#define ADDSOUND_RETURN \
+	Event.State( StateId_e::ENABLED ); \
+	update_WD_data(); \
+	Sound.Set_Threshold( 125, &sds_p->overload ); \
+	time_elapsed = Sound.Time_elapsed(); \
+	return;
 
 void add_sound()
 {
+	Sound.Start();
+	Event.State( StateId_e::DISABLED );
 
-	if ( Mixer.Cutdesk_isActive() )
+	if(	CutDesk.LoopFnc() )
 	{
-		CutDesk.Loop();
-		return; // cursor control by cutter
-	};
-
-	Mixer.state 		= sds_p->mixer_state;
-
-	Mixer.BeatClock( sds_p->beatClock );
-
-	if (( Mixer.state.instrument ) or ( sds_p->WD_state.roleId == INSTRROLE ) )
-	{
-		Instrument.Oscgroup.Data_Reset();
-		Instrument.Oscgroup.Run_OSCs( 0 );
+		ADDSOUND_RETURN
 	}
-	if ( sds_p->WD_state.adsrmode )
-		DaTA.EmitEvent( READADSRDATAFLAG, "read adsr data" );
 
-	Mixer.state.kbd 	&= ( App.properties.keyboard | sds_p->StA_state_arr[ STA_KEYBOARD ].play );
-	if ( Mixer.state.kbd )
+	if ( sds_p->WD_state.adsrmode ) // update adsr data
 	{
-		kbdInt_t key = sds_p->Kbd_state.key;
-		if ( key == NOKEY )
-		{
-			key = App.KeyboardKey( false );
-		}
-		bool sync = Mixer.state.sync;
-		if ( sds_p->Kbd_state.bpsidx == 0 )
-			sync = true;
-		Keyboard.Dispatcher( key, sync ); //key from keyboard terminal
+		OSCID_e	oscid 			= sds_p->SpectrumTypeId;
+
+		Wavedisplay.Set_WdData	();
+		Instrument.Oscgroup.member[oscid]->Set_adsr( sds_p->adsr_arr[oscid] );
+		Instrument.Oscgroup.member[oscid]->Adsr_OSC();
+	}
+
+	// advance instrument clock
+	Instrument.Oscgroup.DataReset();
+	Instrument.Oscgroup.RunOSCs( 0 );
+
+	// set kbd beat clock
+	Mixer.state.sync_kbd	=  Mixer.BeatClock( sds_p->beatClock );
+
+	if ( Mixer.StA[STA_KEYBOARD].state.Play() )
+	{
+		Keyboard.Dispatcher	( Mixer.state.sync_kbd );
+		Kbd_Data 			= Keyboard.ScanData();
+
 		DaTA.EmitEvent( UPDATE_KBDDIALOG_FLAG, "Keyboad_Dialog_class::Setup_Widget" );
-
-		Kbd_Data = Keyboard.ScanData();
 	}
-	if ( Mixer.state.notes )
-	{
 
+	if ( Mixer.StA[STA_NOTES].state.Play() )
+	{
 		if( sds_p->NotesTypeId == XML_ID )
 		{
 			Notes.Generate_volatile_data( false );
@@ -139,34 +178,19 @@ void add_sound()
 			Notes.Note_itr_end.SetActive( false );
 		}
 		Notes_Data = Notes.ScanData();
-
 	}
 
 	ProgressBar.Update();
 
-	if (( sds_p->WD_state.roleId != AUDIOROLE )	)
-	{
-		Mixer.StA_Wdcursor();
-		Wavedisplay.WriteData();
-	}
+	Mixer.state.sync_adsr 	= Instrument.Sync( Mixer.state.composer );
 
+	Mixer.Add_Sound			( Instr_Data, Kbd_Data,	Notes_Data );
 
-	Stereo_t* shm_addr = DaTA.GetShm_addr(  );
-	Mixer.Add_Sound( 	Instrument.osc->MemData_p(),
-						Kbd_Data,
-						Notes_Data,
-						shm_addr
-						);
+	ADDSOUND_RETURN
+
 }
-Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound, "add sound" );
+Thread_class 	SyncAudio( DaTA.Sem_p, Sync_Semaphore, add_sound );
 thread* 		SyncAudio_thread_p = nullptr;
-
-void readAudio()
-{
-	Capture.Start( STA_EXTERNAL );
-}
-Thread_class 	ReadAudio( DaTA.Sem_p, SEMAPHORE_CAPTURE, readAudio, "read audio" );
-thread* 		ReadAudio_thread_p = nullptr;
 
 void ApplicationLoop()
 {
@@ -174,40 +198,37 @@ void ApplicationLoop()
 
 	DaTA.Sds_p->Commit(); // set flags to zero and update flag to true
 
-	Event.Handler();
 	App.Ready();
-	Appstate->SetRunning();
-	Keyboard.Show_help( App.properties.keyboard );
+	Keyboard.Show_help();
 
 	while ( Appstate->IsRunning( sds_p, App.AppId ) )
 	{
-		Timer.Performance();
-		Event.Handler();
-		AudioServer_state();
-		if( not Appstate->IsRunning( sds_master, APPID::AUDIOID ) or
-			not Mixer.state.kbd )
-		{
-			App.KeyboardKey( false );
-		}
+		Timer.Performance	( &sds_p->overload );
+		Mixer.state 		= sds_p->mixer_state;
+		Mixer.state.composer= sds_master->mixer_state.composer;
+		AppState_update		();
+		Event.Handler		();
+		App.KeyboardKey		( true );
 	} ;
 
 	Log.Comment(INFO, "Exit Application loop");
-	Log.Comment( INFO, Line( 80 - 26 ) );
 
-	return;
-
-} // Application loop
-
+	return; // Application loop
+}
 
 void sync_notes_fnc( )
 {
 //	Notes.Start_note_itr();
-	if( sds_p->NotesTypeId == XML_ID )
-		Notes.Generate_volatile_data( true );
-	else
-		Notes.Generate_cyclic_data( );
+	NOTETYPE_e TypeID = sds_p->NotesTypeId;
+	switch ( TypeID )
+	{
+		case XML_ID : { Notes.Generate_volatile_data( true ); break; }
+		case NTE_ID : { Notes.Generate_cyclic_data();		; break; }
+		default : { break; }
+	} // switch  TypeID
+	sds_p->NotesTypeId = TypeID;
 }
-Thread_class 	SyncNotes( DaTA.Sem_p, SEMAPHORE_SYNCNOTES, sync_notes_fnc, "sync_notes_fnc" );
+Thread_class 	SyncNotes( DaTA.Sem_p, SEMAPHORE_SYNCNOTES, sync_notes_fnc );
 thread* 		SyncNotes_thread_p = nullptr;
 
 void read_notes_fnc( )
@@ -215,14 +236,14 @@ void read_notes_fnc( )
 //	DaTA.Sds_p->Commit();
 	if ( sds_p->NotesTypeId != XML_ID )
 		return;
-	string name 	= DaTA.Sds_p->Read_str( NOTESSTR_KEY );
-	Notes.musicxml 	= Notes.Musicxml.XmlFile2notelist( name );
+	string name 	= DaTA.Sds_p->Read_str( NOTENAMESTR );
+	Notes.musicxml 	= Musicxml.XmlFile2notelist( name );
 	if ( Notes.musicxml.scoreduration > 0 )
 	{
 		Notes.Set_xmlnotelist( Notes.musicxml.notelist );
 		Notes.Generate_volatile_data( true );
 
-		Mixer.state.notes = true;
+		sds_p->StA_state_arr[STA_NOTES].play = true;
 		DaTA.EmitEvent( NEWNOTESLINEFLAG, Notes.musicxml.instrument_name );
 
 //		Notes.Start_note_itr();
@@ -231,7 +252,7 @@ void read_notes_fnc( )
 	}
 
 }
-Thread_class 	ReadNotes( DaTA.Sem_p, SEMAPHORE_INITNOTES, read_notes_fnc, "read_notes_fnc" );
+Thread_class 	ReadNotes( DaTA.Sem_p, SEMAPHORE_INITNOTES, read_notes_fnc );
 thread* 		ReadNotes_thread_p = nullptr;
 
 void activate_logging()
@@ -247,7 +268,7 @@ int main( int argc, char* argv[] )
 	activate_logging();
 
 
-	if ( Cfg.Config.test == 'y' )
+	if ( Cfg_p->Config.test == 'y' )
 	{
 		Log.Set_Loglevel( TEST, true );
 		Sem.Release( SEMAPHORE_STARTED );
@@ -258,7 +279,10 @@ int main( int argc, char* argv[] )
 		return 0;
 	}
 
+	Sds->Restore_ifd();
 	activate_sds();
+
+
 
 	SetLogLevels();
 
@@ -274,48 +298,62 @@ int main( int argc, char* argv[] )
 	SyncAudio_thread( &Thread_class::Loop, &SyncAudio );
     SyncAudio_thread_p = &SyncAudio_thread;
 
-    thread
-	ReadAudio_thread( &Thread_class::Loop, &ReadAudio );
-    ReadAudio_thread_p = &ReadAudio_thread;
+//    thread
+//	ReadAudio_thread( &Thread_class::Loop, &ReadAudio );
+//    ReadAudio_thread_p = &ReadAudio_thread;
 
     Log.Comment(INFO, "Application initialized");
 	ApplicationLoop( );
 	exit_proc( 0 );
-	return 0;
 };
 
-void stop_threads()
+void stop_apploop( int signal )
 {
-	if ( Cfg.Config.test == 'y' ) return;
+
+	if( signal == 0 )
+		return; // exit by appstate
+	// exit by catched signal
+
+	Timer.State = DISABLED;
+	Event.State( DISABLED );
+
+	Appstate->SetExitserver( sds_p, App.AppId );
+	usleep( 200 );
+}
+void stop_threads( int signal )
+{
+	if ( Cfg_p->Config.test == 'y' )
+		return;
+
+	stop_apploop( signal );
 
 	SyncAudio.StopLoop();
 	if ( SyncAudio_thread_p )
 		SyncAudio_thread_p->join();
 
-	SyncNotes.StopLoop();
-	if ( SyncNotes_thread_p )
-		SyncNotes_thread_p->join();
-
 	ReadNotes.StopLoop();
 	if ( ReadNotes_thread_p )
 		ReadNotes_thread_p->join();
 
-	ReadAudio.StopLoop();
-	if ( ReadAudio_thread_p )
-		ReadAudio_thread_p->join();
+	SyncNotes.StopLoop();
+	if ( SyncNotes_thread_p )
+		SyncNotes_thread_p->join();
 }
 
 int sig_counter = 0;
 void exit_proc( int signal )
 {
-	coutf;
+	coutf  << Line( term_columns(), 'x' );
+
 	if ( LogMask[TEST] )
 		DaTA.Sds_p->Load_ifd();
 
-	if ( signal == SIGILL )
+	if ( signal == SIGILL ) // exit by test process
 		exit(0);
 
 	Log.Comment(INFO, "Entering exit procedure for " + Appstate->Name );
+//	Notes.scanner->Lock_read( false );
+//	Notes.Readlock_wait( true );	// join read lock
 
 	if ( sig_counter > 0 )
 	{
@@ -329,8 +367,10 @@ void exit_proc( int signal )
 	else
 		Log.Comment( INFO, "received signal: " + to_string( signal ) );
 
-	stop_threads();
+
+	stop_threads( signal );
     Sem.Release( SEMAPHORE_EXIT );
+
 
     Log.Comment( INFO, "Synthesizer reached target exit 0" );
 //	Log.Set_Loglevel( DBG2, true );

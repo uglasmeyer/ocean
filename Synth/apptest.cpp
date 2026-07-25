@@ -30,6 +30,7 @@ SOFTWARE.
  */
 
 #include <Event.h>
+#include <App.h>
 
 auto test_cycle_range = [  ]( range_T<int> range  )
 {
@@ -49,34 +50,34 @@ auto test_cycle2_range = [  ]( range_T<int> range  )
 	string
 	range_str = to_string( range.min) + "..." + to_string(range.max) ;
 	int value0 = range.min + range.len/2;
-	int value1 = check_cycle2(range, value0 , "" );
+	int value1 = check_cycle2(range, value0 );
 	Assert_equal( value0 , value1, range_str );
 	int value = range.max;
-	ASSERTION( 	check_cycle2(range, value , "" ) == range.min, range_str,
-				check_cycle2(range, value, "" ), value );
+	ASSERTION( 	check_cycle2(range, value ) == range.min, range_str,
+				check_cycle2(range, value ), value );
 	 value = range.min;
-	ASSERTION( 	check_cycle2(range, value , "" ) == value, range_str,
-				check_cycle2(range, value, "" ), value );
+	ASSERTION( 	check_cycle2(range, value ) == value, range_str,
+				check_cycle2(range, value ), value );
 	 value = range.min-1;
-	ASSERTION( 	check_cycle2(range, value , "" ) == range.max -1, range_str,
-				check_cycle2(range, value, "" ), range.max - 1 );
+	ASSERTION( 	check_cycle2(range, value ) == range.max -1, range_str,
+				check_cycle2(range, value ), range.max - 1 );
 	 value = range.max + 1;
-	ASSERTION( 	check_cycle2(range, value , "" ) == range.min +1, range_str,
-				check_cycle2(range, value, "" ), range.min+1 );
+	ASSERTION( 	check_cycle2(range, value ) == range.min +1, range_str,
+				check_cycle2(range, value ), range.min+1 );
 	 value = range.max + 2*range.len +1;
-	ASSERTION( 	check_cycle2(range, value , "" ) == range.min + 1, range_str,
-				check_cycle2(range, value, "" ), range.min+1 );
+	ASSERTION( 	check_cycle2(range, value ) == range.min + 1, range_str,
+				check_cycle2(range, value ), range.min+1 );
 	 value = range.min - 2*range.len - 1;
-	ASSERTION( 	check_cycle2(range, value , "" ) == range.max - 1, range_str,
-				check_cycle2(range, value, "" ), range.max-1 );
+	ASSERTION( 	check_cycle2(range, value ) == range.max - 1, range_str,
+				check_cycle2(range, value ), range.max-1 );
 	ASSERTION( range.len == abs(range.max-range.min), "", range.len, range.max-range.min);
 };
 
 bool 							isopen 		= false;
-extern Logfacility_class	Log				;
-extern Dataworld_class		DaTA			;
-extern Config_class			Cfg				;
-
+extern Logfacility_class		Log				;
+extern Dataworld_class			DaTA			;
+extern Config_class				Cfg				;
+extern Application_class		App			;
 extern Instrument_class 		Instrument;
 extern Mixer_class				Mixer;
 extern Note_class 				Notes;
@@ -85,6 +86,8 @@ extern External_class 			External;
 extern Time_class				Timer;
 extern Event_class				Event;
 extern Wavedisplay_class		Wavedisplay;
+extern void add_sound			();
+extern long int time_elapsed	;
 
 void PrepareTest()
 {
@@ -120,14 +123,18 @@ void SynthesizerTest()
 	Spectrum.Test_Spectrum();
 	Notes.TestNoteBase();
 	Notes.Test_Musicxml();
-
 	TestOsc.DynFrequency.TestFrq();
-	Instrument.osc->Set_spectrum( Spectrum.TestSpectrum ); //220 Hz
-	Instrument.osc->OSC( 0 );
-	Wavedisplay.TestWd();
-	Instrument.wd_p->fourier->TestFourier();
+	Instrument.Oscgroup.osc.Set_spectrum( Spectrum.TestSpectrum, SLIDE ); //220 Hz
+	Instrument.Oscgroup.osc.OSC( 0 );
 
-	Mixer.DynVolume.TestVol( );
+	Id_t sdsid = App.SDS_ID;
+	App.Set_comid( 3 );
+	Assert_equal( int( Instrument.sds_master->comId ), 3 );
+	App.Set_comid( sdsid );
+
+	Wavedisplay.TestWd();
+
+	Mixer.StA[STA_INSTRUMENT].DynVolume.TestVol();
 	Mixer.TestMixer();
 
 	Keyboard.Kbd_pitch_Test();
@@ -139,11 +146,17 @@ void SynthesizerTest()
 	DaTA.Sem_p->Test();
 	DaTA.Sds_p->Reset_ifd();
 	Instrument.Test_Instrument();
-	Instrument.Oscgroup.Run_OSCs( 0 );
+	Instrument.Oscgroup.RunOSCs( 0 );
 
 	System_Test();
 
 	Event.TestHandler();
+
+	App.sds_p->spectrum_arr[OSCID].wfid[0] = 11;
+	App.sds_p->Kbd_state.key = char2int( 'A' );
+	Mixer.StA[STA_KEYBOARD].state.Play( true );
+	add_sound();
+	coutf << "add_sound::time_elapsed " << time_elapsed << endl;
 
 	Log.Set_Loglevel( TEST, true );
 	DaTA.Test_result = "SUCCESS";

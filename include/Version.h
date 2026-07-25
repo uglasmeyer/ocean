@@ -36,10 +36,10 @@ SOFTWARE.
 #include <string>
 using namespace std;
 
-#define MAYOR 4
-#define MINOR 5
+#define MAYOR 5
+#define MINOR 9
 #define PATCH 0
-#define SDS_VERSION 49
+#define SDS_VERSION 54
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -52,6 +52,7 @@ const string Application = "Ocean Sound Lab";
 
 const string License_text = R"( 
     Copyright (C) 2025,2026  Ulrich.Glasmeyer@web.de
+	C++ Project on github https://github.com/uglasmeyer/ocean
     This program comes with ABSOLUTELY NO WARRANTY.
     This is free software, and you are welcome to redistribute it
     under the  conditions of the MIT license <https://www.gnu.org/licenses/>)";
@@ -60,13 +61,18 @@ const string License_text = R"(
 
 /*
 
-4.5.0-49 Capture input devicd
+5.0.0-54 Consolidate changes
+4.7.0-53 Fourier resolutionIdx
+4.6.0-52 session_dir
+4.5.1-51 enum resize
+4.5.1-49 Cmake debug configuration
+4.5.0-49 Capture audio input device
 			Fourier spectrum waveform
 			automatic ipc resize
 4.4.3-48 Wavedisplay history
 4.4.2-48 Cutdesk display wav-file
 4.4.1-48 stabalized usability features
-4.4.0.48 switch back to prev_roleId if current wave display is dectivated
+4.4.0.48 switch back to prev_roleId if current wave display is de-activated
 4.3.1.46 no audio during dut desk dialog
 4.3.0-46 save keyboard notes
 4.3.0-45 instrumentClock set instrument beat separately from instrument adsr

@@ -34,25 +34,23 @@ SOFTWARE.
 Oscillator_base::Oscillator_base(  OSCID_e osc_type, RoleId_e role  )
 	: Logfacility_class	( "Oscillator_base" )
 	, osctype_struct	( osc_type, role )
-	, DynFrequency		( frqext_range )
-	, Bps				()
+	, DynFrequency		( DYNTYPE_e::FRQ, frqext_range )
 	, spectrum			()
 {
 	this->spectrum		= default_spectrum;
 	this->spectrum.osc 	= osc_type;
-
 	this->Connect		= { osc_type, osc_type };
 };
 
-uint8_t Oscillator_base::Set_frequency( string frqName, DYNAMIC mode )
+uint8_t Oscillator_base::Set_frequency( string frqName, DYNAMIC_e mode )
 {
 	uint index = Index( frqName );
 	return Set_frequency( index, mode );
 }
 
-uint8_t Oscillator_base::Set_frequency( int frqidx, DYNAMIC mode )
+uint8_t Oscillator_base::Set_frequency( int frqidx, DYNAMIC_e mode )
 {
-	frqidx				= DynFrequency.SetupFrq( frqidx, mode );
+	frqidx				= DynFrequency.Setup( frqidx, mode );
 	spectrum.frqadj[0] 	= Frqadj(0, 0);
 	spectrum.frqidx[0]  = frqidx;
 	return 				frqidx;
@@ -60,6 +58,8 @@ uint8_t Oscillator_base::Set_frequency( int frqidx, DYNAMIC mode )
 
 void Oscillator_base::Set_spectrum_volume( int vol )
 {
+	// consider that the dynamic volume is managed by the mixer
+	// vco and fmo have no dynamic volume
 	spectrum.volidx[0] 	= check_range( volidx_range, vol, "Set_volume" );
 	spectrum.vol[0] 	= (float)vol * percent;
 }
@@ -68,9 +68,14 @@ void Oscillator_base::Set_pmw( uint8_t pmw )
 	features.PWM = pmw;
 }
 
-void Oscillator_base::SetSlider_frq( uint8_t value )
+void Oscillator_base::Set_frq_slidevalue( uint8_t value )
 {
-	features.slide_frq = value;
+	features.frq_slide_value = value;
+}
+
+void Oscillator_base::Set_feature( feature_t f )
+{
+	features = f;
 }
 
 void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
@@ -79,15 +84,15 @@ void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
 	spectrum.phi	= zero_phase; // because of maxphi changes
 }
 
-void Oscillator_base::Set_spectrum( spectrum_t spectrum )
+void Oscillator_base::Set_spectrum( spectrum_t spectrum, DYNAMIC_e mode )
 {
-	Set_frequency	( spectrum.frqidx[0], SLIDE );
-	Set_spectrum_volume		( spectrum.volidx[0] );
-	this->spectrum 	= spectrum;
+	this->spectrum 		= spectrum;
+	Set_frequency		( spectrum.frqidx[0], mode );
+	Set_spectrum_volume	( spectrum.volidx[0] );
 }
 
 
-void Oscillator_base::Line_interpreter( vector_str_t arr )
+void Oscillator_base::Line_interpreter( string_vec_t arr )
 {
 	String 			Str{""};
 
@@ -103,7 +108,7 @@ void Oscillator_base::Line_interpreter( vector_str_t arr )
 	wp.msec 		= msec;
 	wp.frames		= check_range( frames_range,  wp.msec * frames_per_msec, "Setwp_frames" );
 	spectrum.volidx[0] 		= Str.secure_stoi(arr[5]);
-	features.slide_frq = Str.secure_stoi( arr[13] );
+	features.frq_slide_value = Str.secure_stoi( arr[13] );
 	features.PWM 	= Str.secure_stoi( arr[14] );
 
 	return ;

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,12 +31,13 @@ SOFTWARE.
 
 #ifndef DATA_STATISTIC_H_
 #define DATA_STATISTIC_H_
+
+
 #include <Ocean.h>
 #include <Logfacility.h>
 
-/*
- *
- */
+
+
 typedef struct statistic_struct
 {
 	long 	shm 	= 0;
@@ -47,15 +48,19 @@ typedef struct statistic_struct
 extern statistic_t statistic;
 
 
+/**************************************************
+ * Statistic_class :
+ *************************************************/
+
 class Statistic_class :
 	public virtual Logfacility_class
 {
 public:
 
-	string module = "";
-	void Show_Statistic( );
+	string 	module = "";
+	void 	Show_Statistic( );
 
-	Statistic_class( string module );
+			Statistic_class( string module );
 	virtual ~Statistic_class();
 };
 

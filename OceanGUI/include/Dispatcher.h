@@ -35,17 +35,14 @@ SOFTWARE.
 // QT
 #include <QObject>
 #include <QThread>
-#include <Ocean.h>
 
-// Ocean-SL
-#include <Logfacility.h>
-#include <data/Semaphore.h>
-#include <data/DataWorld.h>
+// Ocean
 #include <EventKeys.h>
 #include <include/Mainwindow.h>
 
 /**************************************************
  * Dispatcher_class
+ * emit events given by sds flag
  *************************************************/
 class Dispatcher_class :
 		public QObject,		// is a Qt-Object because of slots
@@ -53,13 +50,13 @@ class Dispatcher_class :
 {
     Q_OBJECT
 
-	Semaphore_class* 	Sem_p 		= nullptr;
-	SharedData_class* 	Sds_p 		= nullptr;
-	SharedData_class*	Sds_master	= nullptr;
-	bool 				loop_done 	= false;
+	MainWindow*			win			;
+	Semaphore_class* 	Sem_p 		;
+	SharedData_class*	Sds_master	;
+	bool 				loop_done 	;//= false;
 
 public:
-    Dispatcher_class( Dataworld_class* _data ) ;
+    Dispatcher_class( MainWindow* win ) ;
     virtual ~Dispatcher_class();
     void done();
 
@@ -68,13 +65,10 @@ public slots:
 
 signals:
     void UpdateRtspLog(const QString& Qlog_str);
-    void UpdateFileList();
-    void UpdateFileDialog();
-    void UpdateSpectrumDialog();
+    void UpdateWavFileList();
+//    void UpdateSpectrumDialog();
     void UpdateKeyboardDialog();
     void UpdateColorButtons();
-    void UpdateCutDesk();
-    void ReadAdsrData();
     void finished();
 
 private:

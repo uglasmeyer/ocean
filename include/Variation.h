@@ -164,6 +164,10 @@ public:
 
 /**************************************************
  * Variation_class
+ * extension of notescore class with random variations of
+ * notes
+ * This is one of the three providers of note data,
+ * like GUI file dialog or Composer. interpreter
  *************************************************/
 class Variation_class :
 		virtual public Logfacility_class,
@@ -172,7 +176,7 @@ class Variation_class :
 {
 public:
 
-				Variation_class	( Dataworld_class* data  ) ;
+				Variation_class	( Dataworld_class* data, Musicxml_class* musicxml_p  ) ;
 				~Variation_class() = default;
 
 	typedef vector<note_t>
@@ -188,14 +192,11 @@ public:
 	string 		Gen_noteline	( string pattern, string filename );
 	void 		selfTest		();
 
-private:
-	noteline_prefix_struct
-				Nlp_variation	= nlp_default;
 
+private:
 	string 		Constant_chars	{""};
 	string 		Rhythm_chars	{""};
-	random_device
-				rd;
+
 
 	noteword_t 	Random_Notes	{};
 	notesentence_t
@@ -213,13 +214,6 @@ private:
 	void 		set_octave		( int, noteword_t& );
 	string 		scan_sentence	( char );
 
-	template<typename T>
-	auto gen_random_note( T random_set)
-	{
-		mt19937 engine(rd());
-		std::shuffle( random_set.begin(), random_set.end(),  engine );
-		return random_set[0];
-	}
 
 
 };

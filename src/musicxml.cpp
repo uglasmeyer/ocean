@@ -31,6 +31,7 @@ SOFTWARE.
 
 #include <notes/MusicXML.h>
 #include <notes/Notes.h>
+#include <Default.h>
 
 map<int, string> type_id_map = // @suppress("Invalid arguments")
 {
@@ -141,36 +142,71 @@ auto get_note_duration = []( int divisions, XMLElement* root )
 };
 
 
-Musicxml_class::Musicxml_class( fs_t* _fs  ) :
-	Logfacility_class( "Musicxml_class")
+/**************************************************
+ * Musicxml_class
+ *************************************************/
+Musicxml_class::Musicxml_class( fs_t* _fs  )
+	: Logfacility_class	( "Musicxml_class" )
+	, musicxmlfiles		( { _fs->xmldir }, _fs->xml_type )
+
 {
-	fs			= _fs;
+	fs					= _fs;
+	Name				= default_name;
+	Write_template_text	( fs->default_xml_file, default_xml_text, KEEPFILE );
+	SetDir				( "" );
+	select				( Name );
 };
 Musicxml_class::~Musicxml_class()
 {
 	DESTRUCTOR( className )
 };
-bool Musicxml_class::load_document	( string filename )
+
+string Musicxml_class::select( string name )
 {
+	if( name.length() == 0 )
+		return "";
+
+	musicxmlfiles.Create( name );
+	string musicxmlfile= musicxmlfiles.Select( name, Name );
+	Name	= name;
+	Comment( INFO, "Musicxml Name:", Name );
+	return musicxmlfile;
+}
+
+void Musicxml_class::SetDir( string subdir )
+{
+	string xmlfiles_dir		= fs->SubDir( fs->xmldir, subdir );
+	musicxmlfiles.UpdatePath( { xmlfiles_dir, fs->xmldir } );
+	select					( Name );
+
+}
+bool Musicxml_class::load_document	( string name )
+{
+
+	string file = select( name );
+
 	XMLdoc.Clear();
-	int err = XMLdoc.LoadFile( filename.data() );
+	int err = XMLdoc.LoadFile( file.data() );
 	if ( err  )
     {
-    	Comment( ERROR, "loading xml file ", filename, " with code: ", XMLdoc.ErrorName() );
+    	Comment( ERROR, "loading xml file ", file, " with code: ", XMLdoc.ErrorName() );
     	return false;
    	};
-	Info( "Loaded musicxml from file: ", filename );
+	Info( "Loaded musicxml from file: ", file );
 	return true;
 };
-bool Musicxml_class::save_document	( string filename )
+
+bool Musicxml_class::save_document	( string name )
 {
-	int err = XMLdoc.SaveFile( filename.data() );
+	string file = select( name );
+
+	int err = XMLdoc.SaveFile( file.data() );
 	if ( err  )
     {
-    	Comment( ERROR, "saving xml file ", filename, " with code: ", XMLdoc.ErrorName() );
+    	Comment( ERROR, "saving xml file ", file, " with code: ", XMLdoc.ErrorName() );
     	return false;
    	};
-	Info( "Saved musicxml to file: " + filename );
+	Info( "Saved musicxml to file: " + file );
 	return true;
 
 };
@@ -196,14 +232,10 @@ pitch_t Musicxml_class::get_pitch( XMLElement* root )
 	return pitch;
 }
 
-string Musicxml_class::File( const string& name )
-{
-	return fs->xmldir + name + fs->xml_type;
-}
 // https://www.w3.org/2021/06/musicxml40/tutorial/midi-compatible-part/
 musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 {
-	if ( not load_document( File( name ) ) )
+	if ( not load_document( select( name ) ) )
 		return musicxml;
 
 	int 	note_number		= 0;
@@ -364,7 +396,7 @@ XMLElement* Musicxml_class::appendNote(	XMLElement* xmlmeasure,
 		}
 	};
 
-	XMLElement* newxmlnote = NewElement( "note" );
+	XMLElement* newxmlnote = newElement( "note" );
 	if( not xmlnote )
 		xmlmeasure->InsertAfterChild( xmlattr, newxmlnote );
 	else
@@ -381,7 +413,7 @@ XMLElement* Musicxml_class::appendMeasure( 	XMLElement* xmlpart,
 											XMLElement* xmlmeasure,
 											const int&  number )
 {
-	XMLElement* newxmlmeasure = NewElement( "measure" );
+	XMLElement* newxmlmeasure = newElement( "measure" );
 	if( not xmlmeasure )
 	{
 		xmlpart->InsertFirstChild( newxmlmeasure );
@@ -412,10 +444,9 @@ void Musicxml_class::Notelist2xmlFile( 	const string& name,
 
 	// prepare XML document from template
 	//
-	if( not load_document( File( "template" ) ) )
-	{
-		return;
-	}
+	Write_template_text( fs->musicxml_template_file, musicxml_template_text, OVERWRITE );
+	load_document( "template" );
+
 	Comment( INFO, "Processing note list ");
 	xmlstatistic_struct xmlstatistic = xmlstatistic_struct();
 
@@ -451,7 +482,7 @@ void Musicxml_class::Notelist2xmlFile( 	const string& name,
         	xmlstatistic.Chords++;
     }
 
-    save_document( File( name ) );
+    save_document( name );
 
     if ( note_list.size() == 0 )
     {

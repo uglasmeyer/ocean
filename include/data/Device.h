@@ -57,7 +57,7 @@ public:
 						Device_class			( interface_t* sds );
 	virtual 			~Device_class			();
 	connectId_t 		Get_connect_state		( char oscid );
-	void 				Set_sds_connect_state	( char oscid, connectId_t connect );
+	void 				Sds_connect_state	( char oscid, connectId_t connect );
 	void 				Set_sds_adsr			( char oscid, adsr_t adsr );
 
 	void 				Set_sds					( interface_t* sds );

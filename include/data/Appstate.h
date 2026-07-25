@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,73 +38,83 @@ SOFTWARE.
 #include <Logfacility.h>
 #include <data/Sdsbase.h>
 
+/**************************************************
+ * Appstate_class
+ * manage content of appstate_arr in all Shared Date Segments
+ *************************************************/
 class Appstate_class :
-	virtual public Logfacility_class,
-	virtual public sdsstate_struct,
-	virtual	public AppMap_struct
-
+	virtual public	Logfacility_class,
+	virtual public	sdsstate_struct,
+	virtual	public	AppMap_struct
 {
-public:
-	string			Name 				= "";
-	APPID 			AppId				;
-	APPID 			AppType				;
-	int8_t			SDSid				;
 	interface_t* 	sds 				;
 	interface_t* 	sds_master			;
+	APPID_e 		AppId				;
+	APPID_e 		AppType				;
+	SdsId_vec_t		all_sdsids			;
 	sds_vec_t		sds_vec				{};
+	appstate_arr_t	backup_state		{};
 
-	const set<APPID>assignMasterSds 	{ 	SDSVIEWID,
-											AUDIOID,
-											GUI_ID,
-											RTSPID,
-											COMPID,
-											TESTPRGID } ;
-	SdsId_vec_t		all_sdsids			= Iota_T<Id_t>( 0, MAXCONFIG );
+public:
+	string			Name 				;
+	int8_t			SDSid				;
 
-	appstate_arr_t	backup_state		{ };
+	const set<APPID_e>
+					UniqueRunApp	=
+					{
+						SDSVIEWID,
+						AUDIOID,
+						GUI_ID,
+						RTSPID,
+						COMPOSERID,
+						SETUPID,
+						TESTPRGID,
+						XMLEDITORID,
+						TESTPRGID
+					} ;
 
-					Appstate_class		( APPID appid,
-										sds_vec_t sds_vec
-										);
+	const set<APPID_e>
+					MultiRunApp		=
+					{
+						SYNTHID,
+						KEYBOARDID
+					};
 
-	virtual			~Appstate_class		()
-						{ DESTRUCTOR( className );};
-
-	void 			Setup				( interface_t* _sds, interface_t* _sds_master );
-	APPID 			Type				( interface_t* sds, APPID appid );
-	void 			Announce			( );
-	bool 			StartOnceOk			( interface_t* sds );
-
-	void			SetState			( interface_t* sds, APPID appid, StateId_t state );
-	void			SetPid				( interface_t* sds, APPID appid, int pid );
-	string			GetStateStr				( interface_t* sds, APPID appid );
-	string			GetPidStr			( interface_t* sds, APPID appid );
-	int				getPid				( interface_t* sds, APPID appid );
-
-	bool			IsRunning  			( interface_t* sds, APPID appid );
-	bool			IsOffline  			( interface_t* sds, APPID appid );
-	bool 			IsExitserver		( interface_t* sds, APPID appid );
-
-	void 			SetRunning			( );
-	void 			SetOffline			( );
-	void 			SetOffline			( interface_t* sds, APPID appid );
-	void 			SetExitserver		( interface_t* sds, APPID appid );
-
-	void			SaveStateArr			( interface_t* sds );
-	void			RestoreStateArr		( interface_t* sds );
+					Appstate_class		( APPID_e appid, sds_vec_t sds_vec );
+	virtual			~Appstate_class		();
+	void 			Announce			();
 	void 			CheckAppstates		( interface_t* sds );
-	bool 			CheckAppstate		( interface_t* sds, APPID appid );
-
-	void			Shutdown_all		( sds_vec_t sds_vec );
-	void  			Shutdown			( interface_t* sds, APPID appid );
-	StateId_t		GetState			( interface_t* sds, APPID appid );
-
-	int 			GetNextSdsId		( APPID appid ); //find next synthesizer SDS
+	bool 			CheckAppstate		( interface_t* sds, APPID_e appid );
+	Id_t			Find_running		( APPID_e appid );
+	int				GetPid				( interface_t* sds, APPID_e appid );
+	string			GetPidStr			( interface_t* sds, APPID_e appid );
+	StateId_e		GetState			( interface_t* sds, APPID_e appid );
+	string			GetStateStr			( interface_t* sds, APPID_e appid );
+	bool 			IsInactive			();
+	bool			IsOffline  			( interface_t* sds, APPID_e appid );
+	bool 			IsExitserver		( interface_t* sds, APPID_e appid );
+	bool			IsRunning  			( interface_t* sds, APPID_e appid );
+	bool			IsRunning  			();
+	bool			IsSleeping 			();
+	void			RestoreStateArr		( interface_t* sds );
+	void			SaveStateArr		( interface_t* sds );
+	void 			SetExitserver		( interface_t* sds, APPID_e appid );
+	void			SetInactive			();
+	void 			SetOffline			();
+	void 			SetOffline			( interface_t* sds, APPID_e appid );
+	void			SetPid				( interface_t* sds, APPID_e appid, int pid );
+	void 			SetRunning			( interface_t* sds, APPID_e appid );
+	void 			SetRunning			();
+	void 			SetSleeping			();
+	void 			Setup				( interface_t* _sds, interface_t* _sds_master );
+	void			Shutdown_all		();
+	void  			Shutdown			( interface_t* sds, APPID_e appid );
+	APPID_e 		Type				( interface_t* sds, APPID_e appid );
 
 private:
-	Id_t 			assign_sdsid		( APPID appid ); // returns Sds_Id
-	SdsId_vec_t	 	allowed_sdsid		( APPID appid );
-
+	Id_t 			assign_sdsid		( APPID_e appid ); // returns Sds_Id
+	SdsId_vec_t	 	allowed_sdsid		( APPID_e appid );
+	void			setState			( interface_t* sds, APPID_e appid, StateId_e state );
 };
 
 #endif /* DATA_APPSTATE_H_ */

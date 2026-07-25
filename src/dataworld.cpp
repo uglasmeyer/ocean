@@ -36,8 +36,8 @@ SOFTWARE.
 /**************************************************
  * Dataworld_class
  *************************************************/
-Dataworld_class::Dataworld_class( 	Config_class* cfg,
-									Semaphore_class* sem )
+Dataworld_class::Dataworld_class( 	Config_class* 		cfg,
+									Semaphore_class* 	sem )
 	: Logfacility_class	( "Dataworld_class" )
 	, AppId				( cfg->Process.AppId )
 	, SDS				( AppId, cfg, sem )
@@ -50,8 +50,6 @@ Dataworld_class::Dataworld_class( 	Config_class* cfg,
 	this->Cfg_p 		= cfg;
 	this->Sem_p 		= sem;
 
-	this->Sds_master	= SDS.Master;
-	this->sds_master 	= SDS.master;
 	this->Sds_p 		= SDS.GetSds( SDS_Id );
 	this->Test_result	= "";
 
@@ -64,11 +62,11 @@ void Dataworld_class::init_shared_sound()
 	{
 		Comment(INFO,"Attaching stereo buffers");
 
-		init_Shm( SHM_l, Cfg_p->Config.SHM_keyl, 0 );
-		ShmAddr_l = (Stereo_t*) SHM_l.shm_ds.addr;
+		init_Shm	( SHM_l, Cfg_p->Config.SHM_keyl, 0 );
+		ShmAddr_l 	= (Stereo_t*) SHM_l.shm_ds.addr;
 
-		init_Shm( SHM_r, Cfg_p->Config.SHM_keyr, 1 );
-		ShmAddr_r = (Stereo_t*) SHM_r.shm_ds.addr;
+		init_Shm	( SHM_r, Cfg_p->Config.SHM_keyr, 1 );
+		ShmAddr_r 	= (Stereo_t*) SHM_r.shm_ds.addr;
 	}
 }
 void Dataworld_class::init_Shm( Shm_base& SHM, key_t key, uint idx )
@@ -106,13 +104,13 @@ Dataworld_class::~Dataworld_class()
 
 void Dataworld_class::ClearShm()
 {
-	int 			shm_id 	= sds_master->SHMID;
+	int 			shm_id 	= SDS.master->SHMID;
 	( shm_id == 0 ) ? SHM_l.Clear() : SHM_r.Clear();
 }
 
 Stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 {
-	uint8_t			shm_id 	= sds_master->SHMID;
+	uint8_t			shm_id 	= SDS.master->SHMID;
 	Stereo_t* 		addr 	= ( shm_id == 0 ) ? ShmAddr_r : ShmAddr_l;
 	return addr;
 
@@ -121,21 +119,21 @@ Stereo_t* Dataworld_class::GetShm_addr( ) // Synthesizer
 Stereo_t* Dataworld_class::SetShm_addr() // Audioserver
 {
 	Stereo_t* 		addr;
-	uint8_t			shm_id 	= sds_master->SHMID;
+	uint8_t			shm_id 	= SDS.master->SHMID;
 
 	shm_id 	= ( shm_id + 1 ) % 2;
 	addr 	= (	shm_id == 0 ) ? ShmAddr_l : ShmAddr_r;
-	sds_master->SHMID 	= shm_id;
+	SDS.master->SHMID 	= shm_id;
 
 	return addr;
 }
 
-void Dataworld_class::EmitEvent( const uint8_t flag, string comment )
+void Dataworld_class::EmitEvent( const EVENTFLAG_e flag, string comment )
 {
-	if ( not Appstate.IsRunning( sds_master, GUI_ID ) )
+	if ( not Appstate.IsRunning( SDS.master, GUI_ID ) )
 		return;
-	sds_master->FLAG = flag;
-	Sds_master->Write_str( UPDATELOG_EVENT, comment );
+	SDS.master->FLAG = flag;
+	SDS.Master->Write_str( UPDATELOG_STR, to_string( (uint8_t)flag ) + ">" + comment );
 	Sem_p->Release( SEMAPHORE_EVENT );
 };
 
@@ -147,15 +145,15 @@ void Dataworld_class::Test_Dataworld()
 	for ( uint sdsid = 0; sdsid < 4; sdsid++ )
 	{
 		Sds = SDS.GetSds( sdsid );
-		string str = Sds->Read_str( OTHERSTR_KEY );
-		Sds->Write_str( OTHERSTR_KEY, str );
+		string str = Sds->Read_str( NOTENAMESTR );
+		Sds->Write_str( NOTENAMESTR, str );
 		cout << "read/write on Sds " << sdsid << " ok: " << str << endl;
 	}
-	sds_master->SHMID = 0;
+	SDS.master->SHMID = 0;
 	ClearShm( );
 	cout << "read/write on SHM " << 0 << " ok: " << endl;
 
-	sds_master->SHMID = 1;
+	SDS.master->SHMID = 1;
 	ClearShm( );
 	cout << "read/write on SHM " << 1 << " ok: " << endl;
 	TEST_END( className );
@@ -166,7 +164,7 @@ void Dataworld_class::Test_Dataworld()
  * SDS_struct
  **********************/
 
-SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
+SDS_struct::SDS_struct( APPID_e appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
 {
 	for ( Id_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
 	{
@@ -178,8 +176,8 @@ SDS_struct::SDS_struct( APPID appid, Config_class* Cfg_p, Semaphore_class* Sem_p
 	};
 
 	assert( Vec[0].addr != Vec[1].addr );
-	master		= GetSdsAddr( 0 );
-	Master		= GetSds( 0 );
+	master		= GetSdsAddr( MASTER_SDSID );
+	Master		= GetSds	( MASTER_SDSID );
 }
 
 SharedData_class* SDS_struct::GetSds( int id )
@@ -188,9 +186,9 @@ SharedData_class* SDS_struct::GetSds( int id )
 }
 interface_t* SDS_struct::GetSdsAddr( int id )
 {
-	if (( id < 0) or ( id > (int)MAXCONFIG ))
+	if ( not in_range( sds_range, id ) )
 	{
-		Exception( "no such Shared Data Segment ");
+		Exception( "no such Shared Data Segment " + to_string( id ) );
 	}
 	if( not Vec[id].Datasegment_exists() )
 	{
@@ -213,7 +211,6 @@ void SDS_struct::Delete()
 EventLog_class::EventLog_class( Dataworld_class* _data ) :
 	Logfacility_class("EventLog_class")
 {
-	className 	= Logfacility_class::className;
 	DaTA		= _data;
 };
 EventLog_class::~EventLog_class()
@@ -227,7 +224,7 @@ void EventLog_class::add( uint8_t sdsid, EVENTKEY_e event )
 }
 void EventLog_class::add( event_t ev )
 {
-	DaTA->SDS.Vec[ ev.sdsid ].Eventque.add( ev.event );
+	DaTA->SDS.Vec[ ev.sdsid ].Eventque.Add( ev.event );
 	if ( capture_flag)
 		rawlog_vec.push_back( ev );
 }
@@ -244,7 +241,7 @@ void EventLog_class::spool()
 {
 	fstream 		File;
 	String Str		{""};
-	vector_str_t 	arr;
+	string_vec_t 	arr;
 	event_t			ev;
 	File.open( DaTA->Cfg_p->fs->reclog_file, fstream::in );
 	if ( File.is_open() )
@@ -270,8 +267,8 @@ bool EventLog_class::capture( uint8_t sdsid, bool flag )
 		rawlog_vec.clear();
 		Sds->Dump_ifd( );
 		Sds->Copy_dumpFileTo( DaTA->Cfg_p->fs->session_dump_file );
-		Sds->Eventque.reset();
-		DaTA->EmitEvent( INSTRUMENTSTR_KEY );
+		Sds->Eventque.Reset();
+		DaTA->EmitEvent( NEWINSTRUMENTFLAG );
 	}
 	else
 	{
@@ -280,10 +277,56 @@ bool EventLog_class::capture( uint8_t sdsid, bool flag )
 		Sds->Restore_ifd();
 		write_log();
 		spool();
-		DaTA->EmitEvent( INSTRUMENTSTR_KEY );
+		DaTA->EmitEvent( NEWINSTRUMENTFLAG );
 		capture_state = CAPTURE;
 	}
 	return flag;
 }
+
+
+/**************************************************
+ * Interface_base
+ * provide uniform data access point names as well as
+ * the uniform change of the access point
+ *************************************************/
+
+Interface_base::Interface_base( Dataworld_class* data )
+{
+	this->DaTA_p		= data;
+	this->sds_master 	= data->SDS.master;
+	this->Sds_master	= data->SDS.Master;
+	this->fs			= data->Cfg_p->fs;
+	this->SDS_ID		= data->SDS_Id;
+	Set_Sds				( SDS_ID );
+};
+
+void Interface_base::Set_Sds( Id_t sdsid )
+{	// assign sds local
+	this->SDS_ID		= sdsid;
+	this->Sds 			= DaTA_p->SDS.GetSds( sdsid );
+	this->sds_p 		= Sds->addr;
+}
+void Interface_base::Set_Sds()
+{	// set sds from ifd
+	this->Sds 			= DaTA_p->SDS.GetSds( sds_master->comId );
+	this->sds_p 		= Sds->addr;
+	this->SDS_ID		= sds_p->SDS_Id;
+}
+void Interface_base::Set_masterComId( Id_t sdsid )
+{
+	sds_master->comId = sdsid;
+}
+interface_t* Interface_base::Get_sdsCom()
+{
+	return DaTA_p->SDS.GetSdsAddr( sds_master->comId );
+}
+void Interface_base::Set_comid( Id_t sdsid )
+{	// assign sds global
+	this->SDS_ID		= sdsid;
+	this->Sds 			= DaTA_p->SDS.GetSds( sdsid );
+	this->sds_p 		= Sds->addr;
+	Set_masterComId		( sdsid );
+}
+
 
 

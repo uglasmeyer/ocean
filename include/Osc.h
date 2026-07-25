@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -54,8 +54,6 @@ public:
 	void 			Connect_vol_data	( Oscillator* ); // connect the vco data of itr to this osc
 	void 			Connect_frq_data	( Oscillator* );
 	void 			Set_connection		( Oscillator* frq, Oscillator* vol );
-	void 			Reset_frq_data		();
-	void 			Reset_vol_data		();
 
 	void 			Connection_reset	();
 
@@ -76,6 +74,8 @@ private:
 	bool 			longnote			= false; // set trigger for long notes
 	const float		fmo_scale			= 0.003;//0.001;
 	void 			mem_init			();
+	void 			reset_frq_data		();
+	void 			reset_vol_data		();
 	void			self_Test			();
 
 };

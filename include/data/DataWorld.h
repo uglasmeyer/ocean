@@ -32,20 +32,20 @@ SOFTWARE.
 #ifndef DATA_DATAWORLD_H_
 #define DATA_DATAWORLD_H_
 
-#include <Ocean.h>
-#include <data/Interface.h>
+#include <data/Sdsbase.h>
 #include <data/SharedDataSegment.h>
+#include <data/Interface.h>
 #include <data/Appstate.h>
 #include <data/Config.h>
 #include <data/Memory.h>
 #include <data/Semaphore.h>
-#include <data/Sdsbase.h>
 
 typedef vector<SharedData_class> 	SDS_Vec_t;
 
-/*********************
+/**************************************************
  * SDS_struct
- *********************/
+ * provide access to the physical Shared Datasegment in terms of Vec and vec
+ *************************************************/
 typedef struct SDS_struct
 {
 public:
@@ -54,7 +54,7 @@ public:
 	interface_t*			master			;
 	SharedData_class*		Master			;
 
-							SDS_struct		( APPID appid,
+							SDS_struct		( APPID_e appid,
 											Config_class* Cfg_p,
 											Semaphore_class* Sem_p );
 	virtual 				~SDS_struct		() = default;
@@ -64,24 +64,21 @@ public:
 
 } SDS_t;
 
-/*********************
+/**************************************************
  * Dataworld_class
- *********************/
-
+ * Connect the physical data structures
+ *************************************************/
 class 	Dataworld_class :
 		virtual public Logfacility_class
 {
 public:
 
-	APPID					AppId				;
-
+	APPID_e					AppId				;
 	SDS_t			 		SDS 				;
 	Appstate_class 			Appstate			;
 	Id_t					SDS_Id				;
 
 	SharedData_class*		Sds_p				;
-	SharedData_class*		Sds_master			;
-	interface_t*			sds_master			;
 	Config_class*			Cfg_p				;
 	Semaphore_class*		Sem_p				;
 	Shm_base				SHM_l				;
@@ -90,22 +87,19 @@ public:
 	Stereo_t* 				ShmAddr_r 			;
 	string					Test_result			;
 
-	interface_t* 			GetSdsAddr			();
-	SharedData_class*		GetSds				();
-	Stereo_t* 				SetShm_addr			(); // Audioserver
-	Stereo_t* 				GetShm_addr			();	// Synthesizer
-	void 					ClearShm			();
-	void 					EmitEvent			( const uint8_t flag, string comment = ""  );
-	void					Test_Dataworld		();
-
 							Dataworld_class		( Config_class* cfg,
 												Semaphore_class* sem );
 	virtual 				~Dataworld_class	();
-
+	interface_t* 			GetSdsAddr			();
+	SharedData_class*		GetSds				();
+	Stereo_t* 				SetShm_addr			(); // Audioserver receive next data point
+	Stereo_t* 				GetShm_addr			();	// Synthesizer send current data point
+	void 					ClearShm			();
+	void 					EmitEvent			( const EVENTFLAG_e flag, string comment = ""  );
+	void					Test_Dataworld		();
 
 private:
 	void 					init_shared_sound	();
-
 	void 					init_Shm			( Shm_base& SHM,
 												key_t key,
 												uint idx );
@@ -114,44 +108,51 @@ private:
 
 /**************************************************
  * Interface_base
+ * provide uniform data access point names as well as
+ * the uniform change of the access point
  *************************************************/
-class Interface_base :
-	virtual public 			Logfacility_class
+class Interface_base
+	: public virtual Logfacility_class
 {
 public:
-	Dataworld_class*		DaTA	;
-	fs_t*					fs		;
-	SharedData_class*		Sds		;
-	interface_t*			sds_master;
-	interface_t*			sds_p	;
-	Id_t					SDS_ID	;
+	Dataworld_class*		DaTA_p			;
+	fs_t*					fs				;
+	SharedData_class*		Sds				;
+	SharedData_class*		Sds_master		;
+	interface_t*			sds_master		;
+	interface_t*			sds_p			;
+	Id_t					SDS_ID			;
 
-	Interface_base( Dataworld_class* data ) :
-		Logfacility_class	("Interface_base")
+							Interface_base	( Dataworld_class* data );
+	virtual 				~Interface_base	() = default;
+
+	interface_t*			Get_sdsCom		();
+	void 					Set_Sds			( Id_t sdsid );
+	void 					Set_Sds			();
+	void 					Set_masterComId	( Id_t sdsid );
+	void 					Set_comid		( Id_t sdsid );
+};
+
+/**************************************************
+ * Sdsmaster_class
+ * Interface to the MASTER_SDSID
+ *************************************************/
+// TODO to be implemented
+class Sdsmaster_class :
+	virtual public Logfacility_class
+{
+public:
+	Sdsmaster_class()
 	{
-		this->DaTA			= data;
-		this->sds_master 	= data->sds_master;
-		this->fs			= data->Cfg_p->fs;
-		SetSds				();
 	};
-	virtual ~Interface_base()
+	virtual ~Sdsmaster_class()
 	{
-		DESTRUCTOR( className );
 	};
-	void SetSds( )
-	{
-		if( DaTA->SDS_Id == GUI_ID )
-			this->SDS_ID	= sds_master->config;
-		else
-			this->SDS_ID	= DaTA->SDS_Id;
-		this->Sds 			= DaTA->SDS.GetSds( SDS_ID );
-		this->sds_p 		= Sds->addr;
-	}
+
+
 
 private:
 };
-
-
 /*******************
  * EventLog_class
  *******************/
@@ -159,8 +160,6 @@ private:
 class EventLog_class :
 	virtual Logfacility_class
 {
-	string className = "";
-
 
 	Dataworld_class* 	DaTA;
 	//	string logfile_name = file_structure().reclog_file;

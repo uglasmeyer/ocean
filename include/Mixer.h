@@ -53,40 +53,40 @@ class Mixer_class :
 public:
 
 	StorageArray_t 			StA				;
-	int						composer		= 0;		// note chunk counter
-	Dynamic_class			DynVolume		;
+	int						composer_cntr	= 0;		// note chunk counter
 	Wavedisplay_class*		Wd_p			;
-	mixer_state_t  			state 			= mixer_state_struct();
+	mixer_state_t  			state 			= mixer_state_data();
 
 							Mixer_class 	( Dataworld_class* 	data,
 											Wavedisplay_class* 	wd );
 	virtual 				~Mixer_class	();
 
-	void	 				Add_Sound		(  Data_t* , Data_t*, Data_t*, Stereo_t*  );
+	void	 				Add_Sound		(  Data_t* , Data_t*, Data_t* );
 	void 					ResetStA		( const StAId_e& id );
 	void 					SetStAs			();
 	void 					SetStAProperties( StAId_e mixerId );
 	void	 				StA_Wdcursor	();
-	void 					BeatClock		( const uint8_t& bps );
+	bool 					BeatClock		( const uint8_t& bps );
 	bool					Cutdesk_isActive();
 
 
-	void 					Add_mono		( Data_t*, const uint& staId );
-	void 					AddStereo		( Stereo_t* Data  );
+	void 					Add_mono		( Data_t*, StAId_e staId );
+	void 					AddStereo		();
+	void 					DumpStA			( Storage_class& sta );
+	void					SetStA_Files	( string dir );
 	void 					TestMixer		();
 
 private:
 
 	void 					auto_volume		( const StAId_e& id);
-	bool 					setFillState	( StAId_e id );
-	void 					dumpStA			( Storage_class& sta );
+	void					initStA_data	();
 	bool 					restoreStA		( Storage_class& sta );
-	void 					set_play_mode	( const StAId_e& id,  bool play );
 
 };
 
 /**************************************************
  * CutDesk_class
+ * manage the cut desk facility
  *************************************************/
 class CutDesk_class :
 	virtual public 			Logfacility_class,
@@ -100,7 +100,7 @@ class CutDesk_class :
 	Storage_class*			StA				;
 	Wavedisplay_class*		Wd				;
 	string					StAName 		;
-	uint16_t				step_records	;
+	uint16_t				record_steps	;
 
 public:
 	StAId_e					StAId			;
@@ -111,12 +111,13 @@ public:
 	virtual 				~CutDesk_class	();
 	void 					CursorUpdate	();
 	void 					Cut				();
-	void 					Loop			();
+	bool 					LoopFnc			();
 	void 					Setup			();
 	void 					Restore			();
+	void					Rotate			( Direction_e direction );
+	void					Set_record_steps( uint8_t width );
 
 private:
-	set<StAId_e> 			cutdeskIds		;//= RecIds;
 
 	bool 					setStAId		();
 };

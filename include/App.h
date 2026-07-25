@@ -40,21 +40,26 @@ SOFTWARE.
 
 // https://en.cppreference.com/w/cpp/language/parameter_pack
 
+/**************************************************
+ * Application_class
+ * provides common functionality for all Ocean-SL applications
+ *************************************************/
 class Application_class :
-	virtual Logfacility_class,
+	public virtual Logfacility_class,
 	public virtual Interface_base,
 	public sdsstate_struct,
 	Statistic_class
 {
-    const set<APPID>	logowner 			=  { GUI_ID, COMPID, RTSPID };
+    const set<APPID_e>	logowner 			=  { GUI_ID, COMPOSERID, RTSPID };
 	string 				This_Application 	;
 	string 				ProgramName 		;
+	bool 				redirect_stderr 	= false;
+	Time_class			Timer				{};
 
 public:
 
-	APPID 				AppId				;
+	APPID_e 			AppId				;
 	process_t 			properties 			{};
-	Time_class			Timer				{};
 	Kbd_base			Kbd					{};
 	Appstate_class*		Appstate			;
 	Config_class*		Cfg 				;
@@ -64,11 +69,17 @@ public:
 
 	void 				Start				( int, char* [] );
 	void 				Ready				();
+	Id_t				ChangeAppState		( 	interface_t* sds,
+												APPID_e appid,
+												string terminal,
+												string args="" );
+	Id_t				StartApp			( 	APPID_e appid,
+												string terminal,
+												string args="" );
 	kbdInt_t			KeyboardKey			( bool debug);
 
 
 private:
-	bool 				redirect_stderr 	= false;
 	void 				app_properties		();
 	void 				deRegister			();
 	void 				versionTxt			();

@@ -6,7 +6,6 @@ project(${OCEAN_PROJECT})
 # Add an executable target
 add_executable(${OCEAN_PROJECT} 
 ${OCEAN_PROJECT}.cpp
-#audio.cpp
 )
 
 target_include_directories( ${OCEAN_PROJECT} PRIVATE
@@ -19,4 +18,5 @@ ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 # Link against the shared library (without 'lib' prefix or extension)
 target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean)
 target_link_libraries(${OCEAN_PROJECT} PRIVATE rtaudio)
+target_link_libraries(${OCEAN_PROJECT} PRIVATE asound)
 

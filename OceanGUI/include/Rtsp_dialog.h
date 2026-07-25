@@ -73,7 +73,7 @@ class Rtsp_Dialog_class :
 
 public:
 
-    void 				Proc_table_update		( interface_t* sds, APPID apppid );
+    void 				Proc_table_update		( interface_t* sds, APPID_e apppid );
     void 				Proc_table_update_all	();
 
     explicit 			Rtsp_Dialog_class		(

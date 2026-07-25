@@ -32,16 +32,15 @@ SOFTWARE.
 
 
 #include <Build.h>
-#include <Fourier.h>
-
 
 Exit_class				Exit			{};
 Kbd_base				Kbd 			{};
 Config_class			Cfg				{};
 Logfacility_class		Log				( Cfg.prgName );
-Fourier_class			Fourier			{};
 
-file_structure* 		Bin				;
+
+
+file_structure* 		Bin				= Cfg.fs;
 
 
 
@@ -80,19 +79,6 @@ void init_file( string _src, string _dst )
 		Log.Info( "Skipping", _src );
 	auto mode = filesystem::copy_options::skip_existing;
 	filesystem::copy( _src , _dst, mode );
-}
-
-void copy_files( string dir, string filter, string destination )
-{
-	if ( destination.length() == 0 ) return;
-	Log.Comment( DEBUG, "copy files to ", destination );
-
-	vector<string> files = List_directory(dir, filter );
-	for(string file : files )
-	{
-		Log.Info( "copy ", file );
-		overwrite( dir + file, destination + file );
-	}
 }
 
 string deployment_archive = "";
@@ -170,19 +156,6 @@ void compare_environment()
 		Log.Comment( WARN, "environment              OCEANDIR=", oceandir_env );
 		Log.Comment( WARN, "is not equal to install directory=", Bin->installdir );
 	}
-}
-void create_oceanrc()
-{
-	Log.Info( "Creating the", Bin->oceanrc_file );
-	fstream Oceanrc	{};
-	Oceanrc.open	( Bin->oceanrc_file, fstream::out );
-
-	Oceanrc << "export " << OCEANDIR << "=" << Bin->installdir << endl;
-	Oceanrc << "export ARCH=" << getArch() << endl;
-	Oceanrc << "PATH=$(echo $PATH | sed \"s|$OCEANDIR/bin:||g\")" << endl;
-	Oceanrc << "LD_LIBRARY_PATH=$(echo $LD_LIBRARY_PATH | sed \"s|$OCEANDIR/lib:||g\")" << endl;
-	Oceanrc << "export PATH=$" << OCEANDIR << "/bin/$ARCH:$"<<OCEANDIR<<"/bin:$PATH" << endl;
-	Oceanrc << "export LD_LIBRARY_PATH=$" << OCEANDIR << "/lib/$ARCH:$LD_LIBRARY_PATH"<< endl;
 }
 
 void symboliclink( string _src, string _sym, string _ext )
@@ -270,7 +243,7 @@ void Copy_3rdpartylibs( source_struct* Src )
 	{
 		if ( filesystem::exists( lib ) )
 		{
-			filesystem::copy( lib , Bin->archlibdir, filesystem::copy_options::skip_existing );
+			filesystem::copy( lib , Bin->archlibdir, filesystem::copy_options::overwrite_existing );
 		}
 		else
 		{
@@ -310,18 +283,11 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 
 	Copy_3rdpartylibs( Src );
 
-	init_file ( Src->resourcedir + "Notes/" + Bin->default_nte, Bin->notesdir );
-	init_file ( Src->resourcedir + "Notes/" + Bin->default_xml, Bin->xmldir );
 	init_file ( Src->resourcedir + "Instruments/" + Bin->default_snd, Bin->instrumentdir );
 	init_file ( Src->resourcedir + Bin->bkground_filename, Bin->bkground_file );
-	init_file ( Src->resourcedir + Bin->config_filename	, Bin->config_file );
-	init_file ( Src->resourcedir + Bin->program_filename, Bin->includedir );
-	init_file ( Src->resourcedir + Bin->prog_libfilename, Bin->includedir );
-	init_file ( Src->resourcedir + Bin->prog_testfilename,Bin->includedir );
 
-	overwrite ( Src->resourcedir + "Instruments/"+Bin->testsnd_filename, Bin->instrumentdir + Bin->testsnd_filename );
+//	overwrite ( Src->resourcedir + "Instruments/"+Bin->qtsnd_filename, Bin->instrumentdir + Bin->testsnd_filename );
 	overwrite ( Src->resourcedir + Bin->ipctool_filename, Bin->ipctool_file );
-	overwrite ( Src->resourcedir + Bin->template_xmlname	, Bin->template_xmlfile );
 	overwrite ( Src->sourcedir + Bin->install_txt		, Bin->install_txtfile );
 	overwrite ( Src->sourcedir + "oceansetup.sh"		, Bin->installdir + "oceansetup.sh" );
 	overwrite ( Src->resourcedir + Bin->icon_filename	, Bin->icon_file );
@@ -341,7 +307,6 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 int main(int argc, char **argv)
 {
 	Cfg.Parse_argv(argc, argv );
-	Bin 		= Cfg.fs;
 
 	// CDT install binary
 	if( Cfg.Config.filename.length() > 0 )

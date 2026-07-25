@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,28 +32,28 @@ SOFTWARE.
 #ifndef KEYBOARD_BASE_H_
 #define KEYBOARD_BASE_H_
 
+
+
 const char			kbd_rows				= 3;
 const int 			max_kbd_octave			= max_octave - kbd_rows ;
 
 
-typedef struct kbd_state_struct
+typedef struct kbd_state_data
 {	// SDS related
-	int 			base_octave 			= 3; 	// current min kbd octave changeble by +/-
-	uint			sharps					= 0; 	// range(0 .. 3 ) notebase::sharp_pitch
-	uint			flats					= 0; 	// range(0 .. 2 ) notebase::flat_pitch
-	volatile
-	uint8_t			bpsidx					= 1;	// apply ADSR data
+	uint8_t			base_octave 			= 3; 	// current min kbd octave changeble by +/-
+	uint8_t			sharps					= 0; 	// range(0 .. 3 ) notebase::sharp_pitch
+	uint8_t			flats					= 0; 	// range(0 .. 2 ) notebase::flat_pitch
+	uint8_t			bpsval					= 1;	// apply ADSR data
 	bool			sliding					= false;// use wp.glide on frequency
 	char			trigger					= 0;	// record trigger is inactive
 													// 1 Wait for event
 													// 2 scan pos reached the begin of the sta buffer
 	bool			savenotes				= false;// trigger to save keyboard notes
-	volatile
+//	volatile
 	kbdInt_t		key						= 0x0;	// QT::key
 	frq_t			frq						= 0.0;	// OceanGUI display frequency
 	char			note[3]					= {"XX"};//OceanGUI display key
 	Id_t			chord_type				= 'Y';	// OceanGUI display chord type
-
 } kbd_state_t;
 
 

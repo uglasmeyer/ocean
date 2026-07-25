@@ -45,6 +45,7 @@ static const string	oceandev_env= OCEANDEV;
 static const Id_t 	MAXCONFIG 	= 4; 		// number of SDS configration
 											// max 4 can be managed by the GUI
 typedef	array<key_t,MAXCONFIG>	keys_arr_t;
+const range_T<int>  sds_range 	{ 0, MAXCONFIG };
 
 struct prgarg_struct
 {
@@ -66,6 +67,7 @@ struct prgarg_struct
 	string		title		= "Experimental";
 	string		album		= Application;
 	string		Term		= "xterm -e ";
+	string		Logview		= "xterm -e tail -n 1000 -f";
 	string		Nohup		= "nohup";
 	string 		ffmpeg 		= "ffmpeg";
 	string		installdir	= "";		 // Setup -I ...
@@ -86,11 +88,11 @@ struct prgarg_struct
 typedef prgarg_struct prgarg_t;
 
 
-enum APPID
+enum APPID_e :  uint8_t
 {
 	AUDIOID = 0, // mandatory
 	SYNTHID = 1, // fixed
-	COMPID,
+	COMPOSERID,
 	GUI_ID,
 	SDSVIEWID,
 	RTSPID,
@@ -98,8 +100,7 @@ enum APPID
 	SETUPID,
 	TESTPRGID,
 	XMLEDITORID,
-	CLEARIPCID,
-	NoAPPID
+	APPID_SIZE
 };
 
 #define AUDIOSERVER "AudioServer"
@@ -112,17 +113,16 @@ enum APPID
 #define SETUP		"Setup"
 #define TESTPRG		"Testprj"
 #define XMLEDITOR	"musescore3"
-#define CLEARIPC	"Clearipc"
 
 
 struct AppMap_struct
 {
 
-	map<APPID, string > AppIdName_map // @suppress("Invalid arguments")
+	map<APPID_e, string > AppIdName_map // @suppress("Invalid arguments")
 	{
 			{ AUDIOID		, AUDIOSERVER	 },
 			{ SYNTHID		, SYNTHESIZER	 },
-			{ COMPID		, COMPOSER		 },
+			{ COMPOSERID		, COMPOSER		 },
 			{ GUI_ID		, OCEANGUI		 },
 			{ SDSVIEWID		, SDSVIEW		 },
 			{ RTSPID		, RTSP			 },
@@ -130,30 +130,29 @@ struct AppMap_struct
 			{ SETUPID		, SETUP			 },
 			{ TESTPRGID		, TESTPRG		 },
 			{ XMLEDITORID	, XMLEDITOR		 },
-			{ CLEARIPCID	, CLEARIPC		 },
-			{ NoAPPID		, "unknown id"	 },
+			{ APPID_SIZE	, "unknown id"	 },
 	};
 
-	map< string, APPID >AppNameId_map = // @suppress("Invalid arguments")
-			imap<APPID, string>( AppIdName_map ); // @suppress("Invalid arguments")
-	vector<APPID> AppIds{};
+	map< string, APPID_e >AppNameId_map = // @suppress("Invalid arguments")
+			imap<APPID_e, string>( AppIdName_map ); // @suppress("Invalid arguments")
+	vector<APPID_e> AppIds{};
 
 	AppMap_struct()
 	{
-		AppIds = Iota_T<APPID>( (APPID)0, NoAPPID );
+		AppIds = Iota_T<APPID_e>( (APPID_e)0, APPID_SIZE );
 	}
 	~AppMap_struct() = default;
-	string AppIdName( APPID appid )
+	string AppIdName( APPID_e appid )
 	{
 		return AppIdName_map[ appid ];
 	}
-	APPID AppNameId( string name )
+	APPID_e AppNameId( string name )
 	{
 		return AppNameId_map[ name ];
 	}
 
 };
-const vector<APPID> AppIds		= AppMap_struct().AppIds;
+const vector<APPID_e> AppIds		= AppMap_struct().AppIds;
 
 struct process_properties_struct
 {
@@ -163,14 +162,14 @@ struct process_properties_struct
 	bool		logowner 		= false;
 	bool		keyboard		= false;
 };
-const set<APPID>dataProc			{ AUDIOID, SYNTHID, KEYBOARDID };
+const set<APPID_e>dataProc			{ AUDIOID, SYNTHID, KEYBOARDID };
 
 typedef struct process_struct :
 	process_properties_struct,
 	AppMap_struct
 {
 	const string 	name 		= program_invocation_short_name;
-	const APPID		AppId 		= AppNameId( name );
+	const APPID_e		AppId 		= AppNameId( name );
 	process_struct( ) :
 		process_properties_struct()
 	{

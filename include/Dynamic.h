@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,19 +34,22 @@ SOFTWARE.
 
 #include <Frequency.h>
 
-const vector<string> slidermodes =
+const vector<string> slidermode_str =
 {
 	"Fixed",
 	"Slide",
 	"Combine"
 };
-enum DYNAMIC : unsigned char
+enum DYNAMIC_e : unsigned char
 {
 	FIXED,
 	SLIDE,
-	COMBINE
+	COMBINE,
+	INIT
 }; // frequency and volume change mode
 
+const range_T<DYNAMIC_e> dynamic_valrange{ FIXED, SLIDE }; // range(0,1)
+const range_T<DYNAMIC_e> dynamic_frqrange{ FIXED, COMBINE }; // range(0,2)
 
 typedef struct state_struct
 {
@@ -56,9 +59,14 @@ typedef struct state_struct
 	float		delta 				= 0.0;
 	int			future				= 0;
 	int			past				= 0;
-	int			mode				= FIXED;
+	DYNAMIC_e	mode				= INIT;
 } dynamic_state_t;
 
+enum DYNTYPE_e : uint8_t
+{
+	FRQ,
+	VOL
+};
 
 /**************************************************
  * Dynamic_class
@@ -67,24 +75,24 @@ class Dynamic_class
 	: virtual public Frequency_class
 {
 
+
 	const buffer_t	test_frames			= 1000;
-	const range_T<uint8_t>
-					slide_duration_range{ 0, 100 };
-	range_T<int>	range				;
-	uint8_t			slideduration 		;
+	const buffer_t	max_slide_frames	= max_slide_sec * frames_per_sec;
+
+	range_T<uint8_t>range				;
+	uint8_t			slide_value 		;
 	dynamic_state_t	restorestate		;
 	dynamic_state_t	current				;
+	DYNTYPE_e		dynface				;
 
 public:
 
-
-					Dynamic_class		( range_T<int> r );
+					Dynamic_class		( DYNTYPE_e _type, range_T<int> _range );
 	virtual 		~Dynamic_class		();
 
-	uint8_t			SetupVol			(int future_vol, DYNAMIC mode);
-	uint8_t 		SetupFrq			(int future_frq, DYNAMIC mode);
-	void 			SetDelta			( const uint8_t& sl_duration  );
-	float 			Get					( );
+	uint8_t 		Setup				( uint8_t future_vol, DYNAMIC_e mode );
+	void 			SetDelta			( uint8_t sl_duration );
+	float 			Get					();
 	void			SetCurrent			( dynamic_state_t state );
 	dynamic_state_t GetCurrent			();
 	void 			Update				();
@@ -94,11 +102,10 @@ public:
 	void 			TestFrq				();
 
 private:
-	constexpr buffer_t
-					slideFrames( const uint8_t& sl_duration );
-	void			setup_past();
-	void 			end();
-	void 			set_state();
+	buffer_t		slideFrames			( uint8_t sl_duration );
+	void			setup_past			();
+	void 			end					();
+	void 			set_state			();
 
 
 };

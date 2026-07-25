@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,63 +37,69 @@ SOFTWARE.
 #include <Spectrum.h>
 #include <Oscgroup.h>
 #include <Wavedisplay.h>
-//#include <Table.h>
 
 class Instrument_class
 	: virtual public 		Logfacility_class
 	, virtual public		Interface_base
 	, virtual public		Device_class
-//	virtual				osctype_struct
 {
+	Oscillator*				osc						;
+	Oscillator*				vco						;
+	Oscillator*				fmo						;
+
 public:
-	string 				Name 					= "";
+	Oscgroup_class			Oscgroup				;
+//	string 					Name 					; // the name of the instrument
+	Wavedisplay_class*		wd_p					;
+	cstring_T<cstring_name> Instrument_name			;
 
-	Oscgroup_class		Oscgroup				{ INSTRROLE, monobuffer_bytes };
-	Oscillator*			osc						= &Oscgroup.osc;
-	Oscillator*			vco						= &Oscgroup.vco;
-	Oscillator*			fmo						= &Oscgroup.fmo;
-	Wavedisplay_class*	wd_p					= nullptr;
-
-						Instrument_class		( Dataworld_class* data ,
-												Wavedisplay_class* wd );
-	virtual 			~Instrument_class		();
+							Instrument_class		( Dataworld_class* data ,
+													Wavedisplay_class* wd );
+	virtual 				~Instrument_class		();
 ;
-	bool 				Set						( string );
-	void 				Save			( string );
-	void				Set_adsr				( char osdid );
-	void 				Update_osc_spectrum		( char oscid );
-	bool 				Connect					( Oscillator* osc,
-												Oscillator* sec,
-												char mode );
+	bool 					Set						( string );
+	bool 					Set						();
+	void 					SetDir					( string subdir );
+	void 					Save					( string );
+	void 					Update_osc_spectrum		( char oscid );
+	bool	 				Connect					( Oscillator* osc,
+													Oscillator* sec,
+													char mode );
+	bool 					Sync					( bool run );
 
-	void 				Test_Instrument			();
+	void 					Test_Instrument			();
 
 private:
-	string 				Instrument_file			= "";
-	string 				Default_instrument_file = "";
-	string 				instr_ext 				= "";
-	int 				file_version 			= -1;
-	set<int>			supported 				{ 0, 1, 2, 3, 4 };
-	int					actual_version			= 4;
+	dircontent_struct		instruments				;
 
-	void 				selfTest				();
-	void 				set_name				( string );
-	void 				set_new_name			( string );
-	bool 				assign_adsr 			( vector_str_t );
-	bool				assign_adsr2			( const vector_str_t& arr );
-	bool 				assign_adsr3			( const vector_str_t& arr );
-	void 				assign_spectrum			( const string&	type,
-												const string& 	name,
-												const char& 	flag );
-	bool 				read_instrument			();
-	void 				init_data_structure		( Oscillator*, vector_str_t);
-	void 				update_sds				();
+	string					instrument_dir			;
+	string					fourier_dir				;
+	string 					instrument_file			;
+	string					fourierBinFile			;
+	int 					file_version 			= -1;
+	const set<int>			supported 				{ 4, 5, 6 };
+	const int				actual_version			= 6;
 
-	void 				showOscfeatures			( ostream& FILE = cout );
-	int 				getVersion				( fstream& File );
-	bool				read_version1			( fstream& File );
-	bool				read_version2			( fstream& File );
-	void 				save_features			( ostream& FILE );
-	void 				save_connections		( ostream& FILE, Oscillator* osc );
+	void 					selfTest				();
+	void	 				select					( string );
+	bool 					set_new_name			( string );
+	bool 					assign_adsr 			( Oscillator* osc, string_vec_t );
+	bool					assign_adsr2			( const string_vec_t& arr );
+	bool 					assign_adsr3			( const string_vec_t& arr );
+	bool	 				assign_adsr5			( OSCID_e oscid, const string_vec_t& arr );
+	void 					assign_spectrum			( const string&	type,
+													const string& 	name,
+													const char& 	flag );
+	bool 					read_instrument			();
+	void 					init_data_structure		( Oscillator*, string_vec_t);
+
+	void 					showOscfeatures			( ostream& FILE = cout );
+
+	int						getVersion				( fstream& File );
+	bool					read_version1			( fstream& File );
+	bool					assign_sds				( fstream& File );
+	void 					save_connections		( ostream& FILE, Oscillator* osc );
+	void 					connect					( OSCID_e oscid, OSCID_e secid, char mode );
+
 };
 #endif /* INSTRUMENT_H_ */

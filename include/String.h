@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,20 +37,22 @@ SOFTWARE.
 #include <Logfacility.h>
 
 
-typedef vector<string>	vector_str_t;
+typedef vector<string>	string_vec_t;
 const size_t STRINGNOTFOUND = string::npos;
 
 extern int 		char2int( const char& ch );
 extern char 	int2char( const int& i );
+extern string 	int2str( const int& i );
 extern set<int> range_set( const int& min, const int& max );
 extern bool 	strEqual( const string& , const string&  );
 extern string 	notnull( char* cstr );
+extern string 	trailing_dirslash( const string& dir );
 
-inline string bool_str( bool b, string t="yes", string f="no" )
+inline string 	bool_str( bool b, string t="yes", string f="no" )
 	{ return ( b ) ? t : f; };
 
 template<typename Key, typename Value>
-auto imap( map<Key,Value> m )
+auto imap( map<Key,Value> m ) //invert map
 {
 	map<Value, Key> M {};
 	for( auto [k,v] : m )
@@ -69,16 +71,54 @@ template< typename C > vector<C> set2vector( set<C> s )
 	return v;
 }
 
-template< class C > set< C > vector2set( vector< C > v )
+template< class C > unordered_set< C >
+vector2Uset( vector< C > v )
 {
-	set< C > s {};
+	unordered_set< C > s {};
 	for( C i : v )
 	{
 		s.insert( i );
 	}
 	return s;
 }
+constexpr uset_t vector2uset( const string_vec_t v )
+{
+	uset_t u {};
+	for( string s : v )
+	{
+		u.insert( s );
+	}
+	return u;
+}
 
+template<typename T>
+string set_str( set<T> Set )
+{
+	stringstream strs {};
+	for( T t : Set )
+		strs << t << " " ;
+	return strs.str();
+};
+template< class C, const long unsigned int Size >
+set< C > array2set( array<C, Size> a )
+{
+	set< C > s {};
+	for( C i : a )
+	{
+		s.insert( i );
+	}
+	return s;
+}
+template< class C, const long unsigned int Size >
+unordered_set< C > array2uset( array<C, Size> a )
+{
+	unordered_set< C > s {};
+	for( C i : a )
+	{
+		s.insert( i );
+	}
+	return s;
+}
 template< class C > list< C > vector2list( vector< C > v )
 {
 	list< C > l {};
@@ -130,6 +170,16 @@ template<typename T> string show_type( T all_items )
     return strs.str();
 }
 
+template<typename T> string array_str( T all_items )
+{
+	stringstream strs{ "" };
+    for ( uint n = 0; n < all_items.size(); n++ )
+    {
+    	strs << all_items[n] << " ";
+    }
+    return strs.str();
+}
+
 template < typename T>
 bool is_string( T v )
 {
@@ -142,6 +192,13 @@ constexpr string to_hex( long addr )
 	strs << "0x" << uppercase << hex << addr ;
 	return strs.str();
 };
+
+template < class T>
+T Concatenate( T c1, T& c2 )
+{
+	c1.insert( c1.end(), c2.begin(), c2.end() );
+	return c1;
+}
 
 /**************************************************
  * String
@@ -174,14 +231,15 @@ public:
 	}
 
     set<char>		to_set();
-	vector_str_t 	to_array( char );
-	vector_str_t 	to_unique_array( char );
-	vector_str_t 	to_bracket_array( char );
+	string_vec_t 	to_array( char );
+	string_vec_t 	to_unique_array( char );
+	string_vec_t 	to_bracket_array( char );
 
 	void 			replace_comment(  	);
 	void 			replace_char( char , char  );
-	void 			normalize(			);
-	bool			is_number( 			);
+	void 			normalize();
+	bool			is_number();
+	int 			secure_stoi();
 	int 			secure_stoi( string	str );
 	float 			secure_stof( string str );
 	void 			TestString();

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,17 @@ SOFTWARE.
 #include <Utilities.h>
 #include <Kbd.h>
 
+#define NOERR 0
+typedef struct pair_struct
+{
+	string 	key { "" };
+	string 	str { "" };
+} pair_struct_t;
+typedef array<pair_struct_t, 64> error_arr_t;
+
+extern const error_arr_t error_text_arr;
+extern uint8_t term_columns();
+
 namespace COLOR
 {
 	const string			reset		= "\033[39m";
@@ -60,8 +71,7 @@ namespace COLOR
 
 #define coutf 			cout.flush()
 
-
-constexpr string Line( int len = 58, char ch = '-' )
+constexpr string Line( int len = 80-22, char ch = '-' )
 {
 	string str {};
 	for (int n = 0; n < len; n++)
@@ -153,9 +163,10 @@ class Logfacility_class
 {
 
 public:
-	string 					className 		;
+	string 					className 		= "Logfacility_class";
 	string 					prefixClass 	;
 	logmask_t 				logmask			;
+	set<int> 				Ignore_error_set{ NOERR, ENOENT };
 
 					Logfacility_class( const string module = "Log" );
 	virtual			~Logfacility_class(  );
@@ -188,6 +199,7 @@ public:
 			return key;
 		}
 		Comment( LOG_e::WAIT, args... );
+		fflush( stdout );
 		if ( LogMask.test( LOG_e::WAIT ) )
 		{
 			key = kbd->GetKeyInt( 100 );
@@ -221,17 +233,11 @@ private:
 		}
 		virtual ~log_struct() = default;
 	};
-	typedef struct pair_struct
-	{
-		string 	key { "" };
-		string 	str { "" };
-	} pair_struct_t;
-	typedef array<pair_struct_t, 64> error_arr_t ;
 
-	error_arr_t 		error_arr;
+	const error_arr_t* 		error_arr;
 	vector<log_struct> 	Prefix_vec;
 	string 				cout_log( LOG_e logid, string str );
-	void 				seterrText();
+//	void 				seterrText();
 };
 
 

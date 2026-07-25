@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,30 +32,40 @@ SOFTWARE.
 #ifndef INCLUDE_PLAYNOTES_H_
 #define INCLUDE_PLAYNOTES_H_
 
-#include <Spectrum.h>
-#include <data/DataWorld.h>
 #include <Instrument.h>
-#include <Oscbase.h>
-#include <Osc.h>
-#include <Ocean.h>
-#include <System.h>
-#include <Oscgroup.h>
-#include <notes/Notesbase.h>
 #include <notes/MusicXML.h>
 
-#include <Logfacility.h>
+
+
+struct noteline_prefix_struct :
+	Logfacility_class,
+	bps_struct
+{
+	Table_class Table {"Noteline Prefix", 22 };
+	nlp_data_t	data 		;
+	nlp_data_t*	data_p		;
+
+				noteline_prefix_struct	( nlp_data_t* data_p );
+				~noteline_prefix_struct	() 	= default;
+	void		From_string				( const string& str );
+	void 		Nlp_data_p				( nlp_data_t* p );
+	string 		To_string				( nlp_data_t nlp );
+	void 		Show_nlp				();
+	nlp_data_t	Read					();
+	void		Save					();
+	void		selftest				();
+
+};
+typedef noteline_prefix_struct noteline_prefix_t;
 
 /**************************************************
  * NotesCore_class
  *************************************************/
 class NotesCore_class
-	: virtual public 	Logfacility_class
+	: virtual public	Interface_base
 	, virtual public 	Note_base
-	, public virtual 	Interface_base
 
 {
-	string 				notefile_name 			;
-	size_t	 			noteline_len 			;
 	uint16_t			notenumber				;
 	uint16_t			note_duration 			;
 	uint16_t			noteline_duration		;
@@ -63,40 +73,43 @@ class NotesCore_class
 	size_t				parse_error				;
 	int 				timestamp 				;
 	uint 				scoretime 				;
-	string 				notefile 				;
-	string 				noteline				;
 	uint8_t				noteline_sec 			;
-	string 				volumeline 				;
 	size_t				volume_vec_len 			;
 	vector<uint>    	volume_vec 				;
 	Table_class 		Note_table 				;
 
+	dircontent_struct	notefiles				;
+	string 				Name 					;
+	string				notefiles_dir			;
+	string 				notefile 				;
+
 public:
 	string				Instrument_name 		;
+	cstring_T<cstring_long>		Noteline				;
+	cstring_T<cstring_long>		Rythmline				;
+	noteline_prefix_t	Noteline_prefix 		;
+
 	uint8_t 			Octave					;
-	Musicxml_class		Musicxml				;
+	Musicxml_class*		Musicxml_p				;
 
-
-						NotesCore_class			( Dataworld_class* data );
+						NotesCore_class			( Dataworld_class* data, Musicxml_class* xml );
 	virtual 			~NotesCore_class		();
 
-	void 				Align_measure			( noteline_prefix_t prefix,
-												string& noteline );
-	uint 				Calc_notelist_msec		( notelist_t notelist );
 	note_t				Char2note				( char& ch );
-	notelist_t 			Gen_notelist			( noteline_prefix_t prefix,
-												string str );
-	string 				Get_note_line 			();
-	string 				Get_rhythm_line 		();
+	notelist_t 			Gen_notelist			();
 	string 				Read					( string filename );
-	void				Save					( string, noteline_prefix_t , string  );
-	void 				Set_nlp					( noteline_prefix_t nlp );
-	void				Set_noteline_prefix		( noteline_prefix_t nlp );
-	bool				Set_notes_per_second	( int );
+	void				Save					( string filename );
+	void				Save					( string filename, nlp_data_t npl, string nl  );
+	void 				SetDir					( string subdir );
+	bool				Set_new_name			( string );
+//	bool				Set_noteline_prefix		( nlp_data_t nlp );
+	void 				Set_Octave_shift		( uint8_t octave );
+	void				Set_notes_per_second	( int );
 	void				Set_prefix_octave		( int );
 	void 				Set_rhythm_line			( string );
 	void				Set_xmlnotelist			( const notelist_t& notelist );
-	void				Show_note				( note_t, bool debug=false );
+	void				Show_note				( const note_t&, bool debug=false );
+
 	template< class Class>
 	void 				Show_note_list			( Class& items ) // list or vector
 	{
@@ -113,28 +126,32 @@ public:
 		}
 		Note_table.AddRow( "sentence length", duration, "[msec]" );
 	}
-	void 				Test_NotesCore			();
+
 	void 				Test_Musicxml			();
-	bool				Verify_noteline			( noteline_prefix_t nlp,
-												string noteline );
+	void 				Test_NotesCore			();
+	bool				Verify_noteline			( nlp_data_t nlp, string noteline );
+	bool				Verify_noteline			( NOTE::ORIGIN_e origin );
+
 private:
 
 	void				add_volume				( note_itr_t );
+	void 				align_measure			();
 	void				assign_freq				();
-	void 				change_alphabet_notes	( noteline_prefix_t );
-	bool 				compiler 				( noteline_prefix_t prefix,
-												string str );
+	uint 				calc_notelist_msec		( notelist_t notelist );
+	void 				change_alphabet_notes	();
+	bool 				compile 				();
 	void				fill_note_list			();
 	string 				get_name				();
 	void				init_note_table			();
 	size_t				position_parser			( size_t );
-	bool				set_file_name			( string );
+	void				select					( string name );
 	void            	set_volume_vector		( string );
 	void				split_long_notes		();
 	void				show_noteline_duration	( const uint16_t& msec,
 												uint& duration,
 												uint& count,
 												uint& m_duration );
+	bool				verify_noteline			();
 
 };
 
@@ -142,10 +159,12 @@ private:
 
 /**************************************************
  * Note_class
+ * interface between notes core the oscgroup and the mixer
+ * using the settings of the current instrument
  *************************************************/
 class Note_class
-	: virtual public 	Note_base
-	, public virtual 	Interface_base
+//	: virtual public 	Note_base
+	: public virtual 	Interface_base
 	, public virtual	NotesCore_class
 {
 	Instrument_class*	instrument 				;
@@ -155,20 +174,25 @@ class Note_class
 	Oscillator*			vco						;
 	Oscillator*			fmo						;
 	Oscillator*			Osc						;
-	Scanner_class*		scanner					;
 	uint8_t 			read_cnt 				;
 
+
 public:
+	Scanner_class*		scanner					;
 	Trigger_class		Note_itr_start			;
 	Trigger_class		Note_itr_end			;
 
 						Note_class				( Dataworld_class* data,
 												Instrument_class* instr,
-												Storage_class*	sta );	// Synthesizer
+												Storage_class*	sta,
+												Musicxml_class* xml_p );	// Synthesizer
 	virtual				~Note_class				();
 	void				LoadMusicxml			( const string& file );
 	bool				Generate_cyclic_data	();
 	bool 				Generate_volatile_data	( bool init = false );
+	void 				Readlock_wait			( bool lock );
+//	bool 				SetNoteline				();
+
 	Data_t*				ScanData				();
 
 private:

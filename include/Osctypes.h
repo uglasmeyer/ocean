@@ -36,6 +36,7 @@ SOFTWARE.
 #include <string>
 #include <vector>
 #include <array>
+#include <Range.h>
 
 #define OSCIDSIZE 3
 
@@ -102,7 +103,7 @@ struct osctype_struct
 		"VCO",
 		"FMO",
 		"OSC",
-		""
+		"   "
 	};
 	osctype_struct( OSCID_e _type, RoleId_e _role )//= NOOSCID )
 	{
@@ -121,7 +122,8 @@ struct osctype_struct
 	~osctype_struct() = default;
 
 };
-
+const range_T<OSCID_e> oscid_range{ VCOID, NOOSCID };
+const range_T<RoleId_e> roleid_range { USER00ROLE, ADSRROLE }; // excludes adsr role
 const std::vector<std::string> typeNames = osctype_struct(NOOSCID, ROLE_SIZE).typeNames;
 const std::vector<std::string> roleNames = osctype_struct(NOOSCID, ROLE_SIZE).roleNames;
 

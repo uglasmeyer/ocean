@@ -34,7 +34,6 @@ SOFTWARE.
 Device_class::Device_class( interface_t* _sds ) :
 	Logfacility_class("Device_class")
 {
-	className = Logfacility_class::className;
 	this->sds = _sds;
 	Set_sds( sds );
 	SelfTest();
@@ -54,10 +53,10 @@ void Device_class::SelfTest()
 	connectId_t Connect;
 	Connect.frq = VCOID;
 	Connect.vol = VCOID;
-	Set_sds_connect_state( FMOID, Connect );
+	Sds_connect_state( FMOID, Connect );
 
 	assert( sds->connect_arr[FMOID] == Connect );
-	Set_sds_connect_state( FMOID, default_connect( FMOID ) );
+	Sds_connect_state( FMOID, default_connect( FMOID ) );
 
 }
 
@@ -71,7 +70,7 @@ void Device_class::Set_sds_adsr( char oscid, adsr_t adsr )
 	sds->adsr_arr[oscid] = adsr;
 }
 
-void Device_class::Set_sds_connect_state( char oscid, connectId_t connect )
+void Device_class::Sds_connect_state( char oscid, connectId_t connect )
 {
 	sds->connect_arr[ oscid ] = connect;
 }

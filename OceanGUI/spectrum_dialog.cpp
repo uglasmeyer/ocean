@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,10 +35,10 @@ SOFTWARE.
 #include <Spectrum_dialog.h>
 #include <DataGraphicClass.h>
 
-Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
+Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget*			parent,
 											 Dataworld_class* 	data ,
 											 EventLog_class*	_log) :
-    Logfacility_class	( "Spectrum" ),
+    Logfacility_class	( "Spectrum_Dlg" ),
 	Spectrum_class		(),
 	Interface_base		( data ),
 	QDialog				( parent ),
@@ -47,25 +47,30 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
     QWaveform_vec 		= Vstringvector( Get_waveform_vec() );
     Eventlog_p			= _log;
 
-    ui->setupUi			(this);
-    ui->rb_spec_main->setChecked(true);
+    ui->setupUi			( this );
+
+    QStringList			qresolution_lst = { "8", "16", "32", "64" };
+    ui->cB_resolution->addItems( qresolution_lst );
+//    ui->cB_resolution->setCurrentIndex( sds_p->resolutionIdx );
+
+    ui->rb_spec_main->setChecked( true );
     QStringList			Qbps_str_lst		= Qstringlist( bps_struct().Bps_lst );
     ui->cb_bps->addItems( Qbps_str_lst );
 
-    connect( ui->fS_1, SIGNAL(valueChanged(int)), this, SLOT(fS1( int )));
-    connect( ui->vS_2, SIGNAL(valueChanged(int)), this, SLOT(vS2( int )));
-    connect( ui->fS_3, SIGNAL(valueChanged(int)), this, SLOT(fS3( int )));
-    connect( ui->vS_4, SIGNAL(valueChanged(int)), this, SLOT(vS4( int )));
-    connect( ui->fS_5, SIGNAL(valueChanged(int)), this, SLOT(fS5( int )));
-    connect( ui->vS_6, SIGNAL(valueChanged(int)), this, SLOT(vS6( int )));
-    connect( ui->fS_7, SIGNAL(valueChanged(int)), this, SLOT(fS7( int )));
-    connect( ui->vS_8, SIGNAL(valueChanged(int)), this, SLOT(vS8( int )));
-    fS_vec = { ui->fS_1, ui->fS_3, ui->fS_5, ui->fS_7 };
-    vS_vec = { ui->vS_2, ui->vS_4, ui->vS_6, ui->vS_8 };
-    for( QSlider* slider : fS_vec )
+    connect( ui->fS_1	, SIGNAL(valueChanged(int)), this, SLOT(fS1( int )));
+    connect( ui->vS_2	, SIGNAL(valueChanged(int)), this, SLOT(vS2( int )));
+    connect( ui->fS_3	, SIGNAL(valueChanged(int)), this, SLOT(fS3( int )));
+    connect( ui->vS_4	, SIGNAL(valueChanged(int)), this, SLOT(vS4( int )));
+    connect( ui->fS_5	, SIGNAL(valueChanged(int)), this, SLOT(fS5( int )));
+    connect( ui->vS_6	, SIGNAL(valueChanged(int)), this, SLOT(vS6( int )));
+    connect( ui->fS_7	, SIGNAL(valueChanged(int)), this, SLOT(fS7( int )));
+    connect( ui->vS_8	, SIGNAL(valueChanged(int)), this, SLOT(vS8( int )));
+    fS_vec = { nullptr, ui->fS_1, ui->fS_3, ui->fS_5, ui->fS_7 };
+    vS_vec = { nullptr, ui->vS_2, ui->vS_4, ui->vS_6, ui->vS_8 };
+    for( size_t channel = 1; channel < SPEC_CHANNELS; channel++ )
    	{
-   		slider->setMaximum( harmonic_range.max );
-   		slider->setMinimum( harmonic_range.min );
+    	fS_vec[channel]->setMaximum( harmonic_range.max );
+    	fS_vec[channel]->setMinimum( harmonic_range.min );
    	}
     connect( ui->sb_spwf1, SIGNAL(valueChanged(int)), this, SLOT( sb_wf1(int) ));
     connect( ui->sb_spwf2, SIGNAL(valueChanged(int)), this, SLOT( sb_wf2(int) ));
@@ -73,20 +78,28 @@ Spectrum_Dialog_class::Spectrum_Dialog_class(QWidget 			*parent,
     connect( ui->sb_spwf4, SIGNAL(valueChanged(int)), this, SLOT( sb_wf4(int) ));
     sb_vec = { nullptr, ui->sb_spwf1, ui->sb_spwf2, ui->sb_spwf3, ui->sb_spwf4 };
 
-    connect( ui->cb_bps	, SIGNAL(activated(int) )	,this, SLOT( cb_bps_slot(int) ));
-
-    connect( ui->rb_spec_fmo,  SIGNAL( clicked()), this, SLOT( select_oscid_fmo() ) );
-    connect( ui->rb_spec_vco,  SIGNAL( clicked()), this, SLOT( select_oscid_vco() ) );
-    connect( ui->rb_spec_main, SIGNAL( clicked()), this, SLOT( select_oscid_main() ));
-    connect( ui->rb_reset, 		SIGNAL(clicked()), this, SLOT( reset() ) );
+    connect( ui->rb_spec_fmo	, SIGNAL( clicked()), this, SLOT( select_oscid_fmo() ) );
+    connect( ui->rb_spec_vco	, SIGNAL( clicked()), this, SLOT( select_oscid_vco() ) );
+    connect( ui->rb_spec_main	, SIGNAL( clicked()), this, SLOT( select_oscid_main() ));
     rb_vec = { ui->rb_spec_vco, ui->rb_spec_fmo, ui->rb_spec_main };
 
-    connect( ui->pB_save_spectrum, 	SIGNAL(clicked()), this, SLOT(save( )));
+    connect( ui->pB_save_spectrum		, SIGNAL(clicked()),
+    		this						, SLOT( save( )));
+    connect( ui->hs_attack				, SIGNAL(valueChanged(int)),
+    		this						, SLOT( attack(int) ));
+    connect( ui->hs_decay				, SIGNAL(valueChanged(int)),
+    		this						, SLOT( decay(int) ));
+    connect( ui->cb_adsr				, SIGNAL( clicked(bool)),
+    		this						, SLOT( adsr_slot(bool) ));
+    connect( ui->pB_Fourier				, SIGNAL( clicked())		,
+    		this						, SLOT( Fourier_mode() ));
+    connect( ui->cB_resolution			, SIGNAL( activated(int) ),
+    		this						, SLOT( resolution_slot( int ) ));
+    connect( ui->cb_bps					, SIGNAL( activated(int) )	,
+    		this						, SLOT( cb_bps_slot(int) ));
+    connect( ui->rb_reset				, SIGNAL( clicked())	,
+    		this						, SLOT( reset() ) );
 
-    connect( ui->hs_attack	, SIGNAL(valueChanged(int)), 	this, SLOT(attack(int) ));
-    connect( ui->hs_decay	, SIGNAL(valueChanged(int)), 	this, SLOT(decay(int) ));
-
-    connect( ui->cb_adsr	, SIGNAL( clicked(bool)), 	this, SLOT( adsr_slot(bool) ));
 
     initDataDisplay();
 }
@@ -98,21 +111,37 @@ Spectrum_Dialog_class::~Spectrum_Dialog_class()
 	delete ui->vS_2;
 	delete ui->vS_6;
 	delete ui->vS_8;
+	delete AdsrDataDisplay;
+	delete adsrScene;
+	delete FourierDataDisplay;
+	delete fourierScene;
 	delete ui;
 }
 
 void Spectrum_Dialog_class::initDataDisplay()
 {
-    scene				= new QGraphicsScene( this );
-    AdsrWidget_item 	= new DataGraphic_class( Sds->addr, ui->graphicsView ) ;
-    ui->graphicsView->setScene( scene );
-    scene->addItem		( AdsrWidget_item );
-    AdsrWidget_item->ReadAdsrData();
+	Data_t					scale 	= 1.0;
+    datagraphics_param_t 	param 	{ scale, false, false };
+
+         		adsrScene 			= new QGraphicsScene( this );
+    			AdsrDataDisplay		= new DataGraphic_class( Sds->addr, ui->adsr_dataview, param ) ;
+    ui->adsr_dataview->setScene		( adsrScene );
+    adsrScene->addItem				( AdsrDataDisplay );
+
+				fourierScene		= new QGraphicsScene( this );
+				FourierDataDisplay	= new DataGraphic_class( Sds->addr, ui->fft_dataview, param ) ;
+	ui->fft_dataview->setScene		( fourierScene );
+    fourierScene->addItem			( FourierDataDisplay );
+
+    UpdateDataDisplay				();
 }
 
 void Spectrum_Dialog_class::UpdateDataDisplay()
 {
-    AdsrWidget_item->ReadAdsrData();
+    AdsrDataDisplay->ReadData	( &sds_p->adsrdata[0], adsrdisplay_len );
+    adsrScene->update			();
+    FourierDataDisplay->ReadData( &sds_p->fft_data[0], fft_display_len );
+    fourierScene->update		();
 }
 void Spectrum_Dialog_class::add_event( EVENTKEY_e key )
 {
@@ -130,7 +159,6 @@ void Spectrum_Dialog_class::Dialog( bool adsr )
 		this->show();
 	}
     Set_adsr_flag( adsr );
-
 }
 void Spectrum_Dialog_class::cb_bps_slot( int bps_id )
 {
@@ -156,7 +184,6 @@ void Spectrum_Dialog_class::set_spectrum_view()
 	auto set_wavedisplay = [ this ]( bool mode  )
 	{
 	    Sds->Set( sds_p->WD_state.oscId	, OscId );
-    	Sds->Set( sds_p->WD_state.adsrmode, mode );
 	    add_event( SETWAVEDISPLAYKEY );
 	};
 
@@ -218,7 +245,7 @@ void Spectrum_Dialog_class::select_oscid_main()
 	select_oscid( OSCID );
 }
 void Spectrum_Dialog_class::Set_adsr_flag( bool flag )
-{
+{// manage ADSR parameter or spectrum parameter
 	ADSR_flag 	= flag;
 	select_oscid( OscId );
 	ui->cb_adsr->setChecked( flag );
@@ -230,12 +257,12 @@ void Spectrum_Dialog_class::adsr_slot( bool flag )
 void Spectrum_Dialog_class::attack(int value )
 {
 	Sds->Set( sds_p->adsr_arr[ OscId ].attack, (uint8_t) value );
-	add_event( ADSR_KEY );
+//	Sds->Set( sds_p->WD_state.adsrmode, true );
 }
 void Spectrum_Dialog_class::decay (int value )
 {
 	Sds->Set( sds_p->adsr_arr[ OscId ].decay, (uint8_t) value );
-	add_event( ADSR_KEY );
+//	Sds->Set( sds_p->WD_state.adsrmode, true );
 }
 
 void Spectrum_Dialog_class::reset()
@@ -278,8 +305,8 @@ void Spectrum_Dialog_class::spec_vol_slider( int channel, int value )
 {
     Channel 					= channel;
 	spectrum.volidx[ channel ] 	= value;
-    Sum( spectrum ); // fill vol
-    save_spectrum_data();
+    Sum							( spectrum ); // fill vol
+    save_spectrum_data			();
     ui->lcd_spectrumDisplay->display( spectrum.volidx[ channel ] );
     ui->lbl_spectrumDisplay->setText( "Amp [%]");
 };
@@ -321,8 +348,8 @@ void Spectrum_Dialog_class::waveform_spinbox( uint id, int value  )
 {
 	Channel 			= id;
 	spectrum.wfid[id] 	= value;
-	save_spectrum_data();
-	SetLabelWaveform();
+	save_spectrum_data	();
+	SetLabelWaveform	();
 };
 
 
@@ -348,54 +375,56 @@ void Spectrum_Dialog_class::save()
 	add_event( SAVEINSTRUMENTKEY );
 }
 
+void Spectrum_Dialog_class::resolution_slot( int idx )
+{
+	Sds->Set	( sds_p->resolutionIdx, uint8_t(idx) );
+	Sds->Set	( sds_p->WD_state.fftmode, true );
+	add_event	( ADSR_KEY );
+}
+
+void Spectrum_Dialog_class::Fourier_mode()
+{
+	Sds->Set	( sds_p->WD_state.fftmode, true );
+	Sds->Set	( sds_p->spectrum_arr[OSCID].wfid[0], uint8_t(FOURIER) );
+	add_event	( ADSR_KEY );
+}
+
 void Spectrum_Dialog_class::SetLabelWaveform( )
 {
 	int wfid = sb_vec[ Channel ]->value();
 	ui->lbl_waveform->setText( QWaveform_vec[ wfid ] );
 }
 
+void Spectrum_Dialog_class::SetSds()
+{
+	Interface_base::Set_Sds	();
+    SetInstrument			();
+}
 
 void Spectrum_Dialog_class::SetInstrument()
 {
-    string instrument= this->Sds->Read_str( INSTRUMENTSTR_KEY );
-	ui->lbl_instrument->setText( Qstring( instrument ) );
-    select_oscid( sds_p->SpectrumTypeId );
-    Setup_widgets();
-}
-void Spectrum_Dialog_class::SetSds()
-{
-	Interface_base::SetSds();
-    SetInstrument();
+    string instrument			= this->Sds->Read_str( INSTRUMENTSTR );
+	ui->lbl_instrument->setText	( Qstring( instrument ) );
+    select_oscid				( sds_p->SpectrumTypeId );
+    Setup_widgets				();
 }
 
 void Spectrum_Dialog_class::Setup_widgets()
 {
-	int i = 1; // frqidx 0 is managed by the mainwindow dialog
-	for( QSlider* sl : fS_vec )
+	for( size_t channel = 1; channel < SPEC_CHANNELS; channel++ )
 	{
-		sl->setValue( check_range( harmonic_range, spectrum.frqidx[i] ) );;
-		i++;
+		fS_vec[channel]->setValue( check_range( harmonic_range, spectrum.frqidx[channel] ) );;
+		vS_vec[channel]->setValue( spectrum.volidx[channel] );
+		sb_vec[channel]->setValue( spectrum.wfid[channel] );
 	}
 
-		i = 1; // volidx 0 is managed by the mainwindow dialog
-	for( QSlider* sl : vS_vec )
-	{
-		sl->setValue( spectrum.volidx[i] );;
-		i++;
-	}
+    ui->hs_attack->setValue		( sds_p->adsr_arr[OscId].attack );
+    ui->hs_decay ->setValue		( sds_p->adsr_arr[OscId].decay  );
 
-    ui->sb_spwf1->setValue( spectrum.wfid[1] );
-    ui->sb_spwf2->setValue( spectrum.wfid[2] );
-    ui->sb_spwf3->setValue( spectrum.wfid[3] );
-    ui->sb_spwf4->setValue( spectrum.wfid[4] );
+	SetLabelWaveform			();
+    QString QStr				{ int2char( sds_p->adsr_arr[ OscId ].bps ) };
+    ui->cb_bps->setCurrentText	( QStr );
+    ui->cB_resolution->setCurrentIndex( sds_p->resolutionIdx );
 
-    ui->hs_attack->setValue( sds_p->adsr_arr[OscId].attack );
-    ui->hs_decay ->setValue( sds_p->adsr_arr[OscId].decay  );
-
-	SetLabelWaveform();
-    QString QStr	{ int2char( sds_p->adsr_arr[ OscId ].bps ) };
-    ui->cb_bps->setCurrentText( QStr );
-
-    AdsrWidget_item->ReadAdsrData();
 
 }

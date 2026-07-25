@@ -48,7 +48,7 @@ QStringList Qstringlist ( const list<string>& str_lst )
 	return Qlist;
 };
 
-QStringList	Qstringvector( const vector<string>& str_vec )
+QStringList	Qstringvector( const string_vec_t& str_vec )
 {
 	QStringList Qlist{};
 	for ( string str : str_vec )
@@ -62,7 +62,7 @@ QStringList	Qstringvector( const vector<string>& str_vec )
 
 vector<QString> Vstringvector( const vector<string>& str_vec )
 {
-	vector<QString> Qvec{};
+	vector<QString> Qvec {};
 	for ( string str : str_vec )
 	{
 		Qvec.push_back( ( Qstring( str ) ) );
@@ -71,16 +71,103 @@ vector<QString> Vstringvector( const vector<string>& str_vec )
 
 };
 
-QStringList Qread_filenames( const Path_t dir_ext )
+void setButton( QPushButton* button, int state, QString txt )
 {
-	QStringList qlist{};
-	vector<string> dir_vec = List_directory( dir_ext.dir, dir_ext.ext );
-    for ( string str :  dir_vec )
-    {
-    	std::filesystem::path path{ str };
-   		qlist.push_back( Qstring( path.stem() ) );
-    }
-    return qlist;
+	QPalette	GUIpalette	= QPalette	{};
+	auto setButtonColor = [ &GUIpalette ]( Qt::GlobalColor color  )
+	{
+		GUIpalette.setColor( QPalette::All, QPalette::Button, color );
+	};
+
+	switch ( state )
+	{
+		case 0 : { setButtonColor( Qt::red )		; break; }
+		case 1 : { setButtonColor( Qt::lightGray )	; break; }
+		case 2 : { setButtonColor( Qt::yellow )		; break; }
+		case 3 : { setButtonColor( Qt::green )		; break; }
+		case 4 : { setButtonColor( Qt::white )		; break; }
+		default: { setButtonColor( Qt::darkGray )	; break; }
+	};
+
+	button->setPalette( GUIpalette );
+	if( txt.length() == 0 )
+		return;
+	button->setText( txt );
+};
+
+void set_StateButton( QPushButton* pB, StateId_e state, QString name  )
+{
+    switch ( state )
+	{
+		case RECORDING	: { setButton( pB, 0,"Stop Rec"); break; }	// red
+		case STARTING	:
+		case STOPPING	:
+		case RECORDSTART: { setButton( pB, 2,"waiting")	; break; }	//yellow
+		case INACTIVE	: { setButton( pB, 1, name )	; break; }	// gray
+		case RUNNING	: { setButton( pB, 3, name )	; break; }
+		case EXITSERVER	: { setButton( pB, 4, name )	; break; }
+		case OFFLINE	: { setButton( pB, 5, name )	; break; }
+		case SLEEPING	: { setButton( pB, 2, name )	; break; }
+
+		default : { break; }
+	} // switch  state
+};
+
+/**************************************************
+ * direvent_struct
+ *************************************************/
+direvent_struct::direvent_struct( 	Id_t id, QComboBox* _cb, EVENTKEY_e _event,
+									cstring_name* _value, string _dir, string _ext )
+	: dircontent_struct( { _dir }, _ext )
+	, Id( id )
+	, cb( _cb )
+	, event( _event )
+	, cstring( _value, SDSNAME_SIZE )
+	, path( _dir, _ext )
+{
+	this->current_value = cstring.read();
+}
+
+void direvent_struct::SetSubdir( string _subdir )
+{
+	if( Id == DIRSES_ID )
+	{
+		UpdatePath( { path.dir } );
+		filename_vec.push_back( "" );
+	}
+	else
+	{
+		if( _subdir.length() == 0 )
+			UpdatePath( { path.dir } );
+		else
+		{
+			string subdir 	= trailing_dirslash( path.dir + _subdir );
+			UpdatePath( { subdir, path.dir } );
+		}
+	}
+}
+QStringList direvent_struct::qfilenames(  )
+{
+    return Qstringvector( filename_vec );
+}
+#include <string.h>
+void direvent_struct::Update_cb()
+{
+	string	name		= cstring.read();;
+	if( Id != DIRSES_ID ) // sessiondir does not select a file
+	{
+		Select				( name, default_name );
+	}
+//	const string wrt	{ name.substr(0, SDSNAME_SIZE-1 ) };
+	cstring.save();
+//	strcpy				( *value, wrt.data() );
+
+	current_value		= name;
+
+	cb->clear			();
+	cb->addItems		( qfilenames() );
+	cb->setCurrentText	( Qstring( current_value ));
+
 }
 
 

@@ -55,7 +55,6 @@ Note_base::Note_base () :
 	this->note_buffer 			= note_struct();
 	this->notelist.clear		();
 	this->note_itr 				= notelist.begin();
-	this->Noteline_prefix		= nlp_default; // D=default, N=numeric
 	this->Note_Chars			= { convention_notes[ nlp_default.convention ] };
 	this->rest_note				= note_struct( NOTE::PAUSE, 0 );
 	this->rest_note.duration	= min_duration;
@@ -96,130 +95,13 @@ int Note_base::Notechar2Step( char note_char )
 	else
 		return NONOTE;
 }
-noteline_prefix_t Note_base::Set_base_octave( uint diff )
-{
-	int8_t 				change	= 2 * diff -1; // diff=0 or 1
-	noteline_prefix_t 	nlp 	= Noteline_prefix;
-	int 				oct 	= check_range( 	octave_range,
-								Noteline_prefix.Octave + change,
-								"Set_base_octave" );
-	nlp.octave_shift 			= oct - nlp.Octave;
-//	Set_noteline_prefix( nlp );
-	return nlp;
-}
 
-void Note_base::Show_noteline_prefix( noteline_prefix_t nlp )
-{
-	Table_class Table {"Noteline Prefix", 22 };
-	Table.AddColumn( "Prefix", 20 );
-	Table.AddColumn( "Value", 15 );
-	Table.PrintHeader();
-
-	string convention = to_string( nlp.convention) + ":" + convention_names[nlp.convention ];
-	Table.AddRow( "Convention"	,  convention );
-	Table.AddRow( "Octave"		, (int) nlp.Octave );
-	Table.AddRow( "Notes per sec",(int) nlp.nps );
-	Table.AddRow( "Flats"		, (int) nlp.flat );
-	Table.AddRow( "Sharps"		, (int) nlp.sharp );
-	Table.AddRow( "Chord delay"	, (int) nlp.chord_delay );
-}
-
-string Note_base::Noteline_prefix_to_string( noteline_prefix_t nlp )
-{
-	stringstream strs{""};
-	strs 	<< (int) nlp.Octave 		<<","
-			<< (int) nlp.convention		<<","
-			<< (int) nlp.nps 			<<","
-			<< (int) nlp.flat			<<","
-			<< (int) nlp.sharp 			<<","
-			<< (int) nlp.chord_delay;
-	return strs.str();
-}
-
-noteline_prefix_t Note_base::String_to_noteline_prefix( const string& str )
-{
-	auto range_error = [ this ]( auto val, vector<size_t> range )
-	{
-		Comment ( ERROR, "Out of Range [", range[0], range[1], "]" );
-		if ( LogMask[ TEST ] )
-			return 0;
-		Comment( ERROR,  "Cannot assign noteline_prefix ", (int)val, "to noteline_structure" );
-		raise( SIGILL );
-		return 0;
-	};
-
-	noteline_prefix_t 	nlp = nlp_default;
-	String 				S 	{ str };
-	vector_str_t 		arr = S.to_unique_array(',');
-
-	if ( arr.size() < 5 )
-	{
-		if ( LogMask[ TEST ] ) return nlp_default;
-		Exception( "Cannot assign noteline_prefix of length < 5" );//raise( SIGINT );
-	}
-
-	char oct_ch = arr[0][0];
-	if ( OctaveChars.Set.contains( oct_ch ) )
-		nlp.Octave = char2int( oct_ch );
-	else
-		range_error( char2int( oct_ch ), { min_octave, max_octave } );
-
-	nlp.convention = char2int(arr[1][0] );
-	if ( not conventionId_set.contains( nlp.convention ))
-		range_error( nlp.convention, {0, convention_names.size() } );
-
-
-	uint8_t nps = char2int( arr[2][0] );
-	if ( not NpsChars.Bps_set.contains( nps ) )
-	{
-		if ( LogMask[ TEST ] ) return nlp_default;
-		Exception( "Cannot assign notes per second " + arr[2] + " to noteline_structure" );//raise( SIGINT );
-	}
-	else
-		nlp.nps = nps;
-
-
-	set<int> 	pref_set 	= range_set( 0, 7 );
-	int			val 		= char2int( arr[3][0] );
-	if ( pref_set.contains( val ) )
-		nlp.flat = val;
-	else
-		range_error( val, {0, 7} );
-
-	val = char2int( arr[4][0] );
-	if ( pref_set.contains( val ) )
-		nlp.sharp = val;
-	else
-		range_error( val, {0, 7} );
-
-	// chord_delay
-	if ( arr.size() > 6 )
-	{
-		nlp.chord_delay = S.to_int( arr[6] );
-	}
-	else
-	{
-		nlp.chord_delay = 0;
-	}
-	return nlp;
-
-}
 
 void Note_base::TestNoteBase()
 {
 
 	TEST_START("Notes_base");
 
-	Show_noteline_prefix( nlp_default );
-	Comment( TEST, Noteline_prefix_to_string( nlp_default ));
-	string nlp_str = "2,1,4,0,0,0,0";
-	noteline_prefix_t nlp = String_to_noteline_prefix(nlp_str);
-	Show_noteline_prefix(nlp);
-
-	nlp_str = "1 ";
-	nlp = String_to_noteline_prefix(nlp_str);
-	nlp_str = "8, 8, 8, 7, 8, 0, 0";
-	nlp = String_to_noteline_prefix(nlp_str);
 
 	TEST_END("Notes_base");
 }

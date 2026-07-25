@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,37 +30,56 @@ SOFTWARE.
  */
 
 #include <Time.h>
+#include <data/Sdsbase.h>
+#include <limits>
 
 using namespace std::chrono ;
+using namespace std::this_thread;
 
 Time_class::Time_class( uint8_t* tel )
 	: Logfacility_class("Time_class")
 {
-	className = Logfacility_class::className;
-	this->time_elapsed = tel; // external time_elapsed
-	Start();
-	Stop(); // duration is zero
+	this->latency 		= 0;
+	this->State			= ENABLED;
+	this->threshold		= std::numeric_limits<int>::max();
+	this->time_elapsed	= tel; // external time_elapsed
+	this->overload		= false;
+	this->overload_p	= &overload;
+	Start				();
+	Stop				(); // duration is zero
 }
 
 Time_class::Time_class()// @suppress("Class members should be properly initialized")
 	: Logfacility_class("Time_class")
 {
-	Time_class { time_elapsed }; //local time_elapsed pointer
+	this->tel			= 0;
+	this->time_elapsed	= &tel; // local time_elapsed
+	this->State			= ENABLED;
+	this->threshold		= std::numeric_limits<int>::max();
+	this->overload			= false;
+	this->overload_p		= &overload;//
 }
 
 
 Time_class::~Time_class( )
 {
-	if ( this->time_elapsed )
-		*this->time_elapsed = 0;
 	DESTRUCTOR( className )
 }
-long int Time_class::Time_elapsed(  )
+
+void Time_class::Set_Threshold( int msec, bool* _overload )
+{
+	// set a treshold for time_elapsed in msec
+	threshold	= msec;
+	overload_p	= _overload;
+}
+long int Time_class::Time_elapsed()
 {
 	Stop();
 	long long int start_count = duration_cast<milliseconds>( start_time.time_since_epoch()).count();
 	long long int stop_count  = duration_cast<milliseconds>( stop_time.time_since_epoch()).count();
-	return stop_count - start_count;
+	long long int tel = stop_count - start_count;
+	*overload_p = ( tel > threshold );
+	return tel;
 }
 void Time_class::Start()
 {
@@ -87,31 +106,33 @@ void Time_class::Block()
 	usleep( ms_wait * 1000 ); //milli seconds
 
 }
-uint Time_class::Performance( )
+uint Time_class::Performance( bool* overload )
 {
+	//  calculate the time for one cycle
+	if( State == StateId_e::DISABLED )
+		return 0;
 	Stop();
-	uint
-	tel 			= Time_elapsed();
+	uint	tel 			= Time_elapsed();
 	Start();
 
 	// limit the CPU load by thread sleep
-	uint
-	min_wait 		= 10;
+	uint	min_wait 		= 10; // msec to wait at least
 	if ( tel < min_wait )
-		std::this_thread::sleep_for( std::chrono::milliseconds( min_wait - tel  ) );
-
-	*time_elapsed 	= (uint8_t) (( tel * 100 ) / min_msec );// time elapsed in percentage w.r.t. 1 second = 1000 msec
-	return (uint) tel;
+		sleep_for( milliseconds( min_wait - tel  ) );
+	uint8_t	tel_percent		= (uint8_t) (( tel * 100 ) / min_msec );
+	*time_elapsed 	= tel_percent;// time elapsed in percentage w.r.t. 1 second = 1000 msec
+	if ( tel_percent > 90 )
+		*overload	= true;
+	return tel;
 }
 void Time_class::TimeStamp()
 {
- //   const auto tp_utc	{std::chrono::system_clock::now()};
     try
     {
         const std::chrono::zoned_time cur_time
         {
-            std::chrono::current_zone(), // may throw
-            std::chrono::system_clock::now()
+            current_zone(), // may throw
+            system_clock::now()
         };
         Info( cur_time );
     }
@@ -124,8 +145,8 @@ void Time_class::Wait( const uint& d, const string& dur )
 {
 	switch ( dur[0] )
 	{
-		case 's' : { std::this_thread::sleep_for( std::chrono::seconds(d) ); break; }
-		case 'm' : { std::this_thread::sleep_for( std::chrono::milliseconds(d) ); break; }
+		case 's' : { sleep_for( seconds(d) ); break; }
+		case 'm' : { sleep_for( milliseconds(d) ); break; }
 		default : { Comment( WARN, "unrecognized unit ", dur );break; }
 	} // switch  dur[0]
 }

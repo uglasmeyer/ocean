@@ -34,19 +34,18 @@ SOFTWARE.
 #ifndef FILE_DIALOG_CLASS_H
 #define FILE_DIALOG_CLASS_H
 
-// Qt includes
+// Qt
 #include <QObject>
 #include <QDialog>
 #include <QComboBox>
-//#include <QMainWindow>
 
-// Synthesizer
-#include <Logfacility.h>
+// Ocean
 #include <notes/Notes.h>
 #include <data/DataWorld.h>
 
 // OceanGUI
 #include <ui_File_Dialog_class.h>
+#include <GUIcommon.h>
 
 
 /**************************************************
@@ -60,35 +59,50 @@ namespace Ui
 QT_END_NAMESPACE
 
 class File_Dialog_class :
-	public 						QDialog,
-	public virtual				Interface_base,
-	virtual 					NotesCore_class,
-								sdsstate_struct
+	public 					QDialog
+	,virtual	public		Interface_base
+
 {
     Q_OBJECT
-	Ui::File_Dialog_class*		ui;
-
+    EventLog_class*				Eventlog_p			;
+	Musicxml_class				Musicxml			;
 public:
-    Semaphore_class* 			sem					= nullptr;
-    EventLog_class*				Eventlog_p			= nullptr;
+	Ui::File_Dialog_class*		ui					;
 
-
-    void 						New_Notes			();
-    void 						New_Instrument		();
-    void 						set_le_instrument	( QString );
-    void 						set_le_notes		( QString );
-    void 						SetSds				();
-
-    explicit					File_Dialog_class(	QWidget* 		 parent	= nullptr,
-    												Dataworld_class* _data 	= nullptr,
-													EventLog_class*  _log	= nullptr);
-    virtual						~File_Dialog_class	();
+	direvent_t					EventXML, EventNTE	,
+								EventINS, EventSES	;
+	vector< direvent_t* > 		EventVec			{};
+	string						scorename			;
+	cstring_T<cstring_long>		Noteline			;
+	cstring_T<cstring_long>		Rythmline			;
+	noteline_prefix_t			Noteline_prefix		;
 
 private:
+    Semaphore_class* 			sem					;
+
+public:
+
+    explicit					File_Dialog_class(	QWidget* 		 		parent	= nullptr,
+    												Dataworld_class* 		_data 	= nullptr,
+													EventLog_class*  		_log	= nullptr,
+													WfDisplay_que_struct* 	wf		= nullptr);
+    virtual						~File_Dialog_class	();
+    void 						SetSds				();
+
+private:
+    WfDisplay_que_struct*		WfDisplay_que		;
+    void 						change_dirs			( string subdir );
+    void						init_Direvent		();
+    void 						init_Combobox		();
+    void 						sdsCommand			( EVENTKEY_e key );
+    void 						update_notesWidgets	( const string& nl,
+    												const string& rl,
+													const string& sn );
 
 public slots:
-    void 						Setup_widgets		();
+    void 						updateWidgets		();
     void						Dialog				();
+    void						Scorename			( QString name );
 
 private slots:
 

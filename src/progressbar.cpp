@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ void ProgressBar_class::Setup( uint8_t* sds )
 }
 void ProgressBar_class::Set( uint* count, uint max )
 {
-	Comment( INFO, "recording is activated");
+	Comment		( INFO, "recording is activated");
 	counter 	= count;
 	max_counter = max;
 	active 		= true;
@@ -82,12 +82,13 @@ void ProgressBar_class::Update( )
 {
 	if ( active )
 	{
-		uint count = *counter;
-		int value = rint( ( 100 * count )/max_counter ) ;
-		SetValue( value );
+		uint	count	= *counter;
+		uint	value 	= ( 100 * count ) / max_counter;
+				SetValue( value );
+
 		if ( count >= max_counter)
 			Unset();
-		Comment(DBG2, "recording : " + to_string(value) + " %");
+		Comment(DBG2, "recording :", value, "%");
 	}
 }
 

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ****************************************************************************/
 #include <Composer/Composer.h>
+#include <Default.h>
 
+string select_program_file()
+{
+	file_structure* fs = Cfg.fs;
+	Write_template_text( fs->prog_testfile, composer_testcases_template_text, OVERWRITE );
+	Write_template_text( fs->prog_libfile, composer_lib_template_text, KEEPFILE );
+	Write_template_text( fs->program_file, program_template_text, KEEPFILE );
+	Write_template_text( fs->test_synth_file, composer_test_template_text, OVERWRITE );
+    string program_name = sds_master->Session;
+    if( Cfg.Config.filename.length() > 0 ) // argument 1
+    {
+    	// overwrite SDS session, Use instead program name from generic arg filename
+    	program_name = Cfg.Config.filename;
+    }
+    return composerfiles.Select( program_name, Cfg.Fs.program_name );
+}
 
 auto headline = [ ]( string comment  )
 {
@@ -62,7 +78,7 @@ void composer_dialog()
 		}
 		if ( keyw.compare("include") == 0 )
 		{
-			if ( Composer.PreCompile( Cfg.fs->includedir + prgLine.args[1]  ) )
+			if ( Composer.PreCompile( Cfg_p->fs->includedir + prgLine.args[1]  ) )
 			{
 				Composer.Compile();
 			}
@@ -84,22 +100,46 @@ void composer_dialog()
 void ComposerTestCases()
 {
 
+
+	Write_template_text( Cfg_p->fs->testprogram_file ,composer_test_template_text, OVERWRITE );
+	Write_template_text( Cfg_p->fs->prog_testfile, composer_testcases_template_text, OVERWRITE );
+
+    headline( "Starting Pre-processor test section" );
+	if ( Composer.PreCompile( Cfg_p->fs->testprogram_file ) )
+	{
+	    headline( "Starting Interpreter test section" );
+		if ( Composer.Compile() )
+		{
+			Log.Info( "Composer Compile Test successful" );
+		}
+	}
+	Interpreter.Test( );
+
 	Processor_class Processor{ &App };
 	Processor.Test_Processor();
+
+
 	Processor.Set_Loglevel( TEST, true );
-	Interpreter.Test( );
 	Charset_class A("abdefabdef");
 	A.test();
 
-//	string arg = "-t";
-//	char* args = arg.data();
-//	App.Start(1, &args );
-//
+}
+
+void ConfirmError()
+{
+	Log.Comment	( ERROR, "Press <return< to commit error" );
+	App.Kbd.Reset();
+	getc		( stdin );
 }
 
 void exit_proc( int signal )
 {
-	coutf;
+	Log.Comment(INFO, "Entering exit procedure for " + Appstate->Name );
+	sds_master->mixer_state.composer = false;
+
+	if( signal == SIGILL )
+		ConfirmError();
+
 	exit(0);
 }
 
@@ -109,31 +149,41 @@ int main( int argc, char* argv[] )
 
 	if ( DaTA.Cfg_p->Config.test == 'y' )
 	{
+		Composer.SetTestMode( true ); // ignore error - clear program
 		ComposerTestCases();
-		Statistic.Show_Statistic(  );
 
 		exit_proc( 0 );
 	}
 
 
     App.Ready();
+    sds_master->mixer_state.composer = true;
 	if ( DaTA.Cfg_p->Config.dialog == 'y' )
 	{
 		composer_dialog();
 		exit_proc( 0 );
 	}
 
+    Composer.Program_file = select_program_file();
     headline( "Starting Pre-processor section" );
-	if ( Composer.PreCompile( Cfg.fs->program_file ) )
+    if ( Composer.PreCompile( Composer.Program_file ) )
 	{
 	    headline( "Starting Interpreter section" );
 		if ( Composer.Compile() )
 		{
-		    headline( "Starting Processor section" );
+			Composer.Show_Program( Composer.Program_file );
+			Composer.Show_const();
 		    App.Kbd.Reset(); // to make getc work
-			Interpreter.Execute(  );
+		    headline( "Starting Processor section" );
+			Interpreter.Execute();
+		}
+		else
+		{
+			ConfirmError();
 		}
 	}
+	else
+		ConfirmError();
 
 
 	exit_proc( 0);

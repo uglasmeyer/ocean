@@ -45,7 +45,7 @@ typedef struct 			tableOpt_struct
 const tableopt_t		defaultopt	= tableOpt_struct();
 
 class Table_class :
-	virtual Logfacility_class
+	virtual public Logfacility_class
 {
 	string		 			className 	= "";
 
@@ -90,10 +90,7 @@ public:
 		string row = cout_row( strs.str() );
 
 		return row;
-
 	};
-
-
 
 private:
 

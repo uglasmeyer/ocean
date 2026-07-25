@@ -36,9 +36,9 @@ SOFTWARE.
 /**************************************************
  * ViewInterface_class
  *************************************************/
-ViewInterface_class::ViewInterface_class( APPID appid, Dataworld_class* DaTA_p )
+ViewInterface_class::ViewInterface_class( APPID_e appid, Dataworld_class* DaTA_p )
 	: Logfacility_class	( "ViewInterface_class")
-	, Device_class		( DaTA_p->sds_master )
+	, Device_class		( DaTA_p->SDS.master )
 	, osctype_struct	( OSCID, INSTRROLE )
 	, Oscillator_base	( OSCID, INSTRROLE )
 	, ADSR_class		( OSCID, INSTRROLE )
@@ -46,15 +46,15 @@ ViewInterface_class::ViewInterface_class( APPID appid, Dataworld_class* DaTA_p )
 	, DaTA				( DaTA_p )
 
 {
-	Sds_p			= DaTA->Sds_master;
-	sds_master		= DaTA->sds_master;
+	Sds_p			= DaTA->SDS.Master;
+	sds_master		= DaTA->SDS.master;
 	set_sds			( sds_master );
 	this->selfTest	();
 };
 void ViewInterface_class::selfTest()
 {
 	Comment( INFO, "selfTest ", className );
-	for ( APPID appid : AppIds )
+	for ( APPID_e appid : AppIds )
 	{
 		string state = Appstate.GetStateStr( sds_p, appid );
 		coutf << state << endl;
@@ -107,12 +107,14 @@ void ViewInterface_class::show_Que()
 	Table.AddRow( "displ.cursor", sds_p->WD_state.cursor.cur
 				, "Role"		, roleNames[ sds_p->WD_state.roleId ] );
 	Table.AddRow( "right bound"	, sds_p->WD_state.cursor.max
-				, "Mode"		, wavedisplay_struct::types[ sds_p->WD_state.wd_mode ]);
+				, "Mode"		, wavedisplay_struct::types[ sds_p->WD_state.mode ]);
+	Table.AddRow( ""	, ""
+				, "ADSR"		, sds_p->WD_state.adsrmode );
 }
 void ViewInterface_class::show_Ipc()
 {
 	Set_Loglevel( TEST, true );
-	DaTA->Sem_p->State( SEMNUM_SIZE );
+	DaTA->Sem_p->State( (SEMID_e)SEMNUM_SIZE );
 	Set_Loglevel( TEST, false );
 }
 
@@ -127,6 +129,7 @@ void ViewInterface_class::show_system()
 	T.AddRow( "Reset SDS"				, "r/R" );
 	T.AddRow( "Destroy Shared Memory"	, "d/D" );
 	T.AddRow( "Show log"				, "l/L" );
+	T.AddRow( "Show Composer log"		, "c/C" );
 
 
 }
@@ -149,14 +152,16 @@ void ViewInterface_class::show_spectrum()
 	Adsr.AddColumn( "Feature"		, 20);
 	Adsr.AddColumn( "Value"			, 6 );
 	Adsr.PrintHeader();
-	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->features[OSCID].slide_frq,
+	Adsr.AddRow( 	"(g)lide effect", (int)sds_p->features[OSCID].frq_slide_value,
 					"(b)eats per second", (int)sds_p->adsr_arr[OSCID].bps );
 	Adsr.AddRow( 	"PWM", (int)sds_p->features[OSCID].PWM,
 					"(h)all", (int)sds_p->adsr_arr[OSCID].hall );
 	Adsr.AddRow( 	"Balance", (int)sds_p->mixer_balance,
-					"chord delay", (int)sds_p->noteline_prefix.chord_delay );
-	Adsr.AddRow( 	"Frq Slider Mode", slidermodes[ sds_p->frq_slidermode ],
+					"chord delay", (int)sds_p->Noteline_prefix.chord_delay );
+	Adsr.AddRow( 	"Frq Slider Mode", slidermode_str[ sds_p->frq_slidermode ],
 					"Keyboard Clock", (int)sds_p->beatClock ) ;
+	Adsr.AddRow( 	"Master vol", (int)sds_p->Master_Amp,
+					"Instrument Clock", (int)sds_p->instrumentClock ) ;
 
 }
 void ViewInterface_class::show_Adsr()
@@ -166,17 +171,22 @@ void ViewInterface_class::show_Adsr()
 		Show_spectrum_table( cout, sds_p->adsr_arr[oscid].spec );
 	}
 	Table_class Adsr{ "OSC Features",15 };
-	Adsr.AddColumn( "Feature", 20);
+	Adsr.AddColumn( "Feature", 12);
 	Adsr.AddColumn( "Value", 6 );
-	Adsr.AddColumn( "Feature", 20);
+	Adsr.AddColumn( "Feature", 12);
+	Adsr.AddColumn( "Value", 6 );
+	Adsr.AddColumn( "Feature", 12);
 	Adsr.AddColumn( "Value", 6 );
 	Adsr.PrintHeader();
 	Adsr.AddRow( 	"OSC (a)ttack", (int)sds_p->adsr_arr[OSCID].attack,
-					"OSC (d)ecay ", (int)sds_p->adsr_arr[OSCID].decay );
+					"OSC (d)ecay ", (int)sds_p->adsr_arr[OSCID].decay ,
+					"OSC beat p/s", (int)sds_p->adsr_arr[OSCID].bps );
 	Adsr.AddRow( 	"VCO (a)ttack", (int)sds_p->adsr_arr[VCOID].attack ,
-					"VCO (d)ecay ", (int)sds_p->adsr_arr[VCOID].decay );
+					"VCO (d)ecay ", (int)sds_p->adsr_arr[VCOID].decay ,
+					"VCO beat p/s", (int)sds_p->adsr_arr[VCOID].bps );
 	Adsr.AddRow( 	"FMO (a)ttack", (int)sds_p->adsr_arr[FMOID].attack,
-					"FMO (d)ecay ", (int)sds_p->adsr_arr[FMOID].decay );
+					"FMO (d)ecay ", (int)sds_p->adsr_arr[FMOID].decay,
+					"FMO beat p/s", (int)sds_p->adsr_arr[FMOID].bps );
 
 }
 
@@ -211,19 +221,20 @@ void ViewInterface_class::F3_showStates()
 					sds_p->StA_state_arr[n].store,
 					sds_p->StA_state_arr[n].filled,
 					sds_p->StA_state_arr[n].forget,
-					(int)sds_p->StA_amp_arr[n] );
+					(int)sds_p->StA_amp_arr[n].amp );
 	}
-	Table_class T{ "Mixer State ", 20 };
+	Table_class T{ "StA State ", 20 };
 	T.AddColumn( "Property",18 );
 	T.AddColumn( "Value", 8 );
 	T.AddColumn( "Property",18 );
 	T.AddColumn( "Value", 8 );
 	T.PrintHeader();
-	T.AddRow( "External:"	, sds_p->mixer_state.external, "Mute:"	,sds_p->mixer_state.mute);
-	T.AddRow( "Note:"		, sds_p->mixer_state.notes, "Keyboard:"	,sds_p->mixer_state.kbd);
-	T.AddRow( "Syncronize:" , sds_p->mixer_state.sync,"Instrumemt:"	,sds_p->mixer_state.instrument);
-	T.AddRow( "Record:" 	, sdsstateName( sds_p->Record_state )	,
-			  "Capture:"	, sdsstateName( sds_master->Capture_state ) );
+	T.AddRow( 	""	, "", "Mute:"	,sds_p->mixer_state.mute);
+	T.AddRow( 	""		, "", ":"	,"");
+	T.AddRow( 	"Sync Kbd:"	, sds_p->mixer_state.sync_kbd,
+				"Sync ADSR:",sds_p->mixer_state.sync_adsr);
+	T.AddRow( 	"Record:" 	, sdsstateName( sds_p->Record_state )	,
+				"Capture:"	, sdsstateName( sds_p->Capture_state ) );
 
 }
 
@@ -246,7 +257,7 @@ void ViewInterface_class::showKeys()
 }
 void ViewInterface_class::F2_showProcesses()
 {
-	for( APPID appid = AUDIOID; appid < NoAPPID; appid++ )
+	for( APPID_e appid = AUDIOID; appid < APPID_SIZE; appid++ )
 	{
 		Appstate.CheckAppstate(sds_p, appid );
 	}
@@ -256,25 +267,25 @@ void ViewInterface_class::F2_showProcesses()
 	T.AddColumn( "PID"				, 15 );
 	T.AddColumn( "Type Id"			, 10 );
 	T.PrintHeader();
-	for( APPID appid = AUDIOID;
-			appid < NoAPPID;
+	for( APPID_e appid = AUDIOID;
+			appid < APPID_SIZE;
 			appid++ )
 	{
-		T.AddRow( AppIdName( (APPID)appid ),
+		T.AddRow( AppIdName( (APPID_e)appid ),
 								Appstate.GetStateStr( sds_p, appid ),
 								Appstate.GetPidStr	( sds_p, appid ),
 								Appstate.Type		( sds_p, appid ));
 	}
-	coutf << Line(80) << endl;
-	T.AddRow( 	"Mixer Id" 		, (int)sds_p->StA_Id,
+	coutf << Line( term_columns() ) << endl;
+	T.AddRow( 	"StA Id" 		, (int)sds_p->StA_Id,
 				"Sync data id" 	, (int)sds_p->SHMID);
-	T.AddRow(	"Audio frames"	, (int)sds_p->audioframes,
+	T.AddRow(	""	, "",
 				"Record Progress",(int)sds_p->RecCounter);
 	T.AddRow(	"File No."		, (int)sds_p->FileNo );
 };
 
 vector<string> typeNames_b { "(V)CO", "(F)MO", "(M)ain" };
-void ViewInterface_class::showOSCs()
+void ViewInterface_class::F5_showOSCs()
 {
 	auto frq_str = [ this ](int idx)
 	{
@@ -293,19 +304,24 @@ void ViewInterface_class::showOSCs()
 	T.AddColumn( "Value"		, 20 );
 	T.AddColumn( "Unit"			, 5 );
 	T.PrintHeader();
-	for( OSCID_e oscid : oscIds )
+	for( OSCID_e oscid : { OSCID, VCOID, FMOID } )
 	{
+		string unit = ( oscid == OSCID ) ? "const" : "%";
+
 		T.AddRow( typeNames_b[oscid],
 						"(F)requency"	, frq_str( sds_p->spectrum_arr[oscid].frqidx[0] ), "Hz" );
-		T.AddRow( "", 	"(V)olume"	, (int) sds_p->spectrum_arr[oscid].volidx[0], "%" );
+		T.AddRow( "", 	"(V)olume"	, (int) sds_p->spectrum_arr[oscid].volidx[0], unit );
 		T.AddRow( "", 	"(W)aveform"	, Get_waveform_str( sds_p->spectrum_arr[oscid].wfid[0])  );
 	}
-	cout << Line(80) << endl;
-	T.AddRow( 	"Notes" , sds_p->Notes + NotesExtension[ sds_p->NotesTypeId ],
+	cout << Line( term_columns() ) << endl;
+	T.AddRow( 	"Notes" , string(sds_p->Notes) + NotesExtension[ sds_p->NotesTypeId ],
 				"Notes duration" , (int) sds_p->Noteline_sec);
-	T.AddRow(	"Wav filename" , sds_p->Other );
-	T.AddRow( 	"Prefix Octave", (int) sds_p->noteline_prefix.Octave,
-				"Prefix shift",  (int) sds_p->noteline_prefix.octave_shift );
+	T.AddRow(	"Wav filename" , sds_p->WAV_filename,
+				"Prefix Octave", (int) sds_p->Noteline_prefix.Octave);
+	T.AddRow( 	"Session dir", sds_p->Session,
+				"Notes per sec",  (int) sds_p->Noteline_prefix.nps );
+	T.AddRow(	"Noteline"		, sds_p->Noteline,
+				"Rhythmline"	, sds_p->Rythmline );
 }
 
 void ViewInterface_class::printHeader( KEYCODE keycode )
@@ -320,10 +336,10 @@ void ViewInterface_class::printHeader( KEYCODE keycode )
 	T.AddColumn("Version", 8);
 	T.PrintHeader();
 	T.AddRow(	(int) sds_p->SDS_Id,
-					(int) sds_p->config,
+					(int) sds_p->comId,
 					to_hex( (long) sds_p ),
 					Version_No);
-	coutf<< Line (80) << endl;
+	coutf<< Line (term_columns() ) << endl;
 }
 
 void ViewInterface_class::IncCommitcounter()
@@ -339,7 +355,7 @@ void ViewInterface_class::printFooter()
 {
 	const string counter_str = "Commit counter: " + to_string( counter ) + " ";
 
-	coutf << setw(80) << setfill('-') << counter_str << endl;
+	coutf << setw( term_columns() ) << setfill('-') << counter_str << endl;
 
 	string exit_key = "<CrtlC>, <ESC>";
 	string exit_txt = "exit SDSview";
@@ -363,9 +379,9 @@ void ViewInterface_class::printFooter()
 
 void ViewInterface_class::set_sds( interface_t* sds )
 {
-	this->sds_p = sds;
-	Device_class::Set_sds( sds_p );
-	sds_master->sdsview_sdsid = sds->SDS_Id;
+	this->sds_p 				= sds;
+	Device_class::Set_sds		( sds_p );
+	sds_master->sdsview_sdsid	= sds_p->SDS_Id;
 }
 KEYCODE ViewInterface_class::ShowPage( interface_t* sds )
 {
@@ -381,7 +397,7 @@ KEYCODE ViewInterface_class::ShowPage( interface_t* sds )
 		case F2 : { F2_showProcesses();	break;}
 		case F3 : { F3_showStates();	break;}
 		case F4 : { show_Que();			break;}
-		case F5 : { showOSCs();			break;}
+		case F5 : { F5_showOSCs();		break;}
 		case F6 : { show_Adsr();		break;}
 		case F7 : { show_spectrum();	break;}
 		case F8 : { show_Ipc();			break;}
@@ -404,12 +420,11 @@ Menue_class::Menue_class(	Dataworld_class*	data,
 	Logfacility_class("Menue_class"),
 	ViewSds( SDSVIEWID, data )
 {
-	className 		= Logfacility_class::className;
 	this->Switch 	= fnc;
 	this->DaTA		= data;
-	this->sdsid		= data->sds_master->config;
+	this->sdsid		= data->SDS.master->comId;
 	this->sds		= data->SDS.GetSdsAddr( sdsid );
-	this->sds_master= data->sds_master;
+	this->sds_master= data->SDS.master;
 	this->page		= sds_master->sdsview_page;
 
 	ViewSds.SetFooter( footer );
@@ -418,50 +433,58 @@ Menue_class::~Menue_class()
 {
 	DESTRUCTOR( className );
 };
-void Menue_class::Set_sdsid( int delta )
+
+
+void Menue_class::Set_sdsid( SDSDELTA_e delta )
 {
-	sdsid	= sds_master->sdsview_sdsid;
-	int
-	max 	= (MAXCONFIG - 1);
-	sdsid 	= ( sdsid + delta );
 
-	if ( sdsid < 0 ) sdsid = max;
-	if ( sdsid > max ) sdsid = 0;
-	if( delta == 0 )
-		sdsid = sds_master->config;
+	if( delta == UNCHANGED )
+	{
+		if( sds_master->mixer_state.composer )
+			sdsid = sds_master->comId;
+		else
+			return;
+	}
+	else
+	{
+		sdsid	= sds_master->sdsview_sdsid + delta;
+		sdsid	= (Id_t)check_cycle2( sds_range, int(sdsid) );
+	}
 
-	SharedData_class*
-	Sds 	= DaTA->SDS.GetSds( sdsid );
-	sds 	= Sds->addr;
-	sds_master->sdsview_sdsid = sdsid;
-	DaTA->Appstate.Setup( sds, sds_master );
+	sds 						= DaTA->SDS.GetSdsAddr( sdsid );
+	sds_master->sdsview_sdsid 	= sdsid;
+//	DaTA->Appstate.Setup( sds, sds_master );
 }
 
 
 
 kbdInt_t Menue_class::Key_event( )
 {
-	auto reset_updateFlag = [this  ](  )
+	auto reset_updateFlag = [ this ]()
 	{
 		sds->UpdateFlag 		= false;
 		sds_master->UpdateFlag 	= false;
 	};
-	auto is_updateFlag = [ this ](  )
+
+	auto is_updateFlag = [ this ]()
 	{
-		return ((sds->UpdateFlag ) 	or (sds_master->UpdateFlag ));
+		return ( ( sds->UpdateFlag ) or ( sds_master->UpdateFlag ) );
 	};
+
 	kbdkey_t key {};
-	while( key.Int == 0 )
+	while( key.Int == NOKEY )
 	{
-		key.Int = ViewSds.Kbd.GetKeyInt( true );
-		this_thread::sleep_for( std::chrono::milliseconds(100) );
+		this_thread::sleep_for( std::chrono::milliseconds( 125 ) );
+		key.Int = ViewSds.Kbd.GetKeyInt( false ); // no wait
+		if( DaTA->Appstate.IsExitserver( sds_master, SDSVIEWID ) )
+			raise( SIGHUP );
+
 		if ( is_updateFlag() )
 		{
-			ViewSds.ShowPage( sds );
 			reset_updateFlag();
+			Set_sdsid( UNCHANGED );
+			ViewSds.ShowPage( sds );
 		}
-		if( ViewSds.Appstate.IsExitserver( sds_master, SDSVIEWID ) )
-			raise( SIGHUP );
 
 	}
 	return key.Int;
@@ -469,15 +492,15 @@ kbdInt_t Menue_class::Key_event( )
 
 void Menue_class::Loop()
 {
-	kbdInt_t key 			= Switch( sds_master->sdsview_page );
+	kbdInt_t key 		= Switch( sds_master->sdsview_page );
 	while ( key != ESC )
 	{
 		ViewSds.ShowPage( sds );
 		key 	= Key_event();
 		switch	( key )
 		{
-			case '+' 	: { Set_sdsid	( 1 )			; break; }
-			case '-' 	: { Set_sdsid	(-1 )			; break; }
+			case '+' 	: { Set_sdsid	( PLUS )		; break; }
+			case '-' 	: { Set_sdsid	( MINUS )		; break; }
 			default		: { key			= Switch( key )	; break; }
 		}
 	}

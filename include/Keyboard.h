@@ -43,7 +43,7 @@ SOFTWARE.
  *************************************************/
 class Kbd_pitch_class
 	: virtual 			Logfacility_class
-	, public 			kbd_state_struct
+	, public 			kbd_state_data
 {
 	typedef map<const char, tuple<string, string>> chords_map_t;
 
@@ -106,42 +106,42 @@ private:
 class keyboardState_class :
 	public Kbd_pitch_class
 {
-	const range_T<uint>	sharps_range			{ 0, 3 };
-	const range_T<uint>	flats_range				{ 0, 3 };
-	const range_T<int>	Kbdoctave_range			{ 1, max_kbd_octave };
-	frq_t				basefrq					;
-	interface_t* 		sds						;
+	const range_T<uint8_t>	sharps_range			{ 0, 3 };
+	const range_T<uint8_t>	flats_range				{ 0, 3 };
+	const range_T<uint8_t>	Kbdoctave_range			{ 1, max_kbd_octave };
+	frq_t					basefrq					;
+	interface_t* 			sds						;
 
 public:
 
 
-						keyboardState_class		( interface_t* _sds );
-						~keyboardState_class() 	= default;
+							keyboardState_class		( interface_t* _sds );
+							~keyboardState_class() 	= default;
 
-	void 				change_octave			( int inc );
-	void 				set_octave				( int oct );
-	void 				increase_sharps			();
-	void 				increase_flats			();
-	void 				reset_sharps			();
-	void 				reset_flats				();
-	void 				set_kbdbps				();
-	void 				set_slideMode			();
+	void 					change_octave			( int inc );
+	void 					set_octave				( uint8_t oct );
+	void 					increase_sharps			();
+	void 					increase_flats			();
+	void 					reset_sharps			();
+	void 					reset_flats				();
+	void 					set_kbdbps				();
+	void 					set_slideMode			();
 
 } ;
 
 /**************************************************
  * Noteline_struct
  *************************************************/
-typedef struct Noteline_struct
+typedef struct KbdNoteline_struct
 {
-	string 				str				;
+	string 					str				;
 
-						Noteline_struct	();
-	virtual				~Noteline_struct() = default;
-	void 				AddPitch		( const chord_t& pv );
-	void 				AddLenth		( uint& cnt );
-	string 				Get_note_str	( const chord_t& pv );
-} Noteline_t;
+							KbdNoteline_struct	();
+	virtual					~KbdNoteline_struct() = default;
+	void 					AddPitch		( const chord_t& pv );
+	void 					AddLenth		( uint& cnt );
+	string 					Get_note_str	( const chord_t& pv );
+} KbdNoteline_t;
 
 
 /**************************************************
@@ -155,7 +155,7 @@ private:
 	size_t				Size					;
 
 	vector<note_t>		note_vec				{};
-	Noteline_t			Noteline				;
+	KbdNoteline_t		KbdNoteline				;
 	int					Note_pos				;
 	note_t				EmptyNote				;
 
@@ -171,7 +171,7 @@ public:
 	void 				Store					( chord_t& pv );
 	void 				Next					();
 	bool				SaveMusicxml			();
-	void				SaveNoteLine			();
+	bool				SaveNoteLine			( float volume );
 	void 				LoadNoteLine			();
 
 } Notevector_t;
@@ -183,7 +183,6 @@ public:
 class Keyboard_class
 	: virtual public	Logfacility_class
 	, public virtual	Interface_base
-	, virtual public	sdsstate_struct
 	, virtual public	keyboardState_class
 {
 	const uint8_t		notes_per_sec			= 8;
@@ -196,6 +195,7 @@ class Keyboard_class
 	Scanner_class*		scanner					;
 	int					max_notes				;
 	Notevector_t		Note_vec				;
+	bps_struct			Bps						;
 
 public:
 						Keyboard_class			( 	Dataworld_class*,
@@ -203,16 +203,16 @@ public:
 													Storage_class*,
 													Note_class* );
 	virtual 			~Keyboard_class			();
-	void 				Dispatcher				( kbdInt_t key, bool trigger );
-	void 				Set_instrument			();
+	void 				Dispatcher				( bool trigger );
 	void 				Enable					( bool iskbd );
 	Data_t*				ScanData				();
-	void 				Show_help				( bool tty );
+	void 				Show_help				();
 	void				SetKbdKey				();
 	bool 				Save_notes				( bool save = true );
 
 private:
 
+	bool				enabled					;
 	const int 			releaseCounter			= 1;
 	const int 			attackCounter 			= measure_parts;
 	uint8_t				kbd_volume				;
@@ -228,10 +228,11 @@ private:
 	void 				release					();
 	bool 				decay					();
 	void 				gen_chord_data			( chord_t pitch_vec );
+	void 				set_instrument			();
 
 	// keyhandler.cpp
 
-	void 				keyHandler				( kbdkey_t kbd );
+	void 				keyHandler				();
 	void				release_note			();
 	void 				notekey					( char key );
 	void				set_bufferMode			( bool forget);

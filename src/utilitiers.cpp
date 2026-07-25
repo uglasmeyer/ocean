@@ -49,17 +49,6 @@ void show_source_location( const source_location location )
               << location.function_name() << "`: \n";
 }
 
-void Assert_equalstr( string lhs, string rhs, string message ,
-		const source_location location )
-{
-	bool comp = ( lhs.compare( rhs ) == 0 );
-	if ( not comp )
-	{
-		show_source_location( location );
-		Show_Assert( lhs, rhs, message );
-	};
-};
-
 
 uint8_t operator""_uint( unsigned long long int x)
 {

@@ -54,6 +54,7 @@ constexpr array<Item, OSCIDSIZE > default_oscgroup_arr_T( Item dflt )
 
 
 const static size_t 		SPECARR_SIZE = 5;
+const size_t				SPEC_CHANNELS = SPECARR_SIZE;
 
 typedef float 				spec_dta_ft;
 typedef array<spec_dta_ft,	SPECARR_SIZE>
@@ -102,7 +103,7 @@ public:
 		.adsr		= false
 	};
 
-	spectrum_data				Parse_data			( vector_str_t arr );
+	spectrum_data				Parse_data			( string_vec_t arr );
 	int 						Get_waveform_id		( string );
 	string 						Get_waveform_str	( int );
 	vector<string>				Get_waveform_vec	( );
@@ -115,7 +116,6 @@ public:
 	Table_class*				Get_spectrum_table	();
 	void 						Sum					( spectrum_data& );
 	char 						Type_flag			( const string& type_str );
-	OSCID_e						Osc_TypeId			( const string& type_str );
 
 
 	void 						Test_Spectrum		();
@@ -128,6 +128,7 @@ private:
 	const array<string	,3> 	spectrumTag 		= { "SPEV", "SPEF", "SPEW" };
 	spectrum_data				spectrumTmp			= spectrum_data();
 
+	OSCID_e						osc_TypeId			( const string& type_str );
 	void 						assign_frq			( int channel, string str  );
 	void 						assign_vol			( int channel, string str  );
 	void 						assign_waveform		( int channel, string str );

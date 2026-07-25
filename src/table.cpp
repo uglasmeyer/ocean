@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -74,7 +74,7 @@ string Table_class::cout_row( string txt )
 	string colorline 	= color + txt + endc + opt.Crlf;
 
 	if( opt.FILE == &cout )
-		*opt.FILE << colorline;
+		coutf << colorline;
 	else
 		*opt.FILE << txt << endl;
 

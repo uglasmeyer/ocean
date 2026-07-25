@@ -33,7 +33,7 @@ SOFTWARE.
 #define LINEEDIT_H_
 
 #include <Composer/Interpreter_base.h>
-
+using namespace Interpreter_ns;
 
 /**************************************************
  * Lineedit_class
@@ -50,7 +50,7 @@ public:
 							Lineedit_class	( string title, Kbd_base* kbd );
 	virtual 				~Lineedit_class	();
 	void					Program			( program_vec_t& program );
-	void 					Text			( vector_str_t& text );
+	void 					Text			( string_vec_t& text );
 	string 					Line			( string _str );
 
 private:

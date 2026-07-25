@@ -39,16 +39,17 @@ SOFTWARE.
 
 /**************************************************
  * Oscgroup_class
+ * function to control the Oscillator set
  *************************************************/
 
 class 						Oscgroup_class
 	: public virtual 		Logfacility_class
 {
 public:
-	Oscillator 				vco			;
-	Oscillator 				fmo			;
-	Oscillator 				osc			;
-	vector<Oscillator*>		member		;
+	Oscillator 				vco					;
+	Oscillator 				fmo					;
+	Oscillator 				osc					;
+	vector<Oscillator*>		member				;
 
 
 							Oscgroup_class		(); //used by FileDialog, musicsml, variation
@@ -56,45 +57,38 @@ public:
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
 
-	void					Set_Note_Frequency	( interface_t* sds,
-												const uint8_t& idx,
-												const DYNAMIC& mode );
-	void 					Set_Combine_Frequency(interface_t* sds,
-												const uint8_t& idx,
-												const DYNAMIC& mode );
 	void 					ChordData			( interface_t* sds,
 												chord_t chord );
-	void 					Run_OSCs			( const buffer_t& offs );
-	void 					Run_Adsr			();
-	void 					Set_Duration		( const uint& duration );
+	void 					ConnectionReset		();
+	void 					DataReset			();
+	Oscillator* 			GetOsc_byName		( const string& name );
+	OSCID_e 				GetOscid_byName		( const string& name );
+	void					KbdAttack			();
+	void 					OscConnectState		( interface_t* sds );
 	void 					ResetBeatCursor		();
-
-	void 					Data_Reset			();
-	void 					Phase_Reset			();
-	void 					Connection_Reset	();
-	void 					Set_Connections		( interface_t* sds );
-	void 					SetWd				( Wavedisplay_class* wd );
-	void 					SetScanner			( const buffer_t& maxlen );
-	void					SetBeatcursor		( buffer_t pos );
-	void					KbdAttack			( uint8_t bps );
-
-	string 					Show_Spectrum		();
-	Oscillator* 			Get_osc_by_name		( const string& name );
-	OSCID_e 				Get_oscid_by_name	( const string& name );
-
-	void 					SetSlider_Frq			( const uint8_t& value );
-	void 					SetFeatures			( interface_t* sds );
-	void 					SetAdsr				( interface_t* sds );
-
-	void 					SetSpectrum			( interface_t* sds );
-
-	void 					Show_sound_stack	();
-	void 					SetInstrument		( interface_t* sds );
-	void 					BackupPhase			( pitch_t& pitch );
 	void 					RestorePhase		( pitch_t& pitch );
+	void 					RunOSCs				( const buffer_t& offs );
+	void 					RunAdsr				();
+	void 					SetAdsr				( interface_t* sds );
+	void					SetBeatcursor		( buffer_t pos );
+	void 					SetDuration			( const uint& duration );
+	void 					SetInstrument		( interface_t* sds );
+	void 					SetFrqSlidevalue	( const uint8_t& value );
+	void 					SetFeatures			( interface_t* sds );
+	void					SetNoteFrequency	( interface_t* 	sds,
+												const uint8_t& 	idx );
+	void 					SetScanner			( const buffer_t& maxlen );
+	void 					SetSliderFrequency	(interface_t* sds,
+												const uint8_t& idx,
+												const DYNAMIC_e& mode );
+	void 					SetSpectrum			( interface_t* sds );
+	void 					SetWd				( Wavedisplay_class* wd );
+	void 					ShowSoundStack		();
+	bool					Sync				();
 
 
 private:
+	void 					backup_phase			( pitch_t& pitch );
 	void 					selfTest			();
 
 

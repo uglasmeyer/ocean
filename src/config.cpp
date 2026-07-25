@@ -35,6 +35,7 @@ SOFTWARE.
 #include <System.h>
 #include <Table.h>
 #include <sys/utsname.h>
+#include <Default.h>
 
 string getArch()
 {
@@ -48,18 +49,6 @@ string getArch()
  * source_struct
  *************************************************/
 
-string trailing_dirslash( const string& dir )
-{
-	size_t	len		= dir.length();
-	if( len == 0 )
-		return "";
-	size_t 	last = len-1;
-	char	ch	= dir[last];
-	if( ch == '/' )
-		return dir;
-	else
-		return dir + '/';
-}
 
 
 source_struct::source_struct( string srcdir )
@@ -96,56 +85,8 @@ string install_struct::oceanDir( )
 		Comment( WARN, "Using default", oceandir );
 	}
 	return oceandir;
-
-	string basedir = "";
-	const string Envvar = OCEANDIR;
-	string Env = notnull( std::getenv( Envvar.data()) );
-	if( filesystem::is_regular_file( Env + "/etc/synthesizer.cfg" ))
-	{
-		if( Env[Env.length()-1] == '/' )
-		{
-			basedir = Env;
-		}
-		else
-		{
-			basedir = Env + "/";
-		}
-		Comment( DEBUG, "using " + Envvar +" "+ basedir );
-		return basedir;
-	}
-	Comment( INFO, "not in " + Envvar );
-
-	// path
-	string prgname = program_invocation_short_name;
-	string file = searchPath( prgname );
-	filesystem::path filepath = file;
-	string parentpath = filepath.parent_path();
-	filesystem::path cfgname = parentpath + "/../etc/synthesizer.cfg";
-	if ( file.length() > 0 )
-		if( filesystem::is_regular_file( cfgname ) )
-		{
-			basedir = parentpath + "/../" ;
-			Comment( DEBUG, "using oceanbasedir " + basedir );
-			return basedir;
-		}
-	Comment( INFO, "not in searchPATH" );
-
-	// pwd
-	string pwd = notnull( getenv( "PWD" ));
-	string prgpwd = pwd + "/" + prgname ;
-	if ( filesystem::is_regular_file( prgpwd + "../etc/synthesizer.cfg" ))
-	{
-		basedir = pwd + "/../";
-		Comment( INFO, "using PWD basedir " + basedir );
-		return basedir;
-	}
-	Comment( ERROR, pwd + " is not an Ocean basedir, or " + prgname + " not in PATH");
-	Comment( ERROR, "or " + Envvar + " is incorrect");
-
-	exit(1);
-
-	return string("");
 }
+
 install_struct::install_struct()
 : 	Logfacility_class( "install_struct" )
 {};
@@ -168,7 +109,7 @@ string file_structure::baseName ( string _dir )
 {
 
 	String Str { _dir };
-	vector_str_t arr = Str.to_array( '/' );
+	string_vec_t arr = Str.to_array( '/' );
 	string name = "";
 	if( arr.size() > 1 )
 		name = arr[ arr.size() - 2 ];
@@ -179,6 +120,17 @@ string file_structure::get_rec_filename( uint no )
 {
 	return filename + to_string( no ) ;
 }
+string file_structure::SubDir( string basedir, string subdir )
+{
+	if( subdir.length() == 0 )
+		return basedir;
+
+	string dir = trailing_dirslash( basedir + subdir );
+	if( not filesystem::exists( dir ) )
+		filesystem::create_directories( dir );
+
+	return dir;
+}
 
 
 /***************************
@@ -188,7 +140,6 @@ string file_structure::get_rec_filename( uint no )
 Config_class::Config_class() :
 	Logfacility_class( "Config_class" )
 {
-	className 			= Logfacility_class::className;
 	prgName				= Process.name;
 	fs					= &Fs;
 	if( not ( Process.AppId == SETUPID ))
@@ -197,10 +148,8 @@ Config_class::Config_class() :
 		cout << Line(80, 'v' )  << endl;
 	}
 	parse_cmdline();
-	if( filesystem::is_regular_file( fs->config_file ) )
-	{
-		Read_config( fs->config_file );
-	}
+	Write_template_text( fs->config_file, config_template_text, KEEPFILE );
+	Read_config( fs->config_file );
 };
 
 
@@ -326,6 +275,8 @@ void Config_class::Read_config(	string cfgfile )
 	Config.kbd_sec		= get_value( Config.kbd_sec		, "kbd_sec" );
 	Config.MAXWAVFILES 	= get_value( Config.MAXWAVFILES	, "maxwavfiles");
 	Config.debug		= get_char ( Config.debug		, "debug" );
+	Config.Logview		= get_item ( Config.Logview		, "logviewer" );
+
 	for( uint idx = 0; idx < MAXCONFIG; idx++  )
 	{
 		Config.sdskeys	[ idx ] = Config.SDS_key + idx;
@@ -352,12 +303,12 @@ void Config_class::Read_config(	string cfgfile )
 
 void Config_class::Test()
 {
-	vector_str_t args = parse_cmdline();
+	string_vec_t args = parse_cmdline();
 	cout << show_str_items( args ) << endl;
 	ASSERTION( args[1][0] == 't', "cmdline contains -t", args[1], "t" );
 }
 
-vector_str_t Config_class::parse_cmdline()
+string_vec_t Config_class::parse_cmdline()
 {
 	const 	string	pid 			= to_string( getpid() );
 	const 	string	cmdfilename 	= "/proc/" + pid + "/cmdline";
@@ -424,8 +375,8 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 
 	if( Process.AppId == SETUPID )
 	{
-		if ( Config.filename.length() > 0) Info( "Config.filename  ", Config.filename );
-		if ( Config.sourcedir.length() > 0) Info( "Config.sourcedir ", Config.sourcedir);
+		if ( Config.filename.length() 	> 0) Info( "Config.filename  ", Config.filename );
+		if ( Config.sourcedir.length() 	> 0) Info( "Config.sourcedir ", Config.sourcedir);
 		if ( Config.installdir.length() > 0) Info( "Config.installdir", Config.installdir);
 	}
 }
@@ -451,6 +402,7 @@ void Config_class::Show_Config( bool debug )
 	Table.AddRow( "Id3tool Genre" 		, Config.Genre	);  		// -t
 	Table.AddRow( "MAXWAVFILES"			, Config.MAXWAVFILES	);  		// -t
 	Table.AddRow( "Terminal"	 		, Config.Term		);  		// -D
+	Table.AddRow( "Log Viewer"			, Config.Logview	);
 	Table.AddRow( "shm key"			 	, Config.SHM_key	);  		// -k
 	Table.AddRow( "sds_key" 			, Config.SDS_key	);  		// -D
 	Table.AddRow( "sem_key" 			, Config.Sem_key	);  		// -D

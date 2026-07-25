@@ -29,10 +29,10 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+#include <random>
 
 #include <Oscwaveform.h>
 #include <String.h>
-
 
 random_device 				rd;
 mt19937 					engine(rd());
@@ -146,8 +146,8 @@ Data_t Rnd_step( param_t& p )
 	}
 	return p.amp * step * rnd_step ;
 }
+
 #include <Fourier.h>
-extern Fourier_class* 	fourier;
 Data_t FourierFnc( param_t& p )
 {
 	return fourier->Fnc( p );
@@ -178,8 +178,9 @@ constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_struct> fnc_vec
 	return vec;
 };
 
-const vector<string> waveform_str_vec { gen_waveform_str_vec( waveFunction_vec ) };
-const range_T<int> waveform_range{ 0, (int) waveFunction_vec.size() -1 };
+const vector<string>waveform_str_vec { gen_waveform_str_vec( waveFunction_vec ) };
+const range_T<int> 	waveform_range{ 0, (int) waveFunction_vec.size() -1 };
+const uset_t	waveform_str_set	= vector2uset( waveform_str_vec );
 
 const vector<waveFnc_t> adsrFunction_vec
 {

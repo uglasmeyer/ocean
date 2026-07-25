@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,71 @@ SOFTWARE.
  */
 
 #include 			<Logfacility.h>
+#include <sys/ioctl.h>
+//#include <unistd.h>
+//#include <iostream>
+
+uint8_t term_columns()
+{
+	struct winsize w;
+	if ( is_atty )
+	{
+		if ( ioctl( STDIN_FILENO, TIOCGWINSZ, &w ) == -1)
+		{
+			std::cerr << "Failed to get terminal size.\n";
+			return 80;
+		}
+	}
+
+	return w.ws_col;
+}
+
+constexpr error_arr_t seterrText()
+{
+	// defined in /usr/include/asm-generic/errno-base.h
+	error_arr_t error_arr;
+	error_arr[NOERR] 	=   {"NOERR",	"no error"};
+	error_arr[EPERM] 	=   {"EPERM",	"Operation not permitted"};
+	error_arr[ENOENT] 	=   {"ENOENT",	"No such file or directory"};
+	error_arr[ESRCH] 	=   {"ESRCH",	"No such process"};
+	error_arr[EINTR] 	=   {"EINTR",	"Interrupted system call"};
+	error_arr[EIO] 		=   {"EIO",		"I/O error"};
+	error_arr[ENXIO] 	=   {"ENXIO",	"No such device or address "};
+	error_arr[E2BIG] 	=   {"E2BIG",	"Argument list too long "};
+	error_arr[ENOEXEC] 	= 	{"ENOEXEC",	"Exec format error"};
+	error_arr[EBADF] 	=   {"EBADF",	"Bad file number"};
+	error_arr[ECHILD] 	=   {"ECHILD",	"No child processes"};
+	error_arr[EAGAIN] 	=   {"EAGAIN",	"Try again"};
+	error_arr[ENOMEM] 	=   {"ENOMEM",	"Out of memory"};
+	error_arr[EACCES] 	=   {"EACCES",	"Permission denied"};
+	error_arr[EFAULT] 	=   {"EFAULT",	"Bad address"};
+	error_arr[ENOTBLK] 	=   {"ENOTBLK",	"Block device required"};
+	error_arr[EBUSY] 	=   {"EBUSY",	"Device or resource busy"};
+	error_arr[EEXIST] 	=   {"EEXIST",	"File exists"};
+	error_arr[EXDEV] 	=   {"EXDEV",	"Cross-device link"};
+	error_arr[ENODEV] 	=   {"ENODEV",	"No such device"};
+	error_arr[ENOTDIR] 	=   {"ENOTDIR",	"Not a directory"};
+	error_arr[EISDIR] 	=   {"EISDIR",	"Is a directory"};
+	error_arr[EINVAL] 	=   {"EINVAL",	"Invalid argument"};
+	error_arr[ENFILE] 	=   {"ENFILE",	"File table overflow"};
+	error_arr[EMFILE] 	=   {"EMFILE",	"Too many open files"};
+	error_arr[ENOTTY] 	=   {"ENOTTY",	"Not a typewriter"};
+	error_arr[ETXTBSY] 	=   {"ETXTBSY",	"Text file busy"};
+	error_arr[EFBIG] 	=   {"EFBIG",	"File too large"};
+	error_arr[ENOSPC] 	=   {"ENOSPC",	"No space left on device"};
+	error_arr[ESPIPE] 	=   {"ESPIPE",	"Illegal seek"};
+	error_arr[EROFS] 	=   {"EROFS",	"Read-only file system"};
+	error_arr[EMLINK] 	=   {"EMLINK",	"Too many links"};
+	error_arr[EPIPE] 	=   {"EPIPE",	"Broken pipe"};
+	error_arr[EDOM] 	=   {"EDOM",	"Math argument out of domain of func"};
+	error_arr[ERANGE] 	=   {"ERANGE",	"Math result not representable"};
+	error_arr[LUNDEF] 	=   {"undefined",	"unknown"};
+	return error_arr;
+}
+const error_arr_t error_text_arr = seterrText();
+
+
+
 
 logmask_t 			LogMask 			= defaultLogMask;
 
@@ -41,7 +106,7 @@ using namespace 	COLOR;
  *************************************************/
 Logfacility_class::Logfacility_class( const string module )
 {
-					seterrText			();
+					error_arr			= &error_text_arr;
 					prefixClass 		= "" ;
 					this->logmask		= defaultLogMask;
 
@@ -94,8 +159,7 @@ string	Logfacility_class::GetendColor( ostream* out )
 
 string Logfacility_class::cout_log( LOG_e id, string str )
 {
-	set<int> 	ignore { ENOENT };
-	if ( ( errno ) and not ignore.contains( errno ) )
+	if ( not Ignore_error_set.contains( errno ) )
 	{
 		string txt	= Error_text( errno );
 		if ( txt.length() > 0 )
@@ -106,7 +170,7 @@ string Logfacility_class::cout_log( LOG_e id, string str )
 	string 			endc 	= ( is_atty ) ? endcolor 	: nocolor;
 	LOG_e 			Id		= ( is_atty ) ? id 		: LOG_e::PLAIN;
 	size_t			pos		= str.find( '\n' );
-	if ( pos < string::npos )
+	if ( pos < string::npos ) // insert setw in addition to \n
 	{
 		string s0 = str.substr(0, pos +1);
 		string s1 = str.substr( pos +1 );
@@ -115,54 +179,12 @@ string Logfacility_class::cout_log( LOG_e id, string str )
 		str =  s.str();
 	}
 	strs << Prefix_vec[ Id ].color << prefix << str << endc << endl;
-	cout.flush() << strs.str();
+	coutf << strs.str();
 	return str;
 }
 void Logfacility_class::ResetLogMask()
 {
 	LogMask = defaultLogMask;
-}
-#define NOERR 0
-void Logfacility_class::seterrText()
-{
-	// defined in /usr/include/asm-generic/errno-base.h
-
-	error_arr[NOERR] 	=   {"NOERR",	"no error"};
-	error_arr[EPERM] 	=   {"EPERM",	"Operation not permitted"};
-	error_arr[ENOENT] 	=   {"ENOENT",	"No such file or directory"};
-	error_arr[ESRCH] 	=   {"ESRCH",	"No such process"};
-	error_arr[EINTR] 	=   {"EINTR",	"Interrupted system call"};
-	error_arr[EIO] 		=   {"EIO",		"I/O error"};
-	error_arr[ENXIO] 	=   {"ENXIO",	"No such device or address "};
-	error_arr[E2BIG] 	=   {"E2BIG",	"Argument list too long "};
-	error_arr[ENOEXEC] 	= 	{"ENOEXEC",	"Exec format error"};
-	error_arr[EBADF] 	=   {"EBADF",	"Bad file number"};
-	error_arr[ECHILD] 	=   {"ECHILD",	"No child processes"};
-	error_arr[EAGAIN] 	=   {"EAGAIN",	"Try again"};
-	error_arr[ENOMEM] 	=   {"ENOMEM",	"Out of memory"};
-	error_arr[EACCES] 	=   {"EACCES",	"Permission denied"};
-	error_arr[EFAULT] 	=   {"EFAULT",	"Bad address"};
-	error_arr[ENOTBLK] 	=   {"ENOTBLK",	"Block device required"};
-	error_arr[EBUSY] 	=   {"EBUSY",	"Device or resource busy"};
-	error_arr[EEXIST] 	=   {"EEXIST",	"File exists"};
-	error_arr[EXDEV] 	=   {"EXDEV",	"Cross-device link"};
-	error_arr[ENODEV] 	=   {"ENODEV",	"No such device"};
-	error_arr[ENOTDIR] 	=   {"ENOTDIR",	"Not a directory"};
-	error_arr[EISDIR] 	=   {"EISDIR",	"Is a directory"};
-	error_arr[EINVAL] 	=   {"EINVAL",	"Invalid argument"};
-	error_arr[ENFILE] 	=   {"ENFILE",	"File table overflow"};
-	error_arr[EMFILE] 	=   {"EMFILE",	"Too many open files"};
-	error_arr[ENOTTY] 	=   {"ENOTTY",	"Not a typewriter"};
-	error_arr[ETXTBSY] 	=   {"ETXTBSY",	"Text file busy"};
-	error_arr[EFBIG] 	=   {"EFBIG",	"File too large"};
-	error_arr[ENOSPC] 	=   {"ENOSPC",	"No space left on device"};
-	error_arr[ESPIPE] 	=   {"ESPIPE",	"Illegal seek"};
-	error_arr[EROFS] 	=   {"EROFS",	"Read-only file system"};
-	error_arr[EMLINK] 	=   {"EMLINK",	"Too many links"};
-	error_arr[EPIPE] 	=   {"EPIPE",	"Broken pipe"};
-	error_arr[EDOM] 	=   {"EDOM",	"Math argument out of domain of func"};
-	error_arr[ERANGE] 	=   {"ERANGE",	"Math result not representable"};
-	error_arr[LUNDEF] 	=   {"undefined",	"unknown"};
 }
 
 void Logfacility_class::Init_log_file( )
@@ -193,7 +215,7 @@ string Logfacility_class::Error_text( uint err )
 	{
 		err = LUNDEF;
 	}
-	str = "[" + error_arr[err].key + "] " + error_arr[err].str;
+	str = "[" + error_arr->at(err).key + "] " + error_arr->at(err).str;
 	errno = 0;
 	return str;
 }

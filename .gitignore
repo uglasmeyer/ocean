@@ -1,5 +1,7 @@
-/Debug/
+/Debug/build_*
 /Release/
+/Develop/build_*
+CMakeCache.txt
 *.so
 /OceanGUI/Debug/
 *.stash

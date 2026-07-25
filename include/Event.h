@@ -38,20 +38,20 @@ SOFTWARE.
 #include <Keyboard.h>
 #include <notes/MusicXML.h>
 #include <Mixer.h>
-#include <data/Sdsbase.h>
 #include <External.h>
 #include <Audio.h>
 
+
 /**************************************************
  * Event_class
- * manage Synthesizer events from OceanGUI, Composer
+ * manage Synthesizer events coming from OceanGUI, Composer
  *************************************************/
 class Event_class
 	: virtual public 	Logfacility_class
 	, 					sdsstate_struct
 {
+	StateId_e			state			;
 	StAExternal_class	StAExternal;
-
 	SharedData_class* 	Sds;
 	SharedData_class*	Sds_master;
 	interface_t*		sds_p;
@@ -71,6 +71,7 @@ class Event_class
 	Capture_class*		Capture;
 
 public:
+	event_buffer_t 		eventbuffer;
 
 	Event_class(Instrument_class* 	instrument,
 				Note_class*			notes,
@@ -85,8 +86,24 @@ public:
 
 	virtual 	~Event_class() = default;
 
-	void 		Handler( );
-	void 		TestHandler();
+	template <class... ArgsT>
+	void EvInfo ( EVENTKEY_e key, ArgsT... args )
+	{
+		if( EventQue->Repeat )
+			return;
+		if ( sds_p->eventDebug )
+		{
+			stringstream strs;
+			strs << (int) key << '>';
+			(( strs << args << " "	), ... );
+			string eventstr = strs.str();
+			this->DaTA->EmitEvent( UPDATELOG_FLAG, eventstr );
+		}
+	};
+
+	void 		Handler		();
+	void		State		( StateId_e stateid );
+	void 		TestHandler	();
 
 private:
 

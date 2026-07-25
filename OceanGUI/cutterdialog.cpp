@@ -36,14 +36,21 @@ CutDesk_Dialog_class::CutDesk_Dialog_class(	QWidget* 			parent,
 	this->Eventlog		= el;
 
     ui->setupUi(this);
-    connect(ui->pb_back_right	, SIGNAL(clicked() ),this, SLOT(Step_forward() ));
-    connect(ui->pB_back_left	, SIGNAL(clicked() ),this, SLOT(Step_backward() ));
-    connect(ui->pb_front_right	, SIGNAL(clicked() ),this, SLOT(Step_front_forward() ));
-    connect(ui->pb_front_left	, SIGNAL(clicked() ),this, SLOT(Step_front_backward() ));
-    connect(ui->pB_goto_end		, SIGNAL(clicked() ),this, SLOT(Step_to_end() ));
-    connect(ui->pB_Cut			, SIGNAL(clicked() ),this, SLOT(Cut_tail() ));
-    connect(ui->pB_Save			, SIGNAL(clicked() ),this, SLOT(Save() ));
+	QStringList Qbps_str_lst = Qstringlist( bps_struct().Bps_lst );
+    ui->cB_Stepwidth->addItems	( Qbps_str_lst );
 
+    connect(ui->pb_back_right	, SIGNAL(clicked() )	,this, SLOT(Step_forward() ));
+    connect(ui->pB_back_left	, SIGNAL(clicked() )	,this, SLOT(Step_backward() ));
+    connect(ui->pb_front_right	, SIGNAL(clicked() )	,this, SLOT(Step_front_forward() ));
+    connect(ui->pb_front_left	, SIGNAL(clicked() )	,this, SLOT(Step_front_backward() ));
+    connect(ui->pB_goto_end		, SIGNAL(clicked() )	,this, SLOT(Step_to_end() ));
+    connect(ui->pB_Cut			, SIGNAL(clicked() )	,this, SLOT(Cut_tail() ));
+    connect(ui->pB_Save			, SIGNAL(clicked() )	,this, SLOT(Save() ));
+    connect(ui->pB_rotate_left	, SIGNAL(clicked() )	,this, SLOT(Rotate_left() ));
+    connect(ui->pB_rotate_right	, SIGNAL(clicked() )	,this, SLOT(Rotate_right() ));
+    connect(ui->cB_Stepwidth	, SIGNAL(activated(int)),this, SLOT(Stepwidth(int) ));
+
+    move( 0,0 );
 	updateCutDesk();
 }
 
@@ -56,10 +63,20 @@ void CutDesk_Dialog_class::Dialog()
 {
 	if( not this->isVisible() )
 	{
-	    Setup( Sds );
-	    DaTA->Sem_p->Lock( PROCESSOR_WAIT );
-	    if( sds_p->WD_state.wd_mode == CURSORID )
-	    	this->show();
+	    if( DaTA_p->Appstate.IsRunning( sds_p, SYNTHID ) )
+	    {
+		    Setup();
+		    DaTA_p->Sem_p->Lock( PROCESSOR_WAIT );
+			if( sds_p->WD_state.mode == RANGE_WD )
+			{
+			    StAId_e staid = GetStaid( sds_p->WD_state.roleId );
+			    if ( not CutIds.contains( staid ) )
+			    	return;
+			    QString qTitle = "CutDesk ( " + Qstring( GetStaIdName( staid ) ) + " )";
+			    this->setWindowTitle( qTitle );
+				this->show();
+			}
+	    }
 	}
 	else
 	{
@@ -68,11 +85,26 @@ void CutDesk_Dialog_class::Dialog()
 	}
 
 }
+void CutDesk_Dialog_class::Stepwidth( int idx )
+{
+	uint8_t width = bps_struct().Bps_vec[ idx ];
+	Sds->Set( sds_p->WD_state.record_steps, width );
+    Eventlog->add( SDS_ID, CUT_STEPWIDTH_KEY );
+}
+void CutDesk_Dialog_class::Rotate_left()
+{
+	Sds->Set( sds_p->WD_state.direction, ROTATE_LEFT );
+	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
+}
+void CutDesk_Dialog_class::Rotate_right()
+{
+	Sds->Set( sds_p->WD_state.direction, ROTATE_RIGHT );
+	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
+}
 void CutDesk_Dialog_class::Step_forward()
 {
 	Sds->Set( sds_p->WD_state.direction, BACK_RIGHT );
 	Eventlog->add( SDS_ID, CUT_UPDATE_KEY );
-
 }
 void CutDesk_Dialog_class::Step_backward()
 {
@@ -97,11 +129,11 @@ void CutDesk_Dialog_class::Step_to_end()
 }
 void CutDesk_Dialog_class::updateCutDesk()
 {
-	string	str = sds_p->Other;
+	string	str = sds_master->WAV_filename;
 	ui->lbl_wav_file->setText( Qstring( str ) );
 	ui->lcdNumber->display( sds_p->WD_state.cursor.min );
 	ui->lcdNumber_2->display( sds_p->WD_state.cursor.max );
-	coutf << "CutDesk_Dialog_class::updateCutDesk" << endl;
+//	coutf << "CutDesk_Dialog_class::updateCutDesk" << endl;
 }
 
 void CutDesk_Dialog_class::Cut_tail()
@@ -110,19 +142,18 @@ void CutDesk_Dialog_class::Cut_tail()
 }
 void CutDesk_Dialog_class::Save()
 {
-	Eventlog->add( SDS_ID, CUT_SAVE );
+	Eventlog->add( SDS_ID, CUT_SAVE_KEY );
 }
 
-void CutDesk_Dialog_class::Setup( SharedData_class* Sds )
+void CutDesk_Dialog_class::Setup()
 {
-	SetSds();
 	Eventlog->add(SDS_ID, CUT_SETUP_KEY );
 	updateCutDesk();
 }
 
 void CutDesk_Dialog_class::SetSds()
 {
-	Interface_base::SetSds();
+	Interface_base::Set_Sds();
 	updateCutDesk();
 }
 

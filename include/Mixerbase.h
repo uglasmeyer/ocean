@@ -45,30 +45,28 @@ enum StAId_e : unsigned char
 	STA_KEYBOARD,
 	STA_NOTES,
 	STA_EXTERNAL,
-	STA_SIZE
+	STAID_ALL
 };
 
+typedef vector<StAId_e> staid_vec_t;
+const staid_vec_t		StAIds	= Iota_T<StAId_e>( STA_USER00, STAID_ALL );
 
-
-typedef array<StAId_e, STA_SIZE> 	StAarray_t; //SDS related
-const range_T<StAId_e> 	staid_range{ (StAId_e)0, (StAId_e)(STA_SIZE-1) };
-const vector<StAId_e>	StAIds	= Iota_T<StAId_e>( STA_USER00, STA_SIZE );
-const set<StAId_e>		RecIds 	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_EXTERNAL };
-const vector<StAId_e>	UsrIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03, STA_INSTRUMENT };
-const vector<StAId_e>	HghIds	= { STA_INSTRUMENT, STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
-const set<StAId_e>		LowIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03 };
+const range_T<StAId_e> 	staid_range{ (StAId_e)0, (StAId_e)(STAID_ALL-1) };
+const range_T<StAId_e>	staid_range2{ StAId_e(0), STAID_ALL };
+const set<StAId_e>		RecIds 	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03,
+									STA_INSTRUMENT, STA_EXTERNAL };
 const set<StAId_e>		WdIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03,
 									STA_KEYBOARD, STA_NOTES, STA_EXTERNAL };
-struct mixer_state_struct
+const set<StAId_e>		CutIds	= { STA_USER00, STA_USER01, STA_USER02, STA_USER03,
+									STA_INSTRUMENT, STA_KEYBOARD, STA_EXTERNAL };
+struct mixer_state_data
 {	// SDS related
-	bool 	sync			= true; // explicite sync mode
-	bool 	notes			= false; // play notes
-	bool 	external		= false; // external play or record
+	bool 	sync_kbd		= false; // kbd rythm sync mode
+	bool	sync_adsr		= false; // sync instrument, notes, StAs with adsr beat_cursor
 	bool	mute			= false; // mute master volume
-	bool	kbd				= false; // play keyboard note
-	bool	instrument		= true; // play instrument
+	bool	composer		= false; // true if composer is running
 } ;
-typedef 	mixer_state_struct 	mixer_state_t;
+typedef 	mixer_state_data 	mixer_state_t;
 
 typedef struct sta_rolemap_data
 {
@@ -105,7 +103,7 @@ struct sta_role_map
 		for( sta_rolemap_data_t rolemap : sta_map_vec )
 			if( role == rolemap.roleid )
 				return rolemap.staid;
-		return STA_SIZE;
+		return STAID_ALL;
 	}
 	RoleId_e GetRoleid( StAId_e staid )
 	{
@@ -113,6 +111,13 @@ struct sta_role_map
 			if ( staid == roleid_map.staid )
 				return roleid_map.roleid;
 		return ROLE_SIZE;
+	}
+	string GetStaIdName( StAId_e staid )
+	{
+		string name = "";
+		if( in_range( staid_range, staid ) )
+			name = StANames[ staid ];
+		return name;
 	}
 };
 const std::vector<std::string> StANames = sta_role_map().StANames;

@@ -84,6 +84,7 @@ struct dir_struct
 	const string 	musicdir 		= vardir  + "wav/";
 	const string 	rtspdir			= etcdir  + "rtsp/";
 	const string 	instrumentdir	= etcdir  + "Instruments/";
+	const string	fourierdir		= instrumentdir + "fourier/";
 	const string 	notesdir  		= etcdir  + "Notes/";
 	const string 	includedir		= etcdir  + "include/";
 	const string 	xmldir			= etcdir  + "musicxml/";
@@ -103,6 +104,7 @@ struct dir_struct
 		vardir,
 		musicdir,
 		instrumentdir,
+		fourierdir,
 		notesdir,
 		includedir,
 		autodir,
@@ -124,17 +126,21 @@ struct file_structure
 {
 	string 			get_rec_filename			( uint no );
     string 			baseName 					( string _dir );
+    string			SubDir						( string basedir, string subdir );
+
 					file_structure				();
 	virtual 		~file_structure				() = default;
 
 	const string 	filename 					= "synthesizer";
+	const string	test_name					= "test";
+	const string	tmpnote_filename			= "tmp";
 	string			oceanbasename				= baseName( installdir );
 	const string 	snd_type 					= ".snd";	// instruments file extension
-	static constexpr string
-					nte_type					= ".nte";	// notes file extension
+	const string	fft_type					= ".fft";
+	static constexpr string	nte_type					= ".nte";	// notes file extension
+	static constexpr string	xml_type					= ".musicxml";
 	const string 	wav_type 					= ".wav";
-	static constexpr string
-					xml_type					= ".musicxml";
+	const string	synth_type					= ".synth";
 	const string	Audio_bin					= AUDIOSERVER;
 	const string 	Synth_bin					= SYNTHESIZER;
 	const string 	Keyboard_bin				= SYNTHKBD;
@@ -154,18 +160,19 @@ struct file_structure
 	const string	config_filename				= filename		+ ".cfg";
 	const string 	config_file  				= etcdir		+ config_filename;
 	const string	version_txt					= etcdir		+ "version.txt";
-	const string	datacfg_file				= etcdir		+ "Data.cfg";
 	const string 	counter_file 				= libdir 		+ "counter.bin";
-	const string 	program_filename			= "main.synth";
 	const string	prog_libfilename			= "lib.inc";
 	const string	prog_testfilename			= "testcases.inc";
+	const string	program_name				= "main";
+	const string 	program_filename			= program_name	+ synth_type;
 	const string 	program_file				= includedir 	+ program_filename;
 	const string	prog_libfile				= includedir	+ prog_libfilename;
 	const string	prog_testfile				= includedir	+ prog_testfilename;
-	const string	log_file					= logdir		+ "composer.log";
-	const string	nohup_file					= logdir		+ "nohup.log";
+	const string	composer_logfile			= logdir		+ "composer.log";
+	const string	nohup_logfile				= logdir		+ "nohup.log";
 	const string 	bkground_filename			= "Ocean.png";
-	const string	testsnd_filename			= ".test2.snd";
+	const string	testsnd_filename			= test_name 	+ snd_type;
+	const string	testsnd_file				= instrumentdir + testsnd_filename;
 	const string	bkground_file				= libdir		+ bkground_filename;
 	const string	setup_filename				= "oceansetup.sh";
 	const string	setup_file					= bindir		+ setup_filename;
@@ -180,31 +187,38 @@ struct file_structure
 	const string	oceanrc_file 				= etcdir	+ oceanrc_filename;
 	const string	kbdnotes_name				= "keyboardNotes";
 	const string	kbdnotes_file				= autodir + kbdnotes_name + nte_type;
-	const string	template_xmlname			= "template" + xml_type;
-	const string	template_xmlfile			= xmldir + template_xmlname;
 	const string	install_txt					= "install.txt";
 	const string	install_txtfile				= installdir + install_txt;
 	const string	default_nte					= default_name + nte_type;
 	const string	default_xml					= default_name + xml_type;
 	const string	default_snd					= default_name + snd_type;
+	const string	instrument_file				= instrumentdir + default_snd;
 	const string	icon_filename				= "Ocean-SL.ico"; // see also OceanGUI/resource.qrc
 																// and OceanGUI/OceanGui_main.cpp
 	const string	icon_file					= libdir + icon_filename;
 	const string 	desktop_filename			= string(OCEANGUI) + ".desktop"; // see also oceansetup.sh
 	const string	desktop_file				= etcdir + desktop_filename;
+	const string	testprogram_file			= includedir + test_name + synth_type;
+	const string 	musicxml_template_filename	= "template";
+	const string	musicxml_template_file		= xmldir + musicxml_template_filename + xml_type;
+	const string	default_nte_template_file	= notesdir + default_nte;
+	const string	default_xml_file			= xmldir + default_xml;
+	const string	musicxml_test_file			= xmldir + test_name + xml_type;
+	const string	test_synth_file				= includedir + test_name + synth_type;
 };
 typedef file_structure fs_t;
+
+
+
 /**************************************************
  * Config_class
  *************************************************/
 class Config_class
-:	Logfacility_class
+	:	Logfacility_class
 {
-	string 			className 			= "";
-
 public:
 	process_t		Process				{};
-	fs_t			Fs					{};
+	fs_t			Fs					;
 	fs_t*			fs					;
 	string 			configfile 			{};
 	string 			prgName				{};
@@ -221,7 +235,7 @@ public:
 	virtual 		~Config_class		();
 
 private:
-	vector_str_t	parse_cmdline		();
+	string_vec_t	parse_cmdline		();
 	void 			setAppCWD			( string cwd );
 
 

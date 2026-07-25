@@ -33,22 +33,22 @@ SOFTWARE.
 #define APPSYMBOLS_H_
 
 #include <App.h>
+
 Exit_class			Exit			{};
 Config_class		Cfg				{};
-Logfacility_class	Log				( Cfg.prgName );
-Semaphore_class		Sem				{ Cfg.Config.Sem_key };
-Dataworld_class 	DaTA			{ &Cfg, &Sem };
+Config_class*		Cfg_p			= &Cfg;
+Logfacility_class	Log				( Cfg_p->prgName );
+Semaphore_class		Sem				{ Cfg_p->Config.Sem_key };
+Dataworld_class 	DaTA			{ Cfg_p, &Sem };
+Dataworld_class*	DaTA_p			= &DaTA;
+Interface_base		Ifb				{ DaTA_p };
+Application_class	App				{ DaTA_p };
+
 Appstate_class*		Appstate 		= &DaTA.Appstate;
-interface_t*		sds_master 		= DaTA.sds_master;
-SharedData_class*	Sds_master		= DaTA.Sds_master;
-Application_class	App				{ &DaTA };
-interface_t*		sds_p 			= App.sds_p;		// consistent with  Interface_base
-SharedData_class*	Sds				= App.Sds;			// consistent with  Interface_base
-
-
-#include <Fourier.h>
-
-extern Fourier_class* 		fourier;
+interface_t*		sds_master 		= DaTA.SDS.master;
+SharedData_class*	Sds_master		= DaTA.SDS.Master;
+interface_t*		sds_p 			= Ifb.sds_p;		// consistent with  Interface_base
+SharedData_class*	Sds				= Ifb.Sds;			// consistent with  Interface_base
 
 
 #endif /* APPSYMBOLS_H_ */

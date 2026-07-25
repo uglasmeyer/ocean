@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,21 +34,93 @@ SOFTWARE.
 
 #include <Composer/Interpreter.h>
 #include <fstream>
+
+using namespace Interpreter_ns;
+
+/**************************************************
+ * line_struct
+ *************************************************/
+#include <regex>
+
+line_struct::line_struct( uint _no, string _line, string _name )
+{
+	auto assign_keyw = [ ]( String& Str, const string_vec_t arr )
+	{
+		if( arr.size() > 1 )
+			if( arr[1][0] == '=' ) // do not change to lower in case of variable assignment
+				return arr[1];
+		return Str.to_lower();
+	};
+
+	auto match_concat = [  ]( string line )
+	{
+        std::smatch search_match;
+		std::regex pattern( R"((\w+) = (\w+) [+] (\w+)(\s*))", std::regex_constants::icase );
+		bool result = regex_search( line, search_match, pattern );
+		cout << line << " matching: " << search_match[0] << endl;
+		return result ? CONCAT : ASSIGN;
+	};
+
+	if ( _line.length() == 0 )
+		return;
+	no		= _no;
+	jmp		= JMPUNDEF;
+	name	= ( _name.length() > 0 ) ? _name : "stdin" ;
+	String
+	Str 	{ _line };
+	Str.replace_comment();
+	Str.replace_char('\t' , ' ');
+	line	= Str.Str;
+	args 	= Str.to_unique_array( ' ' );
+	Str.Str	= ( args.size() > 0 ) ? args[0] : "";
+
+	keyw	= assign_keyw( Str, args );
+	key		= GetKeywordId( keyw );
+
+	if( key == ASSIGN )
+		key = match_concat( line );
+}
+
+
 /**************************************************
  * Composer_class
  *************************************************/
+pos_stack_t pos_stack;
+string tmp_var = "";
 
+Composer_class::Composer_class( Dataworld_class* data, Interpreter_class* interpreter ) :
+	Logfacility_class("Composer_class")
+	, Interface_base( data )
+{
+	this->Interpreter	= interpreter;
+	this->Program_file	= fs->program_file;
+	this->test_mode		= false;
+	PrgTable.opt.Ident	= 0;
+	PrgTable.AddColumn	( "Id", 4 );
+	PrgTable.AddColumn	( "File(no)", 20 );
+	PrgTable.AddColumn	( "Program Line", term_columns() - 36 );
+	PrgTable.AddColumn	( "Jump", 4 );
 
-CODE_e Composer_class::Show( vector_str_t arr )
+	this->Program.clear	();
+};
+Composer_class::~Composer_class()
+{
+	DESTRUCTOR( className );
+};
+
+void Composer_class::SetTestMode( bool mode )
+{
+	test_mode	= mode;
+}
+CODE_e Composer_class::Show( string_vec_t arr )
 {
 	Interpreter->expect = { "stack" };
 	Interpreter->Intro( arr, 1 );
+	Interpreter->SetKeyword		( 1 );
 
 	if( Interpreter->Cmpkeyword( "stack" ) )
 	{
-		coutf << Program.size() << endl;
-		for( line_struct prgline : Program )
-			prgline.show();
+		Show_Program( Program_file );
 		return NOEXEC;
 	}
 
@@ -56,37 +128,125 @@ CODE_e Composer_class::Show( vector_str_t arr )
 	return NOEXEC;
 }
 
-bool Composer_class::Compile()
+int Composer_class::find_subroutine_pos(const program_vec_t &program, string keyw)
 {
-
-	uint 				pos 			= 0;
-	uint 				nr_of_prgLines = Program.size();
-
-	while ( ( pos >= 0 ) and ( pos < nr_of_prgLines ) )
+	// return the progam line id starting with keyword
+	int pos = JMPUNDEF;
+	for (line_struct_t row : program)
 	{
-		line_struct 	program_line	= Program[pos];
-						pos 			= SetProgramCursor( Program, program_line );
-		Interpreter->Set_prgline( pos );
-		if ( not Interprete( program_line ) )
+		if (strEqual(keyw, row.keyw))
 		{
-			return false;
+			if( pos == JMPUNDEF  )
+				pos = row.Id;
+			else
+				Exception( "duplicat definition of "  +
+							keyw +
+							" in " +
+							to_string( row.no ) +
+							" and "+
+							to_string( pos ) );
+		}
+	}
+
+	if( pos > JMPUNDEF )
+		return pos;
+
+	// not found
+	std::for_each(program.begin(), program.end(), [](line_struct_t line)
+	{
+		if (line.keyw[0] == ':' )
+			cout << line.keyw << " ";
+	}
+	);
+	Interpreter->If_Exception("line >" + keyw + " not found");
+	return -2;
+}
+
+
+void Composer_class::show_prgline( const line_data_t& row )
+{
+	string file_name_no = row.name + "(" + to_string( row.no ) + ":0)";
+	PrgTable.AddRow( row.Id, file_name_no, row.line, row.jmp );
+}
+void Composer_class::Show_Program( string name )
+{
+	coutf << Line( term_columns() ) << endl;
+
+	Info( "Program", name );
+	PrgTable.PrintHeader();
+
+	size_t pos = 0;
+	line_data_t row = Program[pos];
+
+	do
+	{
+
+		row = Program[pos];
+		show_prgline( row );
+		pos = row.jmp;
+
+		switch ( row.key )
+		{
+			case KEYWORD_e::ENDIF 		:
+			case KEYWORD_e::RETURN		: {	pos = pos_stack.Pop()			; break; }
+			case KEYWORD_e::CALL		:
+			case KEYWORD_e::IF  		: { pos_stack.Push( int(row.Id + 1) )	;
+																; break; }
+			default						: { 					; break; }
+		}
+
+	}
+	while( pos >=0 and pos < Program.size() );
+}
+
+string_vec_t Composer_class::multi_cmd_line( string cmds )
+{
+	string_vec_t 	cmd_vec	{};
+	string			tmp		{};
+	for( char ch : cmds )
+	{
+		if ( ch ==  ';' )
+		{
+			cmd_vec.push_back( tmp );
+			tmp = "";
 		}
 		else
 		{
-			if ( Interpreter->CompilerExit )
-				return true;
+			tmp.push_back( ch );
 		}
-		pos++;
+	}
+	cmd_vec.push_back( tmp );
+	return cmd_vec;
+};
 
-	} ;
-
-
-	return true;
+void Composer_class::add_row( line_struct_t prg_line )
+{
+	int	Id 		= 0;
+	if( Program.size() > 0 )
+		Id = Program.back().Id + 1;
+	prg_line.Id = Id;
+	Program.push_back( prg_line );
 }
 
-int program_lineId = 0;
+set<string> file_set {};
+
 bool Composer_class::PreCompile( string batch_file )
 {
+	auto replace_keyword = [ this ]( line_struct program_line )
+	{
+		if ( strEqual( program_line.keyw, "for" ) )
+		{
+			make_loop( program_line );
+			return true;
+		}
+		if( strEqual( program_line.keyw, "repeat" ) )
+		{
+			replace_repeat( program_line );
+			return true;
+		}
+		return false;
+	};
+
 	fstream 		File	;
 	File.open( batch_file, fstream::in );
 	if ( not File.is_open())
@@ -99,22 +259,29 @@ bool Composer_class::PreCompile( string batch_file )
 		Comment( INFO, "Processing input file: \n" + batch_file  );
 	}
 
-	string 			path		= filesystem::path( batch_file );
+	filesystem::path	filePath{ batch_file };
 	string			file_line	= "";
+	string			filename	= filePath.stem();
+	if( file_set.contains( filename ) )
+	{
+		Info( "include file", batch_file, "already included" );
+		return true; 	// avoid duplicate includes
+	}
+	file_set.insert				( filename );
 	uint 			lineno		= 1;
 	getline			( File, file_line);
 
 
 	do
 	{
-		line_struct program_line = line_struct( lineno, file_line, batch_file );
+		line_struct program_line = line_struct( lineno, file_line, filename );
 
 		if ( program_line.keyw.compare( "include" ) == 0 )
 		{
-			string filename = ( program_line.args.size() > 1) ? program_line.args[1] : "";
-			if ( filename.length() > 0 )
+			string incname = ( program_line.args.size() > 1) ? program_line.args[1] : "";
+			if ( incname.length() > 0 )
 			{
-				PreCompile( Cfg->fs->includedir + filename + ".inc" );
+				PreCompile( fs->includedir + incname + ".inc" );
 			}
 			else
 			{
@@ -125,103 +292,250 @@ bool Composer_class::PreCompile( string batch_file )
 		{
 			if ( program_line.keyw.length() != 0 )
 			{
-				program_line.Id = program_lineId;
 				if ( Interpreter->dialog_mode )
 					program_line.name = "stdin";
-				Program.push_back( program_line );
-				program_lineId++;		}
+				else
+					program_line.name = filename;
+				if ( not replace_keyword( program_line ) )
+				{
+					add_row( program_line );
+				}
+			}
 		}
 		lineno++;
 	}
 	while( getline( File, file_line ));
+
 	Info( "Pre-processed program lines: ", lineno );
 
 	return true;
 }
 
-int Composer_class::return_pos( int pos )
-{
+void Composer_class::replace_repeat( line_struct prgline )
+{	// repeat 5 :sub
+	// arg1=5, arg2=:sub
+	string 		times	= prgline.args[1];	// number of times to repeat
+	string		cmd		= "reg 0 load " + times;
+	line_struct newline	= line_struct( prgline.no, cmd );
+				add_row	( newline );
 
-	if ( pos_stack.size() == 0 )
+	string		subprg	= prgline.args[2];	// the sub routine to call repeated times
+				cmd 	= "if " + subprg;
+				newline = line_struct( prgline.no, cmd );
+				add_row	( newline );
+}
+void Composer_class::make_loop( line_struct prgline )
+{
+	auto get_all = [  ]( string_vec_t args )
 	{
-		Interpreter->If_Exception( " return without goto at pos: " + to_string( pos+1 ) ) ;
-		Program[pos].keyw = "exit";
-		return pos;
+		string_vec_t all {};
+		bool begin = false;
+		for ( string& arg : args )
+		{
+			if( strEqual( arg, ")" ) )
+				begin = false;
+			if( begin )
+				all.push_back( arg );
+			if( strEqual( arg, "(" ) )
+				begin = true;
+		}
+		return all;
+	};
+	auto forloop_args = [  ]( string_vec_t args )
+	{
+		string	cmd		{};
+		bool 	begin	= false;
+		for( string& arg : args )
+		{
+			if( begin )
+				cmd += arg + " ";
+			if( strEqual( arg, ")" ) )
+				begin = true;
+		}
+		return cmd;
+	};
+	auto replaceAll = [  ] ( const string str, const  std::string &from, const std::string &to)
+	{
+	    if (from.empty()) return str; // Avoid infinite loop
+
+	    string ret = str;
+	    size_t startPos = 0;
+	    while ((startPos = ret.find(from, startPos)) != std::string::npos)
+	    {
+	        ret.replace(startPos, from.length(), to);
+	        startPos += to.length(); // Move past the replaced part
+	    }
+	    return ret;
+	};
+
+	string_vec_t ALL = get_all( prgline.args );
+	string forcmds= forloop_args( prgline.args );
+	for( string& arg : ALL  )
+	{
+		string cmds = replaceAll( forcmds, "ALL", arg );
+		string_vec_t cmd_vec = multi_cmd_line( cmds );
+		for( string cmd : cmd_vec )
+		{
+			line_struct newline{ prgline.no, cmd };
+			add_row( newline );
+		}
 	}
-	pos = pos_stack.back( );// access the last element
-	pos_stack.pop_back();	// delete the last element
-	return pos;
 }
 
-int Composer_class::call_pos( int pos, const program_vec_t& program )
+auto is_assignment = [ ]( const string_vec_t& arr )
 {
-	pos_stack.push_back( pos );
-	pos = Interpreter->Find_position( program, program[pos].args );
-	return pos;
+	return ( arr.size() > 1 ) ? ( arr[1][0] == '=' ) : false;
+};
+
+bool Composer_class::ProgramFlow()
+{
+	// defines next jump for all program rows.
+	// expected result as follows:
+	//pos	keyw				jmp		comment
+	// 15	call :sub_call		30 		<- find subprocess
+	// 16   call :sub_call		30
+ 	// 17	if :sub_if			35 		<- find subprocess
+	// 18	...
+	// 30	:sub_call			31 		evaluate args by interpreter
+	// 31	...
+	// 34	return				-1		dynamic return pos
+	//
+	// 35	:sub_if				36
+	// 36	...
+	// 39	endif 0				-1		return pos evaluated by processor
+
+	auto call_pos = [ this ]( int pos )
+	{
+		string subroutine = Program[pos].args[1];
+		return find_subroutine_pos( Program, subroutine );
+	};
+
+	for( line_struct_t& row : Program )
+	{
+		int 	pos 		= row.Id;
+
+		switch ( row.key )
+		{
+			case KEYWORD_e::SUB :
+			{
+				Program[pos].jmp = row.Id + 1;
+				break;
+			}
+			case KEYWORD_e::IF :
+			case KEYWORD_e::CALL :
+			{
+				Program[pos].jmp	= call_pos( pos );
+				break;
+			}
+			case KEYWORD_e::RETURN :
+			case KEYWORD_e::ENDIF :
+			{
+				break;
+			}
+			case KEYWORD_e::EXIT :
+			{
+				Program[pos].jmp 	= Program.size();
+				break;
+			}
+			default :
+			{
+				Program[pos].jmp	= row.Id + 1;
+				break;
+			}
+		} // switch key
+		show_prgline( row );
+	} // for
+	return true;
 }
 
-int Composer_class::SetProgramCursor( const program_vec_t& program, line_struct prgLine )
-{
-	int 				pos 		= prgLine.Id;
-	string 				keyword 	= prgLine.keyw;
-	if ( strEqual( keyword, "return") )
-		pos = return_pos ( pos );
-	if ( strEqual( keyword, "call"  ) )
-		pos = call_pos( pos, program );
-	return pos;
-}
 
-bool Composer_class::Interprete( line_struct_t program_line )
+int Composer_class::Interprete( line_data_t row )
 {
-	program_line.show();
+	auto sub_args = [ this ]( string value, string_vec_t arr  )
+	{
+		if( arr.size() == 1 )
+			return; // nothing to do
+		if( value.size() == 0 )
+			return; // nothing catched
+		Add( arr[1], value );
+	};
 
-	if ( program_line.name.compare("stdin") == 0 )
+	auto call_args = [  ]( string_vec_t arr )
+	{
+		return ( arr.size() > 2 ) ? arr[2] : "";
+	};
+
+	show_prgline( row );
+	Interpreter->Set_prgline( row.no, row.Id ); // used in processor stack
+
+	bool mode = ( row.name.compare("stdin") == 0 );
+	Interpreter->Set_dialog_mode( mode );
+	if( test_mode )
 		Interpreter->Set_dialog_mode( true );
-	else
-		Interpreter->Set_dialog_mode( false );
 
-	vector_str_t	arr 	= Interpreter->InsertVariable( program_line.args );
-	string 			keyword = program_line.keyw;//( arr.size() > 0 ) ? arr[0] : "";
-
-	if ( Interpreter->Check_input( keyword ) )
+	string_vec_t	arr 	= ReplaceVariable( row.args );
+	switch ( row.key )
 	{
-		if ( keyword.compare("add") 		== 0 )	Interpreter->Add( arr );
-		if ( keyword.compare("adsr") 		== 0 )	Interpreter->Adsr( arr );
-		if ( keyword.compare("exit") 		== 0 )	return Interpreter->Exit();
-		if ( keyword.compare("debug")		== 0 )	Interpreter->Debug();
-		if ( keyword.compare("dyn") 		== 0 )	Interpreter->Dynamic( arr );
-		if ( keyword.compare("instrument") 	== 0 ) 	Interpreter->Instrument( arr );
-		if ( keyword.compare("notes") 		== 0 )	Interpreter->Notes( arr );
-		if ( keyword.compare("osc") 		== 0 )	Interpreter->Osc( arr );
-		if ( keyword.compare("pause") 		== 0 )	Interpreter->Pause( arr );
-		if ( keyword.compare("play") 		== 0 )	Interpreter->Play( arr );
-		if ( keyword.compare("rec") 		== 0 )	Interpreter->RecStA( arr );
-		if ( keyword.compare("record") 		== 0 )	Interpreter->RecFile( arr );
-		if ( keyword.compare("random") 		== 0 )	Interpreter->Random( arr );
-		if ( keyword.compare("reset") 		== 0 )	Interpreter->Reset( arr );
-		if ( keyword.compare("set") 		== 0 )	Interpreter->Set( arr );
-		if ( keyword.compare("start") 		== 0 )	Interpreter->Start_bin( arr );
-		if ( keyword.compare("stop") 		== 0 )	Interpreter->Stop_bin( arr );
-		if ( keyword.compare("text")		== 0 )	Interpreter->Text( arr );
 
-		if ( Interpreter->error > 0 )
-		{
-			Interpreter->If_Exception( "Compiler error with return code: " + to_string(  Interpreter->error ) );
-		}
-	}
-	else // is not a keyword
+		case KEYWORD_e::RETURN		: {	RemoveVar( tmp_var )	;
+										return pos_stack.Pop()				; break; }
+		case KEYWORD_e::CALL		: { pos_stack.Push( int(row.Id + 1) )	;
+										tmp_var = call_args( arr )			; break; }
+		case KEYWORD_e::SUB			: { sub_args( tmp_var, arr );
+										return row.jmp 						; break; }
+		case KEYWORD_e::EXIT		: { return row.jmp						; break; }
+
+		case KEYWORD_e::ADDMUSIC 	: { Interpreter->AddMusic( arr )		; break; }
+		case KEYWORD_e::ADSR 		: { Interpreter->Adsr( arr )			; break; }
+		case KEYWORD_e::ASSIGN 		: { Add ( arr[0], arr[2] )				; break; }
+		case KEYWORD_e::CONCAT 		: { Interpreter->Addvariable( arr )		; break; }
+		case KEYWORD_e::DEBUG 		: { Interpreter->Debug( arr )			; break; }
+		case KEYWORD_e::DYN  		: { Interpreter->Dynamic( arr )			; break; }
+		case KEYWORD_e::ENDIF  		: { Interpreter->Endif( arr )			;
+										return pos_stack.Pop()				; break; }
+		case KEYWORD_e::IF  		: { pos_stack.Push( int(row.Id + 1) )	;
+										Interpreter->Ifpos( arr )			; break; }
+		case KEYWORD_e::INSTRUMENT  : { Interpreter->Instrument(arr)		; break; }
+		case KEYWORD_e::NOTES  		: { Interpreter->Notes( arr )			; break; }
+		case KEYWORD_e::OSC  		: { Interpreter->Osc( arr )				; break; }
+		case KEYWORD_e::PAUSE  		: { Interpreter->Pause( arr )			; break; }
+//		case KEYWORD_e::PLAY  		: { Interpreter->Play( arr )			; break; }
+		case KEYWORD_e::RECORD  	: { Interpreter->RecFile( arr )			; break; }
+		case KEYWORD_e::RANDOM  	: { Interpreter->Random( arr )			; break; }
+		case KEYWORD_e::RESET 		: { Interpreter->Reset( arr )			; break; }
+		case KEYWORD_e::REG  		: { Interpreter->Register( arr )		; break; }
+		case KEYWORD_e::SET  		: { Interpreter->Set( arr )				; break; }
+		case KEYWORD_e::STA  		: { Interpreter->StA( arr )				; break; }
+		case KEYWORD_e::START  		: { Interpreter->Start_bin( arr )		; break; }
+		case KEYWORD_e::STOP  		: { Interpreter->Stop_bin( arr )		; break; }
+		case KEYWORD_e::TEXT 		: { Interpreter->Text( arr )			; break; }
+		default						: {	Interpreter->Wrong_keyword( Keywords, row.keyw );
+										break; }
+	} // switch key
+
+	if ( Interpreter->error > 0 )
 	{
-		if ( keyword[0] == ':' ) // is a call function
-			return true;
-
-		Interpreter->Addvariable( arr );
-
-		if ( Interpreter->error > 0 )
-		{
-			Interpreter->Wrong_keyword( Keywords, keyword );
-			return false;
-		}
+		Interpreter->If_Exception( "Compiler error with return code: " +
+									to_string(  Interpreter->error ) );
 	}
 
-	return true; // continue
+
+	return row.jmp; // continue with the next prg row
+}
+bool Composer_class::Compile()
+{
+	pos_stack.Clear();
+	if( not ProgramFlow() )
+	{
+		Exception( "cannot establish program flow" );
+	}
+	uint 				pos 			= 0;
+	uint 				nr_of_prgLines = Program.size();
+
+	while ( ( pos >= 0 ) and ( pos < nr_of_prgLines ) )
+	{
+		line_data_t 	row	= Program[pos];
+		pos = Interprete( row );
+	} ;
+	return true;
 }

@@ -33,47 +33,44 @@ SOFTWARE.
 /**************************************************
  * Dispatcher_class
  *************************************************/
-Dispatcher_class::Dispatcher_class( Dataworld_class* _data ) :
+Dispatcher_class::Dispatcher_class( MainWindow* _win ) :
 	Logfacility_class( "Dispatcher_class")
 {
-	Sem_p = _data->Sem_p;
-	Sds_p = _data->Sds_master;
-	Sds_master = _data->Sds_master;
+	this->win		= _win;
+	this->Sem_p 	= _win->Sem_p;
+	this->Sds_master= _win->DaTA_p->SDS.Master;
+	this->loop_done	= false;
 };
+
 Dispatcher_class::~Dispatcher_class()
 {
 	cout.flush() << "reset SEMAPHORE_EVENT" << endl;
 	Sem_p->Reset( SEMAPHORE_EVENT );
 	DESTRUCTOR( className );
 };
+
 void Dispatcher_class::done()
 {
 	loop_done = true;
 	Sem_p->Release( SEMAPHORE_EVENT );
 }
+
 void Dispatcher_class::Loop(  )
 {
-	QString Qlog_str;
 	Info( "Dispatcher start" ) ;
 	while( true )
 	{
 		Sem_p->Lock( SEMAPHORE_EVENT );
 		if ( loop_done ) break;
 
-		string ev_str = Sds_master->Read_str( UPDATELOG_EVENT );
-		Qlog_str = Qstring( ev_str );
+		QString Qlog_str	= Qstring( Sds_master->Read_str( UPDATELOG_STR ) );
+		Sds_master->Write_str( UPDATELOG_STR, "" );
 
-		switch ( Sds_p->addr->FLAG )
+		switch ( Sds_master->addr->FLAG )
 		{
-			case UPDATELOG_EVENT :
+			case UPDATELOG_FLAG :
 			{
 				emit( UpdateRtspLog( Qlog_str) );
-				Sds_master->Write_str( UPDATELOG_EVENT, "" );
-				break;
-			}
-			case READ_EXTERNAL_WAVFILE :
-			{
-				emit( UpdateFileList() );
 				break;
 			}
 			case UPDATE_KBDDIALOG_FLAG :
@@ -83,36 +80,50 @@ void Dispatcher_class::Loop(  )
 			}
 			case NEWINSTRUMENTFLAG :
 			{
-				emit( UpdateSpectrumDialog() );
+				if( win->Spectrum_Dialog_p->isVisible() )
+					emit( win->Spectrum_Dialog_p->SetInstrument() );
+				if( win->File_Dialog_p->isVisible() )
+					emit( win->File_Dialog_p->updateWidgets() );
+				emit( win->Update_Statusbar( "" ) );
 				break;
 			}
 			case NEWNOTESLINEFLAG :
 			{
-				emit( UpdateFileDialog() );
+				if( win->File_Dialog_p->isVisible() )
+					emit( win->File_Dialog_p->updateWidgets() );
+				emit( win->Update_Statusbar( "" ) );
 				break;
 			}
 			case APPSTATE_FLAG :
 			{
-				QString FixStr{ "Change run state " };
+				QString FixStr{ "Change run state " } ;
 				emit( UpdateRtspLog( FixStr + Qlog_str ));
-				Sds_master->Write_str( UPDATELOG_EVENT, "" );
 				emit( UpdateColorButtons() );
 				break;
 			}
-			case RECORDWAVFILEFLAG :
+			case UPDATE_WAV_FILELIST_FLAG :
 			{
-				emit( UpdateFileList() );
+				emit( UpdateWavFileList() );
 				break;
 			}
-			case CUT_UPDATE_DISPLAY_FLAG :
+			case UPDATE_FILEDIALOG_FLAG :
 			{
-				emit( UpdateCutDesk() );
+				if( win->File_Dialog_p->isVisible() )
+					emit( win->File_Dialog_p->updateWidgets() );
 				break;
 			}
-			case READADSRDATAFLAG :
+			case UPDATE_CUTDESK_FLAG :
 			{
-				emit( ReadAdsrData() );
-				emit( UpdateRtspLog( Qlog_str) );
+				if( win->CutDesk_Dialog_p->isVisible() )
+					emit( win->CutDesk_Dialog_p->updateCutDesk() );
+				break;
+			}
+			case READWAVEDATAFLAG :
+			{
+//				if( win->Spectrum_Dialog_p->isVisible() )
+					emit(win->Spectrum_Dialog_p->UpdateDataDisplay() );
+//				else
+					emit(win->UpdateDataDisplay() );
 				break;
 			}
 			default:
@@ -124,7 +135,7 @@ void Dispatcher_class::Loop(  )
  * Controller_class
  *************************************************/
 Controller_class::Controller_class( MainWindow& window ) :
-	Dispatcher( window.DaTA_p )
+	Dispatcher( &window )
 {
 	MainWindow*			window_p 		= &window;
 	Dispatcher_class* 	Dispatcher_p 	= &Dispatcher;
@@ -139,22 +150,16 @@ Controller_class::Controller_class( MainWindow& window ) :
 	window.connect( Thread_p, &QThread::finished,
 					Thread_p, &QThread::deleteLater);
 
-	window.connect( Dispatcher_p, SIGNAL( UpdateFileList() ),
+	window.connect( Dispatcher_p, SIGNAL( UpdateWavFileList() ),
 					window_p, SLOT( update_CB_external()) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateRtspLog(QString) ),
 					window.Rtsp_Dialog_p, SLOT( UpdateLog(QString)) );
-	window.connect( Dispatcher_p, SIGNAL( UpdateFileDialog() ),
-					window.File_Dialog_p, SLOT( Setup_widgets()) );
-	window.connect( Dispatcher_p, SIGNAL( UpdateSpectrumDialog() ),
-					window.Spectrum_Dialog_p, SLOT( SetInstrument()) );
+//	window.connect( Dispatcher_p, SIGNAL( UpdateSpectrumDialog() ),
+//					window.Spectrum_Dialog_p, SLOT( SetInstrument()) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateColorButtons() ),
 					window_p, SLOT( updateColorButtons() ) );
-	window.connect( Dispatcher_p, SIGNAL( UpdateCutDesk() ),
-					window.CutDesk_Dialog_p, SLOT( updateCutDesk() ) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateKeyboardDialog() ),
 					window.Keyboard_Dialog_p, SLOT( Setup_Widget() ) );
-	window.connect( Dispatcher_p, SIGNAL( ReadAdsrData() ),
-					window.Spectrum_Dialog_p, SLOT( UpdateDataDisplay() ) );
 
 
 	Thread.start();

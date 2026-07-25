@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,7 @@ SOFTWARE.
 
 
 
-enum
+enum SEMID_e :uint8_t
 {
 	SEMAPHORE_NULL,
 	PROCESSOR_WAIT,
@@ -60,27 +60,39 @@ enum
 	SEMAPHORE_EVENT
 };
 
-static const uint 	SEMNUM_SIZE = 16;
+const array<SEMID_e, MAXCONFIG> SemIds =
+{
+	SEMAPHORE_SENDDATA0,
+	SEMAPHORE_SENDDATA1,
+	SEMAPHORE_SENDDATA2,
+	SEMAPHORE_SENDDATA3
+};
 
+static const uint8_t 	SEMNUM_SIZE = (uint8_t)16;
+
+
+/**************************************************
+ * Semaphore_class
+ * provide the physical Semaphore facility
+ *************************************************/
 class Semaphore_class  :
 	virtual public 	Logfacility_class
 {
-	string 			className = "";
 public:
 	Time_class		Locktimer{};
 
 			Semaphore_class	( key_t key );
 	virtual	~Semaphore_class();
 	void 	Init	();
-	void 	Aquire	( uint8_t semnum ); // increase the semaphore ( OP_INC )
-	void 	Release	( uint8_t semnum );	// decrease the semaphore ( OP_DEC )
-	void 	Reset	( uint8_t num );	// release val times
+	void 	Aquire	( SEMID_e semnum ); // increase the semaphore ( OP_INC )
+	void 	Release	( SEMID_e semnum );	// decrease the semaphore ( OP_DEC )
+	void 	Reset	( SEMID_e num );	// release val times
 
-	void 	Lock	( uint8_t semnum );	// wait for release
-	bool 	Lock	( uint8_t semnum, uint timeout );	// wait for release
-	int  	Getval	( uint8_t semnum , int op);
-	string 	State	( uint8_t num);
-	string 	SemName	( uint num );
+	void 	Lock	( SEMID_e semnum );	// wait for release
+	bool 	Lock	( SEMID_e semnum, uint timeout );	// wait for release
+	int  	Getval	( SEMID_e semnum , int op);
+	string 	State	( SEMID_e num);
+	string 	SemName	( SEMID_e num );
 
 
 	void	Test	();

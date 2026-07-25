@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,13 +34,14 @@ SOFTWARE.
 
 Note_class::Note_class( Dataworld_class* 	data ,
 						Instrument_class* 	instr,
-						Storage_class* 		sta )
+						Storage_class* 		sta,
+						Musicxml_class*		xml_p )
 	: Logfacility_class	("Note_class")
 	, Interface_base	( data )
-	, NotesCore_class	( data )
+	, NotesCore_class	( data, xml_p )
 	, Oscgroup			( NOTESROLE, 2*monobuffer_bytes )
-	, Note_itr_start	( "Note_itr start", &sds_p->Note_start )
-	, Note_itr_end		( "Note_itr end  ", &sds_p->Note_end )
+	, Note_itr_start	( "Note_itr start", &sds_master->Note_start )
+	, Note_itr_end		( "Note_itr end  ", &sds_master->Note_end )
 {
 	this->instrument	= instr;
 	this->StA			= sta;
@@ -52,6 +53,7 @@ Note_class::Note_class( Dataworld_class* 	data ,
 	this->read_cnt		= 0;
 
 	Oscgroup.SetScanner	( max_frames );
+	Test_NotesCore		();
 	testNotes			();
 }
 
@@ -61,7 +63,6 @@ Note_class::~Note_class( )
 }
 
 
-
 Data_t* Note_class::ScanData( )
 {
 	return scanner->Next_read();
@@ -69,21 +70,32 @@ Data_t* Note_class::ScanData( )
 
 void Note_class::gen_chord_data( note_t& note )
 {
-	Oscgroup.Data_Reset();
+	auto change_oct = [] ( chord_t& chord, int8_t shift )
+	{
+		for ( pitch_t& pitch : chord )
+		{
+			pitch.frqidx += shift * oct_steps;
+		}
+	};
+
+	Oscgroup.DataReset();
 
 	if ( note.glide[0].glide )
-		Oscgroup.SetSlider_Frq( sds_p->features[OSCID].slide_frq );
+		Oscgroup.SetFrqSlidevalue( sds_p->features[OSCID].frq_slide_value );
 	else
-		Oscgroup.SetSlider_Frq( 0 );
+		Oscgroup.SetFrqSlidevalue( 0 );
 
 	Osc->Set_long_note( true );//note.longnote );//or longnote );
 //	const uint	msec 			= ( note.longplay or sds_p->features[0].longplay ) ?
 //								1000 : note.duration;
-	Oscgroup.Set_Duration		( max_msec );
+	Oscgroup.SetDuration		( max_msec );
 	Osc->Set_spectrum_volume	( note.volume );
 	Oscgroup.SetBeatcursor		( 0 );
 
-	Oscgroup.ChordData( sds_p, note.chord );
+	chord_t chord = note.chord;
+	if( Noteline_prefix.data.octave_shift != 0 )
+		change_oct( chord, Noteline_prefix.data.octave_shift );
+	Oscgroup.ChordData( sds_p, chord );
 }
 
 
@@ -93,13 +105,11 @@ void Note_class::sta_write_data( const note_t& note )
 
 	if ( pitch_count > 0 )
 	{
-		float 	volume		= get_chord_volume( StA->Volume(), pitch_count );
+		float 	volume		= get_chord_volume( 1.0, pitch_count );
 		StA->Write_data		( Osc->Mem.Data, Osc->wp.frames, volume );
 		scanner->Next_wpos	( note.duration * frames_per_msec );
 	}
 };
-
-
 
 bool Note_class::Note_clock( bool init )
 {
@@ -108,12 +118,31 @@ bool Note_class::Note_clock( bool init )
 	return ( read_cnt == 0 ) ? false : true;
 };
 
+
+void Note_class::Readlock_wait( bool lock )
+{
+	auto waitloop = [ this ](  )
+	{
+		while( scanner->Read_lock() )
+			std::this_thread::sleep_for( std::chrono::milliseconds(2) );
+	};
+
+	if( lock )
+	{
+		waitloop();
+	}
+	else
+		scanner->Lock_read( false ); // reset from exit_proc/ do not block notes sync
+}
+
 bool Note_class::Generate_volatile_data( bool init )
 {
 	// generate maxframes of new data if begin or rpos exceeds maxdata
 
 	if ( Note_clock( init ) )
 		return true;
+
+//	sds_p->NotesTypeId = BUSY_XML;
 
 //	coutf << scanner->rpos % min_frames << endl;
 //	Assert_equal( (int)(scanner->rpos % min_frames), 0, "Notes scanner.rpos" );
@@ -129,7 +158,8 @@ bool Note_class::Generate_volatile_data( bool init )
 	{
 		scanner->Reset();
 		scanner->Lock_read( true );
-		StA->param.wdsize = scanner->mem_range.max;
+		StA->Set_wdsize( scanner->mem_range.max );
+//		StA->param.wdsize = scanner->mem_range.max;
 
 		Note_itr_start.SetState( true );
 		note_itr = notelist.begin();
@@ -147,31 +177,42 @@ bool Note_class::Generate_volatile_data( bool init )
 		note_itr_next	();
 	}
 	scanner->Lock_read( false );
-	if( StA[ STA_NOTES ].scanner.fillrange.max > 0 )
-		StA[ STA_NOTES ].param.wdsize = StA[ STA_NOTES ].scanner.fillrange.max;
+	StA->Set_wdsize( scanner->fillrange.max );
 
+	sds_p->NotesTypeId = XML_ID;
 
 	return not init;
 }
 
+//bool Note_class::SetNoteline()
+//{
+//	Noteline.read();
+//	Noteline_prefix.Read();
+//	Rythmline.read();
+//	return verify_noteline();
+//}
 bool Note_class::Generate_cyclic_data(  )
 {
-	StA->state.Forget( false );
-	sds_p->StA_state_arr[STA_NOTES].forget = false;
-
-	Oscgroup.SetInstrument( sds_p );
-	Comment( INFO, "generating cyclic data" );
-
-	if( note_itr ==  notelist.begin() )
+	if( notelist.size() == 0 )
 	{
 		Comment( ERROR, "empty note list" );
 		return false;
 	}
+
+	Comment( INFO, "generating cyclic data" );
+
+	sds_p->NotesTypeId = NOTETYPE_e::BUSY_NTE; 	// disable new events other than
+												// Semaphores from external processes
+
+	StA->state.Forget( false );
+	sds_p->StA_state_arr[STA_NOTES].forget = false;
+
+	Oscgroup.SetInstrument( sds_p );
+
 	note_itr = notelist.begin();
 
-	scanner->Set_rpos(0);
+	scanner->Lock_read( true );	// disable Notes
 	scanner->Set_wpos(0);
-	scanner->Set_fillrange(0);
 	StA->Clear_data			(0);
 
 	while ( not note_itr_end() )
@@ -180,12 +221,14 @@ bool Note_class::Generate_cyclic_data(  )
 		sta_write_data( *note_itr );
 		note_itr_next();
 	}
-	scanner->Set_rpos( 0 );
-	scanner->Set_fillrange(0);
+	scanner->Reset();
 	scanner->Set_fillrange( sds_p->Noteline_sec * frames_per_sec );
-	if( scanner->fillrange.max > 0 )
-		StA->param.wdsize = scanner->fillrange.max;
+	StA->Set_wdsize( scanner->fillrange.max );
+
+	scanner->Lock_read( false );
+	sds_p->NotesTypeId = NOTETYPE_e::NTE_ID;
 	scanner->Show( logmask[ DEBUG], &scanner->fillrange );
+
 	return true;
 }
 
@@ -234,18 +277,23 @@ void Note_class::testNotes()
 	Comment( TEST, "Note_class test start");
 
 	// Note Frequency
+	sds_p->frq_slidermode			= FIXED;
+	sds_p->features[VCOID].combine = true;
+	sds_p->features[FMOID].combine = true;
 	sds_p->spectrum_arr[OSCID].frqidx[0] = A3;
 	sds_p->spectrum_arr[VCOID].frqidx[0] = A4;
 	sds_p->spectrum_arr[FMOID].frqidx[0] = A2;
-	Oscgroup.Set_Note_Frequency( sds_p, A2, FIXED );
+	Oscgroup.SetNoteFrequency( sds_p, A2 );
 	Assert_equal( osc->spectrum.frqidx[0], A2 );
 	Assert_equal( vco->spectrum.frqidx[0], A3 );
 	Assert_equal( fmo->spectrum.frqidx[0], A1 );
 
-	Oscgroup.Set_Note_Frequency(sds_p, A3, FIXED );
+	sds_p->features[VCOID].combine = false;
+	sds_p->features[FMOID].combine = false;
+	Oscgroup.SetNoteFrequency(sds_p, A3 );
 	Assert_equal( osc->spectrum.frqidx[0], A3 );
-	Assert_equal( vco->spectrum.frqidx[0], A4 );
-	Assert_equal( fmo->spectrum.frqidx[0], A2 );
+	Assert_equal( vco->spectrum.frqidx[0], A3 );
+	Assert_equal( fmo->spectrum.frqidx[0], A1 );
 
 
 	TEST_END( className );

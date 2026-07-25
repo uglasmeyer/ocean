@@ -38,7 +38,6 @@ SOFTWARE.
 #include <cstdlib>
 #include <filesystem>
 #include <functional>
-#include <initializer_list>
 #include <iomanip> // setfill cout ...
 #include <iostream>
 #include <iterator>
@@ -47,28 +46,22 @@ SOFTWARE.
 #include <map>
 #include <memory> // unique_ptr
 #include <numeric>
-#include <random>
 #include <ranges>
 #include <set>
 #include <experimental/source_location> // Assert
-#include <stdexcept>
 #include <sstream>
 #include <string>
-#include <string_view> // Assert
 #include <thread>
-#include <typeinfo>
-#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <assert.h>
 #include <errno.h>
 #include <inttypes.h>
-#include <math.h> // sin(), rint()
 #include <signal.h> // signal()
 #include <stdarg.h>
 #include <stdlib.h> // exit
 #include <sys/ipc.h>
-#include <sys/mman.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -79,15 +72,16 @@ SOFTWARE.
 using namespace std;
 
 // https://en.cppreference.com/w/cpp/language/types
-typedef unsigned long int 	buffer_t;
-typedef float		 		Data_t; // range -32767 ... +32767
-typedef int16_t		 		data_t; // range -32767 ... +32767
-typedef vector<Data_t>		DataVec_t;
-typedef double				phi_t;
-typedef float 				frq_t;
-typedef char				Id_t;
-typedef vector<Id_t>		SdsId_vec_t;
-typedef long int 			kbdInt_t;
+typedef unsigned long int 		buffer_t;
+typedef float		 			Data_t; // range -32767 ... +32767
+typedef int16_t		 			data_t; // range -32767 ... +32767
+typedef vector<Data_t>			DataVec_t;
+typedef double					phi_t;
+typedef float 					frq_t;
+typedef char					Id_t;
+typedef vector<Id_t>			SdsId_vec_t;
+typedef long int 				kbdInt_t;
+typedef unordered_set<string>	uset_t;
 
 struct 				Stereo_struct
 {
@@ -106,6 +100,10 @@ typedef stereo_struct
 					stereo_t;
 
 #define NoPID 		-1
+#define USEFILENAME 0_uint
+#define OVERWRITE	true
+#define KEEPFILE	false
+
 
 const uint8_t		sizeof_stereo		= sizeof(stereo_t);
 const uint8_t		sizeof_Stereo		= sizeof(Stereo_t);
@@ -117,6 +115,7 @@ const buffer_t		frames_per_sec  	= sample_rate;
 const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 const phi_t 		dt 					= 1.0 / ( frames_per_sec );	//seconds per frame
 
+const uint8_t		max_slide_sec		= 8; // see dynamic
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
 const uint16_t		min_msec			= 125;
@@ -124,9 +123,10 @@ const int16_t		measure_parts		= (int16_t) (max_msec / min_msec); // = 16
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
 const buffer_t		min_frames			= min_msec * frames_per_msec;
-const buffer_t		record_size 		= min_frames; // define a block as a substructue on the memory data
+const buffer_t		record_size 		= min_frames; // frames per record
 
 const buffer_t		audio_frames 		= min_frames;
+const uint			update_frequency	= sample_rate / audio_frames;
 const buffer_t 		chunksize			= audio_frames / 2;
 
 const uint			recduration 		= 3*60; // seconds
@@ -142,100 +142,36 @@ const Data_t		max_data_amp		= 4096*4;
 const uint8_t		osc_default_volume	= 75; // %
 const float			percent				= 0.01;
 
-const frq_t			oct_base_freq 		= 16.3516;//27.5/2.0 = A0
+const frq_t			oct_base_freq 		= 16.3516;//C0
 const int			oct_steps			= 12;
+const uint8_t		oct_reference		= 3;
 const uint			max_octave			= 7;
 const uint 			min_octave 			= 0;
 const string		OctChars_EN			= "CcDdEFfGgAaB";
 const string		OctChars_DE			= "CcDdEFfGgAaH";
 
-template< typename T >
-struct range_T
+enum StateId_e : uint8_t
 {
-	T	min;
-	T	max;
-	size_t	len = max - min;
+	OFFLINE		,
+	RUNNING		,
+	DEFAULT		,
+	EXITSERVER	,
+	RECORDSTART	,
+	RECORDSTOP	,
+	RECORDING	,
+	STOPPING	,
+	STARTING	,
+	INACTIVE	,
+	SLEEPING	,
+	ENABLED		,
+	DISABLED	,
+	STATEID_SIZE
 };
 
-const range_T<uint8_t>	percent_range		{ 0, 100 };
-const range_T<int>		volidx_range		{ 0, 100 };
-const range_T<uint8_t>	uint8_range			{ 0, 255 };
+#include <Range.h>
+
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
 const range_T<int>		octave_range		{ min_octave, max_octave };
-
-template< typename T>
-constexpr bool in_range( range_T<T> range, T val )
-{
-	if ( val < range.min )
-		return false;
-	if ( val > range.max )
-		return false;
-	return true;
-}
-template< typename T>
-constexpr T check_range( range_T<T> r, T val, string errmsg = "" )
-{
-	if( val < r.min )
-	{
-		if ( errmsg.length() > 0 )
-			cout.flush() << "WARNING: " << errmsg
-									<< ": "
-									<< (int)val
-									<< " adjusted to min boundaries "
-									<< r.min << endl;
-		return r.min;
-	}
-	if (val > r.max )
-	{
-		if ( errmsg.length() > 0 )
-			cout.flush() << "WARNING: " << errmsg
-									<< ": "
-									<< (int)val
-									<< " adjusted to max boundaries "
-									<< r.max << endl;
-		return r.max;
-	}
-	return val;
-};
-
-template< typename T>
-constexpr T check_cycle( range_T<T> r, T val, string err=""   )
-{
-	if( r.max == 0 ) return 0;
-	if( val < r.min )
-		return r.max;
-	if ( val > r.max)
-		return val % r.max;//r.max % val;////r.min;//val - r.max;
-	return val;
-};
-
-template< typename T>
-constexpr T check_cycle2( range_T<T> r, T val, string err  )
-{
-	if( r.len == 0 )
-		return 0;
-	if( val < r.min )
-		return r.max - ((r.min - val ) % r.len);
-	if ( val >= r.max )
-		return r.min + ((val - r.max ) % r.len);
-	return val;
-};
-
-template<typename T>
-string range_str( range_T<T> range )
-{
-	stringstream strs {};
-	strs << (int)range.min << "..." << (int)range.max << ", " << (int) range.len ;
-	return strs.str();
-};
-
-
-
-
-
-
-
-
 
 #endif /* OCEAN_H */

@@ -39,12 +39,14 @@ SOFTWARE.
 #include <QObject>
 #include <QDialog>
 #include <QTimer>
-// Oceean
+
+// Ocean
 #include <Ocean.h>
 #include <Spectrum.h>
 #include <data/Interface.h>
 #include <EventKeys.h>
 #include <data/DataWorld.h>
+
 // oceanGUI
 #include <GUIcommon.h>
 #include <DataGraphicClass.h>
@@ -68,12 +70,11 @@ class Spectrum_Dialog_class :
 {
     Q_OBJECT
 	Ui::Spectrum_Dialog_class*	ui;
-
 public:
 
-    explicit Spectrum_Dialog_class(QWidget *parent = nullptr,
-                                   Dataworld_class* data = nullptr,
-								   EventLog_class* _log = nullptr);
+    explicit Spectrum_Dialog_class(QWidget*			parent	= nullptr,
+                                   Dataworld_class* data	= nullptr,
+								   EventLog_class* 	_log	= nullptr);
     virtual ~Spectrum_Dialog_class();
 
     spectrum_t 				spectrum;
@@ -90,21 +91,22 @@ public:
     Frequency_class			Frequency 		{};
     vector<QString> 		QWaveform_vec	{};
 
-    DataGraphic_class*		AdsrWidget_item	; // created by new DataGraphic_class;
-    QGraphicsScene*     	scene 			; // created by new QGraphicsScene
+    DataGraphic_class*		AdsrDataDisplay	; // created by new DataGraphic_class;
+    DataGraphic_class*		FourierDataDisplay;
 
+	void Dialog ( bool flag );
     void SetLabelWaveform();
-	void Setup_widgets();
-
 	void SetSds();
     void Set_adsr_flag( bool flag );
-	void Dialog ( bool flag );
-	void initDataDisplay();
+	void Setup_widgets();
 
-
-private slots:
+public slots:
 	void UpdateDataDisplay();
 	void SetInstrument(); // Dispatcher
+
+private slots:
+	void Fourier_mode();
+	void resolution_slot( int idx );
 	void fS1( int );
     void vS2( int );
     void fS3( int );
@@ -136,15 +138,18 @@ private slots:
 
 private:
     bool ADSR_flag = false;
+    QGraphicsScene*     	adsrScene;
+    QGraphicsScene*			fourierScene;
 
-    void select_oscid( OSCID_e oscid );
+    void add_event( EVENTKEY_e key );
+	void initDataDisplay();
     void save_spectrum_data();
+    void select_oscid( OSCID_e oscid );
     void set_spectrum_view();
-    void waveform_spinbox( uint id, int value  );
+    void set_waveform_vec( vector<string> waveform_vec );
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
-    void set_waveform_vec( vector<string> waveform_vec );
-    void add_event( EVENTKEY_e key );
+    void waveform_spinbox( uint id, int value  );
 
 };
 

@@ -49,54 +49,73 @@ frq		idx
 1760	220 * 8
 4096	512 * 8
  */
+
 #include <Fourier.h>
+#include <System.h>
+
+extern 			Logfacility_class Log;
+
+Fourier_class	Fourier	{};
+Fourier_class*	fourier	= &Fourier;
 
 /**************************************************
  * Fourier_class
  *************************************************/
 bool TEST_FFT = false;
 
-void fft(cd_vec_t& x)
+void fft(cxd_vec_t& x)
 {
-   int		N	= x.size();
-   if (N <= 1) return;
+	// perform the recusive fft analyzis of the complex data vector
+	// it must be of this 2^N, N>2
 
-   // Split into even and odd elements
-   cd_vec_t even(N / 2), odd(N / 2);
-   for (int i = 0; i < N / 2; ++i)
-   {
-       even[i]	= x[i * 2];
-       odd[i]	= x[i * 2 + 1];
-   }
+	int		N	= x.size();
+	if (N <= 1) return;
 
-   // Recursive FFT calls
-   fft(even);
-   fft(odd);
+	// Split into even and odd elements
+	cxd_vec_t even(N / 2), odd(N / 2);
+	for (int i = 0; i < N / 2; ++i)
+	{
+		even[i]	= x[i * 2];
+		odd [i]	= x[i * 2 + 1];
+	}
 
-   // Combine results
-   for (int k = 0; k < N / 2; ++k)
-   {
-       cd_t t	= std::polar(1.0, -2 * M_PI * k / N) * odd[k];
-       x[k]		= even[k] + t;
-       x[k+N/2] = even[k] - t;
-   }
+	// Recursive FFT calls
+	fft(even);
+	fft(odd);
+
+	// Combine results
+	for (int k = 0; k < N / 2; ++k)
+	{
+		cxd_t t	= std::polar(1.0, -2 * M_PI * k / N) * odd[k];
+		x[k]		= even[k] + t;
+		x[k+N/2] = even[k] - t;
+	}
 }
 
 
 Fourier_class::Fourier_class() :
 	Logfacility_class("Fourier_class")
 {
-	this->resolution	= 128;
-
+	this->resolutionIdx = 0;
+	this->resolution	= 8 << resolutionIdx;
+	this->A0			= 0.0f;
 };
+
 Fourier_class::~Fourier_class()
 {
 	DESTRUCTOR( className );
 };
 
-
-void Fourier_class::norm_wd_size( uint max )
+void Fourier_class::SetResolution( uint8_t idx )
 {
+	resolution = check_range( resolution_range , uint(8 << idx) );
+}
+
+void Fourier_class::norm_cxd_vec_len( uint max )
+{	// if the data size is not equal to the given size (max)
+	// fill up or reduce the vector accordingly
+	if( TEST_FFT )
+		max = 8;
 	if( cd_data.size() == max )
 	{
 		return;
@@ -104,7 +123,7 @@ void Fourier_class::norm_wd_size( uint max )
 	if( cd_data.size() < max )
 	{
 		for( uint n = cd_data.size() ; n < max; n++ )
-			cd_data.push_back( cd_t( 0, 0 ) );
+			cd_data.push_back( cxd_t( 0, 0 ) );
 	}
 	else
 	{
@@ -113,109 +132,163 @@ void Fourier_class::norm_wd_size( uint max )
 	}
 }
 
-void Fourier_class::genCdData( wd_arr_t& data )
-{
+void Fourier_class::gen_cxd_vec( const wd_arr_t& data )
+{	// create a complex vector out of wave display data
 	cd_data.clear();
 	for( uint n = 0; n < data.size(); n++ )
 	{
-		cd_data.push_back( cd_t( float( data[n]) , 0.0 ) );
+		cd_data.push_back( cxd_t( float( data[n]) , 0.0 ) );
 	}
 }
-wd_arr_t Fourier_class::Amplitude( wd_arr_t data )
+
+void Fourier_class::Amplitude( wd_arr_t& wd_data )
 {
-	genCdData	( data );
-	norm_wd_size( wavedisplay_len );
-	wd_arr_t	wd_arr	{0};
-	uint		n 		= 0;
-	float		max		= 0;
+	// assign wd_data to complex cd_data
+	// perform the fft analysis on cd_data
+	// return the normalized amplitude of the fft by reference
 
-				fft		( cd_data );
+	float	max_fft_amp	= 0.0f;
+	uint	n			= 0;
 
-	std::ranges::for_each( cd_data, [ &wd_arr, &n, &max ]( cd_t cd )
+	auto store_amp = [ &max_fft_amp, &n, &wd_data ]( cxd_t cxd )
 	{
-		Data_t A = abs( cd );
-		wd_arr[n] = A;
-		if( A > max )
-			max = A;
-		n++;
-	});
-	n = 0;
-	std::ranges::for_each( wd_arr, [ max ]( Data_t& wd )
+		Data_t	A			= abs( cxd ); // sqrt(re²+im²)
+				wd_data[n] 	= A;
+				n++;
+
+		if( A > max_fft_amp )
+			max_fft_amp = A;
+	};
+
+	gen_cxd_vec		( wd_data );
+	norm_cxd_vec_len( wavedisplay_len );
+	fft				( cd_data );
+
+	// store the absolute value of the complex amplitude
+	// into the reference of wd_data
+	// and the maximum in max_fft_amp
+	std::ranges::for_each( cd_data, store_amp );
+
+	// norm the wave display data to 1.0,
+	// so that the sum over the wave display data is 1.0
+	if( max_fft_amp > 0.0f )
 	{
-		wd = wd * max_data_amp / max ;
-	});
-	genCoeff();
-	return wd_arr;
+		std::ranges::for_each( wd_data, [ max_fft_amp ]( Data_t& wd )
+		{	wd /= max_fft_amp;	});
+	}
 };
 
 /*
 https://www.electronics-lab.com/article/the-fourier-analysis-the-fast-fourier-transform-fft-method/
 */
-void Fourier_class::initIdxvec( )
+float Fourier_class::init_idx_vec( )
 {
 	idx_vec.clear	();
-	uint size		= cd_data.size();
-	uint len		= size / 2;
-	uint N 			= 0;
-	for( ; N < len; N++ )
+	for( uint N = 0 ; N < ( cd_data.size() / 2 ); N++ )
 	{
-		idx_val_t idx_val	{ N, 8*N*dt*2*M_PI, (float)abs( cd_data[N] ), arg( cd_data[N] ) };
+		idx_val_t idx_val	{	N * dphi,
+								(float)abs( cd_data[N] ),
+								arg( cd_data[N] ) };
 		idx_vec.push_back	( idx_val );
 	}
+	return idx_vec[0].amp;
 }
+
 void Fourier_class::findPeaks()
 {
-	coeff_vec.clear();
-	for( uint N = 1; N < idx_vec.size()-1 ; N++ )
+	auto isPeakVal = [ this ]( uint n )
 	{
-		phi_t prev	= (idx_vec[N-1	].amp);
-		phi_t val	= (idx_vec[N	].amp);
-		phi_t next	= (idx_vec[N+1	].amp);
-		if ( ( val > prev) and ( val > next ) )
+		phi_t prev	= ( this->idx_vec[n-1].amp);
+		phi_t val	= ( this->idx_vec[n	 ].amp);
+		phi_t next	= ( this->idx_vec[n+1].amp);
+		return ( val > max( prev, next ) );
+	};
+
+	coeff_vec.clear();
+	coeff_vec.push_back( idx_vec[0] );
+	if ( idx_vec.size() < 4 )
+		return;
+	uint 	len 		= idx_vec.size() - 1;
+	uint	coeff_cnt	= 0;	// coeffcounter
+	for( uint N = 1; N < len ; N++ )
+	{
+		if ( isPeakVal( N ) )
 		{
-			coeff_vec.push_back( idx_vec[N] );
+			if( coeff_cnt < resolution )
+			{
+				coeff_vec.push_back( idx_vec[N] );
+				coeff_cnt++;
+			}
 		}
 	};
 }
 
-void Fourier_class::genCoeff()
+void Fourier_class::GenCoeff()
 {
-	Comment				(DEBUG, "Fourier_class::Reduce" );
 
-	initIdxvec			();
-	findPeaks			();
-	std::ranges::sort	( coeff_vec, Greater );
-	normCoeff			( 16 );
+	A0 = init_idx_vec		();
+	findPeaks				();
+	if( coeff_vec.size() > 1 )
+		std::ranges::sort	( coeff_vec.begin() + 1, coeff_vec.end(),  Greater );
+	normCoeff			();
+	Comment	(INFO, "Fourier coefficients of resolution", coeff_vec.size(), "generated" );
 }
 
-void Fourier_class::normCoeff( uint max_count )
+void Fourier_class::normCoeff()
 {
-	float	sum 		= 0.0;
-	uint	len 		= coeff_vec.size();
-			max_count	= min( len, max_count );
+	float		sum 		= 0.0;
+	uint		len 		= coeff_vec.size();
+	uint		max_count	= min( len, resolution );
 
 	for( uint n = 0; n < len; n++ )
 	{
 		if( n < max_count )
 			sum 	+= ( coeff_vec[n].amp );
-		else
-			coeff_vec.pop_back();
 	}
 
-	if ( sum < 1E-6 )
-		return;
-	for( uint n = 0; n < coeff_vec.size(); n++ )
-	{
-		coeff_vec[n].amp = coeff_vec[n].amp / sum;
-	}
+	if ( sum > 0.0f )
+		std::ranges::for_each( coeff_vec, [ sum ]( idx_val_t& cx ){ cx.amp /= sum ;} );
 }
 
-void Fourier_class::show_coeff( fourier_vec_t coeff  )
+void Fourier_class::Save_coeff( string filename )
+{
+	fourier_arr_t 	arr		{ idx_val_data() };
+	size_t 			bytes	= sizeof( arr );
+	uint 			n		= 0;
+	std::ranges::for_each( coeff_vec, [ &arr, &n ]( idx_val_t val )
+	{
+		arr[n] = val;
+		n++;
+	});
+
+	void* data		= &arr;
+	bool success	= dumpData( filename, data, bytes );
+	if ( success ) return;
+
+	Log.Comment( ERROR, "writing", bytes, " bytes to file", filename );
+}
+
+void Fourier_class::Load_coeff( string filename )
+{
+	size_t bytes	= sizeof( fourier_arr_t );
+	fourier_arr_t arr { idx_val_data() };
+	void* data		= &arr;
+	loadData( filename, data, bytes );
+
+	coeff_vec.clear	();
+	std::ranges::for_each( arr, [ this ]( idx_val_t val )
+	{
+		if( val.amp > 0.0f )
+			this->coeff_vec.push_back( val ) ;
+	});
+}
+
+void Fourier_class::show_coeff()
 {
 	float r_sum = 0;
-	for( idx_val_t val : coeff )
+	for( idx_val_t val : coeff_vec )
 	{
-		coutf << val.idx << '\t' << val.amp << '\t' << val.dphi << '\t' << val.phi << endl;
+		coutf << (int)val.dphi/dphi << '\t' << val.amp << '\t' << val.dphi << '\t' << val.phi << endl;
 		r_sum += (val.amp);
 	}
 	coutf << "sum amp; " << r_sum  << endl;
@@ -223,13 +296,17 @@ void Fourier_class::show_coeff( fourier_vec_t coeff  )
 
 Data_t Fourier_class::Fnc( param_t& p )
 {
-	Data_t	sum 	= 0.0;
-	phi_t	rphi	= p.dphi / coeff_vec[0].dphi;
-	std::ranges::for_each( coeff_vec, [ &sum, rphi ]( idx_val_t& val )
+	Data_t		sum 	= 0.0;//idx_vec[0].amp;//0.0;
+	if( coeff_vec.size() == 0 )
+		return sum;
+	sum = coeff_vec[0].amp;
+	const phi_t	w0	= p.dphi / coeff_vec[1].dphi; // 2pi w dt / 2pi w0 dt
+	std::ranges::for_each( coeff_vec.begin()+1, coeff_vec.end(), [ &sum, w0 ]( idx_val_t& C )
+//			std::ranges::for_each( coeff_vec, [ &sum, w0 ]( idx_val_t& C )
 	{
-				sum		+=val.amp * sin( val.phi );
-		float	phi		= val.phi + rphi *  val.dphi;
-				val.phi = MODPHI( phi, 2*M_PI ) ;
+					sum		+=C.amp * cos( C.phi );
+			phi_t	phi		= C.phi + w0 *  C.dphi;
+							C.phi = MODPHI( phi, 2*M_PI ) ;
 	});
 	return sum;
 }
@@ -238,20 +315,22 @@ Data_t Fourier_class::Fnc( param_t& p )
 void Fourier_class::TestFourier()
 {
 	TEST_START( className );
-	TEST_FFT = true;
-	show_coeff( coeff_vec );
 
-/*	cd_vec_t data = {1, 2, 3, 4, 5};
-	norm_wd_size( data, 4 );
-	wd_arr_t amp = Amplitude( data );
+	TEST_FFT=true;
+	coeff_vec.clear();
+	wd_arr_t wd_data  = { 1, 2, 3, 4, 1, 2, 3, 4 };
+	coutf << show_items( wd_data ) << endl;
+	Amplitude( wd_data );
+	GenCoeff();
+	frq_t c1 = coeff_vec[1].amp;
+	Save_coeff( "/tmp/coeff_vec.tmp" );
+	show_coeff();
+	Load_coeff( "/tmp/coeff_vec.tmp" );
+	frq_t l1 = coeff_vec[1].amp;
+	show_coeff();
 
-	for (uint n = 0; n<4;n++)
-		std::cout << amp[n] << "\n";
-	for ( cd_t cd : cd_data )
-		cout << cd << endl;
-	Assert_equal( (int)amp[1], (int)4634 );
-*/	TEST_FFT = false;
-	Assert_equal( (uint16_t)1, resolution );
+	TEST_FFT = false;
+	Assert_equal( c1, l1 );
 	TEST_END( className );
 }
 

@@ -61,7 +61,7 @@ public:
 	Kbd_base			Kbd			{};
 	keymap_struct		Keymap		{};
 
-			ViewInterface_class( APPID appid, Dataworld_class* DaTA );
+			ViewInterface_class( APPID_e appid, Dataworld_class* DaTA );
 	virtual ~ViewInterface_class() = default;
 
 	KEYCODE	ShowPage( interface_t* sds );
@@ -70,7 +70,7 @@ public:
 
 private:
 
-	void 	showOSCs();
+	void 	F5_showOSCs();
 	void 	F2_showProcesses();
 	void 	F3_showStates() ;
 

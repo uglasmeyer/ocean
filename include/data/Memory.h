@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -71,7 +71,7 @@ public:
 class Scanner_class
 	: public virtual Logfacility_class
 {
-	bool					readlock		= false;
+	bool					readlock		;//= false;
 public:
 	// scanner_t scanner = scanner_struct( Mem.Data, min_frames, max_frames );
 
@@ -85,18 +85,18 @@ public:
 	bool					trigger 		= false;
 
 							Scanner_class	( Data_t* _ptr, buffer_t _max );
-	virtual 				~Scanner_class()= default;
+	virtual 				~Scanner_class	()= default;
+
+	bool 					Get_filled		();
+	Data_t* 				Next_read		();
+	buffer_t				Next_wpos		( buffer_t n );
+	void 					Lock_read		( bool flag );
+	bool 					Read_lock		();
+	void					Reset			();
+	Data_t* 				Set_rpos		( buffer_t n );
+	buffer_t 				Set_wpos		( buffer_t n );
 	void 					Show			( bool debug, void* p = nullptr );
-
-	Data_t* 				Next_read			();
-	buffer_t				Next_wpos			( buffer_t n );
-	void					Reset				();
-	void 					Lock_read			( bool flag );
-
-	Data_t* 				Set_rpos			( buffer_t n );
-	buffer_t 				Set_wpos			( buffer_t n );
-	void 					Set_fillrange		( buffer_t n );
-	bool 					Get_filled			();
+	void 					Set_fillrange	( buffer_t n );
 };
 
 
@@ -104,7 +104,7 @@ public:
  * StAstate_class
  *************************************************/
 class StAstate_class :
-	StA_state_struct
+	StA_state_data
 {
 public:
 				StAstate_class	();
@@ -118,6 +118,8 @@ public:
 	bool 		Play			();
 	void 		Filled			( bool flag );
 	bool 		Filled			();
+	void 		Start			( bool flag );
+	bool 		Start			();
 	StA_state_t Get				();
 	void 		Set				( StA_state_t state );
 };
@@ -175,7 +177,7 @@ public:
 		stereoT zero = { 0,0 };
 		for ( buffer_t n = 0 ; n < mem_ds.data_blocks ; n++ )
 			stereo_data[n] = zero;
-
+		is_zero			= true;
 	}
 
 };
@@ -221,23 +223,25 @@ public:
 	StAstate_class 	state 			;
 	string			file			;
 	string			filename		;
-	bool			touched			; // indicate that the StA has data different from Zero
+	string			dirname			;
 
 					Storage_class	( StAId_e id, StA_param_t param );
 	virtual 		~Storage_class	() = default;
-	void 			Store_record	( Data_t* ) ;
-	void 			Write_data		( Data_t* src, buffer_t frames, const float volume );//, const buffer_t& pos );
+
 	void 			Record_mode		( bool );
-	void 			Set_records		( uint records );
-	uint*			Store_counter	();
 	void 			Reset			();
-	void			Volume			( uint8_t vol, DYNAMIC mode );
+	bool 			Set_filename	( string dir );
+	void 			Set_records		( uint records );
+	void 			Set_wdsize		( buffer_t size );
+	uint*			Store_counter	();
+	void 			Store_record	( Data_t* ) ;
+	void			Volume			( uint8_t vol, DYNAMIC_e mode );
 	float			Volume			();
+	void 			Write_data		( Data_t* src, buffer_t frames, const float volume );
 
 
 private:
 	uint 			records			= 0;
-	void 			set_filename	();
 
 };
 typedef vector<Storage_class>		StorageArray_t;

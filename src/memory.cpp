@@ -38,7 +38,7 @@ SOFTWARE.
  * StAstate_class
  *************************************************/
 StAstate_class::StAstate_class() :
-	StA_state_struct()
+	StA_state_data()
 {
 };
 
@@ -74,13 +74,22 @@ bool StAstate_class::Filled()
 {
 	return filled;
 }
+void StAstate_class::Start( bool flag )
+{
+	start = flag;
+}
+bool StAstate_class::Start()
+{
+	return start;
+}
 StA_state_t StAstate_class::Get()
 {
-	StA_state_t 	state 	= StA_state_struct();
+	StA_state_t 	state 	= StA_state_data();
 	state.filled 			= filled;
 	state.forget 			= forget;
 	state.play				= play;
 	state.store 			= store;
+	state.start				= start;
 	return 					state;
 }
 void StAstate_class::Set( StA_state_t state )
@@ -89,6 +98,7 @@ void StAstate_class::Set( StA_state_t state )
 	forget	= state.forget;
 	play	= state.play;
 	store	= state.store;
+	start	= state.start;
 }
 
 /**************************************************
@@ -140,9 +150,11 @@ Scanner_class::Scanner_class( Data_t* _ptr, buffer_t _max )
 	, mem_range			{ 0, _max }
 	, fillrange			{ 0, 0 }
 {
-	rpos 				= 0;
-	wpos				= 0;
-	Data 				= &_ptr[ 0 ];
+	this->rpos 			= 0;
+	this->wpos			= 0;
+	this->Data 			= &_ptr[ 0 ];
+	this->readlock		= false;
+
 }
 
 void Scanner_class::Show( bool debug, void* p )
@@ -161,13 +173,12 @@ Data_t* Scanner_class::Next_read()
 {
 	if ( ( fillrange.max == 0 ) or ( readlock ) )
 	{
-		rpos = 0;
-		return nullptr; // data is empty
+		return nullptr;
 	}
 	Data_t*
 	data 			= &Data[ rpos ];
 	assert( fillrange.len > 0 );
-	rpos 			= check_cycle2( fillrange, rpos + inc, __builtin_FUNCTION() );
+	rpos 			= check_cycle2( fillrange, rpos + inc );
 	trigger			= ( rpos < inc ); // indicates a next cycle or start cycle
 	return data;
 }
@@ -192,22 +203,21 @@ void Scanner_class::Lock_read( bool flag )
 {
 	readlock = flag;
 }
+bool Scanner_class::Read_lock()
+{
+	return readlock;
+}
 void Scanner_class::Reset()
 {
-///	rpos	= 0;
-//	wpos	= 0;
-	Set_fillrange(0);
+	rpos	= 0;
+	wpos	= 0;
+	fillrange.max 	= 0;
+	fillrange.len	= 0;
 }
 void Scanner_class::Set_fillrange( buffer_t n )
 {
-	if ( n == 0 )
-	{
-		fillrange		= { 0, 0, 0 };
-		Set_wpos(0);
-		Set_rpos(0);
-		return;
-	}
-	if( fillrange.max == mem_range.max ) // don't change if full
+//	coutf << fillrange.max << endl;
+	if ( n < fillrange.max ) // do not decrease max
 		return;
 	fillrange.max 	= check_range( mem_range, n, "Set_fillrange" );
 	fillrange.len	= fillrange.max - fillrange.min;
@@ -236,21 +246,27 @@ Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 	Logfacility_class		( "Storage_class" ),
 	Memory_base				( sizeof_Data, _param.size*sizeof_Data ),
 	param					( _param.name, _param.storage_time, _param.sta_dir ),
-	DynVolume				( volidx_range ),
+	DynVolume				( DYNTYPE_e::VOL, volidx_range ),
 	scanner 				( Memory_base::Data, _param.size )
 {
 	this->Id				= id;
 
-	set_filename			();
+	Set_filename			( "" );
 	Reset					();
 	DsInfo					( param.name );
 
 } ;
 
+void Storage_class::Set_wdsize( buffer_t size )
+{
+	if( size > 0 )
+		param.wdsize = size;
+}
+
 void Storage_class::Write_data( Data_t* src, buffer_t frames, const float volume )
 {
 	buffer_t offs 		= scanner.wpos;
-	touched				= true;
+	is_zero 			= false;
 	for ( buffer_t n = 0; n < frames; n++ )
 	{
 		Data[ offs ] 	+= src[n] * volume;
@@ -266,16 +282,17 @@ void Storage_class::Store_record( Data_t* src )
 		return;
 
 	buffer_t	offs 		= scanner.wpos;
-				touched		= true;
+				is_zero	= false;
 	for ( buffer_t n = 0; n < min_frames; n++ )
 	{
 		Data[offs + n] = src[n];
 	}
 
-	scanner.Next_wpos		( min_frames );
-	scanner.Set_fillrange	( scanner.wpos );
+	scanner.Set_fillrange	( offs + min_frames );
+	assert( scanner.fillrange.max > 0 );
 	state.Store				( scanner.fillrange.max < scanner.mem_range.max );
 	records 				= scanner.fillrange.max / min_frames;
+	scanner.Next_wpos		( min_frames );
 }
 
 void Storage_class::Set_records( uint  _records )
@@ -284,15 +301,20 @@ void Storage_class::Set_records( uint  _records )
 
 	buffer_t	data_blocks				= _records * record_size;
 				records					= _records;
-				scanner.Set_fillrange	( data_blocks );
-				scanner.Set_rpos		( 0 );
-				scanner.Set_wpos		( data_blocks );
-	if ( data_blocks > 0 ) // do not set wdsize to 0
-	{
-		param.wdsize		= data_blocks;
-		touched				= true;
-	}
-	Info( "StA", Id, "loaded", records, "records");
+				if( data_blocks == 0 )
+				{
+					scanner.Reset			();
+					Clear_data				( 0 );
+				}
+				else
+				{
+					scanner.Set_fillrange	( data_blocks );
+					scanner.Set_rpos		( 0 );
+					scanner.Set_wpos		( data_blocks );
+					param.wdsize			= data_blocks;
+					is_zero					= false;
+				}
+	Info( "StA", (int)Id, "loaded", records, "records");
 }
 
 uint* Storage_class::Store_counter()
@@ -305,19 +327,32 @@ void Storage_class::Reset( )
 	Comment( DEBUG, "Reset counter ", (int)Id );
 	records 			= 0;
 	state.Store			( false );
+	state.Start			( false );
 	scanner.Reset		();
-	Clear_data			(0);
-	touched				= false;
+	Clear_data			( 0 );
 }
 
-void Storage_class::set_filename()
+bool Storage_class::Set_filename( string subdir )
 {
-	filename		= "StA_data"	+ to_string( Id ) + ".bin";
-	if( not filesystem::exists( param.sta_dir ) )
+	string newdirname	= trailing_dirslash( param.sta_dir + subdir );
+	bool changed		= true;
+	if( strEqual( newdirname, dirname ))
+		changed	= false;
+	if( not changed )
+		return false;
+
+	dirname = newdirname;
+	if( not filesystem::exists( dirname ) )
 	{
-		filesystem::create_directories( param.sta_dir );
+		filesystem::create_directories( dirname );
 	}
-	file 		= param.sta_dir + filename ;
+	filename			= "StA_data"	+ to_string( Id ) + ".bin";
+	file 				= dirname + filename ;
+	if( not filesystem::exists( file ) )
+	{
+		Touch_file( file );
+	}
+	return true;
 }
 
 void Storage_class::Record_mode( bool flag )
@@ -327,9 +362,9 @@ void Storage_class::Record_mode( bool flag )
 
 
 
-void Storage_class::Volume( uint8_t vol, DYNAMIC mode )
+void Storage_class::Volume( uint8_t vol, DYNAMIC_e mode )
 {
-	DynVolume.SetupVol( vol, mode );
+	DynVolume.Setup( vol, mode );
 ;
 }
 float Storage_class::Volume()

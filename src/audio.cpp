@@ -29,6 +29,7 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+
 #include <Audio.h>
 #include <Utilities.h>
 
@@ -37,20 +38,23 @@ SOFTWARE.
  *************************************************/
 Record_class::Record_class( Dataworld_class* data ) :
 	Logfacility_class	("Record_class"),
-	ProgressBar_class	( &data->sds_master->RecCounter ),
-	Note_start			( "Notes start", &data->sds_master->Note_start ),
-	Note_end			( "Notes end  ", &data->sds_master->Note_end ),
-	External			( data->Cfg_p, data->sds_master )
+	ProgressBar_class	( &data->SDS.master->RecCounter ),
+	Note_start			( "Notes start", &data->SDS.master->Note_start ),
+	Note_end			( "Notes end  ", &data->SDS.master->Note_end ),
+	External			( data->Cfg_p, data->SDS.master )
 {
-	this->sds				= data->sds_master;
-	this->sds->RecCounter 	= 0;
-	this->sds->Record_state	= INACTIVE;
+	this->sds_master				= data->SDS.master;
+//	this->sds_master->RecCounter 	= 0;
+	this->sds_master->Record_state	= StateId_e::INACTIVE;
 
-	this->Sem				= data->Sem_p;
-	this->Appstate			= &data->Appstate;
-	this->record_sec		= data->Cfg_p->Config.record_sec;
-	Stop( true ); // init
-	Sem->Reset( SEMAPHORE_RECORD );
+	this->Sem						= data->Sem_p;
+	this->Appstate					= &data->Appstate;
+	this->record_sec				= data->Cfg_p->Config.record_sec;
+	ProgressBar_class::Unset();
+	set_recording( StateId_e::INACTIVE , false );
+
+//	Stop							( true ); // init
+	Sem->Reset						( SEMAPHORE_RECORD );
 
 };
 Record_class::~Record_class()
@@ -58,41 +62,37 @@ Record_class::~Record_class()
 	DESTRUCTOR( className );
 };
 
-void Record_class::set_recording( StateId_t StateId, bool flag )
+void Record_class::set_recording( StateId_e StateId, bool flag )
 {
-	sds->Record_state 						= StateId;
-	sds->StA_state_arr[ STA_EXTERNAL ].store = flag; //public record state
+	sds_master->Record_state 						= StateId;
+	sds_master->StA_state_arr[ STA_EXTERNAL ].store= flag; //public record state
 	recording								= flag; // Audioser internal recording state
 
 };
 bool Record_class::Start( )
 {
-	set_recording( RECORDING, true );
-	rcounter 							= 0;
-	ProgressBar_class::Set				( &rcounter, record_sec * 1000/min_msec );
+	set_recording			( RECORDING, true );
+	rcounter 				= 0;
+	ProgressBar_class::Set	( &rcounter, record_sec * 1000/min_msec );
 
-	RecTimer.Start						();
+	RecTimer.Start			();
 	Comment(INFO, "Audioserver starts recording" );
 	return true;
 }
 
-void Record_class::Stop( bool init )
+void Record_class::Stop()
 {
-	if ( not init )
-		Sem->Release( SEMAPHORE_RECORD ); // save recording to file
+	Sem->Release( SEMAPHORE_RECORD ); // save recording to file
 
 	ProgressBar_class::Unset();
-	set_recording( INACTIVE , false );
+	set_recording( StateId_e::INACTIVE , false );
 
-	if ( not init )
-	{
-		uint sec_elapsed 					= RecTimer.Time_elapsed() /1000;
-		Info( "Record duration: ", sec_elapsed, " sec");
-	}
+	uint sec_elapsed = RecTimer.Time_elapsed() /1000;
+	Info( "Record duration: ", sec_elapsed, " sec");
 }
-bool Record_class::State( StateId trigger )
+bool Record_class::State( StateId_e trigger )
 {
-	return ( (sds->Record_state == trigger)	or
+	return ( (sds_master->Record_state == trigger)	or
 			Note_start.Get() 				or
 			Note_end.Get() 					);
 }
@@ -101,7 +101,7 @@ void Record_class::Set_rcounter( )
 	rcounter++;  // # of recorded audio_frames
 	ProgressBar_class::Update();
 	if( rcounter * audio_frames >= record_sec * frames_per_sec )
-		Stop( false );
+		Stop();
 }
 void Record_class::Store_audioframes( stereo_t* addr, buffer_t frames )
 {
@@ -119,11 +119,20 @@ int RtAudioIn( 	void*	/*outputBuffer*/,
 				uint 	nBufferFrames,
 				double	streamTime,
 				RtAudioStreamStatus status,
-				void* 	classdata )
+				void* 	cfgdata )
 {
-	InputData_t*	capture 	= ( InputData_t* ) classdata;
+	InputData_t*	capture 	= ( InputData_t* ) cfgdata;
 	frame_t* 		buffer 		= ( frame_t* ) inputBuffer ;
-
+	if ( capture->streamDone )
+	{
+		snd_config_update_free_global();
+		return 1;	// stop stream
+	}
+	if( not capture->record )
+	{
+	    this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+		return 0;
+	}
 	for( buffer_t n = 0; n < nBufferFrames; n++ )
 	{
 		frame_t stereo 			= buffer[n];
@@ -133,36 +142,60 @@ int RtAudioIn( 	void*	/*outputBuffer*/,
 
 	if ( capture->frameCounter >= capture->maxFrames )
 		return 2;	// abort
-	if ( capture->streamDone )
-		return 1;	// stop stream
 	return 0;		// contiunue
 }
 
-Capture_class::Capture_class( External_class* ext ) :
+Capture_class::Capture_class( External_class* external ) :
 	Logfacility_class	( "Capture_class" ),
-	Audio_class			( ext->Cfg, IN ),
-	InputData			( ext )
+	Audio_class			( external->Cfg, IN ),
+	InputData			( external )
 {
-	this->Extern		= ext;
+	this->Extern		= external;
+	this->StA			= external->StA_ext;
+//	Start				( STA_EXTERNAL );
 
 };
 Capture_class::~Capture_class()
 {
 	DESTRUCTOR( className );
+	try
+	{
+		Stop		( STA_EXTERNAL );
+//		Shutdown_stream();
+		snd_config_update_free_global();
+	}
+	catch ( std::system_error& e )
+	{
+		e.what();
+	}
+	//	https://github.com/alsa-project/alsa-lib/blob/master/MEMORY-LEAK
 };
 
+void Capture_class::ReadAudio( bool begin )
+{
+	InputData.record		= begin;
+	if( begin )
+	{
+		InputData.frameCounter	= 0;//*StA->Store_counter() * audio_frames;
+	}
+	else
+	{
+		StA->Set_records		( InputData.frameCounter/audio_frames );
+	}
+}
 void Capture_class::Start( StAId_e staid )
 {
-	InputData.streamDone= false;
-	InputData.frameCounter	= *Extern->StA_ext->Store_counter() * audio_frames;
-	Start_stream		( &RtAudioIn, (void*) &InputData );
+	InputData.streamDone	= false;
+	InputData.frameCounter	= 0;//*StA->Store_counter() * audio_frames;
+	if( Extern->sds_master->SDS_Id == MASTER_SDSID )
+		Start_stream			( &RtAudioIn, (void*) &InputData );
 }
 
 void Capture_class::Stop( StAId_e staid )
 {
-	InputData.streamDone= true;
-	Shutdown_stream		();
-	Extern->StA_ext->Set_records( InputData.frameCounter/audio_frames );
+	InputData.streamDone	= true;
+	if( Extern->sds_master->SDS_Id == MASTER_SDSID )
+		Shutdown_stream			();
 }
 
 
@@ -171,6 +204,7 @@ void Capture_class::Stop( StAId_e staid )
  **********************************************/
 
 extern Logfacility_class Log;
+
 void errorCallback( RtAudioErrorType err, const std::string& txt )
 {
 	Log.Comment(ERROR, txt ) ;
@@ -178,30 +212,35 @@ void errorCallback( RtAudioErrorType err, const std::string& txt )
 
 Audio_class::Audio_class( Config_class* cfg, IO_DIRECTION_e dir )
 	: Logfacility_class		( "Audio_class" )
-	, Rt					(  )
+	, Rt					( RtAudio::Api::LINUX_ALSA )
 {
+
 	this->direction			= dir;
 	this->sample_rate		= cfg->Config.rate;
 	deviceIds 				= Rt.getDeviceIds();
+
 	deviceNames 			= Rt.getDeviceNames();
 
 	Rt.showWarnings			( true );
 	streamParams.nChannels 	= cfg->Config.channel;
 	streamParams.firstChannel= cfg->Config.ch_offs;
 	streamParams.deviceId 	= getDeviceDescription( cfg->Config.device );
+
 	show_characteristic		();
-/*
+
+	/*
 	#define USE_INTERLEAVED
 	#if !defined( USE_INTERLEAVED )
 			options.flags |= RTAUDIO_NONINTERLEAVED,
 	#endif
-*/
+	 */
 };
+
 Audio_class::~Audio_class()
 {
 	Shutdown_stream();
-	Info( "frame buffer deleted" );
-
+	snd_config_update_free_global();
+	//	https://github.com/alsa-project/alsa-lib/blob/master/MEMORY-LEAK
 	DESTRUCTOR( className );
 };
 
@@ -234,11 +273,9 @@ void Audio_class::show_characteristic()
 
 }
 
-
 void Audio_class::Start_stream( RtAudioCallback Audio_fnc, void* userData )
 {
 	open_stream( Audio_fnc, userData );
-
 	Rt.startStream();
 
 	if ( not Rt.isStreamRunning() )
@@ -288,6 +325,7 @@ void Audio_class::open_stream( RtAudioCallback AudioIO_fnc, void* userData )
 	{
 		Exception( to_string( err ) + Rt.getErrorText() );
 	}
+
 }
 
 void Audio_class::Shutdown_stream()
@@ -363,14 +401,18 @@ const uint Audio_class::getDeviceDescription( uint index )
  **********************************************/
 AudioVolume_class::AudioVolume_class( interface_t* _sds)
 	: Logfacility_class	( "AudioVolume_class" )
-	, DynVolume 		( volidx_range )
+	, DynVolume 		( DYNTYPE_e::VOL, volidx_range )
 
 {
-	this->sds 			= _sds;
+	this->sds_master 	= _sds;
 	this->Max			= numeric_limits< data_t >::max();
-	DynVolume.SetupVol	( sds->Master_Amp,	FIXED );
+	DynVolume.Setup		( sds_master->Master_Amp,	FIXED );
 	selfTest			();
 };
+AudioVolume_class::~AudioVolume_class	()
+{
+	sds_master->overmodulated	= false;
+}
 
 void AudioVolume_class::selfTest()
 {
@@ -397,7 +439,7 @@ void AudioVolume_class::selfTest()
 	float 		balanceR	= 0.5 * ( 60 ) / 200.0;
 	float 		balanceL 	= 0.5 *0.5 - balanceR;
 	Assert_equal( fcomp( balanceR/balanceL, (float)6/4 ), true , "balance ratio" );
-	sds->overmodulated = false;
+	sds_master->overmodulated = false;
 }
 const float AudioVolume_class::dynamic_limit( buffer_t frames, Stereo_t* src )
 {
@@ -411,7 +453,7 @@ const float AudioVolume_class::dynamic_limit( buffer_t frames, Stereo_t* src )
 	if ( ratio > 1.0 )
 	{
 		float Ratio = 1.0 / ratio;
-		sds->overmodulated = true;
+		sds_master->overmodulated = true;
 		Comment( WARN, "Output", max, "limited by ratio", Ratio );
 		return Ratio;
 	}
@@ -424,13 +466,13 @@ void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst
 {	// transform Stereo data to stereo data using
 	// dynamic volume, balance and dynamic limit calculation
 
-	DynVolume.SetupVol( sds->Master_Amp, sds->vol_slidemode );
+	DynVolume.Setup( sds_master->Master_Amp, sds_master->Master_vol_slidemode );
 
 	float 		ratio 		= dynamic_limit( frames, src );
-	float 		balanceR	= ratio * ( 100 + sds->mixer_balance ) / 200.0;
+	float 		balanceR	= ratio * ( 100 + sds_master->mixer_balance ) / 200.0;
 	float 		balanceL 	= ratio -  balanceR;
 
-	DynVolume.SetDelta( sds->slide_duration );
+	DynVolume.SetDelta( sds_master->Master_vol_slide_value );
 	for( buffer_t n = 0; n < frames ; n++ )
 	{
 		float
@@ -441,4 +483,5 @@ void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst
 	DynVolume.Update();
 
 }
+
 

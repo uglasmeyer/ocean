@@ -21,26 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ****************************************************************************/
+// Ocean
+#include <Appsymbols.h>
+
 // Qt
 #include <QApplication>
 #include <QWindow>
 #include <QThread>
 
-// Ocean
-#include <Appsymbols.h>
-
 // OceanGUI
 #include <Dispatcher.h>
-#include <Mainwindow.h>
 
-const string		TitleModule = "Ocean Sound Lab Ui - ";
+const string	TitleModule	= "Ocean Sound Lab Ui - ";
 
 void set_title( MainWindow* window )
 {
-    QString QVersion 	= Qstring( Version_str );
-    QString QModule		= Qstring( TitleModule);
-    QString QDir		= Qstring( Cfg.fs->installdir );
-    window->setWindowTitle( QModule + " " + QVersion  + " (" + QDir + ")" );
+    QString QVersion 		= Qstring( Version_str );
+    QString QModule			= Qstring( TitleModule );
+    QString QDir			= Qstring( Cfg.fs->installdir );
+    window->setWindowTitle	( QModule + QVersion  + " (" + QDir + ")" );
 }
 
 void exit_proc( int signal )
@@ -61,9 +60,7 @@ int main(int argc, char *argv[])
     set_title			( &Window);
     App.Start			( argc, argv );
     App.Ready			();
-    Log.Comment			( DEBUG, "Window.showing" );
     Window.show			();
-    Log.Comment			( DEBUG, "Window.showed" );
     Windowapp.exec		();
 
     exit_proc			( 0 );

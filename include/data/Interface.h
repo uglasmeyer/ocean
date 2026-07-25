@@ -41,38 +41,34 @@ SOFTWARE.
 
 class SharedData_class
 	: virtual public 		Logfacility_class
-	, 						sdsstate_struct
+//	, 						sdsstate_struct
 {
 	const string 			filename			= "SdS_data.bin";
-	APPID					AppId				;
+	APPID_e					AppId				;
 	key_t					sds_key				;
 	Semaphore_class*		Sem_p				;
 	Config_class*			Cfg_p				;
-	fs_t*					fs					;
 	interface_t 			ifd_data 			;
 	size_t					sds_size			;
-	Shm_base				SHM					;
 	shm_ds_t				shm_ds				;
 	string					dumpFile			;
 
 public:
-	EventQue_class			Eventque			;
+	Shm_base				SHM					;
 	interface_t* 			addr				;
+	fs_t*					fs					;
+	EventQue_class			Eventque			;
 
-							SharedData_class	( APPID appid,
+							SharedData_class	( APPID_e appid,
 												Id_t sdsid,
 												Config_class*,
 												Semaphore_class* );
 	virtual 				~SharedData_class	();
 
 
-	void 					Activate_sds		();
-	void					Setup_SDS			( Id_t sdsid, key_t key );
-	void 					Set_dumpFile		( string dir, uint8_t sdsid );
-	void 					Write_wave_arr		( const wd_arr_t& arr );
-	void 					Write_adsr_arr		( const wd_arr_t& arr );
-	void 					Write_str			( char, string );
-	string 					Read_str			( EVENTKEY_e );
+	void 					Prepare_sds		();
+	char* 					Write_str			( CSTRKEY_e, string );
+	string 					Read_str			( CSTRKEY_e );
 	void 					Commit				();
 	void					Dump_ifd			();
 	bool					Load_ifd			();
@@ -84,7 +80,7 @@ public:
 	void					Copy_dumpFileTo		( string dst );
 	void					Copy_dumpFileFrom	( string src );
 	void 					Test_interface		();
-	void					test_reset_ifd		();
+
 	template < typename V >
 	void Set( V& ref, V value )
 	{
@@ -101,7 +97,9 @@ public:
 	};
 
 private:
-	bool 					reject				( APPID id );
+	void					init_SDS			();
+	bool 					reject				( APPID_e id );
+	void 					set_dumpFile		( string dir, uint8_t sdsid );
 	void					selfTest			();
 
 };

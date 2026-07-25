@@ -43,14 +43,15 @@ using namespace std;
 
 constexpr string yesno ( bool flag ) { return ( flag ) ? "yes" : "no "; };
 
-extern void Assert_equalstr( string lhs, string rhs, string message = " == ",
-		const experimental::source_location location = experimental::source_location::current());
 extern void show_source_location( const experimental::source_location location );
 extern bool	fcomp( const float& a, const float& b, float precision = 1E-4 );
 extern void Exception( string message = "", int signal = SIGHUP,
 		const experimental::source_location location = experimental::source_location::current());
 
-
+constexpr bool operator==( string lhs, string rhs )
+{
+	return ( lhs.compare( rhs ) == 0 );
+};
 
 template< typename Enum>
 Enum& operator++(Enum& _enum)
@@ -79,7 +80,7 @@ void Show_Assert( Compare lhs, Compare rhs, string message )
 
 
 template< typename Type >
-vector<Type> Iota_T( Type beg, Type size )
+constexpr vector<Type> Iota_T( Type beg, Type size )
 {
 	vector<Type> v{};
 	for( Type n = beg; n < (beg+size); n++ )

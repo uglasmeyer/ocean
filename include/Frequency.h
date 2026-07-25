@@ -85,7 +85,6 @@ class Frequency_class
 	void 								initHarmonics	();
 
 public:
-	const float							log2 			= log(2.0);
 	range_T<uint8_t>					harmonic_range	{ 0,  HARMON_SIZE - 1 };
 	frq_t 								Calc			( const frq_t& _base_freq,
 													      const int& idx );

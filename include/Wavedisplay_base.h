@@ -59,7 +59,7 @@ struct wavedisplay_struct
 		"Full",
 		"Flow",
 		"Debug",
-		"Cursor",
+		"Cursor",	// Cut desk
 		"Fft",
 		"Adsr"
 	};
@@ -70,20 +70,23 @@ struct wavedisplay_struct
 	};
 	enum WDMODE_t : unsigned char // classification of the display data calculation by gen_cxwave_data
 	{
-		FULLID,
-		FLOWID,
-		DEBUGID,
-		CURSORID,
-		FFTID,
-		ADSRID
+		FULL_WD,	// generate wf data of the sta consisting of the fillrange
+		FLOW_WD,	// generate scrolling data
+		DEBUG_WD,	// split display right/left and generate high resolution wf data
+		WD_MODE_SIZE, // button_types vector size (3)
+		RANGE_WD,	// activate cutdesk loop fnct and display cursors
+		FFT_WD,		// generate Fourier coefficients
+		ADSR_WD		// generate adsr and fft dispplay data
 	};
-	enum Direction_e
+	enum Direction_e : uint8_t // cutdesk cursor directions
 	{
 		BACK_LEFT,
 		BACK_RIGHT,
 		FRONT_LEFT,
 		FRONT_RIGHT,
 		GOTO_END,
+		ROTATE_RIGHT,
+		ROTATE_LEFT,
 		NO_direction
 	};
 
@@ -99,33 +102,36 @@ typedef range_T<int16_t>
 typedef cursor_T<int16_t>
 						cursor_t;
 
-const int 				wavedisplay_len	= 512;
+const int 				wavedisplay_len	= 512; // restrict 2^N, N>2
 const int 				adsrdisplay_len	= 256;
+const int				fft_display_len = 256;
 
-struct WD_data_struct
+typedef struct WD_data_struct
 {	// SDS related
 
 	OSCID_e 			oscId 			= OSCID;
 	RoleId_e			roleId 			= INSTRROLE;
-	bool 				fftmode			= false;
-	bool				adsrmode		= false;
-	WdModeID_t 			wd_mode			= wavedisplay_t::FULLID;
-	Direction_e			direction		= wavedisplay_t::NO_direction; // GUI bounds cursor direction
-	buffer_t			frames			= 0; // max number of frames presented in the display
-	cursor_t			cursor			{ 0, 0, wavedisplay_len }; // len=param.size / minframes is constant
-} ;
+	bool 				fftmode			= false; 	// generate fft coefficients
+	bool				adsrmode		= false; 	// generate adsr wave data
+	WdModeID_t 			mode			= wavedisplay_t::FULL_WD;
+													// cursor direction of Cutdesk bounds
+	float				zoom			= 1.0;		// Wavedisplay zoon in&out
+	Direction_e			direction		= wavedisplay_t::NO_direction;
+	uint8_t				record_steps	= 4;		// cursor stepwidth of Cutdesk bounds
+	buffer_t			frames			= 0; 		// max number of frames presented in the display
+													// len=param.size / minframes is constant
+	cursor_t			cursor			{ 0, 0, wavedisplay_len };
+} WD_data_t;
 
-typedef WD_data_struct 	WD_data_t;
 
 const uint8_t 			WD_OSC_SIZE 	= NOOSCID;
 const size_t 			WD_ROLES_SIZE 	= ROLE_SIZE-1; //exclude ADSRROLE
-const uint8_t 			WD_MODE_SIZE 	= wavedisplay_struct().button_types.size();
-
+const range_T<WdModeID_t>
+						wd_mode_range 	{ wavedisplay_t::FULL_WD, wavedisplay_t::WD_MODE_SIZE };
 
 typedef array< Data_t,	wavedisplay_len>wd_arr_t;
 typedef array< Data_t,	adsrdisplay_len>ad_arr_t;
-
-
+typedef array< Data_t,	fft_display_len>fftarr_t;
 
 
 #endif /* WAVEDISPLAY_BASE_H_ */

@@ -49,7 +49,8 @@ QT_END_NAMESPACE
  *************************************************/
 class CutDesk_Dialog_class :
 	public 				QDialog				,
-	virtual 			wavedisplay_struct,
+	virtual 			wavedisplay_struct	,
+	virtual				sta_role_map,
 	public virtual		Interface_base
 {
     Q_OBJECT
@@ -65,17 +66,20 @@ public:
     										Dataworld_class* data 	= nullptr,
 											EventLog_class* el 		= nullptr );
     virtual				~CutDesk_Dialog_class	();
-	void 				Setup				( SharedData_class* Sds );
+	void 				Setup				();
 	void				SetSds				();
 
 private slots:
-	void 				Step_forward		();
+	void				Rotate_left			();
+	void				Rotate_right		();
+	void 				Cut_tail			();
+	void 				Save				();
 	void 				Step_backward		();
+	void 				Step_forward		();
 	void 				Step_front_forward	();
 	void 				Step_front_backward	();
 	void 				Step_to_end			();
-	void 				Cut_tail			();
-	void 				Save				();
+	void				Stepwidth			( int width );
 
 
 public slots:

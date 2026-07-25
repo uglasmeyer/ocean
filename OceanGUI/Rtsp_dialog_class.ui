@@ -21,7 +21,7 @@
     <rect>
      <x>10</x>
      <y>9</y>
-     <width>331</width>
+     <width>431</width>
      <height>192</height>
     </rect>
    </property>
@@ -29,7 +29,7 @@
     <number>5</number>
    </property>
    <property name="columnCount">
-    <number>3</number>
+    <number>5</number>
    </property>
    <row>
     <property name="text">
@@ -71,6 +71,12 @@
      <string>Notes</string>
     </property>
    </column>
+   <column>
+    <property name="text">
+     <string>Process id</string>
+    </property>
+   </column>
+   <column/>
   </widget>
   <widget class="QTextBrowser" name="tB_log">
    <property name="geometry">
@@ -85,7 +91,7 @@
     <string notr="true">background-color: rgb(255, 255, 255);</string>
    </property>
    <property name="verticalScrollBarPolicy">
-    <enum>Qt::ScrollBarAlwaysOn</enum>
+    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
    </property>
   </widget>
  </widget>

@@ -41,17 +41,14 @@ SOFTWARE.
 #include <Appsymbols.h>
 
 
-
-
-Audio_class				Audio				{ &Cfg, Audio_class::OUT };
+Audio_class				Audio				{ Cfg_p, Audio_class::OUT };
 Record_class			Record				{ &DaTA };
 Heap_Memory				wd_mono_mem			{ audiobuffer_bytes }; // wave display data
 Stereo_Memory<stereo_t>	stereo				{ sizeof_stereo, stereoaudio_bytes }; // audio data
 
 Time_class				Timer				{};
-ProgressBar_class		ProgressBar			{ &sds_p->RecCounter };
-//Fourier_class			Fourier				{};
-Wavedisplay_class		Wavedisplay			{ Sds_master, fourier };
+ProgressBar_class		ProgressBar			{ &sds_master->RecCounter };
+Wavedisplay_class		Wavedisplay			{ Sds_master };
 AudioVolume_class		Volume				{ sds_master };
 EventLog_class			Eventlog			{ &DaTA };
 

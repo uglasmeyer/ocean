@@ -482,6 +482,9 @@
     </disabled>
    </palette>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::FocusPolicy::StrongFocus</enum>
+  </property>
   <property name="acceptDrops">
    <bool>false</bool>
   </property>
@@ -747,6 +750,9 @@
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta4">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -755,11 +761,20 @@
        <height>23</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Ubuntu Sans</family>
+       <italic>false</italic>
+      </font>
+     </property>
      <property name="text">
       <string/>
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta5">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -767,6 +782,12 @@
        <width>80</width>
        <height>23</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Ubuntu Mono</family>
+       <italic>true</italic>
+      </font>
      </property>
      <property name="text">
       <string/>
@@ -786,6 +807,9 @@
      </property>
     </widget>
     <widget class="QCheckBox" name="cb_ssta6">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -793,6 +817,12 @@
        <width>80</width>
        <height>23</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Ubuntu Mono</family>
+       <italic>true</italic>
+      </font>
      </property>
      <property name="text">
       <string/>
@@ -1252,7 +1282,7 @@ Instruments</string>
      <string>Hall</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pB_Specrum">
+   <widget class="QPushButton" name="pB_Spectrum">
     <property name="geometry">
      <rect>
       <x>570</x>
@@ -1537,19 +1567,6 @@ Instruments</string>
      <string/>
     </property>
    </widget>
-   <widget class="QPushButton" name="pb_fftmode">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>230</y>
-      <width>81</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QLabel" name="lb_FMO_LFO">
     <property name="geometry">
      <rect>
@@ -1699,7 +1716,7 @@ Instruments</string>
    </widget>
    <widget class="QCheckBox" name="cb_connect_vcov">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
@@ -2213,16 +2230,6 @@ r</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
-        <widget class="QCheckBox" name="cB_Combine">
-         <property name="layoutDirection">
-          <enum>Qt::LayoutDirection::RightToLeft</enum>
-         </property>
-         <property name="text">
-          <string>Combine</string>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="wf_osc">
          <property name="text">
@@ -2280,10 +2287,47 @@ r</string>
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QCheckBox" name="cB_Combine_vco">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>330</y>
+      <width>85</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LayoutDirection::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>Combine</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cB_Combine_fmo">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>520</y>
+      <width>85</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LayoutDirection::RightToLeft</enum>
+    </property>
+    <property name="text">
+     <string>Combine</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QMenuBar" name="menuBar">

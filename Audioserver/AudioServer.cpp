@@ -28,17 +28,14 @@ SOFTWARE.
 void save_record_fcn()
 {
 	string filename		= Record.External.Save_record_data( sds_master->FileNo );
-	Sds->Write_str( OTHERSTR_KEY, filename );
+	Sds->Write_str		( WAVFILE_STR, filename );
 
 	Log.Comment( INFO, "record thread received job ", filename );
 	Log.Info( "recording to file " + filename + " done.");
 
-	DaTA.EmitEvent( RECORDWAVFILEFLAG );
+	DaTA.EmitEvent( UPDATE_WAV_FILELIST_FLAG );
 };
-Thread_class			SaveRecord			{ &Sem,
-											  SEMAPHORE_RECORD,
-											  save_record_fcn,
-											  "save record file" };
+Thread_class			SaveRecord			{ &Sem, SEMAPHORE_RECORD, save_record_fcn };
 thread*					SaveRecord_thread_p = nullptr;
 
 void shutdown_thread( )
@@ -56,14 +53,14 @@ void exit_intro( int signal )
 {
 	exit_flag = true;
 	coutf << Line(80, 'v' ) << endl;
-	Log.Comment( INFO,  Cfg.prgName, " received command exit signal ",  signal );
+	Log.Comment( INFO,  Cfg_p->prgName, " received command exit signal ",  signal );
 	Log.Comment( INFO, "Entering exit procedure" );
 }
 
 void show_usage( void )
 {
 	string str;
-	str = "Usage: " + Cfg.prgName + " -c #1 -r #2 -d #3 -o #4 \n";
+	str = "Usage: " + Cfg_p->prgName + " -c #1 -r #2 -d #3 -o #4 \n";
 	str.append("       where \n");
 	str.append("       #1 = number of channels (default=2),\n");
 	str.append("       #2 = the sample rate (default = 48000),\n");
@@ -86,42 +83,65 @@ void Application_loop()
 	Log.Comment(INFO, "Application loop exit");
 }
 
-void write_waveaudio()
+void update_WD_data()
 {
-	if ( sds_p->WD_state.roleId != AUDIOROLE )
-		return;
+	auto nothing_todo = [ ]( interface_t* sds )
+	{
+		// the audio role is set by the GUI on the active com id
+		return ( sds->WD_state.roleId != AUDIOROLE );
+	};
 
+	interface_t* sds_com = Ifb.Get_sdsCom();
+	if ( nothing_todo( sds_com ) ) return;
+
+	// wd_mono data has been added to wd ptr list and shall contain stereo output data
 	for( buffer_t n = 0; n < audio_frames; n++ )
 	{
 		wd_mono_mem.Data[n]	=	stereo.stereo_data[n].left +
 								stereo.stereo_data[n].right;
 	}
 
-	Wavedisplay.Set_WdData();
-	Wavedisplay.WriteData();
+	sds_master->WD_state		= sds_com->WD_state;
+	Wavedisplay.Set_WdData();	// parameter to handle wavedisplay gen_full
+	Wavedisplay.WriteData();	// write data to the sds, defined by wavedisplay construction
+
+								// trigger GUI to display data in main window
+	DaTA.EmitEvent( READWAVEDATAFLAG, "read audio wave data" );
+
 }
 
 void Request_data()
 {
-	for ( int n = 0; n < MAXCONFIG; ++n )
+	// trigger add_sound thead on Synthesizers
+	for ( SEMID_e sem_id : SemIds )
 	{
-		uint8_t id = SEMAPHORE_SENDDATA0 + n;
-		DaTA.Sem_p->Release( id );
+		DaTA.Sem_p->Release( sem_id );
 	}
 }
 
-void call_for_update()
+void transform()
 {
-	DaTA.ClearShm();
-	shm_addr = DaTA.SetShm_addr();
-
+	// apply volume transform to shared memory data (shm_data) and
+	// copy it to local data (stereo)
 	Volume.Transform( audio_frames, shm_addr, stereo.stereo_data );
+
+	// record transformed data if requested
 	if ( Record.recording )
 	{
+		// collect local stereo data in external stereo buffer
 		Record.Store_audioframes( stereo.stereo_data, audio_frames );
 		Record.Set_rcounter();
 	}
 
+}
+void call_for_update()
+{
+	// switch shared memory address
+	DaTA.ClearShm	();						// clear old
+	shm_addr 		= DaTA.SetShm_addr();	// switch to new
+
+
+	// call each running Synthesizer or Keyboard process to generate new data
 	Request_data();
 }
 
@@ -133,14 +153,14 @@ void set_ncounter( buffer_t n )
 
 	ncounter = 0;
 
-	if ( Record.State( Record.RECORDSTART ) )
+	if ( Record.State( StateId_e::RECORDSTART ) )
 		Record.Start();
-	if ( Record.State( Record.RECORDSTOP ) )
+	if ( Record.State( StateId_e::RECORDSTOP ) )
 		Record.Stop ();
 
+	transform();
+	update_WD_data();
 	call_for_update();
-
-	write_waveaudio();
 
 	//		cout << Measure.Time_elapsed() << "[msec]" << endl;
 	//		Measure.Start();
@@ -169,10 +189,10 @@ int RtAudioOut(	void* outputBuffer,
 	if ( Appstate->IsExitserver( sds_p, AUDIOID ) ) // set by the oceangui process
 		audio_out_done = true;						// trigger Application_loop() to terminate
 	if ( audio_out_done ) 							// set by exit_proc signal
+	{
 		return 1;									// terminate stream and drain
+	}
 //		return 2;									// return abort
-
-//	Appstate->SetRunning();
 
 	return 0; 										// return value to continue thread
 } // RtAudio callback function
@@ -186,10 +206,9 @@ int main( int argc, char *argv[] )
 	Log.Show_loglevel();
 
 // 	init communication
-	for ( uint n = 0; n < MAXCONFIG; ++n)
+	for ( SEMID_e sem_id : SemIds )
 	{
-		uint8_t id = SEMAPHORE_SENDDATA0 + n;
-		DaTA.Sem_p->Reset( id );
+		DaTA.Sem_p->Reset( sem_id );
 	}
 
 //	init record thread
@@ -198,7 +217,7 @@ int main( int argc, char *argv[] )
 	SaveRecord_thread_p = &SaveRecord_thread;
 
 // 	init wavedisplay
-	buffer_t audioframes = audio_frames; // not constant
+	buffer_t audioframes 	= audio_frames; // not constant
 	Wavedisplay.Add_role_ptr( AUDIOROLE, wd_mono_mem.Data, &audioframes);
 
 // end parametrization
@@ -211,7 +230,7 @@ int main( int argc, char *argv[] )
 	call_for_update		();
 	Application_loop	();
 
-	Log.Comment( INFO, Cfg.prgName, " reached target exit main()" );
+	Log.Comment( INFO, Cfg_p->prgName, " reached target exit main()" );
 	exit_proc( 0 );
 
 	return 0;
@@ -227,6 +246,7 @@ void exit_proc( int signal )
 		exit(0);
 	exit_intro( signal );
 	shutdown_thread();
+	snd_config_update_free_global();
 
 	cout.flush()  << " ";
 

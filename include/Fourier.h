@@ -33,62 +33,77 @@ SOFTWARE.
 #ifndef FOURIER_H_
 #define FOURIER_H_
 
+
 #include <Wavedisplay_base.h>
 #include <complex>
-
-typedef complex<double>					cd_t;
-typedef vector<cd_t>					cd_vec_t;
-
 #include <Logfacility.h>
+
+
+
 
 /**************************************************
  * Fourier_class
  *************************************************/
+const uint				MaxResolution	= 64;
+typedef complex<double>	cxd_t;
+typedef vector<cxd_t>	cxd_vec_t;
+
+
 class Fourier_class :
 	virtual public Logfacility_class
 {
+	const phi_t dphi = update_frequency*dt*2*M_PI;
+
 	typedef struct idx_val_data
 	{
-		uint 	idx	= 0;
 		phi_t	dphi= 0.0;
 		float	amp = 0.0;
 		phi_t	phi	= 0.0;
 	} idx_val_t;
-	typedef vector<idx_val_t>		fourier_vec_t;
+	typedef vector<idx_val_t>
+					fourier_vec_t	;
+	typedef array<idx_val_t, MaxResolution>
+					fourier_arr_t	;
 
 	struct
 	{
-		bool operator()( idx_val_t a, idx_val_t b) const
+		bool operator()( idx_val_t& a, idx_val_t& b) const
 		{
 			return ( abs(a.amp) > abs(b.amp) ) ;
 		}
 	} Greater;
 
-	uint16_t		resolution		;
-	cd_vec_t		cd_data			;
+	uint			resolution		;
+	uint8_t			resolutionIdx	;
+	float			A0				; // A0*cos(0)
+	range_T<uint>	resolution_range{ 8, MaxResolution };
+	cxd_vec_t		cd_data			;
 	fourier_vec_t	idx_vec			{};
 	fourier_vec_t 	coeff_vec		{};
 
-
 public:
-
 					Fourier_class	();
 	virtual			~Fourier_class	();
-	wd_arr_t 		Amplitude		( wd_arr_t data );
+	void	 		Amplitude		( wd_arr_t& data );
 	Data_t 			Fnc				( param_t& p );
 	void			TestFourier		();
+	void			Save_coeff		( string filename );
+	void			Load_coeff		( string filename );
+	void 			GenCoeff		();
+	void 			SetResolution	( uint8_t idx );
+
 
 private:
 
 	void 			findPeaks		();
-	void 			genCdData		( wd_arr_t& data );
-	void 			genCoeff		();
-	void			initIdxvec		();
-	void 			normCoeff		( uint max_count );
-	void 			norm_wd_size	( uint max );
-	void			show_coeff		( fourier_vec_t coeff  );
+	void 			gen_cxd_vec		( const wd_arr_t& data );
+	float			init_idx_vec		();
+	void 			normCoeff		();
+	void 			norm_cxd_vec_len		( uint max );
+	void			show_coeff		();
 };
 
+extern Fourier_class* fourier;	// initialzed in fourier.cpp
 
 
 #endif /* FOURIER_H_ */

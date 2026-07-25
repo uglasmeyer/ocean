@@ -50,44 +50,42 @@ SOFTWARE.
 /**************************************************
  * DataGraphic_class
  *************************************************/
-//QT_BEGIN_NAMESPACE
-//namespace Ui
-//{
-//	class DataGraphic_class;
-//}
-//QT_END_NAMESPACE
-
+typedef struct datagraphics_struct
+{
+	Data_t	scale	= 0;
+	bool 	cursor	= false;
+	bool 	centerY	= false;
+} 	datagraphics_param_t;
 
 class DataGraphic_class
-	: public QGraphicsItem,
-//		public QObject,
-	  Logfacility_class
-{
-//	Q_OBJECT
+	: 			Logfacility_class
+	, public	QGraphicsItem
 
-    QRectF          drawregion;
-    QGraphicsView*	graphicsview;
-    QPolygonF       polygon;
-    uint 			shiftY 		= 0;
-    uint			height		= 0;
-    float			data_scale	= 0;
+{
+
+    QRectF          		drawregion		;
+    QGraphicsView*			graphicsview	;
+    QPolygonF       		polygon			;
+    uint 					shiftY 			;
+    uint					height			;
+    datagraphics_param_t	param			;
+    interface_t*          	sds				;
 
 public:
-    interface_t*          sds;
 
-    		DataGraphic_class	( interface_t*, QGraphicsView* );
+    		DataGraphic_class	( interface_t*, QGraphicsView*, datagraphics_param_t _param );
     virtual	~DataGraphic_class	() = default;
 
-    void    ReadWaveData();
-    void    ReadAdsrData();
+    void    ReadData( Data_t* Data, int len );
+    void	Set_sds( interface_t* _sds );
 
 private:
-    Data_t 	readDataEntry();
-    void 	readDataExit( Data_t x );
-    QRectF  boundingRect() const; // implement virtual method boundingRect, need by qgraphicsitem.h
+    Data_t 	readDataBegin();
+    void 	readDataEnd( Data_t x );
+    QRectF  boundingRect() const override; // implement virtual method boundingRect, need by qgraphicsitem.h
     void    paint(QPainter* painter,
                const QStyleOptionGraphicsItem* option,
-               QWidget* widget);     // overriding paint() - react on update
+               QWidget* widget) override;     // overriding paint() - react on update
 
 };
 

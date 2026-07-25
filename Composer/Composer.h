@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,11 +36,13 @@ SOFTWARE.
 #include <Composer/Interpreter.h>
 #include <Composer/Lineedit.h>
 
-Interpreter_class 		Interpreter	{ &App };
-Composer_class			Composer	{ &DaTA, &Interpreter };
 
-Statistic_class			Statistic	{ Log.className };
-Lineedit_class			Edit 		{ "Ocean command line> ", &App.Kbd };
+Interpreter_class 		Interpreter		{ &App };
+Composer_class			Composer		{ &DaTA, &Interpreter };
+
+Statistic_class			Statistic		{ Log.className };
+Lineedit_class			Edit 			{ "Ocean command line> ", &App.Kbd };
+dircontent_struct 		composerfiles 	{ { Cfg.Fs.includedir }, Cfg.Fs.synth_type };
 
 
 

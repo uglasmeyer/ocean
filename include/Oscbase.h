@@ -40,29 +40,53 @@ SOFTWARE.
 typedef struct bps_struct
 {
 
-	const set<uint8_t>   	Bps_set = { 0,1,2,4,5,8,10,16 };
-	const vector<uint8_t>	Bps_vec	= set2vector( Bps_set );
-	list<string>			Bps_lst	= {};
-	set<string>			Bps_str_set	= {};
-	vector<string>		Bps_str_vec = {};
-	const int				len		= Bps_set.size();
-	range_T<int>			idx_range { 0, len-1 };
-	range_T<uint8_t>		set_range { 0, 16 };
-	string					Bps_str	{};
+	const set<int>   	Bps_set 	= { 0,1,2,4,5,8,10,16 };
+	const vector<int>	Bps_vec		= set2vector( Bps_set );
+	const int			len			= Bps_set.size();
+	list<string>		Bps_lst		{};
+	uset_t				Bps_str_set	{};
+	vector<string>		Bps_str_vec {};
+	string				Bps_str		{};
+	range_T<int>		idx_range 	{ 0, len-1 };
+	range_T<int>		set_range 	{ 0, 16 };
 	bps_struct( )
 	{
-		uint8_t index = 0;
-		for( uint8_t bps : Bps_vec )
+		for( int bps : Bps_vec )
 		{
-			string str 			= to_string( bps );
+			string	str			= to_string( bps );
 			Bps_str.append		( str + ", ");
-			Bps_str_set.insert	( string( 1, int2char(bps)) );
+			Bps_str_set.insert	( int2str( bps ) );
 			Bps_lst.push_back	( str );
 			Bps_str_vec.push_back( str );
-			index++;
 		}
 	}
 	virtual ~bps_struct() = default;
+
+	int bps_idx( int val )
+	{
+		int idx = 0;
+		for( int bps : Bps_vec )
+		{
+			if( bps >= val )
+				return idx;
+			idx++;
+		}
+		return 0;
+	}
+
+	int check_bps( int val ) // map val to fit best into bps set
+	{
+		if( Bps_set.contains( val ) )
+			return val;
+		val = check_range( set_range, val );
+
+		for( int bps : Bps_vec )
+		{
+			if( bps >= val )
+				return bps;
+		}
+		return 0;
+	}
 
 }	bps_t;
 
@@ -91,10 +115,11 @@ typedef struct vco_struct
 
 typedef struct feature_struct
 { // SDS related. Is the same for all OSCs
-	uint8_t slide_frq	= 0;
-	uint8_t	adjust		= 0; // used by vco and fmo, osc = 0
-	uint8_t	PWM 		= 50;
-	bool	longplay	= false;
+	uint8_t frq_slide_value	= 0;		// slide duration of the main osc
+	uint8_t	adjust			= 0; 		// used by vco and fmo, osc = 0
+	uint8_t	PWM 			= 50;
+	bool	longplay		= false;
+	bool	combine			= false;	// follow main osc frequency index
 } feature_t;
 
 constexpr feature_t default_feature = feature_struct();
@@ -115,7 +140,7 @@ constexpr bool operator==( const connectId_t& lhs, const connectId_t& rhs )
 };
 constexpr ostream& operator<<( ostream& os, const connectId_t& connect )
 {
-	os << "frq=" << connect.frq << ", vol=" << connect.vol;
+	os << "frq=" << (int)connect.frq << ", vol=" << (int)connect.vol;
 	return os;
 }
 
@@ -127,33 +152,32 @@ class Oscillator_base
 	: virtual public 	Spectrum_class
 	, virtual public	osctype_struct
 {
-
 public:
 
-	feature_t 		features 		= feature_struct();
-	wave_t 			wp 				= wave_struct();
-	fmo_t 			fp 				= fmo_struct();
-	vco_t 			vp 				= vco_struct();
-	Dynamic_class	DynFrequency	;
-	bps_t			Bps				;
-	spectrum_t		spectrum		;
+	feature_t 		features 			= feature_struct();
+	wave_t 			wp 					= wave_struct();
+	fmo_t 			fp 					= fmo_struct();
+	vco_t 			vp 					= vco_struct();
+	Dynamic_class	DynFrequency		;
+	spectrum_t		spectrum			;
 
-					Oscillator_base	( OSCID_e osc_type, RoleId_e role );
-	virtual 		~Oscillator_base()
+					Oscillator_base		( OSCID_e osc_type, RoleId_e role );
+	virtual 		~Oscillator_base	()
 						{ DESTRUCTOR( className ); };
 
-	uint8_t 		Set_frequency	( string frqName, DYNAMIC mode );
-	uint8_t			Set_frequency	( int idx, DYNAMIC mode );
-	void 			Set_spectrum_volume( int vol);
-	void 			Line_interpreter( vector_str_t arr );
-	void 			Set_waveform	( spec_arr_8t wf_vec   );
-	void			Set_pmw			( uint8_t );
-	void			Set_spectrum	( spectrum_t );
-	void 			SetSlider_frq	( uint8_t value );
-	void 			Get_sound_stack	( Table_class* T );
+	uint8_t 		Set_frequency		( string frqName, DYNAMIC_e mode );
+	uint8_t			Set_frequency		( int idx, DYNAMIC_e mode );
+	void 			Set_spectrum_volume	( int vol);
+	void 			Line_interpreter	( string_vec_t arr );
+	void 			Set_waveform		( spec_arr_8t wf_vec   );
+	void			Set_pmw				( uint8_t );
+	void			Set_spectrum		( spectrum_t, DYNAMIC_e mode );
+	void 			Set_frq_slidevalue	( uint8_t value );
+	void 			Set_feature			( feature_t f );
+	void 			Get_sound_stack		( Table_class* T );
 
 protected:
-	connectId_t		Connect			;
+	connectId_t		Connect				;
 };
 
 

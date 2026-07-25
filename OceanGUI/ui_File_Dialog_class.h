@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'File_Dialog_class.ui'
 **
-** Created by: Qt User Interface Compiler version 6.9.2
+** Created by: Qt User Interface Compiler version 6.10.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -27,34 +27,36 @@ class Ui_File_Dialog_class
 {
 public:
     QGridLayout *gridLayout;
-    QLabel *lbl_selected_notes;
-    QComboBox *cb_nps;
-    QPushButton *pbInstrumentDone;
-    QLineEdit *lE_Rythm;
-    QLabel *label;
-    QComboBox *cb_convention;
-    QLabel *label_4;
-    QFrame *line_2;
-    QLineEdit *lE_Instrument;
-    QLineEdit *lE_Notes;
-    QComboBox *cb_Notestype;
-    QSpinBox *sB_Octave;
-    QLabel *label_3;
-    QPushButton *pbNotesDone;
-    QLineEdit *lE_NotesFile;
-    QLabel *label_2;
+    QFrame *line;
+    QCheckBox *cb_longnote;
     QLabel *label_5;
     QComboBox *cb_notefilenames;
-    QCheckBox *cb_longnote;
-    QComboBox *cb_instrumentfiles;
-    QFrame *line;
+    QLabel *label_2;
+    QLineEdit *lE_Notes;
+    QPushButton *pbNotesDone;
+    QComboBox *cb_Notestype;
+    QLineEdit *lE_Instrument;
+    QLineEdit *lE_NotesFile;
+    QLabel *label_3;
+    QComboBox *cb_nps;
+    QLabel *lbl_selected_notes;
+    QLabel *label;
+    QLabel *label_4;
+    QComboBox *cb_convention;
     QPushButton *pB_EditMusicxml;
+    QFrame *line_2;
+    QLineEdit *lE_Rythm;
+    QSpinBox *sB_Octave;
+    QComboBox *cb_score;
+    QLabel *label_6;
+    QComboBox *cb_instrumentfiles;
+    QPushButton *pbInstrumentDone;
 
     void setupUi(QDialog *File_Dialog_class)
     {
         if (File_Dialog_class->objectName().isEmpty())
             File_Dialog_class->setObjectName("File_Dialog_class");
-        File_Dialog_class->resize(366, 373);
+        File_Dialog_class->resize(366, 404);
         QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -150,96 +152,22 @@ public:
         File_Dialog_class->setPalette(palette);
         gridLayout = new QGridLayout(File_Dialog_class);
         gridLayout->setObjectName("gridLayout");
-        lbl_selected_notes = new QLabel(File_Dialog_class);
-        lbl_selected_notes->setObjectName("lbl_selected_notes");
+        line = new QFrame(File_Dialog_class);
+        line->setObjectName("line");
+        line->setFrameShape(QFrame::Shape::HLine);
+        line->setFrameShadow(QFrame::Shadow::Sunken);
 
-        gridLayout->addWidget(lbl_selected_notes, 5, 0, 1, 2);
+        gridLayout->addWidget(line, 3, 0, 1, 3);
 
-        cb_nps = new QComboBox(File_Dialog_class);
-        cb_nps->setObjectName("cb_nps");
+        cb_longnote = new QCheckBox(File_Dialog_class);
+        cb_longnote->setObjectName("cb_longnote");
 
-        gridLayout->addWidget(cb_nps, 12, 1, 1, 1);
-
-        pbInstrumentDone = new QPushButton(File_Dialog_class);
-        pbInstrumentDone->setObjectName("pbInstrumentDone");
-        pbInstrumentDone->setAutoDefault(false);
-
-        gridLayout->addWidget(pbInstrumentDone, 0, 2, 1, 1);
-
-        lE_Rythm = new QLineEdit(File_Dialog_class);
-        lE_Rythm->setObjectName("lE_Rythm");
-
-        gridLayout->addWidget(lE_Rythm, 8, 0, 1, 3);
-
-        label = new QLabel(File_Dialog_class);
-        label->setObjectName("label");
-
-        gridLayout->addWidget(label, 0, 0, 1, 1);
-
-        cb_convention = new QComboBox(File_Dialog_class);
-        cb_convention->setObjectName("cb_convention");
-
-        gridLayout->addWidget(cb_convention, 12, 2, 1, 1);
-
-        label_4 = new QLabel(File_Dialog_class);
-        label_4->setObjectName("label_4");
-
-        gridLayout->addWidget(label_4, 11, 2, 1, 1);
-
-        line_2 = new QFrame(File_Dialog_class);
-        line_2->setObjectName("line_2");
-        line_2->setFrameShape(QFrame::Shape::HLine);
-        line_2->setFrameShadow(QFrame::Shadow::Sunken);
-
-        gridLayout->addWidget(line_2, 9, 0, 1, 3);
-
-        lE_Instrument = new QLineEdit(File_Dialog_class);
-        lE_Instrument->setObjectName("lE_Instrument");
-        lE_Instrument->setClearButtonEnabled(true);
-
-        gridLayout->addWidget(lE_Instrument, 1, 2, 1, 1);
-
-        lE_Notes = new QLineEdit(File_Dialog_class);
-        lE_Notes->setObjectName("lE_Notes");
-
-        gridLayout->addWidget(lE_Notes, 7, 0, 1, 3);
-
-        cb_Notestype = new QComboBox(File_Dialog_class);
-        cb_Notestype->setObjectName("cb_Notestype");
-
-        gridLayout->addWidget(cb_Notestype, 3, 2, 1, 1);
-
-        sB_Octave = new QSpinBox(File_Dialog_class);
-        sB_Octave->setObjectName("sB_Octave");
-        sB_Octave->setMinimum(-2);
-        sB_Octave->setMaximum(2);
-
-        gridLayout->addWidget(sB_Octave, 12, 0, 1, 1);
-
-        label_3 = new QLabel(File_Dialog_class);
-        label_3->setObjectName("label_3");
-
-        gridLayout->addWidget(label_3, 11, 1, 1, 1);
-
-        pbNotesDone = new QPushButton(File_Dialog_class);
-        pbNotesDone->setObjectName("pbNotesDone");
-
-        gridLayout->addWidget(pbNotesDone, 5, 2, 1, 1);
-
-        lE_NotesFile = new QLineEdit(File_Dialog_class);
-        lE_NotesFile->setObjectName("lE_NotesFile");
-
-        gridLayout->addWidget(lE_NotesFile, 4, 2, 1, 1);
-
-        label_2 = new QLabel(File_Dialog_class);
-        label_2->setObjectName("label_2");
-
-        gridLayout->addWidget(label_2, 11, 0, 1, 1);
+        gridLayout->addWidget(cb_longnote, 14, 0, 1, 1);
 
         label_5 = new QLabel(File_Dialog_class);
         label_5->setObjectName("label_5");
 
-        gridLayout->addWidget(label_5, 3, 0, 1, 1);
+        gridLayout->addWidget(label_5, 4, 0, 1, 1);
 
         cb_notefilenames = new QComboBox(File_Dialog_class);
         cb_notefilenames->setObjectName("cb_notefilenames");
@@ -250,12 +178,102 @@ public:
         cb_notefilenames->setSizePolicy(sizePolicy1);
         cb_notefilenames->setSizeIncrement(QSize(10, 0));
 
-        gridLayout->addWidget(cb_notefilenames, 4, 0, 1, 2);
+        gridLayout->addWidget(cb_notefilenames, 5, 0, 1, 2);
 
-        cb_longnote = new QCheckBox(File_Dialog_class);
-        cb_longnote->setObjectName("cb_longnote");
+        label_2 = new QLabel(File_Dialog_class);
+        label_2->setObjectName("label_2");
 
-        gridLayout->addWidget(cb_longnote, 13, 0, 1, 1);
+        gridLayout->addWidget(label_2, 12, 0, 1, 1);
+
+        lE_Notes = new QLineEdit(File_Dialog_class);
+        lE_Notes->setObjectName("lE_Notes");
+
+        gridLayout->addWidget(lE_Notes, 8, 0, 1, 3);
+
+        pbNotesDone = new QPushButton(File_Dialog_class);
+        pbNotesDone->setObjectName("pbNotesDone");
+
+        gridLayout->addWidget(pbNotesDone, 6, 2, 1, 1);
+
+        cb_Notestype = new QComboBox(File_Dialog_class);
+        cb_Notestype->setObjectName("cb_Notestype");
+
+        gridLayout->addWidget(cb_Notestype, 4, 2, 1, 1);
+
+        lE_Instrument = new QLineEdit(File_Dialog_class);
+        lE_Instrument->setObjectName("lE_Instrument");
+        lE_Instrument->setClearButtonEnabled(true);
+
+        gridLayout->addWidget(lE_Instrument, 2, 2, 1, 1);
+
+        lE_NotesFile = new QLineEdit(File_Dialog_class);
+        lE_NotesFile->setObjectName("lE_NotesFile");
+
+        gridLayout->addWidget(lE_NotesFile, 5, 2, 1, 1);
+
+        label_3 = new QLabel(File_Dialog_class);
+        label_3->setObjectName("label_3");
+
+        gridLayout->addWidget(label_3, 12, 1, 1, 1);
+
+        cb_nps = new QComboBox(File_Dialog_class);
+        cb_nps->setObjectName("cb_nps");
+
+        gridLayout->addWidget(cb_nps, 13, 1, 1, 1);
+
+        lbl_selected_notes = new QLabel(File_Dialog_class);
+        lbl_selected_notes->setObjectName("lbl_selected_notes");
+
+        gridLayout->addWidget(lbl_selected_notes, 6, 0, 1, 2);
+
+        label = new QLabel(File_Dialog_class);
+        label->setObjectName("label");
+
+        gridLayout->addWidget(label, 1, 0, 1, 1);
+
+        label_4 = new QLabel(File_Dialog_class);
+        label_4->setObjectName("label_4");
+
+        gridLayout->addWidget(label_4, 12, 2, 1, 1);
+
+        cb_convention = new QComboBox(File_Dialog_class);
+        cb_convention->setObjectName("cb_convention");
+
+        gridLayout->addWidget(cb_convention, 13, 2, 1, 1);
+
+        pB_EditMusicxml = new QPushButton(File_Dialog_class);
+        pB_EditMusicxml->setObjectName("pB_EditMusicxml");
+
+        gridLayout->addWidget(pB_EditMusicxml, 7, 0, 1, 1);
+
+        line_2 = new QFrame(File_Dialog_class);
+        line_2->setObjectName("line_2");
+        line_2->setFrameShape(QFrame::Shape::HLine);
+        line_2->setFrameShadow(QFrame::Shadow::Sunken);
+
+        gridLayout->addWidget(line_2, 10, 0, 1, 3);
+
+        lE_Rythm = new QLineEdit(File_Dialog_class);
+        lE_Rythm->setObjectName("lE_Rythm");
+
+        gridLayout->addWidget(lE_Rythm, 9, 0, 1, 3);
+
+        sB_Octave = new QSpinBox(File_Dialog_class);
+        sB_Octave->setObjectName("sB_Octave");
+        sB_Octave->setMinimum(-2);
+        sB_Octave->setMaximum(2);
+
+        gridLayout->addWidget(sB_Octave, 13, 0, 1, 1);
+
+        cb_score = new QComboBox(File_Dialog_class);
+        cb_score->setObjectName("cb_score");
+
+        gridLayout->addWidget(cb_score, 0, 2, 1, 1);
+
+        label_6 = new QLabel(File_Dialog_class);
+        label_6->setObjectName("label_6");
+
+        gridLayout->addWidget(label_6, 0, 0, 1, 1);
 
         cb_instrumentfiles = new QComboBox(File_Dialog_class);
         cb_instrumentfiles->setObjectName("cb_instrumentfiles");
@@ -263,19 +281,13 @@ public:
         cb_instrumentfiles->setMaxCount(30);
         cb_instrumentfiles->setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy::AdjustToMinimumContentsLengthWithIcon);
 
-        gridLayout->addWidget(cb_instrumentfiles, 1, 0, 1, 2);
+        gridLayout->addWidget(cb_instrumentfiles, 1, 2, 1, 1);
 
-        line = new QFrame(File_Dialog_class);
-        line->setObjectName("line");
-        line->setFrameShape(QFrame::Shape::HLine);
-        line->setFrameShadow(QFrame::Shadow::Sunken);
+        pbInstrumentDone = new QPushButton(File_Dialog_class);
+        pbInstrumentDone->setObjectName("pbInstrumentDone");
+        pbInstrumentDone->setAutoDefault(false);
 
-        gridLayout->addWidget(line, 2, 0, 1, 3);
-
-        pB_EditMusicxml = new QPushButton(File_Dialog_class);
-        pB_EditMusicxml->setObjectName("pB_EditMusicxml");
-
-        gridLayout->addWidget(pB_EditMusicxml, 6, 0, 1, 1);
+        gridLayout->addWidget(pbInstrumentDone, 2, 0, 1, 2);
 
 
         retranslateUi(File_Dialog_class);
@@ -286,16 +298,17 @@ public:
     void retranslateUi(QDialog *File_Dialog_class)
     {
         File_Dialog_class->setWindowTitle(QCoreApplication::translate("File_Dialog_class", "Notes&Instruments", nullptr));
+        cb_longnote->setText(QCoreApplication::translate("File_Dialog_class", "Long note", nullptr));
+        label_5->setText(QCoreApplication::translate("File_Dialog_class", "Notes type", nullptr));
+        label_2->setText(QCoreApplication::translate("File_Dialog_class", "Octave shift", nullptr));
+        pbNotesDone->setText(QCoreApplication::translate("File_Dialog_class", "Notes Done", nullptr));
+        label_3->setText(QCoreApplication::translate("File_Dialog_class", "NPS", nullptr));
         lbl_selected_notes->setText(QCoreApplication::translate("File_Dialog_class", "Notes: (CcDdEFfGgAaH)", nullptr));
-        pbInstrumentDone->setText(QCoreApplication::translate("File_Dialog_class", "Instrument Done", nullptr));
         label->setText(QCoreApplication::translate("File_Dialog_class", "Instruments", nullptr));
         label_4->setText(QCoreApplication::translate("File_Dialog_class", "Note Convention", nullptr));
-        label_3->setText(QCoreApplication::translate("File_Dialog_class", "NPS", nullptr));
-        pbNotesDone->setText(QCoreApplication::translate("File_Dialog_class", "Notes Done", nullptr));
-        label_2->setText(QCoreApplication::translate("File_Dialog_class", "Octave shift", nullptr));
-        label_5->setText(QCoreApplication::translate("File_Dialog_class", "Notes type", nullptr));
-        cb_longnote->setText(QCoreApplication::translate("File_Dialog_class", "Long note", nullptr));
         pB_EditMusicxml->setText(QCoreApplication::translate("File_Dialog_class", "Edit musicxml", nullptr));
+        label_6->setText(QCoreApplication::translate("File_Dialog_class", "Music Score", nullptr));
+        pbInstrumentDone->setText(QCoreApplication::translate("File_Dialog_class", "Instrument Done", nullptr));
     } // retranslateUi
 
 };

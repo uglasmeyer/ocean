@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -59,7 +59,6 @@ Oscillator::Oscillator	( RoleId_e role_id,
 
 void Oscillator::operator= ( Oscillator& osc)
 {
-
 	this->wp = osc.wp;
 	this->spectrum = osc.spectrum;
 	Set_adsr( osc.Get_adsr() );
@@ -128,19 +127,19 @@ void Oscillator::Set_connection( Oscillator* oscfp, Oscillator* oscvp )
 	Connect_frq_data( oscfp );
 	Connect_vol_data( oscvp );
 }
-void Oscillator::Reset_vol_data()
+void Oscillator::reset_vol_data()
 {
 	Connect_vol_data( this );
 }
-void Oscillator::Reset_frq_data()
+void Oscillator::reset_frq_data()
 {
 	Connect_frq_data( this );
 }
 
 void Oscillator::Connection_reset( )
 {
-	Reset_frq_data();
-	Reset_vol_data();
+	reset_frq_data();
+	reset_vol_data();
 }
 
 Data_t* Oscillator::MemData_p()
@@ -208,7 +207,7 @@ void Oscillator::OSC (  buffer_t frame_offset )
 
 
 	Sum						( spectrum );
-	DynFrequency.SetDelta	( features.slide_frq );
+	DynFrequency.SetDelta	( features.frq_slide_value );
 	param_t 	param 		= param_struct();
 				param.pmw	= 1.0 + (float)features.PWM * percent;
 
@@ -305,7 +304,7 @@ void Oscillator::Test()
 	ASSERTION( Mem.mem_ds.data_blocks == mem_frames,"Mem.mem_ds.data_blocks", Mem.mem_ds.data_blocks
 			,mem_frames );
 
-	vector_str_t arr = { "TYPE","VCO","Sinus","17","2000","100","2","1","1","69","2","0","-1","0","42" };
+	string_vec_t arr = { "TYPE","VCO","Sinus","17","2000","100","2","1","1","69","2","0","-1","0","42" };
 	Line_interpreter( arr );
 	float f = frqArray[ spectrum.frqidx[0] ];
 	ASSERTION( fcomp( f, 8) , "Frequency", f, 8 );

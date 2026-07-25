@@ -67,28 +67,29 @@ struct xmlstatistic_struct
  * Musicxml_class
  *************************************************/
 class Musicxml_class
-	: public virtual Logfacility_class
+	: public virtual 		Logfacility_class
 {
+	string					Name			; // the name of the xml file
 public:
 
+	dircontent_struct		musicxmlfiles	;
 
-	musicxml_t 				musicxml;
-	Note_base 				Notes{ };
+	musicxml_t 				musicxml		;
+	Note_base 				Notes			{};
 
 	XMLDocument 			XMLdoc;
-							Musicxml_class( fs_t* _fs);
-	virtual 				~Musicxml_class();
+							Musicxml_class	( fs_t* _fs);
+	virtual 				~Musicxml_class	();
 
-	musicxml_t 				XmlFile2notelist( const string& filename );
-	void					Notelist2xmlFile( const string& filename, const notelist_t& nl );
-	XMLElement* 			NewElement( string name )
-							{ return XMLdoc.NewElement( name.data() ) ; };
-	string					File			( const string& name );
-	void 					Test();
+	musicxml_t 				XmlFile2notelist( const string& name );
+	void					Notelist2xmlFile( const string& name, const notelist_t& nl );
+	void 					SetDir			( string subdir );
 
 private:
-	bool					load_document	( string filename );
-	bool					save_document	( string filename );
+	string 					select			( string name );
+
+	bool					load_document	( string name );
+	bool					save_document	( string name );
 	XMLElement* 			appendMeasure	( XMLElement* part,
 											XMLElement* measure,
 											const int& number );
@@ -97,6 +98,8 @@ private:
 											XMLElement* note_p,
 											const note_t& note,
 											const uint& chord_id );
+	XMLElement* 			newElement		( string name )
+							{ return XMLdoc.NewElement( name.data() ) ; };
 
 	fs_t*					fs				;
 	note_itr_t				note_itr		;

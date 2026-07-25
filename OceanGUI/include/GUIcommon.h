@@ -37,44 +37,41 @@ SOFTWARE.
 #include <QComboBox>
 #include <QString>
 #include <QStringList>
+#include <QPushButton>
 
 // Ocean
 #include <data/Interface.h>
 
+
 extern Config_class Cfg;
 #define defaultButtonRGB 0,179,255
 
-template< typename T >
-void setButton( T* button, int state, bool init=false  )
+namespace Ocean
 {
-	auto getcolor = [ init, state ](  )
+	enum color : uint8_t
 	{
-		if ( init ) return QColor( Qt::gray );
-		switch (state)
-		{
-			case 0 : return QColor( Qt::red );
-			case 1 : return QColor( Qt::gray );
-			case 2 : return QColor( Qt::yellow );
-			case 3 : return QColor( Qt::green );
-			case 4 : return QColor( defaultButtonRGB );
-			default: return QColor( Qt::gray );
-		};
+		error		= Qt::red,
+		standard	= Qt::gray,
+		warning		= Qt::yellow,
+		active		= Qt::green,
+		inactice	= Qt::blue,
+		undefined	= Qt::gray
 	};
-	QPalette color = QPalette{};
-	color.setColor(QPalette::Button, getcolor() );
-	button->setPalette( color );
-};
+}
+extern void setButton( QPushButton* button, int state, QString txt = "" );
+extern void set_StateButton( QPushButton* pB, StateId_e state, QString name  );
 
 constexpr QString Qstring( string str )
 {
 	return QString::fromStdString( str );
 }
 
-constexpr QString QReadStr ( SharedData_class* Sds, EVENTKEY_e key  )
+constexpr QString QReadStr ( SharedData_class* Sds, CSTRKEY_e key  )
 {
     string str 		= Sds->Read_str( key );
 	return Qstring( str );
 };
+
 
 
 
@@ -84,7 +81,7 @@ struct PathStruct
 	string	ext ;
 	QString Qext;
 	PathStruct(){};
-	PathStruct( const string& _dir, const string& _ext ) :
+	PathStruct( string _dir, string _ext ) :
 		dir(_dir),
 		ext(_ext)
 	{
@@ -94,29 +91,52 @@ struct PathStruct
 } ;
 typedef PathStruct Path_t;
 
-struct EventStruct : PathStruct
+/**************************************************
+ * direvent_struct
+ * keep information and update Combobox with available
+ * filenames mathing the specified file extension
+ *************************************************/
+struct direvent_struct
+	: PathStruct
+	, dircontent_struct
 {
-	EVENTKEY_e	event;
-	Path_t	 	path ;
-	EventStruct( ) : event( NULLKEY ) {} ;
-	EventStruct( const EVENTKEY_e& _event, const string& _dir, const string& _ext ) :
-		event( _event ), path( _dir, _ext )
-	{
-	}
-	~EventStruct(){};
-} ;
-typedef EventStruct Event_t;
+	Id_t		Id 				= 0;
+	QComboBox*	cb 				= nullptr;
+	EVENTKEY_e	event 			= NULLKEY;
+	cstring_T<cstring_name>		cstring;
+//	cstring_name*	value		= nullptr;
+	Path_t	 	path 			{};
+	string		subdir 			= "";
+	string		current_value	;
 
-static Event_t 			EventXML( UPDATENOTESKEY	, Cfg.fs->xmldir		, Cfg.fs->xml_type );
-static Event_t 			EventNTE( UPDATENOTESKEY	, Cfg.fs->notesdir		, Cfg.fs->nte_type );
-static Event_t 			EventINS( SETINSTRUMENTKEY	, Cfg.fs->instrumentdir	, Cfg.fs->snd_type );
-static Event_t 			EventWAV( OTHERSTR_KEY		, Cfg.fs->musicdir		, Cfg.fs->wav_type );
-static vector<Event_t > EventVec{ EventXML, EventNTE, EventINS, EventWAV };
+				direvent_struct	() : dircontent_struct( {}, "" ){};
+				direvent_struct	( Id_t id, QComboBox* _cb, EVENTKEY_e _event,
+								cstring_name* value, string _dir, string _ext );
+	virtual 	~direvent_struct() = default;
+	void 		SetSubdir		( string dir );
+	QStringList qfilenames		();
+	void 		Update_cb		();
+
+} ;
+typedef direvent_struct direvent_t;
+
+enum DIREVENTID_e : uint8_t
+{
+	DIRXML_ID = XML_ID,
+	DIRNTE_ID = NTE_ID,
+	DIRINS_ID = 2,	// instrument
+	DIRSES_ID = 3,	// session
+	DIRWAV_ID = 4	// wav file
+};
+
+
+
+
+
 
 extern QStringList 		Qstringlist		( const list<string>& str_lst );
 extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );
 extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
-extern QStringList		Qread_filenames	( const Path_t _path );
 extern void 			SetGeometry		( QWidget* Widget );
 
 

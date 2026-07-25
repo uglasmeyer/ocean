@@ -31,26 +31,26 @@ SOFTWARE.
 
 void Start_audioserver()
 {
-    string Start_Audio_Srv = Cfg.Server_cmd( 	Cfg.Config.Nohup,
-    											Cfg.fs->audio_bin,
+    string Start_Audio_Srv = Cfg_p->Server_cmd( 	Cfg_p->Config.Nohup,
+    											Cfg_p->fs->audio_bin,
 												"-S 0 2>&1 >> " +
-												Cfg.fs->nohup_file );
+												Cfg_p->fs->nohup_logfile );
 	System_execute( Start_Audio_Srv );
 }
 
 void Start_synthesizer( uint cfgid )
 {
-    string Start_Synthesizer = Cfg.Server_cmd( Cfg.Config.Nohup,
-    											Cfg.fs->synth_bin,
+    string Start_Synthesizer = Cfg_p->Server_cmd( Cfg_p->Config.Nohup,
+    											Cfg_p->fs->synth_bin,
 												" -S " + to_string( cfgid ) +
-												" 2>&1 > "  + Cfg.fs->nohup_file);
+												" 2>&1 > "  + Cfg_p->fs->nohup_logfile);
     System_execute( Start_Synthesizer );
 
 }
 
 void Start_gui()
 {
-    string Start_GUI = Cfg.fs->ocean_bin + " &" ;
+    string Start_GUI = Cfg_p->fs->ocean_bin + " &" ;
     System_execute( Start_GUI );
     Log.Comment( INFO, Start_GUI );
 }
@@ -64,7 +64,7 @@ void Stop_audioserver()
 void Stop_synthesizer()
 {
 	Log.Comment( INFO, "Receiver signal to stop");
-	DaTA.Appstate.SetExitserver( sds_p, APPID::SYNTHID ); // TODO wrong sds
+	DaTA.Appstate.SetExitserver( sds_p, APPID_e::SYNTHID ); // TODO wrong sds
 }
 
 int sig_counter = 0;
@@ -102,7 +102,7 @@ int main(  int argc, char* argv[] )
 	App.Start( argc, argv );
 	sds_p = App.sds_p;
 
-	if ( Cfg.Config.test == 'y' )
+	if ( Cfg_p->Config.test == 'y' )
 	{
 		Test_rtsp();
 		exit_proc( 0 );
@@ -113,16 +113,16 @@ int main(  int argc, char* argv[] )
 
 	Sem.Release( RTSP_STARTED );
 
-	StateId_t rtsp_state = Appstate->GetState( sds_p, App.AppId );
+	StateId_e rtsp_state = Appstate->GetState( sds_p, App.AppId );
 	Log.Comment( INFO, "RTSP is ", Sdsstate.sdsstateName( rtsp_state ));
 
-	if( Cfg.Config.oceangui == 'y' )
+	if( Cfg_p->Config.oceangui == 'y' )
 	{
 		Start_gui();
 		return 0;
 	}
 	string cfg = "";
-	if( Cfg.Config.composer == 'y' )
+	if( Cfg_p->Config.composer == 'y' )
 	{
 		Start_synthesizer( 0 );
 
@@ -139,7 +139,7 @@ int main(  int argc, char* argv[] )
 		return 0;
 	}
 
-	uint cfgid = 0;
+	Id_t cfgid = 0;
 	while(true)
 	{
 		Log.Comment( INFO, "waiting for release of SYNTHESIZER_START");
@@ -153,7 +153,7 @@ int main(  int argc, char* argv[] )
 		Start_synthesizer( cfgid );
 		Log.Comment( INFO, "waiting for release of SYNTHESIZER_STARTED");
 		Sem.Lock( SEMAPHORE_STARTED, 2 );
-		cfgid = ( cfgid + 1 ) % MAXCONFIG;
+		cfgid = check_range( sds_range, ( cfgid + 1 ) );
 	}
 	exit_proc( 0 );
 	return 0;

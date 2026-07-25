@@ -32,8 +32,57 @@ SOFTWARE.
 #ifndef WAVEDISPLAY_H_
 #define WAVEDISPLAY_H_
 
-#include <Fourier.h>
 #include <data/Interface.h>
+
+/**************************************************
+ * WD_struct
+ * Wavedisplay data interface to SDS
+ *************************************************/
+struct WD_struct
+{
+	WD_data_t			data;
+	WD_struct( interface_t* sds )
+	{
+		Read( sds );
+	}
+	~WD_struct() = default;
+	void Read( interface_t* sds )
+	{
+		data = sds->WD_state;
+	}
+	void Save( interface_t* sds )
+	{
+		sds->WD_state = data;
+	}
+};
+
+/**************************************************
+ * WfDisplay_que_struct
+ *************************************************/
+
+struct WfDisplay_que_struct
+{
+	typedef vector<RoleId_e>
+					roleid_vec_t;
+
+    roleid_vec_t	Que					{};
+    array<roleid_vec_t, MAXCONFIG >
+    				Que_arr				{ roleid_vec_t() };
+    RoleId_e		prev_role			;
+    interface_t*	sds					;
+    sta_role_map*	roleMap				;
+
+					WfDisplay_que_struct( interface_t* _sds, sta_role_map* _map );
+					~WfDisplay_que_struct() = default;
+	void 			Add					( RoleId_e role );
+	void 			Init				( interface_t* _sds );
+	void 			Remove				( RoleId_e role );
+	void 			Set_prev			();
+	void			Set_que				( interface_t* _sds );
+	void 			Show				( bool debug );
+
+};
+
 
 /**************************************************
  * Wavedisplay_class
@@ -47,11 +96,11 @@ class Wavedisplay_class :
 	interface_t*	sds				;
 	string 			rolename		;
 	string 			oscname			;
-
+	string			fourierBinFile	;
 public:
-	Fourier_class*	fourier			;
-					Wavedisplay_class( SharedData_class* _sds, Fourier_class* _fourier );
-	virtual 		~Wavedisplay_class() = default;
+
+					Wavedisplay_class( SharedData_class* _sds );
+	virtual 		~Wavedisplay_class();
 
 	void 			Add_role_ptr	( RoleId_e wd_role,
 									Data_t* 	ptr,
@@ -71,12 +120,14 @@ private:
 	void 			set_Wdcursor	( uint16_t pos );
 	void 			set_Wdnames		();
 	void 			set_Wdptr		( RoleId_e role);
+	void			set_fourierfile	();
+	void 			write_display_arr(Data_t* dst, int len );
 
 	typedef struct wd_ptr_struct
 	{
 		RoleId_e	role	{};
 		OSCID_e		type	{};
-		Data_t* 	ptr		= nullptr;
+		Data_t* 	Data_p	= nullptr;
 		buffer_t* 	frames	= nullptr;
 	} wd_ptr_t;
 
@@ -93,12 +144,11 @@ private:
 
 	int 			frame_counter	;
 	buffer_t 		offs 			;
-	WdModeID_t		WdMode			;
 	data_ptr_mtx_t	data_ptr_mtx 	;
-	Data_t*			wd_ptr 			;
-	buffer_t		wd_frames		;
-	wd_ptr_t		Wd_ptr			;
-	WD_data_t		wd_data			;
+	Data_t*			Data_p 			;	// is  Wd_ptr[][].Data_p
+	buffer_t		wd_frames		;	// is *Wd_ptr[][].frames
+	wd_ptr_t		Wd_ptr			;	// is Wd_ptr[][]
+	WD_struct		WD				;
 	bool			debug_right		;
 	wd_arr_t 		display_data 	{ 0 };
 
@@ -109,5 +159,6 @@ private:
 	param_t			param_fft		;
 	param_t			param_adsr		;
 };
+
 
 #endif /* WAVEDISPLAY_H_ */

@@ -37,6 +37,8 @@ inline string alpha( bool flag )
 	return ( flag ) ? "true" : "false";
 }
 
+uint8_t localclock = 1;
+
 ADSR_class::ADSR_class( OSCID_e _typeid, RoleId_e roleId )
 	: Logfacility_class	( "ADSR_class" )
 	, Spectrum_class	()
@@ -50,10 +52,15 @@ ADSR_class::ADSR_class( OSCID_e _typeid, RoleId_e roleId )
 	this->adsr_data		= adsr_struct();
 	adsr_data.spec.osc	= _typeid;
 
+	Set_beatclock		( &localclock );
+//	localclock			=  1; // notes clock not managed
+//	beatclock			= &localclock;
 	Set_beatcursor		( 0 );
 	Set_hallcursor		( 0 );
-	KbdAttack			( 1 );
+	KbdAttack			();
 	Set_adsr			( default_adsr );
+//	this->Trigger		= ( beat_cursor == 0 );
+
 };
 
 ADSR_class::~ADSR_class()
@@ -61,6 +68,10 @@ ADSR_class::~ADSR_class()
 	DESTRUCTOR( className );
 }
 
+void ADSR_class::Set_beatclock( uint8_t* bpm )
+{
+	beatclock = bpm;
+}
 Data_t* ADSR_class::Adsr_OSC()
 {
 	adsrOSC( beat_frames );
@@ -76,11 +87,20 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 	if ( not kbdattack )
 	{
 		if ( adsr_data.bps	== 0 )
+		{
+			beat_cursor = 0;
+//			Trigger = true;
 			return;
+		}
 	}
 
 	if ( beat_frames 	== 0 )
+	{
+//		Trigger = true;
+		beat_cursor= 0;
+
 		return;
+	}
 	if ( tainted )
 		adsrOSC( beat_frames );
 
@@ -98,6 +118,15 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 		beat_cursor = ( beat_cursor + 1 )	% beat_frames;
 		pos			= ( pos + 1 ) 			% adsr_frames;
 	}
+
+//	if( ( is_osc_type ) and ( has_instr_role ) )
+//	{
+//		if( beat_cursor == 0 )
+//			Trigger = true;
+//		else
+//			Trigger = false;
+//	}
+
 	if ( has_kbd_role )
 		Comment( DEBUG, "Apply_adsr::", osctype_name,
 						"beat_cursor:" , (int) beat_cursor );
@@ -111,7 +140,7 @@ typedef struct adsr_param_struct
 	float 		d_delta;
 } adsr_param_t;
 
-auto adsr_fnc = [  ]( buffer_t n, const adsr_param_t p  )
+auto adsr_fnc = [  ]( buffer_t n, const adsr_param_t& p  )
 {
 	/* maxima
 	kill(all);
@@ -159,7 +188,7 @@ void ADSR_class::adsrOSC( buffer_t bframes )
 	const float 	dy			= (1.0 - y0) / aframes;
 
 	adsr_param_t 	adsr_param	= { aframes, y0, dy, d_delta };
-	if( ( kbdattack ) and ( kbdbps == 0 ) )
+	if( ( kbdattack ) and ( *beatclock == 0 ) )
 		adsr_param 				= { aframes, 0.0, 1.0f/float(aframes), 0.0 };
 
 	for ( buffer_t n = 0; n < bframes ; n++ )
@@ -170,8 +199,6 @@ void ADSR_class::adsrOSC( buffer_t bframes )
 	{
 		adsr_Mem.Data[n] 		= 0.0;
 	}
-
-
 
 	param_t			param 		= param_struct();
 					param.pmw	= 1.0 + (float)features.PWM * percent;
@@ -201,6 +228,11 @@ void ADSR_class::adsrOSC( buffer_t bframes )
 	}
 }
 
+bool ADSR_class::Sync()
+{
+	return ( beat_cursor == 0 );
+}
+
 void ADSR_class::Set_hallcursor( buffer_t cursor )
 {
 	if ( beat_frames == 0 ) return;
@@ -218,52 +250,43 @@ void ADSR_class::Set_beatcursor( buffer_t cursor )
 	beat_cursor = cursor;
 }
 
-void ADSR_class::Set_feature( feature_t f )
+void ADSR_class::KbdAttack()
 {
-	features = f;
-}
-void ADSR_class::KbdAttack( uint8_t bpsidx )
-{
-	tainted 	= true;
-	kbdbps 		= Bps.Bps_vec[bpsidx];
-	kbdattack	= ( kbdbps == 0 ) ? true : false;
+	kbdattack	= ( *beatclock == 0 ) ? true : false;
 	Set_bps		();
 	Comment( DEBUG, "KbdAttack::", osctype_name, alpha(kbdattack) );
 }
-void ADSR_class::Set_bps( uint8_t beatclock )
+void ADSR_class::Set_bps()
 {
-	tainted 	= true;
-	beat_frames = 0;
-	if ( ( has_notes_role ) )	// overwrite instrument settings
+	auto set_beatframes = [ this ]( uint8_t beat, buffer_t frames )
 	{
-		adsr_data.bps 	= 1;
-		beat_frames 	= wp.frames;
-	}
-	else
-	{
-		if( has_kbd_role )
+		uint8_t bc = *beatclock;
+		if( (bc * beat) > 0 )
 		{
-			adsr_data.bps = kbdbps;
+			beat_frames = frames / ( bc * beat );
 		}
-
-		if ( adsr_data.bps > 0 )
-			beat_frames = rint( adsr_frames / adsr_data.bps );
 		else
 		{
+			beat_frames = 0; // adsr is not applied
 			if ( kbdattack ) // generate new adsr
 				beat_frames = adsr_frames;
-			else
-				beat_frames = 0;
 		}
 
-		if ( beatclock > 0 ) // generate new adsr
-			beat_frames = rint( beat_frames / beatclock );
-		else
-		{
-			beat_frames = 0;
-		}
-	}
-	Comment( DEBUG, "Set_bps, beatframes:", beat_frames );
+	};
+
+	tainted 	= true;
+	if( roleId == NOTESROLE )
+		set_beatframes( 1				, wp.frames   );
+	else
+		set_beatframes( adsr_data.bps	, adsr_frames );
+
+//	switch ( roleId )
+//	{
+//		case NOTESROLE 	: { set_beatframes( 1				, wp.frames   ); break; }
+//		case INSTRROLE 	: { set_beatframes( adsr_data.bps	, adsr_frames ); break; }
+//		case KBDROLE 	: { set_beatframes( adsr_data.bps	, adsr_frames ); break; }
+//		default			: { beat_frames = 0; break; }
+//	}
 }
 void ADSR_class::Set_adsr_spec	( spectrum_t spec )
 {
@@ -277,7 +300,6 @@ adsr_t ADSR_class::Set_adsr( adsr_t _adsr )
 	tainted 		= true;
 	Set_bps			();
 	Set_hallcursor	();
-	Comment( DEBUG, "Set_adsr, beatframes:", beat_frames );
 	return 			adsr_data;
 }
 

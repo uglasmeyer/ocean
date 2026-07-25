@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -33,15 +33,28 @@ SOFTWARE.
 
 // https://en.cppreference.com/w/cpp/language/operators
 
-Variation_class::Variation_class( Dataworld_class* data )
+#include <random>
+
+template<typename T>
+auto gen_random_note( T random_set)
+{
+	random_device	rd;
+	mt19937 engine(rd());
+	std::shuffle( random_set.begin(), random_set.end(),  engine );
+	return random_set[0];
+}
+
+Variation_class::Variation_class( Dataworld_class* data, Musicxml_class* musicxml_p )
 	: Logfacility_class{ "Variation_class" }
 	, Interface_base( data )
-	, NotesCore_class( data )
+	, NotesCore_class( data, musicxml_p )
 {
 	NotesCore_class::Instrument_name = "Variation";
-	Nlp_variation.variation = 1;
-	Nlp_variation.nps		= 2;
-	selfTest();
+	Noteline_prefix.data 			= nlp_default;
+	Noteline_prefix.data.origin 	= NOTE::VARIATION;
+	Noteline_prefix.data.nps			= 4;
+
+//	selfTest();
 };
 
 
@@ -75,18 +88,18 @@ void Variation_class::randomize_notes_octave( string str )
 void Variation_class::Set_note_chars( uint prefix  )
 {
 	NotesCore_class::Note_Chars = convention_notes[ prefix ];
-	NotesCore_class::Noteline_prefix.convention 	= prefix;
-	NotesCore_class::Noteline_prefix.flat 		= 0;
-	NotesCore_class::Noteline_prefix.sharp 		= 0;
+	NotesCore_class::Noteline_prefix.data.convention 	= prefix;
+	NotesCore_class::Noteline_prefix.data.flat 		= 0;
+	NotesCore_class::Noteline_prefix.data.sharp 		= 0;
 
 }
 
 void Variation_class::Set_note_chars( uint flats, uint sharps  )
 {
 	NotesCore_class::Note_Chars = convention_notes[ 2 ];
-	NotesCore_class::Noteline_prefix.convention 	= 2;
-	NotesCore_class::Noteline_prefix.flat 		= flats;
-	NotesCore_class::Noteline_prefix.sharp 		= sharps;
+	NotesCore_class::Noteline_prefix.data.convention 	= 2;
+	NotesCore_class::Noteline_prefix.data.flat 		= flats;
+	NotesCore_class::Noteline_prefix.data.sharp 		= sharps;
 
 
 }
@@ -103,11 +116,13 @@ Variation_class::noteword_t Variation_class::list2vector( notelist_t notes )
 
 void Variation_class::define_random_note_vector( string str )
 {
-	NotesCore_class::Noteline_prefix = Nlp_variation;
-	Random_Notes.clear();
-	notelist_t nl = NotesCore_class::Gen_notelist( Noteline_prefix, str );
-	Random_Notes = list2vector( nl );
-	NotesCore_class::Show_note_list(Random_Notes);
+	Noteline_prefix.data.origin	= NOTE::VARIATION;
+	Noteline_prefix.data.nps			= 4;
+	Random_Notes.clear			();
+	Noteline.set				( str );
+	notelist_t	nl 				= Gen_notelist();
+	Random_Notes				= list2vector( nl );
+	Show_note_list				( Random_Notes );
 }
 
 
@@ -176,7 +191,7 @@ Variation_class::noteword_t Variation_class::gen_random_note_word()
 			note.str.push_back( '-' );
 			ch 				= gen_random_note( Random_Notes ).str[0];
 		}
-		note.octave = NotesCore_class::Octave;
+		note.octave = NotesCore_class::Noteline_prefix.data.Octave;
 		word.push_back( note );
 		if ( LogMask[TEST] )
 			NotesCore_class::Show_note( note );
@@ -188,8 +203,10 @@ Variation_class::noteword_t Variation_class::gen_random_note_word()
 Variation_class::noteword_t Variation_class::str2words( string note_str )
 {
 	// take a notestring and separate it into one or more words of note structures
+	NotesCore_class::Set_rhythm_line( Rhythm_chars );
+	NotesCore_class::Noteline.set( note_str );
 	noteword_t word{};
-	if ( NotesCore_class::Verify_noteline( Noteline_prefix, note_str ) )
+	if ( NotesCore_class::Verify_noteline( NOTE::VARIATION ) )
 	{
 		for( note_t note : NotesCore_class::notelist )
 		{
@@ -361,11 +378,12 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	} // for
 	noteline = scan_sentence( valid_sentence_layout[0] ) ;
 
-	NotesCore_class::Noteline_prefix.variation = 0;
+	NotesCore_class::Noteline_prefix.data.origin = NOTE::VARIATION;
 	NotesCore_class::Set_rhythm_line( Rhythm_chars );
-	if (  NotesCore_class::Verify_noteline( NotesCore_class::Noteline_prefix, noteline ) )
+	NotesCore_class::Noteline.set( noteline );
+	if (  NotesCore_class::Verify_noteline( NOTE::VARIATION ) )
 	{
-		NotesCore_class::Save( filename, NotesCore_class::Noteline_prefix, noteline );
+		NotesCore_class::Save( filename, NotesCore_class::Noteline_prefix.data, noteline );
 	}
 	else
 	{
@@ -401,7 +419,7 @@ void Variation_class::selfTest()
 
 	Note_base::Note_Chars = OctChars_EN;
 	Define_fix( "afafASDF1234!§$_:;,.-#'+***=)(/{[]}ÄÖ<>|′^'");
-	Assert_equalstr( Constant_chars , "afafADF1234,.-')(|'") ;
+	Assert_equal( Constant_chars , string("afafADF1234,.-')(|'") ) ;
 
 	Define_fix("fGHA");
 	Define_variable("EFG");
@@ -415,13 +433,11 @@ void Variation_class::selfTest()
 	cout << "gen_noteline " << test_str << endl;
 	assert( test_str[2] == 'C');
 
-	Define_variable("C");
+	Define_variable("CCCC");
 	Define_fix( "(AC)r(DC)r" );
 	test_str = insert_random( );
-	cout << test_str << "=" << "(AC)C(DC)C" << endl;
-	assert( strEqual( test_str, "(AC)C(DC)C ") );
-	cout << test_str << endl;
-	ASSERTION( NotesCore_class::Verify_noteline( Noteline_prefix, test_str ),"test_str", test_str, "");
+	Assert_equal( test_str, string("(AC)C(DC)C "), "" );
+	Assert_equal( true, Verify_noteline( Noteline_prefix.data, test_str ),"test_str" );
 
 	Define_fix ( "|2(AC).(DC)r");
 	Define_variable ( "C" );
@@ -435,7 +451,7 @@ void Variation_class::selfTest()
 
 	Define_fix("fGBA");
 	Gen_noteline("ccR", "auto");
-	string noteline = NotesCore_class::Get_note_line();
+	string noteline = NotesCore_class::Noteline.get();
 	Comment( BINFO, noteline );
 	assert( noteline[11] == 'A' );
 	int I;
@@ -444,13 +460,13 @@ void Variation_class::selfTest()
 
 	Define_fix("|2AGBA");
 	Gen_noteline("c4c", "auto" );
-	noteline = NotesCore_class::Get_note_line();
-	NotesCore_class::Noteline_prefix.Octave = 2;
+	noteline = NotesCore_class::Noteline.get();
+	NotesCore_class::Noteline_prefix.data.Octave = 2;
 	Comment( BINFO, noteline );
 	I = Sentence[0][2].octave; 	assert( I == 4 );
 	I = Sentence[1][2].octave;	assert( I == 0 );
 	Gen_noteline("4cc", "auto" );
-	noteline = NotesCore_class::Get_note_line();
+	noteline = NotesCore_class::Noteline.get();
 	Comment( BINFO, noteline );
 	cout << "s " << dec << Sentence[0][2].octave << endl;
 	I = Sentence[0][2].octave;	assert( I == 4 );

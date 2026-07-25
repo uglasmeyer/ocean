@@ -40,16 +40,16 @@ SOFTWARE.
 #include <Version.h>
 #include <fstream>
 
-Application_class::Application_class( Dataworld_class* _DaTA ) :
-		Logfacility_class( "Application_class" ),
-		Interface_base			( _DaTA ),
-		Statistic_class( _DaTA->Appstate.Name )
+Application_class::Application_class( Dataworld_class* _data ) :
+		Logfacility_class	( "Application_class" ),
+		Interface_base		( _data ),
+		Statistic_class		( _data->Appstate.Name )
 {
 
-	this->ProgramName			= _DaTA->Appstate.Name;
-	this->Cfg 					= DaTA->Cfg_p;
-	this->AppId					= DaTA->AppId;
-	this->Appstate				= &DaTA->Appstate;
+	this->ProgramName			= _data->Appstate.Name;
+	this->Cfg 					= _data->Cfg_p;
+	this->AppId					= _data->AppId;
+	this->Appstate				= &_data->Appstate;
 	this->This_Application 		= Application + ProgramName + " " + Version_str;
 	Comment( INFO, This_Application + " initialized ");
 }
@@ -83,10 +83,10 @@ void Application_class::versionTxt()
 void Application_class::app_properties()
 {
 	properties.logowner		= logowner.contains( AppId );
-	properties.start_once	= Appstate->assignMasterSds.contains( AppId );
+	properties.start_once	= Appstate->UniqueRunApp.contains( AppId );
 	properties.data_process	= Cfg->Process.data_process ;
 	properties.keyboard		= Cfg->Process.keyboard;
-	properties.pid			= Appstate->getPid( sds_p, AppId );
+	properties.pid			= Appstate->GetPid( sds_p, AppId );
 	properties.Show();
 }
 
@@ -121,27 +121,26 @@ void Application_class::deRegister( )
 	Timer.TimeStamp();
 
 	pid_t thispid 	= getpid();
-	pid_t sdspid 	= DaTA->Appstate.getPid( sds_p, AppId );
+	pid_t sdspid 	= DaTA_p->Appstate.GetPid( sds_p, AppId );
 	if ( thispid != sdspid ) return;
 
-	DaTA->Appstate.SetOffline( );//this->sds, this->AppId );
-
+	DaTA_p->Appstate.SetOffline( );//this->sds, this->AppId );
 
 	if ( this->AppId != GUI_ID )
-		if( DaTA->Appstate.IsRunning( sds_master, GUI_ID)  )
+		if( DaTA_p->Appstate.IsRunning( sds_master, GUI_ID)  )
 		{
-			DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
+			DaTA_p->EmitEvent( APPSTATE_FLAG, ProgramName );
 		}
-	DaTA->Sem_p->Release( SEMAPHORE_EXIT );
+	DaTA_p->Sem_p->Release( SEMAPHORE_EXIT );
 }
 
 void Application_class::Ready(  )
 {
 	Show_Statistic( );
-	Info( "SDS ID: ", (int) DaTA->SDS_Id );
+	Info( "SDS ID: ", (int) DaTA_p->SDS_Id );
 	cout << Line() << endl;
-	DaTA->EmitEvent( APPSTATE_FLAG, ProgramName );
-    DaTA->Sem_p->Release( SEMAPHORE_STARTED );
+	DaTA_p->EmitEvent( APPSTATE_FLAG, ProgramName );
+    DaTA_p->Sem_p->Release( SEMAPHORE_STARTED );
     Info( Cfg->prgName, License_text, "\n" );
 
     string exit_hint = ", press <ESC> to exit";
@@ -155,13 +154,77 @@ void Application_class::Ready(  )
 
 kbdInt_t Application_class::KeyboardKey( bool debug )
 {
+	if( not is_atty )
+		return NOKEY;
 	kbdInt_t key = Kbd.GetKeyInt( debug );
-	if( key == ESC )
+	switch ( key )
 	{
-	    Info( "Exit by user requst <ESC>" );
-		Appstate->SetExitserver( sds_p, AppId );
-	}
+		case KEYCODE::ESC :
+		{
+		    Info( "Exit by user request <ESC>" );
+			Appstate->SetExitserver( sds_p, AppId );
+			break;
+		}
+		case NOKEY :
+		{
+			break;
+		}
+		default :
+		{
+			sds_p->Kbd_state.key = key;
+			break;
+		}
+	} // switch  key
+
 	return key;
 
+}
+
+Id_t Application_class::StartApp( 	APPID_e			appid,
+									string 			terminal,
+									string 			args )
+{
+	string opt = args;
+	string binary = fs->archbindir + AppMap_struct().AppIdName( appid );
+	string cmd = DaTA_p->Cfg_p->Server_cmd( terminal, binary, opt );
+	if( strEqual( terminal, "nohup"  ) )
+	{
+		System_execute_bg( binary, fs->nohup_logfile );	// comId will be defined by startup App
+	}
+	else
+	{
+		System_execute( cmd );
+	}
+	DaTA_p->Sem_p->Lock( SEMAPHORE_STARTED, 2 ); 	// wait for comId
+	return sds_master->comId;
+
+}
+Id_t Application_class::ChangeAppState(	interface_t* 	sds,
+										APPID_e			appid,
+										string 			terminal,
+										string 			args )
+{
+	if( Appstate->UniqueRunApp.contains( appid ) )
+		sds = sds_master;
+	if( Appstate->IsRunning( sds_master, RTSPID ) )
+	{
+		if ( DaTA_p->Sem_p->Getval( SYNTHESIZER_START, GETVAL ) > 0 )
+			DaTA_p->Sem_p->Release( SYNTHESIZER_START );
+		return sds_master->comId;
+	}
+	if( Appstate->IsRunning( sds, appid ) )
+	{
+		Appstate->SetExitserver( sds, appid ) ;
+		Id_t sdsid = sds_master->comId;
+		if( Appstate->MultiRunApp.contains( appid ) )
+		{
+			DaTA_p->Sem_p->Lock	( SEMAPHORE_EXIT );
+			sdsid 				= Appstate->Find_running( SYNTHID );
+			Set_masterComId		( sdsid );
+		}
+		return sdsid;
+	}
+
+	return StartApp( appid, terminal, args );
 }
 

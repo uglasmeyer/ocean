@@ -24,16 +24,22 @@ SOFTWARE.
 
 #include <Appsymbols.h>
 #include <Oscwaveform.h>
-
-void exit_proc( int s )
-{
-	Sem.Release( SEMAPHORE_EXIT );
-	exit(0);
-}
-
 #include <Logfacility.h>
 #include <Viewinterface.h>
 #include <SDSMenu.h>
+
+void ClearIPC()
+{
+	DaTA.Appstate.Shutdown_all	();
+	for( SharedData_class& Sds : DaTA.SDS.Vec )
+	{
+		Sds.Remove_dumpFile();
+		Sds.SHM.Delete();
+//			Sds.SHM.Detach( Sds.SHM.shm_ds.addr );
+	}
+	System_execute( "ipcs", false );
+	raise( SIGINT );
+}
 
 void setvalue( uint8_t* addr, string value )
 {
@@ -52,7 +58,7 @@ void getvalue( uint8_t* addr, string text, EVENTKEY_e event )
 	string s;
 	s 		= getInput( text );
 	setvalue( addr, s );
-	Sds->Eventque.add( event );
+	Sds->Eventque.Add( event );
 
 }
 void getfrq( uint8_t* addr, string text , EVENTKEY_e event )
@@ -69,34 +75,36 @@ void getfrq( uint8_t* addr, string text , EVENTKEY_e event )
 		uint idx = Frq.Index( input );
 		setvalue( addr, to_string(idx) );
 	}
-	Sds->Eventque.add( event );
+	Sds->Eventque.Add( event );
 }
+
 #define SWITCH_COMMON( PAGE )\
-	case ESC : { sds_master->sdsview_page = F1; break; };\
-	case PAGE: { sds_master->sdsview_page = PAGE; break; };\
-	default  : { sds_master->sdsview_page = F1; key = ESC; break; }
+	case ESC : { sds_master->sdsview_page = F1	; 			break; };\
+	case PAGE: { sds_master->sdsview_page = PAGE; 			break; };\
+	default  : { sds_master->sdsview_page = F1	; key = ESC;break; }
 
 kbdInt_t SwitchF2( kbdInt_t key )
 {
-	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
+	if( key < 255 )
+		key	= kbdInt_t( toupper( key ) );
 	switch ( toupper(key) )
 	{
-		case 'A': { App.Appstate->SetState( sds, AUDIOID	, sdsstate_struct::EXITSERVER);break; }
-		case 'C': { App.Appstate->SetState( sds, COMPID 	, sdsstate_struct::EXITSERVER);break; }
-		case 'S': { App.Appstate->SetState( sds, SYNTHID	, sdsstate_struct::EXITSERVER);break; }
-		case 'K': { App.Appstate->SetState( sds, KEYBOARDID , sdsstate_struct::EXITSERVER);break; }
-		case 'G': { App.Appstate->SetState( sds, GUI_ID 	, sdsstate_struct::EXITSERVER);break; }
+		case 'A': { App.Appstate->SetExitserver( sds, AUDIOID	);break; }
+		case 'C': { App.Appstate->SetExitserver( sds, COMPOSERID);break; }
+		case 'S': { App.Appstate->SetExitserver( sds, SYNTHID	);break; }
+		case 'K': { App.Appstate->SetExitserver( sds, KEYBOARDID);break; }
+		case 'G': { App.Appstate->SetExitserver( sds, GUI_ID 	);break; }
 		SWITCH_COMMON( F2 );
 	} // switch  key
-
-
 	return key;
 }
-Menue_class MenuF2 { &DaTA, SwitchF2, "Reset: (A)udioserver, (C)omposer, (S)ynthesizer, (K)eyboard, (G)ui" };
+const string submenu_strF2 = "Reset: (A)udioserver, (C)omposer, (S)ynthesizer, (K)eyboard, (G)ui";
+Menue_class MenuF2 { &DaTA, SwitchF2, submenu_strF2 };
 
 kbdInt_t SwitchF5( kbdInt_t key )
 {
-	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
 
 	switch ( (key) )
 	{
@@ -152,14 +160,13 @@ Menue_class MenuF5 { &DaTA, SwitchF5, "select Oscillator first to edit property"
 
 kbdInt_t SwitchF7( kbdInt_t key )
 {
-	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
-
-	switch ( (key) )
-	{	case 'g' :
-		case 'G' : { getvalue( &sds->features[OSCID].slide_frq	, "effect"	, SOFTFREQUENCYKEY ); break; }
-		case 'b' :
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
+	if( key < 255 )
+		key	= kbdInt_t( toupper( key ) );
+	switch ( key )
+	{
+		case 'G' : { getvalue( &sds->features[OSCID].frq_slide_value, "effect"		, FREQDYNAMIC_KEY ); break; }
 		case 'B' : { getvalue( &sds->adsr_arr[OSCID].bps  			, "Beats p.sec"	, ADSR_KEY ); break; }
-		case 'h' :
 		case 'H' : { getvalue( &sds->adsr_arr[OSCID].hall  			, "Hall"		, ADSR_KEY ); break; }
 		SWITCH_COMMON( F7 );
 	} // switch  key
@@ -169,13 +176,13 @@ Menue_class MenuF7 { &DaTA, SwitchF7, "select feature to edit" };
 
 kbdInt_t SwitchF9( kbdInt_t key )
 {
-	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.sds_master->sdsview_sdsid );
-
+	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
+	const string logviewer = Cfg.Config.Logview + " ";
 	switch ( key )
 	{
-		case 's' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
+		case 's' : { 	App.Appstate->Shutdown_all();
 						break; }
-		case 'd' : { 	App.Appstate->Shutdown_all( DaTA.SDS.vec );
+		case 'd' : { 	App.Appstate->Shutdown_all();
 						for( SharedData_class Sds : DaTA.SDS.Vec )
 						{
 							Sds.Remove_dumpFile();
@@ -189,7 +196,9 @@ kbdInt_t SwitchF9( kbdInt_t key )
 						Sds->Reset_ifd();
 						App.Appstate->RestoreStateArr( sds );
 						break; }
-		case 'l' : {	System_execute_bg( "xterm -e tail -f " + Cfg.fs->nohup_file );
+		case 'l' : {	System_execute_bg( logviewer + Cfg_p->fs->nohup_logfile, "" );
+						break; }
+		case 'c' : {	System_execute_bg( logviewer + Cfg_p->fs->composer_logfile, "" );
 						break; }
 		SWITCH_COMMON( F9 );
 	} // switch  key
@@ -224,18 +233,21 @@ Menue_class MenuMain{ &DaTA, SwitchMain, "" };
 int main( int argc, char* argv[] )
 {
 	App.Start( argc, argv );
+	App.Ready();
 
-	if( Cfg.Config.clearipc == 'y' )
+	if( Cfg_p->Config.clearipc == 'y' )
 	{
-		DaTA.Appstate.Shutdown_all( DaTA.SDS.vec );
-		for( SharedData_class& Sds : DaTA.SDS.Vec )
-		{
-			Sds.Remove_dumpFile();
-		}
-		DaTA.SDS.Delete();
-		raise( SIGINT );
+		ClearIPC();
 	}
+
 
 	MenuMain.Loop();
 
+}
+
+void exit_proc( int s )
+{
+//	Sem.Release( SEMAPHORE_EXIT );
+//	Appstate->SetExitserver( sds_master, SDSVIEWID );
+	exit(0);
 }

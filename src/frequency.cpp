@@ -28,6 +28,8 @@ SOFTWARE.
  *  Created on: Feb 13, 2025
  *      Author: Ulrich.Glasmeyer@web.de
  */
+#include <math.h>
+
 #include <Frequency.h>
 #include <Table.h>
 
@@ -89,7 +91,7 @@ uint  Frequency_class::Index( const frq_t& freq )
 	int idx = frqext_range.min;
 	if( freq >= oct_base_freq )
 	{
-		idx = rint( log(freq / oct_base_freq) / log2 * oct_steps + C0 );
+		idx = rint( log(freq / oct_base_freq) / M_LN2 * oct_steps + C0 );
 	}
 	else//if( freq < oct_base_freq )
 	{

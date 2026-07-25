@@ -41,58 +41,46 @@ SOFTWARE.
 #include <EventKeys.h>
 #include <Wavedisplay_base.h>
 #include <notes/Notesbase.h>
+#include <string.h>
+
+#define MASTER_SDSID 3 	// specification of the communication SDS sds_master and Sds_master.
+						// id of unique processes
+#define MAIN_SYNTHID 0	// fall back synthesizer id  if no synth or keyboard process is running
 
 struct sdsstate_struct
 {
-	enum StateId : unsigned char {
-		 OFFLINE	,
-		 RUNNING	,
-		 FREERUN	,
-		 UPDATEGUI 	,
-		 SYNC 		,
-		 DEFAULT	,
-		 EXITSERVER	,
- 		 RECORDSTART,
-		 RECORDSTOP ,
-		 RECORDING	,
-		 STOPPING	,
-		 STARTING	,
-		 INACTIVE	,
-		 NOSTATE
-		};
 
-	map< const unsigned char , string > sdsstate_map // @suppress("Invalid arguments")
+	map< const StateId_e , string > sdsstate_map = // @suppress("Invalid arguments")
 	{
-		{ OFFLINE		, "OFFLINE" },
-		{ RUNNING		, "RUNNING" },
-		{ FREERUN		, "FREERUN" },
-		{ UPDATEGUI		, "UPDATEGUI" },
-		{ SYNC			, "SYNC" },
-		{ DEFAULT		, "DEFAULT" },
-		{ EXITSERVER	, "EXITSERVER" },
-		{ RECORDSTART	, "RECORDSTART" },
-		{ RECORDSTOP	, "RECORDSTOP" },
-		{ RECORDING		, "RECORDING"},
-		{ STOPPING		, "STOPPING"},
-		{ STARTING		, "STARTING"},
-		{ INACTIVE		, "Inactive"},
-		{ NOSTATE		, "unknown"}
+		{ OFFLINE		, "OFFLINE" 	},
+		{ RUNNING		, "RUNNING" 	},
+		{ DEFAULT		, "DEFAULT" 	},
+		{ EXITSERVER	, "EXITSERVER"	},
+		{ RECORDSTART	, "RECORDSTART"	},
+		{ RECORDSTOP	, "RECORDSTOP"	},
+		{ RECORDING		, "RECORDING"	},
+		{ STOPPING		, "STOPPING"	},
+		{ STARTING		, "STARTING"	},
+		{ INACTIVE		, "Inactive"	},
+		{ SLEEPING		, "Sleeping"	},
+		{ ENABLED		, "Enabled"		},
+		{ DISABLED		, "Disabled"	},
+		{ STATEID_SIZE	, "unknown"		}
 	};
 
 	sdsstate_struct()
 	{
-		assert( ( sdsstate_map.size() - 1 ) == StateId::NOSTATE );
+		assert( ( sdsstate_map.size() - 1 ) == StateId_e::STATEID_SIZE );
 	};
 	~sdsstate_struct() = default;
-	string sdsstateName( StateId id )
+	string sdsstateName( StateId_e id )
 	{
 		return sdsstate_map[ id ];
 	}
 
 };
-typedef sdsstate_struct::StateId 			StateId_t;
 
-enum CONNECT_t
+enum CONNECT_e : uint8_t
 {
 	OSCFMOF,
 	OSCVCOV,
@@ -100,45 +88,111 @@ enum CONNECT_t
 	VCOFMOV,
 	CONV = 'V',
 	CONF = 'F'
-
 };
 
 
-typedef struct EventPtr_struct
+typedef struct EventPtr_data
 { // SDS related
 	uint8_t 		first 	= 0;
 	uint8_t 		last 	= 0;
 	uint8_t			length	= 0;
 } eventptr_t;
 
-typedef struct appstate_struct
+typedef struct appstate_data
 { // SDS relevant
-	APPID			type	= NoAPPID;
-	StateId_t		state	= StateId_t::DEFAULT;
+	APPID_e			type	= APPID_SIZE;
+	StateId_e		state	= StateId_e::DEFAULT;
 	int				pid		= NoPID;
 } appstate_t;
 
-const uint 			SDSSTR_SIZE 	= 32; // 31char + 0x0
+typedef struct StA_amp_data
+{	// SDS related
+	uint8_t			amp				= 0;
+	uint8_t 		slide			= 0;
+	DYNAMIC_e 		mode			= INIT;
+} StA_amp_t;
+
+const uint 			SDSNAME_SIZE 	= 32; // 31char + 0x0
+const uint			SDSLONG_SIZE	= 128;
 const uint  		MAXQUESIZE		= 100;
-typedef 			array<uint8_t	, MAXQUESIZE>				deque_t ;
-typedef				array<appstate_t, NoAPPID>					appstate_arr_t;
-typedef				array<StA_state_t,StAId_e::STA_SIZE> 		StA_state_arr_t;
-typedef				array<uint8_t	, StAId_e::STA_SIZE>		StA_amp_arr_t;
+typedef 			array<EVENTKEY_e, MAXQUESIZE>				deque_t ;
+typedef				array<appstate_t, APPID_SIZE>				appstate_arr_t;
+typedef				array<StA_state_t,StAId_e::STAID_ALL> 		StA_state_arr_t;
+typedef				array<StA_amp_t	, StAId_e::STAID_ALL>		StA_amp_arr_t;
 typedef				array<feature_t	, OSCIDSIZE >				feature_arr_t;
 typedef				array<spectrum_t, OSCIDSIZE>				spectrum_arr_t;
 typedef				array<adsr_t	, OSCIDSIZE>				adsr_arr_t;
 typedef				array<connectId_t,OSCIDSIZE>				connect_arr_t;
-typedef				char										cstring_t[SDSSTR_SIZE];
+typedef				char										cstring_name[SDSNAME_SIZE];
+typedef				char										cstring_long[SDSLONG_SIZE];
 
-constexpr 	StA_state_arr_t default_StA_state_arr ()
+constexpr StA_state_arr_t default_StA_state_arr ()
 {
 	StA_state_arr_t arr {};
-	for( size_t n = 0; n < StAId_e::STA_SIZE; n++ )
+	for( size_t n = 0; n < StAId_e::STAID_ALL; n++ )
 		 arr[n] = default_StA_state;
 	return arr;
 };
 
+template< typename cstr >
+struct cstring_T
+{
+private:
+	string				str;
+	size_t				maxlen;
+public:
+	cstr*				cstring_p;
+	size_t				len;
 
-
+	cstring_T()
+	{
+		str			= "";
+		cstring_p 	= nullptr;
+		maxlen		= 0;
+		len			= 0;
+	}
+	cstring_T( cstr* p, size_t size )
+	{
+		cstring_p	= p;
+		maxlen		= size - 2;
+		len			= 0;
+		read		();
+	}
+	void cstr_p( cstr* p )
+	{
+		cstring_p = p;
+	}
+	void save( string str )
+	{
+		set( str );
+		save();
+	}
+	void save()
+	{
+		str 		= str.substr(0, maxlen );//SDSLONG_SIZE-2 );
+		len 		= str.length();
+		strcpy		( *cstring_p, str.data() );
+	}
+	string read()
+	{
+		str.assign	( *cstring_p );
+		len 		= str.length();
+		return str;
+	}
+	void set( string s ) // set local only
+	{
+		str = s;
+		len = str.length();
+	}
+	string get()	// get local only
+	{
+		return str;
+	}
+	void append( string s )
+	{
+		str.append( s );
+		len = str.length();
+	}
+};
 
 #endif /* DATA_SDSBASE_H_ */

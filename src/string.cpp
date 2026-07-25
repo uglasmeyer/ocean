@@ -63,6 +63,12 @@ char int2char( const int& i )
 {
 	return (char)( i + 48 );
 }
+string int2str( const int& i )
+{
+	stringstream sstr {};
+	sstr << i;
+	return sstr.str();
+}
 
 set<int> range_set( const int& min, const int& max )
 {
@@ -75,6 +81,18 @@ set<int> range_set( const int& min, const int& max )
 	return intset;
 }
 
+string trailing_dirslash( const string& dir )
+{
+	size_t	len		= dir.length();
+	if( len == 0 )
+		return "";
+	size_t 	last = len-1;
+	char	ch	= dir[last];
+	if( ch == '/' )
+		return dir;
+	else
+		return dir + '/';
+}
 
 
 String::String( const string str ) :
@@ -85,7 +103,7 @@ String::String( const string str ) :
     std::ranges::for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});
 }
 
-vector_str_t String::to_array( char ch )
+string_vec_t String::to_array( char ch )
 {
 
 	stringstream ss( Str );
@@ -111,7 +129,7 @@ set<char> String::to_set()
 	}
 	return Set;
 }
-vector_str_t String::to_unique_array( char ch )
+string_vec_t String::to_unique_array( char ch )
 {
 	Str.append(1,ch);
 	stringstream ss( Str );
@@ -137,7 +155,7 @@ int count_char( char ch, string s )
 	return i;
 }
 
-vector_str_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
+string_vec_t String::to_bracket_array( char ch ) // a "b c" d -> a,bc,d
 {
 	replace_char('\t', ' ');
 	to_unique_array(' ');
@@ -253,6 +271,11 @@ float String::secure_stof( string str)
 	return -1;
 }
 
+int String::secure_stoi()
+{
+	return secure_stoi( Str );
+}
+
 int String::secure_stoi( string str )
 {
 	if ( str.length() == 0 )
@@ -334,7 +357,7 @@ void String::TestString()
 	string str 		= "a=abc=def";
 	String 			S{""};
 	S				= str;
-	vector_str_t arr = S.to_array('=');
+	string_vec_t arr = S.to_array('=');
 
 	assert( arr[0].compare("a")					== 0 );
 	assert( arr[1].compare("abc") 				== 0 );
@@ -405,17 +428,17 @@ void String::TestString()
 	B = "up_per";
 	assert( A == B );
 
-	set<int> s {};
+	unordered_set<int> s {};
 	vector<int> v = { 1,3,5,7,9 };
-	s = vector2set(v);
+	s = vector2Uset(v);
 	assert( s.contains(5) ) ;
 	assert( not s.contains(6) ) ;
 
-	set<char> charset = { 'a','n','b','v' };
+	unordered_set<char> charset = { 'a','n','b','v' };
 	assert( charset.contains( 'b' ));
-	set<string> Ss {};
+	unordered_set<string> Ss {};
 	vector<string> V = {"ab", "cd", "ef", "gh" };
-	Ss = vector2set( V );
+	Ss = vector2uset( V );
 	assert( Ss.contains("cd"));
 	assert( not Ss.contains("de"));
 

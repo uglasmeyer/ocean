@@ -37,6 +37,7 @@ SOFTWARE.
 //Qt
 #include <QObject>
 #include <QDialog>
+//#include <QKeyEvent>
 
 // Ocean
 #include <data/DataWorld.h>
@@ -59,7 +60,8 @@ class Keyboad_Dialog_class :
 {
     Q_OBJECT
     Ui::Keyboad_Dialog_class*		ui				;
-	QWidget* 		parent			= nullptr;
+	QWidget* 						parent			= nullptr;
+//    keymap_struct					Keymap			{};
 
 public:
     EventLog_class*					Eventlog_p		= nullptr;
@@ -78,15 +80,18 @@ public slots:
 
 private slots:
 	void buffer_mode( int );
-	void base_octave(int);
-	void flats(int);
-	void sharps(int);
+	void base_octave( int );
+	void flats( int );
+	void sharps( int );
 	void kbdbps( int );
 	void sliding_mode(bool);
 	void save();
 
 private:
 	QString textFromValue( int );
+//protected:
+//    void keyPressEvent(QKeyEvent *event) override;
+
 };
 
 #endif // KEYBOAD_DIALOG_H

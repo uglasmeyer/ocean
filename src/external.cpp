@@ -43,7 +43,7 @@ External_class::External_class	( 	Storage_class*	sta,
 	this->StA_ext 		= sta;
 	this->File 			= NULL;
 	this->Cfg			= cfg;
-	this->sds			= sds;
+	this->sds_master	= sds;
 	this->fs			= cfg->fs;
 
 	Filedata_size		= StA_ext->param.size; // wavedisplay external with dynamic size
@@ -109,17 +109,12 @@ const bool External_class::Read_file_data(  )
 	if( read_stereo_data( mem_ds.bytes ) )
 	{
 		Stereo2StA();
-//		for ( buffer_t n = 0; n < mem_ds.data_blocks; n++)
-//		{
-//			Data_t L = stereo_data[n].left;
-//			Data_t R = stereo_data[n].right;
-//			StA_ext->Data[n]	= L + R;
-//		}
+		StA_ext->Set_records( mem_ds.max_records );
+
 		Comment(INFO,"Converted stereo to mono data");
 		Comment(INFO,"Bytes   ", mem_ds.bytes );
 		Comment(INFO,"Records ", mem_ds.max_records );
 		Comment(INFO,"Frames  ", mem_ds.data_blocks );
-		StA_ext->Set_records( mem_ds.max_records );
 
 		return true;
 	}
@@ -168,10 +163,10 @@ External_class::External_class( Config_class* cfg,
 	Stereo_Memory	( sizeof_stereo, cfg->Config.record_sec * frames_per_sec * sizeof_stereo )
 {
 	this->className		= Logfacility_class::className;
-	this->StA_ext 			= nullptr;
+	this->StA_ext 		= nullptr;
 	this->File 			= NULL;
 	this->Cfg			= cfg;
-	this->sds			= sds;
+	this->sds_master	= sds;
 	this->fs			= cfg->fs;
 
 	Stereo_Memory::DsInfo( ) ;
@@ -181,7 +176,8 @@ void External_class::Record_buffer( stereo_t* src, buffer_t frames )
 {
 	for ( buffer_t n = 0; n < frames; n++ )
 	{
-		Stereo_Memory::stereo_data[n + record_size ] = src[n];
+		Stereo_Memory::stereo_data[n + record_size ].left 	= src[n].left;
+		Stereo_Memory::stereo_data[n + record_size ].right 	= src[n].right;
 	}
 	record_size += frames;
 }
@@ -190,9 +186,9 @@ void External_class::Stereo2StA( )
 {
 	for ( buffer_t n = 0; n < mem_ds.data_blocks; n++)
 	{
-		Data_t L = stereo_data[n].left;
-		Data_t R = stereo_data[n].right;
-		StA_ext->Data[n]	= L + R;
+		Data_t L 		= stereo_data[n].left;
+		Data_t R 		= stereo_data[n].right;
+		StA_ext->Data[n]= L + R;
 	}
 }
 
@@ -346,19 +342,18 @@ void External_class::Save_record_data( string filename )
 				Filename 		= "";
 				record_size 	= 0; // reset size
 }
-
 const string External_class::Save_record_data( int filenr)
 {
 	string 		filename 	= "";
-	if ( filenr > 0 ) // generate a file name
+	if( filenr == USEFILENAME )
+	{
+		filename.assign( sds_master->WAV_filename ); // audoserver sds=sds_master
+	}
+	else // generate a file name
 	{
 		filenr 		= generate_file_no();
 		filename 	= fs->get_rec_filename( filenr);
-		sds->FileNo = filenr;
-	}
-	else 			// use filename from sds
-	{
-		filename.assign( sds->Other );
+		sds_master->FileNo = filenr;
 	}
 	SetName		( filename );
 
@@ -395,7 +390,18 @@ void External_class::Test_External()
 
 /**************************************************
  * StAExternal_class
+ *
  *************************************************/
+StAExternal_class::StAExternal_class( 	StorageArray_t* sta_arr,
+										Config_class* 	cfg,
+										interface_t* 	sds ) :
+	Memory_base				( sizeof_Data, sta_arr->at(STA_EXTERNAL).param.size * sizeof_Data ),
+	Stereo_Memory<stereo_t>	( sizeof_stereo, sta_arr->at(STA_EXTERNAL).param.size * sizeof_stereo ),
+	External_class			( &sta_arr->at(STA_EXTERNAL), cfg, sds )
+{
+	this->StA_arr			= sta_arr;
+};
+
 void StAExternal_class::copy_sta2stereo( Data_t* src_p, buffer_t frames )
 {
 
@@ -408,15 +414,15 @@ void StAExternal_class::copy_sta2stereo( Data_t* src_p, buffer_t frames )
 }
 void StAExternal_class::Convert_StA2WAV( StAId_e staid, range_T<buffer_t> range  )
 {
-	// define staid
-	if( staid == STA_SIZE ) return;
-	this->StA	= &StA_arr->at( staid );
+	// define data
+	if( staid == STAID_ALL ) return;
+	Data_t* Data	= StA_arr->at( staid ).Data;
 
-	// copy
-	copy_sta2stereo( &this->StA->Data[range.min], range.len );
+	// copy a range of StA data to stereo memory
+	copy_sta2stereo( &Data[range.min], range.len );
 
 	// dump
-	SetName( string( sds->Other ) + "StA" );
+	SetName( string( sds_master->WAV_filename ) + "StA" ); // sds = sds_master
 	Save_record_data( Filename );
 
 }

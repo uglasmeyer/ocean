@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -51,22 +51,22 @@ Keyboard_class::Keyboard_class( Dataworld_class*	data,
 	, Note_vec				( notes, instr->fs, max_notes )
 
 {
-//	this->Vco				= &Oscgroup.vco;
-//	this->Fmo				= &Oscgroup.fmo;
 	this->Osc				= &Oscgroup.osc;
-
 	this->instrument_p 		= instr;
 	this->Notes				= notes;
 	this->StA				= sta;
 	this->fs				= instr->fs;
 	this->decayCounter 		= 0;
 	this->duration_counter 	= 0;// count the beats of note kbd_key
-	this->kbd_volume		= sds_p->StA_amp_arr[STA_KEYBOARD];
+	this->kbd_volume		= sds_p->StA_amp_arr[STA_KEYBOARD].amp;
 	this->sta_volume		= kbd_volume * percent;
 	this->frqMode			= SLIDE;
+	this->enabled			= false;
 	this->Chord_old.clear	();
+	std::ranges::for_each( Oscgroup.member, [ this ]( Oscillator* osc )
+		{ osc->Set_beatclock( &sds_p->Kbd_state.bpsval ); } );
 
-	Oscgroup.Set_Duration	( max_msec );
+	Oscgroup.SetDuration	( max_msec );
 	Oscgroup.SetScanner		( max_frames );
 	scanner->Set_fillrange	( StA->param.size );
 	selfTest				();
@@ -79,7 +79,7 @@ void Keyboard_class::selfTest()
 	ASSERTION( 	StA->param.size == StA->param.storage_time*frames_per_sec, "sta_p->param.size",
 				StA->param.size  , StA->param.storage_time*frames_per_sec);
 	assert( scanner->inc == min_frames );
-	assert( sds_p->audioframes == scanner->inc );
+	assert( audio_frames == scanner->inc );
 	Assert_equal( 'A', SetPitch( 'k' ) );
 	sharps = 1;
 	Assert_equal( 'f', (char)SetPitch( 'F' ) );
@@ -97,8 +97,8 @@ void Keyboard_class::gen_chord_data( chord_t chord )
 		return;
 	Comment( DEBUG, "gen_chord_data" );
 
-	Oscgroup.Data_Reset			();
-	if( bpsidx == 0 ) // clear forward
+	Oscgroup.DataReset			();
+	if( sds_p->Kbd_state.bpsval == 0 ) // clear forward
 	{
 		scanner->Set_wpos( scanner->rpos );
 		StA->Write_data( Osc->Mem.Data, Osc->wp.frames, 0.0 );
@@ -109,23 +109,25 @@ void Keyboard_class::gen_chord_data( chord_t chord )
 
 void Keyboard_class::Enable( bool is_kbd )
 {
+	enabled = is_kbd;
 	if( is_kbd )
 	{
+		sds_p->StA_state_arr[ STA_KEYBOARD ].start 	= true;
 		sds_p->StA_state_arr[ STA_KEYBOARD ].play 	= true;
-		sds_p->StA_amp_arr[ STA_KEYBOARD ] 			= kbd_volume;
+		sds_p->StA_amp_arr[ STA_KEYBOARD ].amp		= kbd_volume;
 		Info( "Keyboard is enabled");
 	}
 	else
 	{
 		sds_p->StA_state_arr[ STA_KEYBOARD ].play 	= false;
-		sds_p->StA_amp_arr[ STA_KEYBOARD ] 			= 0;
+		sds_p->StA_amp_arr[ STA_KEYBOARD ].amp		= 0;
 	}
 }
-void Keyboard_class::Set_instrument( )
+void Keyboard_class::set_instrument( )
 {
 	Oscgroup.SetInstrument( sds_p );
 	// kbd specific settings
-	Oscgroup.SetSlider_Frq( sliding * sds_p->features[OSCID].slide_frq );
+	Oscgroup.SetFrqSlidevalue( sliding * sds_p->features[OSCID].frq_slide_value );
 }
 
 bool Keyboard_class::decay(  )
@@ -145,12 +147,16 @@ bool Keyboard_class::decay(  )
 void Keyboard_class::attack()
 {
 	Comment( DEBUG, "attack" );
-	if( not StA->touched ) 	// act on an sta reset from outside
+	if( StA->is_zero ) 	// act on an sta reset from outside
+	{
 		Note_vec.Init();
+		scanner->Set_rpos(0);
+	}
+
 	Note_vec.Add			( chord, StA->state.Forget(), duration_counter );
 
-	Set_instrument			();
-	Oscgroup.KbdAttack		( sds_p->Kbd_state.bpsidx ); // overwrite Instrument setting from sds
+	set_instrument			();
+	Oscgroup.KbdAttack		(); // overwrite Instrument setting from sds
 
 	Oscgroup.ResetBeatCursor();
 	sta_volume 				= get_sta_volume( StA, chord.size() );
@@ -170,8 +176,10 @@ void Keyboard_class::release(  )
 		return;
 	Comment( DEBUG, "release" );
 
-	if (sds_p->Kbd_state.bpsidx > 0 )
+	if ( sds_p->Kbd_state.bpsval > 0 )
 		return;
+
+	// continuse mode
 	decayCounter		= attackCounter ;
 	gen_chord_data		( Chord_old );
 
@@ -188,19 +196,25 @@ Data_t* Keyboard_class::ScanData()
 	Note_vec.Next();
 	return Kbd_Data;
 }
-void Keyboard_class::Dispatcher( kbdInt_t key, bool sync )
+void Keyboard_class::Dispatcher( bool sync )
 {
-	auto keypressed = [ key, this ](  )
+	auto keypressed = [ this ](  )
 	{
 		return ( chord.size() > 0 );
 	};
+	auto continues_mode = [ this ](  )
+	{
+		return ( sds_p->Kbd_state.bpsval == 0 );
+	};
 
-	Kbd_key.Int	= key;
-	keyHandler	( Kbd_key );
+	SetKbdKey();
 
 	if ( ( keypressed() ) )
 	{
-		if( sync )
+		if ( continues_mode() )
+			sync = true;
+
+		if( sync ) // mixer-> kbdclock is triggered
 		{
 			attack();
 		}
@@ -211,10 +225,6 @@ void Keyboard_class::Dispatcher( kbdInt_t key, bool sync )
 		{
 			release();
 		}
-		else
-		{
-			;
-		}
 	}
 }
 
@@ -222,29 +232,30 @@ bool Keyboard_class::Save_notes( bool save )
 {
 	if( save )
 	{
-		Note_vec.SaveNoteLine();
-		Note_vec.SaveMusicxml();
+		if( Note_vec.SaveNoteLine( StA->Volume() ) )
+			Note_vec.SaveMusicxml();
+		else
+			Comment( ERROR, "Keyboard Notes not verified" );
 	}
-	sds_p->Kbd_state.savenotes = false;
 	return true;
 }
 
 
 
 /**************************************************
- * Noteline_struct
+ * KbdNoteline_struct
  *************************************************/
-Noteline_struct::Noteline_struct()
+KbdNoteline_struct::KbdNoteline_struct()
 {
 	str 			= ""			;
 }
-void Noteline_struct::AddPitch( const chord_t& pv )
+void KbdNoteline_struct::AddPitch( const chord_t& pv )
 {
 	string s = Get_note_str( pv );
 	str.append( s );
 	coutf << s << " ";
 }
-string Noteline_struct::Get_note_str( const chord_t& pv )
+string KbdNoteline_struct::Get_note_str( const chord_t& pv )
 {
 	string s = pv[0].name;
 	if( pv.size() > 1 )
@@ -257,7 +268,7 @@ string Noteline_struct::Get_note_str( const chord_t& pv )
 	return s;
 };
 
-void Noteline_struct::AddLenth( uint& cnt )
+void KbdNoteline_struct::AddLenth( uint& cnt )
 {
 	if( str.length() == 0 )
 		return; // dont add note duration for empty notes
@@ -278,7 +289,7 @@ void Noteline_struct::AddLenth( uint& cnt )
  * Notevector_struct
  *************************************************/
 Notevector_struct::Notevector_struct( Note_class* notes, file_structure* fs, size_t size )
-	: 	Noteline				()
+	: 	KbdNoteline				()
 
 {
 	this->Notes				= notes;
@@ -295,8 +306,8 @@ Notevector_struct::Notevector_struct( Note_class* notes, file_structure* fs, siz
 }
 Notevector_struct::~Notevector_struct()
 {
-//	SaveNoteLine();
 }
+
 bool Notevector_struct::SaveMusicxml()
 {
 	auto notevec2notelist = [ this ](  )
@@ -332,7 +343,7 @@ bool Notevector_struct::SaveMusicxml()
 void Notevector_struct::Init()
 {
 	note_vec.clear();
-	Noteline.str="";
+	KbdNoteline.str="";
 	for( size_t pos = 0; pos < Size; pos++ )
 	{
 		note_t note = EmptyNote;
@@ -344,8 +355,8 @@ void Notevector_struct::Add( chord_t vec, bool forget, uint& cnt )//TODO
 {
 	if( forget )
 		return;
-	Noteline.AddLenth( cnt ); // prev pitch
-	Noteline.AddPitch( vec ); // current pitch
+	KbdNoteline.AddLenth( cnt ); // prev pitch
+	KbdNoteline.AddPitch( vec ); // current pitch
 	Store( vec );
 
 }
@@ -364,15 +375,26 @@ void Notevector_struct::Next()
 {
 	Note_pos = ( Note_pos + 1 ) % Size;
 }
-void Notevector_struct::SaveNoteLine()
+bool Notevector_struct::SaveNoteLine( float volume )
 {
-	noteline_prefix_t	nlp			= Notes->nlp_default;
-						nlp.nps		= 1000 / min_msec;
-						Notes->Save	( Fs->kbdnotes_name, nlp, Noteline.str );
+	nlp_data_t 	nlp				= Notes->nlp_default;
+				nlp.nps			= 1000 / min_msec;
+	Notes->Noteline_prefix.data = nlp;
+	Notes->Noteline.set			( KbdNoteline.str );
+	uint8_t		vol				= check_range( range_T<uint8_t>{1, 9}, uint8_t( volume * 10 ) );
+	Notes->Rythmline.set		( to_string( vol ) );
+	bool		verified		= Notes->Verify_noteline( NOTE::KEYBOARD );
+	if ( verified )
+	{
+		Notes->Save	( Fs->kbdnotes_name, nlp, KbdNoteline.str );
+		Notes->Sds->Write_str( NOTENAMESTR, Fs->kbdnotes_name );
+	}
+	return verified;
 }
+
 void Notevector_struct::LoadNoteLine()
 {
-	Noteline.str		= Notes->Read( Fs->kbdnotes_name );
+	KbdNoteline.str		= Notes->Read( Fs->kbdnotes_name );
 }
 
 

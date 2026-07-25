@@ -32,9 +32,10 @@ SOFTWARE.
 #ifndef OSCWAVEFORM_H_
 #define OSCWAVEFORM_H_
 
+#include <math.h>
 #include <Ocean.h>
 
-enum WFID_t : unsigned char
+enum WFID_t : uint8_t
 {
 	SINUS = 0,
 	TRIANGLE,
@@ -74,6 +75,7 @@ typedef waveFnc_struct 				waveFnc_t;
 extern const 	vector<waveFnc_t>  	waveFunction_vec;
 extern const 	vector<string> 		waveform_str_vec;
 extern const 	range_T<int> 		waveform_range;
+extern const	uset_t				waveform_str_set;
 
 extern const 	vector<waveFnc_t>  	adsrFunction_vec;
 extern const 	vector<string> 		adsrwf_str_vec;
