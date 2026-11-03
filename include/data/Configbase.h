@@ -54,21 +54,21 @@ struct prgarg_struct
 	uint 		device 		= 0;		// -d
 	uint 		ch_offs 	= 0; 		// -o
 	uint 		MAXWAVFILES	= 5; 		// max numbers of file names generated automatically
-	char 		test 		= 'n';		// -t run sanity check on classes and exit = 'y'
+	char 		test 		= 'n';		// Synthesizer -t run sanity checks
 	char		debug		= 'n';		// -v verboose output
-	char 		dialog		= 'n';		// -d dialog mode of the composer = 'y'
-	char 		composer	= 'n';		// start rtsp with option -C
+	char 		dialog		= 'n';		// Composer -d 	dialog mode
+	char 		composer	= 'n';		// Rtsp -C		start OceanGUI
 	char 		oceangui	= 'n';		// start rtsp with option -G
-	char		archive		= 'n';		// setup creates no binary archive
-	char		Deploy		= 'n';		// -Y deployment workflow
-	char		clearipc	= 'n';		// SDSview -i call ipcrm -a
+	char		archive		= 'n';		// Setup -A 	create binary archive
+	char		Deploy		= 'n';		// Setup -Y 	deployment workflow
+	char		clearipc	= 'n';		// SDSview -i 	call ipcrm -a and delete SDS bin files
 	string 		Genre		= "Alternative";
 	string 		author		= "U.G.";
 	string		title		= "Experimental";
 	string		album		= Application;
 	string		Term		= "xterm -e ";
 //	string		Logview		= "xterm -e tail -n 1000 -f";
-	string		Logview		= "xterm ";
+	string		Logview		= "xterm ";	// parameter are set by Logviewer()
 	string		Nohup		= "nohup";
 	string 		ffmpeg 		= "ffmpeg";
 	string		installdir	= "";		 // Setup -I ...

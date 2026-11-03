@@ -55,13 +55,11 @@ public:
 	Build_class( string sdir, file_structure* bin ) :
 		Logfacility_class("Build_class")
 	{
-		className = Logfacility_class::className;
 		srcdir = sdir;
 		Bin = bin;
 	};
 	virtual ~Build_class()
 	{
-
 		DESTRUCTOR( className );
 	};
 

@@ -18,7 +18,4 @@ target_link_directories(${OCEAN_PROJECT} PRIVATE
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # Link against the shared library (without 'lib' prefix or extension)
-target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean)
-
-target_link_libraries(${OCEAN_PROJECT} PRIVATE -lrtaudio)
-
+target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean )

@@ -16,5 +16,4 @@ target_sources( ${OCEAN_PROJECT} PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR} )
   
 # Link against the shared library (without 'lib' prefix or extension)
-target_link_libraries(${OCEAN_PROJECT} PRIVATE rtaudio )
-target_link_libraries(${OCEAN_PROJECT} PRIVATE tinyxml2 )
+target_link_libraries(${OCEAN_PROJECT} PRIVATE rtaudio tinyxml2 )

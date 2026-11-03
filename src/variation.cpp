@@ -240,7 +240,6 @@ string Variation_class::insert_random(  )
 string Variation_class::scan_sentence( char s0 )
 {
 	string sentence_line{};
-	size_t duration = 0;
 	cout << "sentence line :" << endl;
 
 	for( noteword_t& word : Sentence )
@@ -252,7 +251,6 @@ string Variation_class::scan_sentence( char s0 )
 			if ( NotesCore_class::OctaveChars.Set.contains( s0 ) )
 				note.octave = s0 - 48;
 			sentence_line.append( "|" + to_string(note.octave) + note.str );
-			duration += note.duration;
 		}
 		cout << endl;
 	}

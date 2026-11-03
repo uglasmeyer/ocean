@@ -194,7 +194,7 @@ void Config_class::CreateInstalldirs( )
 	{
 		if ( create_dir( dir ) )
 		{
-			Comment( INFO, "Synthesizer directory ", dir, " created");
+			Comment( INFO, "Ocean SoundLab directory ", dir, " created");
 		}
 	}
 }
@@ -366,12 +366,12 @@ void Config_class::Parse_argv( int argc, char* argv[] )
 			case 'C' : 	{ Config.composer		= 'y'				; break; }
 			case 'D' : 	{ Config.dialog 		= 'y'				; break; }
 			case 'G' : 	{ Config.oceangui		= 'y'				; break; }
-			case 'I' : 	{ Config.installdir	= next = trailing_dirslash( next )	; break; }
-			case 'S' : 	{ Config.sourcedir	= next = trailing_dirslash( next )	; break; }
-			case 'V' :	{ Set_Loglevel( DEBUG, true );
-						Set_Loglevel( DBG2, true )				; break; }
-			case 'Y' :	{ Config.Deploy		= 'y'				; break; }
-			default  : 	{ Config.filename	= arg				; break; }
+			case 'I' : 	{ Config.installdir		= trailing_dirslash( next )	; break; }
+			case 'S' : 	{ Config.sourcedir		= trailing_dirslash( next )	; break; }
+			case 'V' :	{ Set_Loglevel			( DEBUG, true );
+						Set_Loglevel			( DBG2, true )		; break; }
+			case 'Y' :	{ Config.Deploy		= 'y'					; break; }
+			default  : 	{ Config.filename	= arg					; break; }
 		}
 	}
 

@@ -19,12 +19,12 @@ target_link_directories(${OCEAN_PROJECT} PRIVATE
 	${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 
 # Link against the shared library (without 'lib' prefix or extension)
-target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean)
+target_link_libraries(${OCEAN_PROJECT} PRIVATE Ocean )
 
 add_custom_command(
 	TARGET 				${OCEAN_PROJECT}
 	POST_BUILD
-	COMMAND 				readelf -p .GCC.command.line ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${OCEAN_PROJECT}
+	COMMAND 			readelf -p .GCC.command.line ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${OCEAN_PROJECT}
 	WORKING_DIRECTORY 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 

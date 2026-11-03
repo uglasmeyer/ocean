@@ -33,15 +33,19 @@ SOFTWARE.
 
 #include <Build.h>
 
-Exit_class				Exit			{};
-Kbd_base				Kbd 			{};
-Config_class			Cfg				{};
-Logfacility_class		Log				( Cfg.prgName );
-file_structure* 		Bin				= Cfg.fs;
+Exit_class			Exit			{};
+Config_class		Cfg				{};
+Config_class*		Cfg_p			= &Cfg;
+Logfacility_class	Log				( Cfg_p->prgName );
+Kbd_base			Kbd 			{};
+file_structure* 	Bin				= Cfg.fs;
 
 void exit_proc( int signal )
 {
 	Log.Set_Loglevel( DBG2, false );
+	Log.Comment( ERROR, "The following core dump is caused by the installation ");
+	Log.Comment( BINFO, "	of shared libraries in self use and does not harm anything else.");
+	cout.flush();
 	exit(0);
 }
 
@@ -224,16 +228,17 @@ void Copy_3rdpartylibs( source_struct* Src )
 
 	Log.Info( "Copying 3rd party libraries" );
 	string systemlibdir = "/lib/" + Src->architectur + "-linux-gnu/";
+	string local_libdir = "/usr/local/lib/";
 	typedef vector<string> string_vec_t;
 	string_vec_t lib_vec = {
 		systemlibdir + "libQt6Core.so.6",
 		systemlibdir + "libQt6Gui.so.6",
 		systemlibdir + "libQt6Widgets.so.6",
 		systemlibdir + "libQt6DBus.so.6",
-		"/usr/local/lib/librtaudio.so.7",
-		systemlibdir + "libtinyxml2.so.10",
-		systemlibdir + "libtinyxml2.so.11"
-	};
+		systemlibdir + "libtinyxml2.so.10",	// this is the origin of a core dump in
+		systemlibdir + "libtinyxml2.so.11",	// the exit-procedure of Setup
+		local_libdir + "librtaudio.so.7"	// because the copy function overwrites
+	};										// dlopen libraries accordingly
 	for ( string lib : lib_vec )
 	{
 		if ( exists( lib ) )
@@ -245,6 +250,8 @@ void Copy_3rdpartylibs( source_struct* Src )
 			Log.Comment( WARN, "no such file to copy:", lib );
 		}
 	}
+	Conditional(  "please check result", "" );
+
 }
 void createDesktopfile()
 {
@@ -302,9 +309,8 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 int main(int argc, char **argv)
 {
 	Cfg.Parse_argv(argc, argv );
-
 	// CDT install binary
-	if( Cfg.Config.filename.length() > 0 )
+	if( Cfg.Config.filename.length() > 0 )	// Setup binarydir
 	{
 		Cfg.CreateInstalldirs( );
 		std::filesystem::path path { Cfg.Config.filename };
@@ -312,20 +318,22 @@ int main(int argc, char **argv)
 		install_binary( Cfg.Config.filename, path.extension() );
 		exit(0);
 	}
+	Log.Set_Loglevel( WAIT, true );		// activate Conditional( ... )
+
 	source_struct 	Src 		{ Cfg.Config.sourcedir };
 	Build_class 	Build 		{ Src.sourcedir, Bin };
 
 	if ( Cfg.Config.test == 'y' )
 	{
 		Setup_Test( &Src, Bin );
-		raise(1);
 	}
 
 	// Setup runtime
-	Setup_runtime( &Src, Bin );
 
-	if ( Cfg.Config.Deploy == 'y' )
+	Setup_runtime( &Src, Bin );
+	if ( Cfg.Config.Deploy == 'y' )	// Setup -Y
 	{
+
 		Deploy_class	Deploy		{ Src.sourcedir, Bin };
 		Log.Set_Loglevel( WAIT, true );
 		Conditional( "change ReleaseNotes.h", "" );
@@ -343,5 +351,6 @@ int main(int argc, char **argv)
 		// push source code to github
 		// edit Version.h change version number
 	}
-	return  0;
+
+	raise(1);
 }

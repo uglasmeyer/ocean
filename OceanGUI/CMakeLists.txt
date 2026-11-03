@@ -52,7 +52,6 @@ target_link_directories(${OCEAN_PROJECT} PRIVATE
 # Link against the shared library (without 'lib' prefix or extension)
 target_link_libraries(${OCEAN_PROJECT} PRIVATE 
 	Ocean 
-	tinyxml2
 	Qt6Core
 	Qt6Gui
 	Qt6Widgets
