@@ -244,7 +244,6 @@ private:
 	uint 			records			= 0;
 
 };
-typedef vector<Storage_class>		StorageArray_t;
 
 
 

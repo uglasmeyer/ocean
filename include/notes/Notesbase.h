@@ -38,7 +38,7 @@ SOFTWARE.
 extern float get_chord_volume( float volume, uint8_t chordlen );
 
 // noteline control characters
-namespace 	NOTE
+namespace 	note_ns
 {
 	const char 	IGNORE 		= ' ';
 	const char	PAUSE 		= '.';
@@ -85,6 +85,7 @@ enum NOTETYPE_e : uint8_t
 
 const range_T<uint8_t>	npsidx_range	{ 0, 8 };
 const range_T<uint8_t>	accidental_range{ 0, 7 };
+const range_T<char>		rhythm_vol_range{ '1','9' };
 
 typedef vector<int> step_vec_t ;
 
@@ -137,7 +138,7 @@ typedef struct note_value_struct
 	int8_t 	step 		= NONOTE;
 	int8_t	octave		= 0;
 	int		alter 		= 0 ; 	// -1,0, +1
-	char	step_char	= NOTE::PAUSE;
+	char	step_char	= note_ns::PAUSE;
 	uint8_t	frqidx		= 1 ;
 
 	note_value_struct() = default;
@@ -161,6 +162,10 @@ typedef struct note_value_struct
 	}
 	~note_value_struct() = default;
 } note_value_t;
+
+typedef array<spec_arr_dt,	OSCIDSIZE>
+							phase_arr_t;
+const phase_arr_t			default_phase_arr = default_oscgroup_arr_T( zero_phase );
 
 typedef struct pitch_struct :
 		note_value_struct
@@ -254,7 +259,7 @@ typedef struct nlp_data
 	uint8_t			nps			= 4;	// notes per second 1,2,4,5,8
 	uint8_t			flat		= 0; 	// number of flats  in the key signature - BEADGCF
 	uint8_t			sharp		= 0;	// number of sharps in the key signature - FCGDAEB
-	NOTE::ORIGIN_e	origin		= NOTE::INIT;	// see origin enum
+	note_ns::ORIGIN_e	origin		= note_ns::INIT;	// see origin enum
 	int				chord_delay = 0;	// msec delay between each note of a chord
 	uint8_t			free		= 1;	// align to even structure size
 } nlp_data_t;

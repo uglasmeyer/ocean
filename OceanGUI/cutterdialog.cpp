@@ -72,7 +72,7 @@ void CutDesk_Dialog_class::Dialog()
 			    StAId_e staid = GetStaid( sds_p->WD_state.roleId );
 			    if ( not CutIds.contains( staid ) )
 			    	return;
-			    QString qTitle = "CutDesk ( " + Qstring( GetStaIdName( staid ) ) + " )";
+			    QString qTitle = "CutDesk ( " + Qstring( GetName( staid ) ) + " )";
 			    this->setWindowTitle( qTitle );
 				this->show();
 			}

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025,2ß26 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,14 +32,27 @@ SOFTWARE.
 #ifndef INCLUDE_SPECTRUM_H_
 #define INCLUDE_SPECTRUM_H_
 
-
-
-enum  { SPEV, SPEF, SPEW };
-
+namespace spectrum_ns
+{
+	enum SPEC_e : uint8_t
+	{
+		FREQ,	// Spectrum of the Osc
+		ADSR	// Spectrum of the Adsr
+	};
+	enum TYPE_e : uint8_t
+	{
+		SPEV,
+		SPEF,
+		SPEW
+	};
+	const array<uint8_t	,3> 	spectrumNum	= {  SPEV, SPEF, SPEW  };
+	const array<string	,3> 	spectrumTag = { "SPEV", "SPEF", "SPEW" };
+}
 
 #include <Dynamic.h>
 #include <Logfacility.h>
 #include <Table.h>
+#include <Oscwaveform.h>
 
 template< typename Item >
 constexpr array<Item, OSCIDSIZE > default_oscgroup_arr_T( Item dflt )
@@ -53,90 +66,89 @@ constexpr array<Item, OSCIDSIZE > default_oscgroup_arr_T( Item dflt )
 };
 
 
-const static size_t 		SPECARR_SIZE = 5;
-const size_t				SPEC_CHANNELS = SPECARR_SIZE;
+const vector<uint8_t>		dialog_channel_vec	= Iota_T<uint8_t>( 1, 4 );
+// consider that;
+// Iota_T<>( start, length )
+// dialog_channel vector represents the number of sliders,
+// that are available in the spectrum dialog of the GUI
+// channel 0 is the base frequency channel, the spectrum dialog does not change it
+// adsr base waveform channel 0 is adsr or fourier
+// the adsr does not support high frequency channels
 
-typedef float 				spec_dta_ft;
-typedef array<spec_dta_ft,	SPECARR_SIZE>
-							spec_arr_ft;
-typedef array<phi_t		 ,	SPECARR_SIZE>
+const vector<uint8_t>		osc_channel_vec		= Iota_T<uint8_t>( 0, SPEC_CHANNELS );
+const range_T<int8_t>		channel_range		{ 1, SPEC_CHANNELS };
+
+typedef array<phi_t		 ,	SPEC_CHANNELS>
 							spec_arr_dt;
-typedef array<uint8_t	 ,	SPECARR_SIZE>
+typedef array<uint8_t	 ,	SPEC_CHANNELS>
 							spec_arr_8t;
-typedef array<spec_arr_dt,	OSCIDSIZE>
-							phase_arr_t;
-const spec_arr_dt			zero_phase	= { 0.0, 0.0, 0.0, 0.0, 0.0};
-const phase_arr_t			default_phase_arr = default_oscgroup_arr_T( zero_phase );
-
+typedef array<WFID_e	 ,	SPEC_CHANNELS>
+							spec_arr_wt;
+const spec_arr_dt			zero_phase	{ 0.0 };
 struct spectrum_data
 {	// SDS  related
-	spec_arr_ft					vol		{ 1.0, 0.0, 0.0, 0.0, 0.0 } ;		// [osc, amplitude 0.0 ... 1.0 ]
-	spec_arr_8t					volidx  { 100, 0, 0, 0, 0 };				// frq slider value
-	spec_arr_ft					frqadj	{ 1.0, 2.0, 3.0, 4.0, 5.0 } ;		// [osc, frequency shift... ]
-	spec_arr_8t					frqidx 	{ A3, 0, 0, 0, 0 };				// frq slider value
-	spec_dta_ft					sum 	= 1.0;								// sum over .vol
-	spec_arr_8t					wfid 	{ 0, 0, 0, 0, 0 };					// waveform wdid
+	spec_arr_8t					volidx  { 100	, 0, 0, 0, 0 };			// frq slider value
+	spec_arr_8t					frqidx 	{ A3	, 0, 0, 0, 0 };			// vol slider value
+	spec_arr_wt					wfid 	{ SINUS };						// waveform id
 	spec_arr_dt					phi		= zero_phase;
 	OSCID_e						osc 	= OSCID;
-	bool						adsr	= false;
+	spectrum_ns::SPEC_e			type	= spectrum_ns::FREQ;
 } ;
+
 typedef spectrum_data			spectrum_t;
 const spectrum_t 				default_spectrum	= spectrum_data();
 
 /**************************************************
  * Spectrum_class
  *************************************************/
+
 class Spectrum_class :
 	public	virtual 			Frequency_class
 {
 public:
 	const spectrum_t			TestSpectrum =
 	{
-		.vol		{ 0.5, 0.25, 0.25, 0.0, 0.0 },
-		.volidx  	{ 50, 25, 25, 0, 0 },
-		.frqadj		{ 1.0, 2.0, 3.0, 4.0, 5.0 },
+		.volidx  	{ 100, 25, 25, 0, 0 },
 		.frqidx 	{ A3, 0, 0, 0, 0 },
-		.sum 		= 1.0,
-		.wfid 		{ 0, 0, 0, 0, 0 },
+		.wfid 		{ SINUS },
 		.phi		= zero_phase,
 		.osc 		= OSCID,
-		.adsr		= false
+		.type		= spectrum_ns::FREQ
 	};
 
-	spectrum_data				Parse_data			( string_vec_t arr );
-	int 						Get_waveform_id		( string );
-	string 						Get_waveform_str	( int );
+	Waveform_class*				Waveform;
+
+	spectrum_t					Parse_data			( string_vec_t arr );
 	vector<string>				Get_waveform_vec	( );
-	spectrum_data				Get_spectrum		();
-	string 						Show_spectrum		( const spectrum_data spec );
-	string 						Show_spectrum_type	( const int& _type, const spectrum_data& spec );
+	spectrum_t					Get_spectrum		();
+	string 						Show_spectrum		( const spectrum_t spec );
+	string 						Show_spectrum_type	( const int& _type, const spectrum_t& spec );
 	void						Show_spectrum_table	( ostream& f,
-													const spectrum_data& spec,
+													const spectrum_t& spec,
 													bool header = true );
 	Table_class*				Get_spectrum_table	();
-	void 						Sum					( spectrum_data& );
+	float 						VolFactor			( spec_arr_8t& );
 	char 						Type_flag			( const string& type_str );
-
-
 	void 						Test_Spectrum		();
-
-								Spectrum_class		();
+								Spectrum_class		( spectrum_ns::SPEC_e _type );
 	virtual 					~Spectrum_class		() = default;
 
 private:
-	const array<int		,3> 	spectrumNum 		= {  SPEV,   SPEF,   SPEW  };
-	const array<string	,3> 	spectrumTag 		= { "SPEV", "SPEF", "SPEW" };
-	spectrum_data				spectrumTmp			= spectrum_data();
-
-	OSCID_e						osc_TypeId			( const string& type_str );
-	void 						assign_frq			( int channel, string str  );
-	void 						assign_vol			( int channel, string str  );
-	void 						assign_waveform		( int channel, string str );
-	bool 						adsr_type			( const string& type_str );
+	spectrum_t					spectrumTmp			= spectrum_data();
 	Table_class 				Table				{ defaultopt };
 
+	OSCID_e						osc_TypeId			( const string& type_str );
+	void 						assign_frq			( string_vec_t arr  );
+	void 						assign_vol			( int channel, string str  );
+	spectrum_ns::SPEC_e 		spec_type			( const string& type_str );
+	template< typename field_T, class range_T >
+	void 						assign_values		( string_vec_t arr,
+													array<field_T, SPEC_CHANNELS>& field,
+													range_T range  );
+	template< class field_T, class range_T >
+	void 						assign_value		( string nr_str,
+													field_T& field,
+													range_T range  );
 };
-
-
 
 #endif /* INCLUDE_SPECTRUM_H_ */

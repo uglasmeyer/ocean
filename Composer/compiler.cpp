@@ -259,7 +259,7 @@ bool Composer_class::PreCompile( string batch_file )
 		Comment( INFO, "Processing input file: \n" + batch_file  );
 	}
 
-	filesystem::path	filePath{ batch_file };
+	std::filesystem::path	filePath{ batch_file };
 	string			file_line	= "";
 	string			filename	= filePath.stem();
 	if( file_set.contains( filename ) )
@@ -499,7 +499,6 @@ int Composer_class::Interprete( line_data_t row )
 		case KEYWORD_e::NOTES  		: { Interpreter->Notes( arr )			; break; }
 		case KEYWORD_e::OSC  		: { Interpreter->Osc( arr )				; break; }
 		case KEYWORD_e::PAUSE  		: { Interpreter->Pause( arr )			; break; }
-//		case KEYWORD_e::PLAY  		: { Interpreter->Play( arr )			; break; }
 		case KEYWORD_e::RECORD  	: { Interpreter->RecFile( arr )			; break; }
 		case KEYWORD_e::RANDOM  	: { Interpreter->Random( arr )			; break; }
 		case KEYWORD_e::RESET 		: { Interpreter->Reset( arr )			; break; }

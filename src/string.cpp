@@ -31,12 +31,15 @@ SOFTWARE.
 
 #include <String.h>
 #include <System.h>
-
+#include <math.h>
 
 
 bool fcomp( const float& a, const float& b, float precision )
-{
-	return ( abs(abs(a) - abs(b)) <= abs(precision) ) ? true : false;
+{	// ||a| - |b|| <= |p|
+	// return ( abs(abs(a) - abs(b)) <= abs(precision) ) ? true : false;
+	// ||a| - |b|| - |p| <= 0
+	int sgn = copysign( 1, ( abs(abs(a) - abs(b)) - abs(precision) ) );
+	return bool ( 1 - sgn );
 }
 
 bool strEqual( const string& a, const string& b )
@@ -95,12 +98,11 @@ string trailing_dirslash( const string& dir )
 }
 
 
-String::String( const string str ) :
-	Logfacility_class( "String_class" )
+String::String( const string str )
 {
 	this->Str = str;
     this->Set = to_set( );
-    std::ranges::for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});
+    for_each( str, [ this ]( char ch){ Vec.push_back( string{ch} ) ;});
 }
 
 string_vec_t String::to_array( char ch )
@@ -212,7 +214,7 @@ void String::replace_comment(  )
 
 void String::replace_char( char ch_old, char ch_new )
 {
-	std::ranges::for_each( Str, [ch_old, ch_new] ( char& ch )
+	for_each( Str, [ch_old, ch_new] ( char& ch )
 			{ if ( ch == ch_old ) ch = ch_new;} );
 }
 
@@ -231,7 +233,7 @@ void String::normalize()
 	Str = erase_char( '\t');
 
 }
-
+extern Logfacility_class	Log;
 bool String::is_number(  )
 {
 	try
@@ -248,7 +250,7 @@ bool String::is_number(  )
 		}
 		catch ( const std::invalid_argument& exception )
 		{
-			Comment(ERROR, exception.what());
+			Log.Comment(ERROR, exception.what());
 			return false;
 		}
 	}
@@ -276,20 +278,22 @@ int String::secure_stoi()
 	return secure_stoi( Str );
 }
 
-int String::secure_stoi( string str )
+const size_t stoi_strlength_max = string("2147483647").size() - 1;// numeric_limits<int>::max();
+int String::secure_stoi( string str, int default_int )
 {
-	if ( str.length() == 0 )
-		return 0;
+	range_T<size_t> stoi_range{ 1, stoi_strlength_max };
+	if( not in_range( stoi_range, str.length() ) ) return default_int;
+
 	this->Str = str;
 	if ( is_number(  ) )
 	{
-		return stoi( str.data() );
+		return std::stoi( str.data() );
 	}
 	else
 	{
 		Exception( "cannot convert string: >"+str+"< to integer " );
 	}
-	return -1;
+	return default_int;
 }
 
 void String::to_lower( string& str )
@@ -324,12 +328,13 @@ int String::to_int( const string& s )
 
 void String::Show( const string& comment )
 {
-	cout << comment << ": " << Str << endl;
+	coutf << comment << ": " << Str << endl;
 }
 
 
 void String::TestString()
 {
+#define test_start Log.test_start
 	TEST_START( "String" );
 
 	map<int, string> testmap = // @suppress("Invalid arguments")
@@ -470,6 +475,7 @@ void String::TestString()
 	StrSet = {"a","b","c"};
     assert( StrSet.contains("b"));
 
+#define test_end Log.test_end
 	TEST_END( "String" );
 }
 

@@ -46,7 +46,7 @@ map<int, string> type_id_map = // @suppress("Invalid arguments")
 xmlnote_value_struct::xmlnote_value_struct( note_t note, int divisions )
 {
 	set<int>dot_set			{ 3, 6, 12 };
-	int			min_duration= gcd( int(measure_duration), int(note.duration) ); // @suppress("Function cannot be instantiated")
+	int			min_duration= std::gcd( int(measure_duration), int(note.duration) ); // @suppress("Function cannot be instantiated")
 				duration	= note.duration * divisions / 500;
 	int 		type_id		= measure_duration / ( min_duration ) ;
 	if ( dot_set.contains( duration ) )
@@ -219,7 +219,7 @@ pitch_t Musicxml_class::get_pitch( XMLElement* root )
 	int 	oct = -1;
 	int 	alt = 0;
 	string 	str = "";
-	char 	ch 	= NOTE::PAUSE;
+	char 	ch 	= note_ns::PAUSE;
 
 	xml_value	( "octave"	, oct, root );
 	xml_value	( "alter"	, alt, root );
@@ -294,7 +294,7 @@ musicxml_t Musicxml_class::XmlFile2notelist( const string& name )
 			p = note_p->FirstChildElement("rest");
 			if( p )
 			{
-				pitch.step_char = NOTE::PAUSE;
+				pitch.step_char = note_ns::PAUSE;
 				pitch.step 		= NONOTE;
 				note.volume 	= 0;
 			}

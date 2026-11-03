@@ -30,42 +30,46 @@ SOFTWARE.
  */
 
 #include <Oscbase.h>
+#include <Frequency.h>
+extern Frequency_class* frequency;
 
 Oscillator_base::Oscillator_base(  OSCID_e osc_type, RoleId_e role  )
 	: Logfacility_class	( "Oscillator_base" )
 	, osctype_struct	( osc_type, role )
-	, DynFrequency		( DYNTYPE_e::FRQ, frqext_range )
+	, fp				( FMOID )
+	, vp				( VCOID )
+	, DynFrequency		( DYNFACE_e::FRQ, frqext_range, frqslide_range )
 	, spectrum			()
 {
-	this->spectrum		= default_spectrum;
-	this->spectrum.osc 	= osc_type;
+	Set_spectrum		( default_spectrum, INIT );
 	this->Connect		= { osc_type, osc_type };
 };
 
 uint8_t Oscillator_base::Set_frequency( string frqName, DYNAMIC_e mode )
 {
-	uint index = Index( frqName );
+	uint index = frequency->Index( frqName );
 	return Set_frequency( index, mode );
 }
 
 uint8_t Oscillator_base::Set_frequency( int frqidx, DYNAMIC_e mode )
 {
-	frqidx				= DynFrequency.Setup( frqidx, mode );
-	spectrum.frqadj[0] 	= Frqadj(0, 0);
+	frqidx				= DynFrequency.Setup( frqidx, mode, 0 );
 	spectrum.frqidx[0]  = frqidx;
 	return 				frqidx;
 }
 
-void Oscillator_base::Set_spectrum_volume( int vol )
+void Oscillator_base::Set_spectrum( spectrum_t spectrum, DYNAMIC_e mode )
 {
-	// consider that the dynamic volume is managed by the mixer
-	// vco and fmo have no dynamic volume
-	spectrum.volidx[0] 	= check_range( volidx_range, vol, "Set_volume" );
-	spectrum.vol[0] 	= (float)vol * percent;
+	this->spectrum 		= spectrum;
+	this->spectrum.osc	= typeId;
+	Set_frequency		( spectrum.frqidx[0], mode );
+	for( size_t channel = 0; channel < SPEC_CHANNELS; channel++ )
+		DynFrequency.Setup( spectrum.frqidx[channel], mode, channel );
 }
+
 void Oscillator_base::Set_pmw( uint8_t pmw )
 {
-	features.PWM = pmw;
+	features.PWM = check_range( pmw_range, pmw );
 }
 
 void Oscillator_base::Set_frq_slidevalue( uint8_t value )
@@ -78,19 +82,20 @@ void Oscillator_base::Set_feature( feature_t f )
 	features = f;
 }
 
-void Oscillator_base::Set_waveform( spec_arr_8t wf_vec )
+void Oscillator_base::Set_waveform( spec_arr_wt wf_vec )
 {
+
 	spectrum.wfid	= wf_vec;
 	spectrum.phi	= zero_phase; // because of maxphi changes
 }
 
-void Oscillator_base::Set_spectrum( spectrum_t spectrum, DYNAMIC_e mode )
+void Oscillator_base::Set_volume( int vol )
 {
-	this->spectrum 		= spectrum;
-	Set_frequency		( spectrum.frqidx[0], mode );
-	Set_spectrum_volume	( spectrum.volidx[0] );
+	// set the volume of the oscillator this
+	// consider that the dynamic volume is managed by the mixer
+	// vco and fmo have no dynamic volume
+	spectrum.volidx[0] 	= check_range( volidx_range, vol, "Set_volume" );
 }
-
 
 void Oscillator_base::Line_interpreter( string_vec_t arr )
 {
@@ -98,7 +103,7 @@ void Oscillator_base::Line_interpreter( string_vec_t arr )
 
 	vp.name			= osctype_name;
 	fp.name			= osctype_name;
-	spectrum.wfid[0]= Get_waveform_id( arr[2] );
+	spectrum.wfid[0]= waveform->Get_id( arr[2] );
 	int
 	frqidx	 		= Str.secure_stoi( arr[3] );
 	Set_frequency	( frqidx, FIXED );
@@ -122,10 +127,10 @@ void Oscillator_base::Get_sound_stack( Table_class* T )
 	T->AddRow( 	osctype_name,
 				vp.name,
 				fp.name,
-				Get_waveform_str( spectrum.wfid[0] ),
+				waveform->Get_str( spectrum.wfid[0] ),
 				(int) spectrum.volidx[0],
 				"%",
-				GetFrq( frqidx ),
+				frequency->GetFrq( frqidx ),
 				"Hz"
 			);
 }

@@ -60,34 +60,33 @@ namespace Ui
 QT_END_NAMESPACE
 
 class Rtsp_Dialog_class :
-	public 				QDialog,
-	virtual 			Logfacility_class,
-						AppMap_struct
+	public 					QDialog,
+	virtual 				Logfacility_class,
+							AppMap_struct
 {
     Q_OBJECT
-	Ui::Rtsp_Dialog_class*
-						ui						;
 
-    Dataworld_class*	DaTA					;
-	const int			max_table_rows			= MAXCONFIG + 1;
+    Dataworld_class*		DaTA					;
+    vector<QRadioButton*> 	rb_vec					;
+	const int				max_table_rows			= MAXCONFIG + 1;
 
 public:
+	Ui::Rtsp_Dialog_class*	ui						;
 
-    void 				Proc_table_update		( interface_t* sds, APPID_e apppid );
-    void 				Proc_table_update_all	();
+    void 					Proc_table_update		( interface_t* sds, APPID_e apppid );
+    void 					Proc_table_update_all	();
 
-    explicit 			Rtsp_Dialog_class		(
-    											QWidget* 			parent 	= nullptr,
-												Dataworld_class*	data	= nullptr);
-    virtual 			~Rtsp_Dialog_class		();
+    explicit 				Rtsp_Dialog_class		( QWidget* 			parent 	= nullptr,
+													Dataworld_class*	data	= nullptr );
+    virtual 				~Rtsp_Dialog_class		();
 
 public slots:
-	void 				UpdateLog				( const QString& logstr );
-	void 				Dialog				 	();
+	void 					UpdateLog				( const QString& logstr );
+	void 					Dialog				 	();
 
 
 private:
-	void 				proc_table( uint row, uint col, string text);
+	void 					proc_table( uint row, uint col, string text);
 };
 
 #endif // RTSP_DIALOG_CLASS_H

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025,2026 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,58 +38,61 @@ SOFTWARE.
 #include <QString>
 #include <QStringList>
 #include <QPushButton>
+#include <QToolButton>
 
 // Ocean
 #include <data/Interface.h>
 
-
 extern Config_class Cfg;
+
 #define defaultButtonRGB 0,179,255
 
-namespace Ocean
+extern QStringList 		Qstringlist		( const list<string>& str_lst );
+extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );
+extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
+extern void 			SetGeometry		( QWidget* Widget );
+extern void 			updateLogState	( QToolButton* tB, LOG_e state );
+extern void 			set_StateButton	( QPushButton* pB,
+										StateId_e state,
+										QString name,
+										QString alt_txt = QString("") );
+struct qwd_rolenames_struct
 {
-	enum color : uint8_t
+	vector<QString> names;
+	qwd_rolenames_struct()
 	{
-		error		= Qt::red,
-		standard	= Qt::gray,
-		warning		= Qt::yellow,
-		active		= Qt::green,
-		inactice	= Qt::blue,
-		undefined	= Qt::gray
-	};
-}
-extern void setButton( QPushButton* button, int state, QString txt = "" );
-extern void set_StateButton( QPushButton* pB, StateId_e state, QString name  );
+		names			= Vstringvector	( sta_role_map().StANames );
+		names.push_back	( "Audio" );
+	}
+};
+const vector<QString> Qwd_role_names = qwd_rolenames_struct().names;
 
-constexpr QString Qstring( string str )
+inline constexpr QString Qstring( string str )
 {
 	return QString::fromStdString( str );
 }
 
-constexpr QString QReadStr ( SharedData_class* Sds, CSTRKEY_e key  )
+inline constexpr StateId_e colorstate( bool state )
 {
-    string str 		= Sds->Read_str( key );
-	return Qstring( str );
+	return ( state ? StateId_e::ENABLED : StateId_e::DISABLED );
 };
 
 
-
-
-struct PathStruct
+struct path_data
 {
 	string  dir	;
 	string	ext ;
 	QString Qext;
-	PathStruct(){};
-	PathStruct( string _dir, string _ext ) :
+	path_data(){};
+	path_data( string _dir, string _ext ) :
 		dir(_dir),
 		ext(_ext)
 	{
 		Qext = Qstring( ext );
 	}
-	~PathStruct(){};
+	~path_data(){};
 } ;
-typedef PathStruct Path_t;
+typedef path_data Path_t;
 
 /**************************************************
  * direvent_struct
@@ -97,20 +100,19 @@ typedef PathStruct Path_t;
  * filenames mathing the specified file extension
  *************************************************/
 struct direvent_struct
-	: PathStruct
+	: path_data
 	, dircontent_struct
 {
-	Id_t		Id 				= 0;
+	SDSId_t		Id 				= 0;
 	QComboBox*	cb 				= nullptr;
 	EVENTKEY_e	event 			= NULLKEY;
 	cstring_T<cstring_name>		cstring;
-//	cstring_name*	value		= nullptr;
 	Path_t	 	path 			{};
 	string		subdir 			= "";
 	string		current_value	;
 
 				direvent_struct	() : dircontent_struct( {}, "" ){};
-				direvent_struct	( Id_t id, QComboBox* _cb, EVENTKEY_e _event,
+				direvent_struct	( SDSId_t id, QComboBox* _cb, EVENTKEY_e _event,
 								cstring_name* value, string _dir, string _ext );
 	virtual 	~direvent_struct() = default;
 	void 		SetSubdir		( string dir );
@@ -129,15 +131,14 @@ enum DIREVENTID_e : uint8_t
 	DIRWAV_ID = 4	// wav file
 };
 
-
-
-
-
-
-extern QStringList 		Qstringlist		( const list<string>& str_lst );
-extern vector<QString> 	Vstringvector	( const vector<string>& spstr_vec );
-extern QStringList	 	Qstringvector	( const vector<string>& str_vec );
-extern void 			SetGeometry		( QWidget* Widget );
-
+template< class Button >
+auto setButtonColor ( Button* pB, Qt::GlobalColor color, QString txt )
+{
+	QPalette GUIpalette	= QPalette	{};
+	GUIpalette.setColor	( QPalette::All, QPalette::Button, color );
+	pB->setPalette		( GUIpalette );
+	if( txt.length() == 0 )	return; // do not change button text
+	pB->setText( txt );
+};
 
 #endif /* GUICOMMON_H */

@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -91,12 +91,11 @@ void keyboardState_class::set_kbdbps()
 	sds->Kbd_state.bpsval 	= (uint8_t)check_cycle2(Bps.idx_range,
 													(int)(sds->Kbd_state.bpsval + 1) );
 }
-void keyboardState_class::set_slideMode()
+void keyboardState_class::toggle_slideMode()
 {
-	sliding 					= not sliding;
+	sliding 					= not sds->Kbd_state.sliding;
 	sds->Kbd_state.sliding 		= sliding;
 }
-
 
 /**************************************************
  * Keyboard_class
@@ -108,7 +107,7 @@ void Keyboard_class::Show_help()
 	int base_oct = (int) sds_p->Kbd_state.base_octave;
 
 	Show_kbd_layout( base_oct ) ;
-	Info( "Instrument: ", instrument_p->Instrument_name.get() );
+	Info( "Instrument: ", instrument->Instrument_name.get() );
 	Table_class Table { "Keyboard ", 11 };
 	Table.AddColumn( "Keys"		, 9 );
 	Table.AddColumn( "Function"	, 30 );
@@ -120,8 +119,7 @@ void Keyboard_class::Show_help()
 	Table.AddRow( "F2", "increase sharps "		, (int) sds_p->Kbd_state.sharps, "#" );
 	Table.AddRow( "F3", "reset sharps "			);
 	Table.AddRow( "F4", "toggle decay mode "	, (int) sds_p->Kbd_state.bpsval * sds_p->adsr_arr[OSCID].bps ,"B psec");
-	Table.AddRow( "F5", "slide duration "		, to_string ((int)sds_p->Kbd_state.sliding *
-													Osc->features.frq_slide_value), "[ % ]");
+	Table.AddRow( "F5", "slide duration "		, Sds->frq_slide.value_str( sliding ) );
 	Table.AddRow( "F6", "Keyboard buffer "		, bool_str( StA->state.Forget(), "forget", "persist" ));
 	Table.AddRow( "F7", "increase flats "		, (int) sds_p->Kbd_state.flats, "b" );
 	Table.AddRow( "F8", "reset flats "			);
@@ -134,7 +132,10 @@ void Keyboard_class::Show_help()
 
 void Keyboard_class::notekey( char ch )
 {
-			SetChord	( ch );
+	if( sds_p->spectrum_arr[0].wfid[0] == WFID_e::FOURIER )
+		SetChord	( 'Y' ); // Don_t overload add_sound
+	else
+		SetChord	( ch );
 	char	note_char	= SetPitchVec( ch ) ;
 
 	if ( chord.size() > 0 )
@@ -149,8 +150,9 @@ void Keyboard_class::notekey( char ch )
 			Comment( DEBUG, "notekey:", (int)note_char );
 		}
 	}
-
 }
+
+
 void Keyboard_class::set_bufferMode( bool forget )
 {
 	StA->state.Forget( forget );
@@ -176,8 +178,8 @@ void Keyboard_class::SetKbdKey( )
 {
 	kbdInt_t	key		= sds_p->Kbd_state.key;
 	Kbd_key.Int			= key;
-	keyHandler			();
 	sds_p->Kbd_state.key= NOKEY;
+	keyHandler			();
 }
 
 void Keyboard_class::release_note()
@@ -189,26 +191,26 @@ void Keyboard_class::release_note()
 void Keyboard_class::keyHandler()
 {
 	string 	noteline 	= "";
-	bool 	tainted 	= true;
+	bool 	help		= true;
 	switch ( Kbd_key.Int )
 	{
 		case F1			:	{ 											; break; }
 		case F2			: 	{ increase_sharps()							; break; }
 		case F3 		: 	{ reset_sharps()							; break; }
 		case F4 		:	{ set_kbdbps()								; break; }
-		case F5 		: 	{ set_slideMode()							; break; }
+		case F5 		: 	{ toggle_slideMode()						; break; }
 		case F6			: 	{ set_bufferMode( not StA->state.Forget() )	; break; }
 		case F7 		: 	{ increase_flats()							; break; }
 		case F8 		: 	{ reset_flats()								; break; }
-		case F9 		: 	{ tainted = not Save_notes()				; break; }
+		case F9 		: 	{ help = not Save_notes()					; break; }
 		case '+' 		:	{ change_octave(  1 ) 						; break; }
 		case '-' 		:	{ change_octave( -1 ) 						; break; }
-		case '#' 		:	{ tainted = false; Notes->ShowFrqTable()	; break; }
-		case RELEASE	: 	{ tainted = false; release_note()			; break; }
-		case DEL		:	{ tainted = false; delete_sta()				; break; }
-		default 		: 	{ notekey( Kbd_key.Int ); tainted = false	; break; }
+		case '#' 		:	{ help = false; Notes->ShowFrqTable()		; break; }
+		case RELEASE	: 	{ help = false; release_note()				; break; }
+		case DEL		:	{ help = false; delete_sta()				; break; }
+		default 		: 	{ notekey( Kbd_key.Int ); help = false		; break; }
 	}
-	if ( tainted )
+	if ( help )
 	{
 		ClearScreen();
 		Show_help();

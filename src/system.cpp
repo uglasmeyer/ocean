@@ -28,9 +28,10 @@ SOFTWARE.
  *  Created on: Dec 30, 2023
  *      Author: Ulrich.Glasmeyer@web.de
  */
-#include <System.h>
 #include <fstream>
 #include <iostream>
+#include <System.h>
+
 
 extern Logfacility_class Log;
 
@@ -40,7 +41,7 @@ bool has_cmd_processor() // e.g. /bin/sh or cmd.exe
 	return ret;
 }
 
-int System_execute( const string& cmd, bool _noexcept )
+LOG_e System_execute( const string& cmd, bool _noexcept )
 {
 	coutf;
 	int ret = system( cmd.data() );
@@ -49,11 +50,11 @@ int System_execute( const string& cmd, bool _noexcept )
 		if ( _noexcept )
 		{
 			Log.Comment( ERROR, "executed with error" );
-			return ret;
+			return ERROR;
 		}
 		Exception( cmd + "\ncheck out system error message " );
 	}
-	return 0;
+	return INFO;
 }
 
 int System_execute_bg( const string& _cmd, string log1 )
@@ -81,10 +82,10 @@ int System_execute_bg( const string& _cmd, string log1 )
 	coutf << "Executing: " << cmd << endl;
 	ret = system( cmd.data() );
 	ret = -1;
-	getline( ifstream( pid_file ), retstr );
+	std::getline( ifstream( pid_file ), retstr );
 	if( retstr.length() > 0 )
 		ret		= stoi( retstr );
-	filesystem::remove( pid_file );
+	remove( pid_file );
 	return ret;
 }
 
@@ -93,7 +94,7 @@ bool Is_running_process( const int& pid )
 {
 	stringstream strs {};
 	strs << "/proc/" << dec  <<  pid ;
-	bool isdir = filesystem::is_directory( strs.str() ) ;
+	bool isdir = is_directory( strs.str() ) ;
 	return isdir ;
 }
 
@@ -107,18 +108,20 @@ void Touch_file( string file )
 
 void Remove_file( string file )
 {
-	if ( filesystem::exists( file ) )
-		filesystem::remove( file);
-	if ( filesystem::exists( file ))
+	if ( exists( file ) )
+		remove( file);
+	if ( exists( file ))
 		Exception( "cannot remove file: " + file );
 
 }
 void Rename_file( string old_name, string new_name )
 {
+	if( new_name.size() == 0 )
+		Exception( "cannot rename " + old_name + " to empty filename"  );
 	Remove_file( new_name );
-    filesystem::rename( old_name, new_name);
+    rename( old_name, new_name);
 
-	if ( filesystem::exists( old_name ))
+	if ( exists( old_name ))
 		Exception( "cannot remove file: " + old_name );
 }
 
@@ -127,9 +130,9 @@ size_t loadData( string file, void* data, size_t bytes )
 
 	auto filesize = [ file ]( )
 	{
-	    filesystem::path filePath = file;
-	    if( filesystem::exists( filePath ) )
-	    	return filesystem::file_size( filePath );
+	    std::filesystem::path filePath = file;
+	    if( exists( filePath ) )
+	    	return file_size( filePath );
 	    else
 	    	return size_t( 0 );
 	};
@@ -138,14 +141,14 @@ size_t loadData( string file, void* data, size_t bytes )
 		return 0;
 	if( not data )
 		return 0;
-	if( not filesystem::exists( file ) )
+	if( not exists( file ) )
 		return 0;
 	if ( bytes == 0 )
 		bytes = filesize();
 	if ( bytes == 0)
 		return 0;
 
-	ifstream		fd	{ file, ios::binary };
+	ifstream		fd	{ file, std::ios::binary };
 	fd.read( reinterpret_cast<char*>( data ), bytes );
 	fd.close();
 
@@ -157,7 +160,7 @@ bool dumpData( string file, void* data, size_t bytes )
 
 	auto dir = [ file ]()
 	{
-		filesystem::path path { file };
+		std::filesystem::path path { file };
 		return path.root_path();
 	};
 
@@ -165,11 +168,11 @@ bool dumpData( string file, void* data, size_t bytes )
 		return false;
 	if( not data )
 		return false;
-	if( not filesystem::exists( dir() ))
+	if( not exists( dir() ))
 		return false;
 	Remove_file( file );
 
-	std::fstream		FD	{ file, ios_base::binary|ios_base::out };
+	std::fstream		FD	{ file, std::ios_base::binary|std::ios_base::out };
 	try
 	{
 		FD.write( reinterpret_cast<char*>( data ), bytes );
@@ -182,10 +185,10 @@ bool dumpData( string file, void* data, size_t bytes )
 	return true;
 }
 
-bool Write_template_text( string file, string text, bool overwrite )
+bool Write_template_text( const string& file, const string& text, bool overwrite )
 {
 
-	if( filesystem::exists( file ) )
+	if( exists( file ) )
 		if( not overwrite )
 			return true;
 
@@ -221,10 +224,10 @@ void System_Test()
  *************************************************/
 bool is_pathvec( string_vec_t dirs )
 {
-	for( filesystem::path path : dirs )
-		if ( not filesystem::exists( path ) )
+	for( string path : dirs )
+		if ( not exists( path ) )
 		{
-			Log.Comment( ERROR, path.generic_string(), "is not a directory" );
+			Log.Comment( ERROR, std::filesystem::path( path ).generic_string(), "is not a directory" );
 			return false;
 		}
 	return true;
@@ -262,7 +265,7 @@ void dircontent_struct::updateContent()
 	list_directories();
 
 	// make unique entries in the filename vector
-	std::ranges::sort	( filename_vec );
+	sort	( filename_vec );
     auto last 			= std::unique(filename_vec.begin(), filename_vec.end());
     filename_vec.erase	(last, filename_vec.end());
 }
@@ -273,10 +276,10 @@ void dircontent_struct::Create( string name )
 		Exception( "search path length" );
 
 	string	file0	= searchPath[0] + name + ext;
-	if( not filesystem::exists( file0 ) )		//if not in subdir
+	if( not exists( file0 ) )		//if not in subdir
 	{
 		string file1 = searchPath[1] + name + ext;
-		if( not filesystem::exists( file1 ) )	//if not in basedir
+		if( not exists( file1 ) )	//if not in basedir
 		{
 			Touch_file( file0 );
 		}
@@ -284,7 +287,7 @@ void dircontent_struct::Create( string name )
 		{
 			if( strEqual( file1, file0 ) )
 				return;
-			filesystem::copy( file1, file0 );	// create from template in basedir
+			std::filesystem::copy( file1, file0 );	// create from template in basedir
 		}
 		updateContent();
 	}
@@ -341,13 +344,13 @@ string dircontent_struct::Getfile( string name )
 // fill filename_vec and dir_enty_vec
 void dircontent_struct::list_directories()
 {
-	filesystem::path fspath{};
+	std::filesystem::path fspath{};
 	for( string dir : searchPath )
 	{
-		fspath = filesystem::path( dir );
-	    if ( filesystem::is_directory( fspath ) )
+		fspath = std::filesystem::path( dir );
+	    if ( std::filesystem::is_directory( fspath ) )
 	    {
-	        for (auto const& dir_entry : filesystem::directory_iterator{ fspath })
+	        for (auto const& dir_entry : std::filesystem::directory_iterator{ fspath })
 	        {
 	        	string extension = dir_entry.path().extension();
 	        	if( strEqual( extension, ext) )

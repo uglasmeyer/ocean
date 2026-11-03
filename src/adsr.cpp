@@ -30,7 +30,6 @@ SOFTWARE.
  */
 
 #include <Adsr.h>
-//#include <Oscwaveform.h>
 
 inline string alpha( bool flag )
 {
@@ -39,27 +38,26 @@ inline string alpha( bool flag )
 
 uint8_t localclock = 1;
 
+
 ADSR_class::ADSR_class( OSCID_e _typeid, RoleId_e roleId )
 	: Logfacility_class	( "ADSR_class" )
-	, Spectrum_class	()
 	, osctype_struct	( _typeid, roleId )
 	, Oscillator_base	( _typeid, roleId )
+	, Spectrum_class	( spectrum_ns::ADSR )
 	, adsr_Mem			( max_frames*sizeof_Data )
+	, fourier			( osctype_name + "A" )
 {
 	this->tainted		= true; // becomes true if adsr_data changes
 	this->beat_frames	= max_frames;
 	this->adsr_wp_frames= max_frames;
-	this->adsr_data		= adsr_struct();
-	adsr_data.spec.osc	= _typeid;
+	this->adsr_data		= adsr_data_struct();
+	this->base_wfid		= &adsr_data.spec.wfid[0];
 
 	Set_beatclock		( &localclock );
-//	localclock			=  1; // notes clock not managed
-//	beatclock			= &localclock;
 	Set_beatcursor		( 0 );
 	Set_hallcursor		( 0 );
 	KbdAttack			();
 	Set_adsr			( default_adsr );
-//	this->Trigger		= ( beat_cursor == 0 );
 
 };
 
@@ -72,11 +70,7 @@ void ADSR_class::Set_beatclock( uint8_t* bpm )
 {
 	beatclock = bpm;
 }
-Data_t* ADSR_class::Adsr_OSC()
-{
-	adsrOSC( beat_frames );
-	return adsr_Mem.Data;
-}
+
 Data_t* ADSR_class::AdsrMemData_p()
 {
 	return adsr_Mem.Data;
@@ -89,14 +83,12 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 		if ( adsr_data.bps	== 0 )
 		{
 			beat_cursor = 0;
-//			Trigger = true;
 			return;
 		}
 	}
 
 	if ( beat_frames 	== 0 )
 	{
-//		Trigger = true;
 		beat_cursor= 0;
 
 		return;
@@ -110,6 +102,7 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 	const float dbH		= 1.0 - dbB;
 	uint		pos		= frame_offset;
 
+	// merge adsr data and osc data
 	for ( uint m = 0; m < frames; m++ )
 	{
 		Data[ pos ] = Data[ pos ] * ( 	adsr_Mem.Data[ beat_cursor ]*dbB +
@@ -119,13 +112,6 @@ void ADSR_class::Apply_adsr( buffer_t frames, Data_t* Data, buffer_t frame_offse
 		pos			= ( pos + 1 ) 			% adsr_frames;
 	}
 
-//	if( ( is_osc_type ) and ( has_instr_role ) )
-//	{
-//		if( beat_cursor == 0 )
-//			Trigger = true;
-//		else
-//			Trigger = false;
-//	}
 
 	if ( has_kbd_role )
 		Comment( DEBUG, "Apply_adsr::", osctype_name,
@@ -167,57 +153,72 @@ auto adsr_fnc = [  ]( buffer_t n, const adsr_param_t& p  )
 	}
 };
 
+#include <Fourier.h>
+
 void ADSR_class::adsrOSC( buffer_t bframes )
 {
+	auto clearFNC = [ this ]( buffer_t frames )
+	{	// delete unspecied data
+		for ( buffer_t n = frames; n < adsr_frames ; n++ )
+		{
+			adsr_Mem.Data[n] 		= 0.0;
+		}
+	};
 
-	if ( not tainted ) 			return;
-	tainted 					= false;
-	if ( bframes == 0 )
+	auto fourierFNC = [ this, clearFNC, bframes ](  )
 	{
-		adsr_Mem.Clear_data(0);
-		return;
-	}
-	Comment( DEBUG, "adsrOSC::", osctype_name, (int)bframes, alpha(kbdattack) );
+		param_t 		param 		= param_struct();
+						param.maxphi= 2*M_PI;
+						param.dphi	= param.maxphi * dt / 2;	// FFT.idx/2
 
-	buffer_t		aframes 	= rint( bframes * 0.002 ); // minimal attack length
-	if ( adsr_data.attack 	> 0 )
-					aframes 	= rint ( bframes * adsr_data.attack * percent );
-	const float 	d_delta		= ( ( 100 - adsr_data.decay ) / 3.0 ) / bframes;
-	const float 	delta 		= ( bframes - aframes ) * d_delta;
-	const float		y0 			= expf( - delta );
-	const float 	dy			= (1.0 - y0) / aframes;
+		for ( buffer_t n = 0; n < bframes ; n++ )
+		{
+			adsr_Mem.Data[n] 		= fourier.Fnc( param );
+		}
+		clearFNC( bframes );
+	};
 
-	adsr_param_t 	adsr_param	= { aframes, y0, dy, d_delta };
-	if( ( kbdattack ) and ( *beatclock == 0 ) )
-		adsr_param 				= { aframes, 0.0, 1.0f/float(aframes), 0.0 };
-
-	for ( buffer_t n = 0; n < bframes ; n++ )
+	auto adsrFNC = [ this, clearFNC, bframes ](  )
 	{
-		adsr_Mem.Data[n] 		= adsr_data.spec.vol[0] * adsr_fnc( n, adsr_param );
-	}
-	for ( buffer_t n = bframes; n < adsr_frames ; n++ )
-	{
-		adsr_Mem.Data[n] 		= 0.0;
-	}
+		const buffer_t	aframes 	= ( adsr_data.attack > 0 ) ?
+										rint ( bframes * adsr_data.attack * percent ) :
+										rint ( bframes * 0.002 ); // minimal attack length
 
-	param_t			param 		= param_struct();
-					param.pmw	= 1.0 + (float)features.PWM * percent;
-	spectrum_t		spec 		= adsr_data.spec;
-	Spectrum_class::Sum			( spec );
+		const float 	d_delta		= ( ( 100 - adsr_data.decay ) / 3.0 ) / bframes;
+		const float 	delta 		= ( bframes - aframes ) * d_delta;
+		const float		y0 			= expf( - delta );
+		const float 	dy			= (1.0 - y0) / aframes;
 
-	for ( size_t channel = 1; channel < SPECARR_SIZE; channel++ )
+		adsr_param_t 	adsr_param	= { aframes, y0, dy, d_delta };
+		if( ( kbdattack ) and ( *beatclock == 0 ) )
+			adsr_param 				= { aframes, 0.0, 1.0f/float(aframes), 0.0 };
+
+		for ( buffer_t n = 0; n < bframes ; n++ )
+		{
+			adsr_Mem.Data[n] 		= adsr_fnc( n, adsr_param );
+		}
+		clearFNC( bframes );
+	};
+
+	auto spectrumFNC = [ this, bframes ](  )
 	{
-		if ( spec.volidx[channel] > 0 )
+		param_t			param 		= param_struct();
+						param.pmw	= 1.0 + (float)features.PWM * percent;
+		spectrum_t		spec 		= adsr_data.spec;
+
+		// Note: channel 0 specifies the main waveform
+		for ( uint8_t channel : dialog_channel_vec )
 		{
 
-			const uint8_t	wfid		= spec.wfid[ channel ];
-			wave_function_t	fnc			= adsrFunction_vec[ wfid ].fnc ;
-							param.maxphi= adsrFunction_vec[ wfid ].maxphi;
+			const WFID_e	wfid		= spec.wfid[ channel ];
+			waveform_t		waveFnc		= Waveform->Get_fnc( wfid );
+			wave_function_t	fnc			= waveFnc.fnc ;
+							param.maxphi= waveFnc.maxphi;
 			const float		dT 			= param.maxphi / bframes;
-							param.dphi	= dT * spec.frqadj[ channel ];
+			const frq_t		adjust		= Frqadj( channel, spec.frqidx[channel] );
+							param.dphi	= dT * adjust;
 							param.phi	= 0.0;
-							param.amp	= spec.volidx[ channel ] *
-											percent/adsrFunction_vec[ wfid ].width;
+							param.amp	= spec.volidx[ channel ]*volFactor/adsrFunction_vec[ wfid ].width;
 			for ( buffer_t n = 0; n < bframes ; n++ )
 			{
 				adsr_Mem.Data[n] 	+= adsr_Mem.Data[n] * fnc( param );
@@ -225,7 +226,27 @@ void ADSR_class::adsrOSC( buffer_t bframes )
 				param.phi 			= MODPHI( param.phi, param.maxphi );
 			}
 		}
+	};
+	////////////////////////////////////////////////////////////////////////
+
+	if ( not tainted ) 			return;
+	tainted 					= false;
+
+	if ( bframes == 0 )
+	{
+		clearFNC( 0 );
+		return;
 	}
+
+	Comment( DEBUG, "adsrOSC::", osctype_name, (int)bframes, alpha(kbdattack) );
+	switch ( *base_wfid )
+	{
+		case WFID_e::FOURIER	: { fourierFNC();
+									break; }
+		default					: { adsrFNC();
+									spectrumFNC();
+									break; }
+	} // switch key
 }
 
 bool ADSR_class::Sync()
@@ -241,7 +262,7 @@ void ADSR_class::Set_hallcursor( buffer_t cursor )
 	if ( cursor == 0 )
 	{
 		buffer_t
-		hframes		= rint( adsr_data.hall * min_frames * percent );
+		hframes		= rint( adsr_data.hall * ( min_frames * percent ) );
 		hall_cursor	= ( beat_cursor + hframes ) % beat_frames;
 	}
 }
@@ -279,38 +300,44 @@ void ADSR_class::Set_bps()
 		set_beatframes( 1				, wp.frames   );
 	else
 		set_beatframes( adsr_data.bps	, adsr_frames );
-
-//	switch ( roleId )
-//	{
-//		case NOTESROLE 	: { set_beatframes( 1				, wp.frames   ); break; }
-//		case INSTRROLE 	: { set_beatframes( adsr_data.bps	, adsr_frames ); break; }
-//		case KBDROLE 	: { set_beatframes( adsr_data.bps	, adsr_frames ); break; }
-//		default			: { beat_frames = 0; break; }
-//	}
 }
-void ADSR_class::Set_adsr_spec	( spectrum_t spec )
+
+void ADSR_class::set_adsr_spec	( spectrum_t& spec )
 {
-	tainted 		= true;
-	adsr_data.spec	= spec;
+	tainted 			= true;
+	spec.volidx[0]		= 100;
+	volFactor			= VolFactor( spec.volidx );
+	spec.osc			= typeId;
+	adsr_data.spec		= spec;
+	if( *base_wfid == WFID_e::FOURIER )
+	{
+		if( not fourier.Is_ready() )
+			*base_wfid = WFID_e::ADSR;
+	}
+	else
+	{
+		*base_wfid = WFID_e::ADSR;
+	}
 }
 
-adsr_t ADSR_class::Set_adsr( adsr_t _adsr )
-{	// ADSRALL_KEY
+adsr_data_t ADSR_class::Set_adsr( adsr_data_t _adsr )
+{
 	adsr_data 		= _adsr;
 	tainted 		= true;
 	Set_bps			();
 	Set_hallcursor	();
+	set_adsr_spec	( adsr_data.spec );
 	return 			adsr_data;
 }
 
-adsr_t ADSR_class::Get_adsr()
+adsr_data_t ADSR_class::Get_adsr()
 {
 	return adsr_data;
 }
 
-string ADSR_class::Show_adsr	( adsr_t _adsr )
+string ADSR_class::Show_adsr( adsr_data_t _adsr )
 {
-	return Show_spectrum_type( SPEW, _adsr.spec );
+	return Show_spectrum_type( spectrum_ns::SPEW, _adsr.spec );
 }
 
 

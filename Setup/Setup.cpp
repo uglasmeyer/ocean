@@ -37,12 +37,7 @@ Exit_class				Exit			{};
 Kbd_base				Kbd 			{};
 Config_class			Cfg				{};
 Logfacility_class		Log				( Cfg.prgName );
-
-
-
 file_structure* 		Bin				= Cfg.fs;
-
-
 
 void exit_proc( int signal )
 {
@@ -67,18 +62,18 @@ void Conditional( string question, string action )
 
 void overwrite ( string _src, string _dst, string comment="" )
 {
-	auto mode = filesystem::copy_options::overwrite_existing;
+	auto mode = copy_options::overwrite_existing;
 	if ( comment.length() == 0 )
 		comment="Overwriting:";
 	Log.Info( comment, _dst );
-	filesystem::copy( _src , _dst, mode );
+	std::filesystem::copy( _src , _dst, mode );
 };
 void init_file( string _src, string _dst )
 {
-	if( filesystem::exists( _dst ) )
+	if( exists( _dst ) )
 		Log.Info( "Skipping", _src );
-	auto mode = filesystem::copy_options::skip_existing;
-	filesystem::copy( _src , _dst, mode );
+	auto mode = copy_options::skip_existing;
+	std::filesystem::copy( _src , _dst, mode );
 }
 
 string deployment_archive = "";
@@ -163,9 +158,9 @@ void symboliclink( string _src, string _sym, string _ext )
 
 	auto overwrite_link = [ _src ]( string _link )
 	{
-		if( filesystem::exists( _link ))
-			filesystem::remove( _link );
-		filesystem::create_symlink( _src, _link );
+		if( exists( _link ))
+			remove( _link );
+		create_symlink( _src, _link );
 	};
 	if ( strEqual(_sym, "Synthesizer") )
 	{
@@ -188,7 +183,7 @@ void install_binary( string _bin, string _ext )
 
 	compare_environment();
 
-	filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
+	std::filesystem::path 	pwd				{ notnull( getenv("PWD") ) };
 	string 				src_bin_file	= pwd.generic_string() + "/" + _bin;
 	string				dst_bin_file	= Bin->archbindir + _bin;
 	if( strEqual( _ext, ".so" ) )
@@ -241,9 +236,9 @@ void Copy_3rdpartylibs( source_struct* Src )
 	};
 	for ( string lib : lib_vec )
 	{
-		if ( filesystem::exists( lib ) )
+		if ( exists( lib ) )
 		{
-			filesystem::copy( lib , Bin->archlibdir, filesystem::copy_options::overwrite_existing );
+			std::filesystem::copy( lib , Bin->archlibdir, std::filesystem::copy_options::overwrite_existing );
 		}
 		else
 		{
@@ -294,8 +289,8 @@ void Setup_runtime( source_struct* Src, file_structure* Bin )
 	bashrc_oceandir();
 //	create_oceanrc();
 
-	using filesystem::perms;
-	using filesystem::perm_options;
+	using std::filesystem::perms;
+	using std::filesystem::perm_options;
 
 	permissions( Bin->deploy_file	, perms::owner_exec, perm_options::add );
 	permissions( Bin->ipctool_file	, perms::owner_exec, perm_options::add );
@@ -312,7 +307,7 @@ int main(int argc, char **argv)
 	if( Cfg.Config.filename.length() > 0 )
 	{
 		Cfg.CreateInstalldirs( );
-		filesystem::path path { Cfg.Config.filename };
+		std::filesystem::path path { Cfg.Config.filename };
 
 		install_binary( Cfg.Config.filename, path.extension() );
 		exit(0);

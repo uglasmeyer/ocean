@@ -106,9 +106,6 @@ private:
 class keyboardState_class :
 	public Kbd_pitch_class
 {
-	const range_T<uint8_t>	sharps_range			{ 0, 3 };
-	const range_T<uint8_t>	flats_range				{ 0, 3 };
-	const range_T<uint8_t>	Kbdoctave_range			{ 1, max_kbd_octave };
 	frq_t					basefrq					;
 	interface_t* 			sds						;
 
@@ -125,7 +122,7 @@ public:
 	void 					reset_sharps			();
 	void 					reset_flats				();
 	void 					set_kbdbps				();
-	void 					set_slideMode			();
+	void 					toggle_slideMode			();
 
 } ;
 
@@ -150,7 +147,7 @@ typedef struct KbdNoteline_struct
 typedef struct 			Notevector_struct
 {
 private:
-	Note_class*			Notes					;
+	NotesCore_class*	Notes					;
 	fs_t*				Fs						;
 	size_t				Size					;
 
@@ -162,7 +159,7 @@ private:
 public:
 
 	virtual				~Notevector_struct		();
-						Notevector_struct		( Note_class* notes,
+						Notevector_struct		( NotesCore_class* notes,
 												fs_t* fs,
 												size_t size );
 	void				Add						( chord_t vec, bool forget, uint& cnt );
@@ -186,12 +183,12 @@ class Keyboard_class
 	, virtual public	keyboardState_class
 {
 	const uint8_t		notes_per_sec			= 8;
-	Oscgroup_t			Oscgroup				;
+	Oscgroup_class		Oscgroup				{ KBDROLE, 2*monobuffer_bytes };
 	Oscillator*			Osc						;
-	Instrument_class* 	instrument_p			;
+	Instrument_class* 	instrument				;
 	Wavedisplay_class*	wd_p					;
 	Storage_class*		StA						;
-	Note_class*			Notes					;
+	NotesCore_class*	Notes					;
 	Scanner_class*		scanner					;
 	int					max_notes				;
 	Notevector_t		Note_vec				;
@@ -201,7 +198,7 @@ public:
 						Keyboard_class			( 	Dataworld_class*,
 													Instrument_class*,
 													Storage_class*,
-													Note_class* );
+													NotesCore_class* );
 	virtual 			~Keyboard_class			();
 	void 				Dispatcher				( bool trigger );
 	void 				Enable					( bool iskbd );
@@ -209,6 +206,7 @@ public:
 	void 				Show_help				();
 	void				SetKbdKey				();
 	bool 				Save_notes				( bool save = true );
+	void				Keyboard_test			();
 
 private:
 
@@ -239,7 +237,5 @@ private:
 	void 				delete_sta				();
 
 };
-
-
 
 #endif /* KEYBOARD_H_ */

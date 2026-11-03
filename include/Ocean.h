@@ -28,15 +28,17 @@ SOFTWARE.
  *  Created on: Dec 15, 2023
  *      Author: Ulrich.Glasmeyer@web.de
  */
+
+
 #ifndef OCEAN_H
 #define OCEAN_H
-
 
 #include <algorithm>
 #include <array>
 #include <bitset>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iomanip> // setfill cout ...
 #include <iostream>
@@ -68,19 +70,66 @@ SOFTWARE.
 #include <sys/types.h>
 #include <termios.h>
 
+using std::array;
+using std::bitset;
+using std::boolalpha;
+using std::cin;
+using std::clamp;
+using std::cout;
+using std::dec;
+using std::endl;
+using std::fstream;
+using std::function;
+using std::getline;
+using std::hex;
+using std::ifstream;
+using std::istringstream;
+using std::left;
+using std::list;
+using std::numbers::pi;
+using std::numeric_limits;
+using std::map;
+using std::move;
+using std::ofstream;
+using std::right;
+using std::setfill;
+using std::setprecision;
+using std::set;
+using std::setw;
+using std::string;
+using std::stringstream;
+using std::this_thread::sleep_for;
+using std::to_string;
+using std::thread;
+using std::tuple;
+using std::unordered_set;
+using std::vector;
 
-using namespace std;
+using std::experimental::source_location;
+
+using std::filesystem::remove;
+using std::filesystem::rename;
+using std::filesystem::is_directory;
+using std::filesystem::exists;
+using std::filesystem::copy;
+using std::filesystem::copy_options;
+using std::filesystem::create_directories;
+using std::filesystem::create_symlink;
+
+using std::ranges::for_each;
+using std::ranges::sort;
+using std::ranges::unique_copy;
 
 // https://en.cppreference.com/w/cpp/language/types
 typedef unsigned long int 		buffer_t;
 typedef float		 			Data_t; // range -32767 ... +32767
 typedef int16_t		 			data_t; // range -32767 ... +32767
-typedef vector<Data_t>			DataVec_t;
 typedef double					phi_t;
 typedef float 					frq_t;
-typedef char					Id_t;
-typedef vector<Id_t>			SdsId_vec_t;
+typedef char					SDSId_t;
 typedef long int 				kbdInt_t;
+typedef vector<SDSId_t>			SdsId_vec_t;
+typedef vector<Data_t>			DataVec_t;
 typedef unordered_set<string>	uset_t;
 
 struct 				Stereo_struct
@@ -110,23 +159,23 @@ const uint8_t		sizeof_Stereo		= sizeof(Stereo_t);
 const uint8_t		sizeof_Data 		= sizeof(Data_t);
 const uint8_t		sizeof_data 		= sizeof(data_t);
 
-const uint			sample_rate			= 48000; //device default
+const uint			sample_rate			= 48000; //device default [frames / sec]
 const buffer_t		frames_per_sec  	= sample_rate;
 const buffer_t		frames_per_msec		= frames_per_sec / 1000 ;
 const phi_t 		dt 					= 1.0 / ( frames_per_sec );	//seconds per frame
 
 const uint8_t		max_slide_sec		= 8; // see dynamic
+const uint16_t		stepduration_msec	= 250;
 const uint8_t		max_sec 			= 2;
 const uint16_t		max_msec	 		= max_sec * 1000;
 const uint16_t		min_msec			= 125;
 const int16_t		measure_parts		= (int16_t) (max_msec / min_msec); // = 16
 
 const buffer_t		max_frames			= max_msec * frames_per_msec;
-const buffer_t		min_frames			= min_msec * frames_per_msec;
+const buffer_t		min_frames			= min_msec * frames_per_msec;	// [frames]
 const buffer_t		record_size 		= min_frames; // frames per record
 
 const buffer_t		audio_frames 		= min_frames;
-const uint			update_frequency	= sample_rate / audio_frames;
 const buffer_t 		chunksize			= audio_frames / 2;
 
 const uint			recduration 		= 3*60; // seconds
@@ -173,5 +222,7 @@ enum StateId_e : uint8_t
 const range_T<buffer_t>	frames_range		{ 0, max_frames };
 const range_T<uint>		duration_range		{ min_msec, max_msec };
 const range_T<int>		octave_range		{ min_octave, max_octave };
+const range_T<int> 		frqslide_range		{ 0, ( max_slide_sec * 1000 ) / stepduration_msec };
+
 
 #endif /* OCEAN_H */

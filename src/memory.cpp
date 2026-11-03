@@ -83,21 +83,15 @@ bool StAstate_class::Start()
 	return start;
 }
 StA_state_t StAstate_class::Get()
-{
-	StA_state_t 	state 	= StA_state_data();
-	state.filled 			= filled;
-	state.forget 			= forget;
-	state.play				= play;
-	state.store 			= store;
-	state.start				= start;
-	return 					state;
+{	// consider the order of StA_state
+	return	{ play, store, filled, forget, start };
 }
 void StAstate_class::Set( StA_state_t state )
 {
-	filled	= state.filled;
-	forget	= state.forget;
 	play	= state.play;
 	store	= state.store;
+	filled	= state.filled;
+	forget	= state.forget;
 	start	= state.start;
 }
 
@@ -246,7 +240,7 @@ Storage_class::Storage_class( StAId_e id, StA_param_t _param ) :
 	Logfacility_class		( "Storage_class" ),
 	Memory_base				( sizeof_Data, _param.size*sizeof_Data ),
 	param					( _param.name, _param.storage_time, _param.sta_dir ),
-	DynVolume				( DYNTYPE_e::VOL, volidx_range ),
+	DynVolume				( DYNFACE_e::VOL, volidx_range, volidx_range ),
 	scanner 				( Memory_base::Data, _param.size )
 {
 	this->Id				= id;
@@ -283,37 +277,38 @@ void Storage_class::Store_record( Data_t* src )
 
 	buffer_t	offs 		= scanner.wpos;
 				is_zero	= false;
-	for ( buffer_t n = 0; n < min_frames; n++ )
+	for ( buffer_t n = 0; n < record_size; n++ )
 	{
 		Data[offs + n] = src[n];
 	}
 
-	scanner.Set_fillrange	( offs + min_frames );
+	scanner.Set_fillrange	( offs + record_size );
 	assert( scanner.fillrange.max > 0 );
 	state.Store				( scanner.fillrange.max < scanner.mem_range.max );
-	records 				= scanner.fillrange.max / min_frames;
-	scanner.Next_wpos		( min_frames );
+	records 				= scanner.fillrange.max / record_size;
+	scanner.Next_wpos		( record_size );
 }
 
 void Storage_class::Set_records( uint  _records )
 {
 	Assert_lt(  _records , mem_ds.max_records + 1, "mem_ds.max_records" );
 
-	buffer_t	data_blocks				= _records * record_size;
-				records					= _records;
-				if( data_blocks == 0 )
-				{
-					scanner.Reset			();
-					Clear_data				( 0 );
-				}
-				else
-				{
-					scanner.Set_fillrange	( data_blocks );
-					scanner.Set_rpos		( 0 );
-					scanner.Set_wpos		( data_blocks );
-					param.wdsize			= data_blocks;
-					is_zero					= false;
-				}
+	buffer_t	data_blocks		= _records * record_size;
+	records						= _records;
+	if( data_blocks == 0 )	// do not set wdsize to 0
+	{
+		scanner.Reset			();
+		Clear_data				( 0 );
+	}
+	else
+	{
+		scanner.Set_fillrange	( data_blocks );
+		scanner.Set_rpos		( 0 );
+		scanner.Set_wpos		( data_blocks ); // append next write
+		param.wdsize			= data_blocks;
+		state.Filled			( true );
+		is_zero					= false;
+	}
 	Info( "StA", (int)Id, "loaded", records, "records");
 }
 
@@ -324,10 +319,12 @@ uint* Storage_class::Store_counter()
 
 void Storage_class::Reset( )
 {
-	Comment( DEBUG, "Reset counter ", (int)Id );
+	Comment				( DEBUG, "Reset counter ", (int)Id );
 	records 			= 0;
-	state.Store			( false );
-	state.Start			( false );
+	state.Set			( default_StA_state );
+//	Store			( false );
+//	state.Start			( false );
+//	state.Filled		( false );
 	scanner.Reset		();
 	Clear_data			( 0 );
 }
@@ -342,13 +339,13 @@ bool Storage_class::Set_filename( string subdir )
 		return false;
 
 	dirname = newdirname;
-	if( not filesystem::exists( dirname ) )
+	if( not exists( dirname ) )
 	{
-		filesystem::create_directories( dirname );
+		create_directories( dirname );
 	}
 	filename			= "StA_data"	+ to_string( Id ) + ".bin";
 	file 				= dirname + filename ;
-	if( not filesystem::exists( file ) )
+	if( not exists( file ) )
 	{
 		Touch_file( file );
 	}

@@ -33,20 +33,21 @@ SOFTWARE.
 #include <Table.h>
 #include <Dynamic.h>
 #include <Range.h>
+#include <math.h>
+
 /**************************************************
  * Dynamic_class
  *************************************************/
-Dynamic_class::Dynamic_class( DYNTYPE_e _type, range_T<int> _r )
+Dynamic_class::Dynamic_class( DYNFACE_e _type, range_T<int> _r, range_T<int> _sl )
 	: Logfacility_class("Dynamic_class")
 	, Frequency_class()
+	, value_range{ (uint8_t)(_r.min), (uint8_t)(_r.max) }
+	, slide_range{ _sl.min, _sl.max }
 
 {
 	this->dynface		= _type;
-	range_T<uint8_t> 	tmp { (uint8_t)(_r.min), (uint8_t)(_r.max) };
-	this->range			= tmp;
-	this->slide_value 	= 0;
-	this->restorestate	= state_struct();
-	this->current		= state_struct();
+//	this->restorestate	= dynamic_state_struct();
+	this->current		= dynamic_state_struct();
 
 };
 Dynamic_class::~Dynamic_class()
@@ -54,141 +55,123 @@ Dynamic_class::~Dynamic_class()
 	DESTRUCTOR( className )
 };
 
-
-
-uint8_t Dynamic_class::Setup( uint8_t future, DYNAMIC_e mode )
+uint8_t Dynamic_class::Setup( uint8_t future, DYNAMIC_e mode, size_t channel )
 {
-	current.future		= check_range( range, future, "Dynamic_class::Setup" );
+	current.future		= check_range( value_range, future, "Dynamic_class::Setup" );
 	switch ( dynface )
 	{
-		case DYNTYPE_e::FRQ : { current.future_f	= GetFrq( current.future ); break; }
-		case DYNTYPE_e::VOL : { current.future_f	= current.future * percent; break; }
+		case DYNFACE_e::FRQ : { current.future_f	= GetFrq( current.future ); break; }
+		case DYNFACE_e::VOL : { current.future_f	= current.future * percent; break; }
 		default : { break; }
 	} // switch  dyntype
-	if ( current.mode	== INIT ) // initialize past
+	if ( mode	== INIT ) // initialize past
 	{
 		current.past 	= current.future;
 		current.mode 	= FIXED;
 	}
 	else
-	{
-		current.mode 	= check_range( dynamic_valrange, mode, "" );
+	{	// fixed->slide, init->combine
+		current.mode 	= check_range( dynamic_valrange, mode, "dynamic_valrange" );
 	}
 	if ( current.mode 	== FIXED )
-		end();
+		end( channel );
 	return current.future;
 
 }
 
-void Dynamic_class::setup_past()
+float Dynamic_class::Reset_state( size_t channel )
 {
-	if ( current.mode 	== FIXED )
-		end();
-//  else: change past only if loop ends.
-	// This will be done elsewhere
-//	restorestate		= current; // used by dynamic frequency reset in osc.cpp
-}
-float Dynamic_class::Reset_state()
-{
-	current 	= restorestate;
+	current 	= dyn_state_arr[channel];//restorestate;
 	return current.present;
 }
-void Dynamic_class::set_state()
+
+void Dynamic_class::SetCurrent( dynamic_state_t state )
 {
-	restorestate= current;
+	current = state;
 }
 
-void Dynamic_class::SetDelta ( uint8_t sl_value )
+void Dynamic_class::SetDelta ( uint8_t sl_value, size_t channel  )
 {
+	auto slideFrames	= [ this, sl_value ]()
+	{
+		int	slide_value = check_range( slide_range, (int)sl_value, "slideFrames" );
+		float 	frames	= max_slide_frames * slide_value / slide_range.max ;
+
+		if (LogMask[TEST])
+			frames = test_frames;
+
+		return 	frames;
+	};
+
 	if( sl_value == 0 ) // disable dynamic
 	{
 		current.mode 	= FIXED;
 		current.delta 	= 0.0;
-		end				();
-		set_state		();
+		end				( channel );
+		dyn_state_arr[channel] = current;
+//		restorestate	= current;
+
 		return;
 	}
-	const buffer_t 	slide_frames	= slideFrames( sl_value );
-	const float		delta_value		= current.future_f - current.past_f;
-					current.delta	= abs( delta_value / slide_frames );
-					current.mode 	= SLIDE;
-					set_state		();
+	current.delta	= abs( ( current.future_f - current.past_f ) / slideFrames() );
+	current.mode 	= SLIDE;
+	dyn_state_arr[channel] = current;
+//	restorestate	= current;
+
 };
-
-buffer_t Dynamic_class::slideFrames( uint8_t value )
-{
-				slide_value 	= check_range( range, value, "slideFrames" );
-	float		slide_percent 	= float( slide_value) * percent ;
-	buffer_t 	frames 			= max_slide_frames * slide_percent ;
-
-	if (LogMask[TEST])
-		frames = test_frames;
-
-	return 	frames;
-}
-
 
 dynamic_state_t Dynamic_class::GetCurrent()
 {
 	return current;
 }
-void Dynamic_class::SetCurrent( dynamic_state_t state )
-{
-	current = state;
-}
-float Dynamic_class::Get( )
+
+float Dynamic_class::Get( size_t channel )
 {
 	if( current.mode == FIXED )
 		return current.future_f;
-	if( fcomp( current.present , current.future_f, current.delta ) ) // ||p| - |f|| <= |d|
+
+	// if p - f ~ 0
+	if( fcomp( current.present , current.future_f, current.delta ) )
 	{
 		current.mode 	= FIXED;
-		end();
+		end( channel );
 	}
+	// if p - f != 0
 	else
-	{
-		if ( current.present > current.future_f )
-		{
-			current.present	= current.present - current.delta;
-//			Assert_lt( current.future_f, current.present+0.0001f, "current.delta: " + to_string( current.delta ));
-		}
-		else
-		{
-			current.present	= current.present + current.delta;
-//			Assert_lt( current.present, current.future_f+0.0001f, "current.delta: " + to_string( current.delta ));
-		}
+	{	// p = p + signum( f - p ) * |delta|
+		current.present += copysign( current.delta, current.future_f - current.present);
 	}
 	return current.present;
 }
 
-void Dynamic_class::Update()
+void Dynamic_class::Update( size_t channel )
 {
 	if( fcomp( current.present, current.future_f, 2*current.delta ) )
 	{
-		end();
+		end( channel );
 	}
 }
 
-void Dynamic_class::end()
+void Dynamic_class::end( size_t channel )
 {
 	current.past 	= current.future  ;
 	current.past_f	= current.future_f;
 	current.present	= current.future_f;
-	restorestate	= current;
+	dyn_state_arr[channel] = current;
+
+//	restorestate	= current;
 }
 
-void Dynamic_class::Show( bool on )
+void Dynamic_class::show( bool on )
 {
 	Table_class	Table{ "Dynamics" };
 	Table.AddColumn( "mode    ", 8 );
-	Table.AddColumn( "slide   ", 8 );
 	Table.AddColumn( "past    ", 8 );
 	Table.AddColumn( "present ", 8 );
 	Table.AddColumn( "future  ", 8 );
 	Table.AddColumn( "delta   ", 8 );
 	Table.PrintHeader();
 	Table.AddRow(	(uint) current.mode,
-					(uint) slide_value,
 					(uint) current.past,
 					current.present,
 					current.future_f,
@@ -212,7 +195,7 @@ void Dynamic_class::TestFrq()
 		Get();
 	}
 	Update();
-	Show( true );
+	show( true );
 	assert( fcomp( 	current.present+5*current.delta, current.future_f, current.delta ));
 
 	SetDelta( 1 );
@@ -221,7 +204,7 @@ void Dynamic_class::TestFrq()
 		Get();
 	}
 	Update();
-	Show( true );
+	show( true );
 	ASSERTION( fcomp( 	current.present, current.future_f ), "Dyntest Frq",
 			current.present, current.future_f );
 
@@ -233,7 +216,7 @@ void Dynamic_class::TestFrq()
 		Get();
 	}
 	Update();
-	Show( true );
+	show( true );
 	ASSERTION( fcomp( 	current.present, current.future_f ), "Dyntest Frq",
 			current.present, current.future_f );
 	TEST_END( className );
@@ -255,7 +238,7 @@ void Dynamic_class::TestVol()
 		Get();
 	}
 	Update();
-	Show( true );
+	show( true );
 	Assert_lt( double(abs(-current.present + current.future_f + dn*current.delta)), 1E-4  , "Dyntest Vol" );
 	SetDelta( 1 );
 	for( uint n = 0; n < test_frames  ; n++ )
@@ -263,7 +246,7 @@ void Dynamic_class::TestVol()
 		Get();
 	}
 	Update();
-	Show( true );
+	show( true );
 	Assert_equal( current.present, current.future_f , "Dyntest Vol" );
 
 //	assert( false );

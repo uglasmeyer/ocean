@@ -35,9 +35,11 @@ SOFTWARE.
 #include <math.h>
 #include <Ocean.h>
 
-enum WFID_t : uint8_t
+
+enum WFID_e : uint8_t
 {
 	SINUS = 0,
+	COSIN,
 	TRIANGLE,
 	SGNSIN,
 	RECTANGLE,
@@ -49,43 +51,68 @@ enum WFID_t : uint8_t
 	NOISE,
 	RANDOM,
 	FOURIER,
-	WFID_SIZE
+	ZERO,
+	ADSR,		// non selectable default adsr main waveform parametrized by attack/decay
+	WFID_SIZE	// NIL
 };
-const range_T<WFID_t> wfid_range{ SINUS, WFID_SIZE };
+const range_T<int> wfid_range { 0, int(WFID_SIZE) };
 
 typedef struct param_struct
 {
-	float 	amp		= 0.0;
+	float 	amp		= 0.0;	// f = amp * f( phi )
 	phi_t 	phi		= 0.0;
-	phi_t 	dphi	= 0.0;
-	phi_t 	maxphi 	= 0.0;
-	float 	pmw		= 0.0;
+	phi_t 	dphi	= 0.0;	// dphi = w dt
+	phi_t 	maxphi 	= 0.0;	// 0 < phi < maxphi, see also MODPHI
+	float 	pmw		= 0.0;	// is available for pmw, sgnsin, trapez
 } param_t;
 
 typedef function<Data_t( param_t& )>wave_function_t;
 struct waveFnc_struct
 {
+	int					idx;
 	wave_function_t		fnc;
-	string				name	= "sinus";
 	phi_t 				maxphi 	= 2*M_PI;
 	float 				width	= 1.0;
+	WFID_e				wfid	= SINUS;
 };
-typedef waveFnc_struct 				waveFnc_t;
+typedef waveFnc_struct 				waveform_t;
+typedef vector<waveform_t>			waveFnc_vec_t;
 
-extern const 	vector<waveFnc_t>  	waveFunction_vec;
-extern const 	vector<string> 		waveform_str_vec;
-extern const 	range_T<int> 		waveform_range;
-extern const	uset_t				waveform_str_set;
-
-extern const 	vector<waveFnc_t>  	adsrFunction_vec;
-extern const 	vector<string> 		adsrwf_str_vec;
-extern const 	range_T<int> 		adsrwf_range;
-
-extern  		int 				sgn( const float& x );
-
-
-
+extern const 	waveFnc_vec_t		waveFunction_vec;
+extern const 	waveFnc_vec_t		adsrFunction_vec;
 #define MODPHI( phi, maxphi )\
-	( abs(phi) > maxphi ) ? ( phi - sgn(phi)*maxphi ) : phi;
+	( abs(phi) > maxphi ) ? ( phi - copysign(1, phi)*maxphi ) : phi;
+
+
+/**************************************************
+ * Waveform_class
+ *************************************************/
+class Waveform_class
+{
+	typedef unordered_set<WFID_e>
+					waveform_set_t	;
+
+	waveFnc_vec_t	WF_vec			;
+	waveform_t 		default_waveFnc ;
+	range_T<int> 	idx_range		;
+
+public:
+	waveform_set_t	waveform_Id_set	;
+	WFID_e 			default_wfid	;
+	vector<string> 	waveform_str_vec;
+	uset_t			waveform_str_set;
+
+					Waveform_class( waveFnc_vec_t wf_vec );
+	virtual 		~Waveform_class() = default;
+	waveform_t 		Get_fnc( WFID_e wfid );
+	WFID_e 			Get_id( string wstr );
+	WFID_e 			Get_id( int idx );
+	uint8_t 		Get_idx( WFID_e wfid );
+	string 			Get_str( WFID_e wfid );
+	WFID_e			Set_id( WFID_e wfid, int dir );
+};
+
+extern Waveform_class* waveform;
+extern Waveform_class* adsrform;
 
 #endif /* OSCWAVEFORM_H_ */

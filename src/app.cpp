@@ -180,7 +180,7 @@ kbdInt_t Application_class::KeyboardKey( bool debug )
 
 }
 
-Id_t Application_class::StartApp( 	APPID_e			appid,
+SDSId_t Application_class::StartApp( APPID_e		appid,
 									string 			terminal,
 									string 			args )
 {
@@ -189,17 +189,19 @@ Id_t Application_class::StartApp( 	APPID_e			appid,
 	string cmd = DaTA_p->Cfg_p->Server_cmd( terminal, binary, opt );
 	if( strEqual( terminal, "nohup"  ) )
 	{
-		System_execute_bg( binary, fs->nohup_logfile );	// comId will be defined by startup App
+		int ret = System_execute_bg( binary, fs->nohup_logfile );	// comId will be defined by startup App
+		sds_p->logState = ( ret > 0 )	? INFO	: ERROR;
 	}
 	else
 	{
-		System_execute( cmd );
+		sds_p->logState = System_execute( cmd );
 	}
-	DaTA_p->Sem_p->Lock( SEMAPHORE_STARTED, 2 ); 	// wait for comId
+	if( sds_p->logState == INFO )
+		DaTA_p->Sem_p->Lock( SEMAPHORE_STARTED, 2 ); 	// wait for comId
 	return sds_master->comId;
 
 }
-Id_t Application_class::ChangeAppState(	interface_t* 	sds,
+SDSId_t Application_class::ChangeAppState(	interface_t* 	sds,
 										APPID_e			appid,
 										string 			terminal,
 										string 			args )
@@ -215,7 +217,7 @@ Id_t Application_class::ChangeAppState(	interface_t* 	sds,
 	if( Appstate->IsRunning( sds, appid ) )
 	{
 		Appstate->SetExitserver( sds, appid ) ;
-		Id_t sdsid = sds_master->comId;
+		SDSId_t sdsid = sds_master->comId;
 		if( Appstate->MultiRunApp.contains( appid ) )
 		{
 			DaTA_p->Sem_p->Lock	( SEMAPHORE_EXIT );

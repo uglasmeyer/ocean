@@ -76,7 +76,7 @@ typedef struct sta_rolemap_data
 
 struct sta_role_map
 {
-	vector<std::string> StANames =
+	vector<string> StANames =
 	{
 		"UserR+",
 		"UserL-",
@@ -112,25 +112,11 @@ struct sta_role_map
 				return roleid_map.roleid;
 		return ROLE_SIZE;
 	}
-	string GetStaIdName( StAId_e staid )
+	string GetName( StAId_e staid )
 	{
-		string name = "";
-		if( in_range( staid_range, staid ) )
-			name = StANames[ staid ];
-		return name;
+		return in_range( staid_range, staid ) ? StANames[ staid ] : "";
 	}
 };
-const std::vector<std::string> StANames = sta_role_map().StANames;
-constexpr string StAIdName( StAId_e staid )
-{
-	if( staid < StANames.size() )
-		return StANames[ staid ];
-	else
-	{
-		cout << "WARN: unknown Storage Area id: " << ( int)staid << endl;
-		return "";
-	}
-}
 
 
 #endif /* MIXERBASE_H_ */

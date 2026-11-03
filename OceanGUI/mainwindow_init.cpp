@@ -42,23 +42,24 @@ SOFTWARE.
 /**************************************************
  * MainWindow
  *************************************************/
-template <typename T, std::size_t N>
-std::vector<T> arrayToVector(const std::array<T, N>& arr)
+template <typename T, size_t N>
+vector<T> arrayToVector(const array<T, N>& arr)
 {
-    return std::vector<T>(arr.begin(), arr.end());
+    return vector<T>(arr.begin(), arr.end());
 }
 
 void MainWindow::initWfDisplay_que()
 {
 	Qwd_wdmode_names		= Vstringvector	( wavedisplay_struct().button_types );
 	Qwd_osc_names 			= Vstringvector	( typeNames );
-	Qwd_role_names 			= Vstringvector	( StANames );
-	Qwd_role_names.push_back( "Audio" );
+//	Qwd_role_names 			= Vstringvector	( StaRole_map.StANames );
+//	Qwd_role_names.push_back( "Audio" );
 
 	for( interface_t* sds_p : DaTA_p->SDS.vec )
 	{
 		WfDisplay_que.Init( sds_p );
 	}
+
 }
 
 void MainWindow::initUiVectors()
@@ -88,14 +89,14 @@ void MainWindow::initPanel()
 
 void MainWindow::initLables()
 {
-	ui->cb_ssta0->setText( Qstring( StAIdName( STA_USER00 )));
-	ui->cb_ssta1->setText( Qstring( StAIdName( STA_USER01 )));
-	ui->cb_ssta2->setText( Qstring( StAIdName( STA_USER02 )));
-	ui->cb_ssta3->setText( Qstring( StAIdName( STA_USER03 )));
-	ui->cb_ssta4->setText( Qstring( StAIdName( STA_INSTRUMENT )));
-	ui->cb_ssta5->setText( Qstring( StAIdName( STA_KEYBOARD )));
-	ui->cb_ssta6->setText( Qstring( StAIdName( STA_NOTES )));
-	ui->cb_ssta7->setText( Qstring( StAIdName( STA_EXTERNAL )));
+	ui->cb_ssta0->setText( Qstring( StaRole_map.GetName( STA_USER00 )));
+	ui->cb_ssta1->setText( Qstring( StaRole_map.GetName( STA_USER01 )));
+	ui->cb_ssta2->setText( Qstring( StaRole_map.GetName( STA_USER02 )));
+	ui->cb_ssta3->setText( Qstring( StaRole_map.GetName( STA_USER03 )));
+	ui->cb_ssta4->setText( Qstring( StaRole_map.GetName( STA_INSTRUMENT )));
+	ui->cb_ssta5->setText( Qstring( StaRole_map.GetName( STA_KEYBOARD )));
+	ui->cb_ssta6->setText( Qstring( StaRole_map.GetName( STA_NOTES )));
+	ui->cb_ssta7->setText( Qstring( StaRole_map.GetName( STA_EXTERNAL )));
 }
 void MainWindow::initComboBoxes()
 {
@@ -108,7 +109,6 @@ void MainWindow::initComboBoxes()
     ui->CB_inst_bps->addItems	( Qbps_str_lst );
 }
 
-
 void MainWindow::initDataDisplay()
 {
     						scene	= new QGraphicsScene( this );
@@ -117,16 +117,23 @@ void MainWindow::initDataDisplay()
     					DataDisplay	= new DataGraphic_class( ifb.sds_p, ui->oscilloscope_view, param );
     ui->oscilloscope_view->setScene	( scene );
     scene->addItem					( DataDisplay );
-//    ui->oscilloscope_view->setRenderHint(QPainter::Antialiasing); // Smooth edges
 }
+
+void MainWindow::set_pb_wd_mode_text( WdModeID_t mode )
+{
+	if( mode < Qwd_wdmode_names.size() )
+	{
+		QString txt = Qwd_wdmode_names[ mode ];
+		ui->pB_wd_mode->setText( txt );
+	}
+};
 
 void MainWindow::initStateButtons()
 {
 
 	ui->pB_oscgroup->setText( Qwd_osc_names[ Sds->addr->WD_state.oscId ] );
 
-	WdModeID_t wd_mode		= check_cycle2( wd_mode_range, sds_p->WD_state.mode );
-	ui->pB_wd_mode->setText( Qwd_wdmode_names[ wd_mode ] );
+	set_pb_wd_mode_text( sds_p->WD_state.mode );
 
 	StAId_e staid = StaRole_map.GetStaid( sds_p->WD_state.roleId );
 	QString sta_name = "";
@@ -134,111 +141,148 @@ void MainWindow::initStateButtons()
 		sta_name= Qwd_role_names[ staid ];
 	ui->pB_WdRole->setText( sta_name );
 
-    setButton( ui->pB_Rtsp, 2 );
-    setButton( ui->pB_play_notes, 2 );
-    setButton( ui->pB_Spectrum, 2 );
-    setButton( ui->pBGuiExit, 3 );
-}
-
-void MainWindow::initScrollbars()
-{
-	QWaveform_vec 	= Vstringvector( waveform_str_vec );
-	assert( QWaveform_vec.size() > 0 );
-    uint sb_max 	= QWaveform_vec.size()-1;
-    vector<QSpinBox*> Sb_osc = { ui->sB_FMO, ui->sB_VCO, ui->sB_OSC };
-    for( OSCID_e oscid : oscIds )
-    {
-    	Sb_osc[oscid]->setMaximum( sb_max );
-    	Sb_osc[oscid]->setValue( (int)sds_p->spectrum_arr[oscid].wfid[0] );
-    }
+    set_StateButton( ui->pB_Rtsp, DISABLED, QString( "" ), QString( "" ) );
+    set_StateButton( ui->pB_play_notes, DISABLED, QString( "" ), QString( "" ) );
+    set_StateButton( ui->pB_Spectrum, DISABLED, QString( "" ),QString( "" ) );
+    set_StateButton( ui->pBGuiExit, ENABLED, QString( "" ),QString( "" ) );
 }
 
 void MainWindow::initFreqSlider()
 {
-	for( sl_lcd_t map : sl_lcd_vec )
+	for( sl_lcd_t map : sl_freq_vec )
 	{
 		map.sl->setMinimum( frqarr_range.min );
-		map.sl->setMaximum( map.max );
+		map.sl->setMaximum( frqarr_range.max );
 		int frqidx = *map.value;
-		map.sl->setValue( Spectrum_Dialog_p->Frequency.GetFrq( frqidx ));
+		map.sl->setValue( GetFrq( frqidx ));
 	}
 	ui->cB_Combine_fmo->setChecked( sds_p->features[FMOID].combine );
 	ui->cB_Combine_vco->setChecked( sds_p->features[VCOID].combine );
+
+	ui->Slider_slideFrq->setMaximum( Sds->frq_slide.max_steps );
+	ui->Slider_slideFrq->setSingleStep( 1 );
+	ui->Slider_slideFrq->setPageStep( Sds->frq_slide.page_steps );
 }
-void MainWindow::updateGuiVectors( interface_t* sds)
+
+void MainWindow::initGuiVectors()
 {
-
-
-    cb_store_sta_vec =
+	cb_sta_store_vec =
     {
-    	{ STA_USER00, ui->cb_ssta0, &sds->StA_state_arr[STA_USER00].store },
-		{ STA_USER01, ui->cb_ssta1, &sds->StA_state_arr[STA_USER01].store },
-		{ STA_USER02, ui->cb_ssta2, &sds->StA_state_arr[STA_USER02].store },
-		{ STA_USER03, ui->cb_ssta3, &sds->StA_state_arr[STA_USER03].store },
-		{ STA_INSTRUMENT, ui->cb_ssta4, &sds->StA_state_arr[STA_INSTRUMENT].store },
-		{ STA_KEYBOARD, ui->cb_ssta5, &sds->StA_state_arr[STA_KEYBOARD].store },
-		{ STA_NOTES, ui->cb_ssta6, &sds->StA_state_arr[STA_NOTES].store },
-		{ STA_EXTERNAL, ui->cb_ssta7, &sds->StA_state_arr[STA_EXTERNAL].store }
+    	{ ui->cb_ssta0, &sds_p->StA_state_arr[STA_USER00] },
+		{ ui->cb_ssta1, &sds_p->StA_state_arr[STA_USER01] },
+		{ ui->cb_ssta2, &sds_p->StA_state_arr[STA_USER02] },
+		{ ui->cb_ssta3, &sds_p->StA_state_arr[STA_USER03] },
+		{ ui->cb_ssta4, &sds_p->StA_state_arr[STA_INSTRUMENT] },
+		{ ui->cb_ssta5, &sds_p->StA_state_arr[STA_KEYBOARD] },
+		{ ui->cb_ssta6, &sds_p->StA_state_arr[STA_NOTES] },
+		{ ui->cb_ssta7, &sds_p->StA_state_arr[STA_EXTERNAL] }
     };
 
-//    ui->cb_ssta4->setCheckable(false);	// disable non record check boxes
-    ui->cb_ssta5->setCheckable(false);	// instrument, keyboard, notes
-    ui->cb_ssta6->setCheckable(false);
+    cb_sta_store_vec[STA_NOTES].cb->setCheckable( false );
+    cb_sta_store_vec[STA_KEYBOARD].cb->setCheckable( false );
 
-    cb_filled_sta_vec =
+    cb_sta_filled_vec =
     {
-    	{ STA_USER00, ui->cb_fsta0, &sds->StA_state_arr[STA_USER00].filled },
-		{ STA_USER01, ui->cb_fsta1, &sds->StA_state_arr[STA_USER01].filled },
-		{ STA_USER02, ui->cb_fsta2, &sds->StA_state_arr[STA_USER02].filled },
-		{ STA_USER03, ui->cb_fsta3, &sds->StA_state_arr[STA_USER03].filled },
-		{ STA_INSTRUMENT, ui->cb_fsta4, &sds->StA_state_arr[STA_INSTRUMENT].filled },
-		{ STA_KEYBOARD, ui->cb_fsta5, &sds->StA_state_arr[STA_KEYBOARD].filled },
-		{ STA_NOTES, ui->cb_fsta6, &sds->StA_state_arr[STA_NOTES].filled },
-		{ STA_EXTERNAL, ui->cb_fsta7, &sds->StA_state_arr[STA_EXTERNAL].filled }
+    	{ ui->cb_fsta0, &sds_p->StA_state_arr[STA_USER00] },
+		{ ui->cb_fsta1, &sds_p->StA_state_arr[STA_USER01] },
+		{ ui->cb_fsta2, &sds_p->StA_state_arr[STA_USER02] },
+		{ ui->cb_fsta3, &sds_p->StA_state_arr[STA_USER03] },
+		{ ui->cb_fsta4, &sds_p->StA_state_arr[STA_INSTRUMENT] },
+		{ ui->cb_fsta5, &sds_p->StA_state_arr[STA_KEYBOARD] },
+		{ ui->cb_fsta6, &sds_p->StA_state_arr[STA_NOTES] },
+		{ ui->cb_fsta7, &sds_p->StA_state_arr[STA_EXTERNAL] }
     };
 
-    cb_play_sta_vec =
+    tb_sta_play_vec =
     {
-		{ STA_USER00, ui->cb_psta0, &sds->StA_state_arr[STA_USER00].play  },
-		{ STA_USER01, ui->cb_psta1, &sds->StA_state_arr[STA_USER01].play  },
-		{ STA_USER02, ui->cb_psta2, &sds->StA_state_arr[STA_USER02].play  },
-		{ STA_USER03, ui->cb_psta3, &sds->StA_state_arr[STA_USER03].play  },
-		{ STA_INSTRUMENT, ui->cb_psta4, &sds->StA_state_arr[STA_INSTRUMENT].play  },
-		{ STA_KEYBOARD, ui->cb_psta5, &sds->StA_state_arr[STA_KEYBOARD].play  },
-		{ STA_NOTES, ui->cb_psta6, &sds->StA_state_arr[STA_NOTES].play  },
-		{ STA_EXTERNAL, ui->cb_psta7, &sds->StA_state_arr[STA_EXTERNAL].play  }
+		{ ui->tB_play_0, &sds_p->StA_state_arr[STA_USER00]  },
+		{ ui->tB_play_1, &sds_p->StA_state_arr[STA_USER01]  },
+		{ ui->tB_play_2, &sds_p->StA_state_arr[STA_USER02]  },
+		{ ui->tB_play_3, &sds_p->StA_state_arr[STA_USER03]  },
+		{ ui->tB_play_4, &sds_p->StA_state_arr[STA_INSTRUMENT]  },
+		{ ui->tB_play_5, &sds_p->StA_state_arr[STA_KEYBOARD]  },
+		{ ui->tB_play_6, &sds_p->StA_state_arr[STA_NOTES]  },
+		{ ui->tB_play_7, &sds_p->StA_state_arr[STA_EXTERNAL]  }
 	};
     sl_sta_vec =
     {
-		{ STA_USER00, ui->Slider_mix_vol0, &sds->StA_amp_arr[STA_USER00].amp  },
-		{ STA_USER01, ui->Slider_mix_vol1, &sds->StA_amp_arr[STA_USER01].amp  },
-		{ STA_USER02, ui->Slider_mix_vol2, &sds->StA_amp_arr[STA_USER02].amp  },
-		{ STA_USER03, ui->Slider_mix_vol3, &sds->StA_amp_arr[STA_USER03].amp  },
-		{ STA_INSTRUMENT, ui->Slider_mix_vol4, &sds->StA_amp_arr[STA_INSTRUMENT].amp  },
-		{ STA_KEYBOARD, ui->Slider_mix_vol5, &sds->StA_amp_arr[STA_KEYBOARD].amp  },
-		{ STA_NOTES, ui->Slider_mix_vol6, &sds->StA_amp_arr[STA_NOTES].amp  },
-		{ STA_EXTERNAL, ui->Slider_mix_vol7, &sds->StA_amp_arr[STA_EXTERNAL].amp  }
+		{ ui->Slider_mix_vol0, &sds_p->StA_amp_arr[STA_USER00]  },
+		{ ui->Slider_mix_vol1, &sds_p->StA_amp_arr[STA_USER01]  },
+		{ ui->Slider_mix_vol2, &sds_p->StA_amp_arr[STA_USER02]  },
+		{ ui->Slider_mix_vol3, &sds_p->StA_amp_arr[STA_USER03]  },
+		{ ui->Slider_mix_vol4, &sds_p->StA_amp_arr[STA_INSTRUMENT]  },
+		{ ui->Slider_mix_vol5, &sds_p->StA_amp_arr[STA_KEYBOARD]  },
+		{ ui->Slider_mix_vol6, &sds_p->StA_amp_arr[STA_NOTES]  },
+		{ ui->Slider_mix_vol7, &sds_p->StA_amp_arr[STA_EXTERNAL]  }
 	};
 
-    int max = frqarr_range.max - 2*oct_steps;  // 2 refers to max keyboard octave
-    sl_lcd_vec =
+    sl_freq_vec =
     {
-   		{ VCOFREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &sds->spectrum_arr[VCOID].frqidx[0], max },
-   		{ FMOFREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &sds->spectrum_arr[FMOID].frqidx[0], max },
-   		{ OSCFREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &sds->spectrum_arr[OSCID].frqidx[0], frqarr_range.max   }
+   		{ FREQUENCYKEY, ui->VCOLCD_Hz, ui->Slider_VCO_Hz, &sds_p->spectrum_arr[VCOID].frqidx[0] },
+   		{ FREQUENCYKEY, ui->FMOLCD_Hz, ui->Slider_FMO_Hz, &sds_p->spectrum_arr[FMOID].frqidx[0] },
+   		{ FREQUENCYKEY, ui->OSCLCD_Hz, ui->Slider_OSC_Hz, &sds_p->spectrum_arr[OSCID].frqidx[0] }
     };
     sl_volume_vec =
     {
-   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &sds->spectrum_arr[VCOID].volidx[0], volidx_range.max },
-   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &sds->spectrum_arr[FMOID].volidx[0], volidx_range.max },
-   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &sds_master->Master_Amp	 , volidx_range.max }
+   		{ VCOAMPKEY, 	ui->VCOLCD_Amp, ui->Slider_VCO_vol, &sds_p->spectrum_arr[VCOID].volidx[0] },
+   		{ FMOAMPKEY, 	ui->FMOLCD_Amp, ui->Slider_FMO_vol, &sds_p->spectrum_arr[FMOID].volidx[0] },
+   		{ MASTERAMP_KEY,ui->OSCLCD_Amp, ui->Slider_OSC_Vol, &sds_master->Master_Amp }
     };
-    sB_lbl_vec =
+    wf_vec =
     {
-        { VCOFREQUENCYKEY, ui->sB_VCO, ui->wf_vco, &sds->spectrum_arr[VCOID].wfid[0] },
-       	{ FMOFREQUENCYKEY, ui->sB_FMO, ui->wf_fmo, &sds->spectrum_arr[FMOID].wfid[0] },
-       	{ OSCFREQUENCYKEY, ui->sB_OSC, ui->wf_osc, &sds->spectrum_arr[OSCID].wfid[0] }
+        { WAVEFORMKEY, ui->pB_wfVCO, &sds_p->spectrum_arr[VCOID].wfid[0] },
+       	{ WAVEFORMKEY, ui->pB_wfFMO, &sds_p->spectrum_arr[FMOID].wfid[0] },
+       	{ WAVEFORMKEY, ui->pB_wfOSC, &sds_p->spectrum_arr[OSCID].wfid[0] }
     };
+}
+void MainWindow::updateGuiVectors( interface_t* sds)
+{
+	for( StAId_e staid : StAIds )
+	{
+		cb_sta_store_vec[staid].state	= &sds->StA_state_arr[staid];
+		cb_sta_filled_vec[staid].state	= &sds->StA_state_arr[staid];
+		tb_sta_play_vec[staid].state	= &sds->StA_state_arr[staid];
+	    sl_sta_vec[staid].value			= &sds->StA_amp_arr[staid];
+	}
+
+    for( OSCID_e oscid : oscIds )
+    {
+    	sl_freq_vec[oscid].value		= &sds->spectrum_arr[oscid].frqidx[0];
+		sl_volume_vec[oscid].value		= &sds->spectrum_arr[oscid].volidx[0];
+		wf_vec[oscid].value				= &sds->spectrum_arr[oscid].wfid[0];
+    }
+	sl_volume_vec[OSCID].value	= &sds_master->Master_Amp;
+	set_wdrole( sds_p->WD_state.roleId, true );
+
+}
+
+
+void MainWindow::initPushbuttons()
+{
+	auto initEventFilter	= [ this ]( QPushButton* ui_pb )
+	{
+	    Pushbutton_class* 	pb = new Pushbutton_class( ui_pb );
+	    pb->hide();
+	    return pb;
+	};
+
+	Pushbutton_class*
+	ui_pb = initEventFilter( ui->pB_WdRole );
+    connect( ui_pb , SIGNAL( clickdirection(int) ),this, SLOT(pB_Role_clicked(int) ) );
+	ui_pb = initEventFilter( Spectrum_Dialog_p->ui->pB_fourier_input );
+    connect( ui_pb , SIGNAL( clickdirection(int) ),this, SLOT(pB_Role_clicked(int) ) );
+	ui_pb = initEventFilter( ui->pB_oscgroup );
+    connect( ui_pb , SIGNAL( clickdirection(int) ),this, SLOT(pB_OSC_clicked( int) ) );
+	ui_pb = initEventFilter( ui->pB_wd_mode );
+    connect( ui_pb , SIGNAL( clickdirection(int) ),this, SLOT(pB_Mode_clicked( int) ) );
+
+	wf_pb_vec.clear();
+    for( QPushButton* ui_pb : { ui->pB_wfVCO, ui->pB_wfFMO, ui->pB_wfOSC } )
+    {
+    	Pushbutton_class*	pb	= initEventFilter( ui_pb );
+    	wf_pb_vec.push_back	( pb );
+    }
+
 }
 
 void MainWindow::initSignals()
@@ -280,9 +324,6 @@ void MainWindow::initSignals()
 
     connect(ui->CB_kbd_bps		, SIGNAL(activated(int) )	,this, SLOT(Notes_per_measure(int) ));
     connect(ui->CB_inst_bps		, SIGNAL(activated(int) )	,this, SLOT(Beat_per_sec(int) ));
-    connect(ui->pB_WdRole	 	, SIGNAL(clicked() )		,this, SLOT(pB_Role_clicked() ));
-    connect(ui->pB_wd_mode		, SIGNAL(clicked() )		,this, SLOT(pB_Mode_clicked() ));
-    connect(ui->pB_oscgroup		, SIGNAL(clicked() )		,this, SLOT(pB_OSC_clicked() ));
 
     connect(ui->Slider_mix_vol0	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix0(int) ));
     connect(ui->Slider_mix_vol1	, SIGNAL(valueChanged(int) ),this, SLOT(Sl_mix1(int) ));
@@ -302,14 +343,14 @@ void MainWindow::initSignals()
     connect(ui->cb_ssta6		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta6() ));
     connect(ui->cb_ssta7		, SIGNAL(clicked() )		,this, SLOT(toggle_store_sta7() ));
 
-    connect(ui->cb_psta0		, SIGNAL(clicked() )		,this, SLOT(setStaPlay0() ));
-    connect(ui->cb_psta1		, SIGNAL(clicked() )		,this, SLOT(setStaPlay1() ));
-    connect(ui->cb_psta2		, SIGNAL(clicked() )		,this, SLOT(setStaPlay2() ));
-    connect(ui->cb_psta3		, SIGNAL(clicked() )		,this, SLOT(setStaPlay3() ));
-    connect(ui->cb_psta4		, SIGNAL(clicked() )		,this, SLOT(setStaPlay4() ));
-    connect(ui->cb_psta5		, SIGNAL(clicked() )		,this, SLOT(setStaPlay5() ));
-    connect(ui->cb_psta6		, SIGNAL(clicked() )		,this, SLOT(setStaPlay6() ));
-    connect(ui->cb_psta7		, SIGNAL(clicked() )		,this, SLOT(setStaPlay7() ));
+    connect(ui->tB_play_0		, SIGNAL(clicked() )		,this, SLOT(setStaPlay0() ));
+    connect(ui->tB_play_1		, SIGNAL(clicked() )		,this, SLOT(setStaPlay1() ));
+    connect(ui->tB_play_2		, SIGNAL(clicked() )		,this, SLOT(setStaPlay2() ));
+    connect(ui->tB_play_3		, SIGNAL(clicked() )		,this, SLOT(setStaPlay3() ));
+    connect(ui->tB_play_4		, SIGNAL(clicked() )		,this, SLOT(setStaPlay4() ));
+    connect(ui->tB_play_5		, SIGNAL(clicked() )		,this, SLOT(setStaPlay5() ));
+    connect(ui->tB_play_6		, SIGNAL(clicked() )		,this, SLOT(setStaPlay6() ));
+    connect(ui->tB_play_7		, SIGNAL(clicked() )		,this, SLOT(setStaPlay7() ));
 
     connect(ui->cb_fsta0		, SIGNAL(clicked() )		,this, SLOT(setStaStored0() ));
     connect(ui->cb_fsta1		, SIGNAL(clicked() )		,this, SLOT(setStaStored1() ));
@@ -326,12 +367,17 @@ void MainWindow::initSignals()
     connect(ui->rb_S3			, SIGNAL(clicked() )		,this, SLOT(select_Sds3() ));
    	rb_S_vec[ sds_master->comId ]->setChecked( true );
 
+    connect( Rtsp_Dialog_p->ui->rB_1	, SIGNAL( clicked() )	,this, SLOT( select_Sds0()));
+    connect( Rtsp_Dialog_p->ui->rB_2	, SIGNAL( clicked() )	,this, SLOT( select_Sds1()));
+    connect( Rtsp_Dialog_p->ui->rB_3	, SIGNAL( clicked() )	,this, SLOT( select_Sds2()));
+    connect( Rtsp_Dialog_p->ui->rB_4	, SIGNAL( clicked() )	,this, SLOT( select_Sds3()));
+
     connect(ui->cB_Combine_fmo	, SIGNAL(clicked() )		,this, SLOT(CombineFreq_fmo() ));
     connect(ui->cB_Combine_vco	, SIGNAL(clicked() )		,this, SLOT(CombineFreq_vco() ));
 
-    connect(ui->sB_FMO			, SIGNAL(valueChanged(int) ),this, SLOT(FMO_Waveform_slot(int) )) ;
-    connect(ui->sB_VCO			, SIGNAL(valueChanged(int) ),this, SLOT(VCO_Waveform_slot(int) )) ;
-    connect(ui->sB_OSC			, SIGNAL(valueChanged(int) ),this, SLOT(Main_Waveform_slot(int) )) ;
+    connect(wf_pb_vec[FMOID]	, SIGNAL(clickdirection(int) ),this, SLOT(FMO_Waveform_slot(int) )) ;
+    connect(wf_pb_vec[VCOID]	, SIGNAL(clickdirection(int) ),this, SLOT(VCO_Waveform_slot(int) )) ;
+    connect(wf_pb_vec[OSCID]	, SIGNAL(clickdirection(int) ),this, SLOT(Main_Waveform_slot(int) )) ;
 
     connect(ui->SliderFMOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_FMO_Adjust(int) ));
     connect(ui->SliderVCOadjust	, SIGNAL(valueChanged(int) ),this, SLOT(Slider_VCO_Adjust(int) ));
@@ -343,27 +389,30 @@ void MainWindow::initSignals()
     connect(ui->cb_connect_oscf	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscf( bool ) ));
     connect(ui->cb_connect_oscv	, SIGNAL(clicked( bool ))	,this, SLOT( connect_oscv( bool ) ));
 
-    connect( File_Dialog_p->ui->cb_score, SIGNAL(textActivated(QString)), this, SLOT( Update_Statusbar( QString ) ));
-    connect( ui->cb_overwrite	, SIGNAL(clicked( bool ))			,this, SLOT( set_overwritemode( bool ) ));
+    connect( File_Dialog_p->ui->cb_score, SIGNAL(textActivated(QString)),
+    		this, SLOT( Update_Statusbar( QString ) ));
+
+    connect( ui->cb_overwrite	, SIGNAL(clicked( bool ))	,
+    		this, SLOT( set_overwritemode( bool ) ));
+    connect( Keyboard_Dialog_p	, SIGNAL( toggleKbdPlay( StAId_e )),
+    	this					, SLOT( remote_sta_off( StAId_e ) ));
+    connect( ui->tB_logState	, SIGNAL( clicked()), this, SLOT( tb_logState_slot() ) );
 }
 
 void MainWindow::initTimer()
 {
     connect( uiUpdate_timer		, &QTimer::timeout, this, &MainWindow::setwidgetvalues );
     uiUpdate_timer->start		(1000); 	// update widgets
-    dataGraphic_timer->start	( 250); 	// update oscilloscope widget 4 Hz
+    dataGraphic_timer->start	( min_msec*2 ); 	// update oscilloscope widget 4 Hz
 }
 
 void MainWindow::initOther()
 {
-    for( cb_state_t map : cb_play_sta_vec )
+    for( cb_state_t map : cb_sta_store_vec )
     {
-    	map.cb->setChecked( *map.state );
-    }
-    for( cb_state_t map : cb_store_sta_vec )
-    {
-    	map.cb->setChecked( *map.state );
+    	map.cb->setChecked( map.state->store );
     }
 	Update_Statusbar( Qstring( sds_master->Session ) );
 	ui->cb_overwrite->setChecked( sds_master->overwritemode );
+
 }

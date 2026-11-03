@@ -142,7 +142,7 @@ void File_Dialog_class::EditMusicXML()
 	const 	string 	filename 			= fs->xmldir + notename + fs->xml_type;
  	const	string 	cmd					= string(XMLEDITOR) + " " + filename;
 
-	if( filesystem::exists( filename ) )
+	if( exists( filename ) )
 	{
 		int	process_id	= System_execute_bg( cmd, "/tmp/nohup.out" );
 		if( process_id > 0 )
@@ -153,6 +153,7 @@ void File_Dialog_class::EditMusicXML()
 		}
 	}
 	Comment( ERROR, "cannot execute", cmd );
+	sds_p->logState = ERROR;
 }
 
 void File_Dialog_class::Longnote( bool value )
@@ -219,7 +220,7 @@ void File_Dialog_class::sB_Octave( int value )
 
 	uint8_t oct = uint8_t(value);
 	Sds->Set( sds_p->Noteline_prefix.Octave , oct );
-	Sds->Set( sds_p->Noteline_prefix.origin, NOTE::GUI );
+	Sds->Set( sds_p->Noteline_prefix.origin, note_ns::GUI );
 	sdsCommand( GENERATENOTES_KEY );
 }
 
@@ -228,7 +229,7 @@ void File_Dialog_class::cB_Convention( int cb_value )
 	QString notes = Qstring( convention_notes[ cb_value ] );
 	ui->lbl_selected_notes->setText( "Notes ( " + notes + " )" );
 	Sds->Set( sds_p->Noteline_prefix.convention , (uint8_t)cb_value );
-	Sds->Set( sds_p->Noteline_prefix.origin, NOTE::GUI );
+	Sds->Set( sds_p->Noteline_prefix.origin, note_ns::GUI );
 	sdsCommand( GENERATENOTES_KEY );
 }
 
@@ -238,7 +239,7 @@ void File_Dialog_class::cB_NotesPerSec( int nps_id )
 	if( nps == 0 )
 		nps = 1;
 	Sds->Set( sds_p->Noteline_prefix.nps , nps );
-	Sds->Set( sds_p->Noteline_prefix.origin, NOTE::GUI );
+	Sds->Set( sds_p->Noteline_prefix.origin, note_ns::GUI );
 	sdsCommand( GENERATENOTES_KEY );
 }
 
@@ -276,7 +277,7 @@ void File_Dialog_class::updateWidgets()
 		rhythm_line		= Rythmline.read();
 		note_line 		= Noteline.read();
     }
-    setButton			( ui->pbNotesDone, 3*(int)sds_p->NotesVerified );
+    set_StateButton( ui->pbNotesDone, colorstate( sds_p->NotesVerified ), "" );
 
     update_notesWidgets	( note_line, rhythm_line, selected_notes );
  }
@@ -291,7 +292,6 @@ void File_Dialog_class::Notes_Done_clicked()
 	if( sds_master->mixer_state.composer )
 		return;
 	WfDisplay_que->Add( NOTESROLE );
-    sdsCommand( SETWAVEDISPLAYKEY );
 
 	if ( sds_p->NotesTypeId == XML_ID )
 	{
@@ -301,7 +301,7 @@ void File_Dialog_class::Notes_Done_clicked()
     	return;
 	}
 
-	Noteline_prefix.data.origin = NOTE::GUI;
+	Noteline_prefix.data.origin = note_ns::GUI;
 	Noteline_prefix.Save();
     QString QStr = ui->lE_Notes->text();
     Noteline.save( QStr.toStdString() );

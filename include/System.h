@@ -36,7 +36,7 @@ SOFTWARE.
 #include <String.h>
 #include <Exit.h>
 
-extern int	 			System_execute		( const string& cmd, bool noexect = false );
+extern LOG_e 			System_execute		( const string& cmd, bool noexect = false );
 extern int 				System_execute_bg	( const string& _cmd, string log1 );
 extern void 			System_Test			();
 extern bool 			Is_running_process	( const pid_t& pid );
@@ -45,7 +45,7 @@ extern void 			Rename_file			( string old_name, string new_name );
 extern void 			Touch_file			( string file );
 extern size_t 			loadData			( string name, void* data, size_t bytes );
 extern bool 			dumpData			( string name, void* data, size_t bytes);
-extern bool 			Write_template_text	( string file, string text, bool overwrite );
+extern bool 			Write_template_text	( const string& file, const string& text, bool overwrite );
 
 /**************************************************
  * dircontent_struct

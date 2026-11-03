@@ -13,6 +13,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QRadioButton>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QTextBrowser>
 
@@ -23,6 +24,10 @@ class Ui_Rtsp_Dialog_class
 public:
     QTableWidget *process_table;
     QTextBrowser *tB_log;
+    QRadioButton *rB_1;
+    QRadioButton *rB_2;
+    QRadioButton *rB_3;
+    QRadioButton *rB_4;
 
     void setupUi(QDialog *Rtsp_Dialog_class)
     {
@@ -54,7 +59,7 @@ public:
         QTableWidgetItem *__qtablewidgetitem8 = new QTableWidgetItem();
         process_table->setVerticalHeaderItem(4, __qtablewidgetitem8);
         process_table->setObjectName("process_table");
-        process_table->setGeometry(QRect(10, 9, 431, 192));
+        process_table->setGeometry(QRect(10, 9, 601, 192));
         process_table->setRowCount(5);
         process_table->setColumnCount(5);
         tB_log = new QTextBrowser(Rtsp_Dialog_class);
@@ -62,6 +67,18 @@ public:
         tB_log->setGeometry(QRect(10, 190, 601, 101));
         tB_log->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);"));
         tB_log->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOn);
+        rB_1 = new QRadioButton(Rtsp_Dialog_class);
+        rB_1->setObjectName("rB_1");
+        rB_1->setGeometry(QRect(440, 70, 110, 23));
+        rB_2 = new QRadioButton(Rtsp_Dialog_class);
+        rB_2->setObjectName("rB_2");
+        rB_2->setGeometry(QRect(440, 100, 110, 23));
+        rB_3 = new QRadioButton(Rtsp_Dialog_class);
+        rB_3->setObjectName("rB_3");
+        rB_3->setGeometry(QRect(440, 130, 110, 23));
+        rB_4 = new QRadioButton(Rtsp_Dialog_class);
+        rB_4->setObjectName("rB_4");
+        rB_4->setGeometry(QRect(440, 160, 110, 23));
 
         retranslateUi(Rtsp_Dialog_class);
 
@@ -89,6 +106,10 @@ public:
         ___qtablewidgetitem7->setText(QCoreApplication::translate("Rtsp_Dialog_class", "S2", nullptr));
         QTableWidgetItem *___qtablewidgetitem8 = process_table->verticalHeaderItem(4);
         ___qtablewidgetitem8->setText(QCoreApplication::translate("Rtsp_Dialog_class", "S3", nullptr));
+        rB_1->setText(QCoreApplication::translate("Rtsp_Dialog_class", "RadioButton", nullptr));
+        rB_2->setText(QCoreApplication::translate("Rtsp_Dialog_class", "RadioButton", nullptr));
+        rB_3->setText(QCoreApplication::translate("Rtsp_Dialog_class", "RadioButton", nullptr));
+        rB_4->setText(QCoreApplication::translate("Rtsp_Dialog_class", "RadioButton", nullptr));
     } // retranslateUi
 
 };

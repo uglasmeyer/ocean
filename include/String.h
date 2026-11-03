@@ -35,6 +35,7 @@ SOFTWARE.
 
 #include <Ocean.h>
 #include <Logfacility.h>
+using std::uppercase;
 
 
 typedef vector<string>	string_vec_t;
@@ -51,93 +52,6 @@ extern string 	trailing_dirslash( const string& dir );
 inline string 	bool_str( bool b, string t="yes", string f="no" )
 	{ return ( b ) ? t : f; };
 
-template<typename Key, typename Value>
-auto imap( map<Key,Value> m ) //invert map
-{
-	map<Value, Key> M {};
-	for( auto [k,v] : m )
-	{
-		M[v] = k;
-	}
-	return M;
-}
-template< typename C > vector<C> set2vector( set<C> s )
-{
-	vector<C> v {};
-	for( auto i : s )
-	{
-		v.push_back( i );
-	}
-	return v;
-}
-
-template< class C > unordered_set< C >
-vector2Uset( vector< C > v )
-{
-	unordered_set< C > s {};
-	for( C i : v )
-	{
-		s.insert( i );
-	}
-	return s;
-}
-constexpr uset_t vector2uset( const string_vec_t v )
-{
-	uset_t u {};
-	for( string s : v )
-	{
-		u.insert( s );
-	}
-	return u;
-}
-
-template<typename T>
-string set_str( set<T> Set )
-{
-	stringstream strs {};
-	for( T t : Set )
-		strs << t << " " ;
-	return strs.str();
-};
-template< class C, const long unsigned int Size >
-set< C > array2set( array<C, Size> a )
-{
-	set< C > s {};
-	for( C i : a )
-	{
-		s.insert( i );
-	}
-	return s;
-}
-template< class C, const long unsigned int Size >
-unordered_set< C > array2uset( array<C, Size> a )
-{
-	unordered_set< C > s {};
-	for( C i : a )
-	{
-		s.insert( i );
-	}
-	return s;
-}
-template< class C > list< C > vector2list( vector< C > v )
-{
-	list< C > l {};
-	for( C i : v )
-	{
-		l.insert( i );
-	}
-	return l;
-}
-template< class C > vector< C > list2vector( list< C > l )
-{
-	vector< C > v {};
-	for( C c : l )
-	{
-		v.push_back( c );
-	}
-	return v;
-
-}
 
 template<class C> string show_str_items( C all_items )
 {
@@ -160,7 +74,8 @@ template<class C> string show_items( C all_items )
     return strs.str();
 }
 
-template<typename T> string show_type( T all_items )
+template<typename T>
+string show_type( T all_items )
 {
 	stringstream strs{ "" };
     for ( auto item : all_items )
@@ -170,41 +85,33 @@ template<typename T> string show_type( T all_items )
     return strs.str();
 }
 
-template<typename T> string array_str( T all_items )
-{
-	stringstream strs{ "" };
-    for ( uint n = 0; n < all_items.size(); n++ )
-    {
-    	strs << all_items[n] << " ";
-    }
-    return strs.str();
-}
-
-template < typename T>
-bool is_string( T v )
-{
-	return (typeid( v )  == typeid(string())) ? true : false ;
-}
-
 constexpr string to_hex( long addr )
 {
 	stringstream strs;
 	strs << "0x" << uppercase << hex << addr ;
 	return strs.str();
 };
-
-template < class T>
-T Concatenate( T c1, T& c2 )
+constexpr uset_t vector2uset( const string_vec_t v )
 {
-	c1.insert( c1.end(), c2.begin(), c2.end() );
-	return c1;
+	uset_t u {};
+	for( string s : v )
+	{
+		u.insert( s );
+	}
+	return u;
 }
+
+//template < class T>
+//T Concatenate( T c1, T& c2 )
+//{
+//	c1.insert( c1.end(), c2.begin(), c2.end() );
+//	return c1;
+//}
 
 /**************************************************
  * String
  *************************************************/
-class String :
-		virtual public Logfacility_class
+class String
 {
 public:
 	string 			Str			{};
@@ -240,7 +147,7 @@ public:
 	void 			normalize();
 	bool			is_number();
 	int 			secure_stoi();
-	int 			secure_stoi( string	str );
+	int 			secure_stoi( string	str, int default_int = 0 );
 	float 			secure_stof( string str );
 	void 			TestString();
 	string 			to_lower( );

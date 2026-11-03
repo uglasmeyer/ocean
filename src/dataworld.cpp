@@ -166,7 +166,7 @@ void Dataworld_class::Test_Dataworld()
 
 SDS_struct::SDS_struct( APPID_e appid, Config_class* Cfg_p, Semaphore_class* Sem_p )
 {
-	for ( Id_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
+	for ( SDSId_t sdsid = 0; sdsid < MAXCONFIG; sdsid++ )
 	{
 		SharedData_class Sds 		{ appid, sdsid, Cfg_p, Sem_p };
 		interface_t* 	sds 		= Sds.addr;
@@ -300,7 +300,7 @@ Interface_base::Interface_base( Dataworld_class* data )
 	Set_Sds				( SDS_ID );
 };
 
-void Interface_base::Set_Sds( Id_t sdsid )
+void Interface_base::Set_Sds( SDSId_t sdsid )
 {	// assign sds local
 	this->SDS_ID		= sdsid;
 	this->Sds 			= DaTA_p->SDS.GetSds( sdsid );
@@ -312,15 +312,15 @@ void Interface_base::Set_Sds()
 	this->sds_p 		= Sds->addr;
 	this->SDS_ID		= sds_p->SDS_Id;
 }
-void Interface_base::Set_masterComId( Id_t sdsid )
+void Interface_base::Set_masterComId( SDSId_t sdsid )
 {
-	sds_master->comId = sdsid;
+	sds_master->comId	= sdsid;
 }
 interface_t* Interface_base::Get_sdsCom()
 {
 	return DaTA_p->SDS.GetSdsAddr( sds_master->comId );
 }
-void Interface_base::Set_comid( Id_t sdsid )
+void Interface_base::Set_comid( SDSId_t sdsid )
 {	// assign sds global
 	this->SDS_ID		= sdsid;
 	this->Sds 			= DaTA_p->SDS.GetSds( sdsid );

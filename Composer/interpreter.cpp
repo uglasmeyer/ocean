@@ -29,19 +29,19 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-
 #include <Composer/Interpreter.h>
-#include <Oscwaveform.h>
 
 const uset_t staidstr_set = { "0", "1", "2", "3", "4", "5", "6", "7" };
 const uset_t regidstr_set = { "0", "1", "2", "3", "4", "5", "6", "7" };
 
 using namespace Interpreter_ns;
+using namespace spectrum_ns;
 
 Interpreter_class::Interpreter_class( Application_class* app )
 	: Logfacility_class	( "Interpreter_class" )
 	, Interface_base	( app->DaTA_p )
 	, Processor_class	( app )
+	, Frequency_class	()
 	, Bps				()
 	, Musicxml			( app->fs )
 	, Variation			( app->DaTA_p, &Musicxml )
@@ -50,21 +50,21 @@ Interpreter_class::Interpreter_class( Application_class* app )
 
 	main_view.name		= "Main osc";
 	main_view.oscid		= OSCID;
-	main_view.wfkey 	= SETWAVEFORMMAINKEY;
+	main_view.wfkey 	= WAVEFORMKEY;
 	main_view.ampkey 	= STA_VOLUME_KEY; //manage volume of the STA_INSTRUMENT
-	main_view.freqkey 	= OSCFREQUENCYKEY;
+	main_view.freqkey 	= FREQUENCYKEY;
 
 	vco_view.name		= "VCO";
 	vco_view.oscid		= VCOID;
-	vco_view.wfkey 		= SETWAVEFORMVCOKEY;
+	vco_view.wfkey 		= WAVEFORMKEY;
 	vco_view.ampkey 	= VCOAMPKEY;
-	vco_view.freqkey 	= VCOFREQUENCYKEY;
+	vco_view.freqkey 	= FREQUENCYKEY;
 
 	fmo_view.name		= "FMO";
 	fmo_view.oscid		= FMOID;
-	fmo_view.wfkey 		= SETWAVEFORMFMOKEY;
+	fmo_view.wfkey 		= WAVEFORMKEY;
 	fmo_view.ampkey 	= FMOAMPKEY;
-	fmo_view.freqkey 	= FMOFREQUENCYKEY;
+	fmo_view.freqkey 	= FREQUENCYKEY;
 	set_osc_view		( sds_p );
 
 
@@ -223,7 +223,7 @@ void Interpreter_class::RecFile( string_vec_t arr )
 
 	if ( Cmpkeyword( "start" ) )
 	{	// set state to not recording
-		Push_ifd( &sds_master->Record_state, StateId_e::INACTIVE, "recording" );
+		Push_ifd( &sds_master->Record_state, StateId_e::INACTIVE, "enable recording" );
 		Push_key( EXTERNAL_WAVFILEKEY, 	"EXTERNAL_WAVFILEKEY: start record" );
 
 		return;
@@ -234,7 +234,7 @@ void Interpreter_class::RecFile( string_vec_t arr )
 		string wavfile = pop_stack( 1 );
 		Push_ifd( &sds_master->FileNo, USEFILENAME,	"record file" ); // trigger record_thead_fcn
 		// take filename from the Other-cstring
-		Push_str( WAVFILE_STR, wavfile );
+		Push_str( WAVFILESTR, wavfile );
 		// force recordstop state
 		Push_ifd( &sds_master->Record_state, RECORDING, "record stop" );//set by Audioserver
 		Push_key( EXTERNAL_WAVFILEKEY, "EXTERNAL_WAVFILEKEY" ); // trigger record_thead_fcn
@@ -245,16 +245,16 @@ void Interpreter_class::RecFile( string_vec_t arr )
 		expect 			= { "file name", "replay duration in seconds" };
 		string wavfile 	= pop_stack( 1 );
 		Push_ifd( &sds_p->StA_state_arr[ STA_EXTERNAL ].start, true, "StA start" );
-		Push_str( WAVFILE_STR, wavfile );
+		Push_str( WAVFILESTR, wavfile );
 		Push_key( READ_WAVFILE_KEY, "READ_EXTERNAL_WAVFILE" );
 
 		return;
 	}
 	if ( Cmpkeyword( "loop") )
 	{
-		uint8_t amp = pop_T( volidx_range );
-		uint8_t time = pop_T( percent_range );
-		amploop( amp, time ); // TODO - working
+		uint8_t amp 	= pop_T( volidx_range );
+		uint8_t time 	= pop_T( percent_range );
+		master_amploop	( amp, time ); // TODO - working
 		return;
 	}
 
@@ -316,6 +316,7 @@ void Interpreter_class::Debug( string_vec_t arr )
 	Wrong_keyword( expect , keyword.Str );
 
 }
+
 void Interpreter_class::Dynamic( string_vec_t arr )
 {
 	// parameter
@@ -374,15 +375,16 @@ void Interpreter_class::Dynamic( string_vec_t arr )
 			Push_ifd( &sds_p->frq_slidermode, FIXED, "fixed frq mode" );
 			expect = { "frequency name" };
 			string frq_str { pop_stack(1) };
-			uint8_t freq = Frequency.Index( frq_str );
-			Push_ifd(  main_view.frqidx, freq, "frq index"  );
-			Push_key(  main_view.freqkey, "set frequency"  );
+			uint8_t freq = Frequency_class::Index( frq_str );
+			Push_ifd( &sds_p->SpectrumOscId, main_view.oscid, main_view.name );
+			Push_ifd( main_view.frqidx, freq, "frq index"  );
+			Push_key( main_view.freqkey, "set frequency"  );
 			return;
 		}
 
 		if( Cmpkeyword( "slide" ) ) // dyn frq slide 20
 		{
-			uint8_t value = pop_T( percent_range );
+			uint8_t value = pop_T( frqslide_range );
 			Push_ifd( &sds_p->frq_slidermode, SLIDE, "dynamic frq slide" );
 			Push_ifd( &sds_p->features[OSCID].frq_slide_value, value, "dynamic frequency" );
 			Push_ifd( &sds_p->features[FMOID].combine, true, "combine fmo" );
@@ -485,7 +487,7 @@ void Interpreter_class::Reset( string_vec_t arr )
 
 	if( Cmpkeyword( "sds" ) )
 	{
-		Push_key( RESETSTA_KEY, "reset sds" );
+		Push_key( RESETSDS_KEY, "reset sds" );
 		return;
 	}
 	Wrong_keyword( expect , keyword.Str );
@@ -508,13 +510,13 @@ void Interpreter_class::Set( string_vec_t arr )
 	if ( Cmpkeyword( "octave+" ) )
 	{
 		Push_ifd( &sds_p->Noteline_prefix.octave_shift, (int8_t)1, "octave" );
-		Push_key(MAINFRQ_KEY, "MAINFRQ_KEY, inc octave");
+		Push_key(SHIFTFRQ_KEY, "MAINFRQ_KEY, inc octave");
 		return;
 	}
 	if ( Cmpkeyword( "octave-" ))
 	{
 		Push_ifd( &sds_p->Noteline_prefix.octave_shift, (int8_t)(-1), "octave" );
-		Push_key(MAINFRQ_KEY, "MAINFRQ_KEY, dec octave");
+		Push_key(SHIFTFRQ_KEY, "MAINFRQ_KEY, dec octave");
 		return;
 	}
 	if ( Cmpkeyword( "main" ) or Cmpkeyword( "vco" ) or Cmpkeyword( "fmo" ))
@@ -531,8 +533,8 @@ void Interpreter_class::Set( string_vec_t arr )
 		}
 		if( Cmpkeyword( "wf") )
 		{
-			Value value{ pop_T( wfid_range ) };
-			Osc({ "osc", osc, "wf", value.str });
+			string value{ pop_set( waveform->waveform_str_set ) };
+			Osc({ "osc", osc, "wf", value });
 			return;
 		}
 		if( Cmpkeyword( "amp") )
@@ -556,7 +558,7 @@ void Interpreter_class::Set( string_vec_t arr )
 		int config	= pop_T( sds_range );
 		sds_p		= DaTA_p->SDS.GetSdsAddr( config );
 		set_osc_view( sds_p );
-		Push_ifd	( &sds_master->comId, Id_t(config), "set synthesizer " + to_string( config ));
+		Push_ifd	( &sds_master->comId, SDSId_t(config), "set synthesizer " + to_string( config ));
 		// if synthesizer is not started apply autostart
 		Push_key	( COMMIT_KEY, "COMMIT_KEY " + to_string( config ));
 		return;
@@ -586,7 +588,9 @@ void Interpreter_class::Notes( string_vec_t arr )
 	SetKeyword( 1, expect );
 
 	Push_ifd( &sds_p->NotesTypeId, NTE_ID, "nte type" );
-	Push_ifd( &sds_p->Noteline_prefix.origin, NOTE::COMPOSE, "origin composer" );
+	Variation.Noteline_prefix.data.convention = 0;
+	Push_ifd( &sds_p->Noteline_prefix.origin, note_ns::COMPOSE, "origin composer" );
+	Variation.Noteline_prefix.data.origin = note_ns::COMPOSE;
 	Push_ifd( &sds_p->Noteline_prefix.convention, 0_uint, "convention english" );
 
 	if ( Cmpkeyword( "load") ) 		// notes load tmp
@@ -629,11 +633,11 @@ void Interpreter_class::Notes( string_vec_t arr )
 			Push_key( UPDATE_NLP_KEY, "UPDATE_NLP_KEY");
 			return;
 		}
-		if( Cmpkeyword("octave") )	// notes set octave 4
+		if( Cmpkeyword( "octave" ) )	// notes set octave 4
 		{
 			expect = { "octave value" };
 			uint8_t oct = pop_T( octave_range ) ;
-			Variation.Set_prefix_octave( oct );
+			Variation.Noteline_prefix.data.octave_shift = oct - oct_reference;
 			Push_ifd( &sds_p->Noteline_prefix.Octave ,oct, "update octave" );
 			Push_key( UPDATE_NLP_KEY, "UPDATE_NLP_KEY");
 
@@ -837,13 +841,14 @@ void Interpreter_class::Osc( string_vec_t arr )
 
 }
 
+extern Spectrum_class* oscspectrum;
+extern Waveform_class* waveform;
 void Interpreter_class::osc_view( view_struct_t view, string_vec_t arr )
 {
 	expect = { "mute", "unmute", "reset", "frq", "loop", "wf", "amp" };
 	Intro( arr, 2);
 	SetKeyword		( 1 );
 
-	bool loop = false;
 
 	if ( Cmpkeyword( "mute") )
 	{
@@ -860,6 +865,7 @@ void Interpreter_class::osc_view( view_struct_t view, string_vec_t arr )
 		Push_key( MASTERAMP_MUTE_KEY, "MASTERAMP_MUTE_KEY un-mute " );
 		return;
 	}
+
 	if ( Cmpkeyword( "reset" ))
 	{
 		Comment( INFO, "Reset connections");
@@ -869,33 +875,20 @@ void Interpreter_class::osc_view( view_struct_t view, string_vec_t arr )
 		return;
 	}
 
-
-	if ( Cmpkeyword( "wf") )
-	{
-		expect = vector2uset( Spectrum.Get_waveform_vec() );
-		string waveform = pop_set( waveform_str_set );
-
-		uint8_t wfid = Spectrum.Get_waveform_id( waveform );
-		if ( wfid < 0 )
-		{
-			Wrong_keyword( expect, waveform );
-			If_Exception( "wrong keyword" );
-		}
-		expect 		= { " duration in seconds" };
-		option_default = "0";
-		string duration = pop_stack(0);
-		Comment( INFO, "Set waveform " + waveform + " for " + view.name );
-
-		Push_ifd( view.wf, wfid, "wafeform");
-		Push_key( view.wfkey, "set waveform" );
-		Pause( { "pause", duration });
-		return;
-	}
-
+	bool loop = false;
 	if ( Cmpkeyword( "loop") )
 	{
-		keyword.Str = pop_stack( 1);
-		loop = true;
+		if( view.oscid == OSCID )
+		{
+			keyword.Str = pop_stack( 1);
+			loop = true;
+		}
+		else
+		{
+			expect = { "osc" };
+			Wrong_keyword( expect, view.name );
+			return;
+		}
 		// TODO
 	}
 
@@ -908,22 +901,48 @@ void Interpreter_class::osc_view( view_struct_t view, string_vec_t arr )
 		if ( loop ) // TODO-working
 		{
 			uint time = pop_T( percent_range );
-			amploop( amp, time );
+			master_amploop( amp, time );	// only available for master amp
 		}
 		else
 		{
-			if( view.ampkey == STA_VOLUME_KEY )
+			if( view.ampkey == STA_VOLUME_KEY ) // the main osc volume is controlled by the mixer
 				Push_ifd( &sds_p->StA_Id, STA_INSTRUMENT, "StA id" );
-			Push_ifd( view.amp, amp, "volume"  );
-			Push_key( view.ampkey, "set volume" );
+			Push_ifd		( view.amp		, amp, "volume"  );
+			Push_key		( view.ampkey	, "set volume" );
 
-			expect 		= { " duration in seconds" };
-			option_default = "0";
+			expect 			= { " duration in seconds" };
+			option_default 	= "0";
 			string duration = pop_stack( 0 );
-			Pause( { "pause", duration });
+			Pause			( { "pause", duration });
  		}
 		return;
 	}
+
+	// Spectrum related functions
+
+	Push_ifd( &sds_p->SpectrumOscId, view.oscid, typeNames[view.oscid] );
+
+	if ( Cmpkeyword( "wf") )
+	{
+		expect = vector2uset( oscspectrum->Get_waveform_vec() );
+		string wf_str = pop_set( waveform->waveform_str_set );
+
+		WFID_e wfid = waveform->Get_id( wf_str );
+		if ( wfid < 0 )
+		{
+			Wrong_keyword( expect, wf_str );
+			If_Exception( "wrong keyword" );
+		}
+		expect 		= { " duration in seconds" };
+		option_default = "0";
+		string duration = pop_stack(0);
+
+		Push_ifd( view.wf	, wfid, "wafeform " + wf_str );
+		Push_key( view.wfkey, "set waveform" );
+		Pause( { "pause", duration });
+		return;
+	}
+
 
 	if ( Cmpkeyword( "freq") )
 	{
@@ -932,14 +951,14 @@ void Interpreter_class::osc_view( view_struct_t view, string_vec_t arr )
 		if ( loop )
 		{
 			Push_ifd( &sds_p->frq_slidermode, SLIDE, "slide mode" );
-			Push_key(  FREQDYNAMIC_KEY, "FREQDYNAMIC_KEY"  );
+			Push_key( FREQDYNAMIC_KEY, "FREQDYNAMIC_KEY"  );
 		}
 
 		expect = { "frequency name or index" };
 		uset_t frqname_set = array2uset( frqNamesArray );
 
 		string f  = pop_set( frqname_set );//{ pop_stack(1) };
-		uint8_t freq = Frequency.Index( f );
+		uint8_t freq = Frequency_class::Index( f );
 
 		Comment( INFO, "Set frequency " + to_string(freq) + " for " + view.name );
 		Push_ifd(  view.frqidx, freq, "frq index"  );
@@ -954,53 +973,6 @@ void Interpreter_class::osc_view( view_struct_t view, string_vec_t arr )
 	}
 	Wrong_keyword( expect, keyword.Str );
 }
-
-//void Interpreter_class::Play( string_vec_t arr )
-//{ 	// play 1 amp 30
-//	// play 1 amp loop 30
-//	// play 1 start
-//
-//	Intro( arr, 2 );
-//	expect = { "0", "1", "2", "3", "4", "5", "6", "7" };
-//	SetKeyword( 1, expect );
-//	StAId_e staid = (StAId_e)keyword.secure_stoi();
-//
-//	expect 			= { "amp", "start"  };
-//	SetKeyword( 1, expect ) ;
-//	if ( Cmpkeyword( "amp") )
-//	{
-//		expect = { "loop", "duration in sec." };
-//		string k2 = pop_stack( 1); // loop or duration
-//		keyword.Str = k2;
-//		if ( Cmpkeyword( "loop") )
-//		{
-//			expect = { " dest amp"};
-//			uint8_t vol = pop_T( percent_range );
-//			Push_ifd( &sds_p->StA_Id , staid, "StA id" );
-//			Push_ifd( &sds_p->StA_amp_arr[staid].amp , vol, "% slide duration " );
-//			Push_ifd( &sds_p->StA_amp_arr[staid].mode , SLIDE, "slide mode" );
-//			Push_ifd( &sds_p->StA_state_arr[staid].start , true, "play on" );
-//			Push_key( STA_VOLUME_KEY, "STA_VOLUME_KEY, with dynamic volume" );
-//			return;
-//		}
-//		else
-//		{
-////			option_default		= "10";
-//			string duration 	= k2;
-//			StA( { "sta", to_string( staid ), "amp",  duration } );
-//			return;
-//		}
-//	}
-//	if( Cmpkeyword( "start" ) )
-//	{
-//		Push_ifd( &sds_p->StA_Id , staid, "StA id" );
-//		Push_key( STASTART_KEY, "STASTART_KEY, start read StA" );
-//
-//		return;
-//	}
-//	Wrong_keyword( expect , keyword.Str );
-//
-//}
 
 StAId_e Interpreter_class::expect_staid()
 {
@@ -1153,7 +1125,7 @@ void Interpreter_class::Adsr( string_vec_t arr )
 	if ( Cmpkeyword( "softfreq") )
 	{
 		Comment( INFO, "soft frequency is set to: " + stack[0] );
-		uint8_t freq = pop_T( percent_range );
+		uint8_t freq = pop_T( frqslide_range );
 		Push_ifd( &sds_p->features[OSCID].frq_slide_value, freq, "soft freq"  );
 		Push_key( FREQDYNAMIC_KEY,  "FREQDYNAMIC_KEY" );
 		return;
@@ -1216,8 +1188,8 @@ void Interpreter_class::Pause( string_vec_t arr )
 	if( arr[1].length() == 0 )
 		return;
 	expect 		= { "duration in seconds [ms] ", "auto", "key", "dynvol", "dynfrq" };
-	Intro( arr, 0 );
-	SetKeyword		( 1 );
+	Intro		( arr, 0 );
+	SetKeyword	( 1 );
 
 	if ( Cmpkeyword( "key" ))
 	{
@@ -1269,7 +1241,7 @@ void Interpreter_class::Addvariable( string_vec_t arr )
 	auto is_notesfile = [ this ](string str )
 		{
 			string filename = fs->notesdir + str + fs->nte_type;
-			return filesystem::exists(filename);
+			return exists(filename);
 		};
 
 	auto add_notesfile = [ this ]( string varname, string filea, string fileb )
@@ -1328,10 +1300,10 @@ void Interpreter_class::Addvariable( string_vec_t arr )
 }
 
 
-void Interpreter_class::amploop( uint8_t vol, uint8_t time ) // TODO
+void Interpreter_class::master_amploop( uint8_t vol, uint8_t time ) // TODO
 {	// distinguish between master volumn and sta volumn
-	Push_ifd( &sds_master->Master_Amp 		, vol	, "slide volume" );
-	Push_ifd( &sds_master->Master_vol_slidemode	, SLIDE	, "volume slide mode");
+	Push_ifd( &sds_master->Master_Amp 				, vol	, "slide volume" );
+	Push_ifd( &sds_master->Master_vol_slidemode		, SLIDE	, "volume slide mode");
 	Push_ifd( &sds_master->Master_vol_slide_value	, time	, "volume slide time%");
 }
 
@@ -1370,8 +1342,8 @@ void Interpreter_class::Wrong_keyword( uset_t expected , string given )
 {
 	error = 1;
 	string expected_str = show_type( expected );
-	Comment( WARN, "unhandled argument: ", given );
-	Comment( INFO, "expected          : ", expected_str  );
+	Comment( WARN, "argument: ", given );
+	Comment( INFO, "expected: ", expected_str  );
 	if ( dialog_mode )
 		return;
 	If_Exception( "processing failed" );
@@ -1545,7 +1517,7 @@ void Interpreter_class::check_file( string_vec_t dirs, string name )
 {
 	for ( string dir : dirs )
 	{
-		if ( filesystem::exists( dir + name ) ) return;
+		if ( exists( dir + name ) ) return;
 	};
 	dircontent_t notes			= dircontent_struct( dirs, fs->nte_type );
 	coutf << show_type( notes.dir_entry_vec ) << endl;
@@ -1571,7 +1543,7 @@ void Interpreter_class::Test(  )
 	Notes( { "notes", "save", fs->tmpnote_filename } );
 	Variation.Read( fs->tmpnote_filename );
 	Assert_equal( Variation.Noteline.get(), string("ABCD EFGF") );
-	Assert_equal( Variation.Noteline_prefix.data.convention , uint8_t( 0 ) );
+	Assert_equal( (int)Variation.Noteline_prefix.data.convention , 0 );
 
 	Notes( {"notes", "set", "prefix", "3", "2" } );
 	Variation.Read( fs->tmpnote_filename );
@@ -1579,9 +1551,10 @@ void Interpreter_class::Test(  )
 	assert( Variation.Noteline_prefix.data.convention == 0 );
 	assert( Variation.Noteline.get().compare("ABCD EFGF") == 0 );
 
-	Notes( {"notes", "set", "octave", "5" }) ;
+	Notes( { "notes", "set", "octave", "5" } ) ;
+	Notes( { "notes", "save", fs->tmpnote_filename } );
 	Variation.Read( fs->tmpnote_filename );
-	assert( Variation.Noteline_prefix.data.Octave == 5 );
+	Assert_equal( (int)Variation.Noteline_prefix.data.Octave, (int)oct_reference );
 
 
 
@@ -1652,7 +1625,7 @@ string_vec_t assignment_struct::ReplaceVariable( string_vec_t arr )
 	for ( var_struct_t replace : assignment_vec )
 	{
 		// do not change the keyword ( start with + 1 )
-		std::ranges::for_each( arr.begin() + 1, arr.end(), [ replace ](string& word )
+		for_each( arr.begin() + 1, arr.end(), [ replace ](string& word )
 		{
 			if ( strEqual( word, replace.name ) )
 			{

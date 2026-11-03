@@ -55,8 +55,9 @@ const 		uint			 			HARMON_PRIMS= 8;
 constexpr 	int							HARMON_SIZE = ( HARMON_PRIMS-1) * HARMON_PRIMS / 2 + 1;
 typedef 	array<frq_t,  HARMON_SIZE>	harmonic_t;
 
-constexpr 	range_T<int > 				frqarr_range{ 0, (int)(FRQARR_SIZE - 1) };
-constexpr 	range_T<int > 				frqext_range{ 0, (int)(FRQEXT_SIZE - 1) };
+constexpr 	range_T<int > 				frqarr_range	{ 0, (int)(FRQARR_SIZE - 1) };
+constexpr 	range_T<int > 				frqext_range	{ 0, (int)(FRQEXT_SIZE - 1) };
+constexpr	range_T<int >				harmonic_range	{ 0, HARMON_SIZE - 1 };
 
 constexpr 	uint frqIndex( const int& note, const int& octave )
 {
@@ -69,6 +70,7 @@ constexpr 	uint8_t						A3			= frqIndex(9,3); // 220 Hz
 constexpr 	uint8_t						A2			= frqIndex(9,2); // 110 Hz
 constexpr 	uint8_t						A1			= frqIndex(9,1); //  55 Hz
 constexpr	uint8_t						A0			= frqIndex(9,0); // oct_base_frq
+constexpr 	uint8_t						C3			= frqIndex(0,3); //
 constexpr 	uint8_t						C4			= frqIndex(0,4); // 261 Hz
 extern 		frqarray_t 					frqArray;
 extern 		frqstrarr_t 				frqNamesArray;
@@ -85,13 +87,13 @@ class Frequency_class
 	void 								initHarmonics	();
 
 public:
-	range_T<uint8_t>					harmonic_range	{ 0,  HARMON_SIZE - 1 };
+	uint8_t								Frqadj_max		;
 	frq_t 								Calc			( const frq_t& _base_freq,
 													      const int& idx );
 	frq_t 								GetFrq			( int& idx );
 	frq_t 								Frqadj			( const uint8_t& channel,
-														  const uint8_t& frqidx );
-	uint  								Index			( const string& frqName );
+														  const int& frqidx );
+	uint8_t								Index			( const string& frqName );
 	uint  								Index			( const int& oct,
 														  const int& step );
 	uint  								Index			( const frq_t& freq );
@@ -102,8 +104,11 @@ public:
 										Frequency_class	();
 	virtual 							~Frequency_class();
 
-};
+private:
+	uint8_t 							frqadj_max();
 
+
+};
 
 
 

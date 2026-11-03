@@ -28,6 +28,7 @@ SOFTWARE.
 #include <Viewinterface.h>
 #include <SDSMenu.h>
 
+
 void ClearIPC()
 {
 	DaTA.Appstate.Shutdown_all	();
@@ -41,10 +42,11 @@ void ClearIPC()
 	raise( SIGINT );
 }
 
-void setvalue( uint8_t* addr, string value )
+template <typename T>
+void setvalue( T* addr, string value )
 {
 	String Str { };
-	*addr = (uint8_t)Str.to_int( value );
+	*addr = (T)Str.to_int( value );
 
 }
 string getInput( string text )
@@ -53,7 +55,8 @@ string getInput( string text )
 	s 		= App.Kbd.GetString( text + ": ");
 	return s;
 }
-void getvalue( uint8_t* addr, string text, EVENTKEY_e event )
+template <typename T>
+void getvalue( T* addr, string text, EVENTKEY_e event )
 {
 	string s;
 	s 		= getInput( text );
@@ -61,7 +64,22 @@ void getvalue( uint8_t* addr, string text, EVENTKEY_e event )
 	Sds->Eventque.Add( event );
 
 }
-void getfrq( uint8_t* addr, string text , EVENTKEY_e event )
+
+void getwf( string text , OSCID_e oscid )
+{
+	string	help	= show_items( waveform->waveform_Id_set );
+	string	input	= getInput( text + "(" + help + ")" ) ;
+	String	Str		{ input };
+	if ( Str.is_number() )
+	{
+//		Ifb.Set_Sds( sds_master->sdsview_sdsid );
+//		sds_p = Ifb.sds_p;
+		sds_p->spectrum_arr[oscid].wfid[0]	= WFID_e( Str.secure_stoi() );
+		sds_p->SpectrumOscId= oscid;
+		Sds->Eventque.Add	( WAVEFORMKEY );
+	}
+}
+void getfrq( uint8_t* addr, string text , OSCID_e oscid )
 {
 	Frequency_class Frq {};
 	string input = getInput( text );
@@ -75,7 +93,8 @@ void getfrq( uint8_t* addr, string text , EVENTKEY_e event )
 		uint idx = Frq.Index( input );
 		setvalue( addr, to_string(idx) );
 	}
-	Sds->Eventque.Add( event );
+	sds_p->SpectrumOscId = oscid;
+	Sds->Eventque.Add( FREQUENCYKEY );
 }
 
 #define SWITCH_COMMON( PAGE )\
@@ -104,8 +123,7 @@ Menue_class MenuF2 { &DaTA, SwitchF2, submenu_strF2 };
 
 kbdInt_t SwitchF5( kbdInt_t key )
 {
-	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
-
+	sds_p = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
 	switch ( (key) )
 	{
 	case 'M' :
@@ -115,9 +133,9 @@ kbdInt_t SwitchF5( kbdInt_t key )
 		kbdInt_t keyevent = App.Kbd.GetKeyInt( 100 );
 		switch ( keyevent )
 		{
-			case 'f' : { getfrq( &sds->spectrum_arr[OSCID].frqidx[0], "Frequency", OSCFREQUENCYKEY ); break; }
-			case 'v' : { getvalue( &sds->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
-			case 'w' : { getvalue( &sds->spectrum_arr[OSCID].wfid[0], range_str(waveform_range), SETWAVEFORMMAINKEY ); break; }
+			case 'f' : { getfrq( &sds_p->spectrum_arr[OSCID].frqidx[0], "Frequency", OSCID ); break; }
+			case 'v' : { getvalue( &sds_p->Master_Amp, "Amplitude", MASTERAMP_KEY ); break; }
+			case 'w' : { getwf( "Waveform", OSCID ); break; }
 			default  : break ;
 		}
 		break;
@@ -129,9 +147,9 @@ kbdInt_t SwitchF5( kbdInt_t key )
 		kbdInt_t keyevent = App.Kbd.GetKeyInt( 100 );
 		switch ( keyevent )
 		{
-			case 'f' : { getfrq( &sds->spectrum_arr[FMOID].frqidx[0], "Frequency", FMOFREQUENCYKEY ); break; }
-			case 'v' : { getvalue( &sds->spectrum_arr[FMOID].volidx[0], "Amplitude", FMOAMPKEY ); break; }
-			case 'w' : { getvalue( &sds->spectrum_arr[FMOID].wfid[0], range_str(waveform_range), SETWAVEFORMFMOKEY ); break; }
+			case 'f' : { getfrq( &sds_p->spectrum_arr[FMOID].frqidx[0], "Frequency", FMOID ); break; }
+			case 'v' : { getvalue( &sds_p->spectrum_arr[FMOID].volidx[0], "Amplitude", FMOAMPKEY ); break; }
+			case 'w' : { getwf( "Waveform", FMOID ); break; }
 			default  : break ;
 		}
 		break;
@@ -143,9 +161,9 @@ kbdInt_t SwitchF5( kbdInt_t key )
 		kbdInt_t keyevent = App.Kbd.GetKeyInt( 100 );
 		switch ( keyevent )
 		{
-			case 'f' : { getfrq( &sds->spectrum_arr[VCOID].frqidx[0], "Frequency", VCOFREQUENCYKEY ); break; }
-			case 'v' : { getvalue( &sds->spectrum_arr[VCOID].volidx[0], "Amplitude", VCOAMPKEY ); break; }
-			case 'w' : { getvalue( &sds->spectrum_arr[VCOID].wfid[0], range_str(waveform_range), SETWAVEFORMVCOKEY ); break; }
+			case 'f' : { getfrq( &sds_p->spectrum_arr[VCOID].frqidx[0], "Frequency", VCOID ); break; }
+			case 'v' : { getvalue( &sds_p->spectrum_arr[VCOID].volidx[0], "Amplitude", VCOAMPKEY ); break; }
+			case 'w' : { getwf( "Waveform", VCOID ); break; }
 			default  : break ;
 		}
 		break;
@@ -177,7 +195,6 @@ Menue_class MenuF7 { &DaTA, SwitchF7, "select feature to edit" };
 kbdInt_t SwitchF9( kbdInt_t key )
 {
 	interface_t* sds = DaTA.SDS.GetSdsAddr( DaTA.SDS.master->sdsview_sdsid );
-	const string logviewer = Cfg.Config.Logview + " ";
 	switch ( key )
 	{
 		case 's' : { 	App.Appstate->Shutdown_all();
@@ -196,9 +213,9 @@ kbdInt_t SwitchF9( kbdInt_t key )
 						Sds->Reset_ifd();
 						App.Appstate->RestoreStateArr( sds );
 						break; }
-		case 'l' : {	System_execute_bg( logviewer + Cfg_p->fs->nohup_logfile, "" );
+		case 'l' : {	System_execute_bg( Cfg.Logviewer( Cfg_p->fs->nohup_logfile ), "" );
 						break; }
-		case 'c' : {	System_execute_bg( logviewer + Cfg_p->fs->composer_logfile, "" );
+		case 'c' : {	System_execute_bg( Cfg.Logviewer( Cfg_p->fs->composer_logfile ), "" );
 						break; }
 		SWITCH_COMMON( F9 );
 	} // switch  key
@@ -240,6 +257,7 @@ int main( int argc, char* argv[] )
 		ClearIPC();
 	}
 
+	MenuMain.Set_sdsid( Menue_class::UNCHANGED );
 
 	MenuMain.Loop();
 

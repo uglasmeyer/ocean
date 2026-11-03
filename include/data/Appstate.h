@@ -85,7 +85,7 @@ public:
 	void 			Announce			();
 	void 			CheckAppstates		( interface_t* sds );
 	bool 			CheckAppstate		( interface_t* sds, APPID_e appid );
-	Id_t			Find_running		( APPID_e appid );
+	SDSId_t			Find_running		( APPID_e appid );
 	int				GetPid				( interface_t* sds, APPID_e appid );
 	string			GetPidStr			( interface_t* sds, APPID_e appid );
 	StateId_e		GetState			( interface_t* sds, APPID_e appid );
@@ -109,10 +109,11 @@ public:
 	void 			Setup				( interface_t* _sds, interface_t* _sds_master );
 	void			Shutdown_all		();
 	void  			Shutdown			( interface_t* sds, APPID_e appid );
+	void			Shutdown			( set<SDSId_t> id_set );
 	APPID_e 		Type				( interface_t* sds, APPID_e appid );
 
 private:
-	Id_t 			assign_sdsid		( APPID_e appid ); // returns Sds_Id
+	SDSId_t 			assign_sdsid		( APPID_e appid ); // returns Sds_Id
 	SdsId_vec_t	 	allowed_sdsid		( APPID_e appid );
 	void			setState			( interface_t* sds, APPID_e appid, StateId_e state );
 };

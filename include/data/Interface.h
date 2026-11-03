@@ -55,12 +55,13 @@ class SharedData_class
 
 public:
 	Shm_base				SHM					;
-	interface_t* 			addr				;
+	interface_t* 			addr				= &ifd_data;
 	fs_t*					fs					;
 	EventQue_class			Eventque			;
+	slide_duration_t		frq_slide			;
 
 							SharedData_class	( APPID_e appid,
-												Id_t sdsid,
+												SDSId_t sdsid,
 												Config_class*,
 												Semaphore_class* );
 	virtual 				~SharedData_class	();

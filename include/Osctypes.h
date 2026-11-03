@@ -33,10 +33,8 @@ SOFTWARE.
 #ifndef OSCTYPES_H_
 #define OSCTYPES_H_
 
-#include <string>
-#include <vector>
-#include <array>
-#include <Range.h>
+
+#include <Utilities.h>
 
 #define OSCIDSIZE 3
 
@@ -47,12 +45,16 @@ enum OSCID_e : unsigned char
 	OSCID,
 	NOOSCID
 };
+
 const  std::vector<OSCID_e> oscIds  =
 {
 	VCOID,
 	FMOID,
 	OSCID
 };
+const std::unordered_set<OSCID_e> osctype_set = vector2Uset( oscIds );
+const range_T<int> oscid_range{ 0, NOOSCID };
+
 
 enum RoleId_e : unsigned char
 {
@@ -73,8 +75,8 @@ struct osctype_struct
 {
 	OSCID_e				typeId		;
 	RoleId_e			roleId		;
-	std::string 		osctype_name;
-	std::string			oscrole_name;
+	string 				osctype_name;
+	string				oscrole_name;
 	bool				is_osc_type ;
 	bool				is_fmo_type ;
 	bool				is_vco_type ;
@@ -122,8 +124,7 @@ struct osctype_struct
 	~osctype_struct() = default;
 
 };
-const range_T<OSCID_e> oscid_range{ VCOID, NOOSCID };
-const range_T<RoleId_e> roleid_range { USER00ROLE, ADSRROLE }; // excludes adsr role
+const range_T<int> roleid_range { 0, (int)ROLE_SIZE-1 };
 const std::vector<std::string> typeNames = osctype_struct(NOOSCID, ROLE_SIZE).typeNames;
 const std::vector<std::string> roleNames = osctype_struct(NOOSCID, ROLE_SIZE).roleNames;
 

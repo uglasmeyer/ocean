@@ -34,8 +34,9 @@ SOFTWARE.
 // C++ Project
 // https://www.bogotobogo.com/Qt/Qt5_QGraphicsView_QGraphicsScene_QGraphicsItems.php
 
-#include <qpainter.h>
-#include <include/DataGraphicClass.h>
+#include <DataGraphic.h>
+#include <GUIcommon.h>
+#include <QPainter>
 
 /**************************************************
  * DataGraphic_class
@@ -46,11 +47,9 @@ DataGraphic_class::DataGraphic_class( interface_t* ifd
 	: Logfacility_class		( "DataGraphic_class" )
 {
 	this->graphicsview		= view;
-	this->param				= _param;
 	this->drawregion		= boundingRect();
     this->height 			= drawregion.height();
-	this->shiftY			= height / 2 * param.centerY;
-	this->param.scale		= param.scale*height;
+	Set_parameter			( _param );
 	Set_sds					( ifd );
 };
 
@@ -65,6 +64,33 @@ void DataGraphic_class::Set_sds( interface_t* _sds )
 {
 	this->sds = _sds;
 }
+
+void DataGraphic_class::Set_parameter( datagraphics_param_t _param )
+{
+	this->param				= _param;
+	this->shiftY			= height / 2 * param.centerY;
+	this->param.scale		= param.scale*height;
+}
+
+void DataGraphic_class::wheelEvent( QGraphicsSceneWheelEvent* event )
+{
+	float zoom = sds->WD_state.zoom;
+	// delta() is the vertical scroll amount int +/- 120
+	int delta = event->delta();
+
+	if (delta > 0)
+	{
+		zoom *= zoomFactor; // Zoom in
+	}
+	if (delta < 0)
+	{
+		zoom /= zoomFactor; // Zoom out
+	}
+	// Clamp zoom to avoid extreme values
+	zoom = clamp( zoom, minZoom, maxZoom );
+	sds->WD_state.zoom = zoom;
+	event->accept();
+} ;
 
 void DataGraphic_class::paint(	QPainter* painter,
 								const QStyleOptionGraphicsItem* option,
@@ -91,13 +117,25 @@ void DataGraphic_class::paint(	QPainter* painter,
 	    }
 	};
 
+	auto showZoom = [ this, painter ]( float zoomFactor )
+	{
+		stringstream	strs	{};
+		strs << setprecision(4) << dec << "zoom: " << 100/zoomFactor << "%";
+		QString	txt				= Qstring( strs.str() );
+		painter->drawText		( 10, 20, txt );
+	};
+
 	Comment( DEBUG, "DataGraphic_class::paint" );
 
-    painter->drawRect		( drawregion );
+	painter->drawLine( drawregion.topLeft(), drawregion.topRight() );
+	painter->drawLine( drawregion.bottomLeft(), drawregion.bottomRight() );
     if( param.cursor )
     	showCursor			();
     QGraphicsPolygonItem 	polygon_item { polygon };
     polygon_item.paint		( painter, option, widget );
+    float zoom				= sds->WD_state.zoom;
+    if( zoom < 1.0f )
+    	showZoom( zoom );
 
 }
 
@@ -113,7 +151,6 @@ void DataGraphic_class::readDataEnd( Data_t x )
 
     // shift polygon upward
 	polygon.translate( QPoint( 0, height-shiftY ) );
-//    this->update(); // redraw scene
 
 }
 

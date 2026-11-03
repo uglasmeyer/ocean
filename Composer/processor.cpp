@@ -39,17 +39,20 @@ namespace Processor
 /**************************************************
  * print_struct
  *************************************************/
+Table_class 		PrintTable		{ defaultopt };
+
 Processor_class::print_struct::print_struct( stack_struct _ps )
 {
+	this->Table= &PrintTable;
 	ps = _ps;
 	assign_val();
-	Table.opt.Ident = 0;
-	Table.opt.Crlf 	= '\n';
-	Table.AddColumn( "line nr"	, 4);
-	Table.AddColumn( "cmd"		, 4);
-	Table.AddColumn( "addr"		, 16);
-	Table.AddColumn( "value"	, 6);
-	Table.AddColumn( "comment"	, 40 );
+	Table->opt.Ident = 0;
+	Table->opt.Crlf 	= '\n';
+	Table->AddColumn( "line nr"	, 4);
+	Table->AddColumn( "cmd"		, 4);
+	Table->AddColumn( "addr"		, 16);
+	Table->AddColumn( "value"	, 6);
+	Table->AddColumn( "comment"	, 40 );
 
 }
 void Processor_class::print_struct::assign_val()
@@ -77,7 +80,7 @@ void Processor_class::print_struct::Line( stack_struct stack, interface_t* sds )
 	else
 		print.assign_addr_str( (long)stack.chaddr );
 
-	Table.AddRow( 	print.ps.prgline,
+	Table->AddRow( 	print.ps.prgline,
 					print.ps.cmdstr,
 					print.addr_str,
 					print.value,
@@ -344,26 +347,27 @@ void Processor_class::Execute()
 	auto log_init  = [ this ]( )
 	{
 		Processor::LOG.open( fs->composer_logfile, fstream::out );
-		print.Table.opt.FILE = &Processor::LOG;
+		print.Table->opt.FILE = &Processor::LOG;
 	};
+	set<SDSId_t>	knownIds	{};
 
-	auto clean_exit = [ this ](  )
+	auto clean_exit = [ this, &knownIds ](  )
 	{
 		Info( "cleanup SDS" );
 		sds_master->Record_state 						= INACTIVE;
 		sds_master->StA_state_arr[ STA_EXTERNAL ].store	= false;
 		coutf << "Exit by user request" << endl;
-		Appstate->SetExitserver( sds_p, SYNTHID );
-		DaTA_p->Sem_p->Lock( SEMAPHORE_EXIT );
+		Appstate->Shutdown( knownIds );
 		raise( SIGHUP );
 	};
 
-	Id_t sdscomId = sds_master->comId;
+	SDSId_t sdscomId = sds_master->comId;
 	Interface_base::Set_Sds();
-	auto set_comid = [ this, &sdscomId ]( Id_t sdsid )
+	auto set_comid = [ this, &sdscomId, &knownIds ]( SDSId_t sdsid )
 	{
 		if( sdscomId == sdsid ) return;
 		sdscomId	= sdsid;
+		knownIds.insert( sdscomId );
 		Interface_base::Set_Sds();
 		sds_master->mixer_state.composer = true;
 	};
@@ -401,8 +405,8 @@ void Processor_class::Execute()
 				switch (( ps.sds_value ))
 				{
 					case SESSIONSTR :
-					case WAVFILESTR_KEY : { Sdsp = Sds_master; break; }
-					default 			: { Sdsp = Sds; break; }
+					case WAVFILESTR: { Sdsp = Sds_master	; break; }
+					default 		: { Sdsp = Sds			; break; }
 				} // switch ( ps.sds_value )
 				Sdsp->Write_str( CSTRKEY_e( ps.sds_value ), ps.str );
 				break;
@@ -539,7 +543,6 @@ void Processor_class::Test_Processor()
 	Push_ifd( &sds_p->SHMID, 0_uint, "char" );
 	Push_ifd( &sds_p->StA_state_arr[0].forget, true, "bool" );
 	Push_ifd( &sds_p->adsr_arr[OSCID].bps, 0_uint, "beat duration" );
-	Push_key( ADSR_KEY, "set beat duration" );
 
 	Push_sys( CMD_EXIT, "exit" );
 	Execute();

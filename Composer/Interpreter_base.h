@@ -71,7 +71,7 @@ const string_vec_t Keyword_vec
 
 namespace Interpreter_ns
 {
-	enum KEYWORD_e : Id_t
+	enum KEYWORD_e : uint8_t
 	{
 		ADDMUSIC = 0,
 		ADSR,
@@ -87,7 +87,6 @@ namespace Interpreter_ns
 		NOTES,
 		OSC,
 		PAUSE,
-//		PLAY,
 		RANDOM,
 		REC,
 		RECORD,

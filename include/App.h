@@ -69,11 +69,11 @@ public:
 
 	void 				Start				( int, char* [] );
 	void 				Ready				();
-	Id_t				ChangeAppState		( 	interface_t* sds,
+	SDSId_t				ChangeAppState		( 	interface_t* sds,
 												APPID_e appid,
 												string terminal,
 												string args="" );
-	Id_t				StartApp			( 	APPID_e appid,
+	SDSId_t				StartApp			( 	APPID_e appid,
 												string terminal,
 												string args="" );
 	kbdInt_t			KeyboardKey			( bool debug);

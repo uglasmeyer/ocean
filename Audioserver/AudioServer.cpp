@@ -28,7 +28,7 @@ SOFTWARE.
 void save_record_fcn()
 {
 	string filename		= Record.External.Save_record_data( sds_master->FileNo );
-	Sds->Write_str		( WAVFILE_STR, filename );
+	Sds->Write_str		( WAVFILESTR, filename );
 
 	Log.Comment( INFO, "record thread received job ", filename );
 	Log.Info( "recording to file " + filename + " done.");
@@ -77,7 +77,7 @@ void Application_loop()
 	while ( not audio_out_done )
 	{
 		App.KeyboardKey( false );
-	    this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+	    sleep_for( std::chrono::milliseconds( 100 ) );
 	}
 
 	Log.Comment(INFO, "Application loop exit");

@@ -97,13 +97,21 @@ typedef	struct wave_struct
 	buffer_t 	frames		= max_frames; 	// range 1 ... max_frames;
 } wave_t;
 
-typedef struct fmo_struct
+struct sec_osc_struct
 {
+
 	Heap_Memory*	Mem			= nullptr;
-	OSCID_e			osc_id		= FMOID;
+	OSCID_e			osc_id		;//= FMOID;
 	uint16_t 		volume		= 0; // volume of the fm track
-	string			name		= "FMO";
-} fmo_t;  // all wave parameter for the fmo
+	string			name		;//= "FMO";
+	sec_osc_struct( OSCID_e oscid )
+	{
+		osc_id	= oscid;
+		name	= typeNames[oscid];
+	};
+	~sec_osc_struct() = default;
+
+} ;  // secondary osc parameter for vco and fmo
 
 typedef struct vco_struct
 {
@@ -149,15 +157,15 @@ constexpr ostream& operator<<( ostream& os, const connectId_t& connect )
  *************************************************/
 
 class Oscillator_base
-	: virtual public 	Spectrum_class
+	: virtual public 	Logfacility_class //Spectrum_class
 	, virtual public	osctype_struct
 {
 public:
 
 	feature_t 		features 			= feature_struct();
 	wave_t 			wp 					= wave_struct();
-	fmo_t 			fp 					= fmo_struct();
-	vco_t 			vp 					= vco_struct();
+	sec_osc_struct	fp	 				;//	= sec_osc_struct();
+	sec_osc_struct	vp 					;// = vco_struct();
 	Dynamic_class	DynFrequency		;
 	spectrum_t		spectrum			;
 
@@ -167,9 +175,9 @@ public:
 
 	uint8_t 		Set_frequency		( string frqName, DYNAMIC_e mode );
 	uint8_t			Set_frequency		( int idx, DYNAMIC_e mode );
-	void 			Set_spectrum_volume	( int vol);
+	void 			Set_volume			( int vol);
 	void 			Line_interpreter	( string_vec_t arr );
-	void 			Set_waveform		( spec_arr_8t wf_vec   );
+	void 			Set_waveform		( spec_arr_wt wf_vec   );
 	void			Set_pmw				( uint8_t );
 	void			Set_spectrum		( spectrum_t, DYNAMIC_e mode );
 	void 			Set_frq_slidevalue	( uint8_t value );

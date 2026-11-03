@@ -30,7 +30,6 @@ SOFTWARE.
  */
 
 #include <Osc.h>
-#include <Oscwaveform.h>
 
 Oscillator::Oscillator	( RoleId_e role_id,
 						OSCID_e _type_id,
@@ -38,7 +37,9 @@ Oscillator::Oscillator	( RoleId_e role_id,
 	: Logfacility_class	( "Oscillator" )
 	, osctype_struct	( _type_id, role_id )
 	, Oscillator_base	( _type_id, role_id )
+	, Spectrum_class	( spectrum_ns::FREQ )
 	, ADSR_class		( _type_id, role_id )
+	, fourier			( osctype_name )
 	, Mem_vco			( bytes )
 	, Mem_fmo			( bytes )
 	, Mem				( bytes )
@@ -46,7 +47,7 @@ Oscillator::Oscillator	( RoleId_e role_id,
 	, scanner			( Mem.Data, mem_frames )
 {
 
-	Connection_reset	();
+	Reset_connections	();
 	Data_reset			();
 
 	Mem_vco.DsInfo		( oscrole_name + ":" + osctype_name + "_vco" );
@@ -69,15 +70,11 @@ void Oscillator::self_Test()
 {
 	TEST_START( className );
 	cout << "waveFunction_vec: " << waveFunction_vec.size() << endl;
-	cout << "waveform_str_vec: " << waveform_str_vec.size() << endl;
-	ASSERTION( 	waveform_str_vec.size() > 0, "waveform_str_vec.size()",
-				waveform_str_vec.size(), ">0" );
-
+	Assert_lt( size_t( 0 ), waveFunction_vec.size() );
 
 	OSC(0);
 	TEST_END( className );
 }
-
 
 void Oscillator::Phase_reset()
 {
@@ -136,7 +133,7 @@ void Oscillator::reset_frq_data()
 	Connect_frq_data( this );
 }
 
-void Oscillator::Connection_reset( )
+void Oscillator::Reset_connections( )
 {
 	reset_frq_data();
 	reset_vol_data();
@@ -173,103 +170,129 @@ auto show_param = [ ]( string type, param_t param, phi_t dT, float freq, float f
 				to_string( abs(param.phi)) );
 	}
 };
-auto hallphi = [  ]( uint8_t adsr_hall, phi_t max )
+#pragma GCC optimize("O3", "fast-math")
+void Oscillator::oscFourier( const buffer_t& frame_offset )
 {
-	return max * adsr_hall * percent;
+	DynFrequency.SetDelta			( features.frq_slide_value, 0 );
+	DynFrequency.Reset_state		( 0 );
+	const Data_t 	vco_adjust 		= max_data_amp / 2;
+	const uint8_t	waves			= 2; // number of waves (2pi) showin up in the wavedisplay
+	waveform_t		waveFnc			= Waveform->Get_fnc( FOURIER );
+	param_t			param			= param_struct();
+					param.maxphi	= waveFnc.maxphi;
+//					phi_t			dT				= param.maxphi * dt / 2;	// FFT.idx/2
+					phi_t			dT				= param.maxphi * dt / waves;	// FFT.idx/2
+	for	( buffer_t 	pos 			= frame_offset;
+					pos 			< wp.frames + frame_offset;
+					pos++ 			)
+		{
+			const float	vco_vol 		= ( vco_adjust + vp.Mem->Data[pos] );
+			const frq_t	freq 			= DynFrequency.Get( 0 );
+						param.dphi		= freq * dT;
+						Mem.Data[pos]	= Oscillator::fourier.Fnc( param ) * vco_vol;
+		}
+	DynFrequency.Update( 0 );
+
+}
+
+constexpr auto osc_volume = []( Oscillator* osc_p)
+{
+	float				vol	= osc_p->spectrum.volidx[0] * percent;
+	if ( osc_p->is_osc_type )
+	{
+		if ( not osc_p->has_notes_role )
+			vol	= 1.0f;	// the volume of the main OSC is constant for the instr role
+						// because this volume is managed by the StA volume
+						// If the osc has the notes role the osc volume is managed
+						// by the rhythm volume and the given StA-notes volume
+	};
+	return vol;
 };
 
+
 #pragma GCC optimize("O3", "fast-math")
-
-void Oscillator::OSC (  buffer_t frame_offset )
-/*
- * Generator of sound wave data
- */
+void Oscillator::oscWave( const buffer_t& frame_offset )
 {
-	assert( wp.frames + frame_offset - 1 < mem_frames );
 
-	const buffer_t 		frames 		= wp.frames;
+	const float			vol_percent	= osc_volume( this );
 	const float 		fmo_vol 	= fmo_scale * (float)this->fp.volume;
 	const Data_t 		vco_adjust 	= max_data_amp / 2;
 	const Data_t		vol_adjust	= ( vco_adjust * features.adjust ) * percent;
+	const float 		volFactor	= VolFactor( spectrum.volidx );
+	param_t 			param 		= param_struct();
+						param.pmw	= 1.0 + (float)features.PWM * percent;
 
 	Data_t* 			oscData		= this->Mem.Data;
 	Data_t*				fmoData		= this->fp.Mem->Data;
 	Data_t* 			vcoData		= this->vp.Mem->Data;
 
-	float				vol_per_cent= this->spectrum.volidx[0] * percent;
-
-	if ( is_osc_type )
-		if ( not has_notes_role )
-			vol_per_cent	= 1;// the volume of the main OSC is constant for the instr role
-								// because this volume is managed by the mixer
-								// If the osc has the notes role the osc volume is managed
-								// by the rhythm volume and the mixer
-
-
-	Sum						( spectrum );
-	DynFrequency.SetDelta	( features.frq_slide_value );
-	param_t 	param 		= param_struct();
-				param.pmw	= 1.0 + (float)features.PWM * percent;
-
-	if( ( spectrum.wfid[0] == FOURIER ) )
+	auto osc_wave	= [ this,
+						frame_offset, &param,
+						vcoData, fmoData, oscData,
+						vco_adjust, fmo_vol, volFactor, vol_adjust, vol_percent ]
+						( size_t channel  )
 	{
-		if( is_osc_type )
+		const frq_t		frq_adjust		= Frqadj( channel, spectrum.frqidx[channel] );
+		const WFID_e	wfid			= spectrum.wfid[channel];
+		waveform_t		waveFnc			= Waveform->Get_fnc( wfid );
+
+		wave_function_t	fnc 			= waveFnc.fnc;
+						param.maxphi	= waveFnc.maxphi ;
+						param.phi		= spectrum.phi[channel];
+						param.amp		= spectrum.volidx[channel]*volFactor;
+		const phi_t		dT				= param.maxphi * dt;
+
+		for( buffer_t 	pos 			= frame_offset;
+						pos 			< wp.frames + frame_offset;
+						pos++ )
 		{
-			frq_t 			freq 			= DynFrequency.Reset_state();
-							param.maxphi	= abs( waveFunction_vec[ FOURIER ].maxphi );
-			phi_t			dT				= param.maxphi * dt;
-			wave_function_t	fnc 			= waveFunction_vec[ FOURIER ].fnc;
-			for( buffer_t 	pos 			= frame_offset;
-							pos 			< frames + frame_offset;
-							pos++ )
-			{
-							freq 		= DynFrequency.Get();
-							param.dphi	= freq * dT;
-							oscData[pos]= max_data_amp * fnc( param );
-			}
-			DynFrequency.Update();
+			const float	vco_vol 	= ( vco_adjust 	+ vcoData[pos] ) * vol_percent ;
+						oscData[pos]+= vol_adjust 	+ vco_vol * fnc( param );
 
-			Apply_adsr( frames, MemData_p(), frame_offset );
-		}
-		return;
-	}
+			const frq_t	freq 		= DynFrequency.Get( channel );
+			const frq_t	frq			= ( freq + fmo_vol * fmoData[pos] ) * frq_adjust;
+						param.dphi	= MODPHI( dT * frq, param.maxphi ); // max frq < 48000 / 2*pi
+																		// ~11000 Hz
+						param.phi	= param.phi + param.dphi;
+						param.phi 	= MODPHI( param.phi, param.maxphi );
+		};	// for
+		spectrum.phi[channel] 	= param.phi;
 
-	for( size_t channel 	= 0;
-				channel 	< SPECARR_SIZE;
-				channel++ )
+	};	// osc_wave
+
+	for( size_t channel : osc_channel_vec )
+		DynFrequency.SetDelta	(features.frq_slide_value, channel );
+
+	for( size_t channel 	: osc_channel_vec )
 	{
 		if ( spectrum.volidx[channel] > 0 )
 		{
-			frq_t 			freq 			= DynFrequency.Reset_state();
-			const frq_t		frq_adjust		= spectrum.frqadj[channel];
-			const uint8_t	wfid			= spectrum.wfid[channel];
-			wave_function_t	fnc 			= waveFunction_vec[ wfid ].fnc;
-							param.maxphi	= abs( waveFunction_vec[ wfid ].maxphi );
-							param.phi		= spectrum.phi[channel];
-							param.amp		= spectrum.vol[channel];
-			const phi_t		dT				= param.maxphi * dt;
-
-			for( buffer_t 	pos 			= frame_offset;
-							pos 			< frames + frame_offset;
-							pos++ )
-			{
-				const float	vco_vol 	= ( vco_adjust 	+ vcoData[pos] ) * vol_per_cent ;
-							oscData[pos]+= vol_adjust 	+ vco_vol * fnc( param );
-
-							freq 		= DynFrequency.Get();
-				const frq_t	frq			= ( freq + fmo_vol * fmoData[pos] ) * frq_adjust;
-							param.dphi	= MODPHI( dT * frq, param.maxphi ); // max frq < 48000 / 2*pi
-																			// ~11000 Hz
-							param.phi	= param.phi + param.dphi;
-							param.phi 	= MODPHI( param.phi, param.maxphi );
-			}
-
-			spectrum.phi[channel] = param.phi;
-			DynFrequency.Update();
+			DynFrequency.Reset_state( channel );
+			osc_wave				( channel );
+			DynFrequency.Update		( channel );
 		}
-	}
 
-	Apply_adsr( frames, MemData_p(), frame_offset );
+	}
+}
+void Oscillator::OSC ( buffer_t frame_offset )
+/*
+ * Generator of sound wave data
+ */
+{
+
+	assert( wp.frames + frame_offset - 1 < mem_frames );
+
+
+	if( ( spectrum.wfid[0] == FOURIER ) )
+	{
+		if( is_fmo_type ) return;
+		oscFourier	( frame_offset );
+	}
+	else
+	{
+		oscWave		( frame_offset );
+	}
+	Apply_adsr( wp.frames, MemData_p(), frame_offset );
 }
 void Oscillator::Setwp_frames( uint16_t msec )
 {
@@ -315,7 +338,7 @@ void Oscillator::Test()
 	features 	= feature_struct();
 
 	longnote = true;
-	adsr_t adsr = default_adsr;
+	adsr_data_t adsr = default_adsr;
 	adsr.attack = 50;
 	Set_adsr( adsr );
 	adsr = Get_adsr();
@@ -328,7 +351,7 @@ void Oscillator::Test()
 
 	spectrum.phi	= zero_phase;
 	testosc.Set_frequency( A3, FIXED ); // 220 Hz
-	testosc.Set_spectrum_volume( 100 );
+	testosc.Set_volume( 100 );
 
 	testosc.OSC( 0 );
 	testosc.OSC( 0 );
@@ -346,6 +369,8 @@ void Oscillator::Test()
 	float ftest = frqArray[ testosc.spectrum.frqidx[0] ];
 	ASSERTION( fcomp( 220, fthis) , "copy constructor", 220 , fthis );
 	ASSERTION( fcomp( ftest, fthis) , "copy constructor", ftest , fthis );
+
+
 
 	TEST_END( className );
 

@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * DataGraphicClass.h
+ * DataGraphic.h
  *
  *  Created on: Mar 28, 2025
  *      Author: Ulrich.Glasmeyer@web.de
@@ -33,7 +33,6 @@ SOFTWARE.
 #define OSZILLOSCOPEWIDGET_H
 
 // Qt
-#include <QObject>
 #include <QPolygon>
 #include <QGraphicsWidget>
 #include <QGraphicsView>
@@ -41,6 +40,52 @@ SOFTWARE.
 // Ocean
 #include <data/Interface.h>
 
+/**************************************************
+ * Pushbutton_class
+ * add rightclick event to qpushbutton
+ *************************************************/
+#include <QEvent>
+#include <QMouseEvent>
+#include <QPushButton>
+#include <QGraphicsSceneEvent>
+
+/**************************************************
+ * Pushbutton_class
+ * provides direction event for Pushbuttons
+ *************************************************/
+class Pushbutton_class :
+	public QPushButton
+{
+	Q_OBJECT
+public:
+	Pushbutton_class( QPushButton* pb ) :
+		QPushButton( pb )
+	{
+        pb->installEventFilter( this );
+
+	};
+	virtual ~Pushbutton_class() = default;
+
+signals:
+	void clickdirection( int );
+
+protected:
+	inline bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if ( event->type() == QEvent::MouseButtonPress )
+        {
+            auto mouseEvent = (QMouseEvent*)event;
+            switch ( mouseEvent->button() )
+			{
+				case Qt::RightButton	: { emit( clickdirection( -1 ) ); break; }
+				case Qt::LeftButton		: { emit( clickdirection(  1 ) ); break; }
+				default 				: { break; }
+			} // switch mouseEvent->button()
+        }
+        return false;
+    };
+
+};
 
 // https://doc.qt.io/qt-6/eventsandfilters.html
 // https://doc.qt.io/qt-6/qgraphicsview.html
@@ -62,6 +107,9 @@ class DataGraphic_class
 	, public	QGraphicsItem
 
 {
+	const float	zoomFactor	= pow( 2.0, 1.0/12.0 );	// 1.059463094
+	const float minZoom 	= pow( 2.0, -5.0 );		// 0.03125
+	const float maxZoom 	= pow( 2.0, 0.0 );
 
     QRectF          		drawregion		;
     QGraphicsView*			graphicsview	;
@@ -76,8 +124,9 @@ public:
     		DataGraphic_class	( interface_t*, QGraphicsView*, datagraphics_param_t _param );
     virtual	~DataGraphic_class	() = default;
 
-    void    ReadData( Data_t* Data, int len );
-    void	Set_sds( interface_t* _sds );
+    void    ReadData			( Data_t* Data, int len );
+    void	Set_parameter		( datagraphics_param_t _param );
+    void	Set_sds				( interface_t* _sds );
 
 private:
     Data_t 	readDataBegin();
@@ -86,6 +135,9 @@ private:
     void    paint(QPainter* painter,
                const QStyleOptionGraphicsItem* option,
                QWidget* widget) override;     // overriding paint() - react on update
+
+protected:
+    void 	wheelEvent( QGraphicsSceneWheelEvent* event ) override;
 
 };
 

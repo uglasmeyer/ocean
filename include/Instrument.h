@@ -48,24 +48,24 @@ class Instrument_class
 	Oscillator*				fmo						;
 
 public:
-	Oscgroup_class			Oscgroup				;
-//	string 					Name 					; // the name of the instrument
+	Oscgroup_class			Oscgroup				{ INSTRROLE, monobuffer_bytes };
 	Wavedisplay_class*		wd_p					;
 	cstring_T<cstring_name> Instrument_name			;
 
 							Instrument_class		( Dataworld_class* data ,
 													Wavedisplay_class* wd );
 	virtual 				~Instrument_class		();
-;
-	bool 					Set						( string );
-	bool 					Set						();
-	void 					SetDir					( string subdir );
-	void 					Save					( string );
-	void 					Update_osc_spectrum		( char oscid );
+
 	bool	 				Connect					( Oscillator* osc,
 													Oscillator* sec,
 													char mode );
+	void 					Gen_fftAmplitude		();
+	void 					Save					( string );
+	bool 					Set						( string );
+	bool 					Set						();
+	void 					SetDir					( string subdir );
 	bool 					Sync					( bool run );
+	void 					Update_osc_spectrum		( char oscid );
 
 	void 					Test_Instrument			();
 
@@ -75,14 +75,13 @@ private:
 	string					instrument_dir			;
 	string					fourier_dir				;
 	string 					instrument_file			;
-	string					fourierBinFile			;
+	string					fftBinFile				;
 	int 					file_version 			= -1;
+	fourier_ns::FILTER_e	fftFilter				;
+
 	const set<int>			supported 				{ 4, 5, 6 };
 	const int				actual_version			= 6;
 
-	void 					selfTest				();
-	void	 				select					( string );
-	bool 					set_new_name			( string );
 	bool 					assign_adsr 			( Oscillator* osc, string_vec_t );
 	bool					assign_adsr2			( const string_vec_t& arr );
 	bool 					assign_adsr3			( const string_vec_t& arr );
@@ -90,16 +89,15 @@ private:
 	void 					assign_spectrum			( const string&	type,
 													const string& 	name,
 													const char& 	flag );
-	bool 					read_instrument			();
-	void 					init_data_structure		( Oscillator*, string_vec_t);
-
-	void 					showOscfeatures			( ostream& FILE = cout );
-
-	int						getVersion				( fstream& File );
-	bool					read_version1			( fstream& File );
 	bool					assign_sds				( fstream& File );
-	void 					save_connections		( ostream& FILE, Oscillator* osc );
-	void 					connect					( OSCID_e oscid, OSCID_e secid, char mode );
+	int						getVersion				( fstream& File );
+	void 					init_data_structure		( Oscillator*, string_vec_t);
+	bool 					read_instrument			();
+	bool					read_version1			( fstream& File );
+	void 					selfTest				();
+	void	 				select					( string );
+	void 					showOscfeatures			( ostream& FILE = cout );
+	void 					show_connections		( ostream& FILE, Oscillator* osc );
 
 };
 #endif /* INSTRUMENT_H_ */

@@ -34,7 +34,7 @@ SOFTWARE.
 
 #include <Osc.h>
 #include <Wavedisplay.h>
-#include <Mixerbase.h>
+#include <StorageArea.h>
 #include <data/DataWorld.h>
 
 /**************************************************
@@ -45,42 +45,29 @@ class Mixer_class :
 	virtual public 			Logfacility_class,
 	public virtual			Interface_base
 {
-	int 					beat_clock 		= 0;
-	sta_role_map			sta_rolemap		= sta_role_map();
+	int 					beat_clock 		;
 	Heap_Memory				RecMono			;
 	Stereo_Memory<Stereo_t>	Out				;
 
 public:
-
-	StorageArray_t 			StA				;
-	int						composer_cntr	= 0;		// note chunk counter
-	Wavedisplay_class*		Wd_p			;
-	mixer_state_t  			state 			= mixer_state_data();
+	StorageArea_class*		StA				;
+	int						composer_cntr	;
+	mixer_state_t  			state 			;
 
 							Mixer_class 	( Dataworld_class* 	data,
-											Wavedisplay_class* 	wd );
+											StorageArea_class* sta );
 	virtual 				~Mixer_class	();
-
-	void	 				Add_Sound		(  Data_t* , Data_t*, Data_t* );
-	void 					ResetStA		( const StAId_e& id );
-	void 					SetStAs			();
-	void 					SetStAProperties( StAId_e mixerId );
-	void	 				StA_Wdcursor	();
-	bool 					BeatClock		( const uint8_t& bps );
-	bool					Cutdesk_isActive();
-
 
 	void 					Add_mono		( Data_t*, StAId_e staId );
 	void 					AddStereo		();
-	void 					DumpStA			( Storage_class& sta );
-	void					SetStA_Files	( string dir );
+	void	 				Add_Sound		(  Data_t* , Data_t*, Data_t* );
+	bool 					BeatClock		( const uint8_t& bps );
+	bool					Cutdesk_isActive();
 	void 					TestMixer		();
 
 private:
 
-	void 					auto_volume		( const StAId_e& id);
 	void					initStA_data	();
-	bool 					restoreStA		( Storage_class& sta );
 
 };
 
@@ -98,7 +85,6 @@ class CutDesk_class :
 	record_range_t			record_limits	;
 	Mixer_class*			Mixer			;
 	Storage_class*			StA				;
-	Wavedisplay_class*		Wd				;
 	string					StAName 		;
 	uint16_t				record_steps	;
 

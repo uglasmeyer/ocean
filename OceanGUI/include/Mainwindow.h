@@ -36,6 +36,7 @@ SOFTWARE.
 
 
 // Ocean
+#include <Ocean.h>
 #include <data/DataWorld.h>
 #include <data/Interface.h>
 #include <data/Configbase.h>
@@ -45,7 +46,7 @@ SOFTWARE.
 #include <App.h>
 
 // Qt
-#include <QObject>
+//#include <QObject>
 #include <QMainWindow>
 #include <QDebug>
 #include <Qt>
@@ -56,12 +57,11 @@ SOFTWARE.
 #include <ui_mainwindow.h>
 #include <File_Dialog.h>
 #include <Cutterdialog.h>
+#include <DataGraphic.h>
 #include <Keyboad_dialog.h>
 #include <Rtsp_dialog.h>
 #include <Spectrum_dialog.h>
-#include <DataGraphicClass.h>
 #include <GUIcommon.h>
-
 
 
 /**************************************************
@@ -82,10 +82,12 @@ extern Application_class	App;
 class MainWindow
 	: public 				QMainWindow
 	, virtual 				Logfacility_class
+	, public				Frequency_class
 
 {
     Q_OBJECT
     Ui::MainWindow*			ui					;
+
 
 public:
     explicit MainWindow		( QWidget*	parent 	= nullptr );
@@ -98,7 +100,7 @@ public:
     Config_class*			Cfg_p 				;//= DaTA_p->Cfg_p;
 	fs_t*					fs					;//= DaTA_p->Cfg_p->fs;
     interface_t*			sds_master			;//= DaTA_p->sds_master;
-    Id_t					SDS_ID				;//= sds_master->config;// active SDS for event logging
+    SDSId_t					SDS_ID				;//= sds_master->config;// active SDS for event logging
     SharedData_class*		Sds					;//= DaTA_p->SDS.GetSds( SDS_ID );
 	interface_t*			sds_p 				;//= Sds->addr;
     Semaphore_class*		Sem_p				;//= DaTA_p->Sem_p;
@@ -117,34 +119,25 @@ public:
 
 
     keymap_struct			Keymap				{};
-    vector<QString> 		QWaveform_vec		{};
     QStringList				Qbps_str_lst		{};
     vector<QString>			Qwd_osc_names		{};
-    vector<QString>			Qwd_role_names		{};
     vector<QString> 		Qwd_wdmode_names	{};
     vector<QRadioButton*> 	rb_S_vec 			{};
 
-
-    struct cb_state_map
+    typedef struct cb_state_map
     {
-    	StAId_e			id; // Mixer id
     	QCheckBox*		cb;
-    	bool*			state;
-    	uint8_t			align = 0;
-    };
-    typedef cb_state_map cb_state_t;
-
-    vector<cb_state_t> 		cb_play_sta_vec 	{};
-    vector<cb_state_t>		cb_store_sta_vec	{};
-    vector<cb_state_t>		cb_filled_sta_vec	{};
-
-    struct sl_value_map
+    	StA_state_t*	state;
+    } cb_state_t;
+    typedef struct tb_state_map
     {
-    	StAId_e			id; // Mixer id
-    	QSlider*		sl;
-    	uint8_t*		value;
-    };
-    typedef sl_value_map sl_value_t;
+    	QToolButton*	cb;
+    	StA_state_t*	state;
+    } tb_state_t;
+
+    vector<tb_state_t> 		tb_sta_play_vec 	{};
+    vector<cb_state_t>		cb_sta_filled_vec	{};
+    vector<cb_state_t>		cb_sta_store_vec	{};
 
     struct sl_lcd_map
     {
@@ -152,23 +145,28 @@ public:
     	QLCDNumber*		lcd;
     	QSlider*		sl;
     	uint8_t*		value;
-		int				max;
     };
     typedef sl_lcd_map 	sl_lcd_t;
 
-    struct sB_lbl_map
+    struct sl_value_map
+    {
+    	QSlider*		sl;
+    	StA_amp_t*		value;
+    };
+    typedef sl_value_map sl_value_t;
+
+    struct pB_lbl_map
     {
     	EVENTKEY_e		event;
-    	QSpinBox* 		sb;
-    	QLabel* 		lbl;
-		uint8_t*		value;
+    	QPushButton*	pB;
+		WFID_e*			value;
     };
-    typedef sB_lbl_map 	sB_lbl_t;
+    typedef pB_lbl_map 	pB_lbl_t;
 
-    vector<sl_value_t>		sl_sta_vec 			{};
-    vector<sl_lcd_t>		sl_lcd_vec		{};
-    vector<sl_lcd_t>		sl_volume_vec		{};
-    vector<sB_lbl_t>		sB_lbl_vec			{};
+    vector<sl_value_t>		sl_sta_vec 		{};
+    vector<sl_lcd_t>		sl_freq_vec		{};
+    vector<sl_lcd_t>		sl_volume_vec	{};
+    vector<pB_lbl_t>		wf_vec			{};
 
 private:
     bps_struct				Bps					;
@@ -177,48 +175,53 @@ private:
     QTimer*					dataGraphic_timer	= &osc_timer_obj;
     QTimer					status_timer_obj	{};
     QTimer*					uiUpdate_timer		= &status_timer_obj;
+    vector<QPushButton*> 	wf_pb_vec			{};
 
     DataGraphic_class*		DataDisplay			; // created by new DataGraphic_class;
     QGraphicsScene*     	scene 				; // created by new QGraphicsScene
 
-    void initWfDisplay_que();
-    void setwidgetvalues();
-    void select_Sds( Id_t sdsid );
+    void changeAppState( APPID_e appid, string terminal, string args=""  );
+    void connect_secundary( OSCID_e oscid, OSCID_e secid, char mode, bool val );
     void initUiVectors();
     void initPanel();
-    void updateGuiVectors( interface_t* sds);
+    void initGuiVectors();
     void initDataDisplay();
     void initFreqSlider();
-    void initScrollbars();
+    void initPushbuttons();
     void initStateButtons();
     void initComboBoxes();
     void initOther();
     void initLables();
     void initSignals();
     void initTimer();
+    void initWfDisplay_que();
     void sliderFreq( OSCID_e oscid, int value );
     void sliderVolume( sl_lcd_t map );
-    void mixer_slider( sl_value_t map );
-    void waveform_slot( uint8_t*, uint8_t, OSCID_e, EVENTKEY_e, QLabel* );
-    void set_wdrole( RoleId_e roleid );
-    void unset_wdrole( RoleId_e roleid );
-    void setStaPlay( StAId_e id );
+    void sliderAdjust( OSCID_e oscid, uint8_t value );
+    void sliderMixer( StAId_e staid, uint8_t value );
+    void setWaveform( OSCID_e oscid, int dir );
+    void set_default_role();
+    void set_wdrole( StAId_e staid, bool flag );
+	void set_wdrole( RoleId_e roleid, bool flag );
+    void setwidgetvalues();
+    void set_pb_wd_mode_text( WdModeID_t mode );
+    void select_Sds( SDSId_t sdsid );
     void setStaStored( StAId_e staId );
-    void toggle_store_sta( StAId_e id );
-    void changeAppState( APPID_e appid, string terminal, string args=""  );
-    void connect_secundary( OSCID_e oscid, OSCID_e secid, char mode, bool val );
-    void update_sliderFreq( OSCID_e oscid, int idx );
+    void toggle_sta_store( StAId_e id );
+    void updateGuiVectors( interface_t* sds);
 
 public slots:
-	void update_CB_external();
     void updateColorButtons();
 	void UpdateDataDisplay();
 	void Update_Statusbar( QString text );
 
 private slots:
 
+	void tb_logState_slot();
 	void set_overwritemode( bool );
     void slideFrq( int );
+    void toggleStaPlay( StAId_e id );
+    void remote_sta_off( StAId_e id );
     void Notes_per_measure( int );
     void Beat_per_sec( int  );
 
@@ -314,14 +317,14 @@ private slots:
 
     void adsr_hall();
 
-    void pB_Mode_clicked();
+    void pB_Mode_clicked( int );
     void wavfile_selected( QString arg);
-    void pB_OSC_clicked();
-    void pB_Role_clicked();
+    void pB_OSC_clicked( int );
+    void pB_Role_clicked( int );
+	void update_CB_external();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-    void wheelEvent( QWheelEvent* event ) override;
 };
 
 #endif // MAINWINDOW_H

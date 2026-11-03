@@ -119,11 +119,6 @@ public:
 	const range_T<regid_t>	regid_range		{ 0, REG_SIZE };
 				Assembler_class();
 	virtual 	~Assembler_class();
-	// manage the pos cursor on the process_stack
-//	void		Push( size_t pos );
-//	void		Pop();
-//	size_t		Return();
-	// end pos stack management
 
 	void		Ldx( regid_t id, reg_t value );
 	void		Add( regid_t id, reg_t value );
@@ -207,9 +202,11 @@ public:
 
 private:
 
+
 	typedef struct 		print_struct
 	{
-		Table_class 	Table		{ defaultopt };
+		Table_class* 	Table		;
+
 		stack_struct 	ps			{};
 		string 			addr_str 	= "";
 		int				value		= 0;

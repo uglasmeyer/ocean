@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.31)
-set(CMAKE_CXX_STANDARD 23)
-
-set ( PROJECT_SOURCE_DIR 	$ENV{PWD})
-set ( CMAKE_BINARY_DIR 	$ENV{HOME}/OceanDev)
-set ( QTVERSION qt6 )
+cmake_minimum_required( VERSION 3.31 )
+set ( CMAKE_CXX_STANDARD 	23 )
+set ( PROJECT_SOURCE_DIR 	$ENV{PWD} )
+set ( CMAKE_BINARY_DIR 		$ENV{HOME}/OceanDev )
+set ( QTVERSION 			qt6 )
 
 execute_process(
     COMMAND uname -m
@@ -18,6 +17,9 @@ if(EXISTS "${QTLIB}" AND IS_DIRECTORY "${QTLIB}")
 else()
     message(FATAL_ERROR "Directory does not exist: ${QTLIB} ")
 endif()
+
+# Enable compilation database generation
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 execute_process(
     COMMAND nproc
@@ -36,8 +38,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${ARCH})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${ARCH})
 
 
-
-project(Ocean)
+set(PROJECT Ocean)
+project(${PROJECT})
 
 # create external build directories as defined before
 add_custom_target(build-time-make-directory ALL
@@ -46,11 +48,12 @@ COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
 
 # uniform compile switches
-add_compile_options(-Wall -frecord-gcc-switches -pthread -fPIC )
-add_compile_options(-O2 -g )
+add_compile_options( -Wall -frecord-gcc-switches -pthread -fPIC )
+add_compile_options( -O2 -g ) 	#-freflection )
+
 
 # Add sub-directories
-add_subdirectory(../src 		build_src )
+add_subdirectory(../src 		build_src )			# libOcean
 add_subdirectory(../OceanGUI 	build_OceanGUI )
 add_subdirectory(../Audioserver build_Audioserver )
 add_subdirectory(../Composer 	build_Composer )

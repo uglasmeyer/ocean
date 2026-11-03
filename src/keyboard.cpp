@@ -40,11 +40,11 @@ inline float get_sta_volume( Storage_class* sta_p, uint8_t chordlen )
 Keyboard_class::Keyboard_class( Dataworld_class*	data,
 								Instrument_class* 	instr,
 								Storage_class* 		sta,
-								Note_class* 		notes )
+								NotesCore_class* 	notes )
 	: Logfacility_class		( "Keyboard_class" )
 	, Interface_base		( data )
 	, keyboardState_class	( sds_p )
-	, Oscgroup				( KBDROLE, 2*monobuffer_bytes )
+//	, Oscgroup				( KBDROLE, 2*monobuffer_bytes )
 	, wd_p					( instr->wd_p )
 	, scanner				( &sta->scanner )
 	, max_notes				( notes_per_sec * sta->param.storage_time )
@@ -52,7 +52,7 @@ Keyboard_class::Keyboard_class( Dataworld_class*	data,
 
 {
 	this->Osc				= &Oscgroup.osc;
-	this->instrument_p 		= instr;
+	this->instrument 		= instr;
 	this->Notes				= notes;
 	this->StA				= sta;
 	this->fs				= instr->fs;
@@ -63,7 +63,7 @@ Keyboard_class::Keyboard_class( Dataworld_class*	data,
 	this->frqMode			= SLIDE;
 	this->enabled			= false;
 	this->Chord_old.clear	();
-	std::ranges::for_each( Oscgroup.member, [ this ]( Oscillator* osc )
+	for_each( Oscgroup.member, [ this ]( Oscillator* osc )
 		{ osc->Set_beatclock( &sds_p->Kbd_state.bpsval ); } );
 
 	Oscgroup.SetDuration	( max_msec );
@@ -103,6 +103,7 @@ void Keyboard_class::gen_chord_data( chord_t chord )
 		scanner->Set_wpos( scanner->rpos );
 		StA->Write_data( Osc->Mem.Data, Osc->wp.frames, 0.0 );
 	}
+
 	Oscgroup.ChordData( sds_p, chord );
 	Chord_old = chord;
 }
@@ -127,7 +128,17 @@ void Keyboard_class::set_instrument( )
 {
 	Oscgroup.SetInstrument( sds_p );
 	// kbd specific settings
-	Oscgroup.SetFrqSlidevalue( sliding * sds_p->features[OSCID].frq_slide_value );
+	// override instrument settings
+	if( sliding ) // F5 set slide mode
+	{
+		if ( Oscgroup.osc.features.frq_slide_value == 0 )
+			Oscgroup.SetFrqSlidevalue( Sds->frq_slide.default_slide_value );
+	}
+	else
+		Oscgroup.SetFrqSlidevalue( 0 );
+
+	Oscgroup.osc.fourier.coeff_vec 	= instrument->Oscgroup.osc.fourier.coeff_vec;
+	Oscgroup.vco.fourier.coeff_vec 	= instrument->Oscgroup.vco.fourier.coeff_vec;
 }
 
 bool Keyboard_class::decay(  )
@@ -157,16 +168,16 @@ void Keyboard_class::attack()
 
 	set_instrument			();
 	Oscgroup.KbdAttack		(); // overwrite Instrument setting from sds
-
 	Oscgroup.ResetBeatCursor();
-	sta_volume 				= get_sta_volume( StA, chord.size() );
-	gen_chord_data			( chord );
-	chord.clear				();
 
+	gen_chord_data			( chord );
+
+	sta_volume 				= get_sta_volume( StA, chord.size() );
 	scanner->Set_wpos		( scanner->rpos );
 	StA->Write_data			( Osc->Mem.Data, Osc->wp.frames, sta_volume );
 
 	decayCounter			= attackCounter ;
+	chord.clear				();
 
 }
 
@@ -240,7 +251,42 @@ bool Keyboard_class::Save_notes( bool save )
 	return true;
 }
 
+void Keyboard_class::Keyboard_test()
+{
+	TEST_START( className );
 
+	sds_p->Kbd_state.key = 'A';
+	set_octave( 3 );
+	SetKbdKey();
+	Assert_equal( (int)pitch.frqidx, (int)C3 );
+	Assert_equal( chord.size(), size_t(1) );
+	chord.clear				();
+	Assert_equal( chord.size(), size_t(0) );
+
+	sds_p->Kbd_state.key = 'K';
+	set_octave( 2 );
+	SetKbdKey();
+	Assert_equal( (int)pitch.frqidx, (int)A2 );
+
+	attack();
+
+	sds_p->Kbd_state.key = 'I';
+	SetKbdKey();
+	Assert_equal( (int)pitch.frqidx, (int)A3 );
+
+	Sds->frq_slide.Set( Sds->frq_slide.default_slide_value );
+	sds_p->Kbd_state.sliding	= false;
+	toggle_slideMode();
+	Assert_equal( sliding, true );
+
+	attack();
+	Assert_equal( int( Oscgroup.osc.features.frq_slide_value ), (int)Sds->frq_slide.default_slide_value );
+	dynamic_state_t state = Oscgroup.osc.DynFrequency.GetCurrent();
+	Assert_equal( state.mode, FIXED );
+	Assert_equal( state.future, (int)A3 );
+
+	TEST_END( className );
+}
 
 /**************************************************
  * KbdNoteline_struct
@@ -274,7 +320,7 @@ void KbdNoteline_struct::AddLenth( uint& cnt )
 		return; // dont add note duration for empty notes
 	for( uint i = 0; ((i < cnt ) and ( i < measure_parts )); i++ )
 	{
-		str.push_back( NOTE::INCDUR );
+		str.push_back( note_ns::INCDUR );
 		cout << "-";
 	}
 	cout << endl;
@@ -288,7 +334,7 @@ void KbdNoteline_struct::AddLenth( uint& cnt )
 /**************************************************
  * Notevector_struct
  *************************************************/
-Notevector_struct::Notevector_struct( Note_class* notes, file_structure* fs, size_t size )
+Notevector_struct::Notevector_struct( NotesCore_class* notes, file_structure* fs, size_t size )
 	: 	KbdNoteline				()
 
 {
@@ -383,7 +429,7 @@ bool Notevector_struct::SaveNoteLine( float volume )
 	Notes->Noteline.set			( KbdNoteline.str );
 	uint8_t		vol				= check_range( range_T<uint8_t>{1, 9}, uint8_t( volume * 10 ) );
 	Notes->Rythmline.set		( to_string( vol ) );
-	bool		verified		= Notes->Verify_noteline( NOTE::KEYBOARD );
+	bool		verified		= Notes->Verify_noteline( note_ns::KEYBOARD );
 	if ( verified )
 	{
 		Notes->Save	( Fs->kbdnotes_name, nlp, KbdNoteline.str );
@@ -533,12 +579,14 @@ void Kbd_pitch_class::Kbd_pitch_Test()
 	Assert_equal( strEqual( Chordrule_map, "43" ), true, Chordrule_map	);
 	SetPitchVec( 'A' );
 	Assert_equal( chord.size(), (size_t)3 );
-	TEST_END( className );
 
 	for( const pitch_t& pitch : chord)
 	{
 		ShowPitch( pitch );
 	}
+	chord.clear();
+	SetChord( 'Y' );
+	TEST_END( className );
 
 }
 

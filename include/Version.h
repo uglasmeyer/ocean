@@ -34,12 +34,12 @@ SOFTWARE.
 
 
 #include <string>
-using namespace std;
+#include <Ocean.h>
 
 #define MAYOR 5
-#define MINOR 9
+#define MINOR 1
 #define PATCH 0
-#define SDS_VERSION 54
+#define SDS_VERSION 56
 
 const string Version_No  = 	to_string(MAYOR) + "." +
 							to_string(MINOR) + "." +
@@ -61,6 +61,8 @@ const string License_text = R"(
 
 /*
 
+5.1.0-56 comprehensive fourier feature
+5.0.0-55 filter fourier peaks
 5.0.0-54 Consolidate changes
 4.7.0-53 Fourier resolutionIdx
 4.6.0-52 session_dir

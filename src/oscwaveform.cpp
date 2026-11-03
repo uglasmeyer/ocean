@@ -34,17 +34,13 @@ SOFTWARE.
 #include <Oscwaveform.h>
 #include <String.h>
 
-random_device 				rd;
-mt19937 					engine(rd());
-uniform_real_distribution<> distrib( -1, 1 );
+
+std::random_device 				rd;
+std::mt19937 					engine(rd());
+std::uniform_real_distribution<> distrib( -1, 1 );
 
 
 // https://stackoverflow.com/questions/6339970/c-using-function-as-parameter
-
-int sgn( const float& x )
-{
-	return ( x >= 0 ) ? 1 : -1;
-}
 
 float psgn( const float& x, const float& y )
 {
@@ -108,30 +104,42 @@ Data_t Sawtooth( param_t& p )
 { // left
 	return ( p.amp * (1.0 - modulo( p.phi,1 )));
 }
-const float	max_trap = 4.0;
-Data_t Trapeze( param_t& p )			//  p1__
-{// 0 < phi < 4, 1 < pmw < 2   				 /  \__
-										//    p23
-	float 	len	= p.pmw - 1.0;			// len = 0.2
-	float 	p1  = max_trap / 2.0 - len;	// p1 = 1.8
-	float 	p2	= p1 + len;				// p2 = 2.0
-	float	p3	= p2 + p1;				// p3 = 3.8
-	if( p.phi < p1 ) 					// 0..p1 positive slope
-		return p.amp *  p.phi / p1;
-	if( p.phi < p2 ) 					// p1..p2 const
-		return p.amp * 1.0;
-	if( p.phi < p3 ) 					// p2..p3 negative slope
-	{// (a+b*p2)=1, (a+b*p3)=0, a=1-b*p2, a=-b*p3, b=1/(-p3+p2)
-		return p.amp * ( p.phi - p3 ) / ( p2 - p3 );
-	}
-	return 0;
+const float	lambda 		= 2.0;
+const float lambda_2 	= lambda/2.0;
+Data_t Trapeze( param_t& p )			// x 1__ dx
+{// 0 < x < lambda, 1 < pmw < 2   		     /  \__
+										// x   23
+										// pwm=1.2 , expected:
+	float 	dx	= ( p.pmw - 1.0f );		// dx = 0.2, dx=0 -> triangle	, dx=1 -> rectangle
+//	if( dx == 1.0f )
+//		return Rectangle( p );
+//	if( dx == 0.0f )
+//		return Triangle( p );
+	float 	x1  = lambda_2 - dx;		// x1 = 0.8, x1 = 1.0			, x1 = 0.0
+	float 	x2	= x1 + dx;				// x2 = 1.0, x2 = 1.0			, x2 = 1.0
+	float	x3	= x2 + x1;				// x3 = 1.8, x3 = 2.0		 	, x3 = 1.0
+
+	auto 	Y 	= [ x1, x2, x3 ]( float x )
+	{
+		if( x < x1 ) 					// 0..x1 positive slope
+			return x / x1;
+		if( x < x2 ) 					// x1..x2 const
+			return 1.0f;
+		// (a+b*x2)=1 -> a=1-b*x2, (a+b*x3)=0 -> a=-b*x3, =>  b=1/(x2-x3)=-1/x1, a=x3/x1
+		if( x < x3 ) 					// x2..x3 negative slope
+			return ( x3  - x ) / x1;
+		// x < lambda
+		return 0.0f;
+		;
+	};
+
+	return p.amp * ( Y( p.phi ) - 0.5 );
 }
 Data_t Pmw( param_t& p )
 {
 	phi_t phi2 	= p.phi * p.pmw ;
-	return p.amp *	abs(round(modulo( p.phi , p.maxphi))) *
-					abs(round(modulo(phi2	, p.maxphi))) ;
-	//	return abs(round(modulo(phi , maxphi)));
+	return p.amp *	abs(round(modulo( p.phi , p.maxphi ))) *
+					abs(round(modulo( phi2	, p.maxphi ))) ;
 }
 
 Data_t 	prev_step = 0.0;
@@ -147,54 +155,157 @@ Data_t Rnd_step( param_t& p )
 	return p.amp * step * rnd_step ;
 }
 
-#include <Fourier.h>
+//#include <Fourier.h>
 Data_t FourierFnc( param_t& p )
 {
-	return fourier->Fnc( p );
+	return 0.0;// dummy fnc to satisfy the waveFunction vector
 }
 
-const vector<waveFnc_t> waveFunction_vec
+Data_t Zero( param_t p )
 {
-//     fnc         visible name   maxphi  width
+	return 0.0;
+}
 
-	{ Sinus		, "sinus"		, 2*M_PI, 2.0 },
-	{ Triangle	, "triangle"	, 2		, 2.0 },
-	{ SignSin	, "signsin"		, 2*M_PI, 1.0 },
-	{ Rectangle	, "rectangle"	, 1 	, 2.0 },
-	{ SawTooth	, "sawtoothL"	, 1		, 1.0 },
-	{ Sawtooth	, "sawtoothR"	, 1			, 1.0 },
-	{ Trapeze	, "Trapeze"		, max_trap	, 1.0 },
-	{ Pmw		, "PWM"			, 1		, 1.0 },
-	{ Delta		, "delta"		, 1		, 1.0 },
-	{ Rnd		, "noise"		, 1		, 2.0 },
-	{ Rnd_step	, "random"		, 1		, 2.0 },
-	{ FourierFnc, "Fourier"		, 2*M_PI, 2.0 }
-};
-constexpr vector<string>   gen_waveform_str_vec ( vector<waveFnc_struct> fnc_vec )
+typedef struct wfid_map_struct
 {
-	vector<string> vec{};
-	for ( waveFnc_t wf : fnc_vec )
-		vec.push_back( wf.name  );
-	return vec;
-};
+	WFID_e id;
+	string str;
+} wfid_map_t;
 
-const vector<string>waveform_str_vec { gen_waveform_str_vec( waveFunction_vec ) };
-const range_T<int> 	waveform_range{ 0, (int) waveFunction_vec.size() -1 };
-const uset_t	waveform_str_set	= vector2uset( waveform_str_vec );
+typedef vector<wfid_map_t> wf_id_str_map_t;
 
-const vector<waveFnc_t> adsrFunction_vec
+wf_id_str_map_t all_wf_id_str_map
 {
-	{  CoSinus	, "cosinus"		, 2*M_PI},
-	{  Sinus	, "sinus"		, 2*M_PI},
-	{  Triangle	, "triangle"	, 2		},
-	{  SignSin	, "signsin"		, 2*M_PI},
-	{  Rectangle, "rectangle"	, 1 	},
-	{  SawTooth	, "sawtoothL"	, 1		},
-	{  Sawtooth	, "sawtoothR"	, 1		},
-	{  Pmw		, "PMW"			, 1		},
-	{  Rnd_step	, "random"		, 1		}
+	{ SINUS		, "Sinus" },
+	{ COSIN		, "Cosinus" },
+	{ TRIANGLE	, "Triangle" },
+	{ SGNSIN	, "SignSin" },
+	{ RECTANGLE	, "Rectangle" },
+	{ SAWTOOTHL	, "SawtoothL" },
+	{ SAWTOOTHR	, "SawtoothR" },
+	{ TRAPECE	, "Trapece" },
+	{ PMW		, "PWM" },
+	{ DELTA		, "Delta" },
+	{ NOISE		, "Noise" },
+	{ RANDOM	, "Random" },
+	{ FOURIER	, "Fourier" },
+	{ ZERO		, "Zero" },
+	{ ADSR		, "Adsr" }
 };
 
-const vector<string>adsrwf_str_vec 	{ gen_waveform_str_vec( adsrFunction_vec ) };
-const range_T<int> 	adsrwf_range	{ 0, (int) adsrFunction_vec.size() -1 };
+const waveFnc_vec_t waveFunction_vec
+{
+//   idx  fnc         lambda  size wfid
+	{ 0	, Sinus		, 2*M_PI, 2.0, SINUS	}, // default
+	{ 1	, Triangle	, 2		, 2.0, TRIANGLE },
+	{ 2	, Trapeze	, lambda, 1.0, TRAPECE 	},
+	{ 3	, Rectangle	, 1 	, 2.0, RECTANGLE},
+	{ 4	, SignSin	, 2*M_PI, 1.0, SGNSIN 	},
+	{ 5	, SawTooth	, 1		, 1.0, SAWTOOTHL},
+	{ 6	, Sawtooth	, 1		, 1.0, SAWTOOTHR},
+	{ 7	, Pmw		, 1		, 1.0, PMW 		},
+	{ 8	, Delta		, 1		, 1.0, DELTA 	},
+	{ 9	, Rnd		, 1		, 2.0, NOISE 	},
+	{10	, Rnd_step	, 1		, 2.0, RANDOM 	},
+	{11	, FourierFnc, 2*M_PI, 2.0, FOURIER 	}
+};
 
+const waveFnc_vec_t adsrFunction_vec
+{
+	{ 0	, CoSinus	, 2*M_PI, 2.0, COSIN	}, // default
+	{ 1	, Sinus		, 2*M_PI, 2.0, SINUS 	},
+	{ 2	, Triangle	, 2		, 2.0, TRIANGLE },
+	{ 3	, SignSin	, 2*M_PI, 1.0, SGNSIN 	},
+	{ 4	, Rectangle	, 1 	, 2.0, RECTANGLE},
+	{ 5	, SawTooth	, 1		, 1.0, SAWTOOTHL},
+	{ 6	, Sawtooth	, 1		, 1.0, SAWTOOTHR},
+	{ 7	, Pmw		, 1		, 1.0, PMW 		},
+	{ 8	, Rnd_step	, 1		, 2.0, RANDOM 	}
+};
+
+constexpr string_vec_t   gen_waveform_str_vec ( waveFnc_vec_t vec )
+{
+	assert( WFID_SIZE == all_wf_id_str_map.size() );
+	string_vec_t	Vec{};
+	for ( waveform_t wf : vec )
+		Vec.push_back( all_wf_id_str_map[ wf.wfid ].str );
+	return Vec;
+};
+constexpr unordered_set<WFID_e> gen_wfid_set( waveFnc_vec_t fnc_vec )
+{
+	unordered_set<WFID_e> Set{};
+	for( waveform_t wf : fnc_vec )
+		Set.insert( wf.wfid );
+	return Set;
+}
+
+Waveform_class::Waveform_class( waveFnc_vec_t wf_vec )
+	: idx_range		{ 0, (int)wf_vec.size()-1 }
+{
+	WF_vec 			= wf_vec;
+	default_waveFnc = WF_vec[0];
+	default_wfid	= WF_vec[0].wfid;
+	waveform_Id_set	= gen_wfid_set( wf_vec );
+	waveform_str_vec= gen_waveform_str_vec( wf_vec ) ;
+	waveform_str_set= vector2uset( waveform_str_vec );
+
+	// selfTest()
+	Assert_equal(	(int)Get_id(4), (int)Get_fnc( Get_id(4) ).wfid );
+	Assert_equal(	(int)Set_id( Get_id(4), 1), (int)Get_id(5) );
+	WFID_e last_wfid= WF_vec.back().wfid;
+	Assert_equal( 	(int)Set_id( last_wfid, 1),	(int)default_wfid );
+	Assert_equal( 	(int)Set_id( default_wfid, -1),	(int)last_wfid );
+
+};
+
+string Waveform_class::Get_str( WFID_e id )
+{
+	WFID_e	wfid	= ( waveform_Id_set.contains( id ) ) ? id : default_wfid;
+	return all_wf_id_str_map[wfid].str;
+}
+
+waveform_t Waveform_class::Get_fnc( WFID_e wfid )
+{
+	for( waveform_t fnc : WF_vec )
+	{
+		if( fnc.wfid == wfid )
+			return fnc;
+	}
+	return default_waveFnc;
+}
+
+uint8_t Waveform_class::Get_idx( WFID_e wfid )
+{
+	return Get_fnc( wfid ).idx;
+}
+WFID_e Waveform_class::Get_id( string wstr )
+{
+	for ( wfid_map_t wf : all_wf_id_str_map )
+	{
+		if ( strEqual( wf.str, wstr ) )
+			return wf.id;
+	}
+	return default_wfid;
+};
+
+WFID_e Waveform_class::Get_id( int idx )
+{
+	for ( waveform_t wf : WF_vec )
+	{
+		if ( wf.idx == idx )
+			return wf.wfid;
+	}
+	return default_wfid;
+};
+
+WFID_e Waveform_class::Set_id( WFID_e wfid, int dir )
+{
+	int idx = Get_fnc( wfid ).idx + dir;
+	idx 	= check_ring( idx_range, idx );
+	return 	WF_vec[idx].wfid;
+}
+
+Waveform_class Waveform 	{ waveFunction_vec };
+Waveform_class ADSRform 	{ adsrFunction_vec };
+Waveform_class* waveform 	= &Waveform;
+Waveform_class* adsrform 	= &ADSRform;

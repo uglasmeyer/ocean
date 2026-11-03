@@ -76,7 +76,7 @@ public:
 	APPID_e					AppId				;
 	SDS_t			 		SDS 				;
 	Appstate_class 			Appstate			;
-	Id_t					SDS_Id				;
+	SDSId_t					SDS_Id				;
 
 	SharedData_class*		Sds_p				;
 	Config_class*			Cfg_p				;
@@ -121,16 +121,16 @@ public:
 	SharedData_class*		Sds_master		;
 	interface_t*			sds_master		;
 	interface_t*			sds_p			;
-	Id_t					SDS_ID			;
+	SDSId_t					SDS_ID			;
 
 							Interface_base	( Dataworld_class* data );
 	virtual 				~Interface_base	() = default;
 
 	interface_t*			Get_sdsCom		();
-	void 					Set_Sds			( Id_t sdsid );
+	void 					Set_Sds			( SDSId_t sdsid );
 	void 					Set_Sds			();
-	void 					Set_masterComId	( Id_t sdsid );
-	void 					Set_comid		( Id_t sdsid );
+	void 					Set_masterComId	( SDSId_t sdsid );
+	void 					Set_comid		( SDSId_t sdsid );
 };
 
 /**************************************************
@@ -162,7 +162,6 @@ class EventLog_class :
 {
 
 	Dataworld_class* 	DaTA;
-	//	string logfile_name = file_structure().reclog_file;
 	struct event_struct
 	{
 		uint8_t 	sdsid = 0;

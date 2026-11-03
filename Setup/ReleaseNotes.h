@@ -98,9 +98,11 @@ this as beeing under construction with respect to a
 
 const string rn_changelog =
 R"(Changelog
-- combined distribution of x86 and arch binaries
-- GUI Cut desk, allowing to cut recorded wav files
-- updated installation instructions
+- Combined distribution of x86 and arch binaries
+- GUI Cut desk, allowing to 
+	- cut recorded wav files
+	- create waveforms by fourier analyzis
+- Updated installation instructions
 - Usability features
 )" + rn_newline;
 

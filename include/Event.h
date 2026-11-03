@@ -59,6 +59,7 @@ class Event_class
 	Instrument_class*	Instrument;
 	Note_class*			Notes;
 	Keyboard_class*		Keyboard;
+	StorageArea_class*	StA;
 	Mixer_class*		Mixer;
 	CutDesk_class*		CutDesk;
 	Wavedisplay_class*	Wavedisplay;
@@ -76,6 +77,7 @@ public:
 	Event_class(Instrument_class* 	instrument,
 				Note_class*			notes,
 				Keyboard_class*		keyboard,
+				StorageArea_class*	sta,
 				Mixer_class*		mixer,
 				Wavedisplay_class*	wavedisplay,
 				Dataworld_class*	data,

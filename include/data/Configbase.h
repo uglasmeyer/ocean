@@ -42,7 +42,7 @@ SOFTWARE.
 static const string	oceandir_env= OCEANDIR;
 static const string	oceandev_env= OCEANDEV;
 
-static const Id_t 	MAXCONFIG 	= 4; 		// number of SDS configration
+static const SDSId_t 	MAXCONFIG 	= 4; 		// number of SDS configration
 											// max 4 can be managed by the GUI
 typedef	array<key_t,MAXCONFIG>	keys_arr_t;
 const range_T<int>  sds_range 	{ 0, MAXCONFIG };
@@ -67,7 +67,8 @@ struct prgarg_struct
 	string		title		= "Experimental";
 	string		album		= Application;
 	string		Term		= "xterm -e ";
-	string		Logview		= "xterm -e tail -n 1000 -f";
+//	string		Logview		= "xterm -e tail -n 1000 -f";
+	string		Logview		= "xterm ";
 	string		Nohup		= "nohup";
 	string 		ffmpeg 		= "ffmpeg";
 	string		installdir	= "";		 // Setup -I ...

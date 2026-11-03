@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -139,7 +139,7 @@ int main(  int argc, char* argv[] )
 		return 0;
 	}
 
-	Id_t cfgid = 0;
+	SDSId_t cfgid = 0;
 	while(true)
 	{
 		Log.Comment( INFO, "waiting for release of SYNTHESIZER_START");

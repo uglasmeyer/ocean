@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025,2026 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ SOFTWARE.
  */
 
 #include <data/Interface.h>
+#include <data/Sdsbase.h>
 
 
 connect_arr_t initConnect_arr(  )
@@ -60,14 +61,15 @@ void SharedData_class::selfTest( )
  * SharedData_class
  *************************************************/
 SharedData_class::SharedData_class( APPID_e			appid,
-									Id_t			sdsid,
+									SDSId_t			sdsid,
 									Config_class*	cfg,
 									Semaphore_class* sem ):
 	Logfacility_class	("SharedData_class" ),
 	sds_key				( cfg->Config.sdskeys[ sdsid ] ),
 	sds_size			( sizeof(interface_struct) ),
 	SHM					( sds_size, sds_size, sds_key ),
-	Eventque			( SHM.shm_ds.addr )
+	Eventque			( SHM.shm_ds.addr ),
+	frq_slide			( &Eventque.sds->features[OSCID].frq_slide_value )
 {
 
 	this->AppId 		= appid;
@@ -83,6 +85,7 @@ SharedData_class::SharedData_class( APPID_e			appid,
 
 	set_dumpFile		( fs->vardir, sdsid );
 	init_SDS			();
+	Prepare_sds			();
 }
 
 SharedData_class::~SharedData_class()
@@ -93,9 +96,9 @@ SharedData_class::~SharedData_class()
 void SharedData_class::set_dumpFile( string dir, uint8_t sdsid )
 {
 	string 	subdir	= dir + "SDS_"	+ to_string( sdsid ) + "/";
-	if( not filesystem::exists( subdir ) )
+	if( not exists( subdir ) )
 	{
-		filesystem::create_directories( subdir );
+		create_directories( subdir );
 	}
 	this->dumpFile	= subdir + filename ;
 }
@@ -121,10 +124,10 @@ void SharedData_class::init_SDS()
 					" is different to SDS version " + to_string( addr->version ) );
 	}
 
-	filesystem::path sds_dump_path = dumpFile;
-	if (( filesystem::exists( sds_dump_path )))
+	std::filesystem::path sds_dump_path = dumpFile;
+	if (( exists( sds_dump_path )))
 	{
-		size_t fsize = filesystem::file_size( sds_dump_path );
+		size_t fsize = file_size( sds_dump_path );
 		if ( fsize == sds_size)
 		{
 			;
@@ -147,15 +150,11 @@ void SharedData_class::Remove_dumpFile()
 }
 void SharedData_class::Copy_dumpFileTo( string dst )
 {
-	filesystem::copy( 	dumpFile ,
-						dst,
-						filesystem::copy_options::overwrite_existing);
+	std::filesystem::copy( 	dumpFile ,	dst, copy_options::overwrite_existing);
 }
 void SharedData_class::Copy_dumpFileFrom( string src )
 {
-	filesystem::copy( 	src ,
-						dumpFile,
-						filesystem::copy_options::overwrite_existing);
+	std::filesystem::copy( 	src ,		dumpFile, copy_options::overwrite_existing);
 }
 void SharedData_class::Delete_Shm()
 {
@@ -197,7 +196,7 @@ char* SharedData_class::Write_str( CSTRKEY_e selector, const string str )
 			char_p = addr->Session;
 			break;
 		}
-		case WAVFILE_STR :
+		case WAVFILESTR :
 		{
 			size = SDSNAME_SIZE;
 			char_p = addr->WAV_filename;
@@ -260,7 +259,7 @@ string SharedData_class::Read_str( CSTRKEY_e selector )
 			str.assign( addr->Session );
 			break;
 		}
-		case WAVFILE_STR :
+		case WAVFILESTR :
 		{
 			str.assign( addr->WAV_filename );
 			break;
@@ -310,11 +309,11 @@ bool SharedData_class::Restore_ifd()
 	Comment(INFO,"Restore shared data from file");
 	assert( dumpFile.size() > 0 );
 
-	Id_t 			config 		= addr->comId;
+	SDSId_t 		config 		= addr->comId;
 	uint8_t 		SHMID		= addr->SHMID;
 	appstate_arr_t 	appstate_arr= addr->appstate_arr;
 	KEYCODE			sdsview_page= addr->sdsview_page;
-	Id_t			sdsview_sdsid=addr->sdsview_sdsid;
+	SDSId_t			sdsview_sdsid=addr->sdsview_sdsid;
 
 	Assert_lt( appstate_arr[0].state, StateId_e::STATEID_SIZE );
 
@@ -419,9 +418,8 @@ void SharedData_class::Test_interface()
  *************************************************/
 EventQue_class::EventQue_class( void* _sds )
 	: Logfacility_class	( "EventQue_class" )
-//	, eventptr			()
 {
-	this->sds		= ( interface_t* )_sds;
+	this->sds		= ( interface_t*) _sds;
 	this->Repeat	= false;
 	this->prev_event= NULLKEY;
 	this->eventptr	= sds->eventptr;
@@ -430,7 +428,7 @@ void EventQue_class::Reset()
 {
 	eventptr		= EventPtr_data();
 	sds->eventptr 	= eventptr;
-	std::ranges::for_each( sds->deque, []( EVENTKEY_e& key )
+	for_each( sds->deque, []( EVENTKEY_e& key )
 		{ key = NULLKEY  ;});
 }
 void EventQue_class::Add( EVENTKEY_e event )
@@ -470,5 +468,38 @@ string EventQue_class::Show()
 	return show_items( sds->deque );
 }
 
+/**************************************************
+ * slide_duration_struct
+ *************************************************/
+slide_duration_struct::slide_duration_struct( uint8_t* sds_value )
+{
+	steps					= sds_value;
+	max_steps				= frqslide_range.max;
+	page_steps				= 1000 / stepduration_msec;
+	default_slide_value		= max_steps / 2;
+}
 
+int slide_duration_struct::value2msec()
+{
+	return *steps * stepduration_msec;
+}
+
+string slide_duration_struct::value_str( bool flag )
+{
+	return to_string( flag * value2msec() ) + " [msec]";
+}
+void slide_duration_struct::percent2value( int pc )
+{
+	*steps	= ( pc * max_steps ) * percent;
+}
+
+void slide_duration_struct::msec2value( int msec )
+{
+	*steps	= msec / stepduration_msec;
+}
+
+void slide_duration_struct::Set( uint8_t val )
+{
+	*steps	=  check_range( frqslide_range, (int)val );
+}
 

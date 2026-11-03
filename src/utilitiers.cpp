@@ -30,7 +30,6 @@ SOFTWARE.
  */
 
 #include <Utilities.h>
-using namespace experimental;
 
 void Exception( string message, int signal, const source_location location )
 {

@@ -37,6 +37,8 @@ SOFTWARE.
 #include <sys/utsname.h>
 #include <Default.h>
 
+using std::ifstream;
+using namespace std::filesystem;
 string getArch()
 {
     struct utsname uts_data;
@@ -66,7 +68,7 @@ source_struct::source_struct( string srcdir )
 string source_struct::resourceDir()
 {
 	string _dir = sourcedir + "Resource/";
-	if ( not filesystem::is_directory( _dir ) )
+	if ( not is_directory( _dir ) )
 		Comment( ERROR,  "unknown resource directory ", resourcedir );
 	return _dir;
 }
@@ -126,8 +128,8 @@ string file_structure::SubDir( string basedir, string subdir )
 		return basedir;
 
 	string dir = trailing_dirslash( basedir + subdir );
-	if( not filesystem::exists( dir ) )
-		filesystem::create_directories( dir );
+	if( not exists( dir ) )
+		create_directories( dir );
 
 	return dir;
 }
@@ -162,10 +164,10 @@ void Config_class::setAppCWD( string cwd )
 {
 	try
 	{
-		filesystem::current_path( cwd );
-		Info( "Updated directory", filesystem::current_path() );
+		current_path( cwd );
+		Info( "Updated directory", current_path() );
 	}
-	catch (const std::filesystem::filesystem_error& e)
+	catch (const filesystem_error& e)
 	{
 		Comment( ERROR, "Error:", e.what() );
 	}
@@ -176,13 +178,13 @@ void Config_class::CreateInstalldirs( )
 	auto create_dir=[ this ]( string _p )
 	{
 		Comment( DEBUG, "CreateInstalldir: ", _p );
-		if ( filesystem::is_directory( _p ))
+		if ( is_directory( _p ))
 			return false;
-		if ( filesystem::is_regular_file( _p ) )
+		if ( is_regular_file( _p ) )
 		{
-			filesystem::remove( _p);
+			remove( _p);
 		}
-		return filesystem::create_directories( _p );
+		return create_directories( _p );
 	};
 
 	Comment( INFO, "Checking directory structure");
@@ -434,6 +436,10 @@ string Config_class::Server_cmd( string term, string srv, string srvopt)
 	return cmd;
 }
 
+string Config_class::Logviewer( string file )
+{
+	return Config.Logview + " -title " + file + " -e tail -f -n 1000 " +  file  ;
+}
 
 
 

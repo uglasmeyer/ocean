@@ -3,14 +3,9 @@
 	<name>src</name>
 	<comment></comment>
 	<projects>
+		<project>Ocean</project>
 	</projects>
 	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
-			<triggers>clean,full,incremental,</triggers>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 	</natures>

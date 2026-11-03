@@ -41,14 +41,24 @@ SOFTWARE.
 template< typename T >
 struct range_T
 {
-	T	min;
-	T	max;
+	T		min;
+	T		max;
 	size_t	len = max - min;
 };
 
-const range_T<uint8_t>	percent_range		{ 0, 100 };
-const range_T<int>		volidx_range		{ 0, 100 };
-const range_T<uint8_t>	uint8_range			{ 0, 255 };
+const range_T<uint8_t>	percent_range	{ 0, 100 };
+const range_T<int>		volidx_range	{ 0, 100 };
+const range_T<uint8_t>	volidx_urange	{ 0, 100 };
+const range_T<uint8_t>	pmw_range		{ 1,  99 }; // must not be 0 or 100 to avoid an overflow
+const range_T<uint8_t>	uint8_range		{ 0, 255 };
+
+template<typename T>
+string range_str( range_T<T> range )
+{
+	stringstream strs {};
+	strs << (int)range.min << "..." << (int)range.max << ", " << (int) range.len ;
+	return strs.str();
+};
 
 template< typename T>
 constexpr bool in_range( range_T<T> range, T val )
@@ -59,36 +69,37 @@ constexpr bool in_range( range_T<T> range, T val )
 		return false;
 	return true;
 }
+
 template< typename T>
-constexpr T check_range( range_T<T> r, T val, std::string errmsg = "" )
+constexpr T check_range( range_T<T> r, T val, string errmsg = "" )
 {
-	if( val < r.min )
-	{
-		if ( errmsg.length() > 0 )
-			std::cout << "WARNING: " << errmsg
-									<< ": "
-									<< (int)val
-									<< " adjusted to min boundaries "
-									<< r.min << std::endl;
-		return r.min;
-	}
-	if (val > r.max )
-	{
-		if ( errmsg.length() > 0 )
-			std::cout.flush() << "WARNING: " << errmsg
-									<< ": "
-									<< (int)val
-									<< " adjusted to max boundaries "
-									<< r.max << std::endl;
-		return r.max;
-	}
-	return val;
+	T	ret	= std::min( std::max( val, r.min ), r.max );
+	if ( ret != val )
+		cout << "WARNING: " << errmsg
+							<< ": "
+							<< (int)val
+							<< " adjusted to boundaries "
+							<< range_str( r )
+							<< endl;
+	return ret;
 };
 
 template< typename T>
-constexpr T check_cycle( range_T<T> r, T val, std::string err=""   )
+constexpr T check_ring( range_T<T> r, T val, string err=""   )
 {
-	if( r.max == 0 ) return 0;
+	if( r.len == 0 ) return r.min;
+	if( val < r.min )
+		return r.max;
+	if ( val > r.max)
+		return r.min;
+	return val;
+};
+
+
+template< typename T>
+constexpr T check_cycle( range_T<T> r, T val, string err=""   )
+{
+	if( r.len == 0 ) return 0;
 	if( val < r.min )
 		return r.max;
 	if ( val > r.max)
@@ -107,25 +118,5 @@ constexpr T check_cycle2( range_T<T> r, T val  ) //exclude the last element
 		return T( r.min + ((val - r.max ) % r.len) );
 	return val;
 };
-
-template<typename T>
-std::string range_str( range_T<T> range )
-{
-	std::stringstream strs {};
-	strs << (int)range.min << "..." << (int)range.max << ", " << (int) range.len ;
-	return strs.str();
-};
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif /* RANGE_H_ */

@@ -34,6 +34,7 @@ SOFTWARE.
 Event_class::Event_class(	Instrument_class* 	instrument,
 							Note_class*			notes,
 							Keyboard_class*		keyboard,
+							StorageArea_class*	sta,
 							Mixer_class*		mixer,
 							Wavedisplay_class*	wavedisplay,
 							Dataworld_class*	data,
@@ -43,9 +44,10 @@ Event_class::Event_class(	Instrument_class* 	instrument,
 							Capture_class*		capture )
 	: Logfacility_class	("Event_class")
 	, sdsstate_struct	()
-	, StAExternal		( &mixer->StA, data->Cfg_p, data->SDS.master )
+	, StAExternal		( &sta->Array, data->Cfg_p, data->SDS.master )
 	, eventbuffer		( &data->Sds_p->Eventque )
 {
+	this->StA			= sta;
 	this->DaTA			= data;
 	this->Sds			= DaTA->Sds_p;
 	this->Sds_master	= DaTA->SDS.Master;
@@ -84,26 +86,26 @@ void Event_class::TestHandler()
 	Sds->Eventque.Add( SETSTA_KEY );
 	Handler();
 	Assert_equal( sds_p->StA_state_arr[staid].play,  false );
-	Assert_equal( Mixer->StA[staid].state.Play(), false );
+	Assert_equal( StA->Array[staid].state.Play(), false );
 
 
 	sds_p->StA_state_arr[staid].play = true;
 	Sds->Eventque.Add( SETSTA_KEY );
 	Handler();
-	Assert_equal( Mixer->StA[staid].state.Play(), true );
+	Assert_equal( StA->Array[staid].state.Play(), true );
 
 	sds_p->StA_state_arr[staid].store = true;
-	Mixer->StA[staid].state.Store(false);
+	StA->Array[staid].state.Store(false);
 	Sds->Eventque.Add( SETSTA_KEY );
 	Handler();
-	Assert_equal( Mixer->StA[staid].state.Store(), true );
+	Assert_equal( StA->Array[staid].state.Store(), true );
 
 	Instrument->Oscgroup.member[OSCID]->Set_frequency( A3, FIXED );
 	sds_p->frq_slidermode = FIXED;
 	sds_p->spectrum_arr[OSCID].frqidx[0] = 72;
 	sds_p->spectrum_arr[VCOID].frqidx[0] = 71;
 	sds_p->features[VCOID].combine = true;
-	Sds->Eventque.Add( OSCFREQUENCYKEY );
+	Sds->Eventque.Add( FREQUENCYKEY );
 	Handler();
 	Assert_equal( (int)sds_p->spectrum_arr[VCOID].frqidx[0], 72 );
 
@@ -141,51 +143,33 @@ void Event_class::Handler()
 	{
 		BREAK
 	}
-	case UPDATESPECTRUM_KEY:
+//	case UPDATESPECTRUM_KEY:
+//	{
+//		EvInfo( event, "Spectrum update");
+//		OSCID_e oscid 	= sds_p->SpectrumOscId;
+//		Instrument->Update_osc_spectrum( oscid );
+//		BREAK
+//	}
+	case SHIFTFRQ_KEY :
 	{
-		EvInfo( event, "Spectrum update");
-		char 		oscid 	= sds_p->SpectrumTypeId;
-		Instrument->Update_osc_spectrum( oscid );
+		Instrument->Oscgroup.ShiftSliderFrequency( sds_p );
 		BREAK
 	}
-	case MAINFRQ_KEY :
+	case FREQUENCYKEY:
 	{
-		int8_t shift 						= sds_p->Noteline_prefix.octave_shift;
-		sds_p->Noteline_prefix.octave_shift = 0;
-		int 	idx							= sds_p->spectrum_arr[OSCID].frqidx[0];
-		uint8_t frqidx 						= check_range( frqext_range, idx + shift*oct_steps );
-		Instrument->Oscgroup.SetSliderFrequency( sds_p, frqidx, COMBINE );
-		sds_p->spectrum_arr[OSCID].frqidx[0]= frqidx;
-
-		BREAK
-	}
-	case OSCFREQUENCYKEY:
-	{
-		DYNAMIC_e 	mode 		= sds_p->frq_slidermode;
-		uint8_t		frqidx 		= sds_p->spectrum_arr[OSCID].frqidx[0];
-		EvInfo					( event, "Slider Mode: " + slidermode_str[ mode ] );
-		Instrument->Oscgroup.SetSliderFrequency( sds_p, frqidx, mode );
-		sds_p->WD_state.oscId	= OSCID;
-		Wavedisplay->Set_WdData	();
-		BREAK
-	}
-	case VCOFREQUENCYKEY: // modify the secondary oscillator
-	{
-		EvInfo( event, "VCO frequency change");
-
-		Instrument->Oscgroup.vco.Set_frequency( sds_p->spectrum_arr[VCOID].frqidx[0], sds_p->frq_slidermode );
-		Instrument->Connect( &Instrument->Oscgroup.osc, &Instrument->Oscgroup.vco, CONV );
-		sds_p->WD_state.oscId	= VCOID;
-		BREAK
-	}
-	case FMOFREQUENCYKEY : // modify the fm_track data
-	{
-		EvInfo( event, "FMO frequency change");
-
-		Instrument->Oscgroup.member[ FMOID ]->Set_frequency( sds_p->spectrum_arr[FMOID].frqidx[0], sds_p->frq_slidermode );
-		Instrument->Connect( &Instrument->Oscgroup.osc, &Instrument->Oscgroup.fmo, CONF );
-		sds_p->WD_state.oscId	= FMOID;
-
+		OSCID_e oscid = sds_p->SpectrumOscId;
+		EvInfo( event, typeNames[oscid] + " frequency change");
+		if( oscid == OSCID )
+		{
+			Instrument->Oscgroup.SetSliderFrequency( sds_p );
+		}
+		else
+		{
+			Oscillator* osc = Instrument->Oscgroup.member[oscid];
+			osc->Set_frequency( sds_p->spectrum_arr[oscid].frqidx[0], sds_p->frq_slidermode );
+			Instrument->Connect( &Instrument->Oscgroup.osc, osc, CONV );
+		}
+		sds_p->WD_state.oscId	= oscid;
 		BREAK
 	}
 	case VCOAMPKEY : // modify the VCO volume
@@ -193,7 +177,7 @@ void Event_class::Handler()
 		EvInfo( event, "VCO amplitude change");
 
 		Value vol = sds_p->spectrum_arr[VCOID].volidx[0];
-		Instrument->Oscgroup.vco.Set_spectrum_volume(vol.ch );
+		Instrument->Oscgroup.vco.Set_volume(vol.ch );
 		Instrument->Connect( &Instrument->Oscgroup.osc, &Instrument->Oscgroup.vco, CONV);
 		BREAK
 	}
@@ -202,7 +186,7 @@ void Event_class::Handler()
 		EvInfo( event, "FMO amplitude change");
 
 		Value vol = sds_p->spectrum_arr[FMOID].volidx[0];
-		Instrument->Oscgroup.fmo.Set_spectrum_volume(vol.ch );
+		Instrument->Oscgroup.fmo.Set_volume(vol.ch );
 		Instrument->Connect( &Instrument->Oscgroup.osc, &Instrument->Oscgroup.fmo, CONF );
 		BREAK
 	}
@@ -224,48 +208,37 @@ void Event_class::Handler()
 	}
 	case ADJUST_KEY :
 	{
-		Instrument->Oscgroup.vco.features.adjust = sds_p->features[VCOID].adjust;
-		Instrument->Oscgroup.fmo.features.adjust = sds_p->features[FMOID].adjust;
+		OSCID_e		oscid	= sds_p->SpectrumOscId;
+		Oscillator* osc		= Instrument->Oscgroup.member[oscid];
+		osc->features.adjust= sds_p->features[oscid].adjust;
 		BREAK
 	}
 	case FEATURE_KEY	:
 	{
 		EvInfo( event, "Feature change");
-		Instrument->Oscgroup.SetFeatures( sds_p );
+		Instrument->Oscgroup.SetFeatures( sds_p->features );
 		BREAK
 	}
 	case BEATCLOCK_KEY	:
 	{
 		EvInfo( event, "Beatclock change");
-		std::ranges::for_each( Instrument->Oscgroup.member, [ this ]( Oscillator* osc )
+		for_each( Instrument->Oscgroup.member, [ this ]( Oscillator* osc )
 			{ osc->Set_bps(); } );
 		BREAK
 	}
-	case ADSR_KEY:
+	case ADSR_KEY: // touch adsr data by setting new values
 	{
-		EvInfo( event, "ADSR change");
-		OSCID_e oscid = sds_p->SpectrumTypeId;
+		EvInfo			( event, "ADSR change");
+		OSCID_e	oscid	= sds_p->SpectrumOscId;
 		Instrument->Oscgroup.member[oscid]->Set_adsr( sds_p->adsr_arr[oscid] );
 
-		sds_p->WD_state.adsrmode = true; // generate adsr, fft and wave data
-		BREAK
-	}
-	case SETWAVEDISPLAYKEY:
-	{
-		WD_data_t	wd_state 	= sds_p->WD_state;
-		if( wd_state.roleId == AUDIOROLE )
-		{
-			BREAK
-			 // audio data is provided by the Audio server
-		}
-		sds_p->WD_state.adsrmode = false; // do not generate adsr and fft data
 		BREAK
 	}
 	case PWMDIALKEY:
 	{
 		EvInfo( event, "PWM change");
-		std::ranges::for_each( Instrument->Oscgroup.member, [ this ]( Oscillator* osc )
-				{ osc->Set_pmw( sds_p->features[VCOID].PWM ); } );
+		for_each( oscIds, [ this ]( OSCID_e oscid )
+			{ Instrument->Oscgroup.member[oscid]->Set_pmw( sds_p->features[oscid].PWM ); } );
 		BREAK
 	}
 	case FREQDYNAMIC_KEY:
@@ -274,7 +247,7 @@ void Event_class::Handler()
 		uint8_t	slidevalue = sds_p->features[OSCID].frq_slide_value;
 		sds_p->features[FMOID].frq_slide_value	= slidevalue;
 		sds_p->features[VCOID].frq_slide_value	= slidevalue;
-		Instrument->Oscgroup.SetFeatures( sds_p );
+		Instrument->Oscgroup.SetFeatures( sds_p->features );
 
 		BREAK
 	}
@@ -360,12 +333,12 @@ void Event_class::Handler()
 	case READ_WAVFILE_KEY:
 	{
 		Comment(INFO, "receive command <set external wave file>");
-		string wav_file = Sds_master->Read_str( WAVFILE_STR );
+		string wav_file = Sds_master->Read_str( WAVFILESTR );
 		if ( External->Read_file_header( wav_file ) )
 		{
 			External->Read_file_data();
 			sds_p->StA_state_arr[STA_EXTERNAL ].start	= true;
-			Mixer->SetStAProperties( STA_EXTERNAL );
+			StA->SetStAProperties( STA_EXTERNAL );
 			ProgressBar->SetValue( 100 * External->Filedata_size / External->mem_ds.bytes);
 			Wavedisplay->Set_WdData();
 		}
@@ -383,10 +356,10 @@ void Event_class::Handler()
 
 		bool store = sds_p->StA_state_arr[id].store;
 		Info( "receive command <switch record" , store, "on storage area", (int)id, ">" );
-		Mixer->SetStAProperties( id );
+		StA->SetStAProperties( id );
 		if ( store )
-			ProgressBar->Set(	Mixer->StA[id].Store_counter(),
-								Mixer->StA[id].mem_ds.max_records);
+			ProgressBar->Set(	StA->Array[id].Store_counter(),
+								StA->Array[id].mem_ds.max_records);
 		else
 			ProgressBar->Unset();
 
@@ -397,7 +370,7 @@ void Event_class::Handler()
 		Info( "Reset StA scanner");
 		for( StAId_e staid : StAIds )
 		{
-			Mixer->StA[staid].scanner.Set_rpos(0);
+			StA->Array[staid].scanner.Set_rpos(0);
 		}
 		BREAK
 	}
@@ -406,17 +379,14 @@ void Event_class::Handler()
 		StAId_e		staid		= sds_p->StA_Id;
 		uint8_t		volume 		= sds_p->StA_amp_arr[staid].amp;
 		DYNAMIC_e	mode		= sds_p->StA_amp_arr[staid].mode;
-		Mixer->StA[staid].Volume( volume, mode );
+		StA->Array[staid].Volume( volume, mode );
 		Info( "STA_VOLUME", (int)staid, (int)volume, (int)mode );
 		BREAK
 	}
 	case SETSTA_KEY:
 	{
 		StAId_e staid = sds_p->StA_Id;
-		if( staid == STAID_ALL )
-			Mixer->SetStAs();
-		else
-			Mixer->SetStAProperties( staid );
+		StA->SetStAProperties( staid );
 		BREAK
 	}
 	case MUTESTA_KEY:
@@ -426,20 +396,20 @@ void Event_class::Handler()
 		{
 			for( StAId_e id : StAIds )
 				sds_p->StA_state_arr[id].play = false;
-			Mixer->SetStAs();
 		}
 		else
 		{
 			sds_p->StA_state_arr[staid].play = false;
-			Mixer->SetStAProperties( staid );
 		}
+		StA->SetStAProperties( staid );
 		Info( "receive command <mute and stop record on id", (int)staid, ">");
 		BREAK
 	}
 	case CLEAR_KEY: // all or sta id
 	{
 		StAId_e	staid = sds_p->StA_Id;
-		Mixer->ResetStA( staid );
+		StA->ResetStA( staid );
+		StA->SetStAProperties( staid );
 		ProgressBar->Reset(); // RecCounter
 		BREAK
 	}
@@ -468,7 +438,7 @@ void Event_class::Handler()
 			Comment(INFO, "receive command <update notes>", name );
 			EvInfo( event, "receive command <play xml notes> " + name);
 			sds_p->StA_state_arr[ STA_NOTES ].play = true;
-			Mixer->SetStAProperties( STA_NOTES );
+			StA->SetStAProperties( STA_NOTES );
 			Sem->Release( SEMAPHORE_INITNOTES ); //other
 			Sds->Commit();
 		}
@@ -477,7 +447,7 @@ void Event_class::Handler()
 			sds_p->NotesVerified = Notes->Verify_noteline( sds_p->Noteline_prefix.origin ); // read from sds
 			sds_p->StA_state_arr[STA_NOTES].start = false;
 			sds_p->StA_state_arr[STA_NOTES].play = true; //immediate start
-			Mixer->SetStAProperties( STA_NOTES );
+			StA->SetStAProperties( STA_NOTES );
 			if( sds_p->mixer_state.composer )
 			{
 				DaTA->EmitEvent( NEWNOTESLINEFLAG ); // ->UpdateFileDialog
@@ -527,7 +497,7 @@ void Event_class::Handler()
 		sds_p->StA_state_arr[STA_NOTES].play	= true;
 		sds_p->StA_state_arr[STA_NOTES].start	= true;
 
-		Mixer->SetStAProperties					( STA_NOTES );
+		StA->SetStAProperties					( STA_NOTES );
 		if( sds_p->mixer_state.composer )
 			Notes->Generate_cyclic_data();
 		else
@@ -539,7 +509,7 @@ void Event_class::Handler()
 	{
 		Comment(INFO, "receive command < notes off>");
 		sds_p->StA_state_arr[STA_NOTES].play = false;
-		Mixer->SetStAProperties( STA_NOTES );
+		StA->SetStAProperties( STA_NOTES );
 		BREAK
 	}
 
@@ -555,33 +525,24 @@ void Event_class::Handler()
 	case CONNECTOSC_KEY :
 	{
 		EvInfo( event, "update modulation connections for the OSC");
-		Instrument->Oscgroup.OscConnectState( sds_p );
+		Instrument->Oscgroup.OscConnectState( sds_p->connect_arr );
 		BREAK
 	}
-	case SETWAVEFORMFMOKEY:
+	case WAVEFORMKEY:
 	{
-		EvInfo( event, "FMO waveform " + to_string((int) sds_p->spectrum_arr[OSCID].wfid[0] ) );
-		Instrument->Oscgroup.fmo.Set_waveform( sds_p->spectrum_arr[FMOID].wfid);
-
+		OSCID_e		oscid		= sds_p->SpectrumOscId;
+		spec_arr_wt	wfids		= sds_p->spectrum_arr[oscid].wfid;
+		WFID_e		wfid		= wfids[0];
+		string		wf_str		= waveform->Get_str( wfid );
+		EvInfo( event, typeNames[oscid] + " waveform is " + wf_str );
+		Instrument->Oscgroup.member[oscid]->Set_waveform( wfids );
 		BREAK
 	}
-	case SETWAVEFORMVCOKEY:
-	{
-		EvInfo( event, "VCO waveform " + to_string((int) sds_p->spectrum_arr[OSCID].wfid[0] ) );
-		Instrument->Oscgroup.vco.Set_waveform( sds_p->spectrum_arr[VCOID].wfid);
 
-		BREAK
-	}
-	case SETWAVEFORMMAINKEY:
-	{
-		EvInfo( event, "OSC waveform " + to_string((int) sds_p->spectrum_arr[OSCID].wfid[0] ) );
-		Instrument->Oscgroup.osc.Set_waveform( sds_p->spectrum_arr[OSCID].wfid);
-
-		BREAK
-	}
 	case SETINSTRUMENTKEY: // Set instrument
 	{
 		Instrument->Set	();
+
 		DaTA->EmitEvent	( NEWINSTRUMENTFLAG, Instrument->Instrument_name.get() );
 		BREAK
 	}
@@ -597,8 +558,8 @@ void Event_class::Handler()
 	{
 		Instrument->Save( Sds->Read_str( INSTRUMENTSTR ) );
 		Notes->Save( Sds->Read_str( NOTENAMESTR ) );
-		std::ranges::for_each( Mixer->StA, [ this ]( Storage_class& sta )
-			{ Mixer->DumpStA( sta ) ;} );
+		for_each( StA->Array, [ this ]( Storage_class& sta )
+			{ StA->DumpStA( sta ) ;} );
 		BREAK
 
 	}
@@ -606,8 +567,8 @@ void Event_class::Handler()
 	{
 		Instrument->Save( default_name );
 
-		std::ranges::for_each( Mixer->StA, [ this ]( Storage_class& sta )
-			{ Mixer->DumpStA( sta ) ;} );
+		for_each( StA->Array, [ this ]( Storage_class& sta )
+			{ StA->DumpStA( sta ) ;} );
 		BREAK
 	}
 	case CUT_SETUP_KEY	:
@@ -629,7 +590,7 @@ void Event_class::Handler()
 	}
 	case CUT_SAVE_KEY :
 	{
-		StAExternal.Convert_StA2WAV( CutDesk->StAId, CutDesk->restore_range );
+		sds_p->logState = StAExternal.Convert_StA2WAV( CutDesk->StAId, CutDesk->restore_range );
 		DaTA->EmitEvent( UPDATE_WAV_FILELIST_FLAG, "update wav filelist" );
 		BREAK
 	}
@@ -643,25 +604,29 @@ void Event_class::Handler()
 		CutDesk->Set_record_steps( sds_p->WD_state.record_steps );
 		BREAK
 	}
-	case RESETSTA_KEY		:
+	case RESETSDS_KEY		:
 	{	// define and activate the initial state of the StAs
 		sds_p->frq_slidermode				= FIXED;
+		StA->RestoreStAs					();
 
-		std::ranges::for_each( Mixer->StA, [this](Storage_class& StA )
+		for_each( StA->Array, [this](Storage_class& StA )
 		{
 			StA.scanner.Set_rpos			( 0 ) ; // set start
 			sds_p->StA_amp_arr[StA.Id].amp	= 0;
 			sds_p->StA_state_arr[StA.Id] 	= StA_state_data();
+
 		});
-		Mixer->StA[ STA_NOTES ].Reset	();
-		Mixer->StA[ STA_EXTERNAL ].Reset();
-		Mixer->SetStAs					();		//all StAs
+		// remark: the dependency of the wdstate to param.wdsize is covered by reference
+		// and synthesizer add sound
+		StA->Array[ STA_NOTES ].Reset	();
+		StA->Array[ STA_EXTERNAL ].Reset();
+		StA->SetStAProperties			( STAID_ALL );//all StAs
 		BREAK
 	}
 	case SETSESSIONDIR_KEY : // distribute sessiondir to all invelved parties
 	{
 		string subdir 		= Sds_master->Read_str( SESSIONSTR );
-		Mixer->SetStA_Files	( subdir );
+		StA->SetStA_Files	( subdir );
 		Instrument->SetDir	( subdir );
 		Notes->SetDir		( subdir );
 		Info( "using session directory", subdir );

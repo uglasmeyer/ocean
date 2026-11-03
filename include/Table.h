@@ -54,7 +54,10 @@ class Table_class :
 		string 				txt;
 		uint 				width;
 	} header_t;
-	vector<header_t> 		header_v 	{};
+
+	typedef vector<header_t>header_vec_t;
+	header_vec_t 			header_v 	{};
+	header_vec_t			item_v		{};
 
 public:
 
@@ -65,8 +68,20 @@ public:
 	virtual 				~Table_class();
 
 	void 					PrintHeader	();
+	void					PrintItems	();
 	void 					TestTable	();
 	void 					AddColumn	( string name, uint width );
+
+	template< typename Item_T>
+	void					AddRowItem	( size_t col, Item_T arg )
+	{
+		if( col < item_v.size() )
+		{
+			stringstream strs {};
+			strs << arg;
+			item_v[col].txt = strs.str();
+		}
+	}
 
 	template< typename... 	Args>
 	string AddRow( Args... 	args)
@@ -95,6 +110,8 @@ public:
 private:
 
 	string 					cout_row	( string txt );
+	void 					printItems	( header_vec_t item_v );
+
 };
 
 

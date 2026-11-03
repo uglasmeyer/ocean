@@ -56,8 +56,7 @@ struct install_struct
 	:	virtual public 	Logfacility_class
 {
 	const string 		homedir 		= notnull( getenv("HOME") ) + "/";
-	const filesystem::path
-						pwd				{ notnull( getenv("PWD") ) };
+	const string		pwd				{ notnull( getenv("PWD") ) };
 
 	const string		installdir	 	= oceanDir();
 	const string		ARCH			= getArch();
@@ -136,9 +135,9 @@ struct file_structure
 	const string	tmpnote_filename			= "tmp";
 	string			oceanbasename				= baseName( installdir );
 	const string 	snd_type 					= ".snd";	// instruments file extension
-	const string	fft_type					= ".fft";
-	static constexpr string	nte_type					= ".nte";	// notes file extension
-	static constexpr string	xml_type					= ".musicxml";
+	const string	fft_type					= ".bin";
+	static constexpr string	nte_type			= ".nte";	// notes file extension
+	static constexpr string	xml_type			= ".musicxml";
 	const string 	wav_type 					= ".wav";
 	const string	synth_type					= ".synth";
 	const string	Audio_bin					= AUDIOSERVER;
@@ -173,6 +172,8 @@ struct file_structure
 	const string 	bkground_filename			= "Ocean.png";
 	const string	testsnd_filename			= test_name 	+ snd_type;
 	const string	testsnd_file				= instrumentdir + testsnd_filename;
+	const string	testnte_filename			= test_name 	+ nte_type;
+	const string	testnte_file				= notesdir		+ testnte_filename;
 	const string	bkground_file				= libdir		+ bkground_filename;
 	const string	setup_filename				= "oceansetup.sh";
 	const string	setup_file					= bindir		+ setup_filename;
@@ -225,6 +226,7 @@ public:
 	prgarg_t		Config 				= prgarg_struct();
 
 	void 			CreateInstalldirs	();
+    string 			Logviewer			( string file );
 	void 			Read_config			( string cfgfile );
 	void 			Parse_argv			( int argc, char* argv[] );
 	void 			Show_Config			( bool debug = true );

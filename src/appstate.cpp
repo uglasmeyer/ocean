@@ -46,7 +46,7 @@ Appstate_class::Appstate_class( APPID_e 		appid,
 	sds_vec 	= _sds_vec;
 	sds_master	= sds_vec[ MASTER_SDSID ];
 
-	all_sdsids	= Iota_T<Id_t>( 0, MAXCONFIG );
+	all_sdsids	= Iota_T<SDSId_t>( 0, MAXCONFIG );
 	Assert_equal( (int)sds_master->appstate_arr[SYNTHID].type, (int)SYNTHID, "appstate_arr" );
 
 	AppType		= ( AppId == KEYBOARDID ) ? SYNTHID : AppId;
@@ -75,11 +75,11 @@ SdsId_vec_t Appstate_class::allowed_sdsid( APPID_e appid )
 		return all_sdsids;
 }
 
-Id_t Appstate_class::assign_sdsid( APPID_e appid ) // returns Sds_Id
+SDSId_t Appstate_class::assign_sdsid( APPID_e appid ) // returns Sds_Id
 {
 	auto get_sdsid = [ this, appid ]( SdsId_vec_t valid_sids  )
 	{
-		for( Id_t sdsid : valid_sids ) // scan the range that has no pid
+		for( SDSId_t sdsid : valid_sids ) // scan the range that has no pid
 		{
 			interface_t* sds = sds_vec[ sdsid ];
 			CheckAppstate( sds, appid ); // clean up the state if needed
@@ -89,7 +89,7 @@ Id_t Appstate_class::assign_sdsid( APPID_e appid ) // returns Sds_Id
 		string valid_str = show_items( valid_sids );
 		Comment( INFO, "Application id", (int)AppId, "is already registered on SDS", valid_str );
 
-		return Id_t( NoSDSID ); // -> SIGILL
+		return SDSId_t( NoSDSID ); // -> SIGILL
 	};
 
 	// The composer specifies the sdsid for the synthesizer module
@@ -105,7 +105,7 @@ Id_t Appstate_class::assign_sdsid( APPID_e appid ) // returns Sds_Id
 		else
 		{
 			valid_sids = all_sdsids;
-			Id_t sdsid = get_sdsid( valid_sids );
+			SDSId_t sdsid = get_sdsid( valid_sids );
 			sds_master->comId = sdsid;
 			return sdsid;
 		}
@@ -173,7 +173,7 @@ bool Appstate_class::IsRunning( interface_t* sds, APPID_e appid )
 	return		flag;
 }
 
-Id_t Appstate_class::Find_running( APPID_e appid )
+SDSId_t Appstate_class::Find_running( APPID_e appid )
 {
 	for( interface_t* sds : sds_vec )
 	{
@@ -305,6 +305,18 @@ void  Appstate_class::Shutdown( interface_t* sds, APPID_e appid )
 {
 	Info( "shutting down ", AppIdName( appid ) );
 	SetExitserver( sds, appid );
+}
+
+void Appstate_class::Shutdown( set<SDSId_t> id_set )
+{
+	for( SDSId_t sdsid : id_set )
+	{
+		interface_t*	sds	= sds_vec[ sdsid ];
+		if( IsRunning( sds, SYNTHID ) )
+		{
+			SetExitserver( sds, SYNTHID );
+		}
+	}
 }
 
 void Appstate_class::Shutdown_all()

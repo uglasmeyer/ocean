@@ -35,7 +35,7 @@ SOFTWARE.
 #define FILE_DIALOG_CLASS_H
 
 // Qt
-#include <QObject>
+//#include <QObject>
 #include <QDialog>
 #include <QComboBox>
 

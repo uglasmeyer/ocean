@@ -21,7 +21,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.972388560." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1031843539" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.exe.release.1519470342" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-							<builder buildPath="${workspace_loc:/Rtsp}/Release" id="cdt.managedbuild.target.gnu.builder.exe.release.1561616605" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<builder buildPath="/home/sirius/git/Ocean/Develop" id="cdt.managedbuild.target.gnu.builder.exe.release.1561616605" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1407484313" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.16637389" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
 								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1048241448" name="Optimization level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
@@ -329,6 +329,7 @@
 		<configuration configurationName="Shlib">
 			<resource resourceType="PROJECT" workspacePath="/Rtsp"/>
 		</configuration>
+		<configuration configurationName="Cmake"/>
 		<configuration configurationName="xRelease"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/Rtsp"/>

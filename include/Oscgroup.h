@@ -46,13 +46,13 @@ class 						Oscgroup_class
 	: public virtual 		Logfacility_class
 {
 public:
+	RoleId_e				roleid				;
 	Oscillator 				vco					;
 	Oscillator 				fmo					;
 	Oscillator 				osc					;
 	vector<Oscillator*>		member				;
 
 
-							Oscgroup_class		(); //used by FileDialog, musicsml, variation
 							Oscgroup_class		( RoleId_e role, buffer_t bytes  );
 	void 					operator=			( Oscgroup_class& oscg );
 	virtual 				~Oscgroup_class		();
@@ -64,36 +64,38 @@ public:
 	Oscillator* 			GetOsc_byName		( const string& name );
 	OSCID_e 				GetOscid_byName		( const string& name );
 	void					KbdAttack			();
-	void 					OscConnectState		( interface_t* sds );
+	void 					OscConnectState		( const connect_arr_t& arr );
+	void 					Read_fft_coeff		( const string& file );
+	void					Save_fft_coeff		( const string& file );
 	void 					ResetBeatCursor		();
-	void 					RestorePhase		( pitch_t& pitch );
+	void 					restorePhase		( pitch_t& pitch );
 	void 					RunOSCs				( const buffer_t& offs );
-	void 					RunAdsr				();
-	void 					SetAdsr				( interface_t* sds );
+	void 					SetAdsr				( const adsr_arr_t& arr );
 	void					SetBeatcursor		( buffer_t pos );
 	void 					SetDuration			( const uint& duration );
 	void 					SetInstrument		( interface_t* sds );
 	void 					SetFrqSlidevalue	( const uint8_t& value );
-	void 					SetFeatures			( interface_t* sds );
-	void					SetNoteFrequency	( interface_t* 	sds,
-												const uint8_t& 	idx );
+	void 					SetFeatures			( const feature_arr_t& festures );
 	void 					SetScanner			( const buffer_t& maxlen );
-	void 					SetSliderFrequency	(interface_t* sds,
-												const uint8_t& idx,
-												const DYNAMIC_e& mode );
-	void 					SetSpectrum			( interface_t* sds );
+	void 					SetSliderFrequency	(interface_t* sds );
+	void 					ShiftSliderFrequency( interface_t* sds );
+	void 					SetSpectrum			( const spectrum_arr_t& arr );
 	void 					SetWd				( Wavedisplay_class* wd );
 	void 					ShowSoundStack		();
 	bool					Sync				();
-
+	void 					Test				( interface_t* sds );
 
 private:
-	void 					backup_phase			( pitch_t& pitch );
+	void 					backup_phase		( pitch_t& pitch );
 	void 					selfTest			();
+	void					setNoteFrequency	( interface_t* 	sds,
+												const uint8_t& 	idx,
+												DYNAMIC_e 		mode );
+	void 					setSliderFrequency	(interface_t* sds ,
+												const uint8_t& idx,
+												const DYNAMIC_e& mode );
 
 
 };
-
-typedef Oscgroup_class Oscgroup_t;
 
 #endif /* OSCGROUP_H_ */

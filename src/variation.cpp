@@ -38,8 +38,8 @@ SOFTWARE.
 template<typename T>
 auto gen_random_note( T random_set)
 {
-	random_device	rd;
-	mt19937 engine(rd());
+	std::random_device	rd;
+	std::mt19937 engine(rd());
 	std::shuffle( random_set.begin(), random_set.end(),  engine );
 	return random_set[0];
 }
@@ -51,7 +51,7 @@ Variation_class::Variation_class( Dataworld_class* data, Musicxml_class* musicxm
 {
 	NotesCore_class::Instrument_name = "Variation";
 	Noteline_prefix.data 			= nlp_default;
-	Noteline_prefix.data.origin 	= NOTE::VARIATION;
+	Noteline_prefix.data.origin 	= note_ns::VARIATION;
 	Noteline_prefix.data.nps			= 4;
 
 //	selfTest();
@@ -116,7 +116,7 @@ Variation_class::noteword_t Variation_class::list2vector( notelist_t notes )
 
 void Variation_class::define_random_note_vector( string str )
 {
-	Noteline_prefix.data.origin	= NOTE::VARIATION;
+	Noteline_prefix.data.origin	= note_ns::VARIATION;
 	Noteline_prefix.data.nps			= 4;
 	Random_Notes.clear			();
 	Noteline.set				( str );
@@ -206,7 +206,7 @@ Variation_class::noteword_t Variation_class::str2words( string note_str )
 	NotesCore_class::Set_rhythm_line( Rhythm_chars );
 	NotesCore_class::Noteline.set( note_str );
 	noteword_t word{};
-	if ( NotesCore_class::Verify_noteline( NOTE::VARIATION ) )
+	if ( NotesCore_class::Verify_noteline( note_ns::VARIATION ) )
 	{
 		for( note_t note : NotesCore_class::notelist )
 		{
@@ -378,10 +378,10 @@ string Variation_class::Gen_noteline( string sentence_layout, string filename )
 	} // for
 	noteline = scan_sentence( valid_sentence_layout[0] ) ;
 
-	NotesCore_class::Noteline_prefix.data.origin = NOTE::VARIATION;
+	NotesCore_class::Noteline_prefix.data.origin = note_ns::VARIATION;
 	NotesCore_class::Set_rhythm_line( Rhythm_chars );
 	NotesCore_class::Noteline.set( noteline );
-	if (  NotesCore_class::Verify_noteline( NOTE::VARIATION ) )
+	if (  NotesCore_class::Verify_noteline( note_ns::VARIATION ) )
 	{
 		NotesCore_class::Save( filename, NotesCore_class::Noteline_prefix.data, noteline );
 	}

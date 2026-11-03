@@ -18,9 +18,21 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.base.460673211.1844878675" name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.base.487069807" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.1184009752" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
-							<builder buildPath="${workspace_loc:/OceanGUI}/Default" enableCleanBuild="false" id="cdt.managedbuild.target.gnu.builder.base.170404699" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="/home/sirius/git/Ocean/Develop" enableCleanBuild="false" id="cdt.managedbuild.target.gnu.builder.base.170404699" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.509417614" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1920319635" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.include.paths.581522436" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt6"/>
+									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt6/QtWidgets"/>
+									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt6/QtGui"/>
+									<listOptionValue builtIn="false" value="/usr/include/x86_64-linux-gnu/qt6/QtCore"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/OceanGUI/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/OceanGUI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/include}&quot;"/>
+								</option>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="gnu.cpp.compiler.option.preprocessor.def.11930805" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="-std=c++23"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.512808407" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1952853131" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
@@ -518,6 +530,7 @@
 		<configuration configurationName="Shlib">
 			<resource resourceType="PROJECT" workspacePath="/OceanGUI"/>
 		</configuration>
+		<configuration configurationName="Cmake"/>
 		<configuration configurationName="Test"/>
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/OceanGUI"/>
@@ -540,6 +553,9 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.2135478223.;cdt.managedbuild.tool.gnu.c.compiler.base.39504314;cdt.managedbuild.tool.gnu.c.compiler.input.1822125072">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.460673211;cdt.managedbuild.toolchain.gnu.base.460673211.1844878675;cdt.managedbuild.tool.gnu.c.compiler.base.1952853131;cdt.managedbuild.tool.gnu.c.compiler.input.936575005">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.2062205759;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.2062205759.;cdt.managedbuild.tool.gnu.c.compiler.base.205962079;cdt.managedbuild.tool.gnu.c.compiler.input.336199954">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
@@ -547,6 +563,9 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.571154075.;cdt.managedbuild.tool.gnu.cpp.compiler.base.613934749;cdt.managedbuild.tool.gnu.cpp.compiler.input.1568744916">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.460673211;cdt.managedbuild.toolchain.gnu.base.460673211.1844878675;cdt.managedbuild.tool.gnu.cpp.compiler.base.1920319635;cdt.managedbuild.tool.gnu.cpp.compiler.input.512808407">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428;cdt.managedbuild.toolchain.gnu.base.736138385.781969711.1422421971.1675770747.1443555495.1371583428.;cdt.managedbuild.tool.gnu.c.compiler.base.799914873;cdt.managedbuild.tool.gnu.c.compiler.input.955189718">

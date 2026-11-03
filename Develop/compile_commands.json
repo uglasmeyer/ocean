@@ -1,0 +1,458 @@
+[
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/adsr.cpp.o -c /home/sirius/git/Ocean/src/adsr.cpp",
+  "file": "/home/sirius/git/Ocean/src/adsr.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/adsr.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/app.cpp.o -c /home/sirius/git/Ocean/src/app.cpp",
+  "file": "/home/sirius/git/Ocean/src/app.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/app.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/appstate.cpp.o -c /home/sirius/git/Ocean/src/appstate.cpp",
+  "file": "/home/sirius/git/Ocean/src/appstate.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/appstate.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/appsymbols.cpp.o -c /home/sirius/git/Ocean/src/appsymbols.cpp",
+  "file": "/home/sirius/git/Ocean/src/appsymbols.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/appsymbols.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/audio.cpp.o -c /home/sirius/git/Ocean/src/audio.cpp",
+  "file": "/home/sirius/git/Ocean/src/audio.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/audio.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/config.cpp.o -c /home/sirius/git/Ocean/src/config.cpp",
+  "file": "/home/sirius/git/Ocean/src/config.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/config.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/dataworld.cpp.o -c /home/sirius/git/Ocean/src/dataworld.cpp",
+  "file": "/home/sirius/git/Ocean/src/dataworld.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/dataworld.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/default.cpp.o -c /home/sirius/git/Ocean/src/default.cpp",
+  "file": "/home/sirius/git/Ocean/src/default.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/default.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/device.cpp.o -c /home/sirius/git/Ocean/src/device.cpp",
+  "file": "/home/sirius/git/Ocean/src/device.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/device.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/dynamic.cpp.o -c /home/sirius/git/Ocean/src/dynamic.cpp",
+  "file": "/home/sirius/git/Ocean/src/dynamic.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/dynamic.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/external.cpp.o -c /home/sirius/git/Ocean/src/external.cpp",
+  "file": "/home/sirius/git/Ocean/src/external.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/external.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/fourier.cpp.o -c /home/sirius/git/Ocean/src/fourier.cpp",
+  "file": "/home/sirius/git/Ocean/src/fourier.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/fourier.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/frequency.cpp.o -c /home/sirius/git/Ocean/src/frequency.cpp",
+  "file": "/home/sirius/git/Ocean/src/frequency.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/frequency.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/instrument.cpp.o -c /home/sirius/git/Ocean/src/instrument.cpp",
+  "file": "/home/sirius/git/Ocean/src/instrument.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/instrument.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/interface.cpp.o -c /home/sirius/git/Ocean/src/interface.cpp",
+  "file": "/home/sirius/git/Ocean/src/interface.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/interface.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/kbd.cpp.o -c /home/sirius/git/Ocean/src/kbd.cpp",
+  "file": "/home/sirius/git/Ocean/src/kbd.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/kbd.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/keyboard.cpp.o -c /home/sirius/git/Ocean/src/keyboard.cpp",
+  "file": "/home/sirius/git/Ocean/src/keyboard.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/keyboard.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/keyhandler.cpp.o -c /home/sirius/git/Ocean/src/keyhandler.cpp",
+  "file": "/home/sirius/git/Ocean/src/keyhandler.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/keyhandler.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/logfacility.cpp.o -c /home/sirius/git/Ocean/src/logfacility.cpp",
+  "file": "/home/sirius/git/Ocean/src/logfacility.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/logfacility.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/memory.cpp.o -c /home/sirius/git/Ocean/src/memory.cpp",
+  "file": "/home/sirius/git/Ocean/src/memory.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/memory.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/memorybase.cpp.o -c /home/sirius/git/Ocean/src/memorybase.cpp",
+  "file": "/home/sirius/git/Ocean/src/memorybase.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/memorybase.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/mixer.cpp.o -c /home/sirius/git/Ocean/src/mixer.cpp",
+  "file": "/home/sirius/git/Ocean/src/mixer.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/mixer.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/musicxml.cpp.o -c /home/sirius/git/Ocean/src/musicxml.cpp",
+  "file": "/home/sirius/git/Ocean/src/musicxml.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/musicxml.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/notes.cpp.o -c /home/sirius/git/Ocean/src/notes.cpp",
+  "file": "/home/sirius/git/Ocean/src/notes.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/notes.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/notesbase.cpp.o -c /home/sirius/git/Ocean/src/notesbase.cpp",
+  "file": "/home/sirius/git/Ocean/src/notesbase.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/notesbase.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/notescore.cpp.o -c /home/sirius/git/Ocean/src/notescore.cpp",
+  "file": "/home/sirius/git/Ocean/src/notescore.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/notescore.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/osc.cpp.o -c /home/sirius/git/Ocean/src/osc.cpp",
+  "file": "/home/sirius/git/Ocean/src/osc.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/osc.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/oscbase.cpp.o -c /home/sirius/git/Ocean/src/oscbase.cpp",
+  "file": "/home/sirius/git/Ocean/src/oscbase.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/oscbase.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/oscgroup.cpp.o -c /home/sirius/git/Ocean/src/oscgroup.cpp",
+  "file": "/home/sirius/git/Ocean/src/oscgroup.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/oscgroup.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/oscwaveform.cpp.o -c /home/sirius/git/Ocean/src/oscwaveform.cpp",
+  "file": "/home/sirius/git/Ocean/src/oscwaveform.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/oscwaveform.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/progressbar.cpp.o -c /home/sirius/git/Ocean/src/progressbar.cpp",
+  "file": "/home/sirius/git/Ocean/src/progressbar.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/progressbar.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/semaphore.cpp.o -c /home/sirius/git/Ocean/src/semaphore.cpp",
+  "file": "/home/sirius/git/Ocean/src/semaphore.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/semaphore.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/spectrum.cpp.o -c /home/sirius/git/Ocean/src/spectrum.cpp",
+  "file": "/home/sirius/git/Ocean/src/spectrum.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/spectrum.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/statistic.cpp.o -c /home/sirius/git/Ocean/src/statistic.cpp",
+  "file": "/home/sirius/git/Ocean/src/statistic.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/statistic.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/string.cpp.o -c /home/sirius/git/Ocean/src/string.cpp",
+  "file": "/home/sirius/git/Ocean/src/string.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/string.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/system.cpp.o -c /home/sirius/git/Ocean/src/system.cpp",
+  "file": "/home/sirius/git/Ocean/src/system.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/system.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/table.cpp.o -c /home/sirius/git/Ocean/src/table.cpp",
+  "file": "/home/sirius/git/Ocean/src/table.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/table.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/time.cpp.o -c /home/sirius/git/Ocean/src/time.cpp",
+  "file": "/home/sirius/git/Ocean/src/time.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/time.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/utilitiers.cpp.o -c /home/sirius/git/Ocean/src/utilitiers.cpp",
+  "file": "/home/sirius/git/Ocean/src/utilitiers.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/utilitiers.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/variation.cpp.o -c /home/sirius/git/Ocean/src/variation.cpp",
+  "file": "/home/sirius/git/Ocean/src/variation.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/variation.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_src",
+  "command": "/usr/bin/c++ -DOcean_EXPORTS -I/home/sirius/git/Ocean/src/../include -std=gnu++23 -fPIC -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Ocean.dir/wavedisplay.cpp.o -c /home/sirius/git/Ocean/src/wavedisplay.cpp",
+  "file": "/home/sirius/git/Ocean/src/wavedisplay.cpp",
+  "output": "build_src/CMakeFiles/Ocean.dir/wavedisplay.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/OceanGUI_main.cpp.o -c /home/sirius/git/Ocean/OceanGUI/OceanGUI_main.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/OceanGUI_main.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/OceanGUI_main.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/common.cpp.o -c /home/sirius/git/Ocean/OceanGUI/common.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/common.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/common.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/cutterdialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/cutterdialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/cutterdialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/cutterdialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/datagraphic.cpp.o -c /home/sirius/git/Ocean/OceanGUI/datagraphic.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/datagraphic.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/datagraphic.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/dispatcher.cpp.o -c /home/sirius/git/Ocean/OceanGUI/dispatcher.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/dispatcher.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/dispatcher.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/filedialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/filedialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/filedialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/filedialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/keyboad_dialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/keyboad_dialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/keyboad_dialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/keyboad_dialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/mainwindow_init.cpp.o -c /home/sirius/git/Ocean/OceanGUI/mainwindow_init.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/mainwindow_init.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/mainwindow_init.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_Cutterdialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_Cutterdialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_Cutterdialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_Cutterdialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_DataGraphic.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_DataGraphic.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_DataGraphic.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_DataGraphic.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_Dispatcher.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_Dispatcher.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_Dispatcher.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_Dispatcher.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_File_Dialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_File_Dialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_File_Dialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_File_Dialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_Keyboad_dialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_Keyboad_dialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_Keyboad_dialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_Keyboad_dialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_Mainwindow.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_Mainwindow.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_Mainwindow.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_Mainwindow.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_Rtsp_dialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_Rtsp_dialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_Rtsp_dialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_Rtsp_dialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/moc_Spectrum_dialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/moc_Spectrum_dialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/moc_Spectrum_dialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/moc_Spectrum_dialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/oceanGUI.cpp.o -c /home/sirius/git/Ocean/OceanGUI/oceanGUI.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/oceanGUI.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/oceanGUI.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/qrc_resource.cpp.o -c /home/sirius/git/Ocean/OceanGUI/qrc_resource.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/qrc_resource.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/qrc_resource.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/rtsp_dialog_class.cpp.o -c /home/sirius/git/Ocean/OceanGUI/rtsp_dialog_class.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/rtsp_dialog_class.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/rtsp_dialog_class.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_OceanGUI",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/OceanGUI/../include -I/home/sirius/git/Ocean/OceanGUI -I/home/sirius/git/Ocean/OceanGUI/include -I/usr/include/x86_64-linux-gnu/qt6/QtWidgets -I/usr/include/x86_64-linux-gnu/qt6/QtCore -I/usr/include/x86_64-linux-gnu/qt6/QtGui -I/usr/include/x86_64-linux-gnu/qt6 -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/OceanGUI.dir/spectrum_dialog.cpp.o -c /home/sirius/git/Ocean/OceanGUI/spectrum_dialog.cpp",
+  "file": "/home/sirius/git/Ocean/OceanGUI/spectrum_dialog.cpp",
+  "output": "build_OceanGUI/CMakeFiles/OceanGUI.dir/spectrum_dialog.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Audioserver",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Audioserver/../include -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/AudioServer.dir/AudioServer.cpp.o -c /home/sirius/git/Ocean/Audioserver/AudioServer.cpp",
+  "file": "/home/sirius/git/Ocean/Audioserver/AudioServer.cpp",
+  "output": "build_Audioserver/CMakeFiles/AudioServer.dir/AudioServer.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Composer",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Composer/../include -I/home/sirius/git/Ocean/Composer/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Composer.dir/Composer.cpp.o -c /home/sirius/git/Ocean/Composer/Composer.cpp",
+  "file": "/home/sirius/git/Ocean/Composer/Composer.cpp",
+  "output": "build_Composer/CMakeFiles/Composer.dir/Composer.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Composer",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Composer/../include -I/home/sirius/git/Ocean/Composer/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Composer.dir/compiler.cpp.o -c /home/sirius/git/Ocean/Composer/compiler.cpp",
+  "file": "/home/sirius/git/Ocean/Composer/compiler.cpp",
+  "output": "build_Composer/CMakeFiles/Composer.dir/compiler.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Composer",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Composer/../include -I/home/sirius/git/Ocean/Composer/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Composer.dir/interpreter.cpp.o -c /home/sirius/git/Ocean/Composer/interpreter.cpp",
+  "file": "/home/sirius/git/Ocean/Composer/interpreter.cpp",
+  "output": "build_Composer/CMakeFiles/Composer.dir/interpreter.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Composer",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Composer/../include -I/home/sirius/git/Ocean/Composer/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Composer.dir/lineedit.cpp.o -c /home/sirius/git/Ocean/Composer/lineedit.cpp",
+  "file": "/home/sirius/git/Ocean/Composer/lineedit.cpp",
+  "output": "build_Composer/CMakeFiles/Composer.dir/lineedit.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Composer",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Composer/../include -I/home/sirius/git/Ocean/Composer/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Composer.dir/processor.cpp.o -c /home/sirius/git/Ocean/Composer/processor.cpp",
+  "file": "/home/sirius/git/Ocean/Composer/processor.cpp",
+  "output": "build_Composer/CMakeFiles/Composer.dir/processor.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Rtsp",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Rtsp/../include -I/home/sirius/git/Ocean/Rtsp/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Rtsp.dir/rtsp_main.cpp.o -c /home/sirius/git/Ocean/Rtsp/rtsp_main.cpp",
+  "file": "/home/sirius/git/Ocean/Rtsp/rtsp_main.cpp",
+  "output": "build_Rtsp/CMakeFiles/Rtsp.dir/rtsp_main.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_SDSview",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/SDSview/../include -I/home/sirius/git/Ocean/SDSview/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/SDSview.dir/SDSview.cpp.o -c /home/sirius/git/Ocean/SDSview/SDSview.cpp",
+  "file": "/home/sirius/git/Ocean/SDSview/SDSview.cpp",
+  "output": "build_SDSview/CMakeFiles/SDSview.dir/SDSview.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_SDSview",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/SDSview/../include -I/home/sirius/git/Ocean/SDSview/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/SDSview.dir/viewinterface.cpp.o -c /home/sirius/git/Ocean/SDSview/viewinterface.cpp",
+  "file": "/home/sirius/git/Ocean/SDSview/viewinterface.cpp",
+  "output": "build_SDSview/CMakeFiles/SDSview.dir/viewinterface.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Synth",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Synth/../include -I/home/sirius/git/Ocean/Synth/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Synthesizer.dir/Synthesizer.cpp.o -c /home/sirius/git/Ocean/Synth/Synthesizer.cpp",
+  "file": "/home/sirius/git/Ocean/Synth/Synthesizer.cpp",
+  "output": "build_Synth/CMakeFiles/Synthesizer.dir/Synthesizer.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Synth",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Synth/../include -I/home/sirius/git/Ocean/Synth/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Synthesizer.dir/apptest.cpp.o -c /home/sirius/git/Ocean/Synth/apptest.cpp",
+  "file": "/home/sirius/git/Ocean/Synth/apptest.cpp",
+  "output": "build_Synth/CMakeFiles/Synthesizer.dir/apptest.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Synth",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Synth/../include -I/home/sirius/git/Ocean/Synth/.. -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Synthesizer.dir/eventhandler.cpp.o -c /home/sirius/git/Ocean/Synth/eventhandler.cpp",
+  "file": "/home/sirius/git/Ocean/Synth/eventhandler.cpp",
+  "output": "build_Synth/CMakeFiles/Synthesizer.dir/eventhandler.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_TestPrj",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/TestPrj/../include -I/home/sirius/git/Ocean/TestPrj -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Testprj.dir/Testprg.cpp.o -c /home/sirius/git/Ocean/TestPrj/Testprg.cpp",
+  "file": "/home/sirius/git/Ocean/TestPrj/Testprg.cpp",
+  "output": "build_TestPrj/CMakeFiles/Testprj.dir/Testprg.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_TestPrj",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/TestPrj/../include -I/home/sirius/git/Ocean/TestPrj -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Testprj.dir/syntax.cpp.o -c /home/sirius/git/Ocean/TestPrj/syntax.cpp",
+  "file": "/home/sirius/git/Ocean/TestPrj/syntax.cpp",
+  "output": "build_TestPrj/CMakeFiles/Testprj.dir/syntax.cpp.o"
+},
+{
+  "directory": "/home/sirius/git/Ocean/Develop/build_Setup",
+  "command": "/usr/bin/c++  -I/home/sirius/git/Ocean/Setup/../include -I/home/sirius/git/Ocean/Setup -std=gnu++23 -Wall -frecord-gcc-switches -pthread -fPIC -O2 -g -o CMakeFiles/Setup.dir/Setup.cpp.o -c /home/sirius/git/Ocean/Setup/Setup.cpp",
+  "file": "/home/sirius/git/Ocean/Setup/Setup.cpp",
+  "output": "build_Setup/CMakeFiles/Setup.dir/Setup.cpp.o"
+}
+]

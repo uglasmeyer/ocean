@@ -25,8 +25,9 @@
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QScrollBar>
 #include <QtWidgets/QSlider>
-#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QToolButton>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -66,15 +67,6 @@ public:
     QSlider *Slider_mix_vol7;
     QSlider *Slider_mix_vol6;
     QSlider *Slider_mix_vol0;
-    QFrame *frame_4;
-    QCheckBox *cb_psta1;
-    QCheckBox *cb_psta2;
-    QCheckBox *cb_psta3;
-    QCheckBox *cb_psta4;
-    QCheckBox *cb_psta5;
-    QCheckBox *cb_psta6;
-    QCheckBox *cb_psta7;
-    QCheckBox *cb_psta0;
     QPushButton *pB_Mute_StA;
     QLabel *label_2;
     QPushButton *pB_play_notes;
@@ -90,12 +82,6 @@ public:
     QPushButton *pB_wd_mode;
     QLabel *label_5;
     QPushButton *pB_Spectrum;
-    QFrame *frame_7;
-    QLabel *wf_vco;
-    QSpinBox *sB_VCO;
-    QFrame *frame_9;
-    QLabel *wf_fmo;
-    QSpinBox *sB_FMO;
     QPushButton *pb_clear;
     QLabel *label_3;
     QPushButton *pB_Mute;
@@ -112,6 +98,7 @@ public:
     QPushButton *pB_Capture;
     QPushButton *pb_SDSview;
     QCheckBox *cb_overwrite;
+    QToolButton *tB_logState;
     QComboBox *CB_kbd_bps;
     QProgressBar *Pbar_telapsed;
     QPushButton *pB_oscgroup;
@@ -151,21 +138,30 @@ public:
     QLabel *label_18;
     QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout_3;
-    QSlider *Slider_slideVol;
-    QSlider *Slider_slideFrq;
-    QLabel *glidefrequency_2;
     QLabel *label_10;
-    QSlider *Slider_OSC_Hz;
     QSlider *Slider_OSC_Vol;
+    QSpacerItem *horizontalSpacer;
+    QSlider *Slider_slideFrq;
     QGridLayout *gridLayout_2;
-    QSpinBox *sB_OSC;
-    QLabel *wf_osc;
-    QLabel *lbl_frqglide_sec;
-    QLabel *label_9;
+    QPushButton *pB_wfOSC;
     QLCDNumber *OSCLCD_Hz;
+    QLabel *lbl_frqglide_sec;
+    QLabel *label_19;
+    QSlider *Slider_slideVol;
+    QSlider *Slider_OSC_Hz;
     QLabel *glidefrequency;
     QCheckBox *cB_Combine_vco;
     QCheckBox *cB_Combine_fmo;
+    QPushButton *pB_wfVCO;
+    QPushButton *pB_wfFMO;
+    QToolButton *tB_play_0;
+    QToolButton *tB_play_1;
+    QToolButton *tB_play_2;
+    QToolButton *tB_play_3;
+    QToolButton *tB_play_4;
+    QToolButton *tB_play_5;
+    QToolButton *tB_play_6;
+    QToolButton *tB_play_7;
     QStatusBar *statusbar;
     QMenuBar *menuBar;
 
@@ -405,35 +401,6 @@ public:
         Slider_mix_vol0->setGeometry(QRect(0, 10, 160, 16));
         Slider_mix_vol0->setMaximum(100);
         Slider_mix_vol0->setOrientation(Qt::Orientation::Horizontal);
-        frame_4 = new QFrame(centralwidget);
-        frame_4->setObjectName("frame_4");
-        frame_4->setGeometry(QRect(1140, 40, 31, 251));
-        frame_4->setFrameShape(QFrame::Shape::StyledPanel);
-        frame_4->setFrameShadow(QFrame::Shadow::Raised);
-        cb_psta1 = new QCheckBox(frame_4);
-        cb_psta1->setObjectName("cb_psta1");
-        cb_psta1->setGeometry(QRect(0, 40, 92, 23));
-        cb_psta2 = new QCheckBox(frame_4);
-        cb_psta2->setObjectName("cb_psta2");
-        cb_psta2->setGeometry(QRect(0, 70, 92, 23));
-        cb_psta3 = new QCheckBox(frame_4);
-        cb_psta3->setObjectName("cb_psta3");
-        cb_psta3->setGeometry(QRect(0, 100, 92, 23));
-        cb_psta4 = new QCheckBox(frame_4);
-        cb_psta4->setObjectName("cb_psta4");
-        cb_psta4->setGeometry(QRect(0, 130, 92, 23));
-        cb_psta5 = new QCheckBox(frame_4);
-        cb_psta5->setObjectName("cb_psta5");
-        cb_psta5->setGeometry(QRect(0, 160, 92, 23));
-        cb_psta6 = new QCheckBox(frame_4);
-        cb_psta6->setObjectName("cb_psta6");
-        cb_psta6->setGeometry(QRect(0, 190, 92, 23));
-        cb_psta7 = new QCheckBox(frame_4);
-        cb_psta7->setObjectName("cb_psta7");
-        cb_psta7->setGeometry(QRect(0, 220, 92, 23));
-        cb_psta0 = new QCheckBox(frame_4);
-        cb_psta0->setObjectName("cb_psta0");
-        cb_psta0->setGeometry(QRect(0, 10, 92, 23));
         pB_Mute_StA = new QPushButton(centralwidget);
         pB_Mute_StA->setObjectName("pB_Mute_StA");
         pB_Mute_StA->setGeometry(QRect(1120, 290, 75, 25));
@@ -484,32 +451,6 @@ public:
         pB_Spectrum = new QPushButton(centralwidget);
         pB_Spectrum->setObjectName("pB_Spectrum");
         pB_Spectrum->setGeometry(QRect(570, 10, 88, 25));
-        frame_7 = new QFrame(centralwidget);
-        frame_7->setObjectName("frame_7");
-        frame_7->setGeometry(QRect(60, 270, 131, 41));
-        frame_7->setFrameShape(QFrame::Shape::StyledPanel);
-        frame_7->setFrameShadow(QFrame::Shadow::Raised);
-        wf_vco = new QLabel(frame_7);
-        wf_vco->setObjectName("wf_vco");
-        wf_vco->setGeometry(QRect(0, 10, 66, 17));
-        sB_VCO = new QSpinBox(frame_7);
-        sB_VCO->setObjectName("sB_VCO");
-        sB_VCO->setGeometry(QRect(90, 0, 44, 41));
-        sB_VCO->setWrapping(true);
-        sB_VCO->setMaximum(9);
-        frame_9 = new QFrame(centralwidget);
-        frame_9->setObjectName("frame_9");
-        frame_9->setGeometry(QRect(60, 460, 131, 41));
-        frame_9->setFrameShape(QFrame::Shape::StyledPanel);
-        frame_9->setFrameShadow(QFrame::Shadow::Raised);
-        wf_fmo = new QLabel(frame_9);
-        wf_fmo->setObjectName("wf_fmo");
-        wf_fmo->setGeometry(QRect(0, 10, 66, 17));
-        sB_FMO = new QSpinBox(frame_9);
-        sB_FMO->setObjectName("sB_FMO");
-        sB_FMO->setGeometry(QRect(90, 0, 44, 41));
-        sB_FMO->setWrapping(true);
-        sB_FMO->setMaximum(9);
         pb_clear = new QPushButton(centralwidget);
         pb_clear->setObjectName("pb_clear");
         pb_clear->setGeometry(QRect(1040, 290, 75, 25));
@@ -584,6 +525,11 @@ public:
         cb_overwrite->setObjectName("cb_overwrite");
 
         gridLayout->addWidget(cb_overwrite, 1, 1, 1, 1);
+
+        tB_logState = new QToolButton(layoutWidget);
+        tB_logState->setObjectName("tB_logState");
+
+        gridLayout->addWidget(tB_logState, 1, 3, 1, 1);
 
         CB_kbd_bps = new QComboBox(centralwidget);
         CB_kbd_bps->setObjectName("CB_kbd_bps");
@@ -739,11 +685,81 @@ public:
         label_18->setGeometry(QRect(410, 540, 66, 18));
         gridLayoutWidget_2 = new QWidget(centralwidget);
         gridLayoutWidget_2->setObjectName("gridLayoutWidget_2");
-        gridLayoutWidget_2->setGeometry(QRect(20, 10, 295, 151));
+        gridLayoutWidget_2->setGeometry(QRect(20, 10, 281, 151));
         gridLayout_3 = new QGridLayout(gridLayoutWidget_2);
         gridLayout_3->setObjectName("gridLayout_3");
         gridLayout_3->setSizeConstraint(QLayout::SizeConstraint::SetMaximumSize);
         gridLayout_3->setContentsMargins(0, 10, 0, 10);
+        label_10 = new QLabel(gridLayoutWidget_2);
+        label_10->setObjectName("label_10");
+        label_10->setTextFormat(Qt::TextFormat::PlainText);
+        label_10->setWordWrap(true);
+
+        gridLayout_3->addWidget(label_10, 0, 8, 1, 1);
+
+        Slider_OSC_Vol = new QSlider(gridLayoutWidget_2);
+        Slider_OSC_Vol->setObjectName("Slider_OSC_Vol");
+        Slider_OSC_Vol->setMaximum(100);
+        Slider_OSC_Vol->setOrientation(Qt::Orientation::Vertical);
+
+        gridLayout_3->addWidget(Slider_OSC_Vol, 0, 9, 1, 1);
+
+        horizontalSpacer = new QSpacerItem(20, 20, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Minimum);
+
+        gridLayout_3->addItem(horizontalSpacer, 0, 4, 1, 1);
+
+        Slider_slideFrq = new QSlider(gridLayoutWidget_2);
+        Slider_slideFrq->setObjectName("Slider_slideFrq");
+        Slider_slideFrq->setMinimum(0);
+        Slider_slideFrq->setMaximum(100);
+        Slider_slideFrq->setSingleStep(4);
+        Slider_slideFrq->setPageStep(4);
+        Slider_slideFrq->setValue(0);
+        Slider_slideFrq->setOrientation(Qt::Orientation::Vertical);
+
+        gridLayout_3->addWidget(Slider_slideFrq, 0, 1, 1, 1);
+
+        gridLayout_2 = new QGridLayout();
+        gridLayout_2->setObjectName("gridLayout_2");
+        pB_wfOSC = new QPushButton(gridLayoutWidget_2);
+        pB_wfOSC->setObjectName("pB_wfOSC");
+        pB_wfOSC->setEnabled(true);
+        QSizePolicy sizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(pB_wfOSC->sizePolicy().hasHeightForWidth());
+        pB_wfOSC->setSizePolicy(sizePolicy);
+        QFont font2;
+        font2.setBold(true);
+        pB_wfOSC->setFont(font2);
+
+        gridLayout_2->addWidget(pB_wfOSC, 3, 1, 1, 1);
+
+        OSCLCD_Hz = new QLCDNumber(gridLayoutWidget_2);
+        OSCLCD_Hz->setObjectName("OSCLCD_Hz");
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(OSCLCD_Hz->sizePolicy().hasHeightForWidth());
+        OSCLCD_Hz->setSizePolicy(sizePolicy1);
+        OSCLCD_Hz->setDigitCount(5);
+        OSCLCD_Hz->setProperty("value", QVariant(0.000000000000000));
+
+        gridLayout_2->addWidget(OSCLCD_Hz, 0, 1, 1, 1);
+
+        lbl_frqglide_sec = new QLabel(gridLayoutWidget_2);
+        lbl_frqglide_sec->setObjectName("lbl_frqglide_sec");
+
+        gridLayout_2->addWidget(lbl_frqglide_sec, 2, 0, 1, 2);
+
+        label_19 = new QLabel(gridLayoutWidget_2);
+        label_19->setObjectName("label_19");
+
+        gridLayout_2->addWidget(label_19, 1, 1, 1, 1);
+
+
+        gridLayout_3->addLayout(gridLayout_2, 0, 2, 1, 1);
+
         Slider_slideVol = new QSlider(gridLayoutWidget_2);
         Slider_slideVol->setObjectName("Slider_slideVol");
         Slider_slideVol->setMaximum(100);
@@ -751,31 +767,7 @@ public:
         Slider_slideVol->setOrientation(Qt::Orientation::Vertical);
         Slider_slideVol->setTickPosition(QSlider::TickPosition::TicksBothSides);
 
-        gridLayout_3->addWidget(Slider_slideVol, 0, 6, 1, 1);
-
-        Slider_slideFrq = new QSlider(gridLayoutWidget_2);
-        Slider_slideFrq->setObjectName("Slider_slideFrq");
-        Slider_slideFrq->setMinimum(0);
-        Slider_slideFrq->setMaximum(100);
-        Slider_slideFrq->setSingleStep(10);
-        Slider_slideFrq->setPageStep(10);
-        Slider_slideFrq->setValue(0);
-        Slider_slideFrq->setOrientation(Qt::Orientation::Vertical);
-
-        gridLayout_3->addWidget(Slider_slideFrq, 0, 1, 1, 1);
-
-        glidefrequency_2 = new QLabel(gridLayoutWidget_2);
-        glidefrequency_2->setObjectName("glidefrequency_2");
-        glidefrequency_2->setWordWrap(true);
-
-        gridLayout_3->addWidget(glidefrequency_2, 0, 5, 1, 1);
-
-        label_10 = new QLabel(gridLayoutWidget_2);
-        label_10->setObjectName("label_10");
-        label_10->setTextFormat(Qt::TextFormat::PlainText);
-        label_10->setWordWrap(true);
-
-        gridLayout_3->addWidget(label_10, 0, 7, 1, 1);
+        gridLayout_3->addWidget(Slider_slideVol, 0, 7, 1, 1);
 
         Slider_OSC_Hz = new QSlider(gridLayoutWidget_2);
         Slider_OSC_Hz->setObjectName("Slider_OSC_Hz");
@@ -786,53 +778,7 @@ public:
         Slider_OSC_Hz->setTickPosition(QSlider::TickPosition::TicksAbove);
         Slider_OSC_Hz->setTickInterval(12);
 
-        gridLayout_3->addWidget(Slider_OSC_Hz, 0, 4, 1, 1);
-
-        Slider_OSC_Vol = new QSlider(gridLayoutWidget_2);
-        Slider_OSC_Vol->setObjectName("Slider_OSC_Vol");
-        Slider_OSC_Vol->setMaximum(100);
-        Slider_OSC_Vol->setOrientation(Qt::Orientation::Vertical);
-
-        gridLayout_3->addWidget(Slider_OSC_Vol, 0, 8, 1, 1);
-
-        gridLayout_2 = new QGridLayout();
-        gridLayout_2->setObjectName("gridLayout_2");
-        sB_OSC = new QSpinBox(gridLayoutWidget_2);
-        sB_OSC->setObjectName("sB_OSC");
-        sB_OSC->setWrapping(true);
-        sB_OSC->setMaximum(9);
-
-        gridLayout_2->addWidget(sB_OSC, 3, 1, 1, 1);
-
-        wf_osc = new QLabel(gridLayoutWidget_2);
-        wf_osc->setObjectName("wf_osc");
-
-        gridLayout_2->addWidget(wf_osc, 3, 0, 1, 1);
-
-        lbl_frqglide_sec = new QLabel(gridLayoutWidget_2);
-        lbl_frqglide_sec->setObjectName("lbl_frqglide_sec");
-
-        gridLayout_2->addWidget(lbl_frqglide_sec, 4, 0, 1, 1);
-
-        label_9 = new QLabel(gridLayoutWidget_2);
-        label_9->setObjectName("label_9");
-
-        gridLayout_2->addWidget(label_9, 0, 0, 1, 1);
-
-        OSCLCD_Hz = new QLCDNumber(gridLayoutWidget_2);
-        OSCLCD_Hz->setObjectName("OSCLCD_Hz");
-        QSizePolicy sizePolicy(QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(OSCLCD_Hz->sizePolicy().hasHeightForWidth());
-        OSCLCD_Hz->setSizePolicy(sizePolicy);
-        OSCLCD_Hz->setDigitCount(5);
-        OSCLCD_Hz->setProperty("value", QVariant(0.000000000000000));
-
-        gridLayout_2->addWidget(OSCLCD_Hz, 0, 1, 1, 1);
-
-
-        gridLayout_3->addLayout(gridLayout_2, 0, 2, 1, 1);
+        gridLayout_3->addWidget(Slider_OSC_Hz, 0, 3, 1, 1);
 
         glidefrequency = new QLabel(centralwidget);
         glidefrequency->setObjectName("glidefrequency");
@@ -846,13 +792,49 @@ public:
         cB_Combine_fmo->setObjectName("cB_Combine_fmo");
         cB_Combine_fmo->setGeometry(QRect(110, 520, 85, 23));
         cB_Combine_fmo->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
+        pB_wfVCO = new QPushButton(centralwidget);
+        pB_wfVCO->setObjectName("pB_wfVCO");
+        pB_wfVCO->setGeometry(QRect(60, 270, 94, 26));
+        sizePolicy.setHeightForWidth(pB_wfVCO->sizePolicy().hasHeightForWidth());
+        pB_wfVCO->setSizePolicy(sizePolicy);
+        pB_wfVCO->setFont(font2);
+        pB_wfFMO = new QPushButton(centralwidget);
+        pB_wfFMO->setObjectName("pB_wfFMO");
+        pB_wfFMO->setGeometry(QRect(60, 460, 94, 26));
+        sizePolicy.setHeightForWidth(pB_wfFMO->sizePolicy().hasHeightForWidth());
+        pB_wfFMO->setSizePolicy(sizePolicy);
+        pB_wfFMO->setFont(font2);
+        tB_play_0 = new QToolButton(centralwidget);
+        tB_play_0->setObjectName("tB_play_0");
+        tB_play_0->setGeometry(QRect(1140, 50, 26, 25));
+        tB_play_1 = new QToolButton(centralwidget);
+        tB_play_1->setObjectName("tB_play_1");
+        tB_play_1->setGeometry(QRect(1140, 80, 26, 25));
+        tB_play_2 = new QToolButton(centralwidget);
+        tB_play_2->setObjectName("tB_play_2");
+        tB_play_2->setGeometry(QRect(1140, 110, 26, 25));
+        tB_play_3 = new QToolButton(centralwidget);
+        tB_play_3->setObjectName("tB_play_3");
+        tB_play_3->setGeometry(QRect(1140, 140, 26, 25));
+        tB_play_4 = new QToolButton(centralwidget);
+        tB_play_4->setObjectName("tB_play_4");
+        tB_play_4->setGeometry(QRect(1140, 170, 26, 25));
+        tB_play_5 = new QToolButton(centralwidget);
+        tB_play_5->setObjectName("tB_play_5");
+        tB_play_5->setGeometry(QRect(1140, 200, 26, 25));
+        tB_play_6 = new QToolButton(centralwidget);
+        tB_play_6->setObjectName("tB_play_6");
+        tB_play_6->setGeometry(QRect(1140, 230, 26, 25));
+        tB_play_7 = new QToolButton(centralwidget);
+        tB_play_7->setObjectName("tB_play_7");
+        tB_play_7->setGeometry(QRect(1140, 260, 26, 25));
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
         statusbar->setEnabled(true);
-        QFont font2;
-        font2.setPointSize(13);
-        statusbar->setFont(font2);
+        QFont font3;
+        font3.setPointSize(13);
+        statusbar->setFont(font3);
         MainWindow->setStatusBar(statusbar);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
@@ -880,14 +862,6 @@ public:
         cb_ssta5->setText(QString());
         cb_ssta0->setText(QString());
         cb_ssta6->setText(QString());
-        cb_psta1->setText(QString());
-        cb_psta2->setText(QString());
-        cb_psta3->setText(QString());
-        cb_psta4->setText(QString());
-        cb_psta5->setText(QString());
-        cb_psta6->setText(QString());
-        cb_psta7->setText(QString());
-        cb_psta0->setText(QString());
         pB_Mute_StA->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "PWM", nullptr));
         pB_play_notes->setText(QCoreApplication::translate("MainWindow", "Notes,  \n"
@@ -901,11 +875,9 @@ public:
         pB_wd_mode->setText(QString());
         label_5->setText(QCoreApplication::translate("MainWindow", "Hall", nullptr));
         pB_Spectrum->setText(QCoreApplication::translate("MainWindow", "Spectrum", nullptr));
-        wf_vco->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
-        wf_fmo->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
         pb_clear->setText(QCoreApplication::translate("MainWindow", "Clear", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "Instrument Bps", nullptr));
-        pB_Mute->setText(QString());
+        pB_Mute->setText(QCoreApplication::translate("MainWindow", "Mute", nullptr));
         pBGuiExit->setText(QCoreApplication::translate("MainWindow", "GUI EXIT (ESC)", nullptr));
         pb_Keyboard->setText(QCoreApplication::translate("MainWindow", "Keyboard", nullptr));
         pBAudioServer->setText(QCoreApplication::translate("MainWindow", "Audio Server", nullptr));
@@ -916,6 +888,7 @@ public:
         pB_Capture->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
         pb_SDSview->setText(QCoreApplication::translate("MainWindow", "view SDS", nullptr));
         cb_overwrite->setText(QCoreApplication::translate("MainWindow", "Overwrite", nullptr));
+        tB_logState->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
         pB_oscgroup->setText(QString());
         lb_FMO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
         lb_VCO_LFO->setText(QCoreApplication::translate("MainWindow", "LFO", nullptr));
@@ -945,19 +918,28 @@ public:
         label_4->setText(QCoreApplication::translate("MainWindow", "Keyboard Bps", nullptr));
         label_11->setText(QCoreApplication::translate("MainWindow", "sub connection", nullptr));
         label_18->setText(QCoreApplication::translate("MainWindow", "WAV file", nullptr));
-        glidefrequency_2->setText(QCoreApplication::translate("MainWindow", "g", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "M\n"
 "a\n"
 "s\n"
 "t\n"
 "e\n"
 "r", nullptr));
-        wf_osc->setText(QCoreApplication::translate("MainWindow", "TextLabel", nullptr));
+        pB_wfOSC->setText(QString());
         lbl_frqglide_sec->setText(QCoreApplication::translate("MainWindow", "txt", nullptr));
-        label_9->setText(QCoreApplication::translate("MainWindow", " [Hz]", nullptr));
+        label_19->setText(QCoreApplication::translate("MainWindow", "Frequency [Hz]", nullptr));
         glidefrequency->setText(QCoreApplication::translate("MainWindow", "glide frq.", nullptr));
         cB_Combine_vco->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
         cB_Combine_fmo->setText(QCoreApplication::translate("MainWindow", "Combine", nullptr));
+        pB_wfVCO->setText(QString());
+        pB_wfFMO->setText(QString());
+        tB_play_0->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_1->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_2->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_3->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_4->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_5->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_6->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
+        tB_play_7->setText(QCoreApplication::translate("MainWindow", "...", nullptr));
     } // retranslateUi
 
 };

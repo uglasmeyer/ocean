@@ -44,7 +44,6 @@ class ViewInterface_class
 	, virtual 			interface_struct
 	, virtual			Device_class
 	, virtual public	osctype_struct
-	, virtual public	ADSR_class
 	, AppMap_struct
 	, wavedisplay_struct
 
@@ -85,7 +84,7 @@ private:
 
 	void	printHeader( KEYCODE keycode );
 	void 	printFooter();
-	void 	set_sds( interface_t* sds );
+	void 	set_sds( SDSId_t sdsid );
 
 
 	void 	selfTest();

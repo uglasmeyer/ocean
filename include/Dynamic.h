@@ -38,7 +38,8 @@ const vector<string> slidermode_str =
 {
 	"Fixed",
 	"Slide",
-	"Combine"
+	"Combine",
+	"Init"
 };
 enum DYNAMIC_e : unsigned char
 {
@@ -48,10 +49,10 @@ enum DYNAMIC_e : unsigned char
 	INIT
 }; // frequency and volume change mode
 
-const range_T<DYNAMIC_e> dynamic_valrange{ FIXED, SLIDE }; // range(0,1)
+const range_T<DYNAMIC_e> dynamic_valrange{ FIXED, SLIDE };
 const range_T<DYNAMIC_e> dynamic_frqrange{ FIXED, COMBINE }; // range(0,2)
 
-typedef struct state_struct
+typedef struct dynamic_state_struct
 {
 	float		present				= 0.0;
 	float 		future_f			= 0.0;
@@ -62,11 +63,14 @@ typedef struct state_struct
 	DYNAMIC_e	mode				= INIT;
 } dynamic_state_t;
 
-enum DYNTYPE_e : uint8_t
+enum DYNFACE_e : uint8_t
 {
 	FRQ,
 	VOL
 };
+
+// SDS related
+const size_t				SPEC_CHANNELS	= 9;
 
 /**************************************************
  * Dynamic_class
@@ -79,33 +83,35 @@ class Dynamic_class
 	const buffer_t	test_frames			= 1000;
 	const buffer_t	max_slide_frames	= max_slide_sec * frames_per_sec;
 
-	range_T<uint8_t>range				;
-	uint8_t			slide_value 		;
-	dynamic_state_t	restorestate		;
+	range_T<uint8_t>value_range			;
+	range_T<int>	slide_range			;
+	array<dynamic_state_t, SPEC_CHANNELS>
+					dyn_state_arr 		{ dynamic_state_struct() };
+
+//	dynamic_state_t	restorestate		;
 	dynamic_state_t	current				;
-	DYNTYPE_e		dynface				;
+	DYNFACE_e		dynface				;
 
 public:
 
-					Dynamic_class		( DYNTYPE_e _type, range_T<int> _range );
+					Dynamic_class		( DYNFACE_e _type,
+										range_T<int> _range,
+										range_T<int> _sl_range);
 	virtual 		~Dynamic_class		();
 
-	uint8_t 		Setup				( uint8_t future_vol, DYNAMIC_e mode );
-	void 			SetDelta			( uint8_t sl_duration );
-	float 			Get					();
-	void			SetCurrent			( dynamic_state_t state );
+	uint8_t 		Setup				( uint8_t future_vol, DYNAMIC_e mode, size_t channel = 0 );
+	void 			SetDelta			( uint8_t sl_duration, size_t channel = 0 );
+	float 			Get					( size_t channel = 0 );
 	dynamic_state_t GetCurrent			();
-	void 			Update				();
-	float 			Reset_state			();
-	void 			Show				( bool on );
+	void 			Update				( size_t channel = 0 );
+	float 			Reset_state			( size_t channel = 0 );
+	void			SetCurrent			( dynamic_state_t state );
 	void 			TestVol				();
 	void 			TestFrq				();
 
 private:
-	buffer_t		slideFrames			( uint8_t sl_duration );
-	void			setup_past			();
-	void 			end					();
-	void 			set_state			();
+	void 			end					( size_t channel = 0 );
+	void 			show				( bool on );
 
 
 };

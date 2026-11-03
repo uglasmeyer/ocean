@@ -120,10 +120,9 @@ void Dispatcher_class::Loop(  )
 			}
 			case READWAVEDATAFLAG :
 			{
-//				if( win->Spectrum_Dialog_p->isVisible() )
+				emit(win->UpdateDataDisplay() );
+				if( win->Spectrum_Dialog_p->isVisible() )
 					emit(win->Spectrum_Dialog_p->UpdateDataDisplay() );
-//				else
-					emit(win->UpdateDataDisplay() );
 				break;
 			}
 			default:
@@ -154,8 +153,6 @@ Controller_class::Controller_class( MainWindow& window ) :
 					window_p, SLOT( update_CB_external()) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateRtspLog(QString) ),
 					window.Rtsp_Dialog_p, SLOT( UpdateLog(QString)) );
-//	window.connect( Dispatcher_p, SIGNAL( UpdateSpectrumDialog() ),
-//					window.Spectrum_Dialog_p, SLOT( SetInstrument()) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateColorButtons() ),
 					window_p, SLOT( updateColorButtons() ) );
 	window.connect( Dispatcher_p, SIGNAL( UpdateKeyboardDialog() ),

@@ -39,7 +39,7 @@ Note_class::Note_class( Dataworld_class* 	data ,
 	: Logfacility_class	("Note_class")
 	, Interface_base	( data )
 	, NotesCore_class	( data, xml_p )
-	, Oscgroup			( NOTESROLE, 2*monobuffer_bytes )
+//	, Oscgroup			( NOTESROLE, 2*monobuffer_bytes )
 	, Note_itr_start	( "Note_itr start", &sds_master->Note_start )
 	, Note_itr_end		( "Note_itr end  ", &sds_master->Note_end )
 {
@@ -62,7 +62,6 @@ Note_class::~Note_class( )
 	DESTRUCTOR( className )
 }
 
-
 Data_t* Note_class::ScanData( )
 {
 	return scanner->Next_read();
@@ -81,7 +80,10 @@ void Note_class::gen_chord_data( note_t& note )
 	Oscgroup.DataReset();
 
 	if ( note.glide[0].glide )
-		Oscgroup.SetFrqSlidevalue( sds_p->features[OSCID].frq_slide_value );
+	{
+		if ( Oscgroup.osc.features.frq_slide_value == 0 )
+			Oscgroup.SetFrqSlidevalue( Sds->frq_slide.default_slide_value );
+	}
 	else
 		Oscgroup.SetFrqSlidevalue( 0 );
 
@@ -89,7 +91,7 @@ void Note_class::gen_chord_data( note_t& note )
 //	const uint	msec 			= ( note.longplay or sds_p->features[0].longplay ) ?
 //								1000 : note.duration;
 	Oscgroup.SetDuration		( max_msec );
-	Osc->Set_spectrum_volume	( note.volume );
+	Osc->Set_volume				( note.volume );
 	Oscgroup.SetBeatcursor		( 0 );
 
 	chord_t chord = note.chord;
@@ -142,11 +144,10 @@ bool Note_class::Generate_volatile_data( bool init )
 	if ( Note_clock( init ) )
 		return true;
 
-//	sds_p->NotesTypeId = BUSY_XML;
-
-//	coutf << scanner->rpos % min_frames << endl;
-//	Assert_equal( (int)(scanner->rpos % min_frames), 0, "Notes scanner.rpos" );
 	Oscgroup.SetInstrument( sds_p );
+	Oscgroup.osc.fourier.coeff_vec 	= instrument->Oscgroup.osc.fourier.coeff_vec;
+	Oscgroup.vco.fourier.coeff_vec 	= instrument->Oscgroup.vco.fourier.coeff_vec;
+
 	if( note_itr_end() )
 	{
 		Note_itr_start.SetState( true );
@@ -159,7 +160,6 @@ bool Note_class::Generate_volatile_data( bool init )
 		scanner->Reset();
 		scanner->Lock_read( true );
 		StA->Set_wdsize( scanner->mem_range.max );
-//		StA->param.wdsize = scanner->mem_range.max;
 
 		Note_itr_start.SetState( true );
 		note_itr = notelist.begin();
@@ -184,13 +184,6 @@ bool Note_class::Generate_volatile_data( bool init )
 	return not init;
 }
 
-//bool Note_class::SetNoteline()
-//{
-//	Noteline.read();
-//	Noteline_prefix.Read();
-//	Rythmline.read();
-//	return verify_noteline();
-//}
 bool Note_class::Generate_cyclic_data(  )
 {
 	if( notelist.size() == 0 )
@@ -208,6 +201,8 @@ bool Note_class::Generate_cyclic_data(  )
 	sds_p->StA_state_arr[STA_NOTES].forget = false;
 
 	Oscgroup.SetInstrument( sds_p );
+	Oscgroup.osc.fourier.coeff_vec 	= instrument->Oscgroup.osc.fourier.coeff_vec;
+	Oscgroup.vco.fourier.coeff_vec 	= instrument->Oscgroup.vco.fourier.coeff_vec;
 
 	note_itr = notelist.begin();
 
@@ -253,8 +248,6 @@ void Note_class::note_itr_next()
 }
 //-------------------------------------------------------------
 
-
-
 void Note_class::testNotes()
 {
 
@@ -266,7 +259,6 @@ void Note_class::testNotes()
 	ASSERTION( pitch.alter == 1, "Assert test value ",(int)pitch.alter, 1  )  ;
 	ASSERTION( pitch.frqidx == 84, "Assert test value ",(int)pitch.frqidx, 84  )  ;
 
-
 	pitch = pitch_struct( 84 );
 	ASSERTION( pitch.step == 9, "Assert test value ",(int)pitch.step, 9  )  ;
 	ASSERTION( pitch.alter == 1, "Assert test value ",(int)pitch.alter, 1  )  ;
@@ -276,25 +268,23 @@ void Note_class::testNotes()
 
 	Comment( TEST, "Note_class test start");
 
-	// Note Frequency
-	sds_p->frq_slidermode			= FIXED;
-	sds_p->features[VCOID].combine = true;
-	sds_p->features[FMOID].combine = true;
-	sds_p->spectrum_arr[OSCID].frqidx[0] = A3;
-	sds_p->spectrum_arr[VCOID].frqidx[0] = A4;
-	sds_p->spectrum_arr[FMOID].frqidx[0] = A2;
-	Oscgroup.SetNoteFrequency( sds_p, A2 );
-	Assert_equal( osc->spectrum.frqidx[0], A2 );
-	Assert_equal( vco->spectrum.frqidx[0], A3 );
-	Assert_equal( fmo->spectrum.frqidx[0], A1 );
 
-	sds_p->features[VCOID].combine = false;
-	sds_p->features[FMOID].combine = false;
-	Oscgroup.SetNoteFrequency(sds_p, A3 );
-	Assert_equal( osc->spectrum.frqidx[0], A3 );
-	Assert_equal( vco->spectrum.frqidx[0], A3 );
-	Assert_equal( fmo->spectrum.frqidx[0], A1 );
+	const spectrum_t			TestFourierSpectrum =
+	{
+		.volidx  	{ 100, 0, 0, 0, 0 },
+		.frqidx 	{ A3, 0, 0, 0, 0 },
+		.wfid 		{ FOURIER,SINUS,SINUS,SINUS,SINUS, },
+		.phi		= zero_phase,
+		.osc 		= OSCID,
+		.type		= spectrum_ns::FREQ
+	};
 
+	Osc->Set_spectrum		( TestFourierSpectrum, FIXED );
+	instrument->Set			( "default" );
+	osc->fourier.coeff_vec 	= instrument->Oscgroup.osc.fourier.coeff_vec;
+	vco->fourier.coeff_vec 	= instrument->Oscgroup.vco.fourier.coeff_vec;
+
+	Osc->OSC				( 0 );
 
 	TEST_END( className );
 

@@ -45,12 +45,14 @@ class Menue_class :
 	Dataworld_class*	DaTA;
 	interface_t*		sds;
 	interface_t*		sds_master;
-	Id_t 				sdsid;
+	SDSId_t 				sdsid;
 	KEYCODE 			page 		= KEYCODE::F1;
 
 	typedef function< kbdInt_t( kbdInt_t ) > switch_fnc_t ;
 	switch_fnc_t 		Switch;
 
+
+public:
 	enum SDSDELTA_e : char
 	{
 		MINUS = -1,
@@ -58,7 +60,6 @@ class Menue_class :
 		UNCHANGED = 0
 	};
 
-public:
 	Menue_class( Dataworld_class* data, switch_fnc_t _switch, string footer = "" ) ;
 	virtual ~Menue_class();
 	void Set_sdsid( SDSDELTA_e delta );

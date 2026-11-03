@@ -29,11 +29,10 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
-#include 			<Logfacility.h>
+#include <Logfacility.h>
 #include <sys/ioctl.h>
-//#include <unistd.h>
-//#include <iostream>
 
+using namespace std::filesystem;
 uint8_t term_columns()
 {
 	struct winsize w;
@@ -112,14 +111,14 @@ Logfacility_class::Logfacility_class( const string module )
 
 	int 			pos 				= module.find("_" );
 	int				max_len				= LOGINDENT - 5;
-					this->className 	= module;
+//					this->className 	= module;
 	( pos > max_len ) ?	this->className = module.substr(0, pos) :
 						this->className = module.substr(0, max_len );
 	stringstream 	strs 				{};
 					strs << setw( max_len ) << right << this->className << ":" ;
 					prefixClass 		= strs.str();
 	string 			_path 				= string( logDir );
-					filesystem::create_directories( _path );
+					create_directories( _path );
 
 					// https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
 					Prefix_vec =
@@ -136,7 +135,7 @@ Logfacility_class::Logfacility_class( const string module )
 							{"Wait ", bred },
 							{""		, nocolor }
 					};
-
+	Info( "Init", className );
 };
 
 Logfacility_class::~Logfacility_class(  )
@@ -191,8 +190,8 @@ void Logfacility_class::Init_log_file( )
 {
 	Comment( INFO, "Initialize Log file ");
 	string _path = string( "/tmp/fout.tst" );//( logFile );
-	if (filesystem::exists( _path ))
-		filesystem::remove( _path );
+	if (exists( _path ))
+		remove( _path );
 }
 
 void Logfacility_class::Show_loglevel()

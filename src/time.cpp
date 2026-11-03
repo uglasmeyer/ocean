@@ -30,21 +30,25 @@ SOFTWARE.
  */
 
 #include <Time.h>
-#include <data/Sdsbase.h>
-#include <limits>
 
-using namespace std::chrono ;
-using namespace std::this_thread;
+using std::numeric_limits;
+using std::chrono::current_zone;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::seconds;
+using std::chrono::steady_clock;
+using std::chrono::system_clock;
+using std::chrono::zoned_time;
 
 Time_class::Time_class( uint8_t* tel )
 	: Logfacility_class("Time_class")
 {
 	this->latency 		= 0;
-	this->State			= ENABLED;
-	this->threshold		= std::numeric_limits<int>::max();
+	this->threshold		= numeric_limits<int>::max();
 	this->time_elapsed	= tel; // external time_elapsed
 	this->overload		= false;
 	this->overload_p	= &overload;
+	State				( ENABLED );
 	Start				();
 	Stop				(); // duration is zero
 }
@@ -54,10 +58,10 @@ Time_class::Time_class()// @suppress("Class members should be properly initializ
 {
 	this->tel			= 0;
 	this->time_elapsed	= &tel; // local time_elapsed
-	this->State			= ENABLED;
-	this->threshold		= std::numeric_limits<int>::max();
-	this->overload			= false;
-	this->overload_p		= &overload;//
+	this->threshold		= numeric_limits<int>::max();
+	this->overload		= false;
+	this->overload_p	= &overload;//
+	State				( ENABLED );
 }
 
 
@@ -74,11 +78,17 @@ void Time_class::Set_Threshold( int msec, bool* _overload )
 }
 long int Time_class::Time_elapsed()
 {
+	auto ms_count = [  ]( auto rep )
+	{
+		return duration_cast<milliseconds>( rep );
+	};
+	typedef long long int count_t;
+
 	Stop();
-	long long int start_count = duration_cast<milliseconds>( start_time.time_since_epoch()).count();
-	long long int stop_count  = duration_cast<milliseconds>( stop_time.time_since_epoch()).count();
-	long long int tel = stop_count - start_count;
-	*overload_p = ( tel > threshold );
+	count_t start_count	= ms_count( start_time.time_since_epoch()).count();
+	count_t stop_count 	= ms_count( stop_time.time_since_epoch()).count();
+	count_t tel			= stop_count - start_count;
+	*overload_p					= ( tel > threshold );
 	return tel;
 }
 void Time_class::Start()
@@ -109,7 +119,7 @@ void Time_class::Block()
 uint Time_class::Performance( bool* overload )
 {
 	//  calculate the time for one cycle
-	if( State == StateId_e::DISABLED )
+	if( state == StateId_e::DISABLED )
 		return 0;
 	Stop();
 	uint	tel 			= Time_elapsed();
@@ -125,15 +135,17 @@ uint Time_class::Performance( bool* overload )
 		*overload	= true;
 	return tel;
 }
+
+void Time_class::State( StateId_e _state )
+{
+	state = _state;
+}
+
 void Time_class::TimeStamp()
 {
     try
     {
-        const std::chrono::zoned_time cur_time
-        {
-            current_zone(), // may throw
-            system_clock::now()
-        };
+        const zoned_time cur_time = zoned_time( current_zone(), system_clock::now() );
         Info( cur_time );
     }
     catch(const std::runtime_error& ex)

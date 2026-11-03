@@ -73,21 +73,21 @@ auto test_cycle2_range = [  ]( range_T<int> range  )
 	ASSERTION( range.len == abs(range.max-range.min), "", range.len, range.max-range.min);
 };
 
-bool 							isopen 		= false;
 extern Logfacility_class		Log				;
 extern Dataworld_class			DaTA			;
 extern Config_class				Cfg				;
-extern Application_class		App			;
-extern Instrument_class 		Instrument;
-extern Mixer_class				Mixer;
-extern Note_class 				Notes;
-extern Keyboard_class			Keyboard;
-extern External_class 			External;
-extern Time_class				Timer;
-extern Event_class				Event;
-extern Wavedisplay_class		Wavedisplay;
-extern void add_sound			();
-extern long int time_elapsed	;
+extern Application_class		App				;
+extern Instrument_class 		Instrument		;
+extern StorageArea_class		StA				;
+extern Mixer_class				Mixer			;
+extern Note_class 				Notes			;
+extern Keyboard_class			Keyboard		;
+extern External_class 			External		;
+extern Time_class				Timer			;
+extern Event_class				Event			;
+extern Wavedisplay_class		Wavedisplay		;
+extern void 					add_sound		();
+extern Time_class				addSound_time	;
 
 void PrepareTest()
 {
@@ -101,9 +101,10 @@ void SynthesizerTest()
 {
 	String 			TestStr	{""};
 	Oscillator 		TestOsc	{ INSTRROLE, OSCID, monobuffer_bytes };
-	Spectrum_class 	Spectrum{};
+	Spectrum_class 	Spectrum{ spectrum_ns::SPEC_e::FREQ };
 
 	PrepareTest();
+
 	DaTA.Test_Dataworld();
 	DaTA.Sds_p->Test_interface();
 	Cfg.Test();
@@ -123,21 +124,24 @@ void SynthesizerTest()
 	Spectrum.Test_Spectrum();
 	Notes.TestNoteBase();
 	Notes.Test_Musicxml();
+	Instrument.Oscgroup.Test( DaTA.Sds_p->addr );
 	TestOsc.DynFrequency.TestFrq();
 	Instrument.Oscgroup.osc.Set_spectrum( Spectrum.TestSpectrum, SLIDE ); //220 Hz
 	Instrument.Oscgroup.osc.OSC( 0 );
 
-	Id_t sdsid = App.SDS_ID;
+
+	SDSId_t sdsid = App.SDS_ID;
 	App.Set_comid( 3 );
 	Assert_equal( int( Instrument.sds_master->comId ), 3 );
 	App.Set_comid( sdsid );
 
 	Wavedisplay.TestWd();
 
-	Mixer.StA[STA_INSTRUMENT].DynVolume.TestVol();
+	StA.Array[STA_INSTRUMENT].DynVolume.TestVol();
 	Mixer.TestMixer();
 
 	Keyboard.Kbd_pitch_Test();
+	Keyboard.Keyboard_test();
 
 	External.Test_External();
 
@@ -152,11 +156,17 @@ void SynthesizerTest()
 
 	Event.TestHandler();
 
-	App.sds_p->spectrum_arr[OSCID].wfid[0] = 11;
-	App.sds_p->Kbd_state.key = char2int( 'A' );
-	Mixer.StA[STA_KEYBOARD].state.Play( true );
+	App.sds_p->spectrum_arr[OSCID].wfid[0] = WFID_e::FOURIER;
+	App.sds_p->Kbd_state.key = int( 'A' );
+//	App.sds_p->Kbd_state.chord_type = 'Y';
+	App.sds_p->beatClock = 0;
+	StA.Array[STA_KEYBOARD].state.Play( true );
 	add_sound();
-	coutf << "add_sound::time_elapsed " << time_elapsed << endl;
+	if( App.sds_p->overload )
+		Log.Comment( WARN, "elapsed time to add_sound", addSound_time.Time_elapsed() );
+	else
+		Log.Comment( INFO, "elapsed time to add_sound", addSound_time.Time_elapsed() );
+
 
 	Log.Set_Loglevel( TEST, true );
 	DaTA.Test_result = "SUCCESS";

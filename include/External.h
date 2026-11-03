@@ -35,6 +35,7 @@ SOFTWARE.
 #include <data/DataWorld.h>
 #include <Progressbar.h>
 #include <Wav.h>
+#include <StorageArea.h>
 
 
 /**************************************************
@@ -71,7 +72,7 @@ public:
 													interface_t* sdssh ) ;
 	virtual 					~External_class		() = default;
 	const string 				Save_record_data	( int filenr );
-	void 						Save_record_data	( string filename );
+	LOG_e 						Save_record_data	( string filename );
 	void 						Record_buffer		( stereo_t* src, buffer_t frames );
 
 private:
@@ -86,7 +87,7 @@ private:
 	void 						wav_define 			(  long  );
 	long 						write_wav_header	( string );
 	long 						write_audio_data	( string, buffer_t );
-	bool 						read_stereo_data	( buffer_t );
+	bool 						read_stereo_data	( mem_ds_t );
 	string						addheader_cmd		();
 	string 						ffmpeg_cmd			( string wav, string mp3 );
 	string 						id3tool_cmd			( string mp3 );
@@ -95,7 +96,6 @@ private:
 	void 						close				();
 
 };
-
 
 /**************************************************
  * StAExternal_class
@@ -110,7 +110,7 @@ public:
 										Config_class* cfg,
 										interface_t* sds );
 	virtual 		~StAExternal_class	()= default ;
-	void 			Convert_StA2WAV		( StAId_e staid,
+	LOG_e 			Convert_StA2WAV		( StAId_e staid,
 										range_T<buffer_t> range );
 
 private:

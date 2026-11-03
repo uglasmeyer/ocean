@@ -49,24 +49,36 @@ Table_class::~Table_class() {};
 
 void Table_class::AddColumn( string name, uint width )
 {
-	header_v.push_back({name, width} );
+	header_v.push_back	( { name, width } );
+	item_v.push_back	( { ""	, width } );
 }
 
-void Table_class::PrintHeader()
+void Table_class::printItems( header_vec_t vec )
 {
-
 	string color 		= GetColor( TABLE, opt.FILE );
 	string endcolor 	= GetendColor( opt.FILE );
 
 	*opt.FILE << color << setw( opt.Ident ) << left << setfill('.') << opt.Titel << endcolor ;
 	if ( opt.Titel.length() > opt.Ident )
 		*opt.FILE << endl;
-	for( header_t row : header_v )
+	for( header_t row : vec )
 	{
 		*opt.FILE  << dec << setw(row.width) << left << setfill(' ')<< row.txt << opt.Separator;
 	}
 	*opt.FILE << '\n';
+
 }
+void Table_class::PrintHeader()
+{
+	printItems	( header_v );
+}
+void Table_class::PrintItems()
+{
+	printItems( item_v );
+	for_each( item_v, []( header_t& item )
+			{ item.txt = "" ;});
+}
+
 string Table_class::cout_row( string txt )
 {
 	string color 		= GetColor( TABLE, opt.FILE );
@@ -87,7 +99,7 @@ void Table_class::TestTable()
 	AddColumn( "number", 6 );
 	PrintHeader();
 	AddRow("hello", "world ",2);
-	AddRow( 1,2,numbers::pi);
+	AddRow( 1,2,pi);
 	AddRow( 1,2,3,4 );
 	AddRow(1, ':', "Hello");
 }

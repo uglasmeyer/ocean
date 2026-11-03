@@ -35,37 +35,39 @@ SOFTWARE.
 #include <Logfacility.h>
 #include <chrono>
 
+using std::chrono::time_point	;
+using std::chrono::steady_clock	;
+
 class Time_class :
-	virtual public 			Logfacility_class
+	virtual public 				Logfacility_class
 {
 	// https://en.cppreference.com/w/cpp/chrono
-	std::chrono::time_point<std::chrono::steady_clock>
-							start_time;
-	std::chrono::time_point<std::chrono::steady_clock>
-							stop_time;
-	const long int 			wait 			= max_sec * 1000 ;
-	long int 				latency 		;
-	uint8_t					tel				;
-	uint8_t*				time_elapsed	;
-	bool					overload			;
-	bool*					overload_p		;
-	int						threshold		;
+	time_point<steady_clock>	start_time;
+	time_point<steady_clock>	stop_time;
+	const long int 				wait 			= max_sec * 1000 ;
+	long int 					latency 		;
+	uint8_t						tel				;
+	uint8_t*					time_elapsed	;
+	bool						overload			;
+	bool*						overload_p		;
+	int							threshold		;
+	StateId_e					state			;
 
 public:
-	StateId_e				State			;
-							Time_class		( uint8_t* tel );
-							Time_class		();
-	virtual 				~Time_class		();
+								Time_class		( uint8_t* tel );
+								Time_class		();
+	virtual 					~Time_class		();
 
-	long int 				Time_elapsed	();
-	void 					Start			();
-	void 					Stop			();
-	void 					Block			();
-	void 					Wait			( const uint&, const string& dur = "sec"  );
-	uint 					Performance		( bool* overload );
-	void					Set_Threshold	( int msec, bool* overload );
-	void 					TimeStamp		();
-	void 					Test			();
+	long int 					Time_elapsed	();
+	void 						Start			();
+	void 						Stop			();
+	void 						Block			();
+	void 						Wait			( const uint&, const string& dur = "sec"  );
+	uint 						Performance		( bool* overload );
+	void						Set_Threshold	( int msec, bool* overload );
+	void						State			( StateId_e _state );
+	void 						TimeStamp		();
+	void 						Test			();
 };
 
 #endif /* TIME_H_ */

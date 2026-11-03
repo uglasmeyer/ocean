@@ -73,6 +73,7 @@ public:
  *************************************************/
 class Interpreter_class
 	: virtual public	Logfacility_class
+	, 					Frequency_class
 	, virtual			Interface_base
 	, virtual public 	Processor_class
 
@@ -80,9 +81,9 @@ class Interpreter_class
 	typedef struct view_struct
 	{
 		string 		name 	= "none";
-		uint8_t		oscid	= 0;
+		OSCID_e		oscid	= NOOSCID;
 		EVENTKEY_e 	wfkey	= NULLKEY;
-		uint8_t*	wf		= nullptr;
+		WFID_e*		wf		= nullptr;
 		EVENTKEY_e	ampkey	= NULLKEY;
 		uint8_t* 	amp		= nullptr;
 		EVENTKEY_e	freqkey	= NULLKEY;
@@ -92,8 +93,6 @@ class Interpreter_class
 
 
 	bps_t					Bps					;
-	Spectrum_class 			Spectrum			{};
-	Frequency_class 		Frequency			{};
 	string_vec_t 			stack 				{};
 	string					command 			{""};
 	bool 					testrun 			= false;
@@ -152,7 +151,7 @@ public:
 
 private:
 
-	void 					amploop				( uint8_t amp, uint8_t time );
+	void 					master_amploop				( uint8_t amp, uint8_t time );
 	bool 					check_count			( string_vec_t, size_t );
 	void 					check_file			( string_vec_t, string );
 	StAId_e		 			expect_staid		();

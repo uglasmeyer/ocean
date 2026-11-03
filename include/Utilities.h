@@ -32,21 +32,100 @@ SOFTWARE.
 #ifndef OCEANUTILITIES_H_
 #define OCEANUTILITIES_H_
 
-#include <csignal>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <experimental/source_location>
-
+#include <Ocean.h>
+template < typename T >
+void normalize_vector( vector<T>& v, const T value )
+{
+	T sum	= std::accumulate( v.begin(), v.end(), T(0) );
+	if( sum > 0 )
+	{
+		T f = value / sum;
+		for_each( v, [ f ](T& x ){ x *= f ;} );
+	}
+}
 extern unsigned char operator""_uint( unsigned long long int x);
-using namespace std;
+
+template<typename Key, typename Value>
+auto imap( map<Key,Value> m ) //invert map
+{
+	map<Value, Key> M {};
+	for( auto [k,v] : m )
+	{
+		M[v] = k;
+	}
+	return M;
+}
+template< typename C >
+vector<C> set2vector( set<C> s )
+{
+	vector<C> v {};
+	for( auto i : s )
+	{
+		v.push_back( i );
+	}
+	return v;
+}
+
+template< class C > unordered_set< C >
+vector2Uset( vector< C > v )
+{
+	unordered_set< C > s {};
+	for( C i : v )
+	{
+		s.insert( i );
+	}
+	return s;
+}
+
+//template< class C, const long unsigned int Size >
+template< class C, size_t Size >
+set< C > array2set( array<C, Size> a )
+{
+	set< C > s {};
+	for( C i : a )
+	{
+		s.insert( i );
+	}
+	return s;
+}
+template< class C, size_t Size >
+unordered_set< C > array2uset( array<C, Size> a )
+{
+	unordered_set< C > s {};
+	for( C i : a )
+	{
+		s.insert( i );
+	}
+	return s;
+}
+template< class C > list< C > vector2list( vector< C > v )
+{
+	list< C > l {};
+	for( C i : v )
+	{
+		l.insert( i );
+	}
+	return l;
+}
+
+template< class C >
+vector< C > list2vector( list< C > l )
+{
+	vector< C > v {};
+	for( C c : l )
+	{
+		v.push_back( c );
+	}
+	return v;
+
+}
 
 constexpr string yesno ( bool flag ) { return ( flag ) ? "yes" : "no "; };
 
-extern void show_source_location( const experimental::source_location location );
+extern void show_source_location( const source_location location );
 extern bool	fcomp( const float& a, const float& b, float precision = 1E-4 );
 extern void Exception( string message = "", int signal = SIGHUP,
-		const experimental::source_location location = experimental::source_location::current());
+		const source_location location = source_location::current());
 
 constexpr bool operator==( string lhs, string rhs )
 {
@@ -88,12 +167,37 @@ constexpr vector<Type> Iota_T( Type beg, Type size )
 	return v;
 };
 
+template<class T>
+concept FloatConcept = requires
+{
+	std::is_floating_point<T>::value == true;
+//	typeid( T ) == typeid( float );
+};
+
+template<class Compare>
+//requires FloatConcept<Compare>
+requires std::floating_point<Compare>
+void Assert_equal( Compare lhs, Compare rhs, string message = " == ",
+		const source_location location = source_location::current())
+{
+	Compare _lhs = lhs;
+	Compare _rhs = rhs;
+	bool comp = ( fcomp( _lhs, _rhs ) );
+
+	if ( not comp )
+	{
+		show_source_location( location );
+		Show_Assert( lhs, rhs, message );
+	};
+};
+
 
 template<class Compare>
 void Assert_equal( Compare lhs, Compare rhs, string message = " == ",
-		const experimental::source_location location = experimental::source_location::current())
+		const source_location location = source_location::current())
 {
 	bool comp = ( lhs == rhs );
+
 	if ( not comp )
 	{
 		show_source_location( location );
@@ -103,7 +207,7 @@ void Assert_equal( Compare lhs, Compare rhs, string message = " == ",
 
 template<class Compare>
 void Assert_unequal( Compare lhs, Compare rhs, string message = " != ",
-		const experimental::source_location location = experimental::source_location::current())
+		const source_location location = source_location::current())
 {
 	if ( not ( lhs != rhs  ) )
 	{
@@ -115,7 +219,7 @@ void Assert_unequal( Compare lhs, Compare rhs, string message = " != ",
 
 template<class Compare>
 void Assert_lt( Compare lhs, Compare rhs, string message = " < ",
-		const experimental::source_location location = experimental::source_location::current())
+		const source_location location = source_location::current())
 {
 	if ( not ( lhs < rhs  ) )
 	{

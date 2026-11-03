@@ -38,18 +38,19 @@ SOFTWARE.
 #define DEFAULT_H_
 
 #include <string>
+using std::string;
 
-extern const std::string program_template_text;
-extern const std::string composer_testcases_template_text;
-extern const std::string composer_lib_template_text;
-extern const std::string composer_test_template_text;
-extern const std::string config_template_text;
-extern const std::string default_nte_text;
-extern const std::string notes_test_text;
-extern const std::string musicxml_template_text;
-extern const std::string musicxml_test_text;
-extern const std::string default_xml_text;
-extern const std::string default_instrument_text;
-extern const std::string test_instrument_text;
+extern const string program_template_text;
+extern const string composer_testcases_template_text;
+extern const string composer_lib_template_text;
+extern const string composer_test_template_text;
+extern const string config_template_text;
+extern const string default_nte_text;
+extern const string notes_test_text;
+extern const string musicxml_template_text;
+extern const string musicxml_test_text;
+extern const string default_xml_text;
+extern const string default_instrument_text;
+extern const string test_instrument_text;
 
 #endif /* DEFAULT_H_ */

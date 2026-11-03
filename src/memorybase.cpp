@@ -41,7 +41,7 @@ Memory_base::Memory_base( uint8_t type_bytes, buffer_t bytes )
 	, mem_ds( sizeof_Data, bytes )
 {
 	this->is_zero	= true;
-	Init_data		( bytes);
+	Init_data		( bytes );
 	Comment			( DEBUG, "init memory size ", bytes );
 };
 
@@ -49,17 +49,6 @@ Memory_base::~Memory_base()
 {
 	DESTRUCTOR( className )
 };
-void Memory_base::SetDs( size_t type_size )
-{
-	// terminology :
-	// sizeof_data	-> 	data_bytes	= sizeof_unit)
-	//					block_bytes = data_bytes*units
-	//					mem_bytes 	= block_bytes*blocks (blocks=sec)
-	//					mem_blocks	=
-
-	buffer_t 	bytes 				= mem_ds.block_size * mem_ds.max_records * record_size;
-	Assert_equal( mem_ds.bytes, bytes );
-}
 
 mem_ds_t* Memory_base::GetDs()
 {
@@ -70,24 +59,22 @@ void Memory_base::Init_data( buffer_t _bytes )
 {
 	Data = ( Data_t* ) Init_void( sizeof_Data, _bytes );
 
-//	SetDs( sizeof_Data );
 	Assert_equal( mem_ds.bytes, mem_ds.block_size * mem_ds.max_records * record_size );
 	statistic.data += mem_ds.bytes;
 }
 
 #include <Table.h>
 void* Memory_base::Init_void( uint8_t typesize, buffer_t bytes )
-{
-	assert( bytes > 0 );
-	mem_ds = mem_data_struct( typesize, bytes );
+{	// create heap memory and a desription of this memory in mem_ds
+	assert		( bytes > 0 );
+	mem_ds 		= mem_data_struct( typesize, bytes );
 	mem_ds.addr = mmap(	NULL,
 				bytes ,// + 1  ,
 				PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS,
 				0, 0);
-	mem_ds.name			= Logfacility_class::className + " allocated";
-	mem_ds.hex			= to_hex( (long) mem_ds.addr );
-//	mem_ds.bytes 		= bytes;
+	mem_ds.name	= Logfacility_class::className + " allocated";
+	mem_ds.hex	= to_hex( (long) mem_ds.addr );
 
 	return mem_ds.addr;
 }

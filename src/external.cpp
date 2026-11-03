@@ -31,6 +31,7 @@ SOFTWARE.
 #include <External.h>
 #include <System.h>
 #include <fstream>
+using namespace std::filesystem;
 
 // Synthesizer read data from file into StA_External
 External_class::External_class	( 	Storage_class*	sta,
@@ -91,23 +92,20 @@ const bool External_class::Read_file_data(  )
 		return false;
 	}
 
+	// calculate new storage parameter
 	mem_ds_t	mem_ds	= mem_data_struct( sizeof_stereo, header_struct.dlength );
-
-	if (LogMask[DBG2])
-		StA_ext->DsInfo("Memory Array External");
-	if ( mem_ds.data_blocks > StA_ext->mem_ds.data_blocks )
+	if ( mem_ds.data_blocks > StA_ext->param.size )
 	{
+		mem_ds = mem_data_struct( sizeof_stereo, StA_ext->param.size );
 		Comment(WARN, "Partly read file data into memory.");
 		Comment(WARN, "Taking limits from memory info" );
-		mem_ds.data_blocks 	= StA_ext->mem_ds.data_blocks;
-		mem_ds.max_records	= StA_ext->mem_ds.max_records;
-		mem_ds.bytes 		= StA_ext->mem_ds.bytes;
+		StA_ext->DsInfo("Storage Area External");
 	}
 
-	StA_ext->Clear_data( 0 );
-
-	if( read_stereo_data( mem_ds.bytes ) )
+	if( read_stereo_data( mem_ds ) )
 	{
+		StA_ext->Set_records( 0 );	// overwrite existing data
+									// may subject to external flag
 		Stereo2StA();
 		StA_ext->Set_records( mem_ds.max_records );
 
@@ -125,18 +123,18 @@ const bool External_class::Read_file_data(  )
 	}
 }
 
-bool External_class::read_stereo_data( buffer_t data_bytes  )
+bool External_class::read_stereo_data( mem_ds_t mem_ds )	//data_bytes  )
 {
 	read_position += fread( stereo_data ,
-							sizeof_stereo,
-							data_bytes/sizeof_stereo,
+							mem_ds.block_size,//sizeof_stereo,
+							mem_ds.data_blocks,//data_bytes/sizeof_stereo,
 							File  );
 	Comment( DEBUG, to_string( read_position ));
 	buffer_t
-	read_bytes		= read_position * sizeof_stereo;
+	read_bytes		= read_position * mem_ds.block_size;
 	Filedata_size	= read_position;
 
-	if ( read_bytes >= data_bytes )
+	if ( read_bytes >= mem_ds.bytes )//data_bytes )
 	{
 		close( );
 		Comment(DEBUG,"read bytes: " + to_string(read_bytes) );
@@ -162,7 +160,6 @@ External_class::External_class( Config_class* cfg,
 	Memory_base		( sizeof_stereo, cfg->Config.record_sec * frames_per_sec * sizeof_stereo ),
 	Stereo_Memory	( sizeof_stereo, cfg->Config.record_sec * frames_per_sec * sizeof_stereo )
 {
-	this->className		= Logfacility_class::className;
 	this->StA_ext 		= nullptr;
 	this->File 			= NULL;
 	this->Cfg			= cfg;
@@ -201,7 +198,7 @@ int External_class::generate_file_no()
 		counterfile = testcounter_file;
 	}
 
-	if ( not filesystem::exists( counterfile ))
+	if ( not exists( counterfile ))
 	{
 		Comment( INFO, "creating file number file");
 		File.open( counterfile, fstream::out );
@@ -215,7 +212,7 @@ int External_class::generate_file_no()
 	getline( File, S.Str );
 	File.close();
 
-	filesystem::remove( counterfile );
+	remove( counterfile );
 	int filenr = S.to_int( S.Str );
 	range_T<int> wavfileno_range{ 1, (int)Cfg->Config.MAXWAVFILES };
 
@@ -239,8 +236,8 @@ long External_class::write_audio_data( string filename, buffer_t rcounter )
 
 long  External_class::write_wav_header( string dest)
 {
-	if ( filesystem::exists( dest ))
-		filesystem::remove( dest );
+	if ( exists( dest ))
+		remove( dest );
 
 	FILE* 			fd 			= fopen( dest.data(), "wb");
 	if( fd )
@@ -265,7 +262,7 @@ void External_class::wav_define (  long raw_filesize ) // add filesize to wav st
 
 void External_class::write_music_file( string musicfile )
 {
-	uintmax_t raw_data_size = filesystem::file_size( fs->raw_file );
+	uintmax_t raw_data_size = file_size( fs->raw_file );
 	if ( raw_data_size <= 0 )
 	{
 		Comment( ERROR, "empty raw file, nothing to do" );
@@ -310,37 +307,38 @@ string External_class::ffmpeg_cmd( string wav, string mp3 )
 	return cmd;
 }
 
-void External_class::Save_record_data( string filename )
+LOG_e External_class::Save_record_data( string filename )
 {
 	if ( record_size == 0 )
 	{
 		Comment( WARN, "Nothing to do");
-		return ;
+		return WARN;
 	}
-				Remove_file		( fs->raw_file );
-	buffer_t 	count			= write_audio_data( fs->raw_file, record_size );
-	bool 		success 		= ( record_size == count );
+			Remove_file		( fs->raw_file );
+	buffer_t count			= write_audio_data( fs->raw_file, record_size );
+	bool 	success 		= ( record_size == count );
 	if ( success )
 		Info( "All", record_size * mem_ds.block_size, "bytes written to file");
 	else
 	{
 		Comment(WARN,to_string(count) + " of " + to_string(record_size) + " written");
-		return;
+		return WARN;
 	};
 
-				Remove_file		( fs->wav_file );
-				write_music_file( fs->wav_file );
+	Remove_file				( fs->wav_file );
+	write_music_file		( fs->wav_file );
 
-				Remove_file		( fs->mp3_file );
-	string 		convert_wav2mp3 = ffmpeg_cmd(fs->wav_file, fs->mp3_file ) ;
-				System_execute	( convert_wav2mp3 );
+	Remove_file				( fs->mp3_file );
+	string	convert_wav2mp3	= ffmpeg_cmd(fs->wav_file, fs->mp3_file ) ;
+	System_execute			( convert_wav2mp3 );
 
-	string 		insert_mp3_tags = id3tool_cmd( fs->mp3_file );
-				System_execute( insert_mp3_tags );
+	string	insert_mp3_tags = id3tool_cmd( fs->mp3_file );
+	System_execute			( insert_mp3_tags );
 
-				Rename_file		( fs->wav_file, Filename);
-				Filename 		= "";
-				record_size 	= 0; // reset size
+	Rename_file				( fs->wav_file, Filename);
+	Filename 				= "";
+	record_size 			= 0; // reset size
+	return INFO;
 }
 const string External_class::Save_record_data( int filenr)
 {
@@ -372,8 +370,8 @@ void External_class::Test_External()
 	StA_ext->DsInfo( "External StA Info");
 	Stereo_Memory::DsInfo( );
 
-	if ( filesystem::exists( testcounter_file ))
-		filesystem::remove( testcounter_file );
+	if ( exists( testcounter_file ))
+		remove( testcounter_file );
 
 	for( uint n = 1; n <= Cfg->Config.MAXWAVFILES; n++ )
 	{
@@ -384,6 +382,24 @@ void External_class::Test_External()
 
 	ffmpeg_cmd(fs->wav_file, fs->mp3_file ) ;
 	id3tool_cmd( fs->mp3_file );
+
+	record_size = 2 * frames_per_sec; // 2 sec
+	long header_size = record_size * 4;
+	SetName( fs->test_name );
+	Save_record_data( fs->test_name );
+	Read_file_header( fs->test_name );
+	Read_file_data();
+	Assert_equal( header_struct.dlength, header_size );
+	Assert_equal( StA_ext->scanner.fillrange.max, (ulong)header_size/4 );
+
+	record_size = 1 * frames_per_sec; // 1 sec
+	header_size = record_size * 4;
+	SetName( fs->test_name );
+	Save_record_data( fs->test_name );
+	Read_file_header( fs->test_name );
+	Read_file_data();
+	Assert_equal( header_struct.dlength, header_size );
+	Assert_equal( StA_ext->scanner.fillrange.max, (ulong)header_size/4 );
 
 	TEST_END( className );
 }
@@ -412,18 +428,18 @@ void StAExternal_class::copy_sta2stereo( Data_t* src_p, buffer_t frames )
 	}
 	record_size = frames; // variable frame size (audioframes);
 }
-void StAExternal_class::Convert_StA2WAV( StAId_e staid, range_T<buffer_t> range  )
+LOG_e StAExternal_class::Convert_StA2WAV( StAId_e staid, range_T<buffer_t> range  )
 {
 	// define data
-	if( staid == STAID_ALL ) return;
+	if( staid == STAID_ALL ) return ERROR;
 	Data_t* Data	= StA_arr->at( staid ).Data;
 
 	// copy a range of StA data to stereo memory
 	copy_sta2stereo( &Data[range.min], range.len );
 
 	// dump
-	SetName( string( sds_master->WAV_filename ) + "StA" ); // sds = sds_master
-	Save_record_data( Filename );
+	SetName( string( sds_master->WAV_filename ) + "StA" );
+	return Save_record_data( Filename );
 
 }
 

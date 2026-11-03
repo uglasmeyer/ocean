@@ -130,7 +130,7 @@ int RtAudioIn( 	void*	/*outputBuffer*/,
 	}
 	if( not capture->record )
 	{
-	    this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+	    sleep_for( std::chrono::milliseconds( 100 ) );
 		return 0;
 	}
 	for( buffer_t n = 0; n < nBufferFrames; n++ )
@@ -401,12 +401,12 @@ const uint Audio_class::getDeviceDescription( uint index )
  **********************************************/
 AudioVolume_class::AudioVolume_class( interface_t* _sds)
 	: Logfacility_class	( "AudioVolume_class" )
-	, DynVolume 		( DYNTYPE_e::VOL, volidx_range )
+	, DynVolume 		( DYNFACE_e::VOL, volidx_range, volidx_range )
 
 {
 	this->sds_master 	= _sds;
 	this->Max			= numeric_limits< data_t >::max();
-	DynVolume.Setup		( sds_master->Master_Amp,	FIXED );
+	DynVolume.Setup		( sds_master->Master_Amp,	INIT );
 	selfTest			();
 };
 AudioVolume_class::~AudioVolume_class	()
@@ -466,6 +466,8 @@ void AudioVolume_class::Transform( buffer_t frames, Stereo_t* src, stereo_t* dst
 {	// transform Stereo data to stereo data using
 	// dynamic volume, balance and dynamic limit calculation
 
+	if( sds_master->Master_vol_slide_value > 0 )
+		sds_master->Master_vol_slidemode = SLIDE;
 	DynVolume.Setup( sds_master->Master_Amp, sds_master->Master_vol_slidemode );
 
 	float 		ratio 		= dynamic_limit( frames, src );

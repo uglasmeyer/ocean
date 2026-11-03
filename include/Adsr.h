@@ -34,30 +34,31 @@ SOFTWARE.
 
 #include <Oscbase.h>
 #include <Oscwaveform.h>
+#include <Fourier.h>
 
 const spectrum_t default_adsr_spec =
 {
-							.vol		= { 1.0, 0.0, 0.0, 0.0, 0.0 } ,
 							.volidx 	= { 100, 0  , 0  , 0  , 0   },
-							.frqadj		= { 1.0, 2.0, 3.0, 4.0, 5.0 },
 							.frqidx 	= { 1  , 0  , 0  , 0  , 0   }, // see bps
-							.sum 		= 1.0,
-							.wfid 		= { 1  , 1  , 1  , 1  , 1   },
+							.wfid 		= { WFID_e::ADSR,
+											adsrform->default_wfid,
+											adsrform->default_wfid,
+											adsrform->default_wfid,
+											adsrform->default_wfid, },
 							.osc 		= OSCID,
-							.adsr		= true
+							.type		= spectrum_ns::ADSR
 };
 
-struct adsr_struct
+typedef struct adsr_data_struct
 { //SDS related. Is specific for each OSC
-	uint8_t 	bps 	= 1; //adsr related// { 0, 1, 2, 3, 4 }  => 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
-	uint8_t 	hall	= 0; //adsr related// hall effect [0..100} data shift
+	uint8_t 	bps 	= 1; //{ 0, 1, 2, 3, 4 }  => 0, 1, 1/2, 1/4, 1/5, 1/8 sec.,
+	uint8_t 	hall	= 0; //	hall effect [0..100} data shift, % of min_frames
 	uint8_t 	attack 	= 10; // [0 ... 100 ]   -> [ 0.1 ... 1 ]
 	uint8_t 	decay  	= 90;
 	spectrum_t 	spec 	= default_adsr_spec;
-} ;
-typedef adsr_struct			adsr_t;
+} 	adsr_data_t;
 
-const adsr_t				default_adsr	=
+const adsr_data_t		default_adsr	=
 {
 		.bps 	= 1,
 		.hall 	= 0,
@@ -70,35 +71,38 @@ const adsr_t				default_adsr	=
  * ADSR_class
  * manage adsr_data and generate adsr waveform out of it
  *************************************************/
-class ADSR_class :
-	virtual	public	Oscillator_base
+class ADSR_class
+
+	: virtual	public	Oscillator_base
+	, virtual 	public 	Spectrum_class
 {
 	const buffer_t 	adsr_frames 	= max_frames;
 	buffer_t 		hall_cursor 	;
 	bool			tainted			; // becomes true if adsr_data changes
+	float			volFactor		; // align volidx sum
 	buffer_t		beat_frames		;
 	Heap_Memory		adsr_Mem		;
-	adsr_t			adsr_data		;
+	adsr_data_t		adsr_data		;
 	bool			kbdattack		; // set to true by keyboard attack
+	bool			fouriermode		;
 	buffer_t 		beat_cursor 	;
 	uint8_t*		beatclock		;
+	WFID_e*			base_wfid		;
 
 public:
+	Fourier_class	fourier			;
 	buffer_t		adsr_wp_frames	;
-//	bool			Trigger			;
 
 	void 			Apply_adsr		( buffer_t frames, Data_t* data, buffer_t frame_offset );
 	Data_t* 		AdsrMemData_p	();
-	void	 		Set_hallcursor	( buffer_t cursor = 0);
-	void			Set_beatcursor	( buffer_t cursor );
-	adsr_t			Set_adsr		( adsr_t );
-	void			Set_adsr_spec	( spectrum_t );
-	adsr_t			Get_adsr		();
-	Data_t*			Adsr_OSC		();
+	adsr_data_t		Get_adsr		();
+	adsr_data_t		Set_adsr		( adsr_data_t );
 	void			Set_bps			();
 	void 			Set_beatclock	( uint8_t* bpm );
+	void			Set_beatcursor	( buffer_t cursor );
+	void	 		Set_hallcursor	( buffer_t cursor = 0);
 	void			KbdAttack		();
-	string			Show_adsr		( adsr_t );
+	string			Show_adsr		( adsr_data_t );
 	bool			Sync			();
 
 					ADSR_class		( OSCID_e _typeid, RoleId_e roleId );
@@ -106,6 +110,7 @@ public:
 
 private:
 	void			adsrOSC			( buffer_t bframes );
+	void			set_adsr_spec	( spectrum_t& );
 };
 
 

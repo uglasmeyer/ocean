@@ -34,23 +34,50 @@ SOFTWARE.
 #ifndef SPECTRUM_DIALOG_CLASS_H
 #define SPECTRUM_DIALOG_CLASS_H
 
-
 // Qt
-#include <QObject>
-#include <QDialog>
+//#include <QDialog>
 #include <QTimer>
 
 // Ocean
-#include <Ocean.h>
-#include <Spectrum.h>
 #include <data/Interface.h>
-#include <EventKeys.h>
 #include <data/DataWorld.h>
+#include <DataGraphic.h>
+#include <Spectrum.h>
+#include <EventKeys.h>
+#include <Fourier.h>
 
 // oceanGUI
 #include <GUIcommon.h>
-#include <DataGraphicClass.h>
 #include <ui_spectrum_dialog_class.h>
+
+using namespace spectrum_ns;
+using namespace fourier_ns;
+
+/**************************************************
+ * Mode_struct combines the wd mode and the fourier mode
+ * in terms of predefined and dynamic data
+ *************************************************/
+struct Mode_struct
+{
+private:
+	typedef struct mode_map_struct
+	{
+		WFID_e					wfid = WFID_e::ADSR;
+		QString					text = "Manual";
+		datagraphics_param_t	param{ 1.0, false, false };
+	} mode_map_t;
+	map <MODE_e, mode_map_t>	at_mode_map;
+	map <MODE_e, mode_map_t>	aw_mode_map;
+public:
+
+	virtual 				~Mode_struct() = default;
+							Mode_struct();
+
+	datagraphics_param_t 	At_param( bool adsr );
+	datagraphics_param_t 	Aw_param( MODE_e mode );
+	WFID_e 					Wfid( bool adsr, MODE_e mode );
+	QString 				Text( bool adsr, MODE_e mode );
+};
 
 /**************************************************
  * Spectrum_Dialog_class
@@ -64,12 +91,24 @@ QT_END_NAMESPACE
 
 class Spectrum_Dialog_class :
 		public 			QDialog,
-		public virtual 	Spectrum_class,
 		public virtual	Interface_base
 
 {
     Q_OBJECT
-	Ui::Spectrum_Dialog_class*	ui;
+    spectrum_t 				spectrum			;// active selected spectrum data
+    spectrum_t				reset_spectrum		;// previouse spectrum data
+    spectrum_t				adsr_reset_spectrum	; // previouse adsr spectrum data
+    OSCID_e					OscId				;// selected OSC
+    uint8_t					Channel 			;//= 1; // active slot last selected Wafeform out of 4
+    bool 					adsrmode 			;// distinguish between Spectrum and ADSR mode
+    bool					highFrequencies		;
+    Waveform_class*			Waveform			;
+    QGraphicsScene*     	atScene				;
+    QGraphicsScene*			awScene				;
+	Mode_struct				Mode				;
+	QStringList				Qfilter_str_lst		;
+
+
 public:
 
     explicit Spectrum_Dialog_class(QWidget*			parent	= nullptr,
@@ -77,44 +116,46 @@ public:
 								   EventLog_class* 	_log	= nullptr);
     virtual ~Spectrum_Dialog_class();
 
-    spectrum_t 				spectrum;
 
-    EventLog_class*			Eventlog_p;
-
-    OSCID_e					OscId			= OSCID;
-    Id_t					Channel 		= 1; // active slot last selected Wafeform out of 4
+	Ui::Spectrum_Dialog_class*	ui;
+	EventLog_class*			Eventlog_p;
 
     vector<QSlider*>		fS_vec 			{};
     vector<QSlider*>		vS_vec			{};
     vector<QSpinBox*>		sb_vec 			{};
     vector<QRadioButton*> 	rb_vec 			{};
-    Frequency_class			Frequency 		{};
     vector<QString> 		QWaveform_vec	{};
 
-    DataGraphic_class*		AdsrDataDisplay	; // created by new DataGraphic_class;
-    DataGraphic_class*		FourierDataDisplay;
+    DataGraphic_class*		AtDataDisplay	; // created by new DataGraphic_class;
+    DataGraphic_class*		AwDataDisplay;
+    fourier_res_t			Resolution		;
 
 	void Dialog ( bool flag );
-    void SetLabelWaveform();
+    void Select_oscid( OSCID_e oscid );
 	void SetSds();
     void Set_adsr_flag( bool flag );
 	void Setup_widgets();
 
 public slots:
+
 	void UpdateDataDisplay();
 	void SetInstrument(); // Dispatcher
 
 private slots:
-	void Fourier_mode();
+
+	void shift_frequency( int );
+	void fourierfilter_slot ( int );
+	void pB_Fourier_slot();
 	void resolution_slot( int idx );
 	void fS1( int );
+    void vS1( int );
+    void fS2( int );
     void vS2( int );
     void fS3( int );
+    void vS3( int );
+    void fS4( int );
     void vS4( int );
-    void fS5( int );
-    void vS6( int );
-    void fS7( int );
-    void vS8( int );
+    void rb_high_low_slot();
 
     void sb_wf1(int);
     void sb_wf2(int);
@@ -126,7 +167,8 @@ private slots:
     void attack(int);
     void decay (int);
 
-    void save( );
+
+    void saveInstrument( );
     void select_oscid_fmo();
     void select_oscid_vco();
     void select_oscid_main();
@@ -137,19 +179,22 @@ private slots:
 
 
 private:
-    bool ADSR_flag = false;
-    QGraphicsScene*     	adsrScene;
-    QGraphicsScene*			fourierScene;
+
 
     void add_event( EVENTKEY_e key );
+    void change_spectrum_view();
 	void initDataDisplay();
-    void save_spectrum_data();
-    void select_oscid( OSCID_e oscid );
-    void set_spectrum_view();
-    void set_waveform_vec( vector<string> waveform_vec );
+	void initDialog();
+	void read_spectrum();
+	void save_spectrum_data();
+	uint8_t select_channel( int8_t ch );
+    void set_fourier_mode( fourier_ns::MODE_e );
+    void setWaveformLabel( WFID_e wfid );
+    void set_waveform_vec();
     void spec_vol_slider( int channel, int value );
     void spec_frq_slider( int channel, int value );
-    void waveform_spinbox( uint id, int value  );
+    void update_lcd( float value, QString label );
+    void waveform_spinbox( uint8_t id, int value  );
 
 };
 

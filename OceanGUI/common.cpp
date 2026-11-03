@@ -36,6 +36,7 @@ SOFTWARE.
 #include <GUIcommon.h>
 #include <Oscbase.h>
 #include <Test.h>
+
 bps_struct QBps {};
 
 QStringList Qstringlist ( const list<string>& str_lst )
@@ -71,52 +72,49 @@ vector<QString> Vstringvector( const vector<string>& str_vec )
 
 };
 
-void setButton( QPushButton* button, int state, QString txt )
+
+
+void updateLogState( QToolButton* tB, LOG_e state )
 {
-	QPalette	GUIpalette	= QPalette	{};
-	auto setButtonColor = [ &GUIpalette ]( Qt::GlobalColor color  )
+	Qt::GlobalColor color = Qt::red;
+	switch (state )
 	{
-		GUIpalette.setColor( QPalette::All, QPalette::Button, color );
-	};
+		case INFO	: { color =Qt::green; break; }
+		case WARN	: { color =Qt::yellow; break; }
+		case ERROR	: { color =Qt::red; break; }
+		default 	: { break; }
+	} // switch state
+	setButtonColor( tB, color, "" );
+}
+void set_StateButton( QPushButton* pB, StateId_e state, QString name, QString alt_txt  )
+{
+	Qt::GlobalColor	color 	= Qt::lightGray;
+	QString			txt		= name;
 
 	switch ( state )
 	{
-		case 0 : { setButtonColor( Qt::red )		; break; }
-		case 1 : { setButtonColor( Qt::lightGray )	; break; }
-		case 2 : { setButtonColor( Qt::yellow )		; break; }
-		case 3 : { setButtonColor( Qt::green )		; break; }
-		case 4 : { setButtonColor( Qt::white )		; break; }
-		default: { setButtonColor( Qt::darkGray )	; break; }
-	};
-
-	button->setPalette( GUIpalette );
-	if( txt.length() == 0 )
-		return;
-	button->setText( txt );
-};
-
-void set_StateButton( QPushButton* pB, StateId_e state, QString name  )
-{
-    switch ( state )
-	{
-		case RECORDING	: { setButton( pB, 0,"Stop Rec"); break; }	// red
+    	case ENABLED 	: { color = Qt::green		; txt = alt_txt 	; break; }
+		case RECORDING	: { color = Qt::red			; txt = "Stop Rec"	; break; }
+		case RECORDSTART: { color = Qt::yellow		; txt = "waiting"	; break; }
 		case STARTING	:
 		case STOPPING	:
-		case RECORDSTART: { setButton( pB, 2,"waiting")	; break; }	//yellow
-		case INACTIVE	: { setButton( pB, 1, name )	; break; }	// gray
-		case RUNNING	: { setButton( pB, 3, name )	; break; }
-		case EXITSERVER	: { setButton( pB, 4, name )	; break; }
-		case OFFLINE	: { setButton( pB, 5, name )	; break; }
-		case SLEEPING	: { setButton( pB, 2, name )	; break; }
-
+		case INACTIVE	: { color = Qt::gray		; break; }
+		case OFFLINE	: { color = Qt::darkGray 	; break; }
+		case SLEEPING	: { color = Qt::yellow		; break; }
+		case DISABLED 	: { color = Qt::lightGray  	; break; }
+		case RUNNING	: { color = Qt::green		; break; }
+		case EXITSERVER	: { color = Qt::white  		; break; }
+		case DEFAULT	: { break; }
 		default : { break; }
 	} // switch  state
+
+	setButtonColor( pB, color, txt );
 };
 
 /**************************************************
  * direvent_struct
  *************************************************/
-direvent_struct::direvent_struct( 	Id_t id, QComboBox* _cb, EVENTKEY_e _event,
+direvent_struct::direvent_struct( 	SDSId_t id, QComboBox* _cb, EVENTKEY_e _event,
 									cstring_name* _value, string _dir, string _ext )
 	: dircontent_struct( { _dir }, _ext )
 	, Id( id )

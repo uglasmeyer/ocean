@@ -33,7 +33,6 @@ SOFTWARE.
 #define INCLUDE_DISPATCHER_H_
 
 // QT
-#include <QObject>
 #include <QThread>
 
 // Ocean
@@ -53,7 +52,7 @@ class Dispatcher_class :
 	MainWindow*			win			;
 	Semaphore_class* 	Sem_p 		;
 	SharedData_class*	Sds_master	;
-	bool 				loop_done 	;//= false;
+	bool 				loop_done 	;
 
 public:
     Dispatcher_class( MainWindow* win ) ;
@@ -66,7 +65,6 @@ public slots:
 signals:
     void UpdateRtspLog(const QString& Qlog_str);
     void UpdateWavFileList();
-//    void UpdateSpectrumDialog();
     void UpdateKeyboardDialog();
     void UpdateColorButtons();
     void finished();
@@ -76,6 +74,7 @@ private:
 
 /**************************************************
  * Controller_class
+ * provide the dispatcher thread
  *************************************************/
 class Controller_class :
 		public QObject

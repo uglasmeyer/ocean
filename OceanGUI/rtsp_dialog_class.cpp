@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,22 +31,20 @@ SOFTWARE.
 
 #include <include/Rtsp_dialog.h>
 
-
-
 Rtsp_Dialog_class::Rtsp_Dialog_class( 	QWidget* parent,
 										Dataworld_class* data
 )
-	: Logfacility_class	( "Rtsp_Dialog_class" )
-	, QDialog			(parent)
-	, ui				( new Ui::Rtsp_Dialog_class )
+	: Logfacility_class		( "Rtsp_Dialog_class" )
+	, QDialog				( parent )
+	, ui					( new Ui::Rtsp_Dialog_class )
 {
-    this->DaTA		= data;
+    this->DaTA				= data;
 
-    ui->setupUi(this);
+    ui->setupUi				(this);
     ui->process_table->setRowCount( max_table_rows );
-
-    UpdateLog( "Init RTSP log" );
-    Proc_table_update_all();
+    rb_vec 					= { ui->rB_1, ui->rB_2, ui->rB_3, ui->rB_4 };
+    UpdateLog				( "Init RTSP log" );
+    Proc_table_update_all	();
 }
 
 Rtsp_Dialog_class::~Rtsp_Dialog_class()
@@ -76,10 +74,10 @@ void Rtsp_Dialog_class::UpdateLog( const QString& logstr )
 }
 void Rtsp_Dialog_class::proc_table( uint row, uint col, string text)
 {
-	QVariant 			Text( QString( text.data() ));
-	QTableWidgetItem*	twItem_p 			= new QTableWidgetItem() ;
-	twItem_p->setData(Qt::DisplayRole, Text );
-	ui->process_table->setItem( row, col, twItem_p );
+	QVariant 			Text	( QString( text.data() ));
+	QTableWidgetItem*	twItem_p= new QTableWidgetItem() ;
+	twItem_p->setData			(Qt::DisplayRole, Text );
+	ui->process_table->setItem	( row, col, twItem_p );
 };
 
 void Rtsp_Dialog_class::Proc_table_update(  interface_t* sds, APPID_e appid  )
@@ -89,7 +87,8 @@ void Rtsp_Dialog_class::Proc_table_update(  interface_t* sds, APPID_e appid  )
 	//	1234 : synthesizer running on sdsid 0123
 	//	processs name | Instrument | Notes
 
-	uint 				table_row	= (appid == AUDIOID ) ? 0 : sds->SDS_Id + appid;
+	SDSId_t				sdsid		= sds->SDS_Id;
+	uint 				table_row	= (appid == AUDIOID ) ? 0 : sdsid + appid;
 
 	bool 				state		= DaTA->Appstate.IsRunning( sds, appid);
 	string 				appname 	= state ? AppIdName( appid ) : "no process";
@@ -101,12 +100,14 @@ void Rtsp_Dialog_class::Proc_table_update(  interface_t* sds, APPID_e appid  )
 
 	if ( appid == SYNTHID )
 	{
-		string instrname{ sds->Instrument }; //Sds->Read_str( INSTRUMENTSTR_KEY );
+		string instrname{ sds->Instrument };
 		proc_table( table_row, 1, instrname );
 
-		string notesname{ sds->Notes };// = Sds->Read_str( NOTESSTR_KEY );
+		string notesname{ sds->Notes };
 		proc_table( table_row, 2, notesname );
 	}
+	if( DaTA->SDS.master->comId == sdsid )
+		rb_vec[sdsid]->setChecked( true );
 }
 
 void Rtsp_Dialog_class::Proc_table_update_all( )
@@ -118,7 +119,4 @@ void Rtsp_Dialog_class::Proc_table_update_all( )
 		Proc_table_update( sds, SYNTHID );
 	}
 }
-
-
-
 

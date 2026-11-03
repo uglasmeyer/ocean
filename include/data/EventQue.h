@@ -44,10 +44,10 @@ class EventQue_class :
 		virtual Logfacility_class,
 		EventPtr_data
 {
-	interface_t*	sds			;
 	eventptr_t		eventptr	;
 	EVENTKEY_e		prev_event	;
 public:
+	interface_t*	sds			;
 	bool			Repeat		;
 
 					EventQue_class	( void* _sds );
@@ -74,12 +74,12 @@ typedef struct event_buffer_struct
 	~event_buffer_struct() = default;
 	void add( eventkey_vec_t vec )
 	{
-		std::ranges::for_each( vec, [ this ]( EVENTKEY_e key)
+		for_each( vec, [ this ]( EVENTKEY_e key)
 				{ Keybuffer.push_back( key) ;});
 	};
 	void release()
 	{	// add event_buffer to eventque
-		std::ranges::for_each( Keybuffer, [ this ]( EVENTKEY_e key )
+		for_each( Keybuffer, [ this ]( EVENTKEY_e key )
 				{ eventque->Add( key );	} );
 		Keybuffer.clear();
 	}

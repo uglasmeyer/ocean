@@ -102,7 +102,6 @@ public:
 	void				Save					( string filename, nlp_data_t npl, string nl  );
 	void 				SetDir					( string subdir );
 	bool				Set_new_name			( string );
-//	bool				Set_noteline_prefix		( nlp_data_t nlp );
 	void 				Set_Octave_shift		( uint8_t octave );
 	void				Set_notes_per_second	( int );
 	void				Set_prefix_octave		( int );
@@ -130,7 +129,7 @@ public:
 	void 				Test_Musicxml			();
 	void 				Test_NotesCore			();
 	bool				Verify_noteline			( nlp_data_t nlp, string noteline );
-	bool				Verify_noteline			( NOTE::ORIGIN_e origin );
+	bool				Verify_noteline			( note_ns::ORIGIN_e origin );
 
 private:
 
@@ -169,7 +168,7 @@ class Note_class
 {
 	Instrument_class*	instrument 				;
 	Storage_class*		StA						;
-	Oscgroup_t			Oscgroup				;
+	Oscgroup_class		Oscgroup				{ NOTESROLE, 2*monobuffer_bytes };
 	Oscillator*			osc						;
 	Oscillator*			vco						;
 	Oscillator*			fmo						;

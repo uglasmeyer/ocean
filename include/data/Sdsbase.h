@@ -41,7 +41,7 @@ SOFTWARE.
 #include <EventKeys.h>
 #include <Wavedisplay_base.h>
 #include <notes/Notesbase.h>
-#include <string.h>
+#include <cstring>
 
 #define MASTER_SDSID 3 	// specification of the communication SDS sds_master and Sds_master.
 						// id of unique processes
@@ -121,7 +121,7 @@ typedef				array<StA_state_t,StAId_e::STAID_ALL> 		StA_state_arr_t;
 typedef				array<StA_amp_t	, StAId_e::STAID_ALL>		StA_amp_arr_t;
 typedef				array<feature_t	, OSCIDSIZE >				feature_arr_t;
 typedef				array<spectrum_t, OSCIDSIZE>				spectrum_arr_t;
-typedef				array<adsr_t	, OSCIDSIZE>				adsr_arr_t;
+typedef				array<adsr_data_t	, OSCIDSIZE>				adsr_arr_t;
 typedef				array<connectId_t,OSCIDSIZE>				connect_arr_t;
 typedef				char										cstring_name[SDSNAME_SIZE];
 typedef				char										cstring_long[SDSLONG_SIZE];
@@ -194,5 +194,23 @@ public:
 		len = str.length();
 	}
 };
+
+typedef struct slide_duration_struct
+{
+	uint8_t* 	steps				;
+	int 		max_steps			;
+	uint8_t		default_slide_value	;
+	int			page_steps			;
+
+				slide_duration_struct	( uint8_t* sds_value );
+				~slide_duration_struct	() = default;
+	void 		msec2value				( int msec );
+	void 		percent2value			( int pc );
+	void		Set						( uint8_t val );
+	int			value2msec				();
+	string		value_str				( bool flag = true );
+
+
+} slide_duration_t;
 
 #endif /* DATA_SDSBASE_H_ */

@@ -56,11 +56,11 @@ const				StA_state_t 	default_StA_state 	= StA_state_data();
  *************************************************/
 struct 				shm_data_struct
 {
-	Id_t			Id				= 0;		// interface id in the set of shm_data_structures
+	SDSId_t			Id				= 0;		// interface id in the set of shm_data_structures
 	bool			eexist			= false;	// becomes true if attached
 	buffer_t 		bytes			;			// in bytes
-	int				sizeof_type		;//= sizeof( Stereo_t );
-	key_t			key				;		// shm key
+	int				sizeof_type		;			// = sizeof( Stereo_t );
+	key_t			key				;			// shm key
 	int 			shmid			= -1;		// shmid
 	void* 			addr			= nullptr;
 	string			hex				= "0x0";
@@ -123,7 +123,7 @@ struct 				mem_data_struct
 					{
 						block_size	= type_bytes;
 						bytes		= data_bytes;
-						data_blocks = bytes / type_bytes;
+						data_blocks = bytes / type_bytes; // (aka frames)
 						max_records	= data_blocks / record_size;
 					}
 					~mem_data_struct() = default;
@@ -145,7 +145,6 @@ public:
 	void 			DsInfo			( string name = "Memory_base");
 	void* 			Init_void		( uint8_t type_size, buffer_t bytes );
 	void 			Init_data		( buffer_t bytes );
-	void 			SetDs			( size_t type_bytes );
 	mem_ds_t* 		GetDs			();
 	void 			Clear_data		( Data_t value );
 

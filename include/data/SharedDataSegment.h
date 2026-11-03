@@ -36,7 +36,6 @@ SOFTWARE.
 
 
 
-
 // there are MAXCONFIG interface structures in dataworld
 // global values are managed in structure 0 only (master interface)
 // local  values are SDS interface specific
@@ -46,9 +45,10 @@ struct interface_struct // with reasonable defaults
 	// local (interface specific
 	/* SDS specific control elements */
 
-	Id_t			version						= SDS_VERSION;
-	Id_t			SDS_Id						= 0;
+	SDSId_t			version						= SDS_VERSION;
+	SDSId_t			SDS_Id						= 0;
 	bool			eventDebug					= true;
+	LOG_e			logState					= INFO;
 
 	StA_state_arr_t	StA_state_arr 				= default_StA_state_arr();	//
 	StA_amp_arr_t	StA_amp_arr					{ StA_amp_data() };			// Instrument=75%
@@ -73,14 +73,14 @@ struct interface_struct // with reasonable defaults
 	bool			NotesVerified				= false;
 	uint8_t			Noteline_sec 				= 0; // duration of notes to play given in seconds //
 
-	OSCID_e			SpectrumTypeId				= OSCID_e::OSCID;//default_spectrum.osc;
+	OSCID_e			SpectrumOscId				= OSCID_e::OSCID;//default_spectrum.osc;
 	StAId_e 		StA_Id						= STA_INSTRUMENT;
 	uint8_t			beatClock					= 8; // Kbd notes_per measure (4 per sec)
 	uint8_t			instrumentClock				= 1;
 	DYNAMIC_e 		frq_slidermode				= INIT;	//
-	uint8_t			time_elapsed 				= 0;		// Synth turn around time
+	uint8_t			time_elapsed 				= 0;		// Syntheziser loop time msec
 	bool			overload					= false;	// Synthesizer
-	uint8_t			resolutionIdx				= 0;		// fourier analysis
+	fourier_ns::fourier_data_t	fourier			= fourier_ns::fourier_data_struct();
 	appstate_arr_t	appstate_arr				= { appstate_data() };
 	deque_t			deque						{ NULLKEY };
 	eventptr_t		eventptr					= EventPtr_data();
@@ -96,7 +96,7 @@ struct interface_struct // with reasonable defaults
 
 	// global values of SDS MASTER_SDSID
 	// (addr sds_master - see appstate.h)
-	Id_t			comId						= MAIN_SYNTHID; // SDS_ID of the currently communicating
+	SDSId_t			comId						= MAIN_SYNTHID; // SDS_ID of the currently communicating
 																// muti-run app e.g. Synthesizer or Keyboard
 	EVENTFLAG_e 	FLAG						= CLEAR_FLAG; // communicate back from Synth to GUI
 	cstring_name	Session						{ "" };
@@ -107,7 +107,7 @@ struct interface_struct // with reasonable defaults
 	uint8_t			Master_vol_slide_value		= 0; // % of 4*max_seconds for the master volume
 	bool 			UpdateFlag 					= true;		// update SDSview
 	KEYCODE			sdsview_page				= KEYCODE::F1; // SDSview
-	Id_t			sdsview_sdsid				= 0;		// SDSview
+	SDSId_t			sdsview_sdsid				= 0;		// SDSview
 	bool			overmodulated				= false;	// Audioserver
 	uint8_t 		SHMID 						= 0;		// synchronization
 	uint8_t 		RecCounter					= 0;		// Progressbar file record

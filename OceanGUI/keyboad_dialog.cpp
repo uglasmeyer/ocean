@@ -29,12 +29,15 @@ SOFTWARE.
  *      Author: Ulrich.Glasmeyer@web.de
  */
 
+// Qt
+#include <QKeyEvent>
+
 // OceanGUI
 #include <ui_keyboad_dialog.h>
 #include <Keyboad_dialog.h>
 #include <GUIcommon.h>
 
-extern bps_t 		QBps;
+extern bps_t 			QBps;
 
 /**************************************************
  * Keyboard_Dialog_class
@@ -46,7 +49,7 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
 )
     : Interface_base	( _data )
 	, QDialog			( _parent )
-    , ui				(new Ui::Keyboad_Dialog_class )
+    , ui				( new Ui::Keyboad_Dialog_class )
 	, Kbd_pitch			( _data->SDS.master )
 {
 	this->parent		= _parent;
@@ -64,9 +67,8 @@ Keyboad_Dialog_class::Keyboad_Dialog_class(
     connect( ui->cb_sliding_mode, SIGNAL(clicked(bool))		, this, SLOT( sliding_mode(bool) ));
     connect( ui->pB_Save		, SIGNAL(clicked())			, this, SLOT( save()));
 
-    this->move( QPoint( 0, 0 ) );
+    this->move			( QPoint( 0, 0 ) );
 	Setup_Widget		();
-	this->setFocusPolicy( Qt::NoFocus );
 }
 
 Keyboad_Dialog_class::~Keyboad_Dialog_class()
@@ -74,29 +76,33 @@ Keyboad_Dialog_class::~Keyboad_Dialog_class()
     delete ui;
 }
 
-//void Keyboad_Dialog_class::keyPressEvent(QKeyEvent *event)
-//{
-//	kbdkey_t	 	key 	{};
-//					key.Int	= Keymap.Qt_key( event->key() ) ;
-//	switch ( key.Int )
-//	{
-//	// handle keycodes < 48 / see QT_key
-//		case KEYCODE::ESC :
-//		{
-//			break;
-//		}
-//		case 0 :
-//		{
-//			break;
-//		}
-//		default :
-//		{
-//			sds_p->Kbd_state.key = key.Int;
-//			break;
-//		}
-//	} // switch  key
-//	QDialog::keyPressEvent( event );
-//}
+void Keyboad_Dialog_class::keyPressEvent( QKeyEvent *event)
+{
+	kbdkey_t	 	key 	{};
+					key.Int	= Keymap.Qt_key( event->key() ) ;
+
+	switch ( key.Int )
+	{
+		case KEYCODE::ESC :
+		{
+	        event->accept();
+	        emit( toggleKbdPlay( STA_KEYBOARD ) );
+			break;
+		}
+		case 0 :
+		{
+	        event->accept();
+			break;
+		}
+		default :
+		{
+	        event->accept();
+			sds_p->Kbd_state.key = key.Int;
+			break;
+		}
+	} // switch  key
+	QDialog::keyPressEvent( event );
+}
 
 void Keyboad_Dialog_class::SetSds()
 {
@@ -106,26 +112,32 @@ void Keyboad_Dialog_class::SetSds()
 void Keyboad_Dialog_class::buffer_mode( int value )
 {
 	Sds->Set( sds_p->StA_state_arr[ STA_KEYBOARD ].forget, (bool)value );
+	Sds->Set( sds_p->Kbd_state.key, kbdInt_t( F6 ) );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	parent->activateWindow();
+	parent->raise();
 	parent->setFocus();
 }
 
 void Keyboad_Dialog_class::base_octave( int value )
 {
-	Sds->Set( sds_p->Kbd_state.base_octave, uint8_t( value ) );
-	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	uint8_t	idx		= check_range( Kbdoctave_range, uint8_t( value ) );
+	Sds->Set		( sds_p->Kbd_state.base_octave, idx );
+	Eventlog_p->add	( SDS_ID, KBD_EVENT_KEY );
 }
 
 void Keyboad_Dialog_class::flats( int value )
 {
-	Sds->Set( sds_p->Kbd_state.flats, uint8_t( value ) );
-	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	uint8_t idx		= check_range( flats_range, uint8_t( value ) );
+	Sds->Set		( sds_p->Kbd_state.flats, idx );
+	Eventlog_p->add	( SDS_ID, KBD_EVENT_KEY );
 }
 
 void Keyboad_Dialog_class::sharps( int value )
 {
-	Sds->Set( sds_p->Kbd_state.sharps, uint8_t( value ) );
-	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
+	uint8_t idx		= check_range( sharps_range, uint8_t( value ) );
+	Sds->Set		( sds_p->Kbd_state.sharps, idx );
+	Eventlog_p->add	( SDS_ID, KBD_EVENT_KEY );
 }
 
 void Keyboad_Dialog_class::kbdbps( int idx )
@@ -140,7 +152,8 @@ void Keyboad_Dialog_class::kbdbps( int idx )
 
 void Keyboad_Dialog_class::sliding_mode(bool value )
 {
-	Sds->Set( sds_p->Kbd_state.sliding, value );
+//	Sds->Set( sds_p->Kbd_state.sliding, value );
+	Sds->Set( sds_p->Kbd_state.key, kbdInt_t( F5 ) );
 	Eventlog_p->add( SDS_ID, KBD_EVENT_KEY );
 }
 void Keyboad_Dialog_class::save()

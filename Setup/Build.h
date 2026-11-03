@@ -33,12 +33,11 @@ SOFTWARE.
 #ifndef BUILD_H_
 #define BUILD_H_
 
-#include <Logfacility.h>
+#include <Ocean.h>
 #include <Exit.h>
 #include <data/Config.h>
 #include <ReleaseNotes.h>
 #include <System.h>
-#include <fstream>
 
 extern void Conditional( string question, string action );
 
@@ -48,9 +47,9 @@ extern void Conditional( string question, string action );
 class Build_class :
 	virtual public Logfacility_class
 {
-	string className = "";
-	string srcdir	= "";
-	file_structure* Bin 	= nullptr;
+	string className 	= "";
+	string srcdir		= "";
+	file_structure* Bin = nullptr;
 
 public:
 	Build_class( string sdir, file_structure* bin ) :
@@ -101,8 +100,6 @@ public:
 
 private:
 };
-
-#include <Logfacility.h>
 
 /**************************************************
  * Deploy_class
@@ -163,7 +160,7 @@ public:
 	string get_check_sum( string _type )
 	{
 		string cksum_file = Bin->homedir + rn_tgz + _type;
-		fstream Cksum_file { cksum_file, fstream::in };
+		fstream Cksum_file { cksum_file, std::fstream::in };
 		string cksum;
 		getline( Cksum_file, cksum  );
 		return cksum + "\n";

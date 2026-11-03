@@ -58,6 +58,18 @@ public:
         if (Keyboad_Dialog_class->objectName().isEmpty())
             Keyboad_Dialog_class->setObjectName("Keyboad_Dialog_class");
         Keyboad_Dialog_class->resize(237, 264);
+        QPalette palette;
+        QBrush brush(QColor(98, 160, 234, 255));
+        brush.setStyle(Qt::BrushStyle::SolidPattern);
+        palette.setBrush(QPalette::ColorGroup::Active, QPalette::ColorRole::Button, brush);
+        QBrush brush1(QColor(153, 193, 241, 255));
+        brush1.setStyle(Qt::BrushStyle::SolidPattern);
+        palette.setBrush(QPalette::ColorGroup::Active, QPalette::ColorRole::Window, brush1);
+        QBrush brush2(QColor(192, 191, 188, 255));
+        brush2.setStyle(Qt::BrushStyle::SolidPattern);
+        palette.setBrush(QPalette::ColorGroup::Inactive, QPalette::ColorRole::Button, brush2);
+        palette.setBrush(QPalette::ColorGroup::Disabled, QPalette::ColorRole::Button, brush2);
+        Keyboad_Dialog_class->setPalette(palette);
         Keyboad_Dialog_class->setAutoFillBackground(true);
         gridLayoutWidget = new QWidget(Keyboad_Dialog_class);
         gridLayoutWidget->setObjectName("gridLayoutWidget");
@@ -98,7 +110,7 @@ public:
         sb_flats = new QSpinBox(gridLayoutWidget);
         sb_flats->setObjectName("sb_flats");
         sb_flats->setWrapping(true);
-        sb_flats->setMaximum(3);
+        sb_flats->setMaximum(10);
 
         gridLayout->addWidget(sb_flats, 5, 1, 1, 1);
 
@@ -150,8 +162,8 @@ public:
         sb_base_octave = new QSpinBox(gridLayoutWidget);
         sb_base_octave->setObjectName("sb_base_octave");
         sb_base_octave->setWrapping(true);
-        sb_base_octave->setMinimum(1);
-        sb_base_octave->setMaximum(3);
+        sb_base_octave->setMinimum(0);
+        sb_base_octave->setMaximum(10);
         sb_base_octave->setValue(2);
 
         gridLayout->addWidget(sb_base_octave, 2, 1, 1, 1);
@@ -159,7 +171,7 @@ public:
         sb_sharps = new QSpinBox(gridLayoutWidget);
         sb_sharps->setObjectName("sb_sharps");
         sb_sharps->setWrapping(true);
-        sb_sharps->setMaximum(3);
+        sb_sharps->setMaximum(10);
 
         gridLayout->addWidget(sb_sharps, 4, 1, 1, 1);
 

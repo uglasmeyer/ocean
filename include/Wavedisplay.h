@@ -23,7 +23,7 @@ SOFTWARE.
 ****************************************************************************/
 
 /*
- * Wavedisplayclass.h
+ * Wavedisplay.h
  *
  *  Created on: Feb 23, 2024
  *      Author: Ulrich.Glasmeyer@web.de
@@ -58,29 +58,36 @@ struct WD_struct
 
 /**************************************************
  * WfDisplay_que_struct
+ * control of the wave display history in conjunction with the roleid/staid
  *************************************************/
 
 struct WfDisplay_que_struct
 {
+
+private:
 	typedef vector<RoleId_e>
-					roleid_vec_t;
+					roleid_vec_t		;
 
     roleid_vec_t	Que					{};
     array<roleid_vec_t, MAXCONFIG >
     				Que_arr				{ roleid_vec_t() };
-    RoleId_e		prev_role			;
     interface_t*	sds					;
     sta_role_map*	roleMap				;
+    bool			debug				;
+
+public:
 
 					WfDisplay_que_struct( interface_t* _sds, sta_role_map* _map );
 					~WfDisplay_que_struct() = default;
 	void 			Add					( RoleId_e role );
 	void 			Init				( interface_t* _sds );
 	void 			Remove				( RoleId_e role );
-	void 			Set_prev			();
 	void			Set_que				( interface_t* _sds );
-	void 			Show				( bool debug );
+	void			Test				();
 
+private:
+	void 			set_prev			();
+	void 			show				( bool debug );
 };
 
 
@@ -96,7 +103,6 @@ class Wavedisplay_class :
 	interface_t*	sds				;
 	string 			rolename		;
 	string 			oscname			;
-	string			fourierBinFile	;
 public:
 
 					Wavedisplay_class( SharedData_class* _sds );
@@ -115,13 +121,11 @@ public:
 	void 			WriteData 		();
 
 private:
-	void	 		gen_wave_data	( WdModeID_t mode );
-	void 			set_Wdmode		();
+	void			clear_display( size_t len );
+	void	 		generate_wavedata(WdModeID_t mode );
 	void 			set_Wdcursor	( uint16_t pos );
 	void 			set_Wdnames		();
 	void 			set_Wdptr		( RoleId_e role);
-	void			set_fourierfile	();
-	void 			write_display_arr(Data_t* dst, int len );
 
 	typedef struct wd_ptr_struct
 	{
@@ -133,16 +137,16 @@ private:
 
 	typedef struct param_struct
 	{
-		uint 	 drift 		= 20;
-		buffer_t len		= wavedisplay_len;	// length of the output buffer
-		buffer_t step 		= 10; 				// jump over step values of data
-		buffer_t max_offs 	= max_frames - len*step ;
+		uint 	 	drift	= 20;
+		buffer_t 	len		= wavedisplay_len;	// length of the output buffer
+		buffer_t 	step 	= 10; 				// jump over step values of data
+		buffer_t 	max_offs= max_frames - len*step ;
+		float		zoom	= 1.0f;				// ref sds wd_data zoom
 	} param_t;
 
 	typedef array< 	array< wd_ptr_t , 	WD_OSC_SIZE>, ROLE_SIZE >
 					data_ptr_mtx_t;
 
-	int 			frame_counter	;
 	buffer_t 		offs 			;
 	data_ptr_mtx_t	data_ptr_mtx 	;
 	Data_t*			Data_p 			;	// is  Wd_ptr[][].Data_p
@@ -152,12 +156,13 @@ private:
 	bool			debug_right		;
 	wd_arr_t 		display_data 	{ 0 };
 
-	param_t 		param_flow		;
+	param_t			param_flow		;
 	param_t 		param_full 		;
 	param_t 		param_split		;
 	param_t 		param_cursor	;
-	param_t			param_fft		;
 	param_t			param_adsr		;
+	param_t			param_spec		;
+	param_t			param_nil		;
 };
 
 

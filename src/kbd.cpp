@@ -146,7 +146,7 @@ kbdInt_t Kbd_base::GetKeyInt( int waitms )
 	kbdkey_t key { };
 	while( key.Int == NOKEY )
 	{
-		this_thread::sleep_for( std::chrono::milliseconds( waitms ) );
+		sleep_for( std::chrono::milliseconds( waitms ) );
 		key.Int = GetKeyInt( false );
 	}
 	return key.Int;

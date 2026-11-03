@@ -1,7 +1,7 @@
 /**************************************************************************
 MIT License
 
-Copyright (c) 2025 Ulrich Glasmeyer
+Copyright (c) 2025, 2026 Ulrich Glasmeyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +22,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ****************************************************************************/
 
-
 #include <Synth/Synthesizer.h>
 #include <Appsymbols.h>
-
 
 Trigger_class			BeatTrigger		{};
 Wavedisplay_class 		Wavedisplay		{ Sds };
 Wavedisplay_class*		Wd_p			= &Wavedisplay;
 Instrument_class 		Instrument		{ &DaTA, &Wavedisplay };
-Mixer_class				Mixer			{ &DaTA, &Wavedisplay } ;
-External_class 			External		( &Mixer.StA[ STA_EXTERNAL], Cfg_p, sds_master );
+StorageArea_class		StA				{ sds_p, Cfg_p, Wd_p };
+Mixer_class				Mixer			{ &DaTA, &StA } ;
+External_class 			External		( &StA.Array[ STA_EXTERNAL], Cfg_p, sds_master );
 Capture_class			Capture			{ &External };
 CutDesk_class			CutDesk			{ &Mixer };
 Musicxml_class			Musicxml		{ DaTA.Cfg_p->fs };
-Note_class 				Notes			{ &DaTA, &Instrument, &Mixer.StA[ STA_NOTES ], &Musicxml };
-Keyboard_class			Keyboard		( &DaTA, &Instrument, &Mixer.StA[ STA_KEYBOARD], &Notes );
+Note_class 				Notes			{ &DaTA, &Instrument, &StA.Array[ STA_NOTES ], &Musicxml };
+Keyboard_class			Keyboard		( &DaTA, &Instrument, &StA.Array[ STA_KEYBOARD], &Notes );
 ProgressBar_class		ProgressBar		( &sds_master->RecCounter );
 Time_class				Timer			( &sds_p->time_elapsed );
 Event_class				Event			{
 										&Instrument,
 										&Notes,
 										&Keyboard,
+										&StA,
 										&Mixer,
 										&Wavedisplay,
 										&DaTA,
@@ -53,25 +53,27 @@ Event_class				Event			{
 										&Capture
 										};
 
-Data_t*					Kbd_Data		= Mixer.StA[STA_KEYBOARD ].Data;
-Data_t*					Notes_Data		= Mixer.StA[STA_NOTES ].Data;
+Data_t*					Kbd_Data		= StA.Array[STA_KEYBOARD ].Data;
+Data_t*					Notes_Data		= StA.Array[STA_NOTES ].Data;
 Data_t*					Instr_Data		= Instrument.Oscgroup.member[OSCID]->Mem.Data;
 const SEMID_e 			Sync_Semaphore 	= SemIds[ DaTA.SDS_Id ];
 extern void 			SynthesizerTest	();
 
-StateId_e 				Audio_state		= DEFAULT;
+StateId_e 				lastAudioState	= DEFAULT;
 
 void AppState_update()
 {
 	StateId_e audio_state 	= Appstate->GetState( sds_master, AUDIOID );
-	bool changed			= not ( Audio_state == audio_state );
-	Audio_state				= audio_state;
+	bool changed			= not ( lastAudioState == audio_state );
+	lastAudioState			= audio_state;
 	if ( changed )
 	{
-		Log.Comment( LOG_e::INFO, "Audioserver state is: ", App.sdsstateName( audio_state ) );
+		Log.Info( "Audioserver state is: ", App.sdsstateName( audio_state ) );
 		cout.flush();
 	}
-	bool	audio_is_running	= ( Audio_state == RUNNING );
+
+
+	bool	audio_is_running	= ( lastAudioState == RUNNING );
 
 	if( audio_is_running )
 	{
@@ -96,8 +98,8 @@ void activate_sds()
 	{
 		// avoid toggle commands here
 		// all events are executed on the prepared set of data in the SDS
+		SETSESSIONDIR_KEY,
 		SETINSTRUMENTKEY,
-		SETWAVEDISPLAYKEY,
 		BEATCLOCK_KEY,
 		SETSTA_KEY
 	};
@@ -106,35 +108,36 @@ void activate_sds()
 	Sds->Prepare_sds			();
 	sds_p->eventDebug			= false;
 	sds_p->StA_Id				= STAID_ALL;
-	Wavedisplay.Set_WdData		();
+
 
 	Event.eventbuffer.add		( init_keys );
-	Event.eventbuffer.release	();
+	Event.eventbuffer.release	();	// execute init_keys
+	Wavedisplay.Set_WdData		();
 }
 
 void update_WD_data()
 {
-	if( sds_p->WD_state.roleId == AUDIOROLE )
-		return;
+	if( sds_p->WD_state.roleId == AUDIOROLE )	// the wd data is written by th AudioServer
+		return;									// nothing to do
+
 	Wavedisplay.Set_WdData	();
-	Mixer.StA_Wdcursor		();
+	StA.StA_Wdcursor		( sds_p->WD_state.roleId );
 	Wavedisplay.WriteData	();
 	DaTA.EmitEvent			( READWAVEDATAFLAG, "update display data" );
 }
 
-Time_class Sound			{};
-long int time_elapsed		= 0;
+Time_class addSound_time		{};
+long int time_elapsed			= 0;
 
 #define ADDSOUND_RETURN \
-	Event.State( StateId_e::ENABLED ); \
-	update_WD_data(); \
-	Sound.Set_Threshold( 125, &sds_p->overload ); \
-	time_elapsed = Sound.Time_elapsed(); \
+	Event.State					( StateId_e::ENABLED ); \
+	update_WD_data				(); \
+	time_elapsed 				= addSound_time.Time_elapsed(); \
 	return;
 
 void add_sound()
 {
-	Sound.Start();
+	addSound_time.Start();
 	Event.State( StateId_e::DISABLED );
 
 	if(	CutDesk.LoopFnc() )
@@ -142,13 +145,12 @@ void add_sound()
 		ADDSOUND_RETURN
 	}
 
-	if ( sds_p->WD_state.adsrmode ) // update adsr data
+	if ( sds_p->WD_state.spectrum_view ) // update adsr data
 	{
-		OSCID_e	oscid 			= sds_p->SpectrumTypeId;
-
-		Wavedisplay.Set_WdData	();
-		Instrument.Oscgroup.member[oscid]->Set_adsr( sds_p->adsr_arr[oscid] );
-		Instrument.Oscgroup.member[oscid]->Adsr_OSC();
+		OSCID_e	oscid 								= sds_p->SpectrumOscId;
+		Instrument.Update_osc_spectrum				( oscid );
+		Instrument.Oscgroup.member[oscid]->Set_adsr	( sds_p->adsr_arr[oscid] );
+		Instrument.Gen_fftAmplitude					();
 	}
 
 	// advance instrument clock
@@ -158,7 +160,7 @@ void add_sound()
 	// set kbd beat clock
 	Mixer.state.sync_kbd	=  Mixer.BeatClock( sds_p->beatClock );
 
-	if ( Mixer.StA[STA_KEYBOARD].state.Play() )
+	if ( StA.Array[STA_KEYBOARD].state.Play() )
 	{
 		Keyboard.Dispatcher	( Mixer.state.sync_kbd );
 		Kbd_Data 			= Keyboard.ScanData();
@@ -166,7 +168,7 @@ void add_sound()
 		DaTA.EmitEvent( UPDATE_KBDDIALOG_FLAG, "Keyboad_Dialog_class::Setup_Widget" );
 	}
 
-	if ( Mixer.StA[STA_NOTES].state.Play() )
+	if ( StA.Array[STA_NOTES].state.Play() )
 	{
 		if( sds_p->NotesTypeId == XML_ID )
 		{
@@ -219,14 +221,17 @@ void ApplicationLoop()
 void sync_notes_fnc( )
 {
 //	Notes.Start_note_itr();
-	NOTETYPE_e TypeID = sds_p->NotesTypeId;
-	switch ( TypeID )
+	if ( sds_p->StA_state_arr[STA_NOTES].play )
 	{
-		case XML_ID : { Notes.Generate_volatile_data( true ); break; }
-		case NTE_ID : { Notes.Generate_cyclic_data();		; break; }
-		default : { break; }
-	} // switch  TypeID
-	sds_p->NotesTypeId = TypeID;
+		NOTETYPE_e TypeID = sds_p->NotesTypeId;
+		switch ( TypeID )
+		{
+			case XML_ID : { Notes.Generate_volatile_data( true );	break; }
+			case NTE_ID : { Notes.Generate_cyclic_data();		;	break; }
+			default 	: { 										break; }
+		} // switch  TypeID
+		sds_p->NotesTypeId = TypeID;
+	}
 }
 Thread_class 	SyncNotes( DaTA.Sem_p, SEMAPHORE_SYNCNOTES, sync_notes_fnc );
 thread* 		SyncNotes_thread_p = nullptr;
@@ -294,13 +299,10 @@ int main( int argc, char* argv[] )
 	ReadNotes_thread( &Thread_class::Loop, &ReadNotes);
     ReadNotes_thread_p = &ReadNotes_thread;
 
+	addSound_time.Set_Threshold	( min_msec, &sds_master->overload ); \
     thread
 	SyncAudio_thread( &Thread_class::Loop, &SyncAudio );
     SyncAudio_thread_p = &SyncAudio_thread;
-
-//    thread
-//	ReadAudio_thread( &Thread_class::Loop, &ReadAudio );
-//    ReadAudio_thread_p = &ReadAudio_thread;
 
     Log.Comment(INFO, "Application initialized");
 	ApplicationLoop( );
@@ -314,7 +316,7 @@ void stop_apploop( int signal )
 		return; // exit by appstate
 	// exit by catched signal
 
-	Timer.State = DISABLED;
+	Timer.State( DISABLED );
 	Event.State( DISABLED );
 
 	Appstate->SetExitserver( sds_p, App.AppId );

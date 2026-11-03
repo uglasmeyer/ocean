@@ -28,18 +28,22 @@ SOFTWARE.
  *  Created on: Feb 13, 2025
  *      Author: Ulrich.Glasmeyer@web.de
  */
-#include <math.h>
+#include 			<math.h>
+#include 			<Frequency.h>
+#include			<Table.h>
 
-#include <Frequency.h>
-#include <Table.h>
+const vector<frq_t>	frqadj_base_vec		{ 1.0, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0 };
 
-frqstrarr_t frqNamesArray 		{};
-frqarray_t 	frqArray 			{};
-harmonic_t  harmonicArray		{};
+frqstrarr_t 		frqNamesArray 		{};
+frqarray_t 			frqArray 			{};
+harmonic_t  		harmonicArray		{};
 
-bool 		frqnamesarray_done 	= false;
-bool 		frqarray_done 		= false;
-bool		harmonics_done		= false;
+bool 				frqnamesarray_done 	= false;
+bool 				frqarray_done 		= false;
+bool				harmonics_done		= false;
+
+Frequency_class		Frequency 			{};
+Frequency_class* 	frequency 			= &Frequency;
 
 /**************************************************
  * Frequency_class
@@ -53,6 +57,7 @@ Frequency_class::Frequency_class() :
 		initFrqNamesArray();
 	if( not harmonics_done )
 		initHarmonics();
+	Frqadj_max = frqadj_max();
 }
 Frequency_class::~Frequency_class()
 {
@@ -73,15 +78,17 @@ frq_t Frequency_class::GetFrq( int& idx )
 	return frqArray[ idx];
 }
 
-uint Frequency_class::Index( const string& frqName )
+uint8_t Frequency_class::Index( const string& frqName )
 {
 	for( int n = frqext_range.min; n <= frqext_range.max; n++ )
 		if ( strEqual( frqNamesArray[n], frqName ) )
 			return n;
+
 	// if frqName is a string of an index, needed by the interpreter
 	String idx { frqName };
 	if ( idx.is_number() )
 		return idx.secure_stoi( frqName );
+
 	cout << "WARNING: " << frqName << "-index set to default" << endl;
 	return C0; // = ""
 }
@@ -112,10 +119,16 @@ uint  Frequency_class::Index( const int& oct, const int& step )
 	return check_range( frqext_range, idx, "Index" );
 }
 
-frq_t Frequency_class::Frqadj( const uint8_t& channel, const uint8_t& frqidx )
+uint8_t Frequency_class::frqadj_max()
 {
-	uint8_t n = check_range( harmonic_range, frqidx, "Frqadj" );
-	return ( 1 + harmonicArray[ n] + channel ) ;
+	return Frqadj( frqadj_base_vec.size()-1, harmonic_range.max );
+}
+frq_t Frequency_class::Frqadj( const uint8_t& channel, const int& frqidx )
+{
+	if( channel == 0 )
+		return frqadj_base_vec[ 0 ];
+	auto	n = check_range( harmonic_range, frqidx, "Frqadj" );
+	return ( harmonicArray[n]*frqadj_base_vec[ channel ] ) ;
 };
 
 void Frequency_class::ShowFrqTable()
@@ -151,14 +164,12 @@ void Frequency_class::initHarmonics()
 			int pj 			= harmonic_prims[j];
 			float fraction 	= float(pi) / pj;
 			harmonic_vec.push_back( fraction );
-//			coutf << pi << "/" << pj << "=" << fraction <<  endl;
 		}
-	std::ranges::sort( harmonic_vec );
+	sort( harmonic_vec );
 
 	for( uint n = 0; n < harmonic_vec.size(); n++ )
-		harmonicArray[n] = harmonic_vec[n];
+		harmonicArray[n] = 1.0f + harmonic_vec[n];
 	assert( HARMON_SIZE == harmonic_vec.size() );
-//	coutf << "size: " << harmonic_vec.size() << endl;
 
 }
 void Frequency_class::initFrqArray(  )
@@ -238,13 +249,14 @@ void Frequency_class::TestFrequency()
 	ASSERTION( fcomp(f,40), "Frq base 10", f, 40 );
 
 	int idxh=harmonic_range.max;
-	f = Frqadj( 0, idxh );
-	frq_t g = 1+harmonicArray[idxh];
+	uint8_t channel = 1;
+	f = Frqadj( channel, idxh );
+	frq_t g = harmonicArray[idxh]*frqadj_base_vec[ channel ];
 	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
 	idxh = 0;
-	f = Frqadj( 0, idxh );
-	g = 1-harmonicArray[idxh];
+	f = Frqadj( channel, idxh );
+	g = harmonicArray[idxh]*frqadj_base_vec[ channel ];
 	ASSERTION( fcomp(f, g), "Frq adj ", f, g );
 
 	typedef struct test_struct
@@ -269,6 +281,10 @@ void Frequency_class::TestFrequency()
 		Assert_equal( idx , test.idx, "Index " );
 	}
 
+	Assert_equal( int( 256/Frqadj_max ), 23 );
+
 	TEST_END( className );
+
+
 }
 

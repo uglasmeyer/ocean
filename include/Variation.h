@@ -51,8 +51,8 @@ public:
 	{
 		SetStr = set;	// the origin of the string
 		std::ranges::copy( set, back_inserter( Set ));
-		std::ranges::sort(Set);
-		std::ranges::unique_copy(set, back_inserter(uSet));
+		sort(Set);
+		unique_copy(set, back_inserter(uSet));
 	};
 
 	~Charset_class(){};

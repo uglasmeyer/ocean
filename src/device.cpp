@@ -53,24 +53,24 @@ void Device_class::SelfTest()
 	connectId_t Connect;
 	Connect.frq = VCOID;
 	Connect.vol = VCOID;
-	Sds_connect_state( FMOID, Connect );
+	Save_connect_state( FMOID, Connect );
 
 	assert( sds->connect_arr[FMOID] == Connect );
-	Sds_connect_state( FMOID, default_connect( FMOID ) );
+	Save_connect_state( FMOID, default_connect( FMOID ) );
 
 }
 
-connectId_t Device_class::Get_connect_state( char oscid )
+connectId_t Device_class::Read_connect_state( char oscid )
 {
 	connectId_t Connect = sds->connect_arr[oscid];
 	return Connect;
 }
-void Device_class::Set_sds_adsr( char oscid, adsr_t adsr )
+void Device_class::Set_sds_adsr( char oscid, adsr_data_t adsr )
 {
 	sds->adsr_arr[oscid] = adsr;
 }
 
-void Device_class::Sds_connect_state( char oscid, connectId_t connect )
+void Device_class::Save_connect_state( char oscid, connectId_t connect )
 {
 	sds->connect_arr[ oscid ] = connect;
 }
@@ -78,7 +78,7 @@ void Device_class::Sds_connect_state( char oscid, connectId_t connect )
 connectName_t Device_class::Get_connection_names( char oscid )
 {
 	connectName_t 	ConnectName;
-	connectId_t 	ConnectId 		= Get_connect_state( oscid );
+	connectId_t 	ConnectId 		= Read_connect_state( oscid );
 					ConnectName.frq = typeNames[ConnectId.frq];
 					ConnectName.vol = typeNames[ConnectId.vol];
 

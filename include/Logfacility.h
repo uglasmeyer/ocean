@@ -36,6 +36,9 @@ SOFTWARE.
 #include <Utilities.h>
 #include <Kbd.h>
 
+using std::cerr;
+using std::ostream;
+
 #define NOERR 0
 typedef struct pair_struct
 {

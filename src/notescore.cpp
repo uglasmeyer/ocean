@@ -81,7 +81,7 @@ NotesCore_class::NotesCore_class( Dataworld_class* data, Musicxml_class* xml ) 	
 
 	this->Name 				= default_name;
 	Write_template_text 	( fs->default_nte_template_file	, default_nte_text, KEEPFILE );
-	Write_template_text		( fs->testsnd_file				, notes_test_text, OVERWRITE );
+	Write_template_text		( fs->testnte_file				, notes_test_text, OVERWRITE );
 	SetDir					( sds_master->Session );
 	select					( sds_p->Notes );
 
@@ -173,7 +173,7 @@ string NotesCore_class::Read( string name )
 	Set_Octave_shift( Noteline_prefix.data.Octave );
 	set_volume_vector( rl );
 
-	return ( Verify_noteline( NOTE::FILE ) ) ? nl : "";
+	return ( Verify_noteline( note_ns::FILE ) ) ? nl : "";
 }
 
 void NotesCore_class::Save( string name )
@@ -258,10 +258,9 @@ void NotesCore_class::set_volume_vector( string volline )
 		this->Rythmline.set( volline );
 
 	volume_vec.clear();
-	set<int> valid = range_set('1', '9'); // 1...9
 	for ( char ch : this->Rythmline.get() )
 	{
-		if ( valid.contains( ch ))
+		if ( in_range( rhythm_vol_range, ch ) )
 			volume_vec.push_back( char2int( ch ) * 10);
 		else
 			Info( "Rhythm line value " , ch, "not valid" );
@@ -354,16 +353,16 @@ bool NotesCore_class::Verify_noteline( nlp_data_t nlp, string str )
 	return verify_noteline	();
 }
 
-bool NotesCore_class::Verify_noteline( NOTE::ORIGIN_e origin )
+bool NotesCore_class::Verify_noteline( note_ns::ORIGIN_e origin )
 {
 	switch ( origin) 	{
-		case NOTE::VARIATION 	:
+		case note_ns::VARIATION 	:
 		{
 			Noteline_prefix.data.origin = origin;
 			break;
 		}
-		case NOTE::FILE			:
-		case NOTE::KEYBOARD		:
+		case note_ns::FILE			:
+		case note_ns::KEYBOARD		:
 		{
 			Noteline_prefix.data.origin = origin;
 			Noteline_prefix.Save();
@@ -371,8 +370,8 @@ bool NotesCore_class::Verify_noteline( NOTE::ORIGIN_e origin )
 			Rythmline.save();
 			break;
 		}
-		case NOTE::COMPOSE		:
-		case NOTE::GUI			:
+		case note_ns::COMPOSE		:
+		case note_ns::GUI			:
 		{
 			Noteline_prefix.Read();
 			Noteline.read();
@@ -396,11 +395,11 @@ bool NotesCore_class::verify_noteline()
 		{
 			switch (ch )
 			{
-				case NOTE::BRA 	: {c++; break;}
-				case NOTE::KET	: {c--; break;}
+				case note_ns::BRA 	: {c++; break;}
+				case note_ns::KET	: {c--; break;}
 				default		: break;
 			} // switch
-			if( ( c == 0 ) and ( p == NOTE::BRA ) )
+			if( ( c == 0 ) and ( p == note_ns::BRA ) )
 				return false; // empty bracket
 			p = ch;
 			if( c < 0 )
@@ -432,7 +431,7 @@ bool NotesCore_class::verify_noteline()
 		Comment( ERROR, "Notes not verified" );
 		return false ;
 	}
-	if ( Noteline_prefix.data.origin != NOTE::VARIATION )
+	if ( Noteline_prefix.data.origin != note_ns::VARIATION )
 		fill_note_list();
 
 	Show_note_list( notelist );
@@ -498,8 +497,6 @@ note_t NotesCore_class::Char2note( char& ch )
 
 void NotesCore_class::Set_prefix_octave( int oct )
 {
-//	char oct_ch = int2char( oct );
-//	if ( not OctaveChars.Set.contains( oct_ch ) ) return; // (nil)
 	oct = check_range( octave_range, oct );
 	Noteline_prefix.data.Octave = oct;
 	Octave = oct;
@@ -550,19 +547,19 @@ size_t NotesCore_class::position_parser(  size_t pos )
 	note_itr--;
 	switch (note_char )
 	{
-		case NOTE::LONGPLAY :
+		case note_ns::LONGPLAY :
 		{
 			note_itr->longplay = true;
-			note_itr->str.append(1, NOTE::LONGPLAY );
+			note_itr->str.append(1, note_ns::LONGPLAY );
 			break;
 		}
-		case NOTE::SLIDE : // allowed: >F or >|3F
+		case note_ns::SLIDE : // allowed: >F or >|3F
 		{
 			if ( out_of_bounds( pos ) ) return Noteline.len; // test note_itr
-			note_itr->str.push_back( NOTE::SLIDE );
+			note_itr->str.push_back( note_ns::SLIDE );
 			note_itr->glide[0].glide = true;
 			pos++; //
-			if ( Noteline.get()[pos] == NOTE::NEWOCT ) // oct change case >|3F
+			if ( Noteline.get()[pos] == note_ns::NEWOCT ) // oct change case >|3F
 			{
 				note_itr->str.push_back( Noteline.get()[pos] );
 				pos++;
@@ -586,27 +583,25 @@ size_t NotesCore_class::position_parser(  size_t pos )
 			}
 			break;
 		}
-		case NOTE::BRA : //(
+		case note_ns::BRA : //(
 		{
 			set_duration();
 			note_buffer = note_struct( notenumber++ ); // clear note_buffer;
 			note_buffer.str = "(";
 			pos++;
-			int nc_pos = 0;
 			char ch = Noteline.get()[pos];
-			while( ch != NOTE::KET )
+			while( ch != note_ns::KET )
 			{
 				if ( Note_Chars.Set.contains( ch ) )
 				{
 					Char2note( Noteline.get()[pos] ); // append note_buffer
-					nc_pos++;
 				}
-				if ( ch == NOTE::INCOCT )
+				if ( ch == note_ns::INCOCT )
 				{
 					note_buffer.chord.back().octave += 1;
 					note_buffer.str.push_back(ch);
 				}
-				if ( ch == NOTE::DECOCT )
+				if ( ch == note_ns::DECOCT )
 				{
 					note_buffer.chord.back().octave -= 1;
 					note_buffer.str.push_back(ch);
@@ -617,39 +612,39 @@ size_t NotesCore_class::position_parser(  size_t pos )
 			pos--; // close bracket pos
 			break;
 		}
-		case NOTE::KET :
+		case note_ns::KET :
 		{
 			note_buffer.str.append( ")" );
 			notelist.push_back( note_buffer );
 			break;
 		}
-		case NOTE::INCDUR :
+		case note_ns::INCDUR :
 		{
 			if ( out_of_bounds( pos ) ) return Noteline.len;
 			note_duration++; // increase tHe duration of a note
-			note_itr->str.push_back( NOTE::INCDUR );
+			note_itr->str.push_back( note_ns::INCDUR );
 			break;
 		}
-		case NOTE::INCOCT :
+		case note_ns::INCOCT :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
 			note_itr->chord.back().octave += 1;
-			note_itr->str.push_back( NOTE::INCOCT );
+			note_itr->str.push_back( note_ns::INCOCT );
 			break;
 		}
-		case NOTE::DECOCT :
+		case note_ns::DECOCT :
 		{
 			if ( out_of_bounds( pos ) ) return pos++;
 			note_itr->chord.back().octave -= 1;
-			note_itr->str.push_back( NOTE::DECOCT );
+			note_itr->str.push_back( note_ns::DECOCT );
 			break;
 		}
-		case NOTE::NEWOCT : // nextchar may define a new octave
+		case note_ns::NEWOCT : // nextchar may define a new octave
 		{
 			pos++;
 
-			if ( Noteline.get()[pos] == NOTE::INCOCT ) { Octave += 1; break; }
-			if ( Noteline.get()[pos] == NOTE::DECOCT ) { Octave -= 1; break; }
+			if ( Noteline.get()[pos] == note_ns::INCOCT ) { Octave += 1; break; }
+			if ( Noteline.get()[pos] == note_ns::DECOCT ) { Octave -= 1; break; }
 
 			int oct = get_oct_value( Noteline.get()[pos] );
 			if ( oct < 0 )
@@ -658,11 +653,11 @@ size_t NotesCore_class::position_parser(  size_t pos )
 			return pos;
 			break;
 		}
-		case NOTE::IGNORE :
+		case note_ns::IGNORE :
 		{
 			break;
 		}
-		case NOTE::LINEBREAK :
+		case note_ns::LINEBREAK :
 		{
 			note_itr = notelist.begin();
 			break;
@@ -670,7 +665,7 @@ size_t NotesCore_class::position_parser(  size_t pos )
 		default : 	// this note-char is not a special character (<>-|.)
 		{
 			if (( Note_Chars.Set.contains( note_char ) ) or
-				( note_char == NOTE::PAUSE ))
+				( note_char == note_ns::PAUSE ))
 			{	// this note-char is a note that must be stored in the note-list
 				set_duration(); // duration of the previou note
 				note_buffer = note_struct( notenumber ); // clear note_buffer;
@@ -879,7 +874,7 @@ bool NotesCore_class::compile ()
 	assign_freq				();
 	add_volume				( note_itr );
 
-	if ( Noteline_prefix.data.origin != NOTE::VARIATION )
+	if ( Noteline_prefix.data.origin != note_ns::VARIATION )
 	{
 		split_long_notes();
 		fill_note_list();
@@ -1184,7 +1179,7 @@ void noteline_prefix_struct::From_string( const string& str )
 	String 				S 	{ str };
 	string_vec_t 		arr = S.to_unique_array(',');
 
-	if ( arr.size() < 5 )
+	if ( arr.size() < 6 )
 	{
 		Comment( ERROR, "Cannot assign noteline_prefix of length < 5" );
 		Comment( WARN, "using default" );
@@ -1192,13 +1187,12 @@ void noteline_prefix_struct::From_string( const string& str )
 		return ;
 	}
 
-	data.Octave		= check_range			( octave_range, 	S.to_int( arr[0] ) );
-	data.convention	= check_range			( convention_range,	S.to_int( arr[1] ) );
+	data.Octave		= check_range( octave_range		, 			S.to_int( arr[0] ) );
+	data.convention	= check_range( convention_range	,			S.to_int( arr[1] ) );
 	data.nps 		= check_bps				(					S.to_int( arr[2] ) );
 	data.flat		= check_range( accidental_range	, (uint8_t)	S.to_int( arr[3] ) );
 	data.sharp		= check_range( accidental_range	, (uint8_t)	S.to_int( arr[4] ) );
-	data.chord_delay =
-		( arr.size() > 5 ) ?
+	data.chord_delay=( arr.size() > 5 ) ?
 					  check_range( percent_range	, (uint8_t) S.to_int( arr[5] ) ) : 0 ;
 
 }
@@ -1211,11 +1205,11 @@ void noteline_prefix_struct::selftest()
 
 	Show_nlp();
 
-	nlp_str = "1 ";
-	From_string( nlp_str );
-	nlp_str = "8, -1, 11, 7, 8, 110, 0";
-	From_string(nlp_str);
-	Assert_equal( (int)data.Octave		, 7, 	"Octave" );
+	nlp_str		= "1 ";
+	From_string	( nlp_str );
+	nlp_str		= "8, -1, 11, 7, 8, 110, 0";
+	From_string	( nlp_str );
+	Assert_equal( (int)data.Octave		, (int)max_octave, 	"Octave" );
 	Assert_equal( (int)data.convention	, 0, 	"Convention" );
 	Assert_equal( (int)data.nps			, 16, 	"notes per sec" );
 	Assert_equal( (int)data.flat		, 7,	"flats" );

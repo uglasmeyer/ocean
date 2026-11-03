@@ -34,11 +34,12 @@ SOFTWARE.
 
 #include <Adsr.h>
 
-
-class Oscillator :
-	virtual public 	ADSR_class
+class Oscillator
+	: public 	ADSR_class
 {
+
 public:
+	Fourier_class	fourier				;
 	Heap_Memory		Mem_vco				;
 	Heap_Memory 	Mem_fmo				;
 	Heap_Memory 	Mem					;
@@ -49,34 +50,33 @@ public:
 	virtual			~Oscillator() 		= default;
 	void 			operator=			( Oscillator& osc );
 
-	void 			OSC 				( buffer_t frame_offset );
-
 	void 			Connect_vol_data	( Oscillator* ); // connect the vco data of itr to this osc
 	void 			Connect_frq_data	( Oscillator* );
-	void 			Set_connection		( Oscillator* frq, Oscillator* vol );
-
-	void 			Connection_reset	();
-
 	void 			Data_reset			();
+	Data_t*			GetData_p			( const buffer_t& frame_offset );
+	Data_t* 		MemData_p			();
+	Data_t 			MemData				( const buffer_t& n);
+	void 			OSC 				( buffer_t frame_offset );
 	void 			Phase_reset			();
+	void 			Reset_connections	();
+	void 			ResetBeatCursor	();
+	void 			Set_connection		( Oscillator* frq, Oscillator* vol );
 	void 			Set_long_note		( bool );
 	void			Setwp_frames		( uint16_t );
-
-	void 			ResetBeatCursor	();
-
-	Data_t* 		MemData_p			();
-	Data_t*			GetData_p			( const buffer_t& frame_offset );
-	Data_t 			MemData				( const buffer_t& n);
-
 	void 			Test				();
 
 private:
 	bool 			longnote			= false; // set trigger for long notes
 	const float		fmo_scale			= 0.003;//0.001;
+
+
 	void 			mem_init			();
+	void			oscFourier			( const buffer_t& offs );
+	void 			oscWave				( const buffer_t& offs );
 	void 			reset_frq_data		();
 	void 			reset_vol_data		();
 	void			self_Test			();
+
 
 };
 
