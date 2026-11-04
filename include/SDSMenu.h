@@ -53,7 +53,7 @@ class Menue_class :
 
 
 public:
-	enum SDSDELTA_e : char
+	enum SDSDELTA_e
 	{
 		MINUS = -1,
 		PLUS = 1,
