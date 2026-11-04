@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.31)
 set(CMAKE_CXX_STANDARD 23)
 
 set ( PROJECT_SOURCE_DIR 	$ENV{PWD})
-set ( CMAKE_BINARY_DIR 	$ENV{HOME}/OceanDev)
+set ( CMAKE_BINARY_DIR 	$ENV{HOME}/$ENV{OCEANDIR} )
 set ( QTVERSION qt6 )
 
 execute_process(

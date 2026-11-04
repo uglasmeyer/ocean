@@ -40,6 +40,10 @@ Source code is available at https://github.com/uglasmeyer/ocean
 To compile the project take a download of the latest source code.
 
 There are some prerequisites:
+- a working runtime envornment of the software created from the binary distribution
+
+and in addition
+
 - gcc --version with support for cxx standard 23, eg: (gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0)
 - Makefile generator cmake (sudo apt install cmake)
 - Qt6 development environment core, widgets, gui ( sudo apt install qtcreator) and qmake (qt6-base-dev)
