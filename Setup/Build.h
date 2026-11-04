@@ -47,7 +47,6 @@ extern void Conditional( string question, string action );
 class Build_class :
 	virtual public Logfacility_class
 {
-	string className 	= "";
 	string srcdir		= "";
 	file_structure* Bin = nullptr;
 
@@ -55,8 +54,8 @@ public:
 	Build_class( string sdir, file_structure* bin ) :
 		Logfacility_class("Build_class")
 	{
-		srcdir = sdir;
-		Bin = bin;
+		srcdir	= sdir;
+		Bin		= bin;
 	};
 	virtual ~Build_class()
 	{

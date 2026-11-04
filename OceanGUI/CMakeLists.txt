@@ -16,6 +16,7 @@ add_executable(${OCEAN_PROJECT}
 	${PROJECT_SRC} 
 )
 
+#generate moc cpp files out of the qt .ui files 
 set ( QTMAKEFILE Makefile_${QTVERSION} )
 set ( QMAKE /usr/lib/${QTVERSION}/bin/qmake )
 set ( QMAKE_TARGET make_moc )

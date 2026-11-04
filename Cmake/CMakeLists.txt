@@ -35,10 +35,17 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${ARCH})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${ARCH})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/${ARCH})
 
+execute_process(
+    WORKING_DIRECTORY ../OceanGUI/
+	COMMAND ./make_moc.sh
+	COMMAND_ECHO STDOUT
+	OUTPUT_FILE make_moc_sh.log
+)
 
 
 project(Ocean)
 
+    
 # create external build directories as defined before
 add_custom_target(build-time-make-directory ALL
 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
@@ -57,7 +64,7 @@ add_subdirectory(../Composer 	build_Composer )
 add_subdirectory(../Rtsp 		build_Rtsp )
 add_subdirectory(../SDSview 	build_SDSview )
 add_subdirectory(../Synth 		build_Synth )
-add_subdirectory(../TestPrj 	build_TestPrj )
+#add_subdirectory(../TestPrj 	build_TestPrj )
 
 # create a runtime directory
 add_subdirectory(../Setup 		build_Setup )
