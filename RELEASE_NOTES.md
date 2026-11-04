@@ -27,9 +27,9 @@ Installation
 
 Verification
 		- verify cksum (as provided by packager):
-		4028350877 210213140 ocean_sound_lab_5.1.0-56.tar.gz
+		2336863811 213881734 ocean_sound_lab_5.1.0-56.tar.gz
 - verify SHA-256 locally: 
-6695432ac15a5d11c9056ad8307455a9ab60f306994c7d5ab065df6df96d653f  ocean_sound_lab_5.1.0-56.tar.gz
+f2c360e900f2ed811b194d98d7ba4e67bcc7ab6fd8086787ced84fdae5aee62b  ocean_sound_lab_5.1.0-56.tar.gz
 - Verify: shasum -a 256 -c ocean_sound_lab_5.1.0-56.tar.gz.sha256
 
 License & source

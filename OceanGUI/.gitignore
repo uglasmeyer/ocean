@@ -6,3 +6,4 @@
 /moc_*
 /.cproject
 /mainwindow_new.ui
+/make_moc_sh.log
